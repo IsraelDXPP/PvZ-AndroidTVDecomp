@@ -1,0 +1,65 @@
+{
+  "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
+  "name": "lawntvdecomp",
+  "version": "0.1.0",
+  "description": "Decompiled reconstruction of the Plants vs. Zombies TV/Android build (libGameMain.so)",
+  "homepage": "https://github.com/",
+  "documentation": "https://github.com/microsoft/vcpkg",
+  "license": "MIT",
+  "builtin-baseline": "3f7b5a12ef0a55e7b59339b2b69cac4b56d6dbf9",
+
+  "$comment-dependencies": {
+    "glad": "OpenGL function loader. Desktop GL 3.3 core. The Android build used GLES2 (AndroidGL20RenderEffect / AndroidRenderDeviceES20); we keep the same GPU architecture (shaders, textures, FBOs) on desktop GL.",
+    "glfw3": "Window creation + GL context. Replaces Sexy::AndroidDisplay and the Android activity lifecycle.",
+    "glm": "Matrix/vector math for the transform pipeline (SexyMatrix3 / SexyTransform2D / SexyMatrix4).",
+    "libpng": "Decodes files/images/*.png and the image atlases.",
+    "libjpeg-turbo": "Decodes JPEG assets (MemoryImage import, TexturePacker atlases).",
+    "freetype": "TrueType rendering. The Android build uses FreeTypeFont / FreeTypeScaledFont.",
+    "zlib": "Inflate for .pak archives and compressed resource streams.",
+    "minizip-ng": "Reads the .zip pak files under assets/paks (PakLib::ZipFileSystem).",
+    "bzip2": "Secondary compression used by some pak entries.",
+    "libogg": "OGG container parsing for the Music2 streaming path.",
+    "libvorbis": "Vorbis decoding. Music2 loads 11 OGG tracks and is the default music path.",
+    "openal-soft": "Audio backend. Replaces Sexy::AudiereSoundManager (the binary embeds audiere).",
+    "nlohmann-json": "JSON parsing for DataSync / JSONNode / userdata.",
+    "pugixml": "XML parsing for levels/levels-*.xml, properties/*.xml and defaultSetting.xml.",
+    "stb": "Header-only image helpers (screenshot encoding, odd formats)."
+  },
+
+  "dependencies": [
+    {
+      "name": "glad",
+      "default-features": false,
+      "features": [
+        "gl-api-33",
+        "extensions",
+        "loader"
+      ]
+    },
+    "glfw3",
+    "glm",
+    "libpng",
+    "libjpeg-turbo",
+    "freetype",
+    "zlib",
+    {
+      "name": "minizip-ng",
+      "default-features": false,
+      "features": [
+        "bzip2",
+        "zlib"
+      ]
+    },
+    "bzip2",
+    "libogg",
+    "libvorbis",
+    {
+      "name": "openal-soft",
+      "default-features": false
+    },
+    "nlohmann-json",
+    "pugixml",
+    "stb",
+    "libopenmpt"
+  ]
+}

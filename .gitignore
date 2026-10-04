@@ -1,0 +1,109 @@
+# Visual Studio / MSBuild
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.vcxproj.user
+*.vcxproj.filters.user
+ipch/
+*.aps
+*.ncb
+*.opendb
+*.opensdf
+*.sdf
+*.cachefile
+*.VC.db
+*.VC.VC.opendb
+
+# Build outputs. OutDir is build/<Platform>/<Configuration>/,
+# IntDir is build/obj/. An older layout also wrote under src/build/.
+build/
+src/build/
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+Win32/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+*.obj
+*.o
+*.lo
+*.ilk
+*.meta
+*.iobj
+*.ipdb
+*.pdb
+*.pgc
+*.pgd
+*.rsp
+*.sbr
+*.tlb
+*.tli
+*.tlh
+*.tmp
+*.tmp_proj
+*.log
+*.tlog
+*.idb
+*.pch
+*.res
+*.exp
+*.lib
+*.exe
+*.dll
+*.so
+*.dylib
+*.map
+
+# vcpkg manifest mode writes the installed tree next to vcpkg.json.
+# The manifest itself (vcpkg.json) stays tracked.
+vcpkg_installed/
+vcpkg-configuration.json
+
+# Game assets. README says this repo holds reconstructed code only.
+# The StageAssets target copies assets/ next to the executable.
+assets/
+**/assets/
+screenshots/
+*.apk
+*.pak
+*.obb
+*.compiled
+
+# IDA / debugger databases. Assembly is consulted through IDA, not stored here.
+*.i64
+*.id0
+*.id1
+*.id2
+*.nam
+*.til
+*.idb
+*.dbg
+
+# Editor / OS noise
+.idea/
+.vscode/
+*.swp
+*~
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+.DS_Store
+
+# Python helpers (docs/gen-cast-progress.py, count.py)
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Local scratch left while restoring a translation unit
+*.pre-restore
+*.bak
+*.orig
+
+
+AGENTS.md

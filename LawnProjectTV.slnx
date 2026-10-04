@@ -1,0 +1,7 @@
+<Solution>
+  <Configurations>
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Project Path="src/LawnTVDecomp.vcxproj" Id="7e2a1c4b-9d3f-4a86-b5c1-2f8e6a0d4b73" />
+</Solution>
