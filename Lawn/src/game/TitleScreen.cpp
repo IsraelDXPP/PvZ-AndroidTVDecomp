@@ -22,7 +22,6 @@
 #include "WidgetContainer.h"
 #include "WidgetManager.h"
 #include "Platform/MpegVideo.h"
-#include "Platform/Win32File.h"
 #include <windows.h>
 #include <cmath>
 
@@ -472,11 +471,6 @@ void TitleScreen::Update()
       // video is only attempted when the environment does not veto it, and
       // mIsPlayingIntroVideo ends up true only when the platform accepted it.
       bool aVideoPlaying = false;
-      const char* aSkipVideo = Sexy::GetEnv("LAWN_NO_INTRO_VIDEO");
-      fprintf(stderr, "title load: LAWN_NO_INTRO_VIDEO=%s asset=%s\n",
-              aSkipVideo != nullptr ? aSkipVideo : "(null)",
-              Sexy::Win32File::GetAssetRoot().c_str());
-      fflush(stderr);
       if ( Sexy::GetEnvOption("LAWN_NO_INTRO_VIDEO", false) == 0 )
       {
         // The original path is <external files dir>/movies/intro.mp4. This

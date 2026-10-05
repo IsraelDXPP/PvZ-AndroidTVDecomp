@@ -63,6 +63,7 @@
 #include "ImageLib.h"
 #include "Listener.h"
 #include "CritSect.h"
+#include "Platform/Win32File.h"
 
 // File-local shapes for types that have no header of their own.
 namespace Sexy
@@ -391,6 +392,7 @@ namespace {
 struct SetupEnvTable
 {
     bool mLoaded;
+    std::string mRoot;
     std::map<std::string, std::string> mValues;
 
     SetupEnvTable() : mLoaded(false) {}
@@ -466,7 +468,7 @@ void ApplySetupEnvLine(const std::string& theLine)
         aEqualsAt = theLine.find('=', 6);
     }
     else
-        aEqualsAt = theLine.find('=', 3);
+        aEqualsAt = theLine.find('=');
     if (aEqualsAt == std::string::npos)
         return;
 
@@ -490,9 +492,15 @@ void ApplySetupEnvLine(const std::string& theLine)
 void LoadSetupEnv()
 {
     SetupEnvTable& aTable = SetupEnv();
-    if (aTable.mLoaded)
+    // The first lookup can happen before main() points the asset root at the
+    // real assets directory. Caching that miss would ignore setup.env for the
+    // rest of the process, including LAWN_NO_INTRO_VIDEO.
+    std::string aRoot = Sexy::Win32File::GetAssetRoot();
+    if (aTable.mLoaded && aTable.mRoot == aRoot)
         return;
     aTable.mLoaded = true;
+    aTable.mRoot = aRoot;
+    aTable.mValues.clear();
 
     FILE* aFile = p_fopen("setup.env", "r");
     if (aFile == nullptr)
