@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>17.0</VCProjectVersion>
+    <ProjectGuid>{C4E8A1B2-6D3F-4E91-9A70-11B2C3D4E5F6}</ProjectGuid>
+    <RootNamespace>Sexy</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)'=='Debug'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v145</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)'=='Release'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v145</PlatformToolset>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings" />
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup>
+    <TargetName>Sexy</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Label="Vcpkg">
+    <VcpkgEnableManifest>true</VcpkgEnableManifest>
+  </PropertyGroup>
+  <Import Project="..\Layer.props" />
+  <ItemGroup>
+    <ClCompile Include="src\ActiveFontLayer.cpp" />
+    <ClCompile Include="src\AnimInfo.cpp" />
+    <ClCompile Include="src\AtlasParser.cpp" />
+    <ClCompile Include="src\AuthManager.cpp" />
+    <ClCompile Include="src\Bezier.cpp" />
+    <ClCompile Include="src\Board.cpp" />
+    <ClCompile Include="src\Buffer.cpp" />
+    <ClCompile Include="src\ButtonGlyphs.cpp" />
+    <ClCompile Include="src\ButtonListener.cpp" />
+    <ClCompile Include="src\ButtonWidget.cpp" />
+    <ClCompile Include="src\CharData.cpp" />
+    <ClCompile Include="src\CheckboxListener.cpp" />
+    <ClCompile Include="src\CritSect.cpp" />
+    <ClCompile Include="src\Curve1DUtil.cpp" />
+    <ClCompile Include="src\CxxRuntime.cpp" />
+    <ClCompile Include="src\DataElement.cpp" />
+    <ClCompile Include="src\DefaultPlayerInfo.cpp" />
+    <ClCompile Include="src\DefaultProfileMgr.cpp" />
+    <ClCompile Include="src\DescParser.cpp" />
+    <ClCompile Include="src\DeviceImage.cpp" />
+    <ClCompile Include="src\Dialog.cpp" />
+    <ClCompile Include="src\DialogButton.cpp" />
+    <ClCompile Include="src\Driver.cpp" />
+    <ClCompile Include="src\EditListener.cpp" />
+    <ClCompile Include="src\EditSink.cpp" />
+    <ClCompile Include="src\EditWidget.cpp" />
+    <ClCompile Include="src\EncodingParser.cpp" />
+    <ClCompile Include="src\ExtractResources.cpp" />
+    <ClCompile Include="src\Font.cpp" />
+    <ClCompile Include="src\FontData.cpp" />
+    <ClCompile Include="src\FontLayer.cpp" />
+    <ClCompile Include="src\Gamepad.cpp" />
+    <ClCompile Include="src\GamepadApp.cpp" />
+    <ClCompile Include="src\GLImage.cpp" />
+    <ClCompile Include="src\Graphics.cpp" />
+    <ClCompile Include="src\Graphics3D.cpp" />
+    <ClCompile Include="src\GraphicsState.cpp" />
+    <ClCompile Include="src\HyperlinkWidget.cpp" />
+    <ClCompile Include="src\Image.cpp" />
+    <ClCompile Include="src\ImageFont.cpp" />
+    <ClCompile Include="src\ImageLib.cpp" />
+    <ClCompile Include="src\ImageWidget.cpp" />
+    <ClCompile Include="src\InputDriver.cpp" />
+    <ClCompile Include="src\InputDriverFactory.cpp" />
+    <ClCompile Include="src\InputManager.cpp" />
+    <ClCompile Include="src\LabelWidget.cpp" />
+    <ClCompile Include="src\Level.cpp" />
+    <ClCompile Include="src\ListDataElement.cpp" />
+    <ClCompile Include="src\Listener.cpp" />
+    <ClCompile Include="src\ListListener.cpp" />
+    <ClCompile Include="src\ListWidget.cpp" />
+    <ClCompile Include="src\LogManager.cpp" />
+    <ClCompile Include="src\MemoryImage.cpp" />
+    <ClCompile Include="src\MenuParser.cpp" />
+    <ClCompile Include="src\MenuWidget.cpp" />
+    <ClCompile Include="src\MTRand.cpp" />
+    <ClCompile Include="src\MusicInterface.cpp" />
+    <ClCompile Include="src\PerfTimer.cpp" />
+    <ClCompile Include="src\PIBlocker.cpp" />
+    <ClCompile Include="src\PIDeflector.cpp" />
+    <ClCompile Include="src\PIEffect.cpp" />
+    <ClCompile Include="src\PIEmitter.cpp" />
+    <ClCompile Include="src\PIEmitterInstance.cpp" />
+    <ClCompile Include="src\PIEmitterInstanceDef.cpp" />
+    <ClCompile Include="src\PIForce.cpp" />
+    <ClCompile Include="src\PIInterpolator.cpp" />
+    <ClCompile Include="src\PILayer.cpp" />
+    <ClCompile Include="src\PILayerDef.cpp" />
+    <ClCompile Include="src\PIParticleDef.cpp" />
+    <ClCompile Include="src\PITexture.cpp" />
+    <ClCompile Include="src\PIValue.cpp" />
+    <ClCompile Include="src\PIValue2D.cpp" />
+    <ClCompile Include="src\PixelData.cpp" />
+    <ClCompile Include="src\PixelUtil.cpp" />
+    <ClCompile Include="src\PlayerInfo.cpp" />
+    <ClCompile Include="src\PopAnim.cpp" />
+    <ClCompile Include="src\ProfileMgr.cpp" />
+    <ClCompile Include="src\RbTree.cpp" />
+    <ClCompile Include="src\ReconData.cpp" />
+    <ClCompile Include="src\ReconFuncs.cpp" />
+    <ClCompile Include="src\ReconGlobals.cpp" />
+    <ClCompile Include="src\ReconHelpers.cpp" />
+    <ClCompile Include="src\ReconImageIds.cpp" />
+    <ClCompile Include="src\ReconStatics.cpp" />
+    <ClCompile Include="src\ReconStubs.cpp" />
+    <ClCompile Include="src\ReconSubsLow.cpp" />
+    <ClCompile Include="src\ReconSubsMisc.cpp" />
+    <ClCompile Include="src\ReconSubsString.cpp" />
+    <ClCompile Include="src\ReconSubsVector.cpp" />
+    <ClCompile Include="src\ReconVariadic.cpp" />
+    <ClCompile Include="src\RefCount.cpp" />
+    <ClCompile Include="src\RenderDevice.cpp" />
+    <ClCompile Include="src\RenderEffectDefinition.cpp" />
+    <ClCompile Include="src\ResourceManager.cpp" />
+    <ClCompile Include="src\ResourceManagerException.cpp" />
+    <ClCompile Include="src\ResourceRef.cpp" />
+    <ClCompile Include="src\ScrollbarWidget.cpp" />
+    <ClCompile Include="src\ScrollbuttonWidget.cpp" />
+    <ClCompile Include="src\ScrollListener.cpp" />
+    <ClCompile Include="src\SelectableWidget.cpp" />
+    <ClCompile Include="src\SexyAppBase.cpp" />
+    <ClCompile Include="src\SexyCommonApp.cpp" />
+    <ClCompile Include="src\SexyPerf.cpp" />
+    <ClCompile Include="src\SexyTransform2D.cpp" />
+    <ClCompile Include="src\SharedImageRef.cpp" />
+    <ClCompile Include="src\SingleDataElement.cpp" />
+    <ClCompile Include="src\Slider.cpp" />
+    <ClCompile Include="src\SliderListener.cpp" />
+    <ClCompile Include="src\SoundControllerWidget.cpp" />
+    <ClCompile Include="src\SWHelper.cpp" />
+    <ClCompile Include="src\TextLayout.cpp" />
+    <ClCompile Include="src\Thread.cpp" />
+    <ClCompile Include="src\Transform.cpp" />
+    <ClCompile Include="src\Widget.cpp" />
+    <ClCompile Include="src\WidgetAnimator.cpp" />
+    <ClCompile Include="src\WidgetContainer.cpp" />
+    <ClCompile Include="src\WidgetManager.cpp" />
+    <ClCompile Include="src\XMLElement.cpp" />
+    <ClCompile Include="src\XMLParser.cpp" />
+    <ClCompile Include="src\XMLWriter.cpp" />
+    <ClCompile Include="src\Runtime\AndroidShims.cpp" />
+    <ClCompile Include="src\Runtime\DeleteGuard.cpp" />
+    <ClCompile Include="src\Runtime\SexyString.cpp" />
+    <ClCompile Include="src\Platform\Audio\OpenALAudioBackend.cpp" />
+    <ClCompile Include="src\Platform\GL\GLRenderBackend.cpp" />
+    <ClCompile Include="src\Platform\GL\GLRenderDevice.cpp" />
+    <ClCompile Include="src\Platform\GL\GLShader.cpp" />
+    <ClCompile Include="src\Platform\GL\GLStateManager.cpp" />
+    <ClCompile Include="src\Platform\GL\GLTexture.cpp" />
+    <ClCompile Include="src\Platform\GL\GLUtil.cpp" />
+    <ClCompile Include="src\Platform\GL\GLVertexBuffer.cpp" />
+    <ClCompile Include="src\Platform\GLWindow.cpp" />
+    <ClCompile Include="src\Platform\KeyboardGamepad.cpp" />
+    <ClCompile Include="src\Platform\MpegVideo.cpp" />
+    <ClCompile Include="src\Platform\PlatformShims.cpp" />
+    <ClCompile Include="src\Platform\Screenshot.cpp" />
+    <ClCompile Include="src\Platform\Win32AppDriver.cpp" />
+    <ClCompile Include="src\Platform\Win32File.cpp" />
+    <ClCompile Include="src\Platform\Win32GameCenter.cpp" />
+    <ClCompile Include="src\Platform\Win32Gamepad.cpp" />
+    <ClCompile Include="src\Platform\Win32Input.cpp" />
+    <ClCompile Include="src\Platform\Win32Window.cpp" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+</Project>

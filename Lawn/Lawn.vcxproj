@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>17.0</VCProjectVersion>
+    <ProjectGuid>{7E2A1C4B-9D3F-4A86-B5C1-2F8E6A0D4B73}</ProjectGuid>
+    <RootNamespace>Lawn</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)'=='Debug'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v145</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)'=='Release'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v145</PlatformToolset>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings" />
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup>
+    <TargetName>LawnTV</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Label="Vcpkg">
+    <VcpkgEnableManifest>true</VcpkgEnableManifest>
+  </PropertyGroup>
+  <Import Project="..\Layer.props" />
+  <ItemDefinitionGroup>
+    <Link>
+      <GenerateMapFile>true</GenerateMapFile>
+      <MapFileName>$(OutDir)$(TargetName).map</MapFileName>
+      <AdditionalDependencies>winmm.lib;ws2_32.lib;xinput.lib;glad.lib;glfw3dll.lib;opengl32.lib;jpeg.lib;pugixml.lib;OpenAL32.lib;ogg.lib;vorbis.lib;vorbisfile.lib;minizip-ng.lib;openmpt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)'=='Debug'">
+    <Link>
+      <AdditionalDependencies>libpng16d.lib;zd.lib;freetyped.lib;bz2d.lib;fmtd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)'=='Release'">
+    <Link>
+      <AdditionalDependencies>libpng16.lib;z.lib;freetype.lib;bz2.lib;fmt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Sexy\Sexy.vcxproj">
+      <Project>C4E8A1B2-6D3F-4E91-9A70-11B2C3D4E5F6</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\TodLib\TodLib.vcxproj">
+      <Project>D5F9B2C3-7E40-4FA2-8B81-22C3D4E5F607</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\game\AlmanacDialog.cpp" />
+    <ClCompile Include="src\game\Attachment.cpp" />
+    <ClCompile Include="src\game\AttachmentHolder.cpp" />
+    <ClCompile Include="src\game\AwardScreen.cpp" />
+    <ClCompile Include="src\game\BaseGamepadControls.cpp" />
+    <ClCompile Include="src\game\Board.cpp" />
+    <ClCompile Include="src\game\BottomRotatorMenu.cpp" />
+    <ClCompile Include="src\game\BridgeApp.cpp" />
+    <ClCompile Include="src\game\BuyMoneyDialog.cpp" />
+    <ClCompile Include="src\game\BuySunMoneyDialog.cpp" />
+    <ClCompile Include="src\game\Challenge.cpp" />
+    <ClCompile Include="src\game\ChallengeScreen.cpp" />
+    <ClCompile Include="src\game\CheatCodeDialog.cpp" />
+    <ClCompile Include="src\game\CheatDialog.cpp" />
+    <ClCompile Include="src\game\Coin.cpp" />
+    <ClCompile Include="src\game\ConfirmBackToMainDialog.cpp" />
+    <ClCompile Include="src\game\ContinueDialog.cpp" />
+    <ClCompile Include="src\game\CreditScreen.cpp" />
+    <ClCompile Include="src\game\CreditsOverlay.cpp" />
+    <ClCompile Include="src\game\CursorObject.cpp" />
+    <ClCompile Include="src\game\CursorPreview.cpp" />
+    <ClCompile Include="src\game\CustomScrollbarWidget.cpp" />
+    <ClCompile Include="src\game\CutScene.cpp" />
+    <ClCompile Include="src\game\DataReader.cpp" />
+    <ClCompile Include="src\game\DataReaderException.cpp" />
+    <ClCompile Include="src\game\DataSync.cpp" />
+    <ClCompile Include="src\game\DataWriter.cpp" />
+    <ClCompile Include="src\game\DaveHelp.cpp" />
+    <ClCompile Include="src\game\DeckChooserButton.cpp" />
+    <ClCompile Include="src\game\Definition.cpp" />
+    <ClCompile Include="src\game\DriverFactory.cpp" />
+    <ClCompile Include="src\game\DrRpcEngine.cpp" />
+    <ClCompile Include="src\game\EffectSystem.cpp" />
+    <ClCompile Include="src\game\GameButton.cpp" />
+    <ClCompile Include="src\game\GameCenter.cpp" />
+    <ClCompile Include="src\game\GameObject.cpp" />
+    <ClCompile Include="src\game\GameOverDialog.cpp" />
+    <ClCompile Include="src\game\GamepadControls.cpp" />
+    <ClCompile Include="src\game\GameSlider.cpp" />
+    <ClCompile Include="src\game\GameStats.cpp" />
+    <ClCompile Include="src\game\GridItem.cpp" />
+    <ClCompile Include="src\game\HelpBarWidget.cpp" />
+    <ClCompile Include="src\game\HelpOptionsDialog.cpp" />
+    <ClCompile Include="src\game\HelpTextImageWidget.cpp" />
+    <ClCompile Include="src\game\HelpTextScreen.cpp" />
+    <ClCompile Include="src\game\HelpTextWidget.cpp" />
+    <ClCompile Include="src\game\HouseChooserDialog.cpp" />
+    <ClCompile Include="src\game\ImitaterDialog.cpp" />
+    <ClCompile Include="src\game\internalJSONNode.cpp" />
+    <ClCompile Include="src\game\jsonChildren.cpp" />
+    <ClCompile Include="src\game\JSONNode.cpp" />
+    <ClCompile Include="src\game\JSONWorker.cpp" />
+    <ClCompile Include="src\game\LawnApp.cpp" />
+    <ClCompile Include="src\game\LawnDialog.cpp" />
+    <ClCompile Include="src\game\LawnMenuParser.cpp" />
+    <ClCompile Include="src\game\LawnMenuWidget.cpp" />
+    <ClCompile Include="src\game\LawnMower.cpp" />
+    <ClCompile Include="src\game\LawnParseWidget.cpp" />
+    <ClCompile Include="src\game\LawnPlayerInfo.cpp" />
+    <ClCompile Include="src\game\LawnSession.cpp" />
+    <ClCompile Include="src\game\LawnStoneButton.cpp" />
+    <ClCompile Include="src\game\LawnUser.cpp" />
+    <ClCompile Include="src\game\LevelStats.cpp" />
+    <ClCompile Include="src\game\LogComposer.cpp" />
+    <ClCompile Include="src\game\Mailbox.cpp" />
+    <ClCompile Include="src\game\MailScreen.cpp" />
+    <ClCompile Include="src\game\MainMenu.cpp" />
+    <ClCompile Include="src\game\MaskHelpWidget.cpp" />
+    <ClCompile Include="src\game\MessageWidget.cpp" />
+    <ClCompile Include="src\game\Music.cpp" />
+    <ClCompile Include="src\game\Music2.cpp" />
+    <ClCompile Include="src\game\NativeApp.cpp" />
+    <ClCompile Include="src\game\NewLawnButton.cpp" />
+    <ClCompile Include="src\game\NewOptionsDialog.cpp" />
+    <ClCompile Include="src\game\NewUserDialog.cpp" />
+    <ClCompile Include="src\game\NotificationManager.cpp" />
+    <ClCompile Include="src\game\ParseWidget.cpp" />
+    <ClCompile Include="src\game\Plant.cpp" />
+    <ClCompile Include="src\game\PoolEffect.cpp" />
+    <ClCompile Include="src\game\PottedPlant.cpp" />
+    <ClCompile Include="src\game\Projectile.cpp" />
+    <ClCompile Include="src\game\PurchaseLimitDialog.cpp" />
+    <ClCompile Include="src\game\Reanimation.cpp" />
+    <ClCompile Include="src\game\ReanimationButton.cpp" />
+    <ClCompile Include="src\game\ReanimationHolder.cpp" />
+    <ClCompile Include="src\game\ReanimationWidget.cpp" />
+    <ClCompile Include="src\game\ReanimatorCache.cpp" />
+    <ClCompile Include="src\game\ReanimatorDefinition.cpp" />
+    <ClCompile Include="src\game\ReanimatorTransform.cpp" />
+    <ClCompile Include="src\game\ReanimTrackWidgetAnimator.cpp" />
+    <ClCompile Include="src\game\RevivalGameDialog.cpp" />
+    <ClCompile Include="src\game\SaveGameContext.cpp" />
+    <ClCompile Include="src\game\SavingDingusDialog.cpp" />
+    <ClCompile Include="src\game\SavingFileDialog.cpp" />
+    <ClCompile Include="src\game\SavingProfileDialog.cpp" />
+    <ClCompile Include="src\game\SeedBank.cpp" />
+    <ClCompile Include="src\game\SeedChooserScreen.cpp" />
+    <ClCompile Include="src\game\SeedPacket.cpp" />
+    <ClCompile Include="src\game\ServerConfig.cpp" />
+    <ClCompile Include="src\game\SessionWaitingDialog.cpp" />
+    <ClCompile Include="src\game\SettingsDialog.cpp" />
+    <ClCompile Include="src\game\ShareManager.cpp" />
+    <ClCompile Include="src\game\ShopSeedPacket.cpp" />
+    <ClCompile Include="src\game\SlideInOutWidgetAnimator.cpp" />
+    <ClCompile Include="src\game\StartButton.cpp" />
+    <ClCompile Include="src\game\StoreScreen.cpp" />
+    <ClCompile Include="src\game\StoreScreenOverlay.cpp" />
+    <ClCompile Include="src\game\StretchableGameButton.cpp" />
+    <ClCompile Include="src\game\TestMenuWidget.cpp" />
+    <ClCompile Include="src\game\TitleScreen.cpp" />
+    <ClCompile Include="src\game\ToolTipWidget.cpp" />
+    <ClCompile Include="src\game\Trail.cpp" />
+    <ClCompile Include="src\game\TrailDefinition.cpp" />
+    <ClCompile Include="src\game\TrailHolder.cpp" />
+    <ClCompile Include="src\game\TrashBin.cpp" />
+    <ClCompile Include="src\game\TreeOfWisdomControls.cpp" />
+    <ClCompile Include="src\game\TypingCheck.cpp" />
+    <ClCompile Include="src\game\UnlockDialog.cpp" />
+    <ClCompile Include="src\game\UserDialog.cpp" />
+    <ClCompile Include="src\game\VSResultsMenu.cpp" />
+    <ClCompile Include="src\game\VSSetupMenu.cpp" />
+    <ClCompile Include="src\game\WaitFor2PLoadDialog.cpp" />
+    <ClCompile Include="src\game\WaitForLeaderboardsDialog.cpp" />
+    <ClCompile Include="src\game\WaitForRemoteFileDialog.cpp" />
+    <ClCompile Include="src\game\WaitForSecondPlayerDialog.cpp" />
+    <ClCompile Include="src\game\ZenGarden.cpp" />
+    <ClCompile Include="src\game\ZenGardenControls.cpp" />
+    <ClCompile Include="src\game\Zombie.cpp" />
+    <ClCompile Include="src\main.cpp" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+</Project>

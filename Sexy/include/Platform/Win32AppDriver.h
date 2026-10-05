@@ -49,3 +49,6 @@ extern "C" void* LawnTV_CreateAudioDriver(void* theApp);
 
 // The HTTP driver (SexyAppBase + 764). Placeholder, as above.
 extern "C" void* LawnTV_CreateHttpDriver(void* theApp);
+
+// The file driver (Sexy::gFileDriver). Same lifetime as the other drivers.
+extern "C" void* LawnTV_CreateFileDriver(void* theApp);

@@ -23,26 +23,7 @@ namespace Sexy
 //   0 NONE   1 LUT8   2 A8R8G8B8   3 A4R4G4B4   4 A1R5G5B5   5 R5G6R5
 //   6 A8B8G8R8   7 R4G4B4A4   8 R5G5B5A1   9 X8R8G8B8   10 L8A8
 // PixelUtil::GetPixelFormat(String) returns exactly those indices.
-//
-// ReconTypes.h declares Sexy::PixelFormat as a one-int wrapper WITHOUT the
-// enumerators, so the values are spelled out here under local names to avoid
-// colliding with the enumerators the header should eventually carry.
-// TODO(recon): Sexy::PixelFormat wants these enumerators in ReconTypes.h;
-// this local enum is the stand-in until then.
-enum
-{
-    kPixelFormat_None     = 0,
-    kPixelFormat_Lut8     = 1,
-    kPixelFormat_A8R8G8B8 = 2,
-    kPixelFormat_A4R4G4B4 = 3,
-    kPixelFormat_A1R5G5B5 = 4,
-    kPixelFormat_R5G6R5   = 5,
-    kPixelFormat_A8B8G8R8 = 6,
-    kPixelFormat_R4G4B4A4 = 7,
-    kPixelFormat_R5G5B5A1 = 8,
-    kPixelFormat_X8R8G8B8 = 9,
-    kPixelFormat_L8A8     = 10
-};
+// The names live on Sexy::PixelFormat.
 
 // Remember the texture bound to the active unit, bind another for an upload,
 // then put the remembered one back. glTexImage writes to whatever is bound, and
@@ -67,7 +48,7 @@ struct TextureBindScope
 GLTexture::GLTexture()
     : mTextureId(0), mWidth(0), mHeight(0), mSrcWidth(0), mSrcHeight(0),
       mU0(0), mV0(0), mU1(1), mV1(1),
-      mFormat(kPixelFormat_A8R8G8B8), mDirty(true), mHasAlpha(true), mOwner(nullptr),
+      mFormat(PIXEL_FORMAT_A8R8G8B8), mDirty(true), mHasAlpha(true), mOwner(nullptr),
       mLinear(false)
 {
 }
@@ -87,7 +68,7 @@ bool GLTexture::SetupTextureFormat(PixelFormat thePixelFormat,
     // matches the original's contract; the loader only ever produces A8R8G8B8.
     switch ((int)thePixelFormat)
     {
-    case kPixelFormat_A8R8G8B8:
+    case PIXEL_FORMAT_A8R8G8B8:
         theInternalFormat = GL_RGBA8;
 #ifdef LAWNTV_USE_GLES2
         theDataFormat = GL_RGBA;
@@ -97,49 +78,49 @@ bool GLTexture::SetupTextureFormat(PixelFormat thePixelFormat,
         theDataType = GL_UNSIGNED_BYTE;
         return true;
 
-    case kPixelFormat_A8B8G8R8:
+    case PIXEL_FORMAT_A8B8G8R8:
         theInternalFormat = GL_RGBA8;
         theDataFormat = GL_RGBA;
         theDataType = GL_UNSIGNED_BYTE;
         return true;
 
-    case kPixelFormat_X8R8G8B8:
+    case PIXEL_FORMAT_X8R8G8B8:
         theInternalFormat = GL_RGB8;
         theDataFormat = GL_BGRA;
         theDataType = GL_UNSIGNED_BYTE;
         return true;
 
-    case kPixelFormat_R5G6R5:
+    case PIXEL_FORMAT_R5G6R5:
         theInternalFormat = GL_RGB565;
         theDataFormat = GL_RGB;
         theDataType = GL_UNSIGNED_SHORT_5_6_5;
         return true;
 
-    case kPixelFormat_A4R4G4B4:
+    case PIXEL_FORMAT_A4R4G4B4:
         theInternalFormat = GL_RGBA4;
         theDataFormat = GL_BGRA;
         theDataType = GL_UNSIGNED_SHORT_4_4_4_4_REV;
         return true;
 
-    case kPixelFormat_R4G4B4A4:
+    case PIXEL_FORMAT_R4G4B4A4:
         theInternalFormat = GL_RGBA4;
         theDataFormat = GL_RGBA;
         theDataType = GL_UNSIGNED_SHORT_4_4_4_4;
         return true;
 
-    case kPixelFormat_A1R5G5B5:
+    case PIXEL_FORMAT_A1R5G5B5:
         theInternalFormat = GL_RGB5_A1;
         theDataFormat = GL_BGRA;
         theDataType = GL_UNSIGNED_SHORT_1_5_5_5_REV;
         return true;
 
-    case kPixelFormat_R5G5B5A1:
+    case PIXEL_FORMAT_R5G5B5A1:
         theInternalFormat = GL_RGB5_A1;
         theDataFormat = GL_RGBA;
         theDataType = GL_UNSIGNED_SHORT_5_5_5_1;
         return true;
 
-    case kPixelFormat_Lut8:
+    case PIXEL_FORMAT_LUT8:
         theInternalFormat = GL_R8;
         theDataFormat = GL_RED;
         theDataType = GL_UNSIGNED_BYTE;
@@ -173,7 +154,7 @@ bool GLTexture::CreateTexture(MemoryImage* theImage)
     // Upload expands every sheet, including a4r4g4b4 .tex atlases, to
     // A8R8G8B8. Desktop GL has no packed 4444 rev type, and the blend path
     // already samples 32-bit texels.
-    mFormat    = PixelFormat(kPixelFormat_A8R8G8B8);
+    mFormat    = PixelFormat(PIXEL_FORMAT_A8R8G8B8);
     mOwner     = theImage;
 
     if (mSrcWidth <= 0 || mSrcHeight <= 0) return false;
@@ -277,13 +258,13 @@ bool GLTexture::Upload(MemoryImage* theImage)
     // sheet always lands as 32-bit regardless of the .tex header.
     std::vector<unsigned int> aExpanded((size_t)mSrcWidth * (size_t)mSrcHeight);
     PixelData aSource(aNativeFormat, mSrcWidth, mSrcHeight, aStride, (void*)aNativeBytes);
-    PixelData aDest(PixelFormat(kPixelFormat_A8R8G8B8), mSrcWidth, mSrcHeight,
+    PixelData aDest(PixelFormat(PIXEL_FORMAT_A8R8G8B8), mSrcWidth, mSrcHeight,
                     mSrcWidth * 4, aExpanded.data());
     if (aDest.Convert(aSource) == 0)
         return false;
 
     unsigned int internalFormat, dataFormat, dataType;
-    if (!SetupTextureFormat(PixelFormat(kPixelFormat_A8R8G8B8), internalFormat, dataFormat, dataType))
+    if (!SetupTextureFormat(PixelFormat(PIXEL_FORMAT_A8R8G8B8), internalFormat, dataFormat, dataType))
         return false;
 
     TextureBindScope aBind(mTextureId);

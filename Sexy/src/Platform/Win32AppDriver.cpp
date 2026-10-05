@@ -45,6 +45,7 @@
 // _ZTVN4Sexy13BaseAppDriverE @0x68C7D8 (97 slots, 0..96).
 
 #include "Win32AppDriver.h"
+#include "BaseAppDriver.h"
 #include "GLImage.h"
 
 #include "Audio/OpenALAudioBackend.h"
@@ -98,17 +99,53 @@ enum Win32DriverKind
     WIN32DRV_HTTP       = 3
 };
 
-struct Win32AppDriver
+struct Win32AppDriver : Sexy::BaseAppDriver
 {
-    void**                  mVtable;        // +0   required
-    void*                   mApp;           // +4   the SexyAppBase, may be null
-    Sexy::GLWindow*         mWindow;        // +8   the display, may be null
+    void*                   mApp;           // the SexyAppBase, may be null
+    Sexy::GLWindow*         mWindow;        // the display, may be null
     int                     mKind;
     bool                    mOwnsWindow;    // false when an outer owner made it
     Sexy::IGraphicsBackend* mGraphics;
     int                     mWidth;
     int                     mHeight;
+
+    int InitAppDriver() override;
+    int Startup() override;
+    int Terminate() override;
+    int Start() override;
+    int Init() override;
+    int UpdateAppStep(bool* theContinue) override;
+    int DrawDirtyStuff(bool theForce) override;
+    int Shutdown() override;
+    int StartLoadingThread() override;
+    int WaitForLoadingThread() override;
+    double GetLoadingThreadProgress() override;
+    int EnforceCursor() override;
+    int KeyDown(int theKeyCode) override;
+    int DebugKeyDown(int theKeyCode) override;
+    int Is3DAccelerated() override;
+    int Is3DAccelerationSupported() override;
+    int Is3DAccelerationRecommended() override;
+    int PreDrawScreen() override;
+    int ReadBufferFromFile(const Sexy::String& theFileName, Sexy::Buffer* theBuffer, bool theIsCompressed) override;
+    int ShouldPauseUpdates() override;
+    int RehupFocus() override;
+    int GetMemoryInfo(void* theMemoryInfo) override;
+    int TakeScreenshot(Sexy::MemoryImage* theImage) override;
+    int DoMainLoop() override;
+    int DoUpdateFramesF(float theFTime) override;
+    int DoUpdateFrames() override;
+    int MakeWindow() override;
+    int CreateGraphics() override;
+    int InitGraphics() override;
+    int DestroyGraphics() override;
+    int UpdateInput() override;
 };
+
+struct Win32ResStreamsDriver : Sexy::IResStreamsDriver {};
+struct Win32AudioDriver : Sexy::IAudioDriver {};
+struct Win32HttpDriver : Sexy::IHttpDriver {};
+struct Win32FileDriver : Sexy::IFileDriver {};
 
 // Slots 0..96, from _ZTVN4Sexy13BaseAppDriverE @0x68C7D8.
 const int kSlotCount = 97;
@@ -848,9 +885,8 @@ int LTVCALL Slot_WaitForLoadingThread(void* theThis)
 // loading thread counted. Both live on the app, at the offsets the binary uses.
 int LTVCALL Slot_GetLoadingThreadProgress(void* theThis)
 {
-    struct DriverWithApp { void *mVtable; void *mApp; };
-    char *aApp = reinterpret_cast<char *>(
-        reinterpret_cast<DriverWithApp *>(theThis)->mApp);
+    Win32AppDriver* self = (Win32AppDriver*)theThis;
+    char *aApp = (char*)self->mApp;
     int aTotal = *reinterpret_cast<int *>(aApp + 0x588);
     int aDone = *reinterpret_cast<int *>(aApp + 0x58C);
     if (aTotal <= 0)
@@ -1089,155 +1125,51 @@ int LTVCALL Slot_UpdateInput(void* theThis)
 // zero-fill the tail and leave a null slot, which is a jump to address 0 the
 // first time the game dispatches through it.
 // ---------------------------------------------------------------------------
-void* gAppDriverVtable[] =
+int Win32AppDriver::InitAppDriver() { return Slot_InitAppDriver(this); }
+int Win32AppDriver::Startup() { return Slot_Startup(this); }
+int Win32AppDriver::Terminate() { return Slot_Terminate(this); }
+int Win32AppDriver::Start() { return Slot_Start(this); }
+int Win32AppDriver::Init() { return Slot_Init(this); }
+int Win32AppDriver::UpdateAppStep(bool* theContinue) { return Slot_UpdateAppStep(this, theContinue); }
+int Win32AppDriver::DrawDirtyStuff(bool theForce) { (void)theForce; return Slot_DrawDirtyStuff(this, nullptr); }
+int Win32AppDriver::Shutdown() { return Slot_Shutdown(this); }
+int Win32AppDriver::StartLoadingThread() { return Slot_StartLoadingThread(this); }
+int Win32AppDriver::WaitForLoadingThread() { return Slot_WaitForLoadingThread(this); }
+double Win32AppDriver::GetLoadingThreadProgress() { return (double)Slot_GetLoadingThreadProgress(this); }
+int Win32AppDriver::EnforceCursor() { return Slot_EnforceCursor(this); }
+int Win32AppDriver::KeyDown(int theKeyCode) { (void)theKeyCode; return Slot_KeyDown(this, nullptr); }
+int Win32AppDriver::DebugKeyDown(int theKeyCode) { (void)theKeyCode; return Slot_DebugKeyDown(this, nullptr); }
+int Win32AppDriver::Is3DAccelerated() { return Slot_Is3DAccelerated(this); }
+int Win32AppDriver::Is3DAccelerationSupported() { return Slot_Is3DAccelerationSupported(this); }
+int Win32AppDriver::Is3DAccelerationRecommended() { return Slot_Is3DAccelerationRecommended(this); }
+int Win32AppDriver::PreDrawScreen() { return Slot_PreDrawScreen(this); }
+int Win32AppDriver::ReadBufferFromFile(const Sexy::String& theFileName, Sexy::Buffer* theBuffer, bool theIsCompressed)
 {
-    /* [ 0] ~BaseAppDriver()  D2 (Itanium)   */ (void*)&Slot_Destructor,
-    /* [ 1] ~BaseAppDriver()  D0 (Itanium)   */ (void*)&Slot_Destructor,
-    /* [ 2] InitAppDriver()                  */ (void*)&Slot_InitAppDriver,
-    /* [ 3] Startup()                        */ (void*)&Slot_Startup,
-    /* [ 4] Terminate()                      */ (void*)&Slot_Terminate,
-    /* [ 5] Start()                          */ (void*)&Slot_Start,
-    /* [ 6] Init()                           */ (void*)&Slot_Init,
-    /* [ 7] UpdateAppStep(bool*)             */ (void*)&Slot_UpdateAppStep,
-    /* [ 8] ClearUpdateBacklog(bool)         */ (void*)&Stub_Ok2,
-    /* [ 9] DrawDirtyStuff(bool)             */ (void*)&Slot_DrawDirtyStuff,
-    /* [10] Redraw(TRect<int>*)              */ (void*)&Stub_Ok1,
-    /* [11] Process(bool)                    */ (void*)&Stub_Ok2,
-    /* [12] Shutdown()                       */ (void*)&Slot_Shutdown,
-    /* [13] DoExit(int)                      */ (void*)&Stub_Ok2,
-    /* [14] Remove3DData(MemoryImage*)       */ (void*)&Stub_Ok2,
-    /* [15] BeginPopup()                     */ (void*)&Stub_Ok1,
-    /* [16] EndPopup()                       */ (void*)&Stub_Ok1,
-    /* [17] MsgBox(String,String,int)        */ (void*)&Stub_Fail2,
-    /* [18] MsgBox(String,String,int)        */ (void*)&Stub_Fail2,
-    /* [19] Popup(String)                    */ (void*)&Stub_Fail2,
-    /* [20] Popup(String)                    */ (void*)&Stub_Fail2,
-    /* [21] OpenURL(String,bool)             */ (void*)&Stub_Fail2,
-    /* [22] GetGameSEHInfo()                 */ (void*)&Stub_Fail1,
-    /* [23] SEHOccured()                     */ (void*)&Stub_Fail1,
-    /* [24] GetSEHWebParams(map*)            */ (void*)&Stub_Fail2,
-    /* [25] DoParseCmdLine()                 */ (void*)&Stub_Fail1,
-    /* [26] ParseCmdLine(String)             */ (void*)&Stub_Fail2,
-    /* [27] HandleCmdLineParam(String,String)*/ (void*)&Stub_Fail3,
-    /* [28] StartLoadingThread()             */ (void*)&Slot_StartLoadingThread,
-    /* [29] WaitForLoadingThread()           */ (void*)&Slot_WaitForLoadingThread,
-    /* [30] GetLoadingThreadProgress()       */ (void*)&Slot_GetLoadingThreadProgress,
-    /* [31] CopyToClipboard(String)          */ (void*)&Stub_Fail2,
-    /* [32] GetClipboard()                   */ (void*)&Stub_Fail1,
-    /* [33] SetCursor(int)                   */ (void*)&Stub_Ok2,
-    /* [34] GetCursor()                      */ (void*)&Stub_Fail1,
-    /* [35] EnableCustomCursors(bool)        */ (void*)&Stub_Ok2,
-    /* [36] SetCursorImage(int,Image*)       */ (void*)&Stub_Ok3,
-    /* [37] EnforceCursor()                  */ (void*)&Slot_EnforceCursor,
-    /* [38] SwitchScreenMode()               */ (void*)&Stub_Ok1,
-    /* [39] SwitchScreenMode(bool)           */ (void*)&Stub_Ok2,
-    /* [40] SwitchScreenMode(bool,bool,bool) */ (void*)&Stub_Ok4,
-    /* [41] KeyDown(int)                     */ (void*)&Slot_KeyDown,
-    /* [42] DebugKeyDown(int)                */ (void*)&Slot_DebugKeyDown,
-    /* [43] DebugKeyDownAsync(int,bool,bool) */ (void*)&Stub_Fail2,
-    /* [44] Is3DAccelerated()                */ (void*)&Slot_Is3DAccelerated,
-    /* [45] Is3DAccelerationSupported()      */ (void*)&Slot_Is3DAccelerationSupported,
-    /* [46] Is3DAccelerationRecommended()    */ (void*)&Slot_Is3DAccelerationRecommended,
-    /* [47] Set3DAcclerated(bool,bool)       */ (void*)&Stub_Ok2,
-    /* [48] IsUIOrientationAllowed(enum)     */ (void*)&Stub_Ok1,
-    /* [49] GetUIOrientation()               */ (void*)&Stub_Ok1,
-    /* [50] IsSystemUIShowing()              */ (void*)&Stub_Fail1,
-    /* [51] PreDrawScreen()                  */ (void*)&Slot_PreDrawScreen,
-    /* [52] CheckSignature(Buffer,String)    */ (void*)&Stub_Fail2,
-    /* [53] ReloadAllResources()             */ (void*)&Stub_Ok1,
-    /* [54] ConfigGetSubKeys(String,vec*)    */ (void*)&Stub_Fail2,
-    /* [55] ConfigReadString(String,String*) */ (void*)&Stub_Fail2,
-    /* [56] ConfigReadInteger(String,int*)   */ (void*)&Stub_Fail2,
-    /* [57] ConfigReadBoolean(String,bool*)  */ (void*)&Stub_Fail2,
-    /* [58] ConfigReadData(String,uc*,ul*)   */ (void*)&Stub_Fail2,
-    /* [59] ConfigRead(String,ul*,uc*,uc*)   */ (void*)&Stub_Fail2,
-    /* [60] ConfigWriteString(String,String) */ (void*)&Stub_Fail2,
-    /* [61] ConfigWriteInteger(String,int)   */ (void*)&Stub_Fail2,
-    /* [62] ConfigWriteBoolean(String,bool)  */ (void*)&Stub_Fail2,
-    /* [63] ConfigWriteData(String,uc*,ul)   */ (void*)&Stub_Fail2,
-    /* [64] ConfigWrite(String,ul,uc*,ul)    */ (void*)&Stub_Fail2,
-    /* [65] ConfigEraseKey(String)           */ (void*)&Stub_Fail2,
-    /* [66] ConfigEraseValue(String)         */ (void*)&Stub_Fail2,
-    /* [67] ReadFromConfig()                 */ (void*)&Stub_Fail1,
-    /* [68] WriteToConfig()                  */ (void*)&Stub_Fail1,
-    /* [69] ConfigFlush()                    */ (void*)&Stub_Fail1,
-    /* [70] WriteBufferToFile(String,Buf*)   */ (void*)&Stub_Fail2,
-    /* [71] ReadBufferFromFile(S,Buf*,bool)  */ (void*)&Slot_ReadBufferFromFile,
-    /* [72] WriteBytesToFile(String,void*,ul)*/ (void*)&Stub_Fail2,
-    /* [73] GetOptimizedImage(String,b,b)    */ (void*)&Stub_Fail2,
-    /* [74] ShouldPauseUpdates()             */ (void*)&Slot_ShouldPauseUpdates,
-    /* [75] RehupFocus()                     */ (void*)&Slot_RehupFocus,
-    /* [76] StartSensor(int)                 */ (void*)&Stub_Ok2,
-    /* [77] StopSensor(int)                  */ (void*)&Stub_Ok2,
-    /* [78] Pause()                          */ (void*)&Stub_Ok1,
-    /* [79] Resume()                         */ (void*)&Stub_Ok1,
-    /* [80] GetInputInfo(InputInfo&)         */ (void*)&Stub_Fail2,
-    /* [81] GetEditSource()                  */ (void*)&Stub_Fail1,
-    /* [82] ShowKeyboard(KeyboardMode,S,S,S) */ (void*)&Stub_Fail2,
-    /* [83] HideKeyboard()                   */ (void*)&Stub_Ok1,
-    /* [84] UpdateCursor(int,int)            */ (void*)&Stub_Ok2,
-    /* [85] IsCustomCursorSupported()        */ (void*)&Stub_Fail1,
-    /* [86] GetMemoryInfo(MemoryInfo&)       */ (void*)&Slot_GetMemoryInfo,
-    /* [87] TakeScreenshot(MemoryImage&)     */ (void*)&Slot_TakeScreenshot,
-    /* [88] DoMainLoop()                     */ (void*)&Slot_DoMainLoop,
-    /* [89] UpdateFTimeAcc()                 */ (void*)&Stub_Ok1,
-    /* [90] DoUpdateFramesF(float)           */ (void*)&Slot_DoUpdateFramesF,
-    /* [91] DoUpdateFrames()                 */ (void*)&Slot_DoUpdateFrames,
-    /* [92] MakeWindow()                     */ (void*)&Slot_MakeWindow,
-    /* [93] CreateGraphics()                 */ (void*)&Slot_CreateGraphics,
-    /* [94] InitGraphics()                   */ (void*)&Slot_InitGraphics,
-    /* [95] DestroyGraphics()                */ (void*)&Slot_DestroyGraphics,
-    /* [96] UpdateInput()                    */ (void*)&Slot_UpdateInput
-};
-
-static_assert(sizeof(gAppDriverVtable) / sizeof(gAppDriverVtable[0]) == kSlotCount,
-              "the BaseAppDriver vtable must have exactly 97 entries (slots 0..96)");
-
-// ---------------------------------------------------------------------------
-// Placeholder vtable for the three dumb drivers
-//
-// The resource-streams, audio and HTTP driver layouts were not extracted from
-// the binary, so rather than guess a slot order that would be wrong in a way
-// that matters, every slot answers "success" with a two-register signature.
-//
-// Two registers is the safe width: it is ABI-identical to a one-register call,
-// which covers the only dispatch the transcribed code makes into these objects
-// -- SexyAppBase::SexyAppBase calls slot 2 (InitAppDriver) on the audio and HTTP
-// drivers, and slot 2 on the resource-streams driver through the app driver.
-//
-// TODO(recon): nothing here plays audio or speaks HTTP. Replace these with real
-// drivers (or with the transcribed IAudioDriver/IHttpDriver layouts) once their
-// vtables are extracted.
-// ---------------------------------------------------------------------------
-void* gDumbDriverVtable[kDumbSlotCount];
-
-void InitDumbDriverVtable()
-{
-    for (int i = 0; i < kDumbSlotCount; ++i)
-        gDumbDriverVtable[i] = (void*)&Stub_Ok2;
+    return Slot_ReadBufferFromFile(this, &theFileName, theBuffer, theIsCompressed ? 1 : 0);
 }
+int Win32AppDriver::ShouldPauseUpdates() { return Slot_ShouldPauseUpdates(this); }
+int Win32AppDriver::RehupFocus() { return Slot_RehupFocus(this); }
+int Win32AppDriver::GetMemoryInfo(void* theMemoryInfo) { (void)theMemoryInfo; return Slot_GetMemoryInfo(this); }
+int Win32AppDriver::TakeScreenshot(Sexy::MemoryImage* theImage) { return Slot_TakeScreenshot(this, theImage); }
+int Win32AppDriver::DoMainLoop() { return Slot_DoMainLoop(this); }
+int Win32AppDriver::DoUpdateFramesF(float theFTime) { return Slot_DoUpdateFramesF(this, theFTime); }
+int Win32AppDriver::DoUpdateFrames() { return Slot_DoUpdateFrames(this); }
+int Win32AppDriver::MakeWindow() { return Slot_MakeWindow(this); }
+int Win32AppDriver::CreateGraphics() { return Slot_CreateGraphics(this); }
+int Win32AppDriver::InitGraphics() { return AppDriver_InitGraphics(this) ? 1 : 0; }
+int Win32AppDriver::DestroyGraphics() { return Slot_DestroyGraphics(this); }
+int Win32AppDriver::UpdateInput() { return Slot_UpdateInput(this); }
 
-Win32AppDriver* AllocDriver(int theKind, void* theApp)
+Win32AppDriver* MakeAppDriver(void* theApp)
 {
     Win32AppDriver* aDriver = new Win32AppDriver();
     aDriver->mApp        = theApp;
     aDriver->mWindow     = nullptr;
-    aDriver->mKind       = theKind;
+    aDriver->mKind       = WIN32DRV_APP;
     aDriver->mOwnsWindow = false;
     aDriver->mGraphics   = nullptr;
     aDriver->mWidth      = kDefaultWidth;
     aDriver->mHeight     = kDefaultHeight;
-
-    if (theKind == WIN32DRV_APP)
-    {
-        aDriver->mVtable = gAppDriverVtable;
-    }
-    else
-    {
-        if (!gDumbDriverVtable[0])
-            InitDumbDriverVtable();
-        aDriver->mVtable = gDumbDriverVtable;
-    }
     return aDriver;
 }
 
@@ -1253,20 +1185,28 @@ Win32AppDriver* AllocDriver(int theKind, void* theApp)
 // ---------------------------------------------------------------------------
 extern "C" void* LawnTV_CreateAppDriver(void* theApp)
 {
-    return AllocDriver(WIN32DRV_APP, theApp);
+    return MakeAppDriver(theApp);
 }
 
 extern "C" void* LawnTV_CreateResStreamsDriver()
 {
-    return AllocDriver(WIN32DRV_RESSTREAMS, nullptr);
+    return new Win32ResStreamsDriver();
 }
 
 extern "C" void* LawnTV_CreateAudioDriver(void* theApp)
 {
-    return AllocDriver(WIN32DRV_AUDIO, theApp);
+    (void)theApp;
+    return new Win32AudioDriver();
 }
 
 extern "C" void* LawnTV_CreateHttpDriver(void* theApp)
 {
-    return AllocDriver(WIN32DRV_HTTP, theApp);
+    (void)theApp;
+    return new Win32HttpDriver();
+}
+
+extern "C" void* LawnTV_CreateFileDriver(void* theApp)
+{
+    (void)theApp;
+    return new Win32FileDriver();
 }
