@@ -51,13 +51,18 @@ bool GLVertexBuffer::Create(int theCapacity)
                  (GLsizeiptr)(sizeof(GLVertex) * (size_t)mCapacity),
                  nullptr, GL_DYNAMIC_DRAW);
 
-    // Attribute 0: position, attribute 1: texcoord (see GLShader.cpp).
+    // Attribute 0: position, 1: texcoord, 2: packed colour. GLGraphics::Flush
+    // enables the colour array at stride 24 and glColorPointer of 4 unsigned
+    // bytes. Core profile has no client arrays, so the same fields ride the VBO.
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(GLVertex),
                           (const void *)(intptr_t)offsetof(GLVertex, mX));
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(GLVertex),
                           (const void *)(intptr_t)offsetof(GLVertex, mU));
+    glEnableVertexAttribArray(2);
+    glVertexAttribPointer(2, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(GLVertex),
+                          (const void *)(intptr_t)offsetof(GLVertex, mColor));
 
 #ifndef LAWNTV_USE_GLES2
     glBindVertexArray(0);
@@ -92,7 +97,8 @@ void GLVertexBuffer::Begin(unsigned int theTexture)
 }
 
 void GLVertexBuffer::AddQuad(float x0, float y0, float x1, float y1,
-                             float u0, float v0, float u1, float v1)
+                             float u0, float v0, float u1, float v1,
+                             unsigned int theColor)
 {
     if (mCount + 6 > mCapacity)
         Flush();
@@ -100,22 +106,23 @@ void GLVertexBuffer::AddQuad(float x0, float y0, float x1, float y1,
     GLVertex* v = mVertices + mCount;
 
     // Triangle 1: top-left, bottom-left, bottom-right
-    v[0] = { x0, y0, u0, v0 };
-    v[1] = { x0, y1, u0, v1 };
-    v[2] = { x1, y1, u1, v1 };
+    v[0] = { x0, y0, u0, v0, theColor };
+    v[1] = { x0, y1, u0, v1, theColor };
+    v[2] = { x1, y1, u1, v1, theColor };
 
     // Triangle 2: top-left, bottom-right, top-right
-    v[3] = { x0, y0, u0, v0 };
-    v[4] = { x1, y1, u1, v1 };
-    v[5] = { x1, y0, u1, v0 };
+    v[3] = { x0, y0, u0, v0, theColor };
+    v[4] = { x1, y1, u1, v1, theColor };
+    v[5] = { x1, y0, u1, v0, theColor };
 
     mCount += 6;
 }
 
-void GLVertexBuffer::AddSolidQuad(float x0, float y0, float x1, float y1)
+void GLVertexBuffer::AddSolidQuad(float x0, float y0, float x1, float y1,
+                                  unsigned int theColor)
 {
     // UVs are unused by the solid shader; pass zeros.
-    AddQuad(x0, y0, x1, y1, 0.0f, 0.0f, 0.0f, 0.0f);
+    AddQuad(x0, y0, x1, y1, 0.0f, 0.0f, 0.0f, 0.0f, theColor);
 }
 
 void GLVertexBuffer::Flush()

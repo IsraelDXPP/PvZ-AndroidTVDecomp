@@ -574,6 +574,12 @@ void TitleScreen::Update()
   if ( !mLoaderScreenIsLoaded )
     return;
 
+  // LoadingThreadProc pulls one slice. The first call only prepares the
+  // loader bar. Later groups come in on the frames after that, which is
+  // what moves the bar and grows the working set.
+  if ( !mApp->mLoadingThreadCompleted )
+    mApp->StartLoadingThread();
+
   if ( !mMusicInitFinished )
   {
     static_cast<Music *>(mApp->mMusic)->MakeSureMusicIsPlaying((MusicTune)7);
@@ -645,30 +651,28 @@ void TitleScreen::Update()
     mCurBarWidth = aTotalBarWidth * 0.99f;
   }
 
-  // The binary only retunes the speed when the load has moved another
-  // percent, or when it has finished. A load that finishes inside one
-  // frame never moves another percent, so the roll would crawl at the
-  // constructor's 0.2 pixels per frame. While resources are still coming
-  // in, retune every frame so a finished slice jumps the roll forward.
+  // TitleScreen::Update @0x1A7A56. The target width eases in. The
+  // acceleration and the floor velocity are linear. Retune only when the
+  // load has moved another percent, or when it has finished. Doing it
+  // every frame stacks the error and the roll bounces.
   bool aSkipCompletionCheck = false;
   float aNormalizedProgress = (aProgress - mBarStartProgress) / (1.0f - mBarStartProgress);
-  if ( aNormalizedProgress > mPrevLoadingPercent + 0.01f
-      || mLoadingThreadComplete
-      || !mApp->mLoadingThreadCompleted )
+  if ( aNormalizedProgress > mPrevLoadingPercent + 0.01f || mLoadingThreadComplete )
   {
-    float aDesiredBarWidth = TodAnimateCurveFloatTime(0.0f, 1.0f, aNormalizedProgress, 0.0f, aTotalBarWidth, 2);
+    float aDesiredBarWidth = TodAnimateCurveFloatTime(0.0f, 1.0f, aNormalizedProgress, 0.0f, aTotalBarWidth, CURVE_EASE_IN);
     float aBarError = aDesiredBarWidth - mCurBarWidth;
     float anAcceleration = mLoadingThreadComplete
         ? 0.0001f
-        : TodAnimateCurveFloatTime(0.0f, 1.0f, aNormalizedProgress, 0.0001f, 0.00001f, 1);
+        : TodAnimateCurveFloatTime(0.0f, 1.0f, aNormalizedProgress, 0.0001f, 0.00001f, CURVE_LINEAR);
 
-    // The binary truncates the error to an int before taking its magnitude.
+    // @0x1A7AA2 truncates the error, then multiplies that magnitude by
+    // the signed error. That is error * abs(error), not abs(trunc(error)).
     int anIntegerError = (int)aBarError;
     if ( anIntegerError < 0 )
       anIntegerError = -anIntegerError;
     mBarVel += (float)anIntegerError * aBarError * anAcceleration;
 
-    float aNormalMinVelocity = TodAnimateCurveFloatTime(0.0f, 1.0f, aNormalizedProgress, 0.2f, 0.01f, 1);
+    float aNormalMinVelocity = TodAnimateCurveFloatTime(0.0f, 1.0f, aNormalizedProgress, 0.2f, 0.01f, CURVE_LINEAR);
     float aMinVelocity = 0.0f;
     float aMaxVelocity = 2.0f;
     if ( mApp->mTodCheatKeys )
@@ -712,7 +716,10 @@ void TitleScreen::Update()
     if ( aPreviousBarWidth >= aMilestone || aMilestone > mCurBarWidth )
       continue;
 
-    Reanimation *aReanimation = mApp->AddReanimation(aMilestone + 140.0f, 481.0f, 0, i == 4);
+    ReanimationType aReanimType = REANIM_LOADBAR_SPROUT;
+    if (i == 4)
+      aReanimType = REANIM_LOADBAR_ZOMBIEHEAD;
+    Reanimation *aReanimation = mApp->AddReanimation(aMilestone + 140.0f, 481.0f, 0, aReanimType);
     aReanimation->mLoopType = REANIM_PLAY_ONCE_AND_HOLD;
     aReanimation->SetAnimRate(18.0f);
 

@@ -8,6 +8,8 @@
 
 #pragma once
 
+enum ReanimationType;
+
 struct DefField
 {
     const char *mName;
@@ -61,7 +63,7 @@ extern int gTrailDefCount;
 // flags word, 12 bytes. ReanimatorLoadDefinitions steps by 12.
 struct ReanimationParamRecord
 {
-    int mReanimationType;
+    ReanimationType mReanimationType;
     const char *mFileName;
     int mFlags;
 };

@@ -544,8 +544,8 @@ int StoreScreen::UpdateSelection()
 // garden sells once the adventure is finished.
 int StoreScreen::StorePreLoad()
 {
-    ReanimatorEnsureDefinitionLoaded(97, 1);
-    ReanimatorEnsureDefinitionLoaded(107, 1);
+    ReanimatorEnsureDefinitionLoaded(REANIM_CRAZY_DAVE, true);
+    ReanimatorEnsureDefinitionLoaded(REANIM_ZENGARDEN_FERTILIZER, true);
     mApp->CrazyDaveEnter();
 
     Plant::PreloadPlantResources((SeedType)0x28);
@@ -1086,7 +1086,7 @@ int StoreScreen::PurchaseItem(StoreItem theItem)
             if (mApp->mBoard->mPlantRow[aMower->mRow] == 2)
             {
                 Reanimation *aReanim = mApp->AddReanimation(0.0f, 90.0f, aMower->mRenderOrder,
-                                                            (ReanimationType)90);
+                                                            REANIM_POOL_CLEANER);
                 if (aReanim == nullptr)
                     continue;
 

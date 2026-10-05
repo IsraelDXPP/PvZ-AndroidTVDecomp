@@ -926,20 +926,20 @@ void CutScene::AnimateBoard()
 
             if (aLevel == 1)
             {
-                mApp->AddReanimation(0.0f, 0.0f, aRenderOrder, (ReanimationType)2);
+                mApp->AddReanimation(0.0f, 0.0f, aRenderOrder, REANIM_SODROLL);
                 mApp->AddTodParticle(35.0f, 344.0f, aParticleOrder, (ParticleEffect)20);
             }
             else if (aLevel == 2)
             {
-                mApp->AddReanimation(0.0f, -104.0f, aRenderOrder, (ReanimationType)2);
-                mApp->AddReanimation(0.0f, 111.0f, aRenderOrder, (ReanimationType)2);
+                mApp->AddReanimation(0.0f, -104.0f, aRenderOrder, REANIM_SODROLL);
+                mApp->AddReanimation(0.0f, 111.0f, aRenderOrder, REANIM_SODROLL);
                 mApp->AddTodParticle(35.0f, 244.0f, aParticleOrder, (ParticleEffect)20);
                 mApp->AddTodParticle(35.0f, 460.0f, aParticleOrder, (ParticleEffect)20);
             }
             else if (aLevel == 4)
             {
-                mApp->AddReanimation(-3.0f, -198.0f, aRenderOrder, (ReanimationType)2);
-                mApp->AddReanimation(-3.0f, 203.0f, aRenderOrder, (ReanimationType)2);
+                mApp->AddReanimation(-3.0f, -198.0f, aRenderOrder, REANIM_SODROLL);
+                mApp->AddReanimation(-3.0f, 203.0f, aRenderOrder, REANIM_SODROLL);
                 mApp->AddTodParticle(32.0f, 150.0f, aParticleOrder, (ParticleEffect)20);
                 mApp->AddTodParticle(32.0f, 552.0f, aParticleOrder, (ParticleEffect)20);
             }
@@ -1007,7 +1007,7 @@ void CutScene::AnimateBoard()
 
         mApp->ForceHideHelpBarWidget();
         // 900000 is the UI layer and REANIM_READYSETPLANT is 9.
-        mApp->AddReanimation(400.0f, 320.0f, Board::MakeRenderOrder((RenderLayer)900000, 0, 0), (ReanimationType)9);
+        mApp->AddReanimation(400.0f, 320.0f, Board::MakeRenderOrder((RenderLayer)900000, 0, 0), REANIM_READYSETPLANT);
         mApp->PlaySample(SOUND_READYSETPLANT, true);
 
         if (!mApp->IsFinalBossLevel())
@@ -1163,8 +1163,8 @@ void CutScene::UpdateZombiesWon()
     {
         // 72 = REANIMATION_ZOMBIES_WON; 900000 is the render order the binary
         // hands the fullscreen overlay reanimation.
-        ReanimatorEnsureDefinitionLoaded(72, 1);
-        Reanimation *aReanim = mApp->AddReanimation(-220.0f, 0.0f, 900000, 72);
+        ReanimatorEnsureDefinitionLoaded(REANIM_ZOMBIES_WON, true);
+        Reanimation *aReanim = mApp->AddReanimation(-220.0f, 0.0f, 900000, REANIM_ZOMBIES_WON);
         aReanim->SetAnimRate(12.0f);
         aReanim->mLoopType = REANIM_PLAY_ONCE_AND_HOLD;
         aReanim->GetTrackInstanceByName("fullscreen")->mTrackColor = Sexy::Color::Black;
@@ -1827,10 +1827,10 @@ int CutScene::PreloadResources()
   }
 
   if ( mCrazyDaveDialogStart != -1 )
-    ReanimatorEnsureDefinitionLoaded(97, 1);
+    ReanimatorEnsureDefinitionLoaded(REANIM_CRAZY_DAVE, true);
   // STORE_ITEM_RAKE: the rake shows up in the intro once it has been bought.
   if ( mApp->mPlayerInfo->mPurchases[24] != 0 )
-    ReanimatorEnsureDefinitionLoaded(113, 1);
+    ReanimatorEnsureDefinitionLoaded(REANIM_RAKE, true);
   if ( mApp->mGameMode == GAMEMODE_CHALLENGE_ZEN_GARDEN )
   {
     Plant::PreloadPlantResources(SEED_SPROUT);
@@ -1838,45 +1838,45 @@ int CutScene::PreloadResources()
   }
 
   if ( mBoard->StageHasRoof() )
-    ReanimatorEnsureDefinitionLoaded(91, 1);
+    ReanimatorEnsureDefinitionLoaded(REANIM_ROOF_CLEANER, true);
   else
-    ReanimatorEnsureDefinitionLoaded(8, 1);
+    ReanimatorEnsureDefinitionLoaded(REANIM_LAWNMOWER, true);
   if ( mBoard->StageHasPool() )
   {
-    ReanimatorEnsureDefinitionLoaded(32, 1);
-    ReanimatorEnsureDefinitionLoaded(90, 1);
+    ReanimatorEnsureDefinitionLoaded(REANIM_SPLASH, true);
+    ReanimatorEnsureDefinitionLoaded(REANIM_POOL_CLEANER, true);
   }
   if ( mBoard->CanDropLoot() != 0 )
   {
-    ReanimatorEnsureDefinitionLoaded(35, 1);
-    ReanimatorEnsureDefinitionLoaded(117, 1);
-    ReanimatorEnsureDefinitionLoaded(110, 1);
+    ReanimatorEnsureDefinitionLoaded(REANIM_COIN_SILVER, true);
+    ReanimatorEnsureDefinitionLoaded(REANIM_COIN_GOLD, true);
+    ReanimatorEnsureDefinitionLoaded(REANIM_DIAMOND, true);
   }
   if ( mSodTime > 0 )
-    ReanimatorEnsureDefinitionLoaded(2, 1);
+    ReanimatorEnsureDefinitionLoaded(REANIM_SODROLL, true);
 
   if ( mApp->mGameMode == GAMEMODE_CHALLENGE_PORTAL_COMBAT )
   {
-    ReanimatorEnsureDefinitionLoaded(103, 1);
-    ReanimatorEnsureDefinitionLoaded(104, 1);
+    ReanimatorEnsureDefinitionLoaded(REANIM_PORTAL_CIRCLE, true);
+    ReanimatorEnsureDefinitionLoaded(REANIM_PORTAL_SQUARE, true);
   }
   if ( mApp->IsWhackAZombieLevel() != 0 || mApp->IsScaryPotterLevel() != 0 )
-    ReanimatorEnsureDefinitionLoaded(99, 1);
+    ReanimatorEnsureDefinitionLoaded(REANIM_HAMMER, true);
   if ( mApp->IsStormyNightLevel() || mApp->mGameMode == GAMEMODE_CHALLENGE_RAINING_SEEDS )
   {
-    ReanimatorEnsureDefinitionLoaded(114, 1);
-    ReanimatorEnsureDefinitionLoaded(115, 1);
+    ReanimatorEnsureDefinitionLoaded(REANIM_RAIN_CIRCLE, true);
+    ReanimatorEnsureDefinitionLoaded(REANIM_RAIN_SPLASH, true);
   }
   if ( mApp->mGameMode == GAMEMODE_CHALLENGE_ZEN_GARDEN )
   {
-    ReanimatorEnsureDefinitionLoaded(106, 1);
-    ReanimatorEnsureDefinitionLoaded(107, 1);
-    ReanimatorEnsureDefinitionLoaded(108, 1);
-    ReanimatorEnsureDefinitionLoaded(109, 1);
-    ReanimatorEnsureDefinitionLoaded(112, 1);
+    ReanimatorEnsureDefinitionLoaded(REANIM_ZENGARDEN_WATERINGCAN, true);
+    ReanimatorEnsureDefinitionLoaded(REANIM_ZENGARDEN_FERTILIZER, true);
+    ReanimatorEnsureDefinitionLoaded(REANIM_ZENGARDEN_BUGSPRAY, true);
+    ReanimatorEnsureDefinitionLoaded(REANIM_ZENGARDEN_PHONOGRAPH, true);
+    ReanimatorEnsureDefinitionLoaded(REANIM_STINKY, true);
   }
   if ( mApp->mGameMode == GAMEMODE_TREE_OF_WISDOM )
-    ReanimatorEnsureDefinitionLoaded(107, 1);
+    ReanimatorEnsureDefinitionLoaded(REANIM_ZENGARDEN_FERTILIZER, true);
   if ( mApp->mGameMode == GAMEMODE_UPSELL )
   {
     // The upsell shows off the whole game: three backgrounds plus every plant
@@ -2537,7 +2537,7 @@ void CutScene::ClearUpsellBoard()
     {
         // ReanimationType 97 is Crazy Dave's own reanimation: the upsell reloads
         // the board underneath him, so he is left standing.
-        if (aReanim->mReanimationType != 97)
+        if (aReanim->mReanimationType != REANIM_CRAZY_DAVE)
             aReanim->ReanimationDie();
     }
 
@@ -2943,7 +2943,7 @@ void CutScene::UpdateUpsell()
     case 3305:
     {
         Reanimation *aDaveReanim = (Reanimation *)mApp->ReanimationGet(mApp->mCrazyDaveReanimID);
-        Reanimation *aHandReanim = (Reanimation *)mApp->AddReanimation(0.0f, 0.0f, 0, 11);
+        Reanimation *aHandReanim = (Reanimation *)mApp->AddReanimation(0.0f, 0.0f, 0, REANIM_SQUASH);
         aHandReanim->PlayReanim("anim_idle", REANIM_LOOP, 0, 15.0f);
 
         // AttachReanim takes the track instance's mAttachmentID, which sits at
@@ -2958,22 +2958,22 @@ void CutScene::UpdateUpsell()
     case 3306:
     {
         Reanimation *aDaveReanim = (Reanimation *)mApp->ReanimationGet(mApp->mCrazyDaveReanimID);
-        Reanimation *aHeadReanim = (Reanimation *)mApp->AddReanimation(0.0f, 0.0f, 0, 26);
+        Reanimation *aHeadReanim = (Reanimation *)mApp->AddReanimation(0.0f, 0.0f, 0, REANIM_THREEPEATER);
         aHeadReanim->PlayReanim("anim_idle", REANIM_LOOP, 0, 15.0f);
 
-        Reanimation *aHead1 = (Reanimation *)mApp->AddReanimation(0.0f, 0.0f, 0, 26);
+        Reanimation *aHead1 = (Reanimation *)mApp->AddReanimation(0.0f, 0.0f, 0, REANIM_THREEPEATER);
         aHead1->mLoopType = REANIM_LOOP;
         aHead1->SetAnimRate(aHeadReanim->mAnimRate);
         aHead1->SetFramesForLayer("anim_head_idle1");
         aHead1->AttachToAnotherReanimation(aHeadReanim, "anim_head1");
 
-        Reanimation *aHead2 = (Reanimation *)mApp->AddReanimation(0.0f, 0.0f, 0, 26);
+        Reanimation *aHead2 = (Reanimation *)mApp->AddReanimation(0.0f, 0.0f, 0, REANIM_THREEPEATER);
         aHead2->mLoopType = REANIM_LOOP;
         aHead2->SetAnimRate(aHeadReanim->mAnimRate);
         aHead2->SetFramesForLayer("anim_head_idle2");
         aHead2->AttachToAnotherReanimation(aHeadReanim, "anim_head2");
 
-        Reanimation *aHead3 = (Reanimation *)mApp->AddReanimation(0.0f, 0.0f, 0, 26);
+        Reanimation *aHead3 = (Reanimation *)mApp->AddReanimation(0.0f, 0.0f, 0, REANIM_THREEPEATER);
         aHead3->mLoopType = REANIM_LOOP;
         aHead3->SetAnimRate(aHeadReanim->mAnimRate);
         aHead3->SetFramesForLayer("anim_head_idle3");
@@ -2989,7 +2989,7 @@ void CutScene::UpdateUpsell()
     case 3307:
     {
         Reanimation *aDaveReanim = (Reanimation *)mApp->ReanimationGet(mApp->mCrazyDaveReanimID);
-        Reanimation *aPotReanim = (Reanimation *)mApp->AddReanimation(0.0f, 0.0f, 0, 73);
+        Reanimation *aPotReanim = (Reanimation *)mApp->AddReanimation(0.0f, 0.0f, 0, REANIM_MAGNETSHROOM);
         aPotReanim->PlayReanim("anim_idle", REANIM_LOOP, 0, 15.0f);
         TodScaleRotateTransformMatrix(aPotReanim->mOverlayMatrix, 0.0f, 0.0f, 0.3f, 1.0f, 1.0f);
 
@@ -3168,7 +3168,7 @@ void CutScene::DrawUpsell(Sexy::Graphics * theGraphics)
     {
         // The zen garden the upsell shows off, drawn from a stack temporary.
         Reanimation aZenGarden;
-        aZenGarden.ReanimationInitializeType(565.0f, 360.0f, 49);
+        aZenGarden.ReanimationInitializeType(565.0f, 360.0f, REANIM_FLOWER_POT);
         aZenGarden.SetFramesForLayer("anim_zengarden");
         aZenGarden.OverrideScale(1.3f, 1.3f);
         aZenGarden.Draw(theGraphics);

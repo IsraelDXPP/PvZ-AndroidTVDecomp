@@ -8,6 +8,7 @@
 #include "SingleDataElement.h"
 
 #include <cstring>
+#include <vector>
 
 namespace Sexy {
 int StringToDouble(Sexy::String theText, double* theDest);
@@ -28,6 +29,86 @@ Sexy::String UpperKey(const Sexy::String& theText)
 }
 
 } // namespace
+
+// One code point becomes the UTF-8 bytes a command name or an ASCII glyph
+// already expects. A value above 127 stays as the character FontLayer looks up.
+void AppendCodePoint(Sexy::String& theText, int theCode)
+{
+    unsigned int aCode = (unsigned int)theCode;
+    if (aCode < 0x80)
+    {
+        theText.push_back((char)aCode);
+        return;
+    }
+    if (aCode < 0x800)
+    {
+        theText.push_back((char)(0xC0 | (aCode >> 6)));
+        theText.push_back((char)(0x80 | (aCode & 0x3F)));
+        return;
+    }
+    if (aCode < 0x10000)
+    {
+        theText.push_back((char)(0xE0 | (aCode >> 12)));
+        theText.push_back((char)(0x80 | ((aCode >> 6) & 0x3F)));
+        theText.push_back((char)(0x80 | (aCode & 0x3F)));
+        return;
+    }
+    theText.push_back((char)(0xF0 | (aCode >> 18)));
+    theText.push_back((char)(0x80 | ((aCode >> 12) & 0x3F)));
+    theText.push_back((char)(0x80 | ((aCode >> 6) & 0x3F)));
+    theText.push_back((char)(0x80 | (aCode & 0x3F)));
+}
+
+int ReadCodePoint(const Sexy::String& theText, unsigned int& theIndex)
+{
+    if (theIndex >= theText.size())
+        return 0;
+    unsigned char aLead = (unsigned char)theText[theIndex++];
+    if (aLead < 0x80)
+        return aLead;
+
+    int aNeed = 0;
+    int aCode = 0;
+    if ((aLead & 0xE0) == 0xC0)
+    {
+        aNeed = 1;
+        aCode = aLead & 0x1F;
+    }
+    else if ((aLead & 0xF0) == 0xE0)
+    {
+        aNeed = 2;
+        aCode = aLead & 0x0F;
+    }
+    else if ((aLead & 0xF8) == 0xF0)
+    {
+        aNeed = 3;
+        aCode = aLead & 0x07;
+    }
+    else
+    {
+        return aLead;
+    }
+
+    for (int i = 0; i < aNeed; ++i)
+    {
+        if (theIndex >= theText.size())
+            return aLead;
+        unsigned char aNext = (unsigned char)theText[theIndex];
+        if ((aNext & 0xC0) != 0x80)
+            return aLead;
+        ++theIndex;
+        aCode = (aCode << 6) | (aNext & 0x3F);
+    }
+    return aCode;
+}
+
+Sexy::String CodePointsToUtf8(const std::vector<int>& thePoints)
+{
+    Sexy::String aText;
+    for (unsigned int i = 0; i < thePoints.size(); ++i)
+        AppendCodePoint(aText, thePoints[i]);
+    return aText;
+}
 
 Sexy::DescParser::DescParser()
     : mCmdSep(CMDSEP_SEMICOLON)
@@ -352,7 +433,7 @@ int Sexy::DescParser::DataToDoubleVector(Sexy::DataElement* theElement, std::vec
     return 1;
 }
 
-int Sexy::DescParser::ParseToList(const Sexy::String& theText, Sexy::ListDataElement* theList,
+int Sexy::DescParser::ParseToList(const std::vector<int>& theText, Sexy::ListDataElement* theList,
                                   bool theExpectListEnd, int* thePos)
 {
     if (theList == nullptr)
@@ -368,10 +449,10 @@ int Sexy::DescParser::ParseToList(const Sexy::String& theText, Sexy::ListDataEle
     if (thePos == nullptr)
         thePos = &localPos;
 
-    while (*thePos < (int)theText.length())
+    while (*thePos < (int)theText.size())
     {
         bool addChar = false;
-        const char ch = theText[(unsigned int)((*thePos)++)];
+        const int ch = theText[(unsigned int)((*thePos)++)];
         const bool separator = ch == ' ' || ch == '\t' || ch == '\n' || ch == ',';
 
         if (escaped)
@@ -472,10 +553,10 @@ int Sexy::DescParser::ParseToList(const Sexy::String& theText, Sexy::ListDataEle
         }
         if (escaped)
         {
-            current->mData += '\\';
+            AppendCodePoint(current->mData, '\\');
             escaped = false;
         }
-        current->mData += ch;
+        AppendCodePoint(current->mData, ch);
     }
 
     if (inSingle)
@@ -496,7 +577,7 @@ int Sexy::DescParser::ParseToList(const Sexy::String& theText, Sexy::ListDataEle
     return 1;
 }
 
-int Sexy::DescParser::ParseDescriptorLine(Sexy::String const& theLine)
+int Sexy::DescParser::ParseDescriptorLine(const std::vector<int>& theLine)
 {
     ListDataElement params;
     if (ParseToList(theLine, &params, false, nullptr) == 0)
@@ -600,12 +681,14 @@ bool Sexy::DescParser::LoadDescriptor(const Sexy::String& theFileName)
 
             if (escaped)
             {
-                mCurrentLine += '\\';
+                mCurrentLine.push_back('\\');
                 escaped = false;
             }
             if (mCurrentLine.empty())
                 mCurrentLineNum = lineCount + 1;
-            mCurrentLine.push_back((char)ch);
+            // Keep the code point. Casting to char splits a quoted CJK
+            // character and the next byte is read as a new quote.
+            mCurrentLine.push_back((int)ch);
         }
 
         if (!mCurrentLine.empty())

@@ -35,10 +35,10 @@ namespace
 // this tree yet. The values below are the ones from the authoritative
 // PvZ\Lawn\Common\ConstEnums.h; naming them here keeps the call sites readable
 // and makes the swap to real enumerators a one-line change each.
-const ReanimationType kReanimLawnMower      = 8;
-const ReanimationType kReanimSplash         = 32;
-const ReanimationType kReanimPoolCleaner    = 90;
-const ReanimationType kReanimRoofCleaner    = 91;
+const ReanimationType kReanimLawnMower      = REANIM_LAWNMOWER;
+const ReanimationType kReanimSplash         = REANIM_SPLASH;
+const ReanimationType kReanimPoolCleaner    = REANIM_POOL_CLEANER;
+const ReanimationType kReanimRoofCleaner    = REANIM_ROOF_CLEANER;
 const ParticleEffect  kParticlePlantingPool = 23;
 const RenderLayer     kRenderLayerLawnMower = 306000;
 const CoinMotion      kCoinMotionFromPlant  = 2;

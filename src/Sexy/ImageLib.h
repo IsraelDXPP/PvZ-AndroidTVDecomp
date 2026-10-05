@@ -36,7 +36,7 @@ extern bool gAutoLoadAlpha;
 extern unsigned int gAlphaComposeColor;
 
 // Path may omit the extension. The search order is the binary's:
-// .tga, .jpg, .png, .gif. A trailing "_" file, when present, supplies alpha.
+// .tga, .jpg, .png, .gif. A sibling "_" prefix or trailing "_" file supplies alpha.
 Image* GetImage(Sexy::String const& thePath, bool lookForAlpha, bool thePurge, bool theFlags);
 void InitJPEG2000(void * theContext);
 

@@ -44,6 +44,9 @@
 #include <map>
 #include <vector>
 
+struct openmpt_module_ext;
+struct openmpt_module;
+
 // The OpenAL 1.1 core, plus the two AL_SOFT/EFX-free extensions this backend
 // uses. OpenALSoft ships its own `AL/al.h`; including it here keeps the handle
 // types in one place.
@@ -216,6 +219,16 @@ public:
         // OpenAL's gain is the only portable control.
         double             mFadeTarget;
         double             mFadeRate;    // volume units per second, 0 = no fade
+
+        // An XM (or any tracker module) is rendered by libopenmpt as it plays.
+        // The three queued buffers are the streaming ring. mModule is null for
+        // a decoded ogg or wav, which still uses mBuffer.
+        openmpt_module_ext *mModule;
+        openmpt_module *    mModuleBase;
+        std::vector<ALuint> mStreamBuffers;
+        std::vector<float>  mChannelGain;
+        int                 mStreamRate;
+        bool                mStreamPrimed;
     };
 
     std::map<int, Song> mSongs;
@@ -228,6 +241,10 @@ public:
     // The music path reads its .ogg through the same decoder the sound path
     // uses, but keeps its own source so it can loop and fade independently.
     void EnsureSource(Song &theSong);
+    void ApplySongGain(Song &theSong);
+    void ReleaseModule(Song &theSong);
+    bool QueueModuleSlice(Song &theSong, ALuint theBuffer);
+    void RefillModule(Song &theSong);
 
     // MusicInterface
     virtual bool IsLoaded(int theSongId) override;

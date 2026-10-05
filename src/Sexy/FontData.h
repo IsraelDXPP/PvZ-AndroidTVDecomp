@@ -20,6 +20,9 @@
 #include <string>
 #include <vector>
 
+int ReadCodePoint(const Sexy::String& theText, unsigned int& theIndex);
+Sexy::String CodePointsToUtf8(const std::vector<int>& thePoints);
+
 namespace Sexy {
 
 class FontData : public DescParser

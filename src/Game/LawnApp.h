@@ -362,9 +362,8 @@ class LawnApp : public Sexy::GamepadApp, public Sexy::ProfileEventListener, publ
     // Statics the binary keeps in this class's own storage; the
     // transcribed bodies name them through the qualified spelling.
 public:
-    // LawnApp::FULLSCREEN_RECT @0x715b80 -- the four words at 0x715B80/84/88/8C
-    // are mX/mY/mWidth/mHeight, so the whole rect is one class-scope global.
-    // Nine files reference `LawnApp::FULLSCREEN_RECT`, so it is public.
+    // LawnApp::FULLSCREEN_RECT @0x715b80 -- mX/mY/mWidth/mHeight.
+    // Nine files reference it, so it is public.
     static Sexy::TRect<int> FULLSCREEN_RECT;
 
     // LawnApp::MP_FLOWERPOT_TEST / MP_GRAVESTONE_TARGETS_TEST -- class-scope

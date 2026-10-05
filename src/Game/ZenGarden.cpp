@@ -113,13 +113,6 @@ constexpr int GRIDITEM_STINKY_SLEEPING         = 23;
 constexpr int GRIDITEM_STINKY_FALLING_ASLEEP   = 24;
 constexpr int GRIDITEM_STINKY_WAKING_UP        = 25;
 
-constexpr int REANIM_ZENGARDEN_SPROUT      = 105;
-constexpr int REANIM_ZENGARDEN_WATERINGCAN = 106;
-constexpr int REANIM_ZENGARDEN_FERTILIZER  = 107;
-constexpr int REANIM_ZENGARDEN_BUGSPRAY    = 108;
-constexpr int REANIM_ZENGARDEN_PHONOGRAPH  = 109;
-constexpr int REANIM_STINKY                = 112;
-
 // The four DrawVariation values the zen garden draws pots with.
 constexpr int VARIATION_ZEN_GARDEN        = 13;
 constexpr int VARIATION_ZEN_GARDEN_WATER  = 14;
@@ -458,7 +451,7 @@ void ZenGarden::StinkyFinishFallingAsleep(GridItem * theStinky, int theBlendTime
   aReanim->SetAnimRate(0.0);
 
   // A second, static reanimation holds the shell left behind.
-  Reanimation *aShell = mApp->AddReanimation(0, 0, 0, (ReanimationType)REANIM_SLEEPING);
+  Reanimation *aShell = mApp->AddReanimation(0, 0, 0, REANIM_SLEEPING);
   aShell->mRenderOrder = 0;
   aShell->SetAnimRate(3.0);
   AttachReanim(aReanim->mTrackInstances[aReanim->FindTrackIndex("shell")].mAttachmentID,

@@ -419,22 +419,27 @@ struct SexyMatrix3
         return aBits;
     }
 
-    // _ZNK4Sexy11SexyMatrix3mlERKNS_11SexyVector2E @0x341b04 -- matrix times
-    // 2-vector, returning a 2-vector by value. The dumps call it in the static
-    // spelling `Sexy::SexyMatrix3::operator*(sret, this, vec)`, which is why
-    // MainMenu.cpp and Attachment.cpp both had to invent a local helper. With
-    // the operator declared, the natural `result = matrix * vector` works.
+    // _ZNK4Sexy11SexyMatrix3mlERKNS_11SexyVector2E @0x341b04.
+    // x' = x*m00 + y*m01 + m02. y' = x*m10 + y*m11 + m12.
+    // GLTexture::BltTransformed calls this for every sod corner. Using m10 in
+    // x and m01 in y negates the angle TitleScreen stores.
     SexyVector2 operator*(const SexyVector2& theVector) const
     {
-        return SexyVector2(m00 * theVector.mX + m10 * theVector.mY + m02,
-                           m01 * theVector.mX + m11 * theVector.mY + m12);
+        return SexyVector2(theVector.mX * m00 + theVector.mY * m01 + m02,
+                           theVector.mX * m10 + theVector.mY * m11 + m12);
     }
 
-    // _ZNK4Sexy11SexyMatrix3mlERKS0_ @0x341aa8 -- matrix times matrix, also
-    // returning by value (the dump spells it `operator*(sret, this, mat)`).
-    // SexyTransform2D's Translate / RotateRad / Scale all build a factor matrix
-    // and store `factor * *this` through it, and the authoritative header
-    // PvZ\SexyAppFramework\Misc\SexyMatrix.h:68 declares the same operator.
+    // _ZNK4Sexy11SexyMatrix3mlERKNS_11SexyVector3E @0x341b48.
+    // x' = x*m00 + y*m01 + z*m02. y' uses m10/m11/m12. z' uses m20/m21/m22.
+    SexyVector3 operator*(const SexyVector3& theVector) const
+    {
+        return SexyVector3(theVector.mX * m00 + theVector.mY * m01 + theVector.mZ * m02,
+                           theVector.mX * m10 + theVector.mY * m11 + theVector.mZ * m12,
+                           theVector.mX * m20 + theVector.mY * m21 + theVector.mZ * m22);
+    }
+
+    // _ZNK4Sexy11SexyMatrix3mlERKS0_ @0x341aa8. Result (i, j) is this row i
+    // dotted with the other matrix's column j, the same product 0x1fd004 stores.
     SexyMatrix3 operator*(const SexyMatrix3& theMatrix) const
     {
         SexyMatrix3 aResult;

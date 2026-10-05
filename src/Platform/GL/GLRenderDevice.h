@@ -66,11 +66,16 @@ public:
     // Texture bound by the batch currently being assembled. A change forces a
     // flush, since one draw call can only sample one texture.
     unsigned int        mCurrentBatchTexture;
+    DrawMode            mCurrentBatchMode;
 
     // Transform applied to every vertex in the current batch. The Graphics
     // layer owns the stack; this is the top of it, mirrored here so the shader
     // uniform can be set once per batch instead of once per quad.
     SexyMatrix3         mCurrentTransform;
+
+    // The screen image currently being painted. Null when the frame is not
+    // inside a hardware draw, which is also when every blit stays software.
+    MemoryImage*        mDrawTarget;
 
     // The offscreen framebuffer the game renders into before presentation.
     // Rendering to an FBO keeps the pipeline identical to the Android build,
@@ -106,10 +111,16 @@ public:
     void    EndFrame();
     void    Present();              // blit the FBO to the default framebuffer
 
-    // Upload a finished software frame into the offscreen target. TitleScreen
-    // and the other widgets paint a MemoryImage; this is how that image
-    // reaches the window without a second compositor.
+    // Upload a finished software frame into the offscreen target. A software
+    // screen image still reaches the window this way. A hardware screen image
+    // draws straight into the device and does not use this upload.
     void    BlitImage(MemoryImage* theImage);
+
+    // The image the frame is painting into. GLImage::Blt asks the display for
+    // the current draw target and only takes the hardware path when the
+    // destination is that image. Anything else stays on the software rasterizer.
+    MemoryImage* GetDrawTarget() const { return mDrawTarget; }
+    void    SetDrawTarget(MemoryImage* theImage) { mDrawTarget = theImage; }
 
     // --- state --------------------------------------------------------------
     void    SetDrawMode(DrawMode theMode);
@@ -130,9 +141,16 @@ public:
                       const Rect& theSrcRect, const Color& theColor,
                       DrawMode theMode, bool theMirror = false,
                       bool theFastStretch = true, bool theColorize = false);
+    // theCenter is GLTexture::BltTransformed's last argument. BltMatrix always
+    // passes true, so the quad origin is the middle of the source rect.
     void    DrawImageMatrix(MemoryImage* theImage, const SexyMatrix3& theMatrix,
-                            const Rect& theSrcRect, const Color& theColor,
-                            DrawMode theMode);
+                            float theX, float theY, const Rect& theSrcRect,
+                            const Color& theColor, DrawMode theMode, bool theCenter = true);
+    // Two triangles per group, the layout Image::BltTrianglesTex already uses.
+    // theColor multiplies every corner. A corner colour of 0 is white.
+    void    DrawTriangles(MemoryImage* theImage, const SexyVertex2D (*theTriangles)[3],
+                          int theTriangleCount, const Color& theColor, DrawMode theMode,
+                          float theTx, float theTy);
     void    FillRect(const Rect& theRect, const Color& theColor, DrawMode theMode);
     void    DrawRect(const Rect& theRect, const Color& theColor, DrawMode theMode);
     void    DrawLine(float x1, float y1, float x2, float y2,
@@ -157,6 +175,9 @@ private:
     void    FlushBatch();
     void    EnsureTexture(MemoryImage* theImage);
     void    ApplyDrawMode(DrawMode theMode);
+    // GLTexture::Blt premultiplies, then GLGraphics::SetColor stores the
+    // packed GLRGBA that AddVertex copies onto each vertex.
+    unsigned int PackColor(const Color& theColor) const;
     Rect    ApplyTransform(const Rect& theRect) const;
     void    CreateFBO(int theWidth, int theHeight);
     void    DestroyFBO();

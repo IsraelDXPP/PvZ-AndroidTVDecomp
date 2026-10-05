@@ -253,9 +253,9 @@ void DrawStringOnMatrix(Sexy::Graphics* theGraphics, Sexy::ImageFont* theFont,
             int aKern = 0;
             if (aScale == 1.0)
             {
-                aX = aFontLayer->mOffset.mX + aPen + (short)aGlyph->mOffsetX;
-                aY = (short)aGlyph->mOffsetY + aFontLayer->mOffset.mY - aFontLayer->mAscent;
-                aAdvance = (short)aGlyph->mAdvance;
+                aX = aFontLayer->mOffset.mX + aPen + (int)(short)aGlyph->mOffsetX;
+                aY = (int)(short)aGlyph->mOffsetY + aFontLayer->mOffset.mY - aFontLayer->mAscent;
+                aAdvance = (int)(short)aGlyph->mAdvance;
                 if (aNext != 0)
                 {
                     aKern = aFontLayer->mSpacing;
@@ -276,8 +276,8 @@ void DrawStringOnMatrix(Sexy::Graphics* theGraphics, Sexy::ImageFont* theFont,
             }
             else
             {
-                aX = aPen + (int)std::floor(aScale * (double)(aFontLayer->mOffset.mX + (short)aGlyph->mOffsetX));
-                aY = -(int)std::floor(aScale * (double)(aFontLayer->mAscent - aFontLayer->mOffset.mY - (short)aGlyph->mOffsetY));
+                aX = aPen + (int)std::floor(aScale * (double)(aFontLayer->mOffset.mX + (int)(short)aGlyph->mOffsetX));
+                aY = -(int)std::floor(aScale * (double)(aFontLayer->mAscent - aFontLayer->mOffset.mY - (int)(short)aGlyph->mOffsetY));
                 aAdvance = (int)(aScale * (double)(short)aGlyph->mAdvance);
                 if (aNext != 0)
                 {

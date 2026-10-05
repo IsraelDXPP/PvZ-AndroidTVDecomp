@@ -23,8 +23,9 @@ GLRenderDevice* GLRenderDevice::sCurrent = nullptr;
 
 GLRenderDevice::GLRenderDevice()
     : mWidth(0), mHeight(0), mInitialized(false), mReadbackImage(nullptr),
-      mCurrentBatchTexture(0), mFBO(0), mFBOTexture(0), mFBOColorRB(0),
-      mTextureCacheBytes(0)
+      mCurrentBatchTexture(0), mCurrentBatchMode(DRAWMODE_NORMAL),
+      mDrawTarget(nullptr), mFBO(0), mFBOTexture(0),
+      mFBOColorRB(0), mTextureCacheBytes(0)
 {
     mCurrentTransform.LoadIdentity();
 }
@@ -116,8 +117,10 @@ void GLRenderDevice::CreateFBO(int theWidth, int theHeight)
     glBindTexture(GL_TEXTURE_2D, mFBOTexture);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, theWidth, theHeight, 0,
                  GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    // Point sampling. A linear filter on a 1:1 blit picks the neighbour when
+    // the edge is a fraction of a pixel, which is the grass strip shimmer.
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glBindTexture(GL_TEXTURE_2D, (unsigned int)aPreviousTexture);
@@ -249,13 +252,16 @@ void GLRenderDevice::ApplyDrawMode(DrawMode theMode)
     mState.EnableBlend(true);
     if (theMode == DRAWMODE_ADDITIVE)
     {
-        // Additive: src*a + dst. Matches the software blitter's DRAWMODE_ADDITIVE.
-        mState.SetBlend(GLStateManager::BLEND_SRC_ALPHA, GLStateManager::BLEND_ONE);
+        // GLGraphics::SetDrawMode @0x476804: additive is glBlendFunc(ONE, ONE).
+        // SetColor has already premultiplied RGB by alpha, matching
+        // GLTexture::Blt. SRC_ALPHA on top of that washes a glow out to white.
+        mState.SetBlend(GLStateManager::BLEND_ONE, GLStateManager::BLEND_ONE);
     }
     else
     {
-        // Normal: src*a + dst*(1-a).
-        mState.SetBlend(GLStateManager::BLEND_SRC_ALPHA,
+        // Normal is glBlendFunc(ONE, ONE_MINUS_SRC_ALPHA). The shader has
+        // already multiplied RGB by alpha, so the source factor is ONE.
+        mState.SetBlend(GLStateManager::BLEND_ONE,
                         GLStateManager::BLEND_INV_SRC_ALPHA);
     }
 }
@@ -323,6 +329,44 @@ void GLRenderDevice::FlushBatch()
     mBatch.Flush();
 }
 
+unsigned int GLRenderDevice::PackColor(const Color& theColor) const
+{
+    // GLTexture::Blt @0x471cd4: ToRGBA, premultiply RGB by alpha with the
+    // (c*a+128+((c*a+128)>>8))>>8 rounding, then SetColor stores those bytes.
+    // AddVertex copies that packed word onto the vertex. A negative sine
+    // alpha from the pulse overlay clamps to 0, which is a transparent white.
+    int aAlpha = theColor.mAlpha;
+    if (aAlpha < 0)
+        aAlpha = 0;
+    if (aAlpha > 255)
+        aAlpha = 255;
+    int aRed = theColor.mRed;
+    int aGreen = theColor.mGreen;
+    int aBlue = theColor.mBlue;
+    if (aRed < 0)
+        aRed = 0;
+    if (aGreen < 0)
+        aGreen = 0;
+    if (aBlue < 0)
+        aBlue = 0;
+    if (aRed > 255)
+        aRed = 255;
+    if (aGreen > 255)
+        aGreen = 255;
+    if (aBlue > 255)
+        aBlue = 255;
+    int aPremulRed = aRed * aAlpha + 128;
+    int aPremulGreen = aGreen * aAlpha + 128;
+    int aPremulBlue = aBlue * aAlpha + 128;
+    aPremulRed = (aPremulRed + (aPremulRed >> 8)) >> 8;
+    aPremulGreen = (aPremulGreen + (aPremulGreen >> 8)) >> 8;
+    aPremulBlue = (aPremulBlue + (aPremulBlue >> 8)) >> 8;
+    return (unsigned int)aPremulRed
+         | ((unsigned int)aPremulGreen << 8)
+         | ((unsigned int)aPremulBlue << 16)
+         | ((unsigned int)aAlpha << 24);
+}
+
 void GLRenderDevice::EnsureTexture(MemoryImage* theImage)
 {
     if (!theImage) return;
@@ -341,7 +385,7 @@ void GLRenderDevice::EnsureTexture(MemoryImage* theImage)
         // The image may have been repainted since the upload. A software
         // target such as the widget manager's image keeps the same object and
         // only sets mBitsChanged, so that flag has to re-upload too.
-        if (tex->mDirty || theImage->mBitsChanged)
+        if (tex->mDirty || theImage->mBitsChanged || theImage->mBitsChangedCount != 0)
             tex->Upload(theImage);
         return;
     }
@@ -377,8 +421,11 @@ void GLRenderDevice::DrawImage(MemoryImage* theImage, const Rect& theDestRect,
     GLTexture* tex = (texIt != mTextureCache.end()) ? texIt->second : nullptr;
     if (!tex || !tex->mTextureId) return;
 
-    // Texture changes force a flush: one texture per batch.
-    if (mBatch.GetCount() > 0 && mCurrentBatchTexture != tex->mTextureId)
+    // Texture or blend changes force a flush. GLGraphics::BeginPrim flushes
+    // when the primitive mode changes; SetDrawMode flushes before it swaps
+    // glBlendFunc. A gold glyph and the additive pulse cannot share a batch.
+    if (mBatch.GetCount() > 0
+        && (mCurrentBatchTexture != tex->mTextureId || mCurrentBatchMode != theMode))
         FlushBatch();
 
     ApplyDrawMode(theMode);
@@ -393,37 +440,21 @@ void GLRenderDevice::DrawImage(MemoryImage* theImage, const Rect& theDestRect,
         mState.BindTexture(0, tex->mTextureId);
         mBatch.Begin(tex->mTextureId);
         mCurrentBatchTexture = tex->mTextureId;
+        mCurrentBatchMode = theMode;
     }
 
+    // The colour rides the vertex. SetColor stays so a caller that still
+    // reads the uniform sees the same premultiplied value.
     mShaders.mBlit.SetColor(theColor);
+    unsigned int aPacked = PackColor(theColor);
 
-    // uv rect of the source region inside the texture.
-    //
-    // Half-destination-pixel correction. This is what makes the GPU match the
-    // software blitter's sampling *exactly*, including under scaling.
-    //
-    // GL rasterises fragment centres at destX + d + 0.5 and interpolates uv
-    // linearly, so with an edge-to-edge uv range the sampled source position is
-    //     srcX + (d + 0.5) * srcW/destW        (NEAREST => floor of this)
-    // whereas MemoryImage::FastStretchBlt uses a truncating step function
-    //     srcX + (int)(d * srcW/destW)
-    // The two differ from d = 1 onward whenever srcW/destW is not an integer
-    // (e.g. the 1280->800 background: floor(1.6d + 0.8) vs (int)(1.6d)).
-    //
-    // Shifting the uv range back by half a destination pixel's worth of source
-    // removes the +0.5 term and reduces the GPU's expression to floor(d * scale),
-    // which is identical to the CPU's truncation. Measured on the 1280x720
-    // background scaled to 800x600: channels differing by >30 dropped from 3742
-    // to 455.
-    float uRange = (float)theSrcRect.mWidth  / (float)tex->mWidth;
-    float vRange = (float)theSrcRect.mHeight / (float)tex->mHeight;
-    float uShift = (theDestRect.mWidth  > 0) ? 0.5f * uRange / (float)theDestRect.mWidth  : 0.0f;
-    float vShift = (theDestRect.mHeight > 0) ? 0.5f * vRange / (float)theDestRect.mHeight : 0.0f;
-
-    float u0 = tex->mU0 + (float)theSrcRect.mX / (float)tex->mWidth  - uShift;
-    float v0 = tex->mV0 + (float)theSrcRect.mY / (float)tex->mHeight - vShift;
-    float u1 = tex->mU0 + (float)(theSrcRect.mX + theSrcRect.mWidth)  / (float)tex->mWidth  - uShift;
-    float v1 = tex->mV0 + (float)(theSrcRect.mY + theSrcRect.mHeight) / (float)tex->mHeight - vShift;
+    // GLTexture::Blt @0x471cd4 feeds DrawTexture the tile uv from
+    // GetTexture, with no half-texel shift. A 1:1 blit is
+    // col / width .. (col + span) / width.
+    float u0 = tex->mU0 + (float)theSrcRect.mX / (float)tex->mWidth;
+    float v0 = tex->mV0 + (float)theSrcRect.mY / (float)tex->mHeight;
+    float u1 = tex->mU0 + (float)(theSrcRect.mX + theSrcRect.mWidth) / (float)tex->mWidth;
+    float v1 = tex->mV0 + (float)(theSrcRect.mY + theSrcRect.mHeight) / (float)tex->mHeight;
 
     if (theMirror)
         std::swap(u0, u1);
@@ -431,12 +462,12 @@ void GLRenderDevice::DrawImage(MemoryImage* theImage, const Rect& theDestRect,
     mBatch.AddQuad((float)theDestRect.mX, (float)theDestRect.mY,
                    (float)(theDestRect.mX + theDestRect.mWidth),
                    (float)(theDestRect.mY + theDestRect.mHeight),
-                   u0, v0, u1, v1);
+                   u0, v0, u1, v1, aPacked);
 }
 
 void GLRenderDevice::DrawImageMatrix(MemoryImage* theImage, const SexyMatrix3& theMatrix,
-                                     const Rect& theSrcRect, const Color& theColor,
-                                     DrawMode theMode)
+                                     float theX, float theY, const Rect& theSrcRect,
+                                     const Color& theColor, DrawMode theMode, bool theCenter)
 {
     // A rotated draw cannot share the axis-aligned batch: flush, then submit a
     // single transformed quad with its own matrix uniform.
@@ -449,12 +480,45 @@ void GLRenderDevice::DrawImageMatrix(MemoryImage* theImage, const SexyMatrix3& t
     GLTexture* tex = (texIt != mTextureCache.end()) ? texIt->second : nullptr;
     if (!tex || !tex->mTextureId) return;
 
+    // GLTexture::BltTransformed @0x4734ac. theCenter is the last argument of
+    // GLImage::BltTransformed, which GLImage::BltMatrix always passes as true.
+    // A centered quad is built from the source rect itself: the origin is the
+    // middle of that rect, and (theX, theY) is added after the matrix multiply.
+    // Corners are the same four TV writes into v104..v110, then DrawTexture.
+    float aOriginX = 0.0f;
+    float aOriginY = 0.0f;
+    if (theCenter)
+    {
+        aOriginX = (float)-theSrcRect.mWidth * 0.5f;
+        aOriginY = (float)-theSrcRect.mHeight * 0.5f;
+    }
+    float aSpanX = (float)theSrcRect.mWidth;
+    float aSpanY = (float)theSrcRect.mHeight;
+    SexyVector2 aLocal[4] = {
+        SexyVector2(aOriginX, aOriginY),
+        SexyVector2(aOriginX, aOriginY + aSpanY),
+        SexyVector2(aOriginX + aSpanX, aOriginY),
+        SexyVector2(aOriginX + aSpanX, aOriginY + aSpanY)
+    };
+    // GLTexture::BltTransformed @0x4736a2 calls operator*(SexyVector2) @0x341b04.
+    // x' = x*m00 + y*m01 + m02, y' = x*m10 + y*m11 + m12.
+    float aScreenX[4];
+    float aScreenY[4];
+    for (int aCorner = 0; aCorner < 4; ++aCorner)
+    {
+        float aX = aLocal[aCorner].mX;
+        float aY = aLocal[aCorner].mY;
+        aScreenX[aCorner] = aX * theMatrix.m00 + aY * theMatrix.m01 + theMatrix.m02 + theX;
+        aScreenY[aCorner] = aX * theMatrix.m10 + aY * theMatrix.m11 + theMatrix.m12 + theY;
+    }
+
     ApplyDrawMode(theMode);
     mShaders.mBlit.Bind();
     mShaders.mBlit.SetTexture(0);
-    mShaders.mBlit.SetTransform(theMatrix);
+    mShaders.mBlit.SetTransform(mCurrentTransform);
     mShaders.mBlit.SetColor(theColor);
     mShaders.mBlit.SetColorize(false);
+    unsigned int aPacked = PackColor(theColor);
 
     mState.BindTexture(0, tex->mTextureId);
 
@@ -463,16 +527,73 @@ void GLRenderDevice::DrawImageMatrix(MemoryImage* theImage, const SexyMatrix3& t
     float u1 = tex->mU0 + (float)(theSrcRect.mX + theSrcRect.mWidth) / (float)tex->mWidth;
     float v1 = tex->mV0 + (float)(theSrcRect.mY + theSrcRect.mHeight) / (float)tex->mHeight;
 
-    // The matrix already carries the placement, so draw at the origin.
     mBatch.Begin(tex->mTextureId);
-    mBatch.AddQuad(0.0f, 0.0f,
-                   (float)theSrcRect.mWidth, (float)theSrcRect.mHeight,
-                   u0, v0, u1, v1);
+    if (mBatch.mCount + 6 > mBatch.mCapacity)
+        mBatch.Flush();
+    // DrawTexture takes the four corners in the order written at 0x4734ac:
+    // top-left, bottom-left, top-right, bottom-right, with uvs (u0,v0),
+    // (u0,v1), (u1,v0), (u1,v1).
+    GLVertex* aOut = mBatch.mVertices + mBatch.mCount;
+    aOut[0] = { aScreenX[0], aScreenY[0], u0, v0, aPacked };
+    aOut[1] = { aScreenX[1], aScreenY[1], u0, v1, aPacked };
+    aOut[2] = { aScreenX[2], aScreenY[2], u1, v0, aPacked };
+    aOut[3] = { aScreenX[2], aScreenY[2], u1, v0, aPacked };
+    aOut[4] = { aScreenX[1], aScreenY[1], u0, v1, aPacked };
+    aOut[5] = { aScreenX[3], aScreenY[3], u1, v1, aPacked };
+    mBatch.mCount += 6;
     mBatch.Flush();
     mCurrentBatchTexture = 0;
 
     // Restore the frame transform for subsequent batched draws.
     mShaders.mBlit.SetTransform(mCurrentTransform);
+}
+
+void GLRenderDevice::DrawTriangles(MemoryImage* theImage, const SexyVertex2D (*theTriangles)[3],
+                                   int theTriangleCount, const Color& theColor, DrawMode theMode,
+                                   float theTx, float theTy)
+{
+    FlushBatch();
+    if (!mInitialized || theImage == nullptr || theTriangles == nullptr || theTriangleCount <= 0)
+        return;
+
+    EnsureTexture(theImage);
+    auto texIt = mTextureCache.find(theImage);
+    GLTexture* tex = (texIt != mTextureCache.end()) ? texIt->second : nullptr;
+    if (tex == nullptr || tex->mTextureId == 0)
+        return;
+
+    ApplyDrawMode(theMode);
+    mShaders.mBlit.Bind();
+    mShaders.mBlit.SetTexture(0);
+    mShaders.mBlit.SetTransform(mCurrentTransform);
+    mShaders.mBlit.SetColor(theColor);
+    mShaders.mBlit.SetColorize(false);
+    unsigned int aPacked = PackColor(theColor);
+    mState.BindTexture(0, tex->mTextureId);
+    mBatch.Begin(tex->mTextureId);
+
+    float aInvW = (tex->mWidth > 0) ? 1.0f / (float)tex->mWidth : 0.0f;
+    float aInvH = (tex->mHeight > 0) ? 1.0f / (float)tex->mHeight : 0.0f;
+    for (int aTri = 0; aTri < theTriangleCount; ++aTri)
+    {
+        if (mBatch.mCount + 3 > mBatch.mCapacity)
+            mBatch.Flush();
+        GLVertex* aOut = mBatch.mVertices + mBatch.mCount;
+        for (int aCorner = 0; aCorner < 3; ++aCorner)
+        {
+            const SexyVertex2D& aIn = theTriangles[aTri][aCorner];
+            aOut[aCorner].mX = aIn.mX + theTx;
+            aOut[aCorner].mY = aIn.mY + theTy;
+            // A vertex uv is already 0..1 across the image. The texture may be
+            // a padded atlas page, so shift into that page.
+            aOut[aCorner].mU = tex->mU0 + aIn.mU * (float)theImage->mWidth * aInvW;
+            aOut[aCorner].mV = tex->mV0 + aIn.mV * (float)theImage->mHeight * aInvH;
+            aOut[aCorner].mColor = aPacked;
+        }
+        mBatch.mCount += 3;
+    }
+    mBatch.Flush();
+    mCurrentBatchTexture = 0;
 }
 
 void GLRenderDevice::FillRect(const Rect& theRect, const Color& theColor, DrawMode theMode)
@@ -498,7 +619,8 @@ void GLRenderDevice::FillRect(const Rect& theRect, const Color& theColor, DrawMo
     mShaders.mSolid.SetColor(theColor);
     mBatch.AddSolidQuad((float)theRect.mX, (float)theRect.mY,
                         (float)(theRect.mX + theRect.mWidth),
-                        (float)(theRect.mY + theRect.mHeight));
+                        (float)(theRect.mY + theRect.mHeight),
+                        PackColor(theColor));
 }
 
 void GLRenderDevice::DrawRect(const Rect& theRect, const Color& theColor, DrawMode theMode)
@@ -542,17 +664,18 @@ void GLRenderDevice::DrawLine(float x1, float y1, float x2, float y2,
         mCurrentBatchTexture = 0;
     }
     mShaders.mSolid.SetColor(theColor);
+    unsigned int aPacked = PackColor(theColor);
 
     // Two triangles forming the line quad.
     GLVertex* v = mBatch.mVertices + mBatch.mCount;
     if (mBatch.mCount + 6 > mBatch.mCapacity) mBatch.Flush();
 
-    v[0] = { x1 + nx, y1 + ny, 0, 0 };
-    v[1] = { x1 - nx, y1 - ny, 0, 0 };
-    v[2] = { x2 - nx, y2 - ny, 0, 0 };
-    v[3] = { x1 + nx, y1 + ny, 0, 0 };
-    v[4] = { x2 - nx, y2 - ny, 0, 0 };
-    v[5] = { x2 + nx, y2 + ny, 0, 0 };
+    v[0] = { x1 + nx, y1 + ny, 0, 0, aPacked };
+    v[1] = { x1 - nx, y1 - ny, 0, 0, aPacked };
+    v[2] = { x2 - nx, y2 - ny, 0, 0, aPacked };
+    v[3] = { x1 + nx, y1 + ny, 0, 0, aPacked };
+    v[4] = { x2 - nx, y2 - ny, 0, 0, aPacked };
+    v[5] = { x2 + nx, y2 + ny, 0, 0, aPacked };
     mBatch.mCount += 6;
 }
 

@@ -19,11 +19,14 @@
 namespace Sexy
 {
 
-// Matches the vertex shader's attribute layout in GLShader.cpp.
+// Matches GLGraphics::AddVertex @0x476d1c. The flush at 0x4762c8 submits a
+// 24-byte vertex: uv, a packed colour, then position. Colour lives on the
+// vertex so one batch can hold the gold label and the white pulse on top.
 struct GLVertex
 {
-    float mX, mY;       // pixel-space position
-    float mU, mV;       // texture coordinate
+    float mX, mY;
+    float mU, mV;
+    unsigned int mColor;
 };
 
 class GLVertexBuffer
@@ -49,12 +52,15 @@ public:
     // Begin a batch. Any previously queued geometry must have been flushed.
     void    Begin(unsigned int theTexture);
 
-    // Queue one textured quad (two triangles, 6 vertices).
+    // Queue one textured quad. theColor is the premultiplied GLRGBA the
+    // current GLGraphics colour holds when AddVertex runs.
     void    AddQuad(float x0, float y0, float x1, float y1,
-                    float u0, float v0, float u1, float v1);
+                    float u0, float v0, float u1, float v1,
+                    unsigned int theColor);
 
     // Queue one untextured quad (solid fill).
-    void    AddSolidQuad(float x0, float y0, float x1, float y1);
+    void    AddSolidQuad(float x0, float y0, float x1, float y1,
+                         unsigned int theColor);
 
     // Upload and draw everything queued, then reset.
     void    Flush();

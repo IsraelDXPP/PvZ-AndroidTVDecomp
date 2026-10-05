@@ -73,7 +73,7 @@ Reanimation *MessageWidget::ClearReanim()
 // ==========================================================================
 MessageWidget *MessageWidget::ClearLabel()
 {
-  if (mReanimType == -1)
+  if (mReanimType == REANIM_NONE)
   {
     mDuration = 0;
   }
@@ -136,7 +136,7 @@ MessageWidget::MessageWidget(LawnApp *theApp)
   mApp = theApp;
   mDuration = 0;
   mMessageStyle = MESSAGE_STYLE_OFF;
-  mReanimType = -1;
+  mReanimType = REANIM_NONE;
   mSlideOffTime = 100;
   mFontScale = 1.0f;
   mMessageStyleNext = MESSAGE_STYLE_OFF;
@@ -231,7 +231,7 @@ void MessageWidget::SetLabel(Sexy::String const &theLabel, MessageStyle theStyle
   Sexy::String aTranslated;
   TodStringTranslate(&aTranslated, theLabel);
 
-  if (mReanimType != -1 && mDuration > 0)
+  if (mReanimType != REANIM_NONE && mDuration > 0)
   {
     // A message is already up: queue this one and shorten the current one so it
     // slides off before the new label starts.
@@ -247,7 +247,7 @@ void MessageWidget::SetLabel(Sexy::String const &theLabel, MessageStyle theStyle
   ClearReanim();
   strcpy(mLabel, aTranslated.c_str());
   mMessageStyle = theStyle;
-  mReanimType = -1;
+  mReanimType = REANIM_NONE;
 
   // How long the label stays up, by style. The binary selects these with a chain
   // of bit tests over `a3`; the switch below is that chain's result.
@@ -284,7 +284,7 @@ void MessageWidget::SetLabel(Sexy::String const &theLabel, MessageStyle theStyle
   case MESSAGE_STYLE_HUGE_WAVE:
     mDuration = 750;
     // 98 is the "text fades on" reanimation this style spells its letters with.
-    mReanimType = 98;
+    mReanimType = REANIM_TEXT_FADE_ON;
     if (mApp->GetLocale().compare("zh_CN") == 0)
       mFontScale = 1.6f;
     LayoutReanimText();
@@ -345,7 +345,7 @@ void MessageWidget::Update()
     if (aReanim == nullptr)
       return;
 
-    if (mReanimType == 98)
+    if (mReanimType == REANIM_TEXT_FADE_ON)
     {
       // The huge-wave text holds its fade-on rate while it is still sliding in,
       // and only starts counting down once the label has begun to leave.
@@ -417,7 +417,7 @@ void MessageWidget::DrawReanimatedText(Sexy::Graphics *theGraphics, Sexy::Font *
     float aOverlayX = aReanim->mOverlayMatrix.m02;
     aTransform.mTransX = (aOverlayX + aTransform.mTransX) - (float)LawnApp::FULLSCREEN_RECT.mX;
     aTransform.mTransY = ((aTransform.mTransY + aReanim->mOverlayMatrix.m12) + -300.0f) + thePos;
-    if (mReanimType == 98 && mDisplayTime - mDuration < mSlideOffTime)
+    if (mReanimType == REANIM_TEXT_FADE_ON && mDisplayTime - mDuration < mSlideOffTime)
       aTransform.mTransX += (1.0f - aReanim->mAnimTime) * aOverlayX;
 
     // One glyph per draw call, placed by the transform.
@@ -515,7 +515,7 @@ void MessageWidget::Draw(Sexy::Graphics *theGraphics)
   case MESSAGE_STYLE_HOUSE_NAME:
     aPosY = 550;
     aColor = Color(255, 255, 255, 255);
-    if (mReanimType == -1)
+    if (mReanimType == REANIM_NONE)
     {
       // No reanimated letters: fade the whole label in, 15 alpha per tick of the
       // display timer, and let the black outline fade with it.
@@ -558,7 +558,7 @@ void MessageWidget::Draw(Sexy::Graphics *theGraphics)
   }
 
   // Every path that has glyph reanimations draws those and stops.
-  if (mReanimType != -1)
+  if (mReanimType != REANIM_NONE)
   {
     float aDrawY = (float)aPosY;
     if (aOutlineFont != nullptr)

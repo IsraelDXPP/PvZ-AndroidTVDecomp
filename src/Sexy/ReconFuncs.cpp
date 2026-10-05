@@ -1159,8 +1159,40 @@ int Sexy::setLocale(char const* theLocale)
 int Sexy::SexyUtf8Validate(void* theState, char const* theText, int theLength)
 {
     (void)theState;
-    (void)theText;
-    return (theLength > 0) ? theLength : 0;
+    if (theText == nullptr || theLength <= 0)
+        return 0;
+
+    const unsigned char* aBytes = (const unsigned char*)theText;
+    int aIndex = 0;
+    while (aIndex < theLength)
+    {
+        unsigned char aLead = aBytes[aIndex];
+        if (aLead < 0x80)
+        {
+            ++aIndex;
+            continue;
+        }
+
+        int aNeed = 0;
+        if ((aLead & 0xE0) == 0xC0)
+            aNeed = 1;
+        else if ((aLead & 0xF0) == 0xE0)
+            aNeed = 2;
+        else if ((aLead & 0xF8) == 0xF0)
+            aNeed = 3;
+        else
+            return 0;
+
+        if (aIndex + aNeed >= theLength)
+            return 0;
+        for (int aExtra = 1; aExtra <= aNeed; ++aExtra)
+        {
+            if ((aBytes[aIndex + aExtra] & 0xC0) != 0x80)
+                return 0;
+        }
+        aIndex += aNeed + 1;
+    }
+    return theLength;
 }
 
 void Sexy::SetAppDataFolder(Sexy::String const& thePath)

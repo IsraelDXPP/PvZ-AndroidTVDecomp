@@ -1679,8 +1679,9 @@ void Sexy::MemoryImage::NormalBlt(Sexy::Image * theSource, int theX, int theY,
 }
 
 void Sexy::MemoryImage::Blt(Image * theSource, int theX, int theY, const TRect<int> & theSourceRect,
-                            const Color & theColor, int theDrawMode)
+                            const Color & theColor, int theDrawMode, bool theColorize)
 {
+    (void)theColorize;
     if (theSource != nullptr)
         theSource->mAboutToSample = true;
     if (theDrawMode == kDrawNormal)
@@ -2025,16 +2026,20 @@ void Sexy::MemoryImage::BltMatrixHelper(Sexy::Image * theSource, float theX, flo
     float aV0 = (float)theSourceRect.mY / aHeight;
     float aV1 = (float)(theSourceRect.mY + theSourceRect.mHeight) / aHeight;
 
+    // MemoryImage::BltMatrixHelper @0x327c64 writes the corners in this order:
+    // (+half, -half), (-half, -half), (+half, +half), (-half, +half).
     SWShapeVertex aCorners[4] = {
-        { -aHalfW, -aHalfH, aU0, aV0, 0xFFFFFFFFu },
         { aHalfW, -aHalfH, aU1, aV0, 0xFFFFFFFFu },
-        { -aHalfW, aHalfH, aU0, aV1, 0xFFFFFFFFu },
-        { aHalfW, aHalfH, aU1, aV1, 0xFFFFFFFFu }
+        { -aHalfW, -aHalfH, aU0, aV0, 0xFFFFFFFFu },
+        { aHalfW, aHalfH, aU1, aV1, 0xFFFFFFFFu },
+        { -aHalfW, aHalfH, aU0, aV1, 0xFFFFFFFFu }
     };
     for (int i = 0; i < 4; ++i)
     {
-        SexyVector2 aPoint(aCorners[i].mX, aCorners[i].mY);
-        SexyVector2 aMapped = theMatrix * aPoint;
+        // Homogeneous row (x, y, 1). TV's matrix*vector reads translation from
+        // m02/m12, so a 2-vector multiply drops the roll's position.
+        SexyVector3 aPoint(aCorners[i].mX, aCorners[i].mY, 1.0f);
+        SexyVector3 aMapped = theMatrix * aPoint;
         aCorners[i].mX = aMapped.mX + theX - 0.5f;
         aCorners[i].mY = aMapped.mY + theY - 0.5f;
     }

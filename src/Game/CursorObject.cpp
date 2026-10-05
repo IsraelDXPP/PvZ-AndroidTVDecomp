@@ -251,8 +251,8 @@ CursorObject::CursorObject()
   if ( mApp->IsWhackAZombieLevel() )
   {
     // 99 is the hammer reanimation; the cursor is the only user of it.
-    ReanimatorEnsureDefinitionLoaded(99, true);
-    Reanimation *aReanim = (Reanimation *)mApp->AddReanimation(-25.0f, 16.0f, 0, ReanimationType(99));
+    ReanimatorEnsureDefinitionLoaded(REANIM_HAMMER, true);
+    Reanimation *aReanim = (Reanimation *)mApp->AddReanimation(-25.0f, 16.0f, 0, REANIM_HAMMER);
     aReanim->mIsAttachment = true;
     aReanim->PlayReanim("anim_whack_zombie", REANIM_LOOP, 0, 24.0f);
     aReanim->mAnimTime = 1.0f;

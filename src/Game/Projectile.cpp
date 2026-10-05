@@ -77,10 +77,6 @@ constexpr int PARTICLE_BLASTMARK = 69;
 
 constexpr int WEAPON_PRIMARY = 0;
 
-// ReanimationType is a surrogate too; these are the two records the bodies use.
-constexpr int REANIM_JALAPENO_FIRE = 34;
-constexpr int REANIM_FIRE_PEA = 92;
-
 // RenderLayer::RENDER_LAYER_TOP, which the two particle spawns pass as an already
 // folded render order (400000 + row * 100 + order with row and order both zero).
 constexpr int RENDER_LAYER_TOP = 400000;

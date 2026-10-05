@@ -109,8 +109,13 @@ void ReanimatorCache::UpdateReanimationForVariation(Reanimation * theReanim, Dra
       Sexy::Color(255, 245, 55),
       Sexy::Color(180, 255, 105),
     };
-    ReanimatorTrackInstance *aPetals = theReanim->GetTrackInstanceByName("Marigold_petals");
-    aPetals->mTrackColor = aColors[aVariationIndex];
+    // A missing track comes back as index -1. Indexing the instance array
+    // with that writes off the end, which is the cache fault on a plant
+    // that has no Marigold_petals track.
+    int aPetalTrack = theReanim->FindTrackIndex("Marigold_petals");
+    if (aPetalTrack < 0)
+      return;
+    theReanim->mTrackInstances[aPetalTrack].mTrackColor = aColors[aVariationIndex];
   }
   else
   {
@@ -419,9 +424,9 @@ void ReanimatorCache::DrawReanimatorFrame(Sexy::Graphics * theGraphics, float th
 
   // The dump splits these two over a shared LABEL_4; a cornpult never gets the
   // slowed-down rate.
-  if (theType == 76) // REANIM_CORNPULT
+  if (theType == REANIM_KERNELPULT)
     aReanim.AssignRenderGroupToTrack("Cornpult_butter", -1);
-  else if (theType == 7)
+  else if (theType == REANIM_SUNFLOWER)
     aReanim.mAnimRate = 0.15f;
 
   aReanim.AssignRenderGroupToTrack("anim_waterline", -1);
@@ -453,22 +458,22 @@ Sexy::Image * ReanimatorCache::MakeCachedMowerFrame(LawnMowerType theMowerType)
     case LAWNMOWER_LAWN:
       aGraphics.mScaleX = 0.85f;
       aGraphics.mScaleY = 0.85f;
-      DrawReanimatorFrame(&aGraphics, 10.0f, 0.0f, 8, "anim_normal", 0);
+      DrawReanimatorFrame(&aGraphics, 10.0f, 0.0f, REANIM_LAWNMOWER, "anim_normal", 0);
       break;
     case LAWNMOWER_POOL:
       aGraphics.mScaleX = 0.8f;
       aGraphics.mScaleY = 0.8f;
-      DrawReanimatorFrame(&aGraphics, 10.0f, 25.0f, 90, nullptr, 0);
+      DrawReanimatorFrame(&aGraphics, 10.0f, 25.0f, REANIM_POOL_CLEANER, nullptr, 0);
       break;
     case LAWNMOWER_ROOF:
       aGraphics.mScaleX = 0.85f;
       aGraphics.mScaleY = 0.85f;
-      DrawReanimatorFrame(&aGraphics, 10.0f, 0.0f, 91, nullptr, 0);
+      DrawReanimatorFrame(&aGraphics, 10.0f, 0.0f, REANIM_ROOF_CLEANER, nullptr, 0);
       break;
     case LAWNMOWER_SUPER_MOWER:
       aGraphics.mScaleX = 0.85f;
       aGraphics.mScaleY = 0.85f;
-      DrawReanimatorFrame(&aGraphics, 10.0f, 0.0f, 8, "anim_tricked", 0);
+      DrawReanimatorFrame(&aGraphics, 10.0f, 0.0f, REANIM_LAWNMOWER, "anim_tricked", 0);
       break;
     default:
       break;
@@ -605,11 +610,11 @@ Sexy::Image * ReanimatorCache::MakeCachedZombieFrame(ZombieType theZombieType)
   // +0x04 of the definition is ZombieDefinition::mReanimationType
   // (GetZombieDefinition has no typed declaration anywhere in this tree).
   ZombieDefinition *aZombieDefinition = GetZombieDefinition(aUseZombieType);
-  ReanimationType aReanimationType = (ReanimationType)aZombieDefinition->mReanimationType;
+  ReanimationType aReanimationType = aZombieDefinition->mReanimationType;
 
   float aPosX = (theZombieType == ZOMBIE_ZAMBONI) ? 140.0f : 40.0f;
 
-  if (aReanimationType == 21) // REANIM_ZOMBIE: the plain walking body
+  if (aReanimationType == REANIM_ZOMBIE) // REANIM_ZOMBIE: the plain walking body
   {
     Reanimation aReanim;
     aReanim.ReanimationInitializeType(aPosX, 40.0f, aReanimationType);
@@ -628,7 +633,7 @@ Sexy::Image * ReanimatorCache::MakeCachedZombieFrame(ZombieType theZombieType)
       case ZOMBIE_FLAG:
       {
         Reanimation aFlagReanim;
-        aFlagReanim.ReanimationInitializeType(aPosX, 40.0f, 141); // REANIM_ZOMBIE_FLAGPOLE
+        aFlagReanim.ReanimationInitializeType(aPosX, 40.0f, REANIM_FLAG);
         aFlagReanim.SetFramesForLayer("Zombie_flag");
         aFlagReanim.Draw(&aGraphics);
         break;
@@ -638,7 +643,7 @@ Sexy::Image * ReanimatorCache::MakeCachedZombieFrame(ZombieType theZombieType)
     }
     aReanim.Draw(&aGraphics);
   }
-  else if (aReanimationType != 74) // not REANIM_BOSS
+  else if (aReanimationType != REANIM_BOSS) // not REANIM_BOSS
   {
     const char *aTrackName = "anim_idle";
     float aPosY = 40.0f;
@@ -658,7 +663,7 @@ Sexy::Image * ReanimatorCache::MakeCachedZombieFrame(ZombieType theZombieType)
     aReanim.SetFramesForLayer("anim_head_idle");
 
     Reanimation aDriverReanim;
-    aDriverReanim.ReanimationInitializeType(46.0f, 22.0f, 95); // REANIM_BOSS_DRIVER
+    aDriverReanim.ReanimationInitializeType(46.0f, 22.0f, REANIM_BOSS_DRIVER);
     aDriverReanim.SetFramesForLayer("anim_idle");
 
     aReanim.Draw(&aGraphics);

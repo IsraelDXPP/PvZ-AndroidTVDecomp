@@ -2,6 +2,8 @@
 
 #include "GLTexture.h"
 #include "MemoryImage.h"
+#include "PixelData.h"
+#include "PixelUtil.h"
 #include "SexyTypes.h"
 #include "Graphics.h"
 #include "AndroidShims.h"
@@ -168,7 +170,10 @@ bool GLTexture::CreateTexture(MemoryImage* theImage)
     // mHeight (Image.h +0x24/+0x28); they are not accessor functions.
     mSrcWidth  = theImage->mWidth;
     mSrcHeight = theImage->mHeight;
-    mFormat    = theImage->GetPixelFormat();
+    // Upload expands every sheet, including a4r4g4b4 .tex atlases, to
+    // A8R8G8B8. Desktop GL has no packed 4444 rev type, and the blend path
+    // already samples 32-bit texels.
+    mFormat    = PixelFormat(kPixelFormat_A8R8G8B8);
     mOwner     = theImage;
 
     if (mSrcWidth <= 0 || mSrcHeight <= 0) return false;
@@ -217,10 +222,9 @@ bool GLTexture::Upload(MemoryImage* theImage)
 {
     if (!theImage || !mTextureId) return false;
 
-    // A sub-image has no bits of its own. Its pixels are a rectangle in the
-    // parent sheet, and the parent row stride is the sheet width, not the
-    // sub-image width. Copy that rectangle into a packed buffer so the upload
-    // below can treat every image as tightly packed.
+    // A sub-image has no bits of its own. Walk to the sheet that owns the
+    // pixels, and add each parent's origin. Atlas pieces (SodRollCap and the
+    // rest of plant-atlas1) are rectangles inside a 16-bit .tex sheet.
     MemoryImage* aSheet = theImage;
     int aOriginX = 0;
     int aOriginY = 0;
@@ -231,38 +235,55 @@ bool GLTexture::Upload(MemoryImage* theImage)
         aSheet = aSheet->mParent;
     }
 
-    unsigned int* aSheetBits = aSheet->GetBits();
-    if (aSheetBits == nullptr)
+    if (mSrcWidth <= 0 || mSrcHeight <= 0)
         return false;
 
-    std::vector<unsigned int> aPacked;
-    const unsigned int* aRows = aSheetBits;
+    // GetPixels is the native buffer: 32-bit A8R8G8B8 in mBits, or the packed
+    // .tex bytes in mPixels. GetBits is empty for a 16-bit sheet, and reading
+    // those bytes as 32-bit rows is what painted the sod roll as a red smear.
+    unsigned int* aNative = aSheet->GetPixels();
+    if (aNative == nullptr)
+        return false;
+
+    PixelFormat aNativeFormat = aSheet->GetPixelFormat();
+    int aBytesPerPixel = PixelUtil::GetBytePerPixel(aNativeFormat);
+    if (aBytesPerPixel <= 0)
+        return false;
+
+    int aStride = aSheet->GetStride();
+    if (aStride <= 0)
+        aStride = aSheet->mWidth * aBytesPerPixel;
+
     if (aSheet != theImage)
     {
-        int aPitch = aSheet->GetPitch();
-        if (aPitch <= 0)
-            aPitch = aSheet->mWidth;
-        if (mSrcWidth <= 0 || mSrcHeight <= 0 || aOriginX < 0 || aOriginY < 0
+        if (aOriginX < 0 || aOriginY < 0
             || aOriginX + mSrcWidth > aSheet->mWidth
             || aOriginY + mSrcHeight > aSheet->mHeight)
             return false;
-
-        aPacked.resize((size_t)mSrcWidth * (size_t)mSrcHeight);
-        for (int aRow = 0; aRow < mSrcHeight; ++aRow)
-        {
-            const unsigned int* aSrc = aSheetBits
-                + (size_t)(aOriginY + aRow) * (size_t)aPitch
-                + (size_t)aOriginX;
-            std::memcpy(aPacked.data() + (size_t)aRow * (size_t)mSrcWidth,
-                        aSrc, (size_t)mSrcWidth * 4);
-        }
-        aRows = aPacked.data();
     }
-    if (aRows == nullptr)
+    else
+    {
+        aOriginX = 0;
+        aOriginY = 0;
+    }
+
+    const unsigned char* aNativeBytes = (const unsigned char*)aNative
+        + (size_t)aOriginY * (size_t)aStride
+        + (size_t)aOriginX * (size_t)aBytesPerPixel;
+
+    // Expand the rectangle to tightly packed A8R8G8B8, then premultiply.
+    // GLES blends with source factor ONE, so an unpremultiplied texel adds
+    // its full RGB. Desktop GL has no packed A4R4G4B4 upload type, so the
+    // sheet always lands as 32-bit regardless of the .tex header.
+    std::vector<unsigned int> aExpanded((size_t)mSrcWidth * (size_t)mSrcHeight);
+    PixelData aSource(aNativeFormat, mSrcWidth, mSrcHeight, aStride, (void*)aNativeBytes);
+    PixelData aDest(PixelFormat(kPixelFormat_A8R8G8B8), mSrcWidth, mSrcHeight,
+                    mSrcWidth * 4, aExpanded.data());
+    if (aDest.Convert(aSource) == 0)
         return false;
 
     unsigned int internalFormat, dataFormat, dataType;
-    if (!SetupTextureFormat(mFormat, internalFormat, dataFormat, dataType))
+    if (!SetupTextureFormat(PixelFormat(kPixelFormat_A8R8G8B8), internalFormat, dataFormat, dataType))
         return false;
 
     TextureBindScope aBind(mTextureId);
@@ -273,6 +294,23 @@ bool GLTexture::Upload(MemoryImage* theImage)
     glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
     glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
 #endif
+
+    std::vector<unsigned int> aPremul((size_t)mSrcWidth * (size_t)mSrcHeight);
+    for (int aRow = 0; aRow < mSrcHeight; ++aRow)
+    {
+        const unsigned int* aSrcRow = aExpanded.data() + (size_t)aRow * (size_t)mSrcWidth;
+        unsigned int* aDstRow = aPremul.data() + (size_t)aRow * (size_t)mSrcWidth;
+        for (int aCol = 0; aCol < mSrcWidth; ++aCol)
+        {
+            unsigned int aPixel = aSrcRow[aCol];
+            unsigned int aAlpha = aPixel >> 24;
+            unsigned int aRed = ((aPixel >> 16) & 0xFFu) * aAlpha / 255u;
+            unsigned int aGreen = ((aPixel >> 8) & 0xFFu) * aAlpha / 255u;
+            unsigned int aBlue = (aPixel & 0xFFu) * aAlpha / 255u;
+            aDstRow[aCol] = (aAlpha << 24) | (aRed << 16) | (aGreen << 8) | aBlue;
+        }
+    }
+    const unsigned int* aRows = aPremul.data();
 
     if (mWidth == mSrcWidth && mHeight == mSrcHeight)
     {
@@ -308,6 +346,7 @@ bool GLTexture::Upload(MemoryImage* theImage)
 
     mDirty = false;
     theImage->mBitsChanged = false;
+    theImage->mBitsChangedCount = 0;
     GL_CHECK("GLTexture::Upload");
     return true;
 }

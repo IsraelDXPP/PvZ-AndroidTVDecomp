@@ -18,11 +18,14 @@
 #include "PerfTimer.h"
 
 #include "RawObject.h"
+#include "ResourceManager.h"
+#include "SharedImageRef.h"
 
 #include <cstring>
 #include <cstdio>
 #include <map>
 #include <string>
+#include <zlib.h>
 #include "Reanimation.h"
 
 enum DefFieldType
@@ -36,7 +39,8 @@ enum DefFieldType
     DEF_FIELD_FLAGS = 8,
     DEF_FIELD_IMAGE = 9,
     DEF_FIELD_FONT = 10,
-    DEF_FIELD_IMAGE_PAIR = 11
+    DEF_FIELD_IMAGE_PAIR = 11,
+    // Type 0xB in the TV field table. One field, two DefReadFromCacheImage calls.
 };
 
 struct DefinitionArrayField
@@ -76,6 +80,10 @@ static const DefField gTransformDefFields[] = {
     { "sy", 20, DEF_FIELD_FLOAT, nullptr },
     { "f", 24, DEF_FIELD_FLOAT, nullptr },
     { "a", 28, DEF_FIELD_FLOAT, nullptr },
+    // TV transform field table at 0x698c00. "i" is type 0xB, so one field reads
+    // two images: id+resource into mImage, then id+resource into mImage2.
+    // That is the decrypted <i><resource><i2><resource2>. font is type 0xA,
+    // text is type 3.
     { "i", 32, DEF_FIELD_IMAGE_PAIR, nullptr },
     { "font", 40, DEF_FIELD_FONT, nullptr },
     { "text", 44, DEF_FIELD_STRING, nullptr },
@@ -321,68 +329,253 @@ static void DefinitionFreeBlock(void* theBlock)
         operator delete[](theBlock);
 }
 
-static int ReadCacheInt(const char*& theCursor)
+static int ReadCacheInt(const char*& theCursor, const char* theEnd)
 {
+    if (theCursor + 4 > theEnd)
+        return 0;
     int aValue = 0;
     std::memcpy(&aValue, theCursor, 4);
     theCursor += 4;
     return aValue;
 }
 
-static void ReadCacheBytes(const char*& theCursor, void* theDest, int theCount)
+static int ReadCacheBytes(const char*& theCursor, const char* theEnd, void* theDest, int theCount)
 {
+    if (theCount < 0 || theCursor + theCount > theEnd)
+        return 0;
     if (theCount > 0)
         std::memcpy(theDest, theCursor, (unsigned)theCount);
     theCursor += theCount;
+    return 1;
 }
 
-static const char* ReadCacheCString(const char*& theCursor)
+static const char* ReadCacheCString(const char*& theCursor, const char* theEnd)
 {
-    int aLength = ReadCacheInt(theCursor);
+    int aLength = ReadCacheInt(theCursor, theEnd);
     if (aLength == 0)
         return gEmptyCString;
+    if (aLength < 0)
+        return nullptr;
     char* aText = static_cast<char*>(DefinitionAlloc(aLength + 1));
-    ReadCacheBytes(theCursor, aText, aLength);
+    if (ReadCacheBytes(theCursor, theEnd, aText, aLength) == 0)
+    {
+        DefinitionFreeBlock(aText);
+        return nullptr;
+    }
     aText[aLength] = 0;
     return aText;
 }
 
-static int DefMapReadFromCache(const char*& theCursor, const DefMap* theMap, void* theObject);
+static int DefMapReadFromCache(const char*& theCursor, const char* theEnd, const DefMap* theMap, void* theObject);
 
-static int ReadCacheArray(const char*& theCursor, DefinitionArrayField* theField, const DefMap* theNested)
+static int ReadCacheArray(const char*& theCursor, const char* theEnd, DefinitionArrayField* theField, const DefMap* theNested)
 {
-    int aCount = ReadCacheInt(theCursor);
-    if (aCount != theNested->mSize)
+    // The integer in the file is the element stride. The element count was
+    // already copied into the object with the raw record. TV writes the raw
+    // records as one packed blob, then walks each element for its strings.
+    // Zombie.reanim.compiled is 46 tracks of 663 frames: 48 float bytes each,
+    // then i, resource, i2, resource2, font, text on every frame, including
+    // the empty ones. Reading the strings inside the packed blob consumes the
+    // next frame's floats as a name, which shears the sprout without crashing.
+    int aStride = ReadCacheInt(theCursor, theEnd);
+    if (aStride != theNested->mSize)
         return 0;
-    theField->mCount = aCount;
+    if (theField->mCount < 0)
+        return 0;
     if (theField->mCount == 0)
         return 1;
     theField->mData = DefinitionAlloc(theNested->mSize * theField->mCount);
-    ReadCacheBytes(theCursor, theField->mData, theNested->mSize * theField->mCount);
+    if (ReadCacheBytes(theCursor, theEnd, theField->mData, theNested->mSize * theField->mCount) == 0)
+        return 0;
     char* aElement = static_cast<char*>(theField->mData);
     for (int aIndex = 0; aIndex < theField->mCount; ++aIndex)
     {
-        if (DefMapReadFromCache(theCursor, theNested, aElement) == 0)
+        if (DefMapReadFromCache(theCursor, theEnd, theNested, aElement) == 0)
             return 0;
         aElement += theNested->mSize;
     }
     return 1;
 }
 
-static int ReadCacheTrack(const char*& theCursor, FloatParameterTrack* theTrack)
+static int ReadCacheTrack(const char*& theCursor, const char* theEnd, FloatParameterTrack* theTrack)
 {
-    theTrack->mCountNodes = ReadCacheInt(theCursor);
-    if (theTrack->mCountNodes <= 0)
+    theTrack->mCountNodes = ReadCacheInt(theCursor, theEnd);
+    if (theTrack->mCountNodes < 0)
+        return 0;
+    if (theTrack->mCountNodes == 0)
         return 1;
     theTrack->mNodes = static_cast<FloatParameterTrackNode*>(
         DefinitionAlloc(20 * theTrack->mCountNodes));
-    ReadCacheBytes(theCursor, theTrack->mNodes, 20 * theTrack->mCountNodes);
+    return ReadCacheBytes(theCursor, theEnd, theTrack->mNodes, 20 * theTrack->mCountNodes);
+}
+
+static int ReadCacheString(const char*& theCursor, const char* theEnd, const char** theSlot)
+{
+    const char* aText = ReadCacheCString(theCursor, theEnd);
+    if (aText == nullptr)
+        return 0;
+    *theSlot = aText;
     return 1;
 }
 
-static int ReadCacheString(const char*& theCursor, const char** theSlot)
+// DefinitionLoadImage @0x202570. The id is tried first. A miss with a path
+// calls GetSharedImage(path, empty variant, null, commitBits, allowTriReps=0),
+// which is the same virtual GamepadApp uses for every other picture. The five
+// prefix pairs are gDefLoadResPaths at 0x698ea8.
+static const char* kDefLoadPrefixes[] = {
+    "IMAGE_", "particles/",
+    "IMAGE_", "particles/",
+    "IMAGE_REANIM_", "reanim/",
+    "IMAGE_REANIM_", "images/",
+    "IMAGE_REANIM_LAYER_", "reanim/mainmenu3/"
+};
+
+static bool IdEndsWithPng(const char* theId)
 {
-    *theSlot = ReadCacheCString(theCursor);
+    if (theId == nullptr)
+        return false;
+    int aLength = (int)std::strlen(theId);
+    if (aLength <= 4)
+        return false;
+    const char* aTail = theId + aLength - 4;
+    return (aTail[0] == '.' )
+        && (aTail[1] == 'P' || aTail[1] == 'p')
+        && (aTail[2] == 'N' || aTail[2] == 'n')
+        && (aTail[3] == 'G' || aTail[3] == 'g');
+}
+
+static Sexy::Image* LoadImageBySharedPath(const Sexy::String& thePath)
+{
+    if (gSexyAppBase == nullptr || thePath.empty())
+        return nullptr;
+    Sexy::String aVariant;
+    Sexy::SharedImageRef aLoaded = gSexyAppBase->GetSharedImage(thePath, aVariant, nullptr, true, false);
+    return aLoaded.mImage;
+}
+
+static int DefinitionLoadImage(Sexy::Image** theSlot, char* theId, const char* thePath)
+{
+    *theSlot = nullptr;
+    if (theId == nullptr || theId[0] == 0)
+        return 1;
+
+    if (IdEndsWithPng(theId))
+    {
+        int aLength = (int)std::strlen(theId);
+        theId[aLength - 4] = 0;
+    }
+
+    Sexy::String aId(theId);
+    if (gSexyAppBase != nullptr && gSexyAppBase->mResourceManager != nullptr)
+    {
+        Sexy::SharedImageRef aLoaded = gSexyAppBase->mResourceManager->LoadImage(aId);
+        if (aLoaded.mImage != nullptr)
+        {
+            *theSlot = aLoaded.mImage;
+            return 1;
+        }
+    }
+
+    if (thePath != nullptr && thePath[0] != 0)
+    {
+        Sexy::Image* aFound = LoadImageBySharedPath(Sexy::String(thePath));
+        if (aFound != nullptr)
+        {
+            *theSlot = aFound;
+            return 1;
+        }
+    }
+
+    int aIdLength = (int)aId.size();
+    for (int aPair = 0; aPair < 5; ++aPair)
+    {
+        const char* aPrefix = kDefLoadPrefixes[aPair * 2];
+        const char* aReplacement = kDefLoadPrefixes[aPair * 2 + 1];
+        int aPrefixLength = (int)std::strlen(aPrefix);
+        if (aPrefixLength >= aIdLength)
+            continue;
+        Sexy::String aRewritten(aReplacement);
+        aRewritten += aId.c_str() + aPrefixLength;
+        Sexy::Image* aFound = LoadImageBySharedPath(aRewritten);
+        if (aFound != nullptr)
+        {
+            *theSlot = aFound;
+            return 1;
+        }
+    }
+
+    // The id and the resource path were both read. A missing picture must not
+    // abort the map walk: the next frame's strings still have to be consumed,
+    // or every later frame shears. TV returns 0 from DefinitionLoadImage here;
+    // the slot stays empty and the cursor has already passed both strings.
+    *theSlot = nullptr;
+    return 1;
+}
+
+// A compiled image is two length-prefixed names: the resource id, then the
+// file path. An empty id leaves the slot empty and succeeds. A present id
+// goes through DefinitionLoadImage.
+static int ReadCacheImage(const char*& theCursor, const char* theEnd, Sexy::Image** theSlot)
+{
+    int aIdLength = ReadCacheInt(theCursor, theEnd);
+    char* aIdText = nullptr;
+    if (aIdLength < 0)
+        return 0;
+    if (aIdLength > 0)
+    {
+        aIdText = static_cast<char*>(DefinitionAlloc(aIdLength + 1));
+        if (ReadCacheBytes(theCursor, theEnd, aIdText, aIdLength) == 0)
+        {
+            DefinitionFreeBlock(aIdText);
+            return 0;
+        }
+        aIdText[aIdLength] = 0;
+    }
+    int aPathLength = ReadCacheInt(theCursor, theEnd);
+    char* aPathText = nullptr;
+    if (aPathLength < 0)
+    {
+        DefinitionFreeBlock(aIdText);
+        return 0;
+    }
+    if (aPathLength > 0)
+    {
+        aPathText = static_cast<char*>(DefinitionAlloc(aPathLength + 1));
+        if (ReadCacheBytes(theCursor, theEnd, aPathText, aPathLength) == 0)
+        {
+            DefinitionFreeBlock(aIdText);
+            DefinitionFreeBlock(aPathText);
+            return 0;
+        }
+        aPathText[aPathLength] = 0;
+    }
+
+    int aLoaded = DefinitionLoadImage(theSlot, aIdText, aPathText);
+    DefinitionFreeBlock(aIdText);
+    DefinitionFreeBlock(aPathText);
+    return aLoaded;
+}
+
+static int ReadCacheFont(const char*& theCursor, const char* theEnd, Sexy::Font** theSlot)
+{
+    int aLength = ReadCacheInt(theCursor, theEnd);
+    *theSlot = nullptr;
+    if (aLength < 0)
+        return 0;
+    if (aLength == 0)
+        return 1;
+    char* aText = static_cast<char*>(DefinitionAlloc(aLength + 1));
+    if (ReadCacheBytes(theCursor, theEnd, aText, aLength) == 0)
+    {
+        DefinitionFreeBlock(aText);
+        return 0;
+    }
+    aText[aLength] = 0;
+    if (gSexyAppBase != nullptr && gSexyAppBase->mResourceManager != nullptr)
+        *theSlot = gSexyAppBase->mResourceManager->LoadFont(Sexy::String(aText));
+    DefinitionFreeBlock(aText);
+    // Same rule as a missing picture: the name was consumed, so the walk
+    // continues and the slot stays empty.
     return 1;
 }
 
@@ -393,7 +586,7 @@ T* FieldAt(void* theObject, int theOffset)
     return (T*)(aBytes + theOffset);
 }
 
-static int DefMapReadFromCache(const char*& theCursor, const DefMap* theMap, void* theObject)
+static int DefMapReadFromCache(const char*& theCursor, const char* theEnd, const DefMap* theMap, void* theObject)
 {
     if (theMap->mFields == nullptr || theMap->mFields->mName == nullptr || theMap->mFields->mName[0] == 0)
         return 1;
@@ -401,20 +594,39 @@ static int DefMapReadFromCache(const char*& theCursor, const DefMap* theMap, voi
     {
         if (aField->mType == DEF_FIELD_STRING)
         {
-            if (ReadCacheString(theCursor, FieldAt<const char*>(theObject, aField->mOffset)) == 0)
+            if (ReadCacheString(theCursor, theEnd, FieldAt<const char*>(theObject, aField->mOffset)) == 0)
                 return 0;
         }
         else if (aField->mType == DEF_FIELD_ARRAY)
         {
-            if (ReadCacheArray(theCursor, FieldAt<DefinitionArrayField>(theObject, aField->mOffset),
+            if (ReadCacheArray(theCursor, theEnd, FieldAt<DefinitionArrayField>(theObject, aField->mOffset),
                                static_cast<const DefMap*>(aField->mExtra)) == 0)
                 return 0;
         }
         else if (aField->mType == DEF_FIELD_TRACK)
         {
-            if (ReadCacheTrack(theCursor, FieldAt<FloatParameterTrack>(theObject, aField->mOffset)) == 0)
+            if (ReadCacheTrack(theCursor, theEnd, FieldAt<FloatParameterTrack>(theObject, aField->mOffset)) == 0)
                 return 0;
         }
+        else if (aField->mType == DEF_FIELD_IMAGE)
+        {
+            if (ReadCacheImage(theCursor, theEnd, FieldAt<Sexy::Image*>(theObject, aField->mOffset)) == 0)
+                return 0;
+        }
+        else if (aField->mType == DEF_FIELD_FONT)
+        {
+            if (ReadCacheFont(theCursor, theEnd, FieldAt<Sexy::Font*>(theObject, aField->mOffset)) == 0)
+                return 0;
+        }
+        else if (aField->mType == DEF_FIELD_IMAGE_PAIR)
+        {
+            Sexy::Image** aPair = FieldAt<Sexy::Image*>(theObject, aField->mOffset);
+            if (ReadCacheImage(theCursor, theEnd, aPair) == 0)
+                return 0;
+            if (ReadCacheImage(theCursor, theEnd, aPair + 1) == 0)
+                return 0;
+        }
+
     }
     return 1;
 }
@@ -441,12 +653,77 @@ static int DefinitionReadCompiledFile(const Sexy::String& thePath, DefMap* theMa
         DefinitionFreeBlock(aBytes);
         return 0;
     }
+    // A compiled file is either a raw cache or a zlib packet whose first word
+    // is 0xDEADFED4 and whose second word is the uncompressed size. This build's
+    // schema hash is 0, so a non-zero hash means the packet does not match.
     const char* aCursor = aBytes;
-    int aHash = ReadCacheInt(aCursor);
-    (void)aHash;
-    ReadCacheBytes(aCursor, theObject, theMap->mSize);
-    int aOk = DefMapReadFromCache(aCursor, theMap, theObject);
-    DefinitionFreeBlock(aBytes);
+    int aOwned = 0;
+    char* aOwnedBytes = nullptr;
+    if (aSize >= 8)
+    {
+        int aCookie = 0;
+        std::memcpy(&aCookie, aBytes, 4);
+        if (aCookie == (int)0xDEADFED4)
+        {
+            int aUncompressedSize = 0;
+            std::memcpy(&aUncompressedSize, aBytes + 4, 4);
+            if (aUncompressedSize <= 0)
+            {
+                DefinitionFreeBlock(aBytes);
+                return 0;
+            }
+            aOwnedBytes = static_cast<char*>(DefinitionAlloc(aUncompressedSize));
+            unsigned long aGot = (unsigned long)aUncompressedSize;
+            unsigned char* aDest = (unsigned char*)aOwnedBytes;
+            const unsigned char* aSource = (const unsigned char*)(aBytes + 8);
+            int aStatus = uncompress(aDest, &aGot, aSource, (unsigned long)(aSize - 8));
+            DefinitionFreeBlock(aBytes);
+            if (aStatus != Z_OK || (int)aGot != aUncompressedSize)
+            {
+                DefinitionFreeBlock(aOwnedBytes);
+                return 0;
+            }
+            aCursor = aOwnedBytes;
+            aSize = aUncompressedSize;
+            aOwned = 1;
+        }
+    }
+    if (aSize < theMap->mSize + 4)
+    {
+        if (aOwned != 0)
+            DefinitionFreeBlock(aOwnedBytes);
+        else
+            DefinitionFreeBlock(aBytes);
+        return 0;
+    }
+    const char* aEnd = aCursor + aSize;
+    int aHash = ReadCacheInt(aCursor, aEnd);
+    if (aHash != 0)
+    {
+        if (aOwned != 0)
+            DefinitionFreeBlock(aOwnedBytes);
+        else
+            DefinitionFreeBlock(aBytes);
+        return 0;
+    }
+    if (ReadCacheBytes(aCursor, aEnd, theObject, theMap->mSize) == 0)
+    {
+        if (aOwned != 0)
+            DefinitionFreeBlock(aOwnedBytes);
+        else
+            DefinitionFreeBlock(aBytes);
+        return 0;
+    }
+    int aOk = DefMapReadFromCache(aCursor, aEnd, theMap, theObject);
+    // TV DefinitionReadCompiledFile requires the cursor to land on the end.
+    // A short read still returns the map walk's result, which hides a schema
+    // that consumed the next frame's floats as a string.
+    if (aOk != 0 && aCursor != aEnd)
+        aOk = 0;
+    if (aOwned != 0)
+        DefinitionFreeBlock(aOwnedBytes);
+    else
+        DefinitionFreeBlock(aBytes);
     return aOk;
 }
 
@@ -672,9 +949,12 @@ int ReanimatorEnsureDefinitionLoaded(ReanimationType theType, bool theRequireCom
     int aLoaded = ReanimationLoadDefinition(Sexy::String(aParam->mFileName), aDefinition);
     if (aLoaded == 0)
     {
+        aDefinition->mTracks = nullptr;
+        aDefinition->mTrackCount = 0;
         char aMessage[1024];
         snprintf(aMessage, sizeof(aMessage), "Failed to load reanim '%s'", aParam->mFileName);
         TodErrorMessageBox(aMessage, "Error");
+        return 0;
     }
     for (int aTrack = 0; aTrack < aDefinition->mTrackCount; ++aTrack)
     {

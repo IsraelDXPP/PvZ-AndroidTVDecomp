@@ -1179,6 +1179,9 @@ int SexyAppBase::StartLoadingThread()
 {
     if (mAppDriver == nullptr)
         return 0;
+    // The flag records that a thread was spawned. This port's slot pulls
+    // one slice per call, and TitleScreen asks again each frame, so the
+    // flag must not swallow those later slices.
     mLoadingThreadStarted = true;
     return mAppDriver->StartLoadingThread();
 }
@@ -1551,14 +1554,10 @@ Image* SexyAppBase::GetImage(const Sexy::String& theFileName, bool commitBits)
 
     DeviceImage* aNewImage = new DeviceImage(this);
     aNewImage->Create(aDecoded->GetWidth(), aDecoded->GetHeight());
-    if (aDecoded->mPalettized)
-    {
-        unsigned int* aPixels = aNewImage->GetPixels();
-        if (aPixels != nullptr && aDecoded->mBits != nullptr)
-            std::memcpy(aPixels, aDecoded->mBits,
-                        (size_t)aDecoded->GetHeight() * (size_t)aDecoded->GetWidth() * sizeof(unsigned int));
-    }
-    else
+    // Create() allocates the pixel buffer. A palettized GIF has its colours in
+    // mBits as well (the decoder expands them), so both paths copy those pixels.
+    // The old palettized branch copied into a buffer Create() never allocated.
+    if (aDecoded->mBits != nullptr)
     {
         aNewImage->SetBits(aDecoded->mBits, aDecoded->GetWidth(), aDecoded->GetHeight(), commitBits);
     }

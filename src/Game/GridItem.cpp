@@ -73,10 +73,6 @@ constexpr int GRIDITEM_STATE_RAKE_WAITING    = 27;
 constexpr int GRIDITEM_STATE_RAKE_TRIGGERED  = 28;
 constexpr int GRIDITEM_STATE_BRAIN_SQUISHED  = 29;
 
-constexpr int REANIM_SUN           = 22;
-constexpr int REANIM_PORTAL_CIRCLE = 103;
-constexpr int REANIM_PORTAL_SQUARE = 104;
-
 constexpr int PARTICLE_GRAVE_STONE   = 21;
 constexpr int PARTICLE_PORTAL_CIRCLE = 84;
 constexpr int PARTICLE_PORTAL_SQUARE = 85;
@@ -529,7 +525,7 @@ void GridItem::OpenPortal()
   }
   else
   {
-    int aReanimType = REANIM_PORTAL_CIRCLE;
+    ReanimationType aReanimType = REANIM_PORTAL_CIRCLE;
     if ( mGridItemType == GRIDITEM_PORTAL_SQUARE )
     {
       aReanimType = REANIM_PORTAL_SQUARE;
@@ -537,7 +533,7 @@ void GridItem::OpenPortal()
       aPosX -= 4.0f;
     }
 
-    aReanim = (Reanimation *)mApp->AddReanimation(aPosX, aPosY, 0, (ReanimationType)aReanimType);
+    aReanim = (Reanimation *)mApp->AddReanimation(aPosX, aPosY, 0, aReanimType);
     aReanim->mIsAttachment = true;
     mGridItemReanimID = mApp->ReanimationGetID(aReanim);
   }
@@ -1056,7 +1052,7 @@ int GridItem::DrawScaryPot(Sexy::Graphics *theGraphics)
         const int aSunCount = Challenge::ScaryPotterCountSunInPot(this);
 
         Reanimation aReanim;
-        aReanim.ReanimationInitializeType(0.0f, 0.0f, (ReanimationType)REANIM_SUN);
+        aReanim.ReanimationInitializeType(0.0f, 0.0f, REANIM_SUN);
         aReanim.OverrideScale(0.5f, 0.5f);
 
         // The suns are laid out on a small ring inside the pot.

@@ -290,40 +290,40 @@ int CreditScreen::PreLoadCredits()
     TodLoadResources(aGroup);
   }
 
-  PreLoadReanimForCredits(121);
-  PreLoadReanimForCredits(122);
-  PreLoadReanimForCredits(123);
-  PreLoadReanimForCredits(124);
-  PreLoadReanimForCredits(126);
-  PreLoadReanimForCredits(127);
-  PreLoadReanimForCredits(128);
-  PreLoadReanimForCredits(125);
-  PreLoadReanimForCredits(129);
-  PreLoadReanimForCredits(7);
-  PreLoadReanimForCredits(22);
-  PreLoadReanimForCredits(130);
-  PreLoadReanimForCredits(21);
-  PreLoadReanimForCredits(58);
-  PreLoadReanimForCredits(29);
-  PreLoadReanimForCredits(133);
-  PreLoadReanimForCredits(132);
-  PreLoadReanimForCredits(134);
-  PreLoadReanimForCredits(135);
-  PreLoadReanimForCredits(136);
-  PreLoadReanimForCredits(137);
-  PreLoadReanimForCredits(138);
-  PreLoadReanimForCredits(139);
-  PreLoadReanimForCredits(140);
-  PreLoadReanimForCredits(131);
-  PreLoadReanimForCredits(16);
-  PreLoadReanimForCredits(13);
-  PreLoadReanimForCredits(4);
-  PreLoadReanimForCredits(14);
-  PreLoadReanimForCredits(76);
-  PreLoadReanimForCredits(5);
-  PreLoadReanimForCredits(17);
-  PreLoadReanimForCredits(18);
-  int result = PreLoadReanimForCredits(15);
+  PreLoadReanimForCredits(REANIM_CREDITS_MAIN);
+  PreLoadReanimForCredits(REANIM_CREDITS_MAIN2);
+  PreLoadReanimForCredits(REANIM_CREDITS_MAIN3);
+  PreLoadReanimForCredits(REANIM_ZOMBIE_CREDITS_DANCE);
+  PreLoadReanimForCredits(REANIM_CREDITS_BIGBRAIN);
+  PreLoadReanimForCredits(REANIM_CREDITS_FLOWER_PETALS);
+  PreLoadReanimForCredits(REANIM_CREDITS_INFANTRY);
+  PreLoadReanimForCredits(REANIM_CREDITS_STAGE);
+  PreLoadReanimForCredits(REANIM_CREDITS_THROAT);
+  PreLoadReanimForCredits(REANIM_SUNFLOWER);
+  PreLoadReanimForCredits(REANIM_SUN);
+  PreLoadReanimForCredits(REANIM_CREDITS_CRAZYDAVE);
+  PreLoadReanimForCredits(REANIM_ZOMBIE);
+  PreLoadReanimForCredits(REANIM_DIGGER);
+  PreLoadReanimForCredits(REANIM_ZOMBIE_FOOTBALL);
+  PreLoadReanimForCredits(REANIM_ZOMBIE_CREDITS_CONEHEAD);
+  PreLoadReanimForCredits(REANIM_ZOMBIE_CREDITS_SCREEN_DOOR);
+  PreLoadReanimForCredits(REANIM_CREDITS_ZOMBIEARMY1);
+  PreLoadReanimForCredits(REANIM_CREDITS_ZOMBIEARMY2);
+  PreLoadReanimForCredits(REANIM_CREDITS_TOMBSTONES);
+  PreLoadReanimForCredits(REANIM_CREDITS_SOLARPOWER);
+  PreLoadReanimForCredits(REANIM_CREDITS_ANYHOUR);
+  PreLoadReanimForCredits(REANIM_CREDITS_WEARETHEUNDEAD);
+  PreLoadReanimForCredits(REANIM_CREDITS_DISCOLIGHTS);
+  PreLoadReanimForCredits(REANIM_CREDITS_BOSSDANCE);
+  PreLoadReanimForCredits(REANIM_TALLNUT);
+  PreLoadReanimForCredits(REANIM_SNOWPEA);
+  PreLoadReanimForCredits(REANIM_PEASHOOTER);
+  PreLoadReanimForCredits(REANIM_REPEATER);
+  PreLoadReanimForCredits(REANIM_KERNELPULT);
+  PreLoadReanimForCredits(REANIM_WALLNUT);
+  PreLoadReanimForCredits(REANIM_FUMESHROOM);
+  PreLoadReanimForCredits(REANIM_PUFFSHROOM);
+  int result = PreLoadReanimForCredits(REANIM_SUNSHROOM);
 
   // The three definition lists the credits re-skin: the two "Words"
   // text tracks are switched to the credits font, and the third list's
@@ -461,14 +461,14 @@ Reanimation *CreditScreen::PlayReanim(int thePhase)
   switch ( thePhase )
   {
     case 1:
-      aReanim = mApp->AddReanimation(0, 0, 0, (ReanimationType)121);
+      aReanim = mApp->AddReanimation(0, 0, 0, REANIM_CREDITS_MAIN);
       aReanim->AssignRenderGroupToPrefix("Background", 1);
       aReanim->AssignRenderGroupToPrefix("attacher__Zombie", 2);
       aReanim->AssignRenderGroupToPrefix("Words", 3);
       aReanim->AssignRenderGroupToPrefix("SpotFront", 3);
       break;
     case 2:
-      aReanim = mApp->AddReanimation(0, 0, 0, (ReanimationType)122);
+      aReanim = mApp->AddReanimation(0, 0, 0, REANIM_CREDITS_MAIN2);
       aReanim->AssignRenderGroupToPrefix("Background", 1);
       aReanim->AssignRenderGroupToPrefix("attacher__Zombie", 2);
       aReanim->AssignRenderGroupToPrefix("Words", 3);
@@ -476,7 +476,7 @@ Reanimation *CreditScreen::PlayReanim(int thePhase)
       aReanim->AssignRenderGroupToPrefix("attacher__undead", 2);
       break;
     case 3:
-      aReanim = mApp->AddReanimation(0, 0, 0, (ReanimationType)123);
+      aReanim = mApp->AddReanimation(0, 0, 0, REANIM_CREDITS_MAIN3);
       aReanim->AssignRenderGroupToPrefix("Background", 1);
       aReanim->AssignRenderGroupToPrefix("attacher__Zombie", 2);
       aReanim->AssignRenderGroupToPrefix("attacher__DiscoLights", 2);
@@ -647,7 +647,7 @@ int CreditScreen::UpdateBlink()
           || aReanim->mAnimTime <= 200.0f / (float)(CreditsFrameCount(aReanim) - 1)) )
     {
       Reanimation *aBlink = mApp->mEffectSystem->mReanimationHolder
-                                ->AllocReanimation(0, 0, 0, (ReanimationType)7);
+                                ->AllocReanimation(0, 0, 0, REANIM_SUNFLOWER);
       aBlink->SetFramesForLayer("anim_blink");
       aBlink->mLoopType = (ReanimLoopType)4;
       aBlink->SetAnimRate(15.0);
@@ -689,7 +689,7 @@ void CreditScreen::TurnOffTongues(Reanimation * theReanim, int theTrack)
           (ReanimatorTrackInstanceLayout *)((char *)theReanim->mTrackInstances + aTrackOffset);
       ReanimatorTrack *aTrack =
           (ReanimatorTrack *)((char *)theReanim->mDefinition->mTracks + aTrackOffset);
-      if ( theReanim->mReanimationType == (ReanimationType)124 && aTonguePhase != 1 &&
+      if ( theReanim->mReanimationType == REANIM_ZOMBIE_CREDITS_DANCE && aTonguePhase != 1 &&
            strcasecmp(aTrack->mName, "anim_tongue") == 0 )
         aInstance->mRenderGroup = -1;
 

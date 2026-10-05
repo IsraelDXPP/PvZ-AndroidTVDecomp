@@ -154,10 +154,11 @@ public:
 } // namespace
 
 // Definitions for the class statics declared in the header.
-// The four words at 0x715B80 are zero in the file image. TitleScreen::Draw
-// places the 800-wide art at this origin, so the rect is the 800 by 600
-// stage the literals were written for.
-Sexy::TRect<int> LawnApp::FULLSCREEN_RECT(0, 0, 800, 600);
+// The four words at 0x715B80 are zero in the file image. The static
+// initializer at 0x1318B0 stores (-240, -60, 1280, 720) before draw.
+// Title art and the disclaimer cover both use this rect. DrawScreen's
+// shift of -mScreenBounds then puts the 1280-wide cover over the window.
+Sexy::TRect<int> LawnApp::FULLSCREEN_RECT(-240, -60, 1280, 720);
 
 
 // The challenge table's page enumerators, from the authoritative
@@ -1135,7 +1136,7 @@ void LawnApp::DoPauseDialog()
 
   // 5.0f and 42.0f are the two float immediates. Type 30 and the 155-pixel
   // gap under the header are immediates too; CalcSize sees the width test.
-  aDialog->mReanimationWidget->AddReanimation(5.0f, 42.0f, ReanimationType(30));
+  aDialog->mReanimationWidget->AddReanimation(5.0f, 42.0f, REANIM_ZOMBIE_NEWSPAPER);
   aDialog->mSpaceAfterHeader = 155;
   aDialog->CalcSize(0, 10, aDialog->mWidth < 500);
   CenterDialog(aDialog, aDialog->mWidth, aDialog->mHeight);
@@ -2851,7 +2852,7 @@ bool LawnApp::CanSpawnYetis()
 // ==========================================================================
 int LawnApp::CrazyDaveEnter()
 {
-  Reanimation *aDave = AddReanimation(0, 0, 0, 97);
+  Reanimation *aDave = AddReanimation(0, 0, 0, REANIM_CRAZY_DAVE);
   aDave->mIsAttachment = true;
   aDave->SetBasePoseFromAnim("anim_idle_handing");
   mCrazyDaveReanimID = ReanimationGetID(aDave);
@@ -3021,7 +3022,7 @@ void LawnApp::CrazyDaveTalkMessage(Sexy::String const& theMessage)
             || aHasMarker("{SHOW_MONEYBAG}") )
   {
     aDave->PlayReanim("anim_talk_handing", REANIM_LOOP, 50, 12.0f);
-    ReanimationType aPropType = (ReanimationType)5;
+    ReanimationType aPropType = REANIM_WALLNUT;
     const char *aPropAnim = "anim_idle";
     ReanimLoopType aPropLoop = REANIM_LOOP;
     float aPropRate = 12.0f;
@@ -3033,7 +3034,7 @@ void LawnApp::CrazyDaveTalkMessage(Sexy::String const& theMessage)
     Sexy::Image *aBagImage = nullptr;
     if ( aHasMarker("{SHOW_HAMMER}") )
     {
-      aPropType = (ReanimationType)99;
+      aPropType = REANIM_HAMMER;
       aPropAnim = "anim_whack_zombie";
       aPropLoop = REANIM_PLAY_ONCE_AND_HOLD;
       aPropRate = 24.0f;
@@ -3045,7 +3046,7 @@ void LawnApp::CrazyDaveTalkMessage(Sexy::String const& theMessage)
     }
     else if ( aHasMarker("{SHOW_FERTILIZER}") )
     {
-      aPropType = (ReanimationType)107;
+      aPropType = REANIM_ZENGARDEN_FERTILIZER;
       aPropAnim = "bag";
       aPropLoop = REANIM_PLAY_ONCE_AND_HOLD;
       aPropRate = 24.0f;
@@ -3057,7 +3058,7 @@ void LawnApp::CrazyDaveTalkMessage(Sexy::String const& theMessage)
     }
     else if ( aHasMarker("{SHOW_TREE_FOOD}") )
     {
-      aPropType = (ReanimationType)120;
+      aPropType = REANIM_TREEOFWISDOM_TREEFOOD;
       aPropAnim = "bag";
       aPropLoop = REANIM_PLAY_ONCE_AND_HOLD;
       aPropRate = 24.0f;
@@ -3069,7 +3070,7 @@ void LawnApp::CrazyDaveTalkMessage(Sexy::String const& theMessage)
     }
     else if ( aHasMarker("{SHOW_MONEYBAG}") )
     {
-      aPropType = (ReanimationType)107;
+      aPropType = REANIM_ZENGARDEN_FERTILIZER;
       aPropAnim = "bag";
       aPropLoop = REANIM_PLAY_ONCE_AND_HOLD;
       aPropRate = 24.0f;
@@ -3238,7 +3239,7 @@ void LawnApp::UpdateCrazyDave()
     mCrazyDaveBlinkCounter = RandRangeInt(400, 800);
 
     // The blink is a second Crazy Dave whose eye group takes over the head.
-    Reanimation *aBlink = AddReanimation(0, 0, 0, 97);
+    Reanimation *aBlink = AddReanimation(0, 0, 0, REANIM_CRAZY_DAVE);
     aBlink->SetFramesForLayer("anim_blink");
     aBlink->mLoopType = REANIM_PLAY_ONCE_FULL_LAST_FRAME_AND_HOLD;
     aBlink->SetAnimRate(15.0);
@@ -3558,31 +3559,31 @@ int LawnApp::PreloadForUser()
 
   // Each reanimation group is worth one 136-unit step of the progress bar, and
   // the prologue books them unconditionally -- only the two loops below clamp.
-  ReanimatorEnsureDefinitionLoaded((ReanimationType)69, true);
-  ReanimatorEnsureDefinitionLoaded((ReanimationType)96, true);
-  ReanimatorEnsureDefinitionLoaded((ReanimationType)9, true);
+  ReanimatorEnsureDefinitionLoaded(REANIM_PUFF, true);
+  ReanimatorEnsureDefinitionLoaded(REANIM_LAWN_MOWERED_ZOMBIE, true);
+  ReanimatorEnsureDefinitionLoaded(REANIM_READYSETPLANT, true);
   mCompletedLoadingThreadTasks += 136;
-  ReanimatorEnsureDefinitionLoaded((ReanimationType)3, true);
-  ReanimatorEnsureDefinitionLoaded((ReanimationType)22, true);
-  ReanimatorEnsureDefinitionLoaded((ReanimationType)98, true);
+  ReanimatorEnsureDefinitionLoaded(REANIM_FINAL_WAVE, true);
+  ReanimatorEnsureDefinitionLoaded(REANIM_SUN, true);
+  ReanimatorEnsureDefinitionLoaded(REANIM_TEXT_FADE_ON, true);
   mCompletedLoadingThreadTasks += 136;
-  ReanimatorEnsureDefinitionLoaded((ReanimationType)21, true);
+  ReanimatorEnsureDefinitionLoaded(REANIM_ZOMBIE, true);
   mCompletedLoadingThreadTasks += 136;
-  ReanimatorEnsureDefinitionLoaded((ReanimationType)30, true);
+  ReanimatorEnsureDefinitionLoaded(REANIM_ZOMBIE_NEWSPAPER, true);
   mCompletedLoadingThreadTasks += 136;
-  ReanimatorEnsureDefinitionLoaded((ReanimationType)111, true);
+  ReanimatorEnsureDefinitionLoaded(REANIM_ZOMBIE_HAND, true);
   mCompletedLoadingThreadTasks += 136;
-  ReanimatorEnsureDefinitionLoaded((ReanimationType)154, true);
+  ReanimatorEnsureDefinitionLoaded(REANIM_MAINMENU_SKY, true);
   mCompletedLoadingThreadTasks += 136;
-  ReanimatorEnsureDefinitionLoaded((ReanimationType)155, true);
+  ReanimatorEnsureDefinitionLoaded(REANIM_MAINMENU_SKY2, true);
   mCompletedLoadingThreadTasks += 136;
-  ReanimatorEnsureDefinitionLoaded((ReanimationType)152, true);
+  ReanimatorEnsureDefinitionLoaded(REANIM_MAINMENU, true);
   mCompletedLoadingThreadTasks += 136;
-  ReanimatorEnsureDefinitionLoaded((ReanimationType)153, true);
+  ReanimatorEnsureDefinitionLoaded(REANIM_CROW, true);
   mCompletedLoadingThreadTasks += 136;
-  ReanimatorEnsureDefinitionLoaded((ReanimationType)156, true);
+  ReanimatorEnsureDefinitionLoaded(REANIM_FALLING_LEAVES, true);
   mCompletedLoadingThreadTasks += 136;
-  ReanimatorEnsureDefinitionLoaded((ReanimationType)157, true);
+  ReanimatorEnsureDefinitionLoaded(REANIM_BUTTERFLY, true);
   mCompletedLoadingThreadTasks += 136;
 
   // The two walks below are the only ones that clamp: they run until the app is
@@ -4803,12 +4804,12 @@ int LawnApp::ShowSavingDingus()
     Reanimation *aDingus;
     if ( lrand48() % 100 > 97 )
     {
-      aDingus = AddReanimation(aStartY, mSavingDingusCurrentY, 304000, 21);
+      aDingus = AddReanimation(aStartY, mSavingDingusCurrentY, 304000, REANIM_ZOMBIE);
       Zombie::SetupReanimLayers(aDingus, (ZombieType)0);
     }
     else
     {
-      aDingus = AddReanimation(aStartY, mSavingDingusCurrentY, 304000, 7);
+      aDingus = AddReanimation(aStartY, mSavingDingusCurrentY, 304000, REANIM_SUNFLOWER);
     }
     aDingus->PlayReanim("anim_idle", REANIM_LOOP, 0, 12.0);
     aDingus->mIsAttachment = true;
@@ -4898,13 +4899,13 @@ char ** LawnApp::DrawSavingDingus(Sexy::Graphics * g)
     Reanimation *aZombie;
     if ( lrand48() % 100 > 97 )
     {
-      aZombie = AddReanimation(aStartY, mSavingDingusCurrentY, 304000, 21);
+      aZombie = AddReanimation(aStartY, mSavingDingusCurrentY, 304000, REANIM_ZOMBIE);
       Zombie::SetupReanimLayers(aZombie, (ZombieType)0);
       aZombie->PlayReanim("anim_idle", REANIM_LOOP, 0, 12.0);
     }
     else
     {
-      aZombie = AddReanimation(aStartY, mSavingDingusCurrentY, 304000, 7);
+      aZombie = AddReanimation(aStartY, mSavingDingusCurrentY, 304000, REANIM_SUNFLOWER);
     }
     aZombie->Draw(g);
     mSavingDingusReanimationID = ReanimationGetID(aZombie);
@@ -5196,9 +5197,9 @@ void LawnApp::PrepareTitleLoad()
     mNumLoadingThreadTasks += aNumResources;
   }
 
-  ReanimatorEnsureDefinitionLoaded(145, 1);
-  ReanimatorEnsureDefinitionLoaded(0, 1);
-  ReanimatorEnsureDefinitionLoaded(1, 1);
+  ReanimatorEnsureDefinitionLoaded(REANIM_ZOMBIE_TARGET, true);
+  ReanimatorEnsureDefinitionLoaded(REANIM_LOADBAR_SPROUT, true);
+  ReanimatorEnsureDefinitionLoaded(REANIM_LOADBAR_ZOMBIEHEAD, true);
 
   // Weight 0: these resources are the screen itself. They are in the task
   // total, and the completion flag is what lets the bar cross them.
@@ -5230,7 +5231,6 @@ void LawnApp::PrepareTitleLoad()
   {
     mTitleScreen->OnLoading();
     mTitleScreen->mLoaderScreenIsLoaded = true;
-    mTitleScreen->mNeedToInit = false;
     mTitleScreen->mTitleState = TitleScreen::Loading;
   }
 
@@ -5684,9 +5684,18 @@ void LawnApp::Init()
   // vptr.
   aTitleScreen->Resize(0, 0, aWidth, aHeight);
   // DrawScreen maps the cursor through these two rects. A zero size divides
-  // by zero the first time the screen is drawn.
-  Sexy::TRect<int> aScreen(0, 0, aWidth, aHeight);
-  mWidgetManager->Resize(aScreen, aScreen);
+  // by zero the first time the screen is drawn. InitGraphics already stored
+  // the centered bounds; do not replace them with a 0,0 rect.
+  if (mWidgetManager->mMouseSourceRect.mWidth == 0
+      || mWidgetManager->mMouseSourceRect.mHeight == 0)
+  {
+    Sexy::TRect<int> aScreen(mScreenBounds.mX, mScreenBounds.mY,
+                             mScreenBounds.mWidth, mScreenBounds.mHeight);
+    if (aScreen.mWidth == 0 || aScreen.mHeight == 0)
+      aScreen = Sexy::TRect<int>(0, 0, aWidth, aHeight);
+    Sexy::TRect<int> aSource(0, 0, aScreen.mWidth, aScreen.mHeight);
+    mWidgetManager->Resize(aScreen, aSource);
+  }
   // Byte 24 of mWidgetManager's table is slot 6 AddWidget and byte 48 slot 12
   // SetFocus, both WidgetContainer's.
   mWidgetManager->AddWidget(mTitleScreen);
@@ -5718,7 +5727,7 @@ void LawnApp::Init()
   mSukhbirCheck = new TypingCheck(Sexy::String("sukhbir"));
   aTimer.GetDuration();
   aTimer.Start();
-  ReanimatorLoadDefinitions(gLawnReanimationArray[0].mRecords, 178);
+  ReanimatorLoadDefinitions(gLawnReanimationArray, NUM_REANIMS);
   aTimer.GetDuration();
   aTimer.Start();
   // dword_715B18 holds the Sexy::Widget the constructor allocates and then
@@ -6584,10 +6593,13 @@ LawnApp::LawnApp()
   mReanimatorCache = nullptr;
   mCloseRequest = 0;
   mAppCounter = 0;
+  // LawnApp::LawnApp @0x2C087C. 0x500/0x2D0 are the TV layout,
+  // 0x320/0x258 are the 800 by 600 stage the art was drawn for.
+  // InitGraphics centers that stage in the display: (display - mWidth) / 2.
   mLayoutWidth = 1280;
   mLayoutHeight = 720;
-  mWidth = 1280;
-  mHeight = 720;
+  mWidth = 800;
+  mHeight = 600;
   mFullscreenBits = 32;
   mPlayTimeActiveSession = 0;
   mAppRandSeed = (int)time(nullptr);
@@ -7603,7 +7615,10 @@ int LawnApp::HardwareInit()
   Sexy::SWTri_AddDrawTriFunc(1, 1, 0, 0, 34952, 1, Sexy::DrawTriangle_8888_TEX1_TALPHA1_MOD0_GLOB0_BLEND1);
   // Both branches allocate the same 0x68 bytes; Music2 adds no member, so the
   // block Music constructs fits the Music2* the member is typed as.
-  if ( Sexy::GetEnvOption("LAWN_MUSIC2", true) != 0 )
+  // Music is the XM path (mainmusic.xm plus the drums and hihats layers).
+  // Music2 is the per-file ogg path. The default is Music; LAWN_MUSIC2=1
+  // selects the ogg path.
+  if ( Sexy::GetEnvOption("LAWN_MUSIC2", false) != 0 )
     mMusic = new Music2();
   else
     mMusic = new Music();

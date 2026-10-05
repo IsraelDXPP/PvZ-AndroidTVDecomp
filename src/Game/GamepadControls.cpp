@@ -2749,7 +2749,7 @@ void GamepadControls::UpdatePreviewReanim()
       int aOffscreenBits = -1046478848;
       std::memcpy(&aOffscreenX, &aOffscreenBits, sizeof(aOffscreenX));
       aBody = mApp->AddReanimation(aOffscreenX, -35.0f - aHeightOffset, aRenderOrder + 1,
-                                   (ReanimationType)aZombieDef->mReanimationType);
+                                   aZombieDef->mReanimationType);
       Zombie::SetupReanimLayers(aBody, aZombieType);
       // Newspaper and screen door share the low five bits; trashcan is its own case.
       if ( aZombieType == ZOMBIE_DOOR || aZombieType == ZOMBIE_TRASHCAN
@@ -2767,7 +2767,7 @@ void GamepadControls::UpdatePreviewReanim()
         if ( aZombieType == ZOMBIE_FLAG )
         {
           // 141 is REANIM_ZOMBIE_FLAGPOLE. The flag is a second reanim held in the hand.
-          Reanimation *aFlag = mApp->AddReanimation(0.0f, 0.0f, 0, (ReanimationType)141);
+          Reanimation *aFlag = mApp->AddReanimation(0.0f, 0.0f, 0, REANIM_FLAG);
           aFlag->PlayReanim("Zombie_flag", REANIM_LOOP, 0, 15.0f);
           mPreviewReanimID3 = mApp->ReanimationGetID(aFlag);
           ReanimatorTrackInstance *aFlagHand = aBody->GetTrackInstanceByName("Zombie_flaghand");
@@ -2857,7 +2857,7 @@ int GamepadControls::Update(float theDeltaTime)
   // otherwise bounces. It is built the first time a pad is attached.
   if ( mCobCannonReanimID == (ReanimationID)0 && mGamepadIndex != -1 )
   {
-    Reanimation *aCob = mApp->AddReanimation(0.0f, 0.0f, RenderLayer::RENDER_LAYER_BOSS, (ReanimationType)158);
+    Reanimation *aCob = mApp->AddReanimation(0.0f, 0.0f, RenderLayer::RENDER_LAYER_BOSS, REANIM_A_BUTTON_BOUNCE);
     aCob->PlayReanim("anim_idle", REANIM_PLAY_ONCE_AND_HOLD, 0, 12.0f);
     aCob->mIsAttachment = true;
     mCobCannonReanimID = mApp->ReanimationGetID(aCob);

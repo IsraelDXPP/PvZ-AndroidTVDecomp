@@ -23,6 +23,7 @@
 #include "SharedImageRef.h"
 
 #include <cstring>
+#include <vector>
 #include <list>
 #include <map>
 #include <string>
@@ -551,21 +552,20 @@ Sexy::ImageFont* Sexy::ImageFont::Prepare()
 
 int Sexy::ImageFont::StringWidth(Sexy::String const& theString)
 {
-    Sexy::String aWide;
-    StringToWString(&aWide, theString.c_str());
-    if (aWide.empty())
+    // The binary widens to basic_string<int> and measures that. This port's
+    // string is already one byte per glyph for the title label, and the
+    // widen copies those bytes rather than one int per glyph. Measuring the
+    // copy as ints reads past the buffer, so the button's centering jumps.
+    int aWidth = 0;
+    int aPrevChar = 0;
+    unsigned int aIndex = 0;
+    while (aIndex < theString.size())
     {
-        int aWidth = 0;
-        int aPrevChar = 0;
-        for (unsigned int i = 0; i < theString.length(); ++i)
-        {
-            int aChar = (unsigned char)theString.c_str()[i];
-            aWidth += CharWidthKern(aChar, aPrevChar);
-            aPrevChar = aChar;
-        }
-        return aWidth;
+        int aChar = ReadCodePoint(theString, aIndex);
+        aWidth += CharWidthKern(aChar, aPrevChar);
+        aPrevChar = aChar;
     }
-    return StringWidth(AsWide(aWide));
+    return aWidth;
 }
 
 int Sexy::ImageFont::AddTag(Sexy::String const& theTag)
@@ -1060,6 +1060,8 @@ int Sexy::ImageFont::MappedCharWidthKern(int theChar, int thePrevChar)
             ? aScale / (double)aFontLayer->mPointSize
             : mScale;
         int aWidth = (int)((double)(short)aCharData->mAdvance * aGlyphScale);
+        // MappedCharWidthKern @0x3113F0 looks the pair up on the previous
+        // glyph. The amount is how far this glyph sits from that one.
         int aKern = 0;
         if (thePrevChar != 0)
         {
@@ -1291,16 +1293,21 @@ void Sexy::ImageFont::DrawStringEx(Sexy::Graphics* theGraphics, int theX, int th
     int aSavedColorize = theGraphics->GetColorizeImages();
     theGraphics->SetColorizeImages(true);
 
-    const char* aBytes = theString.c_str();
-    unsigned aLength = (unsigned)theString.length();
+    // A label is UTF-8. Walking one byte looks up a continuation byte and
+    // misses every CJK glyph the descriptor stored as one code point.
+    std::vector<int> aChars;
+    unsigned int aByteIndex = 0;
+    while (aByteIndex < theString.size())
+        aChars.push_back(ReadCodePoint(theString, aByteIndex));
+    unsigned aLength = (unsigned)aChars.size();
     int aPen = theX;
     int aRecordCount = 0;
-    int aChar = GetMappedChar((unsigned char)aBytes[0]);
+    int aChar = aChars.empty() ? 0 : GetMappedChar(aChars[0]);
     for (unsigned aIndex = 0; aIndex < aLength; ++aIndex)
     {
         int aNext = aIndex >= aLength - 1
             ? 0
-            : GetMappedChar((unsigned char)aBytes[aIndex + 1]);
+            : GetMappedChar(aChars[aIndex + 1]);
         int aPenMax = aPen;
         for (unsigned int aLayerIndex = 0; aLayerIndex < mActiveLayerList.size(); ++aLayerIndex)
         {
@@ -1312,15 +1319,15 @@ void Sexy::ImageFont::DrawStringEx(Sexy::Graphics* theGraphics, int theX, int th
             if (aFontLayer->mPointSize != 0)
                 aGlyphScale = mScale * (double)(mPointSize / aFontLayer->mPointSize);
 
-            short aOffsetX = (short)aCharData->mOffsetX;
-            short aOffsetY = (short)aCharData->mOffsetY;
+            int aOffsetX = (int)(short)aCharData->mOffsetX;
+            int aOffsetY = (int)(short)aCharData->mOffsetY;
             int aAdvance;
             int aX;
             int aY;
             int aKern;
             if (aGlyphScale == 1.0)
             {
-                aAdvance = (short)aCharData->mAdvance;
+                aAdvance = (int)(short)aCharData->mAdvance;
                 aY = theY + aFontLayer->mOffset.mY - aFontLayer->mAscent + aOffsetY;
                 aX = aFontLayer->mOffset.mX + aPen + aOffsetX;
                 if (aNext != 0)
@@ -1591,7 +1598,9 @@ void Sexy::ImageFont::GenerateActiveFontLayers()
     for (auto aNode = mFontData->mLayerList.begin(); aNode != mFontData->mLayerList.end(); ++aNode)
     {
         FontLayer* aFontLayer = &*aNode;
-        if (mPointSize < aFontLayer->mMinPointSize || mPointSize > aFontLayer->mMaxPointSize)
+        // mMaxPointSize stays -1 when the descriptor sets no upper bound.
+        if (mPointSize < aFontLayer->mMinPointSize
+            || (aFontLayer->mMaxPointSize != -1 && mPointSize > aFontLayer->mMaxPointSize))
             continue;
 
         bool aMatch = true;
@@ -1634,8 +1643,8 @@ void Sexy::ImageFont::GenerateActiveFontLayers()
             for (auto aChar = aFontLayer->mCharDataMap.begin();
                  aChar != aFontLayer->mCharDataMap.end(); ++aChar)
             {
-                int aWidth = (int)((aMetricScale * (double)SignedHalf(aChar->second.mWidth)) * aInvPoint);
-                int aHeight = (int)((aMetricScale * (double)SignedHalf(aChar->second.mHeight)) * aInvPoint);
+                int aWidth = (int)((aMetricScale * (double)(unsigned short)aChar->second.mWidth) * aInvPoint);
+                int aHeight = (int)((aMetricScale * (double)(unsigned short)aChar->second.mHeight) * aInvPoint);
                 aActive->mCharRects[aChar->first] = TRect<int>(aTotalWidth, 0, aWidth, aHeight);
                 aTotalWidth += aWidth;
                 if (aMaxHeight < aHeight)
@@ -1654,8 +1663,9 @@ void Sexy::ImageFont::GenerateActiveFontLayers()
                     if (aSrc == nullptr)
                         continue;
                     TRect<int> aDestRect = aActive->mCharRects[aChar->first];
-                    TRect<int> aSrcRect(SignedHalf(aChar->second.mX), SignedHalf(aChar->second.mY),
-                                        SignedHalf(aChar->second.mWidth), SignedHalf(aChar->second.mHeight));
+                    TRect<int> aSrcRect((int)(short)aChar->second.mX, (int)(short)aChar->second.mY,
+                                        (int)(unsigned short)aChar->second.mWidth,
+                                        (int)(unsigned short)aChar->second.mHeight);
                     aGraphics.DrawImage(aSrc, aDestRect, aSrcRect);
                 }
                 if (mForceScaledImagesWhite)
@@ -1676,8 +1686,9 @@ void Sexy::ImageFont::GenerateActiveFontLayers()
                  aChar != aFontLayer->mCharDataMap.end(); ++aChar)
             {
                 aActive->mCharRects[aChar->first] = TRect<int>(
-                    SignedHalf(aChar->second.mX), SignedHalf(aChar->second.mY),
-                    SignedHalf(aChar->second.mWidth), SignedHalf(aChar->second.mHeight));
+                    (int)(short)aChar->second.mX, (int)(short)aChar->second.mY,
+                    (int)(unsigned short)aChar->second.mWidth,
+                    (int)(unsigned short)aChar->second.mHeight);
             }
         }
 

@@ -45,6 +45,7 @@
 // _ZTVN4Sexy13BaseAppDriverE @0x68C7D8 (97 slots, 0..96).
 
 #include "Win32AppDriver.h"
+#include "GLImage.h"
 
 #include "Audio/OpenALAudioBackend.h"
 #include "GLWindow.h"
@@ -215,6 +216,8 @@ void AppDriver_ReadAppSize(void* theApp, int& theWidth, int& theHeight)
 // creates a GLWindow before LawnApp) already owns the display, and opening a
 // second GLFW window would just move the context out from under it. In that
 // case the driver records the size and reuses the existing context.
+void AppDriver_CenterScreen(Win32AppDriver* theSelf);
+
 bool AppDriver_EnsureWindow(Win32AppDriver* theSelf)
 {
     if (!theSelf)
@@ -227,6 +230,15 @@ bool AppDriver_EnsureWindow(Win32AppDriver* theSelf)
     if (glfwGetCurrentContext() != NULL)
     {
         theSelf->mOwnsWindow = false;
+        int aWidth = 0;
+        int aHeight = 0;
+        GLFWwindow* aCurrent = glfwGetCurrentContext();
+        glfwGetWindowSize(aCurrent, &aWidth, &aHeight);
+        if (aWidth > 0 && aHeight > 0)
+        {
+            theSelf->mWidth = aWidth;
+            theSelf->mHeight = aHeight;
+        }
         TOD_TRACE("Win32AppDriver: reusing the current GL context, %dx%d",
                   theSelf->mWidth, theSelf->mHeight);
         return true;
@@ -247,6 +259,38 @@ bool AppDriver_EnsureWindow(Win32AppDriver* theSelf)
     theSelf->mOwnsWindow = true;
     TOD_TRACE("Win32AppDriver: created %dx%d", theSelf->mWidth, theSelf->mHeight);
     return true;
+}
+
+// BaseAppDriver::InitGraphics @0x3F3644.
+//
+//   r0 = driver[+0x40]          display width, stored at app+0x620
+//   r2 = driver[+0x44]          display height, stored at app+0x624
+//   r1 = app.mWidth  (+0x4C)
+//   r5 = app.mHeight (+0x50)
+//   app+0x618 = (mWidth  - displayWidth)  / 2
+//   app+0x61C = (mHeight - displayHeight) / 2
+//
+// On a 1280 window and an 800 stage that origin is -240. DrawScreen
+// translates by its negative, which is the centering shift.
+void AppDriver_CenterScreen(Win32AppDriver* theSelf)
+{
+    if (theSelf == nullptr || theSelf->mApp == nullptr)
+        return;
+
+    Sexy::SexyAppBase* anApp = (Sexy::SexyAppBase*)theSelf->mApp;
+    if (anApp->mWidgetManager == nullptr)
+        return;
+
+    int aDisplayWidth = theSelf->mWidth;
+    int aDisplayHeight = theSelf->mHeight;
+
+    anApp->mScreenBounds.mWidth = aDisplayWidth;
+    anApp->mScreenBounds.mHeight = aDisplayHeight;
+    anApp->mScreenBounds.mX = (anApp->mWidth - aDisplayWidth) / 2;
+    anApp->mScreenBounds.mY = (anApp->mHeight - aDisplayHeight) / 2;
+
+    Sexy::TRect<int> aSource(0, 0, aDisplayWidth, aDisplayHeight);
+    anApp->mWidgetManager->Resize(anApp->mScreenBounds, aSource);
 }
 
 void AppDriver_DestroyWindow(Win32AppDriver* theSelf)
@@ -358,6 +402,9 @@ int LTVCALL Slot_Startup(void* theThis)
 
     bool aHaveWindow = AppDriver_EnsureWindow(self);
     AppDriver_InitGraphics(self);
+    // BaseAppDriver::InitGraphics @0x3F3644 sizes mScreenBounds after the
+    // display exists. Startup is that point in this driver.
+    AppDriver_CenterScreen(self);
 
     // The graphics backend is optional (the software one always succeeds); the
     // display is not.
@@ -681,16 +728,26 @@ int LTVCALL Slot_DrawDirtyStuff(void* theThis, void* a1)
         self->mWindow->MakeCurrent();
 
     Sexy::WidgetManager* aManager = anApp->mWidgetManager;
-    int aWidth = aManager->mWidth > 0 ? aManager->mWidth : self->mWidth;
-    int aHeight = aManager->mHeight > 0 ? aManager->mHeight : self->mHeight;
+    // DrawDirtyStuff @0x3F4628 presents the manager image as drawn.
+    // Resize stores mWidth as dest.mWidth + 2*dest.mX, which is the
+    // stage width, not the window. The image has to be the display.
+    int aWidth = self->mWidth > 0 ? self->mWidth : aManager->mWidth;
+    int aHeight = self->mHeight > 0 ? self->mHeight : aManager->mHeight;
     if (aWidth <= 0)
         aWidth = 1280;
     if (aHeight <= 0)
         aHeight = 720;
 
-    if (aManager->mImage == nullptr)
+    // The screen image is a GLImage when a device is live, and a MemoryImage
+    // otherwise. GLImage::Blt takes the hardware path only while that image is
+    // the device's current draw target; every other image stays on the
+    // software rasterizer. That is the split in GLImage::Blt @0x475888.
+    bool aHardware = Sexy::GLRenderDevice::sCurrent != nullptr;
+    bool aScreenIsHardware = dynamic_cast<Sexy::GLImage*>(aManager->mImage) != nullptr;
+    if (aManager->mImage == nullptr || aHardware != aScreenIsHardware)
     {
-        aManager->mImage = new Sexy::MemoryImage();
+        delete aManager->mImage;
+        aManager->mImage = aHardware ? (Sexy::MemoryImage*)new Sexy::GLImage() : new Sexy::MemoryImage();
         aManager->mImage->Create(aWidth, aHeight);
     }
     else if (aManager->mImage->mWidth != aWidth || aManager->mImage->mHeight != aHeight)
@@ -699,12 +756,24 @@ int LTVCALL Slot_DrawDirtyStuff(void* theThis, void* a1)
     }
 
     anApp->mIsDrawing = true;
+    if (aHardware)
+    {
+        Sexy::GLRenderDevice::sCurrent->SetDrawTarget(aManager->mImage);
+        Sexy::GLRenderDevice::sCurrent->BeginFrame(Sexy::Color(0, 0, 0, 255));
+    }
     int aDrew = aManager->DrawScreen();
+    if (aHardware)
+    {
+        Sexy::GLRenderDevice::sCurrent->EndFrame();
+        Sexy::GLRenderDevice::sCurrent->SetDrawTarget(nullptr);
+    }
     anApp->mIsDrawing = false;
     if (aDrew == 0)
         return 0;
 
-    if (Sexy::GLRenderDevice::sCurrent != nullptr)
+    // A software screen still has to be uploaded. A hardware screen already
+    // drew its quads into the device, so uploading it again is the stutter.
+    if (!aHardware && Sexy::GLRenderDevice::sCurrent != nullptr)
         Sexy::GLRenderDevice::sCurrent->BlitImage(aManager->mImage);
     return 1;
 }
@@ -755,9 +824,14 @@ int LTVCALL Slot_StartLoadingThread(void* theThis)
     if (!self || !self->mApp)
         return 0;
 
-    // mApp is stored as `void *` (it is the SexyAppBase the driver was handed),
-    // and LoadingThreadProc is virtual on SexyAppBase at slot 28, byte 112.
-    reinterpret_cast<Sexy::SexyAppBase *>(self->mApp)->LoadingThreadProc();
+    // LawnApp::LoadingThreadProc pulls one slice. TitleScreen::Update asks
+    // for the thread once a frame, and the bar reads the fraction between
+    // those calls. Running the whole load here would finish before the
+    // first draw, and running it only on the first call leaves every later
+    // group unpulled, so the working set never grows.
+    LawnApp* anApp = (LawnApp*)self->mApp;
+    if (!anApp->mLoadingThreadCompleted)
+        anApp->LoadingThreadProc();
     return 1;
 }
 

@@ -110,7 +110,7 @@
       <MapFileName>$(OutDir)$(TargetName).map</MapFileName>
       <!-- vcpkg provides the GL stack and asset codecs; see vcpkg.json.
            glad supplies the GL entry points, glfw3 the window/context. -->
-      <AdditionalDependencies>winmm.lib;ws2_32.lib;xinput.lib;dinput8.lib;dxguid.lib;glad.lib;glfw3dll.lib;opengl32.lib;jpeg.lib;pugixml.lib;OpenAL32.lib;ogg.lib;vorbis.lib;vorbisfile.lib;minizip-ng.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>winmm.lib;ws2_32.lib;xinput.lib;dinput8.lib;dxguid.lib;glad.lib;glfw3dll.lib;opengl32.lib;jpeg.lib;pugixml.lib;OpenAL32.lib;ogg.lib;vorbis.lib;vorbisfile.lib;minizip-ng.lib;openmpt.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Debug'">
@@ -322,7 +322,9 @@
     <ClCompile Include="Game\Zombie.cpp" />
     <ClCompile Include="Game\internalJSONNode.cpp" />
     <ClCompile Include="Game\jsonChildren.cpp" />
-    <ClCompile Include="Platform\Audio\OpenALAudioBackend.cpp" />
+    <ClCompile Include="Platform\Audio\OpenALAudioBackend.cpp">
+      <PreprocessorDefinitions>AL_ALEXT_PROTOTYPES;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
     <ClCompile Include="Platform\GLWindow.cpp" />
     <ClCompile Include="Platform\GL\GLRenderBackend.cpp" />
     <ClCompile Include="Platform\GL\GLRenderDevice.cpp" />
@@ -397,6 +399,7 @@
     <ClCompile Include="Sexy\Listener.cpp" />
     <ClCompile Include="Sexy\LogManager.cpp" />
     <ClCompile Include="Sexy\MTRand.cpp" />
+    <ClCompile Include="Sexy\GLImage.cpp" />
     <ClCompile Include="Sexy\MemoryImage.cpp" />
     <ClCompile Include="Sexy\MenuParser.cpp" />
     <ClCompile Include="Sexy\MenuWidget.cpp" />
@@ -685,6 +688,7 @@
     <ClInclude Include="Sexy\Listener.h" />
     <ClInclude Include="Sexy\LogManager.h" />
     <ClInclude Include="Sexy\MTRand.h" />
+    <ClInclude Include="Sexy\GLImage.h" />
     <ClInclude Include="Sexy\MemoryImage.h" />
     <ClInclude Include="Sexy\MenuParser.h" />
     <ClInclude Include="Sexy\MenuWidget.h" />

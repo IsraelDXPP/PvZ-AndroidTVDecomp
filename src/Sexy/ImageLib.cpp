@@ -151,7 +151,17 @@ Image* LoadImageFile(const std::string& thePath, bool lookForAlpha)
     if (!lookForAlpha)
         return aDecoded;
 
-    Image* aAlpha = LoadImageFile(thePath + "_", false);
+    // ImageLib::GetImage looks beside the colour file for a mask. The first
+    // name is "_" plus the file (images/_SeedBank.gif). The second, which is
+    // what the TV pack uses, is the file plus "_" (images/SeedBank_.gif).
+    std::string aPrefixMask = thePath;
+    if (aSlash >= 0)
+        aPrefixMask.insert((size_t)aSlash + 1, "_");
+    else
+        aPrefixMask.insert(0, "_");
+    Image* aAlpha = LoadImageFile(aPrefixMask, false);
+    if (aAlpha == nullptr)
+        aAlpha = LoadImageFile(thePath + "_", false);
     if (aAlpha == nullptr)
         return aDecoded;
 

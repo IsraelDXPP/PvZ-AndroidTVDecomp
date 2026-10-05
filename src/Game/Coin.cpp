@@ -51,12 +51,7 @@ namespace
 // Coin::CoinInitialize's switch at 0x197E78 uses), and defining them a second
 // time in this translation unit is C2872. Keep that header block.
 
-// The five reanimations the coin spawns for its own body.
-constexpr int REANIM_SUN = 22;
-constexpr int REANIM_COIN_SILVER = 35;
-constexpr int REANIM_DIAMOND = 110;
-constexpr int REANIM_COIN_GOLD = 117;
-constexpr int REANIM_ZOMBIESUN = 146;
+// The coin body reanimations are ReanimationType enumerators.
 
 // ParticleEffect is re-anchored by the reference the coin attaches to.
 constexpr int PARTICLE_SEED_PACKET = 29;

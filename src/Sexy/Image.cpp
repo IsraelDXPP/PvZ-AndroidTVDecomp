@@ -202,7 +202,7 @@ void Sexy::Image::FillScanLinesWithCoverage(int*, int, const Color&, int, const 
 {
 }
 
-void Sexy::Image::Blt(Image*, int, int, const TRect<int>&, const Color&, int)
+void Sexy::Image::Blt(Image*, int, int, const TRect<int>&, const Color&, int, bool)
 {
 }
 

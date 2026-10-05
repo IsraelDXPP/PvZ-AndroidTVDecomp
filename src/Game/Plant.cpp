@@ -1187,7 +1187,7 @@ Reanimation * Plant::AttachBlinkAnim(Reanimation * theReanim)
   if (aAttachTo == nullptr || theReanim->TrackExists(aBlinkTrack) == 0)
     return nullptr;
 
-  Reanimation *aBlink = mApp->AddReanimation(0.0f, 0.0f, 0, (ReanimationType)aPlantDefinition->mReanimationType);
+  Reanimation *aBlink = mApp->AddReanimation(0.0f, 0.0f, 0, aPlantDefinition->mReanimationType);
   aBlink->SetFramesForLayer(aBlinkTrack);
   aBlink->mLoopType = REANIM_PLAY_ONCE_FULL_LAST_FRAME_AND_HOLD;
   aBlink->SetAnimRate(15.0f);
@@ -1255,7 +1255,7 @@ void Plant::SetSleeping(bool theIsAsleep)
         default:
           break;
       }
-      Reanimation *aSleep = mApp->AddReanimation(aSleepX, aSleepY, mRenderOrder + 2, (ReanimationType)70);
+      Reanimation *aSleep = mApp->AddReanimation(aSleepX, aSleepY, mRenderOrder + 2, REANIM_SLEEPING);
       aSleep->mLoopType = REANIM_LOOP;
       aSleep->SetAnimRate(RandRangeFloat(6.0f, 8.0f));
       aSleep->mAnimTime = RandRangeFloat(0.0f, 0.9f);
@@ -1831,7 +1831,7 @@ int Plant::DrawSeedType(Sexy::Graphics * g, SeedType theSeedType, SeedType theIm
           aGiantScaleX,
           aGiantScaleY);
     }
-    else if ( aDef->mReanimationType == -1 )
+    else if ( aDef->mReanimationType == REANIM_NONE )
     {
       int aCelRow = theImitaterType == SEED_KERNELPULT ? 2 : theImitaterType == SEED_TWINSUNFLOWER;
       Sexy::Image *aImage = GetImage( theImitaterType);
@@ -2304,7 +2304,7 @@ int Plant::PlantInitialize(int theGridX, int theGridY, SeedType theSeedType, See
   mRenderOrder = CalcRenderOrder();
 
   Reanimation *aBodyReanim = nullptr;
-  if ( aPlantDefinition->mReanimationType != -1 )
+  if ( aPlantDefinition->mReanimationType != REANIM_NONE )
   {
     float aHeightOffset = PlantDrawHeightOffset(
             mBoard,
@@ -2316,7 +2316,7 @@ int Plant::PlantInitialize(int theGridX, int theGridY, SeedType theSeedType, See
             0,
             aHeightOffset,
             mRenderOrder + 1,
-            (ReanimationType)aPlantDefinition->mReanimationType);
+            aPlantDefinition->mReanimationType);
     aBodyReanim->mLoopType = (ReanimLoopType)0;
     aBodyReanim->SetAnimRate(RandRangeFloat(10.0f, 15.0f));
     if (aBodyReanim->TrackExistsById(ReanimTrackId_anim_idle) != 0)
@@ -2364,7 +2364,7 @@ int Plant::PlantInitialize(int theGridX, int theGridY, SeedType theSeedType, See
     {
       aBodyReanim->SetAnimRate(RandRangeFloat(15.0f, 20.0f));
       Reanimation *aHeadReanim = mApp->AddReanimation(
-          0.0f, 0.0f, mRenderOrder + 2, (ReanimationType)aPlantDefinition->mReanimationType);
+          0.0f, 0.0f, mRenderOrder + 2, aPlantDefinition->mReanimationType);
       aHeadReanim->mLoopType = REANIM_LOOP;
       aHeadReanim->SetAnimRate(aBodyReanim->mAnimRate);
       aHeadReanim->SetFramesForLayer("anim_head_idle");
@@ -2379,14 +2379,14 @@ int Plant::PlantInitialize(int theGridX, int theGridY, SeedType theSeedType, See
   {
     aBodyReanim->SetAnimRate(RandRangeFloat(15.0f, 20.0f));
     Reanimation *aHeadReanim = mApp->AddReanimation(
-        0.0f, 0.0f, mRenderOrder + 2, (ReanimationType)aPlantDefinition->mReanimationType);
+        0.0f, 0.0f, mRenderOrder + 2, aPlantDefinition->mReanimationType);
     aHeadReanim->mLoopType = REANIM_LOOP;
     aHeadReanim->SetAnimRate(aBodyReanim->mAnimRate);
     aHeadReanim->SetFramesForLayer("anim_head_idle");
     aHeadReanim->AttachToAnotherReanimation(aBodyReanim, "anim_idle");
     mHeadReanimID = mApp->ReanimationGetID(aHeadReanim);
     Reanimation *aBackHead = mApp->AddReanimation(
-        0.0f, 0.0f, mRenderOrder + 2, (ReanimationType)aPlantDefinition->mReanimationType);
+        0.0f, 0.0f, mRenderOrder + 2, aPlantDefinition->mReanimationType);
     aBackHead->mLoopType = REANIM_LOOP;
     aBackHead->SetAnimRate(aBodyReanim->mAnimRate);
     aBackHead->SetFramesForLayer("anim_splitpea_idle");
@@ -2397,21 +2397,21 @@ int Plant::PlantInitialize(int theGridX, int theGridY, SeedType theSeedType, See
   {
     aBodyReanim->SetAnimRate(RandRangeFloat(15.0f, 20.0f));
     Reanimation *aHead1 = mApp->AddReanimation(
-        0.0f, 0.0f, mRenderOrder + 2, (ReanimationType)aPlantDefinition->mReanimationType);
+        0.0f, 0.0f, mRenderOrder + 2, aPlantDefinition->mReanimationType);
     aHead1->mLoopType = REANIM_LOOP;
     aHead1->SetAnimRate(aBodyReanim->mAnimRate);
     aHead1->SetFramesForLayer("anim_head_idle1");
     aHead1->AttachToAnotherReanimation(aBodyReanim, "anim_head1");
     mHeadReanimID = mApp->ReanimationGetID(aHead1);
     Reanimation *aHead2 = mApp->AddReanimation(
-        0.0f, 0.0f, mRenderOrder + 2, (ReanimationType)aPlantDefinition->mReanimationType);
+        0.0f, 0.0f, mRenderOrder + 2, aPlantDefinition->mReanimationType);
     aHead2->mLoopType = REANIM_LOOP;
     aHead2->SetAnimRate(aBodyReanim->mAnimRate);
     aHead2->SetFramesForLayer("anim_head_idle2");
     aHead2->AttachToAnotherReanimation(aBodyReanim, "anim_head2");
     mHeadReanimID2 = mApp->ReanimationGetID(aHead2);
     Reanimation *aHead3 = mApp->AddReanimation(
-        0.0f, 0.0f, mRenderOrder + 2, (ReanimationType)aPlantDefinition->mReanimationType);
+        0.0f, 0.0f, mRenderOrder + 2, aPlantDefinition->mReanimationType);
     aHead3->mLoopType = REANIM_LOOP;
     aHead3->SetAnimRate(aBodyReanim->mAnimRate);
     aHead3->SetFramesForLayer("anim_head_idle3");
@@ -4304,7 +4304,7 @@ Zombie * Plant::UpdateSquash()
     {
       if (mBoard->IsPoolSquare(aGridX, mRow) != 0)
       {
-        mApp->AddReanimation((float)(mX - 11), (float)(mY + 20), mRenderOrder + 1, (ReanimationType)32);
+        mApp->AddReanimation((float)(mX - 11), (float)(mY + 20), mRenderOrder + 1, REANIM_SPLASH);
         mApp->PlayFoley(FOLEY_SPLAT);
         mApp->PlaySample(SOUND_ZOMBIESPLASH, true);
         Die();
@@ -4757,7 +4757,7 @@ int * Plant::UpdateTanglekelp()
       aGrabX = -20;
       aGrabY = 37;
     }
-    Reanimation *aGrab = aTarget->AddAttachedReanim(aGrabX, aGrabY, (ReanimationType)52);
+    Reanimation *aGrab = aTarget->AddAttachedReanim(aGrabX, aGrabY, REANIM_TANGLEKELP);
     if (aGrab != nullptr)
     {
       aGrab->SetFramesForLayer("anim_Grab");
@@ -4781,7 +4781,7 @@ int * Plant::UpdateTanglekelp()
   {
     int aRenderOrder = Board::MakeRenderOrder(RenderLayer::RENDER_LAYER_PARTICLE, mRow, 0);
     Reanimation *aSplash = mApp->AddReanimation(
-        (float)(mX - 23), (float)(mY + 7), aRenderOrder, (ReanimationType)32);
+        (float)(mX - 23), (float)(mY + 7), aRenderOrder, REANIM_SPLASH);
     aSplash->OverrideScale(1.3f, 1.3f);
     mApp->AddTodParticle((float)(mX + 31), (float)(mY + 64), aRenderOrder, (ParticleEffect)23);
     mApp->PlayFoley(FOLEY_ZOMBIE_ENTERING_WATER);
@@ -4970,7 +4970,7 @@ int Plant::UpdatePotato()
       PlayBodyReanim("anim_armed", REANIM_LOOP, 0, aRate);
       PlantDefinition *aDef = GetPlantDefinition(mSeedType);
       Reanimation *aGlow = mApp->AddReanimation(
-          0.0f, 0.0f, mRenderOrder + 2, (ReanimationType)aDef->mReanimationType);
+          0.0f, 0.0f, mRenderOrder + 2, aDef->mReanimationType);
       aGlow->mLoopType = REANIM_LOOP;
       aGlow->SetFramesForLayer("anim_glow");
       aGlow->mFrameCount = 10;
@@ -5008,19 +5008,19 @@ int Plant::PreloadPlantResources(SeedType theSeedType)
   // Seed 22 (torchwood) falls through into the jalapeno load: 0x5C then 0x22.
   // Cherrybomb (2) loads 0x24. Nocturnal tails to 0x46 (REANIM_SLEEPING).
   PlantDefinition *aDef = GetPlantDefinition(theSeedType);
-  if ( aDef->mReanimationType != -1 )
-    ReanimatorEnsureDefinitionLoaded(aDef->mReanimationType, 1);
+  if ( aDef->mReanimationType != REANIM_NONE )
+    ReanimatorEnsureDefinitionLoaded(aDef->mReanimationType, true);
 
   if ( theSeedType == SEED_CHERRYBOMB )
-    ReanimatorEnsureDefinitionLoaded(0x24, 1);
+    ReanimatorEnsureDefinitionLoaded(REANIM_ZOMBIE_CHARRED, true);
   else if ( theSeedType == SEED_TORCHWOOD )
-    ReanimatorEnsureDefinitionLoaded(0x5C, 1);
+    ReanimatorEnsureDefinitionLoaded(REANIM_FIRE_PEA, true);
   if ( theSeedType == SEED_TORCHWOOD || theSeedType == SEED_JALAPENO )
-    ReanimatorEnsureDefinitionLoaded(0x22, 1);
+    ReanimatorEnsureDefinitionLoaded(REANIM_JALAPENO_FIRE, true);
 
   int aResult = Plant::IsNocturnal(theSeedType);
   if ( aResult != 0 )
-    return ReanimatorEnsureDefinitionLoaded(REANIM_SLEEPING, 1);
+    return ReanimatorEnsureDefinitionLoaded(REANIM_SLEEPING, true);
   return aResult;
 }
 

@@ -15,34 +15,16 @@
 #include "Trail.h"
 #include <cstring>
 
-// TODO(recon): the binary calls `Sexy::SexyMatrix3::operator*(SexyVector2 const&)`
-// -- the row-major multiply SEXYMATRIX.H defines. CoreTypes.h declares
-// SexyMatrix3 without it, so the multiply is spelled out here instead. If the
-// operator is added to CoreTypes.h, this helper should go away.
+// Same product as SexyMatrix3Multiply @0x1fd004.
 static SexyVector2 SexyMatrix3MulVector2(const SexyMatrix3& theMatrix,
                                          const SexyVector2& theVector)
 {
-  return SexyVector2(theVector.mX * theMatrix.m00 + theVector.mY * theMatrix.m01
-                       + theMatrix.m02,
-                     theVector.mX * theMatrix.m10 + theVector.mY * theMatrix.m11
-                       + theMatrix.m12);
+  return theMatrix * theVector;
 }
 
-// The same gap, for `SexyMatrix3::operator*(SexyMatrix3 const&)`: row-major
-// multiply, this matrix on the left.
 static SexyMatrix3 SexyMatrix3MulMatrix3(const SexyMatrix3& a, const SexyMatrix3& b)
 {
-  SexyMatrix3 r;
-  r.m00 = a.m00 * b.m00 + a.m01 * b.m10 + a.m02 * b.m20;
-  r.m01 = a.m00 * b.m01 + a.m01 * b.m11 + a.m02 * b.m21;
-  r.m02 = a.m00 * b.m02 + a.m01 * b.m12 + a.m02 * b.m22;
-  r.m10 = a.m10 * b.m00 + a.m11 * b.m10 + a.m12 * b.m20;
-  r.m11 = a.m10 * b.m01 + a.m11 * b.m11 + a.m12 * b.m21;
-  r.m12 = a.m10 * b.m02 + a.m11 * b.m12 + a.m12 * b.m22;
-  r.m20 = a.m20 * b.m00 + a.m21 * b.m10 + a.m22 * b.m20;
-  r.m21 = a.m20 * b.m01 + a.m21 * b.m11 + a.m22 * b.m21;
-  r.m22 = a.m20 * b.m02 + a.m21 * b.m12 + a.m22 * b.m22;
-  return r;
+  return a * b;
 }
 
 namespace {
@@ -891,7 +873,7 @@ void AttachmentReanimTypeDie(int &theId, ReanimationType theType)
       continue;
     ReanimationSlot *aSlot = TryGetSlot<ReanimationSlot>(
         aHolder->mBlock, aHolder->mMaxSize, anEffect->mEffectID);
-    if (aSlot != nullptr && aSlot->mItem.mReanimationType.mValue == theType.mValue)
+    if (aSlot != nullptr && aSlot->mItem.mReanimationType == theType)
     {
       aSlot->mItem.ReanimationDie();
       aCount = anAttachment->mNumEffects;

@@ -381,7 +381,7 @@ void Sexy::Board::MouseDown(int x, int y, int theClickCount)
         return;
 
     Reanimation* aReanim = mEffectSystem->mReanimationHolder->AllocReanimation(
-        (float)x, (float)y, 0, (ReanimationType)0);
+        (float)x, (float)y, 0, REANIM_LOADBAR_SPROUT);
     aReanim->SetAnimRate(0.0f);
 
     if (aReanim->TrackExists("anim_idle"))
@@ -402,7 +402,7 @@ void Sexy::Board::MouseDown(int x, int y, int theClickCount)
         return;
 
     Reanimation* aHead = mEffectSystem->mReanimationHolder->AllocReanimation(
-        (float)x, (float)y, 0, (ReanimationType)0);
+        (float)x, (float)y, 0, REANIM_LOADBAR_SPROUT);
     aHead->SetAnimRate(0.0f);
     aHead->mFrameStart = aReanim->mFrameStart;
     aHead->SetFramesForLayer("anim_head_idle");
@@ -548,7 +548,7 @@ int Sexy::Board::TryToLoadReanimation()
     }
 
     gReanimationParamArray = new ReanimationParamRecord[kMaxReanimDefs];
-    gReanimationParamArray[0].mReanimationType = 0;
+    gReanimationParamArray[0].mReanimationType = REANIM_LOADBAR_SPROUT;
     Sexy::String* aKeptName = new Sexy::String(mFileName);
     gReanimationParamArray[0].mFileName = aKeptName->c_str();
     gReanimationParamArraySize = 1;
@@ -625,7 +625,7 @@ int Sexy::Board::TryToLoadReanimation()
             }
 
             int aIndex = gReanimationParamArraySize;
-            gReanimationParamArray[aIndex].mReanimationType = aIndex;
+            gReanimationParamArray[aIndex].mReanimationType = (ReanimationType)aIndex;
             Sexy::String* aAttachName = new Sexy::String(aFileName);
             gReanimationParamArray[aIndex].mFileName = aAttachName->c_str();
             gReanimationParamArraySize = aIndex + 1;
@@ -988,7 +988,7 @@ int Sexy::Board::Blink()
         else
             continue;
 
-        Reanimation* aBlinkAnim = aHolder->AllocReanimation(0.0f, 0.0f, 0, (ReanimationType)0);
+        Reanimation* aBlinkAnim = aHolder->AllocReanimation(0.0f, 0.0f, 0, REANIM_LOADBAR_SPROUT);
         aBlinkAnim->SetAnimRate(4.0f);
         aBlinkAnim->SetFramesForLayer(aBlink);
 

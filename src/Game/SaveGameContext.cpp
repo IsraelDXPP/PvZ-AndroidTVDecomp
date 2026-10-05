@@ -121,7 +121,7 @@ int SaveGameContext::SyncReanimationDef(ReanimatorDefinition *&theDef)
     }
     else if ((unsigned int)aDefIndex <= 0xB1)
     {
-      ReanimatorEnsureDefinitionLoaded(aDefIndex, 1);
+      ReanimatorEnsureDefinitionLoaded((ReanimationType)aDefIndex, true);
       theDef = gReanimatorDefArray + aDefIndex;
     }
     else

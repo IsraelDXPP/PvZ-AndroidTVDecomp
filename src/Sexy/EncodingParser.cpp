@@ -3,7 +3,7 @@
 #include <functional>
 
 namespace Sexy {
-int SexyUtf8Validate(void* theBuffer, const char* theEnd, int theFirstByte);
+int SexyUtf8Validate(void* theState, char const* theText, int theLength);
 }
 
 // Lead-byte masks for UTF-8. The index that matches is the sequence length
@@ -292,9 +292,11 @@ int Sexy::EncodingParser::OpenFile(Sexy::String const& thePath)
         }
         else
         {
-            for (int aTrim = 0; aTrim < 6; ++aTrim)
+            // LawnStrings has no BOM. Validate the sample as UTF-8 so a
+            // Chinese value is one character, not three Latin-1 bytes.
+            for (int aTrim = 0; aTrim < 6 && aTrim < aRead; ++aTrim)
             {
-                if (SexyUtf8Validate(aBuffer, aBuffer + aRead - aTrim, aBuffer[0]) != 0)
+                if (SexyUtf8Validate(nullptr, aBuffer, aRead - aTrim) != 0)
                 {
                     mGetCharFuncAdj = 0;
                     mGetCharFunc = &EncodingParser::GetUTF8Char;

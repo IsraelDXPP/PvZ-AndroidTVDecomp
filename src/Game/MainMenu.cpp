@@ -1209,7 +1209,7 @@ void MainMenu::StartAdventureMode()
   mHandPlaying = true;
 
   // Every mode button pushes the same rock aside with the zombie hand.
-  Reanimation *aHandReanim = mApp->AddReanimation(mCameraPositionX, mCameraPositionY, 0, ReanimationType(111));
+  Reanimation *aHandReanim = mApp->AddReanimation(mCameraPositionX, mCameraPositionY, 0, REANIM_ZOMBIE_HAND);
   aHandReanim->mLoopType = REANIM_PLAY_ONCE_AND_HOLD;
   aHandReanim->IgnoreClipRectForPrefix("rock", true);
   mZombieHandReanimID = mApp->ReanimationGetID(aHandReanim);
@@ -1386,14 +1386,14 @@ int MainMenu::SyncProfile(bool theReload)
 void MainMenu::AddedToManager(Sexy::WidgetManager *theWidgetManager)
 {
   // The whole menu reanimation set is built here, at the camera origin.
-  Reanimation *aSkyReanim = mApp->AddReanimation(mCameraPositionX, mCameraPositionY, 0, ReanimationType(154));
+  Reanimation *aSkyReanim = mApp->AddReanimation(mCameraPositionX, mCameraPositionY, 0, REANIM_MAINMENU_SKY);
   if ( aSkyReanim != nullptr )
   {
     aSkyReanim->PlayReanim("anim_idle", REANIM_LOOP, 0, 0.2);
     mSkyReanimID = mApp->ReanimationGetID(aSkyReanim);
   }
 
-  Reanimation *aSky2Reanim = mApp->AddReanimation(mCameraPositionX, mCameraPositionY, 0, ReanimationType(155));
+  Reanimation *aSky2Reanim = mApp->AddReanimation(mCameraPositionX, mCameraPositionY, 0, REANIM_MAINMENU_SKY2);
   if ( aSky2Reanim != nullptr )
   {
     // The storm layer draws in its own render group so the menu can squash it
@@ -1406,7 +1406,7 @@ void MainMenu::AddedToManager(Sexy::WidgetManager *theWidgetManager)
     mSky2ReanimID = mApp->ReanimationGetID(aSky2Reanim);
   }
 
-  Reanimation *aMainMenuReanim = mApp->AddReanimation(mCameraPositionX, mCameraPositionY, 0, ReanimationType(152));
+  Reanimation *aMainMenuReanim = mApp->AddReanimation(mCameraPositionX, mCameraPositionY, 0, REANIM_MAINMENU);
   if ( aMainMenuReanim != nullptr )
   {
     // The camera track is what makes the menu slide; without it SetScene falls
@@ -1434,7 +1434,7 @@ void MainMenu::AddedToManager(Sexy::WidgetManager *theWidgetManager)
     aMainMenuReanim->AssignRenderGroupToTrack("mail alert", -1);
   }
 
-  Reanimation *aCrowReanim = mApp->AddReanimation(mCameraPositionX, mCameraPositionY, 0, ReanimationType(153));
+  Reanimation *aCrowReanim = mApp->AddReanimation(mCameraPositionX, mCameraPositionY, 0, REANIM_CROW);
   if ( aCrowReanim != nullptr )
   {
     mCrowReanimID = mApp->ReanimationGetID(aCrowReanim);
@@ -1444,7 +1444,7 @@ void MainMenu::AddedToManager(Sexy::WidgetManager *theWidgetManager)
     mApp->PlaySample(Sexy::GetSoundById(Rand() % 3 + 622), true);
   }
 
-  Reanimation *aLeavesReanim = mApp->AddReanimation(mCameraPositionX, mCameraPositionY, 0, ReanimationType(156));
+  Reanimation *aLeavesReanim = mApp->AddReanimation(mCameraPositionX, mCameraPositionY, 0, REANIM_FALLING_LEAVES);
   if ( aLeavesReanim != nullptr )
   {
     aLeavesReanim->PlayReanim("anim_idle", REANIM_LOOP, 0, 12.0);
@@ -1453,7 +1453,7 @@ void MainMenu::AddedToManager(Sexy::WidgetManager *theWidgetManager)
 
   // The butterfly of the far scene lives one scene to the right of the camera,
   // stopped on its first frame until the scene is entered.
-  Reanimation *aButterflyReanim = mApp->AddReanimation(mCameraPositionX + 2560.0f, mCameraPositionY, 0, ReanimationType(157));
+  Reanimation *aButterflyReanim = mApp->AddReanimation(mCameraPositionX + 2560.0f, mCameraPositionY, 0, REANIM_BUTTERFLY);
   if ( aButterflyReanim != nullptr )
   {
     aButterflyReanim->SetAnimRate(0.0);

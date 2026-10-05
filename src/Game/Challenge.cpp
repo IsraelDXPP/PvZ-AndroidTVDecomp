@@ -71,6 +71,7 @@ enum
 // reference build spells PARTICLE_POW.
 enum
 {
+    RENDER_LAYER_GROUND = 200000,
     RENDER_LAYER_LAWN = 300000,
     RENDER_LAYER_GRAVE_STONE = 301000,
     RENDER_LAYER_PLANT = 302000,
@@ -81,12 +82,6 @@ enum
     RENDER_LAYER_UI_TOP = 400000,
     RENDER_LAYER_ABOVE_UI = 800000,
     PARTICLE_POW = 16,
-    REANIM_SLOT_MACHINE_HANDLE = 100,
-    // The two raindrops UpdateRain spawns. The binary's own resource names are
-    // "reanim/Rain_circle.reanim" (114) and "reanim/splash.reanim" (115), both
-    // reached through the string table at 0x58B5EC and 0x58ACC4.
-    REANIM_RAIN_CIRCLE = 114,
-    REANIM_SPLASH = 115,
 };
 
 // ChallengeState is a one-int surrogate struct; Sexy\ReconTypes.h already names
@@ -4232,7 +4227,7 @@ void Challenge::ScaryPotterMalletPot(GridItem * thePot)
   mChallengeGridX = thePot->mGridX;
   int aX = mBoard->GridToPixelX(thePot->mGridX, thePot->mGridY);
   int aY = mBoard->GridToPixelY(thePot->mGridX, thePot->mGridY);
-  Reanimation *aReanim = mApp->AddReanimation((float)aX, (float)aY, 400000, (ReanimationType)99);
+  Reanimation *aReanim = mApp->AddReanimation((float)aX, (float)aY, 400000, REANIM_HAMMER);
   aReanim->PlayReanim("anim_open_pot", REANIM_PLAY_ONCE_AND_HOLD, 0, 40.0f);
   mReanimChallenge = mApp->ReanimationGetID(aReanim);
   mChallengeState = (ChallengeState)9;
@@ -5241,21 +5236,21 @@ void Challenge::UpdateRain()
     {
       Reanimation *aDrop = mApp->AddReanimation(RandRangeFloat(40.0f, 740.0f),
                                                 RandRangeFloat(90.0f, 240.0f),
-                                                REANIM_RAIN_CIRCLE, REANIM_SPLASH);
+                                                RENDER_LAYER_GROUND, REANIM_RAIN_SPLASH);
       float aScale = RandRangeFloat(0.7f, 1.2f);
       aDrop->mColorOverride = Color(255, 255, 255, RandRangeInt(100, 200));
       aDrop->OverrideScale(aScale, aScale);
 
       Reanimation *aDrop2 = mApp->AddReanimation(RandRangeFloat(40.0f, 740.0f),
                                                  RandRangeFloat(290.0f, 410.0f),
-                                                 REANIM_RAIN_CIRCLE, REANIM_SPLASH);
+                                                 RENDER_LAYER_GROUND, REANIM_RAIN_SPLASH);
       float aScale2 = RandRangeFloat(0.7f, 1.1f);
       aDrop2->mColorOverride = Color(255, 255, 255, RandRangeInt(50, 150));
       aDrop2->OverrideScale(aScale2, aScale2);
 
       Reanimation *aDrop3 = mApp->AddReanimation(RandRangeFloat(40.0f, 740.0f),
                                                  RandRangeFloat(450.0f, 580.0f),
-                                                 REANIM_RAIN_CIRCLE, REANIM_SPLASH);
+                                                 RENDER_LAYER_GROUND, REANIM_RAIN_SPLASH);
       float aScale3 = RandRangeFloat(0.7f, 1.2f);
       aDrop3->mColorOverride = Color(255, 255, 255, RandRangeInt(100, 200));
       aDrop3->OverrideScale(aScale3, aScale3);
@@ -5530,7 +5525,7 @@ void Challenge::TreeOfWisdomRebuildHelpbar(bool theFromDialog)
 void Challenge::TreeOfWisdomInit()
 {
   // Reanimation type 118 is the tree. The number is the binary's literal.
-  ReanimatorEnsureDefinitionLoaded(118, 1);
+  ReanimatorEnsureDefinitionLoaded(REANIM_TREEOFWISDOM, true);
   TreeOfWisdomRebuildHelpbar(true);
   mApp->ShowHelpBarWidget();
   mBoard->GetGamepadControlsByPlayerIndex(0)->mDrawCursorFrame = false;
@@ -5538,7 +5533,7 @@ void Challenge::TreeOfWisdomInit()
   Reanimation *aTree = mApp->AddReanimation((float)LawnApp::FULLSCREEN_RECT.mX + 0.5f,
                                             (float)LawnApp::FULLSCREEN_RECT.mY + 0.5f,
                                             0,
-                                            (ReanimationType)118);
+                                            REANIM_TREEOFWISDOM);
   aTree->mIsAttachment = true;
   aTree->AssignRenderGroupToPrefix("bg", 1);
   aTree->AssignRenderGroupToPrefix("tree", 2);
@@ -5579,7 +5574,7 @@ void Challenge::TreeOfWisdomInit()
   // Reanimation type 119 is the cloud. Six of them, numbered Cloud1..Cloud6.
   for ( int i = 0; i < 6; ++i )
   {
-    Reanimation *aCloud = mApp->AddReanimation(0.0f, 0.0f, 0, (ReanimationType)119);
+    Reanimation *aCloud = mApp->AddReanimation(0.0f, 0.0f, 0, REANIM_TREEOFWISDOM_CLOUDS);
     Sexy::String aCloudName;
     StrFormat(&aCloudName, "Cloud%d", i + 1);
     aCloud->PlayReanim(aCloudName.c_str(), REANIM_PLAY_ONCE_AND_HOLD, 0, 0.0f);
@@ -5977,9 +5972,9 @@ int Challenge::HeavyWeaponStart()
   // MOV.W R2,#0x8000 / MOVT R2,#0x4409 -> 0x44098000 = 550.0f (0x1858D2/0x1858DA).
   mHeavyWeaponX = 300.0f;
   mHeavyWeaponY = 550.0f;
-  Reanimation *aBody = mApp->AddReanimation(300.0f, 550.0f, 304000, (ReanimationType)159);
-  Reanimation *aIdle = mApp->AddReanimation(mHeavyWeaponX, mHeavyWeaponY, 304000, (ReanimationType)160);
-  Reanimation *aDrive = mApp->AddReanimation(mHeavyWeaponX, mHeavyWeaponY, 304000, (ReanimationType)161);
+  Reanimation *aBody = mApp->AddReanimation(300.0f, 550.0f, 304000, REANIM_TANK);
+  Reanimation *aIdle = mApp->AddReanimation(mHeavyWeaponX, mHeavyWeaponY, 304000, REANIM_TANK_TURRET);
+  Reanimation *aDrive = mApp->AddReanimation(mHeavyWeaponX, mHeavyWeaponY, 304000, REANIM_TANK_CATTAIL);
   if ( aBody != nullptr && aIdle != nullptr && aDrive != nullptr )
   {
     aBody->PlayReanim("anim_drive", REANIM_LOOP, 0, 30.0);
@@ -7816,7 +7811,7 @@ void Challenge::TreeOfWisdomFertilize()
   aTool->mPosY = 280.0f;
   aTool->mGridX = 0;
   aTool->mGridY = 0;
-  Reanimation *aReanim = mApp->AddReanimation(320.0f, 280.0f, 0, (ReanimationType)120);
+  Reanimation *aReanim = mApp->AddReanimation(320.0f, 280.0f, 0, REANIM_TREEOFWISDOM_TREEFOOD);
   aReanim->mLoopType = (ReanimLoopType)3;
   aTool->mGridItemReanimID = mApp->ReanimationGetID(aReanim);
   aTool->mGridItemState = GRIDITEM_STATE_ZEN_TOOL_FERTILIZER;

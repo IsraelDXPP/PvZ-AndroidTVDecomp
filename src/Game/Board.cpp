@@ -5458,7 +5458,7 @@ int Board::FreezeEffectsForCutscene(bool theFreeze)
   int aResult;
   while ( (aResult = IterateReanimations(aReanim)) != 0 )
   {
-    if ( aReanim->mReanimationType == (ReanimationType)70 )
+    if ( aReanim->mReanimationType == REANIM_SLEEPING )
     {
       if ( theFreeze )
       {
@@ -5698,8 +5698,11 @@ int Board::InitCoverLayer()
   if ( (unsigned int)mBackground > 3 )
     return 144;
 
-  static const int aCoverTypes[12] = {
-      142, 143, 144, 174, 175, 176, 142, 143, 144, 174, 175, 176};
+  static const ReanimationType aCoverTypes[12] = {
+      REANIM_BUSHES3, REANIM_BUSHES4, REANIM_BUSHES5,
+      REANIM_NIGHT_BUSHES3, REANIM_NIGHT_BUSHES4, REANIM_NIGHT_BUSHES5,
+      REANIM_BUSHES3, REANIM_BUSHES4, REANIM_BUSHES5,
+      REANIM_NIGHT_BUSHES3, REANIM_NIGHT_BUSHES4, REANIM_NIGHT_BUSHES5};
   static const float aCoverPos[6][3] = {
       {710.0f, -72.0f, 1.0f},
       {724.0f, 110.0f, 1.0f},
@@ -5727,7 +5730,7 @@ int Board::InitCoverLayer()
     }
     int aOrder = MakeRenderOrder((RenderLayer)308000, aRow, 0);
     Reanimation * aReanim = mApp->AddReanimation(
-        aX, aY, aOrder, (ReanimationType)aCoverTypes[3 * mBackground + aTypeIndex]);
+        aX, aY, aOrder, aCoverTypes[3 * mBackground + aTypeIndex]);
     aReanim->mIsAttachment = true;
     aReanim->mOverlayMatrix.Scale(aCoverPos[aRow][2], aCoverPos[aRow][2]);
     aReanim->SetAnimRate(0.0f);
@@ -6410,7 +6413,7 @@ int Board::DoFwoosh(int theRow)
     float aX = (float)aCol * 68.182f + 10.0f;
     float aY = GetPosYBasedOnRow(aX + 10.0f, theRow) - 10.0f;
     int aOrder = MakeRenderOrder((RenderLayer)307000, theRow, 1);
-    Reanimation * aFlame = mApp->AddReanimation(aX, aY, aOrder, (ReanimationType)34);
+    Reanimation * aFlame = mApp->AddReanimation(aX, aY, aOrder, REANIM_JALAPENO_FIRE);
     aFlame->SetFramesForLayer("anim_flame");
     aFlame->mLoopType = REANIM_LOOP_FULL_LAST_FRAME;
     // 0x3F333333 and 0x3FA66666 are 0.7f and 1.3f. The product is stored as the rate.
@@ -6978,8 +6981,8 @@ void Board::ZombiesWon(Zombie * theZombie)
 
   // The "zombies ate your brains" screen: reanimation 72 faded in over the board
   // and held on its last frame, with the fullscreen track turned black.
-  ReanimatorEnsureDefinitionLoaded((ReanimationType)72, true);
-  Reanimation *aReanim = mApp->AddReanimation(-220.0f, 0.0f, 900000, (ReanimationType)72);
+  ReanimatorEnsureDefinitionLoaded(REANIM_ZOMBIES_WON, true);
+  Reanimation *aReanim = mApp->AddReanimation(-220.0f, 0.0f, 900000, REANIM_ZOMBIES_WON);
   aReanim->mLoopType = REANIM_PLAY_ONCE_AND_HOLD;
   // @0x15B374 adds 0x50 to the track instance and stores Color::Black's four
   // words. That is mTrackColor.
@@ -7124,7 +7127,7 @@ int Board::NextWaveComing()
   {
     // Final wave of a plain, non-continuous stage: spawn the final-wave zombie.
     // The dump's third argument is an unnamed string address used as an int.
-    mApp->AddReanimation(0.0f, 30.0f, 304000, (ReanimationType)3);
+    mApp->AddReanimation(0.0f, 30.0f, 304000, REANIM_FINAL_WAVE);
     mFinalWaveSoundCounter = 60;
   }
 
@@ -9171,7 +9174,7 @@ GridItem * Board::AddAGraveStone(int theGridX, int theGridY)
     int aX = GridToPixelX(theGridX, theGridY);
     int aY = GridToPixelY(theGridX, theGridY);
     int aLayer = Board::MakeRenderOrder((RenderLayer)301000, theGridY, 0);
-    Reanimation *aReanim = mApp->AddReanimation((float)aX, (float)aY, aLayer, (ReanimationType)177);
+    Reanimation *aReanim = mApp->AddReanimation((float)aX, (float)aY, aLayer, REANIM_SELECTOR_SCREEN);
     aReanim->mIsAttachment = true;
     aReanim->SetTruncateDisappearingFrames(nullptr, false);
     aReanim->PlayReanim("anim_idle", REANIM_PLAY_ONCE_AND_HOLD, 0, 12.0f);
@@ -9298,7 +9301,7 @@ LawnApp * Board::PlaceRake()
   aRake->mRenderOrder = MakeRenderOrder(RenderLayer(301000), aRow, 9);
 
   Reanimation *aReanim = mApp->AddReanimation(aRake->mPosX + 20.0f, aRake->mPosY, 0,
-                                              (ReanimationType)113);
+                                              REANIM_RAKE);
   aReanim->SetAnimRate(0.0f);
   aReanim->mIsAttachment = true;
   aReanim->mLoopType = REANIM_PLAY_ONCE_AND_HOLD;
@@ -9337,7 +9340,7 @@ void Board::AddMPTarget(int theGridX, int theGridY)
   int aY = GridToPixelY(theGridX, theGridY);
   Reanimation *aReanim = mApp->AddReanimation(
       20.0f / (float)(5 - theGridY) + 26.0f + (float)aX,
-      (float)aY - 54.0f, aRenderOrder, (ReanimationType)145);
+      (float)aY - 54.0f, aRenderOrder, REANIM_ZOMBIE_TARGET);
   aReanim->SetAnimRate(0.0f);
   aReanim->mLoopType = (ReanimLoopType)0;
   aReanim->mIsAttachment = true;
@@ -9954,8 +9957,8 @@ void Board::LoadBackgroundImages()
     // ReanimationType 118 is the tree and 119 its clouds; Sexy\ReconTypes.h
     // carries only the handful of REANIM_* names the call sites already use,
     // so these two are spelled by value.
-    ReanimatorEnsureDefinitionLoaded((ReanimationType)118, true);
-    ReanimatorEnsureDefinitionLoaded((ReanimationType)119, true);
+    ReanimatorEnsureDefinitionLoaded(REANIM_TREEOFWISDOM, true);
+    ReanimatorEnsureDefinitionLoaded(REANIM_TREEOFWISDOM_CLOUDS, true);
     break;
 
   case BACKGROUND_MUSHROOM_GARDEN:

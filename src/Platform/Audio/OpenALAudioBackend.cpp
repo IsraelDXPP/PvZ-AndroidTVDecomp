@@ -15,7 +15,10 @@
 #include "LogManager.h"
 #include "Win32File.h"
 
+#include <libopenmpt/libopenmpt.h>
+#include <libopenmpt/libopenmpt_ext.h>
 #include <vorbis/vorbisfile.h>
+#include <AL/alext.h>
 
 #include <cstring>
 #include <cmath>
@@ -133,6 +136,8 @@ bool ExtensionMatches(const std::string& theExt, const char* theName)
     return _stricmp(theExt.c_str(), theName) == 0;
 }
 
+} // namespace
+
 bool LoadAudioBytes(const String& thePath, std::vector<unsigned char>& theBytes, std::string& theExt)
 {
     std::string aPath = thePath.c_str() != nullptr ? thePath.c_str() : "";
@@ -154,8 +159,9 @@ bool LoadAudioBytes(const String& thePath, std::vector<unsigned char>& theBytes,
         aBase = aPath.substr(0, (size_t)aDot);
     }
 
-    const char* aExtensions[] = { ".ogg", ".wav" };
-    for (int aKind = 0; aKind < 2; ++aKind)
+    const char* aExtensions[] = { ".ogg", ".wav", ".xm", ".it", ".s3m", ".mod", ".mo3" };
+    const int aExtensionCount = (int)(sizeof(aExtensions) / sizeof(aExtensions[0]));
+    for (int aKind = 0; aKind < aExtensionCount; ++aKind)
     {
         if (!ExtensionMatches(aGiven, aExtensions[aKind]))
             continue;
@@ -169,6 +175,9 @@ bool LoadAudioBytes(const String& thePath, std::vector<unsigned char>& theBytes,
     }
     return false;
 }
+
+namespace
+{
 
 unsigned short ReadLe16(const unsigned char* theBytes)
 {
@@ -196,9 +205,41 @@ OpenALSoundBuffer* UploadPcm(ALenum theFormat, const unsigned char* thePcm,
     alGetError();
     alGenBuffers(1, &aResult->mBuffer);
     alBufferData(aResult->mBuffer, theFormat, thePcm, (ALsizei)theBytes, (ALsizei)theRate);
-    if (alGetError() != AL_NO_ERROR)
+    ALenum aUploadError = alGetError();
+    if (aUploadError != AL_NO_ERROR)
     {
-        TOD_WARN("OpenALSoundManager: alBufferData rejected the decoded stream");
+        // A software device often rejects 22050 Hz, which is the rate of the
+        // TV music pack. Resampling to 44100 keeps the same samples playable.
+        if (theRate > 0 && theRate != 44100)
+        {
+            int aChannels = (theFormat == AL_FORMAT_MONO16) ? 1 : 2;
+            int aFrames = (int)(theBytes / (unsigned int)(2 * aChannels));
+            int aOutFrames = (int)((long long)aFrames * 44100 / theRate);
+            if (aOutFrames < 1)
+                aOutFrames = 1;
+            std::vector<short> aOut((size_t)aOutFrames * (size_t)aChannels);
+            const short* aIn = (const short*)thePcm;
+            for (int aFrame = 0; aFrame < aOutFrames; ++aFrame)
+            {
+                int aSrc = (int)((long long)aFrame * theRate / 44100);
+                if (aSrc >= aFrames)
+                    aSrc = aFrames - 1;
+                for (int aChannel = 0; aChannel < aChannels; ++aChannel)
+                    aOut[(size_t)aFrame * (size_t)aChannels + (size_t)aChannel] =
+                        aIn[(size_t)aSrc * (size_t)aChannels + (size_t)aChannel];
+            }
+            alGetError();
+            alBufferData(aResult->mBuffer, theFormat, aOut.data(),
+                         (ALsizei)(aOut.size() * sizeof(short)), 44100);
+            aUploadError = alGetError();
+            if (aUploadError == AL_NO_ERROR)
+            {
+                aResult->mLengthSeconds = (double)aOutFrames / 44100.0;
+                return aResult;
+            }
+        }
+        TOD_WARN("OpenALSoundManager: alBufferData rejected the decoded stream (0x%x, %d Hz, %u bytes)",
+                 (unsigned int)aUploadError, theRate, theBytes);
         delete aResult;
         return nullptr;
     }
@@ -826,6 +867,35 @@ void OpenALSoundManager::Update()
 // ===========================================================================
 // OpenALMusicInterface
 // ===========================================================================
+namespace
+{
+
+const int kModuleStreamRate = 44100;
+const int kModuleSliceFrames = 4096;
+const int kModuleQueueDepth = 3;
+
+void ClearSong(OpenALMusicInterface::Song &theSong)
+{
+    theSong.mBuffer = nullptr;
+    theSong.mSource = 0;
+    theSong.mVolume = 1.0;
+    theSong.mMaxVolume = 1.0;
+    theSong.mAmplify = 1.0;
+    theSong.mTempo = 0;
+    theSong.mLoaded = false;
+    theSong.mPlaying = false;
+    theSong.mPaused = false;
+    theSong.mLoop = true;
+    theSong.mFadeTarget = 0.0;
+    theSong.mFadeRate = 0.0;
+    theSong.mModule = nullptr;
+    theSong.mModuleBase = nullptr;
+    theSong.mStreamRate = kModuleStreamRate;
+    theSong.mStreamPrimed = false;
+}
+
+} // namespace
+
 OpenALMusicInterface::OpenALMusicInterface(OpenALSoundManager *theManager)
     : mManager(theManager), mVolume(1.0)
 {
@@ -836,14 +906,109 @@ OpenALMusicInterface::~OpenALMusicInterface()
     UnloadAllMusic();
 }
 
+void OpenALMusicInterface::ReleaseModule(Song &theSong)
+{
+    if (theSong.mSource != 0 && !theSong.mStreamBuffers.empty())
+    {
+        alSourceStop(theSong.mSource);
+        alSourcei(theSong.mSource, AL_BUFFER, 0);
+    }
+    if (!theSong.mStreamBuffers.empty())
+    {
+        alDeleteBuffers((ALsizei)theSong.mStreamBuffers.size(), theSong.mStreamBuffers.data());
+        theSong.mStreamBuffers.clear();
+    }
+    if (theSong.mModule != nullptr)
+    {
+        openmpt_module_ext_destroy(theSong.mModule);
+        theSong.mModule = nullptr;
+        theSong.mModuleBase = nullptr;
+    }
+    theSong.mChannelGain.clear();
+    theSong.mStreamPrimed = false;
+}
+
+bool OpenALMusicInterface::QueueModuleSlice(Song &theSong, ALuint theBuffer)
+{
+    if (theSong.mModuleBase == nullptr || theBuffer == 0)
+        return false;
+
+    std::vector<float> aFrames((size_t)kModuleSliceFrames * 2);
+    size_t aRendered = openmpt_module_read_interleaved_float_stereo(
+        theSong.mModuleBase, theSong.mStreamRate, (size_t)kModuleSliceFrames, aFrames.data());
+    if (aRendered == 0 && theSong.mLoop)
+    {
+        openmpt_module_set_position_order_row(theSong.mModuleBase, 0, 0);
+        aRendered = openmpt_module_read_interleaved_float_stereo(
+            theSong.mModuleBase, theSong.mStreamRate, (size_t)kModuleSliceFrames, aFrames.data());
+    }
+    if (aRendered == 0)
+        return false;
+
+    alBufferData(theBuffer, AL_FORMAT_STEREO_FLOAT32, aFrames.data(),
+                 (ALsizei)(aRendered * 2 * sizeof(float)), theSong.mStreamRate);
+    if (alGetError() != AL_NO_ERROR)
+    {
+        std::vector<short> aPcm(aRendered * 2);
+        for (size_t aIndex = 0; aIndex < aRendered * 2; ++aIndex)
+        {
+            float aSample = aFrames[aIndex];
+            if (aSample > 1.0f)
+                aSample = 1.0f;
+            if (aSample < -1.0f)
+                aSample = -1.0f;
+            aPcm[aIndex] = (short)(aSample * 32767.0f);
+        }
+        alGetError();
+        alBufferData(theBuffer, AL_FORMAT_STEREO16, aPcm.data(),
+                     (ALsizei)(aPcm.size() * sizeof(short)), theSong.mStreamRate);
+        if (alGetError() != AL_NO_ERROR)
+            return false;
+    }
+
+    alSourceQueueBuffers(theSong.mSource, 1, &theBuffer);
+    return alGetError() == AL_NO_ERROR;
+}
+
+void OpenALMusicInterface::RefillModule(Song &theSong)
+{
+    if (theSong.mModuleBase == nullptr || theSong.mSource == 0 || theSong.mPaused)
+        return;
+
+    ALint aProcessed = 0;
+    alGetSourcei(theSong.mSource, AL_BUFFERS_PROCESSED, &aProcessed);
+    while (aProcessed > 0)
+    {
+        ALuint aFinished = 0;
+        alSourceUnqueueBuffers(theSong.mSource, 1, &aFinished);
+        if (aFinished != 0)
+            QueueModuleSlice(theSong, aFinished);
+        --aProcessed;
+    }
+
+    ALint aState = AL_STOPPED;
+    alGetSourcei(theSong.mSource, AL_SOURCE_STATE, &aState);
+    if (aState != AL_PLAYING && theSong.mPlaying && !theSong.mPaused)
+        alSourcePlay(theSong.mSource);
+}
+
 void OpenALMusicInterface::EnsureSource(Song &theSong)
 {
     if (theSong.mSource != 0)
         return;
 
     alGenSources(1, &theSong.mSource);
-    if (theSong.mSource != 0 && theSong.mBuffer != nullptr && theSong.mBuffer->mBuffer != 0)
+    if (theSong.mSource == 0)
+        return;
+    if (theSong.mModuleBase == nullptr && theSong.mBuffer != nullptr && theSong.mBuffer->mBuffer != 0)
         alSourcei(theSong.mSource, AL_BUFFER, (ALint)theSong.mBuffer->mBuffer);
+}
+
+void OpenALMusicInterface::ApplySongGain(Song &theSong)
+{
+    if (theSong.mSource == 0)
+        return;
+    alSourcef(theSong.mSource, AL_GAIN, ToGain(theSong.mVolume * theSong.mAmplify * mVolume));
 }
 
 bool OpenALMusicInterface::IsLoaded(int theSongId)
@@ -860,30 +1025,69 @@ bool OpenALMusicInterface::LoadMusic(int theSongId, Sexy::String const & theFile
     if (mManager == nullptr || !mManager->Initialized())
         return false;
 
-    OpenALSoundBuffer *aBuffer2 = OpenAudioFile(theFileName);
-    if (aBuffer2 == nullptr)
+    std::vector<unsigned char> aBytes;
+    std::string aExt;
+    if (!LoadAudioBytes(theFileName, aBytes, aExt))
+    {
+        TOD_WARN("OpenALMusicInterface: cannot read '%s'", theFileName.c_str());
         return false;
+    }
 
     Song &aSong = mSongs[theSongId];
     if (aSong.mSource != 0)
     {
         alSourceStop(aSong.mSource);
+        alSourcei(aSong.mSource, AL_BUFFER, 0);
         alDeleteSources(1, &aSong.mSource);
         aSong.mSource = 0;
     }
+    ReleaseModule(aSong);
     delete aSong.mBuffer;
+    aSong.mBuffer = nullptr;
+    ClearSong(aSong);
+
+    bool aIsModule = _stricmp(aExt.c_str(), ".xm") == 0
+        || _stricmp(aExt.c_str(), ".it") == 0
+        || _stricmp(aExt.c_str(), ".s3m") == 0
+        || _stricmp(aExt.c_str(), ".mod") == 0
+        || _stricmp(aExt.c_str(), ".mo3") == 0;
+    if (aIsModule)
+    {
+        int aError = OPENMPT_ERROR_OK;
+        aSong.mModule = openmpt_module_ext_create_from_memory(
+            aBytes.data(), aBytes.size(), nullptr, nullptr, nullptr, nullptr,
+            &aError, nullptr, nullptr);
+        if (aSong.mModule == nullptr)
+        {
+            TOD_WARN("OpenALMusicInterface: cannot load module '%s' (%d)",
+                     theFileName.c_str(), aError);
+            return false;
+        }
+        aSong.mModuleBase = openmpt_module_ext_get_module(aSong.mModule);
+        openmpt_module_set_repeat_count(aSong.mModuleBase, -1);
+        int aChannels = openmpt_module_get_num_channels(aSong.mModuleBase);
+        if (aChannels < 0)
+            aChannels = 0;
+        aSong.mChannelGain.assign((size_t)aChannels, 1.0f);
+        aSong.mStreamRate = kModuleStreamRate;
+        aSong.mLoaded = true;
+        EnsureSource(aSong);
+        return aSong.mSource != 0;
+    }
+
+    OpenALSoundBuffer *aBuffer2 = nullptr;
+    if (_stricmp(aExt.c_str(), ".wav") == 0)
+        aBuffer2 = DecodeWav(aBytes.data(), (unsigned int)aBytes.size());
+    else
+        aBuffer2 = OpenALSoundManager::DecodeOgg(aBytes.data(), (unsigned int)aBytes.size());
+    if (aBuffer2 == nullptr)
+    {
+        TOD_WARN("OpenALMusicInterface: cannot load '%s'", theFileName.c_str());
+        return false;
+    }
 
     aSong.mBuffer = aBuffer2;
-    aSong.mVolume = 1.0;
-    aSong.mMaxVolume = 1.0;
-    aSong.mAmplify = 1.0;
-    aSong.mTempo = 0;
     aSong.mLoaded = true;
-    aSong.mPlaying = false;
-    aSong.mPaused = false;
-    aSong.mLoop = true;
-    aSong.mFadeTarget = 0.0;
-    aSong.mFadeRate = 0.0;
     EnsureSource(aSong);
     return true;
 }
@@ -900,11 +1104,36 @@ void OpenALMusicInterface::PlayMusic(int theSongId, int theOffset, bool noLoop)
         return;
 
     aSong.mLoop = !noLoop;
-    alSourcei(aSong.mSource, AL_LOOPING, aSong.mLoop ? AL_TRUE : AL_FALSE);
-    alSourcef(aSong.mSource, AL_GAIN, ToGain(aSong.mVolume * aSong.mAmplify * mVolume));
     aSong.mFadeRate = 0.0;
+    ApplySongGain(aSong);
 
-    // The offset is in milliseconds in this framework's call sites.
+    if (aSong.mModuleBase != nullptr)
+    {
+        // Music::PlayMusic passes a pattern order, not milliseconds. -1 means
+        // "leave the position", which is how a night-drums restart keeps step.
+        openmpt_module_set_repeat_count(aSong.mModuleBase, aSong.mLoop ? -1 : 0);
+        if (theOffset >= 0)
+            openmpt_module_set_position_order_row(aSong.mModuleBase, theOffset, 0);
+
+        alSourceStop(aSong.mSource);
+        alSourcei(aSong.mSource, AL_BUFFER, 0);
+        alSourcei(aSong.mSource, AL_LOOPING, AL_FALSE);
+        if (aSong.mStreamBuffers.empty())
+        {
+            aSong.mStreamBuffers.resize((size_t)kModuleQueueDepth, 0);
+            alGenBuffers(kModuleQueueDepth, aSong.mStreamBuffers.data());
+        }
+        for (size_t aIndex = 0; aIndex < aSong.mStreamBuffers.size(); ++aIndex)
+            QueueModuleSlice(aSong, aSong.mStreamBuffers[aIndex]);
+        aSong.mStreamPrimed = true;
+        alSourcePlay(aSong.mSource);
+        aSong.mPlaying = true;
+        aSong.mPaused = false;
+        return;
+    }
+
+    alSourcei(aSong.mSource, AL_LOOPING, aSong.mLoop ? AL_TRUE : AL_FALSE);
+    // A decoded stream takes the offset in milliseconds.
     if (theOffset > 0 && aSong.mBuffer != nullptr && aSong.mBuffer->mLengthSeconds > 0.0)
         alSourcef(aSong.mSource, AL_SEC_OFFSET, (ALfloat)(theOffset / 1000.0));
 
@@ -960,8 +1189,11 @@ void OpenALMusicInterface::UnloadMusic(int theSongId)
     if (it->second.mSource != 0)
     {
         alSourceStop(it->second.mSource);
+        alSourcei(it->second.mSource, AL_BUFFER, 0);
         alDeleteSources(1, &it->second.mSource);
+        it->second.mSource = 0;
     }
+    ReleaseModule(it->second);
     delete it->second.mBuffer;
     mSongs.erase(it);
 }
@@ -973,8 +1205,11 @@ void OpenALMusicInterface::UnloadAllMusic()
         if (it->second.mSource != 0)
         {
             alSourceStop(it->second.mSource);
+            alSourcei(it->second.mSource, AL_BUFFER, 0);
             alDeleteSources(1, &it->second.mSource);
+            it->second.mSource = 0;
         }
+        ReleaseModule(it->second);
         delete it->second.mBuffer;
     }
     mSongs.clear();
@@ -1057,23 +1292,45 @@ bool OpenALMusicInterface::IsPlaying(int theSongId)
 
 void OpenALMusicInterface::SetChannelVolume(int theSongId, int theChannel, float theVolume)
 {
-    // A decoded stereo stream has two channels and OpenAL exposes no per-channel
-    // gain on a buffer source, so the channel index selects which side to bias.
-    // Music.cpp only ever passes 0 and 1 here.
     std::map<int, Song>::iterator it = mSongs.find(theSongId);
-    if (it == mSongs.end() || it->second.mSource == 0)
+    if (it == mSongs.end())
         return;
 
-    (void)theChannel;
-    alSourcef(it->second.mSource, AL_GAIN, ToGain(theVolume * it->second.mAmplify * mVolume));
+    Song &aSong = it->second;
+    if (aSong.mModule == nullptr)
+        return;
+    if (theChannel < 0 || theChannel >= (int)aSong.mChannelGain.size())
+        return;
+
+    // Music::SetupMusicFileForTune mutes the channels a tune does not use.
+    // libopenmpt's interactive mute is on or off, so a zero gain mutes and
+    // anything else unmutes. The song gain still owns the layer volume.
+    aSong.mChannelGain[(size_t)theChannel] = theVolume;
+    openmpt_module_ext_interface_interactive aInteractive;
+    std::memset(&aInteractive, 0, sizeof(aInteractive));
+    if (openmpt_module_ext_get_interface(aSong.mModule, LIBOPENMPT_EXT_C_INTERFACE_INTERACTIVE,
+                                         &aInteractive, sizeof(aInteractive)) == 0
+        || aInteractive.set_channel_mute_status == nullptr)
+        return;
+    aInteractive.set_channel_mute_status(aSong.mModule, theChannel, theVolume <= 0.0f ? 1 : 0);
 }
 
 int OpenALMusicInterface::GetOrder(int theSongId)
 {
-    // A decoded OGG has no order list to report; the framework's callers only
-    // use this for the module-music formats the target never shipped.
-    (void)theSongId;
-    return 0;
+    // BASS packs the order in the low word and the row in the high word.
+    // Music::UpdateMusicBurst reads the night tune from the low word and the
+    // day/pool/fog/roof tunes from the high word divided by 128.
+    std::map<int, Song>::iterator it = mSongs.find(theSongId);
+    if (it == mSongs.end() || it->second.mModuleBase == nullptr)
+        return 0;
+
+    int aOrder = openmpt_module_get_current_order(it->second.mModuleBase);
+    int aRow = openmpt_module_get_current_row(it->second.mModuleBase);
+    if (aOrder < 0)
+        aOrder = 0;
+    if (aRow < 0)
+        aRow = 0;
+    return (aOrder & 0xFFFF) | ((aRow & 0xFFFF) << 16);
 }
 
 int OpenALMusicInterface::GetTempo(int theSongId)
@@ -1120,9 +1377,12 @@ void OpenALMusicInterface::SetMusicAmplify(int theSongId, double theVolume)
 void OpenALMusicInterface::Update()
 {
     // Step every running fade, then stop the songs that have faded to silence.
+    // A module also needs its streamed slices refilled each frame.
     for (std::map<int, Song>::iterator it = mSongs.begin(); it != mSongs.end(); ++it)
     {
         Song &aSong = it->second;
+        if (aSong.mModuleBase != nullptr && aSong.mPlaying)
+            RefillModule(aSong);
         if (aSong.mFadeRate == 0.0 || aSong.mSource == 0)
             continue;
 

@@ -58,7 +58,7 @@ public:
     virtual void DrawLine(double theStartX, double theStartY, double theEndX, double theEndY,
                           const Color & theColor, int theDrawMode, bool theAntiAlias);
     virtual void Blt(Image * theSource, int theX, int theY, const TRect<int> & theSourceRect,
-                     const Color & theColor, int theDrawMode);
+                     const Color & theColor, int theDrawMode, bool theColorize = false);
     virtual void BltF(Image * theSource, float theX, float theY, const TRect<int> & theSourceRect,
                       const TRect<int> & theClipRect, const Color & theColor, int theDrawMode);
     virtual void BltRotated(Image * theSource, float theX, float theY, const TRect<int> & theSourceRect,
@@ -131,7 +131,7 @@ public:
     virtual void DrawLineAA(double theStartX, double theStartY, double theEndX, double theEndY,
                             const Color & theColor, int theDrawMode);
     virtual void Blt(Image * theSource, int theX, int theY, const TRect<int> & theSourceRect,
-                     const Color & theColor, int theDrawMode);
+                     const Color & theColor, int theDrawMode, bool theColorize = false);
     virtual void BltF(Image * theSource, float theX, float theY, const TRect<int> & theSourceRect,
                       const TRect<int> & theClipRect, const Color & theColor, int theDrawMode);
     virtual void BltRotated(Image * theSource, float theX, float theY, const TRect<int> & theSourceRect,

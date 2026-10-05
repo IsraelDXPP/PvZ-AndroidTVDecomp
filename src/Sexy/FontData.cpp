@@ -25,6 +25,19 @@
 
 namespace {
 
+// A quoted glyph is one code point. UTF-8 stores that point in several
+// bytes, and length() counts bytes, so a CJK glyph is not length 1.
+int QuotedCodePoint(Sexy::String const& theText)
+{
+    if (theText.empty())
+        return 0;
+    unsigned int aIndex = 0;
+    int aCode = ReadCodePoint(theText, aIndex);
+    if (aIndex != theText.size())
+        return 0;
+    return aCode;
+}
+
 bool IsModLayerName(Sexy::String const& theName)
 {
     return theName.length() > 5
@@ -150,15 +163,13 @@ bool Sexy::FontData::Error(const Sexy::String& theError)
 
     Sexy::String aMessage(mErrorHeader);
     aMessage += theError;
-    if (mCurrentLine.length() != 0)
+    if (!mCurrentLine.empty())
     {
         Sexy::String aLineNumber;
         StrFormat(&aLineNumber, "%d:\r\n\r\n", mCurrentLineNum);
         Sexy::String aOnLine = " on Line ";
         aOnLine += aLineNumber;
-        Sexy::String aLine;
-        WStringToString(&aLine, (const wchar_t*)mCurrentLine.c_str());
-        aOnLine += aLine;
+        aOnLine += CodePointsToUtf8(mCurrentLine);
         aMessage += aOnLine;
     }
     mApp->Popup(aMessage);
@@ -361,10 +372,16 @@ bool Sexy::FontData::HandleCommand(Sexy::ListDataElement const& theParams)
 
         for (unsigned int i = 0; i < aKeys.size(); ++i)
         {
-            int aFrom = 0;
-            int aTo = 0;
-            StringToInt(aKeys[i], &aFrom);
-            StringToInt(aValues[i], &aTo);
+            // PC ImageFont stores the quoted character itself. A numeric
+            // token is still accepted so an older descriptor keeps working.
+            int aFrom = QuotedCodePoint(aKeys[i]);
+            int aTo = QuotedCodePoint(aValues[i]);
+            if (aFrom == 0)
+                StringToInt(aKeys[i], &aFrom);
+            if (aTo == 0)
+                StringToInt(aValues[i], &aTo);
+            if (aFrom == 0)
+                return ReportError("Invalid Paramater Type");
             mCharMap[aFrom] = aTo;
         }
         return true;
@@ -525,9 +542,10 @@ bool Sexy::FontData::HandleCommand(Sexy::ListDataElement const& theParams)
             return ReportError("List Size Mismatch");
         for (unsigned int i = 0; i < aChars.size(); ++i)
         {
-            if (aChars[i].length() != 1)
+            int aChar = QuotedCodePoint(aChars[i]);
+            if (aChar == 0)
                 return ReportError("Invalid Paramater Type");
-            CharData* aGlyph = aLayer->SetCharData((unsigned char)aChars[i][0]);
+            CharData* aGlyph = aLayer->SetCharData(aChar);
             aGlyph->mAdvance = (unsigned short)aWidths[i];
         }
         return true;
@@ -621,11 +639,12 @@ bool Sexy::FontData::HandleCommand(Sexy::ListDataElement const& theParams)
         for (unsigned int i = 0; i < aChars.size(); ++i)
         {
             std::vector<int> aPair;
-            if (aChars[i].length() != 1
+            int aChar = QuotedCodePoint(aChars[i]);
+            if (aChar == 0
                 || DataToIntVector(aOffsets.mDataElements[i], &aPair) == 0
                 || aPair.size() != 2)
                 return ReportError("Invalid Paramater Type");
-            CharData* aGlyph = aLayer->GetCharData((unsigned char)aChars[i][0]);
+            CharData* aGlyph = aLayer->GetCharData(aChar);
             aGlyph->mOffsetX = (unsigned short)aPair[0];
             aGlyph->mOffsetY = (unsigned short)aPair[1];
         }
@@ -649,11 +668,14 @@ bool Sexy::FontData::HandleCommand(Sexy::ListDataElement const& theParams)
         std::vector<SortedKern> aKerns;
         for (unsigned int i = 0; i < aPairs.size(); ++i)
         {
-            if (aPairs[i].length() != 2)
+            unsigned int aIndex = 0;
+            int aFirst = ReadCodePoint(aPairs[i], aIndex);
+            int aSecond = ReadCodePoint(aPairs[i], aIndex);
+            if (aFirst == 0 || aSecond == 0 || aIndex != aPairs[i].size())
                 return ReportError("Invalid Paramater Type");
             SortedKern aKern;
-            aKern.mChar = (unsigned char)aPairs[i][0];
-            aKern.mSecond = (unsigned char)aPairs[i][1];
+            aKern.mChar = aFirst;
+            aKern.mSecond = aSecond;
             aKern.mAmount = aAmounts[i];
             aKerns.push_back(aKern);
         }
@@ -688,9 +710,10 @@ bool Sexy::FontData::HandleCommand(Sexy::ListDataElement const& theParams)
             return ReportError("List Size Mismatch");
         for (unsigned int i = 0; i < aChars.size(); ++i)
         {
-            if (aChars[i].length() != 1)
+            int aChar = QuotedCodePoint(aChars[i]);
+            if (aChar == 0)
                 return ReportError("Invalid Paramater Type");
-            CharData* aGlyph = aLayer->GetCharData((unsigned char)aChars[i][0]);
+            CharData* aGlyph = aLayer->GetCharData(aChar);
             aGlyph->mCharOrder = (unsigned short)aOrders[i];
         }
         return true;
@@ -749,7 +772,8 @@ bool Sexy::FontData::HandleCommand(Sexy::ListDataElement const& theParams)
         for (unsigned int i = 0; i < aChars.size(); ++i)
         {
             std::vector<int> aRect;
-            if (aChars[i].length() != 1
+            int aChar = QuotedCodePoint(aChars[i]);
+            if (aChar == 0
                 || DataToIntVector(aRects.mDataElements[i], &aRect) == 0
                 || aRect.size() != 4)
                 return ReportError("Invalid Paramater Type");
@@ -780,7 +804,7 @@ bool Sexy::FontData::HandleCommand(Sexy::ListDataElement const& theParams)
                 aW = (short)(aRight - aX);
                 aH = (short)(aBottom - aY);
             }
-            CharData* aGlyph = aLayer->GetCharData((unsigned char)aChars[i][0]);
+            CharData* aGlyph = aLayer->GetCharData(aChar);
             aGlyph->mX = (unsigned short)aX;
             aGlyph->mY = (unsigned short)aY;
             aGlyph->mWidth = (unsigned short)aW;

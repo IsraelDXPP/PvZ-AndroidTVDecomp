@@ -361,7 +361,7 @@ Sexy::String* GetSavedGameName(Sexy::String* theDest, GameMode theMode, int theP
 struct ZombieDefinition
 {
     int mZombieType;         // +0x00
-    int mReanimationType;    // +0x04  -- the field every `+ 4` read takes
+    ReanimationType mReanimationType; // +0x04  -- the field every `+ 4` read takes
     int mZombieValue;        // +0x08  -- the field every `+ 8` read takes
     int mStartingLevel;      // +0x0C  -- the field every `+ 12` read takes
     int mPickWeight;         // +0x10
@@ -405,6 +405,7 @@ void ReanimationCreateAtlas(ReanimatorDefinition* theDefinition, ReanimationType
 void ReanimationPreload(ReanimationType theType);
 int ReanimationLoadDefinition(const Sexy::String& theFileName, ReanimatorDefinition* theDefinition);
 int ReanimatorEnsureDefinitionLoaded(ReanimationType theType, bool theRequireCompiled);
+struct ReanimationParamRecord;
 void ReanimatorLoadDefinitions(ReanimationParamRecord* theParams, int theCount);
 
 // SHIDWORD / SLOBYTE / SLODWORD are NOT functions.
@@ -1075,11 +1076,10 @@ extern int gCreditsTimingCount;
 //
 // The PC reference source declares these in LawnApp.h (LawnApp.cpp:45/152/261/
 // 407 and LawnApp.h:483-486) and nothing in this tree did, so LawnApp.cpp
-// reported C2065 for each. ParticleParams / TrailParams / ReanimationParams stay
-// opaque here: the transcribed bodies only hand their ADDRESSES to the
-// Tod*/Reanimator loader functions and never index them.
-// TODO(recon): transcribe ParticleParams / TrailParams / ReanimationParams once
-// a body actually reads a field.
+// reported C2065 for each. ParticleParams / TrailParams stay opaque here:
+// the transcribed bodies only hand their addresses to the loaders.
+// gLawnReanimationArray is the 178-row TV table, one ReanimationParamRecord
+// per ReanimationType.
 //
 // FoleyParams is transcribed, because TodFoley.cpp does read its fields. Layout
 // from the authoritative header PvZ\TodLib\Common\TodFoley.h and confirmed by
@@ -1101,12 +1101,10 @@ public:
 
 struct ParticleParams     { ParticleParamRecord mRecords[16]; };
 struct TrailParams        { TrailParamRecord mRecords[8]; };
-struct ReanimationParams  { ReanimationParamRecord mRecords[8]; };
-
 extern FoleyParams        gLawnFoleyParamArray[];
 extern ParticleParams     gLawnParticleArray[];
 extern TrailParams        gLawnTrailArray[];
-extern ReanimationParams  gLawnReanimationArray[];
+extern ReanimationParamRecord gLawnReanimationArray[];
 
 // The table LookupFoley indexes, one entry per FoleyType, and its length
 // (gFoleyParamArraySize is declared in ReconData.h and defined in

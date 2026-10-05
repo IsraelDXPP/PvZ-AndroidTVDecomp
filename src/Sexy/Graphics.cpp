@@ -861,7 +861,7 @@ Sexy::Graphics* Sexy::Graphics::DrawImage(Sexy::Image * theImage, int theX, int 
             return this;
         TRect<int> aSrc(theSrcRect.mX + aClippedX - aX, theSrcRect.mY + aClippedY - aY,
                         aClippedWidth, aClippedHeight);
-        mDestImage->Blt(theImage, aClippedX, aClippedY, aSrc, GetImageColor(), mDrawMode);
+        mDestImage->Blt(theImage, aClippedX, aClippedY, aSrc, GetImageColor(), mDrawMode, mColorizeImages);
         return this;
     }
 
@@ -893,7 +893,7 @@ Sexy::Graphics* Sexy::Graphics::DrawImage(Sexy::Image * theImage, int theX, int 
         if (aClippedWidth <= 0 || aClippedHeight <= 0)
             return this;
         TRect<int> aSrc(aClippedX - aX, aClippedY - aY, aClippedWidth, aClippedHeight);
-        mDestImage->Blt(theImage, aClippedX, aClippedY, aSrc, GetImageColor(), mDrawMode);
+        mDestImage->Blt(theImage, aClippedX, aClippedY, aSrc, GetImageColor(), mDrawMode, mColorizeImages);
         return this;
     }
     return DrawImage(theImage, theX, theY, TRect<int>(0, 0, theImage->GetWidth(), theImage->GetHeight()));

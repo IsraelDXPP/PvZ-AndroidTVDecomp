@@ -75,60 +75,60 @@
 #include <cctype>
 
 PlantDefinition gPlantDefs[NUM_SEED_TYPES] = {
-    { SEED_PEASHOOTER, nullptr, 4, 0, 100, 750, 1, 150, "PEASHOOTER" },
-    { SEED_SUNFLOWER, nullptr, 7, 1, 50, 750, 0, 2500, "SUNFLOWER" },
-    { SEED_CHERRYBOMB, nullptr, 10, 3, 150, 5000, 0, 0, "CHERRY_BOMB" },
-    { SEED_WALLNUT, nullptr, 5, 2, 50, 3000, 0, 0, "WALL_NUT" },
-    { SEED_POTATOMINE, nullptr, 23, 37, 25, 3000, 0, 0, "POTATO_MINE" },
-    { SEED_SNOWPEA, nullptr, 13, 4, 175, 750, 1, 150, "SNOW_PEA" },
-    { SEED_CHOMPER, nullptr, 20, 31, 150, 750, 0, 0, "CHOMPER" },
-    { SEED_REPEATER, nullptr, 14, 5, 200, 750, 1, 150, "REPEATER" },
-    { SEED_PUFFSHROOM, nullptr, 18, 6, 0, 750, 1, 150, "PUFF_SHROOM" },
-    { SEED_SUNSHROOM, nullptr, 15, 7, 25, 750, 0, 2500, "SUN_SHROOM" },
-    { SEED_FUMESHROOM, nullptr, 17, 9, 75, 750, 1, 150, "FUME_SHROOM" },
-    { SEED_GRAVEBUSTER, nullptr, 71, 40, 75, 750, 0, 0, "GRAVE_BUSTER" },
-    { SEED_HYPNOSHROOM, nullptr, 19, 10, 75, 3000, 0, 0, "HYPNO_SHROOM" },
-    { SEED_SCAREDYSHROOM, nullptr, 42, 33, 25, 750, 1, 150, "SCAREDY_SHROOM" },
-    { SEED_ICESHROOM, nullptr, 28, 36, 75, 5000, 0, 0, "ICE_SHROOM" },
-    { SEED_DOOMSHROOM, nullptr, 12, 20, 125, 5000, 0, 0, "DOOM_SHROOM" },
-    { SEED_LILYPAD, nullptr, 6, 19, 25, 750, 0, 0, "LILY_PAD" },
-    { SEED_SQUASH, nullptr, 11, 21, 50, 3000, 0, 0, "SQUASH" },
-    { SEED_THREEPEATER, nullptr, 26, 12, 325, 750, 1, 150, "THREEPEATER" },
-    { SEED_TANGLEKELP, nullptr, 52, 17, 25, 3000, 0, 0, "TANGLE_KELP" },
-    { SEED_JALAPENO, nullptr, 33, 11, 125, 5000, 0, 0, "JALAPENO" },
-    { SEED_SPIKEWEED, nullptr, 24, 22, 100, 750, 0, 0, "SPIKEWEED" },
-    { SEED_TORCHWOOD, nullptr, 45, 29, 175, 750, 0, 0, "TORCHWOOD" },
-    { SEED_TALLNUT, nullptr, 16, 28, 125, 3000, 0, 0, "TALL_NUT" },
-    { SEED_SEASHROOM, nullptr, 47, 39, 0, 3000, 1, 150, "SEA_SHROOM" },
-    { SEED_PLANTERN, nullptr, 44, 38, 25, 3000, 0, 2500, "PLANTERN" },
-    { SEED_CACTUS, nullptr, 50, 15, 125, 750, 1, 150, "CACTUS" },
-    { SEED_BLOVER, nullptr, 48, 18, 100, 750, 0, 0, "BLOVER" },
-    { SEED_SPLITPEA, nullptr, 46, 32, 125, 750, 1, 150, "SPLIT_PEA" },
-    { SEED_STARFRUIT, nullptr, 53, 30, 125, 750, 1, 150, "STARFRUIT" },
-    { SEED_PUMPKINSHELL, nullptr, 43, 25, 125, 3000, 0, 0, "PUMPKIN" },
-    { SEED_MAGNETSHROOM, nullptr, 73, 35, 100, 750, 0, 0, "MAGNET_SHROOM" },
-    { SEED_CABBAGEPULT, nullptr, 75, 13, 100, 750, 1, 300, "CABBAGE_PULT" },
-    { SEED_FLOWERPOT, nullptr, 49, 33, 25, 750, 0, 0, "FLOWER_POT" },
-    { SEED_KERNELPULT, nullptr, 76, 13, 100, 750, 1, 300, "KERNEL_PULT" },
-    { SEED_INSTANT_COFFEE, nullptr, 78, 33, 75, 750, 0, 0, "COFFEE_BEAN" },
-    { SEED_GARLIC, nullptr, 86, 8, 50, 750, 0, 0, "GARLIC" },
-    { SEED_UMBRELLA, nullptr, 79, 23, 100, 750, 0, 0, "UMBRELLA_LEAF" },
-    { SEED_MARIGOLD, nullptr, 27, 24, 50, 3000, 0, 2500, "MARIGOLD" },
-    { SEED_MELONPULT, nullptr, 77, 14, 300, 750, 1, 300, "MELON_PULT" },
-    { SEED_GATLINGPEA, nullptr, 80, 5, 250, 5000, 1, 150, "GATLING_PEA" },
-    { SEED_TWINSUNFLOWER, nullptr, 89, 1, 150, 5000, 0, 2500, "TWIN_SUNFLOWER" },
-    { SEED_GLOOMSHROOM, nullptr, 82, 27, 150, 5000, 1, 200, "GLOOM_SHROOM" },
-    { SEED_CATTAIL, nullptr, 81, 27, 225, 5000, 1, 150, "CATTAIL" },
-    { SEED_WINTERMELON, nullptr, 88, 27, 200, 5000, 1, 300, "WINTER_MELON" },
-    { SEED_GOLD_MAGNET, nullptr, 87, 27, 50, 5000, 0, 0, "GOLD_MAGNET" },
-    { SEED_SPIKEROCK, nullptr, 25, 27, 125, 5000, 0, 0, "SPIKEROCK" },
-    { SEED_COBCANNON, nullptr, 85, 16, 500, 5000, 0, 600, "COB_CANNON" },
-    { SEED_IMITATER, nullptr, 93, 33, 0, 750, 0, 0, "IMITATER" },
-    { NUM_SEEDS_IN_CHOOSER, nullptr, -1, 0, 0, 0, 0, 0, "" },
-    { SEED_EXPLODE_O_NUT, nullptr, 5, 2, 0, 3000, 0, 0, "EXPLODE_O_NUT" },
-    { SEED_GIANT_WALLNUT, nullptr, 5, 2, 0, 3000, 0, 0, "GIANT_WALLNUT" },
-    { SEED_SPROUT, nullptr, 105, 33, 0, 3000, 0, 0, "SPROUT" },
-    { SEED_LEFTPEATER, nullptr, 14, 5, 200, 750, 1, 150, "REPEATER" },
+    { SEED_PEASHOOTER, nullptr, REANIM_PEASHOOTER, 0, 100, 750, 1, 150, "PEASHOOTER" },
+    { SEED_SUNFLOWER, nullptr, REANIM_SUNFLOWER, 1, 50, 750, 0, 2500, "SUNFLOWER" },
+    { SEED_CHERRYBOMB, nullptr, REANIM_CHERRYBOMB, 3, 150, 5000, 0, 0, "CHERRY_BOMB" },
+    { SEED_WALLNUT, nullptr, REANIM_WALLNUT, 2, 50, 3000, 0, 0, "WALL_NUT" },
+    { SEED_POTATOMINE, nullptr, REANIM_POTATOMINE, 37, 25, 3000, 0, 0, "POTATO_MINE" },
+    { SEED_SNOWPEA, nullptr, REANIM_SNOWPEA, 4, 175, 750, 1, 150, "SNOW_PEA" },
+    { SEED_CHOMPER, nullptr, REANIM_CHOMPER, 31, 150, 750, 0, 0, "CHOMPER" },
+    { SEED_REPEATER, nullptr, REANIM_REPEATER, 5, 200, 750, 1, 150, "REPEATER" },
+    { SEED_PUFFSHROOM, nullptr, REANIM_PUFFSHROOM, 6, 0, 750, 1, 150, "PUFF_SHROOM" },
+    { SEED_SUNSHROOM, nullptr, REANIM_SUNSHROOM, 7, 25, 750, 0, 2500, "SUN_SHROOM" },
+    { SEED_FUMESHROOM, nullptr, REANIM_FUMESHROOM, 9, 75, 750, 1, 150, "FUME_SHROOM" },
+    { SEED_GRAVEBUSTER, nullptr, REANIM_GRAVE_BUSTER, 40, 75, 750, 0, 0, "GRAVE_BUSTER" },
+    { SEED_HYPNOSHROOM, nullptr, REANIM_HYPNOSHROOM, 10, 75, 3000, 0, 0, "HYPNO_SHROOM" },
+    { SEED_SCAREDYSHROOM, nullptr, REANIM_SCRAREYSHROOM, 33, 25, 750, 1, 150, "SCAREDY_SHROOM" },
+    { SEED_ICESHROOM, nullptr, REANIM_ICESHROOM, 36, 75, 5000, 0, 0, "ICE_SHROOM" },
+    { SEED_DOOMSHROOM, nullptr, REANIM_DOOMSHROOM, 20, 125, 5000, 0, 0, "DOOM_SHROOM" },
+    { SEED_LILYPAD, nullptr, REANIM_LILYPAD, 19, 25, 750, 0, 0, "LILY_PAD" },
+    { SEED_SQUASH, nullptr, REANIM_SQUASH, 21, 50, 3000, 0, 0, "SQUASH" },
+    { SEED_THREEPEATER, nullptr, REANIM_THREEPEATER, 12, 325, 750, 1, 150, "THREEPEATER" },
+    { SEED_TANGLEKELP, nullptr, REANIM_TANGLEKELP, 17, 25, 3000, 0, 0, "TANGLE_KELP" },
+    { SEED_JALAPENO, nullptr, REANIM_JALAPENO, 11, 125, 5000, 0, 0, "JALAPENO" },
+    { SEED_SPIKEWEED, nullptr, REANIM_SPIKEWEED, 22, 100, 750, 0, 0, "SPIKEWEED" },
+    { SEED_TORCHWOOD, nullptr, REANIM_TORCHWOOD, 29, 175, 750, 0, 0, "TORCHWOOD" },
+    { SEED_TALLNUT, nullptr, REANIM_TALLNUT, 28, 125, 3000, 0, 0, "TALL_NUT" },
+    { SEED_SEASHROOM, nullptr, REANIM_SEASHROOM, 39, 0, 3000, 1, 150, "SEA_SHROOM" },
+    { SEED_PLANTERN, nullptr, REANIM_PLANTERN, 38, 25, 3000, 0, 2500, "PLANTERN" },
+    { SEED_CACTUS, nullptr, REANIM_CACTUS, 15, 125, 750, 1, 150, "CACTUS" },
+    { SEED_BLOVER, nullptr, REANIM_BLOVER, 18, 100, 750, 0, 0, "BLOVER" },
+    { SEED_SPLITPEA, nullptr, REANIM_SPLITPEA, 32, 125, 750, 1, 150, "SPLIT_PEA" },
+    { SEED_STARFRUIT, nullptr, REANIM_STARFRUIT, 30, 125, 750, 1, 150, "STARFRUIT" },
+    { SEED_PUMPKINSHELL, nullptr, REANIM_PUMPKIN, 25, 125, 3000, 0, 0, "PUMPKIN" },
+    { SEED_MAGNETSHROOM, nullptr, REANIM_MAGNETSHROOM, 35, 100, 750, 0, 0, "MAGNET_SHROOM" },
+    { SEED_CABBAGEPULT, nullptr, REANIM_CABBAGEPULT, 13, 100, 750, 1, 300, "CABBAGE_PULT" },
+    { SEED_FLOWERPOT, nullptr, REANIM_FLOWER_POT, 33, 25, 750, 0, 0, "FLOWER_POT" },
+    { SEED_KERNELPULT, nullptr, REANIM_KERNELPULT, 13, 100, 750, 1, 300, "KERNEL_PULT" },
+    { SEED_INSTANT_COFFEE, nullptr, REANIM_COFFEEBEAN, 33, 75, 750, 0, 0, "COFFEE_BEAN" },
+    { SEED_GARLIC, nullptr, REANIM_GARLIC, 8, 50, 750, 0, 0, "GARLIC" },
+    { SEED_UMBRELLA, nullptr, REANIM_UMBRELLALEAF, 23, 100, 750, 0, 0, "UMBRELLA_LEAF" },
+    { SEED_MARIGOLD, nullptr, REANIM_MARIGOLD, 24, 50, 3000, 0, 2500, "MARIGOLD" },
+    { SEED_MELONPULT, nullptr, REANIM_MELONPULT, 14, 300, 750, 1, 300, "MELON_PULT" },
+    { SEED_GATLINGPEA, nullptr, REANIM_GATLINGPEA, 5, 250, 5000, 1, 150, "GATLING_PEA" },
+    { SEED_TWINSUNFLOWER, nullptr, REANIM_TWIN_SUNFLOWER, 1, 150, 5000, 0, 2500, "TWIN_SUNFLOWER" },
+    { SEED_GLOOMSHROOM, nullptr, REANIM_GLOOMSHROOM, 27, 150, 5000, 1, 200, "GLOOM_SHROOM" },
+    { SEED_CATTAIL, nullptr, REANIM_CATTAIL, 27, 225, 5000, 1, 150, "CATTAIL" },
+    { SEED_WINTERMELON, nullptr, REANIM_WINTER_MELON, 27, 200, 5000, 1, 300, "WINTER_MELON" },
+    { SEED_GOLD_MAGNET, nullptr, REANIM_GOLD_MAGNET, 27, 50, 5000, 0, 0, "GOLD_MAGNET" },
+    { SEED_SPIKEROCK, nullptr, REANIM_SPIKEROCK, 27, 125, 5000, 0, 0, "SPIKEROCK" },
+    { SEED_COBCANNON, nullptr, REANIM_COBCANNON, 16, 500, 5000, 0, 600, "COB_CANNON" },
+    { SEED_IMITATER, nullptr, REANIM_IMITATER, 33, 0, 750, 0, 0, "IMITATER" },
+    { NUM_SEEDS_IN_CHOOSER, nullptr, REANIM_NONE, 0, 0, 0, 0, 0, "" },
+    { SEED_EXPLODE_O_NUT, nullptr, REANIM_WALLNUT, 2, 0, 3000, 0, 0, "EXPLODE_O_NUT" },
+    { SEED_GIANT_WALLNUT, nullptr, REANIM_WALLNUT, 2, 0, 3000, 0, 0, "GIANT_WALLNUT" },
+    { SEED_SPROUT, nullptr, REANIM_ZENGARDEN_SPROUT, 33, 0, 3000, 0, 0, "SPROUT" },
+    { SEED_LEFTPEATER, nullptr, REANIM_REPEATER, 5, 200, 750, 1, 150, "REPEATER" },
 };
 
 ChallengeDefinition gChallengeDefs[94] = {
@@ -814,8 +814,52 @@ Sexy::String* GetSavedGameName(Sexy::String* theDest, GameMode theMode, int theP
     *theDest += aFile;
     return theDest;
 }
-// TODO(recon)
-ZombieDefinition * GetZombieDefinition(int) { return nullptr; }
+// gZombieDefs @0x697660. GetZombieDefinition @0x1A7F60 is
+// &gZombieDefs[theType], one 28-byte record. The reanimation numbers are
+// the TV table's, not the PC enum.
+static ZombieDefinition gZombieDefs[NUM_ZOMBIE_TYPES] = {
+    { 0,  REANIM_ZOMBIE,             1,  1,  1,  4000, "ZOMBIE" },
+    { 1,  REANIM_ZOMBIE,             1,  1,  1,     0, "FLAG_ZOMBIE" },
+    { 2,  REANIM_ZOMBIE,             2,  3,  1,  4000, "CONEHEAD_ZOMBIE" },
+    { 3,  REANIM_POLEVAULTER,        2,  6,  5,  2000, "POLE_VAULTING_ZOMBIE" },
+    { 4,  REANIM_ZOMBIE,             4,  8,  1,  3000, "BUCKETHEAD_ZOMBIE" },
+    { 5,  REANIM_ZOMBIE_NEWSPAPER,   2, 11,  1,  1000, "NEWSPAPER_ZOMBIE" },
+    { 6,  REANIM_ZOMBIE,             4, 13,  5,  3500, "SCREEN_DOOR_ZOMBIE" },
+    { 7,  REANIM_ZOMBIE_FOOTBALL,    7, 16,  5,  2000, "FOOTBALL_ZOMBIE" },
+    { 8,  REANIM_DANCER,             5, 18,  5,  1000, "DANCING_ZOMBIE" },
+    { 9,  REANIM_BACKUP_DANCER,      1, 18,  1,     0, "BACKUP_DANCER" },
+    { 10, REANIM_ZOMBIE,             1, 21,  5,     0, "DUCKY_TUBE_ZOMBIE" },
+    { 11, REANIM_SNORKEL,            3, 23, 10,  2000, "SNORKEL_ZOMBIE" },
+    { 12, REANIM_ZOMBIE_ZAMBONI,     7, 26, 10,  2000, "ZOMBONI" },
+    { 13, REANIM_BOBSLED,            3, 26, 10,  2000, "ZOMBIE_BOBSLED_TEAM" },
+    { 14, REANIM_ZOMBIE_DOLPHINRIDER,3, 28, 10,  1500, "DOLPHIN_RIDER_ZOMBIE" },
+    { 15, REANIM_JACKINTHEBOX,       3, 31, 10,  1000, "JACK_IN_THE_BOX_ZOMBIE" },
+    { 16, REANIM_BALLOON,            2, 33, 10,  2000, "BALLOON_ZOMBIE" },
+    { 17, REANIM_DIGGER,             4, 36, 10,  1000, "DIGGER_ZOMBIE" },
+    { 18, REANIM_POGO,               4, 38, 10,  1000, "POGO_ZOMBIE" },
+    { 19, REANIM_YETI,               4, 40,  1,     1, "ZOMBIE_YETI" },
+    { 20, REANIM_BUNGEE,             3, 41, 10,  1000, "BUNGEE_ZOMBIE" },
+    { 21, REANIM_LADDER,             4, 43, 10,  1000, "LADDER_ZOMBIE" },
+    { 22, REANIM_CATAPULT,           5, 46, 10,  1500, "CATAPULT_ZOMBIE" },
+    { 23, REANIM_GARGANTUAR,        10, 48, 15,  1500, "GARGANTUAR" },
+    { 24, REANIM_IMP,               10, 48,  1,     0, "IMP" },
+    { 25, REANIM_BOSS,              10, 50,  1,     0, "BOSS" },
+    { 26, REANIM_ZOMBIE,             1, 99,  1,  4000, "TRASHCAN_ZOMBIE" },
+    { 27, REANIM_ZOMBIE,             1, 99,  1,  4000, "ZOMBIE" },
+    { 28, REANIM_ZOMBIE,             4, 99,  1,  3000, "ZOMBIE" },
+    { 29, REANIM_ZOMBIE,             3, 99, 10,  1000, "ZOMBIE" },
+    { 30, REANIM_ZOMBIE,             3, 99, 10,  2000, "ZOMBIE" },
+    { 31, REANIM_ZOMBIE,             3, 99, 10,  2000, "ZOMBIE" },
+    { 32, REANIM_ZOMBIE,             4, 99, 10,  2000, "ZOMBIE" },
+    { 33, REANIM_GARGANTUAR,        10, 48, 15,  6000, "REDEYED_GARGANTUAR" },
+};
+
+ZombieDefinition* GetZombieDefinition(int theZombieType)
+{
+    if (theZombieType < 0 || theZombieType >= NUM_ZOMBIE_TYPES)
+        return &gZombieDefs[0];
+    return &gZombieDefs[theZombieType];
+}
 // TODO(recon)
 unsigned int InterpColor(unsigned int theFirst, unsigned int theSecond, float theFraction)
 {
@@ -1064,8 +1108,13 @@ float SexyMatrix3Inverse(const Sexy::SexyMatrix3& theMatrix, Sexy::SexyMatrix3& 
 // TODO(recon)
 void SexyMatrix3Multiply(Sexy::SexyMatrix3* theResult, const Sexy::SexyMatrix3& theFirst, const Sexy::SexyMatrix3& theSecond)
 {
-    // result = left * right. Reanimation passes the track matrix as the left
-    // factor and the matrix built so far as the right factor.
+    // TV @0x1fd004 stores the product in row order. DrawTrack calls it as
+    // Multiply(&out, pose, out), and pose keeps translation in m02/m12
+    // (MatrixFromTransform @0x1f9930). The stored element 0 is
+    // left[0]*right[0] + left[4]*right[0xC] + left[8]*right[0x18], which is
+    // left's row dotted with right's row. A column product of that storage
+    // negates the sod roll and swaps a track's x with its y, so the dirt
+    // ends up above the zombie head.
     Sexy::SexyMatrix3 aProduct;
     aProduct.m00 = theFirst.m00 * theSecond.m00 + theFirst.m01 * theSecond.m10 + theFirst.m02 * theSecond.m20;
     aProduct.m01 = theFirst.m00 * theSecond.m01 + theFirst.m01 * theSecond.m11 + theFirst.m02 * theSecond.m21;
@@ -1096,9 +1145,9 @@ void SexyMatrix3Translation(Sexy::SexyMatrix3* theMatrix, float theX, float theY
 // TODO(recon)
 Sexy::TPoint<float>* TransformFPoint(Sexy::TPoint<float>* theResult, const Sexy::SexyMatrix3& theMatrix, const Sexy::TPoint<float>& thePoint)
 {
-    Sexy::SexyVector2 aTransformed = theMatrix * Sexy::SexyVector2(thePoint.mX, thePoint.mY);
-    theResult->mX = aTransformed.mX;
-    theResult->mY = aTransformed.mY;
+    // operator*(SexyVector2) @0x341b04. x' = x*m00 + y*m01 + m02.
+    theResult->mX = thePoint.mX * theMatrix.m00 + thePoint.mY * theMatrix.m01 + theMatrix.m02;
+    theResult->mY = thePoint.mX * theMatrix.m10 + thePoint.mY * theMatrix.m11 + theMatrix.m12;
     return theResult;
 }
 bool XButtonKeyCodeDown(int theKeyCode)
@@ -1142,8 +1191,8 @@ bool ZombieTypeCanGoOnHighGround(ZombieType theType)
 // ---------------------------------------------------------------------------
 // TodLib -- the engine layer. The `Tod` prefix is the framework's; the binary
 // carries all of them and the call sites are spread over the whole game tree.
-// ---------------------------------------------------------------------------
-// TODO(recon)
+// PC TodCommon.cpp. Warp the time, then lerp. The bounce family holds the
+// start once the time has passed 1; every other curve holds the end.
 static float TodCurveQuad(float theTime)
 {
     return theTime * theTime;
@@ -1151,76 +1200,93 @@ static float TodCurveQuad(float theTime)
 
 static float TodCurveInvQuad(float theTime)
 {
-    return (2.0f - theTime) * theTime;
+    return 2.0f * theTime - theTime * theTime;
 }
 
 static float TodCurveS(float theTime)
 {
-    return theTime * theTime * 3.0f - (theTime + theTime) * (theTime * theTime);
+    return 3.0f * theTime * theTime - 2.0f * theTime * theTime * theTime;
 }
 
 static float TodCurveInvQuadS(float theTime)
 {
     if (theTime <= 0.5f)
-        return TodCurveInvQuad(theTime + theTime) * 0.5f;
-    float aFolded = (theTime - 0.5f) + (theTime - 0.5f);
-    return TodCurveQuad(aFolded) * 0.5f + 0.5f;
+        return TodCurveInvQuad(theTime * 2.0f) * 0.5f;
+    return TodCurveQuad((theTime - 0.5f) * 2.0f) * 0.5f + 0.5f;
 }
 
 static float TodCurveBounce(float theTime)
 {
-    return 1.0f - fabsf(1.0f - (theTime + theTime));
+    return 1.0f - fabsf(2.0f * theTime - 1.0f);
 }
 
 float TodCurveEvaluate(float theTime, float thePositionStart, float thePositionEnd, int theCurve)
 {
-    float aSpan = thePositionEnd - thePositionStart;
+    float aWarpedTime = 0.0f;
     switch ((TodCurves)theCurve)
     {
-    case CURVE_LINEAR:
-        return thePositionStart + theTime * aSpan;
-    case CURVE_EASE_IN:
-        return thePositionStart + TodCurveQuad(theTime) * aSpan;
-    case CURVE_EASE_OUT:
-        return thePositionStart + TodCurveInvQuad(theTime) * aSpan;
-    case CURVE_EASE_IN_OUT:
-        return thePositionStart + TodCurveS(TodCurveS(theTime)) * aSpan;
-    case CURVE_EASE_IN_OUT_WEAK:
-        return thePositionStart + TodCurveS(theTime) * aSpan;
-    case CURVE_FAST_IN_OUT:
-        return thePositionStart + TodCurveInvQuadS(TodCurveInvQuadS(theTime)) * aSpan;
-    case CURVE_FAST_IN_OUT_WEAK:
-        return thePositionStart + TodCurveInvQuadS(theTime) * aSpan;
-    case CURVE_BOUNCE:
-        return thePositionStart + TodCurveBounce(theTime) * aSpan;
-    case CURVE_BOUNCE_FAST_MIDDLE:
-        return thePositionStart + TodCurveQuad(TodCurveBounce(theTime)) * aSpan;
-    case CURVE_BOUNCE_SLOW_MIDDLE:
-        return thePositionStart + TodCurveInvQuad(TodCurveBounce(theTime)) * aSpan;
-    case CURVE_SIN_WAVE:
-        return thePositionStart + sinf(theTime * 6.2832f) * aSpan;
-    case CURVE_EASE_SIN_WAVE:
-        return TodCurveS(theTime);
     case CURVE_CONSTANT:
-    case CURVE_WEAK_FAST_IN_OUT:
+        aWarpedTime = 0.0f;
+        break;
+    case CURVE_LINEAR:
+        aWarpedTime = theTime;
+        break;
+    case CURVE_EASE_IN:
+        aWarpedTime = TodCurveQuad(theTime);
+        break;
+    case CURVE_EASE_OUT:
+        aWarpedTime = TodCurveInvQuad(theTime);
+        break;
+    case CURVE_EASE_IN_OUT:
+        aWarpedTime = TodCurveS(TodCurveS(theTime));
+        break;
+    case CURVE_EASE_IN_OUT_WEAK:
+        aWarpedTime = TodCurveS(theTime);
+        break;
+    case CURVE_FAST_IN_OUT:
+        aWarpedTime = TodCurveInvQuadS(TodCurveInvQuadS(theTime));
+        break;
+    case CURVE_FAST_IN_OUT_WEAK:
+        aWarpedTime = TodCurveInvQuadS(theTime);
+        break;
+    case CURVE_BOUNCE:
+        aWarpedTime = TodCurveBounce(theTime);
+        break;
+    case CURVE_BOUNCE_FAST_MIDDLE:
+        aWarpedTime = TodCurveQuad(TodCurveBounce(theTime));
+        break;
+    case CURVE_BOUNCE_SLOW_MIDDLE:
+        aWarpedTime = TodCurveInvQuad(TodCurveBounce(theTime));
+        break;
+    case CURVE_SIN_WAVE:
+        aWarpedTime = sinf(6.2831853f * theTime);
+        break;
+    case CURVE_EASE_SIN_WAVE:
+        aWarpedTime = sinf(6.2831853f * TodCurveS(theTime));
+        break;
     default:
-        return thePositionStart;
+        aWarpedTime = 0.0f;
+        break;
     }
+    return (thePositionEnd - thePositionStart) * aWarpedTime + thePositionStart;
 }
 
 float TodCurveEvaluateClamped(float theTime, float thePositionStart, float thePositionEnd, int theCurve)
 {
     if (theTime <= 0.0f)
         return thePositionStart;
-    if (theTime < 1.0f)
-        return TodCurveEvaluate(theTime, thePositionStart, thePositionEnd, theCurve);
-    unsigned int aKind = (unsigned int)theCurve;
-    if ((aKind & 0xFFFFFFFDu) == 9u)
-        return thePositionStart;
-    bool aHoldsStart = aKind == 10u || aKind - 12u <= 1u;
-    if (aHoldsStart)
-        return thePositionStart;
-    return thePositionEnd;
+    if (theTime >= 1.0f)
+    {
+        TodCurves aKind = (TodCurves)theCurve;
+        if (aKind == CURVE_BOUNCE
+            || aKind == CURVE_BOUNCE_FAST_MIDDLE
+            || aKind == CURVE_BOUNCE_SLOW_MIDDLE
+            || aKind == CURVE_SIN_WAVE
+            || aKind == CURVE_EASE_SIN_WAVE)
+            return thePositionStart;
+        return thePositionEnd;
+    }
+    return TodCurveEvaluate(theTime, thePositionStart, thePositionEnd, theCurve);
 }
 
 float TodAnimateCurveFloat(int theTimeStart, int theTimeEnd, int theTimeAge, float thePositionStart, float thePositionEnd, int theCurve)
@@ -1263,9 +1329,12 @@ void TodBltMatrix(Sexy::Graphics* theGraphics, Sexy::Image* theImage, const Sexy
         (theClipRect.mX == 0 && theClipRect.mY == 0 && theClipRect.mWidth == 800 && theClipRect.mHeight == 600)
             ? aExpandedClip
             : theClipRect;
+    // TV BltMatrix takes the source rect then the clip. PC takes the clip then
+    // the source. Passing them in PC order makes the clip (often 800x600) the
+    // source, so the quad is huge and the real source rect clips it away.
     if (theGraphics->mDestImage != nullptr)
-        theGraphics->mDestImage->BltMatrix(theImage, aPixelOffset, aPixelOffset, theMatrix, aClip, theColor,
-                                           theDrawMode, theSrcRect, theGraphics->mLinearBlend, true);
+        theGraphics->mDestImage->BltMatrix(theImage, aPixelOffset, aPixelOffset, theMatrix, theSrcRect, theColor,
+                                           theDrawMode, aClip, theGraphics->mLinearBlend, true);
     gTodTriangleDrawAdditive = 0;
 }
 

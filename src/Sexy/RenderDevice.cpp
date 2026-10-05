@@ -302,7 +302,7 @@ void Sexy::RenderDevice::DrawLine(double theStartX, double theStartY, double the
 // @0x68A3B8 (vtable slot [16])  --  __cxa_pure_virtual in the ARM
 // ==========================================================================
 void Sexy::RenderDevice::Blt(Image * theSource, int theX, int theY, const TRect<int> & theSourceRect,
-                             const Color & theColor, int theDrawMode)
+                             const Color & theColor, int theDrawMode, bool theColorize)
 {
   // No ARM body: the slot holds __cxa_pure_virtual @0x2C50D8. See the file
   // comment. MemoryImage::Blt [24] overrides it; the binary's other
@@ -313,6 +313,7 @@ void Sexy::RenderDevice::Blt(Image * theSource, int theX, int theY, const TRect<
   (void)theSourceRect;
   (void)theColor;
   (void)theDrawMode;
+  (void)theColorize;
 }
 
 // ==========================================================================

@@ -93,10 +93,8 @@ ReanimatorTrackInstance::ReanimatorTrackInstance()
 }
 
 // ReanimatorTrack lives in ReanimatorDefinition.h. gReanimationParamArray
-// points at this record; the member table is
-// PvZ\TodLib\Effect\Reanimator.h:80. Sexy\ReconFreeFunctions.h already carries an
-// opaque 8-word `ReanimationParams` stub for other translation units, so the
-// record is named differently here rather than clashing with it.
+// points at ReanimationParamRecord; the member table is
+// PvZ\TodLib\Effect\Reanimator.h:80.
 void ReanimAtlas::ReanimAtlasDispose()
 {
     if (mImage != nullptr)
@@ -1312,13 +1310,12 @@ ReanimatorTransform * Reanimation::ReanimationInitialize(float theX, float theY,
   mDefinition = theDefinition;
   SetPosition(theX, theY);
 
-  float aFPS = theDefinition->mFPS;
-  mAnimTime = aFPS;
+  mAnimRate = theDefinition->mFPS;
   mLastFrameTime = -1.0f;
   if ( theDefinition->mTrackCount != 0 )
   {
     mFrameCount = theDefinition->mTracks[0].mTransformCount;
-    SetAnimRate(aFPS);
+    SetAnimRate(mAnimRate);
 
     // One pool serves both arrays: the track instances first, then the
     // transforms, and the pool's item size is the track instance's 148 bytes.
@@ -1754,7 +1751,8 @@ Reanimation::Reanimation()
   aBlock.mSize = 172;
   mSyncBlocks.push_back(aBlock);
 
-  mAnimTime = 12.0f;
+  mAnimTime = 0.0f;
+  mAnimRate = 12.0f;
   mLastFrameTime = -1.0f;
   mDefinition = nullptr;
   mDead = false;
@@ -1779,11 +1777,11 @@ Reanimation::Reanimation()
   mTrackInstances = nullptr;
   mFilterEffect = (FilterEffect)-1;
   mCustomFilterEffectColor = Sexy::Color::White;
-  mReanimationType = (ReanimationType)-1;
+  mReanimationType = REANIM_NONE;
   mDirtyFlags = 0;
   mReanimatorTransforms = nullptr;
   mFrameTimeReady = false;
-  mAnimTimeStep = 1.0f;
+  SetAnimRate(mAnimRate);
 }
 
 // ==========================================================================
@@ -1792,7 +1790,7 @@ Reanimation::Reanimation()
 // ==========================================================================
 ReanimatorTransform * Reanimation::ReanimationInitializeType(float theX, float theY, ReanimationType theReanimType)
 {
-  ReanimatorEnsureDefinitionLoaded(theReanimType, 0);
+  ReanimatorEnsureDefinitionLoaded(theReanimType, true);
   mReanimationType = theReanimType;
   return ReanimationInitialize(theX, theY, gReanimatorDefArray + (int)theReanimType);
 }
@@ -1820,7 +1818,7 @@ void Reanimation::UpdateAttacherTrack(int theTrackIndex)
   // its "reanim/<name>.reanim" path, and the entry's type is the one to play.
   Sexy::String aFileName;
   StrFormat(&aFileName, "reanim/%s.reanim", anInfo.mReanimName.c_str());
-  ReanimationType aReanimationType = (ReanimationType)-1;
+  ReanimationType aReanimationType = REANIM_NONE;
   ReanimationParamRecord *aParams = gReanimationParamArray;
   for ( int i = 0; i < (int)gReanimationParamArraySize; ++i )
   {
@@ -1831,7 +1829,7 @@ void Reanimation::UpdateAttacherTrack(int theTrackIndex)
     }
   }
 
-  if ( aReanimationType == -1 )
+  if ( aReanimationType == REANIM_NONE )
   {
     AttachmentDie(aTrackInstance->mAttachmentID);
     return;

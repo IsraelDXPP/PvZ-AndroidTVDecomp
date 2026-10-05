@@ -3,6 +3,7 @@
 
 #include "PopAnim.h"
 
+#include "FontData.h"
 #include "MemoryImage.h"
 #include "ReconHelpers.h"
 #include "ReconExterns.h"
@@ -471,7 +472,7 @@ public:
         StrFormat(&aLine, "%d:\r\n\r\n", mCurrentLineNum);
         aMessage += aLine;
         aMessage += " on Line ";
-        aMessage += mCurrentLine;
+        aMessage += CodePointsToUtf8(mCurrentLine);
         if (gSexyAppBase != nullptr)
             gSexyAppBase->Popup(aMessage);
         return false;

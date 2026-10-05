@@ -298,8 +298,9 @@ void GLStateManager::ApplyDefaultState()
     EnableScissor(false);
     EnableAlphaTest(false);
     EnableBlend(true);
-    // Standard source-over compositing, which is what DRAWMODE_NORMAL means.
-    SetBlend(BLEND_SRC_ALPHA, BLEND_INV_SRC_ALPHA);
+    // GLGraphics::SetDrawMode normal path: source factor ONE, because the
+    // fragment colour is already premultiplied.
+    SetBlend(BLEND_ONE, BLEND_INV_SRC_ALPHA);
 }
 
 } // namespace Sexy

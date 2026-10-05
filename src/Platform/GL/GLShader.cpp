@@ -24,17 +24,24 @@ static const char* kVertexSrc =
 LAWNTV_GLSL_VERSION
 "layout(location = 0) in vec2 aPos;\n"
 "layout(location = 1) in vec2 aUV;\n"
+"layout(location = 2) in vec4 aColor;\n"
 "uniform mat3 uTransform;\n"
 "uniform vec2 uViewport;\n"
 "out vec2 vUV;\n"
+"out vec4 vColor;\n"
 "void main()\n"
 "{\n"
+"    // Identity stays identity. A rotated blit is already expanded on the CPU\n"
+"    // by GLTexture::BltTransformed, so this uniform is the frame transform.\n"
 "    vec3 p = uTransform * vec3(aPos, 1.0);\n"
 "    // pixel space -> clip space (+Y down, matching the framework's coords)\n"
 "    vec2 ndc = vec2(p.x / uViewport.x * 2.0 - 1.0,\n"
 "                    1.0 - p.y / uViewport.y * 2.0);\n"
 "    gl_Position = vec4(ndc, 0.0, 1.0);\n"
 "    vUV = aUV;\n"
+"    // GLGraphics::Flush enables the colour array and then glColor4f(1,1,1,1),\n"
+"    // so the vertex colour is the modulate, not a uniform shared by the batch.\n"
+"    vColor = aColor;\n"
 "}\n";
 
 // ---------------------------------------------------------------------------
@@ -52,8 +59,8 @@ LAWNTV_GLSL_VERSION
 static const char* kBlitFragSrc =
 LAWNTV_GLSL_VERSION
 "in vec2 vUV;\n"
+"in vec4 vColor;\n"
 "uniform sampler2D uTexture;\n"
-"uniform vec4 uColor;\n"          // 0..1
 "uniform int  uColorize;\n"
 "uniform int  uUseAlphaTest;\n"
 "uniform float uAlphaRef;\n"
@@ -63,9 +70,9 @@ LAWNTV_GLSL_VERSION
 "    vec4 t = texture(uTexture, vUV);\n"
 "    vec4 c;\n"
 "    if (uColorize != 0)\n"
-"        c = vec4(uColor.rgb, t.a * uColor.a);\n"
+"        c = vec4(vColor.rgb, t.a * vColor.a);\n"
 "    else\n"
-"        c = t * uColor;\n"
+"        c = t * vColor;\n"
 "    if (uUseAlphaTest != 0 && c.a < uAlphaRef)\n"
 "        discard;\n"
 "    fragColor = c;\n"
@@ -78,11 +85,11 @@ LAWNTV_GLSL_VERSION
 static const char* kSolidFragSrc =
 LAWNTV_GLSL_VERSION
 "in vec2 vUV;\n"
-"uniform vec4 uColor;\n"
+"in vec4 vColor;\n"
 "out vec4 fragColor;\n"
 "void main()\n"
 "{\n"
-"    fragColor = uColor;\n"
+"    fragColor = vColor;\n"
 "}\n";
 
 // ---------------------------------------------------------------------------
@@ -239,10 +246,27 @@ void GLShader::SetTexture(int theUnit)
 
 void GLShader::SetColor(const Color& theColor)
 {
-    if (mLocColor >= 0)
-        glUniform4f(mLocColor,
-                    theColor.mRed / 255.0f, theColor.mGreen / 255.0f,
-                    theColor.mBlue / 255.0f, theColor.mAlpha / 255.0f);
+    if (mLocColor < 0)
+        return;
+
+    // GLTexture::Blt @0x471cd4 and BltTransformed @0x4734ac premultiply the
+    // colour before GLGraphics::SetColor, then pass the raw alpha byte.
+    // glBlendFunc(ONE, ONE_MINUS_SRC_ALPHA) and glBlendFunc(ONE, ONE) both
+    // use that premultiplied RGB as the source. A straight colour here adds
+    // a white pulse and a red glow at full strength.
+    int aAlpha = theColor.mAlpha;
+    if (aAlpha < 0)
+        aAlpha = 0;
+    if (aAlpha > 255)
+        aAlpha = 255;
+    int aRed = theColor.mRed * aAlpha + 128;
+    int aGreen = theColor.mGreen * aAlpha + 128;
+    int aBlue = theColor.mBlue * aAlpha + 128;
+    aRed = (aRed + (aRed >> 8)) >> 8;
+    aGreen = (aGreen + (aGreen >> 8)) >> 8;
+    aBlue = (aBlue + (aBlue >> 8)) >> 8;
+    glUniform4f(mLocColor,
+                aRed / 255.0f, aGreen / 255.0f, aBlue / 255.0f, aAlpha / 255.0f);
 }
 
 void GLShader::SetColorize(bool theColorize)
@@ -255,13 +279,10 @@ void GLShader::SetTransform(const SexyMatrix3& theMatrix)
 {
     if (mLocTransform < 0) return;
 
-    // The framework stores a row-major 3x3; GL wants column-major.
-    float m[9] = {
-        theMatrix.m[0], theMatrix.m[3], theMatrix.m[6],
-        theMatrix.m[1], theMatrix.m[4], theMatrix.m[7],
-        theMatrix.m[2], theMatrix.m[5], theMatrix.m[8]
-    };
-    glUniformMatrix3fv(mLocTransform, 1, GL_FALSE, m);
+    // glUniformMatrix3fv reads nine floats in column-major order. m[] is stored
+    // row by row, and operator* is x' = x*m00 + y*m01 + m02, so the uniform
+    // is uploaded transposed.
+    glUniformMatrix3fv(mLocTransform, 1, GL_TRUE, theMatrix.m);
 }
 
 void GLShader::SetAlphaTest(bool theEnable, float theRef)
