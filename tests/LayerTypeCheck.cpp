@@ -15,8 +15,14 @@
 #include "BridgeApp.h"
 #include "game/Board.h"
 #include "SeedChooserScreen.h"
+#include "HelpBarWidget.h"
+#include "Mailbox.h"
+#include "TrashBin.h"
+#include "PIEffect.h"
 #include "DataSync.h"
 #include "TodFoley.h"
+#include "Graphics.h"
+#include "GLStateManager.h"
 
 #include <stdio.h>
 #include <type_traits>
@@ -114,8 +120,12 @@ int main()
     ReportRecord<FoleyInstance>("FoleyInstance", 5);
     ReportEnum<MiscStat>("MiscStat");
     ReportEnum<BUTTON_ALIGNMENT_X>("BUTTON_ALIGNMENT_X");
-    ReportEnum<PIParticleInstance>("PIParticleInstance");
-    ReportEnum<RenderItem>("RenderItem");
+    CHECK(!std::is_enum<Sexy::PIParticleInstance>::value);
+    CHECK(sizeof(Sexy::PIParticleInstance) > sizeof(int));
+    printf("PIParticleInstance sizeof %u\n", (unsigned)sizeof(Sexy::PIParticleInstance));
+    if (!std::is_enum<Sexy::PIParticleInstance>::value
+        && sizeof(Sexy::PIParticleInstance) > sizeof(int))
+        printf("PIParticleInstance record\n");
     ReportEnum<SeedChooserScreen::SeedDir>("SeedChooserScreen::SeedDir");
     ReportRecord<TextExtents>("TextExtents", 6);
     ReportEnum<AdviceType>("AdviceType");
@@ -131,7 +141,7 @@ int main()
     ReportEnum<BossPart>("BossPart");
     ReportEnum<ChallengePage>("ChallengePage");
     ReportEnum<ChallengeState>("ChallengeState");
-    ReportEnum<ChosenSeed>("ChosenSeed");
+    ReportRecord<ChosenSeed>("ChosenSeed", 16);
     ReportEnum<CoinMotion>("CoinMotion");
     ReportEnum<CreditsPhase>("CreditsPhase");
     ReportEnum<DrawVariation>("DrawVariation");
@@ -141,8 +151,11 @@ int main()
     ReportEnum<GameStats_MiscStat>("GameStats_MiscStat");
     ReportEnum<GridItemState>("GridItemState");
     ReportEnum<GridItemType>("GridItemType");
-    ReportEnum<HelpBarWidget_HelpAlign>("HelpBarWidget_HelpAlign");
-    ReportEnum<Mailbox_MailMessage>("Mailbox_MailMessage");
+    ReportEnum<HelpBarWidget::HelpAlign>("HelpBarWidget::HelpAlign");
+    CHECK(!std::is_enum<Mailbox::MailMessage>::value);
+    CHECK(sizeof(Mailbox::MailMessage) > sizeof(int));
+    if (!std::is_enum<Mailbox::MailMessage>::value && sizeof(Mailbox::MailMessage) > sizeof(int))
+        printf("Mailbox::MailMessage record\n");
     ReportEnum<MainMenu_MenuScene>("MainMenu_MenuScene");
     ReportEnum<MusicTune>("MusicTune");
     ReportEnum<ParticleEffect>("ParticleEffect");
@@ -155,11 +168,11 @@ int main()
     ReportEnum<SeedChooserScreen_SeedDir>("SeedChooserScreen_SeedDir");
     ReportEnum<StoreItem>("StoreItem");
     ReportEnum<StoreScreen_ItemDir>("StoreScreen_ItemDir");
-    ReportEnum<TrashPileType>("TrashPileType");
+    ReportEnum<TrashBin::TrashPileType>("TrashBin::TrashPileType");
     ReportEnum<VSSetupMenu_VSSetupState>("VSSetupMenu_VSSetupState");
-    ReportEnum<BlendFactor>("BlendFactor");
-    ReportEnum<CmpFunc>("CmpFunc");
-    ReportEnum<DrawMode>("DrawMode");
+    ReportEnum<Sexy::GLStateManager::BlendFactor>("Sexy::GLStateManager::BlendFactor");
+    ReportEnum<Sexy::GLStateManager::CmpFunc>("Sexy::GLStateManager::CmpFunc");
+    ReportEnum<Sexy::Graphics::DrawMode>("Sexy::Graphics::DrawMode");
     ReportEnum<PlantWeapon>("PlantWeapon");
     ReportEnum<Sexy::PixelFormat>("Sexy::PixelFormat");
     ReportEnum<Sexy::WidgetAnimationState>("Sexy::WidgetAnimationState");
@@ -176,6 +189,8 @@ int main()
     ReportValue<DataSync::PointerToIntNode, int>("DataSync::PointerToIntNode");
     ReportValue<DataSync::IntToPointerNode, void*>("DataSync::IntToPointerNode");
     ReportValue<BoardRenderItem, int>("BoardRenderItem");
+    CHECK(!std::is_enum<BoardRenderItem>::value);
+    CHECK(sizeof(BoardRenderItem) == 3 * sizeof(int));
     ReportValue<SCoinItem, int>("SCoinItem");
     ReportValue<TMLongCard, int>("TMLongCard");
     ReportValue<_DWORD, unsigned int>("_DWORD");
