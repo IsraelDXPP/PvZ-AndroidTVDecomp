@@ -54,6 +54,7 @@
 #include "Screenshot.h"
 
 #include "AndroidShims.h"
+#include "ReconHelpers.h"
 #include "ReconTypes.h"
 #include "SexyTypes.h"
 #include "SexyAppBase.h"
@@ -827,8 +828,10 @@ int LTVCALL Slot_Shutdown(void* theThis)
     return 1;
 }
 
-// The resource load runs on this thread. The main thread keeps pumping frames
-// and drawing the title bar from the completed/total counters.
+// 0 = one slice on the calling thread. 1 = a worker. -1 until the first call
+// reads SEXY_LOADING_THREAD. Android and web leave it off; this desktop
+// build turns it on in setup.env.
+int gLoadingThreadMode = -1;
 HANDLE gLoadingThread = nullptr;
 
 unsigned __stdcall LoadingThreadMain(void* theArg)
@@ -860,6 +863,18 @@ int LTVCALL Slot_StartLoadingThread(void* theThis)
     LawnApp* anApp = (LawnApp*)self->mApp;
     if (anApp->mLoadingThreadCompleted)
         return 1;
+
+    if (gLoadingThreadMode < 0)
+        gLoadingThreadMode = Sexy::GetEnvOption("SEXY_LOADING_THREAD", false) != 0 ? 1 : 0;
+
+    // Default path: the caller (the frame loop) pulls one slice and returns,
+    // so a platform with no worker threads can still move the bar.
+    if (gLoadingThreadMode == 0)
+    {
+        anApp->LoadingThreadProc();
+        return 1;
+    }
+
     if (gLoadingThread != nullptr)
         return 1;
 

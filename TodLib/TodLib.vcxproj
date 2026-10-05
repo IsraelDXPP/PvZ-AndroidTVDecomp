@@ -108,5 +108,20 @@
     <ClCompile Include="src\TodParticleHolder.cpp" />
     <ClCompile Include="src\TodParticleSystem.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\DataArray.h" />
+    <ClInclude Include="include\DataArrayMethods.h" />
+    <ClInclude Include="include\FoleyTypeData.h" />
+    <ClInclude Include="include\SyncObject.h" />
+    <ClInclude Include="include\TodAllocator.h" />
+    <ClInclude Include="include\TodCurveWidgetAnimator.h" />
+    <ClInclude Include="include\TodFoley.h" />
+    <ClInclude Include="include\TodHesitationBracket.h" />
+    <ClInclude Include="include\TodParticle.h" />
+    <ClInclude Include="include\TodParticleDefinition.h" />
+    <ClInclude Include="include\TodParticleEmitter.h" />
+    <ClInclude Include="include\TodParticleHolder.h" />
+    <ClInclude Include="include\TodParticleSystem.h" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
 </Project>
