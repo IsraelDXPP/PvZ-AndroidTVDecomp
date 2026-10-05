@@ -20,38 +20,6 @@
 #include <map>
 #include <set>
 
-// Sexy::WidgetAnimationState is defined in ReconTypes.h (one-int struct with the
-// conversions an enum has), so the file-local stand-in this file used to carry is
-// gone.
-
-// ---------------------------------------------------------------------------
-// The +0x108 slot, seen as the parser MenuWidget's own code puts there.
-//
-// MenuWidget::CreateMenuParser @0x2AF354 allocates a Sexy::MenuParser
-// (`operator new(0x64)` followed by _ZN4Sexy10MenuParserC2EPNS_10MenuWidgetE),
-// and LoadMenuFile dispatches its vtable byte 52 -- DescParser::LoadDescriptor.
-// MenuWidget.h spells the member `LawnMenuParser *` instead, because the derived
-// LawnMenuWidget stores a LawnMenuParser in the same slot.
-//
-// In the binary the two parsers are one hierarchy: _ZTV14LawnMenuParser is
-// _ZTVN4Sexy10MenuParserE slot for slot -- 17 entries, of which only 0, 1, 12,
-// 14, 15 and 16 are overridden -- so LawnMenuParser derives from MenuParser. This
-// tree's Game\LawnMenuParser.h derives it from DescParser and RefCount instead,
-// which leaves no single type that can name both, so the slot is reached through
-// its address. Both classes put DescParser at offset 0, so the pointer value is
-// the same either way.
-//
-// TODO(recon): Game\LawnMenuParser.h should derive LawnMenuParser from
-// Sexy::MenuParser (its own vtable comment already records the chain); once it
-// does, this helper and MenuWidget.h's member type both go away.
-// ---------------------------------------------------------------------------
-static Sexy::MenuParser *& MenuParserSlot(LawnMenuParser *&theSlot)
-{
-  // LawnMenuParser and MenuParser share this slot. The pointer value is the
-  // same; only the static type differs.
-  return *static_cast<Sexy::MenuParser **>(static_cast<void *>(&theSlot));
-}
-
 // ==========================================================================
 // Sexy::MenuWidget::~MenuWidget()
 // @001691AC  132 bytes
@@ -62,7 +30,7 @@ Sexy::MenuWidget::~MenuWidget()
   // are the compiler's. The parser is reference counted, so its release is
   // explicit -- the dump decrements +0x4C and, when the count reaches zero,
   // deletes it through the parser's vtable.
-  Sexy::MenuParser *&aParser = MenuParserSlot(mMenuParser);
+  Sexy::MenuParser *aParser = mMenuParser;
   if ( aParser != NULL )
   {
     if ( --aParser->mRefCount <= 0 )
@@ -223,32 +191,30 @@ void Sexy::MenuWidget::Exit()
 // ==========================================================================
 int Sexy::MenuWidget::CreateMenuParser()
 {
-  Sexy::MenuParser *&aSlot = MenuParserSlot(mMenuParser);
-
   // Drop the parser this widget already holds; the count is the parser's own
   // and reaching zero frees it.
-  if ( aSlot != NULL )
+  if ( mMenuParser != NULL )
   {
-    if ( --aSlot->mRefCount <= 0 )
-      delete aSlot;
+    if ( --mMenuParser->mRefCount <= 0 )
+      delete mMenuParser;
 
-    aSlot = NULL;
+    mMenuParser = NULL;
   }
 
   Sexy::MenuParser *aParser = new MenuParser(this);
-  if ( aParser != aSlot )
+  if ( aParser != mMenuParser )
   {
-    if ( aSlot != NULL )
+    if ( mMenuParser != NULL )
     {
-      if ( --aSlot->mRefCount <= 0 )
-        delete aSlot;
+      if ( --mMenuParser->mRefCount <= 0 )
+        delete mMenuParser;
     }
 
     // The widget takes its own reference on the new parser.
     if ( aParser != NULL )
       ++aParser->mRefCount;
 
-    aSlot = aParser;
+    mMenuParser = aParser;
   }
 
   // The dump hands back the pointer it read before the new parser was adopted,
@@ -313,12 +279,12 @@ int Sexy::MenuWidget::LoadMenuFile(Sexy::String theFileName)
 
   mSourceFileName = theFileName;
 
-  Sexy::MenuParser *aParser = MenuParserSlot(mMenuParser);
+  Sexy::MenuParser *aParser = mMenuParser;
   if ( aParser == NULL )
   {
     // Vtable byte 508 is this class's own slot [127], CreateMenuParser.
     CreateMenuParser();
-    aParser = MenuParserSlot(mMenuParser);
+    aParser = mMenuParser;
   }
 
   // Vtable byte 52 is DescParser::LoadDescriptor, slot [13].

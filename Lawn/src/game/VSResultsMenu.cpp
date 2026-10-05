@@ -193,9 +193,9 @@ void VSResultsMenu::Draw(Sexy::Graphics * theGraphics)
 VSResultsMenu::VSResultsMenu()
   : LawnMenuWidget("menu/VSResultsMenu.txt")
 {
-  data118[0] = 0;
-  data118[1] = 0;
-  data118[2] = 0;
+  mBackdropReanimID = REANIMATIONID_NULL;
+  mCameraOffsetX = 0.0f;
+  mCameraOffsetY = 0.0f;
   mSparkleCounter = 250;
   mSmokeCounter = 0;
   mResultsButtonId = -1;

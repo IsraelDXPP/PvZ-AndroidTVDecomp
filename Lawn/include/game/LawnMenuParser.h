@@ -68,30 +68,22 @@
 class LawnMenuWidget;
 class LawnParseWidget;
 
-class LawnMenuParser : public Sexy::DescParser, public Sexy::RefCount
+// The binary's vtable is MenuParser's with six slots replaced, and the
+// constructor calls Sexy::MenuParser::MenuParser. The menu, the parse widget
+// and the focus-link vector are the base's members. +0x64 is this class's own
+// copy of the same MenuWidget, typed the way ReanimTrackWidgetAnimator's
+// constructor wants it.
+class LawnMenuParser : public Sexy::MenuParser
 {
 public:
-    virtual ~LawnMenuParser();                        // [  0],[1] 0x000/0x004
-    virtual bool HandleCommand(Sexy::ListDataElement const& theParams); // [ 12] 0x030 (DescParser declares it pure)
-    virtual LawnParseWidget * CreateParseWidget();             // [ 14] 0x038
-    virtual Sexy::Widget * CreateWidget(Sexy::String theType, int theId, Sexy::MenuParser_ParseWidget *theParse); // [15] 0x03C
-    virtual Sexy::WidgetAnimator * CreateWidgetAnimator(const char **theType, Sexy::ListDataElement *theParams, Sexy::MenuParser_ParseWidget *theParse); // [16] 0x040
+    virtual ~LawnMenuParser();
+    virtual bool HandleCommand(Sexy::ListDataElement const& theParams);
+    virtual Sexy::MenuParser_ParseWidget* CreateParseWidget();
+    virtual Sexy::Widget* CreateWidget(Sexy::String theType, int theId, Sexy::MenuParser_ParseWidget* theParse);
+    virtual Sexy::WidgetAnimator* CreateWidgetAnimator(Sexy::String theType, Sexy::ListDataElement const& theParams,
+                                     Sexy::MenuParser_ParseWidget* theParse);
 
-    // DescParser is 0x48 bytes and the polymorphic secondary sub-object sits at
-    // +0x48, so this class's own members start at +0x50. +0x50..+0x63 reproduce
-    // Sexy::MenuParser's own area, and the authoritative layout names them the
-    // way Game\MenuParser.h does: the MenuWidget the parser belongs to, the
-    // ref-counted widget the current command is building, and the pending
-    // focus-link vector. Declaring them is what makes this class the 0x68 bytes
-    // the binary allocates for it.
-    Sexy::MenuWidget *mMenuWidget;              // +0x50, parent of every button it makes
-    Sexy::MenuParser_ParseWidget *mParseWidget; // +0x54, the widget being built
-    int mWidgetLinks[3];                        // +0x58, MenuParser's vector header
-    // +0x64 is LawnMenuParser's own copy of the same MenuWidget, typed the way
-    // ReanimTrackWidgetAnimator's constructor wants it
-    // (_ZN25ReanimTrackWidgetAnimatorC1EPN4Sexy6WidgetEP14LawnMenuWidgetSsSsSs).
-    LawnMenuWidget *mLawnMenuWidget;            // +0x64
-    // size 0x68
+    LawnMenuWidget* mLawnMenuWidget;
 
     // The remaining methods. None of these owns a vtable slot.
     LawnMenuParser(Sexy::MenuWidget *theMenu);

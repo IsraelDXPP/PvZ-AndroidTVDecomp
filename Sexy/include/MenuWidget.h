@@ -17,14 +17,13 @@
 #include "ReconTypes.h"
 #include "ButtonListener.h"
 #include "Graphics.h"
+#include "MenuParser.h"
 #include "Widget.h"
 #include "WidgetContainer.h"
 #include <string>
 #include <vector>
 #include <map>
 #include <set>
-
-class LawnMenuParser;
 
 namespace Sexy {
 
@@ -49,7 +48,7 @@ public:
 
     bool mIsFading;
     bool mExitFinished;
-    LawnMenuParser *mMenuParser;
+    MenuParser *mMenuParser;
     Sexy::String mSourceFileName;
     int mInitialFocusId;
     Image *mImage;

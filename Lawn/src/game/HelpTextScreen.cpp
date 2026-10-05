@@ -103,9 +103,9 @@ void HelpTextScreen::GotFocus()
 HelpTextScreen::HelpTextScreen(LawnApp* theApp, int thePage)
     : LawnMenuWidget(Sexy::String("menu/HelpMenu.menu.txt"))
 {
-    data118[0] = 0;
-    data118[1] = 0;
-    data118[2] = 0;
+    mBackdropReanimID = REANIMATIONID_NULL;
+    mCameraOffsetX = 0.0f;
+    mCameraOffsetY = 0.0f;
 
     mApp = theApp;
     mPage = thePage;

@@ -971,20 +971,16 @@ int Reanimation::GetFramesForLayer(char *theTrackName, int & theFrameStart, int 
   if ( aTransformCount <= 0 )
     return 0;
 
-  // A track is "showing" from its first frame whose scale is non-negative to
-  // its last one, so the loop looks for that first frame and then measures the
-  // run of frames after it that are still showing.
+  // A layer is showing from its first frame whose frame value is non-negative
+  // through the last such frame. The compiled record stores that value at +0x18.
   ReanimatorTransform *aTransforms = aTrack->mTransforms;
   int aFrame = 0;
   if ( aTransforms[0].mFrame < 0.0f )
   {
     aFrame = 0;
-    float *aScale = &aTransforms[1].mFrame;
     while ( ++aFrame != aTransformCount )
     {
-      float *aCandidate = aScale;
-      aScale += 12;
-      if ( *aCandidate >= 0.0f )
+      if ( aTransforms[aFrame].mFrame >= 0.0f )
         break;
     }
     if ( aFrame == aTransformCount )
@@ -995,11 +991,9 @@ int Reanimation::GetFramesForLayer(char *theTrackName, int & theFrameStart, int 
   int aCount = aTrack->mTransformCount;
   if ( aFrame < aCount )
   {
-    float *aScale = &aTransforms[aFrame].mFrame;
     do
     {
-      float aValue = *aScale;
-      aScale += 12;
+      float aValue = aTransforms[aFrame].mFrame;
       if ( aValue >= 0.0f )
         aCount = aFrame - theFrameStart;
       ++aFrame;
@@ -1038,20 +1032,16 @@ int Reanimation::GetFramesForLayer(char const* theTrackName, int & theFrameStart
   if ( aTransformCount <= 0 )
     return 0;
 
-  // A track is "showing" from its first frame whose scale is non-negative to
-  // its last one, so the loop looks for that first frame and then measures the
-  // run of frames after it that are still showing.
+  // A layer is showing from its first frame whose frame value is non-negative
+  // through the last such frame. PlayReanim uses this count as the clip length.
   ReanimatorTransform *aTransforms = aTrack->mTransforms;
   int aFrame = 0;
   if ( aTransforms[0].mFrame < 0.0f )
   {
     aFrame = 0;
-    float *aScale = &aTransforms[1].mFrame;
     while ( ++aFrame != aTransformCount )
     {
-      float *aCandidate = aScale;
-      aScale += 12;
-      if ( *aCandidate >= 0.0f )
+      if ( aTransforms[aFrame].mFrame >= 0.0f )
         break;
     }
     if ( aFrame == aTransformCount )
@@ -1062,11 +1052,9 @@ int Reanimation::GetFramesForLayer(char const* theTrackName, int & theFrameStart
   int aCount = aTrack->mTransformCount;
   if ( aFrame < aCount )
   {
-    float *aScale = &aTransforms[aFrame].mFrame;
     do
     {
-      float aValue = *aScale;
-      aScale += 12;
+      float aValue = aTransforms[aFrame].mFrame;
       if ( aValue >= 0.0f )
         aCount = aFrame - theFrameStart;
       ++aFrame;
@@ -1087,17 +1075,17 @@ int Reanimation::GetFramesForLayer(char const* theTrackName, int & theFrameStart
 // ==========================================================================
 int Reanimation::SetFramesForLayer(char const* theTrackName)
 {
-  // A negative animation rate means "play backwards", so it is replaced by the
-  // smallest float below -1.0 (0xBF7FFFFE) and the frame time is reset.
-  float aRate = 0.0f;
-  if ( mAnimTime < 0.0f )
-    aRate = -0.99999988f;
+  // A negative rate means the clip plays backwards. Switching layers then
+  // starts one step before the end (the float just under 1) instead of at 0.
+  float aStartTime = 0.0f;
+  if ( mAnimRate < 0.0f )
+    aStartTime = 0.99999994f;
 
   mFrameTimeReady = false;
   mLastFrameTime = -1.0f;
-  mAnimTime = aRate;
+  mAnimTime = aStartTime;
   GetFramesForLayer((char *)theTrackName, mFrameStart, mFrameCount);
-  return SetAnimRate(mAnimTime);
+  return SetAnimRate(mAnimRate);
 }
 
 // ==========================================================================

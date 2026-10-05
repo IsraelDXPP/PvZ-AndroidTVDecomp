@@ -4,9 +4,9 @@
 // (LawnMenuWidget : Sexy::MenuWidget : Sexy::Widget : Sexy::WidgetContainer).
 // The vtable shows it: slot 6 is MenuWidget::AddWidget, slots 30/38 are MenuWidget
 // overrides and slot 127 is LawnMenuWidget::CreateMenuParser. MenuWidget is 0x118
-// and LawnMenuWidget adds no data, so MainMenu's own members start at +0x118 --
-// which is where the authoritative header PvZ\Lawn\Widget\MainMenu.h puts its
-// first field (word 70), and where MainMenu.cpp's raw accesses start.
+// and LawnMenuWidget already owns the three words at +0x118 (the backdrop
+// reanimation and the two camera offsets). MainMenu's own members start at
+// +0x124. The menu reanim id and the camera live in the base words.
 //
 // Size 0x1B0, from `(MainMenu *)operator new of 0x1B0 bytes` at LawnApp.cpp:7128. That is
 // 108 ints, exactly the authoritative header's "size = 108 ints".
@@ -158,16 +158,10 @@ public:
     int DrawFade(Sexy::Graphics *theGraphics);
 
     // -----------------------------------------------------------------------
-    // Members +0x118..+0x1AF. Names from the authoritative header
-    // PvZ\Lawn\Widget\MainMenu.h where it names them; the offsets are the ones
-    // the bodies in MainMenu.cpp actually reach, verified one by one against
-    // the raw `this`-relative accesses in that file. Where the authoritative
-    // header's ordering and the binary disagreed, the binary won and the field
-    // carries its authoritative name only if the use matched.
+    // Members +0x124..+0x1AF. The three words at +0x118 belong to
+    // LawnMenuWidget (mBackdropReanimID, mCameraOffsetX, mCameraOffsetY).
+    // Repeating them here used to push every field below 12 bytes late.
     // -----------------------------------------------------------------------
-    ReanimationID mMainMenuReanimID;      // +0x118
-    float mCameraPositionX;               // +0x11C
-    float mCameraPositionY;               // +0x120
     LawnApp *mApp;                        // +0x124
     int mHasCameraTrack;                  // +0x128  the menu reanim has a "camera" track
     // The scene on screen and the one being slid towards. Both hold a MenuScene

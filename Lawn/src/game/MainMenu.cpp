@@ -117,7 +117,7 @@ void MainMenu::Enter()
   FindWidget(ACHIEVEMENTS_BUTTON)->SetDisabled(true);
   FindWidget(UNLOCK_BUTTON)->SetDisabled(true);
 
-  Reanimation *aMainMenuReanim = mApp->ReanimationTryToGet(mMainMenuReanimID);
+  Reanimation *aMainMenuReanim = mApp->ReanimationTryToGet(mBackdropReanimID);
   if ( aMainMenuReanim != nullptr )
   {
     if ( mMenuScene == MENUSCENE_EXTRA )
@@ -341,7 +341,7 @@ bool MainMenu::UpdateExit()
 
   if ( mExitCounter == 65 )
   {
-    Reanimation *aMainMenuReanim = mApp->ReanimationTryToGet(mMainMenuReanimID);
+    Reanimation *aMainMenuReanim = mApp->ReanimationTryToGet(mBackdropReanimID);
     if ( aMainMenuReanim != nullptr && !mExitTrackName.empty()
       && aMainMenuReanim->FindTrackIndex(mExitTrackName.c_str()) != -1 )
       aMainMenuReanim->PlayReanim(mExitTrackName.c_str(),
@@ -359,7 +359,7 @@ bool MainMenu::UpdateExit()
 // ==========================================================================
 Reanimation *MainMenu::UpdateCrow(Reanimation *theCrow)
 {
-  Reanimation *aMainMenuReanim = mApp->ReanimationTryToGet(mMainMenuReanimID);
+  Reanimation *aMainMenuReanim = mApp->ReanimationTryToGet(mBackdropReanimID);
   if ( aMainMenuReanim == nullptr )
     return nullptr;
 
@@ -383,7 +383,7 @@ Reanimation *MainMenu::UpdateCrow(Reanimation *theCrow)
   Reanimation *aCrowReanim = mApp->ReanimationTryToGet(mCrowReanimID);
   if ( aCrowReanim != nullptr )
   {
-    aCrowMatrix.Translate(mCameraPositionX, 0.0f);
+    aCrowMatrix.Translate(mCameraOffsetX, 0.0f);
     aCrowReanim->mOverlayMatrix = aCrowMatrix;
   }
 
@@ -514,7 +514,7 @@ bool MainMenu::FinishedTransition(char const* theTrackName)
   if ( theTrackName == nullptr )
     return false;
 
-  Reanimation *aMainMenuReanim = mApp->ReanimationTryToGet(mMainMenuReanimID);
+  Reanimation *aMainMenuReanim = mApp->ReanimationTryToGet(mBackdropReanimID);
   if ( aMainMenuReanim == nullptr )
     return false;
 
@@ -551,7 +551,7 @@ Reanimation *MainMenu::OnScene(MainMenu_MenuScene theScene)
     {
       mApp->mHelpBarWidget->AddButton(GAMEPAD_BUTTON_B, "[QUIT]", (HelpBarWidget::HelpAlign)0);
 
-      Reanimation *aMainMenuReanim = mApp->ReanimationTryToGet(mMainMenuReanimID);
+      Reanimation *aMainMenuReanim = mApp->ReanimationTryToGet(mBackdropReanimID);
       if ( aMainMenuReanim != nullptr )
         aMainMenuReanim->PlayReanim("anim_idle", REANIM_LOOP, 4, 12.0);
 
@@ -562,7 +562,7 @@ Reanimation *MainMenu::OnScene(MainMenu_MenuScene theScene)
     }
   }
 
-  Reanimation *aMainMenuReanim = mApp->ReanimationTryToGet(mMainMenuReanimID);
+  Reanimation *aMainMenuReanim = mApp->ReanimationTryToGet(mBackdropReanimID);
   if ( aMainMenuReanim != nullptr )
   {
     if ( theScene == MENUSCENE_MORE_WAYS )
@@ -621,7 +621,7 @@ float MainMenu::UpdateCameraPosition()
 {
   if ( InTransition() && mHasCameraTrack != 0 )
   {
-    Reanimation *aMainMenuReanim = mApp->ReanimationGet(mMainMenuReanimID);
+    Reanimation *aMainMenuReanim = mApp->ReanimationGet(mBackdropReanimID);
     if ( aMainMenuReanim != nullptr )
     {
       int aCameraTrack = aMainMenuReanim->FindTrackIndex("camera");
@@ -629,13 +629,13 @@ float MainMenu::UpdateCameraPosition()
       {
         ReanimatorTransform aTransform;
         aMainMenuReanim->GetCurrentTransform(aCameraTrack, &aTransform);
-        mCameraPositionX = -aTransform.mTransX;
+        mCameraOffsetX = -aTransform.mTransX;
       }
     }
   }
   else if ( !InTransition() )
   {
-    mCameraPositionX = msMenuOffsetX[mMenuScene];
+    mCameraOffsetX = msMenuOffsetX[mMenuScene];
   }
   else
   {
@@ -643,10 +643,10 @@ float MainMenu::UpdateCameraPosition()
     // to the one it is entering, one step per call.
     int aCounter = mTransitionCounter;
     mTransitionCounter = aCounter - 1;
-    mCameraPositionX = TodAnimateCurveFloat(100, 0, aCounter,
+    mCameraOffsetX = TodAnimateCurveFloat(100, 0, aCounter,
       msMenuOffsetX[mMenuScene], msMenuOffsetX[mTargetMenuScene], TodCurves(4));
   }
-  return mCameraPositionX;
+  return mCameraOffsetX;
 }
 
 // ==========================================================================
@@ -662,7 +662,7 @@ void MainMenu::SetScene(unsigned int theScene)
     mTargetMenuScene = theScene;
     mTransitionCounter = 0;
     if ( theScene <= MENUSCENE_EXTRA )
-      mCameraPositionX = msMenuOffsetX[theScene];
+      mCameraOffsetX = msMenuOffsetX[theScene];
     return;
   }
 
@@ -674,7 +674,7 @@ void MainMenu::SetScene(unsigned int theScene)
   mTargetMenuScene = theScene;
   mTransitionCounter = 100;
   if ( InTransition() && theScene <= MENUSCENE_EXTRA )
-    mCameraPositionY = msMenuOffsetX[aOldScene];
+    mCameraOffsetY = msMenuOffsetX[aOldScene];
 
   const char *aTrackName = nullptr;
   if ( aOldScene == MENUSCENE_MAIN )
@@ -697,7 +697,7 @@ void MainMenu::SetScene(unsigned int theScene)
   if ( aTrackName == nullptr )
     return;
 
-  Reanimation *aMainMenuReanim = mApp->ReanimationTryToGet(mMainMenuReanimID);
+  Reanimation *aMainMenuReanim = mApp->ReanimationTryToGet(mBackdropReanimID);
   if ( aMainMenuReanim != nullptr && aMainMenuReanim->TrackExists(aTrackName) )
   {
     mPlayingTrackName = aTrackName;
@@ -720,9 +720,9 @@ MainMenu::MainMenu(LawnApp *theApp)
   : LawnMenuWidget("menu/MainMenu.menu.txt")
 {
   // Every mode starts locked and the adventure clears the ones it has reached.
-  mMainMenuReanimID = REANIMATIONID_NULL;
-  mCameraPositionX = -1280.0f;
-  mCameraPositionY = 0.0f;
+  mBackdropReanimID = REANIMATIONID_NULL;
+  mCameraOffsetX = -1280.0f;
+  mCameraOffsetY = 0.0f;
   mApp = theApp;
   mFadeOriginX = 0.0f;
   mFadeOriginY = 0.0f;
@@ -797,7 +797,7 @@ void MainMenu::Draw(Sexy::Graphics *theGraphics)
     || mApp->GetDialog(60) != nullptr )
     return;
 
-  Reanimation *aMainMenuReanim = mApp->ReanimationTryToGet(mMainMenuReanimID);
+  Reanimation *aMainMenuReanim = mApp->ReanimationTryToGet(mBackdropReanimID);
   if ( aMainMenuReanim == nullptr )
     return;
 
@@ -844,7 +844,7 @@ void MainMenu::Draw(Sexy::Graphics *theGraphics)
       Sexy::Image *aMailAlertImage = aMailTransform.mImage;
       SexyTransform2D aMailMatrix;
       aMainMenuReanim->MatrixFromTransform(aMailTransform, aMailMatrix);
-      aMailMatrix.Translate(mCameraPositionX, mCameraPositionY);
+      aMailMatrix.Translate(mCameraOffsetX, mCameraOffsetY);
       // The alert sits a quarter of its own width to the right of the envelope
       // it hangs off, and everything shifts 240 pixels right on a 4:3 screen.
       aMailMatrix.Translate((float)(aMailAlertImage->mWidth / 4), 0.0f);
@@ -868,7 +868,7 @@ void MainMenu::Draw(Sexy::Graphics *theGraphics)
   aMainMenuReanim->GetCurrentTransform(aMoreTrack, &aMoreTransform);
   SexyTransform2D aMoreMatrix;
   aMainMenuReanim->MatrixFromTransform(aMoreTransform, aMoreMatrix);
-  aMoreMatrix.Translate(mCameraPositionX, mCameraPositionY);
+  aMoreMatrix.Translate(mCameraOffsetX, mCameraOffsetY);
   aMoreMatrix.Translate(120.0f, 200.0f);
   if ( !IsWideScreen(gLawnApp) )
     aMoreMatrix.Translate(-240.0f, 0.0f);
@@ -906,7 +906,7 @@ void MainMenu::Update()
     {
       // The entrance is over: the menu drops into the idle loop of the scene it
       // is showing, and so does the crow.
-      Reanimation *aMainMenuReanim = mApp->ReanimationTryToGet(mMainMenuReanimID);
+      Reanimation *aMainMenuReanim = mApp->ReanimationTryToGet(mBackdropReanimID);
       if ( aMainMenuReanim != nullptr )
       {
         switch ( mMenuScene )
@@ -942,7 +942,7 @@ void MainMenu::Update()
     Sexy::Widget *aSceneWidget = mSceneWidgets[aScene];
     if ( aSceneWidget != nullptr )
     {
-      float aSceneAlpha = 1.0f - fabsf((mCameraPositionX - msMenuOffsetX[aScene]) * -0.00078125f);
+      float aSceneAlpha = 1.0f - fabsf((mCameraOffsetX - msMenuOffsetX[aScene]) * -0.00078125f);
       if ( aSceneAlpha < 0.0f )
         aSceneAlpha = 0.0f;
     }
@@ -952,7 +952,7 @@ void MainMenu::Update()
   {
     int aTargetScene = mTargetMenuScene;
     const char *aPlayingTrack = mPlayingTrackName;
-    if ( aPlayingTrack != nullptr || mCameraPositionX != msMenuOffsetX[aTargetScene] )
+    if ( aPlayingTrack != nullptr || mCameraOffsetX != msMenuOffsetX[aTargetScene] )
     {
       if ( FinishedTransition(aPlayingTrack) )
       {
@@ -985,19 +985,19 @@ void MainMenu::Update()
     UpdateCameraPosition();
     Reanimation *aSkyReanim = mApp->ReanimationTryToGet(mSkyReanimID);
     if ( aSkyReanim != nullptr )
-      aSkyReanim->SetPosition(mCameraPositionX, mCameraPositionY);
+      aSkyReanim->SetPosition(mCameraOffsetX, mCameraOffsetY);
     Reanimation *aSky2Reanim = mApp->ReanimationTryToGet(mSky2ReanimID);
     if ( aSky2Reanim != nullptr )
-      aSky2Reanim->SetPosition(mCameraPositionX, mCameraPositionY);
-    Reanimation *aMainMenuReanim = mApp->ReanimationTryToGet(mMainMenuReanimID);
+      aSky2Reanim->SetPosition(mCameraOffsetX, mCameraOffsetY);
+    Reanimation *aMainMenuReanim = mApp->ReanimationTryToGet(mBackdropReanimID);
     if ( aMainMenuReanim != nullptr )
-      aMainMenuReanim->SetPosition(mCameraPositionX, mCameraPositionY);
+      aMainMenuReanim->SetPosition(mCameraOffsetX, mCameraOffsetY);
     Reanimation *aLeavesReanim = mApp->ReanimationTryToGet(mFallingLeavesReanimID);
     if ( aLeavesReanim != nullptr )
-      aLeavesReanim->SetPosition(mCameraPositionX, mCameraPositionY);
+      aLeavesReanim->SetPosition(mCameraOffsetX, mCameraOffsetY);
     Reanimation *aSceneButterfly = mApp->ReanimationTryToGet(mButterflyReanimID);
     if ( aSceneButterfly != nullptr )
-      aSceneButterfly->SetPosition(mCameraPositionX + 2560.0f, mCameraPositionY);
+      aSceneButterfly->SetPosition(mCameraOffsetX + 2560.0f, mCameraOffsetY);
   }
 
   mApp->mEffectSystem->Update();
@@ -1148,7 +1148,7 @@ void MainMenu::DrawSpeechBubble(Sexy::Graphics *theGraphics)
 
   // The bubble hangs off the crow's own track, so the menu reanimation has to be
   // there and to have that track.
-  Reanimation *aMainMenuReanim = mApp->ReanimationTryToGet(mMainMenuReanimID);
+  Reanimation *aMainMenuReanim = mApp->ReanimationTryToGet(mBackdropReanimID);
   if ( aMainMenuReanim == nullptr )
     return;
   int aTrackIndex = aMainMenuReanim->FindTrackIndex("crow2");
@@ -1157,7 +1157,7 @@ void MainMenu::DrawSpeechBubble(Sexy::Graphics *theGraphics)
 
   ReanimatorTransform aBubbleTransform;
   aMainMenuReanim->GetCurrentTransform(aTrackIndex, &aBubbleTransform);
-  aBubbleTransform.mTransX = (aBubbleTransform.mTransX + mCameraPositionX) - 16.0f;
+  aBubbleTransform.mTransX = (aBubbleTransform.mTransX + mCameraOffsetX) - 16.0f;
   aBubbleTransform.mTransY = aBubbleTransform.mTransY + 64.0f;
 
   // First the rect the text is measured in, then the one it is drawn in: the
@@ -1209,7 +1209,7 @@ void MainMenu::StartAdventureMode()
   mHandPlaying = true;
 
   // Every mode button pushes the same rock aside with the zombie hand.
-  Reanimation *aHandReanim = mApp->AddReanimation(mCameraPositionX, mCameraPositionY, 0, REANIM_ZOMBIE_HAND);
+  Reanimation *aHandReanim = mApp->AddReanimation(mCameraOffsetX, mCameraOffsetY, 0, REANIM_ZOMBIE_HAND);
   aHandReanim->mLoopType = REANIM_PLAY_ONCE_AND_HOLD;
   aHandReanim->IgnoreClipRectForPrefix("rock", true);
   mZombieHandReanimID = mApp->ReanimationGetID(aHandReanim);
@@ -1246,7 +1246,7 @@ int MainMenu::DoUnlockDialog(int theLevel, int theItemId)
 // ==========================================================================
 int MainMenu::SyncButtons()
 {
-  Reanimation *aMainMenuReanim = mApp->ReanimationTryToGet(mMainMenuReanimID);
+  Reanimation *aMainMenuReanim = mApp->ReanimationTryToGet(mBackdropReanimID);
   if ( aMainMenuReanim == nullptr )
     return 0;
 
@@ -1386,14 +1386,14 @@ int MainMenu::SyncProfile(bool theReload)
 void MainMenu::AddedToManager(Sexy::WidgetManager *theWidgetManager)
 {
   // The whole menu reanimation set is built here, at the camera origin.
-  Reanimation *aSkyReanim = mApp->AddReanimation(mCameraPositionX, mCameraPositionY, 0, REANIM_MAINMENU_SKY);
+  Reanimation *aSkyReanim = mApp->AddReanimation(mCameraOffsetX, mCameraOffsetY, 0, REANIM_MAINMENU_SKY);
   if ( aSkyReanim != nullptr )
   {
     aSkyReanim->PlayReanim("anim_idle", REANIM_LOOP, 0, 0.2);
     mSkyReanimID = mApp->ReanimationGetID(aSkyReanim);
   }
 
-  Reanimation *aSky2Reanim = mApp->AddReanimation(mCameraPositionX, mCameraPositionY, 0, REANIM_MAINMENU_SKY2);
+  Reanimation *aSky2Reanim = mApp->AddReanimation(mCameraOffsetX, mCameraOffsetY, 0, REANIM_MAINMENU_SKY2);
   if ( aSky2Reanim != nullptr )
   {
     // The storm layer draws in its own render group so the menu can squash it
@@ -1406,7 +1406,7 @@ void MainMenu::AddedToManager(Sexy::WidgetManager *theWidgetManager)
     mSky2ReanimID = mApp->ReanimationGetID(aSky2Reanim);
   }
 
-  Reanimation *aMainMenuReanim = mApp->AddReanimation(mCameraPositionX, mCameraPositionY, 0, REANIM_MAINMENU);
+  Reanimation *aMainMenuReanim = mApp->AddReanimation(mCameraOffsetX, mCameraOffsetY, 0, REANIM_MAINMENU);
   if ( aMainMenuReanim != nullptr )
   {
     // The camera track is what makes the menu slide; without it SetScene falls
@@ -1416,7 +1416,7 @@ void MainMenu::AddedToManager(Sexy::WidgetManager *theWidgetManager)
       aMainMenuReanim->PlayReanim("anim_enter_right", REANIM_PLAY_ONCE_FULL_LAST_FRAME_AND_HOLD, 0, 12.0);
     else
       aMainMenuReanim->PlayReanim("anim_enter", REANIM_PLAY_ONCE_FULL_LAST_FRAME_AND_HOLD, 0, 12.0);
-    mMainMenuReanimID = mApp->ReanimationGetID(aMainMenuReanim);
+    mBackdropReanimID = mApp->ReanimationGetID(aMainMenuReanim);
     aMainMenuReanim->SetTruncateDisappearingFrames(nullptr, false);
     aMainMenuReanim->SetTruncateDisappearingFrames("Rich_blink", true);
     aMainMenuReanim->SetTruncateDisappearingFrames("Matt_blink", true);
@@ -1434,7 +1434,7 @@ void MainMenu::AddedToManager(Sexy::WidgetManager *theWidgetManager)
     aMainMenuReanim->AssignRenderGroupToTrack("mail alert", -1);
   }
 
-  Reanimation *aCrowReanim = mApp->AddReanimation(mCameraPositionX, mCameraPositionY, 0, REANIM_CROW);
+  Reanimation *aCrowReanim = mApp->AddReanimation(mCameraOffsetX, mCameraOffsetY, 0, REANIM_CROW);
   if ( aCrowReanim != nullptr )
   {
     mCrowReanimID = mApp->ReanimationGetID(aCrowReanim);
@@ -1444,7 +1444,7 @@ void MainMenu::AddedToManager(Sexy::WidgetManager *theWidgetManager)
     mApp->PlaySample(Sexy::GetSoundById(Rand() % 3 + 622), true);
   }
 
-  Reanimation *aLeavesReanim = mApp->AddReanimation(mCameraPositionX, mCameraPositionY, 0, REANIM_FALLING_LEAVES);
+  Reanimation *aLeavesReanim = mApp->AddReanimation(mCameraOffsetX, mCameraOffsetY, 0, REANIM_FALLING_LEAVES);
   if ( aLeavesReanim != nullptr )
   {
     aLeavesReanim->PlayReanim("anim_idle", REANIM_LOOP, 0, 12.0);
@@ -1453,7 +1453,7 @@ void MainMenu::AddedToManager(Sexy::WidgetManager *theWidgetManager)
 
   // The butterfly of the far scene lives one scene to the right of the camera,
   // stopped on its first frame until the scene is entered.
-  Reanimation *aButterflyReanim = mApp->AddReanimation(mCameraPositionX + 2560.0f, mCameraPositionY, 0, REANIM_BUTTERFLY);
+  Reanimation *aButterflyReanim = mApp->AddReanimation(mCameraOffsetX + 2560.0f, mCameraOffsetY, 0, REANIM_BUTTERFLY);
   if ( aButterflyReanim != nullptr )
   {
     aButterflyReanim->SetAnimRate(0.0);
@@ -1942,7 +1942,7 @@ void MainMenu::Exit()
   mFadeOriginX = (float)aButton->mX;
   CancelCrowTalk();
   mHandPlaying = mIsFading;
-  if ( mApp->ReanimationTryToGet(mMainMenuReanimID) != 0 )
+  if ( mApp->ReanimationTryToGet(mBackdropReanimID) != 0 )
   {
     // The pressed button's animator names the exit track to play, if it is a
     // ReanimTrackWidgetAnimator; otherwise the track is built from the button's
@@ -1993,7 +1993,7 @@ int MainMenu::DrawFade(Sexy::Graphics *theGraphics)
   // The iris closes over the button that was pressed, so both the button and the
   // menu's own reanimation have to exist for the effect to run.
   Sexy::Widget *aButton = FindWidget(mPressedButtonId);
-  Reanimation *aMainMenuReanim = mApp->ReanimationTryToGet(mMainMenuReanimID);
+  Reanimation *aMainMenuReanim = mApp->ReanimationTryToGet(mBackdropReanimID);
   if ( aButton != nullptr && aMainMenuReanim != nullptr )
   {
     // The iris origin is a track of the pressed button's own reanimation, named
@@ -2044,8 +2044,8 @@ int MainMenu::DrawFade(Sexy::Graphics *theGraphics)
       float aHoleY;
       if ( aHaveIrisTrack )
       {
-        aHoleX = (mCameraPositionX + aTransform.mTransX) - aHalfWidth;
-        aHoleY = (mCameraPositionY + aTransform.mTransY) - aHalfHeight;
+        aHoleX = (mCameraOffsetX + aTransform.mTransX) - aHalfWidth;
+        aHoleY = (mCameraOffsetY + aTransform.mTransY) - aHalfHeight;
       }
       else
       {
@@ -2114,7 +2114,7 @@ void MainMenu::DrawOverlay(Sexy::Graphics *theGraphics)
       aPages = 3;
     }
 
-    Reanimation *aMainMenuReanim = mApp->ReanimationTryToGet(mMainMenuReanimID);
+    Reanimation *aMainMenuReanim = mApp->ReanimationTryToGet(mBackdropReanimID);
     Sexy::Widget *aAdventureButton = FindWidget(ADVENTURE_BUTTON);
     if ( aAdventureButton != nullptr && aMainMenuReanim != nullptr )
     {
@@ -2137,8 +2137,8 @@ void MainMenu::DrawOverlay(Sexy::Graphics *theGraphics)
       // The badge hangs off the button's own track, shifted by the camera.
       ReanimatorTransform aTransform;
       aMainMenuReanim->GetCurrentTransform(aTrackIndex, &aTransform);
-      aTransform.mTransX = (mCameraPositionX + aTransform.mTransX) + (float)aButtonOffsetX;
-      aTransform.mTransY = (mCameraPositionY + aTransform.mTransY) + aButtonOffsetY;
+      aTransform.mTransX = (mCameraOffsetX + aTransform.mTransX) + (float)aButtonOffsetX;
+      aTransform.mTransY = (mCameraOffsetY + aTransform.mTransY) + aButtonOffsetY;
       aTransform.mSkewX = -1.0f;
       aTransform.mSkewY = -1.0f;
       aTransform.mScaleX = (float)aAdventureButton->mWidth * 0.5f;

@@ -814,6 +814,9 @@ static float MissingSentinel()
     return -10000.0f;
 }
 
+// A compiled frame stores -10000 for a channel it does not key. The loader
+// copies the previous keyed value into that slot and leaves the carried value
+// alone, so the next missing frame inherits the same key.
 static void FillMissingFloat(float& thePrevious, float& theValue)
 {
     if (theValue == MissingSentinel())

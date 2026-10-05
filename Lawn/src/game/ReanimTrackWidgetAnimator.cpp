@@ -40,13 +40,9 @@ bool ReanimTrackWidgetAnimator::IsCompleted()
 // points the three named tracks at their render groups.
 void ReanimTrackWidgetAnimator::Init(Sexy::WidgetAnimationState theState)
 {
-  // Rank 1 types the member as `Sexy::Widget *` even though the constructor
-  // takes the LawnMenuWidget it really is; +0x118 is that class's data118[0],
-  // the reanimation id (MainMenu spells the same three words
-  // mMainMenuReanimID/mCameraPositionX/mCameraPositionY).
   LawnMenuWidget *aMenu = (LawnMenuWidget *)mLawnMenuWidget;
 
-  Reanimation *aReanim = (Reanimation *)mApp->ReanimationTryToGet(ReanimationID(aMenu->data118[0]));
+  Reanimation *aReanim = mApp->ReanimationTryToGet(aMenu->mBackdropReanimID);
   if (aReanim == nullptr)
     return;
 
@@ -72,7 +68,7 @@ void ReanimTrackWidgetAnimator::Update()
     return;
 
   LawnMenuWidget *aMenu = (LawnMenuWidget *)mLawnMenuWidget;
-  Reanimation *aReanim = (Reanimation *)mApp->ReanimationTryToGet(ReanimationID(aMenu->data118[0]));
+  Reanimation *aReanim = mApp->ReanimationTryToGet(aMenu->mBackdropReanimID);
   if (aReanim == nullptr)
     return;
 
@@ -94,11 +90,8 @@ void ReanimTrackWidgetAnimator::Update()
   ReanimatorTransform aTransform;
   aReanim->GetCurrentTransform(aTrackIndex, &aTransform);
 
-  // data118[1]/data118[2] hold the menu's own position offset. The binary reads
-  // both as floats although the authoritative header types the array `int`
-  // (MainMenu names the same two words mCameraPositionX/mCameraPositionY).
-  float aX = (*(float *)&aMenu->data118[1] + aTransform.mTransX) + mOffsetX;
-  float aY = (*(float *)&aMenu->data118[2] + aTransform.mTransY) + mOffsetY;
+  float aX = (aMenu->mCameraOffsetX + aTransform.mTransX) + mOffsetX;
+  float aY = (aMenu->mCameraOffsetY + aTransform.mTransY) + mOffsetY;
 
   mWidget->Move((int)aX, (int)aY);
 

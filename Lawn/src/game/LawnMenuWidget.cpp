@@ -50,14 +50,10 @@ LawnMenuWidget::~LawnMenuWidget()
   // table; the compiler emits all three, so none is written here.
   //
   // The one thing this class does beyond its base is hand back the reanimation
-  // it started for the menu's backdrop. LawnMenuWidget's own member area is
-  // `int data118[3]` (+0x118..+0x123), and the binary reads word 70 (+0x118),
-  // clears it and passes it to LawnApp::RemoveReanimation, which is how the
-  // authoritative header's `ReanimationID mBackdropReanimID` is reached.
-  // TODO(recon): name data118[0] as that ReanimationID once a header pass owns
-  // the member table; only word 70 is ever touched, and words 71/72 are not.
-  ((LawnApp *)gLawnApp)->RemoveReanimation((ReanimationID)data118[0]);
-  data118[0] = 0;
+  // it started for the menu's backdrop. The binary reads +0x118, clears it and
+  // passes it to LawnApp::RemoveReanimation.
+  ((LawnApp *)gLawnApp)->RemoveReanimation(mBackdropReanimID);
+  mBackdropReanimID = REANIMATIONID_NULL;
   // The trailing indirect calls are MenuWidget's own teardown -- the parser's
   // reference-counted release and the mSourceFileName rep -- and C++ runs the
   // base destructor for them.

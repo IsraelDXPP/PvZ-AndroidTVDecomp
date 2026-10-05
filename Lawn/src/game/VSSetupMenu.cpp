@@ -223,9 +223,9 @@ VSSetupMenu::VSSetupMenu()
   // The three words LawnMenuWidget adds at +0x118 are cleared here, the two
   // vptr stores the dump shows around them are the compiler's, and every state
   // word starts at -1 so the first Update can drive GoToState.
-  data118[0] = 0;
-  data118[1] = 0;
-  data118[2] = 0;
+  mBackdropReanimID = REANIMATIONID_NULL;
+  mCameraOffsetX = 0.0f;
+  mCameraOffsetY = 0.0f;
   mState = (VSSetupMenu_VSSetupState)-1;
   mQuickPlay = false;
   mApp = (LawnApp *)gSexyAppBase;

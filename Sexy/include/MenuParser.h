@@ -11,10 +11,19 @@
 #pragma once
 
 #include "ReconTypes.h"
+#include "ButtonWidget.h"
 #include "DescParser.h"
+#include "ImageWidget.h"
+#include "LabelWidget.h"
 #include "ListDataElement.h"
 #include "RefCount.h"
+#include "Widget.h"
 #include <vector>
+
+class GameButton;
+class HelpBarWidget;
+class HelpTextImageWidget;
+class HelpTextWidget;
 
 namespace Sexy {
 
@@ -22,6 +31,26 @@ class Color;
 class MenuWidget;
 class Widget;
 class WidgetAnimator;
+
+// The holder a command builds its widget in. CreateWidget fills the typed
+// slots so later commands can tell a label from a button without a second
+// lookup. LawnMenuParser::LawnParseWidget extends this and adds the help-bar
+// slots the lawn menus write at +0x18..+0x24.
+class MenuParser_ParseWidget : public RefCount
+{
+public:
+    MenuParser_ParseWidget();
+    ~MenuParser_ParseWidget() override = default;
+
+    Widget*       mWidget;
+    Widget*       mReservedWidget;
+    LabelWidget*  mLabelWidget;
+    ImageWidget*  mImageWidget;
+    ButtonWidget* mButtonWidget;
+    HelpBarWidget* mHelpBar;
+    HelpTextImageWidget* mHelpImage;
+    HelpTextWidget* mHelpText;
+};
 
 class MenuParser : public DescParser, public Sexy::RefCount
 {
@@ -56,3 +85,4 @@ public:
 } // namespace Sexy
 
 using Sexy::MenuParser;
+using Sexy::MenuParser_ParseWidget;

@@ -270,8 +270,6 @@ void Sexy::WidgetContainer::UpdateAll(ModalFlags *theFlags)
         WidgetListLink *aNode = mUpdateIterator;
         Widget *aWidget = ChildWidget(aNode);
         mUpdateIteratorModified = false;
-        if (mWidgetManager->mFocusWidget == aWidget)
-            theFlags->mIsOver = true;
         aWidget->UpdateAll(theFlags);
         if (mUpdateIteratorModified)
             mUpdateIterator = BeginChild(this);
@@ -305,8 +303,6 @@ void Sexy::WidgetContainer::UpdateFAll(ModalFlags *theFlags, float theFrac)
         WidgetListLink *aNode = mUpdateIterator;
         Widget *aWidget = ChildWidget(aNode);
         mUpdateIteratorModified = false;
-        if (mWidgetManager->mFocusWidget == aWidget)
-            theFlags->mIsOver = true;
         aWidget->UpdateFAll(theFlags, theFrac);
         if (mUpdateIteratorModified)
             mUpdateIterator = BeginChild(this);

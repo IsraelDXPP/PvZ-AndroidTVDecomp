@@ -37,27 +37,18 @@ public:
 };
 }
 
-namespace Sexy {
-
-// The holder a command builds its widget in. CreateWidget fills the typed
-// slots so later commands can tell a label from a button without a second lookup.
-class MenuParser_ParseWidget : public RefCount
+Sexy::MenuParser_ParseWidget::MenuParser_ParseWidget()
+    : mWidget(nullptr),
+      mReservedWidget(nullptr),
+      mLabelWidget(nullptr),
+      mImageWidget(nullptr),
+      mButtonWidget(nullptr),
+      mHelpBar(nullptr),
+      mHelpImage(nullptr),
+      mHelpText(nullptr)
 {
-public:
-    MenuParser_ParseWidget()
-        : mWidget(nullptr), mLabelWidget(nullptr), mImageWidget(nullptr), mButtonWidget(nullptr)
-    {
-        mRefCount = 0;
-    }
-    ~MenuParser_ParseWidget() override = default;
-
-    Widget*       mWidget;
-    LabelWidget*  mLabelWidget;
-    ImageWidget*  mImageWidget;
-    ButtonWidget* mButtonWidget;
-};
-
-} // namespace Sexy
+    mRefCount = 0;
+}
 
 namespace {
 

@@ -166,10 +166,10 @@ public:
     // PvZ\Lawn\Widget\VSSetupMenu.h.
     //
     // +0x118..+0x123 deliberately does NOT appear here: the base class
-    // LawnMenuWidget already declares `int data118[3]` at exactly those offsets.
-    // This header used to repeat them as mInt70/mInt71/mInt72, which pushed every
-    // member below 12 bytes late and made sizeof(VSSetupMenu) 0x15C against the
-    // 0x150 allocation at LawnApp.cpp:1040. Nothing referenced those three names.
+    // LawnMenuWidget already declares mBackdropReanimID, mCameraOffsetX and
+    // mCameraOffsetY at exactly those offsets. This header used to repeat them,
+    // which pushed every member below 12 bytes late and made sizeof(VSSetupMenu)
+    // 0x15C against the 0x150 allocation at LawnApp.cpp:1040.
     // -----------------------------------------------------------------------
     LawnApp *mApp;                // +0x124
     VSSetupMenu_VSSetupState mState; // +0x128

@@ -5,13 +5,14 @@
 // table's AddWidget [6], RemovedFromManager [30] and DrawAll [38] entries are
 // Sexy::MenuWidget implementations, which is the chain LawnMenuWidget inherits.
 //
-// Object size 0x1A0. LawnMenuWidget is Sexy::MenuWidget (0x118) plus its own
-// `int data118[3]`, so 0x124, and this class's members run 0x124..0x19F.
+// Object size 0x1A0. LawnMenuWidget is Sexy::MenuWidget (0x118) plus the
+// backdrop reanimation and the two camera offsets, so 0x124, and this class's
+// members run 0x124..0x19F.
 // The transcribed object was 0x3A0, driven by an access at +0x390 that belongs to
 // a different receiver (the literal 912 also appears in AlmanacDialog, CheatDialog,
 // GameButton, LawnDialog, MainMenu, TitleScreen and others).
 //
-// The reference tree's member ordinals 70..72 are the base's data118[3], not this
+// The reference tree's member ordinals 70..72 are the base's backdrop words, not this
 // class's; every ordinal from 73 on maps to absolute = ordinal * 4, which the
 // bodies confirm: VSResultsMenu.cpp:169 reads (this + 300) as mResultsButtonId and
 // :246-248 clear the three base words, which puts mSparkleCounter at +0x124.
@@ -99,7 +100,7 @@ public:
     virtual void ButtonDepress(int theId);                     // slot 128
 
     // +0x124 .. +0x19F. The first 0x124 bytes are LawnMenuWidget
-    // (Sexy::MenuWidget is 0x118, its `int data118[3]` is +0x118..+0x123).
+    // (Sexy::MenuWidget is 0x118; the backdrop id and camera offsets follow).
     int mSparkleCounter;                 // +0x124
     int mSmokeCounter;                   // +0x128
     int mResultsButtonId;                // +0x12C

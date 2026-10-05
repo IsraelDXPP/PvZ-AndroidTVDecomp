@@ -17,9 +17,10 @@
 //   [127] 0x169141  LawnMenuWidget::CreateMenuParser
 //
 // Members: MenuWidget's own fields run to word 69 (its mImage at +0x114), so
-// LawnMenuWidget's share starts at word 70. The authoritative header spells the
-// three words `int data118[3];`; the binary only ever writes words 70 and 72
-// (+0x118 and +0x120), so they keep that name here.
+// LawnMenuWidget's share starts at word 70. The old header spelled those three
+// words `int data118[3]`. They are the menu backdrop reanimation and the two
+// camera offsets the track animator adds when it places a button. A derived
+// menu uses these words; it does not declare a second copy.
 
 #pragma once
 
@@ -50,12 +51,21 @@ public:
     // file name, so this class does have a one-line forwarding constructor and
     // the compiler inlined it at that call site. It is defined here because
     // Game\LawnMenuWidget.cpp (another workstream's file) carries no body for it.
-    LawnMenuWidget() {}
-    explicit LawnMenuWidget(Sexy::String theMenuFile) : MenuWidget(theMenuFile) {}
+    LawnMenuWidget():
+        mBackdropReanimID(ReanimationID::REANIMATIONID_NULL),
+        mCameraOffsetX(0),
+        mCameraOffsetY(0) {}
+    explicit LawnMenuWidget(Sexy::String theMenuFile) : MenuWidget(theMenuFile),
+        mBackdropReanimID(ReanimationID::REANIMATIONID_NULL),
+        mCameraOffsetX(0),
+        mCameraOffsetY(0) {}
 
-    // Words 70..72, i.e. +0x118..+0x123. The authoritative header calls them
-    // `data118[3]`; the binary writes words 70 and 72 only.
-    int data118[3];                  // +0x118
+    // Words 70..72, +0x118..+0x123. The destructor releases the reanimation.
+    // The track animator reads the id and adds the two offsets to a track
+    // transform. MainMenu stores its menu reanim and camera in these words.
+    ReanimationID mBackdropReanimID; // +0x118
+    float mCameraOffsetX;            // +0x11C
+    float mCameraOffsetY;            // +0x120
 
     // Everything below belongs to MenuWidget, not to this class:
     //   bool  mIsFading        +0x104

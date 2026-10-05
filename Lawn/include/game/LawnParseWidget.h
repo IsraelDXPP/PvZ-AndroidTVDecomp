@@ -25,25 +25,16 @@
 #pragma once
 
 #include "ReconTypes.h"
-
-class GameButton;
-class HelpBarWidget;
-class HelpTextWidget;
-class HelpTextImageWidget;
-namespace Sexy { class Widget; }
+#include "MenuParser.h"
 
 // The parser fills one of these per command. The command writes the widget it
 // hands back, the button, the help bar, the image widget and the text widget.
-// The binary's allocation is 0x28; this tree names the slots the commands use.
-class LawnParseWidget
+// Those slots live on Sexy::MenuParser_ParseWidget, which this class extends:
+// the lawn allocation is 0x28, nine words behind the vptr, and the base already
+// carries them.
+class LawnParseWidget : public Sexy::MenuParser_ParseWidget
 {
 public:
     virtual ~LawnParseWidget();
-
-    Sexy::Widget *mWidget;
-    GameButton *mButton;
-    HelpBarWidget *mHelpBar;
-    HelpTextImageWidget *mImage;
-    HelpTextWidget *mText;
 };
 

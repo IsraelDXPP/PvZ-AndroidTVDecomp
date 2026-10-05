@@ -1417,8 +1417,6 @@ namespace Sexy {
     class LogListener;
     class LogManager;
     class MemoryImage;
-    class MenuParser;
-    class MenuParser_ParseWidget;
     class MenuWidget;
     class MusicInterface;
     class PASpriteDef;
