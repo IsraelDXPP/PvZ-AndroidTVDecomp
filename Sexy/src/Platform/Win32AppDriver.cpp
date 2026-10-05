@@ -66,6 +66,7 @@
 #include "GL/GLRenderDevice.h"
 
 #include <GLFW/glfw3.h>
+#include <process.h>
 #include <string.h>
 
 // ---------------------------------------------------------------------------
@@ -826,48 +827,49 @@ int LTVCALL Slot_Shutdown(void* theThis)
     return 1;
 }
 
+// The resource load runs on this thread. The main thread keeps pumping frames
+// and drawing the title bar from the completed/total counters.
+HANDLE gLoadingThread = nullptr;
+
+unsigned __stdcall LoadingThreadMain(void* theArg)
+{
+    LawnApp* anApp = (LawnApp*)theArg;
+    while (anApp != nullptr && !anApp->mShutDown && !anApp->mCloseRequest
+           && !anApp->mLoadingThreadCompleted)
+    {
+        anApp->LoadingThreadProc();
+        // One slice just ran. Yield so the main thread can paint the bar
+        // even when this core is busy decoding the next batch.
+        Sleep(1);
+    }
+    return 0;
+}
+
 // [28] StartLoadingThread()
 //
-// This used to return 1 without doing anything, on the reasoning that "the
-// transcribed loading path is synchronous, so nothing needs to be spawned".
-// That was wrong, and it is why no resource group ever loaded: the app's
-// LoadingThreadProc is only ever reached through this slot, and with the slot
-// empty the whole resource chain -- TodLoadResources, LoadGroup, LoadNextResource
-// -- was unreachable code. A trace line at the top of TodLoadResources printed
-// nothing at all across a full 20-frame run, which is what exposed it.
-//
-// The procedure is called here, on the calling thread. That keeps the port
-// single-threaded, which is what the rest of this platform layer assumes (the
-// window, the GL context and the frame loop all live on the main thread), while
-// still running the loading work that the game needs before its first screen has
-// anything to draw with.
-//
-// The app's LoadingThreadProc is virtual -- LawnApp overrides it at vtable slot
-// 28, byte offset 112 -- so it goes through the vtable rather than through a
-// direct call to SexyAppBase's, which is what makes the override run.
-//
-// The transcribed call site dispatched the slot by hand, and got the cast wrong
-// twice over: it took the ADDRESS of the slot as an integer, then cast that to a
-// function-pointer type and dereferenced it. Dereferencing a function pointer
-// yields the same function designator, so the call went to the slot's own
-// address inside LawnApp's vtable -- a data page -- and died with a DEP
-// violation (tried to execute _ReconVTable_687AE0+0x70, i.e. off_687AE0[28]).
-// With SexyAppBase.h declaring `virtual void LoadingThreadProc();` at 0x070 and
-// LawnApp.h overriding it at slot [28], a plain virtual call is both correct and
-// what the rule requires.
+// The first call still prepares the loader-bar art on this thread: the bar
+// cannot draw until those images exist. Every later slice runs on the worker,
+// so TitleScreen::Update can return and the frame loop can present the bar
+// while images, fonts and sounds come in.
 int LTVCALL Slot_StartLoadingThread(void* theThis)
 {
     Win32AppDriver* self = (Win32AppDriver*)theThis;
     if (!self || !self->mApp)
         return 0;
 
-    // LawnApp::LoadingThreadProc pulls one slice. TitleScreen::Update asks
-    // for the thread once a frame, and the bar reads the fraction between
-    // those calls. Running the whole load here would finish before the
-    // first draw, and running it only on the first call leaves every later
-    // group unpulled, so the working set never grows.
     LawnApp* anApp = (LawnApp*)self->mApp;
-    if (!anApp->mLoadingThreadCompleted)
+    if (anApp->mLoadingThreadCompleted)
+        return 1;
+    if (gLoadingThread != nullptr)
+        return 1;
+
+    anApp->LoadingThreadProc();
+    if (anApp->mLoadingThreadCompleted || anApp->mShutDown || anApp->mCloseRequest)
+        return 1;
+
+    unsigned aThreadId = 0;
+    gLoadingThread = (HANDLE)_beginthreadex(nullptr, 0, LoadingThreadMain, anApp, 0, &aThreadId);
+    if (gLoadingThread == nullptr)
         anApp->LoadingThreadProc();
     return 1;
 }
@@ -876,6 +878,11 @@ int LTVCALL Slot_StartLoadingThread(void* theThis)
 int LTVCALL Slot_WaitForLoadingThread(void* theThis)
 {
     (void)theThis;
+    if (gLoadingThread == nullptr)
+        return 1;
+    WaitForSingleObject(gLoadingThread, INFINITE);
+    CloseHandle(gLoadingThread);
+    gLoadingThread = nullptr;
     return 1;
 }
 
