@@ -203,12 +203,6 @@
     <ClCompile Include="Game\CursorPreview.cpp" />
     <ClCompile Include="Game\CustomScrollbarWidget.cpp" />
     <ClCompile Include="Game\CutScene.cpp" />
-    <ClCompile Include="Game\DataArray_Coin.cpp" />
-    <ClCompile Include="Game\DataArray_GridItem.cpp" />
-    <ClCompile Include="Game\DataArray_LawnMower.cpp" />
-    <ClCompile Include="Game\DataArray_Plant.cpp" />
-    <ClCompile Include="Game\DataArray_Projectile.cpp" />
-    <ClCompile Include="Game\DataArray_Zombie.cpp" />
     <ClCompile Include="Game\DataReader.cpp" />
     <ClCompile Include="Game\DataReaderException.cpp" />
     <ClCompile Include="Game\DataSync.cpp" />
@@ -481,7 +475,6 @@
     <ClInclude Include="Game\AwardScreen.h" />
     <ClInclude Include="Game\BaseGamepadControls.h" />
     <ClInclude Include="Game\Board.h" />
-
     <ClInclude Include="Game\BottomRotatorMenu.h" />
     <ClInclude Include="Game\BridgeApp.h" />
     <ClInclude Include="Game\BuyMoneyDialog.h" />
@@ -499,12 +492,8 @@
     <ClInclude Include="Game\CursorPreview.h" />
     <ClInclude Include="Game\CustomScrollbarWidget.h" />
     <ClInclude Include="Game\CutScene.h" />
-    <ClInclude Include="Game\DataArray_Coin.h" />
-    <ClInclude Include="Game\DataArray_GridItem.h" />
-    <ClInclude Include="Game\DataArray_LawnMower.h" />
-    <ClInclude Include="Game\DataArray_Plant.h" />
-    <ClInclude Include="Game\DataArray_Projectile.h" />
-    <ClInclude Include="Game\DataArray_Zombie.h" />
+    <ClInclude Include="Game\DataArray.h" />
+    <ClInclude Include="Game\DataArrayMethods.h" />
     <ClInclude Include="Game\DataReader.h" />
     <ClInclude Include="Game\DataReaderException.h" />
     <ClInclude Include="Game\DataSync.h" />

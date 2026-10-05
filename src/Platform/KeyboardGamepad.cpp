@@ -5,6 +5,7 @@
 #include "InputDriver.h"
 #include "InputManager.h"
 #include "ReconFreeFunctions.h"
+#include "ReconHelpers.h"
 #include "ReconTypes.h"
 #include "SexyAppBase.h"
 
@@ -241,6 +242,8 @@ int KeyboardGamepadInterface::Update()
                 continue;
             aBinding.mDown = aDown;
             PushButton(aBinding.mPadCode, aDown);
+            logfi("Keyboard map %s: glfw %d -> pad 0x%X",
+                  aDown ? "down" : "up", aGlfwKey, aBinding.mPadCode);
         }
     }
     return (int)mEvents.size();
