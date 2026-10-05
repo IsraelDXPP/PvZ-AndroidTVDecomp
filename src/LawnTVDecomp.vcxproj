@@ -110,7 +110,7 @@
       <MapFileName>$(OutDir)$(TargetName).map</MapFileName>
       <!-- vcpkg provides the GL stack and asset codecs; see vcpkg.json.
            glad supplies the GL entry points, glfw3 the window/context. -->
-      <AdditionalDependencies>winmm.lib;ws2_32.lib;xinput.lib;dinput8.lib;dxguid.lib;glad.lib;glfw3dll.lib;opengl32.lib;jpeg.lib;pugixml.lib;OpenAL32.lib;ogg.lib;vorbis.lib;vorbisfile.lib;minizip-ng.lib;openmpt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>winmm.lib;ws2_32.lib;xinput.lib;glad.lib;glfw3dll.lib;opengl32.lib;jpeg.lib;pugixml.lib;OpenAL32.lib;ogg.lib;vorbis.lib;vorbisfile.lib;minizip-ng.lib;openmpt.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Debug'">

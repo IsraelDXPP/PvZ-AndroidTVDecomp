@@ -212,7 +212,7 @@ int KeyboardGamepadInterface::Update()
     if (!mEnabled)
         return 0;
 
-    // A live XInput or DirectInput pad owns the buttons. This driver only
+    // A live XInput pad owns the buttons. This driver only
     // speaks while that driver has nothing connected.
     if (mApp != nullptr && mApp->mInputManager != nullptr)
     {
@@ -242,8 +242,6 @@ int KeyboardGamepadInterface::Update()
                 continue;
             aBinding.mDown = aDown;
             PushButton(aBinding.mPadCode, aDown);
-            logfi("Keyboard map %s: glfw %d -> pad 0x%X",
-                  aDown ? "down" : "up", aGlfwKey, aBinding.mPadCode);
         }
     }
     return (int)mEvents.size();

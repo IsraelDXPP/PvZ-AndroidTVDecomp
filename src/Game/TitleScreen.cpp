@@ -47,18 +47,11 @@ int DisplayHeight(LawnApp *theApp)
 // TitleScreen::KeyDown(Sexy::KeyCode)
 // @001A6284  96 bytes
 // ==========================================================================
-void TitleScreen::KeyDown(const Sexy::Event &theEvent)
-{
-  // The pad's A arrives as KEYCODE_GAMEPAD_A (0x130). The widget key map only
-  // records codes through 0xFE, so the skip has to read the event itself.
-  if ( mTitleState == GuideLogo && (int)theEvent.eventCodeMask == Sexy::KEYCODE_GAMEPAD_A )
-    mTitleStateCounter = 0;
-
-  Sexy::Widget::KeyDown(theEvent);
-}
-
 int TitleScreen::KeyDown(Sexy::KeyCode theKey)
 {
+  if ( mTitleState == GuideLogo && theKey == Sexy::KEYCODE_GAMEPAD_A )
+    mTitleStateCounter = 0;
+
   if ( (theKey == 304 || theKey == 315 || theKey == 13) && mLoadingThreadComplete && mCurBarWidth == mTotalBarWidth )
     mApp->PlaySample(SOUND_BUTTONCLICK, true);
 

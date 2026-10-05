@@ -88,7 +88,6 @@ public:
     virtual void Draw(Sexy::Graphics *theGraphics);
     virtual void DrawOverlay(Sexy::Graphics *theGraphics);
     virtual void GotFocus();
-    virtual void KeyDown(const Sexy::Event &theEvent);
     virtual int KeyDown(Sexy::KeyCode theKey);
     virtual void ButtonPress(int theId);
     virtual void GameButtonDown(Sexy::GamepadButton theButton, int thePlayerIndex, unsigned int theModifierFlag);

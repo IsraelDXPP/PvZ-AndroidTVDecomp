@@ -237,12 +237,20 @@ void Sexy::Widget::FocusDirectionHint(WidgetFocusDir theDir)
 
 void Sexy::Widget::KeyDown(Sexy::Event const &theEvent)
 {
+    // Widget::KeyDown(Event) @0x3AE804. Store the event, then dispatch the
+    // code in eventCodeMask through KeyDown(KeyCode). The pad's A is 304,
+    // which WidgetManager's map turns into Return for the focused button.
     mEvent = const_cast<Sexy::Event *>(&theEvent);
+    KeyDown((Sexy::KeyCode)(int)theEvent.eventCodeMask);
+    mEvent = nullptr;
 }
 
 void Sexy::Widget::KeyUp(Sexy::Event const &theEvent)
 {
+    // Widget::KeyUp(Event) @0x3AE820. Same shape as KeyDown.
     mEvent = const_cast<Sexy::Event *>(&theEvent);
+    KeyUp((Sexy::KeyCode)(int)theEvent.eventCodeMask);
+    mEvent = nullptr;
 }
 
 void Sexy::Widget::MouseEnter() {}

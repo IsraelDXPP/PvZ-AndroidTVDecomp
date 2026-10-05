@@ -1,5 +1,5 @@
-// Win32Gamepad.cpp -- poll XInput and DirectInput, push button events, and
-// answer axis queries for Gamepad::UpdateStates.
+// Win32Gamepad.cpp -- poll XInput, push button events, and answer axis
+// queries for Gamepad::UpdateStates.
 
 #include "Win32Gamepad.h"
 
@@ -7,14 +7,11 @@
 #include "ReconTypes.h"
 #include "SexyAppBase.h"
 
-#include <dinput.h>
 #include <xinput.h>
 
 #include <cstring>
 
 #pragma comment(lib, "xinput.lib")
-#pragma comment(lib, "dinput8.lib")
-#pragma comment(lib, "dxguid.lib")
 
 namespace
 {
@@ -75,38 +72,16 @@ float StickAxis(SHORT theValue)
     return (float)theValue * kStickScale;
 }
 
-// XInput devices answer this property. DirectInput skips them.
-bool IsXInputDevice(const GUID &theProduct)
-{
-    // Xbox pads advertise VID 0x045E and a known PID range. The product GUID's
-    // first dword packs those two ids, which is enough to skip a pad XInput
-    // already owns.
-    const DWORD aVidPid = theProduct.Data1;
-    const WORD aVendor = (WORD)(aVidPid & 0xFFFF);
-    const WORD aProduct = (WORD)((aVidPid >> 16) & 0xFFFF);
-    if (aVendor != 0x045E)
-        return false;
-    if (aProduct >= 0x028E && aProduct <= 0x02A1)
-        return true;
-    if (aProduct >= 0x02D1 && aProduct <= 0x02FF)
-        return true;
-    if (aProduct == 0x0719)
-        return true;
-    return false;
-}
-
 } // namespace
 
 // ---------------------------------------------------------------------------
-// One polled pad. XInput slots and DirectInput devices share this record so
-// the event and axis paths do not care which API produced the sample.
+// One XInput slot.
 // ---------------------------------------------------------------------------
 namespace Sexy
 {
 
 struct PolledPad
 {
-    bool  mXInput;
     int   mUserIndex;
     bool  mConnected;
     WORD  mButtons;
@@ -116,8 +91,6 @@ struct PolledPad
     float mRightY;
     bool  mTriggerLeft;
     bool  mTriggerRight;
-
-    IDirectInputDevice8 *mDevice;
     char  mName[128];
 };
 
@@ -149,12 +122,9 @@ public:
     void PushButton(int theDevice, int theKey, bool theDown);
     void ApplyRumble();
     void PollXInput();
-    void PollDirectInput();
-    void EnumerateDirectInput();
 
     bool mEnabled;
     bool mGrabbed;
-    IDirectInput8 *mDirectInput;
     std::vector<PolledPad> mPads;
     std::vector<Event> mEvents;
 
@@ -167,7 +137,6 @@ public:
 Win32GamepadInterface::Win32GamepadInterface(InputDriver *theOwner)
     : mEnabled(true)
     , mGrabbed(false)
-    , mDirectInput(nullptr)
     , mRumbleLow(0.0f)
     , mRumbleHigh(0.0f)
     , mRumbleDevice(-1)
@@ -189,34 +158,17 @@ int Win32GamepadInterface::Init()
     for (int i = 0; i < XUSER_MAX_COUNT; i++)
     {
         PolledPad aPad = {};
-        aPad.mXInput = true;
         aPad.mUserIndex = i;
         aPad.mConnected = false;
-        aPad.mDevice = nullptr;
         strcpy_s(aPad.mName, "XInput");
         mPads.push_back(aPad);
     }
-    EnumerateDirectInput();
     return 1;
 }
 
 void Win32GamepadInterface::Cleanup()
 {
-    for (unsigned int i = 0; i < mPads.size(); i++)
-    {
-        if (mPads[i].mDevice != nullptr)
-        {
-            mPads[i].mDevice->Unacquire();
-            mPads[i].mDevice->Release();
-            mPads[i].mDevice = nullptr;
-        }
-    }
     mPads.clear();
-    if (mDirectInput != nullptr)
-    {
-        mDirectInput->Release();
-        mDirectInput = nullptr;
-    }
 }
 
 void Win32GamepadInterface::WillStop()
@@ -270,9 +222,6 @@ void Win32GamepadInterface::PollXInput()
     for (unsigned int i = 0; i < mPads.size(); i++)
     {
         PolledPad &aPad = mPads[i];
-        if (!aPad.mXInput)
-            continue;
-
         XINPUT_STATE aState;
         memset(&aState, 0, sizeof(aState));
         const DWORD aResult = XInputGetState((DWORD)aPad.mUserIndex, &aState);
@@ -328,139 +277,9 @@ void Win32GamepadInterface::PollXInput()
     }
 }
 
-namespace
-{
-
-struct EnumContext
-{
-    Win32GamepadInterface *mInterface;
-};
-
-BOOL CALLBACK EnumGameControllers(const DIDEVICEINSTANCE *theInstance, VOID *theContext)
-{
-    EnumContext *aContext = (EnumContext *)theContext;
-    if (IsXInputDevice(theInstance->guidProduct))
-        return DIENUM_CONTINUE;
-
-    IDirectInputDevice8 *aDevice = nullptr;
-    if (FAILED(aContext->mInterface->mDirectInput->CreateDevice(
-            theInstance->guidInstance, &aDevice, nullptr)))
-        return DIENUM_CONTINUE;
-
-    if (FAILED(aDevice->SetDataFormat(&c_dfDIJoystick)) ||
-        FAILED(aDevice->SetCooperativeLevel(GetForegroundWindow(), DISCL_BACKGROUND | DISCL_NONEXCLUSIVE)) ||
-        FAILED(aDevice->Acquire()))
-    {
-        aDevice->Release();
-        return DIENUM_CONTINUE;
-    }
-
-    PolledPad aPad = {};
-    aPad.mXInput = false;
-    aPad.mUserIndex = -1;
-    aPad.mConnected = true;
-    aPad.mDevice = aDevice;
-    strncpy_s(aPad.mName, theInstance->tszProductName, sizeof(aPad.mName) - 1);
-    aContext->mInterface->mPads.push_back(aPad);
-    return DIENUM_CONTINUE;
-}
-
-} // namespace
-
-void Win32GamepadInterface::EnumerateDirectInput()
-{
-    if (mDirectInput == nullptr)
-    {
-        if (FAILED(DirectInput8Create(GetModuleHandle(nullptr), DIRECTINPUT_VERSION,
-                                      IID_IDirectInput8, (void **)&mDirectInput, nullptr)))
-            return;
-    }
-
-    EnumContext aContext;
-    aContext.mInterface = this;
-    mDirectInput->EnumDevices(DI8DEVCLASS_GAMECTRL, EnumGameControllers, &aContext, DIEDFL_ATTACHEDONLY);
-}
-
-void Win32GamepadInterface::PollDirectInput()
-{
-    for (unsigned int i = 0; i < mPads.size(); i++)
-    {
-        PolledPad &aPad = mPads[i];
-        if (aPad.mXInput || aPad.mDevice == nullptr)
-            continue;
-
-        DIJOYSTATE aState;
-        memset(&aState, 0, sizeof(aState));
-        HRESULT aResult = aPad.mDevice->Poll();
-        if (FAILED(aResult))
-        {
-            aResult = aPad.mDevice->Acquire();
-            if (FAILED(aResult))
-            {
-                aPad.mConnected = false;
-                continue;
-            }
-            aPad.mDevice->Poll();
-        }
-        if (FAILED(aPad.mDevice->GetDeviceState(sizeof(aState), &aState)))
-        {
-            aPad.mConnected = false;
-            continue;
-        }
-        aPad.mConnected = true;
-
-        // Buttons 0..13 follow the same order as the XInput table so a generic
-        // pad still produces the keys MapFromkeyCode understands.
-        const int aKeys[14] =
-        {
-            kPadA, kPadB, kPadX, kPadY,
-            kPadTL, kPadTR, kPadSelect, kPadStart,
-            kPadThumbL, kPadThumbR,
-            kPadDpadUp, kPadDpadDown,
-            kPadDpadLeft, kPadDpadRight,
-        };
-        WORD aButtons = 0;
-        for (int b = 0; b < 14; b++)
-        {
-            const bool aNow = (aState.rgbButtons[b] & 0x80) != 0;
-            const bool aWas = (aPad.mButtons & (1u << b)) != 0;
-            if (aNow)
-                aButtons = (WORD)(aButtons | (1u << b));
-            if (aNow != aWas)
-                PushButton((int)i, aKeys[b], aNow);
-        }
-
-        const bool aLeftTrigger = aState.lZ > 30;
-        const bool aRightTrigger = aState.lRz > 30;
-        if (aLeftTrigger != aPad.mTriggerLeft)
-            PushButton((int)i, kPadTL2, aLeftTrigger);
-        if (aRightTrigger != aPad.mTriggerRight)
-            PushButton((int)i, kPadTR2, aRightTrigger);
-
-        aPad.mButtons = aButtons;
-        aPad.mTriggerLeft = aLeftTrigger;
-        aPad.mTriggerRight = aRightTrigger;
-
-        const LONG aCenter = 32767;
-        auto AxisOf = [](LONG theValue) -> float
-        {
-            const int aDelta = (int)theValue - 32767;
-            if (aDelta > -kStickDeadZone && aDelta < kStickDeadZone)
-                return 0.0f;
-            return (float)aDelta * kStickScale;
-        };
-        (void)aCenter;
-        aPad.mLeftX = AxisOf(aState.lX);
-        aPad.mLeftY = AxisOf(aState.lY);
-        aPad.mRightX = AxisOf(aState.lRx);
-        aPad.mRightY = AxisOf(aState.lRy);
-    }
-}
-
 int Win32GamepadInterface::Update()
 {
     PollXInput();
-    PollDirectInput();
 
     if (mOwner == nullptr)
         return (int)mEvents.size();

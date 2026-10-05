@@ -220,7 +220,7 @@ bool ButtonGlyphsActive()
     if (Sexy::GetEnvOption("LAWN_GAMEPAD_MODE", false) == 0)
         return false;
     // KeyboardGamepad also reports a stick, so HasGamepad is not enough.
-    // An icon needs a live XInput or DirectInput pad.
+    // An icon needs a live XInput pad.
     Sexy::GamepadApp* aApp = static_cast<Sexy::GamepadApp*>(gSexyAppBase);
     if (aApp->mInputManager == nullptr)
         return false;

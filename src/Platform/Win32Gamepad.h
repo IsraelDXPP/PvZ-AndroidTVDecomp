@@ -1,9 +1,7 @@
-// Win32Gamepad -- XInput and DirectInput behind Sexy::IInputDriver.
+// Win32Gamepad -- XInput behind Sexy::IInputDriver.
 //
-// XInput covers the four Xbox slots. DirectInput covers every other attached
-// game controller, skipping the ones XInput already owns so a pad is not
-// reported twice. Each connected pad is one device. Buttons become key events
-// the game already understands; sticks are read back through GetAxisInfo.
+// The four Xbox slots are the devices. A connected pad becomes key events the
+// game already understands; sticks are read back through GetAxisInfo.
 
 #pragma once
 
