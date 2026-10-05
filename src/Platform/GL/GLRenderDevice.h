@@ -141,6 +141,10 @@ public:
                       const Rect& theSrcRect, const Color& theColor,
                       DrawMode theMode, bool theMirror = false,
                       bool theFastStretch = true, bool theColorize = false);
+    // MPEG-1 planes, already on the GPU as R8 textures. The shader does the
+    // YUV to RGB step so the intro does not convert 1280x720 on the CPU.
+    void    DrawYuv(unsigned int theY, unsigned int theCb, unsigned int theCr,
+                    int theWidth, int theHeight, const Rect& theDestRect);
     // theCenter is GLTexture::BltTransformed's last argument. BltMatrix always
     // passes true, so the quad origin is the middle of the source rect.
     void    DrawImageMatrix(MemoryImage* theImage, const SexyMatrix3& theMatrix,

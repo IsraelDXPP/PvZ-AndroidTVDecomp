@@ -456,8 +456,8 @@ void* ReconMemcpyChecked(void* theDest, const void* theSource, unsigned int theC
     return theDest;
 }
 
-// Sexy::GetEnv is defined in ReconFuncs.cpp. The binary reads setup.env first
-// and then the process environment; this port still only has the getenv half.
+// Sexy::GetEnv is defined in ReconFuncs.cpp. It reads setup.env first, then
+// the process environment.
 namespace Sexy {
 char const* GetEnv(char const* theName);
 }
@@ -707,7 +707,7 @@ int GetResourcesFolder(Sexy::String* theDest)
 
 int GetEnvIntOption(const char* theName, const char* theDefault, int theBase)
 {
-    const char* aValue = (theName != nullptr) ? ::getenv(theName) : nullptr;
+    const char* aValue = (theName != nullptr) ? Sexy::GetEnv(theName) : nullptr;
     if (aValue == nullptr || aValue[0] == 0)
         aValue = theDefault;
     if (aValue == nullptr || aValue[0] == 0)

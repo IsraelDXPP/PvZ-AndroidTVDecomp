@@ -84,6 +84,22 @@ int Sexy::GamepadApp::DeviceAdded(Sexy::IInputDriver *theDriver)
 
 int Sexy::GamepadApp::ProcessDeviceEvents()
 {
+    // DeviceAdded can fire from InputManager::Init, which runs before this
+    // object's list constructor. Those notices are dropped. A pad already
+    // attached at startup is asked for again on the first frame.
+    if (!mPendingEventsReady)
+    {
+        mPendingEventsReady = true;
+        if (mInputManager != nullptr)
+        {
+            for (IInputDriver *aDriver : mInputManager->Drivers())
+            {
+                if (aDriver != nullptr)
+                    DeviceAdded(aDriver);
+            }
+        }
+    }
+
     mDeviceEventCritSect.Lock();
     std::list<PendingDeviceEvent> aPending;
     aPending.swap(mPendingDeviceEvents);
@@ -230,6 +246,7 @@ Sexy::GamepadApp::GamepadApp()
     mGamePad1IsOn = false;
     mHasGamepad = false;
     mGamePad2IsOn = GetEnvOption("LAWN_GAMEPAD_MODE", false) != 0;
+    mPendingEventsReady = false;
 }
 
 Sexy::Image *Sexy::GamepadApp::GetImageFromAtlas(Sexy::String const &theName)

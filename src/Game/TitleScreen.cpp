@@ -5,6 +5,7 @@
 // see the tool's docstring for the complete, justified list.
 
 #include "TitleScreen.h"
+#include "ButtonGlyphs.h"
 #include "EffectSystem.h"
 #include "GamepadApp.h"
 #include "Graphics.h"
@@ -20,6 +21,7 @@
 #include "Widget.h"
 #include "WidgetContainer.h"
 #include "WidgetManager.h"
+#include "Platform/MpegVideo.h"
 #include <windows.h>
 #include <cmath>
 
@@ -253,8 +255,13 @@ void TitleScreen::Draw(Sexy::Graphics *theGraphics)
     case PopcapLogo_OR_IntroVideo:
       if ( mIsPlayingIntroVideo )
       {
-        theGraphics->SetColor(Sexy::Color(0, 0, 0, 0));
-        theGraphics->ClearRect(LawnApp::FULLSCREEN_RECT);
+        theGraphics->SetColor(Sexy::Color::Black);
+        theGraphics->FillRect(LawnApp::FULLSCREEN_RECT);
+        // Same rect the loading background uses: 1280x720 at (-240, -60).
+        MpegVideoDraw(theGraphics, LawnApp::FULLSCREEN_RECT.mX,
+                      LawnApp::FULLSCREEN_RECT.mY,
+                      LawnApp::FULLSCREEN_RECT.mWidth,
+                      LawnApp::FULLSCREEN_RECT.mHeight);
       }
       else
       {
@@ -446,7 +453,11 @@ void TitleScreen::Update()
   if ( mApp->mShutDown )
     return;
 
-  if ( AGVideoIsPlaying(0) == 0 )
+  // The binary marks the widget dirty only while the platform video is
+  // idle. That platform painted into its own surface. This port paints the
+  // frame from Draw, so a playing movie has to stay dirty or the first black
+  // clear is the only frame that reaches the screen.
+  if ( AGVideoIsPlaying(0) == 0 || mIsPlayingIntroVideo )
     MarkDirty();
 
   if ( !mNeedRegister )
@@ -469,13 +480,13 @@ void TitleScreen::Update()
       bool aVideoPlaying = false;
       if ( Sexy::GetEnvOption("LAWN_NO_INTRO_VIDEO", false) == 0 )
       {
-        // The path is <external files dir>/movies/intro.mp4, with a file:// URL
-        // built from it when the file is actually there.
+        // The original path is <external files dir>/movies/intro.mp4. This
+        // port plays the converted MPEG-1 program stream movies/intro.mpg.
         Sexy::String aDirectory((const char *)AGGetExternalFilesDir());
         Sexy::String aPath(aDirectory);
         aPath += "/";
         Sexy::String aFileName(aPath);
-        aFileName.assign("movies/intro.mp4", 16);
+        aFileName.assign("movies/intro.mpg", 16);
 
         Sexy::String aUrl;
         if ( !aDirectory.empty() && access(aFileName.c_str(), 0) == 0 )
@@ -486,7 +497,7 @@ void TitleScreen::Update()
 
         AGVideoEnable(1);
         AGVideoShow(1);
-        if ( AGVideoOpen("movies/intro.mp4") != 0
+        if ( AGVideoOpen("movies/intro.mpg") != 0
           && (aUrl.empty() || AGVideoOpen(aUrl.c_str()) != 0)
           || AGVideoPlay(0) != 0 )
         {
@@ -634,14 +645,23 @@ void TitleScreen::Update()
   {
     if ( mCurBarWidth > aTotalBarWidth )
     {
+      // TitleScreen::Update @0x1A7C46 swaps <A> for the translated [OK_BUTTON]
+      // caption before the plaque draws. The PS3 host leaves the tag in the
+      // string; Graphics::DrawString paints the button cel at draw time.
       Sexy::String aClickToStart;
       TodStringTranslate(&aClickToStart, "[CLICK_TO_START]");
-      mStartButton->mLabel = aClickToStart;
-
-      Sexy::String anOkButton;
-      TodStringTranslate(&anOkButton, "[OK_BUTTON]");
-      TodReplaceString(&aClickToStart, &mStartButton->mLabel, "<A>", &anOkButton);
-      mStartButton->mLabel = aClickToStart;
+      if (ButtonGlyphsActive())
+      {
+        mStartButton->mLabel = aClickToStart;
+      }
+      else
+      {
+        Sexy::String aOkButton;
+        TodStringTranslate(&aOkButton, "[OK_BUTTON]");
+        Sexy::String aStartLabel;
+        TodReplaceString(&aStartLabel, &aClickToStart, "<A>", &aOkButton);
+        mStartButton->mLabel = aStartLabel;
+      }
 
       mCurBarWidth = aTotalBarWidth;
     }

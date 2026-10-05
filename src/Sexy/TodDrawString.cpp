@@ -11,13 +11,12 @@
 #include "ReconFreeFunctions.h"
 
 #include "ActiveFontLayer.h"
+#include "ButtonGlyphs.h"
 #include "CharData.h"
 #include "Font.h"
 #include "FontData.h"
 #include "FontLayer.h"
-#include "GamepadApp.h"
 #include "Graphics.h"
-#include "Image.h"
 #include "ImageFont.h"
 #include "SexyAppBase.h"
 
@@ -33,6 +32,15 @@ std::wstring Widen(const Sexy::String& theText)
     return std::wstring(aBytes, aBytes + theText.length());
 }
 
+Sexy::String Narrow(const std::wstring& theWide)
+{
+    Sexy::String aText;
+    aText.reserve(theWide.size());
+    for (unsigned int aIndex = 0; aIndex < theWide.size(); ++aIndex)
+        aText.push_back((char)theWide[aIndex]);
+    return aText;
+}
+
 Sexy::String ReplaceButtonCaptions(const Sexy::String& theText)
 {
     Sexy::String aResult;
@@ -45,14 +53,7 @@ Sexy::String PrepareText(const Sexy::String& theText)
     return ReplaceButtonCaptions(TodStringTranslate(theText));
 }
 
-int ShiftX(Sexy::Font* theFont, const std::wstring& theWide, int theX, int theJustification)
-{
-    if (theJustification == 1 || theJustification == 4)
-        return theX - theFont->StringWidthUnicode(theWide);
-    if (theJustification == 2 || theJustification == 5)
-        return theX - theFont->StringWidthUnicode(theWide) / 2;
-    return theX;
-}
+int ShiftX(Sexy::Font* theFont, const std::wstring& theWide, int theX, int theJustification);
 
 static int MulDiv255(int theLeft, int theRight)
 {
@@ -113,7 +114,7 @@ int DrawLine(Sexy::Graphics* theGraphics, const std::wstring& theWide,
              int theJustification, bool theDraw, int theStart, int theCount)
 {
     int aOrigin = theX;
-    if (theDraw)
+    if (theDraw && theGraphics != nullptr)
     {
         if (theJustification == 1 || theJustification == 4 || theJustification == 2 || theJustification == 5)
         {
@@ -146,22 +147,58 @@ int DrawLine(Sexy::Graphics* theGraphics, const std::wstring& theWide,
                 ++aClose;
             if (aClose < aEnd)
             {
-                if (theDraw && !aRun.empty())
+                if (theDraw && theGraphics != nullptr && !aRun.empty())
                 {
-                    aStyle.mFont->DrawStringUnicode(theGraphics, aOrigin + aPen, theY, aRun,
-                                                    aStyle.mColor, theGraphics->mClipRect);
-                    aPen += aStyle.mFont->StringWidthUnicode(aRun);
+                    aStyle.mFont->DrawString(theGraphics, aOrigin + aPen, theY, Narrow(aRun),
+                                             aStyle.mColor, theGraphics->mClipRect);
+                    aPen += aStyle.mFont->StringWidth(Narrow(aRun));
                     aRun.clear();
                 }
                 else if (!aRun.empty())
                 {
-                    aPen += aStyle.mFont->StringWidthUnicode(aRun);
+                    aPen += aStyle.mFont->StringWidth(Narrow(aRun));
                     aRun.clear();
                 }
                 ApplyFormatTag(aStyle, theWide.substr(aIndex + 1, aClose - aIndex - 1));
                 aIndex = aClose;
                 aCollapsed = false;
                 continue;
+            }
+        }
+
+        if (aChar == L'<')
+        {
+            int aClose = aIndex + 1;
+            while (aClose < aEnd && theWide[aClose] != L'>')
+                ++aClose;
+            if (aClose < aEnd)
+            {
+                Sexy::String aTag = Narrow(theWide.substr(aIndex, aClose - aIndex + 1));
+                int aCel = ButtonGlyphCel(aTag.c_str(), (int)aTag.size());
+                if (aCel >= 0)
+                {
+                    if (!aRun.empty())
+                    {
+                        if (theDraw && theGraphics != nullptr)
+                            aStyle.mFont->DrawString(theGraphics, aOrigin + aPen, theY, Narrow(aRun),
+                                                     aStyle.mColor, theGraphics->mClipRect);
+                        aPen += aStyle.mFont->StringWidth(Narrow(aRun));
+                        aRun.clear();
+                    }
+                    Sexy::String aSpaces = ButtonTagAsSpaces(aStyle.mFont, aTag.c_str(), (int)aTag.size());
+                    int aSlot = aStyle.mFont->StringWidth(aSpaces);
+                    if (theDraw && theGraphics != nullptr)
+                    {
+                        aStyle.mFont->DrawString(theGraphics, aOrigin + aPen, theY, aSpaces,
+                                                 aStyle.mColor, theGraphics->mClipRect);
+                        if (ButtonGlyphsActive())
+                            DrawButtonGlyph(theGraphics, aOrigin + aPen, theY, aStyle.mFont, aCel, aSlot);
+                    }
+                    aPen += aSlot;
+                    aIndex = aClose;
+                    aCollapsed = false;
+                    continue;
+                }
             }
         }
 
@@ -180,12 +217,27 @@ int DrawLine(Sexy::Graphics* theGraphics, const std::wstring& theWide,
 
     if (!aRun.empty())
     {
-        if (theDraw)
-            aStyle.mFont->DrawStringUnicode(theGraphics, aOrigin + aPen, theY, aRun,
-                                            aStyle.mColor, theGraphics->mClipRect);
-        aPen += aStyle.mFont->StringWidthUnicode(aRun);
+        if (theDraw && theGraphics != nullptr)
+            aStyle.mFont->DrawString(theGraphics, aOrigin + aPen, theY, Narrow(aRun),
+                                     aStyle.mColor, theGraphics->mClipRect);
+        aPen += aStyle.mFont->StringWidth(Narrow(aRun));
     }
     return aPen;
+}
+
+int ShiftX(Sexy::Font* theFont, const std::wstring& theWide, int theX, int theJustification)
+{
+    DrawStyle aStyle;
+    aStyle.mFont = theFont;
+    aStyle.mColor = Sexy::Color::White;
+    aStyle.mExtra = 0;
+    aStyle.mFlags = 0;
+    int aWidth = DrawLine(nullptr, theWide, 0, 0, aStyle, 0, 0, false, 0, (int)theWide.size());
+    if (theJustification == 1 || theJustification == 4)
+        return theX - aWidth;
+    if (theJustification == 2 || theJustification == 5)
+        return theX - aWidth / 2;
+    return theX;
 }
 
 struct MatrixGlyph
@@ -479,9 +531,9 @@ void TodDrawString(Sexy::Graphics* theGraphics, const Sexy::String& theText,
                    int theX, int theY, Sexy::Font* theFont, Sexy::Color theColor,
                    int theJustification)
 {
-    std::wstring aWide = Widen(PrepareText(theText));
-    int aX = ShiftX(theFont, aWide, theX, theJustification);
-    theFont->DrawStringUnicode(theGraphics, aX, theY, aWide, theColor, theGraphics->mClipRect);
+    Sexy::String aText = PrepareText(theText);
+    int aX = ShiftX(theFont, Widen(aText), theX, theJustification);
+    theFont->DrawString(theGraphics, aX, theY, aText, theColor, theGraphics->mClipRect);
 }
 
 void TodDrawStringMatrix(Sexy::Graphics* theGraphics, Sexy::Font* theFont,

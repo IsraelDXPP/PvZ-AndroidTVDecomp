@@ -23,6 +23,7 @@ public:
     virtual ~Win32GamepadDriver();
 
     virtual IInputDriver *Init();
+    virtual int OnStart(Sexy::SexyAppBase *theApp, Sexy::InputManager *theManager);
     virtual int OnStop();
 
     IInputDriver *mInterface;

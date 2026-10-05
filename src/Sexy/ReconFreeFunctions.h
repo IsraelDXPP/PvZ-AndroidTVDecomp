@@ -34,6 +34,11 @@ namespace Sexy { class Graphics; class Image; class Font; }
 
 namespace Sexy {
 
+// Sexy::GetEnv(char const*) @0x2FB880. Reads setup.env first, then the
+// process environment. The pointer stays valid until the next lookup that
+// rewrites the same name.
+char const* GetEnv(char const* theName);
+
 // Sexy::GetTickCount(void) @0x2fb7fc (112 bytes) -- milliseconds since the
 // epoch, via clock_gettime(CLOCK_MONOTONIC) and falling back to gettimeofday.
 // The decompiler prints a bogus `Sexy *this` receiver; the disassembly shows

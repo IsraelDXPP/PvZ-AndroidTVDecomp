@@ -70,6 +70,9 @@ public:
     InputManager* PushEvents(std::list<Event>& theEvents, IInputDriver* theDriver);
     int Add(IInputDriver* theDriver, InputDriver* theOwner, bool theConnectNow);
     int Init();
+    // Drivers currently registered. GamepadApp asks each one again on the
+    // first frame, because the startup DeviceAdded ran before its queue existed.
+    const std::list<IInputDriver*>& Drivers() const { return mDrivers; }
 
     SexyAppBase* mApp;
     bool mInitialized;

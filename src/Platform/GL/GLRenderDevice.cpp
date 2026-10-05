@@ -191,6 +191,12 @@ void GLRenderDevice::BeginFrame(const Color& theClearColor)
         int loc = glGetUniformLocation(mShaders.mSolid.mProgram, "uViewport");
         if (loc >= 0) glUniform2f(loc, (float)mWidth, (float)mHeight);
     }
+    if (mShaders.mYuv.IsValid())
+    {
+        mShaders.mYuv.Bind();
+        int loc = glGetUniformLocation(mShaders.mYuv.mProgram, "uViewport");
+        if (loc >= 0) glUniform2f(loc, (float)mWidth, (float)mHeight);
+    }
 }
 
 void GLRenderDevice::EndFrame()
@@ -463,6 +469,51 @@ void GLRenderDevice::DrawImage(MemoryImage* theImage, const Rect& theDestRect,
                    (float)(theDestRect.mX + theDestRect.mWidth),
                    (float)(theDestRect.mY + theDestRect.mHeight),
                    u0, v0, u1, v1, aPacked);
+}
+
+void GLRenderDevice::DrawYuv(unsigned int theY, unsigned int theCb, unsigned int theCr,
+                             int theWidth, int theHeight, const Rect& theDestRect)
+{
+    if (!mInitialized || theY == 0 || theCb == 0 || theCr == 0)
+        return;
+    if (theWidth <= 0 || theHeight <= 0)
+        return;
+    if (theDestRect.mWidth <= 0 || theDestRect.mHeight <= 0)
+        return;
+    if (!mShaders.mYuv.IsValid())
+        return;
+
+    FlushBatch();
+    ApplyDrawMode(DRAWMODE_NORMAL);
+    mShaders.mYuv.Bind();
+    // The blit path leaves this at identity and bakes the centering shift
+    // into the quad. A leftover matrix here slides the movie off the window.
+    SexyMatrix3 aIdentity;
+    aIdentity.LoadIdentity();
+    mShaders.mYuv.SetTransform(aIdentity);
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, theY);
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, theCb);
+    glActiveTexture(GL_TEXTURE2);
+    glBindTexture(GL_TEXTURE_2D, theCr);
+    glActiveTexture(GL_TEXTURE0);
+    mState.BindTexture(0, 0);
+
+    mBatch.Begin(theY);
+    mBatch.AddQuad((float)theDestRect.mX, (float)theDestRect.mY,
+                   (float)(theDestRect.mX + theDestRect.mWidth),
+                   (float)(theDestRect.mY + theDestRect.mHeight),
+                   0.0f, 0.0f, 1.0f, 1.0f, 0xFFFFFFFFu);
+    FlushBatch();
+
+    glActiveTexture(GL_TEXTURE2);
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glActiveTexture(GL_TEXTURE0);
+    mState.BindTexture(0, 0);
 }
 
 void GLRenderDevice::DrawImageMatrix(MemoryImage* theImage, const SexyMatrix3& theMatrix,

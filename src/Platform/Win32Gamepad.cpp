@@ -5,6 +5,7 @@
 
 #include "InputManager.h"
 #include "ReconTypes.h"
+#include "SexyAppBase.h"
 
 #include <dinput.h>
 #include <xinput.h>
@@ -160,6 +161,7 @@ public:
     float mRumbleLow;
     float mRumbleHigh;
     int   mRumbleDevice;
+    Sexy::SexyAppBase *mApp;
 };
 
 Win32GamepadInterface::Win32GamepadInterface(InputDriver *theOwner)
@@ -169,6 +171,7 @@ Win32GamepadInterface::Win32GamepadInterface(InputDriver *theOwner)
     , mRumbleLow(0.0f)
     , mRumbleHigh(0.0f)
     , mRumbleDevice(-1)
+    , mApp(nullptr)
 {
     mSlot = 0;
     mPad0C = 0;
@@ -275,7 +278,14 @@ void Win32GamepadInterface::PollXInput()
         const DWORD aResult = XInputGetState((DWORD)aPad.mUserIndex, &aState);
         const bool aConnected = aResult == ERROR_SUCCESS;
         if (aConnected != aPad.mConnected)
+        {
             aPad.mConnected = aConnected;
+            // GamepadApp only marks a slot connected from DeviceAdded. A pad
+            // that arrives after the driver starts, or that was already in
+            // when the first notice went out, has to raise that notice again.
+            if (aConnected && mOwner != nullptr && mApp != nullptr && mApp->mInputManager != nullptr)
+                mApp->mInputManager->DispatchEvent(this, DEVICE_ADDED, nullptr);
+        }
         if (!aConnected)
         {
             aPad.mButtons = 0;
@@ -590,6 +600,13 @@ IInputDriver *Win32GamepadDriver::Init()
     }
     mInterface = anInterface;
     return anInterface;
+}
+
+int Win32GamepadDriver::OnStart(Sexy::SexyAppBase *theApp, Sexy::InputManager *)
+{
+    if (mInterface != nullptr)
+        static_cast<Win32GamepadInterface *>(mInterface)->mApp = theApp;
+    return 0;
 }
 
 int Win32GamepadDriver::OnStop()

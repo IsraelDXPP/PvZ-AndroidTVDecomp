@@ -93,6 +93,31 @@ LAWNTV_GLSL_VERSION
 "}\n";
 
 // ---------------------------------------------------------------------------
+// MPEG-1 fragment shader
+// ---------------------------------------------------------------------------
+// Three R8 planes. MPEG-1 uses BT.601 limited range. The chroma planes are
+// half the luma size, and the sampler interpolates them.
+
+static const char* kYuvFragSrc =
+LAWNTV_GLSL_VERSION
+"in vec2 vUV;\n"
+"uniform sampler2D uY;\n"
+"uniform sampler2D uCb;\n"
+"uniform sampler2D uCr;\n"
+"out vec4 fragColor;\n"
+"void main()\n"
+"{\n"
+"    float y = texture(uY, vUV).r;\n"
+"    float cb = texture(uCb, vUV).r - 0.5;\n"
+"    float cr = texture(uCr, vUV).r - 0.5;\n"
+"    y = (y - 0.0627451) * 1.1643836;\n"
+"    fragColor = vec4(y + 1.5960268 * cr,\n"
+"                     y - 0.3917623 * cb - 0.8129676 * cr,\n"
+"                     y + 2.0172321 * cb,\n"
+"                     1.0);\n"
+"}\n";
+
+// ---------------------------------------------------------------------------
 // GLShader
 // ---------------------------------------------------------------------------
 
@@ -307,6 +332,15 @@ bool GLShaderSet::Create()
         return false;
     if (!mSolid.Create("Solid", kVertexSrc, kSolidFragSrc))
         return false;
+    if (!mYuv.Create("Yuv", kVertexSrc, kYuvFragSrc))
+        return false;
+    int aY = glGetUniformLocation(mYuv.mProgram, "uY");
+    int aCb = glGetUniformLocation(mYuv.mProgram, "uCb");
+    int aCr = glGetUniformLocation(mYuv.mProgram, "uCr");
+    mYuv.Bind();
+    if (aY >= 0) glUniform1i(aY, 0);
+    if (aCb >= 0) glUniform1i(aCb, 1);
+    if (aCr >= 0) glUniform1i(aCr, 2);
     return true;
 }
 
@@ -314,6 +348,7 @@ void GLShaderSet::Destroy()
 {
     mBlit.Destroy();
     mSolid.Destroy();
+    mYuv.Destroy();
 }
 
 } // namespace Sexy

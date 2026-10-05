@@ -73,7 +73,7 @@
       <SDLCheck>false</SDLCheck>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <PreprocessorDefinitions>WIN32;_WINDOWS;_CRT_SECURE_NO_WARNINGS;LAWNTV_DECOMP;NOMINMAX;GLFW_INCLUDE_NONE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Runtime;$(ProjectDir)Platform;$(ProjectDir)Platform\GL;$(ProjectDir)Sexy;$(ProjectDir)Game;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)..;$(ProjectDir)Runtime;$(ProjectDir)Platform;$(ProjectDir)Platform\GL;$(ProjectDir)Sexy;$(ProjectDir)Game;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ConformanceMode>false</ConformanceMode>
       <!-- EXPERIMENT: stack cookies off.
            The startup crash is STATUS_STACK_BUFFER_OVERRUN raised by __fastfail,
@@ -325,6 +325,7 @@
     <ClCompile Include="Platform\Audio\OpenALAudioBackend.cpp">
       <PreprocessorDefinitions>AL_ALEXT_PROTOTYPES;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
+    <ClCompile Include="Platform\MpegVideo.cpp" />
     <ClCompile Include="Platform\GLWindow.cpp" />
     <ClCompile Include="Platform\GL\GLRenderBackend.cpp" />
     <ClCompile Include="Platform\GL\GLRenderDevice.cpp" />
@@ -438,6 +439,7 @@
     <ClCompile Include="Sexy\ReconSubsString.cpp" />
     <ClCompile Include="Sexy\ReconSubsVector.cpp" />
     <ClCompile Include="Sexy\ReconVariadic.cpp" />
+    <ClCompile Include="Sexy\ButtonGlyphs.cpp" />
     <ClCompile Include="Sexy\TodDrawString.cpp" />
     <ClCompile Include="Sexy\RefCount.cpp" />
     <ClCompile Include="Sexy\RenderDevice.cpp" />
@@ -665,6 +667,7 @@
     <ClInclude Include="Sexy\EditSink.h" />
     <ClInclude Include="Sexy\EditWidget.h" />
     <ClInclude Include="Sexy\EncodingParser.h" />
+    <ClInclude Include="Sexy\ButtonGlyphs.h" />
     <ClInclude Include="Sexy\Font.h" />
     <ClInclude Include="Sexy\FontData.h" />
     <ClInclude Include="Sexy\FontLayer.h" />

@@ -229,7 +229,7 @@ int LogManager::resetListener()
 // 3C3AC0. Reinstalls the listener the SEXY_LOG variable named.
 int LogManager::resetToPlatformListener()
 {
-    const char* aSpec = std::getenv("SEXY_LOG");
+    const char* aSpec = Sexy::GetEnv("SEXY_LOG");
     Sexy::String aName(aSpec != nullptr ? aSpec : "default");
 
     if (mListenerRoot == nullptr)
@@ -394,11 +394,11 @@ LogManager::LogManager()
       mVerboseLevel(1),
       mDefaultFormat(7)
 {
-    const char* aLog = std::getenv("SEXY_LOG");
+    const char* aLog = Sexy::GetEnv("SEXY_LOG");
     if (aLog != nullptr)
         mListenerSpec.assign(aLog);
 
-    const char* aLevel = std::getenv("SEXY_LOG_LEVEL");
+    const char* aLevel = Sexy::GetEnv("SEXY_LOG_LEVEL");
     if (aLevel != nullptr && aLevel[0] != '\0')
     {
         // "tag:level" pairs override the default; a bare number replaces it.

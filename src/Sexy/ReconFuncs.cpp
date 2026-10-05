@@ -48,6 +48,7 @@
 // in this file's directory first, and Sexy\DriverFactory.h is a different class.
 #include "Game/DriverFactory.h"
 #include "GameCenter.h"
+#include "Platform/Win32File.h"
 #include "ShareManager.h"
 #include "BridgeApp.h"
 #include "NotificationManager.h"
@@ -395,12 +396,154 @@ int Sexy::GetTickCount()
     return (int)((aCounter.QuadPart * 1000) / sFrequency.QuadPart);
 }
 
-// Process environment. The binary also consults a shipped setup.env table;
-// the call sites here only need the process environment.
+// Sexy::GetEnv @0x2FB880. The first call loads setup.env from the asset root
+// through p_fopen. A name listed there wins; anything else falls through to
+// the process environment. The table is read once and kept for the process.
+namespace {
+
+struct SetupEnvTable
+{
+    bool mLoaded;
+    std::map<std::string, std::string> mValues;
+
+    SetupEnvTable() : mLoaded(false) {}
+};
+
+SetupEnvTable& SetupEnv()
+{
+    static SetupEnvTable aTable;
+    return aTable;
+}
+
+void TrimEnvToken(std::string& theText)
+{
+    size_t aStart = 0;
+    while (aStart < theText.size()
+        && (theText[aStart] == ' ' || theText[aStart] == '\t'
+            || theText[aStart] == '\r' || theText[aStart] == '\n'))
+        ++aStart;
+    size_t aEnd = theText.size();
+    while (aEnd > aStart
+        && (theText[aEnd - 1] == ' ' || theText[aEnd - 1] == '\t'
+            || theText[aEnd - 1] == '\r' || theText[aEnd - 1] == '\n'))
+        --aEnd;
+    theText = theText.substr(aStart, aEnd - aStart);
+}
+
+void UnquoteEnvValue(std::string& theValue)
+{
+    if (theValue.size() >= 2 && theValue.front() == '\'' && theValue.back() == '\'')
+    {
+        theValue = theValue.substr(1, theValue.size() - 2);
+        return;
+    }
+    if (theValue.size() < 2 || theValue.front() != '"' || theValue.back() != '"')
+        return;
+
+    std::string aPlain;
+    for (size_t i = 1; i + 1 < theValue.size(); ++i)
+    {
+        if (theValue[i] == '\\' && i + 2 < theValue.size())
+        {
+            char aEscaped = theValue[i + 1];
+            if (aEscaped == 'n')
+                aPlain.push_back('\n');
+            else if (aEscaped == 'r')
+                aPlain.push_back('\r');
+            else if (aEscaped == 't')
+                aPlain.push_back('\t');
+            else
+                aPlain.push_back(aEscaped);
+            ++i;
+        }
+        else
+        {
+            aPlain.push_back(theValue[i]);
+        }
+    }
+    theValue.swap(aPlain);
+}
+
+void ApplySetupEnvLine(const std::string& theLine)
+{
+    if (theLine.empty() || theLine[0] == '#')
+        return;
+
+    bool aUnset = false;
+    size_t aEqualsAt = std::string::npos;
+    if (theLine.compare(0, 4, "set ") == 0)
+        aEqualsAt = theLine.find('=', 4);
+    else if (theLine.compare(0, 6, "unset ") == 0)
+    {
+        aUnset = true;
+        aEqualsAt = theLine.find('=', 6);
+    }
+    else
+        aEqualsAt = theLine.find('=', 3);
+    if (aEqualsAt == std::string::npos)
+        return;
+
+    std::string aName = theLine.substr(0, aEqualsAt);
+    std::string aValue = theLine.substr(aEqualsAt + 1);
+    if (aName.compare(0, 4, "set ") == 0)
+        aName.erase(0, 4);
+    else if (aName.compare(0, 6, "unset ") == 0)
+        aName.erase(0, 6);
+    TrimEnvToken(aName);
+    TrimEnvToken(aValue);
+    UnquoteEnvValue(aValue);
+    if (aName.empty())
+        return;
+    if (aUnset)
+        SetupEnv().mValues.erase(aName);
+    else
+        SetupEnv().mValues[aName] = aValue;
+}
+
+void LoadSetupEnv()
+{
+    SetupEnvTable& aTable = SetupEnv();
+    if (aTable.mLoaded)
+        return;
+    aTable.mLoaded = true;
+
+    FILE* aFile = p_fopen("setup.env", "r");
+    if (aFile == nullptr)
+        return;
+
+    std::string aLine;
+    int aChar = fgetc(aFile);
+    while (aChar != EOF)
+    {
+        if (aChar == '\n')
+        {
+            ApplySetupEnvLine(aLine);
+            aLine.clear();
+        }
+        else if (aChar != '\r')
+        {
+            aLine.push_back((char)aChar);
+        }
+        aChar = fgetc(aFile);
+    }
+    ApplySetupEnvLine(aLine);
+    fclose(aFile);
+}
+
+} // namespace
+
+// Sexy::GetEnv @0x2FB880. setup.env is consulted first. A missing name falls
+// through to the process environment, which is what EnvVarFile::GetEnv does
+// when the file has no entry.
 char const* Sexy::GetEnv(char const* theName)
 {
-    if (theName == nullptr)
+    if (theName == nullptr || theName[0] == '\0')
         return nullptr;
+
+    LoadSetupEnv();
+    std::map<std::string, std::string>::iterator aFound = SetupEnv().mValues.find(theName);
+    if (aFound != SetupEnv().mValues.end())
+        return aFound->second.c_str();
     return ::getenv(theName);
 }
 

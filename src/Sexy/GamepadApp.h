@@ -77,6 +77,7 @@ public:
     };
 
     std::list<PendingDeviceEvent> mPendingDeviceEvents;
+    bool mPendingEventsReady;
     std::map<Sexy::String, SharedImageRef> mAtlasImages;
 };
 

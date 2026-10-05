@@ -8,6 +8,7 @@
 
 #include "ReconFreeFunctions.h"
 #include "ReconHelpers.h"
+#include "Platform/MpegVideo.h"
 
 #include <cstring>
 
@@ -79,6 +80,7 @@ int AGSetMessageBoxListener(int (*theCallback)(int, void*), void* theApp)
 
 int AGVideoClose()
 {
+    MpegVideoClose();
     return 0;
 }
 
@@ -91,19 +93,18 @@ int AGVideoEnable(int theEnable)
 int AGVideoIsPlaying(int theUnused)
 {
     (void)theUnused;
-    return 0;
+    return MpegVideoIsPlaying();
 }
 
 int AGVideoOpen(const char* thePath)
 {
-    (void)thePath;
-    return 1;
+    return MpegVideoOpen(thePath);
 }
 
 int AGVideoPlay(int theUnused)
 {
     (void)theUnused;
-    return 1;
+    return MpegVideoPlay();
 }
 
 int AGVideoShow(int theShow)

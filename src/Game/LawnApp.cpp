@@ -4696,6 +4696,8 @@ int LawnApp::ShowTitleScreen(bool theFromGame)
 
   TitleScreen *aTitleScreen = new TitleScreen(this);
   mTitleScreen = aTitleScreen;
+  // +0x14C is cleared here and only here. The startup title screen keeps the
+  // constructor's true, so the logo and intro still play on a cold launch.
   aTitleScreen->mNeedPlayLogo = false;
 
   // The title screen is laid out at the app's own size and then added to the
@@ -5679,6 +5681,9 @@ void LawnApp::Init()
   int aWidth = mWidth;
   int aHeight = mHeight;
   mTitleScreen = aTitleScreen;
+  // Init creates the first title screen and leaves the constructor's
+  // mNeedPlayLogo in place. ShowTitleScreen is the path that clears it,
+  // because that return is a menu, not another logo.
   // Byte 200 of the TitleScreen table is slot 50, Sexy::Widget::Resize(int, int,
   // int, int) -- the same call the raw dispatch made through the freshly read
   // vptr.

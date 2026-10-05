@@ -77,6 +77,7 @@ class GLShaderSet
 public:
     GLShader    mBlit;      // textured + tint + optional colourise
     GLShader    mSolid;     // untextured fill
+    GLShader    mYuv;       // three R8 planes, BT.601 limited range to RGB
 
     bool    Create();
     void    Destroy();

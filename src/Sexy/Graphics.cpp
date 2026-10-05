@@ -2,6 +2,7 @@
 // come from the TV draw bodies; the destination image does the pixel work.
 
 #include "Graphics.h"
+#include "ButtonGlyphs.h"
 #include "Font.h"
 #include "Graphics3D.h"
 #include "IGraphicsDriver.h"
@@ -1431,12 +1432,62 @@ Sexy::Graphics* Sexy::Graphics::DrawString(Sexy::String const& theString, int th
     Color const& aColor = DrawColor();
     // Sexy::String already holds the label. Widening it and calling the base
     // Font::DrawStringUnicode drops the glyphs, so the image font draws the
-    // bytes it was given.
-    mFont->DrawString(this, theX, theY, theString, aColor, mClipRect);
+    // bytes it was given. A console tag is substituted here, the same layer
+    // that swaps <A> for the [OK_BUTTON] caption when no pad is connected.
+    const char* aBytes = theString.c_str();
+    unsigned int aSize = theString.size();
+    int aPen = theX;
+    unsigned int aIndex = 0;
+    unsigned int aRun = 0;
+    while (aIndex < aSize)
+    {
+        bool aTag = false;
+        int aCel = -1;
+        int aLength = 0;
+        if (aBytes[aIndex] == '<')
+        {
+            unsigned int aClose = aIndex + 1;
+            while (aClose < aSize && aBytes[aClose] != '>')
+                ++aClose;
+            if (aClose < aSize)
+            {
+                aLength = (int)(aClose - aIndex + 1);
+                aCel = ButtonGlyphCel(aBytes + aIndex, aLength);
+                aTag = aCel >= 0 && ButtonGlyphsActive();
+            }
+        }
+
+        if (!aTag)
+        {
+            ++aIndex;
+            continue;
+        }
+
+        if (aIndex > aRun)
+        {
+            Sexy::String aPiece = theString.substr(aRun, aIndex - aRun);
+            mFont->DrawString(this, aPen, theY, aPiece, aColor, mClipRect);
+            aPen += mFont->StringWidth(aPiece);
+        }
+        // The label already reserved the three letters. Draw spaces of that
+        // width so the following glyphs stay put, and sit the icon in the gap.
+        Sexy::String aSpaces = ButtonTagAsSpaces(mFont, aBytes + aIndex, aLength);
+        int aSlot = mFont->StringWidth(aSpaces);
+        mFont->DrawString(this, aPen, theY, aSpaces, aColor, mClipRect);
+        DrawButtonGlyph(this, aPen, theY, mFont, aCel, aSlot);
+        aPen += aSlot;
+        aIndex += (unsigned int)aLength;
+        aRun = aIndex;
+    }
+    if (aRun < aSize)
+    {
+        Sexy::String aPiece = theString.substr(aRun, aSize - aRun);
+        mFont->DrawString(this, aPen, theY, aPiece, aColor, mClipRect);
+    }
 
     if (!DebugDrawStringEnabled())
         return this;
-    int aWidth = mFont->StringWidth(theString);
+    int aWidth = StringWidth(theString);
     DrawRect(theX, theY - mFont->GetAscent(), aWidth, mFont->GetHeight());
     return this;
 }

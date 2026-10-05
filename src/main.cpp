@@ -7,6 +7,7 @@
 // --screenshot reads that same offscreen target, so it works with --headless.
 
 #include "LawnApp.h"
+#include "Platform/MpegVideo.h"
 #include "Platform/GLWindow.h"
 #include "Platform/GL/GLRenderDevice.h"
 #include "Platform/Screenshot.h"
@@ -184,6 +185,10 @@ static int Run(const LaunchOptions& options)
     int frames = 0;
     while (!window.mClosed)
     {
+        // SEXY_MAX_FPS is the frame cap SexyAppBase reads at construction.
+        // Zero or a missing value leaves the loop uncapped.
+        DWORD aFrameStart = GetTickCount();
+
         if (!window.ProcessEvents())
             break;
 
@@ -213,6 +218,20 @@ static int Run(const LaunchOptions& options)
         ++frames;
         if (options.frames > 0 && frames >= options.frames)
             break;
+
+        // The intro paints a new picture every draw. The default cap of 10
+        // turns a 30 fps movie into a slideshow, so a playing movie runs at
+        // the movie rate. The cap comes back when the movie ends.
+        int aMaxFps = app->mMaxFPS;
+        if (MpegVideoIsPlaying() != 0)
+            aMaxFps = 30;
+        if (aMaxFps > 0)
+        {
+            DWORD aBudget = 1000 / (DWORD)aMaxFps;
+            DWORD aElapsed = GetTickCount() - aFrameStart;
+            if (aElapsed < aBudget)
+                Sleep(aBudget - aElapsed);
+        }
     }
 
     LogLine("LawnTV: exited after %d frame(s)", frames);
