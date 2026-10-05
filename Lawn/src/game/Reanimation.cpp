@@ -659,7 +659,7 @@ int Reanimation::FindTrackIndexById(const char* theTrackId)
   // The id is the interned track-name pointer, compared by identity.
   for ( int i = 0; i < mDefinition->mTrackCount; ++i )
   {
-    if ( mDefinition->mTracks[i].mTrackId == theTrackId )
+    if ( strcmp(mDefinition->mTracks[i].mTrackId, theTrackId) ==  0)
       return i;
   }
   return -1;
