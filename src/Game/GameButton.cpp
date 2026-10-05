@@ -116,14 +116,8 @@ void GameButton::SetLabel(const Sexy::String& theLabel)
     TodStringTranslate(&translated, theLabel);
     mLabel = translated;
 
-    if (mApp->HasGamepad() == 0)
-    {
-        if (!mApp->mGamePad1IsOn || !mApp->mGamePad2IsOn)
-        {
-            TodReplaceButtons(&translated, &mLabel);
-            mLabel = translated;
-        }
-    }
+    TodReplaceButtons(&translated, &mLabel);
+    mLabel = translated;
 }
 
 void GameButton::DrawButtonImage(Sexy::Graphics* theGraphics, Sexy::Image* theImage, const TRect<int>& theRect, int theX, int theY)

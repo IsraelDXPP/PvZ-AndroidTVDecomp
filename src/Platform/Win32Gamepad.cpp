@@ -473,33 +473,32 @@ int Win32GamepadInterface::Update()
 
 int Win32GamepadInterface::GetNumDevices()
 {
+    // Count live pads. An empty XInput slot is not a connected device, and
+    // reporting the four slots made every launch look like a gamepad.
     int aCount = 0;
     for (unsigned int i = 0; i < mPads.size(); i++)
     {
         if (mPads[i].mConnected)
             ++aCount;
     }
-    // The original recognises a gamepad only when the driver reports more
-    // than three devices. Four XInput slots satisfy that even before a pad
-    // is plugged in, so the count is the slot count, not the live count.
-    return (int)mPads.size() > aCount ? (int)mPads.size() : aCount;
+    return aCount;
 }
 
 bool Win32GamepadInterface::GetInfo(InputInfo &theInfo, int theDevice)
 {
     if (theDevice < 0 || theDevice >= (int)mPads.size())
         return false;
-    if (!mPads[theDevice].mConnected && !mPads[theDevice].mXInput)
+    if (!mPads[theDevice].mConnected)
         return false;
 
     theInfo.mName = mPads[theDevice].mName;
     theInfo.mHasPointer = 0;
     theInfo.mHasKeys = 1;
-    theInfo.mHasTouch = 1;
+    theInfo.mHasTouch = 0;
     theInfo.mHasMultiTouch = 0;
     theInfo.mHasJoystick = 1;
     theInfo.mDeviceIndex = theDevice;
-    return mPads[theDevice].mConnected || mPads[theDevice].mXInput;
+    return true;
 }
 
 bool Win32GamepadInterface::IsGrabbed()

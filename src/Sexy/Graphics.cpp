@@ -1432,8 +1432,7 @@ Sexy::Graphics* Sexy::Graphics::DrawString(Sexy::String const& theString, int th
     Color const& aColor = DrawColor();
     // Sexy::String already holds the label. Widening it and calling the base
     // Font::DrawStringUnicode drops the glyphs, so the image font draws the
-    // bytes it was given. A console tag is substituted here, the same layer
-    // that swaps <A> for the [OK_BUTTON] caption when no pad is connected.
+    // bytes it was given. A pad found at startup turns a tag into its icon here.
     const char* aBytes = theString.c_str();
     unsigned int aSize = theString.size();
     int aPen = theX;

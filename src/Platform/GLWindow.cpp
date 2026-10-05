@@ -13,6 +13,10 @@ namespace Sexy
 {
 
 static bool gGLFWInitialized = false;
+static bool gGlfwKeyDown[GLFW_KEY_LAST + 1];
+static int gGlfwKeyQueue[64];
+static int gGlfwKeyAction[64];
+static int gGlfwKeyCount = 0;
 
 GLWindow::GLWindow()
     : mWindow(nullptr), mWidth(0), mHeight(0), mWindowed(true),
@@ -24,6 +28,46 @@ GLWindow::GLWindow()
 GLWindow::~GLWindow()
 {
     Destroy();
+}
+
+void GLWindow::KeyCallback(GLFWwindow*, int theKey, int, int theAction, int)
+{
+    if (theKey < 0 || theKey > GLFW_KEY_LAST)
+        return;
+    if (theAction == GLFW_PRESS || theAction == GLFW_REPEAT)
+        gGlfwKeyDown[theKey] = true;
+    else if (theAction == GLFW_RELEASE)
+        gGlfwKeyDown[theKey] = false;
+    else
+        return;
+    if (gGlfwKeyCount < 64)
+    {
+        gGlfwKeyQueue[gGlfwKeyCount] = theKey;
+        gGlfwKeyAction[gGlfwKeyCount] = theAction;
+        ++gGlfwKeyCount;
+    }
+}
+
+bool GLWindow::IsGlfwKeyDown(int theGlfwKey)
+{
+    if (theGlfwKey < 0 || theGlfwKey > GLFW_KEY_LAST)
+        return false;
+    return gGlfwKeyDown[theGlfwKey];
+}
+
+bool GLWindow::PopKey(int& theGlfwKey, bool& theDown)
+{
+    if (gGlfwKeyCount == 0)
+        return false;
+    theGlfwKey = gGlfwKeyQueue[0];
+    theDown = gGlfwKeyAction[0] != GLFW_RELEASE;
+    for (int aIndex = 1; aIndex < gGlfwKeyCount; ++aIndex)
+    {
+        gGlfwKeyQueue[aIndex - 1] = gGlfwKeyQueue[aIndex];
+        gGlfwKeyAction[aIndex - 1] = gGlfwKeyAction[aIndex];
+    }
+    --gGlfwKeyCount;
+    return true;
 }
 
 void GLWindow::ErrorCallback(int theError, const char* theDescription)
@@ -73,6 +117,7 @@ bool GLWindow::Create(const char* theTitle, int theWidth, int theHeight,
         return false;
     }
 
+    glfwSetKeyCallback(mWindow, &GLWindow::KeyCallback);
     glfwMakeContextCurrent(mWindow);
 
     // glad loads the GL entry points for the *current* context, so this must

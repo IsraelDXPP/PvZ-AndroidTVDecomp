@@ -340,6 +340,7 @@
     <ClCompile Include="Platform\Win32File.cpp" />
     <ClCompile Include="Platform\Win32GameCenter.cpp" />
     <ClCompile Include="Platform\Win32Input.cpp" />
+    <ClCompile Include="Platform\KeyboardGamepad.cpp" />
     <ClCompile Include="Platform\Win32Gamepad.cpp" />
     <ClCompile Include="Platform\Win32Window.cpp" />
     <ClCompile Include="Runtime\AndroidShims.cpp" />
@@ -633,6 +634,7 @@
     <ClInclude Include="Platform\Win32AppDriver.h" />
     <ClInclude Include="Platform\Win32File.h" />
     <ClInclude Include="Platform\Win32Input.h" />
+    <ClInclude Include="Platform\KeyboardGamepad.h" />
     <ClInclude Include="Platform\Win32Gamepad.h" />
     <ClInclude Include="Platform\Win32Window.h" />
     <ClInclude Include="Runtime\AndroidShims.h" />

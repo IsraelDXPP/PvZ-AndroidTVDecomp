@@ -25,7 +25,8 @@ namespace Sexy
 {
 
 // Keyboard stand-in for pad 0. The codes are the Win32 virtual keys the
-// original switch compared against.
+// original switch compared against. KeyboardGamepad posts pad codes itself,
+// so this path is only the old simulate-gamepad toggle.
 int ButtonFromKeyboard(KeyCode theKey)
 {
     switch (theKey)
@@ -119,20 +120,33 @@ int Sexy::GamepadApp::ProcessDeviceEvents()
         if (aDriver == nullptr)
             continue;
 
+        // Slot 0 can be an empty XInput user. Walk the live devices and keep
+        // the first one that actually has a stick.
         InputInfo aInfo;
-        aInfo.mHasPointer = 0;
-        aInfo.mHasKeys = 0;
-        aInfo.mHasTouch = 0;
-        aInfo.mHasMultiTouch = 0;
         aInfo.mHasJoystick = 0;
-        aInfo.mDeviceIndex = -1;
-        if (!aDriver->GetInfo(aInfo, 0))
+        bool aFoundStick = false;
+        const int aDeviceCount = aDriver->GetNumDevices();
+        for (int aIndex = 0; aIndex < aDeviceCount; ++aIndex)
+        {
+            aInfo.mHasPointer = 0;
+            aInfo.mHasKeys = 0;
+            aInfo.mHasTouch = 0;
+            aInfo.mHasMultiTouch = 0;
+            aInfo.mHasJoystick = 0;
+            aInfo.mDeviceIndex = -1;
+            if (!aDriver->GetInfo(aInfo, aIndex))
+                continue;
+            if (aInfo.mHasJoystick != 0)
+            {
+                aFoundStick = true;
+                break;
+            }
+        }
+        if (!aFoundStick)
             continue;
 
         logfi("Input device added: %s", aInfo.mName.c_str());
-        // A stick (or the axis flag the original tested) and more than three
-        // devices is what the original treated as a gamepad.
-        if ((aInfo.mHasJoystick != 0 || aInfo.mHasTouch != 0) && aDriver->GetNumDevices() > 3)
+        if (aFoundStick)
         {
             for (int i = 0; i < 4; i++)
             {

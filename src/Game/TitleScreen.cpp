@@ -645,23 +645,13 @@ void TitleScreen::Update()
   {
     if ( mCurBarWidth > aTotalBarWidth )
     {
-      // TitleScreen::Update @0x1A7C46 swaps <A> for the translated [OK_BUTTON]
-      // caption before the plaque draws. The PS3 host leaves the tag in the
-      // string; Graphics::DrawString paints the button cel at draw time.
+      // A pad found at startup keeps <A> for the icon drawer. Otherwise the
+      // tag becomes the keyboard key from LAWN_BUTTON_MAP.
       Sexy::String aClickToStart;
       TodStringTranslate(&aClickToStart, "[CLICK_TO_START]");
-      if (ButtonGlyphsActive())
-      {
-        mStartButton->mLabel = aClickToStart;
-      }
-      else
-      {
-        Sexy::String aOkButton;
-        TodStringTranslate(&aOkButton, "[OK_BUTTON]");
-        Sexy::String aStartLabel;
-        TodReplaceString(&aStartLabel, &aClickToStart, "<A>", &aOkButton);
-        mStartButton->mLabel = aStartLabel;
-      }
+      Sexy::String aStartLabel;
+      TodReplaceButtons(&aStartLabel, &aClickToStart);
+      mStartButton->mLabel = aStartLabel;
 
       mCurBarWidth = aTotalBarWidth;
     }
