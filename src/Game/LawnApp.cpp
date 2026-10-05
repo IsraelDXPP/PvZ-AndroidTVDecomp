@@ -5368,9 +5368,10 @@ bool LawnApp::StepTitleLoad()
   case TitleLoad_Sounds:
     if (PullTitleGroup(this, "LoadingSounds", 108, 8))
       return true;
+    // TitleScreen::Update @0x1A7698 reads this byte, then writes its own
+    // mLoadingThreadComplete in the same breath as SetDisabled(false).
+    // Writing the screen flag here makes that check skip the enable.
     mLoadingThreadCompleted = true;
-    if (mTitleScreen != nullptr)
-      mTitleScreen->mLoadingThreadComplete = true;
     fprintf(stderr, "title load: finished %d/%d\n",
             mCompletedLoadingThreadTasks, mNumLoadingThreadTasks);
     fflush(stderr);

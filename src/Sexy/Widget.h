@@ -70,8 +70,8 @@ public:
     virtual void LostWindowFocus();
     virtual int KeyChar(char theChar);
     virtual int KeyUnicode(int theChar);
-    virtual void KeyDown(const Sexy::Event &theEvent);
-    virtual void KeyUp(const Sexy::Event &theEvent);
+    virtual int KeyDown(const Sexy::Event &theEvent);
+    virtual int KeyUp(const Sexy::Event &theEvent);
     virtual int KeyDown(Sexy::KeyCode theKey);
     virtual int KeyUp(Sexy::KeyCode theKey);
     virtual void MouseEnter();

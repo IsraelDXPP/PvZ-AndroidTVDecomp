@@ -4,6 +4,7 @@
 #include "Win32Gamepad.h"
 
 #include "InputManager.h"
+#include "ReconHelpers.h"
 #include "ReconTypes.h"
 #include "SexyAppBase.h"
 
@@ -209,6 +210,7 @@ void Win32GamepadInterface::PushButton(int theDevice, int theKey, bool theDown)
     anEvent.eventType = (TMLongCard)theDevice;
     anEvent.eventCodeMask = (TMLongCard)theKey;
     mEvents.push_back(anEvent);
+    logfi("Pad map %s: device %d -> pad 0x%X", theDown ? "down" : "up", theDevice, theKey);
     if (mOwner != nullptr)
     {
         // The manager is reached through the app the owner was started with.

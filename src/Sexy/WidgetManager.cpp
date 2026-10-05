@@ -1174,9 +1174,12 @@ int Sexy::WidgetManager::KeyUp(Sexy::Event const &theEvent)
         mKeyDown.Get(aCode)->mDown = false;
 
     Sexy::Widget *aTarget = KeyTarget(this);
-    if (aTarget != nullptr)
-        aTarget->KeyUp(theEvent);
+    if (aTarget != nullptr && aTarget->KeyUp(theEvent) != 0)
+        return 1;
 
+    // WidgetManager::KeyUp(Event) follows KeyDown(Event) @0x3B38FA. A miss
+    // returns. A hit writes the mapped code back into the event and calls
+    // this function again.
     int *aMapped = mGamepadKeyMap.Find(aCode);
     if (aMapped == nullptr)
         return 1;
@@ -1197,9 +1200,12 @@ int Sexy::WidgetManager::KeyDown(Sexy::Event const &theEvent)
         mKeyDown.Get(aCode)->mDown = true;
 
     Sexy::Widget *aTarget = KeyTarget(this);
-    if (aTarget != nullptr)
-        aTarget->KeyDown(theEvent);
+    if (aTarget != nullptr && aTarget->KeyDown(theEvent) != 0)
+        return 1;
 
+    // WidgetManager::KeyDown(Event) @0x3B38FA. Look the code up in the map at
+    // this+0x14C. A miss returns. A hit writes that value into event+0x14 and
+    // calls KeyDown(Event) again at 0x3B3982.
     int *aMapped = mGamepadKeyMap.Find(aCode);
     if (aMapped == nullptr)
         return 1;

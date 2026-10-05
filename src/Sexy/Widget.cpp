@@ -235,22 +235,24 @@ void Sexy::Widget::FocusDirectionHint(WidgetFocusDir theDir)
     (void)theDir;
 }
 
-void Sexy::Widget::KeyDown(Sexy::Event const &theEvent)
+int Sexy::Widget::KeyDown(Sexy::Event const &theEvent)
 {
-    // Widget::KeyDown(Event) @0x3AE804. Store the event, then dispatch the
-    // code in eventCodeMask through KeyDown(KeyCode). The pad's A is 304,
-    // which WidgetManager's map turns into Return for the focused button.
+    // Widget::KeyDown(Event) @0x3AE804. Store the event, dispatch
+    // eventCodeMask through KeyDown(KeyCode), then clear it. The return is
+    // what WidgetManager uses to decide whether the pad map still runs.
     mEvent = const_cast<Sexy::Event *>(&theEvent);
-    KeyDown((Sexy::KeyCode)(int)theEvent.eventCodeMask);
+    int aResult = KeyDown((Sexy::KeyCode)(int)theEvent.eventCodeMask);
     mEvent = nullptr;
+    return aResult;
 }
 
-void Sexy::Widget::KeyUp(Sexy::Event const &theEvent)
+int Sexy::Widget::KeyUp(Sexy::Event const &theEvent)
 {
     // Widget::KeyUp(Event) @0x3AE820. Same shape as KeyDown.
     mEvent = const_cast<Sexy::Event *>(&theEvent);
-    KeyUp((Sexy::KeyCode)(int)theEvent.eventCodeMask);
+    int aResult = KeyUp((Sexy::KeyCode)(int)theEvent.eventCodeMask);
     mEvent = nullptr;
+    return aResult;
 }
 
 void Sexy::Widget::MouseEnter() {}
@@ -1237,23 +1239,26 @@ void Sexy::Widget::SetFocus(Sexy::Widget *theWidget, bool force)
     std::vector<Widget *> aOldChain;
     std::vector<Widget *> aNewChain;
 
-    for (Widget *aWidget = mFocusedChildWidget; aWidget != nullptr; )
+    // Widget::SetFocus @0x3B00D0. The old chain is the children already under
+    // mFocusedChildWidget, starting at that child's own child. The new chain
+    // is the parents of the widget being focused, walking +0x1C until this.
+    // The target itself is not a chain entry. GotFocus on the chain sets
+    // mHasFocus, and the call after the loop sets it on the target.
+    for (Widget *aWidget = mFocusedChildWidget; aWidget != nullptr; aWidget = aWidget->mFocusedChildWidget)
     {
-        aWidget = aWidget->mFocusedChildWidget;
-        if (aWidget == nullptr)
+        Widget *aDeeper = aWidget->mFocusedChildWidget;
+        if (aDeeper == nullptr)
             break;
-        aOldChain.push_back(aWidget);
+        aOldChain.push_back(aDeeper);
     }
 
     Widget *aNewChild = theWidget;
-    for (Widget *aWidget = theWidget; ; )
+    Widget *aParent = static_cast<Widget *>(theWidget->mParent);
+    while (aParent != this)
     {
-        Widget *aParent = static_cast<Widget *>(aWidget->mParent);
-        if (aParent == this)
-            break;
         aNewChild = aParent;
         aNewChain.push_back(aParent);
-        aWidget = aParent;
+        aParent = static_cast<Widget *>(aParent->mParent);
     }
 
     int aOldCount = (int)aOldChain.size();
@@ -1288,11 +1293,14 @@ void Sexy::Widget::SetFocus(Sexy::Widget *theWidget, bool force)
 
     if (aNewCount != 0)
     {
+        // @0x3B01DE walks the parent chain from its first entry. The last
+        // entry points at the target. Every earlier entry points at the
+        // entry that was pushed after it.
         for (int i = 0; i < aNewCount; ++i)
         {
             if (aNewChain[i]->mHasWindowFocus != aThisWindowFocus)
                 aWindowFocusChanged = true;
-            aNewChain[i]->mFocusedChildWidget = i == aNewCount - 1 ? theWidget : aNewChain[i + 1];
+            aNewChain[i]->mFocusedChildWidget = i + 1 == aNewCount ? theWidget : aNewChain[i + 1];
             aNewChain[i]->mSelected = force;
         }
         for (int i = 0; i < aNewCount; ++i)
@@ -1642,6 +1650,8 @@ int Sexy::Widget::KeyDown(Sexy::KeyCode theKey)
         return 1;
     }
 
+    // Widget::KeyDown(KeyCode) @0x3B0D54. Tab, arrows, Return and Escape are
+    // handled here. Any other code goes to the focused child through KeyDownUp.
     if ((unsigned int)(theKey - KEYCODE_LEFT) <= 3)
         return OnArrowKeys(theKey);
     if (theKey == KEYCODE_RETURN)
