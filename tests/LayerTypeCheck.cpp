@@ -14,6 +14,7 @@
 #include "SexyTypes.h"
 #include "BridgeApp.h"
 #include "game/Board.h"
+#include "SeedChooserScreen.h"
 #include "DataSync.h"
 #include "TodFoley.h"
 
@@ -39,9 +40,26 @@ template <class T>
 void ReportEnum(const char* name)
 {
     const bool isEnum = std::is_enum<T>::value;
-    printf("%s enum\n", name);
+    const bool oneWord = sizeof(T) == sizeof(int);
     CHECK(isEnum);
+    CHECK(oneWord);
     CHECK(!HasMVtable<T>::value);
+    if (isEnum && oneWord)
+        printf("%s enum\n", name);
+}
+
+// A multi-word record must not be reported as an enum. The check runs before
+// the classification line, so a wrong conversion cannot look classified.
+template <class T>
+void ReportRecord(const char* name, size_t theWords)
+{
+    const bool isEnum = std::is_enum<T>::value;
+    const bool sized = sizeof(T) == theWords * sizeof(int);
+    CHECK(!isEnum);
+    CHECK(sized);
+    CHECK(!HasMVtable<T>::value);
+    if (!isEnum && sized)
+        printf("%s record\n", name);
 }
 
 template <class T, class Value>
@@ -50,18 +68,22 @@ void ReportValue(const char* name)
     using Field = decltype(std::declval<T>().mValue);
     const bool isEnum = std::is_enum<T>::value;
     const bool fieldOk = std::is_same<Field, Value>::value;
-    printf("%s value\n", name);
     CHECK(!isEnum);
     CHECK(fieldOk);
     CHECK(!HasMVtable<T>::value);
+    if (!isEnum && fieldOk)
+        printf("%s value\n", name);
 }
 
 template <class T>
 void ReportVirtual(const char* name)
 {
-    printf("%s virtual\n", name);
-    CHECK(std::is_polymorphic<T>::value);
-    CHECK(!HasMVtable<T>::value);
+    const bool polymorphic = std::is_polymorphic<T>::value;
+    const bool noHandVtable = !HasMVtable<T>::value;
+    CHECK(polymorphic);
+    CHECK(noHandVtable);
+    if (polymorphic && noHandVtable)
+        printf("%s virtual\n", name);
 }
 
 struct ProbeDriver : Sexy::BaseAppDriver
@@ -89,16 +111,22 @@ struct ProbeSound : Sexy::SoundInstance
 
 int main()
 {
-    ReportEnum<FoleyInstance>("FoleyInstance");
+    ReportRecord<FoleyInstance>("FoleyInstance", 5);
     ReportEnum<MiscStat>("MiscStat");
     ReportEnum<BUTTON_ALIGNMENT_X>("BUTTON_ALIGNMENT_X");
     ReportEnum<PIParticleInstance>("PIParticleInstance");
     ReportEnum<RenderItem>("RenderItem");
-    ReportEnum<SeedDir>("SeedDir");
-    ReportEnum<TextExtents>("TextExtents");
+    ReportEnum<SeedChooserScreen::SeedDir>("SeedChooserScreen::SeedDir");
+    ReportRecord<TextExtents>("TextExtents", 6);
     ReportEnum<AdviceType>("AdviceType");
     ReportEnum<AlmanacDialog_SeedDir>("AlmanacDialog_SeedDir");
-    ReportEnum<AttacherInfo>("AttacherInfo");
+    ReportRecord<AttacherInfo>("AttacherInfo", 4);
+    CHECK((std::is_same<decltype(std::declval<AttacherInfo>().mReanimName), Sexy::String>::value));
+    CHECK((std::is_same<decltype(std::declval<AttacherInfo>().mTrackName), Sexy::String>::value));
+    CHECK((std::is_same<decltype(std::declval<AttacherInfo>().mLowFPS), float>::value));
+    CHECK((std::is_same<decltype(std::declval<AttacherInfo>().mLoopType), int>::value));
+    CHECK((std::is_same<decltype(std::declval<FoleyInstance>().mInstance), Sexy::SoundInstance*>::value));
+    CHECK((std::is_same<decltype(std::declval<TextExtents>().mHeight), int>::value));
     ReportEnum<BaseGamepadControls_MovementState>("BaseGamepadControls_MovementState");
     ReportEnum<BossPart>("BossPart");
     ReportEnum<ChallengePage>("ChallengePage");
@@ -164,7 +192,8 @@ int main()
 
     CHECK(!std::is_polymorphic<Native::BridgeApp>::value);
     CHECK(!HasMVtable<Native::BridgeApp>::value);
-    printf("Native::BridgeApp value\n");
+    if (!std::is_polymorphic<Native::BridgeApp>::value && !HasMVtable<Native::BridgeApp>::value)
+        printf("Native::BridgeApp value\n");
 
     ProbeDriver probe;
     Sexy::BaseAppDriver* driver = &probe;
