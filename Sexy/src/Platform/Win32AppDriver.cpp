@@ -670,8 +670,20 @@ int LTVCALL Slot_UpdateAppStep(void* theThis, void* theContinue)
         return 0;
 
     LawnApp* anApp = (LawnApp*)self->mApp;
-    if (anApp->mShutDown)
+    // Leave destruction to the outer Windows loop after callbacks and modal
+    // waits have returned. Quit only requests this transition.
+    if (anApp->mShutDown || (anApp->mExitToTop && anApp->mUpdateDepth == 0))
         return 0;
+
+    Sexy::GLWindow* aWindow = self->mWindow != nullptr ? self->mWindow : Sexy::ActiveWindow();
+    bool aModalWait = anApp->mUpdateDepth > 0;
+    DWORD aFrameStart = GetTickCount();
+    if (aModalWait && aWindow != nullptr)
+    {
+        if (!aWindow->ProcessEvents())
+            return 0;
+        aWindow->MakeCurrent();
+    }
 
     anApp->CheckControllerStatus();
     ++anApp->mUpdateAppDepth;
@@ -680,12 +692,13 @@ int LTVCALL Slot_UpdateAppStep(void* theThis, void* theContinue)
     {
         // The binary calls UpdateApp here, which immediately re-enters this
         // slot. The work that call is for is the input drain.
-        if (anApp->mInputManager != nullptr)
-            anApp->mInputManager->Update();
-        anApp->PopulateMessages();
-        anApp->ProcessMessages(anApp->mQueuedEvents);
-        anApp->mQueuedEvents.clear();
+        // Callbacks may enter WaitForResult. Advance the state and detach this
+        // batch before dispatch so nested steps cannot replay the opening key.
         anApp->mUpdateAppState = 1;
+        anApp->PopulateMessages();
+        std::vector<Sexy::Event> aEvents;
+        aEvents.swap(anApp->mQueuedEvents);
+        anApp->ProcessMessages(aEvents);
     }
     else
     {
@@ -696,10 +709,27 @@ int LTVCALL Slot_UpdateAppStep(void* theThis, void* theContinue)
         if (theContinue)
             *(bool*)theContinue = anApp->mUpdateCount != anUpdateCount;
         anApp->mUpdateAppState = 0;
+
+        // The outer Windows loop is suspended while a dialog waits. Present
+        // the same offscreen target here and keep the normal frame cap.
+        if (aModalWait && aWindow != nullptr)
+        {
+            if (Sexy::GLRenderDevice::sCurrent != nullptr)
+                Sexy::GLRenderDevice::sCurrent->Present();
+            aWindow->SwapBuffers();
+            if (anApp->mMaxFPS > 0)
+            {
+                DWORD aFrameBudget = 1000 / static_cast<DWORD>(anApp->mMaxFPS);
+                DWORD aElapsed = GetTickCount() - aFrameStart;
+                if (aElapsed < aFrameBudget)
+                    Sleep(aFrameBudget - aElapsed);
+            }
+        }
     }
 
     --anApp->mUpdateAppDepth;
-    return 1;
+    anApp->ProcessSafeDeleteList();
+    return !anApp->mShutDown && !(anApp->mExitToTop && anApp->mUpdateDepth == 0);
 }
 
 // [90] DoUpdateFramesF(float)
@@ -803,6 +833,9 @@ int LTVCALL Slot_DrawDirtyStuff(void* theThis, void* a1)
     anApp->mIsDrawing = true;
     if (aHardware)
     {
+        // BeginFrame clears the entire FBO. Repaint every visible widget,
+        // including static dialogs over an animated menu.
+        aManager->MarkAllDirty();
         Sexy::GLRenderDevice::sCurrent->SetDrawTarget(aManager->mImage);
         Sexy::GLRenderDevice::sCurrent->BeginFrame(Sexy::Color(0, 0, 0, 255));
     }

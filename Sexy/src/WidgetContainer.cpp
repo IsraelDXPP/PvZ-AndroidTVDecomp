@@ -4,6 +4,7 @@
 #include "Graphics.h"
 #include "Widget.h"
 #include "WidgetManager.h"
+#include "SexyAppBase.h"
 #include <algorithm>
 #include <cstring>
 
@@ -92,10 +93,12 @@ void Sexy::WidgetContainer::RemoveAllWidgets(bool doDelete, bool recursive, Sexy
             aWidget->RemoveAllWidgets(doDelete, true, nullptr);
         if (!doDelete)
             continue;
-        if (theManager == nullptr || theManager->mFocusWidget == nullptr)
-            delete aWidget;
+        // @0x3ACE9A reads WidgetManager::mApp, then calls SafeDeleteWidget.
+        // A screen may be removed while one of its children is handling input.
+        if (theManager != nullptr && theManager->mApp != nullptr)
+            theManager->mApp->SafeDeleteWidget(aWidget);
         else
-            theManager->mFocusWidget->RemoveWidget(aWidget);
+            delete aWidget;
     }
 }
 
@@ -264,18 +267,18 @@ void Sexy::WidgetContainer::UpdateAll(ModalFlags *theFlags)
         UpdateF(0.0f);
     }
 
-    mUpdateIterator = BeginChild(this);
-    while (mUpdateIterator != EndChild(this))
+    // Help screens raise themselves and their help bar during Update. Each
+    // child must still update once even when its list node moves or disappears.
+    std::vector<Widget*> aChildren;
+    aChildren.reserve(mWidgetVector.size());
+    for (WidgetListLink* aNode = BeginChild(this); aNode != EndChild(this); aNode = NextChild(aNode))
+        aChildren.push_back(ChildWidget(aNode));
+    for (Widget* aWidget : aChildren)
     {
-        WidgetListLink *aNode = mUpdateIterator;
-        Widget *aWidget = ChildWidget(aNode);
-        mUpdateIteratorModified = false;
-        aWidget->UpdateAll(theFlags);
-        if (mUpdateIteratorModified)
-            mUpdateIterator = BeginChild(this);
-        else
-            mUpdateIterator = NextChild(aNode);
+        if (HasWidget(aWidget))
+            aWidget->UpdateAll(theFlags);
     }
+    mUpdateIterator = EndChild(this);
     mUpdateIteratorModified = true;
     theFlags->mOverFlags = aSavedOver;
     theFlags->mUnderFlags = aSavedUnder;
@@ -297,18 +300,16 @@ void Sexy::WidgetContainer::UpdateFAll(ModalFlags *theFlags, float theFrac)
     if ((aFlags & 1) != 0)
         UpdateF(theFrac);
 
-    mUpdateIterator = BeginChild(this);
-    while (mUpdateIterator != EndChild(this))
+    std::vector<Widget*> aChildren;
+    aChildren.reserve(mWidgetVector.size());
+    for (WidgetListLink* aNode = BeginChild(this); aNode != EndChild(this); aNode = NextChild(aNode))
+        aChildren.push_back(ChildWidget(aNode));
+    for (Widget* aWidget : aChildren)
     {
-        WidgetListLink *aNode = mUpdateIterator;
-        Widget *aWidget = ChildWidget(aNode);
-        mUpdateIteratorModified = false;
-        aWidget->UpdateFAll(theFlags, theFrac);
-        if (mUpdateIteratorModified)
-            mUpdateIterator = BeginChild(this);
-        else
-            mUpdateIterator = NextChild(aNode);
+        if (HasWidget(aWidget))
+            aWidget->UpdateFAll(theFlags, theFrac);
     }
+    mUpdateIterator = EndChild(this);
     mUpdateIteratorModified = true;
     theFlags->mOverFlags = aSavedOver;
     theFlags->mUnderFlags = aSavedUnder;

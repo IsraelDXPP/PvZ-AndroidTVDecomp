@@ -517,6 +517,8 @@ void OpenALSoundInstance::ApplyState()
         aLeft = 1.0 - mPan;
 
     double aGain = mVolume * mBaseVolume;
+    if (mManager != nullptr)
+        aGain *= mManager->mVolume * mManager->mMasterVolume;
     alSourcef(mSource, AL_GAIN, ToGain(aGain));
     alSource3f(mSource, AL_POSITION, (ALfloat)-mPan, 0.0f, 0.0f);
     alSourcef(mSource, AL_PITCH, (ALfloat)mBaseRate);
@@ -798,6 +800,8 @@ double OpenALSoundManager::GetMasterVolume()
 void OpenALSoundManager::SetMasterVolume(double theVolume)
 {
     mMasterVolume = theVolume;
+    for (OpenALSoundInstance* anInstance : mInstances)
+        anInstance->ApplyState();
 }
 
 void OpenALSoundManager::Flush()

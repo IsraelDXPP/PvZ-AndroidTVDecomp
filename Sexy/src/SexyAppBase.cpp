@@ -645,6 +645,7 @@ void SexyAppBase::AddDialogWithId(int theDialogId, Dialog* theDialog)
         {
             mWidgetManager->AddBaseModal(theDialog);
             ModalOpen();
+            mWidgetManager->SetFocus(theDialog);
         }
     }
 }
@@ -680,8 +681,15 @@ bool SexyAppBase::KillDialogFull(int theDialogId, bool removeWidget, bool delete
 
     if (removeWidget && mWidgetManager != nullptr && aDialog != nullptr)
         mWidgetManager->RemoveWidget(aDialog);
+    if (aDialog != nullptr && aDialog->IsModal())
+    {
+        ModalClose();
+        if (mWidgetManager != nullptr)
+            mWidgetManager->RemoveBaseModal(aDialog);
+    }
     if (deleteWidget)
-        delete aDialog;
+        SafeDeleteWidget(aDialog);
+    EndPopup();
     return true;
 }
 
@@ -710,8 +718,11 @@ bool SexyAppBase::KillDialog(Dialog* theDialog)
 void SexyAppBase::DialogButtonPress(int, int) {}
 void SexyAppBase::DialogButtonDepress(int theDialogId, int theButtonId)
 {
-    KillDialog(theDialogId);
-    (void)theButtonId;
+    // @0x336A20 forwards the result to the application's button handler.
+    if (theButtonId == 1000)
+        ButtonDepress(theDialogId + 2000);
+    else if (theButtonId == 1001)
+        ButtonDepress(theDialogId + 3000);
 }
 
 // --------------------------------------------------------------------------
@@ -2564,15 +2575,20 @@ int SexyAppBase::ProcessDeferredMessages(bool theAll)
 
 void SexyAppBase::SafeDeleteWidget(Widget* theWidget)
 {
-    if (theWidget != nullptr)
+    if (theWidget != nullptr
+        && std::find(mSafeDeleteList.begin(), mSafeDeleteList.end(), theWidget) == mSafeDeleteList.end())
         mSafeDeleteList.push_back(theWidget);
 }
 
 void SexyAppBase::ProcessSafeDeleteList()
 {
-    for (Widget* aWidget : mSafeDeleteList)
+    // A modal wait still has its dialog and input callbacks on the stack.
+    if (mUpdateAppDepth != 0 || mUpdateDepth != 0 || mIsDrawing)
+        return;
+    std::list<Widget*> aPendingDelete;
+    aPendingDelete.swap(mSafeDeleteList);
+    for (Widget* aWidget : aPendingDelete)
         delete aWidget;
-    mSafeDeleteList.clear();
 }
 
 char* SexyAppBase::GetCurrentEvent()

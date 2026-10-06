@@ -291,7 +291,7 @@ void LawnDialog::Resize(int theX, int theY, int theWidth, int theHeight)
   int aPairWidth = MakeMultiple((aRowWidth - 2) / 2 - aButtonPairWidth - aButtonMiddleWidth + 1,
                                 aButtonMiddleWidth);
 
-  int aRowY = aRowBottom - mContentInsets.mBottom - aButtonHeight;
+  int aRowY = aRowBottom - mBackgroundInsets.mBottom - aButtonHeight;
   int aButtonY = mTallBottom ? aRowY - 3 : aRowY - 8;
   if ( mLawnYesButton != nullptr )
   {

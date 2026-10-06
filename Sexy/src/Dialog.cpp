@@ -57,13 +57,16 @@ int Sexy::Dialog::WaitForResult(bool autoKill)
 {
     Sexy::SexyAppBase *theApp = DialogApp();
 
+    ++theApp->mUpdateDepth;
     while (theApp->UpdateAppStep(nullptr) && mWidgetManager != nullptr && mResult == 0x7FFFFFFF)
         ;
 
+    int aResult = mResult;
     if (autoKill)
         theApp->KillDialog(mId);
 
-    return mResult;
+    --theApp->mUpdateDepth;
+    return aResult;
 }
 
 void Sexy::Dialog::ButtonDownTick(int)

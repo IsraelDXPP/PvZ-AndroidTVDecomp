@@ -1057,11 +1057,8 @@ struct TodStringListFormat
 };
 
 
-// gLawnStringFormats[12] @0x715b90. The table's data is all 0xFF because it is
-// written at startup by TodStringListSetColors from LawnApp's own copy; the
-// count is gLawnStringFormatCount @0x698d7c (initial value 2, set to 14 by
-// `TodStringListSetColors(&gLawnStringFormats, 14)` in LawnApp.cpp).
-extern TodStringListFormat gLawnStringFormats[12];
+// gLawnStringFormats @0x715b90, initialized with all 14 original formats.
+extern TodStringListFormat gLawnStringFormats[14];
 
 // gTodStringFormats / gTodStringFormatCount -- the framework's active table,
 // written by TodStringListSetColors (see TodStringListSetColors @0x2001e0).
@@ -1200,4 +1197,3 @@ namespace Sexy { bool ExtractResourcesByName(ResourceManager* theResourceManager
 // classes. Adding them needs each one's exact signature, taken from
 // `build/unresolved.txt` (which records the mangled name the linker asked for)
 // rather than from the readable form. See tools/unresolved.py.
-

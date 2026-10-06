@@ -10,8 +10,9 @@
 
 void HelpTextScreen::AddedToManager(Sexy::WidgetManager* theWidgetManager)
 {
-    MenuWidget::AddedToManager(theWidgetManager);
+    // Loading a menu can change focus; the shared bar must already be usable.
     mHelpBarWidget = mApp->mHelpBarWidget;
+    MenuWidget::AddedToManager(theWidgetManager);
 }
 
 void HelpTextScreen::DrawAll(Sexy::ModalFlags* theFlags, Sexy::Graphics* g)
@@ -82,7 +83,7 @@ void HelpTextScreen::RemovedFromManager(Sexy::WidgetManager* theWidgetManager)
 {
     MenuWidget::RemovedFromManager(theWidgetManager);
     RemoveAllWidgets(true, true, NULL);
-    gLawnApp->HideHelpBarWidget();
+    mApp->HideHelpBarWidget();
 }
 
 void HelpTextScreen::GotFocus()
@@ -97,7 +98,7 @@ void HelpTextScreen::GotFocus()
     mHelpBarWidget->AddButton(GAMEPAD_BUTTON_B, caption, HelpBarWidget::HELP_ALIGN_NONE);
 
     mHelpBarWidget->mDrawShade = false;
-    gLawnApp->ShowHelpBarWidget();
+    mApp->ShowHelpBarWidget();
 }
 
 HelpTextScreen::HelpTextScreen(LawnApp* theApp, int thePage)
@@ -114,15 +115,16 @@ HelpTextScreen::HelpTextScreen(LawnApp* theApp, int thePage)
     mScrollFrom = initial;
     mScrollTo = initial;
     mScrollTimer = 0.0f;
-    mHelpBarWidget = NULL;
+    mHelpBarWidget = mApp->mHelpBarWidget;
 
     mHasAlpha = true;
     mClip = false;
 }
 
-void HelpTextScreen::GameButtonDown(Sexy::GamepadButton theButton, int thePlayerIndex)
+void HelpTextScreen::GameButtonDown(Sexy::GamepadButton theButton, int thePlayerIndex, unsigned int theModifiers)
 {
     (void)thePlayerIndex;
+    (void)theModifiers;
     if (theButton == GAMEPAD_BUTTON_B)
     {
         mApp->KillHelpTextScreen();

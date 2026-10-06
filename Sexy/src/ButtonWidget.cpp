@@ -606,10 +606,10 @@ void Sexy::ButtonWidget::MouseUp(int x, int y, int theBtnNum, int theClickCount)
 {
   Widget::MouseUp(x, y, theBtnNum, theClickCount);
 
-  if ( mIsDown && mWidgetManager->mHasFocus )
-    mListener->ButtonDepress(mWidgetId);
-
+  bool aDepress = mIsDown && mWidgetManager != nullptr && mWidgetManager->mHasFocus;
   MarkDirty();
+  if (aDepress && mListener != nullptr)
+    mListener->ButtonDepress(mWidgetId);
 }
 
 // ==========================================================================
@@ -622,8 +622,9 @@ int Sexy::ButtonWidget::KeyDown(Sexy::KeyCode theKey)
     return Widget::KeyDown(theKey);
 
   mReturnPressed = true;
-  mListener->ButtonPress(mWidgetId, 1);
   MarkDirty();
+  if (mListener != nullptr)
+    mListener->ButtonPress(mWidgetId, 1);
   return 1;
 }
 
@@ -642,9 +643,12 @@ int Sexy::ButtonWidget::KeyUp(Sexy::KeyCode theKey)
   if ( !aWasDown )
     return Widget::KeyUp(theKey);
 
-  mListener->ButtonDepress(mWidgetId);
-  MarkDirty();
+  // Opening another screen may remove this button. Finish its state before
+  // handing control to the listener, and do not touch it after the callback.
   mReturnPressed = false;
+  MarkDirty();
+  if (mListener != nullptr)
+    mListener->ButtonDepress(mWidgetId);
   return aWasDown;
 }
 

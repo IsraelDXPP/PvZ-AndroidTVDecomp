@@ -4,6 +4,7 @@
 #include "Graphics.h"
 #include "ButtonGlyphs.h"
 #include "Font.h"
+#include "FontData.h"
 #include "Graphics3D.h"
 #include "IGraphicsDriver.h"
 #include "Image.h"
@@ -1797,34 +1798,46 @@ int Sexy::Graphics::WriteWordWrapped(TRect<int> const& theRect, Sexy::String con
     if (mFont == nullptr)
         return 0;
 
-    int aYOffset = 0;
+    // WriteWordWrapped @0x30E250 measures Unicode characters and starts at
+    // the font's baseline, rather than drawing a baseline at the rect's top.
+    int aYOffset = mFont->GetAscent() - mFont->GetAscentPadding();
     int aMaxWidth = 0;
     Color aSavedColor = GetColor();
     int aColorWord = (int)aSavedColor.ToInt();
     if ((aColorWord & 0xFF000000) == 0xFF000000)
         aColorWord &= 0xFFFFFF;
 
+    std::vector<int> aCharacters;
+    std::vector<unsigned int> aByteOffsets;
+    unsigned int aByteIndex = 0;
+    while (aByteIndex < theLine.length())
+    {
+        aByteOffsets.push_back(aByteIndex);
+        aCharacters.push_back(ReadCodePoint(theLine, aByteIndex));
+    }
+    aByteOffsets.push_back(aByteIndex);
+
     int aLimit = theMaxChars;
     if (aLimit < 0)
-        aLimit = (int)theLine.length();
-    int aFontHeight = mFont->GetAscent() - mFont->GetDescent();
+        aLimit = (int)aCharacters.size();
+    int aFontHeight = mFont->GetAscent() - mFont->GetAscentPadding();
     int aSpacing = theLineSpacing;
     if (aSpacing == -1)
         aSpacing = mFont->GetLineSpacing();
 
-    int aLength = (int)theLine.length();
+    int aLength = (int)aCharacters.size();
     int aWidth = (theLastWidth != nullptr) ? *theLastWidth : 0;
     int aPos = 0;
     int aLineStart = 0;
     int aPrevChar = 0;
     int aLastWordEnd = -1;
-    char aChar = 0;
+    int aChar = 0;
     bool aStopped = false;
 
     while (aPos < aLength && !aStopped)
     {
-        aChar = theLine[(unsigned int)aPos];
-        char aNext = (aLength - 1 <= aPos) ? 0 : theLine[(unsigned int)(aPos + 1)];
+        aChar = aCharacters[aPos];
+        int aNext = (aLength - 1 <= aPos) ? 0 : aCharacters[aPos + 1];
         if (aChar == '^' && mWriteColoredString && aLength > aPos + 1)
         {
             if (aNext != '^')
@@ -1864,7 +1877,8 @@ int Sexy::Graphics::WriteWordWrapped(TRect<int> const& theRect, Sexy::String con
             if (aCount > 0)
             {
                 aWritten = WriteString(theLine, theRect.mX, theRect.mY + aYOffset, theRect.mWidth,
-                                       theJustification, true, aLineStart, aCount, aColorWord);
+                                       theJustification, mDestImage != nullptr, aByteOffsets[aLineStart],
+                                       aByteOffsets[aLineStart + aCount] - aByteOffsets[aLineStart], aColorWord);
                 if (aWritten < 0)
                 {
                     aStopped = true;
@@ -1886,7 +1900,7 @@ int Sexy::Graphics::WriteWordWrapped(TRect<int> const& theRect, Sexy::String con
                 int aBreak = (aLimit < aLastWordEnd) ? aLimit : aLastWordEnd;
                 if (aBreak - aLineStart > 0)
                     WriteString(theLine, theRect.mX, theRect.mY + aYOffset, theRect.mWidth, theJustification, true,
-                                aLineStart, aBreak - aLineStart, aColorWord);
+                                aByteOffsets[aLineStart], aByteOffsets[aBreak] - aByteOffsets[aLineStart], aColorWord);
             }
             aWritten = aWidth;
             if (aWritten < 0)
@@ -1902,7 +1916,7 @@ int Sexy::Graphics::WriteWordWrapped(TRect<int> const& theRect, Sexy::String con
             }
             if (aChar == ' ')
             {
-                while (aLength != aLineStart && theLine[(unsigned int)aLineStart] == ' ')
+                while (aLength != aLineStart && aCharacters[aLineStart] == ' ')
                     ++aLineStart;
             }
         }
@@ -1924,7 +1938,7 @@ int Sexy::Graphics::WriteWordWrapped(TRect<int> const& theRect, Sexy::String con
 
     if (!aStopped && (theRect.mHeight == 0 || aSpacing + aYOffset - aFontHeight <= theRect.mHeight))
     {
-        if (aPos >= aLength)
+        if (aLineStart >= aLength)
         {
             if (aChar == '\n')
             {
@@ -1935,14 +1949,15 @@ int Sexy::Graphics::WriteWordWrapped(TRect<int> const& theRect, Sexy::String con
         }
         else
         {
-            int aRemaining = (int)theLine.length() - aPos;
-            if ((int)theLine.length() > aLimit)
-                aRemaining = aLimit - aPos;
+            int aRemaining = aLength - aLineStart;
+            if (aLength > aLimit)
+                aRemaining = aLimit - aLineStart;
             int aWritten = 0;
             if (aRemaining > 0)
             {
-                aWritten = WriteString(theLine, theRect.mX, theRect.mY + aYOffset, theRect.mWidth, theJustification, true,
-                                       aPos, aRemaining, aColorWord);
+                aWritten = WriteString(theLine, theRect.mX, theRect.mY + aYOffset, theRect.mWidth,
+                                       theJustification, mDestImage != nullptr, aByteOffsets[aLineStart],
+                                       aByteOffsets[aLineStart + aRemaining] - aByteOffsets[aLineStart], aColorWord);
             }
             if (aWritten >= 0)
             {
@@ -1960,7 +1975,7 @@ int Sexy::Graphics::WriteWordWrapped(TRect<int> const& theRect, Sexy::String con
     SetColor(aSavedColor);
     if (theMaxWidth != nullptr)
         *theMaxWidth = aMaxWidth;
-    return mFont->GetHeight() + aYOffset - aSpacing;
+    return mFont->GetDescent() + aYOffset - aSpacing;
 }
 
 int Sexy::Graphics::DrawStringWordWrapped(Sexy::String const& theLine, int theX, int theY, int theWrapWidth, int theLineSpacing, int theJustification, int *theMaxWidth)

@@ -53,6 +53,8 @@ void Sexy::Slider::TouchDown(int theId, int x, int y)
             return;
         }
         SetValue((double)y / (double)mHeight);
+        if (mListener != nullptr)
+            mListener->SliderVal(mId, mVal);
         return;
     }
 
@@ -60,6 +62,8 @@ void Sexy::Slider::TouchDown(int theId, int x, int y)
     if (!ThumbContains(aThumbX, mThumbImage->GetWidth(), x))
     {
         SetValue((double)x / (double)mWidth);
+        if (mListener != nullptr)
+            mListener->SliderVal(mId, mVal);
         return;
     }
     mGrabOffsetX = x - aThumbX;
@@ -89,6 +93,8 @@ void Sexy::Slider::MouseDown(int x, int y, int theClickCount)
             return;
         }
         SetValue((double)y / (double)mHeight);
+        if (mListener != nullptr)
+            mListener->SliderVal(mId, mVal);
         return;
     }
 
@@ -96,6 +102,8 @@ void Sexy::Slider::MouseDown(int x, int y, int theClickCount)
     if (!ThumbContains(aThumbX, mThumbImage->GetWidth(), x))
     {
         SetValue((double)x / (double)mWidth);
+        if (mListener != nullptr)
+            mListener->SliderVal(mId, mVal);
         return;
     }
     mWidgetManager->mApp->SetCursor(2);

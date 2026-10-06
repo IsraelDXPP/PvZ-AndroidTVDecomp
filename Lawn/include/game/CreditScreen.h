@@ -125,7 +125,9 @@ public:
     Sexy::PerfTimer mTimerSinceStart; // +0x138
     bool mDontSync;                   // +0x150
     bool mCreditsPaused;              // +0x151
+    double mSavedMusicVolume;          // +0x158
     bool mPreloaded;                  // +0x160
+    int mLastDrawCount;               // +0x164
     double mScrollPositionY1;         // +0x168
     double mScrollPositionY2;         // +0x170
     bool mIsFromMainMenu;             // +0x178

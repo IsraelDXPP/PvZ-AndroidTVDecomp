@@ -1394,6 +1394,8 @@ Widget *Sexy::Widget::FindFocusableWidget(int direction, Sexy::Widget *relativeW
 
         if (aFound != anEnd && HasFocusLink(aRelative))
             return nullptr;
+        if (aFound == anEnd)
+            return nullptr;
 
         std::vector<Widget *>::iterator aSlot = aFound + 1;
         if (aSlot == mWidgetVector.end())
@@ -1460,13 +1462,16 @@ Widget *Sexy::Widget::FindFocusableWidget(int direction, Sexy::Widget *relativeW
         {
             aFound = aSlot;
             aSlotPos = (*aSlot)->GetAbsPos();
-            Widget *aWidget = *aSlot--;
-            if (aWidget->IsFocusable() && aSlot[1]->IsOnScreen() && aSlotPos.mY < aRelativePos.mY)
+            Widget *aWidget = *aSlot;
+            if (aWidget->IsFocusable() && aWidget->IsOnScreen() && aSlotPos.mY < aRelativePos.mY)
                 break;
             if (aFound == mWidgetVector.begin())
                 return nullptr;
+            --aSlot;
         }
 
+        if (aSlot != mWidgetVector.begin())
+            --aSlot;
         aCandidate = *aFound;
         if (aFound != mWidgetVector.begin())
         {
@@ -1546,8 +1551,8 @@ Widget *Sexy::Widget::FindFocusableWidget(int direction, Sexy::Widget *relativeW
             {
                 std::vector<Widget *>::iterator aSlotStart = aSlot;
                 aSlotPos = (*aSlot)->GetAbsPos();
-                Widget *aWidget = *aSlot--;
-                if (aWidget->IsFocusable() && aSlot[1]->IsOnScreen() && aSlotPos.mX > aRelativePos.mX)
+                Widget *aWidget = *aSlot;
+                if (aWidget->IsFocusable() && aWidget->IsOnScreen() && aSlotPos.mX > aRelativePos.mX)
                 {
                     aFound = aSlotStart;
                     aCandidate = *aSlotStart;
@@ -1555,6 +1560,7 @@ Widget *Sexy::Widget::FindFocusableWidget(int direction, Sexy::Widget *relativeW
                 }
                 if (aSlotStart == mWidgetVector.begin())
                     return nullptr;
+                --aSlot;
             }
         }
         break;
@@ -1575,8 +1581,8 @@ Widget *Sexy::Widget::FindFocusableWidget(int direction, Sexy::Widget *relativeW
                 {
                     std::vector<Widget *>::iterator aSlotStart = aSlot;
                     aSlotPos = (*aSlot)->GetAbsPos();
-                    Widget *aWidget = *aSlot--;
-                    if (aWidget->IsFocusable() && aSlot[1]->IsOnScreen() && aSlotPos.mX <= aRelativePos.mX)
+                    Widget *aWidget = *aSlot;
+                    if (aWidget->IsFocusable() && aWidget->IsOnScreen() && aSlotPos.mX <= aRelativePos.mX)
                     {
                         aFound = aSlotStart;
                         aCandidate = *aSlotStart;
@@ -1584,6 +1590,7 @@ Widget *Sexy::Widget::FindFocusableWidget(int direction, Sexy::Widget *relativeW
                     }
                     if (aSlotStart == mWidgetVector.begin())
                         break;
+                    --aSlot;
                 }
             }
 

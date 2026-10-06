@@ -1743,6 +1743,10 @@ void MainMenu::ButtonDepress(int theId)
     case RETURN_TO_ARCADE_BUTTON:
       mApp->SdkExit();
       return;
+    case MORE_WAYS_BUTTON:
+      // The TV binary leaves this entry unhandled; use its existing left-scene transition.
+      SetScene(MENUSCENE_MORE_WAYS);
+      return;
     case MORE_BUTTON:
       SetScene(MENUSCENE_EXTRA);
       return;

@@ -31,17 +31,29 @@ const unsigned char used_ascii_one[257] = {0};
 // File-scope game globals (declared in ReconFreeFunctions.h).
 // ---------------------------------------------------------------------------
 
-// gLawnStringFormats @0x715b90. The binary's own array is all 0xFF at rest
-// because LawnApp's constructor fills it and then calls
-// `TodStringListSetColors(gLawnStringFormats, gLawnStringFormatCount)` at
-// startup. Zero is the neutral pre-startup state here, and the framework
-// treats a zero-colour entry as "no override", which is what an unwritten
-// table does in the target as well.
-TodStringListFormat gLawnStringFormats[12] = {};
+// The original static initializer @0x131AEA..0x131CE6 builds 14 formats.
+// A transparent black colour preserves the caller's colour; null preserves
+// its font. CREDITS1/2 add the original three/two pixels of line spacing.
+TodStringListFormat gLawnStringFormats[14] = {
+    {"NORMAL", nullptr, Sexy::Color(40, 50, 90), 0, 0},
+    {"FLAVOR", nullptr, Sexy::Color(143, 67, 27), 0, 1},
+    {"KEYWORD", nullptr, Sexy::Color(143, 67, 27), 0, 0},
+    {"NOCTURNAL", nullptr, Sexy::Color(136, 50, 170), 0, 0},
+    {"AQUATIC", nullptr, Sexy::Color(11, 161, 219), 0, 0},
+    {"STAT", nullptr, Sexy::Color(204, 36, 29), 0, 0},
+    {"METAL", nullptr, Sexy::Color(204, 36, 29), 0, 0},
+    {"KEYMETAL", nullptr, Sexy::Color(143, 67, 27), 0, 2},
+    {"SHORTLINE", nullptr, Sexy::Color(0, 0, 0, 0), -9, 0},
+    {"EXTRASHORTLINE", nullptr, Sexy::Color(0, 0, 0, 0), -14, 0},
+    {"CREDITS1", nullptr, Sexy::Color(0, 0, 0, 0), 3, 0},
+    {"CREDITS2", nullptr, Sexy::Color(0, 0, 0, 0), 2, 0},
+    {"YELLOW", nullptr, Sexy::Color(213, 159, 43), 0, 0},
+    {"GREEN", nullptr, Sexy::Color(14, 189, 26), 0, 0}
+};
 
 // The framework's active table, set by TodStringListSetColors @0x2001e0.
 TodStringListFormat *gTodStringFormats = gLawnStringFormats;
-int gTodStringFormatCount = 12;
+int gTodStringFormatCount = 14;
 
 // gArtChallengeWallnut @0x696678. The binary's data has -1 in the unused
 // cells and 3 in the live ones; -1 is the "no reanimation" sentinel the

@@ -923,6 +923,9 @@ LawnStoneButton* MakeButton(int theId, Sexy::ButtonListener* theListener, Sexy::
     aButton->mTranslateY = 1;
     aButton->mHasAlpha = true;
     aButton->mHasTransparencies = true;
+    // The stone face and its glow extend past the button's hit rectangle.
+    // Keep the parent dialog's clip, without clipping to the button itself.
+    aButton->mClip = false;
     aButton->mHeight = 33;
     return aButton;
 }

@@ -91,17 +91,16 @@ public:
     virtual void CheckboxChecked(int theId, bool theChecked);
     virtual void SliderVal(int theId, double theValue);
     // The vtable signature is GameButtonDown(GamepadButton, player, flags).
-    virtual void GameButtonDown(int theButton, int thePlayerIndex, unsigned int theFlags);
+    virtual void GameButtonDown(Sexy::GamepadButton theButton, int thePlayerIndex, unsigned int theFlags);
 
     // LawnDialog occupies +0x00..+0x2FB, SliderListener's vptr +0x2FC..+0x2FF,
     // CheckboxListener's vptr +0x300..+0x303.
     LawnApp *mApp;                  // +0x304
-    Sexy::Widget *mMusicSlider;     // +0x308
-    Sexy::Widget *mSoundSlider;     // +0x30C
+    GameSlider *mMusicSlider;       // +0x308
+    GameSlider *mSoundSlider;       // +0x30C
     GameButton *mBackButton;        // +0x310
     GameButton *mSelectDeviceButton; // +0x314
-    // SaveDetails returning false blocks the gamepad back button. The byte
-    // beside it was a deferred-close flag that nothing in this binary sets.
+    // Whether the last attempt to save the settings failed.
     bool mSaveFailed;
     // Size 0x32C.
 

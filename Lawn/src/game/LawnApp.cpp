@@ -1167,9 +1167,10 @@ int LawnApp::LawnMessageBox(int theDialogId, char const* theHeader, char const* 
   }
 
   // Remove-then-add uses the dialog's own manager (+0x18). 99 is the z-order.
-  aDialog->mWidgetManager->RemoveWidget(aDialog);
+  Sexy::WidgetManager* aDialogManager = aDialog->mWidgetManager;
+  aDialogManager->RemoveWidget(aDialog);
   aDialog->mZOrder = 99;
-  aDialog->mWidgetManager->AddWidget(aDialog);
+  aDialogManager->AddWidget(aDialog);
 
   // Direct mLabel assign, not SetLabel: SetLabel would translate again.
   if ( aDialog->mLawnYesButton != nullptr )
@@ -7136,6 +7137,12 @@ void LawnApp::ButtonDepress(int theId)
   }
   if ( aButton <= 15 )
   {
+    if (aButton == 13)
+    {
+      KillDialogById(aButton);
+      Quit();
+      return;
+    }
     if ( aButton == 7 )
       return;
     if ( aButton <= 7 )
@@ -7313,7 +7320,7 @@ Sexy::Dialog * LawnApp::DoDialog(int theDialogId, bool theModal, Sexy::String co
 // ==========================================================================
 int LawnApp::KillDialog(int theDialogId)
 {
-  int aKilled = KillDialog(theDialogId);
+  int aKilled = SexyAppBase::KillDialog(theDialogId);
   if ( aKilled == 0 )
     return 0;
 

@@ -1,8 +1,9 @@
 // TodDrawString -- the four text drawers from libGameMain.so.
 //
-// The so widens into a four-byte character string. This tree's Font virtuals
-// take std::wstring, which is the same widening Graphics::DrawString already
-// uses, so the drawers follow that path. Justification is an int: 0 left,
+// The binary decodes text into a four-byte character string before measuring
+// or wrapping it (Graphics::WStringFromString @0x30B1FC). Keep one UTF-32 code
+// point per character here and encode runs back to UTF-8 for Font. Justification
+// is an int: 0 left,
 // 1 and 4 right, 2 and 5 center. Wrapped text whose justification is 3, 4 or
 // 5 is measured first and then shifted so the block sits in the middle of
 // the rect. {NAME} tags look up gTodStringFormats and swap the font, colour,
@@ -26,19 +27,19 @@
 
 namespace {
 
-std::wstring Widen(const Sexy::String& theText)
+std::u32string DecodeText(const Sexy::String& theText)
 {
-    const char* aBytes = theText.c_str();
-    return std::wstring(aBytes, aBytes + theText.length());
+    std::u32string aCodePoints;
+    aCodePoints.reserve(theText.length());
+    unsigned int aByteIndex = 0;
+    while (aByteIndex < theText.length())
+        aCodePoints.push_back(static_cast<char32_t>(ReadCodePoint(theText, aByteIndex)));
+    return aCodePoints;
 }
 
-Sexy::String Narrow(const std::wstring& theWide)
+Sexy::String EncodeText(const std::u32string& theWide)
 {
-    Sexy::String aText;
-    aText.reserve(theWide.size());
-    for (unsigned int aIndex = 0; aIndex < theWide.size(); ++aIndex)
-        aText.push_back((char)theWide[aIndex]);
-    return aText;
+    return CodePointsToUtf8(std::vector<int>(theWide.begin(), theWide.end()));
 }
 
 Sexy::String ReplaceButtonCaptions(const Sexy::String& theText)
@@ -53,7 +54,7 @@ Sexy::String PrepareText(const Sexy::String& theText)
     return ReplaceButtonCaptions(TodStringTranslate(theText));
 }
 
-int ShiftX(Sexy::Font* theFont, const std::wstring& theWide, int theX, int theJustification);
+int ShiftX(Sexy::Font* theFont, const std::u32string& theWide, int theX, int theJustification);
 
 static int MulDiv255(int theLeft, int theRight)
 {
@@ -77,7 +78,7 @@ struct DrawStyle
     unsigned int mFlags;
 };
 
-void ApplyFormatTag(DrawStyle& theStyle, const std::wstring& theName)
+void ApplyFormatTag(DrawStyle& theStyle, const std::u32string& theName)
 {
     if (gTodStringFormatCount <= 0 || gTodStringFormats == nullptr)
         return;
@@ -91,7 +92,7 @@ void ApplyFormatTag(DrawStyle& theStyle, const std::wstring& theName)
         bool aMatch = true;
         for (unsigned int aChar = 0; aChar < aLength; ++aChar)
         {
-            if (theName[aChar] != (wchar_t)(unsigned char)aName[aChar])
+            if (theName[aChar] != (char32_t)(unsigned char)aName[aChar])
             {
                 aMatch = false;
                 break;
@@ -109,7 +110,7 @@ void ApplyFormatTag(DrawStyle& theStyle, const std::wstring& theName)
     }
 }
 
-int DrawLine(Sexy::Graphics* theGraphics, const std::wstring& theWide,
+int DrawLine(Sexy::Graphics* theGraphics, const std::u32string& theWide,
              int theX, int theY, const DrawStyle& theStyle, int theWidth,
              int theJustification, bool theDraw, int theStart, int theCount)
 {
@@ -134,29 +135,29 @@ int DrawLine(Sexy::Graphics* theGraphics, const std::wstring& theWide,
         aEnd = (int)theWide.size();
 
     DrawStyle aStyle = theStyle;
-    std::wstring aRun;
+    std::u32string aRun;
     int aPen = 0;
     bool aCollapsed = false;
     for (int aIndex = theStart; aIndex < aEnd; ++aIndex)
     {
-        wchar_t aChar = theWide[aIndex];
-        if (aChar == L'{')
+        char32_t aChar = theWide[aIndex];
+        if (aChar == U'{')
         {
             int aClose = aIndex + 1;
-            while (aClose < aEnd && theWide[aClose] != L'}')
+            while (aClose < aEnd && theWide[aClose] != U'}')
                 ++aClose;
             if (aClose < aEnd)
             {
                 if (theDraw && theGraphics != nullptr && !aRun.empty())
                 {
-                    aStyle.mFont->DrawString(theGraphics, aOrigin + aPen, theY, Narrow(aRun),
+                    aStyle.mFont->DrawString(theGraphics, aOrigin + aPen, theY, EncodeText(aRun),
                                              aStyle.mColor, theGraphics->mClipRect);
-                    aPen += aStyle.mFont->StringWidth(Narrow(aRun));
+                    aPen += aStyle.mFont->StringWidth(EncodeText(aRun));
                     aRun.clear();
                 }
                 else if (!aRun.empty())
                 {
-                    aPen += aStyle.mFont->StringWidth(Narrow(aRun));
+                    aPen += aStyle.mFont->StringWidth(EncodeText(aRun));
                     aRun.clear();
                 }
                 ApplyFormatTag(aStyle, theWide.substr(aIndex + 1, aClose - aIndex - 1));
@@ -166,23 +167,23 @@ int DrawLine(Sexy::Graphics* theGraphics, const std::wstring& theWide,
             }
         }
 
-        if (aChar == L'<')
+        if (aChar == U'<')
         {
             int aClose = aIndex + 1;
-            while (aClose < aEnd && theWide[aClose] != L'>')
+            while (aClose < aEnd && theWide[aClose] != U'>')
                 ++aClose;
             if (aClose < aEnd)
             {
-                Sexy::String aTag = Narrow(theWide.substr(aIndex, aClose - aIndex + 1));
+                Sexy::String aTag = EncodeText(theWide.substr(aIndex, aClose - aIndex + 1));
                 int aCel = ButtonGlyphCel(aTag.c_str(), (int)aTag.size());
                 if (aCel >= 0)
                 {
                     if (!aRun.empty())
                     {
                         if (theDraw && theGraphics != nullptr)
-                            aStyle.mFont->DrawString(theGraphics, aOrigin + aPen, theY, Narrow(aRun),
+                            aStyle.mFont->DrawString(theGraphics, aOrigin + aPen, theY, EncodeText(aRun),
                                                      aStyle.mColor, theGraphics->mClipRect);
-                        aPen += aStyle.mFont->StringWidth(Narrow(aRun));
+                        aPen += aStyle.mFont->StringWidth(EncodeText(aRun));
                         aRun.clear();
                     }
                     Sexy::String aSpaces = ButtonTagAsSpaces(aStyle.mFont, aTag.c_str(), (int)aTag.size());
@@ -202,11 +203,11 @@ int DrawLine(Sexy::Graphics* theGraphics, const std::wstring& theWide,
             }
         }
 
-        if ((aStyle.mFlags & 1) != 0 && (aChar == L' ' || aChar == L'\n'))
+        if ((aStyle.mFlags & 1) != 0 && (aChar == U' ' || aChar == U'\n'))
         {
             if (!aCollapsed)
             {
-                aRun += L' ';
+                aRun += U' ';
                 aCollapsed = true;
             }
             continue;
@@ -218,14 +219,14 @@ int DrawLine(Sexy::Graphics* theGraphics, const std::wstring& theWide,
     if (!aRun.empty())
     {
         if (theDraw && theGraphics != nullptr)
-            aStyle.mFont->DrawString(theGraphics, aOrigin + aPen, theY, Narrow(aRun),
+            aStyle.mFont->DrawString(theGraphics, aOrigin + aPen, theY, EncodeText(aRun),
                                      aStyle.mColor, theGraphics->mClipRect);
-        aPen += aStyle.mFont->StringWidth(Narrow(aRun));
+        aPen += aStyle.mFont->StringWidth(EncodeText(aRun));
     }
     return aPen;
 }
 
-int ShiftX(Sexy::Font* theFont, const std::wstring& theWide, int theX, int theJustification)
+int ShiftX(Sexy::Font* theFont, const std::u32string& theWide, int theX, int theJustification)
 {
     DrawStyle aStyle;
     aStyle.mFont = theFont;
@@ -260,7 +261,7 @@ Sexy::TRect<int> LayerSourceRect(Sexy::ActiveFontLayer* theLayer, int theChar)
 }
 
 void DrawStringOnMatrix(Sexy::Graphics* theGraphics, Sexy::ImageFont* theFont,
-                        const Sexy::SexyMatrix3& theMatrix, const std::wstring& theWide,
+                        const Sexy::SexyMatrix3& theMatrix, const std::u32string& theWide,
                         const Sexy::Color& theColor)
 {
     MatrixGlyph* aHeads[256];
@@ -403,7 +404,7 @@ void DrawStringOnMatrix(Sexy::Graphics* theGraphics, Sexy::ImageFont* theFont,
     }
 }
 
-void EmitLine(Sexy::Graphics* theGraphics, const std::wstring& theWide,
+void EmitLine(Sexy::Graphics* theGraphics, const std::u32string& theWide,
               const Sexy::TRect<int>& theRect, const DrawStyle& theStyle,
               int theLineY, int theStep, int theJustification, bool theDraw,
               bool theDrawOffscreen, int theStart, int theCount)
@@ -421,7 +422,7 @@ void EmitLine(Sexy::Graphics* theGraphics, const std::wstring& theWide,
     }
 }
 
-int WrappedHeight(Sexy::Graphics* theGraphics, const std::wstring& theWide,
+int WrappedHeight(Sexy::Graphics* theGraphics, const std::u32string& theWide,
                   const Sexy::TRect<int>& theRect, Sexy::Font* theFont, Sexy::Color theColor,
                   int theJustification, bool theDraw, bool theDrawOffscreen)
 {
@@ -439,15 +440,15 @@ int WrappedHeight(Sexy::Graphics* theGraphics, const std::wstring& theWide,
     int aLineFrom = 0;
     int aWidth = 0;
     int aLength = (int)theWide.size();
-    wchar_t aLast = 0;
+    char32_t aLast = 0;
 
     while (aIndex < aLength)
     {
-        wchar_t aChar = theWide[aIndex];
-        if (aChar == L'{')
+        char32_t aChar = theWide[aIndex];
+        if (aChar == U'{')
         {
             int aClose = aIndex + 1;
-            while (aClose < aLength && theWide[aClose] != L'}')
+            while (aClose < aLength && theWide[aClose] != U'}')
                 ++aClose;
             if (aClose < aLength)
             {
@@ -463,12 +464,12 @@ int WrappedHeight(Sexy::Graphics* theGraphics, const std::wstring& theWide,
 
         bool aSoft = (aStyle.mFlags & 1) != 0;
         bool aForced = false;
-        if (aChar == L' ' || (aSoft && aChar == L'\n'))
+        if (aChar == U' ' || (aSoft && aChar == U'\n'))
         {
             aBreak = aIndex;
-            aChar = L' ';
+            aChar = U' ';
         }
-        else if (!aSoft && aChar == L'\n')
+        else if (!aSoft && aChar == U'\n')
         {
             aBreak = aIndex;
             ++aIndex;
@@ -498,8 +499,8 @@ int WrappedHeight(Sexy::Graphics* theGraphics, const std::wstring& theWide,
         int aResume = aWordBreak ? aBreak + 1 : aLineEnd;
         while (aResume < aLength)
         {
-            wchar_t aSkip = theWide[aResume];
-            if (aSkip != L' ' && !(aSoft && aSkip == L'\n'))
+            char32_t aSkip = theWide[aResume];
+            if (aSkip != U' ' && !(aSoft && aSkip == U'\n'))
                 break;
             ++aResume;
         }
@@ -518,7 +519,7 @@ int WrappedHeight(Sexy::Graphics* theGraphics, const std::wstring& theWide,
                  theDraw, theDrawOffscreen, aLineFrom, aLength - aLineFrom);
         aLineY += aStep;
     }
-    else if (aLast == L'\n')
+    else if (aLast == U'\n')
     {
         aLineY += aStep;
     }
@@ -532,7 +533,7 @@ void TodDrawString(Sexy::Graphics* theGraphics, const Sexy::String& theText,
                    int theJustification)
 {
     Sexy::String aText = PrepareText(theText);
-    int aX = ShiftX(theFont, Widen(aText), theX, theJustification);
+    int aX = ShiftX(theFont, DecodeText(aText), theX, theJustification);
     theFont->DrawString(theGraphics, aX, theY, aText, theColor, theGraphics->mClipRect);
 }
 
@@ -540,7 +541,7 @@ void TodDrawStringMatrix(Sexy::Graphics* theGraphics, Sexy::Font* theFont,
                          const Sexy::SexyMatrix3& theMatrix, const Sexy::String& theText,
                          const Sexy::Color& theColor)
 {
-    std::wstring aWide = Widen(TodStringTranslate(theText));
+    std::u32string aWide = DecodeText(TodStringTranslate(theText));
     DrawStringOnMatrix(theGraphics, static_cast<Sexy::ImageFont*>(theFont), theMatrix, aWide, theColor);
 }
 
@@ -549,7 +550,7 @@ int TodDrawStringWrappedHelper(Sexy::Graphics* theGraphics, const Sexy::String& 
                                Sexy::Color theColor, int theJustification,
                                bool theDraw, bool theDrawOffscreen)
 {
-    return WrappedHeight(theGraphics, Widen(theText), theRect, theFont, theColor,
+    return WrappedHeight(theGraphics, DecodeText(theText), theRect, theFont, theColor,
                          theJustification, theDraw, theDrawOffscreen);
 }
 
@@ -557,7 +558,7 @@ int TodDrawStringWrapped(Sexy::Graphics* theGraphics, const Sexy::String& theTex
                          const Sexy::TRect<int>& theRect, Sexy::Font* theFont,
                          const Sexy::Color& theColor, int theJustification, bool theDraw)
 {
-    std::wstring aWide = Widen(PrepareText(theText));
+    std::u32string aWide = DecodeText(PrepareText(theText));
     Sexy::TRect<int> aRect = theRect;
     if ((unsigned)(theJustification - 3) <= 2u)
     {

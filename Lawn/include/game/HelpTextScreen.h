@@ -23,7 +23,7 @@ public:
 
     HelpTextScreen(LawnApp* theApp, int thePage);
 
-    void GameButtonDown(Sexy::GamepadButton theButton, int thePlayerIndex);
+    void GameButtonDown(Sexy::GamepadButton theButton, int thePlayerIndex, unsigned int theModifiers);
 
     LawnApp* mApp;
     float mScrollFrom;

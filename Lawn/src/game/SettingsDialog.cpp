@@ -15,10 +15,12 @@
 #include "ImageFont.h"
 #include "LawnApp.h"
 #include "LawnDialog.h"
+#include "LawnStoneButton.h"
 #include "PlayerInfo.h"
 #include "SexyAppBase.h"
 #include "TodFoley.h"
 #include "WidgetManager.h"
+#include <algorithm>
 // ==========================================================================
 // SettingsDialog::GetPreferredHeight(int)
 // @00168054  14 bytes
@@ -73,13 +75,10 @@ SettingsDialog::~SettingsDialog()
 // SettingsDialog::GameButtonDown(Sexy::GamepadButton,int,unsigned int)
 // @00168268  34 bytes
 // ==========================================================================
-void SettingsDialog::GameButtonDown(int theButton, int thePlayerIndex, unsigned int theFlags)
+void SettingsDialog::GameButtonDown(Sexy::GamepadButton theButton, int thePlayerIndex, unsigned int theFlags)
 {
-  // 5 is GAMEPAD_BUTTON_START and 7 is GAMEPAD_BUTTON_B; they differ only in
-  // bit 1, so clearing that bit folds the two into one test. Either one leaves
-  // the dialog the same way the back button does, unless the profile save has
-  // already failed or a modifier is held down.
-  if ( !mSaveFailed && (theButton == 5 || theButton == 7) && (theFlags & 1) == 0 )
+  // Start and B use the same save-and-close path as the back button.
+  if ( (theButton == GAMEPAD_BUTTON_START || theButton == GAMEPAD_BUTTON_B) && (theFlags & 1) == 0 )
     ButtonDepress(3);
 }
 
@@ -89,21 +88,26 @@ void SettingsDialog::GameButtonDown(int theButton, int thePlayerIndex, unsigned 
 // ==========================================================================
 void SettingsDialog::SliderVal(int theId, double theValue)
 {
-  // Slot 85 (byte 0x154) of the app's vtable is SetMusicVolume, slot 86 (byte
-  // 0x158) is SetSfxVolume. The music slider's range is 0..1; the sound slider's
-  // is 0..1.5384616, so its value is scaled back down by 0.65 on the way in.
+  // Both sliders have a 0..1 range. The original sound control applies a
+  // 0.65 gain; save that effective volume so loading the profile restores it.
+  double aValue = std::clamp(theValue, 0.0, 1.0);
   if ( theId == 0 )
   {
-    mApp->SetMusicVolume(theValue);
-    mApp->mSoundSystem->RehookupSoundWithMusicVolume();
-    mApp->mPlayerInfo->mMusicVolume = theValue;
+    mApp->SetMusicVolume(aValue);
+    if (mApp->mPlayerInfo != nullptr)
+      mApp->mPlayerInfo->mMusicVolume = aValue;
   }
   else if ( theId == 1 )
   {
-    mApp->SetSfxVolume(theValue * 0.65);
-    mApp->mSoundSystem->RehookupSoundWithMusicVolume();
-    mApp->mPlayerInfo->mSoundVolume = theValue;
+    double aSoundVolume = aValue * 0.65;
+    mApp->SetSfxVolume(aSoundVolume);
+    if (mApp->mPlayerInfo != nullptr)
+      mApp->mPlayerInfo->mSoundVolume = aSoundVolume;
   }
+  else
+    return;
+  if (mApp->mSoundSystem != nullptr)
+    mApp->mSoundSystem->RehookupSoundWithMusicVolume();
 }
 
 // ==========================================================================
@@ -128,16 +132,13 @@ SettingsDialog::SettingsDialog(LawnApp * theApp)
   // MakeButton takes the ButtonListener sub-object and the Widget sub-object; the
   // binary's `this + 256` is the ButtonListener one, which is the implicit base
   // conversion of `this`.
-  mBackButton = (GameButton *)MakeButton(3, this, this, Sexy::String("[BACK]"));
+  mBackButton = MakeButton(3, this, this, Sexy::String("[BACK]"));
 
-  // The authoritative table types both sliders `Sexy::Widget *`, so the
-  // GameSlider-typed local is what carries the SetValue call.
   GameSlider *aMusicSlider = new GameSlider(IMAGE_OPTIONS_SLIDERSLOT,
                                             IMAGE_OPTIONS_SLIDERKNOB2,
                                             0, this, nullptr);
   mMusicSlider = aMusicSlider;
-  // Slot 81 (byte 0x144) of the app's vtable is GetMusicVolume. The music slider's
-  // range is 0..1, so the volume is clamped into it before being handed over.
+  // The music slider's range is 0..1.
   double aMusicVolume = mApp->GetMusicVolume();
   if ( aMusicVolume > 1.0 )
     aMusicVolume = 1.0;
@@ -149,11 +150,10 @@ SettingsDialog::SettingsDialog(LawnApp * theApp)
                                             IMAGE_OPTIONS_SLIDERKNOB2,
                                             1, this, nullptr);
   mSoundSlider = aSoundSlider;
-  // Slot 82 (byte 0x148) is GetSfxVolume. The sound slider's range is 0..1.5384616
-  // (1 / 0.65), which is what SliderVal scales back down on the way out.
+  // Undo the original 0.65 sound gain to place the thumb in its 0..1 range.
   aSoundSlider->SetValue(mApp->GetSfxVolume() * 1.53846159);
 
-  mSelectDeviceButton = (GameButton *)MakeButton(2, this, this, Sexy::String("[SELECT_DEVICE]"));
+  mSelectDeviceButton = MakeButton(2, this, this, Sexy::String("[SELECT_DEVICE]"));
 
   // Slot 59 (byte 0xEC) is Widget::SetFocusLinks(up, down, left, right) and slot 42
   // (byte 0xA8) is Widget::SetVisible. The device button only exists in the full
@@ -175,8 +175,9 @@ SettingsDialog::SettingsDialog(LawnApp * theApp)
 
   // The label font is the one "[MUSIC]" and "[SOUND_FX]" are drawn with; its scale
   // comes from the OPTION_DLG_LABEL_FONT_SCALE property and defaults to 1.
-  ((Sexy::ImageFont *)FONT_DWARVENTODCRAFT18)->SetScale(
-      mApp->GetDouble("OPTION_DLG_LABEL_FONT_SCALE", 1.0));
+  Sexy::ImageFont* aLabelFont = dynamic_cast<Sexy::ImageFont*>(FONT_DWARVENTODCRAFT18);
+  if (aLabelFont != nullptr)
+    aLabelFont->SetScale(mApp->GetDouble("OPTION_DLG_LABEL_FONT_SCALE", 1.0));
 
   mSaveFailed = false;
 }
@@ -243,16 +244,18 @@ void SettingsDialog::Update()
 // ==========================================================================
 void SettingsDialog::ButtonDepress(int theId)
 {
-  Sexy::Dialog::ButtonDepress(theId);
-  if ( theId == 3 )
+  if (theId == 3 || theId == 1000 || theId == 1001)
   {
-    // Slot 9 (byte 0x24) of the profile's vtable is SaveDetails, which returns
-    // whether every userdata file was written. Its result is what blocks the
-    // deferred close in Update and the gamepad back button in GameButtonDown.
-    mSaveFailed = !mApp->mPlayerInfo->SaveDetails();
-    // 1000 is the dialog's standard "close me" id.
-    Sexy::Dialog::ButtonDepress(1000);
+    if (mApp->mPlayerInfo != nullptr)
+    {
+      mApp->mPlayerInfo->mMusicVolume = mApp->GetMusicVolume();
+      mApp->mPlayerInfo->mSoundVolume = mApp->GetSfxVolume();
+      mSaveFailed = !mApp->mPlayerInfo->SaveDetails();
+    }
+    Sexy::Dialog::ButtonDepress(theId == 3 ? 1000 : theId);
+    return;
   }
+  Sexy::Dialog::ButtonDepress(theId);
 }
 
 // ==========================================================================
@@ -294,10 +297,9 @@ void SettingsDialog::GotFocus()
 // ==========================================================================
 int SettingsDialog::KeyDown(Sexy::KeyCode theKey)
 {
-  // 27 is KEYCODE_ESCAPE; it leaves through the same path as the back button
-  // (1001 is the dialog's "cancelled" id). Everything else is the base's.
-  if ( theKey != 27 )
+  // Escape saves the current volumes too; adjustments have already taken effect.
+  if ( theKey != Sexy::KEYCODE_ESCAPE )
     return Sexy::Dialog::KeyDown(theKey);
-  Sexy::Dialog::ButtonDepress(1001);
+  ButtonDepress(1001);
   return 1;
 }

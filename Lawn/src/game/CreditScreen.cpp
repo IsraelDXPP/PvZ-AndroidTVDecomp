@@ -30,6 +30,32 @@
 #include <cstring>
 #include <cmath>
 
+namespace {
+
+// The original CreditsOverlay @0x684898 forwards drawing to its owner.
+class CreditsOverlay : public Sexy::Widget
+{
+public:
+  explicit CreditsOverlay(CreditScreen* theScreen) : mCreditScreen(theScreen)
+  {
+    mMouseVisible = false;
+    mFocusable = false;
+    mClip = false;
+    mHasAlpha = true;
+    Resize(0, 0, 800, 600);
+  }
+
+  void Draw(Sexy::Graphics* theGraphics) override
+  {
+    mCreditScreen->DrawOverlay(theGraphics);
+  }
+
+private:
+  CreditScreen* mCreditScreen;
+};
+
+} // namespace
+
 // The holder stores each particle system as the system plus the id word that
 // follows it. A free slot has a zero high half; a dead system is skipped.
 bool IterateParticles(TodParticleSystem *&theParticle, TodParticleHolder *theHolder)
@@ -111,6 +137,7 @@ static int CreditsFrameCount(Reanimation *theReanim)
 // CreditScreen::~CreditScreen()
 CreditScreen::~CreditScreen()
 {
+  delete mOverlayWidget;
 }
 
 // CreditScreen::MouseUp(int,int,int)
@@ -146,7 +173,7 @@ void CreditScreen::ButtonDepress(int theId)
 void CreditScreen::AddedToManager(Sexy::WidgetManager * theWidgetManager)
 {
   Sexy::WidgetContainer::AddedToManager(theWidgetManager);
-  mOverlayWidget->Sexy::WidgetContainer::SetFocus(this);
+  AddWidget(mOverlayWidget);
 }
 
 // ==========================================================================
@@ -156,10 +183,8 @@ void CreditScreen::AddedToManager(Sexy::WidgetManager * theWidgetManager)
 void CreditScreen::RemovedFromManager(Sexy::WidgetManager * theWidgetManager)
 {
   Sexy::WidgetContainer::RemovedFromManager(theWidgetManager);
-  mOverlayWidget->MarkDirty();
-  // Slot 85 of LawnApp's vtable is SexyAppBase::SetMusicVolume(double): the
-  // binary silences the credits music as the screen goes away.
-  mApp->SetMusicVolume(-10000.0);
+  RemoveWidget(mOverlayWidget);
+  mApp->SetMusicVolume(mSavedMusicVolume);
 }
 
 // ==========================================================================
@@ -218,6 +243,16 @@ void CreditScreen::GameButtonDown(Sexy::GamepadButton theButton, int thePlayerIn
 CreditScreen::CreditScreen(LawnApp * theApp, bool isFromMainMenu)
 {
   mApp = theApp;
+  mClip = false;
+  mUpdateCount = 0;
+  mDrawCount = 0;
+  mLastDrawCount = 0;
+  mDontSync = false;
+  mCreditsPaused = false;
+  mPreloaded = false;
+  mBlinkCountdown = 700;
+  mBrainPosX = 0.0f;
+  mBrainPosY = 0.0f;
 
   mApp->mEffectSystem->EffectSystemFreeAll();
   mApp->mMusic->StopAllMusic();
@@ -233,24 +268,14 @@ CreditScreen::CreditScreen(LawnApp * theApp, bool isFromMainMenu)
   mFogParticleID = ParticleSystemID(0);
   mDrawBrain = false;
 
-  // The full-screen child that swallows input while the credits play. The binary
-  // allocates a CreditsOverlay here: a Widget subclass of 0x104 bytes with its own
-  // vtable (0x684898) and one extra member at +0x100, the CreditScreen whose
-  // DrawOverlay its own Draw forwards to. This tree has no CreditsOverlay type and
-  // mOverlayWidget is a plain Sexy::Widget *, so that trailing owner word has no
-  // reachable name and is dropped here.
-  mOverlayWidget = new Sexy::Widget();
-  mOverlayWidget->mMouseVisible = false;
-  // The transcription named +0x45 mIsOver and +0x44 mAddToManager; those live at
-  // +0x79 and +0x7B. +0x45 is WidgetContainer::mClip and +0x44 is mHasAlpha.
-  mOverlayWidget->mClip = false;
-  mOverlayWidget->mHasAlpha = true;
-  mOverlayWidget->Resize(0, 0, 800, 600);
+  mOverlayWidget = new CreditsOverlay(this);
 
-  mScrollPositionY1 = mApp->GetMusicVolume();
-  if ( mScrollPositionY1 < 0.1 )
-    mApp->SetMusicVolume(-10000.0);
-  mScrollPositionY2 = (double)mApp->mBoardResult;
+  // Constructor @0x1B982A..0x1B984C keeps volume separate from scrolling.
+  mSavedMusicVolume = mApp->GetMusicVolume();
+  if (mSavedMusicVolume < 0.1)
+    mApp->SetMusicVolume(0.85);
+  mScrollPositionY1 = mApp->mHeight;
+  mScrollPositionY2 = -10000.0;
   mIsFromMainMenu = isFromMainMenu;
   if ( isFromMainMenu )
   {
@@ -264,6 +289,7 @@ CreditScreen::CreditScreen(LawnApp * theApp, bool isFromMainMenu)
   Sexy::String aKey;
   Sexy::String aDefault("");
   Sexy::String aText;
+  gXblaLast = 0;
   for ( int anIndex = 1; anIndex <= 20; anIndex++ )
   {
     StrFormat(&aKey, "CREDITS_NAMES_XBLA%d", anIndex);
@@ -1060,6 +1086,15 @@ int CreditScreen::KeyChar(char theChar)
 void CreditScreen::Update()
 {
   Sexy::Widget::Update();
+  // @0x1BC0F2 skips movie loading and draw-count gating for the final roll.
+  if (mCreditsPhase == CREDITS_END)
+  {
+    if (!mCreditsPaused)
+      UpdateMovie();
+    mLastDrawCount = mDrawCount;
+    MarkDirty();
+    return;
+  }
   if (mDrawCount == 0 || mCreditsPaused)
     return;
 
@@ -1073,7 +1108,7 @@ void CreditScreen::Update()
     mApp->ClearUpdateBacklog(false);
     mTimerSinceStart.Start();
   }
-  else if (mDontSync || mCreditsPhase == CREDITS_END)
+  else if (mDontSync)
   {
     UpdateMovie();
   }
@@ -1100,7 +1135,8 @@ void CreditScreen::Update()
         UpdateMovie();
     }
   }
-  UpdateF(0.0f);
+  mLastDrawCount = mDrawCount;
+  MarkDirty();
 }
 
 // ==========================================================================
