@@ -3,6 +3,7 @@
 #include "HelpTextWidget.h"
 
 #include "Graphics.h"
+#include "Font.h"
 #include "Widget.h"
 // ==========================================================================
 // HelpTextWidget::Draw(Sexy::Graphics *)
@@ -11,6 +12,17 @@
 void HelpTextWidget::Draw(Sexy::Graphics *theGraphics)
 {
   const TRect<int> aRect(mX, mY, mWidth, mHeight);
+  // All help pages remain in the widget tree while the screen scrolls. Reject
+  // text outside the horizontal clip before decoding and wrapping it. Leave
+  // room for glyph offsets and outlines at the edge of a wrapped line.
+  float textLeft = theGraphics->mTransX + (float)mX;
+  float textRight = textLeft + (float)mWidth;
+  float glyphMargin = (float)mFont->GetHeight();
+  const TRect<int>& clip = theGraphics->mClipRect;
+  if (textRight + glyphMargin <= (float)clip.mX
+      || textLeft - glyphMargin >= (float)(clip.mX + clip.mWidth))
+    return;
+
   TodDrawStringWrappedHelper(theGraphics, mText, aRect, mFont, GetColor(0),
                              mJustification, true, false);
 }

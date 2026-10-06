@@ -8,6 +8,7 @@
 #include "SingleDataElement.h"
 
 #include <cstring>
+#include <string>
 #include <vector>
 
 namespace Sexy {
@@ -28,35 +29,43 @@ Sexy::String UpperKey(const Sexy::String& theText)
     return key;
 }
 
+unsigned int EncodeCodePoint(int theCode, char (&theBytes)[4])
+{
+    unsigned int code = (unsigned int)theCode;
+    if (code < 0x80)
+    {
+        theBytes[0] = (char)code;
+        return 1;
+    }
+    if (code < 0x800)
+    {
+        theBytes[0] = (char)(0xC0 | (code >> 6));
+        theBytes[1] = (char)(0x80 | (code & 0x3F));
+        return 2;
+    }
+    if (code < 0x10000)
+    {
+        theBytes[0] = (char)(0xE0 | (code >> 12));
+        theBytes[1] = (char)(0x80 | ((code >> 6) & 0x3F));
+        theBytes[2] = (char)(0x80 | (code & 0x3F));
+        return 3;
+    }
+    theBytes[0] = (char)(0xF0 | (code >> 18));
+    theBytes[1] = (char)(0x80 | ((code >> 12) & 0x3F));
+    theBytes[2] = (char)(0x80 | ((code >> 6) & 0x3F));
+    theBytes[3] = (char)(0x80 | (code & 0x3F));
+    return 4;
+}
+
 } // namespace
 
 // One code point becomes the UTF-8 bytes a command name or an ASCII glyph
 // already expects. A value above 127 stays as the character FontLayer looks up.
 void AppendCodePoint(Sexy::String& theText, int theCode)
 {
-    unsigned int aCode = (unsigned int)theCode;
-    if (aCode < 0x80)
-    {
-        theText.push_back((char)aCode);
-        return;
-    }
-    if (aCode < 0x800)
-    {
-        theText.push_back((char)(0xC0 | (aCode >> 6)));
-        theText.push_back((char)(0x80 | (aCode & 0x3F)));
-        return;
-    }
-    if (aCode < 0x10000)
-    {
-        theText.push_back((char)(0xE0 | (aCode >> 12)));
-        theText.push_back((char)(0x80 | ((aCode >> 6) & 0x3F)));
-        theText.push_back((char)(0x80 | (aCode & 0x3F)));
-        return;
-    }
-    theText.push_back((char)(0xF0 | (aCode >> 18)));
-    theText.push_back((char)(0x80 | ((aCode >> 12) & 0x3F)));
-    theText.push_back((char)(0x80 | ((aCode >> 6) & 0x3F)));
-    theText.push_back((char)(0x80 | (aCode & 0x3F)));
+    char bytes[4];
+    unsigned int byteCount = EncodeCodePoint(theCode, bytes);
+    theText.Append(bytes, byteCount);
 }
 
 int ReadCodePoint(const Sexy::String& theText, unsigned int& theIndex)
@@ -104,10 +113,17 @@ int ReadCodePoint(const Sexy::String& theText, unsigned int& theIndex)
 
 Sexy::String CodePointsToUtf8(const std::vector<int>& thePoints)
 {
-    Sexy::String aText;
-    for (unsigned int i = 0; i < thePoints.size(); ++i)
-        AppendCodePoint(aText, thePoints[i]);
-    return aText;
+    // Sexy::String owns a copy of its bytes. Build the run in a growable
+    // buffer first so drawing text does not copy and free it for every byte.
+    std::string text;
+    text.reserve(thePoints.size() * 4);
+    for (int codePoint : thePoints)
+    {
+        char bytes[4];
+        unsigned int byteCount = EncodeCodePoint(codePoint, bytes);
+        text.append(bytes, byteCount);
+    }
+    return Sexy::String(text);
 }
 
 Sexy::DescParser::DescParser()

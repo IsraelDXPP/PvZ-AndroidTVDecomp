@@ -373,40 +373,60 @@ unsigned int GLRenderDevice::PackColor(const Color& theColor) const
          | ((unsigned int)aAlpha << 24);
 }
 
-void GLRenderDevice::EnsureTexture(MemoryImage* theImage)
+GLTexture* GLRenderDevice::EnsureTexture(MemoryImage* theImage, int& theOriginX, int& theOriginY)
 {
-    if (!theImage) return;
+    theOriginX = 0;
+    theOriginY = 0;
+    if (theImage == nullptr)
+        return nullptr;
 
-    // Reuse the texture already uploaded from this image.
-    //
-    // Keying on the Image pointer is what makes this safe AND cheap: the
-    // atlases and game images are long-lived objects owned by the atlas cache
-    // and the resource manager, both of which outlive every draw. Uploading per
-    // draw instead allocated a new GL texture every frame.
-    auto it = mTextureCache.find(theImage);
+    // EnsureSrcTexture @0x474cf4 reuses the parent texture and adds the
+    // sub-image origin to the source rectangle instead of uploading a crop.
+    MemoryImage* sheet = theImage;
+    while (sheet->mParent != nullptr)
+    {
+        theOriginX += sheet->mParentX;
+        theOriginY += sheet->mParentY;
+        sheet = sheet->mParent;
+    }
+    if (theOriginX < 0 || theOriginY < 0
+        || theOriginX + theImage->mWidth > sheet->mWidth
+        || theOriginY + theImage->mHeight > sheet->mHeight)
+        return nullptr;
+
+    // This backend supports one texture per sheet, up to 4096 pixels. Keep
+    // the existing cropped upload for pieces of sheets requiring tiled storage.
+    if (sheet->mWidth > 4096 || sheet->mHeight > 4096)
+    {
+        sheet = theImage;
+        theOriginX = 0;
+        theOriginY = 0;
+    }
+
+    auto it = mTextureCache.find(sheet);
     if (it != mTextureCache.end())
     {
         GLTexture* tex = it->second;
-
-        // The image may have been repainted since the upload. A software
-        // target such as the widget manager's image keeps the same object and
-        // only sets mBitsChanged, so that flag has to re-upload too.
-        if (tex->mDirty || theImage->mBitsChanged || theImage->mBitsChangedCount != 0)
-            tex->Upload(theImage);
-        return;
+        // BitsChanged propagates from a sub-image to its parent sheet.
+        if (tex->mDirty || sheet->mBitsChanged || sheet->mBitsChangedCount != 0)
+        {
+            FlushBatch();
+            if (!tex->Upload(sheet))
+                return nullptr;
+        }
+        return tex;
     }
 
     GLTexture* tex = new GLTexture();
-    if (!tex->CheckCreateTextures(theImage))
+    if (!tex->CheckCreateTextures(sheet))
     {
         delete tex;
-        return;
+        return nullptr;
     }
 
-    mTextureCache[theImage] = tex;
-    // MemoryImage exposes the dimensions as the Image data members mWidth and
-    // mHeight (Image.h +0x24/+0x28); they are not accessor functions.
-    mTextureCacheBytes += (size_t)theImage->mWidth * theImage->mHeight * 4;
+    mTextureCache[sheet] = tex;
+    mTextureCacheBytes += (size_t)sheet->mWidth * sheet->mHeight * 4;
+    return tex;
 }
 
 // ---------------------------------------------------------------------------
@@ -448,9 +468,8 @@ void GLRenderDevice::DrawImage(MemoryImage* theImage, const Rect& theDestRect,
     if (theDestRect.mWidth <= 0 || theDestRect.mHeight <= 0) return;
     if (theSrcRect.mWidth <= 0 || theSrcRect.mHeight <= 0) return;
 
-    EnsureTexture(theImage);
-    auto texIt = mTextureCache.find(theImage);
-    GLTexture* tex = (texIt != mTextureCache.end()) ? texIt->second : nullptr;
+    int originX, originY;
+    GLTexture* tex = EnsureTexture(theImage, originX, originY);
     if (!tex || !tex->mTextureId) return;
 
     BeginImageBatch(tex, theMode, theColorize);
@@ -463,10 +482,10 @@ void GLRenderDevice::DrawImage(MemoryImage* theImage, const Rect& theDestRect,
     // GLTexture::Blt @0x471cd4 feeds DrawTexture the tile uv from
     // GetTexture, with no half-texel shift. A 1:1 blit is
     // col / width .. (col + span) / width.
-    float u0 = tex->mU0 + (float)theSrcRect.mX / (float)tex->mWidth;
-    float v0 = tex->mV0 + (float)theSrcRect.mY / (float)tex->mHeight;
-    float u1 = tex->mU0 + (float)(theSrcRect.mX + theSrcRect.mWidth) / (float)tex->mWidth;
-    float v1 = tex->mV0 + (float)(theSrcRect.mY + theSrcRect.mHeight) / (float)tex->mHeight;
+    float u0 = tex->mU0 + (float)(originX + theSrcRect.mX) / (float)tex->mWidth;
+    float v0 = tex->mV0 + (float)(originY + theSrcRect.mY) / (float)tex->mHeight;
+    float u1 = tex->mU0 + (float)(originX + theSrcRect.mX + theSrcRect.mWidth) / (float)tex->mWidth;
+    float v1 = tex->mV0 + (float)(originY + theSrcRect.mY + theSrcRect.mHeight) / (float)tex->mHeight;
 
     if (theMirror)
         std::swap(u0, u1);
@@ -528,9 +547,8 @@ void GLRenderDevice::DrawImageMatrix(MemoryImage* theImage, const SexyMatrix3& t
 {
     if (!mInitialized || !theImage) return;
 
-    EnsureTexture(theImage);
-    auto texIt = mTextureCache.find(theImage);
-    GLTexture* tex = (texIt != mTextureCache.end()) ? texIt->second : nullptr;
+    int originX, originY;
+    GLTexture* tex = EnsureTexture(theImage, originX, originY);
     if (!tex || !tex->mTextureId) return;
 
     // GLTexture::BltTransformed @0x4734ac. theCenter is the last argument of
@@ -568,10 +586,10 @@ void GLRenderDevice::DrawImageMatrix(MemoryImage* theImage, const SexyMatrix3& t
     BeginImageBatch(tex, theMode, false);
     unsigned int aPacked = PackColor(theColor);
 
-    float u0 = tex->mU0 + (float)theSrcRect.mX / (float)tex->mWidth;
-    float v0 = tex->mV0 + (float)theSrcRect.mY / (float)tex->mHeight;
-    float u1 = tex->mU0 + (float)(theSrcRect.mX + theSrcRect.mWidth) / (float)tex->mWidth;
-    float v1 = tex->mV0 + (float)(theSrcRect.mY + theSrcRect.mHeight) / (float)tex->mHeight;
+    float u0 = tex->mU0 + (float)(originX + theSrcRect.mX) / (float)tex->mWidth;
+    float v0 = tex->mV0 + (float)(originY + theSrcRect.mY) / (float)tex->mHeight;
+    float u1 = tex->mU0 + (float)(originX + theSrcRect.mX + theSrcRect.mWidth) / (float)tex->mWidth;
+    float v1 = tex->mV0 + (float)(originY + theSrcRect.mY + theSrcRect.mHeight) / (float)tex->mHeight;
 
     if (mBatch.mCount + 6 > mBatch.mCapacity)
         mBatch.Flush();
@@ -596,9 +614,8 @@ void GLRenderDevice::DrawTriangles(MemoryImage* theImage, const SexyVertex2D (*t
     if (!mInitialized || theImage == nullptr || theTriangles == nullptr || theTriangleCount <= 0)
         return;
 
-    EnsureTexture(theImage);
-    auto texIt = mTextureCache.find(theImage);
-    GLTexture* tex = (texIt != mTextureCache.end()) ? texIt->second : nullptr;
+    int originX, originY;
+    GLTexture* tex = EnsureTexture(theImage, originX, originY);
     if (tex == nullptr || tex->mTextureId == 0)
         return;
 
@@ -626,8 +643,8 @@ void GLRenderDevice::DrawTriangles(MemoryImage* theImage, const SexyVertex2D (*t
             aOut[aCorner].mY = aIn.mY + theTy;
             // A vertex uv is already 0..1 across the image. The texture may be
             // a padded atlas page, so shift into that page.
-            aOut[aCorner].mU = tex->mU0 + aIn.mU * (float)theImage->mWidth * aInvW;
-            aOut[aCorner].mV = tex->mV0 + aIn.mV * (float)theImage->mHeight * aInvH;
+            aOut[aCorner].mU = tex->mU0 + ((float)originX + aIn.mU * (float)theImage->mWidth) * aInvW;
+            aOut[aCorner].mV = tex->mV0 + ((float)originY + aIn.mV * (float)theImage->mHeight) * aInvH;
             aOut[aCorner].mColor = aPacked;
         }
         mBatch.mCount += 3;

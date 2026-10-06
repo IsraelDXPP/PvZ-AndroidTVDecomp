@@ -85,7 +85,8 @@ public:
     unsigned int        mFBOTexture;
     unsigned int        mFBOColorRB;
 
-    // GPU textures, keyed by the Image they were uploaded from.
+    // GPU textures, keyed by the sheet that owns the pixels. Sub-images share
+    // their sheet's texture and select their rectangle through UV coordinates.
     //
     // The original keeps one GLImage per Image and reuses it across draws. An
     // earlier version of this device uploaded per draw instead, so every reanim
@@ -178,7 +179,7 @@ public:
 
 private:
     void    FlushBatch();
-    void    EnsureTexture(MemoryImage* theImage);
+    GLTexture* EnsureTexture(MemoryImage* theImage, int& theOriginX, int& theOriginY);
     void    BeginImageBatch(GLTexture* theTexture, DrawMode theMode, bool theColorize);
     void    ApplyDrawMode(DrawMode theMode);
     // GLTexture::Blt premultiplies, then GLGraphics::SetColor stores the
