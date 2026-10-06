@@ -251,10 +251,21 @@ void Sexy::GLImage::BltMatrix(Image * theSource, float theX, float theY, const S
     // GLImage::BltTransformed @0x474d7c, theCenter true. GLImage::BltMatrix
     // @0x475e8c always passes that. The matrix is applied to corners measured
     // from the middle of the source rect, then (theX, theY) is added.
-    // A clip that contains every corner draws the quad. A corner outside the
-    // clip is the software path, which already clips the same quad.
-    GLRenderDevice::sCurrent->DrawImageMatrix(aSource, theMatrix, theX, theY, theSourceRect,
-                                              theColor, ToDeviceMode(theDrawMode), true);
+    // GLTexture::BltTransformed @0x4734AC clips transformed quads too.
+    // This is also the clip used by the seed packet cooldown overlay.
+    TRect<int> aScreen(0, 0, mWidth, mHeight);
+    TRect<int> aClip = theClipRect.Intersection(aScreen);
+    if (aClip.mWidth <= 0 || aClip.mHeight <= 0)
+        return;
+
+    GLRenderDevice* aDevice = GLRenderDevice::sCurrent;
+    bool aNeedsClip = aClip != aScreen;
+    if (aNeedsClip)
+        aDevice->SetClipRect(aClip);
+    aDevice->DrawImageMatrix(aSource, theMatrix, theX, theY, theSourceRect,
+                             theColor, ToDeviceMode(theDrawMode), true);
+    if (aNeedsClip)
+        aDevice->ClearClipRect();
 }
 
 void Sexy::GLImage::BltTrianglesTex(Image * theSource, const SexyVertex2D (*theTriangles)[3],

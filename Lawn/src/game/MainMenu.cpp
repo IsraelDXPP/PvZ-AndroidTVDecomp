@@ -2141,8 +2141,8 @@ void MainMenu::DrawOverlay(Sexy::Graphics *theGraphics)
       aTransform.mTransY = (mCameraOffsetY + aTransform.mTransY) + aButtonOffsetY;
       aTransform.mSkewX = -1.0f;
       aTransform.mSkewY = -1.0f;
-      aTransform.mScaleX = (float)aAdventureButton->mWidth * 0.5f;
-      aTransform.mScaleY = (float)aAdventureButton->mHeight * 0.5f;
+      aTransform.mScaleX = aAdventureButton->mAppliedScaleX * 0.5f;
+      aTransform.mScaleY = aAdventureButton->mAppliedScaleY * 0.5f;
 
       SexyTransform2D aMatrix;
       aMainMenuReanim->MatrixFromTransform(aTransform, aMatrix);
@@ -2153,7 +2153,7 @@ void MainMenu::DrawOverlay(Sexy::Graphics *theGraphics)
       Sexy::String aLevelText;
       StrFormat(&aLevelText, aText.c_str(), aPages, aDisplayLevel);
 
-      // Only the scale and translation of the matrix survive into the string's.
+      // Measure the transformed text without the adventure track's translation.
       SexyTransform2D aTextMatrix;
       aTextMatrix.m00 = aMatrix.m00;
       aTextMatrix.m01 = aMatrix.m01;
@@ -2170,8 +2170,8 @@ void MainMenu::DrawOverlay(Sexy::Graphics *theGraphics)
       float aTextHeight = (float)(aFont->GetAscent() - aFont->GetDescent());
       SexyVector2 aTextSize(aTextWidth, aTextHeight);
       SexyVector2 aScaledSize = aTextMatrix * aTextSize;
-      aTextMatrix.Translate(131.0f - (aScaledSize.mX * 0.5f), (aScaledSize.mY * 0.5f) + 36.0f);
-      TodDrawStringMatrix(theGraphics, aFont, aTextMatrix, aLevelText, aColor);
+      aMatrix.Translate(131.0f - (aScaledSize.mX * 0.5f), (aScaledSize.mY * 0.5f) + 36.0f);
+      TodDrawStringMatrix(theGraphics, aFont, aMatrix, aLevelText, aColor);
     }
   }
 

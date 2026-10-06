@@ -532,7 +532,7 @@ int Zombie::OverrideParticleColor(TodParticleSystem * theParticleSystem)
 // (endless in the Bobsled Bonanza challenge). mVelX eases from 0.25 to 0.05 as
 // the zombie passes x = 700, and bleeds off 0.0005 a frame once its tires are
 // flat.
-bool Zombie::UpdateZamboni()
+void Zombie::UpdateZamboni()
 {
     if (mFlatTires)
     {
@@ -541,10 +541,8 @@ bool Zombie::UpdateZamboni()
     }
     else if (mPosX > 400.0f)
     {
-        // 0x3E800000 and 0x3D4CCCCD are the 0.25f and 0.05f words the ARM
-        // passes in R3 and on the stack. The variadic declaration keeps them
-        // as words; the return is the float the caller stores into mVelX.
-        mVelX = TodAnimateCurveFloat(700, 300, (int)mPosX, 0x3E800000, 0x3D4CCCCD, CURVE_LINEAR);
+        // UpdateZamboni @0x1A8780 passes 0.25f and 0.05f to the speed curve.
+        mVelX = TodAnimateCurveFloat(700, 300, (int)mPosX, 0.25f, 0.05f, CURVE_LINEAR);
     }
 
     int aMinX = (int)(mPosX + 118.0f);
@@ -569,7 +567,6 @@ bool Zombie::UpdateZamboni()
         if (mApp->mGameMode == GAMEMODE_CHALLENGE_BOBSLED_BONANZA)
             mBoard->mIceTimer[mRow] = 0x7FFFFFFF;
     }
-    return aHasRoof;
 }
 
 // ==========================================================================
@@ -5254,69 +5251,49 @@ Zombie * Zombie::DetachShield()
 // Zombie::BungeeStealTarget(void)
 // @001AE358  92 bytes
 // ==========================================================================
-Plant * Zombie::BungeeStealTarget()
+void Zombie::BungeeStealTarget()
 {
     PlayZombieReanim("anim_grab", REANIM_PLAY_ONCE_AND_HOLD, 20, 24.0f);
 
-    Plant *aPlant = mBoard->GetTopPlantAt(mTargetCol, mRow, (PlantPriority)2);
+    Plant *aPlant = mBoard->GetTopPlantAt(mTargetCol, mRow, TOPPLANT_PUMPKIN_ORDER);
     if (aPlant == nullptr)
-        return nullptr;
-
-    // DataArrayItem::mID is the word after the Plant, not a Plant field.
-    unsigned int aPlantSlotID = 0;
-    std::memcpy(&aPlantSlotID,
-                static_cast<const unsigned char *>(static_cast<const void *>(aPlant)) + sizeof(Plant),
-                sizeof(aPlantSlotID));
-    if (aPlant->NotOnGround() || aPlant->mSeedType == (SeedType)47)
-        return nullptr;
+        return;
+    if (aPlant->NotOnGround() || aPlant->mSeedType == SEED_COBCANNON)
+        return;
 
     // The bungee marks the plant as being carried off and takes its slot id.
-    mTargetPlantID = (PlantID)aPlantSlotID;
+    mTargetPlantID = static_cast<PlantID>(mBoard->mPlants.DataArrayGetID(aPlant));
     aPlant->mOnBungeeState = GETTING_GRABBED_BY_BUNGEE;
-    mRenderOrder = Board::MakeRenderOrder((RenderLayer)305000, mRow, 0);
-    return aPlant;
+    mRenderOrder = Board::MakeRenderOrder(RENDER_LAYER_PROJECTILE, mRow, 0);
 }
 
 // ==========================================================================
 // Zombie::BungeeLiftTarget(void)
 // @001AE3B8  182 bytes
 // ==========================================================================
-Reanimation * Zombie::BungeeLiftTarget()
+void Zombie::BungeeLiftTarget()
 {
-    Reanimation *aResult = PlayZombieReanim("anim_raise", REANIM_PLAY_ONCE_AND_HOLD, 0, 36.0f);
-
-    if (mTargetPlantID == 0)
-        return aResult;
-
-    if ((unsigned int)(unsigned __int16)mTargetPlantID >= mBoard->mPlants.mMaxUsedCount)
-        return aResult;
-
-    PlantSlot *aPlantSlot = mBoard->mPlants.mBlock
-                          + (unsigned short)mTargetPlantID;
-    if (mTargetPlantID != aPlantSlot->mID)
-        return aResult;
-
-    Plant *aPlant = &aPlantSlot->mItem;
+    PlayZombieReanim("anim_raise", REANIM_PLAY_ONCE_AND_HOLD, 0, 36.0f);
+    Plant *aPlant = mBoard->mPlants.DataArrayTryToGet(mTargetPlantID);
+    if (aPlant == nullptr)
+        return;
     aPlant->mOnBungeeState = RISING_WITH_BUNGEE;
-    mApp->PlayFoley(FOLEY_BUNGEE_SCREAM);
+    mApp->PlayFoley(FOLEY_FLOOP);
     Reanimation *aPlantReanim = mApp->ReanimationTryToGet(aPlant->mBodyReanimID);
     if (aPlantReanim != nullptr)
         aPlantReanim->SetAnimRate(0.1f);
 
-    // A flower pot leaves its plant behind: the bungee drops a fresh one.
-    if (aPlant->mSeedType == (SeedType)43)
+    // Keep the pumpkin supported when its cattail is carried away.
+    if (aPlant->mSeedType == SEED_CATTAIL
+        && mBoard->GetTopPlantAt(mTargetCol, mRow, TOPPLANT_ONLY_PUMPKIN) != nullptr)
     {
-        mBoard->NewPlant(mTargetCol, mRow, (SeedType)16, (SeedType)-1, -1);
-        return aResult;
+        mBoard->NewPlant(mTargetCol, mRow, SEED_LILYPAD, SEED_NONE, -1);
     }
 
     if (mApp->IsIZombieLevel())
     {
         mBoard->mChallenge->IZombiePlantDropRemainingSun(aPlant);
-        return aResult;
     }
-
-    return aResult;
 }
 
 // ==========================================================================
@@ -8182,9 +8159,9 @@ float Zombie::UpdateZombiePosition()
 // Zombie::PickBungeeZombieTarget(int)
 // @001B1E7C  292 bytes
 // ==========================================================================
-float Zombie::PickBungeeZombieTarget(int theBungeePhase)
+void Zombie::PickBungeeZombieTarget(int theTargetCol)
 {
-  // theBungeePhase == -1 scans every column; any other value scans only that column.
+  // theTargetCol == -1 scans every column; any other value scans only that column.
   // Empty cells weigh 1, a real plant weighs 10000. Gravebusters and cob
   // cannons are never grabbed. Sun-makers are skipped once the remaining
   // sunflowers equal the bungees already aimed at them.
@@ -8195,7 +8172,7 @@ float Zombie::PickBungeeZombieTarget(int theBungeePhase)
 
   for ( int aCol = 0; aCol < MAX_GRID_SIZE_X; aCol++ )
   {
-    if ( theBungeePhase != -1 && theBungeePhase != aCol )
+    if ( theTargetCol != -1 && theTargetCol != aCol )
       continue;
     for ( int aRow = 0; aRow < MAX_GRID_SIZE_Y; aRow++ )
     {
@@ -8225,15 +8202,16 @@ float Zombie::PickBungeeZombieTarget(int theBungeePhase)
   }
 
   if ( aCount == 0 )
+  {
     DieNoLoot();
-    return mPosY;
+    return;
+  }
 
   TodWeightedGridArray *aPick = TodPickFromWeightedGridArray(aCells, aCount);
   mTargetCol = aPick->mX;
   SetRow(aPick->mY);
   mPosX = (float)mBoard->GridToPixelX(mTargetCol, mRow);
   mPosY = GetPosYBasedOnRow(mRow);
-  return mPosY;
 }// ==========================================================================
 // Zombie::BossBungeeSpawn(void)
 // @001B1FA0  98 bytes
@@ -8257,53 +8235,49 @@ int Zombie::BossBungeeSpawn()
 // Zombie::UpdateZombieBungee(void)
 // @001B2008  284 bytes
 // ==========================================================================
-Reanimation * Zombie::UpdateZombieBungee()
+void Zombie::UpdateZombieBungee()
 {
-  int aDead = IsDeadOrDying();
-  if ( aDead != 0 )
-    return (Reanimation *)aDead;
+  if ( IsDeadOrDying() )
+    return;
   if ( IsImmobilizied() )
-    return (Reanimation *)1;
+    return;
 
-  Zombie *aResult = nullptr;
   if ( mZombiePhase == PHASE_BUNGEE_DIVING || mZombiePhase == PHASE_BUNGEE_DIVING_SCREAMING )
   {
     float aOldAltitude = mAltitude;
     mAltitude -= 8.0f;
-    // 0x4A is FOLEY_GRASSSTEP. The scream fires once, crossing 2596 downward.
+    // The approach sound fires once when crossing 2596 downward.
     if ( mAltitude <= 2596.0f && aOldAltitude > 2596.0f && mRelatedZombieID == ZOMBIEID_NULL )
       mApp->PlayFoley(FOLEY_GRASSSTEP);
     BungeeLanding();
-    aResult = this;
   }
   else if ( mZombiePhase == PHASE_BUNGEE_AT_BOTTOM )
   {
     if ( mPhaseCounter <= 0 )
     {
-      aResult = (Zombie *)BungeeStealTarget();
+      BungeeStealTarget();
       mZombiePhase = PHASE_BUNGEE_GRABBING;
     }
   }
   else if ( mZombiePhase == PHASE_BUNGEE_GRABBING )
   {
     Reanimation *aBodyReanim = mApp->ReanimationGet(mBodyReanimID);
-    aResult = (Zombie *)aBodyReanim;
     if ( aBodyReanim->mLoopCount > 0 )
     {
-      aResult = (Zombie *)BungeeLiftTarget();
+      BungeeLiftTarget();
       mZombiePhase = PHASE_BUNGEE_RISING;
     }
   }
   else if ( mZombiePhase == PHASE_BUNGEE_HIT_OUCHY )
   {
     if ( mPhaseCounter <= 0 )
-      aResult = (Zombie *)DieWithLoot();
+      DieWithLoot();
   }
   else if ( mZombiePhase == PHASE_BUNGEE_RISING )
   {
     mAltitude += 8.0f;
     if ( mAltitude >= 600.0f )
-      aResult = (Zombie *)DieNoLoot();
+      DieNoLoot();
   }
   else if ( mZombiePhase == PHASE_BUNGEE_CUTSCENE )
   {
@@ -8312,12 +8286,10 @@ Reanimation * Zombie::UpdateZombieBungee()
     if ( mPhaseCounter <= 0 )
       mPhaseCounter = 200;
     mAltitude = (float)aAltitude;
-    aResult = (Zombie *)aAltitude;
   }
 
   mX = (int)mPosX;
   mY = (int)mPosY;
-  return (Reanimation *)aResult;
 }// ==========================================================================
 // Zombie::UpdateZombieJackInTheBox(void)
 // @001B212C  330 bytes

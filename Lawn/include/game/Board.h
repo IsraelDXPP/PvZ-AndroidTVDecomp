@@ -669,7 +669,7 @@ public:
     int IterateReanimations(Reanimation *& theReanimation);
     int FreezeEffectsForCutscene(bool theFreeze);
     int PlantsWon(GridItem * theBrain);
-    LawnApp * StartLevel();
+    void StartLevel();
     int KillAllPlantsInRadius(int theX, int theY, int theRadius);
     // MakeRenderOrder(RenderLayer,int,int) -- STATIC. The dump body is
     // `int __fastcall Board::MakeRenderOrder(int a1, int a2, int a3)` with no

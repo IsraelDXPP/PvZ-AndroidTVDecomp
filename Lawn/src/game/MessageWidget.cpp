@@ -96,14 +96,14 @@ Sexy::Font *MessageWidget::GetFont()
 {
   // The binary shifts 1 by (mMessageStyle - 1) and tests the result against two
   // constant masks, which is a switch over the styles compiled to a bit test:
-  // 0x37FFB selects the big House of Terror face (every style in 1..18 except
+  // 0x37FFF selects the big House of Terror face (every style in 1..18 except
   // SLOT_MACHINE), and the second test -- bit 15 -- is SLOT_MACHINE itself.
   unsigned int aStyleBitIndex = (unsigned int)mMessageStyle - 1;
   if (aStyleBitIndex > 0x11)
     return nullptr;
 
   unsigned int aStyleBit = 1u << aStyleBitIndex;
-  if ((aStyleBit & 0x37FFBu) != 0)
+  if ((aStyleBit & 0x37FFFu) != 0)
     return FONT_HOUSEOFTERROR28;
   if ((aStyleBit & 0x8000u) != 0)
     return FONT_HOUSEOFTERROR16;

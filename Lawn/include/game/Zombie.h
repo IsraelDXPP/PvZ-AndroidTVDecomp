@@ -203,7 +203,7 @@ public:
     int UpdateZombieHighGround();
     int OverrideParticleScale(TodParticleSystem *theParticleSystem);
     int OverrideParticleColor(TodParticleSystem *theParticleSystem);
-    bool UpdateZamboni();
+    void UpdateZamboni();
     bool IsOnBoard();
     GridItem * UpdateClimbingLadder();
     int DoRevivalDialog(int theDialogId);
@@ -342,8 +342,8 @@ public:
     int LoadReanim(ReanimationType theReanimType);
     float UpdateZombieImp();
     Zombie * DetachShield();
-    Plant * BungeeStealTarget();
-    Reanimation * BungeeLiftTarget();
+    void BungeeStealTarget();
+    void BungeeLiftTarget();
     // 0x1AE474. The early paths leave this in r0. The path that drops a
     // carried zombie tail-calls PlayZombieReanim. The one caller,
     // UpdateZombieBungee, discards the word, so the function returns nothing.
@@ -424,9 +424,9 @@ public:
     Reanimation * BossBungeeLeave();
     int MowDown();
     float UpdateZombiePosition();
-    float PickBungeeZombieTarget(int theBungeePhase);
+    void PickBungeeZombieTarget(int theTargetCol);
     int BossBungeeSpawn();
-    Reanimation * UpdateZombieBungee();
+    void UpdateZombieBungee();
     // 0x1B212C. The idle paths return this. The pop path tail-calls
     // PlayZombieReanim and returns that reanimation.
     Reanimation * UpdateZombieJackInTheBox();

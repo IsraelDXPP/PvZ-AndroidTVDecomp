@@ -3839,8 +3839,8 @@ void Board::UpdateTutorial()
     mGamepadControls[0]->GotoSelectingState(0);
     mApp->mMaskHelpWidget->Resize(LawnApp::FULLSCREEN_RECT);
     mApp->mMaskHelpWidget->mHelpTextId = 0;
-    // vtable +0x18 is WidgetContainer::SortWidgets.
-    SortWidgets(mApp->mMaskHelpWidget);
+    // TV vtable +0x18 is WidgetContainer::AddWidget.
+    AddWidget(mApp->mMaskHelpWidget);
     mApp->mDaveHelp->DaveEnter(0, this, false);
   }
 }
@@ -5510,11 +5510,8 @@ int Board::PlantsWon(GridItem * theBrain)
 // Board::StartLevel(void)
 // @001586C4  270 bytes
 // ==========================================================================
-LawnApp * Board::StartLevel()
+void Board::StartLevel()
 {
-  // @0x1586C4. The only caller ignores the return. The early-out leaves whatever
-  // the last call left in r0; the music call is the only path that loads a
-  // function pointer, and it does not pass a filename.
   mCoinBankFadeCount = 0;
   mApp->mLastLevelStats->Reset();
   mChallenge->StartLevel();
@@ -5530,16 +5527,14 @@ LawnApp * Board::StartLevel()
     FreezeEffectsForCutscene(false);
     mApp->mSoundSystem->GamePause(false);
   }
-  int aMode = mApp->mGameMode;
-  if ( aMode == 43 || aMode == 51 || aMode == 44 || (unsigned int)(aMode - 72) <= 1 )
-    return nullptr;
+  GameMode aMode = mApp->mGameMode;
+  if ( aMode == GAMEMODE_CHALLENGE_ICE || aMode == GAMEMODE_TREE_OF_WISDOM
+    || aMode == GAMEMODE_CHALLENGE_ZEN_GARDEN || aMode == GAMEMODE_UPSELL
+    || aMode == GAMEMODE_INTRO )
+    return;
   if ( mApp->IsFinalBossLevel() != 0 )
-    return nullptr;
-  // vtable +0x18 is Music::LoadSong. R1 is the leftover 0 from IsFinalBossLevel;
-  // the disasm has no stack string. The declared second argument is unused by
-  // the body at 0x1B7E00, which only reads MusicFile.
-  mApp->mMusic->LoadSong((MusicFile)0, Sexy::String());
-  return nullptr;
+    return;
+  mApp->mMusic->StartGameMusic(false);
 }
 
 // ==========================================================================
@@ -6973,7 +6968,7 @@ void Board::ZombiesWon(Zombie * theZombie)
 // ==========================================================================
 void Board::DrawLevel(Sexy::Graphics * g)
 {
-  // The level banner across the top of the board: the stage name in adventure
+  // The level banner at the bottom of the board: the stage name in adventure
   // mode, the flags-completed count in survival, the streak in the endless
   // puzzles, and the challenge's own name otherwise.
   Sexy::String aLabel;
@@ -7039,7 +7034,7 @@ void Board::DrawLevel(Sexy::Graphics * g)
   }
 
   // Where the banner sits depends on the mode: the zen garden and tree of
-  // wisdom are narrower, and the flag meter pushes it right.
+  // wisdom are centered, and the flag meter leaves its label to the left.
   int aX = (mApp->mGameMode == GAMEMODE_TREE_OF_WISDOM
          || mApp->mGameMode == GAMEMODE_CHALLENGE_ZEN_GARDEN) ? 400 : 780;
   if ( HasProgressMeter() != 0 )
@@ -7055,7 +7050,7 @@ void Board::DrawLevel(Sexy::Graphics * g)
                 || mApp->mGameMode == GAMEMODE_CHALLENGE_ZEN_GARDEN;
   TodDrawString(g, aLabel, aX, aY, FONT_HOUSEOFTERROR16,
                 Sexy::Color(224, 187, 98),
-                aCentered ? DS_ALIGN_CENTER : DS_ALIGN_LEFT);
+                aCentered ? DS_ALIGN_CENTER_MIDDLE : DS_ALIGN_RIGHT);
 }
 
 // ==========================================================================
@@ -7103,9 +7098,8 @@ int Board::NextWaveComing()
     && mApp->mGameMode != GAMEMODE_CHALLENGE_LAST_STAND
     && !mApp->IsContinuousChallenge() )
   {
-    // Final wave of a plain, non-continuous stage: spawn the final-wave zombie.
-    // The dump's third argument is an unnamed string address used as an int.
-    mApp->AddReanimation(0.0f, 30.0f, 304000, REANIM_FINAL_WAVE);
+    // NextWaveComing @0x15BF14/0x15BF1C loads layer 800000.
+    mApp->AddReanimation(0.0f, 30.0f, RENDER_LAYER_WAVE_MESSAGE, REANIM_FINAL_WAVE);
     mFinalWaveSoundCounter = 60;
   }
 
@@ -8760,18 +8754,15 @@ std::set<Plant *> * Board::GetTangleKelpList()
 // ==========================================================================
 void Board::StartHelp(int theHelpIndex)
 {
-  // @0x15E1E8. theHelpIndex != 0 returns this and does nothing. theHelpIndex == 0 removes the mask
-  // help widget if it is present (vtable +0x20 is HasWidget, +0x1C is
-  // RemoveWidget), unpauses, and -- when the level award has not spawned, the
-  // mode is adventure, and the profile has not passed the shop-seed tutorial
-  // -- frees the shop packet on gamepad slot 0. Then DaveEnter(1, this, false)
-  // is a tail call. Both callers ignore the return.
+  // @0x15E1E8 removes the tutorial mask and resumes the lawn. Level 1 of
+  // adventure gives the selected shop packet for free until its tutorial has
+  // been passed, then schedules Dave's follow-up message.
   if ( theHelpIndex != 0 )
     return;
   if ( HasWidget(mApp->mMaskHelpWidget) != 0 )
     RemoveWidget(mApp->mMaskHelpWidget);
   Pause(false);
-  if ( !mLevelAwardSpawned
+  if ( mLevel == 1
     && mApp->mGameMode == GAMEMODE_ADVENTURE
     && !mApp->mPlayerInfo->mPassedShopSeedTutorial )
   {
@@ -12250,19 +12241,12 @@ int Board::DrawGameObjects(Sexy::Graphics *g)
   PushUIItem(aItems, aCount, 31, RenderLayer::RENDER_LAYER_SCREEN_FADE);
   if (mApp->mGameScene == SCENE_ZOMBIES_WON)
   {
-    int aDoorX;
-    int aDoorY;
-    if ((unsigned)mBackground - 4 > 1)
-    {
-      aDoorX = 3;
-      aDoorY = 2;
-    }
-    else
-    {
-      aDoorX = 0;
-      aDoorY = 4;
-    }
-    PushUIItem(aItems, aCount, 27, Board::MakeRenderOrder(RenderLayer(0x400097C8), aDoorX, aDoorY));
+    bool aRoofDoor = mBackground == BACKGROUND_5_ROOF || mBackground == BACKGROUND_6_BOSS;
+    int aDoorRow = aRoofDoor ? 0 : 3;
+    int aDoorOrderOffset = aRoofDoor ? 4 : 2;
+    // DrawGameObjects @0x165BD0: MOVW #0x97C8 / MOVT #4 is layer 301000.
+    PushUIItem(aItems, aCount, 27,
+      Board::MakeRenderOrder(RENDER_LAYER_GRAVE_STONE, aDoorRow, aDoorOrderOffset));
   }
   if (StageHasFog() != 0)
     PushUIItem(aItems, aCount, 23, 500000);

@@ -3348,7 +3348,7 @@ void LawnApp::DrawCrazyDave(Sexy::Graphics * g)
 
   // The hint is drawn in the wide font only under a Chinese locale.
   Sexy::Font *aHintFont = FONT_DWARVENTODCRAFT12;
-  if ( GetLocale() != "zh_CN" )
+  if ( GetLocale() == "zh_CN" )
     aHintFont = FONT_BRIANNETOD16;
 
   if ( aShowClickToContinue )
@@ -4971,20 +4971,21 @@ void LawnApp::DeleteSavedGame()
 // LawnApp::CanShopLevel()
 // @002BA59C  120 bytes
 // ==========================================================================
-int LawnApp::CanShopLevel()
+bool LawnApp::CanShopLevel()
 {
-  if ( mGameMode != 0 )
+  if ( mGameMode != GAMEMODE_ADVENTURE )
   {
     // 17..50 are the challenge modes and 51 is the tree of wisdom; neither gets
     // a shop pad.
-    if ( (unsigned int)(mGameMode - 17) <= 0x21 )
-      return 0;
+    if ( mGameMode >= GAMEMODE_CHALLENGE_WAR_AND_PEAS
+      && mGameMode <= GAMEMODE_CHALLENGE_SQUIRREL )
+      return false;
     if ( mGameMode == GAMEMODE_TREE_OF_WISDOM )
-      return 0;
+      return false;
   }
-  else if ( mBoard->mSodPosition % 5 == 0 )
+  else if ( mBoard->mLevel % 5 == 0 )
   {
-    return 0;
+    return false;
   }
 
   return IsSlotMachineLevel() == 0
@@ -5591,6 +5592,8 @@ void LawnApp::Init()
   mSessionTaskType = 1;
   mLoginToServer = false;
   SrvLoginToServer();
+  // The local session uses the TV preset prices instead of a server response.
+  setItemToShopItems();
   Sexy::PerfTimer aTimer;
   aTimer.Start();
   // mProfileMgr is the Sexy::DefaultProfileMgr at +0x964. Its table's byte 12 is
@@ -7302,17 +7305,20 @@ Sexy::Dialog * LawnApp::DoDialog(int theDialogId, bool theModal, Sexy::String co
 // LawnApp::KillDialog(int)
 // @002C17D4  74 bytes
 // ==========================================================================
-int LawnApp::KillDialog(int theDialogId)
+bool LawnApp::KillDialog(int theDialogId)
 {
-  int aKilled = SexyAppBase::KillDialog(theDialogId);
-  if ( aKilled == 0 )
-    return 0;
+  return KillDialogById(theDialogId);
+}
 
-  // With no dialogs left, the board takes the focus again and resumes unless
-  // the seed chooser is still up or the game has to stay paused.
-  if ( mDialogMap.empty() && mBoard != nullptr )
+bool LawnApp::KillDialogById(int theDialogId)
+{
+  bool aKilled = SexyAppBase::KillDialogById(theDialogId);
+  if ( !aKilled )
+    return false;
+
+  if ( mBoard != nullptr )
   {
-    if ( mSeedChooserScreen == nullptr )
+    if ( mDialogMap.empty() && mSeedChooserScreen == nullptr )
       mWidgetManager->SetFocus(mBoard);
     if ( !NeedPauseGame() )
       mBoard->Pause(false);

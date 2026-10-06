@@ -339,26 +339,18 @@ void SeedBank::Draw(Sexy::Graphics *theGraphics)
     bool aPadsOn = BothGamepadsOn(mApp);
     bool aHasPad = mApp->HasGamepad() != 0;
     GamepadControls *aControls = mBoard->mGamepadControls[0];
-    if (!aHasPad && !aPadsOn && mApp->CanShopLevel()
-        && aControls->mGamepadState == BaseGamepadControls::MOVEMENT_STATE_SELECT_SEED)
+    bool aCanShop = mApp->CanShopLevel();
+    bool aSelectingSeeds = aControls->mGamepadState == BaseGamepadControls::MOVEMENT_STATE_SELECT_SEED;
+    bool aShowShop = aCanShop && (aSelectingSeeds || aControls->mIsInShopSeedBank);
+    if (!aHasPad && !aPadsOn && aCanShop && aSelectingSeeds)
     {
         DrawTip(theGraphics, "[GAMEPAD_CONTROLLER_TIP_1]", 220, -12);
     }
 
-    // In the shop bank the whole draw is the shop strip and the coin count.
-    if ((aHasPad || aPadsOn) && mApp->CanShopLevel())
+    if ((aHasPad || aPadsOn) && aCanShop)
     {
-        if (aControls->mIsInShopSeedBank)
-        {
-            DrawTip(theGraphics, "[GAMEPAD_SHOPTIP_2]", 220, -9);
-            theGraphics->Translate(0, 10);
-            theGraphics->DrawImage(IMAGE_SHOP_SEED_BANK, 0, -10);
-            DrawShopPackets(theGraphics, this);
-            DrawCoinCount(theGraphics);
-            theGraphics->Translate(0, -10);
-            return;
-        }
-        DrawTip(theGraphics, "[GAMEPAD_SHOPTIP_1]", 220, -9);
+        DrawTip(theGraphics, aControls->mIsInShopSeedBank
+            ? "[GAMEPAD_SHOPTIP_2]" : "[GAMEPAD_SHOPTIP_1]", 220, -9);
     }
 
     float aSavedTransX = theGraphics->mTransX;
@@ -509,9 +501,8 @@ void SeedBank::Draw(Sexy::Graphics *theGraphics)
     }
     theGraphics->ClearClipRect();
 
-    // Mouse play draws the shop strip under the bank while choosing seeds.
-    if (!aHasPad && !aPadsOn && mApp->CanShopLevel()
-        && aControls->mGamepadState == BaseGamepadControls::MOVEMENT_STATE_SELECT_SEED)
+    // Use the TV two-row layout for both mouse and gamepad selection.
+    if (aShowShop)
     {
         theGraphics->Translate(0, 96);
         theGraphics->DrawImage(IMAGE_SHOP_SEED_BANK, 0, -10);
@@ -520,8 +511,7 @@ void SeedBank::Draw(Sexy::Graphics *theGraphics)
         theGraphics->Translate(0, -96);
     }
 
-    if (mToolTipWidget != nullptr && mApp->CanShopLevel()
-        && aControls->mGamepadState == BaseGamepadControls::MOVEMENT_STATE_SELECT_SEED
+    if (mToolTipWidget != nullptr && aShowShop
         && aControls->mIsInShopSeedBank && aControls->mSelectedShopSeedIndex <= 5)
     {
         Sexy::String aLabelKey;
@@ -538,7 +528,7 @@ void SeedBank::Draw(Sexy::Graphics *theGraphics)
         mToolTipWidget->Update();
         mToolTipWidget->Draw(theGraphics);
     }
-    else if (mToolTipWidget != nullptr && mApp->CanShopLevel())
+    else if (mToolTipWidget != nullptr && aCanShop)
     {
         mToolTipWidget->mVisible = false;
         mToolTipWidget->Update();

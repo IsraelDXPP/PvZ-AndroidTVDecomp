@@ -533,8 +533,10 @@ void TodDrawString(Sexy::Graphics* theGraphics, const Sexy::String& theText,
                    int theJustification)
 {
     Sexy::String aText = PrepareText(theText);
-    int aX = ShiftX(theFont, DecodeText(aText), theX, theJustification);
-    theFont->DrawString(theGraphics, aX, theY, aText, theColor, theGraphics->mClipRect);
+    std::u32string aWide = DecodeText(aText);
+    int aX = ShiftX(theFont, aWide, theX, theJustification);
+    DrawStyle aStyle = { theFont, theColor, 0, 0 };
+    DrawLine(theGraphics, aWide, aX, theY, aStyle, 0, 0, true, 0, (int)aWide.size());
 }
 
 void TodDrawStringMatrix(Sexy::Graphics* theGraphics, Sexy::Font* theFont,

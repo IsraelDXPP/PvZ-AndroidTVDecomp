@@ -413,9 +413,11 @@ void DrawSeedPacket(Sexy::Graphics* theGraphics, float theX, float theY, SeedTyp
     else if (theSeedType == SEED_ZOMBIQUARIUM_TROPHY)
         aCel = 8;
 
+    const bool aLargePacket = theDrawBackground && theGraphics->mScaleX > 1.0f
+        && theSeedType <= SEED_LEFTPEATER;
     if (theDrawBackground)
     {
-        if (theGraphics->mScaleX > 1.0f && theSeedType <= SEED_LEFTPEATER)
+        if (aLargePacket)
         {
             TodDrawImageCelScaledF(theGraphics, IMAGE_SEEDPACKET_LARGER, theX, theY, 0, 0,
                                    theGraphics->mScaleX * 0.5f, theGraphics->mScaleY * 0.5f);
@@ -574,20 +576,29 @@ void DrawSeedPacket(Sexy::Graphics* theGraphics, float theX, float theY, SeedTyp
         }
         Sexy::Font* aFont = FONT_BRIANNETOD12;
         int aTextWidth = aFont->StringWidth(aPrice);
-        int aTextX = 33 - aTextWidth;
-        int aTextY = aFont->GetAscent() + 50;
+        float aTextX = (float)(33 - aTextWidth);
+        float aTextY = (float)(aFont->GetAscent() + 50);
+        if (aLargePacket)
+        {
+            // The TV formula uses the normal packet's dimensions. Anchor the
+            // price to the larger artwork's bottom-right cost panel instead.
+            aTextX += (float)IMAGE_SEEDPACKET_LARGER->GetCelWidth() * 0.5f
+                - (float)IMAGE_SEEDS->GetCelWidth();
+            aTextY += (float)IMAGE_SEEDPACKET_LARGER->GetCelHeight() * 0.5f
+                - (float)IMAGE_SEEDS->GetCelHeight();
+        }
         Sexy::Color aBlack(0, 0, 0, 255);
         if (theGraphics->mScaleX == 1.0f && theGraphics->mScaleY == 1.0f)
         {
-            TodDrawString(theGraphics, aPrice, (int)(theX + (float)aTextX), (int)(theY + (float)aTextY),
+            TodDrawString(theGraphics, aPrice, (int)(theX + aTextX), (int)(theY + aTextY),
                           aFont, aBlack, 0);
         }
         else
         {
             Sexy::SexyMatrix3 aMatrix;
             TodScaleTransformMatrix(&aMatrix,
-                                    theX + theGraphics->mTransX + (float)aTextX * theGraphics->mScaleX,
-                                    theY + theGraphics->mTransY - 1.0f + (float)aTextY * theGraphics->mScaleY,
+                                    theX + theGraphics->mTransX + aTextX * theGraphics->mScaleX,
+                                    theY + theGraphics->mTransY - 1.0f + aTextY * theGraphics->mScaleY,
                                     theGraphics->mScaleX, theGraphics->mScaleY);
             if (theGraphics->mScaleX > 1.8f)
                 theGraphics->SetLinearBlend(false);

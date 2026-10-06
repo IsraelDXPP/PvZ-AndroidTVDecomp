@@ -641,8 +641,6 @@ int AwardScreen::LoadResources(Sexy::String const& theGroup)
 // ==========================================================================
 AwardScreen::AwardScreen(LawnApp *theApp, AwardType theAward)
 {
-  Sexy::Widget::Widget();
-
   // The class' own state. The two vptrs are the compiler's, not the body's, so
   // they are not written here; everything else the ARM stores in one run is.
   mApp = theApp;
@@ -721,7 +719,7 @@ AwardScreen::AwardScreen(LawnApp *theApp, AwardType theAward)
     aButton->SetFont(FONT_HOUSEOFTERROR20);
     aButton->mColors[0] = Color(255, 255, 255, 255);
     aButton->mColors[1] = Color(255, 255, 255, 255);
-    aButton->mMouseVisible = true;
+    aButton->mIsOver = true;
     aButton->Resize(325, 515, 210, 60);
     // GameButton draws itself 42 pixels below its own y while the wobble runs.
     aButton->mTextOffsetY = 42;
@@ -739,7 +737,7 @@ AwardScreen::AwardScreen(LawnApp *theApp, AwardType theAward)
     aButton->SetFont(FONT_BRIANNETOD16);
     aButton->mColors[0] = Color(213, 159, 43, 255);
     aButton->mColors[1] = Color(213, 159, 43, 255);
-    aButton->mMouseVisible = true;
+    aButton->mIsOver = true;
 
     // The label says what pressing it does, which depends on how the award was
     // reached.
@@ -799,8 +797,8 @@ void AwardScreen::Update()
   // counter runs down and the whole screen is marked dirty each frame.
   if (mApp->GetDialogCount() <= 0)
   {
-    mStartButton->MarkDirty();
-    mStartButton->mMouseVisible = true;
+    mStartButton->Update();
+    mStartButton->mIsOver = true;
     MarkDirty();
     if (mFadeInCounter > 0)
       --mFadeInCounter;

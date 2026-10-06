@@ -599,7 +599,7 @@ void BaseGamepadControls::DrawFrame(Sexy::Graphics *theGraphics, int thePhase)
   float aYOffset = mCursorPositionYJitter - 5.0f;
   if (aMode == GAMEMODE_CHALLENGE_ZEN_GARDEN)
     aYOffset += 33.0f;
-  float aShadowShift = 2.0f - mCursorPositionYJitter;
+  float aShadowYOffset = 2.0f - mCursorPositionYJitter;
 
   SexyVector2 aTopLeft, aTopRight, aBottomLeft, aBottomRight;
   SexyVector2 aLeftTopCenter, aLeftBottomCenter, aRightTopCenter, aRightBottomCenter;
@@ -651,11 +651,12 @@ void BaseGamepadControls::DrawFrame(Sexy::Graphics *theGraphics, int thePhase)
   theGraphics->SetDrawMode(0);
   theGraphics->SetColorizeImages(true);
   theGraphics->SetColor(Sexy::Color::White);
-  theGraphics->mTransX += aShadowShift;
-  theGraphics->mTransY += aShadowShift;
+  // Only cancel the frame's vertical breathing; the shadow stays on the lawn.
+  theGraphics->mTransX += 2.0f;
+  theGraphics->mTransY += aShadowYOffset;
   theGraphics->DrawTrianglesTex(aShadow, aTriangles, 4);
-  theGraphics->mTransX -= aShadowShift;
-  theGraphics->mTransY -= aShadowShift;
+  theGraphics->mTransX -= 2.0f;
+  theGraphics->mTransY -= aShadowYOffset;
   bool aHas3D = theGraphics->Get3D() != nullptr;
   if (!aHas3D && !aDrawArrows)
     aShadow->SetWrapMode(0, 0);

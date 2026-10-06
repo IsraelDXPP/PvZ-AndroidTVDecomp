@@ -457,24 +457,10 @@ public:
     // override instead of a hidden `SwitchScreenMode` overload.
     virtual void SwitchScreenModeFull(bool theWindowed, bool theUse3D, bool theForce); // [101]
     virtual Sexy::Dialog *DoDialog(int theDialogId, bool theModal, Sexy::String const &theHeader, Sexy::String const &theLines, Sexy::String const &theFooter, int theButtonMode); // [103]
-    // Slot 107 (byte 0x1AC) is LawnApp's `KillDialog(int)`, NOT a
-    // `KillDialogById`. The vtable says so directly: `_ZTV7LawnApp` slot 107 holds
-    // `_ZN7LawnApp10KillDialogEi`, and the two neighbours are
-    // SexyAppBase::KillDialog(int,bool,bool) at 106 and
-    // SexyAppBase::KillDialog(Dialog*) at 108. The binary exports no
-    // `_ZN7LawnApp12KillDialogByIdEi` at all.
-    //
-    // A `virtual bool KillDialogById(int)` used to be declared here. Because it
-    // has the same signature as SexyAppBase's own by-id slot it became an
-    // implicit override, MSVC emitted it into the vtable, and the linker then
-    // wanted a definition the binary does not have. The real override,
-    // `KillDialog(int)`, is declared below with the rest of the class's methods
-    // and defined in LawnApp.cpp:9455.
-    // Callers in other files still spell the by-id kill `KillDialog(id)`. It is
-    // not a slot of its own -- the binary's only entry is 0x1AC above -- so this
-    // stays a non-virtual forwarder until those call sites are rewritten.
-    // TODO(recon): rename the callers and delete this overload.
-    int KillDialog(int theDialogId);
+    // TV LawnApp::KillDialog(int) overrides the base's by-id close slot.
+    // This port names that slot KillDialogById; keep KillDialog as a forwarder.
+    bool KillDialogById(int theDialogId) override;
+    bool KillDialog(int theDialogId);
     virtual void ModalOpen();                      // [108]
     virtual void ModalClose();                     // [109]
     virtual void GotFocus();                       // [112]
@@ -753,7 +739,7 @@ Sexy::Dialog *DoConfirmRestartDialog();
     int UpdateSavingDingus();
     int SetDingusText(Sexy::String &theText);
     void DeleteSavedGame();
-    int CanShopLevel();
+    bool CanShopLevel();
     bool ShopPadCanShow();
     void StartHelp(int theHelpIndex);
     void SdkExit();

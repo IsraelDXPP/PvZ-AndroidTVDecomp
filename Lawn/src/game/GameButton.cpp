@@ -215,6 +215,7 @@ GameButton::GameButton(int theId, Sexy::ButtonListener* theListener)
     mWobble = 0.0f;
     mFocusDirection = -1;
     mPulseFrame = 0;
+    mPulseTime = 0;
     mSelected = false;
     mPressSoundId = -1;
     mGamepadIndex = -1;

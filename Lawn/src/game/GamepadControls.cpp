@@ -596,11 +596,9 @@ void GamepadControls::DrawPreview(Sexy::Graphics * g)
   }
   else
   {
-    // SeedPacket is 0x74 bytes and starts at SeedBank+0x48, so
-    // bank + 0x74 * index lands on packet N's mRefreshCounter.
     SeedPacket *aPacket = &aSeedBank->mSeedPackets[mSelectedSeedIndex];
     int aGrey;
-    if ( aPacket->mRefreshing )
+    if ( aPacket->mRefreshing && aPacket->mRefreshTime > 0 )
       aGrey = (int)((float)aPacket->mRefreshCounter / (float)aPacket->mRefreshTime * 40.0f + 20.0f);
     else
       aGrey = 60;
@@ -618,11 +616,13 @@ void GamepadControls::DrawPreview(Sexy::Graphics * g)
     }
   }
 
-  if ( mApp->mGameMode == GAMEMODE_CHALLENGE_COLUMN )
+  // Unavailable seeds use the static plant cache, keeping the ready preview animated.
+  if ( mApp->mGameMode == GAMEMODE_CHALLENGE_COLUMN || !mCanPickUp )
   {
     // Same pad check as the entry, but here a missing pad just drops the
     // colorize flag and returns. The two pad loads are OR, not AND.
-    if ( !mApp->HasGamepad() && (mApp->mGamePad1IsOn == 0 || mApp->mGamePad2IsOn == 0) )
+    if ( mApp->mGameMode == GAMEMODE_CHALLENGE_COLUMN
+      && !mApp->HasGamepad() && (mApp->mGamePad1IsOn == 0 || mApp->mGamePad2IsOn == 0) )
     {
       g->SetColorizeImages(false);
       return;
@@ -680,7 +680,7 @@ void GamepadControls::DrawPreview(Sexy::Graphics * g)
         {
           aOffsetX = -100.0f;
         }
-        Plant::DrawSeedType(g, aSeedType, aCursor->mImitaterType, (DrawVariation)0,
+        Plant::DrawSeedType(g, aSeedType, aCursor->mImitaterType, VARIATION_NORMAL,
                             aOffsetX - 49.0f, aHeight - 78.0f);
       }
       else if ( aSeedType <= SEED_LEFTPEATER )
@@ -688,9 +688,9 @@ void GamepadControls::DrawPreview(Sexy::Graphics * g)
         float aHeight = PlantDrawHeightOffset(mBoard, nullptr, aSeedType, aGridX, aGridY);
         // An imitater cursor uses variation 1. Otherwise the variation is
         // mIsZombie, which this branch already proved is 0.
-        DrawVariation aVariation = (DrawVariation)0;
+        DrawVariation aVariation = VARIATION_NORMAL;
         if ( aCursor->mType == SEED_IMITATER )
-          aVariation = (DrawVariation)1;
+          aVariation = VARIATION_IMITATER;
         Plant::DrawSeedType(g, aSeedType, aCursor->mImitaterType, aVariation, 0.0f, aHeight);
       }
     }
@@ -709,7 +709,7 @@ void GamepadControls::DrawPreview(Sexy::Graphics * g)
           float aRowY = aRowHeight + (float)(aRow - aGridY) * 85.0f;
           Plant::DrawSeedType(g, aSeedType,
                               mBoard->mCursorObject[mPlayerIndex]->mImitaterType,
-                              (DrawVariation)0, 0.0f, aRowY);
+                              VARIATION_NORMAL, 0.0f, aRowY);
         }
       }
     }
@@ -719,12 +719,9 @@ void GamepadControls::DrawPreview(Sexy::Graphics * g)
 
   g->PushState();
   g->SetColorizeImages(true);
-  // Explode-o-nut is tinted red; every other seed is white at alpha 125.
-  // The compare re-reads mSelectedSeedType, not the zombie packet type.
-  if ( mSelectedSeedType == SEED_EXPLODE_O_NUT )
+  // The available preview uses its animated cache; unavailable seeds returned above.
+  if ( mCanPickUp && mSelectedSeedType == SEED_EXPLODE_O_NUT )
     g->SetColor(Sexy::Color(255, 16, 16, 125));
-  else
-    g->SetColor(Sexy::Color(255, 255, 255, 125));
   // These compares use the seed that may have been replaced by the packet type.
   if ( aSeedType == SEED_LEFTPEATER )
   {
@@ -2664,6 +2661,7 @@ void GamepadControls::UpdatePreviewReanim()
   int aGridY = mBoard->PixelToGridYKeepOnBoard((int)mCursorPositionX, (int)mCursorPositionY);
 
   ReanimationID aPreviewId = mPreviewReanimID4;
+  bool aCreatedPreview = false;
   if ( mPreviewingSeedType != aSeedType && aSeedType != SEED_NONE )
   {
     InvalidatePreviewReanim();
@@ -2776,6 +2774,7 @@ void GamepadControls::UpdatePreviewReanim()
       aPreviewId = mApp->ReanimationGetID(aBody);
       mPreviewingSeedType = aSeedType;
       mPreviewReanimID4 = aPreviewId;
+      aCreatedPreview = true;
     }
   }
 
@@ -2785,9 +2784,12 @@ void GamepadControls::UpdatePreviewReanim()
   if ( aUseImitaterFilter )
     aPreview->SetFilterEffectShader(FilterEffect(-1));
 
-  // Console-style previews keep the body and attached heads animated.
-  // TV UpdatePreviewReanim (0x1C312C) only advances when the seed changes.
-  aPreview->Update();
+  // Console previews animate when available and hold their pose during cooldown.
+  SeedPacket *aSelectedPacket = &aSeedBank->mSeedPackets[mSelectedSeedIndex];
+  bool aCooling = !mIsInShopSeedBank && aSelectedPacket->mRefreshing
+    && aCursor->mCursorType != CURSOR_TYPE_PLANT_FROM_USABLE_COIN;
+  if ( aCreatedPreview || !aCooling || mApp->mEasyPlantingCheat )
+    aPreview->Update();
   {
     Sexy::Graphics aGraphics(mPreviewImage);
     aGraphics.ClearRect(0, 0, mPreviewImage->mWidth, mPreviewImage->mHeight);
@@ -3061,13 +3063,17 @@ int GamepadControls::Update(float theDeltaTime)
   float aJitter = 0.0f;
   Sexy::Gamepad *aMovePad = mApp->mGamepads[mGamepadIndex];
   if ( (aMovePad != nullptr && aMovePad->IsButtonDown(GAMEPAD_BUTTON_A)) || mButterZombieID != 0 )
+  {
     aJitter = 3.0f;
+    mCursorJitterAnimPhase = 0.0f;
+  }
   else
   {
     mCursorJitterAnimPhase += 0.016f;
     aJitter = sinf(mCursorJitterAnimPhase * 3.0f);
   }
-  mCursorHighlightAnimPhase = aJitter;
+  // TV Update stores the vertical offset at +0x9C, separately from highlight time.
+  mCursorPositionYJitter = aJitter;
 
   UpdateCursorReanims();
   aCursorPreview->mVisible = true;
