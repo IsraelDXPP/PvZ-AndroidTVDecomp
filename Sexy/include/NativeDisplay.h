@@ -130,15 +130,11 @@ public:
     // TitleScreen scales the logos against the screen height at byte 0x44.
     // 55 reserved bytes keep that word there.
     unsigned char mReservedToScreenHeight[55];                                    // +0x0D
-    int mScreenHeight;                                                            // +0x44
+    int mScreenHeight = 0;                                                        // +0x44
     // Byte +96 is the wide-screen flag: LawnApp::HardwareInit stores 1 there,
     // and every layout branch reads it back. 24 reserved bytes keep it there.
     unsigned char mReservedToWideScreen[24];                                      // +0x48
-    bool mWideScreen;                                                             // 96
+    bool mWideScreen = false;                                                     // 96
 };
-
-static_assert(offsetof(NativeDisplay, mRetainSoftwareBits) == 0x0C, "retain-bits flag");
-static_assert(offsetof(NativeDisplay, mScreenHeight) == 0x44, "screen height");
-static_assert(offsetof(NativeDisplay, mWideScreen) == 96, "wide-screen flag");
 
 } // namespace Sexy

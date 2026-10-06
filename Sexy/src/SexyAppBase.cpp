@@ -1208,9 +1208,10 @@ int SexyAppBase::WaitForLoadingThread()
 
 double SexyAppBase::GetLoadingThreadProgress()
 {
-    if (mNumLoadingThreadTasks <= 0)
+    int aTotalTasks = mNumLoadingThreadTasks.load();
+    if (aTotalTasks <= 0)
         return 0.0;
-    return (double)mCompletedLoadingThreadTasks / (double)mNumLoadingThreadTasks;
+    return (double)mCompletedLoadingThreadTasks.load() / (double)aTotalTasks;
 }
 
 void SexyAppBase::InitPreLoadWidget()

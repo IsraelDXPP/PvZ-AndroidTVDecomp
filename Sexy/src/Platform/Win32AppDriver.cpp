@@ -60,6 +60,7 @@
 #include "ReconTypes.h"
 #include "SexyTypes.h"
 #include "SexyAppBase.h"
+#include "NativeDisplay.h"
 
 // The driver's Start slot calls the app's Init (see Slot_Start below), so the
 // concrete app type is needed here.
@@ -105,7 +106,7 @@ enum Win32DriverKind
 
 struct Win32AppDriver : Sexy::BaseAppDriver
 {
-    void*                   mApp;           // the SexyAppBase, may be null
+    Sexy::SexyAppBase*       mApp;           // the application, may be null
     Sexy::GLWindow*         mWindow;        // the display, may be null
     int                     mKind;
     bool                    mOwnsWindow;    // false when an outer owner made it
@@ -326,6 +327,10 @@ void AppDriver_CenterScreen(Win32AppDriver* theSelf)
 
     int aDisplayWidth = theSelf->mWidth;
     int aDisplayHeight = theSelf->mHeight;
+
+    if (anApp->mPlatformDriverOrQueue == nullptr)
+        anApp->mPlatformDriverOrQueue = new Sexy::NativeDisplay();
+    anApp->mPlatformDriverOrQueue->mScreenHeight = aDisplayHeight;
 
     anApp->mScreenBounds.mWidth = aDisplayWidth;
     anApp->mScreenBounds.mHeight = aDisplayHeight;
@@ -915,7 +920,7 @@ int LTVCALL Slot_StartLoadingThread(void* theThis)
     if (gLoadingThread != nullptr)
         return 1;
 
-    anApp->LoadingThreadProc();
+    anApp->PrepareTitleLoad();
     if (anApp->mLoadingThreadCompleted || anApp->mShutDown || anApp->mCloseRequest)
         return 1;
 
@@ -942,15 +947,12 @@ int LTVCALL Slot_WaitForLoadingThread(void* theThis)
 //
 // The fraction the loading bar reads: completed tasks over the total the
 // loading thread counted. Both live on the app, at the offsets the binary uses.
-int LTVCALL Slot_GetLoadingThreadProgress(void* theThis)
+double LTVCALL Slot_GetLoadingThreadProgress(void* theThis)
 {
-    Win32AppDriver* self = (Win32AppDriver*)theThis;
-    char *aApp = (char*)self->mApp;
-    int aTotal = *reinterpret_cast<int *>(aApp + 0x588);
-    int aDone = *reinterpret_cast<int *>(aApp + 0x58C);
-    if (aTotal <= 0)
-        return 0;
-    return (int)(100.0 * aDone / aTotal);
+    Win32AppDriver* aDriver = static_cast<Win32AppDriver*>(theThis);
+    if (aDriver == nullptr || aDriver->mApp == nullptr)
+        return 0.0;
+    return aDriver->mApp->GetLoadingThreadProgress();
 }
 
 // [37] EnforceCursor()
@@ -1194,7 +1196,7 @@ int Win32AppDriver::DrawDirtyStuff(bool theForce) { (void)theForce; return Slot_
 int Win32AppDriver::Shutdown() { return Slot_Shutdown(this); }
 int Win32AppDriver::StartLoadingThread() { return Slot_StartLoadingThread(this); }
 int Win32AppDriver::WaitForLoadingThread() { return Slot_WaitForLoadingThread(this); }
-double Win32AppDriver::GetLoadingThreadProgress() { return (double)Slot_GetLoadingThreadProgress(this); }
+double Win32AppDriver::GetLoadingThreadProgress() { return Slot_GetLoadingThreadProgress(this); }
 int Win32AppDriver::EnforceCursor() { return Slot_EnforceCursor(this); }
 int Win32AppDriver::KeyDown(int theKeyCode) { (void)theKeyCode; return Slot_KeyDown(this, nullptr); }
 int Win32AppDriver::DebugKeyDown(int theKeyCode) { (void)theKeyCode; return Slot_DebugKeyDown(this, nullptr); }
@@ -1231,7 +1233,7 @@ int Win32AppDriver::InitGraphics() { return AppDriver_InitGraphics(this) ? 1 : 0
 int Win32AppDriver::DestroyGraphics() { return Slot_DestroyGraphics(this); }
 int Win32AppDriver::UpdateInput() { return Slot_UpdateInput(this); }
 
-Win32AppDriver* MakeAppDriver(void* theApp)
+Win32AppDriver* MakeAppDriver(Sexy::SexyAppBase* theApp)
 {
     Win32AppDriver* aDriver = new Win32AppDriver();
     aDriver->mApp        = theApp;
@@ -1256,7 +1258,7 @@ Win32AppDriver* MakeAppDriver(void* theApp)
 // ---------------------------------------------------------------------------
 extern "C" void* LawnTV_CreateAppDriver(void* theApp)
 {
-    return MakeAppDriver(theApp);
+    return MakeAppDriver(static_cast<Sexy::SexyAppBase*>(theApp));
 }
 
 extern "C" void* LawnTV_CreateResStreamsDriver()

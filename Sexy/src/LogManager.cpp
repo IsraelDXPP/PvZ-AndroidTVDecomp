@@ -11,6 +11,7 @@
 #include "SexyString.h"
 
 #include <cctype>
+#include <cstdio>
 #include <cstdlib>
 #include <cstring>
 #include <ctime>
@@ -543,6 +544,11 @@ LogManager::LogManager(Sexy::String const& theServer, Sexy::String theDirectory)
     initialize();
 }
 
+LogManager::~LogManager()
+{
+    destroy();
+}
+
 // 4EF3F0. The line is stamped, logged locally and queued for the send
 // thread. The binary's stringstream preamble is the fixed text below.
 int LogManager::sendLog(Sexy::String const& theLine)
@@ -619,7 +625,7 @@ int LogManager::destroy()
     return 1;
 }
 
-// 4F0F40. Reads the local spool back into the incoming queue, one line per
+// 4F2F98. Reads the local spool back into the incoming queue, one line per
 // entry, which is what the send thread drains first.
 int LogManager::readLogFromLocalFile()
 {
@@ -634,18 +640,33 @@ int LogManager::readLogFromLocalFile()
     int aCount = 0;
     while (std::getline(aFile, aLine))
     {
+        aLine += '\n';
         mIncomingQueue.push_back(aLine);
         ++aCount;
+    }
+    // readLogFromLocalFile @0x4F30DE closes and removes the consumed spool.
+    // Retaining it would append every historical entry again on the next read.
+    if (!aFile.bad())
+    {
+        aFile.close();
+        std::remove(mLocalLogPath.c_str());
     }
     return aCount;
 }
 
-// 4F1440. Drains the incoming queue, then the retry queue, then the send
+// 4F3678. Drains the incoming queue, then the retry queue, then the send
 // queue, handing each line to the server. The binary polls mStopRequested
 // between lines so destroy() can cut the loop short.
 int LogManager::threadSendMsg()
 {
-    readLogFromLocalFile();
+    // sendLog and the worker share these queues. Detach a batch under the
+    // producer's mutex, then perform file I/O without blocking the game.
+    std::list<std::string> aRetryBatch;
+    std::list<std::string> aSendBatch;
+    mSendMutex.Acquire();
+    aRetryBatch.swap(mRetryQueue);
+    aSendBatch.swap(mSendQueue);
+    mSendMutex.Release();
 
     while (!mStopRequested && !mIncomingQueue.empty())
     {
@@ -654,26 +675,31 @@ int LogManager::threadSendMsg()
         sendLogToServer(aLine);
     }
 
-    while (!mStopRequested && !mRetryQueue.empty())
+    while (!aRetryBatch.empty())
     {
-        Sexy::String aLine(mRetryQueue.front().c_str());
-        mRetryQueue.pop_front();
+        Sexy::String aLine(aRetryBatch.front().c_str());
+        aRetryBatch.pop_front();
         sendLogToServer(aLine);
     }
 
-    while (!mStopRequested && !mSendQueue.empty())
+    while (!aSendBatch.empty())
     {
-        Sexy::String aLine(mSendQueue.front().c_str());
-        mSendQueue.pop_front();
+        Sexy::String aLine(aSendBatch.front().c_str());
+        aSendBatch.pop_front();
         sendLogToServer(aLine);
     }
     return 1;
 }
 
-// 4F1C80. The send thread's body: drain until asked to stop.
+// 4F44A0. The send thread's body: drain until asked to stop.
 int LogManager::threadSendProc(void* theArg)
 {
     (void)theArg;
+    // The desktop transport uses the local-file fallback. Leave historical
+    // logs on disk while offline; reading and spooling them back every second
+    // grows the file and exhausts the 32-bit process during the intro.
+    if (connectToServer() != 0)
+        readLogFromLocalFile();
     while (!mStopRequested)
     {
         threadSendMsg();

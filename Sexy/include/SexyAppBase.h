@@ -7,6 +7,7 @@
 #pragma once
 
 #include "ReconTypes.h"
+#include <atomic>
 // Classes this one calls a method on: the call needs the complete type, so they
 // are included rather than declared.
 #include "AuthManager.h"
@@ -740,7 +741,7 @@ public:
 
     bool mAutoStartLoadingThread; // +0x56C
     bool mLoadingThreadStarted;   // +0x56D
-    bool mLoadingThreadCompleted; // +0x56E
+    std::atomic<bool> mLoadingThreadCompleted; // published by the loading worker
     bool mLoaded;                 // +0x56F
 
     bool mYieldMainThread;   // +0x570
@@ -763,8 +764,8 @@ public:
     bool mCacheBuffers;            // image and font caches may be written
     bool mLoadingLocaleReady;      // locale tables finished loading
 
-    int mNumLoadingThreadTasks;       // +0x588
-    int mCompletedLoadingThreadTasks; // +0x58C
+    std::atomic<int> mNumLoadingThreadTasks;
+    std::atomic<int> mCompletedLoadingThreadTasks;
 
     bool mRecordingDemoBuffer;        // +0x590
     bool mPlayingDemoBuffer;          // +0x591

@@ -2,9 +2,8 @@
 //
 // Endian* is an identity on this little-endian build: the cache is already
 // in host order. SMemR copies bytes from a moving definition-cache cursor.
-// The AG* functions are the Android video and store entry points. This port
-// has no video backend and no store library, so they report failure or an
-// empty account and do not simulate a purchase.
+// The AG* functions are the Android video and store entry points. Desktop
+// video uses the MPEG player; store calls return an empty account or failure.
 
 #include "ReconFreeFunctions.h"
 #include "ReconHelpers.h"
@@ -115,14 +114,14 @@ int AGVideoShow(int theShow)
 
 int AGViewAddEventListener(int* (*theListener)(int*), int theFlags)
 {
-    (void)theListener;
+    MpegVideoAddEventListener(theListener);
     (void)theFlags;
     return 1;
 }
 
 int AGViewRemoveEventListener(int* (*theListener)(int*))
 {
-    (void)theListener;
+    MpegVideoRemoveEventListener(theListener);
     return 1;
 }
 

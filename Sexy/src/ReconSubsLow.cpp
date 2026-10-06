@@ -260,6 +260,7 @@ char* IntStringAllocRep(unsigned int theCapacity, unsigned int theOldCapacity)
 
 int CloseIntroVideo()
 {
+    AGViewRemoveEventListener(OnIntroVideoEvent);
     AGViewShow(1);
     AGVideoClose();
     AGVideoShow(0);

@@ -26,6 +26,12 @@ int MpegVideoPlay();
 
 void MpegVideoClose();
 
+// AG video events use 13 for playback completion. Callbacks run on the
+// drawing thread, after the decoder has returned.
+using MpegVideoEventListener = int* (*)(int*);
+void MpegVideoAddEventListener(MpegVideoEventListener theListener);
+void MpegVideoRemoveEventListener(MpegVideoEventListener theListener);
+
 // Presents the frame that matches the clock. TitleScreen calls this while
 // the intro state is showing a movie.
 void MpegVideoDraw(Sexy::Graphics* theGraphics, int theX, int theY,

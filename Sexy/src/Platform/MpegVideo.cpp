@@ -18,6 +18,7 @@
 #include <windows.h>
 
 #include <cstring>
+#include <algorithm>
 #include <string>
 #include <vector>
 
@@ -46,6 +47,7 @@ struct VideoPlayer
     int mBufferCount;
     int mNextBuffer;
     int mSampleRate;
+    std::vector<MpegVideoEventListener> mEventListeners;
 
     VideoPlayer()
         : mMovie(nullptr)
@@ -352,6 +354,22 @@ void MpegVideoClose()
     ReleasePlayer(Player());
 }
 
+void MpegVideoAddEventListener(MpegVideoEventListener theListener)
+{
+    if (theListener == nullptr)
+        return;
+    auto& aListeners = Player().mEventListeners;
+    if (std::find(aListeners.begin(), aListeners.end(), theListener) == aListeners.end())
+        aListeners.push_back(theListener);
+}
+
+void MpegVideoRemoveEventListener(MpegVideoEventListener theListener)
+{
+    auto& aListeners = Player().mEventListeners;
+    aListeners.erase(std::remove(aListeners.begin(), aListeners.end(), theListener),
+                     aListeners.end());
+}
+
 void MpegVideoDraw(Sexy::Graphics* theGraphics, int theX, int theY,
                    int theWidth, int theHeight)
 {
@@ -367,11 +385,9 @@ void MpegVideoDraw(Sexy::Graphics* theGraphics, int theX, int theY,
     if (aElapsed > 0.1)
         aElapsed = 0.1;
     plm_decode(aPlayer.mMovie, aElapsed);
-    if (plm_has_ended(aPlayer.mMovie))
+    bool aPlaybackCompleted = !aPlayer.mEnded && plm_has_ended(aPlayer.mMovie);
+    if (aPlaybackCompleted)
         aPlayer.mEnded = true;
-
-    if (aPlayer.mYTexture == 0 || Sexy::GLRenderDevice::sCurrent == nullptr)
-        return;
 
     // DrawScreen translates by the centering origin before widgets draw, so
     // a quad at (-240, -60) lands at the window origin. Add that shift here:
@@ -379,7 +395,18 @@ void MpegVideoDraw(Sexy::Graphics* theGraphics, int theX, int theY,
     int aShiftX = (int)theGraphics->mTransX;
     int aShiftY = (int)theGraphics->mTransY;
     TRect<int> aDest(theX + aShiftX, theY + aShiftY, theWidth, theHeight);
-    Sexy::GLRenderDevice::sCurrent->DrawYuv(aPlayer.mYTexture, aPlayer.mCbTexture,
+    if (aPlayer.mYTexture != 0 && Sexy::GLRenderDevice::sCurrent != nullptr)
+        Sexy::GLRenderDevice::sCurrent->DrawYuv(aPlayer.mYTexture, aPlayer.mCbTexture,
                                             aPlayer.mCrTexture, aPlayer.mWidth,
                                             aPlayer.mHeight, aDest);
+
+    // A callback may close the player or unregister itself. Finish using the
+    // movie and textures first, then dispatch a snapshot exactly once.
+    if (aPlaybackCompleted)
+    {
+        auto aListeners = aPlayer.mEventListeners;
+        int aCompletedEvent = 13;
+        for (MpegVideoEventListener aListener : aListeners)
+            aListener(&aCompletedEvent);
+    }
 }

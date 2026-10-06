@@ -35,6 +35,7 @@
 #include <map>
 #include <set>
 #include <list>
+#include <atomic>
 
 namespace Sexy {
 
@@ -125,7 +126,7 @@ public:
     int          mSocket;           // -1 while the socket is closed
     int          mLastSendTime;     // milliseconds, from gettimeofday
     Sexy::String mServerAddr;       // host or host:port
-    bool         mStopRequested;    // set by destroy(), polled by both threads
+    std::atomic<bool> mStopRequested; // set by destroy(), polled by both threads
     Sexy::String mLocalLogDir;      // the directory setLocalLogPath was given
     Sexy::String mLocalLogPath;     // mLocalLogDir + "/" + "trans_log"
     Sexy::String mRemoteLogPath;    // the path the server reported back

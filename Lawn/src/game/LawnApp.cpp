@@ -5056,7 +5056,6 @@ void LawnApp::SdkExit()
     Quit();
 }
 static int GuardedPreload(LawnApp* theApp);
-static int GuardedCacheFrames(LawnApp* theApp);
 
 // Title-screen load. The binary runs this on a side thread and the bar reads
 // completed/total. One missing file used to return from the whole procedure,
@@ -5233,7 +5232,6 @@ void LawnApp::PrepareTitleLoad()
   {
     mTitleScreen->OnLoading();
     mTitleScreen->mLoaderScreenIsLoaded = true;
-    mTitleScreen->mTitleState = TitleScreen::Loading;
   }
 
   if (mMusic != nullptr)
@@ -5256,7 +5254,7 @@ void LawnApp::PrepareTitleLoad()
   if (mMusic != nullptr)
     mNumLoadingThreadTasks += mMusic->GetNumLoadingTasks();
 
-  fprintf(stderr, "title load: %d tasks, loader screen ready\n", mNumLoadingThreadTasks);
+  fprintf(stderr, "title load: %d tasks, loader screen ready\n", mNumLoadingThreadTasks.load());
   fflush(stderr);
   gTitleLoadPhase = TitleLoad_Images;
 }
@@ -5371,16 +5369,13 @@ bool LawnApp::StepTitleLoad()
     // TitleScreen::Update @0x1A7698 reads this byte, then writes its own
     // mLoadingThreadComplete in the same breath as SetDisabled(false).
     // Writing the screen flag here makes that check skip the enable.
-    mLoadingThreadCompleted = true;
     fprintf(stderr, "title load: finished %d/%d\n",
-            mCompletedLoadingThreadTasks, mNumLoadingThreadTasks);
+            mCompletedLoadingThreadTasks.load(), mNumLoadingThreadTasks.load());
     fflush(stderr);
-    if (mReanimatorCache != nullptr && GuardedCacheFrames(this) == 0)
-    {
-      fprintf(stderr, "title load: cache frames faulted\n");
-      fflush(stderr);
-    }
     gTitleLoadPhase = TitleLoad_Done;
+    // The driver invokes LoadingThreadCompleted on the main thread. It owns
+    // cache rendering; doing it here as well races that callback and GL draws.
+    mLoadingThreadCompleted = true;
     return false;
 
   default:
@@ -5513,19 +5508,6 @@ static int GuardedPreload(LawnApp* theApp)
   __try
   {
     theApp->PreloadForUser();
-    return 1;
-  }
-  __except (EXCEPTION_EXECUTE_HANDLER)
-  {
-    return 0;
-  }
-}
-
-static int GuardedCacheFrames(LawnApp* theApp)
-{
-  __try
-  {
-    theApp->LoadingThreadCompleted();
     return 1;
   }
   __except (EXCEPTION_EXECUTE_HANDLER)
@@ -7257,6 +7239,8 @@ void LawnApp::Shutdown()
     SrvLogoutFromServer();
     mSession.Shutdown();
   }
+  delete MLogManager;
+  MLogManager = nullptr;
   SexyAppBase::Shutdown();
 }
 // LawnApp::WriteToRegistry()
