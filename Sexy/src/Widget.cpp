@@ -178,8 +178,9 @@ void Sexy::Widget::DrawOverlay(Sexy::Graphics *g) { (void)g; }
 
 void Sexy::Widget::DrawOverlay(Sexy::Graphics *g, int thePriority)
 {
-    (void)g;
+    // @0x3AE744 forwards deferred overlays to the widget's drawing override.
     (void)thePriority;
+    DrawOverlay(g);
 }
 
 void Sexy::Widget::Resize(TRect<int> const &theRect)

@@ -185,12 +185,12 @@ public:
     ReanimationID mCrowReanimID;          // +0x14C
     ReanimationID mFallingLeavesReanimID; // +0x150
     ReanimationID mButterflyReanimID;     // +0x154
-    ReanimationID mOverlayReanimID;       // +0x158  non-zero hides the butterfly on the fade overlay
+    ReanimationID mOverlayReanimID;       // +0x158
     int mPressedButtonId;                 // +0x15C
     Sexy::String mExitTrackName;          // +0x160
     int mEnterReanimationCounter;         // +0x164
     int mExitCounter;                     // +0x168
-    bool mKeepDrawing;                    // +0x16C  store, almanac, mail, and the profile reload keep drawing
+    bool mKeepDrawing;                    // +0x16C  set during profile reload
     bool mFirstTimeAdventure;             // +0x16D
     bool mMiniGameLocked;                 // +0x16E
     bool mCoopModeLocked;                 // +0x16F

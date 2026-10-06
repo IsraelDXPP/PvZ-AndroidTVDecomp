@@ -30,6 +30,7 @@
 #include "ZenGarden.h"
 #include <cmath>
 #include <cstring>
+#include <string_view>
 
 // The camera X each menu scene slides to, indexed by MenuScene. Word 3 is never
 // read: MenuScene has three values.
@@ -52,6 +53,20 @@ static bool IsWideScreen(LawnApp *theApp)
 static void MakeSureMusicIsPlaying(LawnApp *theApp, MusicTune theTune)
 {
   static_cast<Music *>(theApp->mMusic)->MakeSureMusicIsPlaying(theTune);
+}
+
+// Exit @0x19CA34 and DrawFade @0x19CCF8 use the same button track stem.
+static Sexy::String GetButtonTransitionTrackName(Sexy::WidgetAnimator *theAnimator, const char *theSuffix)
+{
+  ReanimTrackWidgetAnimator *trackAnimator = dynamic_cast<ReanimTrackWidgetAnimator *>(theAnimator);
+  if ( trackAnimator == nullptr || trackAnimator->mTrackName1.empty() )
+    return Sexy::String();
+
+  std::string_view buttonTrack(trackAnimator->mTrackName1.c_str(), trackAnimator->mTrackName1.size());
+  size_t stemLength = buttonTrack.rfind(" button");
+  if ( stemLength == std::string_view::npos )
+    stemLength = buttonTrack.size();
+  return "anim_" + trackAnimator->mTrackName1.substr(0, static_cast<unsigned int>(stemLength)) + theSuffix;
 }
 
 
@@ -256,7 +271,7 @@ void MainMenu::OnExit()
         }
         mApp->mWidgetManager->SetFocus(this);
         MakeSureMusicIsPlaying(mApp, MusicTune(7));
-        return;
+        break;
       }
     case ZEN_BUTTON:
         aApp->KillGameSelector();
@@ -273,7 +288,7 @@ void MainMenu::OnExit()
           return;
         mApp->mWidgetManager->SetFocus(this);
         MakeSureMusicIsPlaying(mApp, MusicTune(7));
-        return;
+        break;
       }
     case MAIL_BUTTON:
       {
@@ -290,7 +305,7 @@ void MainMenu::OnExit()
   {
     mIsFading = false;
     mRetainWidgetsOnExit = false;
-    Exit();
+    Enter();
   }
 }
 
@@ -1756,7 +1771,7 @@ void MainMenu::ButtonDepress(int theId)
       return;
     case STORE_BUTTON:
       mPressedButtonId = STORE_BUTTON;
-      mKeepDrawing = true;
+      mRetainWidgetsOnExit = true;
       Exit();
       return;
     case ZEN_BUTTON:
@@ -1765,12 +1780,12 @@ void MainMenu::ButtonDepress(int theId)
       return;
     case ALMANAC_BUTTON:
       mPressedButtonId = ALMANAC_BUTTON;
-      mKeepDrawing = true;
+      mRetainWidgetsOnExit = true;
       Exit();
       return;
     case MAIL_BUTTON:
       mPressedButtonId = MAIL_BUTTON;
-      mKeepDrawing = true;
+      mRetainWidgetsOnExit = true;
       Exit();
       return;
     default:
@@ -1952,6 +1967,8 @@ void MainMenu::Exit()
     return;
   // The button that was pressed; its position is where the iris closes over.
   Sexy::Widget *aButton = FindWidget(mPressedButtonId);
+  if ( aButton == nullptr )
+    return;
   mFadeCounterFloat = 0.0f;
   mFadeOriginY = (float)aButton->mY;
   mFadeOriginX = (float)aButton->mX;
@@ -1959,29 +1976,10 @@ void MainMenu::Exit()
   mHandPlaying = mIsFading;
   if ( mApp->ReanimationTryToGet(mBackdropReanimID) != 0 )
   {
-    // The pressed button's animator names the exit track to play, if it is a
-    // ReanimTrackWidgetAnimator; otherwise the track is built from the button's
-    // own reanimation name.
-    Sexy::String aExitTrack;
-    Sexy::WidgetAnimator *aAnimator = aButton->GetAnimator();
-    ReanimTrackWidgetAnimator *aTrackAnimator =
-      static_cast<ReanimTrackWidgetAnimator *>(ReconDynamicCast((void *)aAnimator, nullptr, nullptr, 0));
-    if ( aTrackAnimator != nullptr && !aTrackAnimator->mTrackName1.empty() )
-    {
-      // The animator's track name is the button's reanimation name with the
-      // " button" suffix; the exit track is that name with "_exit" appended.
-      const char *aName = aTrackAnimator->mTrackName1.c_str();
-      unsigned int aLength = aTrackAnimator->mTrackName1.size();
-      if ( aLength >= 7 && strncmp(aName + aLength - 7, " button", 7) == 0 )
-        aLength -= 7;
-      aExitTrack.assign(aName, aLength);
-      aExitTrack += "_exit";
-    }
-    else
-    {
-      aExitTrack = "anim_";
-    }
-    if ( aExitTrack.compare("anim_minigames_exit") == 0 )
+    Sexy::String exitTrack = GetButtonTransitionTrackName(aButton->GetAnimator(), "_exit");
+    if ( !exitTrack.empty() )
+      mExitTrackName = exitTrack;
+    if ( mExitTrackName.compare("anim_minigames_exit") == 0 )
       mStoreIntro = true;
   }
   MenuWidget::Exit();
@@ -2011,21 +2009,8 @@ int MainMenu::DrawFade(Sexy::Graphics *theGraphics)
   Reanimation *aMainMenuReanim = mApp->ReanimationTryToGet(mBackdropReanimID);
   if ( aButton != nullptr && aMainMenuReanim != nullptr )
   {
-    // The iris origin is a track of the pressed button's own reanimation, named
-    // after that reanimation: the animator's track name minus " button".
-    Sexy::String aIrisTrack;
-    Sexy::WidgetAnimator *aAnimator = aButton->GetAnimatorForState(Sexy::WidgetAnimationState(0));
-    ReanimTrackWidgetAnimator *aTrackAnimator =
-      static_cast<ReanimTrackWidgetAnimator *>(ReconDynamicCast((void *)aAnimator, nullptr, nullptr, 0));
-    if ( aTrackAnimator != nullptr && !aTrackAnimator->mTrackName1.empty() )
-    {
-      const char *aName = aTrackAnimator->mTrackName1.c_str();
-      unsigned int aLength = aTrackAnimator->mTrackName1.size();
-      if ( aLength >= 7 && strncmp(aName + aLength - 7, " button", 7) == 0 )
-        aLength -= 7;
-      aIrisTrack.assign(aName, aLength);
-      aIrisTrack += "_exit_iris_pos";
-    }
+    Sexy::String aIrisTrack = GetButtonTransitionTrackName(
+      aButton->GetAnimatorForState(Sexy::WidgetAnimationState(0)), "_exit_iris_pos");
 
     ReanimatorTransform aTransform;
     int aTrackIndex = aMainMenuReanim->FindTrackIndex(aIrisTrack.c_str());
@@ -2037,12 +2022,12 @@ int MainMenu::DrawFade(Sexy::Graphics *theGraphics)
     }
 
     theGraphics->SetColor(Sexy::Color(0, 0, 0, 255));
-    // The hole grows to full size by 0.6 and then shrinks away again by 0.9.
+    // DrawFade @0x19D0AC: shrink from 3 to 1 over 0..0.4, then close over 0.65..0.9.
     float aScale;
     if ( mFadeCounterFloat < 0.6f )
-      aScale = TodAnimateCurveFloatTime(0.0f, 0.6f, mFadeCounterFloat, 1.0f, 1.0f, TodCurves(4));
+      aScale = TodAnimateCurveFloatTime(0.0f, 0.4f, mFadeCounterFloat, 3.0f, 1.0f, CURVE_EASE_IN_OUT);
     else
-      aScale = TodAnimateCurveFloatTime(0.6f, 0.9f, mFadeCounterFloat, 1.0f, 0.0f, TodCurves(3));
+      aScale = TodAnimateCurveFloatTime(0.65f, 0.9f, mFadeCounterFloat, 1.0f, 0.0f, CURVE_EASE_OUT);
 
     if ( mFadeCounterFloat >= 0.9f )
     {
@@ -2099,7 +2084,7 @@ void MainMenu::DrawOverlay(Sexy::Graphics *theGraphics)
   if ( aPlayerInfo == nullptr )
     return;
 
-  if ( !mRetainWidgetsOnExit )
+  if ( !mFirstTimeAdventure )
   {
     // The level badge counts off in tens and caps at six pages.
     int aLevel = aPlayerInfo->mLevel;
@@ -2130,14 +2115,14 @@ void MainMenu::DrawOverlay(Sexy::Graphics *theGraphics)
     }
 
     Reanimation *aMainMenuReanim = mApp->ReanimationTryToGet(mBackdropReanimID);
-    Sexy::Widget *aAdventureButton = FindWidget(ADVENTURE_BUTTON);
+    GameButton *aAdventureButton = dynamic_cast<GameButton *>(FindWidget(ADVENTURE_BUTTON));
     if ( aAdventureButton != nullptr && aMainMenuReanim != nullptr )
     {
       int aTrackIndex = aMainMenuReanim->FindTrackIndex("adventure");
       int aButtonOffsetX = IsWideScreen(mApp) ? 0 : -160;
       // GameButton::IsButtonDown is the button's own override of the base's
       // predicate; the pressed state is what the badge shifts down for.
-      bool aPressed = static_cast<GameButton *>(aAdventureButton)->IsButtonDown();
+      bool aPressed = aAdventureButton->IsButtonDown();
       float aButtonOffsetY;
       if ( aPressed )
       {
@@ -2203,9 +2188,9 @@ void MainMenu::DrawOverlay(Sexy::Graphics *theGraphics)
     }
   }
 
-  // The crow's bubble follows the crow, clipped to the menu's own frame.
-  Reanimation *aCrowReanim = mApp->ReanimationTryToGet(mCrowReanimID);
-  if ( aCrowReanim != nullptr )
+  // DrawOverlay @0x19D376 reads the zombie hand at +0x148, not the crow at +0x14C.
+  Reanimation *aHandReanim = mApp->ReanimationTryToGet(mZombieHandReanimID);
+  if ( aHandReanim != nullptr )
   {
     theGraphics->PushState();
     if ( IsWideScreen(mApp) )
@@ -2215,19 +2200,20 @@ void MainMenu::DrawOverlay(Sexy::Graphics *theGraphics)
     }
     else
     {
-      theGraphics->mTransX = 60.0f;
-      theGraphics->mTransY = 80.0f;
+      theGraphics->mTransX = 80.0f;
+      theGraphics->mTransY = 60.0f;
     }
     theGraphics->SetClipRect(0, 0, 800, 560);
-    aCrowReanim->Draw(theGraphics);
+    aHandReanim->Draw(theGraphics);
     theGraphics->PopState();
   }
 
-  if ( mOverlayReanimID == 0 )
+  // @0x19D45E draws the falling leaves at +0x150 on the left scene.
+  if ( mMenuScene == MENUSCENE_MORE_WAYS )
   {
-    Reanimation *aButterflyReanim = mApp->ReanimationTryToGet(mButterflyReanimID);
-    if ( aButterflyReanim != nullptr )
-      aButterflyReanim->Draw(theGraphics);
+    Reanimation *aLeavesReanim = mApp->ReanimationTryToGet(mFallingLeavesReanimID);
+    if ( aLeavesReanim != nullptr )
+      aLeavesReanim->Draw(theGraphics);
   }
 
   if ( mIsFading )
