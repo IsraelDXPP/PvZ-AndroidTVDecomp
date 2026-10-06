@@ -670,11 +670,14 @@ void MainMenu::SetScene(unsigned int theScene)
   // becomes the one on screen, and the new target starts a fresh slide.
   int aOldScene = InTransition() ? mTargetMenuScene : mMenuScene;
   if ( InTransition() )
+  {
     mMenuScene = aOldScene;
+    // 0x19A658 only resets this offset when interrupting an existing slide.
+    if ( theScene <= MENUSCENE_EXTRA )
+      mCameraOffsetY = msMenuOffsetX[aOldScene];
+  }
   mTargetMenuScene = theScene;
   mTransitionCounter = 100;
-  if ( InTransition() && theScene <= MENUSCENE_EXTRA )
-    mCameraOffsetY = msMenuOffsetX[aOldScene];
 
   const char *aTrackName = nullptr;
   if ( aOldScene == MENUSCENE_MAIN )
