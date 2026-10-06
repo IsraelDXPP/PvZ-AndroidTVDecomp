@@ -1757,7 +1757,7 @@ Sexy::ImageFont::ImageFont(Sexy::SexyAppBase* theApp, Sexy::String const& theFil
         if (aData != nullptr
             && SerializeRead(aData + sizeof(mDigest), aByteCount - (int)sizeof(mDigest)) != 0)
         {
-            logfi("Loaded cached %s successfully.", aData);
+            logfi("Loaded cached %s successfully.", theFileName.c_str());
             return;
         }
     }
