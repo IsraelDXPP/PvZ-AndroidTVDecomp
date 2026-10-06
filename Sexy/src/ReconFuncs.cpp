@@ -1576,16 +1576,6 @@ void SimpleMessageWidget::Update()
 {
 }
 
-int HelpBarWidget::DrawButtons(Sexy::Graphics* theGraphics, std::vector<HelpBarWidget::ButtonDef>& theButtons,
-                               int theSelected, float theAlpha)
-{
-    (void)theGraphics;
-    (void)theButtons;
-    (void)theSelected;
-    (void)theAlpha;
-    return 0;
-}
-
 void ToolTipWidget::GetLines(std::vector<Sexy::String>& theLines)
 {
     // Wrap mLabel on spaces and newlines to mGetsLinesWidth, measuring each

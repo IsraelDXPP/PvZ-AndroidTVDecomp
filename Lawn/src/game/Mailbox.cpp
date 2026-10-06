@@ -76,7 +76,8 @@ long long ParseOfferId(const Sexy::String& theText)
 
 void EnsureImage(Sexy::SharedImageRef& theImage, const Sexy::String& thePath)
 {
-    if ((Sexy::Image*)theImage != nullptr)
+    Sexy::Image* image = theImage;
+    if (image != nullptr)
         return;
     if (thePath.empty())
         return;
@@ -103,7 +104,7 @@ bool Mailbox::MessagesLoaded()
 bool Mailbox::CheckMessageRead(int theMessageId)
 {
     // 32 bytes, 8 messages each. Message 0 is the low bit of byte 0.
-    if (theMessageId < 0)
+    if (theMessageId < 0 || mApp->mPlayerInfo == nullptr)
         return false;
     int aByte = theMessageId / 8;
     int aBit = theMessageId % 8;
@@ -112,16 +113,15 @@ bool Mailbox::CheckMessageRead(int theMessageId)
     return (mApp->mPlayerInfo->mMailMessageRead[aByte] & (unsigned char)(1 << aBit)) != 0;
 }
 
-Mailbox* Mailbox::MarkMessageSeen(int theMessageId)
+void Mailbox::MarkMessageSeen(int theMessageId)
 {
-    if (theMessageId < 0)
-        return this;
+    if (theMessageId < 0 || mApp->mPlayerInfo == nullptr)
+        return;
     int aByte = theMessageId / 8;
     int aBit = theMessageId % 8;
     if (aByte >= 32)
-        return this;
+        return;
     mApp->mPlayerInfo->mMailMessageSeen[aByte] |= (unsigned char)(1 << aBit);
-    return this;
 }
 
 int Mailbox::GetNumReadMessages()
@@ -131,7 +131,7 @@ int Mailbox::GetNumReadMessages()
 
 int Mailbox::GetReadMessage(int theIndex)
 {
-    return mReadMessages[theIndex];
+    return theIndex >= 0 && theIndex < GetNumReadMessages() ? mReadMessages[theIndex] : -1;
 }
 
 int Mailbox::GetNumUnreadMessages()
@@ -141,7 +141,7 @@ int Mailbox::GetNumUnreadMessages()
 
 int Mailbox::GetUnreadMessage(int theIndex)
 {
-    return mUnreadMessages[theIndex];
+    return theIndex >= 0 && theIndex < GetNumUnreadMessages() ? mUnreadMessages[theIndex] : -1;
 }
 
 void Mailbox::ReleaseMessageImages()
@@ -150,23 +150,30 @@ void Mailbox::ReleaseMessageImages()
          aMessage != mMessages.end();
          ++aMessage)
     {
-        aMessage->second.mPreviewImage.Release();
-        aMessage->second.mBodyImage.Release();
+        aMessage->second.mMessageImage.Release();
+        aMessage->second.mBackgroundImage.Release();
     }
 }
 
 void Mailbox::Cleanup()
 {
     mMessages.clear();
+    mUnreadMessages.clear();
+    mReadMessages.clear();
+    mLoadState = 0;
 }
 
 void Mailbox::MarkMessageRead(int theMessageId)
 {
-    if (theMessageId < 0)
+    if (theMessageId < 0 || mApp->mPlayerInfo == nullptr)
         return;
     int aByte = theMessageId / 8;
     int aBit = theMessageId % 8;
     if (aByte >= 32)
+        return;
+
+    auto message = mMessages.find(theMessageId);
+    if (message == mMessages.end() || !message->second.mIsValid)
         return;
 
     mApp->mPlayerInfo->mMailMessageRead[aByte] |= (unsigned char)(1 << aBit);
@@ -176,32 +183,22 @@ void Mailbox::MarkMessageRead(int theMessageId)
     if (aFound != mUnreadMessages.end())
         mUnreadMessages.erase(aFound);
 
-    mReadMessages.push_back(theMessageId);
+    if (std::find(mReadMessages.begin(), mReadMessages.end(), theMessageId) == mReadMessages.end())
+        mReadMessages.push_back(theMessageId);
+    message->second.mIsRead = true;
 }
 
-Mailbox::MailMessage* Mailbox::GetMessageByIndex(int theIndex, bool theReadPage)
+Mailbox::MailMessage* Mailbox::GetMessageByIndex(int theIndex, bool theLoadImages)
 {
     std::map<int, MailMessage>::iterator aFound = mMessages.find(theIndex);
     if (aFound == mMessages.end())
         return &INVALID_MESSAGE;
 
     MailMessage& aMessage = aFound->second;
-    if (theReadPage)
+    if (theLoadImages)
     {
-        // The preview is the background. When it is already loaded, a missing
-        // body image is filled from the note path. When it is missing, the
-        // background is loaded first and the note is loaded only if it was empty.
-        if ((Sexy::Image*)aMessage.mPreviewImage != nullptr)
-        {
-            if ((Sexy::Image*)aMessage.mBodyImage == nullptr)
-                EnsureImage(aMessage.mBodyImage, aMessage.mBackgroundPath);
-        }
-        else
-        {
-            EnsureImage(aMessage.mPreviewImage, aMessage.mImagePath);
-            if ((Sexy::Image*)aMessage.mBodyImage == nullptr)
-                EnsureImage(aMessage.mBodyImage, aMessage.mBackgroundPath);
-        }
+        EnsureImage(aMessage.mMessageImage, aMessage.mImagePath);
+        EnsureImage(aMessage.mBackgroundImage, aMessage.mBackgroundPath);
     }
     return &aMessage;
 }
@@ -219,7 +216,7 @@ int Mailbox::GetNumUnseenMessages()
         {
             MailMessage* aMessage = GetMessageByIndex(aBit + 8 * aByte, false);
             int aLevel = aPlayerInfo->mLevel;
-            if (((LawnApp*)gLawnApp)->mPlayerInfo->GetFlag((PlayerFlags)1))
+            if (aPlayerInfo->GetFlag(PLAYER_FLAG_ADVENTURE_COMPLETE))
                 aLevel = 50;
             int aMask = 1 << aBit;
             if (aLevel >= aMessage->mMinLevel
@@ -236,7 +233,8 @@ int Mailbox::GetNumUnseenMessages()
 void Mailbox::ParseManifest(const Sexy::String& thePath)
 {
     Sexy::XMLParser aParser;
-    aParser.OpenFile(thePath);
+    if (!aParser.OpenFile(thePath))
+        return;
 
     bool aLocalFile = thePath == "properties/local_mailbox.xml";
 
@@ -254,8 +252,12 @@ void Mailbox::ParseManifest(const Sexy::String& thePath)
         StringToInt(aElement.GetAttribute(Sexy::String("id")), &aId);
 
         Sexy::String aImage = aElement.GetAttribute(Sexy::String("image"));
-        if (aId == -1 || aImage.empty())
+        if (aId < 0 || aId >= 256 || aImage.empty())
             continue;
+
+        // A manifest can replace an existing id; keep each id on just one page.
+        mUnreadMessages.erase(std::remove(mUnreadMessages.begin(), mUnreadMessages.end(), aId), mUnreadMessages.end());
+        mReadMessages.erase(std::remove(mReadMessages.begin(), mReadMessages.end(), aId), mReadMessages.end());
 
         MailMessage aMessage;
         aMessage.mImagePath = aImage;
@@ -266,13 +268,13 @@ void Mailbox::ParseManifest(const Sexy::String& thePath)
         aMessage.mMessageOffsetX = AttributeFloat(aElement, "messageOffsetX", 51.0f);
         aMessage.mMessageOffsetY = AttributeFloat(aElement, "messageOffsetY", 52.0f);
         aMessage.mMinLevel = AttributeInt(aElement, "deliveryLevel", 0);
-        aMessage.mHasOffer = aElement.HasAttribute(Sexy::String("offerID")) ? 1 : 0;
+        aMessage.mHasOffer = aElement.HasAttribute(Sexy::String("offerID"));
         aMessage.mOfferId = 0;
         if (aMessage.mHasOffer)
             aMessage.mOfferId = ParseOfferId(aElement.GetAttribute(Sexy::String("offerID")));
-        aMessage.mFromRemoteManifest = aLocalFile ? 0 : 1;
-        aMessage.mIsRead = CheckMessageRead(aId) ? 1 : 0;
-        aMessage.mIsValid = 1;
+        aMessage.mFromLocalManifest = aLocalFile;
+        aMessage.mIsRead = CheckMessageRead(aId);
+        aMessage.mIsValid = true;
 
         if (aMessage.mIsRead)
             mReadMessages.push_back(aId);
@@ -281,11 +283,11 @@ void Mailbox::ParseManifest(const Sexy::String& thePath)
 
         mMessages[aId] = aMessage;
     }
+    mLoadState = 3;
 }
 
 void Mailbox::RefreshMessages()
 {
-    mUnreadMessages.clear();
-    mReadMessages.clear();
+    Cleanup();
     ParseManifest("properties/local_mailbox.xml");
 }

@@ -50,14 +50,12 @@ class HelpBarWidget : public Sexy::Widget
 public:
     // HelpBarWidget::HelpAlign -- a class-scope enum in the binary
     // (`HelpBarWidget::HelpAlign` is the mangled parameter type of AddButton).
-    // The authoritative header recovers only HELP_ALIGN_NONE, but AddButton call
-    // sites pass real alignment values, so more enumerators exist.
-    // TODO(recon): recover the remaining enumerators from the AddButton call
-    // sites; Sexy\ReconTypes.h still carries the old placeholder
-    // `HelpBarWidget_HelpAlign` which this enum replaces.
+    // Alignment values are recovered from AddButton and DrawButtons.
     enum HelpAlign
     {
         HELP_ALIGN_NONE = -1,
+        HELP_ALIGN_LEFT = 0,
+        HELP_ALIGN_RIGHT = 1,
     };
 
     virtual ~HelpBarWidget();
@@ -71,28 +69,19 @@ public:
     // slot 36
     virtual void Draw(Sexy::Graphics * theGraphics);
 
-    // One help-button entry. The vector's stride is 20 bytes -- DrawButtons walks
-    // it with `v11 += 20`, and the record's own fields sit at +0x04 (a string
-    // storage), +0x08, +0x0C (a byte) and +0x10.
-    // TODO(recon): only the button id is certain; the rest are still unnamed.
+    // One help-button entry, including its column, row and animation state.
     struct ButtonDef
     {
         int mButton;
         Sexy::String mLabel;
-        int mAlign;
-        unsigned char mLeaving;
-        unsigned char mPad0D[3];
+        HelpAlign mAlign;
+        bool mAnimating;
         int mRow;
     };
 
-    // The default help-bar position, named as a static in
-    // `HelpBarWidget::Resize(this, HelpBarWidget::DEFAULT_POS, ...)`.
-    static const int DEFAULT_POS = 0;
-
-    // HelpBarWidget::OFFSCREEN_POS -- a class-scope global in the binary
-    // (_ZN13HelpBarWidget13OFFSCREEN_POSE @0x69e44c, data is all 0xFF). The
-    // dump slides the bar to it before the intro animation.
-    static const int OFFSCREEN_POS = -1;
+    // Initialized as two float points by the original startup @0x12F838.
+    static Sexy::TPoint<float> DEFAULT_POS;
+    static const Sexy::TPoint<float> OFFSCREEN_POS;
 
     // ---- members, absolute offsets (base Sexy::Widget = 0x100) ----
     // Both button arrays are libstdc++ vectors of ButtonDef: the binary inserts
@@ -107,13 +96,8 @@ public:
     int mAnimCounter;            // +0x128
 
     // ---- methods that are not vtable slots (kept from the transcription) ----
-    // The button renderer @0x1470BC. Its mangled name is
-    // `_ZN13HelpBarWidget11DrawButtonsEPN4Sexy8GraphicsERSt6vectorINS_9ButtonDefESaIS4_EEbf`,
-    // i.e. (Graphics *, std::vector<ButtonDef> &, bool, float). The declaration
-    // keeps the transcription's `void *`/`int` spelling for the middle two
-    // parameters because Sexy\ReconFuncs.cpp:1889 defines that exact signature;
-    // Draw passes one of the two button vectors and the 0/1 the binary uses.
-    int DrawButtons(Sexy::Graphics *theGraphics, std::vector<ButtonDef> &theButtons, int theSelected, float theAlpha);
+    // Button renderer @0x1470BC: incoming/outgoing set and fade alpha.
+    void DrawButtons(Sexy::Graphics* theGraphics, std::vector<ButtonDef>& theButtons, bool theIncoming, float theAlpha);
     HelpBarWidget();
     void AddButton(Sexy::GamepadButton theButton, Sexy::String theLabel, HelpAlign theAlign);
     void ClearButtons(unsigned int theFirstKept);

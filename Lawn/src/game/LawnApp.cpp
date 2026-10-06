@@ -4532,7 +4532,7 @@ void LawnApp::OnFullVersionLicenseChange()
 int LawnApp::ShowHelpBarWidget()
 {
   // An unbuilt bar asks the widget manager to add it first.
-  if ( mHelpBarWidget->mAnimator == nullptr )
+  if ( mHelpBarWidget->mWidgetManager == nullptr )
     mWidgetManager->AddWidget(mHelpBarWidget);
 
   if ( !mHelpBarWidget->mVisible )
@@ -4540,18 +4540,20 @@ int LawnApp::ShowHelpBarWidget()
     // Start off screen and slide in.
     mHelpBarWidget->mDisabled = false;
     mHelpBarWidget->mVisible = true;
-    mHelpBarWidget->Move(HelpBarWidget::OFFSCREEN_POS, (int)gHelpBarOffscreenY);
+    mHelpBarWidget->Move(static_cast<int>(HelpBarWidget::OFFSCREEN_POS.mX),
+                        static_cast<int>(HelpBarWidget::OFFSCREEN_POS.mY));
   }
 
-  if ( mHelpBarWidget->mY == (int)gHelpBarRestY )
+  if ( mHelpBarWidget->mY == static_cast<int>(HelpBarWidget::DEFAULT_POS.mY) )
   {
     // Already at rest: no animation.
     mHelpBarWidget->SetAnimator(nullptr);
   }
   else
   {
-    mHelpBarWidget->Move(HelpBarWidget::DEFAULT_POS, (int)gHelpBarRestY);
-    SlideInOutWidgetAnimator *aAnimator = new SlideInOutWidgetAnimator(mHelpBarWidget, 0, 0);
+    mHelpBarWidget->Move(static_cast<int>(HelpBarWidget::DEFAULT_POS.mX),
+                        static_cast<int>(HelpBarWidget::DEFAULT_POS.mY));
+    SlideInOutWidgetAnimator *aAnimator = new SlideInOutWidgetAnimator(mHelpBarWidget, SlideInOutWidgetAnimator::SLIDE_FROM_BOTTOM, 0);
     aAnimator->Init((Sexy::WidgetAnimationState)1);
     mHelpBarWidget->SetAnimator(aAnimator);
   }
@@ -4568,8 +4570,9 @@ Sexy::WidgetAnimator * LawnApp::HideHelpBarWidget()
   if ( !mHelpBarWidget->mVisible )
     return nullptr;
 
-  mHelpBarWidget->Move(HelpBarWidget::DEFAULT_POS, (int)gHelpBarRestY);
-  SlideInOutWidgetAnimator *aAnimator = new SlideInOutWidgetAnimator(mHelpBarWidget, 0, 0);
+  mHelpBarWidget->Move(static_cast<int>(HelpBarWidget::DEFAULT_POS.mX),
+                      static_cast<int>(HelpBarWidget::DEFAULT_POS.mY));
+  SlideInOutWidgetAnimator *aAnimator = new SlideInOutWidgetAnimator(mHelpBarWidget, SlideInOutWidgetAnimator::SLIDE_FROM_BOTTOM, 0);
   aAnimator->Init((Sexy::WidgetAnimationState)2);
   return mHelpBarWidget->SetAnimator(aAnimator);
 }

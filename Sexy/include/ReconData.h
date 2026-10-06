@@ -133,8 +133,6 @@ extern TestDialogRecord* gTestDialogCapacity;
 
 
 
-extern float gHelpBarOffscreenY;
-extern float gHelpBarRestY;
 extern float gMaskHelpFade;
 
 

@@ -797,7 +797,10 @@ enum PlantPriority : int
 // demangled type and emitted a one-int struct; the call sites pass plain
 // integers, so it needs the conversions an enum has. Size and layout are
 // unchanged (one int), and `.mValue` still names the value.
-enum PlayerFlags : int {};
+enum PlayerFlags : int
+{
+    PLAYER_FLAG_ADVENTURE_COMPLETE = 1,
+};
 
 // ProjectileType -- an enum in the binary. The transcription could not classify the
 // demangled type and emitted a one-int struct; the call sites pass plain

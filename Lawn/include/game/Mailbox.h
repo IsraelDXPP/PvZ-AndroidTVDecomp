@@ -20,22 +20,21 @@ public:
     // writes into the tree node, and the values MailScreen draws with.
     struct MailMessage
     {
-        Sexy::SharedImageRef mPreviewImage; // node + 24
-        Sexy::SharedImageRef mBodyImage;    // node + 36
+        Sexy::SharedImageRef mMessageImage; // node + 24
+        Sexy::SharedImageRef mBackgroundImage; // node + 36
         Sexy::String mImagePath;            // node + 48  the note image
         Sexy::String mAlphaGridPath;        // node + 52
         Sexy::String mBackgroundPath;       // node + 56
-        float mBackgroundOffsetX;           // node + 60  default 100
-        float mBackgroundOffsetY;           // node + 64  default 150
-        float mMessageOffsetX;              // node + 68  default 51
-        float mMessageOffsetY;              // node + 72  default 52
-        unsigned char mHasOffer;            // node + 76  offerID parsed
-        long long mOfferId;                 // node + 80
-        int mMinLevel;                      // node + 88  deliveryLevel
-        unsigned char mFromRemoteManifest;  // node + 92  path is not the local file
-        unsigned char mIsRead;              // node + 93
-        unsigned char mIsValid;             // node + 94
-        unsigned char mPad95;
+        float mMessageOffsetX = 0.0f;       // node + 60, relative to background
+        float mMessageOffsetY = 0.0f;       // node + 64
+        float mBackgroundOffsetX = 0.0f;    // node + 68, absolute position
+        float mBackgroundOffsetY = 0.0f;    // node + 72
+        bool mHasOffer = false;
+        long long mOfferId = 0;
+        int mMinLevel = 0;
+        bool mFromLocalManifest = false;
+        bool mIsRead = false;
+        bool mIsValid = false;
     };
 
     LawnApp* mApp;
@@ -48,7 +47,7 @@ public:
     void Update();
     bool MessagesLoaded();
     bool CheckMessageRead(int theMessageId);
-    Mailbox* MarkMessageSeen(int theMessageId);
+    void MarkMessageSeen(int theMessageId);
     int GetNumReadMessages();
     int GetReadMessage(int theIndex);
     int GetNumUnreadMessages();
@@ -56,7 +55,7 @@ public:
     void ReleaseMessageImages();
     void Cleanup();
     void MarkMessageRead(int theMessageId);
-    MailMessage* GetMessageByIndex(int theIndex, bool theReadPage);
+    MailMessage* GetMessageByIndex(int theIndex, bool theLoadImages);
     int GetNumUnseenMessages();
     void ParseManifest(const Sexy::String& thePath);
     void RefreshMessages();
