@@ -1511,19 +1511,20 @@ void MainMenu::AddedToManager(Sexy::WidgetManager *theWidgetManager)
 // ==========================================================================
 int MainMenu::KeyChar(char theChar)
 {
+#ifdef _DEBUG
   Sexy::String aTemp;
   if ( mCreateUserDialogOpened )
     return 1;
-  if ( gIsPartnerBuild == 0 && (!mApp->mShutDown || gDisableDebugKeys != 0) )
+  if (!mApp->mDebugKeysEnabled || gDisableDebugKeys)
     return 1;
 
-  // The debug keys the profile's cheat flag gates: 'u' unlocks everything.
+  // TV 0x19C02C: 'u' unlocks the current profile.
   if ( theChar == 'u' )
   {
     if ( mApp->mPlayerInfo != nullptr )
     {
     StrFormat(&aTemp, "Selector cheat key '%c'", 'u');
-    mApp->mPlayerInfo->SetFlag(1, 1);
+    mApp->mPlayerInfo->SetFlag(PLAYER_FLAG_ADVENTURE_COMPLETE, true);
     mApp->mPlayerInfo->SetFlag(0x8000, 1);
     mApp->mPlayerInfo->AddCoins(50000);
     mApp->mPlayerInfo->SetFlag(2, 1);
@@ -1542,6 +1543,7 @@ int MainMenu::KeyChar(char theChar)
         mApp->mPlayerInfo->mChallengeRecords[i - 2] = 20;
     }
     mApp->mPlayerInfo->mLevel = 1;
+    mApp->TryToSaveProfile();
     SyncProfile(true);
     Sexy::String aSavedGameName;
     GetSavedGameName(&aSavedGameName, GAMEMODE_ADVENTURE,
@@ -1562,11 +1564,8 @@ int MainMenu::KeyChar(char theChar)
     mApp->DoUserDialog();
   }
 
-  if ( theChar == 'u' || theChar == 'l' || theChar == 'c' )
   {
-    if ( !mApp->mShutDown || gDisableDebugKeys != 0 )
-      return 1;
-    // These only fire while the game is shutting down and debug keys are on.
+    // The remaining selector keys are independent of the profile shortcuts.
     StrFormat(&aTemp, "Selector cheat key '%c'", theChar);
     switch ( theChar & 0xDF )
     {
@@ -1588,7 +1587,7 @@ int MainMenu::KeyChar(char theChar)
         break;
       case 'Q':
         mApp->KillGameSelector();
-        mApp->ShowChallengeScreen(ChallengePage(2));
+        mApp->ShowChallengeScreen(CHALLENGE_PAGE_LIMBO);
         break;
       case 'C':
         mMiniGameLocked = false;
@@ -1619,7 +1618,7 @@ int MainMenu::KeyChar(char theChar)
         break;
       case 'P':
         mApp->KillGameSelector();
-        mApp->ShowChallengeScreen(ChallengePage(3));
+        mApp->ShowChallengeScreen(CHALLENGE_PAGE_COOP);
         break;
       case 'm':
         mApp->AddDialog(new MailScreen(mApp));
@@ -1628,6 +1627,9 @@ int MainMenu::KeyChar(char theChar)
         break;
     }
   }
+#else
+  (void)theChar;
+#endif
   return 1;
 }
 

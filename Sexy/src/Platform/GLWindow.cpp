@@ -68,6 +68,17 @@ static int KeyCodeFromGlfw(int theGlfwKey)
     case GLFW_KEY_RIGHT:     return 0x27;
     case GLFW_KEY_MENU:      return 0x12;
     case GLFW_KEY_SPACE:     return 0x20;
+#ifdef _DEBUG
+    case GLFW_KEY_BACKSPACE: return 0x08;
+    case GLFW_KEY_TAB:       return 0x09;
+    case GLFW_KEY_HOME:      return 0x24;
+    case GLFW_KEY_END:       return 0x23;
+    case GLFW_KEY_DELETE:    return 0x2E;
+    case GLFW_KEY_LEFT_SHIFT:
+    case GLFW_KEY_RIGHT_SHIFT:   return 0x10;
+    case GLFW_KEY_LEFT_CONTROL:
+    case GLFW_KEY_RIGHT_CONTROL: return 0x11;
+#endif
     default:                 return 0;
     }
 }
@@ -116,6 +127,16 @@ bool GLWindow::PopKeyEvent(Event& theEvent)
     gGlfwKeyEvents.erase(gGlfwKeyEvents.begin());
     return true;
 }
+
+#ifdef _DEBUG
+void GLWindow::CharacterCallback(GLFWwindow*, unsigned int theCodePoint)
+{
+    Event aCharacterEvent = {};
+    aCharacterEvent.modifiers = Event::CHARACTER_INPUT;
+    aCharacterEvent.eventCodeMask = (int)theCodePoint;
+    gGlfwKeyEvents.push_back(aCharacterEvent);
+}
+#endif
 
 bool GLWindow::IsGlfwKeyDown(int theGlfwKey)
 {
@@ -172,6 +193,9 @@ bool GLWindow::Create(const char* theTitle, int theWidth, int theHeight,
     }
 
     glfwSetKeyCallback(mWindow, &GLWindow::KeyCallback);
+#ifdef _DEBUG
+    glfwSetCharCallback(mWindow, &GLWindow::CharacterCallback);
+#endif
     gActiveWindow = this;
     glfwMakeContextCurrent(mWindow);
 

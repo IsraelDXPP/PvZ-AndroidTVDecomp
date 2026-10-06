@@ -485,8 +485,8 @@ int Board::ClearAdvice(AdviceType theType)
 // ==========================================================================
 int Board::ClearAdviceImmediately()
 {
-  ClearAdvice(AdviceType(-1));
-  mAdvice->mDisplayTime = 0;
+  ClearAdvice(ADVICE_NONE);
+  mAdvice->mDuration = 0;
   return 0;
 }
 
@@ -12650,11 +12650,12 @@ void Board::dumpLevelConfiguration()
 // ==========================================================================
 int Board::KeyChar(char theChar)
 {
-    // The whole body is the cheat-key handler; it is dead unless debug keys are
-    // on, and in gamepad mode a letter never reaches it.
+#ifdef _DEBUG
+    // Explicit developer mode also accepts keyboard shortcuts while a pad is connected.
     if (!mApp->mDebugKeysEnabled
         || gDisableDebugKeys
-        || (mApp->mGamePad1IsOn && (unsigned char)((theChar & 0xDF) - 'A') <= 25))
+        || (!mApp->mTodCheatKeys && mApp->mGamePad1IsOn
+            && (unsigned char)((theChar & 0xDF) - 'A') <= 25))
     {
         return 1;
     }
@@ -13277,5 +13278,8 @@ int Board::KeyChar(char theChar)
     default:
         break;
     }
+#else
+    (void)theChar;
+#endif
     return 1;
 }

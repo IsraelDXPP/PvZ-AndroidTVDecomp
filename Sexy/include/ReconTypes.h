@@ -1440,6 +1440,10 @@ namespace Sexy {
     // settled by anything in this tree yet.
     struct Event
     {
+#ifdef _DEBUG
+        // Windows text input shares the platform event queue with key presses.
+        static constexpr int CHARACTER_INPUT = 256;
+#endif
         int             modifiers;      // +0x00
         TMLongCard      modifierMask;   // +0x04
         // The input driver's slot. Callers compare and shift it as an integer

@@ -25,8 +25,10 @@
 
 #include "game/Board.h"
 #include "Font.h"
+#include "FontData.h"
 #include "Graphics.h"
 #include "LawnApp.h"
+#include "NativeDisplay.h"
 #include "Reanimation.h"
 #include "ReanimatorTransform.h"
 #include "SexyAppBase.h"
@@ -34,6 +36,21 @@
 #include <cstddef>
 #include <cstring>
 #include <string>
+#include <vector>
+
+namespace {
+
+std::vector<int> MessageCharacters(const char* theLabel)
+{
+  Sexy::String aText(theLabel);
+  std::vector<int> aCharacters;
+  unsigned int aByteIndex = 0;
+  while (aByteIndex < aText.size())
+    aCharacters.push_back(ReadCodePoint(aText, aByteIndex));
+  return aCharacters;
+}
+
+} // namespace
 
 // ==========================================================================
 // MessageWidget::~MessageWidget()
@@ -57,11 +74,11 @@ Reanimation *MessageWidget::ClearReanim()
 
   for (int i = 0; i < MAX_MESSAGE_LENGTH; ++i)
   {
-    aResult = (Reanimation *)mApp->ReanimationTryToGet(mTextReanimID[i]);
+    aResult = mApp->ReanimationTryToGet(mTextReanimID[i]);
     if (aResult != nullptr)
     {
       aResult->ReanimationDie();
-      mTextReanimID[i] = ReanimationID(-1);
+      mTextReanimID[i] = REANIMATIONID_NULL;
     }
   }
   return aResult;
@@ -142,7 +159,7 @@ MessageWidget::MessageWidget(LawnApp *theApp)
   mMessageStyleNext = MESSAGE_STYLE_OFF;
 
   for (int i = 0; i < MAX_MESSAGE_LENGTH; ++i)
-    mTextReanimID[i] = ReanimationID(-1);
+    mTextReanimID[i] = REANIMATIONID_NULL;
 }
 
 // ==========================================================================
@@ -151,42 +168,33 @@ MessageWidget::MessageWidget(LawnApp *theApp)
 // ==========================================================================
 void MessageWidget::LayoutReanimText()
 {
-  // The binary widens mLabel through Sexy::Graphics::WStringFromString and then
-  // works on the wide string, because the font's measuring slots all take the
-  // wide overloads. The tree still declares that helper's sret buffer as
-  // `int *`, so the widening -- the same conversion -- is spelled directly here.
+  // TV 0x1A3E2C lays out decoded characters, one animation per character.
   Sexy::Font *aFont = GetFont();
-  std::wstring aWideText(mLabel, mLabel + strlen(mLabel));
+  std::vector<int> aCharacters = MessageCharacters(mLabel);
 
-  mSlideOffTime = (int)aWideText.length() + 100;
+  mSlideOffTime = (int)aCharacters.size() + 100;
 
   // Measure every '\n'-separated line: the reanimated glyphs are laid out one
   // line at a time and each line is centred on its own width.
-  float aLineWidths[MAX_REANIM_LINES];
-  int aLineCount = 0;
+  std::vector<float> aLineWidths;
   int aLineStart = 0;
 
-  int aTextLength = (int)aWideText.length();
+  int aTextLength = (int)aCharacters.size();
   for (int i = 0; i <= aTextLength; ++i)
   {
-    if (i < aTextLength && aWideText[i] != L'\n')
+    if (i < aTextLength && aCharacters[i] != '\n')
       continue;
 
-    std::wstring aLine = aWideText.substr(aLineStart, i - aLineStart);
-    aLineWidths[aLineCount] = (float)aFont->StringWidthUnicode(aLine) * mFontScale;
-    ++aLineCount;
+    Sexy::String aLine = CodePointsToUtf8(std::vector<int>(
+      aCharacters.begin() + aLineStart, aCharacters.begin() + i));
+    aLineWidths.push_back((float)aFont->StringWidth(aLine) * mFontScale);
     aLineStart = i + 1;
   }
 
   // The first line starts at the left edge of the screen, shifted 120px further
   // left while the app is not in its wide layout.
-  //
-  // TODO(recon): the word at +0x2E4 of the app is
-  // SexyAppBase::mPlatformDriverOrQueue and its type was never recovered, so the
-  // flag at +0x60 of it stays a raw byte. Give that member a real type and this
-  // becomes a named read.
   float aLineX = -(aLineWidths[0] * 0.5f);
-  if (!((const bool *)mApp->mPlatformDriverOrQueue)[0x60])
+  if (!mApp->mPlatformDriverOrQueue->mWideScreen)
     aLineX -= 120.0f;
 
   if (aTextLength <= 0)
@@ -198,14 +206,14 @@ void MessageWidget::LayoutReanimText()
   int aLineIndex = 0;
   for (int i = 0;;)
   {
-    Reanimation *aReanim = (Reanimation *)mApp->AddReanimation(aLineX, aLineY, 0, mReanimType);
+    Reanimation *aReanim = mApp->AddReanimation(aLineX, aLineY, 0, mReanimType);
     aReanim->mIsAttachment = true;
     aReanim->PlayReanim("anim_enter", REANIM_PLAY_ONCE_AND_HOLD, 0, 0.0);
     mTextReanimID[i] = mApp->ReanimationGetID(aReanim);
 
-    aLineX += (float)aFont->CharWidth(aWideText[i]) * mFontScale;
+    aLineX += (float)aFont->CharWidth(aCharacters[i]) * mFontScale;
 
-    if (aWideText[i] == L'\n')
+    if (aCharacters[i] == '\n')
     {
       ++aLineIndex;
       aLineX = -(aLineWidths[aLineIndex] * 0.5f);
@@ -317,11 +325,10 @@ void MessageWidget::Update()
   if (aBoard == nullptr || aBoard->mPaused)
     return;
 
-  int aTimeLeft = mDuration - 1;
-  if (aTimeLeft <= 9999)
+  if (mDuration > 0 && mDuration < 10000)
   {
-    mDuration = aTimeLeft;
-    if (aTimeLeft == 0)
+    --mDuration;
+    if (mDuration == 0)
     {
       MessageStyle aNextStyle = mMessageStyleNext;
       mMessageStyle = MESSAGE_STYLE_OFF;
@@ -335,13 +342,13 @@ void MessageWidget::Update()
     }
   }
 
-  int aCharCount = (int)strlen(mLabel);
+  int aCharCount = (int)MessageCharacters(mLabel).size();
   if (aCharCount <= 0)
     return;
 
   for (int i = 0;;)
   {
-    Reanimation *aReanim = (Reanimation *)mApp->ReanimationTryToGet(mTextReanimID[i]);
+    Reanimation *aReanim = mApp->ReanimationTryToGet(mTextReanimID[i]);
     if (aReanim == nullptr)
       return;
 
@@ -384,14 +391,14 @@ void MessageWidget::Update()
 // ==========================================================================
 void MessageWidget::DrawReanimatedText(Sexy::Graphics *theGraphics, Sexy::Font *theFont, Color const &theColor, float thePos)
 {
-  std::wstring aWideText(mLabel, mLabel + strlen(mLabel));
+  std::vector<int> aCharacters = MessageCharacters(mLabel);
 
-  int aTextLength = (int)aWideText.length();
+  int aTextLength = (int)aCharacters.size();
   float aFontScale = mFontScale;
 
   for (int i = 0; i < aTextLength; ++i)
   {
-    Reanimation *aReanim = (Reanimation *)mApp->ReanimationTryToGet(mTextReanimID[i]);
+    Reanimation *aReanim = mApp->ReanimationTryToGet(mTextReanimID[i]);
     if (aReanim == nullptr)
       return;
 
@@ -424,7 +431,7 @@ void MessageWidget::DrawReanimatedText(Sexy::Graphics *theGraphics, Sexy::Font *
     Sexy::SexyMatrix3 aMatrix;
     aReanim->MatrixFromTransform(aTransform, aMatrix);
 
-    Sexy::String aGlyph(1, (char)(unsigned char)aWideText[i]);
+    Sexy::String aGlyph = CodePointsToUtf8({aCharacters[i]});
     TodDrawStringMatrix(theGraphics, theFont, aMatrix, aGlyph, aColor);
   }
 }

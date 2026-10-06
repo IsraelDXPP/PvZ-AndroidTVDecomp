@@ -798,6 +798,13 @@ bool SexyAppBase::ProcessMessage(Sexy::Event& theEvent)
 {
     switch (theEvent.modifiers)
     {
+#ifdef _DEBUG
+        case Sexy::Event::CHARACTER_INPUT:
+            mLastUserInputTick = mLastTimerTime;
+            if (mWidgetManager != nullptr)
+                mWidgetManager->KeyUnicode((int)theEvent.eventCodeMask);
+            return true;
+#endif
         case 1:
         {
             mLastUserInputTick = mLastTimerTime;

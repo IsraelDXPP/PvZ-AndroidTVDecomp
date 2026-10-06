@@ -47,6 +47,9 @@ struct LaunchOptions
     int height = 720;
     int frames = 0;
     bool headless = false;
+#ifdef _DEBUG
+    bool debugKeys = false;
+#endif
 };
 
 static std::string NarrowArgument(const wchar_t* text)
@@ -104,6 +107,10 @@ static LaunchOptions ParseCommandLine()
         }
         else if (arg == "--headless" || arg == "--test-pattern")
             options.headless = true;
+#ifdef _DEBUG
+        else if (arg == "-tod")
+            options.debugKeys = true;
+#endif
     }
     return options;
 }
@@ -166,6 +173,10 @@ static int Run(const LaunchOptions& options)
     }
 
     LawnApp* app = new LawnApp();
+#ifdef _DEBUG
+    if (options.debugKeys)
+        app->HandleCmdLineParam("-tod", "");
+#endif
     app->HardwareInit();
     app->Startup();
     app->Start();

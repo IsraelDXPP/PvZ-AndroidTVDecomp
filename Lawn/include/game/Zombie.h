@@ -286,7 +286,7 @@ public:
     void AttachShield();
     void ReanimShowTrack(char const *theTrackName, int theRenderGroup);
     int DoDaisies();
-    int HasShadow();
+    bool HasShadow();
     int SetupDrawZombieWon(Sexy::Graphics *g);
     Reanimation * GetTrackPosition(char const *theTrackName, float &thePosX, float &thePosY);
     int DropFlag();

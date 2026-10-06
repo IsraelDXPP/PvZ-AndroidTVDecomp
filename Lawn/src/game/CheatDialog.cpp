@@ -18,23 +18,18 @@
 #include "ReanimationWidget.h"
 #include "WidgetManager.h"
 
-// The libc ctype table the binary reaches as `ctype_`: one byte per entry,
-// indexed by the character value plus one (the body spells the +1 itself).
-// ReconData.h declares it and ReconData.cpp defines it, so it must not be
-// redeclared here: a file-local `ctype_` is a different type and is C2373.
-// TODO(recon): no platform table is wired up, so every class bit reads as 0.
-
 // ==========================================================================
 // CheatDialog::EditWidgetText(int,Sexy::String const&)
 // @001919C0  24 bytes
 // ==========================================================================
-int CheatDialog::EditWidgetText(int theId)
+void CheatDialog::EditWidgetText(int theId, const Sexy::String& theText)
 {
+    (void)theId;
+    (void)theText;
     // The receiver is this object, not a1: IDA's prototype dropped the implicit
     // parameter. mApp's vtable at byte 16 is slot 4, LawnApp::ButtonDepress,
     // called with the dialog's own id plus the framework's 2000 convention.
     mApp->ButtonDepress(mId + 2000);
-    return 0;
 }
 
 // ==========================================================================
@@ -54,11 +49,11 @@ CheatDialog::~CheatDialog()
 // CheatDialog::AllowChar(int,char)
 // @00191A50  62 bytes
 // ==========================================================================
-bool CheatDialog::AllowChar(int theId, char theChar)
+int CheatDialog::AllowChar(int theId, char theChar)
 {
     (void)theId;
     // Digits, the cheat prefixes 'c'/'C' and 'f'/'F', and the level separator.
-    if ( (ctype_[theChar + 1] & 4) != 0 )
+    if (theChar >= '0' && theChar <= '9')
         return true;
     if ( theChar == 'c' || theChar == '-' )
         return true;
@@ -77,17 +72,14 @@ CheatDialog::CheatDialog(LawnApp *theApp)
     // stores that follow them are the compiler's.
     mVerticalCenterText = false;
     mApp = theApp;
-    // CreateEditWidget is handed this dialog's listener sub-object at +0x2FC.
-    // The binary's base there is an EditListener; CheatDialog.h models it as
-    // Sexy::ButtonListener, so the sub-object is taken through that base.
-    mEditWidget = CreateEditWidget(0, (Sexy::EditListener *)this, this);
+    mEditWidget = CreateEditWidget(0, this, this);
     mEditWidget->mMaxChars = 12;
     mEditWidget->AddWidthCheckFont(FONT_BRIANNETOD12, 220);
 
     // The level the edit box starts with: "C<mode>" for a custom level,
     // "F<area>-<sub>" once the adventure is finished, "<area>-<sub>" otherwise.
     Sexy::String aLevelString;
-    if ( mApp->mGameMode != 0 )
+    if ( mApp->mGameMode != GAMEMODE_ADVENTURE )
     {
         Sexy::String aFormatted;
         StrFormat(&aFormatted, "C%d", mApp->mGameMode);
@@ -116,6 +108,7 @@ CheatDialog::CheatDialog(LawnApp *theApp)
 // ==========================================================================
 int CheatDialog::ApplyCheat()
 {
+#ifdef _DEBUG
     const char *aText = mEditWidget->mString.c_str();
     int aLevel;
     if ( sscanf(aText, "c%d", &aLevel) == 1 || sscanf(aText, "C%d", &aLevel) == 1 )
@@ -135,15 +128,15 @@ int CheatDialog::ApplyCheat()
     int aArea;
     int aSub;
     int aNewLevel = -1;
-    int aFlag = 0;
+    bool aFinishedAdventure = false;
     if ( sscanf(aText, "f%d-%d", &aArea, &aSub) == 2 || sscanf(aText, "F%d-%d", &aArea, &aSub) == 2 )
     {
         aNewLevel = aSub + 10 * (aArea - 1);
-        aFlag = 1;
+        aFinishedAdventure = true;
     }
     else if ( sscanf(aText, "f%d", &aNewLevel) == 1 || sscanf(aText, "F%d", &aNewLevel) == 1 )
     {
-        aFlag = 1;
+        aFinishedAdventure = true;
     }
     else if ( sscanf(aText, "%d-%d", &aArea, &aSub) == 2 )
     {
@@ -165,10 +158,13 @@ int CheatDialog::ApplyCheat()
     mApp->mGameMode = GAMEMODE_ADVENTURE;
     mApp->mGameScene = SCENE_LEVEL_INTRO;
     mApp->mPlayerInfo->SetLevel(aNewLevel);
-    if ( aFlag != 0 )
-        mApp->mPlayerInfo->SetFlag(aFlag, aFlag);
+    if (aFinishedAdventure)
+        mApp->mPlayerInfo->SetFlag(PLAYER_FLAG_ADVENTURE_COMPLETE, true);
     mApp->TryToSaveProfile();
     return 1;
+#else
+    return 0;
+#endif
 }
 
 // ==========================================================================
@@ -210,8 +206,8 @@ void CheatDialog::Resize(int theX, int theY, int theWidth, int theHeight)
     // The edit box sits inside the content insets, above the two buttons.
     LawnDialog::Resize(theX, theY, theWidth, theHeight);
     mEditWidget->Resize(mContentInsets.mLeft + 12,
-                        mWidth - 155,
-                        mHeight - mContentInsets.mLeft - mContentInsets.mRight - 24,
+                        mHeight - 155,
+                        mWidth - mContentInsets.mLeft - mContentInsets.mRight - 24,
                         28);
 }
 

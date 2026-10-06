@@ -81,6 +81,9 @@ public:
     // drains them the same way AndroidInput::HandleKeyEvents posted keys.
     static void KeyCallback(GLFWwindow* theWindow, int theKey, int theScancode,
                             int theAction, int theMods);
+#ifdef _DEBUG
+    static void CharacterCallback(GLFWwindow* theWindow, unsigned int theCodePoint);
+#endif
     static bool IsGlfwKeyDown(int theGlfwKey);
     bool    PopKeyEvent(Event& theEvent);
 

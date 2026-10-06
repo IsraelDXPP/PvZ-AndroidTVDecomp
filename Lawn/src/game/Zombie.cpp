@@ -2854,7 +2854,7 @@ int Zombie::DoDaisies()
 // Zombie::HasShadow(void)
 // @001AB090  136 bytes
 // ==========================================================================
-int Zombie::HasShadow()
+bool Zombie::HasShadow()
 {
     // Underground, mid-vault, entering the pool, boarding the bobsled or already
     // dying: no shadow at all.
@@ -2863,32 +2863,32 @@ int Zombie::HasShadow()
         || mZombiePhase == PHASE_BOBSLED_BOARDING
         || mZombiePhase == PHASE_DANCER_RISING
         || mZombiePhase == PHASE_POLEVAULTER_IN_VAULT
-        || mZombiePhase == PHASE_POLEVAULTER_POST_VAULT
+        || mZombiePhase == PHASE_RISING_FROM_GRAVE
         || mZombiePhase == PHASE_DOLPHIN_INTO_POOL
         || mZombiePhase == PHASE_SNORKEL_INTO_POOL)
-        return 0;
+        return false;
 
     if (mZombieType == ZOMBIE_ZAMBONI
         || mZombieType == ZOMBIE_CATAPULT
         || mZombieType == ZOMBIE_BOSS
         || (mZombieType == ZOMBIE_BUNGEE && (!IsOnBoard() || mHitUmbrella)))
-        return 0;
+        return false;
 
     if (mZombieHeight == HEIGHT_DRAGGED_UNDER
         || mZombieHeight == HEIGHT_IN_TO_CHIMNEY
         || mZombieHeight == HEIGHT_GETTING_BUNGEE_DROPPED)
-        return 0;
+        return false;
 
     if (mInPool)
-        return 0;
+        return false;
 
     if (IsOnBoard() && mApp->mGameMode == GAMEMODE_CHALLENGE_ZOMBIQUARIUM)
-        return 0;
+        return false;
 
     // The invisible ghoul keeps its shadow only when it has been dropped from a
     // bungee (mFromWave -3); the zombiquarium has none at all.
     if (mApp->mGameMode == GAMEMODE_CHALLENGE_INVISIGHOUL && mFromWave != -3)
-        return 0;
+        return false;
 
     return mVisible;
 }

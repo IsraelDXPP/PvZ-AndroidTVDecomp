@@ -1389,10 +1389,14 @@ void LawnApp::FinishCreateUserDialog(bool theYes)
 // ==========================================================================
 int LawnApp::DoCheatDialog()
 {
+#ifdef _DEBUG
+  if (!mDebugKeysEnabled || gDisableDebugKeys)
+    return 0;
   KillDialog(36);
   CheatDialog *aDialog = new CheatDialog(this);
   CenterDialog(aDialog, aDialog->mWidth, aDialog->mHeight);
   AddDialogWithId(36, aDialog);
+#endif
   return 0;
 }
 
@@ -7347,13 +7351,15 @@ void LawnApp::Start()
 // ==========================================================================
 void LawnApp::HandleCmdLineParam(Sexy::String const& theParamName, Sexy::String const& theParamValue)
 {
+#ifdef _DEBUG
   // "-tod" turns the developer keys on unless the build forbids them.
-  if ( theParamValue.compare("-tod") == 0 && gDisableDebugKeys == 0 )
+  if ( theParamName == "-tod" && !gDisableDebugKeys )
   {
     mTodCheatKeys = true;
     mDebugKeysEnabled = true;
     return;
   }
+#endif
   SexyCommonApp::HandleCmdLineParam(theParamName, theParamValue);
 }
 // LawnApp::UpdateFrames()
