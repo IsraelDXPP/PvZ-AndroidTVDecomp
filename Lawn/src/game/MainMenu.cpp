@@ -2167,7 +2167,7 @@ void MainMenu::DrawOverlay(Sexy::Graphics *theGraphics)
 
       Sexy::Font *aFont = FONT_DWARVENTODCRAFT24;
       float aTextWidth = (float)aFont->StringWidth(aLevelText);
-      float aTextHeight = (float)(aFont->GetAscent() - aFont->GetDescent());
+      float aTextHeight = (float)(aFont->GetHeight() - aFont->GetAscentPadding());
       SexyVector2 aTextSize(aTextWidth, aTextHeight);
       SexyVector2 aScaledSize = aTextMatrix * aTextSize;
       aMatrix.Translate(131.0f - (aScaledSize.mX * 0.5f), (aScaledSize.mY * 0.5f) + 36.0f);

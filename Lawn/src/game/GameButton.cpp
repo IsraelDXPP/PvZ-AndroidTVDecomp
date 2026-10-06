@@ -168,7 +168,7 @@ GameButton::GameButton(int theId, Sexy::ButtonListener* theListener)
 {
     mWidgetId = theId;
     mFont = nullptr;
-    mApp = (LawnApp*)gSexyAppBase;
+    mApp = gLawnApp;
     mLabelJustify = 0;
     mButtonImage = nullptr;
     mOverImage = nullptr;
@@ -228,16 +228,12 @@ bool GameButton::HaveButtonImage(Sexy::Image* theImage, const TRect<int>& theRec
 
 void GameButton::Draw(Sexy::Graphics* theGraphics)
 {
-    bool inverted = mInverted;
-    mApp = (LawnApp*)gSexyAppBase;
+    mApp = gLawnApp;
     if (mBtnNoDraw)
         return;
 
-    // The glow face is the pointer-over state. Focus alone does not light
-    // every button; the focused one gets the additive pulse in DrawButtonImage.
     const bool highlighted = (mIsOver || mSelected) && !mDisabled;
-    if (mIsOver || mSelected)
-        inverted = !mDisabled;
+    const bool pressedLook = mInverted != IsButtonDown();
 
     mWobble = TodAnimateCurveFloat(0, 15, mPulseTime, 0.0f, 1.0f, CURVE_EASE_IN_OUT);
     theGraphics->PushState();
@@ -287,19 +283,17 @@ void GameButton::Draw(Sexy::Graphics* theGraphics)
         else if (mLabelJustify == 2)
             labelX = mWidth / 2;
 
-        const int textHeight = mHeight + font->GetHeight();
         const int ascent = font->GetAscent();
-        labelY += (textHeight + ascent / -6 - 1) / 2;
+        labelY += (mHeight + ascent + ascent / -6 - 1) / 2;
     }
     theGraphics->SetFont(font);
 
-    const bool pressedLook = inverted != (mIsOver != 0);
     if (pressedLook)
     {
-        if (HaveButtonImage(mOverImage, mOverRect))
-            DrawButtonImage(theGraphics, mOverImage, mOverRect, shakeX, shakeY);
-        else if (HaveButtonImage(mDownImage, mDownRect))
-            DrawButtonImage(theGraphics, mDownImage, mDownRect, shakeX + 1, shakeY + 1);
+        if (HaveButtonImage(mDownImage, mDownRect))
+            DrawButtonImage(theGraphics, mDownImage, mDownRect, shakeX, shakeY);
+        else if (HaveButtonImage(mOverImage, mOverRect))
+            DrawButtonImage(theGraphics, mOverImage, mOverRect, shakeX + 1, shakeY + 1);
         else
             DrawButtonImage(theGraphics, mButtonImage, mNormalRect, shakeX + 1, shakeY + 1);
         theGraphics->SetColor(mColors[1]);
@@ -319,9 +313,9 @@ void GameButton::Draw(Sexy::Graphics* theGraphics)
         theGraphics->SetColor(fadeColor);
         DrawButtonImage(theGraphics, mOverImage, mOverRect, shakeX, shakeY);
         theGraphics->SetColorizeImages(false);
-        theGraphics->SetColor(mColors[0]);
+        theGraphics->SetColor(highlighted ? mColors[1] : mColors[0]);
     }
-    else if (mIsOver && HaveButtonImage(mOverImage, mOverRect))
+    else if (highlighted && HaveButtonImage(mOverImage, mOverRect))
     {
         DrawButtonImage(theGraphics, mOverImage, mOverRect, shakeX, shakeY);
         theGraphics->SetColor(mColors[1]);
@@ -353,7 +347,7 @@ void GameButton::Draw(Sexy::Graphics* theGraphics)
         theGraphics->DrawString(mLabel, labelX + shakeX, shakeX + labelY);
     }
 
-    if (mIsOver && mOverOverlayImage != nullptr)
+    if (highlighted && mOverOverlayImage != nullptr)
     {
         theGraphics->SetDrawMode(1);
         DrawButtonImage(theGraphics, mOverOverlayImage, mNormalRect, shakeX, shakeY);
