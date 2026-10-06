@@ -10,6 +10,7 @@
 #include <algorithm>
 #include <string>
 #include <cstring>
+#include <limits>
 #include <vector>
 #include <map>
 #include <set>
@@ -137,9 +138,14 @@ int GLTexture::CreateTextureDimensions(int theSize)
     // The Android build padded to powers of two because GLES2 required it for
     // mipmapping and wrap modes. Desktop GL 3.3 supports NPOT, but padding keeps
     // the atlas maths identical to the original, so we keep it.
-    int n = 1;
-    while (n < theSize && n < 4096) n <<= 1;
-    return n;
+    int aDimension = 1;
+    while (aDimension < theSize)
+    {
+        if (aDimension > std::numeric_limits<int>::max() / 2)
+            return 0;
+        aDimension *= 2;
+    }
+    return aDimension;
 }
 
 bool GLTexture::CreateTexture(MemoryImage* theImage)
@@ -162,6 +168,16 @@ bool GLTexture::CreateTexture(MemoryImage* theImage)
 
     mWidth  = CreateTextureDimensions(mSrcWidth);
     mHeight = CreateTextureDimensions(mSrcHeight);
+
+    GLint aMaxTextureSize = 0;
+    glGetIntegerv(GL_MAX_TEXTURE_SIZE, &aMaxTextureSize);
+    if (mWidth <= 0 || mHeight <= 0
+        || mWidth > aMaxTextureSize || mHeight > aMaxTextureSize)
+    {
+        TOD_ERROR("GLTexture: texture %dx%d exceeds device limit %d",
+                  mWidth, mHeight, aMaxTextureSize);
+        return false;
+    }
 
     unsigned int internalFormat, dataFormat, dataType;
     if (!SetupTextureFormat(mFormat, internalFormat, dataFormat, dataType))
@@ -216,7 +232,8 @@ bool GLTexture::Upload(MemoryImage* theImage)
         aSheet = aSheet->mParent;
     }
 
-    if (mSrcWidth <= 0 || mSrcHeight <= 0)
+    if (mSrcWidth <= 0 || mSrcHeight <= 0
+        || mWidth < mSrcWidth || mHeight < mSrcHeight)
         return false;
 
     // GetPixels is the native buffer: 32-bit A8R8G8B8 in mBits, or the packed

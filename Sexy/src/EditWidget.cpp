@@ -1068,6 +1068,7 @@ int Sexy::EditWidget::ProcessKey(Sexy::KeyCode theKey, int theChar)
                         int lastCursorPos = mLastCursorPos;
                         mSelectionPos = -1;
                         mLastCursorPos = oldCursorPos;
+                        mCursorPos = oldCursorPos + 1;
                         changed = (oldCursorPos != lastCursorPos + 1);
                     }
                     else
@@ -1075,7 +1076,7 @@ int Sexy::EditWidget::ProcessKey(Sexy::KeyCode theKey, int theChar)
                         int end = (mCursorPos >= mSelectionPos) ? mCursorPos : mSelectionPos;
                         int newCursorPos = (mCursorPos < mSelectionPos) ? mCursorPos : mSelectionPos;
 
-                        mString = mString.substr(0, end) + charString + mString.substr(end);
+                        mString = mString.substr(0, newCursorPos) + charString + mString.substr(end);
                         mSelectionPos = -1;
                         mCursorPos = newCursorPos + 1;
                         changed = 1;
@@ -1199,21 +1200,29 @@ void Sexy::EditWidget::Update()
 
 int Sexy::EditWidget::KeyDown(Sexy::KeyCode theKey)
 {
-    bool direct = theKey > 0x2E;
-    if (theKey != 46)
-        direct = theKey - 35 > 1;
-    if (!direct || (theKey & 0xFFFFFFFB) == 8)
+    // EditWidget::KeyDown @0x306088 uses unsigned range comparisons.
+    // Spell out the edit keys so keys below 'A' cannot be mistaken for letters.
+    switch (theKey)
+    {
+    case KEYCODE_DELETE:
+    case KEYCODE_END:
+    case KEYCODE_HOME:
+    case KEYCODE_BACK:
+    case KEYCODE_CLEAR:
         return ProcessKey(theKey, 0);
+    default:
+        break;
+    }
 
     if (!mSelected)
         return 0;
-    if (theKey == 27)
+    if (theKey == KEYCODE_ESCAPE)
         return Sexy::Widget::KeyDown(theKey);
 
-    bool notAlnum = theKey - 65 > 0x19;
-    if (theKey - 65 > 0x19)
-        notAlnum = theKey - 48 > 9;
-    if (notAlnum && mEditListener != nullptr && mEditListener->AllowKey(mId, theKey) != 0)
+    bool isLetter = theKey >= 'A' && theKey <= 'Z';
+    bool isDigit = theKey >= '0' && theKey <= '9';
+    if (!isLetter && !isDigit && mEditListener != nullptr
+        && mEditListener->AllowKey(mId, theKey) != 0)
         return ProcessKey(theKey, 0);
     return Sexy::Widget::KeyDown(theKey);
 }

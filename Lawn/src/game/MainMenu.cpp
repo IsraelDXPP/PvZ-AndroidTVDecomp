@@ -1975,14 +1975,14 @@ void MainMenu::Exit()
   mFadeOriginY = (float)aButton->mY;
   mFadeOriginX = (float)aButton->mX;
   CancelCrowTalk();
-  mHandPlaying = mIsFading;
+  mCrowTalking = false;
   if ( mApp->ReanimationTryToGet(mBackdropReanimID) != 0 )
   {
     Sexy::String exitTrack = GetButtonTransitionTrackName(aButton->GetAnimator(), "_exit");
     if ( !exitTrack.empty() )
       mExitTrackName = exitTrack;
     if ( mExitTrackName.compare("anim_minigames_exit") == 0 )
-      mStoreIntro = true;
+      mCrowLeaving = true;
   }
   MenuWidget::Exit();
   if ( mApp->mHelpBarWidget != nullptr )

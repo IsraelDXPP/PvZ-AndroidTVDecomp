@@ -275,6 +275,7 @@ void MessageWidget::SetLabel(Sexy::String const &theLabel, MessageStyle theStyle
   case MESSAGE_STYLE_TUTORIAL_LEVEL1_STAY:
   case MESSAGE_STYLE_TUTORIAL_LATER_STAY:
   case MESSAGE_STYLE_HINT_STAY:
+  case MESSAGE_STYLE_HINT_TALL_STAY:
     mDuration = 10000;
     break;
 
@@ -501,7 +502,7 @@ void MessageWidget::Draw(Sexy::Graphics *theGraphics)
   case MESSAGE_STYLE_HINT_TALL_FAST:
   case MESSAGE_STYLE_HINT_TALL_UNLOCKMESSAGE:
   case MESSAGE_STYLE_HINT_TALL_LONG:
-  case 18: // the last style the enum has no name for; it shares this group
+  case MESSAGE_STYLE_HINT_TALL_STAY:
     aPosY = 330;
     aColor = Color(253, 245, 173, 255);
     aAlphaStart = 192;

@@ -1186,9 +1186,7 @@ void Board::SetTutorialState(TutorialState theState)
           ClearAdvice(AdviceType(41));
           break;
         case TUTORIAL_SHOVEL_PICKUP:
-          // 18 is past the end of this tree's MessageStyle enum; the binary
-          // passes it unconditionally.
-          DisplayAdvice("[ADVICE_CLICK_SHOVEL]", (MessageStyle)18, AdviceType(-1));
+          DisplayAdvice("[ADVICE_CLICK_SHOVEL]", MESSAGE_STYLE_HINT_TALL_STAY, AdviceType(-1));
           break;
         case TUTORIAL_SHOVEL_DIG:
           TutorialArrowRemove();
