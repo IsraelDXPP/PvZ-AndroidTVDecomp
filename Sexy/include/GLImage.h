@@ -42,7 +42,7 @@ public:
     virtual void BltTrianglesTex(Image * theSource, const SexyVertex2D (*theTriangles)[3],
                                  int theTriangleCount, const TRect<int> & theClipRect,
                                  const Color & theColor, int theDrawMode, float theTx, float theTy,
-                                 bool theBlend);
+                                 bool theLinearBlend);
     virtual void BltMirror(Image * theSource, int theX, int theY, const TRect<int> & theSourceRect,
                            const Color & theColor, int theDrawMode);
     virtual void StretchBltMirror(Image * theSource, const TRect<int> & theDestRect,

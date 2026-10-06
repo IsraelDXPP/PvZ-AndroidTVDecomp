@@ -20,51 +20,39 @@ namespace
 const float kStickScale = 1.0f / 32767.0f;
 const float kTriggerScale = 1.0f / 255.0f;
 const SHORT kStickDeadZone = 8000;
-
-// Numeric values of Sexy::KeyCode. windows.h pulls in winuser.h, whose
-// KEYCODE_* macros hide the enumerators, so the table stores the numbers.
-const int kPadA = 0x130;
-const int kPadB = 0x131;
-const int kPadX = 0x133;
-const int kPadY = 0x134;
-const int kPadTL = 0x136;
-const int kPadTR = 0x137;
-const int kPadTL2 = 0x138;
-const int kPadTR2 = 0x139;
-const int kPadSelect = 0x13A;
-const int kPadStart = 0x13B;
-const int kPadThumbL = 0x13D;
-const int kPadThumbR = 0x13E;
-const int kPadDpadLeft = 0x234;
-const int kPadDpadUp = 0x235;
-const int kPadDpadRight = 0x236;
-const int kPadDpadDown = 0x237;
+// GamepadInputInterface::UpdateState @0x40E214 and Update @0x40E51C.
+const float kDirectionDeadZone = 0.37499f;
+const unsigned int kDirectionRepeatDelayMs = 250;
+const unsigned int kDirectionRepeatIntervalMs = 100;
 
 struct ButtonBinding
 {
     WORD mMask;
-    int  mCode;
+    Sexy::KeyCode mCode;
 };
 
 const ButtonBinding kXInputButtons[] =
 {
-    { XINPUT_GAMEPAD_A,              kPadA },
-    { XINPUT_GAMEPAD_B,              kPadB },
-    { XINPUT_GAMEPAD_X,              kPadX },
-    { XINPUT_GAMEPAD_Y,              kPadY },
-    { XINPUT_GAMEPAD_LEFT_SHOULDER,  kPadTL },
-    { XINPUT_GAMEPAD_RIGHT_SHOULDER, kPadTR },
-    { XINPUT_GAMEPAD_BACK,           kPadSelect },
-    { XINPUT_GAMEPAD_START,          kPadStart },
-    { XINPUT_GAMEPAD_LEFT_THUMB,     kPadThumbL },
-    { XINPUT_GAMEPAD_RIGHT_THUMB,    kPadThumbR },
-    { XINPUT_GAMEPAD_DPAD_UP,        kPadDpadUp },
-    { XINPUT_GAMEPAD_DPAD_DOWN,      kPadDpadDown },
-    { XINPUT_GAMEPAD_DPAD_LEFT,      kPadDpadLeft },
-    { XINPUT_GAMEPAD_DPAD_RIGHT,     kPadDpadRight },
+    { XINPUT_GAMEPAD_A,              Sexy::KEYCODE_GAMEPAD_A },
+    { XINPUT_GAMEPAD_B,              Sexy::KEYCODE_GAMEPAD_B },
+    { XINPUT_GAMEPAD_X,              Sexy::KEYCODE_GAMEPAD_X },
+    { XINPUT_GAMEPAD_Y,              Sexy::KEYCODE_GAMEPAD_Y },
+    { XINPUT_GAMEPAD_LEFT_SHOULDER,  Sexy::KEYCODE_GAMEPAD_TL },
+    { XINPUT_GAMEPAD_RIGHT_SHOULDER, Sexy::KEYCODE_GAMEPAD_TR },
+    { XINPUT_GAMEPAD_BACK,           Sexy::KEYCODE_GAMEPAD_SELECT },
+    { XINPUT_GAMEPAD_START,          Sexy::KEYCODE_GAMEPAD_START },
+    { XINPUT_GAMEPAD_LEFT_THUMB,     Sexy::KEYCODE_GAMEPAD_THUMBL },
+    { XINPUT_GAMEPAD_RIGHT_THUMB,    Sexy::KEYCODE_GAMEPAD_THUMBR },
 };
 
 const int kXInputButtonCount = (int)(sizeof(kXInputButtons) / sizeof(kXInputButtons[0]));
+const Sexy::KeyCode kDirectionKeys[] = {
+    Sexy::KEYCODE_GAMEPAD_LEFT, Sexy::KEYCODE_GAMEPAD_UP,
+    Sexy::KEYCODE_GAMEPAD_RIGHT, Sexy::KEYCODE_GAMEPAD_DOWN,
+    Sexy::KEYCODE_GAMEPAD_DPAD_LEFT, Sexy::KEYCODE_GAMEPAD_DPAD_UP,
+    Sexy::KEYCODE_GAMEPAD_DPAD_RIGHT, Sexy::KEYCODE_GAMEPAD_DPAD_DOWN
+};
+const int kDirectionCount = (int)(sizeof(kDirectionKeys) / sizeof(kDirectionKeys[0]));
 
 float StickAxis(SHORT theValue)
 {
@@ -81,6 +69,13 @@ float StickAxis(SHORT theValue)
 namespace Sexy
 {
 
+struct DirectionButtonState
+{
+    bool mDown;
+    unsigned int mPressTick;
+    unsigned int mRepeatCount;
+};
+
 struct PolledPad
 {
     int   mUserIndex;
@@ -92,6 +87,7 @@ struct PolledPad
     float mRightY;
     bool  mTriggerLeft;
     bool  mTriggerRight;
+    DirectionButtonState mDirections[kDirectionCount];
     char  mName[128];
 };
 
@@ -120,7 +116,8 @@ public:
     virtual bool GetAxisInfo(Axis theAxis, InputAxisInfo &theInfo, int theDevice);
     virtual bool GetAxisInfo(std::vector<InputAxisInfo> &theInfos, int theDevice);
 
-    void PushButton(int theDevice, int theKey, bool theDown);
+    void PushButton(int theDevice, KeyCode theKey, bool theDown, unsigned int theModifiers = 0);
+    void UpdateDirection(PolledPad &thePad, int theDirection, bool theDown, unsigned int theTick);
     void ApplyRumble();
     void PollXInput();
 
@@ -202,25 +199,46 @@ int Win32GamepadInterface::Reconnect()
     return Init();
 }
 
-void Win32GamepadInterface::PushButton(int theDevice, int theKey, bool theDown)
+void Win32GamepadInterface::PushButton(int theDevice, KeyCode theKey, bool theDown, unsigned int theModifiers)
 {
     Event anEvent = {};
     anEvent.modifiers = theDown ? 1 : 2;
+    anEvent.modifierMask = theModifiers;
     anEvent.lateModifiers = mSlot;
     anEvent.eventType = (TMLongCard)theDevice;
     anEvent.eventCodeMask = (TMLongCard)theKey;
     mEvents.push_back(anEvent);
     logfi("Pad map %s: device %d -> pad 0x%X", theDown ? "down" : "up", theDevice, theKey);
-    if (mOwner != nullptr)
+}
+
+void Win32GamepadInterface::UpdateDirection(PolledPad &thePad, int theDirection,
+                                          bool theDown, unsigned int theTick)
+{
+    DirectionButtonState &aButton = thePad.mDirections[theDirection];
+    if (aButton.mDown != theDown)
     {
-        // The manager is reached through the app the owner was started with.
-        // Events queued here are also drained by Update into PushEvent, so a
-        // missing manager only delays them until the next poll.
+        PushButton(thePad.mUserIndex, kDirectionKeys[theDirection], theDown, 8);
+        aButton.mDown = theDown;
+        aButton.mPressTick = theTick;
+        aButton.mRepeatCount = theDown ? 1 : 0;
+        return;
+    }
+    if (!theDown)
+        return;
+
+    // TV counts the initial press as one before scheduling held directions.
+    const unsigned int aHeldMs = theTick - aButton.mPressTick;
+    if (aHeldMs > kDirectionRepeatDelayMs
+        && aButton.mRepeatCount < (aHeldMs - kDirectionRepeatDelayMs) / kDirectionRepeatIntervalMs)
+    {
+        PushButton(thePad.mUserIndex, kDirectionKeys[theDirection], true, 8 | 128);
+        ++aButton.mRepeatCount;
     }
 }
 
 void Win32GamepadInterface::PollXInput()
 {
+    const unsigned int aTick = Sexy::GetTickCount();
     for (unsigned int i = 0; i < mPads.size(); i++)
     {
         PolledPad &aPad = mPads[i];
@@ -239,6 +257,8 @@ void Win32GamepadInterface::PollXInput()
         }
         if (!aConnected)
         {
+            for (int aDirection = 0; aDirection < kDirectionCount; ++aDirection)
+                UpdateDirection(aPad, aDirection, false, aTick);
             aPad.mButtons = 0;
             aPad.mLeftX = aPad.mLeftY = aPad.mRightX = aPad.mRightY = 0.0f;
             aPad.mTriggerLeft = aPad.mTriggerRight = false;
@@ -257,9 +277,9 @@ void Win32GamepadInterface::PollXInput()
         const bool aLeftTrigger = aState.Gamepad.bLeftTrigger > 30;
         const bool aRightTrigger = aState.Gamepad.bRightTrigger > 30;
         if (aLeftTrigger != aPad.mTriggerLeft)
-            PushButton((int)i, kPadTL2, aLeftTrigger);
+            PushButton((int)i, KEYCODE_GAMEPAD_TL2, aLeftTrigger);
         if (aRightTrigger != aPad.mTriggerRight)
-            PushButton((int)i, kPadTR2, aRightTrigger);
+            PushButton((int)i, KEYCODE_GAMEPAD_TR2, aRightTrigger);
 
         aPad.mButtons = aButtons;
         aPad.mTriggerLeft = aLeftTrigger;
@@ -268,6 +288,21 @@ void Win32GamepadInterface::PollXInput()
         aPad.mLeftY = -StickAxis(aState.Gamepad.sThumbLY);
         aPad.mRightX = StickAxis(aState.Gamepad.sThumbRX);
         aPad.mRightY = -StickAxis(aState.Gamepad.sThumbRY);
+
+        // HandleAxisChanged @0x40D55C emits stick directions separately from
+        // d-pad directions; the game still reads the analog axes for movement.
+        const bool aDirections[kDirectionCount] = {
+            aPad.mLeftX < -kDirectionDeadZone,
+            aPad.mLeftY < -kDirectionDeadZone,
+            aPad.mLeftX > kDirectionDeadZone,
+            aPad.mLeftY > kDirectionDeadZone,
+            (aButtons & XINPUT_GAMEPAD_DPAD_LEFT) != 0,
+            (aButtons & XINPUT_GAMEPAD_DPAD_UP) != 0,
+            (aButtons & XINPUT_GAMEPAD_DPAD_RIGHT) != 0,
+            (aButtons & XINPUT_GAMEPAD_DPAD_DOWN) != 0
+        };
+        for (int aDirection = 0; aDirection < kDirectionCount; ++aDirection)
+            UpdateDirection(aPad, aDirection, aDirections[aDirection], aTick);
 
         if ((int)i == mRumbleDevice)
         {
@@ -425,7 +460,7 @@ IInputDriver *Win32GamepadDriver::Init()
 int Win32GamepadDriver::OnStart(Sexy::SexyAppBase *theApp, Sexy::InputManager *)
 {
     if (mInterface != nullptr)
-        static_cast<Win32GamepadInterface *>(mInterface)->mApp = theApp;
+        mInterface->mApp = theApp;
     return 0;
 }
 

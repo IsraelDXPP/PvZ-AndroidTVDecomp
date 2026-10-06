@@ -260,12 +260,12 @@ void Sexy::GLImage::BltMatrix(Image * theSource, float theX, float theY, const S
 void Sexy::GLImage::BltTrianglesTex(Image * theSource, const SexyVertex2D (*theTriangles)[3],
                                     int theTriangleCount, const TRect<int> & theClipRect,
                                     const Color & theColor, int theDrawMode, float theTx, float theTy,
-                                    bool theBlend)
+                                    bool theLinearBlend)
 {
     if (!IsCurrentTarget())
     {
         MemoryImage::BltTrianglesTex(theSource, theTriangles, theTriangleCount, theClipRect,
-                                     theColor, theDrawMode, theTx, theTy, theBlend);
+                                     theColor, theDrawMode, theTx, theTy, theLinearBlend);
         return;
     }
 
@@ -273,11 +273,8 @@ void Sexy::GLImage::BltTrianglesTex(Image * theSource, const SexyVertex2D (*theT
     if (aSource == nullptr)
         return;
 
-    // theBlend is the software helper's additive flag. A draw mode of 1 is
-    // the same request from Graphics.
-    int aMode = theDrawMode;
-    if (theBlend)
-        aMode = 1;
+    // GLImage::BltTrianglesTex (0x475F1C) takes its blend mode from theDrawMode.
+    // The last argument selects linear sampling, not additive blending.
 
     // Vertices are already in screen space, and this clip is the screen clip
     // Graphics passed. Intersect it with the image so a widget clip cannot
@@ -289,7 +286,7 @@ void Sexy::GLImage::BltTrianglesTex(Image * theSource, const SexyVertex2D (*theT
     GLRenderDevice* aDevice = GLRenderDevice::sCurrent;
     aDevice->SetClipRect(aClip);
     aDevice->DrawTriangles(aSource, theTriangles, theTriangleCount, theColor,
-                           ToDeviceMode(aMode), theTx, theTy);
+                           ToDeviceMode(theDrawMode), theTx, theTy);
     aDevice->ClearClipRect();
 }
 

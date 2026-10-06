@@ -131,12 +131,12 @@ float Sexy::Gamepad::GetAxisYPosition()
 
 float Sexy::Gamepad::GetRightAxisXPosition()
 {
-    return AxisRawToUnit(mAxisRaw[3]);
+    return AxisRawToUnit(mAxisRaw[4]);
 }
 
 float Sexy::Gamepad::GetRightAxisYPosition()
 {
-    return AxisRawToUnit(mAxisRaw[4]);
+    return AxisRawToUnit(mAxisRaw[5]);
 }
 
 void Sexy::Gamepad::AddRumbleEffect(float theLow, float theHigh, float theDuration)

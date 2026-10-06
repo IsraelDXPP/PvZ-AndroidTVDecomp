@@ -14,6 +14,8 @@
 namespace Sexy
 {
 
+class Win32GamepadInterface;
+
 class Win32GamepadDriver : public InputDriver
 {
 public:
@@ -24,7 +26,7 @@ public:
     virtual int OnStart(Sexy::SexyAppBase *theApp, Sexy::InputManager *theManager);
     virtual int OnStop();
 
-    IInputDriver *mInterface;
+    Win32GamepadInterface *mInterface;
 };
 
 IInputDriver *CreateWin32Gamepad(InputDriver *theOwner);

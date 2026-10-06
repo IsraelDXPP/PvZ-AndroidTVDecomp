@@ -647,6 +647,10 @@ void BaseGamepadControls::DrawFrame(Sexy::Graphics *theGraphics, int thePhase)
   Sexy::Image *aShadow = aDrawArrows ? IMAGE_GAMEPAD_CURSOR_ARROWS_SHADOW : IMAGE_GAMEPAD_CURSOR_FRAME_SHADOW;
   Sexy::Image *aFrame = aDrawArrows ? IMAGE_GAMEPAD_CURSOR_ARROWS
       : mPlayerIndex == 1 ? IMAGE_GAMEPAD_CURSOR_FRAME_BLUE : IMAGE_GAMEPAD_CURSOR_FRAME;
+  theGraphics->PushState();
+  theGraphics->SetDrawMode(0);
+  theGraphics->SetColorizeImages(true);
+  theGraphics->SetColor(Sexy::Color::White);
   theGraphics->mTransX += aShadowShift;
   theGraphics->mTransY += aShadowShift;
   theGraphics->DrawTrianglesTex(aShadow, aTriangles, 4);
@@ -658,7 +662,7 @@ void BaseGamepadControls::DrawFrame(Sexy::Graphics *theGraphics, int thePhase)
   theGraphics->DrawTrianglesTex(aFrame, aTriangles, 4);
   if (!aHas3D && aDrawArrows)
     aFrame->SetWrapMode(0, 0);
-  theGraphics->SetDrawMode(0);
+  theGraphics->PopState();
 }
 
 // ==========================================================================

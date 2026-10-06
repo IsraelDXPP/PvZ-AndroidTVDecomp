@@ -578,6 +578,17 @@ void GamepadControls::DrawPreview(Sexy::Graphics * g)
   if ( aSeedType == SEED_NONE )
     return;
 
+  // Hide blocked plant overlaps, while keeping legal layers and upgrades.
+  if ( !mIsZombie && !mApp->IsIZombieLevel()
+    && mBoard->CanPlantAt(aGridX, aGridY, aSeedType) != PLANTING_OK )
+  {
+    PlantsOnLawn aPlants;
+    mBoard->GetPlantsOnLawn(aGridX, aGridY, &aPlants);
+    if ( aPlants.mNormalPlant != nullptr || aPlants.mUnderPlant != nullptr
+      || aPlants.mPumpkinPlant != nullptr || aPlants.mFlyingPlant != nullptr )
+      return;
+  }
+
   g->SetColorizeImages(true);
   if ( mCanPickUp != 0 )
   {
@@ -714,9 +725,6 @@ void GamepadControls::DrawPreview(Sexy::Graphics * g)
     g->SetColor(Sexy::Color(255, 16, 16, 125));
   else
     g->SetColor(Sexy::Color(255, 255, 255, 125));
-  if ( mCanPickUp == 0 && mSelectedUpgradableType == 4 )
-    g->SetColor(Sexy::Color(255, 16, 16, 200));
-
   // These compares use the seed that may have been replaced by the packet type.
   if ( aSeedType == SEED_LEFTPEATER )
   {
@@ -2387,7 +2395,7 @@ void GamepadControls::HandleShovelButton()
 
 void GamepadControls::OnButtonDown(int theButton, int thePlayerIndex, unsigned int theFlags)
 {
-    logfi("keycode is******************%d\n\n", (const char *)theButton);
+    logfi("keycode is******************%d\n\n", theButton);
     if (mGamepadIndex != thePlayerIndex)
         return;
     BaseGamepadControls::OnButtonDown(theButton, mGamepadIndex, theFlags);
@@ -2639,7 +2647,6 @@ void GamepadControls::UpdatePreviewReanim()
   // previews the plant it is copying, and a zombie bank previews the packet
   // type rather than the cursor type. The same seed keeps the reanim already
   // built; a different seed throws that reanim away and builds a new one.
-  ReanimationID aPreviousPreviewId = mPreviewReanimID4;
   CursorObject *aCursor = mBoard->mCursorObject[mPlayerIndex];
   SeedBank *aSeedBank = GetSeedBank();
   SeedType aSeedType = aCursor->mType;
@@ -2679,7 +2686,7 @@ void GamepadControls::UpdatePreviewReanim()
         auto aAttachHead = [&](const char *theHeadLayer, const char *theParentTrack, float theY)
         {
           Reanimation *aHead = mApp->AddReanimation(0.0f, theY, aRenderOrder + 3, aPlantDef->mReanimationType);
-          aHead->mAnimRate = 0.0f;
+          aHead->mLoopType = REANIM_LOOP;
           aHead->SetAnimRate(aBody->mAnimRate);
           aHead->SetFramesForLayer(theHeadLayer);
           const char *aTrack = theParentTrack;
@@ -2734,12 +2741,7 @@ void GamepadControls::UpdatePreviewReanim()
       else if ( aZombieType == ZOMBIE_POLEVAULTER )
         aHeightOffset += 15.0f;
       ZombieDefinition *aZombieDef = GetZombieDefinition(aZombieType);
-      // The body is built far off the preview surface and then drawn through the
-      // 256,256 translation below. The bit pattern is the X the binary passes.
-      float aOffscreenX;
-      int aOffscreenBits = -1046478848;
-      std::memcpy(&aOffscreenX, &aOffscreenBits, sizeof(aOffscreenX));
-      aBody = mApp->AddReanimation(aOffscreenX, -35.0f - aHeightOffset, aRenderOrder + 1,
+      aBody = mApp->AddReanimation(-20.0f, -35.0f - aHeightOffset, aRenderOrder + 1,
                                    aZombieDef->mReanimationType);
       Zombie::SetupReanimLayers(aBody, aZombieType);
       // Newspaper and screen door share the low five bits; trashcan is its own case.
@@ -2783,12 +2785,9 @@ void GamepadControls::UpdatePreviewReanim()
   if ( aUseImitaterFilter )
     aPreview->SetFilterEffectShader(FilterEffect(-1));
 
-  bool aIdChanged = mPreviewReanimID4 != aPreviousPreviewId;
-  if ( aIdChanged )
-    aPreview->Update();
-  // Redraw when the seed changed, on every 50th pad frame, or while the
-  // preview surface has never been filled.
-  if ( aIdChanged || mGamepadFrameCounter % 50 == 0 || mPreviewImage->mPixelsLive == 0 )
+  // Console-style previews keep the body and attached heads animated.
+  // TV UpdatePreviewReanim (0x1C312C) only advances when the seed changes.
+  aPreview->Update();
   {
     Sexy::Graphics aGraphics(mPreviewImage);
     aGraphics.ClearRect(0, 0, mPreviewImage->mWidth, mPreviewImage->mHeight);
@@ -3072,6 +3071,8 @@ int GamepadControls::Update(float theDeltaTime)
 
   UpdateCursorReanims();
   aCursorPreview->mVisible = true;
+  // TV Update @0x1C3B54 calls the movement state machine before integration.
+  UpdateStates(theDeltaTime);
 
   // Stick velocity moves the cursor, then the accumulated stick is damped.
   float aNextX = mCursorPositionX + theDeltaTime * mGamepadVelocityLeftX;

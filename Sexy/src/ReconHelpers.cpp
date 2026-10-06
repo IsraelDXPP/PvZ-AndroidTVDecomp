@@ -99,7 +99,7 @@ int GetAppDataFolder(Sexy::String* theDest)
     if (theDest != nullptr)
     {
         Sexy::String aPath(aFolder);
-        aPath += "\\PopCap Games\\PlantsVsZombiesTV\\";
+        aPath += "\\PopCap Games\\PlantsVsZombies\\";
         *theDest = aPath;
     }
     return 0;

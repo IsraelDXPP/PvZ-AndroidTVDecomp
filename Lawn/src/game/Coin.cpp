@@ -213,7 +213,7 @@ void Coin::StartFade()
 // ==========================================================================
 void Coin::SetAutoCollect(bool theAutoCollect, int theAutoCollectAge)
 {
-  mAutoCollect = theAutoCollect;
+  mAutoCollect = theAutoCollect && !IsSun() && !IsDoubleSun();
   mAutoCollectAge = theAutoCollectAge;
 }
 
@@ -970,10 +970,8 @@ void Coin::Collect(int thePlayerIndex)
 // ==========================================================================
 void Coin::TryAutoCollectAfterLevelAward()
 {
-  // Five shapes are picked up on the spot: a coin that is already travelling
-  // towards the player, a sun, a plant present and the two chocolates.
+  // Sun is collected through player input, including at the end of a level.
   if ( (IsMoney() && mCoinMotion != COIN_MOTION_FROM_PRESENT)
-       || IsSun()
        || mType == COIN_PRESENT_PLANT
        || mType == COIN_CHOCOLATE
        || IsPresentWithAdvice() )
@@ -1749,7 +1747,7 @@ void Coin::UpdateFall()
     mPosY += aVelY;
     mVelX = aVelX * 0.95f;
     mVelY = aVelY * 0.95f;
-    if ( mCoinAge > 79 )
+    if ( mCoinAge > 79 && !IsSun() && !IsDoubleSun() )
       Collect(0);
     return;
   }
@@ -1757,9 +1755,8 @@ void Coin::UpdateFall()
   // A seed packet and every award drop are taken the moment they are created.
   if ( mType == COIN_FINAL_SEED_PACKET || (unsigned int)(mType - COIN_AWARD_MONEY_BAG) <= 4 )
     Collect(0);
-  // A plain coin, a sun and a trophy are taken once they reach their
-  // auto-collect age; everything else only when the player asked for it.
-  else if ( mCoinAge >= mAutoCollectAge
+  // Keep TV auto-collection for money and awards; sun requires player input.
+  else if ( !IsSun() && !IsDoubleSun() && mCoinAge >= mAutoCollectAge
             && (mAutoCollect
                 || (unsigned int)(mType - COIN_SILVER) <= 5
                 || (unsigned int)(mType - COIN_AWARD_SILVER_SUNFLOWER) <= 1) )
@@ -1930,7 +1927,7 @@ void Coin::UpdateFall()
         mVelY = -mVelY;
       }
     }
-    if ( mCoinAge > 199 )
+    if ( mCoinAge > 199 && !IsSun() && !IsDoubleSun() )
       Collect(0);
     // The brain is a sun-sized coin and still grows on the way down.
     float aFullScale = GetSunScale();
