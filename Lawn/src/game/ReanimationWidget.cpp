@@ -24,7 +24,7 @@ void ReanimationWidget::Update()
 
 ReanimationWidget::ReanimationWidget()
 {
-    mApp = (LawnApp *)gSexyAppBase;
+    mApp = gLawnApp;
     mReanim = nullptr;
     mLawnDialog = nullptr;
     mPosX = 0.0f;

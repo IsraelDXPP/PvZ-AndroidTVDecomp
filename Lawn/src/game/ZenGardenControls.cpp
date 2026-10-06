@@ -61,9 +61,9 @@ int ZenGardenControls::Update(float theDeltaTime)
     return 0;
 
   // Nothing selected yet: start on the watering can.
-  if (mObjectType == OBJECT_TYPE_NONE)
+  if (mSelectedTool == OBJECT_TYPE_NONE)
   {
-    mObjectType = OBJECT_TYPE_WATERING_CAN;
+    mSelectedTool = OBJECT_TYPE_WATERING_CAN;
     mBoard->PickUpTool(OBJECT_TYPE_WATERING_CAN, mPlayerIndex);
   }
   BaseGamepadControls::Update(theDeltaTime);
@@ -204,7 +204,7 @@ void ZenGardenControls::OnButtonDown(int theButton, int thePlayerIndex, unsigned
             aCredit = mApp->mPlayerInfo != nullptr;
           }
           if (aCredit)
-            ((GameStats *)mApp->mPlayerInfo->mGameStats)->ChangeMiscStat(GameStats_MiscStat(7), 1);
+            mApp->mPlayerInfo->mGameStats.ChangeMiscStat(STAT_STINKY_CHOCOLATES, 1);
 
           mApp->PlayFoley(FOLEY_WAKEUP);
           mApp->PlaySample(SOUND_MINDCONTROLLED, true);
@@ -216,7 +216,7 @@ void ZenGardenControls::OnButtonDown(int theButton, int thePlayerIndex, unsigned
       // Step the selected tool backwards through the wheelbarrow's tool ring.
       if (mApp->mGameScene == SCENE_PLAYING)
       {
-        int aTool = mObjectType;
+        int aTool = mSelectedTool;
         do
         {
           if (aTool == OBJECT_TYPE_NONE)
@@ -228,7 +228,7 @@ void ZenGardenControls::OnButtonDown(int theButton, int thePlayerIndex, unsigned
         }
         while (!mBoard->CanUseGameObject((GameObjectType)aTool)
             || !mBoard->PickUpTool((GameObjectType)aTool, mPlayerIndex));
-        mObjectType = (GameObjectType)aTool;
+        mSelectedTool = (GameObjectType)aTool;
       }
       return;
 
@@ -236,7 +236,7 @@ void ZenGardenControls::OnButtonDown(int theButton, int thePlayerIndex, unsigned
       // ... and forwards, logging the tool it settled on.
       if (mApp->mGameScene == SCENE_PLAYING)
       {
-        int aTool = mObjectType;
+        int aTool = mSelectedTool;
         int aLoggedTool = 0;
         do
         {
@@ -254,7 +254,7 @@ void ZenGardenControls::OnButtonDown(int theButton, int thePlayerIndex, unsigned
         }
         while (!mBoard->CanUseGameObject((GameObjectType)aTool)
             || !mBoard->PickUpTool((GameObjectType)aTool, mPlayerIndex));
-        mObjectType = (GameObjectType)aTool;
+        mSelectedTool = (GameObjectType)aTool;
 
         Sexy::String aLog;
         StrFormat(&aLog, "mSelectedTool = %d\n", aLoggedTool);
@@ -401,7 +401,7 @@ bool ZenGardenControls::OnKeyDown(Sexy::KeyCode theKey, unsigned int theFlags)
           if (theKey == 37)
           {
             // Left steps the tool backwards, retrying while a tool is unusable.
-            int aTool = mObjectType;
+            int aTool = mSelectedTool;
             while (true)
             {
               if (aTool == OBJECT_TYPE_NONE)
@@ -418,12 +418,12 @@ bool ZenGardenControls::OnKeyDown(Sexy::KeyCode theKey, unsigned int theFlags)
                   break;
               }
             }
-            mObjectType = (GameObjectType)aTool;
+            mSelectedTool = (GameObjectType)aTool;
           }
           else if (theKey == 39)
           {
             // Right is the mirror image, and logs the tool it settled on.
-            int aTool = mObjectType;
+            int aTool = mSelectedTool;
             int aLoggedTool = 0;
             do
             {
@@ -441,7 +441,7 @@ bool ZenGardenControls::OnKeyDown(Sexy::KeyCode theKey, unsigned int theFlags)
             }
             while (!mBoard->CanUseGameObject((GameObjectType)aTool)
                 || !mBoard->PickUpTool((GameObjectType)aTool, mPlayerIndex));
-            mObjectType = (GameObjectType)aTool;
+            mSelectedTool = (GameObjectType)aTool;
 
             Sexy::String aLog;
             StrFormat(&aLog, "mSelectedTool = %d\n", aLoggedTool);
@@ -520,6 +520,6 @@ ZenGardenControls::ZenGardenControls(Board * theBoard, int thePlayerIndex1, int 
 {
   // The dump constructs the GamepadControls base in place and then stores the
   // two vptrs; with a real base the compiler emits both from the declarations.
-  mObjectType = OBJECT_TYPE_NONE;
+  mSelectedTool = OBJECT_TYPE_NONE;
   GotoState(MOVEMENT_STATE_NORMAL);
 }

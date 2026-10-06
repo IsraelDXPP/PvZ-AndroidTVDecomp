@@ -612,13 +612,24 @@ enum CreditsPhase : int
 enum DrawVariation : int
 {
     VARIATION_NORMAL = 0,
-    // Names already written next to these values in ReanimatorCache.cpp.
     VARIATION_IMITATER = 1,
+    VARIATION_MARIGOLD_WHITE = 2,
+    VARIATION_MARIGOLD_MAGENTA = 3,
+    VARIATION_MARIGOLD_ORANGE = 4,
+    VARIATION_MARIGOLD_PINK = 5,
+    VARIATION_MARIGOLD_LIGHT_BLUE = 6,
+    VARIATION_MARIGOLD_RED = 7,
+    VARIATION_MARIGOLD_BLUE = 8,
+    VARIATION_MARIGOLD_VIOLET = 9,
+    VARIATION_MARIGOLD_LAVENDER = 10,
+    VARIATION_MARIGOLD_YELLOW = 11,
+    VARIATION_MARIGOLD_LIGHT_GREEN = 12,
     VARIATION_ZEN_GARDEN = 13,
     VARIATION_ZEN_GARDEN_WATER = 14,
     VARIATION_SPROUT_NO_FLOWER = 15,
     VARIATION_IMITATER_LESS = 16,
-    VARIATION_AQUARIUM = 17
+    VARIATION_AQUARIUM = 17,
+    VARIATION_BIG_IDLE = 18
 };
 
 // E_DAVESINGLEHELP -- an enum in the binary. The transcription could not classify the
@@ -633,17 +644,40 @@ enum E_DAVESINGLEHELP : int {};
 // unchanged (one int), and `.mValue` still names the value.
 enum E_SHOP_PACKET : int {};
 
-// FilterEffect -- an enum in the binary. The transcription could not classify the
-// demangled type and emitted a one-int struct; the call sites pass plain
-// integers, so it needs the conversions an enum has. Size and layout are
-// unchanged (one int), and `.mValue` still names the value.
-enum FilterEffect : int {};
+enum FilterEffect : int
+{
+    FILTER_EFFECT_NONE = -1,
+    FILTER_EFFECT_WASHED_OUT = 0,
+    FILTER_EFFECT_LESS_WASHED_OUT = 1,
+    FILTER_EFFECT_WHITE = 2,
+    NUM_FILTER_EFFECTS = 3
+};
 
 // GameStats_MiscStat -- an enum in the binary. The transcription could not classify the
 // demangled type and emitted a one-int struct; the call sites pass plain
 // integers, so it needs the conversions an enum has. Size and layout are
 // unchanged (one int), and `.mValue` still names the value.
-enum GameStats_MiscStat : int {};
+enum GameStats_MiscStat
+{
+    STAT_ZOMBIES_KILLED = 0,
+    STAT_PLANTS_KILLED = 1,
+    STAT_MONEY = 2,
+    STAT_MONEY_SPENT = 3,
+    STAT_TREE_HEIGHT = 4,
+    STAT_ENDLESS_FLAGS = 5,
+    STAT_MOWED_ZOMBIES = 6,
+    STAT_STINKY_CHOCOLATES = 7
+};
+
+enum HouseType
+{
+    BLUEPRINT_INVALID = -1,
+    BLUEPRINT_BLING = 0,
+    BLUEPRINT_SCARY = 1,
+    BLUEPRINT_TRAILER = 2,
+    BLUEPRINT_FUTURE = 3,
+    BLUEPRINT_CLOWN = 4
+};
 
 // GridItemState -- an enum in the binary. The transcription could not classify the
 // demangled type and emitted a one-int struct; the call sites pass plain
@@ -1740,6 +1774,7 @@ enum GamepadButton {
     GAMEPAD_BUTTON_DPAD_DOWN = 17,
     GAMEPAD_BUTTON_DPAD_LEFT = 18,
     GAMEPAD_BUTTON_DPAD_RIGHT = 19,
+    NUM_GAMEPAD_BUTTONS = 20,
 };
 typedef int GamepadAxis;
 typedef int GamepadControl;
@@ -3259,7 +3294,7 @@ enum DebugTextMode {
 // ---------------------------------------------------------------------------
 
 // enum GardenType. PottedPlant::mWhichZenGarden, 2 bits.
-enum GardenType {
+enum GardenType : unsigned int {
     GARDEN_MAIN = 0,
     GARDEN_MUSHROOM = 1,
     GARDEN_WHEELBARROW = 2,
@@ -3267,7 +3302,7 @@ enum GardenType {
 };
 
 // enum PottedPlantNeed. PottedPlant::mPlantNeed, 3 bits.
-enum PottedPlantNeed {
+enum PottedPlantNeed : unsigned int {
     PLANTNEED_NONE = 0,
     PLANTNEED_WATER = 1,
     PLANTNEED_FERTILIZER = 2,
@@ -3276,7 +3311,7 @@ enum PottedPlantNeed {
 };
 
 // enum PottedPlantAge. PottedPlant::mPlantAge, 2 bits.
-enum PottedPlantAge {
+enum PottedPlantAge : unsigned int {
     PLANTAGE_SPROUT = 0,
     PLANTAGE_SMALL = 1,
     PLANTAGE_MEDIUM = 2,

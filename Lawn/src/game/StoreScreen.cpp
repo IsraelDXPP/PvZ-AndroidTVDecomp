@@ -147,9 +147,8 @@ void StoreScreen::GotFocus()
 //
 // The shelf is two banks of fifteen: slots 0..3 and 4..14 are laid out at
 // different origins and different row pitches, which is what the two branches
-// at the top compute. a7 is the extra offset a couple of the items carry, and
-// the six images that live behind a shared-image pointer are read through it.
-int * StoreScreen::GetStoreItemInfo(int theSlot, int theItem, Sexy::Image **theImage, int &theDrawX, int &theDrawY, int &theExtraOffset)
+// at the top compute. The final output is the quantity in one purchase.
+void StoreScreen::GetStoreItemInfo(int theSlot, int theItem, Sexy::Image **theImage, int &theDrawX, int &theDrawY, int &thePurchaseCount)
 {
     bool aFirstBank = theSlot <= 3;
     if (!aFirstBank)
@@ -158,11 +157,11 @@ int * StoreScreen::GetStoreItemInfo(int theSlot, int theItem, Sexy::Image **theI
     int aSlotOffset = 5 * theSlot;
     if (aFirstBank)
         aSlotOffset *= 15;
-    theExtraOffset = 0;
+    thePurchaseCount = 0;
     if (!aFirstBank)
         aSlotOffset *= 15;
 
-    int *result = &theDrawX;
+    int aOffsetX = 0;
     if (aFirstBank)
     {
         theDrawY = 244;
@@ -188,24 +187,22 @@ int * StoreScreen::GetStoreItemInfo(int theSlot, int theItem, Sexy::Image **theI
     case 8:  anImage = IMAGE_STORESEEDPACK_IMITATER; break;
     case 13: anImage = IMAGE_WATERINGCANGOLD; break;
 
-    // The fertiliser and the bug spray are the same Image * globals as the
-    // rest of the shelf. The extra 5 is the draw offset those two items carry.
-    case 14: anImage = IMAGE_FERTILIZER; theExtraOffset = 5; break;
-    case 15: anImage = IMAGE_BUG_SPRAY; theExtraOffset = 5; break;
+    case 14: anImage = IMAGE_FERTILIZER; thePurchaseCount = 5; break;
+    case 15: anImage = IMAGE_BUG_SPRAY; thePurchaseCount = 5; break;
 
     case 16: anImage = IMAGE_PHONOGRAPH; break;
     case 17: anImage = IMAGE_ZEN_GARDENGLOVE; break;
     case 18: anImage = IMAGE_STORE_MUSHROOMGARDENICON; break;
-    case 19: anImage = IMAGE_ZEN_WHEELBARROW; theExtraOffset = 10; break;
-    case 20: anImage = IMAGE_REANIM_STINKY_TURN3; theExtraOffset = 15; break;
+    case 19: anImage = IMAGE_ZEN_WHEELBARROW; aOffsetX = 10; break;
+    case 20: anImage = IMAGE_REANIM_STINKY_TURN3; aOffsetX = 15; break;
     case 21: anImage = IMAGE_STORE_PACKETUPGRADE; break;
     case 22: anImage = IMAGE_ICON_POOLCLEANER; break;
     case 23: anImage = IMAGE_ICON_ROOFCLEANER; break;
     case 24: anImage = IMAGE_ICON_RAKE; break;
     case 25: anImage = IMAGE_STORE_AQUARIUMGARDENICON; break;
     case 27: anImage = IMAGE_STORE_TREEOFWISDOMICON; break;
-    case 28: anImage = IMAGE_TREEFOOD; theExtraOffset = 15; break;
-    case 29: anImage = IMAGE_STORE_FIRSTAIDWALLNUTICON; theExtraOffset = 15; break;
+    case 28: anImage = IMAGE_TREEFOOD; aOffsetX = 15; break;
+    case 29: anImage = IMAGE_STORE_FIRSTAIDWALLNUTICON; aOffsetX = 15; break;
     case 30: anImage = IMAGE_STORE_PVZICON; break;
     case 31: anImage = IMAGE_STORE_BLUEPRINT_BLING; break;
     case 32: anImage = IMAGE_STORE_BLUEPRINT_SCARY; break;
@@ -216,10 +213,9 @@ int * StoreScreen::GetStoreItemInfo(int theSlot, int theItem, Sexy::Image **theI
     default: break;
     }
 
-    theDrawX += theExtraOffset;
+    theDrawX += aOffsetX;
     if (theImage != nullptr)
         *theImage = anImage;
-    return result;
 }
 // ==========================================================================
 // StoreScreen::GetStoreItemType(int)
@@ -995,7 +991,7 @@ int StoreScreen::PurchaseItem(StoreItem theItem)
 
     int anItemCost = GetItemCost(theItem);
     mApp->mPlayerInfo->AddCoins(-anItemCost);
-    ((GameStats *)&mApp->mPlayerInfo->mGameStats[0])->ChangeMiscStat((GameStats_MiscStat)3, anItemCost);
+    mApp->mPlayerInfo->mGameStats.ChangeMiscStat(STAT_MONEY_SPENT, anItemCost);
 
     switch (theItem)
     {
@@ -1041,7 +1037,7 @@ int StoreScreen::PurchaseItem(StoreItem theItem)
     {
         // The tree of wisdom: ask for its own dialog, then remember the choice.
         mApp->mPlayerInfo->mPurchases[27] = 1;
-        mApp->mPlayerInfo->mGameStats[0] = 1;
+        mApp->mPlayerInfo->mGameStats.mHouseType = BLUEPRINT_SCARY;
 
         Sexy::Dialog *aTreeDialog = mApp->DoTreeItemDialog();
         ((LawnDialog *)aTreeDialog)->mLawnYesButton->SetLabel(Sexy::String("[DIALOG_BUTTON_YES]"));
@@ -1111,7 +1107,7 @@ int StoreScreen::PurchaseItem(StoreItem theItem)
     {
         // The house: HouseChooserDialog decides, and the money comes back
         // if it was not bought.
-        int anOldHouseType = mApp->mPlayerInfo->mGameStats[0];
+        HouseType anOldHouseType = mApp->mPlayerInfo->mGameStats.mHouseType;
         HouseChooserDialog *aHouseDialog = new HouseChooserDialog(mApp);
         mApp->AddDialog(aHouseDialog);
         mApp->mWidgetManager->AddWidget(aHouseDialog);
@@ -1119,7 +1115,7 @@ int StoreScreen::PurchaseItem(StoreItem theItem)
         if (aHouseDialog->WaitForResult(true) == 0)
             mApp->mPlayerInfo->AddCoins(GetItemCost((StoreItem)36));
 
-        if (mApp->mPlayerInfo->mGameStats[0] == anOldHouseType)
+        if (mApp->mPlayerInfo->mGameStats.mHouseType == anOldHouseType)
             mApp->mPlayerInfo->AddCoins(GetItemCost((StoreItem)36));
 
         mApp->WriteHouse(true);
@@ -1137,8 +1133,8 @@ int StoreScreen::PurchaseItem(StoreItem theItem)
         if (theItem == 31)
             anOldCount += 3;
         mApp->mPlayerInfo->mPurchases[theItem] = aNewCount;
-        mApp->mPlayerInfo->mGameStats[1] = anOldCount;
-        mApp->mPlayerInfo->mGameStats[0] = theItem - 31;
+        mApp->mPlayerInfo->mGameStats.mHouseLevel = anOldCount;
+        mApp->mPlayerInfo->mGameStats.mHouseType = HouseType(theItem - 31);
         mApp->WriteHouse(true);
     }
 
@@ -1359,19 +1355,19 @@ int StoreScreen::GameButtonDown(Sexy::GamepadButton theButton, int thePlayerInde
     // vtable byte 8 on the player info is DefaultPlayerInfo::GetId; the store
     // only responds to the pad that owns this profile.
     int aProfileId = mApp->mPlayerInfo->GetId();
-    if (theFlags != (unsigned int)aProfileId)
+    if (thePlayerIndex != aProfileId)
         return aProfileId;
 
-    mHatchDirection = theFlags;
-    switch (thePlayerIndex)
+    mInputGamepadIndex = thePlayerIndex;
+    switch (theButton)
     {
-    case 0:
-    case 1:
-    case 2:
-    case 3:
+    case GAMEPAD_BUTTON_UP:
+    case GAMEPAD_BUTTON_DOWN:
+    case GAMEPAD_BUTTON_LEFT:
+    case GAMEPAD_BUTTON_RIGHT:
         // The d-pad moves the selection, one slot at a time.
         {
-            int aSlot = NextSlotInDir((StoreScreen_ItemDir)thePlayerIndex);
+            int aSlot = NextSlotInDir((StoreScreen_ItemDir)theButton);
             if (aSlot != mSelectedSlot)
             {
                 SetSelectedSlot(aSlot);
@@ -1380,12 +1376,12 @@ int StoreScreen::GameButtonDown(Sexy::GamepadButton theButton, int thePlayerInde
         }
         break;
 
-    case 4:
-    case 7:
+    case GAMEPAD_BUTTON_SELECT:
+    case GAMEPAD_BUTTON_B:
         ButtonDepress(100);
         break;
 
-    case 6:
+    case GAMEPAD_BUTTON_A:
         // The action button: advance the bubble, or buy what is selected.
         if (mBubbleClickToContinue != 0)
         {
@@ -1428,12 +1424,12 @@ int StoreScreen::GameButtonDown(Sexy::GamepadButton theButton, int thePlayerInde
         }
         break;
 
-    case 10:
+    case GAMEPAD_BUTTON_TL:
         if (CanInteractWithButtons() != 0 && IsPageShown(STORE_PAGE_PLANT_UPGRADES) != 0)
             ButtonDepress(101);
         break;
 
-    case 11:
+    case GAMEPAD_BUTTON_TR:
         if (CanInteractWithButtons() != 0 && IsPageShown(STORE_PAGE_PLANT_UPGRADES) != 0)
             ButtonDepress(102);
         break;
@@ -1471,7 +1467,7 @@ StoreScreen::StoreScreen(LawnApp *theApp)
     mHatchDirection = 0;
     mShakeX = 0;
     mShakeY = 0;
-    mPendingDialog = 0;
+    mInputGamepadIndex = 0;
     mEasyBuyingCheat = false;
     mWaitForDialog = false;
     mBubbleCountDown = 200;

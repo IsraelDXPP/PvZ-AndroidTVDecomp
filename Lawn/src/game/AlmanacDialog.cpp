@@ -251,55 +251,55 @@ void AlmanacDialog::SetupZombie()
     switch (mSelectedZombie)
     {
     case ZOMBIE_POLEVAULTER:
-        aPosX = 175.0f;
-        aPosY = 567.0f;
+        aPosX = 567.0f;
+        aPosY = 175.0f;
         break;
     case ZOMBIE_NEWSPAPER:
     case ZOMBIE_DIGGER:
     case ZOMBIE_LADDER:
-        aPosX = 170.0f;
-        aPosY = 559.0f;
+        aPosX = 559.0f;
+        aPosY = 170.0f;
         break;
     case ZOMBIE_DOOR:
     case ZOMBIE_BOBSLED:
     case ZOMBIE_DOLPHIN_RIDER:
     case ZOMBIE_IMP:
-        aPosX = 165.0f;
-        aPosY = 559.0f;
+        aPosX = 559.0f;
+        aPosY = 165.0f;
         break;
     case ZOMBIE_FOOTBALL:
-        aPosX = 183.0f;
-        aPosY = 559.0f;
+        aPosX = 559.0f;
+        aPosY = 183.0f;
         break;
     case ZOMBIE_DANCER:
-        aPosX = 205.0f;
-        aPosY = 559.0f;
+        aPosX = 559.0f;
+        aPosY = 205.0f;
         break;
     case ZOMBIE_BACKUP_DANCER:
-        aPosX = 190.0f;
-        aPosY = 559.0f;
+        aPosX = 559.0f;
+        aPosY = 190.0f;
         break;
     case ZOMBIE_ZAMBONI:
     case ZOMBIE_BOSS:
-        aPosX = 190.0f;
-        aPosY = 559.0f;
+        aPosX = 559.0f;
+        aPosY = 190.0f;
         break;
     case ZOMBIE_YETI:
-        aPosX = 195.0f;
-        aPosY = 559.0f;
+        aPosX = 559.0f;
+        aPosY = 195.0f;
         break;
     case ZOMBIE_BUNGEE:
     case ZOMBIE_CATAPULT:
-        aPosX = 185.0f;
-        aPosY = 559.0f;
+        aPosX = 559.0f;
+        aPosY = 185.0f;
         break;
     case ZOMBIE_GARGANTUAR:
-        aPosX = 200.0f;
-        aPosY = 559.0f;
+        aPosX = 559.0f;
+        aPosY = 200.0f;
         break;
     default:
-        aPosX = 175.0f;
-        aPosY = 559.0f;
+        aPosX = 559.0f;
+        aPosY = 175.0f;
         break;
     }
 

@@ -69,8 +69,8 @@ public:
     // because Sexy\ReconTypes.h owns the global name `FoleyInstance` for a
     // four-byte enum shim; see Game\FoleyTypeData.h.
     FoleyTypeDataElement * StopFoley(FoleyType theFoleyType);
-    int GamePause(bool thePause);
-    int CancelPausedFoley();
+    void GamePause(bool thePause);
+    void CancelPausedFoley();
     void ApplyMusicVolume(FoleyTypeDataElement *theInstance);
     FoleyTypeDataElement * PlayFoleyPitch(FoleyType theFoleyType, float thePitch);
     FoleyTypeDataElement * PlayFoley(FoleyType theFoleyType);

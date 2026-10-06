@@ -6,7 +6,7 @@
 GameStats::GameStats(const GameStats& theOther)
 {
   mHouseType = theOther.mHouseType;
-  mReserved = theOther.mReserved;
+  mHouseLevel = theOther.mHouseLevel;
   for (int aStat = 0; aStat < 9; ++aStat)
     mMiscStats[aStat] = theOther.mMiscStats[aStat];
   std::memcpy(mFavoritePlants, theOther.mFavoritePlants, sizeof(mFavoritePlants));
@@ -18,8 +18,8 @@ GameStats::GameStats(const GameStats& theOther)
 
 void GameStats::Reset()
 {
-  mHouseType = 0;
-  mReserved = 0;
+  mHouseType = BLUEPRINT_BLING;
+  mHouseLevel = 0;
   for (int aStat = 0; aStat < 9; ++aStat)
     mMiscStats[aStat] = 0;
   std::memset(mFavoritePlants, 0, sizeof(mFavoritePlants));

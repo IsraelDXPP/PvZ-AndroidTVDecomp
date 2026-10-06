@@ -1574,8 +1574,10 @@ void SeedChooserScreen::ButtonDepress(int theId)
   else if (theId == SeedChooserScreen_Store)
   {
     StoreScreen *aStore = mApp->ShowStoreScreen();
-    aStore->WaitForResult(true);
-    if (aStore->mGoToTreeNow)
+    aStore->WaitForResult(false);
+    bool aGoToTreeNow = aStore->mGoToTreeNow;
+    mApp->KillStoreScreen();
+    if (aGoToTreeNow)
     {
       // Buying the Tree of Wisdom jumps straight out of the level.
       mApp->KillBoard();

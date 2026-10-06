@@ -4460,9 +4460,8 @@ int LawnApp::UpdatePlayerProfileForFinishingLevel()
     {
       // The "level 15/31/45 cleared" markers the main menu reads. GameStats
       // starts at +0x774, so the two words the body touches are its +0 and +4.
-      if ( mPlayerInfo->mGameStats[0] != 0 )
-        mPlayerInfo->mGameStats[0] = 0;
-      int aMarker = mPlayerInfo->mGameStats[1];
+      mPlayerInfo->mGameStats.mHouseType = BLUEPRINT_BLING;
+      int aMarker = mPlayerInfo->mGameStats.mHouseLevel;
       bool aBelowOne = aMarker <= 0;
       if ( aLevel <= 15 )
         aBelowOne = false;
@@ -4474,7 +4473,7 @@ int LawnApp::UpdatePlayerProfileForFinishingLevel()
       int aResult = 0;
       if ( aBelowTwo )
         aMarker = 2;
-      mPlayerInfo->mGameStats[1] = aMarker;
+      mPlayerInfo->mGameStats.mHouseLevel = aMarker;
       TryToSaveProfile();
       return aResult;
     }

@@ -81,13 +81,13 @@ bool Trail::GetNormalAtPoint(int theIndex, SexyVector2& theNormal)
 
     if (theIndex == 0)
     {
-        aDirX = mPoints[1][0] - mPoints[0][0];
-        aDirY = mPoints[0][1] - mPoints[1][1];
+        aDirX = mPoints[0][1] - mPoints[1][1];
+        aDirY = mPoints[1][0] - mPoints[0][0];
     }
     else if (mNumPoints - 1 == theIndex)
     {
-        aDirX = mPoints[mNumPoints - 1][0] - mPoints[mNumPoints - 2][0];
-        aDirY = mPoints[mNumPoints - 2][1] - mPoints[mNumPoints - 1][1];
+        aDirX = mPoints[mNumPoints - 2][1] - mPoints[mNumPoints - 1][1];
+        aDirY = mPoints[mNumPoints - 1][0] - mPoints[mNumPoints - 2][0];
     }
     else
     {
@@ -133,22 +133,11 @@ void Trail::Draw(Sexy::Graphics* theGraphics)
     if (mNumPoints <= 1)
         return;
 
-    const int aMaxVertices = 2 * 19 * 3;
-    SexyVertex2D aVertices[aMaxVertices];
-    for (int i = 0; i < aMaxVertices; ++i)
-    {
-        aVertices[i].mX = 0.0f;
-        aVertices[i].mY = 0.0f;
-        aVertices[i].mU = 0.0f;
-        aVertices[i].mV = 0.0f;
-        aVertices[i].mColor = 0;
-    }
+    const int aMaxTriangles = 2 * 19;
+    SexyVertex2D aTriangles[aMaxTriangles][3]{};
 
     int aNumTriangles = 2 * (mNumPoints - 1);
     float anAgeFrac = (float)mTrailAge / (float)(mTrailDuration - 1);
-
-    const float* aPoint = &mPoints[0][0];
-    SexyVertex2D* aVertex = aVertices;
 
     SexyVector2 aPrevNormal;
     aPrevNormal.mX = 0.0f;
@@ -164,6 +153,8 @@ void Trail::Draw(Sexy::Graphics* theGraphics)
     {
         if (aHaveQuad || GetNormalAtPoint(aPrevIndex, aPrevNormal))
         {
+            SexyVertex2D* aFirstTriangle = aTriangles[2 * aPrevIndex];
+            SexyVertex2D* aSecondTriangle = aTriangles[2 * aPrevIndex + 1];
             aNextNormal.mX = 0.0f;
             aNextNormal.mY = 0.0f;
             aLastIndex = anIndex;
@@ -206,10 +197,10 @@ void Trail::Draw(Sexy::Graphics* theGraphics)
             float aWidth = aWidthOverTime * aWidthOverLength;
             float aNextWidth = aWidthOverTime * aNextWidthOverLength;
 
-            float aPointX = mOffsetX + aPoint[0];
-            float aPointY = mOffsetY + aPoint[1];
-            float aNextX = mOffsetX + aPoint[2];
-            float aNextY = mOffsetY + aPoint[3];
+            float aPointX = mOffsetX + mPoints[aPrevIndex][0];
+            float aPointY = mOffsetY + mPoints[aPrevIndex][1];
+            float aNextX = mOffsetX + mPoints[anIndex][0];
+            float aNextY = mOffsetY + mPoints[anIndex][1];
 
             float aLeftX = aPointX - aPrevNormalX * aWidth;
             float aLeftY = aPointY - aPrevNormalY * aWidth;
@@ -220,55 +211,45 @@ void Trail::Draw(Sexy::Graphics* theGraphics)
             float aNextLeftX = aNextX - aNextNormal.mX * aNextWidth;
             float aNextLeftY = aNextY - aNextNormal.mY * aNextWidth;
 
-            aVertex[0].mX = aRightX;
-            aVertex[0].mY = aRightY;
-            aVertex[0].mU = aPointFrac;
-            aVertex[0].mV = 1.0f;
-            aVertex[0].mColor = aPointColor.ToInt();
+            aFirstTriangle[0].mX = aRightX;
+            aFirstTriangle[0].mY = aRightY;
+            aFirstTriangle[0].mU = aPointFrac;
+            aFirstTriangle[0].mV = 1.0f;
+            aFirstTriangle[0].mColor = aPointColor.ToInt();
 
-            aVertex[1].mX = aLeftX;
-            aVertex[1].mY = aLeftY;
-            aVertex[1].mU = aPointFrac;
-            aVertex[1].mV = 0.0f;
-            aVertex[1].mColor = aPointColor.ToInt();
+            aFirstTriangle[1].mX = aLeftX;
+            aFirstTriangle[1].mY = aLeftY;
+            aFirstTriangle[1].mU = aPointFrac;
+            aFirstTriangle[1].mV = 0.0f;
+            aFirstTriangle[1].mColor = aPointColor.ToInt();
 
-            aVertex[2].mX = aNextRightX;
-            aVertex[2].mY = aNextRightY;
-            aVertex[2].mU = aNextFrac;
-            aVertex[2].mV = 1.0f;
-            aVertex[2].mColor = aNextColor.ToInt();
+            aFirstTriangle[2].mX = aNextRightX;
+            aFirstTriangle[2].mY = aNextRightY;
+            aFirstTriangle[2].mU = aNextFrac;
+            aFirstTriangle[2].mV = 1.0f;
+            aFirstTriangle[2].mColor = aNextColor.ToInt();
 
-            aVertex[3].mX = aNextRightX;
-            aVertex[3].mY = aNextRightY;
-            aVertex[3].mU = aNextFrac;
-            aVertex[3].mV = 1.0f;
-            aVertex[3].mColor = aNextColor.ToInt();
+            aSecondTriangle[0] = aFirstTriangle[2];
 
-            aVertex[4].mX = aLeftX;
-            aVertex[4].mY = aLeftY;
-            aVertex[4].mU = aPointFrac;
-            aVertex[4].mV = 0.0f;
-            aVertex[4].mColor = aPointColor.ToInt();
+            aSecondTriangle[1] = aFirstTriangle[1];
 
-            aVertex[5].mX = aNextLeftX;
-            aVertex[5].mY = aNextLeftY;
-            aVertex[5].mU = aNextFrac;
-            aVertex[5].mV = 0.0f;
-            aVertex[5].mColor = aNextColor.ToInt();
+            aSecondTriangle[2].mX = aNextLeftX;
+            aSecondTriangle[2].mY = aNextLeftY;
+            aSecondTriangle[2].mU = aNextFrac;
+            aSecondTriangle[2].mV = 0.0f;
+            aSecondTriangle[2].mColor = aNextColor.ToInt();
         }
         else
         {
             aLastIndex = anIndex;
         }
 
-        aPoint += 2;
-        aVertex += 6;
         ++aPrevIndex;
         ++anIndex;
     }
     while (aLastIndex < mNumPoints - 1);
 
-    theGraphics->DrawTrianglesTex(mDefinition->mImage, (const SexyVertex2D(*)[3])aVertices, aNumTriangles);
+    theGraphics->DrawTrianglesTex(mDefinition->mImage, aTriangles, aNumTriangles);
 }
 
 Trail::Trail()

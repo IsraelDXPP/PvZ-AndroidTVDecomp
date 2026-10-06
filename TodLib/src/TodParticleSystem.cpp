@@ -220,7 +220,6 @@ TodParticleSystem::TodParticleSystem()
     mIsAttachment = false;
     mRenderOrder = 0;
     mDontUpdate = false;
-    mActive = false;
 }
 
 void TodParticleSystem::TodParticleInitializeFromDef(
@@ -255,11 +254,11 @@ void TodParticleSystem::Update()
     if (mDontUpdate)
         return;
 
-    bool aKeepAlive = mActive;
-    for (EmitterListNode *aNode = static_cast<EmitterListNode *>(mEmitterList.mHead);
-         aNode != nullptr; aNode = aNode->mNext)
+    bool aKeepAlive = false;
+    for (EmitterListNode *aNode = mEmitterList.mHead; aNode != nullptr; )
     {
         TodParticleEmitter *anEmitter = EmitterAt(mParticleHolder, aNode->mValue);
+        aNode = aNode->mNext;
         anEmitter->Update();
         if (FloatTrackIsSet(&anEmitter->mEmitterDef->mCrossFadeDuration))
         {
@@ -289,10 +288,10 @@ void TodParticleSystem::CrossFade(const char *theEmitterName)
         return;
     }
 
-    for (EmitterListNode *aNode = static_cast<EmitterListNode *>(mEmitterList.mHead);
-         aNode != nullptr; aNode = aNode->mNext)
+    for (EmitterListNode *aNode = mEmitterList.mHead; aNode != nullptr; )
     {
         TodParticleEmitter *anEmitter = EmitterAt(mParticleHolder, aNode->mValue);
+        aNode = aNode->mNext;
         if (aDefinition == anEmitter->mEmitterDef)
             continue;
 

@@ -343,12 +343,10 @@ Plant * Projectile::FindCollisionTargetPlant()
 
     if (mProjectileType == PROJECTILE_ZOMBIE_PEA)
     {
-      // A zombie pea never hits the low-profile plants. The dump tests the seed
-      // type against {4, 8, 9, 21, 46, 16}, which are SUNSHROOM, SPIKEWEED,
-      // SPIKEROCK, LILYPAD, FLOWERPOT and PUFFSHROOM.
+      // 0x1932B0 excludes potato mines, small mushrooms, spikes and lily pads.
       SeedType aSeedType = aPlant->mSeedType;
-      if (aSeedType == SEED_SUNSHROOM || aSeedType == SEED_SPIKEWEED || aSeedType == SEED_SPIKEROCK
-          || aSeedType == SEED_LILYPAD || aSeedType == SEED_FLOWERPOT || aSeedType == SEED_PUFFSHROOM)
+      if (aSeedType == SEED_POTATOMINE || aSeedType == SEED_PUFFSHROOM || aSeedType == SEED_SUNSHROOM
+          || aSeedType == SEED_SPIKEWEED || aSeedType == SEED_SPIKEROCK || aSeedType == SEED_LILYPAD)
         continue;
     }
 

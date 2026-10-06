@@ -100,7 +100,7 @@ public:
     void UpdateSystemField(ParticleField& theField, int theIndex);
     float SystemTrackEvaluate(FloatParameterTrack& theTrack, ParticleSystemTracks theIndex);
     float ParticleTrackEvaluate(FloatParameterTrack& theTrack, TodParticle* theParticle, ParticleTracks theIndex);
-    void GetRenderParams(TodParticle* theParticle, ParticleRenderParams& theParams);
+    static bool GetRenderParams(TodParticle* theParticle, ParticleRenderParams& theParams);
     void DrawParticle(Sexy::Graphics* theGraphics, TodParticle* theParticle);
 };
 

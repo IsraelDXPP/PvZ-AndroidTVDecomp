@@ -167,6 +167,7 @@ GameButton::GameButton(int theId, Sexy::ButtonListener* theListener)
     : Sexy::DialogButton(nullptr, theId, theListener)
 {
     mWidgetId = theId;
+    mClip = false;
     mFont = nullptr;
     mApp = gLawnApp;
     mLabelJustify = 0;

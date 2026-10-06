@@ -4,14 +4,8 @@
 // for ZenGarden, and the transcribed bodies are plain member functions
 // (ZenGarden.cpp:113 reads gSexyAppBase off `+0`, i.e. mApp).
 //
-// Size 0x30. Evidence: the constructor call site allocates with
-// `an allocation of 0x30u` and then runs `ZenGarden::ZenGarden()` @0x19d9d4.
-// The authoritative header PvZ\Lawn\Board\ZenGarden.h:40 only names the first
-// three members; the remaining 0x24 bytes were never given names by that
-// reconstruction.
-// TODO(recon): the IDA dump for this class also touches +0x14, +0x18, +0x1C and
-// +0x20 with a stable shape, so those words are real members whose meaning is
-// still unknown.
+// Resource groups are owned by a standard set; the host does not need the
+// original libstdc++ tree layout.
 
 #pragma once
 
@@ -70,18 +64,13 @@ public:
     // The help bar this garden installs while it owns the board; looked up from
     // `mApp->mHelpBarWidget` on first use and cached here.
     HelpBarWidget *mHelpBar; // +0x0C
-    int mGardenWord;         // +0x10  the constructor clears it; nothing else reads it
+    GameObjectType mSelectedTool; // +0x10, last tool recorded by ToolChanged
     // Set while the garden still wants the shop button on the help bar.
     bool mShowShopButton;    // +0x14
-    // +0x18 .. +0x2F: the libstdc++ std::set<Sexy::String> of resource names
-    // LoadResources has already loaded. MapStorage is the same 6-word rb-tree
-    // object (comparator, header node, element count) the constructor
-    // initialises and the destructor walks and erases.
-    Sexy::RbTree::MapStorage mLoadedResources;
-    // 0x30
+    std::set<Sexy::String> mLoadedResources;
 
     ZenGarden();
-    Plant * RemovePottedPlant(Plant *thePlant);
+    void RemovePottedPlant(Plant *thePlant);
     void ZenGardenStart();
     TodParticleSystem * AddHappyEffect(Plant *thePlant);
     void RemoveHappyEffect(Plant *thePlant);
@@ -89,7 +78,7 @@ public:
     bool WasPlantFertilizedInLastHour(PottedPlant *thePottedPlant);
     bool PlantShouldRefreshNeed(PottedPlant *thePottedPlant);
     void RefreshPlantNeeds(PottedPlant *thePottedPlant);
-    int GetPlantsNeed(PottedPlant *thePottedPlant);
+    PottedPlantNeed GetPlantsNeed(PottedPlant *thePottedPlant);
     bool PlantHighOnChocolate(PottedPlant *thePottedPlant);
     float PlantPottedDrawHeightOffset(SeedType theSeedType, float theScale);
     void StinkyWakeUp(GridItem *theStinky);
@@ -140,9 +129,9 @@ public:
     int CanDropChocolate();
     int WakeStinky();
     void DoFeedingTool(int x, int y, GridItemState theToolType);
-    int ZenToolUpdate(GridItem *theZenTool);
+    void ZenToolUpdate(GridItem *theZenTool);
     int MouseDownZenGarden(int x, int y, int theClickCount, HitResult *theHitResult);
-    GridItem * IsStinkySleeping();
+    bool IsStinkySleeping();
     bool IsStinkyHighOnChocolate();
     void StinkyAnimRateUpdate(GridItem *theStinky);
     bool ShouldStinkyBeAwake();
@@ -153,7 +142,7 @@ public:
     void ResetStinkyTimers();
     void StinkyUpdate(GridItem *theStinky);
     int MakeStinkySleeping();
-    int ZenPlantOffsetX(PottedPlant *thePottedPlant);
+    float ZenPlantOffsetX(PottedPlant *thePottedPlant);
     void GameButtonDown(int theButton, int thePlayerIndex, unsigned int theFlags);
     int RestoreGlove();
     bool CanFeedStinkyChocolate();
@@ -163,10 +152,10 @@ public:
     void SetupForZenTutorial();
     void ToolChanged(GameObjectType theObjectType);
     void MouseDownWithMoneySign(Plant *thePlant);
-    void MouseDownWithFeedingTool(int x, int y, CursorType theCursorType, int theClickCount);
-    void MouseDownWithTool(int x, int y, CursorType theCursorType, int theClickCount);
+    void MouseDownWithFeedingTool(int x, int y, CursorType theCursorType, int thePlayerIndex);
+    void MouseDownWithTool(int x, int y, CursorType theCursorType, int thePlayerIndex);
     void AddStinky();
-    int ZenGardenInitLevel(bool theJustSwitchingGardens);
+    void ZenGardenInitLevel(bool theJustSwitchingGardens);
     void OpenStore();
     ~ZenGarden();
     int LoadResources(Sexy::String const &theGroup);

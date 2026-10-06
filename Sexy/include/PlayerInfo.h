@@ -6,6 +6,7 @@
 
 #include "ReconTypes.h"
 #include "PottedPlant.h"
+#include "GameStats.h"
 
 class DataSync;
 
@@ -105,11 +106,10 @@ public:
     // 32 bytes, 8 messages each. Message 0 is the low bit of byte 0.
     unsigned char mMailMessageRead[32];
     unsigned char mMailMessageSeen[32];
-    int mGameStats[38];
+    GameStats mGameStats;
     int mTail;
 
-    // GameStats::mFavoritePlants sits eleven words into the stats block.
-    char *FavoritePlants() { return (char *)&mGameStats[11]; }
+    char *FavoritePlants() { return mGameStats.mFavoritePlants; }
 
     PlayerInfo(Sexy::ProfileMgr * theMgr);
 };

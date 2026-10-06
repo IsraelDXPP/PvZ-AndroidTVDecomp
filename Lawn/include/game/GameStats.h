@@ -14,19 +14,13 @@
 #pragma once
 
 #include "ReconTypes.h"
-// Classes this one calls a method on: the call needs the
-// complete type, so they are included rather than declared.
-#include "SeedBank.h"
+class SeedBank;
 
 class GameStats
 {
 public:
-    // TODO(recon): HouseType is declared in Game\HouseChooserDialog.h, which is
-    // a different group's file; the IDA dump types this member as HouseType, and
-    // an enum of that name is not visible from here yet.
-    int mHouseType;
-    // Copied and cleared with the rest of the record. No reader uses the value.
-    int mReserved;
+    HouseType mHouseType;
+    int mHouseLevel;
     int mMiscStats[9];
     char mFavoritePlants[49];
     char mFavoriteZombies[47];
@@ -48,4 +42,3 @@ public:
     int GetMiscStat(GameStats_MiscStat theStat);
     Sexy::String GetStatName(GameStats_MiscStat theStat);
 };
-

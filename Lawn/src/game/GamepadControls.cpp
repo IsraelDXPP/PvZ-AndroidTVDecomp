@@ -1995,7 +1995,7 @@ bool IsDirectRowZombie(ZombieType theType)
 
 bool GamepadControls::HandleDPadButtons(int theButton)
 {
-    if ((unsigned int)(theButton - GAMEPAD_BUTTON_TL2) <= 1)
+    if ((unsigned int)(theButton - GAMEPAD_BUTTON_TL2) <= 1 && mApp->CanShopLevel())
     {
         if (!mIsInShopSeedBank)
             DownSelectedSeed();

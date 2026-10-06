@@ -12857,7 +12857,7 @@ int Board::KeyChar(char theChar)
             }
             return 1;
         case 's':
-            if (mApp->mZenGarden->IsStinkySleeping() != nullptr)
+            if (mApp->mZenGarden->IsStinkySleeping())
                 mApp->mZenGarden->WakeStinky();
             else
                 mApp->mZenGarden->ResetStinkyTimers();

@@ -7777,12 +7777,8 @@ int Zombie::BossDie()
 // Zombie::DieNoLoot(void)
 // @001B1660  378 bytes
 // ==========================================================================
-int Zombie::DieNoLoot()
+void Zombie::DieNoLoot()
 {
-  // ChangeMiscStat(0, 1) adds 1 to GameStats::mMiscStats[0], which is word 2 of
-  // the embedded int[38] at PlayerInfo+0x774. That call leaves the block address
-  // in r0. The gargantuar kill flag is the byte at PlayerInfo+0x711, byte 1 of
-  // mProgress[0]. 0xD is ZOMBIE_BOBSLED. Each death re-reads the type.
   StopZombieSound();
   AttachmentDie(mAttachmentID);
   mApp->RemoveReanimation(mBodyReanimID);
@@ -7790,7 +7786,7 @@ int Zombie::DieNoLoot()
   mApp->RemoveReanimation(mSpecialHeadReanimID);
   mDead = true;
 
-  int aResult = TrySpawnLevelAward();
+  TrySpawnLevelAward();
   if ( mApp->mPlayerInfo != nullptr && mFromWave != -3 )
   {
     if ( mApp->mGameMode == GAMEMODE_MP_VS )
@@ -7798,17 +7794,14 @@ int Zombie::DieNoLoot()
       Sexy::PlayerInfo *aStatsOwner = mApp->mPlayerInfo;
       if ( mBoard->mGamepadControls[0]->mGamepadIndex != aStatsOwner->GetId() )
         aStatsOwner = mApp->mPlayer2Info;
-      aStatsOwner->mGameStats[2] += 1;
-      aResult = (int)&aStatsOwner->mGameStats[0];
+      aStatsOwner->mGameStats.ChangeMiscStat(STAT_ZOMBIES_KILLED, 1);
     }
     else
     {
-      mApp->mPlayerInfo->mGameStats[2] += 1;
-      aResult = (int)&mApp->mPlayerInfo->mGameStats[0];
+      mApp->mPlayerInfo->mGameStats.ChangeMiscStat(STAT_ZOMBIES_KILLED, 1);
       if ( mApp->mSecondPlayerGamepadIndex != -1 )
       {
-        mApp->mPlayer2Info->mGameStats[2] += 1;
-        aResult = (int)&mApp->mPlayer2Info->mGameStats[0];
+        mApp->mPlayer2Info->mGameStats.ChangeMiscStat(STAT_ZOMBIES_KILLED, 1);
       }
     }
   }
@@ -7819,7 +7812,6 @@ int Zombie::DieNoLoot()
     if ( mApp->mGameMode == GAMEMODE_MP_VS )
     {
       int aId = mApp->mPlayerInfo->GetId();
-      aResult = aId;
       if ( mBoard->mGamepadControls[0]->mGamepadIndex == aId )
         mApp->mPlayerInfo->mProgress[0] = (mApp->mPlayerInfo->mProgress[0] & ~0xFF00) | 0x0100;
       else if ( mApp->mPlayer2Info != nullptr )
@@ -7827,25 +7819,17 @@ int Zombie::DieNoLoot()
     }
     else
     {
-      aResult = mApp->mSecondPlayerGamepadIndex + 1;
       mApp->mPlayerInfo->mProgress[0] = (mApp->mPlayerInfo->mProgress[0] & ~0xFF00) | 0x0100;
       if ( mApp->mSecondPlayerGamepadIndex != -1 )
         mApp->mPlayer2Info->mProgress[0] = (mApp->mPlayer2Info->mProgress[0] & ~0xFF00) | 0x0100;
     }
   }
-  else if ( (mZombieType == ZOMBIE_GARGANTUAR || mZombieType == ZOMBIE_REDEYE_GARGANTUAR)
-         && mFromWave >= 0 )
-  {
-    aResult = 1;
-  }
-
   if ( mZombieType == ZOMBIE_BOBSLED )
-    aResult = BobsledDie();
+    BobsledDie();
   if ( mZombieType == ZOMBIE_BUNGEE )
-    aResult = (int)BungeeDie();
+    BungeeDie();
   if ( mZombieType == ZOMBIE_BOSS )
-    return (int)BossDie();
-  return aResult;
+    BossDie();
 }
 // ==========================================================================
 // Zombie::DieWithLoot(void)
@@ -8352,12 +8336,12 @@ Reanimation * Zombie::UpdateZombieJackInTheBox()
 // Zombie::UpdateZombieJalapenoHead(void)
 // @001B2284  118 bytes
 // ==========================================================================
-int Zombie::UpdateZombieJalapenoHead()
+void Zombie::UpdateZombieJalapenoHead()
 {
   // The jalapeno head only fires while the zombie still has its head and is not
   // already counting a phase down.
   if ( !mHasHead || mPhaseCounter != 0 )
-    return (int)this;
+    return;
 
   mApp->PlayFoley(FOLEY_JALAPENO_IGNITE);
   mApp->PlayFoley(FOLEY_JUICY);
@@ -8371,16 +8355,16 @@ int Zombie::UpdateZombieJalapenoHead()
     if ( aPlant->mRow == mRow && !aPlant->NotOnGround() )
       aPlant->Die();
   }
-  return DieNoLoot();
+  DieNoLoot();
 }
 // ==========================================================================
 // Zombie::BobsledDie(void)
 // @001B22FC  88 bytes
 // ==========================================================================
-int Zombie::BobsledDie()
+void Zombie::BobsledDie()
 {
     if (!IsBobsledTeamWithSled() || !IsOnBoard())
-        return 0;
+        return;
 
     // The sled's leader dies first, then every rider still following it.
     Zombie *aLeader = this;
@@ -8395,13 +8379,12 @@ int Zombie::BobsledDie()
         if (!aFollower->mDead)
             aFollower->DieNoLoot();
     }
-    return 0;
 }
 // ==========================================================================
 // Zombie::BungeeDie(void)
 // @001B2354  82 bytes
 // ==========================================================================
-Zombie *Zombie::BungeeDie()
+void Zombie::BungeeDie()
 {
     BungeeDropPlant();
 
@@ -8417,8 +8400,7 @@ Zombie *Zombie::BungeeDie()
 
     Zombie *aZombie = mBoard->ZombieTryToGet(mRelatedZombieID);
     if (aZombie != nullptr && !aZombie->mDead)
-        return (Zombie *)aZombie->DieNoLoot();
-    return aZombie;
+        aZombie->DieNoLoot();
 }
 // ==========================================================================
 // Zombie::UpdateDeath(void)
@@ -8772,13 +8754,10 @@ void Zombie::PlayDeathAnim(unsigned int theDamageFlags)
 // Zombie::UpdateDamageStates(unsigned int)
 // @001B2B48  150 bytes
 // ==========================================================================
-int Zombie::UpdateDamageStates(unsigned int theDamageFlags)
+void Zombie::UpdateDamageStates(unsigned int theDamageFlags)
 {
-    // The header types this int, but the value is an artifact: the binary only
-    // leaves the last call's r0 behind and the sole caller discards it. Only the
-    // DieNoLoot tail has a real result.
     if (!CanLoseBodyParts())
-        return 0;
+        return;
 
     // An arm comes off once the body is down to two thirds of its health.
     if (mHasArm && mBodyHealth < 2 * mBodyMaxHealth / 3 && mBodyHealth > 0)
@@ -8797,10 +8776,9 @@ int Zombie::UpdateDamageStates(unsigned int theDamageFlags)
         // A snorkel zombie that loses its head while walking in the pool dies
         // outright instead of leaving a corpse behind.
         if (mZombiePhase == PHASE_SNORKEL_WALKING_IN_POOL)
-            return DieNoLoot();
+            DieNoLoot();
     }
 
-    return 0;
 }
 // ==========================================================================
 // Zombie::AnimateChewSound(void)

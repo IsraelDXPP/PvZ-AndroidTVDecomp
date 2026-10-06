@@ -1593,10 +1593,7 @@ static int TodVsnprintfEnsureNewLine(char* theBuffer, int theSize, const char* t
 
 static int HesitationMilliseconds()
 {
-    __int64 aBits = gHesitationTrace.mTimer.GetDuration();
-    double aMilliseconds;
-    std::memcpy(&aMilliseconds, &aBits, sizeof(aMilliseconds));
-    return (int)aMilliseconds;
+    return (int)gHesitationTrace.mTimer.GetDuration();
 }
 
 void TodHesitationStartBuffer()
@@ -1835,7 +1832,8 @@ Sexy::String* TodReplaceButtons(Sexy::String* theResult, const Sexy::String* the
 // TODO(recon)
 Sexy::String* TodReplaceNumberString(Sexy::String* theResult, const Sexy::String* theFormat, const char* thePlaceholder, int theNumber)
 {
-    *theResult = *theFormat;
+    // TV 0x1FDB9A translates the format before looking up the placeholder.
+    TodStringTranslate(theResult, theFormat);
     if (thePlaceholder == nullptr)
         return theResult;
     const char* aText = theResult->c_str();

@@ -113,8 +113,7 @@ public:
     int mShakeX;                      // +0x318
     int mShakeY;                      // +0x31C
     int mStartDialog;                 // +0x320
-    // Written 0 in the constructor. No reader in this build uses it.
-    int mPendingDialog;               // +0x324
+    int mInputGamepadIndex;           // +0x324
     bool mEasyBuyingCheat;            // +0x328
     bool mWaitForDialog;              // +0x329
     // +0x32A and +0x32B are the last two bytes of mPottedPlantSpecs. The draw
@@ -146,7 +145,7 @@ public:
 
     // The binary returns r0 unchanged from the frame, which is the address of
     // the `theX` out-parameter; no caller reads the result.
-    int * GetStoreItemInfo(int theSlot, int theItem, Sexy::Image **theImage, int &theDrawX, int &theDrawY, int &theExtraOffset);
+    void GetStoreItemInfo(int theSlot, int theItem, Sexy::Image **theImage, int &theDrawX, int &theDrawY, int &thePurchaseCount);
     int GetStoreItemType(int theSlot);
     bool IsPottedPlant(StoreItem theItem);
     int IsFullVersionOnly(StoreItem theItem);

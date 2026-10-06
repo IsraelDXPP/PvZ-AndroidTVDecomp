@@ -34,14 +34,6 @@ namespace {
 // Attachment is the exception: its id is Attachment::mAttachmentID, and the
 // stride is sizeof(Attachment).
 
-enum EffectType
-{
-  EFFECT_PARTICLE = 0,
-  EFFECT_TRAIL = 1,
-  EFFECT_REANIM = 2,
-  EFFECT_ATTACHMENT = 3,
-};
-
 // Low 16 bits are the slot index; the key lives in the high half. A null id, an
 // index past mMaxSize, or a slot whose stored id no longer matches is a miss.
 // Holders store the slot array as a byte block. The one conversion is from that
@@ -104,7 +96,7 @@ unsigned int ReanimationKey(const Reanimation *theReanim)
 // A missing or dead id allocates a fresh attachment and stores its id back
 // into the caller's slot. The new effect is a translation of (theOffsetX,
 // theOffsetY); the "don't draw if the parent is hidden" flag starts clear.
-AttachEffect *CreateEffectAttachment(int &theId, int theEffectType, unsigned int theEffectId,
+AttachEffect *CreateEffectAttachment(int &theId, EffectType theEffectType, unsigned int theEffectId,
                                      float theOffsetX, float theOffsetY)
 {
   AttachmentHolder *aHolder = gEffectSystem->mAttachmentHolder;
@@ -117,7 +109,7 @@ AttachEffect *CreateEffectAttachment(int &theId, int theEffectType, unsigned int
 
   AttachEffect *anEffect = &anAttachment->mEffectArray[anAttachment->mNumEffects];
   anEffect->mEffectType = theEffectType;
-  anEffect->mEffectID = ReanimationID(theEffectId);
+  anEffect->mEffectID = theEffectId;
   anEffect->mDontDrawIfParentHidden = false;
   anEffect->mOffset.LoadIdentity();
   anEffect->mOffset.m02 = theOffsetX;
@@ -339,13 +331,12 @@ void Attachment::OverrideColor(const Color &theColor)
 // Attachment::PropogateColor(Sexy::Color const&,bool,Sexy::Color const&,bool,Sexy::Color const&)
 // @001F4EC8  326 bytes
 // ==========================================================================
-unsigned int Attachment::PropogateColor(const Color &theColor, bool theEnableAdditive,
+void Attachment::PropogateColor(const Color &theColor, bool theEnableAdditive,
                                         const Color &theAdditiveColor, bool theEnableOverlay,
                                         const Color &theOverlayColor)
 {
   // An effect with mDontPropogateColor set is skipped. Particles are told to
-  // override every emitter (null name). r0 on the way out is the overlay flag
-  // the prologue loaded; no caller reads it.
+  // override every emitter (null name).
   if (mNumEffects > 0)
   {
     EffectSystem *aSystem = gEffectSystem;
@@ -396,7 +387,6 @@ unsigned int Attachment::PropogateColor(const Color &theColor, bool theEnableAdd
       }
     }
   }
-  return theEnableOverlay;
 }
 
 // ==========================================================================
@@ -652,7 +642,7 @@ void Attachment::Detach()
         default:
           break;
       }
-      anEffect->mEffectID = REANIMATIONID_NULL;
+      anEffect->mEffectID = 0;
     }
   }
   mNumEffects = 0;
@@ -715,7 +705,7 @@ void Attachment::AttachmentDie()
         default:
           break;
       }
-      anEffect->mEffectID = REANIMATIONID_NULL;
+      anEffect->mEffectID = 0;
     }
   }
   mNumEffects = 0;
@@ -738,16 +728,14 @@ Attachment::Attachment()
   for (int anEffectIndex = 0; anEffectIndex < 16; ++anEffectIndex)
     mEffectArray[anEffectIndex].mOffset = Sexy::SexyTransform2D();
 
-  // The binary registers a single 773-byte sync block covering the effect
-  // array and then zeroes it. 773 == 0x305 is the offset the block reaches,
-  // and mNumEffects (+0x310) is deliberately outside it.
-  const int aSyncBlockSize = 773;
+  // TV registers the effect array, count and dead flag (773 bytes on ARM).
+  const int aSyncBlockSize = sizeof(mEffectArray) + sizeof(mNumEffects) + sizeof(mDead);
   SyncBlockInfo aBlock;
   aBlock.mData = &mEffectArray[0];
   aBlock.mSize = aSyncBlockSize;
 
   mSyncBlocks.push_back(aBlock);
-  memset(&mEffectArray[0], 0, aSyncBlockSize);
+  memset(mEffectArray, 0, sizeof(mEffectArray));
 
   mNumEffects = 0;
   mDead = false;
@@ -907,7 +895,7 @@ void AttachmentDetachCrossFadeParticleType(int &theId, ParticleEffect theEffect,
     {
       aSlot->mItem.ParticleSystemDie();
     }
-    anEffect->mEffectID = REANIMATIONID_NULL;
+    anEffect->mEffectID = 0;
     aCount = anAttachment->mNumEffects;
   }
 }

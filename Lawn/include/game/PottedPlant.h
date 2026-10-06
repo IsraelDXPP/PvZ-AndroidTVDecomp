@@ -24,7 +24,7 @@
 class PottedPlant
 {
 public:
-    enum FacingDirection
+    enum FacingDirection : unsigned int
     {
         FACING_RIGHT,
         FACING_LEFT
@@ -34,20 +34,14 @@ public:
     SeedType       mSeedType : 7;      // bits 0..6
     FacingDirection mFacing : 1;       // bit 7
     GardenType     mWhichZenGarden : 2; // bits 8..9
-    int            mY : 2;             // bits 10..11
-    // The authoritative header spells this field `DrawVariation mDrawVariation : 4`,
-    // but ReconTypes.h models DrawVariation as a one-int struct wrapper, and C++ allows
-    // only integral or fixed-underlying-type enum bit-fields, not class types. Using
-    // `unsigned int` keeps the field 4 bits wide and in place at bits 12..15, so the
-    // bitfield word and sizeof are unchanged. If DrawVariation is ever promoted to a
-    // real enum in ReconTypes.h, this line reverts to `DrawVariation mDrawVariation : 4;`.
+    unsigned int   mY : 2;             // bits 10..11, rows 0..3
     unsigned int   mDrawVariation : 4; // bits 12..15 (DrawVariation, 4 bits)
-    int            mX : 3;             // bits 16..18
+    unsigned int   mX : 3;             // bits 16..18, columns 0..7
     PottedPlantNeed mPlantNeed : 3;    // bits 19..21
     PottedPlantAge mPlantAge : 2;      // bits 22..23
-    int            mTimesFed : 3;      // bits 24..26
-    int            mFeedingsPerGrow : 3; // bits 27..29
-    int            : 2;                // bits 30..31
+    unsigned int   mTimesFed : 3;      // bits 24..26
+    unsigned int   mFeedingsPerGrow : 3; // bits 27..29
+    unsigned int   : 2;                // bits 30..31
 
     int mLastWateredTime;         // +0x04
     int mLastNeedFulfilledTime;   // +0x08

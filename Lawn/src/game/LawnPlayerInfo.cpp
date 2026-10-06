@@ -57,7 +57,7 @@ void LawnPlayerInfo::Reset()
     memset(mPottedPlants, 0, sizeof(mPottedPlants));
     mNumPottedPlants = 0;
     mPacketUpgradeDeclines = 0;
-    ((GameStats *)&mGameStats[0])->Reset();
+    mGameStats.Reset();
     mFlags = 0;
     mSoundVolume = 0.5;
     mMusicVolume = 0.5;
@@ -87,9 +87,6 @@ void LawnPlayerInfo::Reset()
 LawnPlayerInfo::LawnPlayerInfo(Sexy::ProfileMgr *theProfileMgr)
     : Sexy::DefaultPlayerInfo(theProfileMgr)
 {
-    // mGameStats is still an int array in PlayerInfo. Reset clears those words.
-    // Constructing a GameStats over them would build the object twice on storage
-    // the compiler already owns.
     mDetailFileCount = 3;
     Reset();
 }
@@ -180,7 +177,7 @@ int LawnPlayerInfo::SyncZenGardenData(DataSync &theSync)
 int LawnPlayerInfo::SyncGameStats(DataSync &theSync)
 {
     // The whole stats block, then the finished-adventure bitset.
-    theSync.SyncBytes(mGameStats, sizeof(mGameStats));
+    theSync.SyncBytes(&mGameStats, sizeof(mGameStats));
     theSync.SyncBytes(&mProgress[2], 8);
     return 1;
 }
@@ -224,10 +221,9 @@ int LawnPlayerInfo::UpdateHouseData()
 {
     // The dump reads words 23 and 60 of the record, i.e. the challenge records
     // at index 12 and index 49.
-    GameStats &aStats = *(GameStats *)&mGameStats[0];
-    aStats.SetMiscStat(GameStats_MiscStat(2), mCoins);
-    aStats.SetMiscStat(GameStats_MiscStat(4), mChallengeRecords[49]);
-    aStats.SetMiscStat(GameStats_MiscStat(5), mChallengeRecords[12]);
+    mGameStats.SetMiscStat(STAT_MONEY, mCoins);
+    mGameStats.SetMiscStat(STAT_TREE_HEIGHT, mChallengeRecords[49]);
+    mGameStats.SetMiscStat(STAT_ENDLESS_FLAGS, mChallengeRecords[12]);
     return 0;
 }
 

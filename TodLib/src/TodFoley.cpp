@@ -171,7 +171,7 @@ FoleyTypeDataElement *TodFoley::StopFoley(FoleyType theFoleyType)
 // every live instance of every type whose FoleyParams carry MF_LOOP (bit 2 of
 // mFoleyFlags) is stopped and parked, and un-pausing restarts it.
 // ==========================================================================
-int TodFoley::GamePause(bool thePause)
+void TodFoley::GamePause(bool thePause)
 {
     SoundSystemReleaseFinishedInstances(this);
 
@@ -191,10 +191,9 @@ int TodFoley::GamePause(bool thePause)
             if (anInstance.mRefCount == 0)
                 continue;
 
-            // An instance that is already in the requested state is left alone:
-            // pausing twice must not restart a parked sound, and un-pausing twice
-            // must not re-issue Play.
-            if (anInstance.mPaused == thePause)
+            // TV restarts only parked sounds when resuming. Pausing always
+            // stops the active instance and clears its saved offset.
+            if (!thePause && !anInstance.mPaused)
                 continue;
 
             Sexy::SoundInstance *aSound = anInstance.mInstance;
@@ -213,14 +212,13 @@ int TodFoley::GamePause(bool thePause)
             }
         }
     }
-    return 0;
 }
 
 // ==========================================================================
 // TodFoley::CancelPausedFoley()
 // @001FF954  106 bytes
 // ==========================================================================
-int TodFoley::CancelPausedFoley()
+void TodFoley::CancelPausedFoley()
 {
     SoundSystemReleaseFinishedInstances(this);
 
@@ -239,13 +237,11 @@ int TodFoley::CancelPausedFoley()
             // Drop the pause and release the sound outright: this is the path
             // that abandons a parked effect rather than resuming it.
             Sexy::SoundInstance *aSound = anInstance.mInstance;
-            anInstance.mPauseOffset = 0;
-            anInstance.mInstance = nullptr;
-            aSound->Stop();
             anInstance.mRefCount = 0;
+            aSound->Release();
+            anInstance.mInstance = nullptr;
         }
     }
-    return 0;
 }
 
 // ==========================================================================

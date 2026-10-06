@@ -260,8 +260,9 @@ void MainMenu::OnExit()
         aStoreScreen->WaitForResult(false);
         if ( mApp->mShutDown )
           return;
-        mApp->KillDialog(aStoreScreen->mWidgetId);
-        if ( aStoreScreen->mGoToTreeNow )
+        bool aGoToTreeNow = aStoreScreen->mGoToTreeNow;
+        mApp->KillStoreScreen();
+        if ( aGoToTreeNow )
         {
           mIsFading = false;
           mRetainWidgetsOnExit = false;

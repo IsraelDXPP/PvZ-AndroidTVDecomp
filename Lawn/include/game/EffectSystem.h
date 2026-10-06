@@ -40,7 +40,7 @@ public:
     ~EffectSystem();
     int EffectSystemInitialize();
     void EffectSystemDispose();
-    unsigned int Update();
+    void Update();
     void EffectSystemFreeAll();
     void ProcessDeleteQueue();
 };

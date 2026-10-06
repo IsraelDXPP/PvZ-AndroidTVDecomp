@@ -113,15 +113,12 @@ void EffectSystem::EffectSystemDispose()
 // @00205188  224 bytes
 // ==========================================================================
 // Three DataArray<T>::IterateNext passes, one per live array: walk the used
-// prefix, skip every slot whose id still carries a key (the high half of mID),
+// prefix, visit every slot whose id still carries a key (the high half of mID),
 // and update the element unless it is an attachment. Particle systems and
 // reanimations both call their own Update; a trail runs its counter only while
 // mUnkE4 is clear.
 //
-// The return type is the transcriber's: the binary leaves the trail block
-// pointer in r0 because the last loop happens to hold it there, and no caller
-// reads it.
-unsigned int EffectSystem::Update()
+void EffectSystem::Update()
 {
   ParticleSystemSlot *aSystems = mParticleHolder->mParticleSystems.mBlock;
   for (unsigned int i = 0; i < mParticleHolder->mParticleSystems.mMaxUsedCount; ++i)
@@ -149,8 +146,6 @@ unsigned int EffectSystem::Update()
     if (!aTrails[i].mItem.mIsAttachment)
       aTrails[i].mItem.Update();
   }
-
-  return 0;
 }
 
 // ==========================================================================

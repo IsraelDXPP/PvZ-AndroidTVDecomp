@@ -35,14 +35,19 @@
 
 // One attached effect. 0x30 bytes because SexyTransform2D is nine floats (0x24)
 // and the two trailing bools pad the record to its alignment.
-// TODO(recon): the authoritative header types mEffectType as `EffectType`, an
-// enum Sexy\ReconTypes.h does not define yet; the bodies only compare it against
-// plain integers.
+enum EffectType
+{
+    EFFECT_PARTICLE,
+    EFFECT_TRAIL,
+    EFFECT_REANIM,
+    EFFECT_ATTACHMENT
+};
+
 class AttachEffect
 {
 public:
-    ReanimationID mEffectID;       // +0x00
-    int mEffectType;               // +0x04
+    unsigned int mEffectID;        // DataArray key for the selected effect holder
+    EffectType mEffectType;        // +0x04
     Sexy::SexyTransform2D mOffset; // +0x08 .. +0x2B
     bool mDontDrawIfParentHidden;  // +0x2C
     bool mDontPropogateColor;      // +0x2D
@@ -77,13 +82,13 @@ public:
     // Update @0x1f4b1c, SetPosition @0x1f4c80, OverrideColor @0x1f4dd8,
     // CrossFade @0x1f50f8, SetMatrix @0x1f515c, Draw @0x1f52d8, Detach @0x1f541c
     // and AttachmentDie @0x1f5524 all end `POP {..,PC}` with r0 never set, so they
-    // are void. PropogateColor @0x1f4ec8 does set r0 (the dump's `result` word) and
-    // stays `unsigned int`. None of these is virtual, so the types do not affect
+    // are void. PropogateColor @0x1f4ec8 also has no result used by its callers.
+    // None of these is virtual, so the types do not affect
     // the object's layout or its two-slot vtable.
     void Update();
     void SetPosition(const Sexy::SexyVector2 &thePosition);
     void OverrideColor(const Color & theColor);
-    unsigned int PropogateColor(const Color &theColor, bool theEnableAdditive, const Color &theAdditiveColor, bool theEnableOverlay, const Color &theOverlayColor);
+    void PropogateColor(const Color &theColor, bool theEnableAdditive, const Color &theAdditiveColor, bool theEnableOverlay, const Color &theOverlayColor);
     void OverrideScale(float theScale);
     void CrossFade(const char * theCrossFadeName);
     void SetMatrix(const Sexy::SexyTransform2D & theMatrix);

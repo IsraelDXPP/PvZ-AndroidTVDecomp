@@ -57,7 +57,7 @@ ReanimationButton::ReanimationButton(int theId, ReanimationType theReanimationTy
   mReanimationType = theReanimationType;
   mParent = theParent;
   mReanimationID = REANIMATIONID_NULL;
-  mApp = (LawnApp *)gSexyAppBase;
+  mApp = gLawnApp;
   mScaleX = 1.0f;
   mScaleY = 1.0f;
 }

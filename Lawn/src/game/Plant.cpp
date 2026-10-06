@@ -2819,7 +2819,7 @@ int Plant::UpdateReanim()
     aOffsetY += aCurveY * aScaleY;
     aScale *= aCurveScale;
     aScaleY *= aCurveScale;
-    aOffsetX += (float)mApp->mZenGarden->ZenPlantOffsetX(aPotted);
+    aOffsetX += mApp->mZenGarden->ZenPlantOffsetX(aPotted);
     aOffsetY += mApp->mZenGarden->PlantPottedDrawHeightOffset(mSeedType, aScaleY);
   }
 
@@ -3025,13 +3025,10 @@ int Plant::Die()
       aPotReanim->SetAnimRate(RandRangeFloat(10.0f, 15.0f));
     }
   }
-  // PlayerInfo still stores the stats record as an int array. The plants-died
-  // counter is misc stat 1.
   LawnPlayerInfo *aPlayerInfo = mApp->mPlayerInfo;
   if (aPlayerInfo == nullptr)
     return 0;
-  GameStats &aStats = *(GameStats *)&aPlayerInfo->mGameStats[0];
-  aStats.ChangeMiscStat((GameStats_MiscStat)1, 1);
+  aPlayerInfo->mGameStats.ChangeMiscStat(STAT_PLANTS_KILLED, 1);
   return 0;
 }
 

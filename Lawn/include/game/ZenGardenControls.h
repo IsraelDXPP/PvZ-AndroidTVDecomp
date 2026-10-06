@@ -42,9 +42,7 @@ class ZenGardenControls : public GamepadControls
 {
 public:
     // ---- own member, +0x108 (authoritative ordinal 66) ----
-    // The base's GameObjectType (from GameObject): which zen-garden object the
-    // cursor is on. Board.cpp:5442/5449 write it after a hit test.
-    GameObjectType mObjectType; // +0x108
+    GameObjectType mSelectedTool; // +0x108, tool restored after its animation
     // size 0x10C
 
     virtual ~ZenGardenControls();                                        // [16] 0x040

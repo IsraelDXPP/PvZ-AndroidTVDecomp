@@ -32,6 +32,7 @@ void HouseChooserDialog::GameButtonDown(Sexy::GamepadButton theButton, int thePl
     if (theButton == GAMEPAD_BUTTON_LEFT)
     {
         int house = mSelectedHouseType;
+        mGrowTime = 0.0f;
         for (;;)
         {
             bool wasBling = (house == BLUEPRINT_SCARY);
@@ -41,7 +42,7 @@ void HouseChooserDialog::GameButtonDown(Sexy::GamepadButton theButton, int thePl
             {
                 if (wasBling)
                     break;
-                purchase = house + 30;
+                purchase = house + 31;
             }
             else
             {
@@ -61,7 +62,7 @@ void HouseChooserDialog::GameButtonDown(Sexy::GamepadButton theButton, int thePl
         mGrowTime = 0.0f;
         do
             house = (house + 1) % 5;
-        while (house != 0 && mApp->mPlayerInfo->mPurchases[house] == 0);
+        while (house != 0 && mApp->mPlayerInfo->mPurchases[house + 31] == 0);
         mSelectedHouseType = (HouseType)house;
         return;
     }
@@ -71,8 +72,8 @@ void HouseChooserDialog::GameButtonDown(Sexy::GamepadButton theButton, int thePl
         int house = mSelectedHouseType;
         LawnPlayerInfo* playerInfo = mApp->mPlayerInfo;
         int delta = (house != 0) ? -1 : 2;
-        playerInfo->mGameStats[33] = house;
-        playerInfo->mGameStats[34] = playerInfo->mPurchases[house] + delta;
+        playerInfo->mGameStats.mHouseType = mSelectedHouseType;
+        playerInfo->mGameStats.mHouseLevel = playerInfo->mPurchases[house + 31] + delta;
         ButtonDepress(1000);
         return;
     }
@@ -120,7 +121,7 @@ void HouseChooserDialog::Draw(Sexy::Graphics* g)
             }
         }
 
-        if (mApp->mPlayerInfo->mPurchases[house] == 0 && house != 0)
+        if (mApp->mPlayerInfo->mPurchases[house + 31] == 0 && house != 0)
         {
             Sexy::Rect rect(posX, 125, 67, 68);
             TodDrawStringWrapped(g, TodStringTranslate("[NOT_AVAILABLE]"), rect,
@@ -152,7 +153,7 @@ HouseChooserDialog::HouseChooserDialog(LawnApp* theApp)
     : LawnDialog(theApp, nullptr, 71, true, Sexy::String("[CHOOSE_HOUSE]"), Sexy::String(), Sexy::String(), 0)
 {
     mGrowTime = 0.0f;
-    mSelectedHouseType = (HouseType)(mApp->mPlayerInfo->mGameStats[33]);
+    mSelectedHouseType = mApp->mPlayerInfo->mGameStats.mHouseType;
     Resize(100, 100, 600, 355);
 }
 

@@ -15,10 +15,7 @@
 
 static int HesitationMilliseconds()
 {
-  __int64 aBits = gHesitationTrace.mTimer.GetDuration();
-  double aMilliseconds;
-  std::memcpy(&aMilliseconds, &aBits, sizeof(aMilliseconds));
-  return (int)aMilliseconds;
+  return (int)gHesitationTrace.mTimer.GetDuration();
 }
 
 // ==========================================================================

@@ -588,6 +588,13 @@ void MessageWidget::Draw(Sexy::Graphics *theGraphics)
   aRect.mWidth = 800;
   aRect.mHeight = aRectHeight;
 
+  if (mMessageStyle == MESSAGE_STYLE_SLOT_MACHINE)
+  {
+    // Keep the TV strip anchor and height (0x1A4C90), centering the current
+    // font box inside the strip rather than using its ascent as the top offset.
+    aRect.mY = aPosY - aRectHeight / 2;
+  }
+
   Sexy::String aLabel(mLabel);
 
   if (aBackdropWidth != 0)

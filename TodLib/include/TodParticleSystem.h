@@ -33,7 +33,6 @@ public:
     bool mIsAttachment;
     int mRenderOrder;
     bool mDontUpdate;
-    bool mActive;
 
     void ParticleSystemDie();
     void Draw(Sexy::Graphics *theGraphics);

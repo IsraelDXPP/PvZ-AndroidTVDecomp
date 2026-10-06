@@ -27,7 +27,7 @@ public:
     __time_t CalcDuration();
     int Start();
     PerfTimer * Stop();
-    __int64 GetDuration();
+    double GetDuration();
 };
 
 } // namespace Sexy

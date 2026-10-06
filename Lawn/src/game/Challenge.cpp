@@ -2100,12 +2100,12 @@ void Challenge::UpdateSlotMachine()
 
   // State 4 is the reels spinning. Nothing pays out until the first packet's
   // countdown has run out.
-  if ( mChallengeState == (ChallengeState)4 )
+  if ( mChallengeState == STATECHALLENGE_SLOT_MACHINE_ROLLING )
   {
     if ( mBoard->mSeedBank[0]->mSeedPackets[0].mSlotMachineCountDown > 0 )
       return;
     mApp->ReanimationGet(mReanimChallenge)->PlayReanim("anim_return", REANIM_PLAY_ONCE_AND_HOLD, 0, 24.0f);
-    mChallengeState = (ChallengeState)STATECHALLENGE_NORMAL;
+    mChallengeState = STATECHALLENGE_NORMAL;
 
     // The three reels are packets 1, 0 and 2 of the first bank, in that order.
     SeedType aReel1 = mBoard->mSeedBank[0]->mSeedPackets[1].mPacketType;
@@ -6052,54 +6052,44 @@ int Challenge::HeavyWeaponButtonDown(int theButton, int thePlayerIndex, unsigned
 // ==========================================================================
 int Challenge::GameButtonDown(int theButton, int thePlayerIndex, unsigned int theFlags)
 {
-  // Confirm (button 8) pulls the slot machine when a roll can start, and that
-  // press is consumed. A confirm that cannot pay, and every other button, fall
-  // through to the mode handlers. Beghouled and Beghouled Twist only answer
-  // button 8; Twist then joins Last Stand and the Zen Garden, while Beghouled
-  // skips those and joins the aquarium and heavy-weapon tail.
+  // 0x185C0C handles a slot-machine pull before looking up the cursor hit.
+  if (mApp->IsSlotMachineLevel() && theButton == GAMEPAD_BUTTON_X
+      && mChallengeState == STATECHALLENGE_NORMAL
+      && mApp->mGameScene != SCENE_LEVEL_INTRO && !mBoard->mLevelAwardSpawned)
+  {
+    if (!mBoard->TakeSunMoney(25, 0))
+      return 1;
+
+    for (int aReel = 0; aReel != 3; ++aReel)
+      mBoard->mSeedBank[0]->mSeedPackets[aReel].SlotMachineStart();
+    mApp->ReanimationGet(mReanimChallenge)->PlayReanim(
+        "anim_pull", REANIM_PLAY_ONCE_AND_HOLD, 0, 36.0f);
+    mChallengeState = STATECHALLENGE_SLOT_MACHINE_ROLLING;
+    mBoard->SetTutorialState(TUTORIAL_SLOT_MACHINE_COMPLETED);
+    mBoard->ClearAdvice(ADVICE_NONE);
+    ++mSlotMachineRollCount;
+    mApp->PlaySample(SOUND_SLOT_MACHINE, false);
+    return 1;
+  }
+
   GamepadControls *aControls = mBoard->GetGamepadControlsByGamepadIndex(thePlayerIndex);
   HitResult aHit = aControls->GetHitResult();
 
-  if (mApp->IsSlotMachineLevel() && theButton == 8)
-  {
-    if (mBeghouledMatchesThisMove != 0 || mApp->mGameScene == SCENE_LEVEL_INTRO || mBoard->mLevelAwardSpawned != 0)
-    {
-      // A roll is already running, or the level is not ready to roll.
-    }
-    else if (mBoard->TakeSunMoney(25, 0) != 0)
-    {
-      for (int aReel = 0; aReel != 3; ++aReel)
-        mBoard->mSeedBank[0]->mSeedPackets[aReel].SlotMachineStart();
-      mApp->ReanimationGet(mReanimChallenge)->PlayReanim(
-          "anim_pull", REANIM_PLAY_ONCE_AND_HOLD, 0, 36.0f);
-      mBeghouledMatchesThisMove = 4;
-      mBoard->SetTutorialState(TUTORIAL_SLOT_MACHINE_COMPLETED);
-      mBoard->ClearAdvice(AdviceType(-1));
-      ++mSlotMachineRollCount;
-      mApp->PlaySample(SOUND_SLOT_MACHINE, false);
-      return 1;
-    }
-    else
-    {
-      return 1;
-    }
-  }
-
   if (mApp->mGameMode == GAMEMODE_CHALLENGE_BEGHOULED_TWIST)
   {
-    if (theButton != 8)
+    if (theButton != GAMEPAD_BUTTON_X)
       return 0;
-    if (mBeghouledMatchesThisMove != 0)
+    if (mChallengeState != STATECHALLENGE_NORMAL)
       return 0;
     BeghouledTwistMouseDown((int)aControls->mCursorPositionX, (int)aControls->mCursorPositionY);
   }
   else if (mApp->mGameMode == GAMEMODE_CHALLENGE_BEGHOULED)
   {
-    if (theButton != 8)
+    if (theButton != GAMEPAD_BUTTON_X)
       return 0;
     if ((theFlags & 1) == 0)
     {
-      if (mBeghouledMatchesThisMove != 0)
+      if (mChallengeState != STATECHALLENGE_NORMAL)
         return 0;
       if (aHit.mObjectType == OBJECT_TYPE_PLANT)
       {
@@ -6109,7 +6099,7 @@ int Challenge::GameButtonDown(int theButton, int thePlayerIndex, unsigned int th
         return 1;
       }
     }
-    if (mApp->mGameMode == GAMEMODE_CHALLENGE_ZOMBIQUARIUM && theButton == 9)
+    if (mApp->mGameMode == GAMEMODE_CHALLENGE_ZOMBIQUARIUM && theButton == GAMEPAD_BUTTON_Y)
     {
       mApp->PlaySample(SOUND_TAPGLASS, false);
       return 1;
@@ -6121,9 +6111,9 @@ int Challenge::GameButtonDown(int theButton, int thePlayerIndex, unsigned int th
 
   if (mApp->mGameMode == GAMEMODE_CHALLENGE_LAST_STAND)
   {
-    if (mBeghouledMatchesThisMove != 0)
+    if (mChallengeState != STATECHALLENGE_NORMAL)
       return 0;
-    if (theButton != 9)
+    if (theButton != GAMEPAD_BUTTON_Y)
       return 1;
     mApp->PlaySample(SOUND_GRAVEBUTTON, false);
     return 1;
@@ -6133,7 +6123,7 @@ int Challenge::GameButtonDown(int theButton, int thePlayerIndex, unsigned int th
     mApp->mZenGarden->GameButtonDown(theButton, thePlayerIndex, theFlags);
     return 0;
   }
-  if (mApp->mGameMode == GAMEMODE_CHALLENGE_ZOMBIQUARIUM && theButton == 9)
+  if (mApp->mGameMode == GAMEMODE_CHALLENGE_ZOMBIQUARIUM && theButton == GAMEPAD_BUTTON_Y)
   {
     mApp->PlaySample(SOUND_TAPGLASS, false);
     return 1;
@@ -7876,7 +7866,7 @@ void Challenge::DrawSlotMachine(Sexy::Graphics * g)
   Sexy::Graphics aGraphics(*g);
   if ( mSlotMachineRollCount <= 2
        && mBoard->mCursorObject[0]->mCursorType == CURSOR_TYPE_NORMAL
-       && mChallengeState != 4
+       && mChallengeState != STATECHALLENGE_SLOT_MACHINE_ROLLING
        && mBoard->HasLevelAwardDropped() == 0 )
   {
     Sexy::Color aFlash;

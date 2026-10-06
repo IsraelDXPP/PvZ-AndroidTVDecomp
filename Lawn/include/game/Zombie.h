@@ -410,7 +410,7 @@ public:
     // 0x1B1304. Reanimation::Update is void; the only caller ignores r0.
     void UpdateBossFireball();
     int BossDie();
-    int DieNoLoot();
+    void DieNoLoot();
     int DieWithLoot();
     // 0x1B17CC. r0 is PlayZombieReanim, DieWithLoot, or aFlags<<27. Callers
     // that read it cast the int.
@@ -430,12 +430,12 @@ public:
     // 0x1B212C. The idle paths return this. The pop path tail-calls
     // PlayZombieReanim and returns that reanimation.
     Reanimation * UpdateZombieJackInTheBox();
-    int UpdateZombieJalapenoHead();
-    int BobsledDie();
-    Zombie * BungeeDie();
+    void UpdateZombieJalapenoHead();
+    void BobsledDie();
+    void BungeeDie();
     void UpdateDeath();
     void PlayDeathAnim(unsigned int theDamageFlags);
-    int UpdateDamageStates(unsigned int theDamageFlags);
+    void UpdateDamageStates(unsigned int theDamageFlags);
     void AnimateChewSound();
     // 0x1B2CEC. Returns this.
     Zombie * Animate();

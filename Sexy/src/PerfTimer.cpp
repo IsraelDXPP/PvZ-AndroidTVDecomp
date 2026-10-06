@@ -6,8 +6,6 @@
 #include "PerfTimer.h"
 #include "AndroidShims.h"
 
-#include <cstring>
-
 // ---------------------------------------------------------------------------
 // Sexy::PerfTimer::PerfTimer()
 // @00328FAC  24 bytes
@@ -92,15 +90,11 @@ Sexy::PerfTimer* Sexy::PerfTimer::Stop()
 // Sexy::PerfTimer::GetDuration()
 // @00329034  18 bytes
 //
-// A running timer is measured first, and then the eight bytes at +8 are read
-// back as a 64-bit integer rather than as the double they were stored as.
+// A running timer is measured first. ARM returns the stored double in r0/r1.
 // ---------------------------------------------------------------------------
-__int64 Sexy::PerfTimer::GetDuration()
+double Sexy::PerfTimer::GetDuration()
 {
-    __int64 aDuration;
-
     if ( mRunning != 0 )
         CalcDuration();
-    std::memcpy(&aDuration, &mDuration, sizeof(aDuration));
-    return aDuration;
+    return mDuration;
 }

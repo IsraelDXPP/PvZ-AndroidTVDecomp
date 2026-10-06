@@ -275,8 +275,8 @@ void TodParticleEmitter::Update()
         mSyncState.mSystemTimeValue = anExpired ? 1.0f : 0.0f;
     }
     else
-        mSyncState.mSystemTimeValue = mSyncState.mSystemDuration > 1
-            ? static_cast<float>(mSyncState.mSystemAge) / (mSyncState.mSystemDuration - 1) : 0.0f;
+        mSyncState.mSystemTimeValue = static_cast<float>(mSyncState.mSystemAge)
+            / static_cast<float>(mSyncState.mSystemDuration - 1);
     if (mSyncState.mEmitterCrossFadeCountDown > 0 && --mSyncState.mEmitterCrossFadeCountDown == 0)
         anExpired = true;
     if (mSyncState.mCrossFadeEmitterID != 0)
@@ -331,8 +331,8 @@ bool TodParticleEmitter::UpdateParticle(TodParticle* theParticle)
     if (aState.mCrossFadeParticleID != 0
         && mParticleSystem->mParticleHolder->mParticles.DataArrayTryToGet(aState.mCrossFadeParticleID) == nullptr)
         return false;
-    aState.mParticleTimeValue = aState.mParticleDuration > 1
-        ? static_cast<float>(aState.mParticleAge) / (aState.mParticleDuration - 1) : 0.0f;
+    aState.mParticleTimeValue = static_cast<float>(aState.mParticleAge)
+        / static_cast<float>(aState.mParticleDuration - 1);
     for (int anIndex = 0; anIndex < std::min(4, mEmitterDef->mParticleFieldCount); ++anIndex)
         UpdateParticleField(theParticle, mEmitterDef->mParticleFields[anIndex], anIndex);
     aState.mPosition.mX += aState.mVelocity.mX;
@@ -341,7 +341,8 @@ bool TodParticleEmitter::UpdateParticle(TodParticle* theParticle)
     float aSpinAngle = ParticleTrackEvaluate(mEmitterDef->mParticleSpinAngle, theParticle, PARTICLE_TRACK_SPIN_ANGLE);
     float aLastAngle = EvaluatePrevious(mEmitterDef->mParticleSpinAngle,
         aState.mParticleLastTimeValue, aState.mTrackInterp[PARTICLE_TRACK_SPIN_ANGLE]);
-    aState.mSpinPosition += aState.mSpinVelocity + (aSpinSpeed * 0.01f + aSpinAngle - aLastAngle) * 0.017453f;
+    aState.mSpinPosition = aState.mSpinPosition + aState.mSpinVelocity
+        + (aSpinSpeed * 0.01f - aLastAngle + aSpinAngle) * 0.017453f;
     if (FloatTrackIsSet(&mEmitterDef->mAnimationRate))
     {
         aState.mAnimationTimeValue += ParticleTrackEvaluate(mEmitterDef->mAnimationRate,
@@ -424,10 +425,10 @@ void TodParticleEmitter::UpdateSystemField(ParticleField& theField, int theIndex
     float aLastTime = mSyncState.mSystemLastTimeValue;
     float aSampleX = mSystemFieldInterp[theIndex][0];
     float aSampleY = mSystemFieldInterp[theIndex][1];
-    mSyncState.mSystemCenter.mX += FloatTrackEvaluate(theField.mX, aTime, aSampleX)
-        - EvaluatePrevious(theField.mX, aLastTime, aSampleX);
-    mSyncState.mSystemCenter.mY += FloatTrackEvaluate(theField.mY, aTime, aSampleY)
-        - EvaluatePrevious(theField.mY, aLastTime, aSampleY);
+    mSyncState.mSystemCenter.mX = mSyncState.mSystemCenter.mX
+        + FloatTrackEvaluate(theField.mX, aTime, aSampleX) - EvaluatePrevious(theField.mX, aLastTime, aSampleX);
+    mSyncState.mSystemCenter.mY = mSyncState.mSystemCenter.mY
+        + FloatTrackEvaluate(theField.mY, aTime, aSampleY) - EvaluatePrevious(theField.mY, aLastTime, aSampleY);
 }
 
 // 0x207F7C.
@@ -463,8 +464,10 @@ void TodParticleEmitter::UpdateParticleField(TodParticle* theParticle, ParticleF
         aPosition.mY += aFieldY * 0.01f;
         break;
     case FIELD_POSITION:
-        aPosition.mX += aFieldX - EvaluatePrevious(theField.mX, aState.mParticleLastTimeValue, aSampleX);
-        aPosition.mY += aFieldY - EvaluatePrevious(theField.mY, aState.mParticleLastTimeValue, aSampleY);
+        aPosition.mX = aPosition.mX + aFieldX
+            - EvaluatePrevious(theField.mX, aState.mParticleLastTimeValue, aSampleX);
+        aPosition.mY = aPosition.mY + aFieldY
+            - EvaluatePrevious(theField.mY, aState.mParticleLastTimeValue, aSampleY);
         break;
     case FIELD_GROUND_CONSTRAINT:
         if (aPosition.mY > mSyncState.mSystemCenter.mY + aFieldY)
@@ -485,9 +488,9 @@ void TodParticleEmitter::UpdateParticleField(TodParticle* theParticle, ParticleF
         int aLastAge = aState.mParticleAge == 0 ? aState.mParticleDuration - 1 : aState.mParticleAge - 1;
         SexyVector2 aNoise = ShakeNoise(anID, aState.mParticleAge);
         SexyVector2 aLastNoise = ShakeNoise(anID, aLastAge);
-        aPosition.mX += aFieldX * aNoise.mX
+        aPosition.mX = aPosition.mX + aFieldX * aNoise.mX
             - EvaluatePrevious(theField.mX, aState.mParticleLastTimeValue, aSampleX) * aLastNoise.mX;
-        aPosition.mY += aFieldY * aNoise.mY
+        aPosition.mY = aPosition.mY + aFieldY * aNoise.mY
             - EvaluatePrevious(theField.mY, aState.mParticleLastTimeValue, aSampleY) * aLastNoise.mY;
         break;
     }
@@ -497,7 +500,7 @@ void TodParticleEmitter::UpdateParticleField(TodParticle* theParticle, ParticleF
         float aDeltaX = aPosition.mX - mSyncState.mSystemCenter.mX;
         float aDeltaY = aPosition.mY - mSyncState.mSystemCenter.mY;
         float aDistance = std::sqrt(aDeltaX * aDeltaX + aDeltaY * aDeltaY);
-        float aSpeed = (aFieldX + aFieldY * aDistance) * 0.01f;
+        float aSpeed = aFieldX * 0.01f + aFieldY * 0.01f * aDistance;
         if (aDistance != 0.0f)
         {
             aDeltaX /= aDistance;
@@ -580,44 +583,51 @@ bool TodParticleEmitter::CrossFadeParticleToName(TodParticle* theParticle, const
 }
 
 // 0x208684. Source channels only participate when explicitly keyed/overridden.
-void TodParticleEmitter::GetRenderParams(TodParticle* theParticle, ParticleRenderParams& theParams)
+bool TodParticleEmitter::GetRenderParams(TodParticle* theParticle, ParticleRenderParams& theParams)
 {
-    auto& aDef = *mEmitterDef;
-    auto& aColor = mSyncState.mColorOverride;
+    TodParticleEmitter& anEmitter = *theParticle->mParticleEmitter;
+    auto& aDef = *anEmitter.mEmitterDef;
+    auto& aColor = anEmitter.mSyncState.mColorOverride;
     auto& aState = theParticle->mSyncState;
     theParams.mRedSet = FloatTrackIsSet(&aDef.mSystemRed) || FloatTrackIsSet(&aDef.mParticleRed) || aColor.mRed != 1;
     theParams.mGreenSet = FloatTrackIsSet(&aDef.mSystemGreen) || FloatTrackIsSet(&aDef.mParticleGreen) || aColor.mGreen != 1;
     theParams.mBlueSet = FloatTrackIsSet(&aDef.mSystemBlue) || FloatTrackIsSet(&aDef.mParticleBlue) || aColor.mBlue != 1;
     theParams.mAlphaSet = FloatTrackIsSet(&aDef.mSystemAlpha) || FloatTrackIsSet(&aDef.mParticleAlpha) || aColor.mAlpha != 1;
-    theParams.mScaleSet = FloatTrackIsSet(&aDef.mParticleScale) || mSyncState.mScaleOverride != 1.0f;
+    theParams.mScaleSet = FloatTrackIsSet(&aDef.mParticleScale) || anEmitter.mSyncState.mScaleOverride != 1.0f;
     theParams.mStretchSet = FloatTrackIsSet(&aDef.mParticleStretch);
     theParams.mSpinSet = FloatTrackIsSet(&aDef.mParticleSpinSpeed) || FloatTrackIsSet(&aDef.mParticleSpinAngle)
         || (aDef.mFlags & (PARTICLE_RANDOM_LAUNCH_SPIN | PARTICLE_ALIGN_LAUNCH_SPIN)) != 0;
     theParams.mPositionSet = aDef.mParticleFieldCount > 0 || FloatTrackIsSet(&aDef.mEmitterRadius)
         || FloatTrackIsSet(&aDef.mEmitterOffsetX) || FloatTrackIsSet(&aDef.mEmitterOffsetY)
         || FloatTrackIsSet(&aDef.mEmitterBoxX) || FloatTrackIsSet(&aDef.mEmitterBoxY);
-    float aBrightness = SystemTrackEvaluate(aDef.mSystemBrightness, SYSTEM_TRACK_BRIGHTNESS)
-        * ParticleTrackEvaluate(aDef.mParticleBrightness, theParticle, PARTICLE_TRACK_BRIGHTNESS);
-    theParams.mRed = SystemTrackEvaluate(aDef.mSystemRed, SYSTEM_TRACK_RED)
-        * ParticleTrackEvaluate(aDef.mParticleRed, theParticle, PARTICLE_TRACK_RED) * aColor.mRed * aBrightness;
-    theParams.mGreen = SystemTrackEvaluate(aDef.mSystemGreen, SYSTEM_TRACK_GREEN)
-        * ParticleTrackEvaluate(aDef.mParticleGreen, theParticle, PARTICLE_TRACK_GREEN) * aColor.mGreen * aBrightness;
-    theParams.mBlue = SystemTrackEvaluate(aDef.mSystemBlue, SYSTEM_TRACK_BLUE)
-        * ParticleTrackEvaluate(aDef.mParticleBlue, theParticle, PARTICLE_TRACK_BLUE) * aColor.mBlue * aBrightness;
-    theParams.mAlpha = SystemTrackEvaluate(aDef.mSystemAlpha, SYSTEM_TRACK_ALPHA)
-        * ParticleTrackEvaluate(aDef.mParticleAlpha, theParticle, PARTICLE_TRACK_ALPHA) * aColor.mAlpha;
-    theParams.mScale = ParticleTrackEvaluate(aDef.mParticleScale, theParticle, PARTICLE_TRACK_SCALE) * mSyncState.mScaleOverride;
-    theParams.mStretch = ParticleTrackEvaluate(aDef.mParticleStretch, theParticle, PARTICLE_TRACK_STRETCH);
+    float aSystemRed = anEmitter.SystemTrackEvaluate(aDef.mSystemRed, SYSTEM_TRACK_RED);
+    float aSystemGreen = anEmitter.SystemTrackEvaluate(aDef.mSystemGreen, SYSTEM_TRACK_GREEN);
+    float aSystemBlue = anEmitter.SystemTrackEvaluate(aDef.mSystemBlue, SYSTEM_TRACK_BLUE);
+    float aSystemAlpha = anEmitter.SystemTrackEvaluate(aDef.mSystemAlpha, SYSTEM_TRACK_ALPHA);
+    float aSystemBrightness = anEmitter.SystemTrackEvaluate(aDef.mSystemBrightness, SYSTEM_TRACK_BRIGHTNESS);
+    float aParticleRed = anEmitter.ParticleTrackEvaluate(aDef.mParticleRed, theParticle, PARTICLE_TRACK_RED);
+    float aParticleGreen = anEmitter.ParticleTrackEvaluate(aDef.mParticleGreen, theParticle, PARTICLE_TRACK_GREEN);
+    float aParticleBlue = anEmitter.ParticleTrackEvaluate(aDef.mParticleBlue, theParticle, PARTICLE_TRACK_BLUE);
+    float aParticleAlpha = anEmitter.ParticleTrackEvaluate(aDef.mParticleAlpha, theParticle, PARTICLE_TRACK_ALPHA);
+    float aParticleBrightness = anEmitter.ParticleTrackEvaluate(aDef.mParticleBrightness, theParticle, PARTICLE_TRACK_BRIGHTNESS);
+    float aBrightness = aParticleBrightness * aSystemBrightness;
+    theParams.mRed = aSystemRed * aParticleRed * aColor.mRed * aBrightness;
+    theParams.mGreen = aSystemGreen * aParticleGreen * aColor.mGreen * aBrightness;
+    theParams.mBlue = aSystemBlue * aParticleBlue * aColor.mBlue * aBrightness;
+    theParams.mAlpha = aSystemAlpha * aParticleAlpha * aColor.mAlpha;
+    theParams.mScale = anEmitter.ParticleTrackEvaluate(aDef.mParticleScale, theParticle, PARTICLE_TRACK_SCALE)
+        * anEmitter.mSyncState.mScaleOverride;
+    theParams.mStretch = anEmitter.ParticleTrackEvaluate(aDef.mParticleStretch, theParticle, PARTICLE_TRACK_STRETCH);
     theParams.mSpin = aState.mSpinPosition;
     theParams.mPositionX = aState.mPosition.mX;
     theParams.mPositionY = aState.mPosition.mY;
-    TodParticle* aSource = mParticleSystem->mParticleHolder->mParticles.DataArrayTryToGet(aState.mCrossFadeParticleID);
+    TodParticle* aSource = anEmitter.mParticleSystem->mParticleHolder->mParticles.DataArrayTryToGet(aState.mCrossFadeParticleID);
     if (aSource == nullptr)
-        return;
+        return true;
     ParticleRenderParams aSourceParams;
-    aSource->mParticleEmitter->GetRenderParams(aSource, aSourceParams);
-    float aTime = aSource->mSyncState.mCrossFadeDuration > 1
-        ? static_cast<float>(aState.mParticleAge) / (aSource->mSyncState.mCrossFadeDuration - 1) : 1.0f;
+    if (!GetRenderParams(aSource, aSourceParams))
+        return true;
+    float aTime = static_cast<float>(aState.mParticleAge) / (aSource->mSyncState.mCrossFadeDuration - 1);
     BlendParam(theParams.mRed, theParams.mRedSet, aSourceParams.mRed, aSourceParams.mRedSet, aTime);
     BlendParam(theParams.mGreen, theParams.mGreenSet, aSourceParams.mGreen, aSourceParams.mGreenSet, aTime);
     BlendParam(theParams.mBlue, theParams.mBlueSet, aSourceParams.mBlue, aSourceParams.mBlueSet, aTime);
@@ -628,6 +638,7 @@ void TodParticleEmitter::GetRenderParams(TodParticle* theParticle, ParticleRende
     bool aPositionSet = theParams.mPositionSet;
     BlendParam(theParams.mPositionX, aPositionSet, aSourceParams.mPositionX, aSourceParams.mPositionSet, aTime);
     BlendParam(theParams.mPositionY, theParams.mPositionSet, aSourceParams.mPositionY, aSourceParams.mPositionSet, aTime);
+    return true;
 }
 
 // 0x208BA0: source cels, clipping, transforms, full-screen and additive passes.
@@ -636,7 +647,8 @@ void TodParticleEmitter::DrawParticle(Sexy::Graphics* theGraphics, TodParticle* 
     if (theParticle->mSyncState.mCrossFadeDuration > 0)
         return;
     ParticleRenderParams aParams;
-    GetRenderParams(theParticle, aParams);
+    if (!GetRenderParams(theParticle, aParams))
+        return;
     Sexy::Color aColor(std::clamp(RoundToInt(aParams.mRed), 0, 255),
         std::clamp(RoundToInt(aParams.mGreen), 0, 255),
         std::clamp(RoundToInt(aParams.mBlue), 0, 255),
@@ -662,15 +674,22 @@ void TodParticleEmitter::DrawParticle(Sexy::Graphics* theGraphics, TodParticle* 
     int aWidth = anImage->GetCelWidth();
     int aHeight = anImage->GetCelHeight();
     int aFrame = anEmitter.mSyncState.mFrameOverride;
-    if (aFrame < 0 || aFrame >= anImage->GetCelCount())
+    if (aFrame == -1)
     {
         aFrame = aState.mImageFrame;
         if (FloatTrackIsSet(&aDefinition.mAnimationRate))
+        {
             aFrame = static_cast<int>(aDefinition.mImageFrames * aState.mAnimationTimeValue);
+            aFrame = std::clamp(aFrame, 0, std::max(0, aDefinition.mImageFrames - 1));
+        }
         else if (aDefinition.mAnimated != 0)
+        {
             aFrame = static_cast<int>(aDefinition.mImageFrames * aState.mParticleTimeValue);
-        aFrame = std::clamp(aFrame, 0, std::max(0, aDefinition.mImageFrames - 1));
+            aFrame = std::clamp(aFrame, 0, std::max(0, aDefinition.mImageFrames - 1));
+        }
     }
+    else if (aFrame < 0 || aFrame >= anImage->GetCelCount())
+        aFrame = 0;
     Sexy::Rect aSource(std::min(aFrame + aDefinition.mImageCol, anImage->mNumCols - 1) * aWidth,
         std::min(aDefinition.mImageRow, anImage->mNumRows - 1) * aHeight, aWidth, aHeight);
     float aClipTop = anEmitter.ParticleTrackEvaluate(aDefinition.mClipTop, anImageParticle, PARTICLE_TRACK_CLIP_TOP);
