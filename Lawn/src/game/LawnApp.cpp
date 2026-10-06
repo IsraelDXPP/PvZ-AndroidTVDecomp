@@ -5331,7 +5331,7 @@ bool LawnApp::StepTitleLoad()
   case TitleLoad_Foley:
     fprintf(stderr, "title load: foley\n");
     fflush(stderr);
-    TodFoleyInitialize(gLawnFoleyParamArray, 104);
+    TodFoleyInitialize(gLawnFoleyParamArray, NUM_FOLEY);
     gTitleLoadPhase = TitleLoad_Trails;
     return true;
 

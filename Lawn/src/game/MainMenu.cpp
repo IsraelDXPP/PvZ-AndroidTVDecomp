@@ -1227,11 +1227,11 @@ void MainMenu::StartAdventureMode()
   mHandPlaying = true;
 
   // Every mode button pushes the same rock aside with the zombie hand.
-  Reanimation *aHandReanim = mApp->AddReanimation(mCameraOffsetX, mCameraOffsetY, 0, REANIM_ZOMBIE_HAND);
+  Reanimation *aHandReanim = mApp->AddReanimation(0.0f, 0.0f, 0, REANIM_ZOMBIE_HAND);
   aHandReanim->mLoopType = REANIM_PLAY_ONCE_AND_HOLD;
   aHandReanim->IgnoreClipRectForPrefix("rock", true);
   mZombieHandReanimID = mApp->ReanimationGetID(aHandReanim);
-  mApp->PlayFoley(FoleyType(80));
+  mApp->PlayFoley(FOLEY_DIRT_RISE);
 }
 
 // ==========================================================================

@@ -72,21 +72,6 @@ static void LawnUserDtorThunk(LawnUser *theObject) { theObject->~LawnUser(); }
 // ReconData.h.
 extern int gBossZombieList[];
 
-// ZombieDrawPosition is the seven-field struct every draw helper takes by
-// reference. ReconTypes.h still spells it `typedef int`, so its fields have no
-// names there; this layout mirrors the binary's struct (which is what
-// Zombie::Draw builds on its stack) without touching the header or any object
-// size.
-struct ZombieDrawPositionLayout
-{
-    int mHeadX;
-    int mHeadY;
-    int mArmY;
-    float mBodyY;
-    float mImageOffsetX;
-    float mImageOffsetY;
-    float mClipHeight;
-};
 
 // map<int, Sexy::String> node. Key is the int at +0x10; atoi reads the COW
 // string word at +0x14.
@@ -915,7 +900,7 @@ int Zombie::DrawIceTrap(Sexy::Graphics *g, ZombieDrawPosition &theDrawPos, int t
     if (mInPool || mZombieType == ZOMBIE_BOSS)
         return (int)this;
 
-    ZombieDrawPositionLayout &aDrawPos = (ZombieDrawPositionLayout &)theDrawPos;
+    ZombieDrawPosition &aDrawPos = theDrawPos;
     float aOffsetY = aDrawPos.mBodyY + 92.0f;
     float aOffsetX;
     float aScale;
@@ -1184,7 +1169,7 @@ int Zombie::GetDancerPhase()
 // ==========================================================================
 int Zombie::DrawZombiePart(Sexy::Graphics * aGraphics, Sexy::Image * aImage, int aCelCol, int aCelRow, ZombieDrawPosition & aDrawPos)
 {
-    ZombieDrawPositionLayout &aPos = (ZombieDrawPositionLayout &)aDrawPos;
+    ZombieDrawPosition &aPos = aDrawPos;
 
     int aCelWidth = aImage->GetCelWidth();
     int aCelHeight = aImage->GetCelHeight();
@@ -1487,11 +1472,10 @@ bool Zombie::UpdateZombieFalling()
 // ==========================================================================
 // Fills the 28-byte draw position. Image offsets are mPosX-mX / mPosY-mY.
 // Head X/Y come from mIsEating (47, 4) or from mFrame; mArmY is half of
-// mHeadY. Type offsets, then the phase clip, follow. r0 is leftover `this`
-// on every exit.
-int Zombie::GetDrawPos(ZombieDrawPosition & aDrawPos)
+// mHeadY. Type offsets, then the phase clip, follow. The return register is unused.
+void Zombie::GetDrawPos(ZombieDrawPosition & aDrawPos)
 {
-    ZombieDrawPositionLayout &aPos = (ZombieDrawPositionLayout &)aDrawPos;
+    ZombieDrawPosition &aPos = aDrawPos;
 
     aPos.mImageOffsetX = mPosX - (float)mX;
     aPos.mImageOffsetY = mPosY - (float)mY;
@@ -1601,7 +1585,7 @@ int Zombie::GetDrawPos(ZombieDrawPosition & aDrawPos)
 
         if (IsOnHighGround())
             aPos.mBodyY -= 30.0f;
-        return (int)this;
+        return;
     }
 
     if (mZombieType == ZOMBIE_DOLPHIN_RIDER)
@@ -1617,16 +1601,16 @@ int Zombie::GetDrawPos(ZombieDrawPosition & aDrawPos)
                 if (aBodyReanim->mAnimTime >= 0.56f && aBodyReanim->mAnimTime <= 0.65f)
                 {
                     aPos.mClipHeight = 0.0f;
-                    return (int)this;
+                    return;
                 }
                 if (aBodyReanim->mAnimTime < 0.75f)
-                    return (int)this;
+                    return;
                 break;
             }
             case PHASE_DOLPHIN_RIDING:
                 aPos.mImageOffsetX += 70.0f;
                 aPos.mClipHeight = -mAltitude - (mZombieHeight == HEIGHT_DRAGGED_UNDER ? 15.0f : 10.0f);
-                return (int)this;
+                return;
             case PHASE_DOLPHIN_IN_JUMP:
             {
                 aPos.mImageOffsetX = (mAltitude + aPos.mImageOffsetX) + 70.0f;
@@ -1636,7 +1620,7 @@ int Zombie::GetDrawPos(ZombieDrawPosition & aDrawPos)
                 {
                     if (aBodyReanim->mAnimTime >= 0.5f && aBodyReanim->mAnimTime <= 0.76f)
                         aPos.mClipHeight = -13.0f;
-                    return (int)this;
+                    return;
                 }
                 break;
             }
@@ -1655,11 +1639,11 @@ int Zombie::GetDrawPos(ZombieDrawPosition & aDrawPos)
                 {
                     aPos.mClipHeight = -mAltitude;
                 }
-                return (int)this;
+                return;
         }
 
         aPos.mClipHeight = -10.0f - mAltitude;
-        return (int)this;
+        return;
     }
 
     if (mZombieType == ZOMBIE_SNORKEL)
@@ -1677,7 +1661,7 @@ int Zombie::GetDrawPos(ZombieDrawPosition & aDrawPos)
         {
             aPos.mClipHeight = (-5.0f - mAltitude) + (1.0f - mScaleZombie) * 20.0f;
         }
-        return (int)this;
+        return;
     }
 
     if (!mInPool)
@@ -1690,14 +1674,14 @@ int Zombie::GetDrawPos(ZombieDrawPosition & aDrawPos)
                 if (mPhaseCounter > 20)
                 {
                     aPos.mClipHeight = -mAltitude;
-                    return (int)this;
+                    return;
                 }
             }
             else if (mZombieType != ZOMBIE_BUNGEE)
             {
                 aPos.mClipHeight = -200.0f;
                 aPos.mBodyY = -mAltitude;
-                return (int)this;
+                return;
             }
             else
             {
@@ -1708,14 +1692,14 @@ int Zombie::GetDrawPos(ZombieDrawPosition & aDrawPos)
             }
 
             aPos.mClipHeight = -200.0f;
-            return (int)this;
+            return;
         }
 
         aPos.mBodyY = -mAltitude;
         aPos.mClipHeight = -mAltitude;
         if (IsOnHighGround())
             aPos.mBodyY -= 30.0f;
-        return (int)this;
+        return;
     }
 
     float aClipHeight = (-7.0f - mAltitude) + (1.0f - mScaleZombie) * 10.0f;
@@ -1724,22 +1708,21 @@ int Zombie::GetDrawPos(ZombieDrawPosition & aDrawPos)
     if (mIsEating)
         aPos.mClipHeight = aClipHeight + 7.0f;
 
-    return (int)this;
+    return;
 }
 
 // ==========================================================================
 // Zombie::UpdateReanim(void)
 // @001A9C0C  694 bytes
 // ==========================================================================
-// A live body reanim is updated on the way out (Reanimation::Update is void
-// here, so the returned int is the body pointer it was called with). The
+// A live body reanim is updated on the way out and returned as a pointer. The
 // catapult pole id is the word at ReanimTrackId_zombie_catapult_pole. A dying
 // zamboni/catapult shakes on CURVE_EASE_OUT (immediate 3), not linear.
-int Zombie::UpdateReanim()
+Reanimation *Zombie::UpdateReanim()
 {
     Reanimation *aBodyReanim = mApp->ReanimationTryToGet(mBodyReanimID);
     if (aBodyReanim == nullptr || aBodyReanim->mDead)
-        return (int)aBodyReanim;
+        return aBodyReanim;
 
     // Damage state 2 or dying: the pole is the damaged image, and keeps the
     // ball only while the current frame still shows one and a ball is loaded.
@@ -1768,7 +1751,7 @@ int Zombie::UpdateReanim()
 
     ZombieDrawPosition aDrawPos;
     GetDrawPos(aDrawPos);
-    ZombieDrawPositionLayout &aPos = (ZombieDrawPositionLayout &)aDrawPos;
+    ZombieDrawPosition &aPos = aDrawPos;
 
     float aPosX = aPos.mImageOffsetX + 15.0f;
     float aPosY = (aPos.mImageOffsetY + aPos.mBodyY) - 8.0f;
@@ -1782,25 +1765,13 @@ int Zombie::UpdateReanim()
             {
                 float aShake = TodAnimateCurveFloatTime(0.7f, 1.0f, aBodyReanim->mAnimTime,
                                                         0.0f, 1.0f, CURVE_EASE_OUT);
-                int aShakeBits = RandRangeFloat(-aShake, aShake);
-                float aShakeX;
-                std::memcpy(&aShakeX, &aShakeBits, sizeof(aShakeX));
-                aPosX += aShakeX;
-                aShakeBits = RandRangeFloat(-aShake, aShake);
-                float aShakeY;
-                std::memcpy(&aShakeY, &aShakeBits, sizeof(aShakeY));
-                aPosY += aShakeY;
+                aPosX += RandRangeFloat(-aShake, aShake);
+                aPosY += RandRangeFloat(-aShake, aShake);
             }
             else if (mBodyHealth <= 199)
             {
-                int aTwitchBits = RandRangeFloat(-1.0f, 1.0f);
-                float aTwitchX;
-                std::memcpy(&aTwitchX, &aTwitchBits, sizeof(aTwitchX));
-                aPosX += aTwitchX;
-                aTwitchBits = RandRangeFloat(-1.0f, 1.0f);
-                float aTwitchY;
-                std::memcpy(&aTwitchY, &aTwitchBits, sizeof(aTwitchY));
-                aPosY += aTwitchY;
+                aPosX += RandRangeFloat(-1.0f, 1.0f);
+                aPosY += RandRangeFloat(-1.0f, 1.0f);
             }
         }
     }
@@ -1865,7 +1836,7 @@ int Zombie::UpdateReanim()
     }
 
     aBodyReanim->Update();
-    return (int)aBodyReanim;
+    return aBodyReanim;
 }
 
 // ==========================================================================
@@ -1884,7 +1855,7 @@ int Zombie::DrawBungeeTarget(Sexy::Graphics * aGraphics)
         {
             ZombieDrawPosition aDrawPos;
             GetDrawPos(aDrawPos);
-            ZombieDrawPositionLayout &aPos = (ZombieDrawPositionLayout &)aDrawPos;
+            ZombieDrawPosition &aPos = aDrawPos;
 
             float aPosY = ((aPos.mImageOffsetY + aPos.mBodyY) + 60.0f) + (float)mY;
             float aPosX = (float)mX + 10.0f;
@@ -2207,7 +2178,7 @@ void Zombie::UpdateZombieRect(bool theAttackRect)
 
         ZombieDrawPosition aDrawPos;
         GetDrawPos(aDrawPos);
-        ZombieDrawPositionLayout &aPos = (ZombieDrawPositionLayout &)aDrawPos;
+        ZombieDrawPosition &aPos = aDrawPos;
 
         mCachedZombieRect.mX += mX;
         float aRectY = (float)mY + aPos.mBodyY;
@@ -2507,7 +2478,7 @@ Sexy::Rect Zombie::GetZombieAttackRect()
 
     ZombieDrawPosition aDrawPos;
     GetDrawPos(aDrawPos);
-    ZombieDrawPositionLayout &aPos = (ZombieDrawPositionLayout &)aDrawPos;
+    ZombieDrawPosition &aPos = aDrawPos;
 
     aAttackRect.mX += mX;
     aAttackRect.mY += (int)((float)mY + aPos.mBodyY);
@@ -2578,7 +2549,7 @@ int Zombie::AnimateChewEffect()
 
         ZombieDrawPosition aDrawPos;
         GetDrawPos(aDrawPos);
-        ZombieDrawPositionLayout &aPos = (ZombieDrawPositionLayout &)aDrawPos;
+        ZombieDrawPosition &aPos = aDrawPos;
 
         float aPosX = mPosX + 37.0f;
         float aPosY = (mPosY + aPos.mBodyY) + 40.0f;
@@ -3010,7 +2981,7 @@ int Zombie::DropFlag()
 // ==========================================================================
 int Zombie::DrawButter(Sexy::Graphics * g, ZombieDrawPosition & theDrawPos)
 {
-    ZombieDrawPositionLayout &aPos = (ZombieDrawPositionLayout &)theDrawPos;
+    ZombieDrawPosition &aPos = theDrawPos;
 
     float aPosX = mPosX + aPos.mImageOffsetX + 11.0f + (float)aPos.mHeadX;
     float aPosY = mPosY + aPos.mImageOffsetY + 21.0f + aPos.mBodyY + (float)aPos.mHeadY;
@@ -3131,10 +3102,9 @@ bool Zombie::IsFlying()
 // ==========================================================================
 int Zombie::DrawShadow(Sexy::Graphics * g)
 {
-    // ZombieDrawPosition is still `typedef int` in ReconTypes.h, so the seven
-    // fields live in the file-local ZombieDrawPositionLayout.
-    ZombieDrawPositionLayout aDrawPos;
-    GetDrawPos((ZombieDrawPosition &)aDrawPos);
+    // The shadow uses the same body and image offsets as the zombie.
+    ZombieDrawPosition aDrawPos;
+    GetDrawPos(aDrawPos);
 
     if (mApp->mGameScene == SCENE_ZOMBIES_WON && SetupDrawZombieWon(g) == 0)
         return 0;
@@ -3349,7 +3319,7 @@ int Zombie::GetBobsledPosition()
 // ==========================================================================
 int Zombie::DrawBobsledReanim(Sexy::Graphics * g, ZombieDrawPosition & theDrawPos, bool theClip)
 {
-    ZombieDrawPositionLayout &aPos = (ZombieDrawPositionLayout &)theDrawPos;
+    ZombieDrawPosition &aPos = theDrawPos;
 
     int aBobsledPosition = GetBobsledPosition();
     Zombie *aLeaderZombie = this;
@@ -3589,8 +3559,8 @@ int Zombie::DropArm(unsigned int theDamageFlags)
     }
 
     // The stump that replaces the arm is put where the hand was.
-    ZombieDrawPositionLayout aPos;
-    GetDrawPos((ZombieDrawPosition &)aPos);
+    ZombieDrawPosition aPos;
+    GetDrawPos(aPos);
 
     float aStumpX = (mPosX + aPos.mImageOffsetX) + 45.0f;
     float aStumpY = ((mPosY + aPos.mImageOffsetY) + 78.0f) + aPos.mBodyY;
@@ -3975,7 +3945,7 @@ int Zombie::UpdateZombieWalkingIntoHouse()
 // ==========================================================================
 int Zombie::DrawReanim(Sexy::Graphics * aGraphics, ZombieDrawPosition & aDrawPos, int aBaseRenderGroup)
 {
-    ZombieDrawPositionLayout &aPos = (ZombieDrawPositionLayout &)aDrawPos;
+    ZombieDrawPosition &aPos = aDrawPos;
 
     Reanimation *aBodyReanim = mApp->ReanimationTryToGet(mBodyReanimID);
     if (aBodyReanim == nullptr)
@@ -4180,7 +4150,7 @@ int Zombie::DrawReanim(Sexy::Graphics * aGraphics, ZombieDrawPosition & aDrawPos
 // ==========================================================================
 void Zombie::DrawBungeeReanim(Sexy::Graphics * aGraphics, ZombieDrawPosition & aDrawPos)
 {
-    ZombieDrawPositionLayout &aPos = (ZombieDrawPositionLayout &)aDrawPos;
+    ZombieDrawPosition &aPos = aDrawPos;
 
     Reanimation *aBodyReanim = mApp->ReanimationTryToGet(mBodyReanimID);
 
@@ -4305,7 +4275,7 @@ int Zombie::Draw(Sexy::Graphics * aGraphics)
     {
         float aSavedTransX = aGraphics->mTransX;
         float aSavedTransY = aGraphics->mTransY;
-        ZombieDrawPositionLayout &aPos = (ZombieDrawPositionLayout &)aDrawPos;
+        ZombieDrawPosition &aPos = aDrawPos;
         // Slot 4 of GameObject's vtable -- the frame the attachment draws in.
         MakeParentGraphicsFrame(aGraphics);
         aGraphics->mTransY = aGraphics->mTransY + aPos.mBodyY;
@@ -5091,8 +5061,8 @@ Zombie * Zombie::DropHelm(unsigned int theDamageFlags)
     if (mHelmType == HELMTYPE_NONE)
         return this;
 
-    ZombieDrawPositionLayout aPos;
-    GetDrawPos((ZombieDrawPosition &)aPos);
+    ZombieDrawPosition aPos;
+    GetDrawPos(aPos);
 
     float aPosX = ((mPosX + aPos.mImageOffsetX) + (float)aPos.mHeadX) + 14.0f;
     float aPosY = ((((mPosY + aPos.mImageOffsetY) + (float)aPos.mHeadY) + aPos.mBodyY) + 18.0f);
@@ -5156,8 +5126,8 @@ int Zombie::PogoBreak(unsigned int theDamageFlags)
 
     if ((theDamageFlags & 0x10) == 0)
     {
-        ZombieDrawPositionLayout aPos;
-        GetDrawPos((ZombieDrawPosition &)aPos);
+        ZombieDrawPosition aPos;
+        GetDrawPos(aPos);
 
         int aRenderOrder = mRenderOrder;
         float aStickX = 0.0f;
@@ -5899,8 +5869,8 @@ int Zombie::DropShield(unsigned int theDamageFlags)
     if (mShieldType == SHIELDTYPE_NONE)
         return (int)this;
 
-    ZombieDrawPositionLayout aPos;
-    GetDrawPos((ZombieDrawPosition &)aPos);
+    ZombieDrawPosition aPos;
+    GetDrawPos(aPos);
 
     // The shield falls where it was, and the particle it throws depends on
     // which shield it was. The paper throws nothing when the damage does not
@@ -6272,8 +6242,8 @@ Zombie * Zombie::DropHead(unsigned int theDamageFlags)
 
     // The head particle starts where the head was.
     int aRenderOrder = mRenderOrder;
-    ZombieDrawPositionLayout aPos;
-    GetDrawPos((ZombieDrawPosition &)aPos);
+    ZombieDrawPosition aPos;
+    GetDrawPos(aPos);
 
     int aParticleOrder = aRenderOrder + 1;
     float aPosX = ((mPosX + aPos.mImageOffsetX) + 11.0f) + (float)aPos.mHeadX;
@@ -9069,28 +9039,30 @@ void Zombie::BossSetupReanim()
 // Zombie::DrawBossPart(Sexy::Graphics *,BossPart)
 // @001B2FA0  108 bytes
 // ==========================================================================
-Reanimation * Zombie::DrawBossPart(Sexy::Graphics * g, BossPart theBossPart)
+void Zombie::DrawBossPart(Sexy::Graphics *g, BossPart theBossPart)
 {
-  // ZombieDrawPosition is typedef int, but GetDrawPos fills the 32-byte slot
-  // at SP+4. The array is that slot; the reference is its first word.
-  ZombieDrawPosition aDrawPos[8];
-  int aPosResult = GetDrawPos(aDrawPos[0]);
-  switch ( theBossPart )
-  {
-    case 0:
-      return (Reanimation *)DrawReanim(g, aDrawPos[0], 4);
-    case 1:
-      return (Reanimation *)DrawReanim(g, aDrawPos[0], 5);
-    case 2:
-      return (Reanimation *)DrawReanim(g, aDrawPos[0], 0);
-    case 3:
-      return (Reanimation *)DrawBossBackArm(g, aDrawPos[0]);
-    case 4:
-      DrawBossFireBall(g, aDrawPos[0]);
-      return nullptr;
-    default:
-      return (Reanimation *)aPosResult;
-  }
+    ZombieDrawPosition aDrawPos;
+    GetDrawPos(aDrawPos);
+    switch (theBossPart)
+    {
+        case 0:
+            DrawReanim(g, aDrawPos, 4);
+            break;
+        case 1:
+            DrawReanim(g, aDrawPos, 5);
+            break;
+        case 2:
+            DrawReanim(g, aDrawPos, 0);
+            break;
+        case 3:
+            DrawBossBackArm(g, aDrawPos);
+            break;
+        case 4:
+            DrawBossFireBall(g, aDrawPos);
+            break;
+        default:
+            break;
+    }
 }
 
 // ==========================================================================

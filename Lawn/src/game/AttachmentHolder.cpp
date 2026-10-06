@@ -29,8 +29,7 @@
 #include "RawObject.h"
 #include <cstring>
 
-// The block InitializeHolder allocates: DataArray<Attachment>::DataArrayInitialize
-// is `::operator new(sizeof(DataArrayItem) * theMaxSize)`, and 0xC7000 == 1024 * 796.
+// Use the reconstructed object size, including the standard library members.
 static const unsigned int kAttachmentCapacity = 1024;
 
 // ==========================================================================
@@ -58,7 +57,7 @@ AttachmentHolder::AttachmentHolder()
 // the shipped ARM build was compiled with a different constant).
 int AttachmentHolder::InitializeHolder()
 {
-    mBlock = static_cast<Attachment*>(::operator new[](kAttachmentCapacity * 796));
+    mBlock = static_cast<Attachment*>(::operator new[](kAttachmentCapacity * sizeof(Attachment)));
     mMaxSize = kAttachmentCapacity;
     mNextKey = 54388;
     mName = "attachments";
@@ -123,8 +122,8 @@ AttachmentHolder::~AttachmentHolder()
 //     NE: R3 = [R5,#0x318] -> mFreeListHead = that record's id
 //     EQ: R3 = R6 + 1      -> mMaxUsedCount = R3
 //
-// 796 is sizeof(Attachment) here, and +0x318 is the record id the header models
-// as Attachment::mAttachmentID.
+// Both branches advance the free-list head. Index the typed records so their
+// standard library members can use the native compiler's layout.
 Attachment * AttachmentHolder::AllocAttachment()
 {
     unsigned int anIndex = mFreeListHead;
@@ -133,6 +132,7 @@ Attachment * AttachmentHolder::AllocAttachment()
     if (anIndex == mMaxUsedCount)
     {
         mMaxUsedCount = anIndex + 1;
+        mFreeListHead = mMaxUsedCount;
         aRecord = &mBlock[anIndex];
     }
     else
@@ -141,9 +141,9 @@ Attachment * AttachmentHolder::AllocAttachment()
         mFreeListHead = (unsigned int)aRecord->mAttachmentID;
     }
 
-    // The record is cleared except for the trailing id word, which is written
-    // just below (0x318 is the offset of Attachment::mAttachmentID).
-    memset(aRecord, 0, 0x318);
+    // This slot is raw storage; construct it once before assigning its id.
+    memset(aRecord, 0, sizeof(Attachment));
+    ConstructRaw<Attachment>(aRecord);
 
     unsigned int aKey = mNextKey;
     aRecord->mAttachmentID = (int)(anIndex | (aKey << 16));
@@ -153,7 +153,5 @@ Attachment * AttachmentHolder::AllocAttachment()
     mNextKey = (aKey >= 0x10000u) ? 1u : aKey;
     ++mSize;
 
-    // The record itself is constructed last, exactly as DataArrayAlloc does.
-    ConstructRaw<Attachment>(aRecord);
     return aRecord;
 }

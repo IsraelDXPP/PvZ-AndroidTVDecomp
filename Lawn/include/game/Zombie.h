@@ -60,6 +60,18 @@ class LawnMower;
 class RevivalGameDialog;
 class LawnApp;
 
+// Draw offsets filled by GetDrawPos @0x1A96DC and used by the draw helpers.
+struct ZombieDrawPosition
+{
+    int mHeadX;
+    int mHeadY;
+    int mArmY;
+    float mBodyY;
+    float mImageOffsetX;
+    float mImageOffsetY;
+    float mClipHeight;
+};
+
 class Zombie : public GameObject
 {
 public:
@@ -232,8 +244,8 @@ public:
     bool IsOnHighGround();
     int UpdateZombieRiseFromGrave();
     bool UpdateZombieFalling();
-    int GetDrawPos(ZombieDrawPosition &theDrawPos);
-    int UpdateReanim();
+    void GetDrawPos(ZombieDrawPosition &theDrawPos);
+    Reanimation *UpdateReanim();
     int DrawBungeeTarget(Sexy::Graphics *g);
     int CheckForHighGround();
     int StartMindControlled();
@@ -430,7 +442,7 @@ public:
     Zombie * Animate();
     int BossStartDeath();
     void BossSetupReanim();
-    Reanimation * DrawBossPart(Sexy::Graphics *g, BossPart thePart);
+    void DrawBossPart(Sexy::Graphics *g, BossPart thePart);
     // _ZN6Zombie22PreloadZombieResourcesE10ZombieType @0x1b300c -- no receiver
     // in the mangled name, so it is STATIC.
     static int PreloadZombieResources(ZombieType theZombieType);

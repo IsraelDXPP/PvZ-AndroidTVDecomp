@@ -318,10 +318,20 @@ FoleyTypeDataElement *TodFoley::PlayFoleyPitch(FoleyType theFoleyType, float the
         aVariations[aVariationCount++] = aVariation;
     }
 
+    if (aVariationCount == 0)
+        return nullptr;
+
+    Sexy::SoundManager *aSoundManager = GetSoundManager();
+    if (aSoundManager == nullptr)
+        return nullptr;
+
     const int aVariation = TodPickFromArray(aVariations, aVariationCount);
+    const int aSoundId = *aFoleyParams->mSfxID[aVariation];
+    if (aSoundId < 0)
+        return nullptr;
 
     Sexy::SoundInstance *aSound =
-        GetSoundManager()->GetSoundInstance((unsigned int)*aFoleyParams->mSfxID[aVariation]);
+        aSoundManager->GetSoundInstance(aSoundId);
     if (aSound == nullptr)
         return nullptr;
 

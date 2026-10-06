@@ -2432,7 +2432,7 @@ enum TutorialState {
     TUTORIAL_WHACK_A_ZOMBIE_COMPLETED = 30
 };
 typedef int ZombieAttackType;
-typedef int ZombieDrawPosition;
+struct ZombieDrawPosition;
 // ZombieID -- a real enum, the one-member NULL sentinel from the authoritative header
 // PvZ\Lawn\Common\ConstEnums.h:1793. It used to be a bare `typedef int`.
 // It is NOT struct-wrapped in this tree.
