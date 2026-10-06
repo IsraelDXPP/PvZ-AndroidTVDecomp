@@ -7,6 +7,7 @@
 #include "SexyTypes.h"
 #include "Graphics.h"
 #include "AndroidShims.h"
+#include <algorithm>
 #include <string>
 #include <cstring>
 #include <vector>
@@ -49,7 +50,7 @@ GLTexture::GLTexture()
     : mTextureId(0), mWidth(0), mHeight(0), mSrcWidth(0), mSrcHeight(0),
       mU0(0), mV0(0), mU1(1), mV1(1),
       mFormat(PIXEL_FORMAT_A8R8G8B8), mDirty(true), mHasAlpha(true), mOwner(nullptr),
-      mLinear(false)
+      mLinear(true)
 {
 }
 
@@ -66,7 +67,7 @@ bool GLTexture::SetupTextureFormat(PixelFormat thePixelFormat,
     // The reconstructed pipeline stores everything as 32-bit ARGB, which
     // uploads as GL_RGBA8 / GL_BGRA. The remaining cases exist so the function
     // matches the original's contract; the loader only ever produces A8R8G8B8.
-    switch ((int)thePixelFormat)
+    switch (thePixelFormat)
     {
     case PIXEL_FORMAT_A8R8G8B8:
         theInternalFormat = GL_RGBA8;
@@ -154,7 +155,7 @@ bool GLTexture::CreateTexture(MemoryImage* theImage)
     // Upload expands every sheet, including a4r4g4b4 .tex atlases, to
     // A8R8G8B8. Desktop GL has no packed 4444 rev type, and the blend path
     // already samples 32-bit texels.
-    mFormat    = PixelFormat(PIXEL_FORMAT_A8R8G8B8);
+    mFormat    = PIXEL_FORMAT_A8R8G8B8;
     mOwner     = theImage;
 
     if (mSrcWidth <= 0 || mSrcHeight <= 0) return false;
@@ -174,14 +175,13 @@ bool GLTexture::CreateTexture(MemoryImage* theImage)
 
     TextureBindScope aBind(mTextureId);
 
-    // Default to NEAREST to match the software blitter exactly. The framework
-    // only asks for smoothing when Graphics::mFastStretch / mLinearBlend says
-    // so, and SetFilter() switches this per texture.
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    // GLTexture::CreateTexture @0x470f88 defaults to linear filtering.
+    // Desktop minification also blends mip levels to suppress aliasing.
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    mLinear = false;
+    mLinear = true;
 
     // Allocate storage; the actual pixels arrive in Upload().
     glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, mWidth, mHeight, 0,
@@ -258,13 +258,13 @@ bool GLTexture::Upload(MemoryImage* theImage)
     // sheet always lands as 32-bit regardless of the .tex header.
     std::vector<unsigned int> aExpanded((size_t)mSrcWidth * (size_t)mSrcHeight);
     PixelData aSource(aNativeFormat, mSrcWidth, mSrcHeight, aStride, (void*)aNativeBytes);
-    PixelData aDest(PixelFormat(PIXEL_FORMAT_A8R8G8B8), mSrcWidth, mSrcHeight,
+    PixelData aDest(PIXEL_FORMAT_A8R8G8B8, mSrcWidth, mSrcHeight,
                     mSrcWidth * 4, aExpanded.data());
     if (aDest.Convert(aSource) == 0)
         return false;
 
     unsigned int internalFormat, dataFormat, dataType;
-    if (!SetupTextureFormat(PixelFormat(PIXEL_FORMAT_A8R8G8B8), internalFormat, dataFormat, dataType))
+    if (!SetupTextureFormat(PIXEL_FORMAT_A8R8G8B8, internalFormat, dataFormat, dataType))
         return false;
 
     TextureBindScope aBind(mTextureId);
@@ -300,30 +300,25 @@ bool GLTexture::Upload(MemoryImage* theImage)
     }
     else
     {
-        // Padded texture. The padding region must be filled with transparent
-        // black, not left as uninitialised storage: with NEAREST sampling and
-        // the half-texel correction, edge texels can round into the padding,
-        // and reading garbage there produced white fringes around the image
-        // (observed as d=255 against the software reference at the left edge
-        // of the title art).
-        std::vector<unsigned int> padRow((size_t)mWidth, 0);
-
-        // Rows inside the image: copy the row then clear the right padding.
-        for (int y = 0; y < mSrcHeight; ++y)
+        // CreateTexture @0x470f88 extends the last texel and row into the
+        // power-of-two padding. Do the same before generating mip levels so
+        // opaque image edges do not blend with transparent padding.
+        std::vector<unsigned int> aPadded((size_t)mWidth * mHeight);
+        for (int aRow = 0; aRow < mHeight; ++aRow)
         {
-            memcpy(padRow.data(), aRows + (size_t)y * mSrcWidth,
-                   (size_t)mSrcWidth * 4);
-            memset(padRow.data() + mSrcWidth, 0, (size_t)(mWidth - mSrcWidth) * 4);
-            glTexSubImage2D(GL_TEXTURE_2D, 0, 0, y, mWidth, 1,
-                            dataFormat, dataType, padRow.data());
+            int aSourceRow = aRow < mSrcHeight ? aRow : mSrcHeight - 1;
+            const unsigned int* aSrcRow = aRows + (size_t)aSourceRow * mSrcWidth;
+            unsigned int* aDstRow = aPadded.data() + (size_t)aRow * mWidth;
+            std::copy(aSrcRow, aSrcRow + mSrcWidth, aDstRow);
+            std::fill(aDstRow + mSrcWidth, aDstRow + mWidth, aSrcRow[mSrcWidth - 1]);
         }
-
-        // Rows below the image: fully transparent.
-        memset(padRow.data(), 0, (size_t)mWidth * 4);
-        for (int y = mSrcHeight; y < mHeight; ++y)
-            glTexSubImage2D(GL_TEXTURE_2D, 0, 0, y, mWidth, 1,
-                            dataFormat, dataType, padRow.data());
+        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, mWidth, mHeight,
+                        dataFormat, dataType, aPadded.data());
     }
+
+    // Upload already premultiplies RGB. Filtering these texels preserves
+    // transparent sprite edges, and dirty uploads refresh the entire chain.
+    glGenerateMipmap(GL_TEXTURE_2D);
 
     mDirty = false;
     theImage->mBitsChanged = false;
@@ -357,23 +352,23 @@ bool GLTexture::CheckCreateTextures(MemoryImage* theImage)
 }
 
 void GLTexture::GetTexture(int theX, int theY, int& theTexX, int& theTexY,
-                           float& u0, float& v0, float& u1, float& v1)
+                           float& theUStart, float& theVStart, float& theUEnd, float& theVEnd)
 {
     theTexX = theX;
     theTexY = theY;
-    u0 = mU0 + (float)theX / (float)mWidth;
-    v0 = mV0 + (float)theY / (float)mHeight;
-    u1 = u0;
-    v1 = v0;
+    theUStart = mU0 + (float)theX / (float)mWidth;
+    theVStart = mV0 + (float)theY / (float)mHeight;
+    theUEnd = theUStart;
+    theVEnd = theVStart;
 }
 
-void GLTexture::GetTextureF(float theX, float theY, float& u0, float& v0,
-                            float& u1, float& v1)
+void GLTexture::GetTextureF(float theX, float theY, float& theUStart, float& theVStart,
+                            float& theUEnd, float& theVEnd)
 {
-    u0 = mU0 + theX / (float)mWidth;
-    v0 = mV0 + theY / (float)mHeight;
-    u1 = u0;
-    v1 = v0;
+    theUStart = mU0 + theX / (float)mWidth;
+    theVStart = mV0 + theY / (float)mHeight;
+    theUEnd = theUStart;
+    theVEnd = theVStart;
 }
 
 void GLTexture::ReleaseTextures()
@@ -388,17 +383,17 @@ void GLTexture::ReleaseTextures()
     mDirty = true;
 }
 
-// Switch between nearest (fast) and linear (smooth) sampling. The framework's
-// default is nearest: Graphics::mFastStretch is false and mLinearBlend is
-// false, and the software reference blitter is nearest-only for FastStretchBlt.
+// Smooth sampling uses trilinear minification. Explicit point sampling still
+// selects an appropriate mip level when an image is reduced.
 void GLTexture::SetFilter(bool theLinear)
 {
     if (!mTextureId || mLinear == theLinear) return;
 
     TextureBindScope aBind(mTextureId);
-    unsigned int mode = theLinear ? GL_LINEAR : GL_NEAREST;
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, mode);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, mode);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
+                    theLinear ? GL_LINEAR_MIPMAP_LINEAR : GL_NEAREST_MIPMAP_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER,
+                    theLinear ? GL_LINEAR : GL_NEAREST);
     mLinear = theLinear;
 }
 

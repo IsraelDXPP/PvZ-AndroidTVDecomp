@@ -135,10 +135,6 @@ static void ResolveAssetRoot(LaunchOptions& options)
 static void PresentFrame(Sexy::GLWindow& window, Sexy::GLRenderDevice& device,
                          Sexy::MemoryImage& capture, const LaunchOptions& options, int frameIndex)
 {
-    int width = window.mWidth > 0 ? window.mWidth : options.width;
-    int height = window.mHeight > 0 ? window.mHeight : options.height;
-    device.Resize(width, height);
-
     bool screenshotKeyDown = window.IsKeyDown(KEYCODE_F12);
     bool hotkeyCapture = Sexy::ScreenshotHotkey::IsCaptureRequested(screenshotKeyDown);
     bool finalCapture = !options.screenshotPath.empty() &&
@@ -227,6 +223,9 @@ static int Run(const LaunchOptions& options)
     }
 
     LogLine("LawnTV: exited after %d frame(s)", frames);
+    // Stop background loading before the Windows graphics device is destroyed.
+    app->mCloseRequest = true;
+    app->WaitForLoadingThread();
     app->Shutdown();
     delete app;
     return 0;

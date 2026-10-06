@@ -234,7 +234,8 @@ bool GLWindow::ProcessEvents()
 
     mActive = glfwGetWindowAttrib(mWindow, GLFW_FOCUSED) != 0;
 
-    // Track client-area size; the render device resizes its FBO to match.
+    // Track drawable pixels. Presentation stretches the logical game FBO
+    // across this area without changing widget coordinates.
     int w = 0, h = 0;
     glfwGetFramebufferSize(mWindow, &w, &h);
     if (w > 0 && h > 0 && (w != mWidth || h != mHeight))

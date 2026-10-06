@@ -9,6 +9,7 @@
 #include "Image.h"
 #include "MemoryImage.h"
 #include "AndroidShims.h"
+#include <GLFW/glfw3.h>
 #include <cstdio>
 #include <string>
 #include <vector>
@@ -223,21 +224,21 @@ void GLRenderDevice::Present()
 
     FlushBatch();
 
-    // The window's back buffer, not the size the device was created at.
-    // GLFW's initial viewport is the window's creation size, and a later
-    // resize (or a framebuffer larger than the requested client area) leaves
-    // it there. Blitting the 1280x720 target into that viewport fills only
-    // the top-left corner and leaves the rest of the window black.
-    GLint aViewport[4] = {0, 0, 0, 0};
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glGetIntegerv(GL_VIEWPORT, aViewport);
-    int aWindowWidth = aViewport[2];
-    int aWindowHeight = aViewport[3];
+    // BeginFrame's viewport belongs to the game FBO. Query the drawable
+    // framebuffer instead: its pixel size also accounts for Windows DPI.
+    GLFWwindow* aWindow = glfwGetCurrentContext();
+    if (aWindow == nullptr || mFBO == 0)
+        return;
+    int aWindowWidth = 0;
+    int aWindowHeight = 0;
+    glfwGetFramebufferSize(aWindow, &aWindowWidth, &aWindowHeight);
     if (aWindowWidth <= 0 || aWindowHeight <= 0)
-    {
-        aWindowWidth = mWidth;
-        aWindowHeight = mHeight;
-    }
+        return;
+
+    // A widget clip must not trim presentation. Keep the game target at its
+    // logical size and stretch the finished frame across the whole window.
+    mState.EnableScissor(false);
+    mState.SetViewport(0, 0, aWindowWidth, aWindowHeight);
 
     glBindFramebuffer(GL_READ_FRAMEBUFFER, mFBO);
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
@@ -482,18 +483,18 @@ void GLRenderDevice::DrawImage(MemoryImage* theImage, const Rect& theDestRect,
     // GLTexture::Blt @0x471cd4 feeds DrawTexture the tile uv from
     // GetTexture, with no half-texel shift. A 1:1 blit is
     // col / width .. (col + span) / width.
-    float u0 = tex->mU0 + (float)(originX + theSrcRect.mX) / (float)tex->mWidth;
-    float v0 = tex->mV0 + (float)(originY + theSrcRect.mY) / (float)tex->mHeight;
-    float u1 = tex->mU0 + (float)(originX + theSrcRect.mX + theSrcRect.mWidth) / (float)tex->mWidth;
-    float v1 = tex->mV0 + (float)(originY + theSrcRect.mY + theSrcRect.mHeight) / (float)tex->mHeight;
+    float aTextureLeft = tex->mU0 + (float)(originX + theSrcRect.mX) / (float)tex->mWidth;
+    float aTextureTop = tex->mV0 + (float)(originY + theSrcRect.mY) / (float)tex->mHeight;
+    float aTextureRight = tex->mU0 + (float)(originX + theSrcRect.mX + theSrcRect.mWidth) / (float)tex->mWidth;
+    float aTextureBottom = tex->mV0 + (float)(originY + theSrcRect.mY + theSrcRect.mHeight) / (float)tex->mHeight;
 
     if (theMirror)
-        std::swap(u0, u1);
+        std::swap(aTextureLeft, aTextureRight);
 
     mBatch.AddQuad((float)theDestRect.mX, (float)theDestRect.mY,
                    (float)(theDestRect.mX + theDestRect.mWidth),
                    (float)(theDestRect.mY + theDestRect.mHeight),
-                   u0, v0, u1, v1, aPacked);
+                   aTextureLeft, aTextureTop, aTextureRight, aTextureBottom, aPacked);
 }
 
 void GLRenderDevice::DrawYuv(unsigned int theY, unsigned int theCb, unsigned int theCr,
@@ -555,7 +556,7 @@ void GLRenderDevice::DrawImageMatrix(MemoryImage* theImage, const SexyMatrix3& t
     // GLImage::BltTransformed, which GLImage::BltMatrix always passes as true.
     // A centered quad is built from the source rect itself: the origin is the
     // middle of that rect, and (theX, theY) is added after the matrix multiply.
-    // Corners are the same four TV writes into v104..v110, then DrawTexture.
+    // The four corners are passed to DrawTexture in the original order.
     float aOriginX = 0.0f;
     float aOriginY = 0.0f;
     if (theCenter)
@@ -586,23 +587,22 @@ void GLRenderDevice::DrawImageMatrix(MemoryImage* theImage, const SexyMatrix3& t
     BeginImageBatch(tex, theMode, false);
     unsigned int aPacked = PackColor(theColor);
 
-    float u0 = tex->mU0 + (float)(originX + theSrcRect.mX) / (float)tex->mWidth;
-    float v0 = tex->mV0 + (float)(originY + theSrcRect.mY) / (float)tex->mHeight;
-    float u1 = tex->mU0 + (float)(originX + theSrcRect.mX + theSrcRect.mWidth) / (float)tex->mWidth;
-    float v1 = tex->mV0 + (float)(originY + theSrcRect.mY + theSrcRect.mHeight) / (float)tex->mHeight;
+    float aTextureLeft = tex->mU0 + (float)(originX + theSrcRect.mX) / (float)tex->mWidth;
+    float aTextureTop = tex->mV0 + (float)(originY + theSrcRect.mY) / (float)tex->mHeight;
+    float aTextureRight = tex->mU0 + (float)(originX + theSrcRect.mX + theSrcRect.mWidth) / (float)tex->mWidth;
+    float aTextureBottom = tex->mV0 + (float)(originY + theSrcRect.mY + theSrcRect.mHeight) / (float)tex->mHeight;
 
     if (mBatch.mCount + 6 > mBatch.mCapacity)
         mBatch.Flush();
     // DrawTexture takes the four corners in the order written at 0x4734ac:
-    // top-left, bottom-left, top-right, bottom-right, with uvs (u0,v0),
-    // (u0,v1), (u1,v0), (u1,v1).
+    // top-left, bottom-left, top-right, bottom-right.
     GLVertex* aOut = mBatch.mVertices + mBatch.mCount;
-    aOut[0] = { aScreenX[0], aScreenY[0], u0, v0, aPacked };
-    aOut[1] = { aScreenX[1], aScreenY[1], u0, v1, aPacked };
-    aOut[2] = { aScreenX[2], aScreenY[2], u1, v0, aPacked };
-    aOut[3] = { aScreenX[2], aScreenY[2], u1, v0, aPacked };
-    aOut[4] = { aScreenX[1], aScreenY[1], u0, v1, aPacked };
-    aOut[5] = { aScreenX[3], aScreenY[3], u1, v1, aPacked };
+    aOut[0] = { aScreenX[0], aScreenY[0], aTextureLeft, aTextureTop, aPacked };
+    aOut[1] = { aScreenX[1], aScreenY[1], aTextureLeft, aTextureBottom, aPacked };
+    aOut[2] = { aScreenX[2], aScreenY[2], aTextureRight, aTextureTop, aPacked };
+    aOut[3] = { aScreenX[2], aScreenY[2], aTextureRight, aTextureTop, aPacked };
+    aOut[4] = { aScreenX[1], aScreenY[1], aTextureLeft, aTextureBottom, aPacked };
+    aOut[5] = { aScreenX[3], aScreenY[3], aTextureRight, aTextureBottom, aPacked };
     mBatch.mCount += 6;
 }
 

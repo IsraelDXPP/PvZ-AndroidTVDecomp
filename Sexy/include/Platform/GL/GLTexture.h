@@ -64,17 +64,15 @@ public:
 
     // uv rect for the whole image (or a sub-rect within an atlas).
     void            GetTexture(int theX, int theY, int& theTexX, int& theTexY,
-                               float& u0, float& v0, float& u1, float& v1);
-    void            GetTextureF(float theX, float theY, float& u0, float& v0,
-                               float& u1, float& v1);
+                               float& theUStart, float& theVStart, float& theUEnd, float& theVEnd);
+    void            GetTextureF(float theX, float theY, float& theUStart, float& theVStart,
+                               float& theUEnd, float& theVEnd);
 
     void            ReleaseTextures();
     void            MarkDirty() { mDirty = true; }
 
-    // Filtering. The framework distinguishes fast (nearest) from smooth
-    // (linear) stretching via Graphics::mFastStretch / mLinearBlend; the GL
-    // backend must honour the same flag or its output diverges from the
-    // software reference at high-contrast edges.
+    // Smooth filtering uses trilinear mipmaps for minification and linear
+    // magnification. Point filtering also uses mipmaps for reduced images.
     void            SetFilter(bool theLinear);
     bool            IsLinear() const { return mLinear; }
 
