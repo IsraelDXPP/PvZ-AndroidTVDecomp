@@ -16,7 +16,7 @@
 //   the destination string is therefore passed explicitly, which is the shape
 //   the binary uses:
 //       Sexy::String aText;
-//       TodStringTranslate(&aText, "[LOCKED]");
+//       TodStringTranslate(&aText, "[MODE_LOCKED]");
 //
 // * `GetChallengeDefinition` is declared `int GetChallengeDefinition(...)` for
 //   the same reason, so a call site gets the record's address back as a plain
@@ -390,7 +390,7 @@ void ChallengeScreen::DrawButton(Sexy::Graphics * theGraphics, int theIndex, int
     if (mUnlockChallengeIndex == theIndex && mUnlockState == UNLOCK_SHAKING)
     {
         Sexy::String aUnlocked;
-        TodStringTranslate(&aUnlocked, "[UNLOCKED]");
+        TodStringTranslate(&aUnlocked, "[MODE_LOCKED]");
         aLabel = aUnlocked;
         aJustification = 2;
         aTextHeight = 20;
@@ -401,7 +401,7 @@ void ChallengeScreen::DrawButton(Sexy::Graphics * theGraphics, int theIndex, int
     else if (aButton->mDisabled)
     {
         Sexy::String aLocked;
-        TodStringTranslate(&aLocked, "[LOCKED]");
+        TodStringTranslate(&aLocked, "[MODE_LOCKED]");
         aLabel = aLocked;
         aJustification = 2;
         aTextLeftOffset = -40;

@@ -1464,9 +1464,11 @@ StoreScreen::StoreScreen(LawnApp *theApp)
     mStoreTime = 0;
     mBubbleCountDown = 0;
     mBubbleClickToContinue = false;
+    mAmbientSpeechCountDown = 0;
+    mPage = STORE_PAGE_SLOT_UPGRADES;
     mSelectedSlot = 0;
-    mSelectedStoreItemType = (StoreItem)0;
     mHatchTimer = 0;
+    mHatchDirection = 0;
     mShakeX = 0;
     mShakeY = 0;
     mPendingDialog = 0;
@@ -1616,7 +1618,7 @@ void StoreScreen::Draw(Sexy::Graphics *g)
     {
         Sexy::String aPageFormat("[STORE_PAGE]");
         Sexy::String aPageText;
-        TodReplaceNumberString(&aPageText, &aPageFormat, "{PAGE}", mSelectedSlot + 1);
+        TodReplaceNumberString(&aPageText, &aPageFormat, "{PAGE}", mPage + 1);
 
         Sexy::String aPagesText;
         TodReplaceNumberString(&aPagesText, &aPageText, "{NUM_PAGES}", aPageCount);

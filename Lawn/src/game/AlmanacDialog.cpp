@@ -353,6 +353,7 @@ void AlmanacDialog::SetPage(AlmanacPage thePage)
         mPlantButton->mBtnNoDraw = false;
         mZombieButton->mBtnNoDraw = false;
         mPlantButton->SetFocusLinks(nullptr, nullptr, nullptr, mZombieButton);
+        mScrollTextView->SetVisible(false);
         mScrollTextView->SetValue(0.0);
         mDescriptionScrollY = 0.0f;
         break;

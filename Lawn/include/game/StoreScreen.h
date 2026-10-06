@@ -103,7 +103,7 @@ public:
     int mAmbientSpeechCountDown;      // +0x2F8
     int mPreviousAmbientSpeechIndex;  // +0x2FC
     StorePages mPage;                 // +0x300
-    // Shelf slot 0..7 that the cursor is on. The page counter draws it as the page.
+    // Shelf slot 0..7 that the cursor is on.
     int mSelectedSlot;                // +0x304
     StoreItem mSelectedStoreItemType; // +0x308
     int mHatchTimer;                  // +0x30C

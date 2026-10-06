@@ -294,8 +294,10 @@ void ImitaterDialog::MouseDown(int theX, int theY, int theClickCount)
     aChooser->ClickedSeedInChooser(aImitater, -1);
     aChooser->UpdateImitaterButton();
 
-    // Slot 107 of LawnApp: the dialog kills itself by id.
-    mApp->KillDialog(mId);
+    // The chooser owns this child window; it is not in the app's dialog map.
+    aChooser->RemoveWidget(this);
+    aChooser->mImitaterDialog = nullptr;
+    mApp->SafeDeleteWidget(this);
 }
 
 // ==========================================================================
@@ -330,6 +332,7 @@ int ImitaterDialog::OnKeyDown(Sexy::KeyCode theKey, unsigned int theFlags)
 
     case Sexy::KEYCODE_ESCAPE:
         aChooser->RemoveWidget(this);
+        aChooser->mImitaterDialog = nullptr;
         mApp->SafeDeleteWidget(this);
         return 1;
 
@@ -390,6 +393,7 @@ void ImitaterDialog::GameButtonDown(Sexy::GamepadButton theButton, int thePlayer
     case GAMEPAD_BUTTON_SELECT:
     case GAMEPAD_BUTTON_B:
         aChooser->RemoveWidget(this);
+        aChooser->mImitaterDialog = nullptr;
         mApp->SafeDeleteWidget(this);
         break;
 

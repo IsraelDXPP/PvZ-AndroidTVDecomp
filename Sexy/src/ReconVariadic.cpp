@@ -608,7 +608,7 @@ void DrawSeedPacket(Sexy::Graphics* theGraphics, float theX, float theY, SeedTyp
     }
     theGraphics->SetColorizeImages(false);
 }
-// TODO(recon)
+// DrawStoneButton @0x1A2A70.
 void DrawStoneButton(Sexy::Graphics* theGraphics, int theX, int theY, int theWidth, int theHeight,
                      bool theInverted, bool theDown, const Sexy::String& theLabel, bool theDisabled)
 {
@@ -623,6 +623,7 @@ void DrawStoneButton(Sexy::Graphics* theGraphics, int theX, int theY, int theWid
         aMiddle = IMAGE_BUTTON_DOWN_MIDDLE;
         aRight = IMAGE_BUTTON_DOWN_RIGHT;
         aDrawX = theX + 1;
+        aDrawY = theY + 1;
     }
     float aSpan = (float)(theWidth - aLeft->mWidth - aRight->mWidth) / (float)aMiddle->mWidth;
     int aCount = (int)(aSpan <= 0.0f ? aSpan - 0.5f : aSpan + 0.5f);
@@ -650,7 +651,14 @@ void DrawStoneButton(Sexy::Graphics* theGraphics, int theX, int theY, int theWid
         aScale = 1.0f;
     int aTextX = (int)((float)aDrawX + 1.0f + ((float)aButtonWidth - (float)aTextWidth * aScale) * 0.5f);
     int aAscent = aFont->GetAscent();
-    int aTextY = (int)((float)aDrawY - 2.0f + ((float)theHeight + (float)(aAscent + aAscent / -6 - 1) * aScale) * 0.5f);
+    int aBaselineOffset = aAscent + aAscent / -6 - 1;
+    Sexy::String aLocale = gSexyAppBase->GetLocale();
+    bool aChineseLocale = aLocale == "zh_CN" || aLocale == "zh_TW";
+    int aTextY;
+    if (aChineseLocale)
+        aTextY = (int)((float)(aDrawY + aLeft->GetHeight() / 2) + aScale * 0.5f * (float)aBaselineOffset);
+    else
+        aTextY = (int)((float)aDrawY - 2.0f + ((float)theHeight + (float)aBaselineOffset * aScale) * 0.5f);
 
     Sexy::SexyTransform2D aMatrix(true);
     aMatrix.Scale(aScale * theGraphics->mScaleX, aScale * theGraphics->mScaleY);
