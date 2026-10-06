@@ -677,7 +677,7 @@ int LTVCALL Slot_UpdateAppStep(void* theThis, void* theContinue)
 
     Sexy::GLWindow* aWindow = self->mWindow != nullptr ? self->mWindow : Sexy::ActiveWindow();
     bool aModalWait = anApp->mUpdateDepth > 0;
-    DWORD aFrameStart = GetTickCount();
+    double frameStart = aWindow != nullptr ? aWindow->GetTime() : 0.0;
     if (aModalWait && aWindow != nullptr)
     {
         if (!aWindow->ProcessEvents())
@@ -717,13 +717,7 @@ int LTVCALL Slot_UpdateAppStep(void* theThis, void* theContinue)
             if (Sexy::GLRenderDevice::sCurrent != nullptr)
                 Sexy::GLRenderDevice::sCurrent->Present();
             aWindow->SwapBuffers();
-            if (anApp->mMaxFPS > 0)
-            {
-                DWORD aFrameBudget = 1000 / static_cast<DWORD>(anApp->mMaxFPS);
-                DWORD aElapsed = GetTickCount() - aFrameStart;
-                if (aElapsed < aFrameBudget)
-                    Sleep(aFrameBudget - aElapsed);
-            }
+            aWindow->WaitForFrame(frameStart, anApp->mMaxFPS);
         }
     }
 

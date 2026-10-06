@@ -139,15 +139,15 @@ static void PresentFrame(Sexy::GLWindow& window, Sexy::GLRenderDevice& device,
     int height = window.mHeight > 0 ? window.mHeight : options.height;
     device.Resize(width, height);
 
-    if (!device.ReadPixels(capture))
-    {
-        device.Present();
-        return;
-    }
-
-    Sexy::ScreenshotHotkey::Poll(&capture, window.IsKeyDown(KEYCODE_F12));
-    if (!options.screenshotPath.empty() &&
-        (options.frames <= 0 || frameIndex + 1 >= options.frames))
+    bool screenshotKeyDown = window.IsKeyDown(KEYCODE_F12);
+    bool hotkeyCapture = Sexy::ScreenshotHotkey::IsCaptureRequested(screenshotKeyDown);
+    bool finalCapture = !options.screenshotPath.empty() &&
+        (options.frames <= 0 || frameIndex + 1 >= options.frames);
+    // Readback synchronizes the GPU and copies the whole frame. Presentation
+    // can use the FBO directly; only an actual screenshot needs CPU pixels.
+    bool captured = (hotkeyCapture || finalCapture) && device.ReadPixels(capture);
+    Sexy::ScreenshotHotkey::Poll(captured ? &capture : nullptr, screenshotKeyDown);
+    if (finalCapture && captured)
     {
         bool saved = Sexy::Screenshot::Save(&capture, options.screenshotPath);
         LogLine("screenshot: %s (%dx%d) -> %s",
@@ -175,7 +175,6 @@ static int Run(const LaunchOptions& options)
     app->Start();
 
     Sexy::MemoryImage capture;
-    capture.Create(options.width, options.height);
 
     // The game draws into whichever device startup installed. A headless run
     // leaves that pointer empty, so this one fills in.
@@ -186,8 +185,8 @@ static int Run(const LaunchOptions& options)
     while (!window.mClosed)
     {
         // SEXY_MAX_FPS is the frame cap SexyAppBase reads at construction.
-        // Zero or a missing value leaves the loop uncapped.
-        DWORD aFrameStart = GetTickCount();
+        // The default is 60; an explicit zero leaves the loop uncapped.
+        double frameStart = window.GetTime();
 
         if (!window.ProcessEvents())
             break;
@@ -219,19 +218,12 @@ static int Run(const LaunchOptions& options)
         if (options.frames > 0 && frames >= options.frames)
             break;
 
-        // The intro paints a new picture every draw. The default cap of 10
-        // turns a 30 fps movie into a slideshow, so a playing movie runs at
-        // the movie rate. The cap comes back when the movie ends.
+        // The intro runs at the movie rate. Other screens use the optional
+        // SEXY_MAX_FPS cap and the window's vertical synchronization.
         int aMaxFps = app->mMaxFPS;
         if (MpegVideoIsPlaying() != 0)
             aMaxFps = 30;
-        if (aMaxFps > 0)
-        {
-            DWORD aBudget = 1000 / (DWORD)aMaxFps;
-            DWORD aElapsed = GetTickCount() - aFrameStart;
-            if (aElapsed < aBudget)
-                Sleep(aBudget - aElapsed);
-        }
+        window.WaitForFrame(frameStart, aMaxFps);
     }
 
     LogLine("LawnTV: exited after %d frame(s)", frames);

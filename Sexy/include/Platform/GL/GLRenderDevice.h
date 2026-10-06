@@ -67,6 +67,7 @@ public:
     // flush, since one draw call can only sample one texture.
     unsigned int        mCurrentBatchTexture;
     DrawMode            mCurrentBatchMode;
+    bool                mCurrentBatchColorize;
 
     // Transform applied to every vertex in the current batch. The Graphics
     // layer owns the stack; this is the top of it, mirrored here so the shader
@@ -178,6 +179,7 @@ public:
 private:
     void    FlushBatch();
     void    EnsureTexture(MemoryImage* theImage);
+    void    BeginImageBatch(GLTexture* theTexture, DrawMode theMode, bool theColorize);
     void    ApplyDrawMode(DrawMode theMode);
     // GLTexture::Blt premultiplies, then GLGraphics::SetColor stores the
     // packed GLRGBA that AddVertex copies onto each vertex.

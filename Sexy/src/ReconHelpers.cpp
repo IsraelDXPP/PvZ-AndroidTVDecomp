@@ -705,15 +705,12 @@ int GetResourcesFolder(Sexy::String* theDest)
     return 1;
 }
 
-int GetEnvIntOption(const char* theName, const char* theDefault, int theBase)
+int GetEnvIntOption(const char* theName, int theDefault)
 {
-    const char* aValue = (theName != nullptr) ? Sexy::GetEnv(theName) : nullptr;
-    if (aValue == nullptr || aValue[0] == 0)
-        aValue = theDefault;
-    if (aValue == nullptr || aValue[0] == 0)
-        return 0;
-    // strtol honours the base, which is what theBase carries.
-    return (int)strtol(aValue, nullptr, theBase ? theBase : 10);
+    // GetEnvIntOption @0x2fba90 preserves the integer in r1 and returns it
+    // when GetEnv is null; otherwise it tail-calls atoi.
+    const char* value = theName != nullptr ? Sexy::GetEnv(theName) : nullptr;
+    return value != nullptr ? atoi(value) : theDefault;
 }
 
 // _ZN4Sexy9DebugInitEii @0x3b9bdc -- two parameters.

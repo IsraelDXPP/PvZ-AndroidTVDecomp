@@ -47,6 +47,9 @@ private:
 class ScreenshotHotkey
 {
 public:
+    // Query before reading the GPU target; Poll records the key state afterward.
+    static bool IsCaptureRequested(bool theKeyDown);
+
     // Call once per frame with the current key state. Captures on the
     // rising edge only, so holding the key does not spam files.
     static void Poll(MemoryImage* theScreen, bool theKeyDown);

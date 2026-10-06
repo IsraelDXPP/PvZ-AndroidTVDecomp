@@ -373,7 +373,9 @@ SexyAppBase::SexyAppBase()
     mMouseX = 0;
     mMouseY = 0;
 
-    mMaxFPS = Sexy::GetEnvIntOption("SEXY_MAX_FPS", nullptr, 10);
+    // The desktop loop advances one game tick per frame, including on displays
+    // faster than 60 Hz. Keep the TV animation rate unless explicitly overridden.
+    mMaxFPS = Sexy::GetEnvIntOption("SEXY_MAX_FPS", 60);
     mFPSTime = 0;
     mFPSStartTick = Sexy::GetTickCount();
     mFPSFlipCount = 0;

@@ -74,6 +74,7 @@ public:
 
 private:
     unsigned int    mDrawCalls;
+    int             mUploadOffset;
 };
 
 } // namespace Sexy

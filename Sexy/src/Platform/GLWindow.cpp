@@ -17,6 +17,25 @@
 namespace Sexy
 {
 
+struct GLFrameTimer
+{
+    HANDLE mHandle;
+
+    GLFrameTimer()
+        : mHandle(CreateWaitableTimerExW(nullptr, nullptr, 0x2, TIMER_ALL_ACCESS))
+    {
+        // CREATE_WAITABLE_TIMER_HIGH_RESOLUTION is available since Windows 10 1803.
+        if (mHandle == nullptr)
+            mHandle = CreateWaitableTimerW(nullptr, FALSE, nullptr);
+    }
+
+    ~GLFrameTimer()
+    {
+        if (mHandle != nullptr)
+            CloseHandle(mHandle);
+    }
+};
+
 static bool gGLFWInitialized = false;
 static bool gGlfwKeyDown[GLFW_KEY_LAST + 1];
 static std::vector<Event> gGlfwKeyEvents;
@@ -56,7 +75,7 @@ static int KeyCodeFromGlfw(int theGlfwKey)
 GLWindow::GLWindow()
     : mWindow(nullptr), mWidth(0), mHeight(0), mWindowed(true),
       mActive(true), mClosed(false), mVSync(true),
-      mLastTime(0.0), mStartTime(0.0), mFrameTime(0.0)
+      mLastTime(0.0), mStartTime(0.0), mFrameTime(0.0), mFrameTimer(nullptr)
 {
 }
 
@@ -183,6 +202,8 @@ bool GLWindow::Create(const char* theTitle, int theWidth, int theHeight,
 
 void GLWindow::Destroy()
 {
+    delete mFrameTimer;
+    mFrameTimer = nullptr;
     if (gActiveWindow == this)
         gActiveWindow = nullptr;
     if (mWindow)
@@ -236,6 +257,30 @@ void GLWindow::SwapBuffers()
 {
     if (mWindow)
         glfwSwapBuffers(mWindow);
+}
+
+void GLWindow::WaitForFrame(double theFrameStart, int theMaxFPS)
+{
+    if (theMaxFPS <= 0)
+        return;
+
+    double remaining = theFrameStart + 1.0 / theMaxFPS - GetTime();
+    if (remaining <= 0.0)
+        return;
+
+    if (mFrameTimer == nullptr)
+    {
+        // Sleep can round the 16.67 ms frame budget to a whole scheduler tick.
+        mFrameTimer = new GLFrameTimer();
+    }
+    LARGE_INTEGER dueTime;
+    dueTime.QuadPart = -static_cast<LONGLONG>(remaining * 10000000.0);
+    if (dueTime.QuadPart == 0)
+        return;
+    if (mFrameTimer->mHandle != nullptr && SetWaitableTimer(mFrameTimer->mHandle, &dueTime, 0, nullptr, nullptr, FALSE))
+        WaitForSingleObject(mFrameTimer->mHandle, INFINITE);
+    else
+        Sleep(static_cast<DWORD>(remaining * 1000.0 + 1.0));
 }
 
 void GLWindow::SetVSync(bool theVSync)

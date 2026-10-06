@@ -23,7 +23,7 @@ GLRenderDevice* GLRenderDevice::sCurrent = nullptr;
 
 GLRenderDevice::GLRenderDevice()
     : mWidth(0), mHeight(0), mInitialized(false), mReadbackImage(nullptr),
-      mCurrentBatchTexture(0), mCurrentBatchMode(DRAWMODE_NORMAL),
+      mCurrentBatchTexture(0), mCurrentBatchMode(DRAWMODE_NORMAL), mCurrentBatchColorize(false),
       mDrawTarget(nullptr), mFBO(0), mFBOTexture(0),
       mFBOColorRB(0), mTextureCacheBytes(0)
 {
@@ -413,6 +413,32 @@ void GLRenderDevice::EnsureTexture(MemoryImage* theImage)
 // drawing
 // ---------------------------------------------------------------------------
 
+void GLRenderDevice::BeginImageBatch(GLTexture* theTexture, DrawMode theMode, bool theColorize)
+{
+    // GLGraphics::DrawTexture @0x476e80 queues transformed vertices too.
+    // Only a changed draw state or a full buffer needs a new submission.
+    if (mBatch.GetCount() > 0
+        && (mCurrentBatchTexture != theTexture->mTextureId || mCurrentBatchMode != theMode
+            || mCurrentBatchColorize != theColorize))
+        FlushBatch();
+
+    ApplyDrawMode(theMode);
+
+    if (mBatch.GetCount() == 0)
+    {
+        mShaders.mBlit.Bind();
+        mShaders.mBlit.SetTexture(0);
+        mShaders.mBlit.SetTransform(mCurrentTransform);
+        mShaders.mBlit.SetColorize(theColorize);
+
+        mState.BindTexture(0, theTexture->mTextureId);
+        mBatch.Begin(theTexture->mTextureId);
+        mCurrentBatchTexture = theTexture->mTextureId;
+        mCurrentBatchMode = theMode;
+        mCurrentBatchColorize = theColorize;
+    }
+}
+
 void GLRenderDevice::DrawImage(MemoryImage* theImage, const Rect& theDestRect,
                                const Rect& theSrcRect, const Color& theColor,
                                DrawMode theMode, bool theMirror,
@@ -427,27 +453,7 @@ void GLRenderDevice::DrawImage(MemoryImage* theImage, const Rect& theDestRect,
     GLTexture* tex = (texIt != mTextureCache.end()) ? texIt->second : nullptr;
     if (!tex || !tex->mTextureId) return;
 
-    // Texture or blend changes force a flush. GLGraphics::BeginPrim flushes
-    // when the primitive mode changes; SetDrawMode flushes before it swaps
-    // glBlendFunc. A gold glyph and the additive pulse cannot share a batch.
-    if (mBatch.GetCount() > 0
-        && (mCurrentBatchTexture != tex->mTextureId || mCurrentBatchMode != theMode))
-        FlushBatch();
-
-    ApplyDrawMode(theMode);
-
-    if (mBatch.GetCount() == 0)
-    {
-        mShaders.mBlit.Bind();
-        mShaders.mBlit.SetTexture(0);
-        mShaders.mBlit.SetTransform(mCurrentTransform);
-        mShaders.mBlit.SetColorize(theColorize);
-
-        mState.BindTexture(0, tex->mTextureId);
-        mBatch.Begin(tex->mTextureId);
-        mCurrentBatchTexture = tex->mTextureId;
-        mCurrentBatchMode = theMode;
-    }
+    BeginImageBatch(tex, theMode, theColorize);
 
     // The colour rides the vertex. SetColor stays so a caller that still
     // reads the uniform sees the same premultiplied value.
@@ -520,10 +526,6 @@ void GLRenderDevice::DrawImageMatrix(MemoryImage* theImage, const SexyMatrix3& t
                                      float theX, float theY, const Rect& theSrcRect,
                                      const Color& theColor, DrawMode theMode, bool theCenter)
 {
-    // A rotated draw cannot share the axis-aligned batch: flush, then submit a
-    // single transformed quad with its own matrix uniform.
-    FlushBatch();
-
     if (!mInitialized || !theImage) return;
 
     EnsureTexture(theImage);
@@ -563,22 +565,14 @@ void GLRenderDevice::DrawImageMatrix(MemoryImage* theImage, const SexyMatrix3& t
         aScreenY[aCorner] = aX * theMatrix.m10 + aY * theMatrix.m11 + theMatrix.m12 + theY;
     }
 
-    ApplyDrawMode(theMode);
-    mShaders.mBlit.Bind();
-    mShaders.mBlit.SetTexture(0);
-    mShaders.mBlit.SetTransform(mCurrentTransform);
-    mShaders.mBlit.SetColor(theColor);
-    mShaders.mBlit.SetColorize(false);
+    BeginImageBatch(tex, theMode, false);
     unsigned int aPacked = PackColor(theColor);
-
-    mState.BindTexture(0, tex->mTextureId);
 
     float u0 = tex->mU0 + (float)theSrcRect.mX / (float)tex->mWidth;
     float v0 = tex->mV0 + (float)theSrcRect.mY / (float)tex->mHeight;
     float u1 = tex->mU0 + (float)(theSrcRect.mX + theSrcRect.mWidth) / (float)tex->mWidth;
     float v1 = tex->mV0 + (float)(theSrcRect.mY + theSrcRect.mHeight) / (float)tex->mHeight;
 
-    mBatch.Begin(tex->mTextureId);
     if (mBatch.mCount + 6 > mBatch.mCapacity)
         mBatch.Flush();
     // DrawTexture takes the four corners in the order written at 0x4734ac:
@@ -592,11 +586,6 @@ void GLRenderDevice::DrawImageMatrix(MemoryImage* theImage, const SexyMatrix3& t
     aOut[4] = { aScreenX[1], aScreenY[1], u0, v1, aPacked };
     aOut[5] = { aScreenX[3], aScreenY[3], u1, v1, aPacked };
     mBatch.mCount += 6;
-    mBatch.Flush();
-    mCurrentBatchTexture = 0;
-
-    // Restore the frame transform for subsequent batched draws.
-    mShaders.mBlit.SetTransform(mCurrentTransform);
 }
 
 void GLRenderDevice::DrawTriangles(MemoryImage* theImage, const SexyVertex2D (*theTriangles)[3],

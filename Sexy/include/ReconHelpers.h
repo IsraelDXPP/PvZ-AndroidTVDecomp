@@ -468,8 +468,8 @@ inline V& MapAt(void* theMap, const K& theKey)
 //   guess was wrong and every call site passes one argument.
 int GetResourcesFolder(Sexy::String* theDest);
 //   _ZN4Sexy15GetEnvIntOptionE... @0x2fba90 (22 bytes) -- read an environment
-//   variable as an integer, parsing with theBase and falling back to theDefault.
-int GetEnvIntOption(const char* theName, const char* theDefault, int theBase);
+//   variable as a decimal integer, falling back to theDefault when absent.
+int GetEnvIntOption(const char* theName, int theDefault);
 //   _ZN4Sexy9DebugInitEii @0x3b9bdc -- TWO parameters, not one.
 int DebugInit(int theMode, int theFlags);
 //   _ZN4Sexy24SWTri_AddAllDrawTriFuncsE... @0x3ab754 (1286 bytes) -- fills the
@@ -495,4 +495,3 @@ public:
 // point would be a use before definition.
 
 } // namespace Sexy
-

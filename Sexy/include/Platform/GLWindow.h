@@ -24,6 +24,7 @@ namespace Sexy
 {
 
 struct Event;
+struct GLFrameTimer;
 
 class GLWindow
 {
@@ -41,6 +42,7 @@ public:
     double          mLastTime;
     double          mStartTime;
     double          mFrameTime;
+    GLFrameTimer*   mFrameTimer;
 
 public:
     GLWindow();
@@ -59,6 +61,7 @@ public:
 
     // Swap buffers.
     void    SwapBuffers();
+    void    WaitForFrame(double theFrameStart, int theMaxFPS);
 
     void    MakeCurrent();
 

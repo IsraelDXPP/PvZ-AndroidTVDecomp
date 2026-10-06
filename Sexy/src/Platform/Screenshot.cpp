@@ -196,10 +196,15 @@ int Screenshot::GetCount()
     return sCounter;
 }
 
+bool ScreenshotHotkey::IsCaptureRequested(bool theKeyDown)
+{
+    return theKeyDown && !sWasDown;
+}
+
 void ScreenshotHotkey::Poll(MemoryImage* theScreen, bool theKeyDown)
 {
     // Rising edge only.
-    if (theKeyDown && !sWasDown)
+    if (theScreen != nullptr && IsCaptureRequested(theKeyDown))
     {
         if (Screenshot::SaveNext(theScreen))
         {

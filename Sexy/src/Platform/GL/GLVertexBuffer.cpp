@@ -2,7 +2,8 @@
 
 #include "GLVertexBuffer.h"
 #include "SexyTypes.h"
-#include <cstdint>
+#include <cstddef>
+#include <new>
 
 #include "GLShader.h"
 #include "AndroidShims.h"
@@ -11,7 +12,7 @@ namespace Sexy
 
 GLVertexBuffer::GLVertexBuffer()
     : mVAO(0), mVBO(0), mVertices(nullptr), mCapacity(0), mCount(0),
-      mCurrentTexture(0), mHasTexture(false), mDrawCalls(0)
+      mCurrentTexture(0), mHasTexture(false), mDrawCalls(0), mUploadOffset(0)
 {
 }
 
@@ -25,7 +26,7 @@ bool GLVertexBuffer::Create(int theCapacity)
     Destroy();
 
     mCapacity = theCapacity;
-    mVertices = static_cast<GLVertex *>(malloc(sizeof(GLVertex) * (size_t)mCapacity));
+    mVertices = new (std::nothrow) GLVertex[theCapacity];
     if (!mVertices)
     {
         TOD_ERROR("GLVertexBuffer: out of memory (%d vertices)", mCapacity);
@@ -33,6 +34,7 @@ bool GLVertexBuffer::Create(int theCapacity)
     }
     mCount = 0;
     mDrawCalls = 0;
+    mUploadOffset = 0;
 
 #ifndef LAWNTV_USE_GLES2
     // Core profile requires a bound VAO for any vertex submission.
@@ -45,24 +47,23 @@ bool GLVertexBuffer::Create(int theCapacity)
     glGenBuffers(1, &mVBO);
     glBindBuffer(GL_ARRAY_BUFFER, mVBO);
 
-    // Allocate immutable-ish storage once; contents are updated with
-    // glBufferSubData on each flush.
+    // Append successive batches without overwriting vertices still in use.
     glBufferData(GL_ARRAY_BUFFER,
                  (GLsizeiptr)(sizeof(GLVertex) * (size_t)mCapacity),
-                 nullptr, GL_DYNAMIC_DRAW);
+                 nullptr, GL_STREAM_DRAW);
 
     // Attribute 0: position, 1: texcoord, 2: packed colour. GLGraphics::Flush
     // enables the colour array at stride 24 and glColorPointer of 4 unsigned
     // bytes. Core profile has no client arrays, so the same fields ride the VBO.
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(GLVertex),
-                          (const void *)(intptr_t)offsetof(GLVertex, mX));
+                          nullptr);
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(GLVertex),
-                          (const void *)(intptr_t)offsetof(GLVertex, mU));
+                          reinterpret_cast<const void*>(offsetof(GLVertex, mU)));
     glEnableVertexAttribArray(2);
     glVertexAttribPointer(2, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(GLVertex),
-                          (const void *)(intptr_t)offsetof(GLVertex, mColor));
+                          reinterpret_cast<const void*>(offsetof(GLVertex, mColor)));
 
 #ifndef LAWNTV_USE_GLES2
     glBindVertexArray(0);
@@ -78,8 +79,10 @@ void GLVertexBuffer::Destroy()
 #ifndef LAWNTV_USE_GLES2
     if (mVAO) { glDeleteVertexArrays(1, &mVAO); mVAO = 0; }
 #endif
-    if (mVertices) { free(mVertices); mVertices = nullptr; }
+    delete[] mVertices;
+    mVertices = nullptr;
     mCapacity = mCount = 0;
+    mUploadOffset = 0;
 }
 
 void GLVertexBuffer::Begin(unsigned int theTexture)
@@ -130,14 +133,24 @@ void GLVertexBuffer::Flush()
     if (mCount == 0) return;
 
     glBindBuffer(GL_ARRAY_BUFFER, mVBO);
-    glBufferSubData(GL_ARRAY_BUFFER, 0,
+    if (mUploadOffset + mCount > mCapacity)
+    {
+        // Orphan the filled storage so queued draws keep their old vertices.
+        // Updating offset zero of live storage serializes CPU and GPU batches.
+        glBufferData(GL_ARRAY_BUFFER,
+                     (GLsizeiptr)(sizeof(GLVertex) * (size_t)mCapacity),
+                     nullptr, GL_STREAM_DRAW);
+        mUploadOffset = 0;
+    }
+    glBufferSubData(GL_ARRAY_BUFFER, (GLintptr)(sizeof(GLVertex) * (size_t)mUploadOffset),
                     (GLsizeiptr)(sizeof(GLVertex) * (size_t)mCount), mVertices);
 
 #ifndef LAWNTV_USE_GLES2
     glBindVertexArray(mVAO);
 #endif
 
-    glDrawArrays(GL_TRIANGLES, 0, mCount);
+    glDrawArrays(GL_TRIANGLES, mUploadOffset, mCount);
+    mUploadOffset += mCount;
     ++mDrawCalls;
 
     GL_CHECK("GLVertexBuffer::Flush");
