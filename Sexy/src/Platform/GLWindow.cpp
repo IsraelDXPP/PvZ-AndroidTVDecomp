@@ -6,14 +6,52 @@
 
 #include "AndroidShims.h"
 #include "ReconTypes.h"
+
+// Event lives in ReconTypes.h and is also pulled in as a global name. This
+// file is the one place the queue is concrete, so the header only forward
+// declares it.
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <vector>
 
 namespace Sexy
 {
 
 static bool gGLFWInitialized = false;
 static bool gGlfwKeyDown[GLFW_KEY_LAST + 1];
+static std::vector<Event> gGlfwKeyEvents;
+static GLWindow* gActiveWindow = nullptr;
+
+// AndroidDisplay::InitKeyMap @0x43EC28, with the GLFW key numbers in place of
+// AGKeyCode. The stored values are the Windows virtual-key codes the game
+// compares: left 0x25, up 0x26, right 0x27, down 0x28, Return 0x0D, Esc 0x1B,
+// digits 0x30-0x39, letters 0x41-0x5A, Menu 0x12. Space is not in that table;
+// Board::KeyDown still reads 0x20, so the port adds it.
+//
+// The numbers are written out. This file is inside namespace Sexy, and the
+// Sexy::KeyCode enumerators do not match the global KEYCODE_* values the
+// game compares.
+static int KeyCodeFromGlfw(int theGlfwKey)
+{
+    if (theGlfwKey >= GLFW_KEY_A && theGlfwKey <= GLFW_KEY_Z)
+        return 0x41 + (theGlfwKey - GLFW_KEY_A);
+    if (theGlfwKey >= GLFW_KEY_0 && theGlfwKey <= GLFW_KEY_9)
+        return 0x30 + (theGlfwKey - GLFW_KEY_0);
+
+    switch (theGlfwKey)
+    {
+    case GLFW_KEY_ESCAPE:    return 0x1B;
+    case GLFW_KEY_ENTER:     return 0x0D;
+    case GLFW_KEY_KP_ENTER:  return 0x0D;
+    case GLFW_KEY_UP:        return 0x26;
+    case GLFW_KEY_DOWN:      return 0x28;
+    case GLFW_KEY_LEFT:      return 0x25;
+    case GLFW_KEY_RIGHT:     return 0x27;
+    case GLFW_KEY_MENU:      return 0x12;
+    case GLFW_KEY_SPACE:     return 0x20;
+    default:                 return 0;
+    }
+}
 
 GLWindow::GLWindow()
     : mWindow(nullptr), mWidth(0), mHeight(0), mWindowed(true),
@@ -35,6 +73,29 @@ void GLWindow::KeyCallback(GLFWwindow*, int theKey, int, int theAction, int)
         gGlfwKeyDown[theKey] = true;
     else if (theAction == GLFW_RELEASE)
         gGlfwKeyDown[theKey] = false;
+    else
+        return;
+
+    // AndroidInput::HandleKeyEvents posts every down, including a repeat
+    // down. Release is the other kind. modifiers 1 is KeyDown, 2 is KeyUp.
+    const int aCode = KeyCodeFromGlfw(theKey);
+    if (aCode == 0)
+        return;
+
+    Event anEvent = {};
+    anEvent.modifiers = theAction == GLFW_RELEASE ? 2 : 1;
+    anEvent.lateModifiers = 0;
+    anEvent.eventCodeMask = aCode;
+    gGlfwKeyEvents.push_back(anEvent);
+}
+
+bool GLWindow::PopKeyEvent(Event& theEvent)
+{
+    if (gGlfwKeyEvents.empty())
+        return false;
+    theEvent = gGlfwKeyEvents.front();
+    gGlfwKeyEvents.erase(gGlfwKeyEvents.begin());
+    return true;
 }
 
 bool GLWindow::IsGlfwKeyDown(int theGlfwKey)
@@ -92,6 +153,7 @@ bool GLWindow::Create(const char* theTitle, int theWidth, int theHeight,
     }
 
     glfwSetKeyCallback(mWindow, &GLWindow::KeyCallback);
+    gActiveWindow = this;
     glfwMakeContextCurrent(mWindow);
 
     // glad loads the GL entry points for the *current* context, so this must
@@ -121,11 +183,14 @@ bool GLWindow::Create(const char* theTitle, int theWidth, int theHeight,
 
 void GLWindow::Destroy()
 {
+    if (gActiveWindow == this)
+        gActiveWindow = nullptr;
     if (mWindow)
     {
         glfwDestroyWindow(mWindow);
         mWindow = nullptr;
     }
+    gGlfwKeyEvents.clear();
     // GLFW itself is torn down in ShutdownGLFW(); leaving it initialised lets
     // a second window be created (the self-test opens one, closes it, and the
     // game may then open another).
@@ -264,6 +329,11 @@ void GLWindow::GetCursorPos(double& theX, double& theY) const
     theX = theY = 0.0;
     if (mWindow)
         glfwGetCursorPos(mWindow, &theX, &theY);
+}
+
+GLWindow* ActiveWindow()
+{
+    return gActiveWindow;
 }
 
 void ShutdownGLFW()

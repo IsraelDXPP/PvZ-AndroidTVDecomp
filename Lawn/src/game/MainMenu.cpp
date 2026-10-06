@@ -531,7 +531,7 @@ bool MainMenu::FinishedTransition(char const* theTrackName)
   int aLastFrame = 0;
   aMainMenuReanim->GetFramesForLayer(theTrackName, aFirstFrame, aLastFrame);
   ReanimatorFrameTime aFrameTime;
-  aMainMenuReanim->GetFrameTime((int)&aFrameTime);
+  aMainMenuReanim->GetFrameTime(&aFrameTime);
   if ( aFrameTime.mAnimFrameBeforeInt != aLastFrame + aFirstFrame - 1 )
     return false;
   return aFrameTime.mAnimFrameBeforeInt == aFrameTime.mAnimFrameAfterInt;
@@ -1831,7 +1831,7 @@ void MainMenu::GameButtonDown(Sexy::GamepadButton theButton, int thePlayerIndex,
   if ( theButton == 10 || theButton == 11 )
   {
     int aNewScene = (theButton == 10) ? mMenuScene - 1 : mMenuScene + 1;
-    if ( (unsigned int)aNewScene <= (unsigned int)MENUSCENE_EXTRA )
+    if (aNewScene <= MENUSCENE_EXTRA )
       SetScene(aNewScene);
   }
   else if ( theButton == 7 && (mMenuScene == MENUSCENE_MORE_WAYS || mMenuScene == MENUSCENE_EXTRA) )

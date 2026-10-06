@@ -251,7 +251,7 @@ public:
     int FindStarFruitTarget();
     int StarFruitFire();
     bool MakesSun();
-    int PlayBodyReanim(char const* theTrackName, ReanimLoopType theLoopType, int theBlendTime, float theAnimRate);
+    void PlayBodyReanim(char const* theTrackName, ReanimLoopType theLoopType, int theBlendTime, float theAnimRate);
     int LaunchStarFruit();
     int SpikeweedAttack();
     void UpdateDoomShroom();
@@ -280,8 +280,8 @@ public:
     Reanimation * DoBlink();
     Reanimation * UpdateBlink();
     Reanimation * AnimateNuts();
-    int AnimateGarlic();
-    int AnimatePumpkin();
+    void AnimateGarlic();
+    void AnimatePumpkin();
     void UpdateNeedsFood();
     void Animate();
     int GetPeaHeadOffset(int &theOffsetX, int &theOffsetY);

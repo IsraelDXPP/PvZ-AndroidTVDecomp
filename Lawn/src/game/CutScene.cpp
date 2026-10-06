@@ -2994,8 +2994,8 @@ void CutScene::UpdateUpsell()
     case 3309:
     {
         Reanimation *aDaveReanim = (Reanimation *)mApp->ReanimationGet(mApp->mCrazyDaveReanimID);
-        ((Reanimation *)aDaveReanim->FindSubReanim(26))->ReanimationDie();
-        ((Reanimation *)aDaveReanim->FindSubReanim(73))->ReanimationDie();
+        aDaveReanim->FindSubReanim(REANIM_THREEPEATER)->ReanimationDie();
+        aDaveReanim->FindSubReanim(REANIM_MAGNETSHROOM)->ReanimationDie();
         break;
     }
     case 3312:

@@ -63,7 +63,7 @@ public:
     void LoadEffectDef();
     void DrawPerfText(Sexy::Graphics* g);
     bool DefinitionHasChanged();
-    int NextAnim();
+    void NextAnim();
     int Blink();
     void FadeOutParticles();
     Reanimation* GetBuddyReanimation();

@@ -177,16 +177,16 @@ public:
     // static-ness -- but the ARMs' register use does; PreloadZombieResources below
     // is static for the same reason. Call sites written as `z->SetupX(...)` still
     // compile unchanged.
-    static int SetupDoorArms(Reanimation * theReanim, bool theVisible);
-    static int SetupReanimLayers(Reanimation * theReanim, ZombieType theType);
+    static void SetupDoorArms(Reanimation * theReanim, bool theVisible);
+    static void SetupReanimLayers(Reanimation * theReanim, ZombieType theType);
     int ReanimIgnoreClipRect(char const *theTrackName, bool theIgnore);
     int ReanimReenableClipping();
     bool IsBouncingPogo();
     int ZombieCatapultFire(Plant *thePlant);
     Plant * FindCatapultTarget();
     int IsTanglekelpTarget();
-    int UpdateZombiePeaHead();
-    int UpdateZombieGatlingHead();
+    void UpdateZombiePeaHead();
+    void UpdateZombieGatlingHead();
     int NeedsMoreBackupDancers();
     int UpdateZombieHighGround();
     int OverrideParticleScale(TodParticleSystem *theParticleSystem);
@@ -197,9 +197,9 @@ public:
     int DoRevivalDialog(int theDialogId);
     int DoBuySunMoneyDialog(int theDialogId);
     bool HasYuckyFaceImage();
-    // 0x1A8920. The early outs leave 0 in r0; the other paths tail-call
-    // AssignRenderGroupToTrack, which returns the reanimation.
-    Reanimation * ShowYuckyFace(bool theShow);
+    // 0x1A8920. Early outs do nothing. The other paths hide or restore the
+    // yucky-face tracks. No caller reads a return.
+    void ShowYuckyFace(bool theShow);
     // The two halves of UpdateYuckyFace's body, split out because the ARM
     // reaches them from two different entry points in the same function.
     int UpdateYuckyFaceAt70();
@@ -226,8 +226,8 @@ public:
     int GetDancerPhase();
     int DrawZombiePart(Sexy::Graphics *g, Sexy::Image *theImage, int theFrame, int theRow, ZombieDrawPosition &theDrawPos);
     int IsMovingAtChilledSpeed();
-    int ApplyAnimRate(float theAnimRate);
-    int SetAnimRate(float theAnimRate);
+    void ApplyAnimRate(float theAnimRate);
+    void SetAnimRate(float theAnimRate);
     void PoolSplash(bool theIntoPool);
     bool IsOnHighGround();
     int UpdateZombieRiseFromGrave();
@@ -267,12 +267,12 @@ public:
     void AddAttachedParticle(int thePosX, int thePosY, ParticleEffect theEffect);
     Reanimation * AddAttachedReanim(int thePosX, int thePosY, ReanimationType theReanimType);
     int IsTangleKelpTarget();
-    int BalloonPropellerHatSpin(bool theSpin);
-    int ReanimShowPrefix(char const *theTrackPrefix, int theRenderGroup);
-    int ShowDoorArms(bool theShow);
-    int DropPole();
-    int AttachShield();
-    Reanimation * ReanimShowTrack(char const *theTrackName, int theRenderGroup);
+    void BalloonPropellerHatSpin(bool theSpin);
+    void ReanimShowPrefix(char const *theTrackPrefix, int theRenderGroup);
+    void ShowDoorArms(bool theShow);
+    void DropPole();
+    void AttachShield();
+    void ReanimShowTrack(char const *theTrackName, int theRenderGroup);
     int DoDaisies();
     int HasShadow();
     int SetupDrawZombieWon(Sexy::Graphics *g);
@@ -294,11 +294,14 @@ public:
     // r0. The only caller ignores it.
     int UpdateZombieWalkingIntoHouse();
     int DrawReanim(Sexy::Graphics *g, ZombieDrawPosition &theDrawPos, int theBaseRenderGroup);
-    int DrawBungeeReanim(Sexy::Graphics *g, ZombieDrawPosition &theDrawPos);
+    void DrawBungeeReanim(Sexy::Graphics *g, ZombieDrawPosition &theDrawPos);
     int Draw(Sexy::Graphics *g);
     int IsDeadOrDying();
     int CountBungeesTargetingSunFlowers();
-    int UpdateAnimSpeed();
+    // 0x1AD144. Every path either does nothing or calls ApplyAnimRate. The
+    // callers that used to cast the leftover register to Reanimation* never
+    // read that pointer.
+    void UpdateAnimSpeed();
     Reanimation * PickRandomSpeed();
     Reanimation * PlayZombieReanim(char const *theTrackName, ReanimLoopType theLoopType, int theBlendTime, float theAnimRate);
     Reanimation * BungeeDropZombie(Zombie *theZombie, int theGridX, int theGridY);
@@ -317,11 +320,11 @@ public:
     void EatPlant(Plant *thePlant);
     Reanimation * StartWalkAnim(int theBlendTime);
     // 0x1ADAEC. Mixed r0. The only caller ignores it.
-    int UpdateZombieNewspaper();
+    void UpdateZombieNewspaper();
     // 0x1ADB54. this, or StartWalkAnim on the into-pool done path. The only caller ignores it.
     int UpdateZombiePool();
     void RiseFromGrave(int theGridX, int theGridY);
-    int BobsledCrash();
+    void BobsledCrash();
     // 0x1ADF08. Every path returns this.
     Zombie * DropHelm(unsigned int theDamageFlags);
     int PogoBreak(unsigned int theDamageFlags);
@@ -353,7 +356,7 @@ public:
     // 0x1AF974. Returns this, or PickRandomSpeed's reanimation when it wakes.
     Reanimation * UpdateYeti();
     int StopZombieSound();
-    Reanimation * DiggerLoseAxe();
+    void DiggerLoseAxe();
     Reanimation * UpdateZombieDigger();
     // Real polymorphism: the compiler writes the vptr (slots 0/1 = destructor,
     // overriding GameObject's virtual destructor).
@@ -374,8 +377,8 @@ public:
     // 0x1B0778. r0 is whatever the last call left. The only caller ignores it.
     void WalkIntoHouse();
     Reanimation * BossPlayIdle();
-    // 0x1B090C. Tail-calls DrawRenderGroup, so r0 is that float (0 if no reanim).
-    float DrawBossFireBall(Sexy::Graphics *g, ZombieDrawPosition &theDrawPos);
+    // 0x1B090C. The last call is DrawRenderGroup, and Board ignores the result.
+    void DrawBossFireBall(Sexy::Graphics *g, ZombieDrawPosition &theDrawPos);
     int DrawBossBackArm(Sexy::Graphics *g, ZombieDrawPosition &theDrawPos);
     void BossRVAttack();
     // 0x1B0A68. PlaySample is void; the only caller ignores r0.
@@ -388,7 +391,7 @@ public:
     void BossBungeeAttack();
     bool BossAreBungeesDone();
     void BossHeadAttack();
-    int BossHeadSpit();
+    void BossHeadSpit();
     int BossDestroyIceballInRow(int theRow);
     int BossDestroyFireball();
     void BossHeadSpitEffect();
@@ -454,8 +457,8 @@ public:
     float UpdateActions();
     int UpdateBoss();
     int IsFireResistant();
-    int EnableMustache(bool theEnable);
-    Reanimation * EnableFuture(bool theEnable);
+    void EnableMustache(bool theEnable);
+    void EnableFuture(bool theEnable);
     int EnableDanceMode(bool theEnable);
     // 0x1B5140 `_ZN6Zombie15SetupWaterTrackEPKc` -- the parameter is a track
     // name, not an int; the transcription's `int theDrawPos` was a mangled-name slip.

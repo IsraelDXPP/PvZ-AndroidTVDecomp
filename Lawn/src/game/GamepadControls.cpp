@@ -2790,7 +2790,7 @@ void GamepadControls::UpdatePreviewReanim()
   if ( aPreview == nullptr )
     return;
   if ( aUseImitaterFilter )
-    aPreview->SetFilterEffectShader();
+    aPreview->SetFilterEffectShader(FilterEffect(-1));
 
   bool aIdChanged = mPreviewReanimID4 != aPreviousPreviewId;
   if ( aIdChanged )

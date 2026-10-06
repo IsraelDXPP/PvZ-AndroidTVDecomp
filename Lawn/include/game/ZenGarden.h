@@ -165,7 +165,7 @@ public:
     void MouseDownWithMoneySign(Plant *thePlant);
     void MouseDownWithFeedingTool(int x, int y, CursorType theCursorType, int theClickCount);
     void MouseDownWithTool(int x, int y, CursorType theCursorType, int theClickCount);
-    int AddStinky();
+    void AddStinky();
     int ZenGardenInitLevel(bool theJustSwitchingGardens);
     void OpenStore();
     ~ZenGarden();

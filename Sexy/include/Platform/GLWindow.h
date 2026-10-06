@@ -23,6 +23,8 @@ struct GLFWwindow;
 namespace Sexy
 {
 
+struct Event;
+
 class GLWindow
 {
 public:
@@ -72,9 +74,12 @@ public:
 
     // GLFW key callback. GetAsyncKeyState does not see keys while this
     // window has focus, so IsKeyDown reads the state this callback stores.
+    // Press and release also become Event records. InputManager::Update
+    // drains them the same way AndroidInput::HandleKeyEvents posted keys.
     static void KeyCallback(GLFWwindow* theWindow, int theKey, int theScancode,
                             int theAction, int theMods);
     static bool IsGlfwKeyDown(int theGlfwKey);
+    bool    PopKeyEvent(Event& theEvent);
 
     // Mouse buttons. GLFW reports these through a separate API from keys, so
     // they cannot be reached via IsKeyDown.
@@ -86,6 +91,10 @@ public:
 
     static  void    ErrorCallback(int theError, const char* theDescription);
 };
+
+// The window whose callback is filling the key queue. InputManager drains it
+// after glfwPollEvents. A null window means no keyboard is attached.
+GLWindow* ActiveWindow();
 
 // GLFW is initialised lazily by GLWindow::Create and must be torn down once,
 // after every window is gone. Call this at process exit.

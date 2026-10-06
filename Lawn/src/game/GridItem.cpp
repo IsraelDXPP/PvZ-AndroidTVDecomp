@@ -307,14 +307,14 @@ void GridItem::DrawGraveStone(Sexy::Graphics *theGraphics)
 // GridItem::DrawMPTarget(Sexy::Graphics *)
 // @0013CC74  1004 bytes
 // ==========================================================================
-int GridItem::DrawMPTarget(Sexy::Graphics *theGraphics)
+void GridItem::DrawMPTarget(Sexy::Graphics *theGraphics)
 {
   // The target zombie's reanimation gets a damage-dependent image override.
   const int aDamageStage = (int)(4.0f - (float)mVSTargetZombieHealth * 0.02f);
 
   Reanimation *aReanim = (Reanimation *)mApp->ReanimationTryToGet(mGridItemReanimID);
   if ( aReanim == nullptr )
-    return 0;
+    return;
 
   // GetSharedImage hands the SharedImageRef back BY VALUE now (SexyAppBase.h:401
   // declares it so; the transcription's pointer return and the deref that used to
@@ -336,18 +336,18 @@ int GridItem::DrawMPTarget(Sexy::Graphics *theGraphics)
   mTargetImageOverride = mApp->GetSharedImage(aFileName, aVariant, nullptr, true, false);
 
   aReanim->SetImageOverride("target", (Sexy::Image *)mTargetImageOverride);
-  return aReanim->Draw(theGraphics);
+  aReanim->Draw(theGraphics);
 }
 
 // ==========================================================================
 // GridItem::DrawStinky(Sexy::Graphics *)
 // @0013D0B8  308 bytes
 // ==========================================================================
-int GridItem::DrawStinky(Sexy::Graphics *theGraphics)
+void GridItem::DrawStinky(Sexy::Graphics *theGraphics)
 {
   Reanimation *aReanim = (Reanimation *)mApp->ReanimationTryToGet(mGridItemReanimID);
   if ( aReanim == nullptr )
-    return 0;
+    return;
 
   // Stinky's motion trail: every other recorded frame is drawn as a translucent
   // ghost offset by how far he has moved since it was recorded.
@@ -386,9 +386,8 @@ int GridItem::DrawStinky(Sexy::Graphics *theGraphics)
     aReanim->mExtraAdditiveColor = Sexy::Color(255, 255, 255, 196);
   }
 
-  const int aResult = aReanim->Draw(theGraphics);
+  aReanim->Draw(theGraphics);
   aReanim->mEnableExtraAdditiveDraw = false;
-  return aResult;
 }
 
 // ==========================================================================
@@ -729,7 +728,8 @@ int GridItem::TakeDamage(int theDamage, unsigned int theFlags)
     if ( aNewHealth > 0 )
     {
       Reanimation *aReanim = (Reanimation *)mApp->ReanimationGet(mGridItemReanimID);
-      return aReanim->PlayReanim("anim_hit", REANIM_PLAY_ONCE_AND_HOLD, 0, 24.0f);
+      aReanim->PlayReanim("anim_hit", REANIM_PLAY_ONCE_AND_HOLD, 0, 24.0f);
+      return 0;
     }
 
     mVSTargetZombieHealth = 0;
@@ -781,7 +781,8 @@ int GridItem::TakeDamage(int theDamage, unsigned int theFlags)
     {
       char aAnimName[12];
       sprintf(aAnimName, "anim_break%d", aNewStage);
-      return aReanim->PlayReanim(aAnimName, REANIM_PLAY_ONCE_AND_HOLD, 4, 10.0f);
+      aReanim->PlayReanim(aAnimName, REANIM_PLAY_ONCE_AND_HOLD, 4, 10.0f);
+      return 0;
     }
   }
 
@@ -964,7 +965,8 @@ int GridItem::Update()
     if ( aTargetReanim != nullptr && !aTargetReanim->IsAnimPlaying("anim_idle") )
     {
       if ( !aTargetReanim->IsAnimPlaying("anim_hit") || aTargetReanim->mAnimTime == 1.0f )
-        return aTargetReanim->PlayReanim("anim_idle", REANIM_LOOP, 0, 24.0f);
+        aTargetReanim->PlayReanim("anim_idle", REANIM_LOOP, 0, 24.0f);
+        return 0;
     }
   }
 
@@ -1104,7 +1106,8 @@ TodParticleSystem * GridItem::DrawGridItem(Sexy::Graphics *theGraphics)
       DrawSquirrel(theGraphics);
       break;
     case GRIDITEM_STINKY:
-      return (TodParticleSystem *)DrawStinky(theGraphics);
+      DrawStinky(theGraphics);
+      return nullptr;
     case GRIDITEM_IZOMBIE_BRAIN:
       DrawIZombieBrain(theGraphics);
       break;

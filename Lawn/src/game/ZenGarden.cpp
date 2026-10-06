@@ -2768,10 +2768,10 @@ void ZenGarden::MouseDownWithTool(int x, int y, CursorType theCursorType, int th
 // ZenGarden::AddStinky()
 // @001A156C  312 bytes
 // ==========================================================================
-int ZenGarden::AddStinky()
+void ZenGarden::AddStinky()
 {
   if ( !HasPurchasedStinky() || mGardenType != GARDEN_MAIN )
-    return 0;
+    return;
 
   // The first time Stinky is added he is stamped awake, so the player sees him
   // move rather than finding him asleep.
@@ -2821,7 +2821,7 @@ int ZenGarden::AddStinky()
 
   aStinky->mRenderOrder = Board::MakeRenderOrder((RenderLayer)302000, 0,
                                                  (int)(aStinky->mPosY - 30.0f));
-  return aReanim->SetPosition(aStinky->mPosX, aStinky->mPosY);
+  aReanim->SetPosition(aStinky->mPosX, aStinky->mPosY);
 }
 // ==========================================================================
 // ZenGarden::ZenGardenInitLevel(bool)

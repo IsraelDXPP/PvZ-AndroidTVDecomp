@@ -189,20 +189,20 @@ Reanimation::~Reanimation()
 // Reanimation::SetAnimRate(float)
 // @001F9610  32 bytes
 // ==========================================================================
-int Reanimation::SetAnimRate(float theRate)
+Reanimation * Reanimation::SetAnimRate(float theRate)
 {
   mAnimRate = theRate;
   mAnimTimeStep = (theRate * 0.01f) / (float)mFrameCount;
-  return (int)this;
+  return this;
 }
 
 // ==========================================================================
 // Reanimation::GetTransformAtTime(int,ReanimatorTransform *,ReanimatorFrameTime *)
 // @001F9750  340 bytes
 // ==========================================================================
-int Reanimation::GetTransformAtTime(int theTrackIndex, ReanimatorTransform * theTransform, int theFrameTime)
+ReanimatorTransform * Reanimation::GetTransformAtTime(int theTrackIndex, ReanimatorTransform * theTransform, ReanimatorFrameTime * theFrameTime)
 {
-  ReanimatorFrameTime *aFrameTime = (ReanimatorFrameTime *)theFrameTime;
+  ReanimatorFrameTime *aFrameTime = theFrameTime;
   ReanimatorTrackInstance *aTrackInstance = mTrackInstances + theTrackIndex;
   ReanimatorTransform *aTransform =
       mDefinition->mTracks[theTrackIndex].mTransforms + aFrameTime->mAnimFrameBeforeInt;
@@ -237,27 +237,22 @@ int Reanimation::GetTransformAtTime(int theTrackIndex, ReanimatorTransform * the
   if ( aTransform->mFrame != -1.0f && aNextTransform->mFrame == -1.0f
     && aFrameTime->mFraction > 0.0f && aTrackInstance->mTruncateDisappearingFrames )
     theTransform->mFrame = -1.0f;
-  return (int)aTransform;
+  return aTransform;
 }
 
 // ==========================================================================
 // Reanimation::GetCurrentTransform(int,ReanimatorFrameTime *,ReanimatorTransform *)
 // @001F98A4  114 bytes
 // ==========================================================================
-int Reanimation::GetCurrentTransform(int theTrackIndex, int theFrameTime, ReanimatorTransform * theTransform)
+int Reanimation::GetCurrentTransform(int theTrackIndex, ReanimatorFrameTime * theFrameTime, ReanimatorTransform * theTransform)
 {
   ReanimatorTrackInstance *aTrackInstance = mTrackInstances + theTrackIndex;
-  int aFrame;
 
   GetTransformAtTime(theTrackIndex, theTransform, theFrameTime);
-  if ( theTransform->mFrame <= 0.0f )
-    aFrame = (int)(float)(theTransform->mFrame - 0.5f);
-  else
-    aFrame = (int)(float)(theTransform->mFrame + 0.5f);
+  int aFrame = RoundToNearestInt(theTransform->mFrame);
   if ( aFrame >= 0 && aTrackInstance->mBlendCounter > 0 )
     BlendTransform(theTransform, theTransform, &aTrackInstance->mBlendTransform,
                    (float)aTrackInstance->mBlendCounter / (float)aTrackInstance->mBlendTime);
-    return aFrame;
   return aFrame;
 }
 
@@ -265,7 +260,7 @@ int Reanimation::GetCurrentTransform(int theTrackIndex, int theFrameTime, Reanim
 // Reanimation::UpdateCurrentTransform(int,ReanimatorFrameTime *)
 // @001F9918  22 bytes
 // ==========================================================================
-int Reanimation::UpdateCurrentTransform(int theTrackIndex, int theFrameTime)
+int Reanimation::UpdateCurrentTransform(int theTrackIndex, ReanimatorFrameTime * theFrameTime)
 {
   return GetCurrentTransform(theTrackIndex, theFrameTime, mReanimatorTransforms + theTrackIndex);
 }
@@ -303,7 +298,7 @@ float Reanimation::MatrixFromTransform(ReanimatorTransform & theTransform, SexyM
 // Reanimation::ReanimBltMatrix(Sexy::Graphics *,Sexy::Image *,Sexy::SexyMatrix3 const&,Sexy::TRect<int> const&,Sexy::Color const&,int,Sexy::TRect<int> const&)
 // @001F99C4  530 bytes
 // ==========================================================================
-int Reanimation::ReanimBltMatrix(Sexy::Graphics * g, Sexy::Image * theImage, SexyMatrix3 const& theTransform, TRect<int> const& theClipRect, Color const& theColor, int theDrawMode, TRect<int> const& theSrcRect)
+void Reanimation::ReanimBltMatrix(Sexy::Graphics * g, Sexy::Image * theImage, SexyMatrix3 const& theTransform, TRect<int> const& theClipRect, Color const& theColor, int theDrawMode, TRect<int> const& theSrcRect)
 {
   ReanimationParamRecord *aParams = gReanimationParamArray;
 
@@ -316,7 +311,7 @@ int Reanimation::ReanimBltMatrix(Sexy::Graphics * g, Sexy::Image * theImage, Sex
     || !(theColor == Sexy::Color::White) )
   {
     TodBltMatrix(g, theImage, theTransform, theClipRect, theColor, theDrawMode, theSrcRect);
-    return 0;
+    return;
   }
   float aScaleX = theTransform.m00;
   float aScaleY = theTransform.m11;
@@ -344,22 +339,22 @@ int Reanimation::ReanimBltMatrix(Sexy::Graphics * g, Sexy::Image * theImage, Sex
   }
   g->SetDrawMode(aSavedDrawMode);
   g->SetClipRect(aSavedClip);
-  return (int)aDrawY;
 }
 
 // ==========================================================================
 // Reanimation::SetFilterEffectShader(FilterEffect)
 // @001F9BEC  2 bytes
 // ==========================================================================
-void Reanimation::SetFilterEffectShader()
+void Reanimation::SetFilterEffectShader(FilterEffect theFilterEffect)
 {
+  (void)theFilterEffect;
 }
 
 // ==========================================================================
 // Reanimation::DrawTrack(Sexy::Graphics *,int,int,TodTriangleGroup *)
 // @001F9BF0  1742 bytes
 // ==========================================================================
-int Reanimation::DrawTrack(Sexy::Graphics * g, int theTrackIndex, int theRenderGroup, TodTriangleGroup *theTriangleGroup)
+bool Reanimation::DrawTrack(Sexy::Graphics * g, int theTrackIndex, int theRenderGroup, TodTriangleGroup *theTriangleGroup)
 {
   ReanimatorTransform *aTransform = mReanimatorTransforms + theTrackIndex;
   ReanimatorTrackInstance *aTrackInstance = &mTrackInstances[theTrackIndex];
@@ -377,7 +372,7 @@ int Reanimation::DrawTrack(Sexy::Graphics * g, int theTrackIndex, int theRenderG
   float aFrameValue = aTransform->mFrame;
   int aFrame = (int)(aFrameValue <= 0.0f ? aFrameValue - 0.5f : aFrameValue + 0.5f);
   if ( aFrame < 0 )
-    return 0;
+    return false;
 
   if ( !aTrackInstance->mIgnoreColorOverride )
   {
@@ -394,7 +389,7 @@ int Reanimation::DrawTrack(Sexy::Graphics * g, int theTrackIndex, int theRenderG
   float aScaledAlpha = (float)aColor.mAlpha * aTransform->mAlpha;
   int anAlpha = (int)(aScaledAlpha <= 0.0f ? aScaledAlpha - 0.5f : aScaledAlpha + 0.5f);
   if ( anAlpha <= 0 )
-    return 0;
+    return false;
   if ( anAlpha >= 255 )
     anAlpha = 255;
   aColor.mAlpha = anAlpha;
@@ -458,7 +453,7 @@ int Reanimation::DrawTrack(Sexy::Graphics * g, int theTrackIndex, int theRenderG
   }
   else
   {
-    return 0;
+    return false;
   }
 
   // A track that resolves to an encoded atlas rect draws that atlas instead of
@@ -479,8 +474,8 @@ int Reanimation::DrawTrack(Sexy::Graphics * g, int theTrackIndex, int theRenderG
     TRect<int> aAtlasRect(anAtlasImage->mX, anAtlasImage->mY,
                           anAtlasImage->mWidth, anAtlasImage->mHeight);
     Sexy::Image *anAtlasTexture = mDefinition->mReanimAtlas->mImage;
-    if ( (int)mFilterEffect != -1 )
-      SetFilterEffectShader();
+    if ( mFilterEffect != FilterEffect(-1) )
+      SetFilterEffectShader(mFilterEffect);
     theTriangleGroup->AddTriangle(g, anAtlasTexture, aMatrix, aClipRect, aColor, (int)g->mDrawMode, aAtlasRect);
     if ( mEnableExtraAdditiveDraw && !aTrackInstance->mIgnoreExtraAdditiveColor )
       theTriangleGroup->AddTriangle(g, anAtlasTexture, aMatrix, aClipRect, anAdditiveColor, 1, aAtlasRect);
@@ -489,14 +484,14 @@ int Reanimation::DrawTrack(Sexy::Graphics * g, int theTrackIndex, int theRenderG
       Sexy::Image *aFilteredImage = FilterEffectGetImage(anAtlasTexture, FilterEffect(2));
       theTriangleGroup->AddTriangle(g, aFilteredImage, aMatrix, aClipRect, anOverlayColor, 0, aAtlasRect);
     }
-    SetFilterEffectShader();
-    return 1;
+    SetFilterEffectShader(FilterEffect(-1));
+    return true;
   }
 
   if ( aImage != nullptr )
   {
     Sexy::Image *aDrawImage = aTrackInstance->mImageOverride;
-    SetFilterEffectShader();
+    SetFilterEffectShader(mFilterEffect);
     if ( aDrawImage == nullptr )
       aDrawImage = aImage;
     int aCelCount = aDrawImage->mNumCols;
@@ -543,17 +538,17 @@ int Reanimation::DrawTrack(Sexy::Graphics * g, int theTrackIndex, int theRenderG
       g->SetColor(aSavedColor);
     }
   }
-  SetFilterEffectShader();
-  return 1;
+  SetFilterEffectShader(FilterEffect(-1));
+  return true;
 }
 
 // ==========================================================================
 // Reanimation::GetFrameTime(ReanimatorFrameTime *)
 // @001FA2DC  128 bytes
 // ==========================================================================
-float Reanimation::GetFrameTime(int theFrameTime)
+float Reanimation::GetFrameTime(ReanimatorFrameTime * theFrameTime)
 {
-  ReanimatorFrameTime *aFrameTime = (ReanimatorFrameTime *)theFrameTime;
+  ReanimatorFrameTime *aFrameTime = theFrameTime;
   // The two "full last frame" loop types hold one frame back at the end of the
   // clip, so the pair the fraction interpolates between shifts by one.
   int aFrameCount;
@@ -594,18 +589,20 @@ float Reanimation::GetFrameTime(int theFrameTime)
 // Reanimation::GetCurrentTransform(int,ReanimatorTransform *)
 // @001FA35C  124 bytes
 // ==========================================================================
-int Reanimation::GetCurrentTransform(int theTrackIndex, ReanimatorTransform * theTransform)
+ReanimatorTransform * Reanimation::GetCurrentTransform(int theTrackIndex, ReanimatorTransform * theTransform)
 {
-  GetFrameTime((int)&mFrameTime);
-  GetTransformAtTime(theTrackIndex, theTransform, (int)&mFrameTime);
+  // The frame-time record is local. The member at +0xC0 is filled by the dirty
+  // pass, and this query does not share it.
+  ReanimatorFrameTime aFrameTime;
+  GetFrameTime(&aFrameTime);
+  ReanimatorTransform *aSource = GetTransformAtTime(theTrackIndex, theTransform, &aFrameTime);
 
   ReanimatorTrackInstance *aTrackInstance = &mTrackInstances[theTrackIndex];
-  int aFrame = (int)(theTransform->mFrame <= 0.0f ? theTransform->mFrame - 0.5f : theTransform->mFrame + 0.5f);
+  int aFrame = RoundToNearestInt(theTransform->mFrame);
   if ( aFrame >= 0 && aTrackInstance->mBlendCounter > 0 )
     BlendTransform(theTransform, theTransform, &aTrackInstance->mBlendTransform,
                    (float)aTrackInstance->mBlendCounter / (float)aTrackInstance->mBlendTime);
-    return aFrame;
-  return aFrame;
+  return aSource;
 }
 
 // ==========================================================================
@@ -748,7 +745,7 @@ void Reanimation::AttachToAnotherReanimation(Reanimation *theAttachReanim, const
 // Reanimation::GetTrackBasePoseMatrix(int,Sexy::SexyTransform2D &)
 // @001FA620  72 bytes
 // ==========================================================================
-float Reanimation::GetTrackBasePoseMatrix(int theTrackIndex, Sexy::SexyTransform2D & theBaseMatrix)
+void Reanimation::GetTrackBasePoseMatrix(int theTrackIndex, Sexy::SexyTransform2D & theBaseMatrix)
 {
   // A base pose of -2 means the track has no pose of its own and the caller gets
   // the identity; -1 defers to the animation's own start frame.
@@ -756,7 +753,7 @@ float Reanimation::GetTrackBasePoseMatrix(int theTrackIndex, Sexy::SexyTransform
   if ( aBasePose == -2 )
   {
     theBaseMatrix.LoadIdentity();
-    return 1.0f;
+    return;
   }
   if ( aBasePose == -1 )
     aBasePose = mFrameStart;
@@ -767,8 +764,8 @@ float Reanimation::GetTrackBasePoseMatrix(int theTrackIndex, Sexy::SexyTransform
   aFrameTime.mAnimFrameAfterInt = aBasePose + 1;
 
   ReanimatorTransform aTransform;
-  GetTransformAtTime(theTrackIndex, &aTransform, (int)&aFrameTime);
-  return MatrixFromTransform(aTransform, *(SexyMatrix3 *)&theBaseMatrix);
+  GetTransformAtTime(theTrackIndex, &aTransform, &aFrameTime);
+  MatrixFromTransform(aTransform, theBaseMatrix);
 }
 
 // ==========================================================================
@@ -798,10 +795,10 @@ AttachEffect * Reanimation::AttachParticleToTrack(char const* theTrackName, TodP
 // Reanimation::GetAttachmentOverlayMatrix(int,ReanimatorTransform &,Sexy::SexyTransform2D &)
 // @001FA6C0  100 bytes
 // ==========================================================================
-int Reanimation::GetAttachmentOverlayMatrix(int theTrackIndex, ReanimatorTransform & theTransform, Sexy::SexyTransform2D & theOverlayMatrix)
+Sexy::SexyTransform2D & Reanimation::GetAttachmentOverlayMatrix(int theTrackIndex, ReanimatorTransform & theTransform, Sexy::SexyTransform2D & theOverlayMatrix)
 {
   SexyTransform2D aOverlay;
-  MatrixFromTransform(theTransform, *(SexyMatrix3 *)&aOverlay);
+  MatrixFromTransform(theTransform, aOverlay);
   SexyMatrix3Multiply(&aOverlay, mOverlayMatrix, aOverlay);
 
   SexyTransform2D aBasePose;
@@ -811,7 +808,7 @@ int Reanimation::GetAttachmentOverlayMatrix(int theTrackIndex, ReanimatorTransfo
   SexyMatrix3Inverse(aBasePose, aInverseBasePose);
 
   SexyMatrix3Multiply(&theOverlayMatrix, aOverlay, aInverseBasePose);
-  return (int)&theOverlayMatrix;
+  return theOverlayMatrix;
 }
 
 // ==========================================================================
@@ -825,7 +822,7 @@ int Reanimation::GetAttachmentOverlayMatrix(int theTrackIndex, ReanimatorTransfo
 // MatrixFromTransform / mOverlayMatrix multiply / base-pose inverse /
 // multiply sequence. Written as that delegation plus the shared tail rather
 // than duplicating the three-argument body, which is what the ARM does.
-int Reanimation::GetAttachmentOverlayMatrix(int theTrackIndex, Sexy::SexyTransform2D & theOverlayMatrix)
+Sexy::SexyTransform2D & Reanimation::GetAttachmentOverlayMatrix(int theTrackIndex, Sexy::SexyTransform2D & theOverlayMatrix)
 {
   ReanimatorTransform aTransform;
   GetCurrentTransform(theTrackIndex, &aTransform);
@@ -839,9 +836,9 @@ int Reanimation::GetAttachmentOverlayMatrix(int theTrackIndex, Sexy::SexyTransfo
 // A one-instruction tail call: `MOVS R2,#0; B DrawRenderGroup`. Group 0 is the
 // whole reanimation, which is why every caller that wants a specific group
 // calls DrawRenderGroup directly.
-float Reanimation::Draw(Sexy::Graphics * g)
+void Reanimation::Draw(Sexy::Graphics * g)
 {
-  return DrawRenderGroup(g, 0);
+  DrawRenderGroup(g, 0);
 }
 
 // ==========================================================================
@@ -856,7 +853,7 @@ float Reanimation::Draw(Sexy::Graphics * g)
 // so a shorter name cannot match; on a match it writes the bool to +96, the
 // record's own mIgnoreClipRect. The returned pointer is whatever the last
 // strncasecmp left in r0, which no caller reads.
-const char * Reanimation::IgnoreClipRectForPrefix(char const* theTrackName, bool theIgnore)
+void Reanimation::IgnoreClipRectForPrefix(char const* theTrackName, bool theIgnore)
 {
   size_t aPrefixLength = strlen(theTrackName);
   int aTrackCount = mDefinition->mTrackCount;
@@ -870,7 +867,6 @@ const char * Reanimation::IgnoreClipRectForPrefix(char const* theTrackName, bool
         mTrackInstances[i].mIgnoreClipRect = theIgnore;
     }
   }
-  return theTrackName;
 }
 
 // ==========================================================================
@@ -880,68 +876,64 @@ const char * Reanimation::IgnoreClipRectForPrefix(char const* theTrackName, bool
 // The dirty flags: bit 0 means the frame-time record is stale, bit 1 that the
 // transforms are, bit 2 that the attachments are, and +0xD0 records that the
 // dirty pass has already run for this object.
-float Reanimation::CheckDirtyFlags()
+void Reanimation::CheckDirtyFlags()
 {
-  float aResult = 0.0f;
-  if ( mFrameCount != 0 && !mDead )
+  if ( mFrameCount == 0 || mDead )
+    return;
+
+  int aDirty = mDirtyFlags;
+  if ( aDirty == 0 )
+    return;
+
+  if ( (aDirty & 1) != 0 )
   {
-    int aDirty = mDirtyFlags;
-    if ( aDirty != 0 )
-    {
-      if ( (aDirty & 1) != 0 )
-      {
-        aResult = GetFrameTime((int)&mFrameTime);
-        aDirty = mDirtyFlags & ~1;
-        mDirtyFlags = aDirty;
-      }
-      if ( (aDirty & 6) != 0 )
-      {
-        for ( int i = 0; i < mDefinition->mTrackCount; ++i )
-        {
-          ReanimatorTrackInstance *aTrackInstance = &mTrackInstances[i];
-          if ( aTrackInstance->mRenderGroup != -1 || aTrackInstance->mAttachmentID != 0 )
-          {
-            if ( (aDirty & 4) != 0 )
-              aResult = (float)UpdateCurrentTransform(i, (int)&mFrameTime);
-            if ( aTrackInstance->mAttachmentID != 0 )
-            {
-              SexyTransform2D anOverlay;
-              GetAttachmentOverlayMatrix(i, mReanimatorTransforms[i], anOverlay);
-              AttachmentSetMatrix(aTrackInstance->mAttachmentID, anOverlay);
-            }
-            aDirty = mDirtyFlags;
-          }
-        }
-        mDirtyFlags = aDirty & ~6;
-      }
-      mFrameTimeReady = true;
-    }
+    GetFrameTime(&mFrameTime);
+    aDirty = mDirtyFlags & ~1;
+    mDirtyFlags = aDirty;
   }
-  return aResult;
+  if ( (aDirty & 6) != 0 )
+  {
+    for ( int i = 0; i < mDefinition->mTrackCount; ++i )
+    {
+      ReanimatorTrackInstance *aTrackInstance = &mTrackInstances[i];
+      if ( aTrackInstance->mRenderGroup != -1 || aTrackInstance->mAttachmentID != 0 )
+      {
+        if ( (aDirty & 4) != 0 )
+          UpdateCurrentTransform(i, &mFrameTime);
+        if ( aTrackInstance->mAttachmentID != 0 )
+        {
+          SexyTransform2D anOverlay;
+          GetAttachmentOverlayMatrix(i, mReanimatorTransforms[i], anOverlay);
+          AttachmentSetMatrix(aTrackInstance->mAttachmentID, anOverlay);
+        }
+        aDirty = mDirtyFlags;
+      }
+    }
+    mDirtyFlags = aDirty & ~6;
+  }
+  mFrameTimeReady = true;
 }
 
 // ==========================================================================
 // Reanimation::DrawRenderGroup(Sexy::Graphics *,int)
 // @001FA7EC  106 bytes
 // ==========================================================================
-float Reanimation::DrawRenderGroup(Sexy::Graphics * g, int theRenderGroup)
+void Reanimation::DrawRenderGroup(Sexy::Graphics * g, int theRenderGroup)
 {
-  float aResult = 0.0f;
-  if ( !mDead )
+  if ( mDead )
+    return;
+
+  CheckDirtyFlags();
+  for ( int i = 0; i < mDefinition->mTrackCount; ++i )
   {
-    aResult = CheckDirtyFlags();
-    for ( int i = 0; i < mDefinition->mTrackCount; ++i )
+    ReanimatorTrackInstance *aTrackInstance = &mTrackInstances[i];
+    if ( aTrackInstance->mRenderGroup == theRenderGroup )
     {
-      ReanimatorTrackInstance *aTrackInstance = &mTrackInstances[i];
-      if ( aTrackInstance->mRenderGroup == theRenderGroup )
-      {
-        aResult = (float)DrawTrack(g, i, theRenderGroup, nullptr);
-        if ( aTrackInstance->mAttachmentID != 0 )
-          AttachmentDraw(aTrackInstance->mAttachmentID, g, ((int)aResult & 1) == 0);
-      }
+      bool aDrew = DrawTrack(g, i, theRenderGroup, nullptr);
+      if ( aTrackInstance->mAttachmentID != 0 )
+        AttachmentDraw(aTrackInstance->mAttachmentID, g, !aDrew);
     }
   }
-  return aResult;
 }
 
 
@@ -951,25 +943,25 @@ float Reanimation::DrawRenderGroup(Sexy::Graphics * g, int theRenderGroup)
 // Reanimation::GetFramesForLayer(char *,int &,int &)
 // @001FA8D4  172 bytes
 // ==========================================================================
-int Reanimation::GetFramesForLayer(char *theTrackName, int & theFrameStart, int & theFrameCount)
+void Reanimation::GetFramesForLayer(char *theTrackName, int & theFrameStart, int & theFrameCount)
 {
   if ( mDefinition->mTrackCount == 0 )
   {
     theFrameStart = 0;
     theFrameCount = 0;
-    return 0;
+    return;
   }
 
   theFrameStart = 0;
   theFrameCount = 1;
   int aTrackIndex = FindTrackIndexById(theTrackName);
   if ( aTrackIndex == -1 )
-    return 0;
+    return;
 
   ReanimatorTrack *aTrack = &mDefinition->mTracks[aTrackIndex];
   int aTransformCount = aTrack->mTransformCount;
   if ( aTransformCount <= 0 )
-    return 0;
+    return;
 
   // A layer is showing from its first frame whose frame value is non-negative
   // through the last such frame. The compiled record stores that value at +0x18.
@@ -984,7 +976,7 @@ int Reanimation::GetFramesForLayer(char *theTrackName, int & theFrameStart, int 
         break;
     }
     if ( aFrame == aTransformCount )
-      return 0;
+      return;
   }
 
   theFrameStart = aFrame;
@@ -1005,32 +997,31 @@ int Reanimation::GetFramesForLayer(char *theTrackName, int & theFrameStart, int 
     }
     while ( aCount > aFrame );
   }
-  return 0;
 }
 
 // ==========================================================================
 // Reanimation::GetFramesForLayer(char const*,int &,int &)
 // @001FA980  172 bytes
 // ==========================================================================
-int Reanimation::GetFramesForLayer(char const* theTrackName, int & theFrameStart, int & theFrameCount)
+void Reanimation::GetFramesForLayer(char const* theTrackName, int & theFrameStart, int & theFrameCount)
 {
   if ( mDefinition->mTrackCount == 0 )
   {
     theFrameStart = 0;
     theFrameCount = 0;
-    return 0;
+    return;
   }
 
   theFrameStart = 0;
   theFrameCount = 1;
   int aTrackIndex = FindTrackIndex(theTrackName);
   if ( aTrackIndex == -1 )
-    return 0;
+    return;
 
   ReanimatorTrack *aTrack = &mDefinition->mTracks[aTrackIndex];
   int aTransformCount = aTrack->mTransformCount;
   if ( aTransformCount <= 0 )
-    return 0;
+    return;
 
   // A layer is showing from its first frame whose frame value is non-negative
   // through the last such frame. PlayReanim uses this count as the clip length.
@@ -1045,7 +1036,7 @@ int Reanimation::GetFramesForLayer(char const* theTrackName, int & theFrameStart
         break;
     }
     if ( aFrame == aTransformCount )
-      return 0;
+      return;
   }
 
   theFrameStart = aFrame;
@@ -1066,14 +1057,13 @@ int Reanimation::GetFramesForLayer(char const* theTrackName, int & theFrameStart
     }
     while ( aCount > aFrame );
   }
-  return 0;
 }
 
 // ==========================================================================
 // Reanimation::SetFramesForLayer(char const*)
 // @001FAA2C  74 bytes
 // ==========================================================================
-int Reanimation::SetFramesForLayer(char const* theTrackName)
+Reanimation * Reanimation::SetFramesForLayer(char const* theTrackName)
 {
   // A negative rate means the clip plays backwards. Switching layers then
   // starts one step before the end (the float just under 1) instead of at 0.
@@ -1084,7 +1074,7 @@ int Reanimation::SetFramesForLayer(char const* theTrackName)
   mFrameTimeReady = false;
   mLastFrameTime = -1.0f;
   mAnimTime = aStartTime;
-  GetFramesForLayer((char *)theTrackName, mFrameStart, mFrameCount);
+  GetFramesForLayer(theTrackName, mFrameStart, mFrameCount);
   return SetAnimRate(mAnimRate);
 }
 
@@ -1092,38 +1082,37 @@ int Reanimation::SetFramesForLayer(char const* theTrackName)
 // Reanimation::TrackExists(char const*)
 // @001FAA80  62 bytes
 // ==========================================================================
-int Reanimation::TrackExists(char const* s2)
+bool Reanimation::TrackExists(char const* theTrackName)
 {
-  return FindTrackIndex(s2) != -1;
+  return FindTrackIndex(theTrackName) != -1;
 }
 
 // ==========================================================================
 // Reanimation::TrackExistsById(char *)
 // @001FAAC0  52 bytes
 // ==========================================================================
-int Reanimation::TrackExistsById(const char* theTrackId)
+bool Reanimation::TrackExistsById(const char* theTrackId)
 {
   for ( int i = 0; i < mDefinition->mTrackCount; ++i )
   {
     if ( mDefinition->mTracks[i].mTrackId == theTrackId )
-      return 1;
+      return true;
   }
-  return 0;
+  return false;
 }
 
 // ==========================================================================
 // Reanimation::StartBlend(int)
 // @001FAAF4  180 bytes
 // ==========================================================================
-int Reanimation::StartBlend(int theBlendTime)
+void Reanimation::StartBlend(int theBlendTime)
 {
-  int aResult = 0;
+  (void)theBlendTime;
   for ( int i = 0; i < mDefinition->mTrackCount; ++i )
   {
     ReanimatorTransform aTransform;
-    aResult = GetCurrentTransform(i, &aTransform);
-    int aFrame = (int)(aTransform.mFrame <= 0.0f ? aTransform.mFrame - 0.5f
-                                                  : aTransform.mFrame + 0.5f);
+    GetCurrentTransform(i, &aTransform);
+    int aFrame = RoundToNearestInt(aTransform.mFrame);
     if ( aFrame >= 0 )
     {
       // The blend target is the track's current pose, and both the blend
@@ -1136,7 +1125,6 @@ int Reanimation::StartBlend(int theBlendTime)
       aBlend->mText = gEmptyCString;
     }
   }
-  return aResult;
 }
 
 // ==========================================================================
@@ -1165,27 +1153,25 @@ TodAllocator * Reanimation::ReanimationDelete()
 // Reanimation::ReanimationDie()
 // @001FABDC  50 bytes
 // ==========================================================================
-int Reanimation::ReanimationDie()
+void Reanimation::ReanimationDie()
 {
   if ( mDead )
-    return 0;
+    return;
 
   mDead = true;
   for ( int i = 0; i < mDefinition->mTrackCount; ++i )
     AttachmentDie(mTrackInstances[i].mAttachmentID);
-  return 0;
 }
 
 // ==========================================================================
 // Reanimation::SetShakeOverride(char const*,float)
 // @001FAC74  28 bytes
 // ==========================================================================
-int Reanimation::SetShakeOverride(char const* theTrackName, float theShakeAmount)
+void Reanimation::SetShakeOverride(char const* theTrackName, float theShakeAmount)
 {
   int aTrackIndex = FindTrackIndex(theTrackName);
   mTrackInstances[aTrackIndex].mShakeOverride = theShakeAmount;
   mFrameTimeReady = false;
-  return aTrackIndex;
 }
 
 // ==========================================================================
@@ -1210,29 +1196,27 @@ Sexy::Image * Reanimation::GetImageOverride(char const* theTrackName)
 // Reanimation::SetImageOverride(char *,Sexy::Image *)
 // @001FACB8  22 bytes
 // ==========================================================================
-int Reanimation::SetImageOverride(char *theTrackName, Sexy::Image * theImage)
+void Reanimation::SetImageOverride(char *theTrackName, Sexy::Image * theImage)
 {
   int aTrackIndex = FindTrackIndexById(theTrackName);
   mTrackInstances[aTrackIndex].mImageOverride = theImage;
-  return aTrackIndex;
 }
 
 // ==========================================================================
 // Reanimation::SetImageOverride(char const*,Sexy::Image *)
 // @001FACD0  22 bytes
 // ==========================================================================
-int Reanimation::SetImageOverride(char const* theTrackName, Sexy::Image * theImage)
+void Reanimation::SetImageOverride(char const* theTrackName, Sexy::Image * theImage)
 {
   int aTrackIndex = FindTrackIndex(theTrackName);
   mTrackInstances[aTrackIndex].mImageOverride = theImage;
-  return aTrackIndex;
 }
 
 // ==========================================================================
 // Reanimation::SetTruncateDisappearingFrames(char const*,bool)
 // @001FACE8  54 bytes
 // ==========================================================================
-int Reanimation::SetTruncateDisappearingFrames(char const* theTrackName, bool theTruncateDisappearingFrames)
+void Reanimation::SetTruncateDisappearingFrames(char const* theTrackName, bool theTruncateDisappearingFrames)
 {
   if ( theTrackName != nullptr )
   {
@@ -1243,20 +1227,18 @@ int Reanimation::SetTruncateDisappearingFrames(char const* theTrackName, bool th
     for ( int i = 0; i < mDefinition->mTrackCount; ++i )
       mTrackInstances[i].mTruncateDisappearingFrames = theTruncateDisappearingFrames;
   }
-  return 0;
 }
 
 // ==========================================================================
 // Reanimation::SetPosition(float,float)
 // @001FADBC  30 bytes
 // ==========================================================================
-int Reanimation::SetPosition(float theX, float theY)
+void Reanimation::SetPosition(float theX, float theY)
 {
   mOverlayMatrix.m02 = theX;
   mOverlayMatrix.m12 = theY;
   mFrameTimeReady = false;
   mDirtyFlags |= 2;
-  return 0;
 }
 
 // ReanimationCreateAtlas @0x1F95D8 is a return. The TV build does not pack an atlas here.
@@ -1277,7 +1259,7 @@ void ReanimationPreload(ReanimationType theType)
 // Reanimation::ReanimationInitialize(float,float,ReanimatorDefinition *)
 // @001FADDC  268 bytes
 // ==========================================================================
-ReanimatorTransform * Reanimation::ReanimationInitialize(float theX, float theY, ReanimatorDefinition * theDefinition)
+void Reanimation::ReanimationInitialize(float theX, float theY, ReanimatorDefinition * theDefinition)
 {
   ReanimationCreateAtlas(theDefinition, mReanimationType);
   mDead = false;
@@ -1311,31 +1293,28 @@ ReanimatorTransform * Reanimation::ReanimationInitialize(float theX, float theY,
     mFrameCount = 0;
   }
   mFrameTimeReady = false;
-  return mReanimatorTransforms;
 }
 
 // ==========================================================================
 // Reanimation::GetPosition(float &,float &)
 // @001FAEE8  10 bytes
 // ==========================================================================
-int Reanimation::GetPosition(float & theX, float & theY)
+void Reanimation::GetPosition(float & theX, float & theY)
 {
   theX = mOverlayMatrix.m02;
   theY = mOverlayMatrix.m12;
-  return 0;
 }
 
 // ==========================================================================
 // Reanimation::OverrideScale(float,float)
 // @001FAEF4  30 bytes
 // ==========================================================================
-int Reanimation::OverrideScale(float theScaleX, float theScaleY)
+void Reanimation::OverrideScale(float theScaleX, float theScaleY)
 {
   mOverlayMatrix.m00 = theScaleX;
   mOverlayMatrix.m11 = theScaleY;
   mFrameTimeReady = false;
   mDirtyFlags |= 2;
-  return 0;
 }
 
 // ==========================================================================
@@ -1346,7 +1325,7 @@ float Reanimation::GetTrackVelocity(int theTrackIndex)
 {
   ReanimatorTransform *aTransforms = mDefinition->mTracks[theTrackIndex].mTransforms;
   ReanimatorFrameTime aFrameTime;
-  GetFrameTime((int)&aFrameTime);
+  GetFrameTime(&aFrameTime);
   return (mAnimTime * 0.01f)
        * (aTransforms[aFrameTime.mAnimFrameAfterInt].mTransX
         - aTransforms[aFrameTime.mAnimFrameBeforeInt].mTransX);
@@ -1368,7 +1347,7 @@ float Reanimation::GetTrackVelocity(char const* theTrackName)
 bool Reanimation::IsTrackShowing(char const* theTrackName)
 {
   ReanimatorFrameTime aFrameTime;
-  GetFrameTime((int)&aFrameTime);
+  GetFrameTime(&aFrameTime);
   int aTrackIndex = FindTrackIndex(theTrackName);
   ReanimatorTransform *aTransforms = mDefinition->mTracks[aTrackIndex].mTransforms;
   return aTransforms[aFrameTime.mAnimFrameAfterInt].mFrame >= 0.0f;
@@ -1378,24 +1357,23 @@ bool Reanimation::IsTrackShowing(char const* theTrackName)
 // Reanimation::ShowOnlyTrack(char const*)
 // @001FAFC4  72 bytes
 // ==========================================================================
-int Reanimation::ShowOnlyTrack(char const* s2)
+void Reanimation::ShowOnlyTrack(char const* theTrackName)
 {
   // Every track is given a render group: the one whose name matches gets group
   // 0, the rest get -1, which takes them out of every DrawRenderGroup pass.
   for ( int i = 0; i < mDefinition->mTrackCount; ++i )
   {
     mTrackInstances[i].mRenderGroup =
-        (strcasecmp(mDefinition->mTracks[i].mName, s2) == 0) ? 0 : -1;
+        (strcasecmp(mDefinition->mTracks[i].mName, theTrackName) == 0) ? 0 : -1;
   }
   mDirtyFlags = 7;
-  return 0;
 }
 
 // ==========================================================================
 // Reanimation::AssignRenderGroupToTrack(char const*,int)
 // @001FB00C  80 bytes
 // ==========================================================================
-Reanimation * Reanimation::AssignRenderGroupToTrack(char const* theTrackName, int theRenderGroup)
+void Reanimation::AssignRenderGroupToTrack(char const* theTrackName, int theRenderGroup)
 {
   for ( int i = 0; i < mDefinition->mTrackCount; ++i )
   {
@@ -1406,14 +1384,13 @@ Reanimation * Reanimation::AssignRenderGroupToTrack(char const* theTrackName, in
       break;
     }
   }
-  return this;
 }
 
 // ==========================================================================
 // Reanimation::AssignRenderGroupToPrefix(char const*,int)
 // @001FB05C  94 bytes
 // ==========================================================================
-const char * Reanimation::AssignRenderGroupToPrefix(char const* theTrackName, int theRenderGroup)
+void Reanimation::AssignRenderGroupToPrefix(char const* theTrackName, int theRenderGroup)
 {
   // Only the tracks whose name is at least as long as the prefix can match, and
   // the comparison is case-insensitive over exactly the prefix'theTrackName length.
@@ -1424,14 +1401,13 @@ const char * Reanimation::AssignRenderGroupToPrefix(char const* theTrackName, in
     if ( aPrefixLength <= strlen(aName) && strncasecmp(aName, theTrackName, aPrefixLength) == 0 )
       mTrackInstances[i].mRenderGroup = theRenderGroup;
   }
-  return theTrackName;
 }
 
 // ==========================================================================
 // Reanimation::PropogateColorToAttachments()
 // @001FB11C  78 bytes
 // ==========================================================================
-int Reanimation::PropogateColorToAttachments()
+void Reanimation::PropogateColorToAttachments()
 {
   for ( int i = 0; i < mDefinition->mTrackCount; ++i )
   {
@@ -1439,7 +1415,6 @@ int Reanimation::PropogateColorToAttachments()
                              mEnableExtraAdditiveDraw, mExtraAdditiveColor,
                              mEnableExtraOverlayDraw, mExtraOverlayColor);
   }
-  return 0;
 }
 
 // Reanimation::ShouldTriggerTimedEvent(float)
@@ -1469,7 +1444,7 @@ bool Reanimation::ShouldTriggerTimedEvent(float theEventTime)
 // Reanimation::PlayReanim(char const*,ReanimLoopType,int,float)
 // @001FB1C0  66 bytes
 // ==========================================================================
-int Reanimation::PlayReanim(char const* theTrackName, ReanimLoopType theLoopType, int theBlendTime, float theAnimRate)
+Reanimation * Reanimation::PlayReanim(char const* theTrackName, ReanimLoopType theLoopType, int theBlendTime, float theAnimRate)
 {
   if ( theBlendTime > 0 )
     StartBlend(theBlendTime);
@@ -1572,13 +1547,13 @@ void Reanimation::ParseAttacherTrack(ReanimatorTransform const& theTransform, At
 // so the receiver is the host reanimation, the first argument is the host's track
 // index and the second is the attached reanimation whose walk speed is matched.
 // The binary never reads the AttacherInfo.
-int Reanimation::AttacherSynchWalkSpeed(int theTrackIndex, Reanimation* theAttachReanim, AttacherInfo const& theAttacherInfo)
+void Reanimation::AttacherSynchWalkSpeed(int theTrackIndex, Reanimation* theAttachReanim, AttacherInfo const& theAttacherInfo)
 {
   (void)theAttacherInfo;
   ReanimatorTransform *aTransforms = mDefinition->mTracks[theTrackIndex].mTransforms;
 
   ReanimatorFrameTime aFrameTime;
-  GetFrameTime((int)&aFrameTime);
+  GetFrameTime(&aFrameTime);
   int aFrame = aFrameTime.mAnimFrameBeforeInt;
   int aLastFrame = mFrameStart + mFrameCount - 1;
 
@@ -1613,11 +1588,17 @@ int Reanimation::AttacherSynchWalkSpeed(int theTrackIndex, Reanimation* theAttac
   }
 
   if ( fabsf(mAnimTime) < 0.000001f )
-    return theAttachReanim->SetAnimRate(0.0f);
+  {
+    theAttachReanim->SetAnimRate(0.0f);
+    return;
+  }
 
   float aTimeSpan = (float)(aCounter - aFirstIndex) / mAnimTime;
   if ( fabsf(aTimeSpan) < 0.000001f )
-    return theAttachReanim->SetAnimRate(0.0f);
+  {
+    theAttachReanim->SetAnimRate(0.0f);
+    return;
+  }
 
   float aTrackDistance = aTransforms[aFirstIndex].mTransX - aTransforms[aLastIndex].mTransX;
 
@@ -1627,7 +1608,10 @@ int Reanimation::AttacherSynchWalkSpeed(int theTrackIndex, Reanimation* theAttac
   float aGroundDistance =
       aGroundTransforms[theAttachReanim->mFrameStart + theAttachReanim->mFrameCount - 1].mTransX - aGroundStartX;
   if ( aGroundDistance < 0.000001f || aTrackDistance < 0.000001f )
-    return theAttachReanim->SetAnimRate(0.0f);
+  {
+    theAttachReanim->SetAnimRate(0.0f);
+    return;
+  }
 
   float aDistanceRatio = aTrackDistance / aGroundDistance;
 
@@ -1639,7 +1623,7 @@ int Reanimation::AttacherSynchWalkSpeed(int theTrackIndex, Reanimation* theAttac
   if ( aFirstAttachment != nullptr )
     aFirstAttachment->mOffset.m02 = aSlide - aGroundOffset;
 
-  return theAttachReanim->SetAnimRate((aDistanceRatio * (float)theAttachReanim->mFrameCount) / aTimeSpan);
+  theAttachReanim->SetAnimRate((aDistanceRatio * (float)theAttachReanim->mFrameCount) / aTimeSpan);
 }
 
 // ==========================================================================
@@ -1662,7 +1646,7 @@ bool Reanimation::IsAnimPlaying(char const* theTrackName)
 {
   int aStartFrame;
   int aFrameCount;
-  GetFramesForLayer((char *)theTrackName, aStartFrame, aFrameCount);
+  GetFramesForLayer(theTrackName, aStartFrame, aFrameCount);
   return mFrameStart == aStartFrame && mFrameCount == aFrameCount && mAnimTime > 0.0f;
 }
 
@@ -1670,36 +1654,35 @@ bool Reanimation::IsAnimPlaying(char const* theTrackName)
 // Reanimation::SetBasePoseFromAnim(char const*)
 // @001FB660  28 bytes
 // ==========================================================================
-int Reanimation::SetBasePoseFromAnim(char const* theTrackName)
+void Reanimation::SetBasePoseFromAnim(char const* theTrackName)
 {
   int aStartFrame;
   int aFrameCount;
-  int aResult = GetFramesForLayer((char *)theTrackName, aStartFrame, aFrameCount);
+  GetFramesForLayer(theTrackName, aStartFrame, aFrameCount);
   mFrameBasePose = aStartFrame;
   mFrameTimeReady = false;
-  return aResult;
 }
 
 // ==========================================================================
 // Reanimation::FindSubReanim(ReanimationType)
 // @001FB67C  66 bytes
 // ==========================================================================
-int Reanimation::FindSubReanim(int theTrackIndex)
+Reanimation * Reanimation::FindSubReanim(ReanimationType theReanimType)
 {
-  if ( mReanimationType == theTrackIndex )
-    return (int)this;
+  if ( mReanimationType == theReanimType )
+    return this;
 
   for ( int i = 0; i < mDefinition->mTrackCount; ++i )
   {
     Reanimation *aSub = FindReanimAttachment(mTrackInstances[i].mAttachmentID);
     if ( aSub != nullptr )
     {
-      int aResult = aSub->FindSubReanim(theTrackIndex);
-      if ( aResult != 0 )
-        return aResult;
+      Reanimation *aFound = aSub->FindSubReanim(theReanimType);
+      if ( aFound != nullptr )
+        return aFound;
     }
   }
-  return 0;
+  return nullptr;
 }
 
 // ==========================================================================
@@ -1757,11 +1740,11 @@ Reanimation::Reanimation()
 // Reanimation::ReanimationInitializeType(float,float,ReanimationType)
 // @001FBC58  50 bytes
 // ==========================================================================
-ReanimatorTransform * Reanimation::ReanimationInitializeType(float theX, float theY, ReanimationType theReanimType)
+void Reanimation::ReanimationInitializeType(float theX, float theY, ReanimationType theReanimType)
 {
   ReanimatorEnsureDefinitionLoaded(theReanimType, true);
   mReanimationType = theReanimType;
-  return ReanimationInitialize(theX, theY, gReanimatorDefArray + (int)theReanimType);
+  ReanimationInitialize(theX, theY, &gReanimatorDefArray[theReanimType]);
 }
 
 // ==========================================================================
@@ -1773,7 +1756,7 @@ void Reanimation::UpdateAttacherTrack(int theTrackIndex)
   ReanimatorTrackInstance *aTrackInstance = &mTrackInstances[theTrackIndex];
 
   ReanimatorTransform aTransform;
-  GetCurrentTransform(theTrackIndex, (int)&mFrameTime, &aTransform);
+  GetCurrentTransform(theTrackIndex, &mFrameTime, &aTransform);
 
   AttacherInfo anInfo;
   ParseAttacherTrack(aTransform, anInfo);

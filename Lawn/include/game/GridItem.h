@@ -98,8 +98,8 @@ public:
     TodParticleSystem * UpdateBrain();
     int DrawIZombieBrain(Sexy::Graphics *theGraphics);
     void DrawGraveStone(Sexy::Graphics *theGraphics);
-    int DrawMPTarget(Sexy::Graphics *theGraphics);
-    int DrawStinky(Sexy::Graphics *theGraphics);
+    void DrawMPTarget(Sexy::Graphics *theGraphics);
+    void DrawStinky(Sexy::Graphics *theGraphics);
     int DrawCrater(Sexy::Graphics *theGraphics);
     int DrawLadder(Sexy::Graphics *theGraphics);
     void AddGraveStoneParticles();

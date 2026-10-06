@@ -641,7 +641,7 @@ int CreditScreen::UpdateBlink()
   {
     Reanimation *aReanim = mApp->ReanimationGet(mCreditsReanimID);
     mBlinkCountdown = 700;
-    Reanimation *aHead = (Reanimation *)aReanim->FindSubReanim(7);
+    Reanimation *aHead = aReanim->FindSubReanim(REANIM_SUNFLOWER);
     if ( aHead != nullptr
       && (mCreditsPhase != CREDITS_MAIN3
           || aReanim->mAnimTime <= 200.0f / (float)(CreditsFrameCount(aReanim) - 1)) )
@@ -758,7 +758,7 @@ int CreditScreen::UpdateMovie()
     aWords->mTrackColor = aWordColor;
     aWords2->mTrackColor = aWordColor;
 
-    Reanimation *aUndead = (Reanimation *)aCredits->FindSubReanim(139);
+    Reanimation *aUndead = aCredits->FindSubReanim(REANIM_CREDITS_WEARETHEUNDEAD);
     if (aUndead != nullptr)
     {
       aUndead->GetTrackInstanceByName("bubbletext1")->mTrackColor = Sexy::Color::Black;
@@ -901,13 +901,13 @@ int CreditScreen::UpdateMovie()
       aMouth = 5;
   }
 
-  Reanimation *aFlower = (Reanimation *)aCredits->FindSubReanim(7);
+  Reanimation *aFlower = aCredits->FindSubReanim(REANIM_SUNFLOWER);
   if (aFlower == nullptr)
     return 0;
   if (mCreditsPhase == CREDITS_MAIN3 && aCredits->mAnimTime > aFrame * 255.0f)
   {
     aFlower->SetImageOverride("anim_idle", IMAGE_REANIM_SUNFLOWER_HEAD_WINK);
-    Reanimation *aStage = (Reanimation *)aCredits->FindSubReanim(125);
+    Reanimation *aStage = aCredits->FindSubReanim(REANIM_CREDITS_STAGE);
     aFlower->mAnimTime -= aFlower->mAnimRate * 0.01f / (float)aFlower->mFrameCount;
     aStage->mAnimTime -= aStage->mAnimRate * 0.01f / (float)aStage->mFrameCount;
     return 0;

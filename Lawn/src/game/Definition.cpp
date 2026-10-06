@@ -814,9 +814,10 @@ static float MissingSentinel()
     return -10000.0f;
 }
 
-// A compiled frame stores -10000 for a channel it does not key. The loader
-// copies the previous keyed value into that slot and leaves the carried value
-// alone, so the next missing frame inherits the same key.
+// A compiled frame stores -10000 for a channel it does not key. The original
+// walk (ReanimationFillInMissingData @0x1F935C) copies the previous keyed
+// value into that slot and leaves the carried value alone, so the next missing
+// frame inherits the same key. The comparison is an exact float compare.
 static void FillMissingFloat(float& thePrevious, float& theValue)
 {
     if (theValue == MissingSentinel())
@@ -825,12 +826,14 @@ static void FillMissingFloat(float& thePrevious, float& theValue)
         thePrevious = theValue;
 }
 
-int ReanimationLoadDefinition(const Sexy::String& theFileName, ReanimatorDefinition* theDefinition)
+// ReanimationLoadDefinition @0x1F937C fills these after the file is in memory.
+// The TV build only has the compiled packet, and DefinitionCompileAndLoad does
+// not fill anything, so the walk has to run here. Carried defaults match the
+// eight stores before the frame loop: translation and skew 0, scale 1, frame
+// 0, alpha 1. An unkeyed frame channel stays 0, which is how a layer marks the
+// frames it does not play.
+static void FillMissingReanimFrames(ReanimatorDefinition* theDefinition)
 {
-    EnsureDefMaps();
-    int aLoaded = DefinitionCompileAndLoad(theFileName, &gReanimatorDefMap, theDefinition);
-    if (aLoaded == 0)
-        return 0;
     ReanimatorTrack* aTracks = theDefinition->mTracks;
     for (int aTrack = 0; aTrack < theDefinition->mTrackCount; ++aTrack)
     {
@@ -876,6 +879,15 @@ int ReanimationLoadDefinition(const Sexy::String& theFileName, ReanimatorDefinit
                 aPreviousText = aTransform.mText;
         }
     }
+}
+
+int ReanimationLoadDefinition(const Sexy::String& theFileName, ReanimatorDefinition* theDefinition)
+{
+    EnsureDefMaps();
+    int aLoaded = DefinitionCompileAndLoad(theFileName, &gReanimatorDefMap, theDefinition);
+    if (aLoaded == 0)
+        return 0;
+    FillMissingReanimFrames(theDefinition);
     return aLoaded;
 }
 

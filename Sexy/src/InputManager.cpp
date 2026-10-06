@@ -7,6 +7,7 @@
 #include "InputDriver.h"
 #include "InputDriverFactory.h"
 #include "NativeDisplay.h"
+#include "Platform/GLWindow.h"
 #include "ReconHelpers.h"
 #include "SexyAppBase.h"
 #include "WidgetManager.h"
@@ -457,6 +458,17 @@ int Sexy::InputManager::Update()
         aEvent.lateModifiers = 0;
         PushEvent(aEvent, nullptr);
         aDisplay = mApp->mPlatformDriverOrQueue;
+    }
+
+    // The GLFW window is the keyboard. AndroidDisplay::GetEvent is a stub;
+    // the real keys arrived through AndroidInput::HandleKeyEvents. The port
+    // posts the same shape here, with device 0 so a key is not a pad.
+    GLWindow* aWindow = ActiveWindow();
+    while (aWindow != nullptr && aWindow->PopKeyEvent(aEvent))
+    {
+        aEvent.lateModifiers = 0;
+        PushEvent(aEvent, nullptr);
+        aResult = 1;
     }
 
     for (IInputDriver* aDriver : mDrivers)

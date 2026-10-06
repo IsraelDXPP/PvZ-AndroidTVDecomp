@@ -329,7 +329,7 @@ bool Plant::MakesSun()
 // Plant::PlayBodyReanim(char const*,ReanimLoopType,int,float)
 // @0016998C  82 bytes
 // ==========================================================================
-int Plant::PlayBodyReanim(char const* theTrackName, ReanimLoopType theLoopType, int theBlendTime, float theAnimRate)
+void Plant::PlayBodyReanim(char const* theTrackName, ReanimLoopType theLoopType, int theBlendTime, float theAnimRate)
 {
   Reanimation *aBody = mApp->ReanimationGet(mBodyReanimID);
   if (theBlendTime > 0)
@@ -338,7 +338,7 @@ int Plant::PlayBodyReanim(char const* theTrackName, ReanimLoopType theLoopType, 
     aBody->SetAnimRate(theAnimRate);
   aBody->mLoopType = theLoopType;
   aBody->mLoopCount = 0;
-  return aBody->SetFramesForLayer(theTrackName);
+  aBody->SetFramesForLayer(theTrackName);
 }
 
 // ==========================================================================
@@ -351,7 +351,8 @@ int Plant::LaunchStarFruit()
   if (aHasTarget == 0)
     return 0;
   mShootingCounter = 40;
-  return PlayBodyReanim("anim_shoot", REANIM_PLAY_ONCE_AND_HOLD, 20, 28.0f);
+  PlayBodyReanim("anim_shoot", REANIM_PLAY_ONCE_AND_HOLD, 20, 28.0f);
+  return 0;
 }
 
 // ==========================================================================
@@ -1448,47 +1449,43 @@ Reanimation * Plant::AnimateNuts()
 // Plant::AnimateGarlic(void)
 // @0016B5DC  142 bytes
 // ==========================================================================
-int Plant::AnimateGarlic()
+void Plant::AnimateGarlic()
 {
-  // The binary hands back the last call's r0. Nothing in this file reads it.
   Reanimation *aBody = mApp->ReanimationGet(mBodyReanimID);
   Sexy::Image *aFace = aBody->GetImageOverride("anim_face");
   if (mPlantHealth >= mPlantMaxHealth / 3)
   {
     if (mPlantHealth >= 2 * mPlantMaxHealth / 3)
-      return aBody->SetImageOverride("anim_face", nullptr);
-    if (aFace != IMAGE_REANIM_GARLIC_BODY2)
-      return aBody->SetImageOverride("anim_face", IMAGE_REANIM_GARLIC_BODY2);
+      aBody->SetImageOverride("anim_face", nullptr);
+    else if (aFace != IMAGE_REANIM_GARLIC_BODY2)
+      aBody->SetImageOverride("anim_face", IMAGE_REANIM_GARLIC_BODY2);
+    return;
   }
-  else if (aFace != IMAGE_REANIM_GARLIC_BODY3)
+  if (aFace != IMAGE_REANIM_GARLIC_BODY3)
   {
     aBody->SetImageOverride("anim_face", IMAGE_REANIM_GARLIC_BODY3);
     aBody->AssignRenderGroupToPrefix("Garlic_stem", -1);
   }
-  return 0;
 }
 
 // ==========================================================================
 // Plant::AnimatePumpkin(void)
 // @0016B680  116 bytes
 // ==========================================================================
-int Plant::AnimatePumpkin()
+void Plant::AnimatePumpkin()
 {
-  // The binary hands back the last call's r0. Nothing in this file reads it.
   Reanimation *aBody = mApp->ReanimationGet(mBodyReanimID);
   Sexy::Image *aFront = aBody->GetImageOverride("Pumpkin_front");
   if (mPlantHealth >= mPlantMaxHealth / 3)
   {
     if (mPlantHealth >= 2 * mPlantMaxHealth / 3)
-      return aBody->SetImageOverride("Pumpkin_front", nullptr);
-    if (aFront != IMAGE_REANIM_PUMPKIN_DAMAGE1)
-      return aBody->SetImageOverride("Pumpkin_front", IMAGE_REANIM_PUMPKIN_DAMAGE1);
+      aBody->SetImageOverride("Pumpkin_front", nullptr);
+    else if (aFront != IMAGE_REANIM_PUMPKIN_DAMAGE1)
+      aBody->SetImageOverride("Pumpkin_front", IMAGE_REANIM_PUMPKIN_DAMAGE1);
+    return;
   }
-  else if (aFront != IMAGE_REANIM_PUMPKIN_DAMAGE3)
-  {
-    return aBody->SetImageOverride("Pumpkin_front", IMAGE_REANIM_PUMPKIN_DAMAGE3);
-  }
-  return 0;
+  if (aFront != IMAGE_REANIM_PUMPKIN_DAMAGE3)
+    aBody->SetImageOverride("Pumpkin_front", IMAGE_REANIM_PUMPKIN_DAMAGE3);
 }
 
 // ==========================================================================
@@ -1591,10 +1588,10 @@ int Plant::GetPeaHeadOffset(int & theOffsetX, int & theOffsetY)
       aTrackIndex = aBody->FindTrackIndexById(ReanimTrackId_anim_idle);
   }
   ReanimatorTransform aTransform;
-  int result = aBody->GetCurrentTransform( aTrackIndex, &aTransform);
+  aBody->GetCurrentTransform( aTrackIndex, &aTransform);
   theOffsetX = (int)aTransform.mTransX;
   theOffsetY = (int)aTransform.mTransY;
-  return result;
+  return 0;
 }
 
 // ==========================================================================

@@ -105,7 +105,7 @@ struct CurUserItemNode : Sexy::RbTree::NodeBase
 // every call, and the test the dump shows as `a2 != nullptr` is on R1 -- the
 // bool. The three group numbers are the arm, the door and the door hand: with
 // the door shown the arm goes hidden, the door normal and the hand to group 3.
-int Zombie::SetupDoorArms(Reanimation *theReanim, bool theShow)
+void Zombie::SetupDoorArms(Reanimation *theReanim, bool theShow)
 {
     int aArmGroup = 0;
     int aDoorGroup = -1;
@@ -123,7 +123,7 @@ int Zombie::SetupDoorArms(Reanimation *theReanim, bool theShow)
     theReanim->AssignRenderGroupToPrefix("anim_innerarm", aArmGroup);
     theReanim->AssignRenderGroupToPrefix("Zombie_innerarm_screendoor", aDoorGroup);
     theReanim->AssignRenderGroupToPrefix("Zombie_innerarm_screendoor_hand", aHandGroup);
-    return (int)theReanim->AssignRenderGroupToPrefix("Zombie_outerarm_screendoor", aHandGroup);
+    theReanim->AssignRenderGroupToPrefix("Zombie_outerarm_screendoor", aHandGroup);
 }
 
 // ==========================================================================
@@ -132,7 +132,7 @@ int Zombie::SetupDoorArms(Reanimation *theReanim, bool theShow)
 // ==========================================================================
 // Static for the same reason as SetupDoorArms. Every optional layer starts
 // hidden and only the layer the zombie type owns is switched on.
-int Zombie::SetupReanimLayers(Reanimation *theReanim, ZombieType theZombieType)
+void Zombie::SetupReanimLayers(Reanimation *theReanim, ZombieType theZombieType)
 {
     theReanim->AssignRenderGroupToPrefix("anim_cone", -1);
     theReanim->AssignRenderGroupToPrefix("anim_bucket", -1);
@@ -142,33 +142,40 @@ int Zombie::SetupReanimLayers(Reanimation *theReanim, ZombieType theZombieType)
     theReanim->AssignRenderGroupToPrefix("anim_tongue", -1);
     theReanim->AssignRenderGroupToPrefix("Zombie_mustache", -1);
 
-    int result = SetupDoorArms(theReanim, false);
+    SetupDoorArms(theReanim, false);
 
     if (theZombieType == ZOMBIE_TRAFFIC_CONE)
     {
         theReanim->AssignRenderGroupToPrefix("anim_cone", 0);
-        return (int)theReanim->AssignRenderGroupToPrefix("anim_hair", -1);
+        theReanim->AssignRenderGroupToPrefix("anim_hair", -1);
+        return;
     }
     if (theZombieType == ZOMBIE_PAIL)
     {
         theReanim->AssignRenderGroupToPrefix("anim_bucket", 0);
-        return (int)theReanim->AssignRenderGroupToPrefix("anim_hair", -1);
+        theReanim->AssignRenderGroupToPrefix("anim_hair", -1);
+        return;
     }
     // The dump tests 6 (door) and 26 (trash can) together.
     if (theZombieType == ZOMBIE_DOOR || theZombieType == ZOMBIE_TRASHCAN)
-        return SetupDoorArms(theReanim, true);
+    {
+        SetupDoorArms(theReanim, true);
+        return;
+    }
     if (theZombieType == ZOMBIE_NEWSPAPER)
-        return (int)theReanim->AssignRenderGroupToPrefix("Zombie_paper_paper", -1);
+    {
+        theReanim->AssignRenderGroupToPrefix("Zombie_paper_paper", -1);
+        return;
+    }
     if (theZombieType == ZOMBIE_FLAG)
     {
         theReanim->AssignRenderGroupToPrefix("anim_innerarm", -1);
         theReanim->AssignRenderGroupToTrack("Zombie_flaghand", 0);
-        return (int)theReanim->AssignRenderGroupToTrack("Zombie_innerarm_screendoor", 0);
+        theReanim->AssignRenderGroupToTrack("Zombie_innerarm_screendoor", 0);
+        return;
     }
     if (theZombieType == ZOMBIE_DUCKY_TUBE)
-        return (int)theReanim->AssignRenderGroupToPrefix("Zombie_duckytube", 0);
-
-    return result;
+        theReanim->AssignRenderGroupToPrefix("Zombie_duckytube", 0);
 }
 
 // ==========================================================================
@@ -336,19 +343,20 @@ int Zombie::IsTanglekelpTarget()
 // r0 is leftover: the shooting branch tails into PlayReanim, the idle/fire
 // branch leaves AddProjectile's result, and the early exits leave `this`. Both
 // call sites discard it.
-int Zombie::UpdateZombiePeaHead()
+void Zombie::UpdateZombiePeaHead()
 {
     if (!mHasHead || mIsEating)
-        return (int)this;
+        return;
 
     if (mPhaseCounter == 35)
     {
         Reanimation *aHeadReanim = mApp->ReanimationGet(mSpecialHeadReanimID);
-        return aHeadReanim->PlayReanim("anim_shooting", REANIM_PLAY_ONCE_AND_HOLD, 20, 35.0f);
+        aHeadReanim->PlayReanim("anim_shooting", REANIM_PLAY_ONCE_AND_HOLD, 20, 35.0f);
+        return;
     }
 
     if (mPhaseCounter != 0)
-        return (int)this;
+        return;
 
     Reanimation *aHeadReanim = mApp->ReanimationGet(mSpecialHeadReanimID);
     aHeadReanim->PlayReanim("anim_head_idle", REANIM_PLAY_ONCE_AND_HOLD, 20, 15.0f);
@@ -367,7 +375,6 @@ int Zombie::UpdateZombiePeaHead()
                                                     (ProjectileType)13);
     aProjectile->mMotionType = 6;
     mPhaseCounter = 150;
-    return (int)aProjectile;
 }
 
 // ==========================================================================
@@ -382,15 +389,16 @@ int Zombie::UpdateZombiePeaHead()
 // r0 is leftover: the shooting branch tails into PlayReanim, the fire branch
 // leaves AddProjectile, the idle branch leaves PlayReanim, and the early exits
 // leave `this`.
-int Zombie::UpdateZombieGatlingHead()
+void Zombie::UpdateZombieGatlingHead()
 {
     if (!mHasHead || mIsEating)
-        return (int)this;
+        return;
 
     if (mPhaseCounter == 100)
     {
         Reanimation *aHeadReanim = mApp->ReanimationGet(mSpecialHeadReanimID);
-        return aHeadReanim->PlayReanim("anim_shooting", REANIM_PLAY_ONCE_AND_HOLD, 20, 38.0f);
+        aHeadReanim->PlayReanim("anim_shooting", REANIM_PLAY_ONCE_AND_HOLD, 20, 38.0f);
+        return;
     }
 
     if (mPhaseCounter == 18 || mPhaseCounter == 35 || mPhaseCounter == 51 || mPhaseCounter == 68)
@@ -409,7 +417,7 @@ int Zombie::UpdateZombieGatlingHead()
                                                         mRow,
                                                         (ProjectileType)13);
         aProjectile->mMotionType = 6;
-        return (int)aProjectile;
+        return;
     }
 
     if (mPhaseCounter == 0)
@@ -417,10 +425,8 @@ int Zombie::UpdateZombieGatlingHead()
         Reanimation *aHeadReanim = mApp->ReanimationGet(mSpecialHeadReanimID);
         aHeadReanim->PlayReanim("anim_head_idle", REANIM_PLAY_ONCE_AND_HOLD, 20, 15.0f);
         mPhaseCounter = 150;
-        return (int)aHeadReanim;
+        return;
     }
-
-    return (int)this;
 }
 
 // ==========================================================================
@@ -690,30 +696,29 @@ bool Zombie::HasYuckyFaceImage()
 // ==========================================================================
 // Swaps the gross-out head image in (or back out, restoring the tongue only for
 // the variant that has one).
-Reanimation * Zombie::ShowYuckyFace(bool theShow)
+void Zombie::ShowYuckyFace(bool theShow)
 {
     Reanimation *aBodyReanim = mApp->ReanimationTryToGet(mBodyReanimID);
     if (aBodyReanim == nullptr || !HasYuckyFaceImage())
-        return nullptr;
+        return;
 
     if (theShow)
     {
         aBodyReanim->SetImageOverride("anim_head1", IMAGE_REANIM_ZOMBIE_HEAD_GROSSOUT);
         aBodyReanim->AssignRenderGroupToTrack("anim_head2", -1);
         aBodyReanim->AssignRenderGroupToTrack("anim_head_jaw", -1);
-        return aBodyReanim->AssignRenderGroupToTrack("anim_tongue", -1);
+        aBodyReanim->AssignRenderGroupToTrack("anim_tongue", -1);
+        return;
     }
 
     if (mHasHead)
     {
         aBodyReanim->SetImageOverride("anim_head1", nullptr);
         aBodyReanim->AssignRenderGroupToTrack("anim_head2", 0);
-        Reanimation *result = aBodyReanim->AssignRenderGroupToTrack("anim_head_jaw", 0);
+        aBodyReanim->AssignRenderGroupToTrack("anim_head_jaw", 0);
         if (mVariant)
-            return aBodyReanim->AssignRenderGroupToTrack("anim_tongue", 0);
-        return result;
+            aBodyReanim->AssignRenderGroupToTrack("anim_tongue", 0);
     }
-    return nullptr;
 }
 
 // ==========================================================================
@@ -808,7 +813,8 @@ int Zombie::DrawDancerReanim(Sexy::Graphics * g, ZombieDrawPosition & theDrawPos
     if (!aShowSpotlight || mApp->mGameScene == SCENE_ZOMBIES_WON)
     {
         Reanimation *aBodyReanim = mApp->ReanimationTryToGet(mBodyReanimID);
-        return (int)aBodyReanim->DrawRenderGroup(g, 0);
+        aBodyReanim->DrawRenderGroup(g, 0);
+        return 0;
     }
 
     Sexy::Color aSpotlightColor(250, 250, 160);
@@ -1334,31 +1340,29 @@ int Zombie::IsMovingAtChilledSpeed()
 // @001A943C  62 bytes
 // ==========================================================================
 // Sets the body reanimation's rate and, while the zombie moves at chilled
-// speed, tails into a second SetAnimRate at half the rate it just stored
-// (mAnimRate, +0x18). r0 is ReanimationTryToGet when the reanimation is missing,
-// IsMovingAtChilledSpeed when it is not chilled, and SetAnimRate's result when
-// the rate was halved.
-int Zombie::ApplyAnimRate(float theAnimRate)
+// speed, halves the rate it just stored (mAnimRate, +0x18). Callers ignore
+// the leftover register.
+void Zombie::ApplyAnimRate(float theAnimRate)
 {
     Reanimation *aBodyReanim = mApp->ReanimationTryToGet(mBodyReanimID);
     if (aBodyReanim == nullptr)
-        return 0;
+        return;
 
     aBodyReanim->SetAnimRate(theAnimRate);
     if (!IsMovingAtChilledSpeed())
-        return 0;
+        return;
 
-    return aBodyReanim->SetAnimRate(aBodyReanim->mAnimRate * 0.5f);
+    aBodyReanim->SetAnimRate(aBodyReanim->mAnimRate * 0.5f);
 }
 
 // ==========================================================================
 // Zombie::SetAnimRate(float)
 // @001A947C  8 bytes
 // ==========================================================================
-int Zombie::SetAnimRate(float theAnimRate)
+void Zombie::SetAnimRate(float theAnimRate)
 {
     mOriginalAnimRate = theAnimRate;
-    return ApplyAnimRate(theAnimRate);
+    ApplyAnimRate(theAnimRate);
 }
 
 // ==========================================================================
@@ -1451,7 +1455,7 @@ int Zombie::UpdateZombieRiseFromGrave()
         ReanimIgnoreClipRect("Zombie_duckytube", true);
         ReanimIgnoreClipRect("Zombie_whitewater", true);
         ReanimIgnoreClipRect("Zombie_outerarm_hand", true);
-        return ReanimIgnoreClipRect("Zombie_innerarm3", true);
+        ReanimIgnoreClipRect("Zombie_innerarm3", true);
     }
 
     return 0;
@@ -2710,74 +2714,74 @@ int Zombie::IsTangleKelpTarget()
 // Zombie::BalloonPropellerHatSpin(bool)
 // @001AADE0  58 bytes
 // ==========================================================================
-// GetTrackInstanceByName is still an int stub; +0x44 of that instance is the
-// AttachmentID FindReanimAttachment takes by address. r0 is 0 when the hat
-// has no reanim, otherwise SetAnimRate's result (0.0f, or the definition FPS).
-int Zombie::BalloonPropellerHatSpin(bool theSpin)
+// GetTrackInstanceByName returns the hat track; +0x44 of that instance is the
+// AttachmentID FindReanimAttachment takes by address. A missing hat does
+// nothing. Spinning uses the definition FPS; stopping freezes the hat.
+void Zombie::BalloonPropellerHatSpin(bool theSpin)
 {
     Reanimation *aBodyReanim = mApp->ReanimationGet(mBodyReanimID);
     ReanimatorTrackInstance *aHatTrack = aBodyReanim->GetTrackInstanceByName("hat");
     Reanimation *aHatReanim = FindReanimAttachment(aHatTrack->mAttachmentID);
     if (aHatReanim == nullptr)
-        return 0;
+        return;
     if (!theSpin)
-        return aHatReanim->SetAnimRate(0.0f);
-    return aHatReanim->SetAnimRate(aHatReanim->mDefinition->mFPS);
+    {
+        aHatReanim->SetAnimRate(0.0f);
+        return;
+    }
+    aHatReanim->SetAnimRate(aHatReanim->mDefinition->mFPS);
 }
 
 // ==========================================================================
 // Zombie::ReanimShowPrefix(char const*,int)
 // @001AAE20  34 bytes
 // ==========================================================================
-// r0 is 0 when the body reanim is missing, otherwise
-// AssignRenderGroupToPrefix's result (a const char* in this tree).
-int Zombie::ReanimShowPrefix(char const* theTrackPrefix, int theRenderGroup)
+// A missing body reanim does nothing. Otherwise the prefix takes the group.
+void Zombie::ReanimShowPrefix(char const* theTrackPrefix, int theRenderGroup)
 {
     Reanimation *aBodyReanim = mApp->ReanimationTryToGet(mBodyReanimID);
     if (aBodyReanim == nullptr)
-        return 0;
-    return (int)aBodyReanim->AssignRenderGroupToPrefix(theTrackPrefix, theRenderGroup);
+        return;
+    aBodyReanim->AssignRenderGroupToPrefix(theTrackPrefix, theRenderGroup);
 }
 
 // ==========================================================================
 // Zombie::ShowDoorArms(bool)
 // @001AAE44  64 bytes
 // ==========================================================================
-int Zombie::ShowDoorArms(bool theShow)
+void Zombie::ShowDoorArms(bool theShow)
 {
     Reanimation *aBodyReanim = mApp->ReanimationTryToGet(mBodyReanimID);
     if (aBodyReanim == nullptr)
-        return 0;
+        return;
 
-    // SetupDoorArms is static: R0 is the reanim, R1 the bool. A zombie that
-    // still has its arm leaves that call's r0 in place.
-    int aResult = SetupDoorArms(aBodyReanim, theShow);
+    SetupDoorArms(aBodyReanim, theShow);
     if (mHasArm)
-        return aResult;
+        return;
 
     ReanimShowPrefix("Zombie_outerarm_lower", -1);
-    return ReanimShowPrefix("Zombie_outerarm_hand", -1);
+    ReanimShowPrefix("Zombie_outerarm_hand", -1);
 }
 
 // ==========================================================================
 // Zombie::DropPole(void)
 // @001AAE8C  56 bytes
 // ==========================================================================
-int Zombie::DropPole()
+void Zombie::DropPole()
 {
     if (mZombieType != ZOMBIE_POLEVAULTER)
-        return (int)this;
+        return;
 
     ReanimShowPrefix("Zombie_polevaulter_innerarm", -1);
     ReanimShowPrefix("Zombie_polevaulter_innerhand", -1);
-    return ReanimShowPrefix("Zombie_polevaulter_pole", -1);
+    ReanimShowPrefix("Zombie_polevaulter_pole", -1);
 }
 
 // ==========================================================================
 // Zombie::AttachShield(void)
 // @001AAED0  154 bytes
 // ==========================================================================
-int Zombie::AttachShield()
+void Zombie::AttachShield()
 {
     const char *aTrackName = nullptr;
     Reanimation *aBodyReanim = mApp->ReanimationGet(mBodyReanimID);
@@ -2804,21 +2808,20 @@ int Zombie::AttachShield()
             aTrackName = "Zombie_ladder_1";
             break;
         default:
-            break;
+            return;
     }
-    return (int)aBodyReanim->AssignRenderGroupToTrack(aTrackName, 1);
+    aBodyReanim->AssignRenderGroupToTrack(aTrackName, 1);
 }
 
 // ==========================================================================
 // Zombie::ReanimShowTrack(char const*,int)
 // @001AAF94  34 bytes
 // ==========================================================================
-Reanimation * Zombie::ReanimShowTrack(char const* theTrackName, int theRenderGroup)
+void Zombie::ReanimShowTrack(char const* theTrackName, int theRenderGroup)
 {
     Reanimation *aBodyReanim = mApp->ReanimationTryToGet(mBodyReanimID);
     if (aBodyReanim != nullptr)
-        return aBodyReanim->AssignRenderGroupToTrack(theTrackName, theRenderGroup);
-    return aBodyReanim;
+        aBodyReanim->AssignRenderGroupToTrack(theTrackName, theRenderGroup);
 }
 
 // ==========================================================================
@@ -4175,7 +4178,7 @@ int Zombie::DrawReanim(Sexy::Graphics * aGraphics, ZombieDrawPosition & aDrawPos
 // Zombie::DrawBungeeReanim(Sexy::Graphics *,ZombieDrawPosition &)
 // @001ACDA8  446 bytes
 // ==========================================================================
-int Zombie::DrawBungeeReanim(Sexy::Graphics * aGraphics, ZombieDrawPosition & aDrawPos)
+void Zombie::DrawBungeeReanim(Sexy::Graphics * aGraphics, ZombieDrawPosition & aDrawPos)
 {
     ZombieDrawPositionLayout &aPos = (ZombieDrawPositionLayout &)aDrawPos;
 
@@ -4255,7 +4258,7 @@ int Zombie::DrawBungeeReanim(Sexy::Graphics * aGraphics, ZombieDrawPosition & aD
         }
     }
 
-    return aBodyReanim->DrawRenderGroup(aGraphics, 2);
+    aBodyReanim->DrawRenderGroup(aGraphics, 2);
 }
 
 // ==========================================================================
@@ -4367,18 +4370,22 @@ int Zombie::CountBungeesTargetingSunFlowers()
 // Zombie::UpdateAnimSpeed(void)
 // @001AD144  338 bytes
 // ==========================================================================
-// r0 is leftover of whichever test failed, or of the ApplyAnimRate tail call.
-int Zombie::UpdateAnimSpeed()
+// Every path either returns early or applies a rate. Callers ignore the
+// leftover register.
+void Zombie::UpdateAnimSpeed()
 {
     if (!IsOnBoard())
-        return 0;
+        return;
 
     Reanimation *aBodyReanim = mApp->ReanimationTryToGet(mBodyReanimID);
     if (aBodyReanim == nullptr)
-        return 0;
+        return;
 
     if (IsImmobilizied() || (mYuckyFace && mYuckyFaceCounter <= 169))
-        return ApplyAnimRate(0.0f);
+    {
+        ApplyAnimRate(0.0f);
+        return;
+    }
 
     // Both snorkel eating phases (60 and 62, the `BIC #2` against 0x3C) and a
     // dying zombie hold whatever rate the animation was started with.
@@ -4386,7 +4393,8 @@ int Zombie::UpdateAnimSpeed()
         || mZombiePhase == PHASE_SNORKEL_DOWN_FROM_EAT
         || IsDeadOrDying())
     {
-        return ApplyAnimRate(mOriginalAnimRate);
+        ApplyAnimRate(mOriginalAnimRate);
+        return;
     }
 
     // A chewing zombie eats slowly. The 20.0 group is types 3 and 11 (the
@@ -4401,9 +4409,11 @@ int Zombie::UpdateAnimSpeed()
             || mZombieType == ZOMBIE_DIGGER
             || mZombieType == ZOMBIE_YETI)
         {
-            return ApplyAnimRate(20.0f);
+            ApplyAnimRate(20.0f);
+            return;
         }
-        return ApplyAnimRate(36.0f);
+        ApplyAnimRate(36.0f);
+        return;
     }
 
     // The ones that slide or float keep their own rate rather than the walk
@@ -4414,7 +4424,8 @@ int Zombie::UpdateAnimSpeed()
         || mZombiePhase == PHASE_DOLPHIN_RIDING
         || mZombiePhase == PHASE_SNORKEL_WALKING_IN_POOL)
     {
-        return ApplyAnimRate(mOriginalAnimRate);
+        ApplyAnimRate(mOriginalAnimRate);
+        return;
     }
 
     // Otherwise the rate is the walking speed over the distance the body
@@ -4430,11 +4441,8 @@ int Zombie::UpdateAnimSpeed()
         float aDistance = aTrack->mTransforms[aFrameStart + aFrameCount - 1].mTransX
                         - aTrack->mTransforms[aFrameStart].mTransX;
         if (aDistance >= 0.000001f)
-            return ApplyAnimRate(mVelX * 47.0f * ((float)aFrameCount / aDistance) / mScaleZombie);
-        return 0;
+            ApplyAnimRate(mVelX * 47.0f * ((float)aFrameCount / aDistance) / mScaleZombie);
     }
-
-    return 0;
 }
 // ==========================================================================
 // Zombie::PickRandomSpeed(void)
@@ -4450,12 +4458,14 @@ Reanimation * Zombie::PickRandomSpeed()
     else if (mZombiePhase == PHASE_DIGGER_WALKING)
     {
         mVelX = mApp->IsIZombieLevel() ? 0.23f : 0.12f;
-        return (Reanimation *)UpdateAnimSpeed();
+        UpdateAnimSpeed();
+        return nullptr;
     }
     else if (mZombieType == ZOMBIE_IMP && mApp->IsIZombieLevel())
     {
         mVelX = 0.9f;
-        return (Reanimation *)UpdateAnimSpeed();
+        UpdateAnimSpeed();
+        return nullptr;
     }
     else if (mZombiePhase == PHASE_YETI_RUNNING)
     {
@@ -4471,7 +4481,8 @@ Reanimation * Zombie::PickRandomSpeed()
              || mZombieType == ZOMBIE_FLAG)
     {
         mVelX = 0.45f;
-        return (Reanimation *)UpdateAnimSpeed();
+        UpdateAnimSpeed();
+        return nullptr;
     }
     else if (mZombiePhase == PHASE_POLEVAULTER_PRE_VAULT
              || mZombiePhase == PHASE_DIGGER_TUNNELING
@@ -4480,7 +4491,8 @@ Reanimation * Zombie::PickRandomSpeed()
              || mZombieType == ZOMBIE_SNORKEL)
     {
         mVelX = RandRangeFloat(0.66f, 0.68f);
-        return (Reanimation *)UpdateAnimSpeed();
+        UpdateAnimSpeed();
+        return nullptr;
     }
     else if (mZombiePhase == PHASE_LADDER_CARRYING || mZombieType == ZOMBIE_SQUASH_HEAD)
     {
@@ -4499,7 +4511,8 @@ Reanimation * Zombie::PickRandomSpeed()
         mAnimTicksPerFrame = (mVelX < 0.3f) ? 12 : 15;
     }
 
-    return (Reanimation *)UpdateAnimSpeed();
+    UpdateAnimSpeed();
+    return nullptr;
 }
 // ==========================================================================
 // Zombie::PlayZombieReanim(char const*,ReanimLoopType,int,float)
@@ -4515,7 +4528,8 @@ Reanimation * Zombie::PlayZombieReanim(char const* theTrackName, ReanimLoopType 
     if (theAnimRate != 0.0f)
         mOriginalAnimRate = theAnimRate;
 
-    return (Reanimation *)UpdateAnimSpeed();
+    UpdateAnimSpeed();
+    return aBodyReanim;
 }
 
 // ==========================================================================
@@ -4560,28 +4574,30 @@ int Zombie::UpdateZombieCatapult()
         {
             mPhaseCounter = 300;
             mZombiePhase = PHASE_CATAPULT_LAUNCHING;
-            return (int)PlayZombieReanim("anim_shoot", REANIM_PLAY_ONCE_AND_HOLD, 0, 24.0f);
+            PlayZombieReanim("anim_shoot", REANIM_PLAY_ONCE_AND_HOLD, 0, 24.0f);
+            return 0;
         }
-        return (int)this;
+        return 0;
     }
 
     if (mZombiePhase == PHASE_CATAPULT_RELOADING)
     {
         if (mPhaseCounter != 0)
-            return (int)this;
+            return 0;
 
         if (FindCatapultTarget() != nullptr)
         {
             mZombiePhase = PHASE_CATAPULT_LAUNCHING;
             mPhaseCounter = 300;
-            return (int)PlayZombieReanim("anim_shoot", REANIM_PLAY_ONCE_AND_HOLD, 20, 24.0f);
+            PlayZombieReanim("anim_shoot", REANIM_PLAY_ONCE_AND_HOLD, 20, 24.0f);
+            return 0;
         }
 
         // Nothing left to lob. Phase is cleared after the reanim so
         // UpdateAnimSpeed still sees reloading.
-        int aResult = (int)PlayZombieReanim("anim_walk", REANIM_LOOP, 20, 6.0f);
+        PlayZombieReanim("anim_walk", REANIM_LOOP, 20, 6.0f);
         mZombiePhase = PHASE_ZOMBIE_NORMAL;
-        return aResult;
+        return 0;
     }
 
     if (mZombiePhase != PHASE_CATAPULT_LAUNCHING)
@@ -4619,14 +4635,14 @@ int Zombie::UpdateZombieCatapult()
 
     if (mSummonCounter != 0)
     {
-        aResult = (int)PlayZombieReanim("anim_idle", REANIM_LOOP, 20, 12.0f);
+        PlayZombieReanim("anim_idle", REANIM_LOOP, 20, 12.0f);
         mZombiePhase = PHASE_CATAPULT_RELOADING;
-        return aResult;
+        return 0;
     }
 
-    aResult = (int)PlayZombieReanim("anim_walk", REANIM_LOOP, 20, 6.0f);
+    PlayZombieReanim("anim_walk", REANIM_LOOP, 20, 6.0f);
     mZombiePhase = PHASE_ZOMBIE_NORMAL;
-    return aResult;
+    return 0;
 }
 
 // ==========================================================================
@@ -4662,22 +4678,25 @@ int Zombie::UpdateZombieBackupDancer()
     if (aDancerPhase == PHASE_DANCER_DANCING_LEFT)
     {
         mZombiePhase = (ZombiePhase)aDancerPhase;
-        return (int)PlayZombieReanim("anim_walk", REANIM_LOOP, 10, 0.0f);
+        PlayZombieReanim("anim_walk", REANIM_LOOP, 10, 0.0f);
+        return 0;
     }
-    // 0x2D. The walk-to-raise path returns ReanimationGet, not PlayZombieReanim.
+    // 0x2D. The walk-to-raise path sets the body animation time after starting
+    // the raise. The caller ignores the leftover register.
     if (aDancerPhase == PHASE_DANCER_WALK_TO_RAISE)
     {
         mZombiePhase = (ZombiePhase)aDancerPhase;
         PlayZombieReanim("anim_armraise", REANIM_LOOP, 10, 18.0f);
         Reanimation *aBodyReanim = mApp->ReanimationGet(mBodyReanimID);
         aBodyReanim->mAnimTime = 0.6f;
-        return (int)aBodyReanim;
+        return 0;
     }
     // 0x2E..0x31: RAISE_LEFT_1, RAISE_RIGHT_1, RAISE_LEFT_2, RAISE_RIGHT_2.
     if ((unsigned)(aDancerPhase - PHASE_DANCER_RAISE_LEFT_1) <= 3)
     {
         mZombiePhase = (ZombiePhase)aDancerPhase;
-        return (int)PlayZombieReanim("anim_armraise", REANIM_LOOP, 10, 18.0f);
+        PlayZombieReanim("anim_armraise", REANIM_LOOP, 10, 18.0f);
+        return 0;
     }
     return aDancerPhase;
 }
@@ -4720,7 +4739,8 @@ int Zombie::UpdateZombieDancer()
         {
             mZombiePhase = PHASE_DANCER_SNAPPING_FINGERS;
             PlayZombieReanim("anim_point", REANIM_PLAY_ONCE_AND_HOLD, 20, 24.0f);
-            return (int)PickRandomSpeed();
+            PickRandomSpeed();
+            return 0;
         }
         return aResult;
     }
@@ -4757,7 +4777,8 @@ int Zombie::UpdateZombieDancer()
         if (aDancerPhase == PHASE_DANCER_DANCING_LEFT)
         {
             mZombiePhase = PHASE_DANCER_DANCING_LEFT;
-            aResult = (int)PlayZombieReanim("anim_walk", REANIM_LOOP, 10, 0.0f);
+            PlayZombieReanim("anim_walk", REANIM_LOOP, 10, 0.0f);
+            aResult = 0;
         }
         else if (aDancerPhase == PHASE_DANCER_WALK_TO_RAISE)
         {
@@ -4770,7 +4791,8 @@ int Zombie::UpdateZombieDancer()
         else if ((unsigned)(aDancerPhase - PHASE_DANCER_RAISE_LEFT_1) <= 3)
         {
             mZombiePhase = (ZombiePhase)aDancerPhase;
-            aResult = (int)PlayZombieReanim("anim_armraise", REANIM_LOOP, 10, 18.0f);
+            PlayZombieReanim("anim_armraise", REANIM_LOOP, 10, 18.0f);
+            aResult = 0;
         }
     }
 
@@ -4801,20 +4823,25 @@ Zombie * Zombie::StartEating()
         return this;
 
     if (aPhase == PHASE_LADDER_CARRYING)
-        return (Zombie *)PlayZombieReanim("anim_laddereat", REANIM_LOOP, 20, 0.0f);
+    {
+        PlayZombieReanim("anim_laddereat", REANIM_LOOP, 20, 0.0f);
+        return this;
+    }
 
     if (aPhase == PHASE_NEWSPAPER_MAD)
-        return (Zombie *)PlayZombieReanim("anim_eat_nopaper", REANIM_LOOP, 20, 0.0f);
+    {
+        PlayZombieReanim("anim_eat_nopaper", REANIM_LOOP, 20, 0.0f);
+        return this;
+    }
 
-    Zombie *aResult = this;
     if (mZombieType != ZOMBIE_SNORKEL)
-        aResult = (Zombie *)PlayZombieReanim("anim_eat", REANIM_LOOP, 20, 0.0f);
+        PlayZombieReanim("anim_eat", REANIM_LOOP, 20, 0.0f);
 
     // A door or a trash can is held out of the way while the zombie eats.
     if (mShieldType == SHIELDTYPE_DOOR || mShieldType == SHIELDTYPE_TRASHCAN)
-        return (Zombie *)ShowDoorArms(false);
+        ShowDoorArms(false);
 
-    return aResult;
+    return this;
 }
 
 // ==========================================================================
@@ -4868,25 +4895,25 @@ Reanimation * Zombie::StartWalkAnim(int theBlendTime)
 // ==========================================================================
 // Zombie::UpdateZombieNewspaper(void)
 // @001ADAEC  90 bytes
-// Early outs return this or ReanimationGet. The done path tail-calls
-// SetImageOverride. The only caller ignores r0.
+// A newspaper that is not yet mad, or whose mad animation has not looped,
+// does nothing. Once it has, the head image becomes the mad head.
 // ==========================================================================
-int Zombie::UpdateZombieNewspaper()
+void Zombie::UpdateZombieNewspaper()
 {
     // 0x1E. Reading is the idle phase; this function runs once the paper is mad.
     if (mZombiePhase != PHASE_NEWSPAPER_MADDENING)
-        return (int)this;
+        return;
 
     Reanimation *aBodyReanim = mApp->ReanimationGet(mBodyReanimID);
     if (aBodyReanim->mLoopCount <= 0)
-        return (int)aBodyReanim;
+        return;
 
     mZombiePhase = PHASE_NEWSPAPER_MAD;
     if (mBoard->CountZombiesOnScreen() <= 10 && mHasHead)
         mApp->PlayFoley(FOLEY_NEWSPAPER_RARRGH);
 
     StartWalkAnim(20);
-    return aBodyReanim->SetImageOverride("anim_head1", IMAGE_REANIM_ZOMBIE_PAPER_MADHEAD);
+    aBodyReanim->SetImageOverride("anim_head1", IMAGE_REANIM_ZOMBIE_PAPER_MADHEAD);
 }
 
 // ==========================================================================
@@ -5024,7 +5051,7 @@ void Zombie::RiseFromGrave(int theCol, int theRow)
 // Zombie::BobsledCrash(void)
 // @001ADE54  176 bytes
 // ==========================================================================
-int Zombie::BobsledCrash()
+void Zombie::BobsledCrash()
 {
     mZombieRect = Sexy::Rect(36, 0, 42, 115);
     mZombiePhase = PHASE_BOBSLED_CRASHING;
@@ -5036,9 +5063,9 @@ int Zombie::BobsledCrash()
     StartWalkAnim(0);
 
     // The cursor walks this, this+4, this+8 and stops at this+0xC, so only
-    // the first three follower ids are crashed. r0 is the last SetAnimRate.
+    // the first three follower ids are crashed. Each follower matches the
+    // leader's animation rate.
     Reanimation *aLeaderReanim = mApp->ReanimationGet(mBodyReanimID);
-    int aResult = 0;
     for (int i = 0; i < 3; i++)
     {
         Zombie *aFollower = mBoard->ZombieGet(mFollowerZombieID[i]);
@@ -5051,9 +5078,8 @@ int Zombie::BobsledCrash()
         Reanimation *aFollowerReanim = mApp->ReanimationGet(aFollower->mBodyReanimID);
         aFollower->mVelX = mVelX;
         aFollowerReanim->mAnimTime = Rand(1.0f);
-        aResult = aFollowerReanim->SetAnimRate(aLeaderReanim->mAnimRate);
+        aFollowerReanim->SetAnimRate(aLeaderReanim->mAnimRate);
     }
-    return aResult;
 }
 
 // ==========================================================================
@@ -5244,23 +5270,22 @@ Zombie * Zombie::DetachShield()
         return nullptr;
     }
 
-    Zombie *aResult = nullptr;
     switch (mShieldType)
     {
         case SHIELDTYPE_DOOR:
         case SHIELDTYPE_TRASHCAN:
-            aResult = (Zombie *)ShowDoorArms(false);
+            ShowDoorArms(false);
             break;
         case SHIELDTYPE_NEWSPAPER:
-            aResult = (Zombie *)ReanimShowPrefix("Zombie_paper_hands", 0);
+            ReanimShowPrefix("Zombie_paper_hands", 0);
             break;
         case SHIELDTYPE_LADDER:
             ReanimShowPrefix("Zombie_outerarm", 0);
             mZombiePhase = PHASE_ZOMBIE_NORMAL;
             if (mIsEating)
-                aResult = (Zombie *)PlayZombieReanim("anim_eat", REANIM_LOOP, 20, 0.0f);
+                PlayZombieReanim("anim_eat", REANIM_LOOP, 20, 0.0f);
             else
-                aResult = (Zombie *)StartWalkAnim(0);
+                StartWalkAnim(0);
             break;
         default:
             break;
@@ -5268,7 +5293,7 @@ Zombie * Zombie::DetachShield()
 
     mShieldType = SHIELDTYPE_NONE;
     mShieldHealth = 0;
-    return aResult;
+    return this;
 }
 
 // ==========================================================================
@@ -5585,7 +5610,8 @@ int Zombie::UpdateZombieDolphinRider()
             if (!aWalkingBackwards && (unsigned int)(mX - 701) <= 0x13)
             {
                 mZombiePhase = PHASE_DOLPHIN_INTO_POOL;
-                return (int)PlayZombieReanim("anim_jumpinpool", REANIM_PLAY_ONCE_AND_HOLD, 20, 16.0f);
+                PlayZombieReanim("anim_jumpinpool", REANIM_PLAY_ONCE_AND_HOLD, 20, 16.0f);
+                return 0;
             }
             break;
         case PHASE_DOLPHIN_INTO_POOL:
@@ -5616,7 +5642,8 @@ int Zombie::UpdateZombieDolphinRider()
                 mZombieRect = Sexy::Rect(-29, 0, 70, 115);
                 mPosX = aPosX - 70.0f;
                 mBodyMaxHealth = 115;
-                return (int)PlayZombieReanim("anim_ride", REANIM_LOOP_FULL_LAST_FRAME, 0, 12.0f);
+                PlayZombieReanim("anim_ride", REANIM_LOOP_FULL_LAST_FRAME, 0, 12.0f);
+                return 0;
             }
             break;
         }
@@ -5629,7 +5656,8 @@ int Zombie::UpdateZombieDolphinRider()
                 mAltitude = -25.0f;
                 PoolSplash(false);
                 PlayZombieReanim("anim_walkdolphin", REANIM_LOOP, 0, 0.0f);
-                return (int)PickRandomSpeed();
+                PickRandomSpeed();
+                return 0;
             }
             if (mHasHead)
             {
@@ -5640,7 +5668,8 @@ int Zombie::UpdateZombieDolphinRider()
                     mVelZ = 0.5f;
                     mPhaseCounter = 120;
                     mZombiePhase = PHASE_DOLPHIN_IN_JUMP;
-                    return (int)PlayZombieReanim("anim_dolphinjump", REANIM_PLAY_ONCE_AND_HOLD, 0, 10.0f);
+                    PlayZombieReanim("anim_dolphinjump", REANIM_PLAY_ONCE_AND_HOLD, 0, 10.0f);
+                    return 0;
                 }
             }
             break;
@@ -5709,7 +5738,8 @@ int Zombie::UpdateZombieDolphinRider()
             mAltitude = -25.0f;
             PoolSplash(false);
             PlayZombieReanim("anim_walk", REANIM_LOOP, 0, 0.0f);
-            return (int)PickRandomSpeed();
+            PickRandomSpeed();
+            return 0;
         default:
             return 0;
     }
@@ -6197,10 +6227,11 @@ int Zombie::RemoveColdEffects()
     if (mChilledCounter > 0)
     {
         mChilledCounter = 0;
-        return (int)UpdateAnimSpeed();
+        UpdateAnimSpeed();
+        return 0;
     }
 
-    return (int)this;
+    return 0;
 }
 
 // ==========================================================================
@@ -6440,7 +6471,7 @@ int Zombie::StopZombieSound()
 // Zombie::DiggerLoseAxe(void)
 // @001AFA58  88 bytes
 // ==========================================================================
-Reanimation * Zombie::DiggerLoseAxe()
+void Zombie::DiggerLoseAxe()
 {
     if (mZombiePhase == PHASE_DIGGER_TUNNELING)
     {
@@ -6454,7 +6485,7 @@ Reanimation * Zombie::DiggerLoseAxe()
 
     mHasObject = false;
     ReanimShowTrack("Zombie_digger_pickaxe", -1);
-    return ReanimShowTrack("Zombie_digger_dirt", -1);
+    ReanimShowTrack("Zombie_digger_dirt", -1);
 }
 
 // ==========================================================================
@@ -6738,7 +6769,8 @@ Reanimation * Zombie::ApplyChill(bool theIsIceTrap)
     if (aNewCounter >= mChilledCounter)
         mChilledCounter = aNewCounter;
 
-    return (Reanimation *)UpdateAnimSpeed();
+    UpdateAnimSpeed();
+    return nullptr;
 }
 
 // ==========================================================================
@@ -7109,7 +7141,8 @@ Zombie * Zombie::UpdateLadder()
 
     StopEating();
     mZombiePhase = PHASE_LADDER_PLACING;
-    return (Zombie *)PlayZombieReanim("anim_placeladder", REANIM_PLAY_ONCE_AND_HOLD, 10, 24.0f);
+    PlayZombieReanim("anim_placeladder", REANIM_PLAY_ONCE_AND_HOLD, 10, 24.0f);
+    return this;
   }
 
   if ( mZombiePhase != PHASE_LADDER_PLACING )
@@ -7124,7 +7157,8 @@ Zombie * Zombie::UpdateLadder()
   {
     // The plant is gone: go back to carrying the ladder.
     mZombiePhase = PHASE_LADDER_CARRYING;
-    return (Zombie *)StartWalkAnim(0);
+    StartWalkAnim(0);
+    return this;
   }
 
   mBoard->AddALadder(aTarget->mPlantCol, aTarget->mRow);
@@ -7269,22 +7303,22 @@ Reanimation * Zombie::BossPlayIdle()
 // Zombie::DrawBossFireBall(Sexy::Graphics *,ZombieDrawPosition &)
 // @001B090C  76 bytes
 // ==========================================================================
-// The draw position is unused. r0 is DrawRenderGroup's float (tail call), or 0
-// when the fireball reanim is gone. DrawBossPart's caller ignores it.
-float Zombie::DrawBossFireBall(Sexy::Graphics *aGraphics, ZombieDrawPosition &aDrawPos)
+// The draw position is unused. The last call is DrawRenderGroup, and the only
+// caller ignores whatever that leaves in the return register.
+void Zombie::DrawBossFireBall(Sexy::Graphics *aGraphics, ZombieDrawPosition &aDrawPos)
 {
   (void)aDrawPos;
   MakeParentGraphicsFrame(aGraphics);
 
   Reanimation *aFireBall = mApp->ReanimationTryToGet(mBossFireBallReanimID);
   if ( aFireBall == nullptr )
-    return 0.0f;
+    return;
 
   aFireBall->DrawRenderGroup(aGraphics, 0);
   aGraphics->SetDrawMode(Sexy::Graphics::DRAWMODE_ADDITIVE);
   aFireBall->DrawRenderGroup(aGraphics, 7);
   aGraphics->SetDrawMode(Sexy::Graphics::DRAWMODE_NORMAL);
-  return aFireBall->DrawRenderGroup(aGraphics, 8);
+  aFireBall->DrawRenderGroup(aGraphics, 8);
 }
 // ==========================================================================
 // Zombie::DrawBossBackArm(Sexy::Graphics *,ZombieDrawPosition &)
@@ -7540,7 +7574,7 @@ void Zombie::BossHeadAttack()
 // Zombie::BossHeadSpit(void)
 // @001B0E48  240 bytes
 // ==========================================================================
-int Zombie::BossHeadSpit()
+void Zombie::BossHeadSpit()
 {
   Reanimation *aFireBall = mApp->ReanimationTryToGet(mBossFireBallReanimID);
   if ( aFireBall != nullptr )
@@ -7580,7 +7614,7 @@ int Zombie::BossHeadSpit()
   }
 
   Reanimation *aHeadReanim = mApp->ReanimationTryToGet(mSpecialHeadReanimID);
-  return aHeadReanim->PlayReanim("anim_drive", REANIM_LOOP, 20, 36.0f);
+  aHeadReanim->PlayReanim("anim_drive", REANIM_LOOP, 20, 36.0f);
 }
 // ==========================================================================
 // Zombie::BossDestroyIceballInRow(int)
@@ -7904,7 +7938,8 @@ int Zombie::LandFlyer(unsigned int aFlags)
   {
     mApp->PlaySample(SOUND_BALLOON_POP, true);
     mZombiePhase = PHASE_BALLOON_POPPING;
-    aResult = (int)PlayZombieReanim("anim_pop", REANIM_PLAY_ONCE_AND_HOLD, 20, 24.0f);
+    PlayZombieReanim("anim_pop", REANIM_PLAY_ONCE_AND_HOLD, 20, 24.0f);
+    aResult = 0;
   }
   if ( mBoard->mPlantRow[mRow] == PLANTROW_POOL )
     return DieWithLoot();
@@ -8796,7 +8831,8 @@ Reanimation * Zombie::PlayDeathAnim(unsigned int theDamageFlags)
     }
 
     PlayZombieReanim(aDeathTrackName, REANIM_PLAY_ONCE_AND_HOLD, 20, aDeathAnimRate);
-    return (Reanimation *)ReanimShowPrefix("anim_tongue", -1);  // RENDER_GROUP_HIDDEN
+    ReanimShowPrefix("anim_tongue", -1);  // RENDER_GROUP_HIDDEN
+    return aBodyReanim;
 }
 // ==========================================================================
 // Zombie::UpdateDamageStates(unsigned int)
@@ -8863,7 +8899,8 @@ Reanimation * Zombie::AnimateChewSound()
         // The recruit switches sides and takes the mind-controlled walk speed.
         mAnimTicksPerFrame = 18;
         mVelX = 0.17f;
-        return (Reanimation *)UpdateAnimSpeed();
+        UpdateAnimSpeed();
+        return nullptr;
     }
 
     // Garlic: the zombie pulls a disgusted face, which drives it to another row.
@@ -9049,12 +9086,8 @@ Reanimation * Zombie::DrawBossPart(Sexy::Graphics * g, BossPart theBossPart)
     case 3:
       return (Reanimation *)DrawBossBackArm(g, aDrawPos[0]);
     case 4:
-    {
-      float aBall = DrawBossFireBall(g, aDrawPos[0]);
-      int aBits = 0;
-      std::memcpy(&aBits, &aBall, sizeof(aBits));
-      return (Reanimation *)aBits;
-    }
+      DrawBossFireBall(g, aDrawPos[0]);
+      return nullptr;
     default:
       return (Reanimation *)aPosResult;
   }
@@ -9863,7 +9896,8 @@ Reanimation * Zombie::HitIceTrap()
     mBoard->RemoveParticleByType((ParticleEffect)76);  // PARTICLE_ZOMBIE_BOSS_FIREBALL
 
   TakeDamage(20, 1u);
-  return (Reanimation *)UpdateAnimSpeed();
+  UpdateAnimSpeed();
+  return nullptr;
 }
 // ==========================================================================
 // Zombie::ApplyBurn(void)
@@ -9934,10 +9968,8 @@ int Zombie::ApplyBurn()
             ReanimatorTrackInstance *aHatTrack =
                 mApp->ReanimationGet(mBodyReanimID)->GetTrackInstanceByName("hat");
             Reanimation *aHatReanim = FindReanimAttachment(aHatTrack->mAttachmentID);
-            if (aHatReanim == nullptr)
-                aResult = 0;
-            else
-                aResult = aHatReanim->SetAnimRate(0.0f);
+            if (aHatReanim != nullptr)
+                aHatReanim->SetAnimRate(0.0f);
         }
         if (mZombieType == ZOMBIE_BOBSLED)
             return BobsledBurn();
@@ -10494,52 +10526,48 @@ int Zombie::IsFireResistant()
 // Zombie::EnableMustache(bool)
 // @001B4FBC  146 bytes
 // ==========================================================================
-int Zombie::EnableMustache(bool theEnable)
+void Zombie::EnableMustache(bool theEnable)
 {
     // Only a plain, headed zombie gets the mustache: not a UI zombie (mFromWave
     // -3) and not one of the six "head" variants (types 27..32).
     if (mFromWave == -3 || !mHasHead || (unsigned int)(mZombieType - ZOMBIE_PEA_HEAD) <= 5)
-        return (int)this;
+        return;
 
     Reanimation *aBodyReanim = mApp->ReanimationTryToGet(mBodyReanimID);
     if (aBodyReanim == nullptr || !aBodyReanim->TrackExists("zombie_mustache"))
-        return (int)this;
+        return;
 
     if (theEnable)
     {
         aBodyReanim->AssignRenderGroupToPrefix("Zombie_mustache", 0);
         int aMustacheType = RandRangeInt(1, 3);
         if (aMustacheType == 1)
-            return aBodyReanim->SetImageOverride("Zombie_mustache", nullptr);
-        if (aMustacheType == 2)
-            return aBodyReanim->SetImageOverride("Zombie_mustache",
-                                                 IMAGE_REANIM_ZOMBIE_MUSTACHE2);
-        if (aMustacheType == 3)
-            return aBodyReanim->SetImageOverride("Zombie_mustache",
-                                                 IMAGE_REANIM_ZOMBIE_MUSTACHE3);
-        // RandRangeInt(1, 3) cannot return anything else; the binary leaves that
-        // value in r0 on the way out.
-        return aMustacheType;
+            aBodyReanim->SetImageOverride("Zombie_mustache", nullptr);
+        else if (aMustacheType == 2)
+            aBodyReanim->SetImageOverride("Zombie_mustache", IMAGE_REANIM_ZOMBIE_MUSTACHE2);
+        else if (aMustacheType == 3)
+            aBodyReanim->SetImageOverride("Zombie_mustache", IMAGE_REANIM_ZOMBIE_MUSTACHE3);
+        return;
     }
 
-    return (int)aBodyReanim->AssignRenderGroupToPrefix("Zombie_mustache", -1);
+    aBodyReanim->AssignRenderGroupToPrefix("Zombie_mustache", -1);
 }
 // ==========================================================================
 // Zombie::EnableFuture(bool)
 // @001B5068  132 bytes
 // ==========================================================================
-Reanimation * Zombie::EnableFuture(bool theEnable)
+void Zombie::EnableFuture(bool theEnable)
 {
     // Same eligibility as the mustache, minus the head test: not a UI zombie
     // (mFromWave -3) and not one of the six "head" variants (types 27..32).
     if (mFromWave == -3 || (unsigned int)(mZombieType - ZOMBIE_PEA_HEAD) <= 5)
-        return (Reanimation *)this;
+        return;
 
     Reanimation *aBodyReanim = mApp->ReanimationTryToGet(mBodyReanimID);
     if (aBodyReanim == nullptr)
-        return aBodyReanim;
+        return;
     if (aBodyReanim->mReanimationType != REANIM_ZOMBIE)
-        return aBodyReanim;
+        return;
 
     Sexy::Image *aHeadImage = nullptr;
     if (theEnable)
@@ -10555,7 +10583,7 @@ Reanimation * Zombie::EnableFuture(bool theEnable)
         }
     }
 
-    return (Reanimation *)aBodyReanim->SetImageOverride("anim_head1", aHeadImage);
+    aBodyReanim->SetImageOverride("anim_head1", aHeadImage);
 }
 // ==========================================================================
 // Zombie::EnableDanceMode(bool)

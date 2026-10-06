@@ -885,9 +885,8 @@ bool Sexy::Board::DefinitionHasChanged()
 // Advance the displayed track to the next "anim_" layer of the first root
 // reanimation, then apply that layer to every root reanimation.
 // ==========================================================================
-int Sexy::Board::NextAnim()
+void Sexy::Board::NextAnim()
 {
-    int aResult = kReanimSlotStride;
     ReanimationHolder* aHolder = mEffectSystem->mReanimationHolder;
 
     for (unsigned int i = 0; i < aHolder->mMaxUsedCount; ++i)
@@ -942,9 +941,8 @@ int Sexy::Board::NextAnim()
             continue;
         if (aSlot->mItem.mIsAttachment)
             continue;
-        aResult = aSlot->mItem.SetFramesForLayer(mTrackName.c_str());
+        aSlot->mItem.SetFramesForLayer(mTrackName.c_str());
     }
-    return aResult;
 }
 
 // ==========================================================================
