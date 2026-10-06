@@ -87,9 +87,8 @@ int StringToInt(Sexy::String* theDest, const char* theText)
 // ---------------------------------------------------------------------------
 // GetAppDataFolder -- where the game writes its saved state.
 //
-// On the target this is the app's private files directory. On Windows the
-// equivalent is a directory beside the executable, which is what the PC build
-// uses as well.
+// On Windows saves live under APPDATA. Callers append relative names directly,
+// so the folder must include its trailing separator.
 // ---------------------------------------------------------------------------
 int GetAppDataFolder(Sexy::String* theDest)
 {
@@ -100,7 +99,7 @@ int GetAppDataFolder(Sexy::String* theDest)
     if (theDest != nullptr)
     {
         Sexy::String aPath(aFolder);
-        aPath += "\\PopCap Games\\PlantsVsZombiesTV";
+        aPath += "\\PopCap Games\\PlantsVsZombiesTV\\";
         *theDest = aPath;
     }
     return 0;
@@ -870,9 +869,7 @@ int MkDir(const char* thePath)
 {
     if (thePath == nullptr || thePath[0] == 0)
         return 0;
-    if (::CreateDirectoryA(thePath, nullptr))
-        return 1;
-    return (::GetLastError() == ERROR_ALREADY_EXISTS) ? 1 : 0;
+    return Sexy::Win32File::MakeDirs(thePath) ? 1 : 0;
 }
 
 int MkDir(const Sexy::String& thePath)

@@ -7,17 +7,6 @@
 #include "PlayerInfo.h"
 #include "SexyAppBase.h"
 
-namespace
-{
-    // PlayerInfo stores the detail-file count in the word after the manager
-    // pointer. The header still spells that word without a purpose name, so
-    // the count is read through a view of the same layout.
-    int DetailFileCount(const Sexy::PlayerInfo* theProfile)
-    {
-        return theProfile->mDetailFileCount;
-    }
-}
-
 int Sexy::DefaultPlayerInfo::GetId()
 {
     return mId;
@@ -53,7 +42,7 @@ void Sexy::DefaultPlayerInfo::SyncSummary(DataSync& theSync)
 
 void Sexy::DefaultPlayerInfo::DeleteUserFiles()
 {
-    for (int theSlot = 0; theSlot < DetailFileCount(this); ++theSlot)
+    for (int theSlot = 0; theSlot < mDetailFileCount; ++theSlot)
     {
         Sexy::String thePath;
         StrFormat(&thePath, "userdata/user%d-%d-%d.dat", mProfileId, GetId(), theSlot);
@@ -62,7 +51,7 @@ void Sexy::DefaultPlayerInfo::DeleteUserFiles()
         GetAppDataFolder(&theFolder);
         theFolder += thePath;
 
-        ((SexyAppBase*)gSexyAppBase)->EraseFile(theFolder);
+        gSexyAppBase->EraseFile(theFolder);
     }
 }
 
@@ -75,10 +64,10 @@ Sexy::DefaultPlayerInfo::DefaultPlayerInfo(Sexy::ProfileMgr* theProfileMgr)
 
 void Sexy::DefaultPlayerInfo::LoadDetails()
 {
-    if (DetailFileCount(this) <= 0)
+    if (mDetailFileCount <= 0)
         return;
 
-    for (int theSlot = 0; theSlot < DetailFileCount(this); ++theSlot)
+    for (int theSlot = 0; theSlot < mDetailFileCount; ++theSlot)
     {
         Sexy::Buffer theBuffer;
 
@@ -88,7 +77,7 @@ void Sexy::DefaultPlayerInfo::LoadDetails()
         StrFormat(&theFile, "userdata/user%d-%d-%d.dat", mProfileId, GetId(), theSlot);
         theFolder += theFile;
 
-        if (((SexyAppBase*)gSexyAppBase)->ReadBufferFromFile(theFolder, &theBuffer, false) == 0)
+        if (gSexyAppBase->ReadBufferFromFile(theFolder, &theBuffer, false) == 0)
             return;
 
         DataReader theReader;
@@ -102,11 +91,11 @@ void Sexy::DefaultPlayerInfo::LoadDetails()
 
 bool Sexy::DefaultPlayerInfo::SaveDetails()
 {
-    if (DetailFileCount(this) <= 0)
+    if (mDetailFileCount <= 0)
         return true;
 
     bool theSaved = true;
-    for (int theSlot = 0; theSlot < DetailFileCount(this); ++theSlot)
+    for (int theSlot = 0; theSlot < mDetailFileCount; ++theSlot)
     {
         DataWriter theWriter;
         theWriter.OpenMemory(32);
@@ -124,7 +113,7 @@ bool Sexy::DefaultPlayerInfo::SaveDetails()
         StrFormat(&theName, "userdata/user%d-%d-%d.dat", mProfileId, GetId(), theSlot);
         theFile += theName;
 
-        if (((SexyAppBase*)gSexyAppBase)->WriteBytesToFile(
+        if (gSexyAppBase->WriteBytesToFile(
                 theFile, theWriter.mBuffer, theWriter.mBufferPos) == 0)
             theSaved = false;
     }

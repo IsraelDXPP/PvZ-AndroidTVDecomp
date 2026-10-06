@@ -128,11 +128,13 @@ bool Win32File::WriteFile(const std::string& thePath, const void* theData, size_
 bool Win32File::WriteOutputFile(const std::string& thePath,
                                 const void* theData, size_t theSize)
 {
+    if (thePath.empty() || (theSize > 0 && theData == nullptr))
+        return false;
     std::string p = thePath;
 
     size_t slash = p.find_last_of("/\\");
-    if (slash != std::string::npos)
-        MakeDirs(p.substr(0, slash));
+    if (slash != std::string::npos && slash > 0 && !MakeDirs(p.substr(0, slash)))
+        return false;
 
     FILE* fp = fopen(p.c_str(), "wb");
     if (!fp) return false;
@@ -141,7 +143,8 @@ bool Win32File::WriteOutputFile(const std::string& thePath,
     if (theSize > 0)
         ok = fwrite(theData, 1, theSize, fp) == theSize;
 
-    fclose(fp);
+    if (fclose(fp) != 0)
+        ok = false;
     return ok;
 }
 
@@ -163,8 +166,14 @@ bool Win32File::MakeDirs(const std::string& thePath)
             while (!dir.empty() && (dir.back() == '\\' || dir.back() == '/'))
                 dir.pop_back();
             if (dir.size() == 2 && dir[1] == ':') continue;   // drive root
-            if (!dir.empty())
-                ::CreateDirectoryA(dir.c_str(), nullptr);
+            if (!dir.empty() && !::CreateDirectoryA(dir.c_str(), nullptr))
+            {
+                if (::GetLastError() != ERROR_ALREADY_EXISTS)
+                    return false;
+                DWORD attributes = ::GetFileAttributesA(dir.c_str());
+                if (attributes == INVALID_FILE_ATTRIBUTES || !(attributes & FILE_ATTRIBUTE_DIRECTORY))
+                    return false;
+            }
         }
     }
     return true;

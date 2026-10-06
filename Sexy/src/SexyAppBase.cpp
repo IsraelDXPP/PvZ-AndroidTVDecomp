@@ -2282,14 +2282,14 @@ int SexyAppBase::ReadBufferFromFile(const Sexy::String& theFileName, Buffer* the
     return mAppDriver->ReadBufferFromFile(theFileName, theBuffer, dontWriteToDemo);
 }
 
-int SexyAppBase::WriteBufferToFile(const Sexy::String& theFileName, const Buffer* theBuffer)
+bool SexyAppBase::WriteBufferToFile(const Sexy::String& theFileName, const Buffer* theBuffer)
 {
     if (mAppDriver == nullptr)
         return 0;
-    return mAppDriver->WriteBufferToFile(theFileName, (Buffer*)theBuffer);
+    return mAppDriver->WriteBufferToFile(theFileName, theBuffer);
 }
 
-int SexyAppBase::WriteBytesToFile(const Sexy::String& theFileName, const void* theData, unsigned long theLength)
+bool SexyAppBase::WriteBytesToFile(const Sexy::String& theFileName, const void* theData, unsigned long theLength)
 {
     if (mAppDriver == nullptr)
         return 0;

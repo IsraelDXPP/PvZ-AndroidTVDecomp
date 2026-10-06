@@ -11,10 +11,10 @@
 #include "ReconTypes.h"
 #include "SexyString.h"
 
-// User-file version words. Both start at zero; the profile loader overwrites
-// them from the file it opens.
-int gUserVersion = 0;
-int gUserVersionTilJune2010 = 0;
+// User-file versions from libGameMain.so .data @0x69649c / @0x6964a0.
+// Version 19 includes mail state; these constants are not set by the loader.
+int gUserVersion = 19;
+int gUserVersionTilJune2010 = 18;
 
 // gIsPartnerBuild -- false for this build. The PC reference source gates the
 // partner/carrier menu entries on it, and the TV build this was taken from is

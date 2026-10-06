@@ -52,6 +52,8 @@
 #include "GLWindow.h"
 #include "GL/GLRenderBackend.h"
 #include "Screenshot.h"
+#include "Win32File.h"
+#include "Buffer.h"
 
 #include "AndroidShims.h"
 #include "ReconHelpers.h"
@@ -130,6 +132,8 @@ struct Win32AppDriver : Sexy::BaseAppDriver
     int Is3DAccelerationRecommended() override;
     int PreDrawScreen() override;
     int ReadBufferFromFile(const Sexy::String& theFileName, Sexy::Buffer* theBuffer, bool theIsCompressed) override;
+    bool WriteBufferToFile(const Sexy::String& theFileName, const Sexy::Buffer* theBuffer) override;
+    bool WriteBytesToFile(const Sexy::String& theFileName, const void* theData, unsigned long theLength) override;
     int ShouldPauseUpdates() override;
     int RehupFocus() override;
     int GetMemoryInfo(void* theMemoryInfo) override;
@@ -1201,6 +1205,18 @@ int Win32AppDriver::PreDrawScreen() { return Slot_PreDrawScreen(this); }
 int Win32AppDriver::ReadBufferFromFile(const Sexy::String& theFileName, Sexy::Buffer* theBuffer, bool theIsCompressed)
 {
     return Slot_ReadBufferFromFile(this, &theFileName, theBuffer, theIsCompressed ? 1 : 0);
+}
+bool Win32AppDriver::WriteBufferToFile(const Sexy::String& theFileName, const Sexy::Buffer* theBuffer)
+{
+    if (theBuffer == nullptr)
+        return false;
+    return WriteBytesToFile(theFileName, theBuffer->GetDataPtr(), theBuffer->GetDataLen());
+}
+bool Win32AppDriver::WriteBytesToFile(const Sexy::String& theFileName, const void* theData, unsigned long theLength)
+{
+    // BaseAppDriver::WriteBytesToFile @0x3f4548 writes the supplied path.
+    // Saves must use the output path, without asset-root redirection.
+    return Sexy::Win32File::WriteOutputFile(theFileName.c_str(), theData, theLength);
 }
 int Win32AppDriver::ShouldPauseUpdates() { return Slot_ShouldPauseUpdates(this); }
 int Win32AppDriver::RehupFocus() { return Slot_RehupFocus(this); }

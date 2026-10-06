@@ -300,18 +300,14 @@ Board::~Board()
   mPumpkinTree.clear();
   mFlowerPotTree.clear();
 
-  // The DataArrays a second time, and the two seed banks again. This is not a
-  // transcription slip: the binary really does dispose them twice, because the
-  // tree walk above can hand a plant back to the board.
+  // The original repeats DataArrayDispose at 0x1644fe..0x16451c. It does not
+  // delete the seed banks again; those objects have already been released.
   mGridItems.DataArrayDispose();
   mLawnMowers.DataArrayDispose();
   mCoins.DataArrayDispose();
   mProjectiles.DataArrayDispose();
   mPlants.DataArrayDispose();
   mZombies.DataArrayDispose();
-
-  delete mSeedBank[0];
-  delete mSeedBank[1];
 }
 
 // ==========================================================================

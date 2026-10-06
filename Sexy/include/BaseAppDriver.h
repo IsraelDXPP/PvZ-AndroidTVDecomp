@@ -174,7 +174,7 @@ public:
     virtual int ReadFromConfig()                            { return 0; }
     virtual int WriteToConfig()                             { return 0; }
     virtual int ConfigFlush()                               { return 0; }
-    virtual int WriteBufferToFile(const Sexy::String& theFileName, Sexy::Buffer* theBuffer)
+    virtual bool WriteBufferToFile(const Sexy::String& theFileName, const Sexy::Buffer* theBuffer)
     {
         (void)theFileName; (void)theBuffer;
         return 0;
@@ -185,7 +185,7 @@ public:
         (void)theFileName; (void)theBuffer; (void)theIsCompressed;
         return 0;
     }
-    virtual int WriteBytesToFile(const Sexy::String& theFileName, const void* theData, unsigned long theLength)
+    virtual bool WriteBytesToFile(const Sexy::String& theFileName, const void* theData, unsigned long theLength)
     {
         (void)theFileName; (void)theData; (void)theLength;
         return 0;

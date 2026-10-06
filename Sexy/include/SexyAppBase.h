@@ -369,7 +369,7 @@ public:
     int RegistryReadBoolean(const Sexy::String &theKey, bool *theValue);
     int RegistryReadData(const Sexy::String &theKey, unsigned char *theData,
                          unsigned long *theLength);
-    int WriteBufferToFile(const Sexy::String &theFileName, const Sexy::Buffer *theBuffer);
+    bool WriteBufferToFile(const Sexy::String &theFileName, const Sexy::Buffer *theBuffer);
     bool EraseFile(const Sexy::String &theFileName);
     void RestoreScreenResolution();
     int DoExit(int theCode);
@@ -505,7 +505,7 @@ public:
     // Load and Save had nothing to call. Neither is a vtable slot; the binary
     // reaches both with a direct BL.
     int ReadBufferFromFile(const Sexy::String &theFileName, Sexy::Buffer *theBuffer, bool dontWriteToDemo);
-    int WriteBytesToFile(const Sexy::String &theFileName, void const *theData, unsigned long theLength);
+    bool WriteBytesToFile(const Sexy::String &theFileName, void const *theData, unsigned long theLength);
 
     // AddParameterEntry(Sexy::ParameterEntry const*) @0x33C358 and
     // AddParameterEntries(Sexy::ParameterEntry const*) @0x33C388 -- a SECOND pair

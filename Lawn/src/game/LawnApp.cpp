@@ -4295,8 +4295,8 @@ int LawnApp::WriteCurrentUserConfig()
   if ( IsFullVersion() == 0 )
     return 1;
   OutputDebug("((LawnApp*))->WriteCurrentUserConfig() ...\n");
-  // Only a profile that is neither loading nor saving can be written out.
-  if ( mPlayerInfo == nullptr || mPlayerInfo->IsLoading() )
+  // The original vtable call at byte 44 is PlayerInfo::IsSaving.
+  if ( mPlayerInfo == nullptr || mPlayerInfo->IsSaving() )
     return 0;
   return mPlayerInfo->SaveDetails();
 }
@@ -4309,7 +4309,7 @@ int LawnApp::WriteSecondUserConfig()
   if ( IsFullVersion() == 0 )
     return 1;
   OutputDebug("((LawnApp*))->WriteCurrentUserConfig() ...\n");
-  if ( mPlayer2Info == nullptr || mPlayer2Info->IsLoading() )
+  if ( mPlayer2Info == nullptr || mPlayer2Info->IsSaving() )
     return 0;
   return mPlayer2Info->SaveDetails();
 }
@@ -4627,7 +4627,8 @@ int LawnApp::ShowMainMenuScreen()
   mGameSelector = aMenu;
   aMenu->Resize(LawnApp::FULLSCREEN_RECT);
   mWidgetManager->AddWidget(aMenu);
-  mWidgetManager->BringToFront(aMenu);
+  // ShowMainMenuScreen @0x2b9e0c calls WidgetManager::SetFocus (vtable byte 48).
+  mWidgetManager->SetFocus(aMenu);
   return 0;
 }
 
