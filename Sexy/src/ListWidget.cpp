@@ -226,8 +226,8 @@ void Sexy::ListWidget::Draw(Sexy::Graphics *theGraphics)
             theGraphics->SetColor(mLineColors[i]);
 
         Sexy::String text = mLines[i];
-        int textExtents[6] = {0, 0, 0, 0, 0, 0};
-        mFont->StringExtents(text, textExtents[0]);
+        Font::TextExtents textExtents;
+        mFont->StringExtents(text, textExtents);
 
         int drawX;
         if (mJustify == 0)
@@ -237,8 +237,8 @@ void Sexy::ListWidget::Draw(Sexy::Graphics *theGraphics)
         else
             drawX = mWidth - mFont->StringWidth(text) - mTextOffset;
 
-        int drawY = (int)((float)textExtents[1]
-                          - (float)(itemHeight - textExtents[5]) * 0.5f
+        int drawY = (int)(((float)itemHeight - textExtents.mHeight) * 0.5f
+                          - textExtents.mMinY
                           + (float)rowY);
         theGraphics->DrawString(text, drawX, drawY);
     }

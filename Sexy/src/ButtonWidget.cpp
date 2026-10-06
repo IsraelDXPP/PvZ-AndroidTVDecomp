@@ -209,11 +209,7 @@ void Sexy::ButtonWidget::UpdateLabel()
 
   if ( mFont != NULL )
   {
-    // StringExtents still fills six words through an int reference. Those words
-    // are the label's float extents.
-    int measured[6] = {};
-    mFont->StringExtents(mLabel, measured[0]);
-    std::memcpy(&mLabelExtents, measured, sizeof(mLabelExtents));
+    mFont->StringExtents(mLabel, mLabelExtents);
   }
   else
   {

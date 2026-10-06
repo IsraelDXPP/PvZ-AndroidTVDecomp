@@ -25,15 +25,7 @@ namespace Sexy {
 // Six floats Font::StringExtents writes for a label: the glyph box, then the
 // advance. Draw uses the minimum Y as a vertical nudge and the height as the
 // reserved line height.
-struct LabelExtents
-{
-    float mMinX = 0.0f;
-    float mMinY = 0.0f;
-    float mSpanX = 0.0f;
-    float mSpanY = 0.0f;
-    float mWidth = 0.0f;
-    float mHeight = 0.0f;
-};
+using LabelExtents = Font::TextExtents;
 
 class ButtonListener;
 

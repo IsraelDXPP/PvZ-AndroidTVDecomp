@@ -14,6 +14,7 @@
 #include "ReconTypes.h"
 #include <string>
 #include <vector>
+#include <list>
 #include <map>
 #include <set>
 
@@ -24,6 +25,8 @@ class Graphics;
 class Font
 {
 public:
+    using TextExtents = Sexy::TextExtents;
+
     virtual ~Font();
     virtual int GetAscent();
     virtual int GetAscentPadding();
@@ -48,10 +51,10 @@ public:
                             unsigned int theCount, Sexy::Color const& theColor,
                             Sexy::TRect<int> const& theClipRect);
     virtual void GlyphExtentsVector(std::vector<Sexy::Glyph> const& theGlyphs,
-                                    int & theExtents);
-    virtual void GlyphExtentsList(int const& theGlyphsList, int & theExtents);
-    virtual void StringExtents(Sexy::String const& theString, int & theExtents);
-    virtual void StringExtentsUnicode(std::wstring const& theString, int & theExtents);
+                                    TextExtents& theExtents);
+    virtual void GlyphExtentsList(std::list<const Glyph*> const& theGlyphsList, TextExtents& theExtents);
+    virtual void StringExtents(Sexy::String const& theString, TextExtents& theExtents);
+    virtual void StringExtentsUnicode(std::wstring const& theString, TextExtents& theExtents);
     virtual bool IsComposited();
     virtual Sexy::Font * Duplicate();
 

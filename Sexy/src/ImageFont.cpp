@@ -23,6 +23,7 @@
 #include "SharedImageRef.h"
 
 #include <cstring>
+#include <algorithm>
 #include <vector>
 #include <list>
 #include <map>
@@ -157,23 +158,6 @@ struct DrawGlyphRecord
 DrawGlyphRecord* sDrawHeads[256];
 DrawGlyphRecord* sDrawTails[256];
 DrawGlyphRecord sDrawRecords[0x1000];
-
-struct Extents
-{
-    float mMinX;
-    float mMinY;
-    float mLastSpanX;
-    float mLastSpanY;
-    float mWidth;
-    float mHeight;
-};
-
-struct GlyphListNode
-{
-    GlyphListNode* mNext;
-    GlyphListNode* mPrev;
-    Sexy::Glyph const* mGlyph;
-};
 
 void ApplyFormatHint(Sexy::FontLayer* theLayer, Sexy::Image* theImage, int theHint, bool theIsNew)
 {
@@ -653,24 +637,24 @@ int Sexy::ImageFont::StringWidth(Sexy::WString const& theString)
     return aWidth;
 }
 
-void Sexy::ImageFont::StringToGlyphs(Sexy::WString const& theString, std::vector<Glyph>& theGlyphs)
+void Sexy::ImageFont::StringToGlyphs(std::wstring const& theString, std::vector<Glyph>& theGlyphs)
 {
-    const Sexy::String& aWide = AsString(theString);
-    if (aWide.empty())
+    Prepare();
+    if (theString.empty())
         return;
-    const int* aChars = WideChars(aWide);
     int aLayerCount = (int)mActiveLayerList.size();
     float aPenX = 0.0f;
     int aPrevMapped = 0;
 
-    for (unsigned int i = 0; i < aWide.size(); ++i)
+    for (wchar_t aChar : theString)
     {
-        int aMapped = GetMappedChar(aChars[i]);
+        int aMapped = GetMappedChar(aChar);
         Glyph aGlyph = {};
         aGlyph.mChar = aMapped;
 
         int aMaxWidth = 0;
-        int aGlyphWidth = 0;
+        int aInkWidth = 0;
+        int aInkHeight = 0;
         int aLayerWidth = 0;
         if (aLayerCount != 0)
         {
@@ -710,10 +694,9 @@ void Sexy::ImageFont::StringToGlyphs(Sexy::WString const& theString, std::vector
                 int aTotal = aKern + aWidth;
                 if (aMaxWidth < aTotal)
                     aMaxWidth = aTotal;
-                if (aLayer == 0)
-                    aGlyphWidth = aTotal;
-                if (aLayer <= 3)
-                    (&aGlyph.mWidth0)[aLayer] = aTotal;
+                TRect<int> aSourceRect = SourceRect(&mActiveLayerList[aLayer], aMapped);
+                aInkWidth = std::max(aInkWidth, aSourceRect.mWidth);
+                aInkHeight = std::max(aInkHeight, aSourceRect.mHeight);
                 if (aLayer == 0)
                     aGlyph.mCharData = aCharData;
                 else if (aLayer == 1)
@@ -727,8 +710,9 @@ void Sexy::ImageFont::StringToGlyphs(Sexy::WString const& theString, std::vector
         }
 
         aGlyph.mX = aPenX;
-        aGlyph.mWidth = aGlyphWidth;
-        aGlyph.mMaxWidth = aMaxWidth;
+        aGlyph.mInkWidth = aInkWidth;
+        aGlyph.mInkHeight = aInkHeight;
+        aGlyph.mAdvanceX = aMaxWidth;
         aGlyph.mY = 0.0f;
         theGlyphs.push_back(aGlyph);
         aPenX = aPenX + (float)aLayerWidth;
@@ -804,7 +788,7 @@ void Sexy::ImageFont::DrawGlyphs(Sexy::Graphics* theGraphics, int theX, int theY
             FontLayer* aFontLayer = mActiveLayerList[(unsigned int)aLayer].mLayer;
             CharData* aCharData = nullptr;
             if (aLayer == 0)
-                aCharData = static_cast<CharData*>(aGlyph.mCharData);
+                aCharData = aGlyph.mCharData;
             else
                 aCharData = aFontLayer->GetCharData(aGlyph.mChar);
             if (aCharData == nullptr)
@@ -1122,19 +1106,10 @@ void Sexy::ImageFont::PushLayerColor(int theLayerIndex, Color const& theColor)
     }
 }
 
-void Sexy::ImageFont::GlyphExtentsList(int const& theGlyphsList, int& theExtents)
+void Sexy::ImageFont::GlyphExtentsList(std::list<const Glyph*> const& theGlyphsList, TextExtents& theExtents)
 {
-    void* aListStorage = const_cast<int*>(&theGlyphsList);
-    GlyphListNode* aSentinel = static_cast<GlyphListNode*>(aListStorage);
-    void* aExtentsStorage = &theExtents;
-    Extents* aExtents = static_cast<Extents*>(aExtentsStorage);
-    aExtents->mMinX = 0.0f;
-    aExtents->mMinY = 0.0f;
-    aExtents->mLastSpanX = 0.0f;
-    aExtents->mLastSpanY = 0.0f;
-    aExtents->mWidth = 0.0f;
-    aExtents->mHeight = 0.0f;
-    if (aSentinel->mNext == aSentinel)
+    theExtents = TextExtents();
+    if (theGlyphsList.empty())
         return;
 
     Prepare();
@@ -1145,10 +1120,9 @@ void Sexy::ImageFont::GlyphExtentsList(int const& theGlyphsList, int& theExtents
     float aRunMaxY = 0.0f;
     bool aFirst = true;
 
-    for (GlyphListNode* aNode = aSentinel->mNext; aNode != aSentinel; aNode = aNode->mNext)
+    for (const Glyph* aGlyph : theGlyphsList)
     {
-        Sexy::Glyph const* aGlyph = aNode->mGlyph;
-        if (aGlyph->mWidth0 == 0 || aGlyph->mWidth == 0)
+        if (aGlyph->mInkWidth == 0 || aGlyph->mInkHeight == 0)
             continue;
 
         float aBoxMinX = 0.0f;
@@ -1161,13 +1135,14 @@ void Sexy::ImageFont::GlyphExtentsList(int const& theGlyphsList, int& theExtents
             int aMinY = 0;
             int aMaxX = 0;
             int aMaxY = 0;
-            void* const* aCached = &aGlyph->mCharData;
+            CharData* aCached[] = {aGlyph->mCharData, aGlyph->mCharData1,
+                                   aGlyph->mCharData2, aGlyph->mCharData3};
             for (int aLayerIndex = 0; aLayerIndex < aLayerCount; ++aLayerIndex)
             {
                 ActiveFontLayer* aLayer = &mActiveLayerList[(unsigned int)aLayerIndex];
                 FontLayer* aFontLayer = aLayer->mLayer;
                 CharData* aCharData = aLayerIndex <= 3
-                    ? static_cast<CharData*>(aCached[aLayerIndex])
+                    ? aCached[aLayerIndex]
                     : aFontLayer->GetCharData(aGlyph->mChar);
                 if (aCharData == nullptr)
                     continue;
@@ -1176,7 +1151,7 @@ void Sexy::ImageFont::GlyphExtentsList(int const& theGlyphsList, int& theExtents
                 int aPenY = (int)aGlyph->mY;
                 double aGlyphScale = mScale;
                 if (aFontLayer->mPointSize != 0)
-                    aGlyphScale = mScale * (double)(mPointSize / aFontLayer->mPointSize);
+                    aGlyphScale = mScale * (double)mPointSize / (double)aFontLayer->mPointSize;
 
                 short aOffsetX = (short)aCharData->mOffsetX;
                 short aOffsetY = (short)aCharData->mOffsetY;
@@ -1245,16 +1220,16 @@ void Sexy::ImageFont::GlyphExtentsList(int const& theGlyphsList, int& theExtents
     aRunMaxX -= aRunMinX;
     aRunMaxY -= aRunMinY;
 
-    Sexy::Glyph const* aFirstGlyph = aSentinel->mNext->mGlyph;
-    Sexy::Glyph const* aLastGlyph = aSentinel->mPrev->mGlyph;
+    const Glyph* aFirstGlyph = theGlyphsList.front();
+    const Glyph* aLastGlyph = theGlyphsList.back();
     int aFirstPenX = (int)aFirstGlyph->mX;
     int aFirstPenY = (int)aFirstGlyph->mY;
-    aExtents->mMinX = aRunMinX - aFirstGlyph->mX;
-    aExtents->mMinY = aRunMinY - aFirstGlyph->mY;
-    aExtents->mWidth = aRunMaxX;
-    aExtents->mHeight = aRunMaxY;
-    aExtents->mLastSpanX = (float)((int)((float)aLastGlyph->mMaxWidth + aLastGlyph->mX) - aFirstPenX);
-    aExtents->mLastSpanY = (float)((int)(aLastGlyph->mOffsetY + aLastGlyph->mY) - aFirstPenY);
+    theExtents.mMinX = aRunMinX - aFirstGlyph->mX;
+    theExtents.mMinY = aRunMinY - aFirstGlyph->mY;
+    theExtents.mWidth = aRunMaxX;
+    theExtents.mHeight = aRunMaxY;
+    theExtents.mSpanX = (float)((int)((float)aLastGlyph->mAdvanceX + aLastGlyph->mX) - aFirstPenX);
+    theExtents.mSpanY = (float)((int)(aLastGlyph->mAdvanceY + aLastGlyph->mY) - aFirstPenY);
 }
 
 void Sexy::ImageFont::DrawStringEx(Sexy::Graphics* theGraphics, int theX, int theY,

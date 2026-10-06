@@ -544,9 +544,9 @@ void Sexy::EditWidget::Draw(Sexy::Graphics *theGraphics)
 
     Sexy::String &displayString = GetDisplayString();
 
-    int extents[6] = {0, 0, 0, 0, 0, 0};
+    Font::TextExtents extents;
     if (mFont != nullptr)
-        mFont->StringExtents(displayString, extents[0]);
+        mFont->StringExtents(displayString, extents);
 
     theGraphics->SetColor(mColors[0]);
     theGraphics->FillRect(0, 0, mWidth, mHeight);
@@ -663,8 +663,8 @@ void Sexy::EditWidget::Draw(Sexy::Graphics *theGraphics)
 
         graphics->DrawString(displayString.substr(mScrollPos),
                              mTextOffsetX,
-                             (int)(((float)mHeight - (float)extents[5]) * 0.5f
-                                   - (float)extents[1]));
+                             (int)(((float)mHeight - extents.mHeight) * 0.5f
+                                   - extents.mMinY));
         delete graphics;
     }
 

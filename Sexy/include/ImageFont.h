@@ -41,12 +41,12 @@ public:
     virtual void DrawString(Sexy::Graphics* theGraphics, int theX, int theY,
                             Sexy::WString const& theString, Color const& theColor,
                             TRect<int> const& theClipRect);
-    virtual void StringToGlyphs(Sexy::WString const& theString, std::vector<Glyph>& theGlyphs);
+    void StringToGlyphs(std::wstring const& theString, std::vector<Glyph>& theGlyphs) override;
     virtual void DrawGlyphs(Sexy::Graphics* theGraphics, int theX, int theY,
                             std::vector<Glyph>& theGlyphs, unsigned int theStart,
                             unsigned int theCount, Color const& theColor,
                             TRect<int> const& theClipRect);
-    virtual void GlyphExtentsList(int const& theGlyphsList, int& theExtents);
+    void GlyphExtentsList(std::list<const Glyph*> const& theGlyphsList, TextExtents& theExtents) override;
     virtual bool IsComposited();
     virtual Sexy::ImageFont* Duplicate();
     virtual void GenerateActiveFontLayers();

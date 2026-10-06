@@ -281,26 +281,27 @@ struct FoleyInstance
 };
 
 // Positioned glyph that StringToGlyphs writes and DrawGlyphs reads.
-// Pen, mapped character, per-layer advances, an extra baseline offset, and
+// Pen, mapped character, ink bounds, advance, and
 // the four layer character records. The four pad words are part of the
 // original record and are left zero.
+namespace Sexy { class CharData; }
 struct Glyph
 {
     float       mX = 0.0f;
     float       mY = 0.0f;
     int         mChar = 0;
-    int         mWidth0 = 0;
-    int         mWidth = 0;
-    int         mMaxWidth = 0;
-    float       mOffsetY = 0.0f;
+    int         mInkWidth = 0;
+    int         mInkHeight = 0;
+    int         mAdvanceX = 0;
+    float       mAdvanceY = 0.0f;
     int         mPad0 = 0;
     int         mPad1 = 0;
     int         mPad2 = 0;
     int         mPad3 = 0;
-    void*       mCharData = nullptr;
-    void*       mCharData1 = nullptr;
-    void*       mCharData2 = nullptr;
-    void*       mCharData3 = nullptr;
+    Sexy::CharData* mCharData = nullptr;
+    Sexy::CharData* mCharData1 = nullptr;
+    Sexy::CharData* mCharData2 = nullptr;
+    Sexy::CharData* mCharData3 = nullptr;
 };
 
 // MiscStat -- an enum in the binary. The transcription could not classify the
@@ -422,17 +423,15 @@ public:
 };
 } // namespace Sexy
 
-// TextExtents -- the six words Font::StringExtents writes through the int
-// reference (ClearExtents stores extents[0]..extents[5]). EditWidget reads
-// word 1 as the vertical nudge and word 5 as the line height. Not an enum.
+// Glyph bounds and pen advance measured by Font::StringExtents.
 struct TextExtents
 {
-    int mMinX;
-    int mMinY;
-    int mSpanX;
-    int mSpanY;
-    int mWidth;
-    int mHeight;
+    float mMinX = 0.0f;
+    float mMinY = 0.0f;
+    float mSpanX = 0.0f;
+    float mSpanY = 0.0f;
+    float mWidth = 0.0f;
+    float mHeight = 0.0f;
 };
 
 // TodWeightedArray -- the { item, weight } pair the Tod picking helpers walk.

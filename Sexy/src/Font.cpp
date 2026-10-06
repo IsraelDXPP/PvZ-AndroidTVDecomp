@@ -3,6 +3,7 @@
 // the virtuals that actually paint.
 
 #include "Font.h"
+#include "Buffer.h"
 #include "Graphics.h"
 #include "ReconTypes.h"
 #include <string>
@@ -13,21 +14,6 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-
-namespace {
-
-void ClearExtents(int & theExtents)
-{
-  int *extents = &theExtents;
-  extents[0] = 0;
-  extents[1] = 0;
-  extents[2] = 0;
-  extents[3] = 0;
-  extents[4] = 0;
-  extents[5] = 0;
-}
-
-} // namespace
 
 Sexy::Font::~Font()
 {
@@ -133,22 +119,18 @@ bool Sexy::Font::IsComposited()
   return mIsComposited;
 }
 
-void Sexy::Font::GlyphExtentsList(int const& theGlyphsList, int & theExtents)
+void Sexy::Font::GlyphExtentsList(std::list<const Glyph*> const& theGlyphsList, TextExtents& theExtents)
 {
   (void)theGlyphsList;
-  ClearExtents(theExtents);
+  theExtents = TextExtents();
 }
 
-void Sexy::Font::StringExtents(Sexy::String const& theString, int & theExtents)
+void Sexy::Font::StringExtents(Sexy::String const& theString, TextExtents& theExtents)
 {
-  // Widen, then measure through the wide overload. Sexy::String is the
-  // one-word string this port uses for that widened copy.
-  Sexy::String wide;
-  if (theString.size() != 0)
-    StringToWString(&wide, theString.c_str());
-
-  const std::wstring &wideText = *static_cast<const std::wstring *>(static_cast<const void *>(&wide));
-  StringExtentsUnicode(wideText, theExtents);
+  Buffer aText;
+  aText.mData.assign(theString.data(), theString.data() + theString.size());
+  aText.mDataBitSize = (int)aText.mData.size() * 8;
+  StringExtentsUnicode(aText.UTF8ToWideString(), theExtents);
 }
 
 int Sexy::Font::CharWidth(int theChar)
@@ -159,24 +141,18 @@ int Sexy::Font::CharWidth(int theChar)
 }
 
 void Sexy::Font::GlyphExtentsVector(std::vector<Sexy::Glyph> const& theGlyphs,
-                                    int & theExtents)
+                                    TextExtents& theExtents)
 {
-  std::list<Sexy::Glyph const *> glyphList;
-  for (unsigned int i = 0; i < theGlyphs.size(); ++i)
-    glyphList.push_back(&theGlyphs[i]);
-
-  // The list overload is declared against an int reference because callers
-  // hold the glyph list that way. The list object is the same argument.
-  const int &glyphListArg = *static_cast<int const *>(static_cast<const void *>(&glyphList));
-  GlyphExtentsList(glyphListArg, theExtents);
+  std::list<const Glyph*> aGlyphList;
+  for (const Glyph& aGlyph : theGlyphs)
+    aGlyphList.push_back(&aGlyph);
+  GlyphExtentsList(aGlyphList, theExtents);
 }
 
-void Sexy::Font::StringExtentsUnicode(std::wstring const& theString, int & theExtents)
+void Sexy::Font::StringExtentsUnicode(std::wstring const& theString, TextExtents& theExtents)
 {
-  ClearExtents(theExtents);
-
-  const Sexy::String &wide = *static_cast<const Sexy::String *>(static_cast<const void *>(&theString));
-  if (wide.size() == 0)
+  theExtents = TextExtents();
+  if (theString.empty())
     return;
 
   std::vector<Sexy::Glyph> glyphs;
