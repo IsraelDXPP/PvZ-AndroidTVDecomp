@@ -31,7 +31,7 @@ public:
     virtual void SetVolume(double theVolume) = 0;              //  28
     virtual void SetMasterVolumeIdx(int theIndex) = 0;         //  32
     virtual void SetPan(int thePan) = 0;                       //  36
-    virtual void Play(bool theIsMusic, bool theForcePlay) = 0; //  40
+    virtual void Play(bool theLoop, bool theAutoRelease) = 0;  //  40
     virtual void Stop() = 0;                                   //  44
     virtual bool IsPlaying() = 0;                              //  48
     virtual bool IsReleased() = 0;                             //  52

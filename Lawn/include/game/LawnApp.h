@@ -754,7 +754,7 @@ Sexy::Dialog *DoConfirmRestartDialog();
     int SetDingusText(Sexy::String &theText);
     void DeleteSavedGame();
     int CanShopLevel();
-    int ShopPadCanShow();
+    bool ShopPadCanShow();
     void StartHelp(int theHelpIndex);
     void SdkExit();
     void setErrorCode(Sexy::String theErrorCode);
@@ -1018,4 +1018,3 @@ Sexy::Dialog *DoConfirmRestartDialog();
 // declares the binary's `Sexy::Thread` (a pthread_t plus a validity flag, 8 bytes)
 // next to TM::Thread (12 bytes) and LawnSession uses the former. So this is a hard
 // check with no second term.
-

@@ -200,7 +200,6 @@ OpenALSoundBuffer* UploadPcm(ALenum theFormat, const unsigned char* thePcm,
 
     OpenALSoundBuffer* aResult = new OpenALSoundBuffer;
     aResult->mLengthSeconds = (theLength > 0.0) ? theLength : 0.0;
-    aResult->mRefCount = 0;
 
     alGetError();
     alGenBuffers(1, &aResult->mBuffer);
@@ -364,7 +363,7 @@ Sexy::SoundManager::~SoundManager()
 // OpenALSoundBuffer
 // ===========================================================================
 OpenALSoundBuffer::OpenALSoundBuffer()
-    : mBuffer(0), mRefCount(0), mLengthSeconds(0.0)
+    : mBuffer(0), mLengthSeconds(0.0), mBaseVolume(1.0), mBasePan(0)
 {
 }
 
@@ -380,16 +379,13 @@ OpenALSoundBuffer::~OpenALSoundBuffer()
 // ===========================================================================
 // OpenALSoundInstance
 // ===========================================================================
-OpenALSoundInstance::OpenALSoundInstance(OpenALSoundManager *theManager, OpenALSoundBuffer *theBuffer)
+OpenALSoundInstance::OpenALSoundInstance(OpenALSoundManager *theManager, const std::shared_ptr<OpenALSoundBuffer>& theBuffer)
     : mManager(theManager), mSource(0), mBuffer(theBuffer), mPlaying(false), mReleased(false),
-      mIsMusic(false), mBaseVolume(1.0), mVolume(1.0), mPan(0), mBaseRate(1.0)
+      mAutoRelease(false), mBaseVolume(1.0), mVolume(1.0), mPan(0), mBaseRate(1.0)
 {
     alGenSources(1, &mSource);
     if (mSource != 0 && mBuffer != nullptr && mBuffer->mBuffer != 0)
         alSourcei(mSource, AL_BUFFER, (ALint)mBuffer->mBuffer);
-
-    if (mBuffer != nullptr)
-        ++mBuffer->mRefCount;
 }
 
 OpenALSoundInstance::~OpenALSoundInstance()
@@ -400,12 +396,7 @@ OpenALSoundInstance::~OpenALSoundInstance()
         alDeleteSources(1, &mSource);
         mSource = 0;
     }
-    if (mBuffer != nullptr)
-    {
-        --mBuffer->mRefCount;
-        // The manager owns the buffers, so a buffer that reaches zero here is
-        // released by ReleaseSound, not by this destructor.
-    }
+    // The source must be deleted before its shared buffer reference is dropped.
 }
 
 void OpenALSoundInstance::Release()
@@ -464,15 +455,14 @@ void OpenALSoundInstance::SetPan(int thePan)
     SetBasePan(thePan);
 }
 
-void OpenALSoundInstance::Play(bool theIsMusic, bool theForcePlay)
+void OpenALSoundInstance::Play(bool theLoop, bool theAutoRelease)
 {
-    if (mSource == 0)
+    if (mSource == 0 || mReleased)
         return;
 
-    mIsMusic = theIsMusic;
-    if (theForcePlay)
-        alSourceStop(mSource);
-
+    mAutoRelease = theAutoRelease;
+    alSourceStop(mSource);
+    alSourcei(mSource, AL_LOOPING, theLoop ? AL_TRUE : AL_FALSE);
     ApplyState();
     alSourcePlay(mSource);
     mPlaying = true;
@@ -499,7 +489,7 @@ bool OpenALSoundInstance::IsPlaying()
 
 bool OpenALSoundInstance::IsReleased()
 {
-    return mReleased;
+    return mReleased || (mAutoRelease && !IsPlaying());
 }
 
 void OpenALSoundInstance::ApplyState()
@@ -682,8 +672,7 @@ bool OpenALSoundManager::LoadSound(unsigned int theSoundId, const String & theFi
 
     if (theSoundId >= mBuffers.size())
         mBuffers.resize(theSoundId + 1, nullptr);
-    delete mBuffers[theSoundId];
-    mBuffers[theSoundId] = aBuffer2;
+    mBuffers[theSoundId].reset(aBuffer2);
     return true;
 }
 
@@ -701,8 +690,7 @@ void OpenALSoundManager::ReleaseSound(unsigned int theSoundId)
 {
     if (theSoundId >= mBuffers.size())
         return;
-    delete mBuffers[theSoundId];
-    mBuffers[theSoundId] = nullptr;
+    mBuffers[theSoundId].reset();
 }
 
 void OpenALSoundManager::SetVolume(double theVolume)
@@ -714,23 +702,19 @@ void OpenALSoundManager::SetVolume(double theVolume)
 
 void OpenALSoundManager::SetVolume(int theSoundId, double theVolume)
 {
-    SoundInstance *anInstance = GetSoundInstance((unsigned int)theSoundId);
-    if (anInstance != nullptr)
-        anInstance->SetVolume(theVolume);
+    SetBaseVolume((unsigned int)theSoundId, theVolume);
 }
 
 void OpenALSoundManager::SetBaseVolume(unsigned int theSoundId, double theVolume)
 {
-    SoundInstance *anInstance = GetSoundInstance(theSoundId);
-    if (anInstance != nullptr)
-        anInstance->SetBaseVolume(theVolume);
+    if (theSoundId < mBuffers.size() && mBuffers[theSoundId] != nullptr)
+        mBuffers[theSoundId]->mBaseVolume = theVolume;
 }
 
 void OpenALSoundManager::SetBasePan(unsigned int theSoundId, int thePan)
 {
-    SoundInstance *anInstance = GetSoundInstance(theSoundId);
-    if (anInstance != nullptr)
-        anInstance->SetBasePan(thePan);
+    if (theSoundId < mBuffers.size() && mBuffers[theSoundId] != nullptr)
+        mBuffers[theSoundId]->mBasePan = thePan;
 }
 
 bool OpenALSoundManager::IsPlaying(unsigned int theSoundId)
@@ -762,16 +746,16 @@ SoundInstance *OpenALSoundManager::GetSoundInstance(unsigned int theSoundId)
     if (theSoundId >= mBuffers.size() || mBuffers[theSoundId] == nullptr)
         return nullptr;
 
-    // Reuse a free instance for this buffer before making another one. OpenAL
-    // sources are a finite hardware resource and the game asks for the same
-    // sound many times per second.
-    for (size_t i = 0; i < mInstances.size(); ++i)
-    {
-        if (mInstances[i]->mBuffer == mBuffers[theSoundId] && !mInstances[i]->IsPlaying())
-            return mInstances[i];
-    }
-
+    // A stopped source may still belong to a Foley client. Each request owns
+    // its instance until Release, or until auto-release playback finishes.
     OpenALSoundInstance *anInstance = new OpenALSoundInstance(this, mBuffers[theSoundId]);
+    if (anInstance->mSource == 0)
+    {
+        delete anInstance;
+        return nullptr;
+    }
+    anInstance->SetBaseVolume(mBuffers[theSoundId]->mBaseVolume);
+    anInstance->SetBasePan(mBuffers[theSoundId]->mBasePan);
     mInstances.push_back(anInstance);
     return anInstance;
 }
@@ -782,8 +766,6 @@ void OpenALSoundManager::ReleaseSounds()
         delete mInstances[i];
     mInstances.clear();
 
-    for (size_t i = 0; i < mBuffers.size(); ++i)
-        delete mBuffers[i];
     mBuffers.clear();
 }
 
@@ -851,7 +833,7 @@ void OpenALSoundManager::Update()
     // grow without bound over a long level.
     for (size_t i = 0; i < mInstances.size(); )
     {
-        if (mInstances[i]->mReleased)
+        if (mInstances[i]->IsReleased())
         {
             delete mInstances[i];
             mInstances.erase(mInstances.begin() + i);

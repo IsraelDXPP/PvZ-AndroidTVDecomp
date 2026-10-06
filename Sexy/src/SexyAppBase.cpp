@@ -965,7 +965,7 @@ void SexyAppBase::DrawOneFrame()
 
 void SexyAppBase::UpdateFrames()
 {
-    ++mUpdateAppState;
+    ++mUpdateCount;
     if (!mMinimized && mWidgetManager != nullptr && mWidgetManager->UpdateFrame() != 0)
         ++mFPSDirtyCount;
 
@@ -1247,13 +1247,19 @@ void SexyAppBase::PlaySample(int theSoundId)
         return;
     SoundInstance* aSound = mSoundManager->GetSoundInstance((unsigned int)theSoundId);
     if (aSound != nullptr)
-        aSound->Play(false, false);
+        aSound->Play(false, true);
 }
 
 void SexyAppBase::PlaySampleWithPan(int theSoundId, int thePan)
 {
-    (void)thePan;
-    PlaySample(theSoundId);
+    if (mSoundManager == nullptr)
+        return;
+    SoundInstance* aSound = mSoundManager->GetSoundInstance((unsigned int)theSoundId);
+    if (aSound != nullptr)
+    {
+        aSound->SetPan(thePan);
+        aSound->Play(false, true);
+    }
 }
 
 void SexyAppBase::PlaySampleSingle(int theSoundId)

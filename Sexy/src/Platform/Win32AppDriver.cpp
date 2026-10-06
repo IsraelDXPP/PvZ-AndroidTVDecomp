@@ -71,6 +71,7 @@
 
 #include <GLFW/glfw3.h>
 #include <process.h>
+#include <algorithm>
 #include <string.h>
 
 // ---------------------------------------------------------------------------
@@ -113,6 +114,7 @@ struct Win32AppDriver : Sexy::BaseAppDriver
     Sexy::IGraphicsBackend* mGraphics;
     int                     mWidth;
     int                     mHeight;
+    double                  mLastUpdateTime = -1.0;
 
     int InitAppDriver() override;
     int Startup() override;
@@ -669,7 +671,8 @@ int LTVCALL Slot_Init(void* theThis)
 // BaseAppDriver::UpdateAppStep @0x3F3C94. The flag starts false and becomes
 // true only when a real update advanced mUpdateCount. State 0 collects input
 // and then calls UpdateApp (vtable +520). State 1 runs one update, the
-// fractional update, and DrawDirtyStuff.
+// fractional update, and DrawDirtyStuff. Logic advances in mFrameTime-sized
+// steps independently of presentation and its frame cap.
 int LTVCALL Slot_UpdateAppStep(void* theThis, void* theContinue)
 {
     Win32AppDriver* self = (Win32AppDriver*)theThis;
@@ -712,8 +715,20 @@ int LTVCALL Slot_UpdateAppStep(void* theThis, void* theContinue)
     else
     {
         int anUpdateCount = anApp->mUpdateCount;
-        Slot_DoUpdateFrames(self);
-        Slot_DoUpdateFramesF(self, 1.0f);
+        double aStepSeconds = std::max(anApp->mFrameTime, 1) * 0.001;
+        double aNow = glfwGetTime();
+        double anElapsed = self->mLastUpdateTime < 0.0
+            ? aStepSeconds : std::clamp(aNow - self->mLastUpdateTime, 0.0, 0.25);
+        self->mLastUpdateTime = aNow;
+        anApp->mPendingUpdatesAcc += anElapsed * anApp->mUpdateMultiplier;
+        while (anApp->mPendingUpdatesAcc >= aStepSeconds)
+        {
+            anApp->mPendingUpdatesAcc -= aStepSeconds;
+            Slot_DoUpdateFrames(self);
+            if (anApp->mShutDown || anApp->mExitToTop)
+                break;
+        }
+        Slot_DoUpdateFramesF(self, static_cast<float>(anElapsed / aStepSeconds));
         anApp->DrawDirtyStuff();
         if (theContinue)
             *(bool*)theContinue = anApp->mUpdateCount != anUpdateCount;

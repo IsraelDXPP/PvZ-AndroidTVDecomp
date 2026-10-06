@@ -120,22 +120,19 @@ int ZenGardenControls::Update(float theDeltaTime)
 // ZenGardenControls::Draw(Sexy::Graphics *)
 // @001BDA64  88 bytes
 // ==========================================================================
-Board *ZenGardenControls::Draw(Sexy::Graphics * g)
+void ZenGardenControls::Draw(Sexy::Graphics * g)
 {
   // The dump's 2376 read off the app is LawnApp::mCrazyDaveState (+0x948).
   if (mGamepadIndex == -1 || mApp->mCrazyDaveState > 2)
-    return nullptr;
+    return;
 
   CursorObject *aCursor = mBoard->mCursorObject[mPlayerIndex];
   if (!aCursor->BeginDraw(g))
-    return nullptr;
+    return;
 
   aCursor->Draw(g);
   aCursor->EndDraw(g);
 
-  // The dump leaves EndDraw's (void) result in r0 and returns it; nothing reads
-  // the value, so the recon signature's `Board *` comes back null.
-  return nullptr;
 }
 
 // ==========================================================================

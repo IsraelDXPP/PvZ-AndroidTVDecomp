@@ -18,6 +18,9 @@
 class ReanimatorDefinition;
 class TodParticleDefinition;
 class TrailDefinition;
+struct ProjectileDefinition;
+
+extern const ProjectileDefinition gProjectileDefinition[14];
 
 // The empty C string (see the note in ReconGlobals.cpp): two zero bytes in the
 // binary, passed as `const char *` by every call site.
@@ -214,7 +217,8 @@ extern int gFoleyParamArraySize;
 extern bool gIsPartnerBuild;
 
 // Zombie type by level. Row stride is 51 (type, then levels 1..50).
-extern unsigned char gZombieAllowedLevels[];
+extern const bool gZombieAllowedLevels[][50];
+extern const int gZombieWaves[50];
 
 // Six decoded music buffers. MusicDispose walks them and deletes each.
 extern void* gMusicFileData[6];

@@ -42,6 +42,7 @@
 #include "SoundInstance.h"
 
 #include <map>
+#include <memory>
 #include <vector>
 
 struct openmpt_module_ext;
@@ -65,15 +66,16 @@ class OpenALSoundBuffer;
 class OpenALSoundInstance;
 
 // ---------------------------------------------------------------------------
-// One decoded PCM buffer. Shared by every instance that plays the same sound,
-// which is why the reference count is here rather than in the instance.
+// One decoded PCM buffer shared by every instance that plays the same sound.
+// Both the manager and its source instances retain the buffer until unused.
 // ---------------------------------------------------------------------------
 class OpenALSoundBuffer
 {
 public:
     ALuint  mBuffer;        // the OpenAL buffer name, 0 when not uploaded
-    int     mRefCount;      // instances holding it
     double  mLengthSeconds; // for the "is it still playing" fallback
+    double  mBaseVolume;
+    int     mBasePan;
 
     OpenALSoundBuffer();
     ~OpenALSoundBuffer();
@@ -88,17 +90,17 @@ class OpenALSoundInstance : public SoundInstance
 public:
     OpenALSoundManager *mManager;
     ALuint              mSource;
-    OpenALSoundBuffer  *mBuffer;
+    std::shared_ptr<OpenALSoundBuffer> mBuffer;
     bool                mPlaying;
     bool                mReleased;
-    bool                mIsMusic;
+    bool                mAutoRelease;
     double              mBaseVolume;
     double              mVolume;
     int                 mPan;
     double              mBaseRate;
 
 public:
-    OpenALSoundInstance(OpenALSoundManager *theManager, OpenALSoundBuffer *theBuffer);
+    OpenALSoundInstance(OpenALSoundManager *theManager, const std::shared_ptr<OpenALSoundBuffer>& theBuffer);
     virtual ~OpenALSoundInstance();
 
     // SoundInstance
@@ -110,7 +112,7 @@ public:
     virtual void SetVolume(double theVolume) override;
     virtual void SetMasterVolumeIdx(int theIndex) override;
     virtual void SetPan(int thePan) override;
-    virtual void Play(bool theIsMusic, bool theForcePlay) override;
+    virtual void Play(bool theLoop, bool theAutoRelease) override;
     virtual void Stop() override;
     virtual bool IsPlaying() override;
     virtual bool IsReleased() override;
@@ -135,7 +137,7 @@ public:
     bool        mInitialized;
 
     // Indexed by sound id. A null entry means "that id is not loaded".
-    std::vector<OpenALSoundBuffer *> mBuffers;
+    std::vector<std::shared_ptr<OpenALSoundBuffer>> mBuffers;
     // The live instances, so Update can reap the finished ones.
     std::vector<OpenALSoundInstance *> mInstances;
 

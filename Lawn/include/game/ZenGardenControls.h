@@ -17,15 +17,7 @@
 // VTABLE: the same 18 slots as GamepadControls; this class replaces its own
 // implementations. Slots [0] OnButtonDown, [3] OnKeyDown, [5] Update and [16] the
 // destructor are the ones declared as overrides here.
-// The `_DWORD *` returns this file used to carry for Update and Draw were
-// decompiler artefacts: they differed from GamepadControls' `int Update(float)` /
-// `Board * Draw(Sexy::Graphics *)` and were implicit overrides anyway, so they
-// emitted C2555. An erroneous class declaration collapses sizeof() to 1, which was
-// the only reason the layout assertion at the bottom failed -- measured with the
-// offending declarations neutralised, sizeof(ZenGardenControls) is exactly 0x10C,
-// i.e. GamepadControls (0x108) plus the single mObjectType word below.
-// TODO(recon): ZenGardenControls.cpp:55/153 still spell Update and Draw `_DWORD *`
-// and OnKeyDown `int`, and must be retyped to `int` / `Board *` / `bool`.
+// Draw overrides the Graphics* callback in GamepadControls.
 
 #pragma once
 
@@ -63,8 +55,7 @@ public:
     virtual int Update(float theDeltaTime);                                              // [ 5] 0x014
     virtual void OnButtonUp(int theButton, int thePlayerIndex, unsigned int theFlags);
     virtual void OnGameAxisMove(int theAxis, int theValue, int thePlayerIndex);
-    Board * Draw(Sexy::Graphics * g);
+    void Draw(Sexy::Graphics *theGraphics) override;
 
     ZenGardenControls(Board * theBoard, int thePlayerIndex1, int thePlayerIndex2);
 };
-

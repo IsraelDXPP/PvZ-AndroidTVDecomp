@@ -87,12 +87,6 @@
 // Declared here because no header owns it yet (lead: add to Sexy/ReconData.h).
 extern int gShownMoreSunTutorial;
 
-// Global from the original binary; IDA named it gZombieWaves (@0x695C38) -- the
-// 50-entry wave-count table Board::PickZombieWaves indexes by level index. The
-// values are 4,6,8,10,8,10,20,... (dumped from the image).
-// Declared here because no header owns it yet (lead: add to Sexy/ReconData.h).
-extern int gZombieWaves[50];
-
 // The reanimation parameter table. No header owns it yet. Reanimation.cpp
 // declares the same two words, and Sexy::Board indexes them as 12-byte records.
 // (lead: move these to Sexy/ReconData.h and drop the local declarations.)
@@ -647,22 +641,17 @@ Projectile * Board::AddProjectile(int theX, int theY, int theRenderOrder, int th
 // Board::CanZombieSpawnOnLevel(ZombieType,int)
 // @0015215C  90 bytes
 // ==========================================================================
-int Board::CanZombieSpawnOnLevel(ZombieType theZombieType, int theLevel)
+bool Board::CanZombieSpawnOnLevel(ZombieType theZombieType, int theLevel)
 {
-  // GetZombieDefinition returns a ZombieDefinition*; this tree has no typed
-  // declaration for it, so the two fields Board reads stay at their own slots:
-  //   +0x0C  the first level the zombie is allowed to appear on
-  //   +0x14  a flag; when clear the zombie ignores the level table entirely
   ZombieDefinition *aDefinition = GetZombieDefinition(theZombieType);
   if ( theZombieType == ZOMBIE_YETI )
-    return static_cast<LawnApp *>((void *)gLawnApp)->CanSpawnYetis();
+    return gLawnApp->CanSpawnYetis();
   if ( aDefinition->mStartingLevel > theLevel )
-    return 0;
+    return false;
   if ( aDefinition->mZombieCost == 0 )
-    return 0;
+    return false;
 
-  // gZombieAllowedLevels is [zombie type][level 1..50]; index 0 of each row is
-  // unused, so the row stride is 51.
+  // The original table stores a type tag before each row's 50 level permissions.
   int aLevelIndex = theLevel - 1;
   if ( aLevelIndex > 0 )
   {
@@ -671,7 +660,7 @@ int Board::CanZombieSpawnOnLevel(ZombieType theZombieType, int theLevel)
   }
   else
     aLevelIndex = 0;
-  return gZombieAllowedLevels[51 * theZombieType + 1 + aLevelIndex] != 0;
+  return gZombieAllowedLevels[theZombieType][aLevelIndex];
 }
 
 // ==========================================================================
@@ -11184,30 +11173,25 @@ int Board::InitLevel()
     mSeedBank[1]->UpdateWidth();
   }
 
-  int aPitch = 0;
+  int aBankHeight = IMAGE_SEEDBANK->GetHeight();
   if ( mApp->mGameMode == GAMEMODE_MULTI_PLAYER )
   {
-    aPitch = IMAGE_SEEDBANK->GetPitch();
-    mSeedBank[0]->Move(-65, -2 * aPitch);
+    mSeedBank[0]->Move(-65, -2 * aBankHeight);
     if ( mSeedBank[1] != nullptr )
     {
-      aPitch = IMAGE_SEEDBANK->GetPitch();
-      mSeedBank[1]->Move(403, 2 * (aPitch + 336));
+      mSeedBank[1]->Move(403, 2 * (aBankHeight + 336));
     }
   }
   else if ( mApp->mGameMode == GAMEMODE_CHALLENGE_SLOT_MACHINE )
   {
-    aPitch = IMAGE_SEEDBANK->GetPitch();
-    mSeedBank[0]->Move(64, -2 * aPitch);
+    mSeedBank[0]->Move(64, -2 * aBankHeight);
   }
   else
   {
-    aPitch = IMAGE_SEEDBANK->GetPitch();
-    mSeedBank[0]->Move(0, -2 * aPitch);
+    mSeedBank[0]->Move(0, -2 * aBankHeight);
     if ( mSeedBank[1] != nullptr )
     {
-      aPitch = IMAGE_SEEDBANK->GetPitch();
-      mSeedBank[1]->Move(480, -2 * aPitch);
+      mSeedBank[1]->Move(480, -2 * aBankHeight);
     }
   }
 
@@ -12390,7 +12374,7 @@ int Board::DrawGameObjects(Sexy::Graphics *g)
       {
         GameObject *aObject = aItem.mObject;
         aObject->BeginDraw(g);
-        static_cast<BaseGamepadControls *>(aObject)->Draw();
+        static_cast<BaseGamepadControls *>(aObject)->Draw(g);
         aObject->EndDraw(g);
         break;
       }

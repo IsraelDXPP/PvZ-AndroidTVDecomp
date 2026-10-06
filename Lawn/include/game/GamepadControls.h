@@ -25,20 +25,7 @@
 //   [  7] 0x01C  Draw                     [ 16] 0x040  ~GamepadControls (D1)
 //   [  8] 0x020  EndDraw                  [ 17] 0x044  ~GamepadControls (D0; MSVC: 1 slot)
 //
-// SLOT ALIGNMENT STATUS -- read this before "fixing" the declarations below.
-// BaseGamepadControls.h used to declare slots [0] OnButtonDown, [3] OnKeyDown and
-// [6] BeginDraw with `Board **`, `Challenge *` and `int` returns, which no longer
-// matched this class's bodies and made every same-named declaration here an
-// implicit override with a different return type (C2555). An erroneous class
-// declaration collapses sizeof() to 1, so the layout check at the bottom of this
-// file could not pass; the member table itself was never wrong (measured with the
-// conflicting declarations neutralised, sizeof(GamepadControls) is exactly 0x108).
-// The base now carries the authoritative return types
-// (PvZ\Lawn\BaseGamepadControls.h:68-74: slot [0] void, slot [3] bool, slot [6] bool)
-// and this class declares the four real overrides, so no C2555 is emitted here.
-// The bodies in GamepadControls.cpp still spell OnKeyDown `int` and EndDraw `int`
-// and must be retyped to `bool` / `void` (EndDraw's `void` comes from
-// GameObject::EndDraw, which takes Sexy::Graphics *).
+// Draw callbacks share the Graphics* signatures of BaseGamepadControls.
 
 #pragma once
 
@@ -107,16 +94,12 @@ public:
     virtual bool OnKeyDown(Sexy::KeyCode theKey, unsigned int theFlags);                 // [ 3] 0x00C
     virtual int OnKeyUp(Sexy::KeyCode theKey, unsigned int theFlags); // [ 4] 0x010
     virtual int Update(float theDeltaTime);                          // [ 5] 0x014
-    virtual bool BeginDraw();                                        // [ 6] 0x018
-    virtual void EndDraw(Sexy::Graphics * g);                        // [ 8] 0x020
+    bool BeginDraw(Sexy::Graphics *theGraphics) override;             // [ 6] 0x018
+    void Draw(Sexy::Graphics *theGraphics) override;                  // [ 7] 0x01C
+    void EndDraw(Sexy::Graphics *theGraphics) override;               // [ 8] 0x020
     virtual void MakeParentGraphicsFrame();                          // [ 9] 0x024
     virtual int UpdateStates(float theDeltaTime);                    // [12] 0x030
     virtual ~GamepadControls();                                      // [16] 0x040
-
-    // ---- methods the binary has that are NOT vtable overrides --------------
-    // Draw takes a Sexy::Graphics * while the base's slot [7] Draw takes none,
-    // so it hides the base name instead of replacing the slot.
-    void Draw(Sexy::Graphics * g);
 
     // ---- methods the binary has but the authoritative header does not list ----
     // The transcription gave several of these the return type of whatever the
@@ -170,4 +153,3 @@ public:
 };
 
 // Layout check: BaseGamepadControls (0xAC) + 0x5C of own members = 0x108.
-

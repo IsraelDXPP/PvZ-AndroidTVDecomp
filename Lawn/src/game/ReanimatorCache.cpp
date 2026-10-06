@@ -245,7 +245,7 @@ int ReanimatorCache::ReanimatorCacheDispose()
 // ReanimatorCache::DrawCachedPlant(Sexy::Graphics *,float,float,SeedType,DrawVariation)
 // @001A5210  286 bytes
 // ==========================================================================
-int ReanimatorCache::DrawCachedPlant(Sexy::Graphics * theGraphics, float theX, float theY, SeedType theSeedType, DrawVariation theVariation)
+void ReanimatorCache::DrawCachedPlant(Sexy::Graphics * theGraphics, float theX, float theY, SeedType theSeedType, DrawVariation theVariation)
 {
   Sexy::Image *aPlantImage;
 
@@ -255,8 +255,10 @@ int ReanimatorCache::DrawCachedPlant(Sexy::Graphics * theGraphics, float theX, f
   {
     aPlantImage = mPlantImages[theSeedType];
     if (aPlantImage == nullptr)
+    {
       OutputDebug("(!!) ReanimatorCache uninitialized plant variation (%d).\n", (int)theSeedType);
-      return 0;
+      return;
+    }
   }
   else
   {
@@ -272,9 +274,11 @@ int ReanimatorCache::DrawCachedPlant(Sexy::Graphics * theGraphics, float theX, f
       }
     }
     if (aPlantImage == nullptr)
+    {
       OutputDebug("(!!) ReanimatorCache uninitialized plant variation (%d)-(%d).\n",
                   (int)theSeedType, (int)theVariation);
-      return 0;
+      return;
+    }
   }
 
   int aOffsetX, aOffsetY, aWidth, aHeight;
@@ -285,15 +289,16 @@ int ReanimatorCache::DrawCachedPlant(Sexy::Graphics * theGraphics, float theX, f
   // Is3DAccelerated comes from SexyAppBase, which LawnApp reaches through
   // GamepadApp -> SexyCommonApp; the TV original does not override it.
   if (mApp->Is3DAccelerated() == 0 && theGraphics->mScaleX == 1.0 && theGraphics->mScaleY == 1.0)
+  {
     theGraphics->DrawImage(aPlantImage, (int)(theX + (float)aOffsetX), (int)(theY + (float)aOffsetY));
-  return 0;
+    return;
+  }
 
   TodDrawImageScaledF(theGraphics, aPlantImage,
                       theX + (float)(theGraphics->mScaleX * (float)aOffsetX),
                       theY + (float)(theGraphics->mScaleY * (float)aOffsetY),
                       theGraphics->mScaleX,
                       theGraphics->mScaleY);
-  return 0;
 }
 
 // ==========================================================================

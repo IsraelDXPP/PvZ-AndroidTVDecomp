@@ -53,22 +53,6 @@ class Board;
 class CutScene;
 class LawnApp;
 
-// One 12-byte record of the projectile definition table (gProjectileDefinition @
-// 0x69702C, one entry per ProjectileType). The authoritative header
-// (PvZ\Lawn\Board\Projectile.h:34) declares this class and spells the first two
-// fields. Which word is which is fixed by the two bodies that read it:
-// Draw's source rectangle is `mImageRow * GetCelHeight()` off +0x04, and every
-// DoImpact/DoSplashDamage/CheckForCollision body subtracts +0x08 from a health
-// field -- so +0x04 is the image row and +0x08 the damage. Three words make 12.
-class ProjectileDefinition
-{
-public:
-    int mProjectileType; // +0x00
-    int mImageRow;       // +0x04
-    int mDamage;         // +0x08
-    // size 0x0C
-};
-
 class Projectile : public GameObject
 {
 public:
@@ -87,7 +71,7 @@ public:
     // +0x04 of the record is the image row and +0x08 its damage, so the return
     // really is a ProjectileDefinition; the transcribed `char *` only stood in for
     // "pointer into the gProjectileDefinition table".
-    ProjectileDefinition * GetProjectileDef();
+    const ProjectileDefinition * GetProjectileDef();
     // The binary returns a 16-byte Sexy::Rect BY VALUE -- ARM passes the
     // destination buffer in r0, which is why the transcription merged it with
     // `this` and wrote the rectangle over the object's own +0x00..+0x0C (the

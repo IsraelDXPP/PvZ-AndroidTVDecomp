@@ -4998,27 +4998,23 @@ int LawnApp::CanShopLevel()
 // LawnApp::ShopPadCanShow()
 // @002BA614  102 bytes
 // ==========================================================================
-int LawnApp::ShopPadCanShow()
+bool LawnApp::ShopPadCanShow()
 {
   if ( mBoard == nullptr )
-    return 0;
+    return false;
 
   CutScene *aCutScene = mBoard->mCutScene;
-  if ( aCutScene == nullptr || mGameMode != 0 )
-    return 0;
+  if ( aCutScene == nullptr || mGameMode != GAMEMODE_ADVENTURE )
+    return false;
 
-  if ( mBoard->mSodPosition % 5 == 0 )
-    return 0;
+  if ( mBoard->mLevel % 5 == 0 )
+    return false;
 
-  // The pad only fits once the cutscene's remaining phases, plus the fixed 6000
-  // units of hand-over, fit inside the scene's own length.
-  int aRemaining = aCutScene->mCutsceneTime + aCutScene->mGraveStoneTime
-                 + aCutScene->mFogTime + aCutScene->mBossTime
-                 + aCutScene->mLawnMowerTime + aCutScene->mReadySetPlantTime + 6000;
-  int aTotal = aCutScene->mCrazyDaveTime;
-  if ( aRemaining <= aTotal || aTotal <= 0 )
-    return 1;
-  return 0;
+  // 0x2BA614 permits input after the cutscene phases, or once its timer is cleared.
+  int aIntroEnd = aCutScene->mGraveStoneTime + aCutScene->mLawnMowerTime + 6000
+                + aCutScene->mSodTime + aCutScene->mCrazyDaveTime
+                + aCutScene->mFogTime + aCutScene->mBossTime;
+  return aIntroEnd <= aCutScene->mCutsceneTime || aCutScene->mCutsceneTime <= 0;
 }
 
 // ==========================================================================

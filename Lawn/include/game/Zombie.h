@@ -233,7 +233,7 @@ public:
     int CanTargetPlant(Plant *thePlant, ZombieAttackType theAttackType);
     int SquishAllInSquare(int theGridX, int theGridY, ZombieAttackType theAttackType);
     bool IsImmobilizied();
-    char * ZombieNotWalking();
+    bool ZombieNotWalking();
     int GetDancerFrame();
     int GetDancerPhase();
     int DrawZombiePart(Sexy::Graphics *g, Sexy::Image *theImage, int theFrame, int theRow, ZombieDrawPosition &theDrawPos);
@@ -301,10 +301,10 @@ public:
     int DropArm(unsigned int theDamageFlags);
     // 0x1AC4B4. r0 is whatever the last call left (ZombieNotWalking, a bool, or
     // AddTodParticle). The one caller that keeps it recovers with (char *)(intptr_t).
-    int UpdateZombieWalking();
+    void UpdateZombieWalking();
     // 0x1AC760. Early outs return this; every other path returns UpdateZombieWalking's
     // r0. The only caller ignores it.
-    int UpdateZombieWalkingIntoHouse();
+    void UpdateZombieWalkingIntoHouse();
     int DrawReanim(Sexy::Graphics *g, ZombieDrawPosition &theDrawPos, int theBaseRenderGroup);
     void DrawBungeeReanim(Sexy::Graphics *g, ZombieDrawPosition &theDrawPos);
     int Draw(Sexy::Graphics *g);

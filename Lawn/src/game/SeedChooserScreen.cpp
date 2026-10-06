@@ -456,12 +456,12 @@ int SeedChooserScreen::VSAutoPickResourceGen()
 // SeedChooserScreen::DrawPacket(Sexy::Graphics *,int,int,int,int,float,int,Sexy::Color &,bool,bool)
 // @0014C71C  156 bytes
 // ==========================================================================
-int SeedChooserScreen::DrawPacket(Sexy::Graphics * g, int theX, int theY, int theSeedType, int theImitaterType, float thePercentDark, int theGrayness, Color & theColor, bool theDrawCost, bool theUseCurrentCost)
+void SeedChooserScreen::DrawPacket(Sexy::Graphics * g, int theX, int theY, int theSeedType, int theImitaterType, float thePercentDark, int theGrayness, Color & theColor, bool theDrawCost, bool theUseCurrentCost)
 {
   // The brightness offset is halved and pushed by the packet colour's own
   // average, so a darker packet gets less of it.
   const int aAverage = (theColor.GetRed() + theColor.GetGreen() + theColor.GetBlue()) / 3;
-  return DrawSeedPacket(
+  DrawSeedPacket(
            g,
            (float)theX,
            (float)theY,

@@ -65,7 +65,7 @@ void GamepadControls::OnGameAxisMove(int theAxis, int theValue, int thePlayerInd
 // GamepadControls::BeginDraw(Sexy::Graphics *)
 // @001BCE64  12 bytes
 // ==========================================================================
-bool GamepadControls::BeginDraw()
+bool GamepadControls::BeginDraw(Sexy::Graphics *theGraphics)
 {
   // The cursor is only drawn while a gamepad owns this player.
   return mGamepadIndex != -1;
@@ -556,15 +556,6 @@ int GamepadControls::FreeUseShopPacketAndBack()
 // ==========================================================================
 void GamepadControls::DrawPreview(Sexy::Graphics * g)
 {
-  // PlantDrawHeightOffset is declared int (varargs stub) but returns the
-  // height in r0 as raw float bits. Copy them; do not convert the int.
-  auto aHeightBits = [](int aBits) -> float
-  {
-    float aHeight;
-    std::memcpy(&aHeight, &aBits, sizeof(aHeight));
-    return aHeight;
-  };
-
   int aGridX = mBoard->PixelToGridXKeepOnBoard((int)mCursorPositionX, (int)mCursorPositionY);
   int aGridY = mBoard->PixelToGridYKeepOnBoard((int)mCursorPositionX, (int)mCursorPositionY);
 
@@ -663,7 +654,7 @@ void GamepadControls::DrawPreview(Sexy::Graphics * g)
       {
         // Both branches pass a null Plant*. The byte in r7 is only the
         // second argument on the non-zombie path below.
-        float aHeight = aHeightBits(PlantDrawHeightOffset(mBoard, nullptr, aSeedType, aGridX, aGridY));
+        float aHeight = PlantDrawHeightOffset(mBoard, nullptr, aSeedType, aGridX, aGridY);
         float aOffsetX = 0.0f;
         if ( aSeedType == SEED_ZOMBIE_GARGANTUAR )
         {
@@ -683,7 +674,7 @@ void GamepadControls::DrawPreview(Sexy::Graphics * g)
       }
       else if ( aSeedType <= SEED_LEFTPEATER )
       {
-        float aHeight = aHeightBits(PlantDrawHeightOffset(mBoard, nullptr, aSeedType, aGridX, aGridY));
+        float aHeight = PlantDrawHeightOffset(mBoard, nullptr, aSeedType, aGridX, aGridY);
         // An imitater cursor uses variation 1. Otherwise the variation is
         // mIsZombie, which this branch already proved is 0.
         DrawVariation aVariation = (DrawVariation)0;
@@ -703,7 +694,7 @@ void GamepadControls::DrawPreview(Sexy::Graphics * g)
           && mBoard->CanPlantAt(aGridX, aRow, aSeedType) == PLANTING_OK
           && aSeedType != SEED_NONE )
         {
-          float aRowHeight = aHeightBits(PlantDrawHeightOffset(mBoard, nullptr, aSeedType, aGridX, aRow));
+          float aRowHeight = PlantDrawHeightOffset(mBoard, nullptr, aSeedType, aGridX, aRow);
           float aRowY = aRowHeight + (float)(aRow - aGridY) * 85.0f;
           Plant::DrawSeedType(g, aSeedType,
                               mBoard->mCursorObject[mPlayerIndex]->mImitaterType,

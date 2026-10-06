@@ -852,7 +852,7 @@ void CutScene::AnimateBoard()
     // level has a chooser at all.
     int aTimeOffset = 0;
     if (!mBoard->ChooseSeedsOnCurrentLevel())
-        aTimeOffset = mLawnMowerTime + mGraveStoneTime + mSodTime + kTimePanLeft - kTimeChooserUpStart + mBossTime;
+        aTimeOffset = mFogTime + mGraveStoneTime + mSodTime + kTimePanLeft - kTimeChooserUpStart + mBossTime;
 
     int aSeedBankTime = kTimeSeedBankStart + mCrazyDaveTime + aTimeOffset;
     int aSeedBankEndTime = aTimeOffset + mCrazyDaveTime + kTimeSeedBankEnd;
@@ -1583,12 +1583,8 @@ void CutScene::DrawIntro(Sexy::Graphics * theGraphics)
   }
   if ( kTimeLogoScaleStart < mCutsceneTime && kTimeLogoEnd >= mCutsceneTime )
   {
-    // TodAnimateCurveFloat is the transcribed int-returning variadic shim, so
-    // the two float endpoints travel as the words that hold them and the answer
-    // comes back the same way: the logo scales 5.0 -> 1.0 over 5500..5900.
-    int aScaleBits = TodAnimateCurveFloat(kTimeLogoScaleStart, kTimeLogoScaleEnd, mCutsceneTime,
-                                          0x40A00000 /* 5.0f */, 0x3F800000 /* 1.0f */, 3);
-    float aScale = *(float *)&aScaleBits;
+    float aScale = TodAnimateCurveFloat(kTimeLogoScaleStart, kTimeLogoScaleEnd,
+                                       mCutsceneTime, 5.0f, 1.0f, CURVE_EASE_OUT);
 
     Sexy::Image *aLogo = IMAGE_PVZ_LOGO;
     theGraphics->SetColor(Sexy::Color(0, 0, 0, 128));
@@ -1634,9 +1630,6 @@ void CutScene::DrawMPFade(Sexy::Graphics * theGraphics, SexyVector2 & thePos)
   // The hole the fade opens around the winner, as a multiple of the transition
   // image's own size: it sits at 0.45 while the level runs, grows out of nothing
   // over the first second, and closes back up at the end.
-  // TodAnimateCurveFloat is the transcribed int-returning variadic shim, so the
-  // two float endpoints travel as the words that hold them and the answer comes
-  // back the same way.
   float aHoleScale;
   if ( mCutsceneTime < 0 )
   {
@@ -1644,9 +1637,8 @@ void CutScene::DrawMPFade(Sexy::Graphics * theGraphics, SexyVector2 & thePos)
   }
   else if ( mCutsceneTime < kTimeZombiesWonScream )
   {
-    int aScaleBits = TodAnimateCurveFloat(0, kTimeZombiesWonScream, mCutsceneTime,
-                                          0x3F800000 /* 1.0f */, 0x3DCCCCCD /* 0.1f */, 4);
-    aHoleScale = *(float *)&aScaleBits * 4.5f;
+    aHoleScale = TodAnimateCurveFloat(0, kTimeZombiesWonScream, mCutsceneTime,
+                                     1.0f, 0.1f, CURVE_EASE_IN_OUT) * 4.5f;
   }
   else if ( mCutsceneTime < kTimeZombiesWonWalkBack )
   {
@@ -1654,9 +1646,8 @@ void CutScene::DrawMPFade(Sexy::Graphics * theGraphics, SexyVector2 & thePos)
   }
   else if ( mCutsceneTime < kTimeZombiesWonOff )
   {
-    int aScaleBits = TodAnimateCurveFloat(kTimeZombiesWonWalkBack, kTimeZombiesWonOff, mCutsceneTime,
-                                          0x3DCCCCCD /* 0.1f */, 0x3F800000 /* 1.0f */, 1);
-    aHoleScale = *(float *)&aScaleBits * 4.5f;
+    aHoleScale = TodAnimateCurveFloat(kTimeZombiesWonWalkBack, kTimeZombiesWonOff,
+                                     mCutsceneTime, 0.1f, 1.0f, CURVE_LINEAR) * 4.5f;
   }
   else
   {

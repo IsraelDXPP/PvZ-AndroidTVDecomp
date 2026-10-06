@@ -1059,10 +1059,10 @@ bool Zombie::IsImmobilizied()
 // Zombie::ZombieNotWalking(void)
 // @001A8FB8  190 bytes
 // ==========================================================================
-char * Zombie::ZombieNotWalking()
+bool Zombie::ZombieNotWalking()
 {
     if (mIsEating || IsImmobilizied())
-        return (char *)1;
+        return true;
 
     if (mZombiePhase == PHASE_NEWSPAPER_MADDENING
         || mZombiePhase == PHASE_JACK_IN_THE_BOX_POPPING
@@ -1092,11 +1092,11 @@ char * Zombie::ZombieNotWalking()
         || mZombieType == ZOMBIE_BUNGEE
         || mZombieType == ZOMBIE_BOSS)
     {
-        return (char *)1;
+        return true;
     }
 
     if (mZombieType != ZOMBIE_DANCER && mZombieType != ZOMBIE_BACKUP_DANCER)
-        return nullptr;
+        return false;
 
     Zombie *aLeader;
     if (mZombieType == ZOMBIE_DANCER)
@@ -1107,20 +1107,20 @@ char * Zombie::ZombieNotWalking()
     {
         aLeader = mBoard->ZombieTryToGet(mRelatedZombieID);
         if (aLeader == nullptr)
-            return nullptr;
+            return false;
     }
 
     if (aLeader->IsImmobilizied() || aLeader->mIsEating)
-        return (char *)1;
+        return true;
 
     for (int i = 0; i < 4; i++)
     {
         Zombie *aFollower = mBoard->ZombieTryToGet(aLeader->mFollowerZombieID[i]);
         if (aFollower != nullptr && (aFollower->IsImmobilizied() || aFollower->mIsEating))
-            return (char *)1;
+            return true;
     }
 
-    return nullptr;
+    return false;
 }
 
 // ==========================================================================
@@ -2216,7 +2216,7 @@ float Zombie::ZombieTargetLeadX(float theTime)
         aLeadX = -aLeadX;
 
     aLeadX *= theTime;
-    if (ZombieNotWalking() != nullptr)
+    if (ZombieNotWalking())
         aLeadX = 0.0f;
 
     Sexy::Rect aZombieRect = GetZombieRect();
@@ -3720,12 +3720,10 @@ int Zombie::DropArm(unsigned int theDamageFlags)
 // Zombie::UpdateZombieWalking(void)
 // @001AC4B4  666 bytes
 // ==========================================================================
-int Zombie::UpdateZombieWalking()
+void Zombie::UpdateZombieWalking()
 {
-    // ZombieNotWalking is still char *; r0 is only tested and passed through.
-    int result = (int)ZombieNotWalking();
-    if (result != 0)
-        return result;
+    if (ZombieNotWalking())
+        return;
 
     Reanimation *aBodyReanim = mApp->ReanimationTryToGet(mBodyReanimID);
     if (aBodyReanim != nullptr)
@@ -3762,11 +3760,7 @@ int Zombie::UpdateZombieWalking()
         }
         else
         {
-            // GetTrackVelocity(char const*) is the overload the ARM calls
-            // (_ZN11Reanimation16GetTrackVelocityEPKc). The id word converts
-            // to char*; naming the pointer picks that overload.
-            const char* aGroundTrack = ReanimTrackId__ground;
-            aWalkSpeed = aBodyReanim->GetTrackVelocity(aGroundTrack) * mScaleZombie;
+            aWalkSpeed = aBodyReanim->GetTrackVelocity("_ground") * mScaleZombie;
         }
 
         if (aChilled && IsMovingAtChilledSpeed())
@@ -3776,42 +3770,37 @@ int Zombie::UpdateZombieWalking()
         if (mApp->mGameMode == GAMEMODE_MP_VS && mZombieType == ZOMBIE_TRASHCAN)
             aWalkSpeed *= 0.2f;
 
-        result = IsWalkingBackwards();
         float aPosX = mPosX;
-        if (result != 0 || mZombiePhase == PHASE_DANCER_DANCING_IN)
+        if (IsWalkingBackwards() || mZombiePhase == PHASE_DANCER_DANCING_IN)
             mPosX = aPosX + aWalkSpeed;
         else
             mPosX = aPosX - aWalkSpeed;
 
         // The football zombie kicks up dirt off its feet as it walks; -4 is the
         // "not on a wave" sentinel mFromWave carries for a summoned zombie.
-        // A miss on the second timed event leaves r0 as 0, not the backwards flag.
         if (mZombieType == ZOMBIE_FOOTBALL && mFromWave != -4)
         {
             if (aBodyReanim->ShouldTriggerTimedEvent(0.03f))
-                mApp->AddTodParticle((float)(mX + 81), (float)(mY + 106), mRenderOrder - 1, (ParticleEffect)99);
+                mApp->AddTodParticle((float)(mX + 81), (float)(mY + 106), mRenderOrder - 1, PARTICLE_FOOTBALL_RUNNING);
 
-            result = aBodyReanim->ShouldTriggerTimedEvent(0.61f);
-            if (result != 0)
-                mApp->AddTodParticle((float)(mX + 87), (float)(mY + 110), mRenderOrder - 1, (ParticleEffect)99);
+            if (aBodyReanim->ShouldTriggerTimedEvent(0.61f))
+                mApp->AddTodParticle((float)(mX + 87), (float)(mY + 110), mRenderOrder - 1, PARTICLE_FOOTBALL_RUNNING);
         }
 
         if (mZombiePhase == PHASE_POLEVAULTER_PRE_VAULT)
         {
             if (aBodyReanim->ShouldTriggerTimedEvent(0.16f))
-                mApp->AddTodParticle((float)(mX + 81), (float)(mY + 106), mRenderOrder - 1, (ParticleEffect)99);
+                mApp->AddTodParticle((float)(mX + 81), (float)(mY + 106), mRenderOrder - 1, PARTICLE_FOOTBALL_RUNNING);
 
-            result = aBodyReanim->ShouldTriggerTimedEvent(0.67f);
-            if (result != 0)
-                mApp->AddTodParticle((float)(mX + 87), (float)(mY + 110), mRenderOrder - 1, (ParticleEffect)99);
+            if (aBodyReanim->ShouldTriggerTimedEvent(0.67f))
+                mApp->AddTodParticle((float)(mX + 87), (float)(mY + 110), mRenderOrder - 1, PARTICLE_FOOTBALL_RUNNING);
         }
 
-        return result;
+        return;
     }
 
     // No body animation at all: only the types that slide along on their own --
-    // and only on a frame with the legs down -- still move. The miss leaves the
-    // null TryToGet in r0.
+    // and only on a frame with the legs down -- still move.
     if (mZombiePhase != PHASE_POLEVAULTER_IN_VAULT
         && mZombiePhase != PHASE_DIGGER_TUNNELING
         && mZombieType != ZOMBIE_DANCER
@@ -3824,43 +3813,41 @@ int Zombie::UpdateZombieWalking()
         && (unsigned int)mFrame > 2
         && (unsigned int)(mFrame - 6) > 2)
     {
-        return result;
+        return;
     }
 
     float aWalkSpeed = mVelX;
     if (IsMovingAtChilledSpeed())
         aWalkSpeed *= 0.4f;
 
-    result = IsWalkingBackwards();
     float aPosX = mPosX;
-    if (result != 0)
+    if (IsWalkingBackwards())
         mPosX = aPosX + aWalkSpeed;
     else
         mPosX = aPosX - aWalkSpeed;
 
-    return result;
+    return;
 }
 
 // ==========================================================================
 // Zombie::UpdateZombieWalkingIntoHouse(void)
 // @001AC760  272 bytes
 // ==========================================================================
-int Zombie::UpdateZombieWalkingIntoHouse()
+void Zombie::UpdateZombieWalkingIntoHouse()
 {
     // The bungee and the boss leave by their own route, a zombie rising out of
     // a grave is not walking yet, and a zombiquarium one has no house to reach.
-    // Those outs leave this in r0; the caller ignores it.
     if (mZombieType == ZOMBIE_BUNGEE
         || mZombieType == ZOMBIE_BOSS
         || mZombiePhase == PHASE_RISING_FROM_GRAVE
         || mZombieHeight == HEIGHT_ZOMBIQUARIUM)
     {
-        return (int)this;
+        return;
     }
 
-    int result = UpdateZombieWalking();
+    UpdateZombieWalking();
     if (mZombieHeight != HEIGHT_ZOMBIE_NORMAL)
-        return result;
+        return;
 
     // Where mPosY eases to, and how far it may close in one frame. A football
     // zombie on row 0 or 1 uses a step of 2; every other case uses 1.
@@ -3936,7 +3923,7 @@ int Zombie::UpdateZombieWalkingIntoHouse()
         mPosY = aExtra + aNearY;
     }
 
-    return result;
+    return;
 }
 
 // ==========================================================================
@@ -4388,7 +4375,7 @@ void Zombie::UpdateAnimSpeed()
 
     // The ones that slide or float keep their own rate rather than the walk
     // track's.
-    if (ZombieNotWalking() != nullptr
+    if (ZombieNotWalking()
         || IsBobsledTeamWithSled()
         || mZombieType == ZOMBIE_CATAPULT
         || mZombiePhase == PHASE_DOLPHIN_RIDING
@@ -10568,7 +10555,7 @@ int Zombie::EnableDanceMode(bool theEnable)
     if ((unsigned int)(mFromWave + 3) <= 1)
         return (int)this;
 
-    if (ZombieNotWalking() != nullptr)
+    if (ZombieNotWalking())
         return (int)this;
 
     if (IsDeadOrDying() != 0)

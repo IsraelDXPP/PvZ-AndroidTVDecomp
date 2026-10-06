@@ -126,27 +126,15 @@ public:
 
     // The slots this class implements, in vtable order. Slots [1]/[2] are left
     // abstract (the binary holds __cxa_pure_virtual there).
-    // The return types of slots [0], [3] and [6] were `Board **`, `Challenge *`
-    // and `int`, which the transcribed bodies had drifted away from and which no
-    // longer matched the authoritative vtable (PvZ\Lawn\BaseGamepadControls.h:68-74:
-    // slot [0] void, slot [3] bool, slot [6] bool). A derived declaration with the
-    // same name and parameter-type-list is an implicit override whether or not it
-    // is spelled `virtual`, so those three mismatches emitted C2555 in
-    // GamepadControls.h and made the whole hierarchy's sizeof() collapse to 1.
-    // TODO(recon): the transcribed bodies (BaseGamepadControls.cpp:21/97/111) and
-    // the remaining loose shapes (`int Update(float)` vs `void Update(float)`,
-    // `int OnKeyUp` vs `bool OnKeyUp`, `void Draw(void)` vs `void Draw(Sexy::Graphics *)`,
-    // `int BeginDraw(void)` vs `bool BeginDraw(Sexy::Graphics *)`) must be retyped
-    // together with the declarations.
     virtual void OnButtonDown(int theButton, int thePlayerIndex, unsigned int theFlags); // [ 0] 0x000
     virtual void OnButtonUp(int theButton, int thePlayerIndex, unsigned int theFlags); // [ 1] 0x004
     virtual void OnGameAxisMove(int theAxis, int theValue, int thePlayerIndex); // [ 2] 0x008
     virtual bool OnKeyDown(Sexy::KeyCode theKey, unsigned int theFlags); // [ 3] 0x00C
     virtual int OnKeyUp(Sexy::KeyCode theKey, unsigned int theFlags);    // [ 4] 0x010
     virtual int Update(float theDeltaTime);                         // [ 5] 0x014
-    virtual bool BeginDraw();                                        // [ 6] 0x018
-    virtual void Draw();                                             // [ 7] 0x01C
-    virtual void EndDraw();                                          // [ 8] 0x020
+    virtual bool BeginDraw(Sexy::Graphics *theGraphics);              // [ 6] 0x018
+    virtual void Draw(Sexy::Graphics *theGraphics);                   // [ 7] 0x01C
+    virtual void EndDraw(Sexy::Graphics *theGraphics);                // [ 8] 0x020
     virtual void MakeParentGraphicsFrame();                          // [ 9] 0x024
     virtual int EnterState(int theState);                            // [10] 0x028
     virtual int ExitState();                                         // [11] 0x02C
@@ -202,7 +190,7 @@ public:
     SnapToGridPosition GetCursorGridPosition();
     // _ZN19BaseGamepadControls9DrawFrameEPN4Sexy8GraphicsENS_16FrameRenderPhaseE.
     // The float indexes in the body are mTransX / mTransY (Graphics +8 / +0xC).
-    Board * DrawFrame(Sexy::Graphics *theGraphics, int thePhase);
+    void DrawFrame(Sexy::Graphics *theGraphics, int thePhase);
     // sret: ARM passes an 8-byte struct's destination in r0, so the dump's
     // `this` IS that destination and the body ends `return this;` right after
     // `Board::MouseHitTest(x, y, this, 0)`. Declared as a pointer return, MSVC

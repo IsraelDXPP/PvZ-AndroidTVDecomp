@@ -13,29 +13,28 @@
 #include <cstring>
 
 // ==========================================================================
-// BaseGamepadControls::BeginDraw()
+// BaseGamepadControls::BeginDraw(Sexy::Graphics *)
 // @001BCE04  4 bytes
 // ==========================================================================
-bool BaseGamepadControls::BeginDraw()
+bool BaseGamepadControls::BeginDraw(Sexy::Graphics *theGraphics)
 {
   return false;
 }
 
 // ==========================================================================
-// BaseGamepadControls::Draw()
+// BaseGamepadControls::Draw(Sexy::Graphics *)
 // @001BCE10  2 bytes
 // ==========================================================================
-// The dump's body is a bare return; GamepadControls' own slot-7 Draw does the
-// work.
-void BaseGamepadControls::Draw()
+// Derived controls supply the cursor drawing.
+void BaseGamepadControls::Draw(Sexy::Graphics *theGraphics)
 {
 }
 
 // ==========================================================================
-// BaseGamepadControls::EndDraw()
+// BaseGamepadControls::EndDraw(Sexy::Graphics *)
 // @001BCE14  2 bytes
 // ==========================================================================
-void BaseGamepadControls::EndDraw()
+void BaseGamepadControls::EndDraw(Sexy::Graphics *theGraphics)
 {
 }
 
@@ -579,264 +578,87 @@ SnapToGridPosition BaseGamepadControls::GetCursorGridPosition()
 // BaseGamepadControls::DrawFrame(Sexy::Graphics *,BaseGamepadControls::FrameRenderPhase)
 // @001BE9EC  1432 bytes
 // ==========================================================================
-Board * BaseGamepadControls::DrawFrame(Sexy::Graphics *theGraphics, int thePhase)
+void BaseGamepadControls::DrawFrame(Sexy::Graphics *theGraphics, int thePhase)
 {
-  // Early exits hand mBoard back in r0. The success path hands back whatever
-  // Graphics::SetDrawMode returns; that stub is still declared int.
-  if ( mGamepadIndex == -1 )
-    return mBoard;
+  GameMode aMode = mApp->mGameMode;
+  if (mGamepadIndex == -1 || !mDrawCursorFrame
+      || aMode == GAMEMODE_CHALLENGE_BEGHOULED_TWIST
+      || aMode == GAMEMODE_CHALLENGE_HEAVY_WEAPON)
+    return;
 
-  Board *aBoard = mBoard;
-  GameMode aMode = aBoard->mApp->mGameMode;
-  if ( aMode == GAMEMODE_CHALLENGE_BEGHOULED_TWIST
-    || aMode == GAMEMODE_CHALLENGE_HEAVY_WEAPON
-    || !mDrawCursorFrame )
-    return aBoard;
-
-  CursorObject *aCursor = aBoard->mCursorObject[mPlayerIndex];
-  if ( aCursor->mCursorType == CURSOR_TYPE_HAMMER )
+  CursorObject *aCursor = mBoard->mCursorObject[mPlayerIndex];
+  if (aCursor->mCursorType == CURSOR_TYPE_HAMMER && aCursor->BeginDraw(theGraphics))
   {
-    if ( aCursor->BeginDraw(theGraphics) )
-    {
-      aCursor->Draw(theGraphics);
-      aCursor->EndDraw(theGraphics);
-    }
-    aBoard = mBoard;
+    aCursor->Draw(theGraphics);
+    aCursor->EndDraw(theGraphics);
   }
 
-  int aGridX = aBoard->PixelToGridXKeepOnBoard((int)mCursorPositionX, (int)mCursorPositionY);
+  int aGridX = mBoard->PixelToGridXKeepOnBoard((int)mCursorPositionX, (int)mCursorPositionY);
   int aGridY = mBoard->PixelToGridYKeepOnBoard((int)mCursorPositionX, (int)mCursorPositionY);
+  float aXOffset = aMode == GAMEMODE_CHALLENGE_ZEN_GARDEN ? -3.0f : -8.0f;
+  float aYOffset = mCursorPositionYJitter - 5.0f;
+  if (aMode == GAMEMODE_CHALLENGE_ZEN_GARDEN)
+    aYOffset += 33.0f;
+  float aShadowShift = 2.0f - mCursorPositionYJitter;
 
-  float aJitter = mCursorPositionYJitter;
-  aMode = mApp->mGameMode;
-  float aYOffset = aJitter - 5.0f;
-  float aShadowShift = 2.0f - aJitter;
-  if ( aMode == GAMEMODE_CHALLENGE_ZEN_GARDEN )
-    aJitter = 33.0f;
+  SexyVector2 aTopLeft, aTopRight, aBottomLeft, aBottomRight;
+  SexyVector2 aLeftTopCenter, aLeftBottomCenter, aRightTopCenter, aRightBottomCenter;
+  mBoard->GridCellBounds(aGridX, aGridY, aTopLeft, aTopRight, aBottomLeft, aBottomRight,
+                        aLeftTopCenter, aLeftBottomCenter, aRightTopCenter, aRightBottomCenter);
 
-  float aXOffset;
-  if ( aMode == GAMEMODE_CHALLENGE_ZEN_GARDEN )
+  auto aSelectHalf = [thePhase](SexyVector2 &theTop, SexyVector2 &theBottom)
   {
-    aXOffset = -3.0f;
-    aYOffset = aYOffset + aJitter;
-  }
-  else
+    float aMiddleY = theTop.mY + (theBottom.mY - theTop.mY) * 0.5f;
+    if (thePhase == 0)
+      theBottom.mY = aMiddleY;
+    else
+      theTop.mY = aMiddleY;
+  };
+  aSelectHalf(aTopLeft, aBottomLeft);
+  aSelectHalf(aTopRight, aBottomRight);
+  aSelectHalf(aLeftTopCenter, aLeftBottomCenter);
+  aSelectHalf(aRightTopCenter, aRightBottomCenter);
+  float aTopV = thePhase == 0 ? 0.0f : 0.5f;
+  float aBottomV = thePhase == 0 ? 0.5f : 1.0f;
+  auto aVertex = [aXOffset, aYOffset](const SexyVector2 &thePoint, float theU, float theV)
   {
-    aXOffset = -8.0f;
-  }
-
-  // Eight cell corners. GridCellBounds writes them as SexyVector2 pairs.
-  SexyVector2 aCorner0;
-  SexyVector2 aCorner1;
-  SexyVector2 aCorner2;
-  SexyVector2 aCorner3;
-  SexyVector2 aCorner4;
-  SexyVector2 aCorner5;
-  SexyVector2 aCorner6;
-  SexyVector2 aCorner7;
-  mBoard->GridCellBounds(
-      aGridX, aGridY,
-      aCorner0, aCorner1, aCorner2, aCorner3,
-      aCorner4, aCorner5, aCorner6, aCorner7);
-
-  // Phase 0 keeps the near Y and writes the midpoint into the far Y.
-  // Phase 1 keeps the far Y and writes the midpoint into the near Y, and
-  // swaps the two texture V values (0 and 0.5).
-  float aV0 = 0.0f;
-  float aV1 = 0.5f;
-  if ( thePhase != 0 )
-  {
-    aV0 = 0.5f;
-    aV1 = 1.0f;
-    aCorner0.mY = aCorner0.mY + (aCorner2.mY - aCorner0.mY) * 0.5f;
-    aCorner1.mY = aCorner1.mY + (aCorner3.mY - aCorner1.mY) * 0.5f;
-    aCorner4.mY = aCorner4.mY + (aCorner5.mY - aCorner4.mY) * 0.5f;
-    aCorner6.mY = aCorner6.mY + (aCorner7.mY - aCorner6.mY) * 0.5f;
-  }
-  else
-  {
-    aCorner2.mY = aCorner0.mY + (aCorner2.mY - aCorner0.mY) * 0.5f;
-    aCorner3.mY = aCorner1.mY + (aCorner3.mY - aCorner1.mY) * 0.5f;
-    aCorner5.mY = aCorner4.mY + (aCorner5.mY - aCorner4.mY) * 0.5f;
-    aCorner7.mY = aCorner6.mY + (aCorner7.mY - aCorner6.mY) * 0.5f;
-  }
-
-  // Twelve 32-byte vertices. DrawTrianglesTex consumes the first four as
-  // triangles, so the array is passed as SexyVertex2D[3]. The clear loop
-  // writes 0, 1.0, 0, 0 into words 0..3 of each vertex; the stores below
-  // then overwrite the words the binary actually writes, at the same offsets
-  // from SP+var_484 (vertex 0).
-  //
-  // Offset map (float index = byte/4), taken from the VSTR/STR at 0x1BEC2A:
-  //   0  x = aXOffset + corner0.x          1  y = nearY0 + aYOffset
-  //   2  u = 0                             3  v = 1.0
-  //   4  0                                 5  0
-  //   6  0                                 7  phase V0
-  //   8  x = aXOffset + corner2.x          9  y = farY2 + aYOffset
-  //   14 half                              15 phase V1
-  //   16 x = aXOffset + corner5.x          17 y = farY5 + aYOffset
-  //   22 half                              23 phase V1
-  //   24 x = aXOffset + corner5.x          25 y = farY5 + aYOffset
-  //   30 half                              31 phase V0
-  //   32 x = aXOffset + corner0.x          33 y = nearY0 + aYOffset
-  //   39 phase V1
-  //   40 x = aXOffset + corner4.x          41 y = nearY4 + aYOffset
-  //   46 half                              47 phase V0
-  //   48 x = aXOffset + corner6.x          49 y = farY7 + aYOffset
-  //   54 half                              55 phase V0
-  //   56 x = aXOffset + corner3.x          57 y = farY3 + aYOffset
-  //   62 half                              63 phase V1
-  //   64 x = aXOffset + corner3.x          65 y = farY3 + aYOffset
-  //   70 1.0                               71 phase V1
-  //   72 x = aXOffset + corner1.x          73 y = nearY1 + aYOffset
-  //   78 1.0                               79 phase V1
-  //   80 x = aXOffset + corner6.x          81 y = nearY6 + aYOffset
-  //   86 half                              87 phase V0
-  // Unlisted words stay at the clear-loop value.
-  float aVertWords[12 * 8];
-  for ( int i = 0; i < 12; ++i )
-  {
-    aVertWords[i * 8 + 0] = 0.0f;
-    aVertWords[i * 8 + 1] = 1.0f;
-    aVertWords[i * 8 + 2] = 0.0f;
-    aVertWords[i * 8 + 3] = 0.0f;
-  }
-
-  const float kOne = 1.0f;
-  const float kHalf = 0.5f;
-  const float aY0 = aCorner0.mY;
-  const float aY1 = aCorner1.mY;
-  const float aY2 = aCorner2.mY;
-  const float aY3 = aCorner3.mY;
-  const float aY4 = aCorner4.mY;
-  const float aY5 = aCorner5.mY;
-  const float aY6 = aCorner6.mY;
-  const float aY7 = aCorner7.mY;
-
-  aVertWords[0] = aXOffset + aCorner0.mX;
-  aVertWords[1] = aY0 + aYOffset;
-  aVertWords[2] = 0.0f;
-  aVertWords[3] = kOne;
-  aVertWords[7] = aV0;
-
-  aVertWords[8] = aXOffset + aCorner2.mX;
-  aVertWords[9] = aY2 + aYOffset;
-  aVertWords[10] = 0.0f;
-  aVertWords[11] = kOne;
-  aVertWords[14] = kHalf;
-  aVertWords[15] = aV1;
-
-  aVertWords[16] = aXOffset + aCorner5.mX;
-  aVertWords[17] = aY5 + aYOffset;
-  aVertWords[18] = 0.0f;
-  aVertWords[19] = kOne;
-  aVertWords[22] = kHalf;
-  aVertWords[23] = aV1;
-
-  aVertWords[24] = aXOffset + aCorner5.mX;
-  aVertWords[25] = aY5 + aYOffset;
-  aVertWords[26] = 0.0f;
-  aVertWords[27] = kOne;
-  aVertWords[30] = kHalf;
-  aVertWords[31] = aV0;
-
-  aVertWords[32] = aXOffset + aCorner0.mX;
-  aVertWords[33] = aY0 + aYOffset;
-  aVertWords[34] = 0.0f;
-  aVertWords[35] = kOne;
-  aVertWords[39] = aV1;
-
-  aVertWords[40] = aXOffset + aCorner4.mX;
-  aVertWords[41] = aY4 + aYOffset;
-  aVertWords[42] = 0.0f;
-  aVertWords[43] = kOne;
-  aVertWords[46] = kHalf;
-  aVertWords[47] = aV0;
-
-  aVertWords[48] = aXOffset + aCorner6.mX;
-  aVertWords[49] = aY7 + aYOffset;
-  aVertWords[50] = 0.0f;
-  aVertWords[51] = kOne;
-  aVertWords[54] = kHalf;
-  aVertWords[55] = aV0;
-
-  aVertWords[56] = aXOffset + aCorner3.mX;
-  aVertWords[57] = aY3 + aYOffset;
-  aVertWords[58] = 0.0f;
-  aVertWords[59] = kOne;
-  aVertWords[62] = kHalf;
-  aVertWords[63] = aV1;
-
-  aVertWords[64] = aXOffset + aCorner3.mX;
-  aVertWords[65] = aY3 + aYOffset;
-  aVertWords[66] = 0.0f;
-  aVertWords[67] = kOne;
-  aVertWords[70] = kOne;
-  aVertWords[71] = aV1;
-
-  aVertWords[72] = aXOffset + aCorner1.mX;
-  aVertWords[73] = aY1 + aYOffset;
-  aVertWords[74] = 0.0f;
-  aVertWords[75] = kOne;
-  aVertWords[78] = kOne;
-  aVertWords[79] = aV1;
-
-  aVertWords[80] = aXOffset + aCorner6.mX;
-  aVertWords[81] = aY6 + aYOffset;
-  aVertWords[82] = 0.0f;
-  aVertWords[83] = kOne;
-  aVertWords[86] = kHalf;
-  aVertWords[87] = aV0;
-
-  SexyVertex2D const (*aTriangles)[3] = (SexyVertex2D const (*)[3])aVertWords;
-
-  // A null 3D context is the software path, which resets the image wrap mode.
-  bool aHas3D = theGraphics->Get3D() != nullptr;
-  aMode = mApp->mGameMode;
-
-  auto aDrawArrows = [&]() -> Board *
-  {
-    theGraphics->mTransX = theGraphics->mTransX + aShadowShift;
-    theGraphics->mTransY = theGraphics->mTransY + aShadowShift;
-    theGraphics->DrawTrianglesTex(IMAGE_GAMEPAD_CURSOR_ARROWS_SHADOW, aTriangles, 4);
-    theGraphics->mTransX = theGraphics->mTransX - aShadowShift;
-    theGraphics->mTransY = theGraphics->mTransY - aShadowShift;
-    theGraphics->DrawTrianglesTex(IMAGE_GAMEPAD_CURSOR_ARROWS, aTriangles, 4);
-    if ( !aHas3D )
-      IMAGE_GAMEPAD_CURSOR_ARROWS->SetWrapMode(0, 0);
-    theGraphics->SetDrawMode(0);
-    return aBoard;
+    return SexyVertex2D{thePoint.mX + aXOffset, thePoint.mY + aYOffset, theU, theV, 0};
   };
 
-  if ( aMode == GAMEMODE_CHALLENGE_BEGHOULED )
-  {
-    unsigned int aState = (unsigned int)(mGamepadState - 3);
-    if ( aState <= 1 )
-      return aDrawArrows();
-  }
-  else if ( mGamepadState == MOVEMENT_STATE_BUTTER_RELEASED )
-  {
-    return aDrawArrows();
-  }
-  else if ( aMode == GAMEMODE_CHALLENGE_ZOMBIQUARIUM )
-  {
-    return aBoard;
-  }
+  // Original DrawFrame at 0x1BE9EC uses two triangles for each side of the cell.
+  // Store position and UV in the current vertex type rather than its original binary layout.
+  SexyVertex2D aTriangles[4][3] = {
+    {aVertex(aTopLeft, 0.0f, aTopV), aVertex(aBottomLeft, 0.0f, aBottomV),
+     aVertex(aLeftBottomCenter, 0.5f, aBottomV)},
+    {aVertex(aLeftBottomCenter, 0.5f, aBottomV), aVertex(aLeftTopCenter, 0.5f, aTopV),
+     aVertex(aTopLeft, 0.0f, aTopV)},
+    {aVertex(aRightTopCenter, 0.5f, aTopV), aVertex(aRightBottomCenter, 0.5f, aBottomV),
+     aVertex(aBottomRight, 1.0f, aBottomV)},
+    {aVertex(aBottomRight, 1.0f, aBottomV), aVertex(aTopRight, 1.0f, aTopV),
+     aVertex(aRightTopCenter, 0.5f, aTopV)}
+  };
 
-  theGraphics->mTransX = theGraphics->mTransX + aShadowShift;
-  theGraphics->mTransY = theGraphics->mTransY + aShadowShift;
-  theGraphics->DrawTrianglesTex(IMAGE_GAMEPAD_CURSOR_FRAME_SHADOW, aTriangles, 4);
-  theGraphics->mTransX = theGraphics->mTransX - aShadowShift;
-  theGraphics->mTransY = theGraphics->mTransY - aShadowShift;
-  if ( !aHas3D )
-    IMAGE_GAMEPAD_CURSOR_FRAME_SHADOW->SetWrapMode(0, 0);
+  bool aDrawArrows = aMode == GAMEMODE_CHALLENGE_BEGHOULED
+      ? mGamepadState == MOVEMENT_STATE_BUTTER_HELD || mGamepadState == MOVEMENT_STATE_BUTTER_RELEASED
+      : mGamepadState == MOVEMENT_STATE_BUTTER_RELEASED;
+  if (!aDrawArrows && aMode == GAMEMODE_CHALLENGE_ZOMBIQUARIUM)
+    return;
 
-  Sexy::Image *aFrame = IMAGE_GAMEPAD_CURSOR_FRAME;
-  if ( mPlayerIndex == 1 )
-    aFrame = IMAGE_GAMEPAD_CURSOR_FRAME_BLUE;
+  Sexy::Image *aShadow = aDrawArrows ? IMAGE_GAMEPAD_CURSOR_ARROWS_SHADOW : IMAGE_GAMEPAD_CURSOR_FRAME_SHADOW;
+  Sexy::Image *aFrame = aDrawArrows ? IMAGE_GAMEPAD_CURSOR_ARROWS
+      : mPlayerIndex == 1 ? IMAGE_GAMEPAD_CURSOR_FRAME_BLUE : IMAGE_GAMEPAD_CURSOR_FRAME;
+  theGraphics->mTransX += aShadowShift;
+  theGraphics->mTransY += aShadowShift;
+  theGraphics->DrawTrianglesTex(aShadow, aTriangles, 4);
+  theGraphics->mTransX -= aShadowShift;
+  theGraphics->mTransY -= aShadowShift;
+  bool aHas3D = theGraphics->Get3D() != nullptr;
+  if (!aHas3D && !aDrawArrows)
+    aShadow->SetWrapMode(0, 0);
   theGraphics->DrawTrianglesTex(aFrame, aTriangles, 4);
+  if (!aHas3D && aDrawArrows)
+    aFrame->SetWrapMode(0, 0);
   theGraphics->SetDrawMode(0);
-  return aBoard;
 }
 
 // ==========================================================================

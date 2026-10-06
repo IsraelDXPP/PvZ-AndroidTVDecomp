@@ -37,20 +37,7 @@
 // The Itanium table has a D0/D1 destructor pair; MSVC x86 keeps one slot, so the
 // order is unchanged and the class still adds nothing of its own.
 //
-// Return types are the ones GamepadControls.h declares, which are the ones the
-// authoritative vtable records (PvZ\Lawn\GamepadControls.h:34-53: slot [0] void,
-// slot [3] bool, slot [6] bool). A same-named, same-parameter-type-list declaration
-// is an implicit override whether or not it says `virtual`, so a differing return
-// type here is C2555 -- and an erroneous class declaration collapses sizeof() to 1,
-// which would make the layout assertion below meaningless.
-// TODO(recon): TreeOfWisdomControls.cpp:22/78/308 still spell BeginDraw and
-// OnKeyDown `int` and OnButtonDown `BaseGamepadControls *`; they must be retyped to
-// `bool`, `bool` and `void`. Draw(Sexy::Graphics *) and EndDraw() keep the bodies'
-// shapes for now: GamepadControls' own slot [7] Draw takes no argument and
-// GameObject::EndDraw takes a Sexy::Graphics *, so neither is an override today.
-//
-// The vtable pointer lands at +0x00 once the base is polymorphic, which it now is,
-// so the object is exactly 0x114 and the assertion at the bottom of this file holds.
+// Draw callbacks override the Graphics* methods in GamepadControls.
 
 #pragma once
 
@@ -80,12 +67,12 @@ public:
     virtual void OnGameAxisMove(int theAxis, int theValue, int thePlayerIndex);   // [ 2]
     virtual bool OnKeyDown(Sexy::KeyCode theKey, unsigned int theFlags); // [ 3]
     virtual int Update(float theFrac);                          // [ 5]
-    virtual bool BeginDraw();                              // [ 6]
+    bool BeginDraw(Sexy::Graphics *theGraphics) override;    // [ 6]
     virtual void MakeParentGraphicsFrame();                // [ 9]
 
     virtual void OnButtonUp(int theButton, int thePlayerIndex, unsigned int theFlags); // [ 1]
-    int Draw(Sexy::Graphics *theGraphics);                         // [ 7]
-    void EndDraw();                                        // [ 8]
+    void Draw(Sexy::Graphics *theGraphics) override;         // [ 7]
+    void EndDraw(Sexy::Graphics *theGraphics) override;      // [ 8]
 
     // ---- members, absolute offsets (base GamepadControls = 0x108) ----
     // True while the cursor is on the tree and the player owns tree food.

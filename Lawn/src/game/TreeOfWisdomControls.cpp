@@ -24,7 +24,7 @@
 // TreeOfWisdomControls::BeginDraw(Sexy::Graphics *)
 // @001BCE38  4 bytes
 // ==========================================================================
-bool TreeOfWisdomControls::BeginDraw()
+bool TreeOfWisdomControls::BeginDraw(Sexy::Graphics *theGraphics)
 {
   return true;
 }
@@ -33,7 +33,7 @@ bool TreeOfWisdomControls::BeginDraw()
 // TreeOfWisdomControls::EndDraw(Sexy::Graphics *)
 // @001BCE44  2 bytes
 // ==========================================================================
-void TreeOfWisdomControls::EndDraw()
+void TreeOfWisdomControls::EndDraw(Sexy::Graphics *theGraphics)
 {
 }
 
@@ -160,12 +160,12 @@ void TreeOfWisdomControls::OnButtonDown(int theButton, int thePlayerIndex, unsig
 // TreeOfWisdomControls::Draw(Sexy::Graphics *)
 // @001BD758  218 bytes
 // ==========================================================================
-int TreeOfWisdomControls::Draw(Sexy::Graphics *theGraphics)
+void TreeOfWisdomControls::Draw(Sexy::Graphics *theGraphics)
 {
   // The binary leaves r0 untouched on the empty path, so there is no return
   // value to reproduce; no caller reads it (slot [7] is declared void).
   if (mGamepadIndex == -1)
-    return 0;
+    return;
 
   // A cursor flower bobbing on the highlight animation phase.
   float aBob = sinf(mCursorHighlightAnimPhase * 5.0f);
@@ -178,7 +178,7 @@ int TreeOfWisdomControls::Draw(Sexy::Graphics *theGraphics)
   theGraphics->SetColor(Sexy::Color::White);
 
   HitResult aHitResult;
-  int aResult = mBoard->mChallenge->TreeOfWisdomHitTest((int)mCursorPositionX,
+  mBoard->mChallenge->TreeOfWisdomHitTest((int)mCursorPositionX,
                                                         (int)mCursorPositionY,
                                                         &aHitResult);
 
@@ -186,7 +186,6 @@ int TreeOfWisdomControls::Draw(Sexy::Graphics *theGraphics)
   // food supply: the flower only appears once the player owns more than 1000.
   mCursorOnTree = aHitResult.mObjectType == OBJECT_TYPE_TREE_OF_WISDOM_GARDEN
              && mApp->mPlayerInfo->mPurchases[28] > 1000;
-  return aResult;
 }
 
 // ==========================================================================

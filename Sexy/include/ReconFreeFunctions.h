@@ -323,7 +323,7 @@ Sexy::EditWidget* CreateEditWidget(int theId, Sexy::EditListener* theListener, S
 // a CLASS (declared above), and a function of the same name in the same scope
 // hides it, so every `DrCurlEngine::perform` in the tree failed to resolve.
 void DrawEditBox(Sexy::Graphics* theGraphics, Sexy::EditWidget* theWidget);
-int DrawSeedPacket(Sexy::Graphics* theGraphics, float theX, float theY, SeedType theSeedType,
+void DrawSeedPacket(Sexy::Graphics* theGraphics, float theX, float theY, SeedType theSeedType,
                    SeedType theImitaterType, float thePercentDark, int theGrayness,
                    bool theDrawCost, bool theUseCurrentCost, bool theZombiePacket, bool theDrawBackground);
 void DrawStoneButton(Sexy::Graphics* theGraphics, int theX, int theY, int theWidth, int theHeight,

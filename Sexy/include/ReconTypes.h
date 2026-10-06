@@ -612,6 +612,7 @@ enum CreditsPhase : int
 // unchanged (one int), and `.mValue` still names the value.
 enum DrawVariation : int
 {
+    VARIATION_NORMAL = 0,
     // Names already written next to these values in ReanimatorCache.cpp.
     VARIATION_IMITATER = 1,
     VARIATION_ZEN_GARDEN = 13,
@@ -767,6 +768,7 @@ enum ParticleEffect : int
     PARTICLE_PORTAL_CIRCLE = 84,
     PARTICLE_PORTAL_SQUARE = 85,
     PARTICLE_AWARD_PICKUP_ARROW = 93,
+    PARTICLE_FOOTBALL_RUNNING = 99,
     PARTICLE_STARBURST = 104
 };
 
@@ -823,6 +825,13 @@ enum ProjectileType : int
     PROJECTILE_COBBIG = 11,
     PROJECTILE_BUTTER = 12,
     PROJECTILE_ZOMBIE_PEA = 13
+};
+
+struct ProjectileDefinition
+{
+    ProjectileType mProjectileType;
+    int mImageRow;
+    int mDamage;
 };
 
 // ReanimationID -- an enum in the binary. The transcription could not classify the

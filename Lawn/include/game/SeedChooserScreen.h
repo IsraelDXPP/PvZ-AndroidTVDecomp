@@ -269,7 +269,7 @@ public:
     int GetZombieSeedType(int theIndex);
     int GetSeedPacketIndex(SeedType theSeedType);
     int VSAutoPickResourceGen();
-    int DrawPacket(Sexy::Graphics *g, int theX, int theY, int theSeedType, int theImitaterType, float thePercentDark, int theGrayness, Color &theColor, bool theDrawCost, bool theUseCurrentCost);
+    void DrawPacket(Sexy::Graphics *g, int theX, int theY, int theSeedType, int theImitaterType, float thePercentDark, int theGrayness, Color &theColor, bool theDrawCost, bool theUseCurrentCost);
     void UpdateViewLawn();
     bool DisplayRepickWarningDialog(char const *theMessage);
     int FlyersAreComing();

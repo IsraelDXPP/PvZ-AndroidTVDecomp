@@ -92,7 +92,7 @@ public:
     Sexy::MemoryImage *MakeBlankCanvasImage(int theWidth, int theHeight);
     ReanimatorCache *ReanimatorCacheInitialize();
     int ReanimatorCacheDispose();
-    int DrawCachedPlant(Sexy::Graphics *theGraphics, float theX, float theY, SeedType theSeedType, DrawVariation theVariation);
+    void DrawCachedPlant(Sexy::Graphics *theGraphics, float theX, float theY, SeedType theSeedType, DrawVariation theVariation);
     int DrawCachedMower(Sexy::Graphics *theGraphics, float theX, float theY, LawnMowerType theMowerType);
     int DrawCachedZombie(Sexy::Graphics *theGraphics, float theX, float theY, ZombieType theZombieType);
     void LoadCachedImages();

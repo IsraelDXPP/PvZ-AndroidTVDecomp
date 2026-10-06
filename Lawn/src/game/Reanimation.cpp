@@ -1326,7 +1326,7 @@ float Reanimation::GetTrackVelocity(int theTrackIndex)
   ReanimatorTransform *aTransforms = mDefinition->mTracks[theTrackIndex].mTransforms;
   ReanimatorFrameTime aFrameTime;
   GetFrameTime(&aFrameTime);
-  return (mAnimTime * 0.01f)
+  return (mAnimRate * 0.01f)
        * (aTransforms[aFrameTime.mAnimFrameAfterInt].mTransX
         - aTransforms[aFrameTime.mAnimFrameBeforeInt].mTransX);
 }

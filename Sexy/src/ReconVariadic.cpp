@@ -376,12 +376,12 @@ void DrawEditBox(Sexy::Graphics* theGraphics, Sexy::EditWidget* theWidget)
     theGraphics->DrawImageBox(aRect, IMAGE_EDITBOX);
 }
 // TODO(recon)
-int DrawSeedPacket(Sexy::Graphics* theGraphics, float theX, float theY, SeedType theSeedType,
+void DrawSeedPacket(Sexy::Graphics* theGraphics, float theX, float theY, SeedType theSeedType,
                    SeedType theImitaterType, float thePercentDark, int theGrayness,
                    bool theDrawCost, bool theUseCurrentCost, bool theZombiePacket, bool theDrawBackground)
 {
     SeedType aDrawn = theSeedType;
-    if (theImitaterType != (SeedType)-1 && theSeedType == (SeedType)48)
+    if (theImitaterType != SEED_NONE && theSeedType == SEED_IMITATER)
         aDrawn = theImitaterType;
 
     if (theGrayness != 255)
@@ -396,26 +396,26 @@ int DrawSeedPacket(Sexy::Graphics* theGraphics, float theX, float theY, SeedType
     }
 
     int aCel = 2;
-    if (theSeedType == (SeedType)48)
+    if (theSeedType == SEED_IMITATER)
         aCel = 0;
     else if (Plant::IsUpgrade(aDrawn) != 0)
         aCel = 1;
-    else if (theSeedType == (SeedType)56)
+    else if (theSeedType == SEED_BEGHOULED_BUTTON_CRATER)
         aCel = 3;
-    else if (theSeedType == (SeedType)55)
+    else if (theSeedType == SEED_BEGHOULED_BUTTON_SHUFFLE)
         aCel = 4;
-    else if (theSeedType == (SeedType)57)
+    else if (theSeedType == SEED_SLOT_MACHINE_SUN)
         aCel = 5;
-    else if (theSeedType == (SeedType)58)
+    else if (theSeedType == SEED_SLOT_MACHINE_DIAMOND)
         aCel = 6;
-    else if (theSeedType == (SeedType)59)
+    else if (theSeedType == SEED_ZOMBIQUARIUM_SNORKLE)
         aCel = 7;
-    else if (theSeedType == (SeedType)60)
+    else if (theSeedType == SEED_ZOMBIQUARIUM_TROPHY)
         aCel = 8;
 
     if (theDrawBackground)
     {
-        if (theGraphics->mScaleX > 1.0f && (int)theSeedType <= 53)
+        if (theGraphics->mScaleX > 1.0f && theSeedType <= SEED_LEFTPEATER)
         {
             TodDrawImageCelScaledF(theGraphics, IMAGE_SEEDPACKET_LARGER, theX, theY, 0, 0,
                                    theGraphics->mScaleX * 0.5f, theGraphics->mScaleY * 0.5f);
@@ -433,8 +433,110 @@ int DrawSeedPacket(Sexy::Graphics* theGraphics, float theX, float theY, SeedType
         }
     }
 
-    Plant::DrawSeedType(theGraphics, aDrawn, theImitaterType, (DrawVariation)0,
-                        8.0f * theGraphics->mScaleX, 5.0f * theGraphics->mScaleY);
+    // Icon offsets and scales from DrawSeedPacket at 0x17171C.
+    float aIconX = 5.0f;
+    float aIconY = 8.0f;
+    float aIconScale = 0.5f;
+    bool aHasIcon = true;
+    auto aSetIcon = [&](float theIconX, float theIconY, float theIconScale)
+    {
+        aIconX = theIconX;
+        aIconY = theIconY;
+        aIconScale = theIconScale;
+    };
+    switch (aDrawn)
+    {
+    case SEED_TALLNUT: aSetIcon(12.0f, 22.0f, 0.3f); break;
+    case SEED_INSTANT_COFFEE: aSetIcon(0.0f, 9.0f, 0.55f); break;
+    case SEED_COBCANNON: aSetIcon(6.0f, 22.0f, 0.26f); break;
+    case SEED_CACTUS: aSetIcon(9.0f, 13.0f, 0.5f); break;
+    case SEED_MAGNETSHROOM: aSetIcon(5.0f, 12.0f, 0.5f); break;
+    case SEED_POTATOMINE:
+    case SEED_PUMPKINSHELL:
+    case SEED_FUMESHROOM:
+    case SEED_DOOMSHROOM:
+    case SEED_CHOMPER:
+    case SEED_HYPNOSHROOM:
+    case SEED_SQUASH:
+    case SEED_TANGLEKELP:
+    case SEED_SPIKEROCK:
+    case SEED_SPIKEWEED:
+    case SEED_TORCHWOOD:
+    case SEED_PLANTERN: aSetIcon(8.0f, 12.0f, 0.4f); break;
+    case SEED_TWINSUNFLOWER:
+    case SEED_GLOOMSHROOM: aSetIcon(7.0f, 14.0f, 0.45f); break;
+    case SEED_CATTAIL: aSetIcon(8.0f, 13.0f, 0.45f); break;
+    case SEED_KERNELPULT: aSetIcon(13.0f, 14.0f, 0.4f); break;
+    case SEED_CABBAGEPULT: aSetIcon(15.0f, 14.0f, 0.4f); break;
+    case SEED_WINTERMELON:
+    case SEED_MELONPULT: aSetIcon(18.0f, 19.0f, 0.35f); break;
+    case SEED_GRAVEBUSTER: aSetIcon(10.0f, 15.0f, 0.4f); break;
+    case SEED_SPLITPEA: aSetIcon(12.0f, 12.0f, 0.45f); break;
+    case SEED_BLOVER: aSetIcon(8.0f, 17.0f, 0.4f); break;
+    case SEED_STARFRUIT: aSetIcon(6.0f, 8.0f, 0.5f); break;
+    case SEED_THREEPEATER:
+    case SEED_UMBRELLA: aSetIcon(5.0f, 10.0f, 0.5f); break;
+    case SEED_GATLINGPEA: aSetIcon(2.0f, 8.0f, 0.5f); break;
+    case SEED_ZOMBIE_NORMAL:
+    case SEED_ZOMBIE_TRAFFIC_CONE:
+    case SEED_ZOMBIE_PAIL:
+    case SEED_ZOMBIE_FLAG:
+    case SEED_ZOMBIE_NEWSPAPER:
+    case SEED_ZOMBIE_DANCER: aSetIcon(-3.0f, -7.0f, 0.35f); break;
+    case SEED_ZOMBIE_POLEVAULTER: aSetIcon(-8.0f, -12.0f, 0.35f); break;
+    case SEED_ZOMBIE_SCREEN_DOOR:
+    case SEED_ZOMBIE_LADDER:
+    case SEED_ZOMBIE_TRASHCAN:
+    case SEED_ZOMBIE_JACK_IN_THE_BOX:
+    case SEED_ZOMBIE_DIGGER:
+    case SEED_ZOMBIE_POGO: aSetIcon(-3.0f, -10.0f, 0.35f); break;
+    case SEED_ZOMBIE_BUNGEE: aSetIcon(1.0f, -1.0f, 0.3f); break;
+    case SEED_ZOMBIE_FOOTBALL: aSetIcon(-7.0f, -9.0f, 0.33f); break;
+    case SEED_ZOMBIE_BALLOON: aSetIcon(-3.0f, -5.0f, 0.35f); break;
+    case SEED_ZOMBIE_IMP: aSetIcon(-12.0f, -17.0f, 0.4f); break;
+    case SEED_ZOMBIE_CATAPULT:
+    case SEED_ZOMBONI: aSetIcon(1.0f, 3.0f, 0.23f); break;
+    case SEED_ZOMBIE_GARGANTUAR: aSetIcon(4.0f, 3.0f, 0.23f); break;
+    case SEED_BEGHOULED_BUTTON_SHUFFLE:
+    case SEED_BEGHOULED_BUTTON_CRATER:
+    case SEED_SLOT_MACHINE_SUN:
+    case SEED_SLOT_MACHINE_DIAMOND:
+    case SEED_ZOMBIQUARIUM_SNORKLE:
+    case SEED_ZOMBIQUARIUM_TROPHY: aHasIcon = false; break;
+    default: break;
+    }
+    if (gLawnApp->mGameMode == GAMEMODE_CHALLENGE_BIG_TIME)
+    {
+        if (aDrawn == SEED_SUNFLOWER || aDrawn == SEED_WALLNUT || aDrawn == SEED_MARIGOLD)
+        {
+            aIconX = 16.0f;
+            aIconY = 34.0f;
+        }
+    }
+    aIconX *= theGraphics->mScaleX;
+    aIconY = (aIconY + 1.0f) * theGraphics->mScaleY;
+    if (aDrawn == SEED_GIANT_WALLNUT)
+    {
+        aIconX = 52.0f;
+        aIconY = 59.0f;
+        aIconScale *= 0.75f;
+    }
+    auto aDrawIcon = [&](SeedType theIconType)
+    {
+        // DrawSeedType at 0x171644 scales only the icon, preserving the packet scale.
+        theGraphics->PushState();
+        theGraphics->mScaleX *= aIconScale;
+        theGraphics->mScaleY *= aIconScale;
+        if (theIconType == SEED_ZOMBIE_GRAVESTONE)
+            TodDrawImageCelScaledF(theGraphics, IMAGE_MP_TOMBSTONE, theX + aIconX, theY + aIconY,
+                                   0, 0, theGraphics->mScaleX, theGraphics->mScaleY);
+        else
+            Plant::DrawSeedType(theGraphics, theIconType, theImitaterType, VARIATION_NORMAL,
+                                theX + aIconX, theY + aIconY);
+        theGraphics->PopState();
+    };
+    if (theDrawBackground && aHasIcon)
+        aDrawIcon(aDrawn);
 
     if (thePercentDark > 0.0f)
     {
@@ -450,8 +552,8 @@ int DrawSeedPacket(Sexy::Graphics* theGraphics, float theX, float theY, SeedType
             TodDrawImageCelScaledF(theGraphics, IMAGE_SEEDS, theX, theY, aCel, 0,
                                    theGraphics->mScaleX, theGraphics->mScaleY);
         }
-        Plant::DrawSeedType(theGraphics, aDrawn, theImitaterType, (DrawVariation)0,
-                            8.0f * theGraphics->mScaleX, 5.0f * theGraphics->mScaleY);
+        if (theDrawBackground && aHasIcon)
+            aDrawIcon(theSeedType);
         theGraphics->PopState();
     }
 
@@ -494,7 +596,6 @@ int DrawSeedPacket(Sexy::Graphics* theGraphics, float theX, float theY, SeedType
         }
     }
     theGraphics->SetColorizeImages(false);
-    return 1;
 }
 // TODO(recon)
 void DrawStoneButton(Sexy::Graphics* theGraphics, int theX, int theY, int theWidth, int theHeight,

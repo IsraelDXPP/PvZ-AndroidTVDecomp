@@ -584,7 +584,8 @@ void MessageWidget::Draw(Sexy::Graphics *theGraphics)
 
   if (aBackdropWidth != 0)
   {
-    // A translucent black band behind the text, drawn with the outline pass.
+    // The band uses the message font and color; only the unbanded path has
+    // an optional outline pass (the banded draw is at 0x1A4D8A).
     TRect<int> aBackdrop;
     aBackdrop.mX = (800 - LawnApp::FULLSCREEN_RECT.mWidth) / 2;
     aBackdrop.mY = aPosY;
@@ -594,12 +595,14 @@ void MessageWidget::Draw(Sexy::Graphics *theGraphics)
     theGraphics->SetColor(Color(0, 0, 0, 128));
     theGraphics->FillRect(aBackdrop);
     aBackdrop.mY += aBackdropOffsetY;
-    TodDrawStringWrapped(theGraphics, aLabel, aBackdrop, aOutlineFont, aShadowColor, 5, 0);
+    TodDrawStringWrapped(theGraphics, aLabel, aBackdrop, aFont, aColor, 5, 0);
   }
-
-  if (aOutlineFont != nullptr)
-    TodDrawStringWrapped(theGraphics, aLabel, aRect, aOutlineFont, aShadowColor, 5, 0);
-  TodDrawStringWrapped(theGraphics, aLabel, aRect, aFont, aColor, 5, 0);
+  else
+  {
+    if (aOutlineFont != nullptr)
+      TodDrawStringWrapped(theGraphics, aLabel, aRect, aOutlineFont, aShadowColor, 5, 0);
+    TodDrawStringWrapped(theGraphics, aLabel, aRect, aFont, aColor, 5, 0);
+  }
 
   if (mMessageStyle != MESSAGE_STYLE_HOUSE_NAME)
     return;

@@ -24,9 +24,6 @@
 #include <cstring>
 #include <cmath>
 
-// gProjectileDefinition is the table base published by ReconGlobals.cpp.
-extern int gProjectileDefinition;
-
 namespace
 {
 // Sexy\ReconTypes.h still models ProjectileType, GridItemType, ParticleEffect,
@@ -291,9 +288,9 @@ void Projectile::Die()
 // Projectile::GetProjectileDef()
 // @001931A0  20 bytes
 // ==========================================================================
-ProjectileDefinition * Projectile::GetProjectileDef()
+const ProjectileDefinition * Projectile::GetProjectileDef()
 {
-  return (ProjectileDefinition *)((char *)&gProjectileDefinition + 12 * mProjectileType);
+  return &gProjectileDefinition[mProjectileType];
 }
 
 // ==========================================================================
@@ -558,7 +555,7 @@ bool Projectile::IsGridItemHitBySplash(GridItem *theGridItem)
 // ==========================================================================
 void Projectile::DoSplashDamage(Zombie *theHitZombie, GridItem *theHitGridItem)
 {
-  ProjectileDefinition * aProjectileDef = GetProjectileDef();
+  const ProjectileDefinition * aProjectileDef = GetProjectileDef();
 
   // Count everything the splash reaches, excluding the two primary targets.
   int aTargetCount = 0;
@@ -618,7 +615,7 @@ void Projectile::DoImpact(Zombie *theZombie)
   }
   else if (theZombie != nullptr)
   {
-    ProjectileDefinition * aProjectileDef = GetProjectileDef();
+    const ProjectileDefinition * aProjectileDef = GetProjectileDef();
     theZombie->TakeDamage(aProjectileDef->mDamage, GetDamageFlags(theZombie));
   }
 
@@ -796,7 +793,7 @@ void Projectile::DoImpactGridItem(GridItem *theGridItem)
   }
   else if (theGridItem != nullptr)
   {
-    ProjectileDefinition * aProjectileDef = GetProjectileDef();
+    const ProjectileDefinition * aProjectileDef = GetProjectileDef();
     theGridItem->TakeDamage(aProjectileDef->mDamage, 0);
   }
 
@@ -1006,7 +1003,7 @@ void Projectile::UpdateLobMotion()
       return;
     }
 
-    ProjectileDefinition * aProjectileDef = GetProjectileDef();
+    const ProjectileDefinition * aProjectileDef = GetProjectileDef();
     int aFlash = aPlantTarget->mEatenFlashCountdown;
     if (aFlash < 25)
       aFlash = 25;
@@ -1096,7 +1093,7 @@ void Projectile::CheckForCollision()
     if (aPlant == nullptr)
       return;
 
-    ProjectileDefinition * aProjectileDef = GetProjectileDef();
+    const ProjectileDefinition * aProjectileDef = GetProjectileDef();
     int aFlash = aPlant->mEatenFlashCountdown;
     if (aFlash < 25)
       aFlash = 25;
@@ -1514,11 +1511,11 @@ void Projectile::ConvertToPea(int theGridX)
 // ==========================================================================
 Projectile::Projectile()
 {
-  // The object registers its own state area mFrame..mLastPortalX (+0x34..+0x9F,
-  // 108 bytes) as one sync block, then zero-fills exactly that range. GameObject's
-  // own block is registered by the base constructor the compiler calls first.
-  mSyncBlocks.push_back(SyncBlockInfo{&mFrame, sizeof(Projectile) - 0x34});
-  memset(&mFrame, 0, sizeof(Projectile) - 0x34);
+  // Only clear the derived state. Debug STL bookkeeping enlarges GameObject;
+  // subtracting the original base size would overwrite the data array slot ID.
+  const unsigned int aStateSize = sizeof(Projectile) - sizeof(GameObject);
+  mSyncBlocks.push_back(SyncBlockInfo{&mFrame, aStateSize});
+  memset(&mFrame, 0, aStateSize);
 }
 
 // ==========================================================================
@@ -1527,7 +1524,7 @@ Projectile::Projectile()
 // ==========================================================================
 void Projectile::Draw(Sexy::Graphics *theGraphics)
 {
-  ProjectileDefinition * aProjectileDef = GetProjectileDef();
+  const ProjectileDefinition * aProjectileDef = GetProjectileDef();
 
   Sexy::Image * aImage = nullptr;
   float aScale = 1.0;
