@@ -43,6 +43,7 @@
 #include "SexyAppBase.h"
 #include "Widget.h"
 #include "WidgetContainer.h"
+#include <memory>
 #include <vector>
 
 class HelpBarWidget : public Sexy::Widget
@@ -72,7 +73,7 @@ public:
     // One help-button entry, including its column, row and animation state.
     struct ButtonDef
     {
-        int mButton;
+        Sexy::GamepadButton mButton;
         Sexy::String mLabel;
         HelpAlign mAlign;
         bool mAnimating;
@@ -94,6 +95,7 @@ public:
     Sexy::Font *mFontId;         // +0x120
     int mState;                  // +0x124
     int mAnimCounter;            // +0x128
+    std::unique_ptr<Sexy::Font> mOutlineFont;
 
     // ---- methods that are not vtable slots (kept from the transcription) ----
     // Button renderer @0x1470BC: incoming/outgoing set and fade alpha.

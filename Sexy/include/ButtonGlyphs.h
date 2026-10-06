@@ -3,8 +3,8 @@
 // <A> <B> <C> <X> for the language-table strings.
 //
 // help_buttons.png is 13 columns of 42x42:
-//   0 A, 1 B, 2 X, 3 Y, 4 Start, 5 RB, 6 LB, 7 RT, 8 LT, 9 d-pad,
-//   10 L, 11 R, 12 stick.
+//   0 A, 1 B, 2 X, 3 Y, 4 Start, 5 RB, 6 LB, 7 d-pad, 8 RT, 9 LT,
+//   10 Back, 11 right stick, 12 left stick.
 
 #pragma once
 

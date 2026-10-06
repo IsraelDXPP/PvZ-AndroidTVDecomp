@@ -16,6 +16,7 @@
 #include "WidgetManager.h"
 #include "NativeDisplay.h"
 #include "ButtonGlyphs.h"
+#include "ImageFont.h"
 #include <string>
 #include <vector>
 #include <map>
@@ -26,7 +27,7 @@ const Sexy::TPoint<float> HelpBarWidget::OFFSCREEN_POS(-240.0f, 816.0f);
 
 namespace {
 
-Sexy::String HelpButtonCaption(int theButton)
+Sexy::String HelpButtonCaption(Sexy::GamepadButton theButton)
 {
     const char* tag = "";
     switch (theButton)
@@ -107,6 +108,9 @@ void HelpBarWidget::DrawButtons(Sexy::Graphics* theGraphics, std::vector<ButtonD
             TodDrawString(theGraphics, caption, buttonX, baseline, mFontId, color, 3);
         int textX = button.mAlign == HELP_ALIGN_RIGHT ? buttonX - spaceWidth
                                                      : buttonX + captionWidth + spaceWidth;
+        if (mOutlineFont != nullptr)
+            TodDrawString(theGraphics, button.mLabel, textX, baseline, mOutlineFont.get(), color,
+                          button.mAlign == HELP_ALIGN_RIGHT ? 4 : 3);
         TodDrawString(theGraphics, button.mLabel, textX, baseline, mFontId, color,
                       button.mAlign == HELP_ALIGN_RIGHT ? 4 : 3);
     }
@@ -125,7 +129,11 @@ void HelpBarWidget::Draw(Sexy::Graphics * theGraphics)
         // free function but not the accessor, so the check goes through it.
         const char * aLocale = Sexy::setLocale(nullptr, nullptr);
         if (aLocale != nullptr && Sexy::String(aLocale) == "zh_CN")
+        {
             mFontId = FONT_HOUSEOFTERROR20;
+            // The Chinese 20-point descriptor keeps its black outline in a separate atlas.
+            mOutlineFont = std::make_unique<Sexy::ImageFont>(gLawnApp, "data/HouseofTerror20Outline.txt");
+        }
         else
             mFontId = FONT_HOUSEOFTERROR16;
     }
@@ -180,6 +188,9 @@ HelpBarWidget::HelpBarWidget()
     mState = -1;
     mFontId = nullptr;
     mAnimCounter = 0;
+    // Native button discs extend past the bar's 96-pixel layout after its 20-pixel slide.
+    // Keep the parent's clip so the complete discs remain visible during the animation.
+    mClip = false;
 
     // The bar sits at the bottom of the screen; a second construction reuses the
     // height the first one settled on.
@@ -338,19 +349,4 @@ void HelpBarWidget::RemovedFromManager(Sexy::WidgetManager * theWidgetManager)
 // ==========================================================================
 HelpBarWidget::~HelpBarWidget()
 {
-  // The vptr store and the trailing `Sexy::Widget::~Widget(this)` are the
-  // compiler's and the base's; neither is written here.
-  //
-  // The two walks are the two button vectors, and both are the same operation:
-  // each element's ButtonDef holds a Sexy::String label at its +0x04, and the
-  // dump drops that rep's refcount (freeing it at zero) for every element
-  // before freeing the vector's own block. The first walk steps 20 bytes
-  // (mButtons, ButtonDef's stride) and the second steps 20 as well over
-  // mButtons2; the `operator delete` after each is the vector's _M_start.
-  //
-  // Both members are declared `libstdcxx::vector<ButtonDef>`, whose own
-  // destructor runs Clear() -- destroying each element -- and then deallocates
-  // the block, and ButtonDef::mLabel is a Sexy::String whose destructor is
-  // exactly that release. So the whole body is redundant here and the
-  // destructor is empty.
 }
