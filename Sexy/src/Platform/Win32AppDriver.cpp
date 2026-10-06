@@ -330,6 +330,12 @@ void AppDriver_CenterScreen(Win32AppDriver* theSelf)
 
     Sexy::TRect<int> aSource(0, 0, aDisplayWidth, aDisplayHeight);
     anApp->mWidgetManager->Resize(anApp->mScreenBounds, aSource);
+
+    // BaseAppDriver::InitGraphics @0x3F3684. The byte at app+0x795 is
+    // mRuntimeFlags[1], which LawnApp sets. OnArrowKeys refuses to walk
+    // focus links while this stays off, so a d-pad press never leaves the
+    // button that already has focus.
+    anApp->mWidgetManager->SetAllowFullKeyboardMode(anApp->mRuntimeFlags[1]);
 }
 
 void AppDriver_DestroyWindow(Win32AppDriver* theSelf)

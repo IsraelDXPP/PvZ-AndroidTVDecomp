@@ -24,31 +24,6 @@
 namespace Sexy
 {
 
-// Keyboard stand-in for pad 0. The codes are the Win32 virtual keys the
-// original switch compared against. KeyboardGamepad posts pad codes itself,
-// so this path is only the old simulate-gamepad toggle.
-int ButtonFromKeyboard(KeyCode theKey)
-{
-    switch (theKey)
-    {
-        case KEYCODE_RETURN: return GAMEPAD_BUTTON_START;
-        case KEYCODE_ESCAPE: return GAMEPAD_BUTTON_SELECT;
-        case KEYCODE_LEFT:   return GAMEPAD_BUTTON_DPAD_LEFT;
-        case KEYCODE_UP:     return GAMEPAD_BUTTON_DPAD_UP;
-        case KEYCODE_RIGHT:  return GAMEPAD_BUTTON_DPAD_RIGHT;
-        case KEYCODE_DOWN:   return GAMEPAD_BUTTON_DPAD_DOWN;
-        case (KeyCode)'A':   return GAMEPAD_BUTTON_A;
-        case (KeyCode)'S':   return GAMEPAD_BUTTON_B;
-        case (KeyCode)'D':   return GAMEPAD_BUTTON_TL;
-        case (KeyCode)'W':   return GAMEPAD_BUTTON_Y;
-        case (KeyCode)'X':   return GAMEPAD_BUTTON_X;
-        case (KeyCode)'C':   return GAMEPAD_BUTTON_TR2;
-        case (KeyCode)'E':   return GAMEPAD_BUTTON_TL2;
-        case (KeyCode)'F':   return GAMEPAD_BUTTON_TR;
-        default:             return -1;
-    }
-}
-
 } // namespace Sexy
 
 void Sexy::GamepadApp::GamepadConnected()
@@ -211,16 +186,7 @@ int Sexy::GamepadApp::MapToButtonEvent(Sexy::Event const *theEvent, int &theButt
         return 1;
     }
 
-    if (!mSimulateGamepadWithKeyboard || !mGamePad1IsOn)
-        return 0;
-
-    const int aButton = ButtonFromKeyboard((KeyCode)(unsigned int)theEvent->eventCodeMask);
-    if (aButton == -1)
-        return 0;
-
-    theButton = aButton;
-    thePadIndex = 0;
-    return 1;
+    return 0;
 }
 
 int Sexy::GamepadApp::CheckGamepad()
@@ -256,7 +222,6 @@ Sexy::GamepadApp::GamepadApp()
     if (mInputManager != nullptr)
         mInputManager->AddListener(static_cast<InputDeviceListener *>(this));
 
-    mSimulateGamepadWithKeyboard = GetEnvOption("LAWN_SIMULATE_GAMEPAD", false) != 0;
     mGamePad1IsOn = false;
     mHasGamepad = false;
     mGamePad2IsOn = GetEnvOption("LAWN_GAMEPAD_MODE", false) != 0;
@@ -362,12 +327,6 @@ bool Sexy::GamepadApp::ProcessMessage(Sexy::Event &theEvent)
                     aPad->CheckEvent(theEvent);
             }
         }
-
-        // KEYCODE_GAMEPAD_MODE (0xE1) and the code beside it toggle the
-        // keyboard stand-in on a key-up.
-        if (mSimulateGamepadWithKeyboard && theEvent.modifiers == 2 &&
-            (unsigned int)theEvent.eventCodeMask - 225 <= 1)
-            mGamePad1IsOn = !mGamePad1IsOn;
     }
 
     return SexyAppBase::ProcessMessage(theEvent);

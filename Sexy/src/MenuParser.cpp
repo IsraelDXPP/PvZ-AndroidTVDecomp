@@ -618,10 +618,16 @@ bool Sexy::MenuParser::HandleCommand(Sexy::ListDataElement const& theParams)
             }
             else if (mParseWidget->mButtonWidget != nullptr)
             {
+                // The image lives at ButtonWidget+0x2B4. Its width and height
+                // (Image+0x24/+0x28) are copied into the button's own mWidth and
+                // mHeight (button+0x3C/+0x40). Move keeps that size, and Draw
+                // uses it as the destination. A source rect stays empty so the
+                // whole slice is drawn.
                 ButtonWidget* aButton = mParseWidget->mButtonWidget;
-                aButton->mButtonImage = aImage;
-                aButton->mNormalRect.mWidth = ((Image*)aImage)->mWidth;
-                aButton->mNormalRect.mHeight = ((Image*)aImage)->mHeight;
+                Image* aLoaded = aImage;
+                aButton->mButtonImage = aLoaded;
+                aButton->mWidth = aLoaded->mWidth;
+                aButton->mHeight = aLoaded->mHeight;
                 aButton->AttachSharedImage(aImage);
             }
         }

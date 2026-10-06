@@ -1850,19 +1850,23 @@ int MainMenu::KeyDown(Sexy::KeyCode theKey)
   if ( InTransition() || mIsFading || mEnterReanimationCounter > 0 )
     return 0;
 
-  // The key codes below are the raw ones the binary compares against. The first
-  // two walk the three scenes, the rest walk the focus or dismiss the crow.
-  if ( theKey == 310 || theKey == 311 )
+  // Codes are the ones MainMenu::KeyDown compares at 0x19c940. Shoulder
+  // buttons (0x136 / 0x137) step the three scenes. B (0x131) returns to the
+  // centre scene. Left (keyboard, stick, d-pad) and right do the same when
+  // the focused entry sits on a scene edge. Anything else falls through to
+  // Widget::KeyDown, which walks SetGameLinks.
+  if ( theKey == Sexy::KEYCODE_GAMEPAD_TL || theKey == Sexy::KEYCODE_GAMEPAD_TR )
   {
-    int aNewScene = (theKey == 310) ? mMenuScene - 1 : mMenuScene + 1;
-    if ( (unsigned int)aNewScene <= (unsigned int)MENUSCENE_EXTRA )
+    if ( !InTransition() && !mIsFading )
     {
-      SetScene(aNewScene);
-      CancelCrowTalk();
-      return 1;
+      int aNewScene = (theKey == Sexy::KEYCODE_GAMEPAD_TL) ? mMenuScene - 1 : mMenuScene + 1;
+      if ( (unsigned int)aNewScene <= (unsigned int)MENUSCENE_EXTRA )
+        SetScene(aNewScene);
     }
+    CancelCrowTalk();
+    return 1;
   }
-  else if ( theKey == 27 )
+  else if ( theKey == Sexy::KEYCODE_ESCAPE )
   {
     // Escape leaves the game from the centre scene and goes back to it from the
     // other two.
@@ -1873,7 +1877,7 @@ int MainMenu::KeyDown(Sexy::KeyCode theKey)
     CancelCrowTalk();
     return 1;
   }
-  else if ( theKey == 305 )
+  else if ( theKey == Sexy::KEYCODE_GAMEPAD_B )
   {
     if ( mMenuScene == MENUSCENE_MORE_WAYS || mMenuScene == MENUSCENE_EXTRA )
     {
@@ -1882,7 +1886,9 @@ int MainMenu::KeyDown(Sexy::KeyCode theKey)
       return 1;
     }
   }
-  else if ( theKey == 37 || theKey == 560 || theKey == 564 )
+  else if ( theKey == Sexy::KEYCODE_LEFT
+            || theKey == Sexy::KEYCODE_GAMEPAD_LEFT
+            || theKey == Sexy::KEYCODE_GAMEPAD_DPAD_LEFT )
   {
     int aWidgetId = mFocusedChildWidget->mWidgetId;
     if ( aWidgetId >= 0 && aWidgetId <= MORE_WAYS_BUTTON )
@@ -1897,7 +1903,9 @@ int MainMenu::KeyDown(Sexy::KeyCode theKey)
       return 1;
     }
   }
-  else if ( theKey == 39 || theKey == 562 || theKey == 566 )
+  else if ( theKey == Sexy::KEYCODE_RIGHT
+            || theKey == Sexy::KEYCODE_GAMEPAD_RIGHT
+            || theKey == Sexy::KEYCODE_GAMEPAD_DPAD_RIGHT )
   {
     int aWidgetId = mFocusedChildWidget->mWidgetId;
     if ( aWidgetId == MORE_BUTTON )

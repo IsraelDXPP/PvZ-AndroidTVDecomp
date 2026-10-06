@@ -50,7 +50,6 @@ public:
     virtual void GamepadDisconnected();
 
     Sexy::Gamepad *mGamepads[4];
-    bool           mSimulateGamepadWithKeyboard;
     bool           mGamePad1IsOn;
     CritSect       mDeviceEventCritSect;
     AtlasParser    mAtlasParser;

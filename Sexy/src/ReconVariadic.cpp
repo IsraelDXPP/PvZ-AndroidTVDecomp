@@ -56,6 +56,7 @@
 #include "TodParticleEmitter.h"
 #include "Image.h"
 #include "ButtonGlyphs.h"
+#include "GamepadApp.h"
 #include "Font.h"
 #include "SexyTransform2D.h"
 
@@ -1671,49 +1672,42 @@ TodWeightedGridArray* TodPickFromWeightedGridArray(TodWeightedGridArray* theItem
     }
     return &theItems[theCount - 1];
 }
-// TodReplaceButtons @0x1FD454. A pad found at startup leaves the tags for the
-// icon drawer. Otherwise each tag becomes the keyboard key from LAWN_BUTTON_MAP.
+// TodReplaceButtons @0x1FD454. A connected pad, or both pad-on bytes, leaves
+// the tags for the icon drawer. Otherwise <A> becomes [OK_BUTTON], <B>
+// becomes [BACK_BUTTON], and <C> and <X> become [MENU_BUTTON].
 Sexy::String* TodReplaceButtons(Sexy::String* theResult, const Sexy::String* theSource)
 {
-    if (ButtonGlyphsActive() || std::strchr(theSource->c_str(), '<') == nullptr)
+    Sexy::GamepadApp* aApp = static_cast<Sexy::GamepadApp*>(gSexyAppBase);
+    if (aApp != nullptr && (aApp->HasGamepad() != 0 || (aApp->mGamePad1IsOn && aApp->mGamePad2IsOn)))
+    {
+        *theResult = *theSource;
+        return theResult;
+    }
+    if (std::strchr(theSource->c_str(), '<') == nullptr)
     {
         *theResult = *theSource;
         return theResult;
     }
 
-    *theResult = *theSource;
-    const char* aBytes = theResult->c_str();
-    unsigned int aSize = theResult->size();
-    unsigned int aIndex = 0;
-    while (aIndex < aSize)
-    {
-        if (aBytes[aIndex] != '<')
-        {
-            ++aIndex;
-            continue;
-        }
-        unsigned int aClose = aIndex + 1;
-        while (aClose < aSize && aBytes[aClose] != '>')
-            ++aClose;
-        if (aClose >= aSize)
-            break;
-        int aLength = (int)(aClose - aIndex + 1);
-        Sexy::String aCaption = ButtonKeyCaption(aBytes + aIndex, aLength);
-        if (aCaption.empty())
-        {
-            aIndex = aClose + 1;
-            aBytes = theResult->c_str();
-            aSize = theResult->size();
-            continue;
-        }
-        Sexy::String aTag(aBytes + aIndex, (unsigned int)aLength);
-        Sexy::String aStep;
-        TodReplaceString(&aStep, *theResult, aTag.c_str(), aCaption);
-        *theResult = aStep;
-        aBytes = theResult->c_str();
-        aSize = theResult->size();
-        aIndex = 0;
-    }
+    Sexy::String aOk;
+    TodStringTranslate(&aOk, "[OK_BUTTON]");
+    TodReplaceString(theResult, *theSource, "<A>", aOk);
+
+    Sexy::String aBack;
+    TodStringTranslate(&aBack, "[BACK_BUTTON]");
+    Sexy::String aAfterBack;
+    TodReplaceString(&aAfterBack, *theResult, "<B>", aBack);
+    *theResult = aAfterBack;
+
+    Sexy::String aMenu;
+    TodStringTranslate(&aMenu, "[MENU_BUTTON]");
+    Sexy::String aAfterMenu;
+    TodReplaceString(&aAfterMenu, *theResult, "<C>", aMenu);
+    *theResult = aAfterMenu;
+
+    Sexy::String aAfterX;
+    TodReplaceString(&aAfterX, *theResult, "<X>", aMenu);
+    *theResult = aAfterX;
     return theResult;
 }
 // TODO(recon)

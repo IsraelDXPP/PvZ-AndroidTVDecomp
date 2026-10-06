@@ -7,7 +7,6 @@
 #include "InputDriverFactory.h"
 
 #include "DriverFactory.h"
-#include "KeyboardGamepad.h"
 #include "Win32Gamepad.h"
 
 // ==========================================================================
@@ -58,5 +57,4 @@ void Sexy::InputDriverFactory::Load()
   if (Find(String("Win32Gamepad")) != nullptr)
     return;
   AddDriver(new Win32GamepadDriver());
-  AddDriver(new KeyboardGamepadDriver());
 }

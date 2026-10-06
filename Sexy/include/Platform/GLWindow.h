@@ -70,13 +70,11 @@ public:
     // True when the given framework key is held.
     bool    IsKeyDown(int theKeyCode) const;
 
-    // GLFW key callback. KeyboardGamepad reads this; GetAsyncKeyState does
-    // not see keys while this window has focus.
+    // GLFW key callback. GetAsyncKeyState does not see keys while this
+    // window has focus, so IsKeyDown reads the state this callback stores.
     static void KeyCallback(GLFWwindow* theWindow, int theKey, int theScancode,
                             int theAction, int theMods);
     static bool IsGlfwKeyDown(int theGlfwKey);
-    // One press or release from the GLFW callback. Returns false when empty.
-    static bool PopKey(int& theGlfwKey, bool& theDown);
 
     // Mouse buttons. GLFW reports these through a separate API from keys, so
     // they cannot be reached via IsKeyDown.

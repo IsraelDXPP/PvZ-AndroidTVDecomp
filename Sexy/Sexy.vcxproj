@@ -224,7 +224,6 @@
     <ClCompile Include="src\Platform\GL\GLUtil.cpp" />
     <ClCompile Include="src\Platform\GL\GLVertexBuffer.cpp" />
     <ClCompile Include="src\Platform\GLWindow.cpp" />
-    <ClCompile Include="src\Platform\KeyboardGamepad.cpp" />
     <ClCompile Include="src\Platform\MpegVideo.cpp" />
     <ClCompile Include="src\Platform\PlatformShims.cpp" />
     <ClCompile Include="src\Platform\Screenshot.cpp" />
@@ -324,7 +323,6 @@
     <ClInclude Include="include\Platform\GL\GLStateManager.h" />
     <ClInclude Include="include\Platform\GL\GLTexture.h" />
     <ClInclude Include="include\Platform\GL\GLVertexBuffer.h" />
-    <ClInclude Include="include\Platform\KeyboardGamepad.h" />
     <ClInclude Include="include\Platform\MpegVideo.h" />
     <ClInclude Include="include\Platform\Screenshot.h" />
     <ClInclude Include="include\Platform\Win32AppDriver.h" />

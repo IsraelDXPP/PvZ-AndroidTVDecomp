@@ -638,8 +638,8 @@ void TitleScreen::Update()
   {
     if ( mCurBarWidth > aTotalBarWidth )
     {
-      // A pad found at startup keeps <A> for the icon drawer. Otherwise the
-      // tag becomes the keyboard key from LAWN_BUTTON_MAP.
+      // A connected pad keeps <A> for the icon drawer. Otherwise the tag
+      // becomes the [OK_BUTTON] string.
       Sexy::String aClickToStart;
       TodStringTranslate(&aClickToStart, "[CLICK_TO_START]");
       Sexy::String aStartLabel;
