@@ -4876,10 +4876,8 @@ void Zombie::UpdateZombieNewspaper()
 // ==========================================================================
 // Zombie::UpdateZombiePool(void)
 // @001ADB54  148 bytes
-// The into-pool done path tail-calls StartWalkAnim. Every other path returns
-// this. The only caller ignores r0.
 // ==========================================================================
-int Zombie::UpdateZombiePool()
+void Zombie::UpdateZombiePool()
 {
     switch (mZombieHeight)
     {
@@ -4905,7 +4903,7 @@ int Zombie::UpdateZombiePool()
             {
                 mAltitude = aDepth;
                 mZombieHeight = HEIGHT_ZOMBIE_NORMAL;
-                return (int)StartWalkAnim(0);
+                StartWalkAnim(0);
             }
             break;
         }
@@ -4915,7 +4913,6 @@ int Zombie::UpdateZombiePool()
         default:
             break;
     }
-    return (int)this;
 }
 
 // ==========================================================================
@@ -8455,13 +8452,16 @@ Zombie *Zombie::BungeeDie()
 // Zombie::UpdateDeath(void)
 // @001B23A8  1212 bytes
 // ==========================================================================
-int Zombie::UpdateDeath()
+void Zombie::UpdateDeath()
 {
     Reanimation *aBodyReanim = mApp->ReanimationTryToGet(mBodyReanimID);
     if (aBodyReanim == nullptr)
-        return DieNoLoot();
+    {
+        DieNoLoot();
+        return;
+    }
 
-    if (mZombieHeight == 7)  // HEIGHT_FALLING
+    if (mZombieHeight == HEIGHT_FALLING)
         UpdateZombieFalling();
 
     // A dying gargantuar shakes the board twice on its way down.
@@ -8584,7 +8584,7 @@ int Zombie::UpdateDeath()
             float aExplosionPosY = RandRangeFloat(50.0f, 300.0f);
             mApp->AddTodParticle(aExplosionPosX, aExplosionPosY,
                                  RenderLayer::RENDER_LAYER_TOP,
-                                 (ParticleEffect)81);  // PARTICLE_BOSS_EXPLOSION
+                                 PARTICLE_BOSS_EXPLOSION);
             mApp->PlayFoley(FOLEY_BOSS_EXPLOSION_SMALL);
         }
 
@@ -8613,14 +8613,14 @@ int Zombie::UpdateDeath()
                 // The wheelie track decides which of the two explosions is used.
                 if (aBodyReanim->IsTrackShowing("anim_wheelie2"))
                     mApp->AddTodParticle(mPosX + 80.0f, mPosY + 60.0f, mRenderOrder + 1,
-                                         (ParticleEffect)65);  // PARTICLE_ZAMBONI_EXPLOSION2
+                                         PARTICLE_ZAMBONI_EXPLOSION2);
                 else
                     mApp->AddTodParticle(mPosX + 80.0f, mPosY + 60.0f, mRenderOrder + 1,
-                                         (ParticleEffect)64);  // PARTICLE_ZAMBONI_EXPLOSION
+                                         PARTICLE_ZAMBONI_EXPLOSION);
                 DieWithLoot();
                 mApp->PlayFoley(FOLEY_EXPLOSION);
             }
-            return 0;
+            return;
         }
     }
     else if (mZombieType == ZOMBIE_CATAPULT)
@@ -8629,48 +8629,54 @@ int Zombie::UpdateDeath()
         if (mPhaseCounter == 0)
         {
             mApp->AddTodParticle(mPosX + 80.0f, mPosY + 60.0f, mRenderOrder + 1,
-                                 (ParticleEffect)66);  // PARTICLE_CATAPULT_EXPLOSION
+                                 PARTICLE_CATAPULT_EXPLOSION);
             DieWithLoot();
             mApp->PlayFoley(FOLEY_EXPLOSION);
         }
-        return 0;
+        return;
     }
 
     // Once the body animation has looped at least once the corpse starts to fade.
     if (mZombieFade == -1 && aBodyReanim->mLoopCount > 0 && mZombieType != ZOMBIE_BOSS)
         mZombieFade = mInPool ? 10 : 100;
-    return 0;
 }
 // ==========================================================================
 // Zombie::PlayDeathAnim(unsigned int)
 // @001B2874  668 bytes
 // ==========================================================================
-Reanimation * Zombie::PlayDeathAnim(unsigned int theDamageFlags)
+void Zombie::PlayDeathAnim(unsigned int theDamageFlags)
 {
     // Already dying, burnt or mowed down: nothing left to start.
     if (mZombiePhase == PHASE_ZOMBIE_DYING || mZombiePhase == PHASE_ZOMBIE_BURNED
         || mZombiePhase == PHASE_ZOMBIE_MOWERED)
-        return (Reanimation *)this;
+        return;
 
     Reanimation *aBodyReanim = mApp->ReanimationTryToGet(mBodyReanimID);
     if (aBodyReanim == nullptr || aBodyReanim->TrackExistsById(ReanimTrackId_anim_death) == 0)
-        return (Reanimation *)DieNoLoot();
+    {
+        DieNoLoot();
+        return;
+    }
 
     // A dolphin rider only gets its death animation while it is still in the
     // pool; a snorkel caught between the water and the lawn dies outright.
     if (mZombieType == ZOMBIE_DOLPHIN_RIDER)
     {
         if (mZombiePhase != PHASE_DOLPHIN_WALKING_IN_POOL)
-            return (Reanimation *)DieNoLoot();
+        {
+            DieNoLoot();
+            return;
+        }
     }
     else if (mZombiePhase == PHASE_SNORKEL_WALKING || mZombiePhase == PHASE_SNORKEL_INTO_POOL)
     {
-        return (Reanimation *)DieNoLoot();
+        DieNoLoot();
+        return;
     }
 
     if (mIceTrapCounter > 0)
     {
-        AddAttachedParticle(75, 106, (ParticleEffect)59);  // PARTICLE_ICE_TRAP_RELEASE
+        AddAttachedParticle(75, 106, PARTICLE_ICE_TRAP_RELEASE);
         mIceTrapCounter = 0;
     }
     if (mButteredCounter > 0)
@@ -8687,7 +8693,10 @@ Reanimation * Zombie::PlayDeathAnim(unsigned int theDamageFlags)
     {
         if (mZombieType != ZOMBIE_GARGANTUAR && mZombieType != ZOMBIE_BOSS
             && mZombieType != ZOMBIE_REDEYE_GARGANTUAR)
-            return (Reanimation *)DieNoLoot();
+        {
+            DieNoLoot();
+            return;
+        }
     }
 
     if (mZombieType == ZOMBIE_POGO)
@@ -8708,10 +8717,13 @@ Reanimation * Zombie::PlayDeathAnim(unsigned int theDamageFlags)
     mVelX = 0.0f;
     mZombiePhase = PHASE_ZOMBIE_DYING;
 
-    if (mZombieHeight == 10)  // HEIGHT_ZOMBIQUARIUM
-        return PlayZombieReanim("anim_aquarium_death", REANIM_PLAY_ONCE_AND_HOLD, 20, 14.0f);
-    if (mZombieHeight == 6)  // HEIGHT_UP_LADDER
-        mZombieHeight = 7;   // HEIGHT_FALLING
+    if (mZombieHeight == HEIGHT_ZOMBIQUARIUM)
+    {
+        PlayZombieReanim("anim_aquarium_death", REANIM_PLAY_ONCE_AND_HOLD, 20, 14.0f);
+        return;
+    }
+    if (mZombieHeight == HEIGHT_UP_LADDER)
+        mZombieHeight = HEIGHT_FALLING;
 
     // How fast the death animation plays depends on the zombie.
     float aDeathAnimRate;
@@ -8745,13 +8757,7 @@ Reanimation * Zombie::PlayDeathAnim(unsigned int theDamageFlags)
     }
     else
     {
-        union
-        {
-            int bits;
-            float value;
-        } aRateBits;
-        aRateBits.bits = RandRangeFloat(24.0f, 30.0f);
-        aDeathAnimRate = aRateBits.value;
+        aDeathAnimRate = RandRangeFloat(24.0f, 30.0f);
     }
 
     // Which death track is used is mostly a one-in-a-hundred roll, but water,
@@ -8789,7 +8795,6 @@ Reanimation * Zombie::PlayDeathAnim(unsigned int theDamageFlags)
 
     PlayZombieReanim(aDeathTrackName, REANIM_PLAY_ONCE_AND_HOLD, 20, aDeathAnimRate);
     ReanimShowPrefix("anim_tongue", -1);  // RENDER_GROUP_HIDDEN
-    return aBodyReanim;
 }
 // ==========================================================================
 // Zombie::UpdateDamageStates(unsigned int)
@@ -8829,19 +8834,21 @@ int Zombie::UpdateDamageStates(unsigned int theDamageFlags)
 // Zombie::AnimateChewSound(void)
 // @001B2BE0  258 bytes
 // ==========================================================================
-Reanimation * Zombie::AnimateChewSound()
+void Zombie::AnimateChewSound()
 {
     // The snorkel zombie eats underwater and has its own sound handling.
     if (mZombiePhase == PHASE_SNORKEL_UP_TO_EAT)
-        return (Reanimation *)this;
+        return;
 
     Plant *aPlant = FindPlantTarget((ZombieAttackType)0);
     if (aPlant == nullptr)
     {
         // Nothing in the mouth: a mind-controlled zombie chomps more softly.
         if (mMindControlled)
-            return (Reanimation *)mApp->PlayFoley(FOLEY_CHOMP_SOFT);
-        return (Reanimation *)mApp->PlayFoley(FOLEY_CHOMP);
+            mApp->PlayFoley(FOLEY_CHOMP_SOFT);
+        else
+            mApp->PlayFoley(FOLEY_CHOMP);
+        return;
     }
 
     // An awake hypno-shroom turns the zombie as it goes down.
@@ -8850,48 +8857,53 @@ Reanimation * Zombie::AnimateChewSound()
         mApp->PlayFoley(FOLEY_FLOOP);
         aPlant->Die();
         StartMindControlled();
-        mApp->AddTodParticle(mPosX + 60.0f, mPosY + 40.0f, mRenderOrder + 1, (ParticleEffect)89);  // PARTICLE_MIND_CONTROL
+        mApp->AddTodParticle(mPosX + 60.0f, mPosY + 40.0f, mRenderOrder + 1, PARTICLE_MIND_CONTROL);
         TrySpawnLevelAward();
 
         // The recruit switches sides and takes the mind-controlled walk speed.
         mAnimTicksPerFrame = 18;
         mVelX = 0.17f;
         UpdateAnimSpeed();
-        return nullptr;
+        return;
     }
 
     // Garlic: the zombie pulls a disgusted face, which drives it to another row.
     if (aPlant->mSeedType == SEED_GARLIC)
     {
         if (mYuckyFace)
-            return (Reanimation *)this;
+            return;
 
         mYuckyFaceCounter = 0;
         mYuckyFace = true;
         UpdateAnimSpeed();
-        return (Reanimation *)mApp->PlayFoley(FOLEY_CHOMP);
+        mApp->PlayFoley(FOLEY_CHOMP);
+        return;
     }
 
     // A nut is chewed softly, and only lets go when it has had enough.
     if (aPlant->mSeedType == SEED_WALLNUT || aPlant->mSeedType == SEED_TALLNUT)
     {
         if (!mBloated)
-            return (Reanimation *)mApp->PlayFoley(FOLEY_CHOMP_SOFT);
+        {
+            mApp->PlayFoley(FOLEY_CHOMP_SOFT);
+            return;
+        }
 
         if (mWalnutDeath)
-            return (Reanimation *)this;
+            return;
 
         // The nut finally gives way and takes the zombie with it.
         mWalnutDeath = true;
         mApp->PlayFoley(FOLEY_CHOMP);
-        return PlayDeathAnim(0);
+        PlayDeathAnim(0);
+        return;
     }
 
     // A pumpkin shell is soft too, but it never bloats the zombie.
     if (aPlant->mSeedType == SEED_PUMPKINSHELL)
-        return (Reanimation *)mApp->PlayFoley(FOLEY_CHOMP_SOFT);
-
-    return (Reanimation *)mApp->PlayFoley(FOLEY_CHOMP);
+        mApp->PlayFoley(FOLEY_CHOMP_SOFT);
+    else
+        mApp->PlayFoley(FOLEY_CHOMP);
 }
 // ==========================================================================
 // Zombie::Animate(void)
@@ -9366,21 +9378,21 @@ int Zombie::TakeDamage(int theDamage, unsigned int theDamageFlags)
 // Zombie::UpdateZombieSnorkel(void)
 // @001B3704  692 bytes
 // ==========================================================================
-Reanimation * Zombie::UpdateZombieSnorkel()
+void Zombie::UpdateZombieSnorkel()
 {
-    bool aWalkingBackwards = IsWalkingBackwards() != 0;
+    bool aWalkingBackwards = IsWalkingBackwards();
 
     switch (mZombiePhase)
     {
         case PHASE_SNORKEL_WALKING:
             // Walk until the pool edge, then dive in.
-            if (!aWalkingBackwards && (unsigned int)(mX - 701) <= 0x13)
+            if (!aWalkingBackwards && mX > 700 && mX <= 720)
             {
                 mZombiePhase = PHASE_SNORKEL_INTO_POOL;
                 mVelX = 0.2f;
-                return PlayZombieReanim("anim_jumpinpool", REANIM_PLAY_ONCE_AND_HOLD, 20, 16.0f);
+                PlayZombieReanim("anim_jumpinpool", REANIM_PLAY_ONCE_AND_HOLD, 20, 16.0f);
             }
-            return (Reanimation *)this;
+            break;
 
         case PHASE_SNORKEL_INTO_POOL:
         {
@@ -9394,59 +9406,39 @@ Reanimation * Zombie::UpdateZombieSnorkel()
                                                             mRenderOrder + 1, REANIM_SPLASH);
                 aSplash->OverrideScale(1.2f, 0.8f);
                 mApp->AddTodParticle((float)(mX - 10), (float)(mY + 115), mRenderOrder + 1,
-                                     (ParticleEffect)23);  // PARTICLE_PLANTING_POOL
+                                     PARTICLE_PLANTING_POOL);
                 mApp->PlayFoley(FOLEY_ZOMBIE_ENTERING_WATER);
             }
             if (aBodyReanim->mLoopCount > 0)
             {
                 mZombiePhase = PHASE_SNORKEL_WALKING_IN_POOL;
                 mInPool = true;
-                return PlayZombieReanim("anim_swim", REANIM_LOOP_FULL_LAST_FRAME, 0, 12.0f);
+                PlayZombieReanim("anim_swim", REANIM_LOOP_FULL_LAST_FRAME, 0, 12.0f);
             }
-            return aBodyReanim;
+            break;
         }
 
         case PHASE_SNORKEL_WALKING_IN_POOL:
             if (!mHasHead)
-                return (Reanimation *)TakeDamage(1800, 9U);
-
-            if (mX > 25)
             {
-                // Leave the pool on the right, or turn round and swim back.
-                if (mX <= 640 || aWalkingBackwards)
-                {
-                    if (mIsEating)
-                    {
-                        mZombiePhase = PHASE_SNORKEL_UP_TO_EAT;
-                        return PlayZombieReanim("anim_uptoeat", REANIM_PLAY_ONCE_AND_HOLD, 0, 24.0f);
-                    }
-                    return (Reanimation *)this;
-                }
-                mAltitude = -4.6f;
-                mZombieHeight = 2;  // HEIGHT_POOL
-                mZombiePhase = PHASE_SNORKEL_WALKING;
-                mPosX += 15.0f;
-                PoolSplash(false);
-                return StartWalkAnim(0);
+                TakeDamage(1800, 9U);
             }
-            else
+            else if ((mX <= 25 && !aWalkingBackwards) || (mX > 640 && aWalkingBackwards))
             {
-                if (aWalkingBackwards)
-                {
-                    if (mIsEating)
-                    {
-                        mZombiePhase = PHASE_SNORKEL_UP_TO_EAT;
-                        return PlayZombieReanim("anim_uptoeat", REANIM_PLAY_ONCE_AND_HOLD, 0, 24.0f);
-                    }
-                    return (Reanimation *)this;
-                }
-                mAltitude = -4.6f;
-                mZombieHeight = 2;  // HEIGHT_POOL
+                // The TV binary loads 0xC2B40000: -90.0f.
+                mAltitude = -90.0f;
+                mZombieHeight = HEIGHT_OUT_OF_POOL;
                 mZombiePhase = PHASE_SNORKEL_WALKING;
-                mPosX -= 15.0f;
+                mPosX += aWalkingBackwards ? 15.0f : -15.0f;
                 PoolSplash(false);
-                return StartWalkAnim(1);
+                StartWalkAnim(0);
             }
+            else if (mIsEating)
+            {
+                mZombiePhase = PHASE_SNORKEL_UP_TO_EAT;
+                PlayZombieReanim("anim_uptoeat", REANIM_PLAY_ONCE_AND_HOLD, 0, 24.0f);
+            }
+            break;
 
         case PHASE_SNORKEL_UP_TO_EAT:
         {
@@ -9454,23 +9446,23 @@ Reanimation * Zombie::UpdateZombieSnorkel()
             if (!mIsEating)
             {
                 mZombiePhase = PHASE_SNORKEL_DOWN_FROM_EAT;
-                return PlayZombieReanim("anim_uptoeat", REANIM_PLAY_ONCE_AND_HOLD, 0, -24.0f);
+                PlayZombieReanim("anim_uptoeat", REANIM_PLAY_ONCE_AND_HOLD, 0, -24.0f);
             }
-            if (aBodyReanim->mLoopCount > 0)
+            else if (aBodyReanim->mLoopCount > 0)
             {
                 mZombiePhase = PHASE_SNORKEL_EATING_IN_POOL;
-                return PlayZombieReanim("anim_eat", REANIM_LOOP, 0, 0.0f);
+                PlayZombieReanim("anim_eat", REANIM_LOOP, 0, 0.0f);
             }
-            return aBodyReanim;
+            break;
         }
 
         case PHASE_SNORKEL_EATING_IN_POOL:
             if (!mIsEating)
             {
                 mZombiePhase = PHASE_SNORKEL_DOWN_FROM_EAT;
-                return PlayZombieReanim("anim_uptoeat", REANIM_PLAY_ONCE_AND_HOLD, 0, -24.0f);
+                PlayZombieReanim("anim_uptoeat", REANIM_PLAY_ONCE_AND_HOLD, 0, -24.0f);
             }
-            return (Reanimation *)this;
+            break;
 
         case PHASE_SNORKEL_DOWN_FROM_EAT:
         {
@@ -9479,13 +9471,13 @@ Reanimation * Zombie::UpdateZombieSnorkel()
             {
                 mZombiePhase = PHASE_SNORKEL_WALKING_IN_POOL;
                 PlayZombieReanim("anim_swim", REANIM_LOOP_FULL_LAST_FRAME, 0, 0.0f);
-                return PickRandomSpeed();
+                PickRandomSpeed();
             }
-            return aBodyReanim;
+            break;
         }
 
         default:
-            return (Reanimation *)this;
+            break;
     }
 }
 // ==========================================================================
@@ -9862,16 +9854,18 @@ Reanimation * Zombie::HitIceTrap()
 // Zombie::ApplyBurn(void)
 // @001B4260  804 bytes
 // ==========================================================================
-int Zombie::ApplyBurn()
+void Zombie::ApplyBurn()
 {
-    // r0 is still this. Phase 2 is PHASE_ZOMBIE_BURNED.
     if (mDead || mZombiePhase == PHASE_ZOMBIE_BURNED)
-        return (int)this;
+        return;
 
     // +0x34 == 25 is ZOMBIE_BOSS, not a phase. Hex-Rays printed the boss test
     // as a phase compare.
     if (mBodyHealth >= 1800 || mZombieType == ZOMBIE_BOSS)
-        return TakeDamage(1800, 0x12u);
+    {
+        TakeDamage(1800, 0x12u);
+        return;
+    }
 
     // +0x34 == 31 is ZOMBIE_SQUASH_HEAD. The head reanim is dropped only when
     // the squash head is already gone.
@@ -9886,11 +9880,11 @@ int Zombie::ApplyBurn()
     if (mButteredCounter > 0)
         mButteredCounter = 0;
 
-    AttachmentDetachCrossFadeParticleType(mAttachmentID, (ParticleEffect)60, nullptr);
+    AttachmentDetachCrossFadeParticleType(mAttachmentID, PARTICLE_ZAMBONI_SMOKE, nullptr);
     BungeeDropPlant();
 
     // +0x38 is mZombiePhase. BIC #2 / BIC #8 are phase tests, not type tests.
-    int aPhase = mZombiePhase;
+    ZombiePhase aPhase = mZombiePhase;
     if ((aPhase & ~2) == PHASE_POLEVAULTER_IN_VAULT
         || (aPhase & ~2) == PHASE_ZOMBIE_DYING
         || aPhase == PHASE_IMP_GETTING_THROWN
@@ -9899,15 +9893,15 @@ int Zombie::ApplyBurn()
         || (unsigned)(aPhase - PHASE_DIGGER_TUNNELING) <= 3
         || mInPool)
     {
-        int aLoot = DieWithLoot();
+        DieWithLoot();
         if (mZombieType == ZOMBIE_BOBSLED)
-            return BobsledBurn();
-        return aLoot;
+            BobsledBurn();
+        return;
     }
 
     // Types 19..20 and 27..32 have no charred body. A sled team, a flyer, or
     // a headless zombie takes the same path.
-    int aType = mZombieType;
+    ZombieType aType = mZombieType;
     bool aHasCharredBody = (unsigned)(aType - ZOMBIE_YETI) > 1
                         && (unsigned)(aType - ZOMBIE_PEA_HEAD) > 5;
     if (!aHasCharredBody || IsBobsledTeamWithSled() || IsFlying() || !mHasHead)
@@ -9920,7 +9914,7 @@ int Zombie::ApplyBurn()
         mJustGotShotCounter = 0;
         mZombiePhase = PHASE_ZOMBIE_BURNED;
         mPhaseCounter = 300;
-        int aResult = DropLoot();
+        DropLoot();
         if (mZombieType == ZOMBIE_BALLOON)
         {
             // ADDS #0x44 then BL FindReanimAttachment: the id is passed by address.
@@ -9931,8 +9925,8 @@ int Zombie::ApplyBurn()
                 aHatReanim->SetAnimRate(0.0f);
         }
         if (mZombieType == ZOMBIE_BOBSLED)
-            return BobsledBurn();
-        return aResult;
+            BobsledBurn();
+        return;
     }
 
     float aBurnX = mPosX + 22.0f;
@@ -9975,13 +9969,8 @@ int Zombie::ApplyBurn()
 
     Reanimation *aCharred = mApp->AddReanimation(aBurnX, aBurnY, mRenderOrder,
                                                  aBurnReanimType);
-    union
-    {
-        int bits;
-        float value;
-    } aRateScale;
-    aRateScale.bits = RandRangeFloat(0.9f, 1.1f);
-    aCharred->SetAnimRate(aRateScale.value * aCharred->mAnimRate);
+    float aRateScale = RandRangeFloat(0.9f, 1.1f);
+    aCharred->SetAnimRate(aRateScale * aCharred->mAnimRate);
 
     if (mZombiePhase == PHASE_DIGGER_WALKING_WITHOUT_AXE)
         aCharred->SetFramesForLayer("anim_crumble_noaxe");
@@ -10010,10 +9999,9 @@ int Zombie::ApplyBurn()
         aCharred->mOverlayMatrix.m02 += mScaleZombie * 60.0f;
     }
 
-    int aLoot = DieWithLoot();
+    DieWithLoot();
     if (mZombieType == ZOMBIE_BOBSLED)
-        return BobsledBurn();
-    return aLoot;
+        BobsledBurn();
 }
 // ==========================================================================
 // Zombie::BobsledBurn(void)

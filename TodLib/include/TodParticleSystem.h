@@ -19,8 +19,8 @@ public:
 
     struct EmitterIdList
     {
-        void *mHead;
-        void *mTail;
+        DataArrayIdNode* mHead;
+        DataArrayIdNode* mTail;
         int mSize;
         TodAllocator *mpAllocator;
     };

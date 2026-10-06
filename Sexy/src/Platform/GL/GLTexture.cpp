@@ -332,6 +332,8 @@ bool GLTexture::CheckCreateTextures(MemoryImage* theImage)
     if (!theImage) return false;
 
     bool needCreate = (mTextureId == 0) ||
+                      mSrcWidth != theImage->mWidth ||
+                      mSrcHeight != theImage->mHeight ||
                       mWidth  != CreateTextureDimensions(theImage->mWidth) ||
                       mHeight != CreateTextureDimensions(theImage->mHeight);
 

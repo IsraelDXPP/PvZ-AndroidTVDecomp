@@ -246,12 +246,7 @@ struct SaveArraySlot
     unsigned int mID;
 };
 
-struct DataIdNode
-{
-    unsigned int mValue;
-    DataIdNode *mNext;
-    DataIdNode *mPrev;
-};
+using DataIdNode = DataArrayIdNode;
 
 void SyncRegisteredBlocks(SaveGameContext *theContext, std::vector<SyncBlockInfo> &theBlocks)
 {
@@ -290,11 +285,6 @@ void SyncParticleItemArray(SaveGameContext *theContext, DataArray<TodParticle, P
         if (theContext->mReading && aLive)
         {
             ConstructRaw<TodParticle>(&aSlots[i].mItem);
-            SyncBlockInfo aInfo;
-            aInfo.mData = aSlots[i].mItem.mSyncState;
-            aInfo.mSize = 152;
-            aSlots[i].mItem.mSyncBlocks.push_back(aInfo);
-            std::memset(aSlots[i].mItem.mSyncState, 0, 152);
         }
         if (aLive)
             SyncRegisteredBlocks(theContext, aSlots[i].mItem.mSyncBlocks);

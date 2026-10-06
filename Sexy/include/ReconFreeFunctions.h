@@ -1196,8 +1196,8 @@ extern int gCreditsTimingCount;
 //
 // The PC reference source declares these in LawnApp.h (LawnApp.cpp:45/152/261/
 // 407 and LawnApp.h:483-486) and nothing in this tree did, so LawnApp.cpp
-// reported C2065 for each. ParticleParams / TrailParams stay opaque here:
-// the transcribed bodies only hand their addresses to the loaders.
+// reported C2065 for each. Particle and trail tables use the actual loader
+// records, with the original resource paths restored from the TV binary.
 // gLawnReanimationArray is the 178-row TV table, one ReanimationParamRecord
 // per ReanimationType.
 //
@@ -1219,11 +1219,9 @@ public:
 
 // Layout: 4 (type) + 4 (pitch range) + 40 (ten sound ids) + 4 (flags).
 
-struct ParticleParams     { ParticleParamRecord mRecords[16]; };
-struct TrailParams        { TrailParamRecord mRecords[8]; };
 extern FoleyParams        gLawnFoleyParamArray[];
-extern ParticleParams     gLawnParticleArray[];
-extern TrailParams        gLawnTrailArray[];
+extern ParticleParamRecord gLawnParticleArray[NUM_PARTICLE_EFFECTS];
+extern TrailParamRecord   gLawnTrailArray[1];
 extern ReanimationParamRecord gLawnReanimationArray[];
 
 // The table LookupFoley indexes, one entry per FoleyType, and its length

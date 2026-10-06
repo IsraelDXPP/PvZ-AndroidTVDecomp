@@ -5332,7 +5332,7 @@ bool LawnApp::StepTitleLoad()
   case TitleLoad_Trails:
     fprintf(stderr, "title load: trails\n");
     fflush(stderr);
-    TrailLoadDefinitions(gLawnTrailArray[0].mRecords, 1);
+    TrailLoadDefinitions(gLawnTrailArray, 1);
     gTitleLoadPhase = TitleLoad_Particles;
     return true;
 
@@ -5341,7 +5341,7 @@ bool LawnApp::StepTitleLoad()
     fflush(stderr);
     // Each definition adds 6 to the completed count, and 108 * 6 is the 648
     // the task total reserved for particles.
-    TodParticleLoadDefinitions(gLawnParticleArray[0].mRecords, 108);
+    TodParticleLoadDefinitions(gLawnParticleArray, NUM_PARTICLE_EFFECTS);
     gTitleLoadPhase = TitleLoad_Preload;
     return true;
 

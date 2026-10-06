@@ -1,83 +1,107 @@
 #pragma once
 
 #include "SyncObject.h"
+#include "DataArray.h"
 #include "TodAllocator.h"
-#include "CoreTypes.h"
-#include <cstring>
+#include "TodParticle.h"
+#include "TodParticleDefinition.h"
 
-class TodEmitterDefinition;
 class TodParticleSystem;
 
-// Live emitter inside DataArray<TodParticleEmitter>. The array stride is 192.
-// The object itself is 0xBC; the trailing id word belongs to the DataArray slot.
-// The constructor at 0x209810 zeros the particle list, registers one sync block
-// covering +0x28 for 76 bytes, and memsets that region. The definition and the
-// owning system are stored by the caller after construction.
+enum ParticleSystemTracks
+{
+    SYSTEM_TRACK_SPAWN_RATE,
+    SYSTEM_TRACK_SPAWN_MIN_ACTIVE,
+    SYSTEM_TRACK_SPAWN_MAX_ACTIVE,
+    SYSTEM_TRACK_SPAWN_MAX_LAUNCHED,
+    SYSTEM_TRACK_EMITTER_PATH,
+    SYSTEM_TRACK_RED,
+    SYSTEM_TRACK_GREEN,
+    SYSTEM_TRACK_BLUE,
+    SYSTEM_TRACK_ALPHA,
+    SYSTEM_TRACK_BRIGHTNESS,
+    SYSTEM_TRACK_COUNT
+};
+
+struct ParticleRenderParams
+{
+    bool mRedSet;
+    bool mGreenSet;
+    bool mBlueSet;
+    bool mAlphaSet;
+    bool mScaleSet;
+    bool mStretchSet;
+    bool mSpinSet;
+    bool mPositionSet;
+    float mRed;
+    float mGreen;
+    float mBlue;
+    float mAlpha;
+    float mScale;
+    float mStretch;
+    float mSpin;
+    float mPositionX;
+    float mPositionY;
+};
+
+// Runtime state verified against 0x209810 and 0x20A42C.
 class TodParticleEmitter : public SyncObject
 {
 public:
     struct ParticleIdList
     {
-        void *mHead;
-        void *mTail;
+        DataArrayIdNode* mHead;
+        DataArrayIdNode* mTail;
         int mSize;
-        TodAllocator *mpAllocator;
+        TodAllocator* mpAllocator;
     };
 
-    // The 76 bytes the constructor registers and then zeros. Field order follows
-    // the PC emitter (mSpawnAccum, mSystemCenter, counters, overrides) shifted
-    // by the TV sync-block start at +0x28.
     struct SyncState
     {
-        float mSpawnAccum;                     // +0x28
-        SexyVector2 mSystemCenter;             // +0x2C
-        int mParticlesSpawned;                 // +0x34
-        int mSystemAge;                        // +0x38
-        int mSystemDuration;                   // +0x3C
-        float mSystemTimeValue;                // +0x40
-        float mSystemLastTimeValue;            // +0x44
-        bool mDead;                            // +0x48
-        unsigned char mPadDead[3];             // +0x49
-        Sexy::Color mColorOverride;            // +0x4C
-        bool mExtraAdditiveDrawOverride;       // +0x5C
-        unsigned char mPadAdditive[3];         // +0x5D
-        float mScaleOverride;                  // +0x60
-        Sexy::Image *mImageOverride;           // +0x64
-        int mCrossFadeEmitterID;               // +0x68
-        int mEmitterCrossFadeCountDown;        // +0x6C
-        int mFrameOverride;                    // +0x70
+        float mSpawnAccum;
+        SexyVector2 mSystemCenter;
+        int mParticlesSpawned;
+        int mSystemAge;
+        int mSystemDuration;
+        float mSystemTimeValue;
+        float mSystemLastTimeValue;
+        bool mDead;
+        Sexy::Color mColorOverride;
+        bool mExtraAdditiveDrawOverride;
+        float mScaleOverride;
+        Sexy::Image* mImageOverride;
+        unsigned int mCrossFadeEmitterID;
+        int mEmitterCrossFadeCountDown;
+        int mFrameOverride;
     };
 
-    TodEmitterDefinition *mEmitterDef;         // +0x10
-    TodParticleSystem *mParticleSystem;        // +0x14
-    ParticleIdList mParticleList;              // +0x18
-    SyncState mSyncState;                      // +0x28
-    // Track and field interpolators, written by TodEmitterInitialize, not by the
-    // constructor. 19 system tracks (76 bytes) then 4 fields times two floats.
-    // System-track interpolators. The constructor does not write them.
-    // Eighteen floats fill +0x74 through the end of the 0xBC object.
-    float mTrackInterp[18];                    // +0x74
+    TodEmitterDefinition* mEmitterDef;
+    TodParticleSystem* mParticleSystem;
+    ParticleIdList mParticleList;
+    SyncState mSyncState;
+    float mTrackInterp[SYSTEM_TRACK_COUNT];
+    float mSystemFieldInterp[4][2];
 
-    TodParticleEmitter()
-    {
-        mParticleList.mHead = nullptr;
-        mParticleList.mTail = nullptr;
-        mParticleList.mSize = 0;
-        mParticleList.mpAllocator = nullptr;
-        SyncBlockInfo aInfo;
-        aInfo.mData = &mSyncState;
-        aInfo.mSize = 76;
-        mSyncBlocks.push_back(aInfo);
-        std::memset(&mSyncState, 0, sizeof(mSyncState));
-    }
-
-    // Bodies are still the free-function stubs in ReconVariadic.cpp.
-    static int CrossFadeEmitter(...);
-    static int DeleteAll(...);
-    static int Draw(...);
-    static int SystemMove(...);
-    static int Update(...);
-    static int TodEmitterInitialize(...);
+    TodParticleEmitter();
+    void CrossFadeEmitter(TodParticleEmitter* theEmitter);
+    void DeleteAll();
+    void Draw(Sexy::Graphics* theGraphics);
+    void SystemMove(float theX, float theY);
+    void Update();
+    void TodEmitterInitialize(float theX, float theY, TodParticleSystem* theSystem,
+                              TodEmitterDefinition* theDefinition);
+    TodParticle* SpawnParticle(int theIndex, int theCount);
+    bool UpdateParticle(TodParticle* theParticle);
+    void DeleteParticle(TodParticle* theParticle);
+    void UpdateSpawning();
+    bool CrossFadeParticle(TodParticle* theParticle, TodParticleEmitter* theEmitter);
+    bool CrossFadeParticleToName(TodParticle* theParticle, const char* theName);
+    void UpdateParticleField(TodParticle* theParticle, ParticleField& theField, int theIndex);
+    void UpdateSystemField(ParticleField& theField, int theIndex);
+    float SystemTrackEvaluate(FloatParameterTrack& theTrack, ParticleSystemTracks theIndex);
+    float ParticleTrackEvaluate(FloatParameterTrack& theTrack, TodParticle* theParticle, ParticleTracks theIndex);
+    void GetRenderParams(TodParticle* theParticle, ParticleRenderParams& theParams);
+    void DrawParticle(Sexy::Graphics* theGraphics, TodParticle* theParticle);
 };
 
 struct ParticleEmitterSlot

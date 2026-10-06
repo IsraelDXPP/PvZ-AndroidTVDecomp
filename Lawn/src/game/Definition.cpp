@@ -309,7 +309,7 @@ void TodParticleFreeDefinitions()
         DefinitionFreeMap(&gParticleDefMap, &gParticleDefArray[index]);
 
     if (gParticleDefArray != nullptr)
-        operator delete[](gParticleDefArray);
+        delete[] gParticleDefArray;
     gParticleDefArray = nullptr;
     gParticleDefCount = 0;
     gParticleParamArray = nullptr;
@@ -744,8 +744,8 @@ static void FloatTrackSetDefault(FloatParameterTrack* theTrack, float theValue)
     theTrack->mNodes->mTime = 0.0f;
     theTrack->mNodes->mLowValue = theValue;
     theTrack->mNodes->mHighValue = theValue;
-    theTrack->mNodes->mCurveType = (TodCurves)0;
-    theTrack->mNodes->mDistribution = (TodCurves)1;
+    theTrack->mNodes->mCurveType = CURVE_CONSTANT;
+    theTrack->mNodes->mDistribution = CURVE_LINEAR;
 }
 
 int TrailLoadADef(TrailDefinition* theDefinition, const char* theFileName)
@@ -784,7 +784,28 @@ void TrailLoadDefinitions(TrailParamRecord* theParams, int theCount)
 int TodParticleLoadADef(TodParticleDefinition* theDefinition, const char* theFileName)
 {
     TodHesitationBracket aBracket("Load Particle '%s'", theFileName);
-    return DefinitionCompileAndLoad(Sexy::String(theFileName), &gParticleDefMap, theDefinition);
+    int aLoaded = DefinitionCompileAndLoad(Sexy::String(theFileName), &gParticleDefMap, theDefinition);
+    if (aLoaded == 0)
+        return aLoaded;
+
+    // Defaults from 0x207B4C. Constant defaults remain distinguishable from
+    // explicitly keyed tracks through FloatTrackIsSet.
+    for (int anIndex = 0; anIndex < theDefinition->mEmitterDefCount; ++anIndex)
+    {
+        TodEmitterDefinition& anEmitter = theDefinition->mEmitterDefs[anIndex];
+        FloatTrackSetDefault(&anEmitter.mSpawnMinActive, -1.0f);
+        FloatTrackSetDefault(&anEmitter.mSpawnMaxActive, -1.0f);
+        FloatTrackSetDefault(&anEmitter.mSpawnMaxLaunched, -1.0f);
+        FloatTrackSetDefault(&anEmitter.mParticleDuration, 100.0f);
+        for (FloatParameterTrack* aTrack : {
+            &anEmitter.mSystemRed, &anEmitter.mSystemGreen, &anEmitter.mSystemBlue,
+            &anEmitter.mSystemAlpha, &anEmitter.mSystemBrightness,
+            &anEmitter.mParticleRed, &anEmitter.mParticleGreen, &anEmitter.mParticleBlue,
+            &anEmitter.mParticleAlpha, &anEmitter.mParticleBrightness,
+            &anEmitter.mParticleScale, &anEmitter.mParticleStretch})
+            FloatTrackSetDefault(aTrack, 1.0f);
+    }
+    return aLoaded;
 }
 
 void TodParticleLoadDefinitions(ParticleParamRecord* theParams, int theCount)
@@ -793,10 +814,7 @@ void TodParticleLoadDefinitions(ParticleParamRecord* theParams, int theCount)
     gParticleParamArraySize = theCount;
     gParticleParamArray = theParams;
     gParticleDefCount = theCount;
-    gParticleDefArray = static_cast<TodParticleDefinition*>(
-        operator new[]((unsigned)(8 * theCount)));
-    for (int aIndex = 0; aIndex < theCount; ++aIndex)
-        ConstructRaw<TodParticleDefinition>(&gParticleDefArray[aIndex]);
+    gParticleDefArray = new TodParticleDefinition[theCount];
     for (int aIndex = 0; aIndex < theCount; ++aIndex)
     {
         if (TodParticleLoadADef(&gParticleDefArray[aIndex], theParams[aIndex].mFileName) == 0)

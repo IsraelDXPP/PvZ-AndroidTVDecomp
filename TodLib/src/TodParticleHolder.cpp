@@ -11,11 +11,11 @@
 
 namespace {
 
-void FreeListNodes(void *theHead, TodAllocator *theAllocator)
+void FreeListNodes(DataArrayIdNode* theHead, TodAllocator *theAllocator)
 {
-    for (void *aNode = theHead; aNode != nullptr; )
+    for (DataArrayIdNode* aNode = theHead; aNode != nullptr; )
     {
-        void *aNext = TodAllocatorReadLink(static_cast<char *>(aNode) + sizeof(void *));
+        DataArrayIdNode* aNext = aNode->mNext;
         TodAllocatorWriteLink(aNode, theAllocator->mFreeList);
         --theAllocator->mTotalItems;
         theAllocator->mFreeList = aNode;
@@ -91,8 +91,8 @@ bool TodParticleHolder::IsOverLoaded()
 
 void TodParticleHolder::DisposeHolder()
 {
-    ReleaseEmitterLists(&mEmitters);
     mParticleSystems.DataArrayDispose();
+    ReleaseEmitterLists(&mEmitters);
     mEmitters.DataArrayDispose();
     mParticles.DataArrayDispose();
     FreeAllocatorBlocks(&mParticleNodes);
@@ -101,7 +101,6 @@ void TodParticleHolder::DisposeHolder()
 
 TodParticleHolder::~TodParticleHolder()
 {
-    DisposeHolder();
     DisposeHolder();
 }
 

@@ -1,58 +1,118 @@
-// TodParticleDefinition -- reconstructed from libGameMain.so.
-//
-// A plain 8-byte data class: no vtable in the RTTI export, no base class. The
-// member table is the authoritative header PvZ\TodLib\Effect\TodParticle.h, and
-// the size is confirmed by `(TodParticleDefinition *)operator new of 8 bytes` at
-// Board.cpp:22319. The old placeholder's 0x18 was an over-allocation.
-
 #pragma once
 
 #include "ReconTypes.h"
 #include "Image.h"
 
-// TodEmitterDefinition -- the per-emitter definition block a TodParticleDefinition
-// owns. One definition is 0x164 bytes: TodParticleInitializeFromDef advances its
-// cursor with `ADD.W R8, R8, #0x164` @0x20a594, and FindEmitterDefByName's
-// `ADD.W R4, R4, #0x164` @0x2092f8 agrees. Only the fields any body in this tree
-// actually reads are named:
-//   +0x14  the flags word whose bit 0x80 means "create only while the holder
-//          still has room" (TodParticleInitializeFromDef @0x20a5ae does
-//          `LDR R3,[R7,#0x14] / LSLS R6,R3,#0x18`, i.e. a test of bit 7);
-//   +0x1C  the emitter's name, the string every TodParticleSystem::OverrideXxx
-//          and FindEmitterByName matches with strcasecmp (`LDR R0,[R4,#0x10]` then
-//          `LDR R0,[R3,#0x1C]`);
-//   +0x24, +0x2C, +0x94  three FloatParameterTracks: the two
-//          TodParticleEmitter::TodEmitterInitialize @0x20a42c evaluates to size
-//          its first burst, and the one TodParticleInitializeFromDef tests to
-//          decide whether the definition may be created at all.
+enum ParticleEmitterType
+{
+    EMITTER_CIRCLE,
+    EMITTER_BOX,
+    EMITTER_BOX_PATH,
+    EMITTER_CIRCLE_PATH,
+    EMITTER_CIRCLE_EVEN_SPACING
+};
+
+enum ParticleFieldType
+{
+    FIELD_INVALID,
+    FIELD_FRICTION,
+    FIELD_ACCELERATION,
+    FIELD_ATTRACTOR,
+    FIELD_MAX_VELOCITY,
+    FIELD_VELOCITY,
+    FIELD_POSITION,
+    FIELD_SYSTEM_POSITION,
+    FIELD_GROUND_CONSTRAINT,
+    FIELD_SHAKE,
+    FIELD_CIRCLE,
+    FIELD_AWAY
+};
+
+enum ParticleFlags
+{
+    PARTICLE_RANDOM_LAUNCH_SPIN = 1,
+    PARTICLE_ALIGN_LAUNCH_SPIN = 2,
+    PARTICLE_PIXEL_ALIGNED = 4,
+    PARTICLE_SYSTEM_LOOPS = 8,
+    PARTICLE_PARTICLE_LOOPS = 16,
+    PARTICLE_PARTICLES_DONT_FOLLOW = 32,
+    PARTICLE_RANDOM_START_TIME = 64,
+    PARTICLE_DIE_IF_OVERLOADED = 128,
+    PARTICLE_ADDITIVE = 256,
+    PARTICLE_FULL_SCREEN = 512,
+    PARTICLE_SOFTWARE_ONLY = 1024,
+    PARTICLE_HARDWARE_ONLY = 2048
+};
+
+struct ParticleField
+{
+    ParticleFieldType mFieldType;
+    FloatParameterTrack mX;
+    FloatParameterTrack mY;
+};
+
+// Definition cache layout and tracks verified against 0x207B4C / 0x209BF0.
 class TodEmitterDefinition
 {
 public:
-    Sexy::Image        *mImage;         // +0x00
-    int                 mImageCol;      // +0x04
-    int                 mImageRow;      // +0x08
-    int                 mImageFrames;   // +0x0C
-    int                 mAnimated;      // +0x10
-    int                 mFlags;         // +0x14
-    unsigned char       mEmitterPad18[4]; // +0x18 .. +0x1B
-    const char         *mName;          // +0x1C
-    unsigned char       mEmitterPad20[4]; // +0x20 .. +0x23
-    FloatParameterTrack mSystemDuration; // +0x24
-    FloatParameterTrack mCrossFadeDuration; // +0x2C
-    unsigned char       mEmitterTracks[0x60]; // +0x34 .. +0x93  tracks before the X offset
-    FloatParameterTrack mEmitterOffsetX; // +0x94
-    unsigned char       mEmitterTail[0xC8]; // +0x9C .. +0x163  tracks after the X offset
-    // size 0x164
+    Sexy::Image* mImage;
+    int mImageCol;
+    int mImageRow;
+    int mImageFrames;
+    int mAnimated;
+    int mFlags;
+    ParticleEmitterType mEmitterType;
+    const char* mName;
+    const char* mOnDuration;
+    FloatParameterTrack mSystemDuration;
+    FloatParameterTrack mCrossFadeDuration;
+    FloatParameterTrack mSpawnRate;
+    FloatParameterTrack mSpawnMinActive;
+    FloatParameterTrack mSpawnMaxActive;
+    FloatParameterTrack mSpawnMaxLaunched;
+    FloatParameterTrack mEmitterRadius;
+    FloatParameterTrack mEmitterOffsetX;
+    FloatParameterTrack mEmitterOffsetY;
+    FloatParameterTrack mEmitterBoxX;
+    FloatParameterTrack mEmitterBoxY;
+    FloatParameterTrack mEmitterSkewX;
+    FloatParameterTrack mEmitterSkewY;
+    FloatParameterTrack mEmitterPath;
+    FloatParameterTrack mParticleDuration;
+    FloatParameterTrack mLaunchSpeed;
+    FloatParameterTrack mLaunchAngle;
+    FloatParameterTrack mSystemRed;
+    FloatParameterTrack mSystemGreen;
+    FloatParameterTrack mSystemBlue;
+    FloatParameterTrack mSystemAlpha;
+    FloatParameterTrack mSystemBrightness;
+    ParticleField* mParticleFields;
+    int mParticleFieldCount;
+    ParticleField* mSystemFields;
+    int mSystemFieldCount;
+    FloatParameterTrack mParticleRed;
+    FloatParameterTrack mParticleGreen;
+    FloatParameterTrack mParticleBlue;
+    FloatParameterTrack mParticleAlpha;
+    FloatParameterTrack mParticleBrightness;
+    FloatParameterTrack mParticleSpinAngle;
+    FloatParameterTrack mParticleSpinSpeed;
+    FloatParameterTrack mParticleScale;
+    FloatParameterTrack mParticleStretch;
+    FloatParameterTrack mCollisionReflect;
+    FloatParameterTrack mCollisionSpin;
+    FloatParameterTrack mClipTop;
+    FloatParameterTrack mClipBottom;
+    FloatParameterTrack mClipLeft;
+    FloatParameterTrack mClipRight;
+    FloatParameterTrack mAnimationRate;
 };
-
 
 class TodParticleDefinition
 {
 public:
-    TodEmitterDefinition *mEmitterDefs; // +0x00
-    int mEmitterDefCount;              // +0x04
-    // size 0x08
+    TodEmitterDefinition* mEmitterDefs;
+    int mEmitterDefCount;
 
     TodParticleDefinition();
 };
-

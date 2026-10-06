@@ -28,6 +28,13 @@ struct ParticleSlot;
 struct TrailSlot;
 struct AttachmentSlot;
 
+struct DataArrayIdNode
+{
+    unsigned int mValue;
+    DataArrayIdNode* mNext;
+    DataArrayIdNode* mPrev;
+};
+
 // One array of T. Slot is the record named above. The method bodies are not
 // in this header: a method that constructs or destroys T can only be compiled
 // after T is complete, and each item header includes DataArrayMethods.h once

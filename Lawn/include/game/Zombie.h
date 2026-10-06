@@ -333,8 +333,7 @@ public:
     Reanimation * StartWalkAnim(int theBlendTime);
     // 0x1ADAEC. Mixed r0. The only caller ignores it.
     void UpdateZombieNewspaper();
-    // 0x1ADB54. this, or StartWalkAnim on the into-pool done path. The only caller ignores it.
-    int UpdateZombiePool();
+    void UpdateZombiePool();
     void RiseFromGrave(int theGridX, int theGridY);
     void BobsledCrash();
     // 0x1ADF08. Every path returns this.
@@ -434,10 +433,10 @@ public:
     int UpdateZombieJalapenoHead();
     int BobsledDie();
     Zombie * BungeeDie();
-    int UpdateDeath();
-    Reanimation * PlayDeathAnim(unsigned int theDamageFlags);
+    void UpdateDeath();
+    void PlayDeathAnim(unsigned int theDamageFlags);
     int UpdateDamageStates(unsigned int theDamageFlags);
-    Reanimation * AnimateChewSound();
+    void AnimateChewSound();
     // 0x1B2CEC. Returns this.
     Zombie * Animate();
     int BossStartDeath();
@@ -451,17 +450,14 @@ public:
     // discard it.
     Zombie * TakeBodyDamage(int theDamage, unsigned int theDamageFlags);
     int TakeDamage(int theDamage, unsigned int theDamageFlags);
-    // 0x1B3704. The paths that change nothing return this. The paths that start
-    // an animation tail-call PlayZombieReanim or StartWalkAnim and return that
-    // reanimation. Update discards the word.
-    Reanimation * UpdateZombieSnorkel();
+    void UpdateZombieSnorkel();
     int UpdateZombieSquashHead();
     float UpdateZombieBobsled();
     int UpdateZombiquarium();
     Zombie * EatZombie(Zombie *theZombie);
     void CheckIfPreyCaught();
     Reanimation * HitIceTrap();
-    int ApplyBurn();
+    void ApplyBurn();
     int BobsledBurn();
     // 0x1B45EC. The idle paths return this. The paths that start a walk, a
     // throw or a smash tail-call that animation and return the reanimation.

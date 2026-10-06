@@ -4,61 +4,30 @@
 
 #include "Graphics.h"
 #include "Image.h"
-#include "RawObject.h"
 #include "ReconFreeFunctions.h"
 #include "TodAllocator.h"
 #include "TodParticleDefinition.h"
-#include "TodParticleEmitter.h"
 #include <cstring>
 
 namespace {
 
-struct EmitterListNode
-{
-    unsigned int mValue;
-    EmitterListNode *mNext;
-    EmitterListNode *mPrev;
-};
+using EmitterListNode = DataArrayIdNode;
 
 TodParticleEmitter *AllocParticleEmitter(TodParticleHolder *theHolder)
 {
-    DataArray<TodParticleEmitter, ParticleEmitterSlot> &anArray = theHolder->mEmitters;
-    unsigned int anIndex = anArray.mFreeListHead;
-    ParticleEmitterSlot *aSlots = anArray.mBlock;
-    ParticleEmitterSlot *aSlot = aSlots + anIndex;
-
-    unsigned int aNextFree;
-    if (anIndex == anArray.mMaxUsedCount)
-    {
-        aNextFree = anIndex + 1;
-        anArray.mMaxUsedCount = aNextFree;
-    }
-    else
-    {
-        aNextFree = aSlot->mID;
-    }
-    anArray.mFreeListHead = aNextFree;
-
-    std::memset(aSlot, 0, 0xBC);
-
-    unsigned int aKey = anArray.mNextKey;
-    aSlot->mID = anIndex | (aKey << 16);
-    anArray.mNextKey = (aKey == 0xFFFFu) ? 1u : aKey + 1u;
-    ++anArray.mSize;
-
-    return ConstructRaw<TodParticleEmitter>(&aSlot->mItem);
+    return theHolder->mEmitters.DataArrayAlloc();
 }
 
 TodParticleEmitter *EmitterAt(TodParticleHolder *theHolder, unsigned int theIndex)
 {
     ParticleEmitterSlot *aSlots = theHolder->mEmitters.mBlock;
-    return &aSlots[theIndex].mItem;
+    return &aSlots[theIndex & DATA_ARRAY_INDEX_MASK].mItem;
 }
 
 unsigned int EmitterSlotId(TodParticleHolder *theHolder, TodParticleEmitter *theEmitter)
 {
     ParticleEmitterSlot *aSlots = theHolder->mEmitters.mBlock;
-    unsigned int aCount = theHolder->mEmitters.mMaxSize;
+    unsigned int aCount = theHolder->mEmitters.mMaxUsedCount;
     for (unsigned int anIndex = 0; anIndex < aCount; ++anIndex)
     {
         if (&aSlots[anIndex].mItem == theEmitter)
@@ -67,11 +36,11 @@ unsigned int EmitterSlotId(TodParticleHolder *theHolder, TodParticleEmitter *the
     return 0;
 }
 
-void FreeListNodes(void *theHead, TodAllocator *theAllocator)
+void FreeListNodes(EmitterListNode* theHead, TodAllocator *theAllocator)
 {
-    for (void *aNode = theHead; aNode != nullptr; )
+    for (EmitterListNode* aNode = theHead; aNode != nullptr; )
     {
-        void *aNext = TodAllocatorReadLink(static_cast<char *>(aNode) + sizeof(void *));
+        EmitterListNode* aNext = aNode->mNext;
         TodAllocatorWriteLink(aNode, theAllocator->mFreeList);
         --theAllocator->mTotalItems;
         theAllocator->mFreeList = aNode;
@@ -102,7 +71,8 @@ void AppendEmitter(TodParticleSystem::EmitterIdList *theList, unsigned int theIn
 
 bool EmitterNameMatches(const char *theName, TodEmitterDefinition *theDefinition)
 {
-    return theName == nullptr || strcasecmp(theName, theDefinition->mName) == 0;
+    return theName == nullptr || (theDefinition->mName != nullptr
+        && strcasecmp(theName, theDefinition->mName) == 0);
 }
 
 } // namespace
@@ -117,28 +87,8 @@ void TodParticleSystem::ParticleSystemDie()
             unsigned int anIndex = aNode->mValue;
             aNode = aNode->mNext;
             TodParticleEmitter *anEmitter = EmitterAt(mParticleHolder, anIndex);
-            TodParticleEmitter::DeleteAll(anEmitter);
-
-            FreeListNodes(anEmitter->mParticleList.mHead, anEmitter->mParticleList.mpAllocator);
-            anEmitter->mParticleList.mSize = 0;
-            anEmitter->mParticleList.mHead = nullptr;
-            anEmitter->mParticleList.mTail = nullptr;
-            anEmitter->~TodParticleEmitter();
-
-            unsigned int aFreeHead = mParticleHolder->mEmitters.mFreeListHead;
-            ParticleEmitterSlot *aSlots = mParticleHolder->mEmitters.mBlock;
-            ParticleEmitterSlot *aSlot = aSlots;
-            for (unsigned int anIndex = 0; anIndex < mParticleHolder->mEmitters.mMaxSize; ++anIndex)
-            {
-                if (&aSlots[anIndex].mItem == anEmitter)
-                {
-                    aSlot = &aSlots[anIndex];
-                    break;
-                }
-            }
-            mParticleHolder->mEmitters.mFreeListHead = aSlot->mID;
-            aSlot->mID = aFreeHead;
-            --mParticleHolder->mEmitters.mSize;
+            anEmitter->DeleteAll();
+            mParticleHolder->mEmitters.DataArrayFree(anEmitter);
         }
         while (aNode != nullptr);
 
@@ -156,7 +106,7 @@ void TodParticleSystem::Draw(Sexy::Graphics *theGraphics)
     for (EmitterListNode *aNode = static_cast<EmitterListNode *>(mEmitterList.mHead);
          aNode != nullptr; aNode = aNode->mNext)
     {
-        TodParticleEmitter::Draw(EmitterAt(mParticleHolder, aNode->mValue), theGraphics);
+        EmitterAt(mParticleHolder, aNode->mValue)->Draw(theGraphics);
     }
 }
 
@@ -165,7 +115,7 @@ void TodParticleSystem::SystemMove(float theX, float theY)
     for (EmitterListNode *aNode = static_cast<EmitterListNode *>(mEmitterList.mHead);
          aNode != nullptr; aNode = aNode->mNext)
     {
-        TodParticleEmitter::SystemMove(EmitterAt(mParticleHolder, aNode->mValue), theX, theY);
+        EmitterAt(mParticleHolder, aNode->mValue)->SystemMove(theX, theY);
     }
 }
 
@@ -226,11 +176,13 @@ void TodParticleSystem::OverrideScale(const char *theEmitterName, float theScale
 
 TodParticleEmitter *TodParticleSystem::FindEmitterByName(const char *theEmitterName)
 {
+    if (theEmitterName == nullptr)
+        return nullptr;
     for (EmitterListNode *aNode = static_cast<EmitterListNode *>(mEmitterList.mHead);
          aNode != nullptr; aNode = aNode->mNext)
     {
         TodParticleEmitter *anEmitter = EmitterAt(mParticleHolder, aNode->mValue);
-        if (strcasecmp(anEmitter->mEmitterDef->mName, theEmitterName) == 0)
+        if (EmitterNameMatches(theEmitterName, anEmitter->mEmitterDef))
             return anEmitter;
     }
     return nullptr;
@@ -238,32 +190,26 @@ TodParticleEmitter *TodParticleSystem::FindEmitterByName(const char *theEmitterN
 
 TodEmitterDefinition *TodParticleSystem::FindEmitterDefByName(const char *theEmitterName)
 {
-    int aCount = mParticleDef->mEmitterDefCount;
-    if (aCount <= 0)
+    if (theEmitterName == nullptr)
         return nullptr;
-
-    TodEmitterDefinition *aDefinition = mParticleDef->mEmitterDefs;
-    for (int i = 0; i + 1 < aCount; ++i)
+    for (int anIndex = 0; anIndex < mParticleDef->mEmitterDefCount; ++anIndex)
     {
-        if (strcasecmp(aDefinition->mName, theEmitterName) == 0)
+        TodEmitterDefinition* aDefinition = &mParticleDef->mEmitterDefs[anIndex];
+        if (EmitterNameMatches(theEmitterName, aDefinition))
             return aDefinition;
-        ++aDefinition;
     }
-    if (strcasecmp(aDefinition->mName, theEmitterName) == 0)
-        return aDefinition;
     return nullptr;
 }
 
 TodParticleSystem::TodParticleSystem()
 {
-    const int aSyncBlockSize = 0x25;
+    const int aSyncBlockSize = 37;
 
     SyncBlockInfo aBlock;
     aBlock.mData = &mEffectType;
     aBlock.mSize = aSyncBlockSize;
     mSyncBlocks.push_back(aBlock);
-    std::memset(&mEffectType, 0, aSyncBlockSize);
-
+    mEffectType = PARTICLE_MELONSPLASH;
     mParticleDef = nullptr;
     mParticleHolder = nullptr;
     mEmitterList.mHead = nullptr;
@@ -292,7 +238,7 @@ void TodParticleSystem::TodParticleInitializeFromDef(
         if (FloatTrackIsSet(&aDefinition->mCrossFadeDuration))
             continue;
 
-        if ((aDefinition->mFlags & 0x80) != 0 && mParticleHolder->IsOverLoaded())
+        if ((aDefinition->mFlags & PARTICLE_DIE_IF_OVERLOADED) != 0 && mParticleHolder->IsOverLoaded())
         {
             ParticleSystemDie();
             return;
@@ -300,7 +246,7 @@ void TodParticleSystem::TodParticleInitializeFromDef(
 
         TodParticleEmitter *anEmitter = AllocParticleEmitter(mParticleHolder);
         anEmitter->TodEmitterInitialize(theX, theY, this, aDefinition);
-        AppendEmitter(&mEmitterList, EmitterSlotId(mParticleHolder, anEmitter) & 0xFFFFu);
+        AppendEmitter(&mEmitterList, EmitterSlotId(mParticleHolder, anEmitter));
     }
 }
 
@@ -314,7 +260,7 @@ void TodParticleSystem::Update()
          aNode != nullptr; aNode = aNode->mNext)
     {
         TodParticleEmitter *anEmitter = EmitterAt(mParticleHolder, aNode->mValue);
-        TodParticleEmitter::Update(anEmitter);
+        anEmitter->Update();
         if (FloatTrackIsSet(&anEmitter->mEmitterDef->mCrossFadeDuration))
         {
             if (anEmitter->mParticleList.mSize > 0)
@@ -355,8 +301,8 @@ void TodParticleSystem::CrossFade(const char *theEmitterName)
             anEmitter->mSyncState.mSystemCenter.mX,
             anEmitter->mSyncState.mSystemCenter.mY,
             this, aDefinition);
-        AppendEmitter(&mEmitterList, EmitterSlotId(mParticleHolder, aNewEmitter) & 0xFFFFu);
-        TodParticleEmitter::CrossFadeEmitter(anEmitter, aNewEmitter);
+        AppendEmitter(&mEmitterList, EmitterSlotId(mParticleHolder, aNewEmitter));
+        anEmitter->CrossFadeEmitter(aNewEmitter);
     }
 }
 

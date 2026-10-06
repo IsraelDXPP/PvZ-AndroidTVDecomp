@@ -9,6 +9,7 @@
 #pragma once
 
 enum ReanimationType;
+enum ParticleEffect : int;
 
 struct DefField
 {
@@ -39,11 +40,10 @@ extern DefMap gTrailDefMap;
 
 // The loaders store the caller's parameter table here and the free functions
 // clear both words. The record layout is filled in with the loaders.
-// One row of the parameter table the loaders walk. The first word is unused;
-// the file name sits at +4, and the row is 8 bytes.
+// One row of the TV parameter table: effect type followed by resource path.
 struct ParticleParamRecord
 {
-    int mUnused;
+    ParticleEffect mParticleEffect;
     const char *mFileName;
 };
 struct TrailParamRecord

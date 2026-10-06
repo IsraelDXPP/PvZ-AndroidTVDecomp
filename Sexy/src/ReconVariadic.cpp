@@ -784,8 +784,7 @@ bool FloatTrackIsSet(const FloatParameterTrack* theTrack)
 {
     if (theTrack->mCountNodes == 0 || theTrack->mNodes == nullptr)
         return false;
-    const int* aFirstNode = (const int*)theTrack->mNodes;
-    return aFirstNode[3] != 0;
+    return theTrack->mNodes[0].mCurveType != CURVE_CONSTANT;
 }
 
 
@@ -2480,19 +2479,3 @@ int TM::XML::nChildNode(...) { return 0; }
 int TM::XML::nText(...) { return 0; }
 // TODO(recon)
 int TM::XML::parseString(...) { return 0; }
-
-// ---------------------------------------------------------------------------
-// TodParticleEmitter's statics.
-// ---------------------------------------------------------------------------
-// TODO(recon)
-int TodParticleEmitter::CrossFadeEmitter(...) { return 0; }
-// TODO(recon)
-int TodParticleEmitter::DeleteAll(...) { return 0; }
-// TODO(recon)
-int TodParticleEmitter::Draw(...) { return 0; }
-// TODO(recon)
-int TodParticleEmitter::SystemMove(...) { return 0; }
-// TODO(recon)
-int TodParticleEmitter::TodEmitterInitialize(...) { return 0; }
-// TODO(recon)
-int TodParticleEmitter::Update(...) { return 0; }

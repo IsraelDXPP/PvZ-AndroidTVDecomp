@@ -408,12 +408,31 @@ GLTexture* GLRenderDevice::EnsureTexture(MemoryImage* theImage, int& theOriginX,
     if (it != mTextureCache.end())
     {
         GLTexture* tex = it->second;
+        bool sizeChanged = tex->mSrcWidth != sheet->mWidth || tex->mSrcHeight != sheet->mHeight;
         // BitsChanged propagates from a sub-image to its parent sheet.
-        if (tex->mDirty || sheet->mBitsChanged || sheet->mBitsChangedCount != 0)
+        // A reloaded image can also reuse a cached image address. Recreate
+        // its texture when the source dimensions change; uploading through
+        // the old dimensions clips font atlases and clamps glyphs to black.
+        if (sizeChanged || tex->mDirty || sheet->mBitsChanged || sheet->mBitsChangedCount != 0)
         {
             FlushBatch();
-            if (!tex->Upload(sheet))
+            size_t previousBytes = (size_t)tex->mSrcWidth * tex->mSrcHeight * 4;
+            // Deleting a bound GL texture unbinds it, and GL can reuse its
+            // name immediately. Drop the cached binding before recreation
+            // so BeginImageBatch will bind the replacement even with that name.
+            if (sizeChanged)
+                mState.BindTexture(0, 0);
+            tex->MarkDirty();
+            if (!tex->CheckCreateTextures(sheet))
+            {
+                mTextureCacheBytes -= previousBytes;
+                mState.BindTexture(0, 0);
+                delete tex;
+                mTextureCache.erase(it);
                 return nullptr;
+            }
+            mTextureCacheBytes = mTextureCacheBytes - previousBytes
+                + (size_t)tex->mSrcWidth * tex->mSrcHeight * 4;
         }
         return tex;
     }

@@ -105,6 +105,7 @@
     <ClCompile Include="src\TodHesitationBracket.cpp" />
     <ClCompile Include="src\TodParticle.cpp" />
     <ClCompile Include="src\TodParticleDefinition.cpp" />
+    <ClCompile Include="src\TodParticleEmitter.cpp" />
     <ClCompile Include="src\TodParticleHolder.cpp" />
     <ClCompile Include="src\TodParticleSystem.cpp" />
   </ItemGroup>
