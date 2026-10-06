@@ -69,6 +69,7 @@ namespace TM { using ::LogComposer; }
 #include "Plant.h"
 #include "PlayerInfo.h"
 #include "PoolEffect.h"
+#include "Platform/Win32GameCenter.h"
 #include "PurchaseLimitDialog.h"
 #include "Reanimation.h"
 #include "ReanimationHolder.h"
@@ -2297,12 +2298,27 @@ int LawnApp::SrvQueryCoin()
 // ==========================================================================
 void LawnApp::onPay(int theResult)
 {
+  if ( theResult == 0 && dynamic_cast<Sexy::Win32GameCenter*>(mGameCenter) != nullptr )
+  {
+    mQueryCoinState.mPending = false;
+    int aBalance = atoi(LawnUser::getCurUser()->mCoinText.c_str());
+    Sexy::String aMessage;
+    StrFormat(&aMessage, u8"已到账 %d V币，当前余额 %d V币。\n仅用于本地测试，不涉及真实付款。",
+              aBalance - mQueryCoinState.mPreviousBalance, aBalance);
+    Sexy::Dialog* aRechargeDialog = GetDialog(82);
+    if ( aRechargeDialog != nullptr )
+      aRechargeDialog->mResult = 1000;
+    FinishBuyMoneyDialog(true);
+    DoDialog(51, true, "[RECHARGE_SUCCEED]", aMessage, "[DIALOG_BUTTON_OK]", 3);
+    return;
+  }
+
   if ( theResult != 0 )
   {
     if ( theResult == 1 )
-      logfi("MobileCMGCHOME: on pay failed", (const char*)1);
+      logfi("MobileCMGCHOME: on pay failed");
     else
-      logfi("MobileCMGCHOME: on pay cancelled", theResult);
+      logfi("MobileCMGCHOME: on pay cancelled");
 
     // The app answers a failed or cancelled payment by putting the item list
     // back. The fourth argument is the empty string the ARM loads into r3.
@@ -2310,7 +2326,7 @@ void LawnApp::onPay(int theResult)
   }
   else
   {
-    logfi("MobileCMGCHOME: on pay success", nullptr);
+    logfi("MobileCMGCHOME: on pay success");
     mQueryCoinState.mPending = true;
     mQueryCoinState.mLastRequestTime = Sexy::GetTickCount();
     mQueryCoinState.mRequestCount = 0;
@@ -2380,6 +2396,9 @@ SessionWaitingDialog * LawnApp::DoSessionWaitDialog()
 //  mSession.StartTask(aTask);` once that header exists.
 bool LawnApp::SrvBuyTool(E_SHOP_PACKET thePacket)
 {
+  if ( dynamic_cast<Sexy::Win32GameCenter*>(mGameCenter) != nullptr )
+    return buyToolForDemo(thePacket);
+
   mPendingBuyToolId = thePacket;
   mSessionTaskType = 5;
 
@@ -2416,6 +2435,7 @@ void LawnApp::writeCoinNum(int theCoinNum)
 {
   Sexy::String aPath;
   GetAppDataFolder(&aPath);
+  MkDir(aPath);
   aPath += "/CoinFile";
 
   std::ofstream aFile(aPath.c_str(), std::ios::out | std::ios::trunc);
@@ -5594,6 +5614,9 @@ void LawnApp::Init()
   SrvLoginToServer();
   // The local session uses the TV preset prices instead of a server response.
   setItemToShopItems();
+  setItemToCoinItems();
+  if ( dynamic_cast<Sexy::Win32GameCenter*>(mGameCenter) != nullptr )
+    loadCoinNum();
   Sexy::PerfTimer aTimer;
   aTimer.Start();
   // mProfileMgr is the Sexy::DefaultProfileMgr at +0x964. Its table's byte 12 is
@@ -5775,19 +5798,15 @@ void LawnApp::BuyMoney(int theTier)
   // The chosen tier says how much cash it costs and how many coins it grants.
   // The signed-in user's coin count is what the later balance query checks.
   LawnUser* aUser = LawnUser::getCurUser();
-  SCoinItem* aItems = aUser->mCoinItems;
-  int aPrice = 0;
-  int aCoins = 0;
-  if ( aItems != nullptr )
-  {
-    aPrice = aItems[theTier].mValue;
-    aCoins = aItems[theTier].mGetCoin;
-  }
-  mQueryCoinState.mUserId = atoi(aUser->mCoinText.c_str());
+  if ( theTier < 0 || theTier >= aUser->CoinTierCount() )
+    return;
+  const SCoinItem* aItems = aUser->mCoinItems.data();
+  int aPrice = aItems[theTier].mValue;
+  int aCoins = aItems[theTier].mGetCoin;
+  mQueryCoinState.mPreviousBalance = atoi(aUser->mCoinText.c_str());
 
   // A platform that sells through the game center builds a payment and stops.
-  // Feature 16 is the in-app purchase bit this call tests.
-  if ( mGameCenter->HasFeature((Sexy::IGameCenter::Feature)16) )
+  if ( mGameCenter->HasFeature(Sexy::IGameCenter::FEATURE_PURCHASE) )
   {
     logfi("MobileCMGCHOME: BuyMoney", "");
     static const char* sProductIds[3] = { "pvz50", "pvz100", "pvz200" };
@@ -5801,7 +5820,11 @@ void LawnApp::BuyMoney(int theTier)
   }
 
   if ( mAdProvider == nullptr )
+  {
+    DoDialog(51, true, "[MONEY_NOT_ENOUGH_HEADER]",
+             u8"当前版本未接入支付服务，暂时无法充值。", "[DIALOG_BUTTON_OK]", 3);
     return;
+  }
 
   // The "novel" channel names its products pvz50/pvz100/pvz200. Every other
   // channel uses the translated coin count as the item name.
@@ -5852,7 +5875,7 @@ void LawnApp::setQueryBalanceRes(bool theSucceeded, int theBalance)
 void LawnApp::setPayItemsRes(bool theSucceeded, char const* /*theOrder*/, int theTier, char const* /*theReceipt*/)
 {
   // Dialog 81 is the purchase wait. Either way the wait is over.
-  SessionWaitingDialog* aWait = (SessionWaitingDialog*)GetDialog(81);
+  SessionWaitingDialog* aWait = dynamic_cast<SessionWaitingDialog*>(GetDialog(81));
   if ( aWait != nullptr )
     aWait->mResult = 0;
   logfi("****OFFERRES***** : %d", theSucceeded);
@@ -5864,7 +5887,7 @@ void LawnApp::setPayItemsRes(bool theSucceeded, char const* /*theOrder*/, int th
   int aBalance = atoi(aUser->mCoinText.c_str());
   int aGranted = 0;
   int aPrice = 0;
-  if ( aUser->mCoinItems != nullptr )
+  if ( theTier >= 0 && theTier < aUser->CoinTierCount() )
   {
     aGranted = aUser->mCoinItems[theTier].mGetCoin;
     aPrice = aUser->mCoinItems[theTier].mValue;
@@ -5887,7 +5910,7 @@ void LawnApp::setPayItemsRes(bool theSucceeded, char const* /*theOrder*/, int th
 // LawnApp::setItemToCoinItems()
 // @002BDCF8  288 bytes
 // ==========================================================================
-int LawnApp::setItemToCoinItems()
+void LawnApp::setItemToCoinItems()
 {
   // The three coin packs the buy dialog offers: cash price, coins granted.
   static const SCoinItem sTiers[3] = {
@@ -5896,27 +5919,7 @@ int LawnApp::setItemToCoinItems()
     { 200, 20 },
   };
   LawnUser* aUser = LawnUser::getCurUser();
-  int aCount = (int)(aUser->mCoinItemsEnd - aUser->mCoinItems);
-  int aCapacity = (int)(aUser->mCoinItemsCap - aUser->mCoinItems);
-  if ( aCapacity < 3 )
-  {
-    SCoinItem* aFresh = new SCoinItem[3];
-    for ( int aIndex = 0; aIndex < aCount && aIndex < 3; ++aIndex )
-      aFresh[aIndex] = aUser->mCoinItems[aIndex];
-    delete[] aUser->mCoinItems;
-    aUser->mCoinItems = aFresh;
-    aUser->mCoinItemsCap = aFresh + 3;
-    aCount = aCount < 3 ? aCount : 3;
-  }
-  for ( int aIndex = 0; aIndex < 3; ++aIndex )
-  {
-    if ( aIndex < aCount )
-      aUser->mCoinItems[aIndex] = sTiers[aIndex];
-    else
-      aUser->mCoinItems[aCount++] = sTiers[aIndex];
-  }
-  aUser->mCoinItemsEnd = aUser->mCoinItems + aCount;
-  return sTiers[2].mValue;
+  aUser->mCoinItems.assign(std::begin(sTiers), std::end(sTiers));
 }
 
 // LawnApp::NextTestDialog()
@@ -6265,7 +6268,7 @@ void LawnApp::PrevTestDialog()
 // LawnApp::GotoBuyTool(E_SHOP_PACKET)
 // @002BF360  774 bytes
 // ==========================================================================
-int LawnApp::GotoBuyTool(E_SHOP_PACKET thePacket)
+bool LawnApp::GotoBuyTool(E_SHOP_PACKET thePacket)
 {
   // The shop prices live on the current user, keyed by the packet. With no
   // price the purchase cannot start.
@@ -6273,14 +6276,14 @@ int LawnApp::GotoBuyTool(E_SHOP_PACKET thePacket)
   if ( aUser == nullptr )
   {
     OnSessionTaskFailed(-500, Sexy::String(""));
-    return 0;
+    return false;
   }
 
   std::map<int, Sexy::String>::iterator aPriceEntry = aUser->mPrices.find((int)thePacket);
   if ( aPriceEntry == aUser->mPrices.end() )
   {
     OnSessionTaskFailed(-499, Sexy::String(""));
-    return 0;
+    return false;
   }
 
   int aPrice = atoi(aPriceEntry->second.c_str());
@@ -6297,12 +6300,13 @@ int LawnApp::GotoBuyTool(E_SHOP_PACKET thePacket)
       if ( aDialog != nullptr )
         aDialog->WaitForResult(true);
     }
+    return false;
   }
 
   if ( !SrvBuyTool(thePacket) )
   {
     OnSessionTaskFailed(-498, Sexy::String(""));
-    return 0;
+    return false;
   }
 
   int aLevel = getLevelForPost();
@@ -6312,7 +6316,7 @@ int LawnApp::GotoBuyTool(E_SHOP_PACKET thePacket)
   logfi("price is%s\n", aPriceText);
   MLogManager->sendLog(mLogComposer->composeConsumeLog((int)thePacket, aLevel, 1));
   printf("****use Tool %d in level %d\n", (int)thePacket, aLevel);
-  return 1;
+  return true;
 }
 
 
@@ -6320,7 +6324,7 @@ int LawnApp::GotoBuyTool(E_SHOP_PACKET thePacket)
 // LawnApp::buyToolForDemo(E_SHOP_PACKET)
 // @002BF720  496 bytes
 // ==========================================================================
-int LawnApp::buyToolForDemo(E_SHOP_PACKET thePacket)
+bool LawnApp::buyToolForDemo(E_SHOP_PACKET thePacket)
 {
   // The demo spends coins directly. A packet with no price costs nothing.
   LawnUser* aUser = LawnUser::getCurUser();
@@ -6334,7 +6338,7 @@ int LawnApp::buyToolForDemo(E_SHOP_PACKET thePacket)
   {
     Sexy::String aEmpty;
     DoBuyMoneyDialog(aEmpty);
-    return 0;
+    return false;
   }
 
   int aLeft = aBalance - aPrice;
@@ -6342,7 +6346,7 @@ int LawnApp::buyToolForDemo(E_SHOP_PACKET thePacket)
   sprintf(aText, "%d", aLeft);
   aUser->mCoinText = Sexy::String(aText);
   writeCoinNum(aLeft);
-  return 1;
+  return true;
 }
 
 // LawnApp::setItemToShopItems()
@@ -7445,7 +7449,7 @@ void LawnApp::UpdateFrames()
   mQueryCoinState.mLastRequestTime = aNow;
   ++mQueryCoinState.mRequestCount;
   LawnUser* aUser = LawnUser::getCurUser();
-  if ( atoi(aUser->mCoinText.c_str()) != mQueryCoinState.mUserId )
+  if ( atoi(aUser->mCoinText.c_str()) != mQueryCoinState.mPreviousBalance )
   {
     mQueryCoinState.mPending = false;
     return;

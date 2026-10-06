@@ -7,9 +7,6 @@
 // payment went through. There is no daily cap and no anti-addiction gate.
 // FEATURE_EXIT stays off so SdkExit still uses the game's own quit dialog.
 //
-// The object stays 0x24 bytes: that is the AndroidGameCenter allocation the
-// factory replaces, and SetListener writes the listener at +0x08.
-
 #pragma once
 
 #include "Listener.h"
@@ -35,9 +32,9 @@ public:
     virtual int Purchase(Payment const& thePayment);
     virtual int GetProducts();
     virtual int QueryProducts();
-    virtual IGameCenter* getUserName(IGameCenter* a2);
+    virtual Sexy::String getUserName();
     virtual void Init();
-    virtual int SetListener(Listener* a2);
+    virtual int SetListener(Listener* theListener);
 
     // +0x04 is the name the base constructor seeds and this one replaces.
     Sexy::String mName;
@@ -58,7 +55,5 @@ public:
     void* mPendingHead;
     void* mPendingTail;
 };
-
-static_assert(sizeof(Win32GameCenter) == 0x24, "Win32GameCenter must be 0x24 bytes");
 
 } // namespace Sexy

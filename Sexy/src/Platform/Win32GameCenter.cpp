@@ -36,6 +36,7 @@ void RememberCoins(int theBalance)
 
     Sexy::String aPath;
     GetAppDataFolder(&aPath);
+    MkDir(aPath);
     aPath += "/CoinFile";
 
     std::ofstream aFile(aPath.c_str(), std::ios::out | std::ios::trunc);
@@ -138,14 +139,9 @@ int Sexy::Win32GameCenter::QueryProducts()
     return 1;
 }
 
-// The getter returns the name by value. The caller's destination arrives as
-// the parameter because that is how the ARM return works; the object written
-// is the caller's own string.
-Sexy::IGameCenter* Sexy::Win32GameCenter::getUserName(IGameCenter* a2)
+Sexy::String Sexy::Win32GameCenter::getUserName()
 {
-    if (a2 != nullptr)
-        *reinterpret_cast<Sexy::String*>(a2) = mName;
-    return a2;
+    return mName;
 }
 
 void Sexy::Win32GameCenter::Init()

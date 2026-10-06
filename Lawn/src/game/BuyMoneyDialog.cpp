@@ -24,6 +24,7 @@
 #include "LawnDialog.h"
 #include "LawnStoneButton.h"
 #include "LawnUser.h"
+#include "Platform/Win32GameCenter.h"
 #include "ReanimationWidget.h"
 #include "WidgetManager.h"
 #include <string>
@@ -70,16 +71,19 @@ BuyMoneyDialog::BuyMoneyDialog(LawnApp *theApp, Sexy::String const& theTierName)
     // destructors. The two vptr stores are compiler-generated.
     : LawnDialog(theApp, nullptr, 82, true, "[MONEY_NOT_ENOUGH_HEADER]", "", "", 3)
 {
+  bool aLocalRecharge = dynamic_cast<Sexy::Win32GameCenter*>(theApp->mGameCenter) != nullptr;
   // The tier vector at +0x2FC is cleared by its own constructor, and +0x308
   // with it; the three layout words are the dialog's own constants.
   mBoughtTier = 0;
   if ( !theTierName.empty() )
   {
-    // The tier's own name replaces the dialog's line text when there is one.
+    // 0x2C3FD4 assigns the translated title to Dialog's header at +0x118.
     Sexy::String aText;
     TodStringTranslate(&aText, theTierName);
-    mDialogLines = aText;
+    mDialogHeader = aText;
   }
+  if ( aLocalRecharge )
+    mDialogHeader = u8"本地测试充值";
   // 506 is the width the dialog resizes itself to, 35 what one tier row
   // contributes to the height, and 120 the first row's Y.
   mDialogWidth = 506;
@@ -89,7 +93,7 @@ BuyMoneyDialog::BuyMoneyDialog(LawnApp *theApp, Sexy::String const& theTierName)
   // The money tiers are the current user's coin list. Each element is two
   // words: the coin amount, and the price the format reads as a float.
   LawnUser* aUser = LawnUser::getCurUser();
-  SCoinItem* aTiers = aUser->mCoinItems;
+  const SCoinItem* aTiers = aUser->mCoinItems.data();
   int aTierCount = aUser->CoinTierCount();
 
   int aY = 0;
@@ -99,8 +103,14 @@ BuyMoneyDialog::BuyMoneyDialog(LawnApp *theApp, Sexy::String const& theTierName)
     // returns the GameButton it allocated; this dialog keeps them in its own
     // LawnStoneButton vector.
     Sexy::String aLabel;
-    StrFormat(&aLabel, "[BUY_MONEY_FORMAT]", aTiers[i].mGetCoin, (float)aTiers[i].mValue);
-    LawnStoneButton *aButton = (LawnStoneButton *)MakeButton(
+    if ( aLocalRecharge )
+      StrFormat(&aLabel, u8"增加 %d V币", aTiers[i].mGetCoin);
+    else
+    {
+      Sexy::String aFormat = TodStringTranslate("[BUY_MONEY_FORMAT]");
+      StrFormat(&aLabel, aFormat.c_str(), aTiers[i].mGetCoin, (float)aTiers[i].mValue);
+    }
+    LawnStoneButton *aButton = MakeButton(
         i, static_cast<Sexy::ButtonListener *>(this), this, aLabel);
 
     aButton->Resize(130, mFirstRowY + aY, 200, 25);
@@ -131,6 +141,8 @@ BuyMoneyDialog::BuyMoneyDialog(LawnApp *theApp, Sexy::String const& theTierName)
     mLawnYesButton->SetFocusLinks(mTierButtons[mTierButtons.size() - 1],
                                   nullptr, nullptr, nullptr);
   }
+
+  mLawnYesButton->SetLabel("[DIALOG_BUTTON_CANCEL]");
 
   // The dialog is sized to the rows it ended up with: six fit per screenful of
   // mRowPitch pixels, plus 254 for the frame.
@@ -187,6 +199,7 @@ void BuyMoneyDialog::ButtonDepress(int theId)
     // The tier the player picked, which FinishBuyMoneyDialog reads back.
     mBoughtTier = theId;
     mApp->BuyMoney(theId);
+    return;
   }
   LawnDialog::ButtonDepress(theId);
 }

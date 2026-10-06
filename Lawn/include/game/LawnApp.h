@@ -348,13 +348,13 @@ struct ListNodeBase
 };
 
 // QueryCoinState -- the 16-byte block at +2836 the coin-query code keeps:
-// mPending is the byte at +2836, mUserId the word at +2848 (atoi result).
+// mPreviousBalance records the balance before the purchase at +2848.
 struct QueryCoinState
 {
     bool mPending;                 // +0x00
     unsigned int mLastRequestTime; // +0x04
     int mRequestCount;             // +0x08
-    int mUserId;                   // +0x0C
+    int mPreviousBalance;          // +0x0C
 };
 
 class LawnApp : public Sexy::GamepadApp, public Sexy::ProfileEventListener, public Sexy::IGameCenter::Listener
@@ -750,12 +750,12 @@ Sexy::Dialog *DoConfirmRestartDialog();
     void BuyMoney(int theAmount);
     void setQueryBalanceRes(bool theSuccess, int theBalance);
     void setPayItemsRes(bool theSuccess, char const *theItemId, int theCount, char const *theOrderId);
-    int setItemToCoinItems();
+    void setItemToCoinItems();
     int NextTestDialog();
     void ToggleTestDialog();
     void PrevTestDialog();
-    int GotoBuyTool(E_SHOP_PACKET thePacket);
-    int buyToolForDemo(E_SHOP_PACKET thePacket);
+    bool GotoBuyTool(E_SHOP_PACKET thePacket);
+    bool buyToolForDemo(E_SHOP_PACKET thePacket);
     int setItemToShopItems();
     int SetKeyValueData();
     int AddBuySunMoneyCount();

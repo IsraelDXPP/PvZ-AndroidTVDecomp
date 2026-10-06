@@ -75,7 +75,7 @@ public:
     virtual int GetProducts() = 0;
     virtual int QueryProducts() = 0;
 
-    virtual IGameCenter * getUserName(IGameCenter * theDest = 0) = 0;
+    virtual Sexy::String getUserName() = 0;
 
     virtual void Init() = 0;
 

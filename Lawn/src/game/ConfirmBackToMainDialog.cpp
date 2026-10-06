@@ -31,13 +31,8 @@ ConfirmBackToMainDialog::~ConfirmBackToMainDialog()
 void ConfirmBackToMainDialog::GotFocus()
 {
   LawnDialog::GotFocus();
-  // [R4+0xDC] is mButtonDelay, the dialog's "no button may be pressed yet"
-  // timer; while it is still running there is nothing to hand the focus to.
-  if ( mButtonDelay == 0 )
-  {
-    // Slot 57 (byte 0xE4) of the button's vtable is Widget::SetFocus.
-    mRestartButton->SetFocus(mLawnYesButton, true);
-  }
+  if ( mFocusedChildWidget == nullptr )
+    SetFocus(mLawnYesButton, true);
 }
 
 // ==========================================================================
@@ -58,7 +53,7 @@ void ConfirmBackToMainDialog::ButtonDepress(int theId)
   if ( theId == 1 )
   {
     // Slot 107 (byte 0x1AC) of LawnApp's vtable is LawnApp::KillDialog.
-    ((LawnApp *)gLawnApp)->DoRestartConfirmDialog();
+    gLawnApp->DoRestartConfirmDialog();
     mApp->KillDialog(23);
     Sexy::Dialog::ButtonDepress(1);
     return;
@@ -71,12 +66,10 @@ void ConfirmBackToMainDialog::ButtonDepress(int theId)
 // @00140508  788 bytes
 // ==========================================================================
 ConfirmBackToMainDialog::ConfirmBackToMainDialog(bool theLeaveGame)
-  : LawnDialog((LawnApp *)gLawnApp, nullptr, 23, true, "[LEAVE_GAME_HEADER]",
-               ((LawnApp *)gLawnApp)->IsFullVersion() ? "[LEAVE_GAME]" : "[LEAVE_GAME_DEMO_MODE]",
+  : LawnDialog(gLawnApp, nullptr, 23, true, "[LEAVE_GAME_HEADER]",
+               gLawnApp->IsFullVersion() && theLeaveGame ? "[LEAVE_GAME]" : "[LEAVE_GAME_DEMO_MODE]",
                "", 1)
 {
-  (void)theLeaveGame;
-
   // The three `StringCtor(&slot, "literal", ...)` triples the transcription
   // carried are libstdc++ COW string constructions; the base constructor's
   // by-reference parameters take the literals directly.
@@ -89,9 +82,7 @@ ConfirmBackToMainDialog::ConfirmBackToMainDialog(bool theLeaveGame)
   // Slot 50 (byte 0xC8) of the dialog's own vtable is LawnDialog::Resize; the
   // dialog is centred in the 800x600 design area.
   Resize((800 - mWidth) / 2, (600 - mHeight) / 2, mWidth, mHeight);
-  // Slot 57 (byte 0xE4) is Widget::SetFocus: the yes button takes the focus.
-  SetFocus(mLawnYesButton, true);
-  mDrawStandardBack = false;
+  mClip = false;
   mDrawQRCode = mApp->NeedShowQRCode() != 0;
   mRestartButton = MakeButton(1, static_cast<Sexy::ButtonListener *>(this), this, "[RESTART_BUTTON]");
 
