@@ -27,7 +27,7 @@ const Sexy::TPoint<float> HelpBarWidget::OFFSCREEN_POS(-240.0f, 816.0f);
 
 namespace {
 
-Sexy::String HelpButtonCaption(Sexy::GamepadButton theButton)
+Sexy::String HelpButtonTag(Sexy::GamepadButton theButton)
 {
     const char* tag = "";
     switch (theButton)
@@ -54,9 +54,9 @@ Sexy::String HelpButtonCaption(Sexy::GamepadButton theButton)
     case GAMEPAD_BUTTON_THUMBR: tag = "<r>"; break;
     default: break;
     }
-    Sexy::String caption(tag);
-    Sexy::String key = Sexy::String("[") + caption + "]";
-    return TodStringListExists(key) ? TodStringTranslate(key) : caption;
+    // The help bar draws gamepad controls. OEM remote captions replace <X>
+    // and <l> with words, losing the button identity before glyph lookup.
+    return Sexy::String(tag);
 }
 
 } // namespace
@@ -72,8 +72,9 @@ void HelpBarWidget::DrawButtons(Sexy::Graphics* theGraphics, std::vector<ButtonD
     int spaceWidth = mFontId->StringWidth(Sexy::String(" "));
     for (ButtonDef& button : theButtons)
     {
-        Sexy::String caption = HelpButtonCaption(button.mButton);
-        int captionWidth = caption.empty() ? IMAGE_HELP_BUTTONS->GetCelWidth() : mFontId->StringWidth(caption);
+        Sexy::String buttonTag = HelpButtonTag(button.mButton);
+        int glyphCel = ButtonGlyphCel(buttonTag.c_str(), static_cast<int>(buttonTag.size()));
+        int captionWidth = IMAGE_HELP_BUTTONS->GetCelWidth();
         int buttonX = button.mAlign == HELP_ALIGN_LEFT ? (wideScreen ? 124 : 244)
                                                       : (wideScreen ? 1156 : 1036) - captionWidth;
         Sexy::Color color = Sexy::Color::White;
@@ -96,7 +97,6 @@ void HelpBarWidget::DrawButtons(Sexy::Graphics* theGraphics, std::vector<ButtonD
             button.mRow = nextRow[column];
         ++nextRow[column];
         int baseline = 42 * button.mRow + 32;
-        int glyphCel = ButtonGlyphCel(caption.c_str(), static_cast<int>(caption.size()));
         if (glyphCel >= 0)
         {
             Sexy::Graphics glyphGraphics(*theGraphics);
@@ -105,7 +105,7 @@ void HelpBarWidget::DrawButtons(Sexy::Graphics* theGraphics, std::vector<ButtonD
             DrawButtonGlyph(&glyphGraphics, buttonX, baseline, mFontId, glyphCel, captionWidth);
         }
         else
-            TodDrawString(theGraphics, caption, buttonX, baseline, mFontId, color, 3);
+            TodDrawString(theGraphics, buttonTag, buttonX, baseline, mFontId, color, 3);
         int textX = button.mAlign == HELP_ALIGN_RIGHT ? buttonX - spaceWidth
                                                      : buttonX + captionWidth + spaceWidth;
         if (mOutlineFont != nullptr)
