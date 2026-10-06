@@ -780,16 +780,16 @@ void CutScene::AnimateBoard()
             mApp->CrazyDaveEnter();
             if (mApp->mGameMode == GAMEMODE_UPSELL)
             {
-                Reanimation *aReanim = (Reanimation *)mApp->ReanimationTryToGet(mApp->mCrazyDaveReanimID);
+                Reanimation *aReanim = mApp->ReanimationTryToGet(mApp->mCrazyDaveReanimID);
                 aReanim->PlayReanim("anim_enterup", REANIM_PLAY_ONCE_AND_HOLD, 0, 12.0f);
                 aReanim->SetPosition(150.0f, 70.0f);
             }
         }
 
-        if (mCutsceneTime == aDaveTalkTime && mCrazyDaveLastTalkIndex != -1)
+        if (mCutsceneTime == aDaveTalkTime && mCrazyDaveDialogStart != -1)
         {
-            mApp->CrazyDaveTalkIndex(mCrazyDaveLastTalkIndex);
-            mCrazyDaveLastTalkIndex = -1;
+            mApp->CrazyDaveTalkIndex(mCrazyDaveDialogStart);
+            mCrazyDaveDialogStart = -1;
         }
         else if (mCutsceneTime == aDaveTalkTime2 && IsNonScrollingCutscene())
         {
@@ -908,32 +908,28 @@ void CutScene::AnimateBoard()
         {
             mApp->PlayFoley(FOLEY_DIGGER);
 
-            // RenderLayer, ReanimationType and ParticleEffect have no enumerators
-            // in this tree, so their values are spelled out: the sod roll is drawn
-            // on layer 100000 (under the lawn) and uses REANIM_SODROLL (2) with
-            // PARTICLE_SOD_ROLL (20). Board::mLevel picks the dust layout.
-            int aRenderOrder = Board::MakeRenderOrder((RenderLayer)100000, 0, 1);
-            int aParticleOrder = Board::MakeRenderOrder((RenderLayer)100000, 0, 2);
+            int aRenderOrder = Board::MakeRenderOrder(RENDER_LAYER_UI_BOTTOM, 0, 1);
+            int aParticleOrder = Board::MakeRenderOrder(RENDER_LAYER_UI_BOTTOM, 0, 2);
             int aLevel = mBoard->mLevel;
 
             if (aLevel == 1)
             {
                 mApp->AddReanimation(0.0f, 0.0f, aRenderOrder, REANIM_SODROLL);
-                mApp->AddTodParticle(35.0f, 344.0f, aParticleOrder, (ParticleEffect)20);
+                mApp->AddTodParticle(35.0f, 344.0f, aParticleOrder, PARTICLE_SOD_ROLL);
             }
             else if (aLevel == 2)
             {
                 mApp->AddReanimation(0.0f, -104.0f, aRenderOrder, REANIM_SODROLL);
                 mApp->AddReanimation(0.0f, 111.0f, aRenderOrder, REANIM_SODROLL);
-                mApp->AddTodParticle(35.0f, 244.0f, aParticleOrder, (ParticleEffect)20);
-                mApp->AddTodParticle(35.0f, 460.0f, aParticleOrder, (ParticleEffect)20);
+                mApp->AddTodParticle(35.0f, 244.0f, aParticleOrder, PARTICLE_SOD_ROLL);
+                mApp->AddTodParticle(35.0f, 460.0f, aParticleOrder, PARTICLE_SOD_ROLL);
             }
             else if (aLevel == 4)
             {
                 mApp->AddReanimation(-3.0f, -198.0f, aRenderOrder, REANIM_SODROLL);
                 mApp->AddReanimation(-3.0f, 203.0f, aRenderOrder, REANIM_SODROLL);
-                mApp->AddTodParticle(32.0f, 150.0f, aParticleOrder, (ParticleEffect)20);
-                mApp->AddTodParticle(32.0f, 552.0f, aParticleOrder, (ParticleEffect)20);
+                mApp->AddTodParticle(32.0f, 150.0f, aParticleOrder, PARTICLE_SOD_ROLL);
+                mApp->AddTodParticle(32.0f, 552.0f, aParticleOrder, PARTICLE_SOD_ROLL);
             }
         }
 
@@ -979,17 +975,17 @@ void CutScene::AnimateBoard()
         && (mCutsceneTime == aPanRightEndTime - 1000 || mCutsceneTime == aPanLeftTime))
     {
         // StormFlash2: 310 ticks of lightning.
-        mBoard->mChallenge->mChallengeState = (ChallengeState)6;
+        mBoard->mChallenge->mChallengeState = STATECHALLENGE_STORM_FLASH_2;
         mBoard->mChallenge->mChallengeStateCounter = 310;
     }
 
-    if (mBossTime > 0 && mCutsceneTime == mCrazyDaveTime + kTimeReadySetPlant + mCrazyDaveDialogStart)
+    if (mBossTime > 0 && mCutsceneTime == mCrazyDaveTime + kTimeReadySetPlant + mLawnMowerTime)
         mBoard->mChallenge->PlayBossEnter();
 
     if (mApp->IsFinalBossLevel() && mCutsceneTime == aSeedBankTime)
         mApp->mMusic->StartGameMusic(false);
 
-    int aReadySetPlantTime = kTimeReadySetPlant + mCrazyDaveDialogStart + mSodTime + mGraveStoneTime
+    int aReadySetPlantTime = kTimeReadySetPlant + mFogTime + mSodTime + mGraveStoneTime
         + mCrazyDaveTime + mLawnMowerTime + mBossTime;
 
     if (mReadySetPlantTime > 0)
@@ -998,8 +994,7 @@ void CutScene::AnimateBoard()
             return;
 
         mApp->ForceHideHelpBarWidget();
-        // 900000 is the UI layer and REANIM_READYSETPLANT is 9.
-        mApp->AddReanimation(400.0f, 320.0f, Board::MakeRenderOrder((RenderLayer)900000, 0, 0), REANIM_READYSETPLANT);
+        mApp->AddReanimation(400.0f, 320.0f, Board::MakeRenderOrder(RENDER_LAYER_SCREEN_FADE, 0, 0), REANIM_READYSETPLANT);
         mApp->PlaySample(SOUND_READYSETPLANT, true);
 
         if (!mApp->IsFinalBossLevel())

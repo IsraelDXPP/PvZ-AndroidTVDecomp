@@ -5659,15 +5659,8 @@ int Board::AddBossRenderItem(BoardRenderItem *aRecords, int &aCount, Zombie *aZo
 // ==========================================================================
 int Board::InitCoverLayer()
 {
-  // @0x158998. Only backgrounds 0..3 get a cover. The early-out leaves r0 as
-  // 144, the last word the type-table copy loaded. The twelve words at
-  // 0x5A157C are four groups of three, selected by mBackground. Positions at
-  // 0x5A15AC are six records of {x, y, scale}. From the end of the copied
-  // triple, rows 0 and 3 load element 0 (LDR [end,#-0x30]), rows 2 and 5 load
-  // element 1 (#-0x2C), and rows 1 and 4 load element 2 (#-0x28). Row 4's x
-  // is converted to int, minus 15, then back to float. The layer immediate is
-  // 308000. R5 starts at this and advances 4 before the store at +0x6C8, so
-  // the id lands in mCoverLayerAnimIDs[row].
+  // TV 0x158998 uses six {x, y, scale} records at 0x5A15AC.
+  // Rows 0/3, 2/5 and 1/4 use the first, second and third bush types.
   if ( (unsigned int)mBackground > 3 )
     return 144;
 
@@ -5677,10 +5670,10 @@ int Board::InitCoverLayer()
       REANIM_BUSHES3, REANIM_BUSHES4, REANIM_BUSHES5,
       REANIM_NIGHT_BUSHES3, REANIM_NIGHT_BUSHES4, REANIM_NIGHT_BUSHES5};
   static const float aCoverPos[6][3] = {
-      {710.0f, -72.0f, 1.0f},
+      {712.0f, -18.0f, 1.0f},
       {724.0f, 110.0f, 1.0f},
       {728.0f, 198.0f, 1.0f},
-      {735.0f, 320.0f, 1.0f},
+      {734.0f, 320.0f, 1.0f},
       {740.0f, 401.0f, 1.0f},
       {740.0f, 450.0f, 1.0f},
   };
@@ -5701,14 +5694,14 @@ int Board::InitCoverLayer()
       if ( aRow == 4 )
         aX -= 15.0f;
     }
-    int aOrder = MakeRenderOrder((RenderLayer)308000, aRow, 0);
+    int aOrder = MakeRenderOrder(RENDER_LAYER_COVER, aRow, 0);
     Reanimation * aReanim = mApp->AddReanimation(
         aX, aY, aOrder, aCoverTypes[3 * mBackground + aTypeIndex]);
     aReanim->mIsAttachment = true;
     aReanim->mOverlayMatrix.Scale(aCoverPos[aRow][2], aCoverPos[aRow][2]);
     aReanim->SetAnimRate(0.0f);
-    aResult = mApp->ReanimationGetID(aReanim);
-    mCoverLayerAnimIDs[aRow] = ReanimationID(aResult);
+    mCoverLayerAnimIDs[aRow] = mApp->ReanimationGetID(aReanim);
+    aResult = mCoverLayerAnimIDs[aRow];
   }
   return aResult;
 }

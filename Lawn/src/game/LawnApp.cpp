@@ -7777,19 +7777,22 @@ int LawnApp::LoadLevelConfiguration(int theMode, int theLevelId)
     if (aParser.NextElement(&aElement) == 0)
       break;
 
-    bool aIsLevel = strstr(aElement.mValue.c_str(), "Level") != nullptr
-      && strstr(aElement.mValue.c_str(), "PVZ") != nullptr;
+    bool aIsLevel = aElement.mInstruction == "Level";
 
     if (aElement.mType == 2)
     {
       if (aIsLevel)
+      {
+        if (aMatched)
+          return 1;
         aInsideLevel = false;
+      }
       continue;
     }
     if (aElement.mType != 1)
       continue;
 
-    if (aIsLevel && !aInsideLevel)
+    if (aIsLevel && aElement.mValue == "PVZ" && !aInsideLevel)
     {
       int aId = 0;
       int aMode = 0;
@@ -7826,7 +7829,7 @@ int LawnApp::LoadLevelConfiguration(int theMode, int theLevelId)
       continue;
     }
 
-    if (!aMatched || aElement.mInstruction != "Wave")
+    if (!aInsideLevel || !aMatched || aElement.mValue != "PVZ/Level" || aElement.mInstruction != "Wave")
       continue;
 
     int aPoints = 0;

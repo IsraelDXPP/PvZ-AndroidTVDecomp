@@ -1107,22 +1107,23 @@ bool Reanimation::TrackExistsById(const char* theTrackId)
 // ==========================================================================
 void Reanimation::StartBlend(int theBlendTime)
 {
-  (void)theBlendTime;
-  for ( int i = 0; i < mDefinition->mTrackCount; ++i )
+  for (int aTrackIndex = 0; aTrackIndex < mDefinition->mTrackCount; ++aTrackIndex)
   {
     ReanimatorTransform aTransform;
-    GetCurrentTransform(i, &aTransform);
+    GetCurrentTransform(aTrackIndex, &aTransform);
     int aFrame = RoundToNearestInt(aTransform.mFrame);
     if ( aFrame >= 0 )
     {
       // The blend target is the track's current pose, and both the blend
       // counter and the blend time are seeded with the same length.
-      ReanimatorTransform *aBlend = &mReanimatorTransforms[i];
-      *aBlend = aTransform;
-      aBlend->mFrame = 0.0f;
-      aBlend->mAlpha = 0.0f;
-      aBlend->mFont = nullptr;
-      aBlend->mText = gEmptyCString;
+      ReanimatorTrackInstance &aTrackInstance = mTrackInstances[aTrackIndex];
+      aTrackInstance.mBlendTransform = aTransform;
+      aTrackInstance.mBlendCounter = theBlendTime;
+      aTrackInstance.mBlendTime = theBlendTime;
+      aTrackInstance.mBlendTransform.mImage = nullptr;
+      aTrackInstance.mBlendTransform.mImage2 = nullptr;
+      aTrackInstance.mBlendTransform.mFont = nullptr;
+      aTrackInstance.mBlendTransform.mText = gEmptyCString;
     }
   }
 }
