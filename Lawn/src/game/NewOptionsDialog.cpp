@@ -416,6 +416,14 @@ void NewOptionsDialog::ButtonDepress(int theId)
       }
       {
         Board *aBoard = mApp->mBoard;
+        if (aBoard != nullptr
+            && (mApp->mGameMode == GAMEMODE_CHALLENGE_ZEN_GARDEN
+                || mApp->mGameMode == GAMEMODE_TREE_OF_WISDOM))
+        {
+          mApp->DoConfirmBackToMain(false);
+          mApp->KillNewOptionsDialog();
+          return;
+        }
         bool aNeedConfirm = false;
         if (aBoard != nullptr && aBoard->NeedSaveGame())
           aNeedConfirm = true;

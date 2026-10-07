@@ -445,7 +445,7 @@ public:
     Sexy::String mStringSecondPlayer;    // +0x58E4
     bool mHelpTextDirty;                 // +0x58E8  a new tool in hand redraws the help text
     // PlantsWon and ZombiesWon set this. TryToSaveGame then skips the save.
-    bool mLevelFinished;                 // +0x58E9
+    bool mLevelFinished = false;         // +0x58E9
     unsigned char mPadding58EA[2];       // +0x58EA
     // Groups LoadResources has already loaded. A second request finds the name.
     std::set<Sexy::String> mLoadedResourceGroups;
@@ -472,7 +472,7 @@ public:
     // declaration either.
     int DisposeBoard();
     bool NeedSaveGame();
-    int SaveGame(const Sexy::String &theFileName);
+    bool SaveGame(const Sexy::String &theFileName);
     int GetNumWavesPerFlag();
     int IsFlagWave(int theWaveIndex);
     int PutZombieInWave(ZombieType theZombieType, int theWaveIndex, ZombiePicker *thePicker);
@@ -683,7 +683,8 @@ public:
     Coin * DropLootPiece(int theX, int theY, int thePiece);
     int CanDropLoot();
     int CompleteEndLevelSequenceForSaving();
-    void TryToSaveGame();
+    // False means the level file could not be written; callers must keep the board.
+    bool TryToSaveGame();
     int BungeeIsTargetingCell(int theGridX, int theGridY);
     Zombie * GetBossZombie();
     int UpdateProgressMeter();
@@ -732,7 +733,7 @@ public:
     void RefreshSeedPacketFromCursor(int thePlayerIndex);
     void FadeOutLevel();
     GamepadControls * GetGamepadControlsByGamepadIndex(int theGamepadIndex);
-    int TryToExit();
+    void TryToExit();
     int FinishExit();
     bool OkToPause();
     void RebuildHelpBar();

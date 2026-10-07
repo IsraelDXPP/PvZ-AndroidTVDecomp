@@ -435,7 +435,7 @@ public:
     virtual void LoadingThreadProc();              // [ 28]
     virtual void WriteToRegistry();                // [ 29]
     virtual void ReadFromRegistry();               // [ 30]
-    virtual Sexy::Dialog *NewDialog(int theDialogId, bool theModal, Sexy::String const &theHeader, Sexy::String const &theLines, Sexy::String const &theFooter, int theButtonMode); // [ 31]
+    virtual LawnDialog *NewDialog(int theDialogId, bool theModal, Sexy::String const &theHeader, Sexy::String const &theLines, Sexy::String const &theFooter, int theButtonMode); // [ 31]
     virtual void PreDisplayHook();                 // [ 32]
     virtual void SafeDeleteWidget(Sexy::Widget *theWidget); // [ 47]
     virtual void URLOpenFailed(Sexy::String const &theURL); // [ 48]
@@ -456,7 +456,7 @@ public:
     // this is that function. The name now matches the base, which makes it a real
     // override instead of a hidden `SwitchScreenMode` overload.
     virtual void SwitchScreenModeFull(bool theWindowed, bool theUse3D, bool theForce); // [101]
-    virtual Sexy::Dialog *DoDialog(int theDialogId, bool theModal, Sexy::String const &theHeader, Sexy::String const &theLines, Sexy::String const &theFooter, int theButtonMode); // [103]
+    virtual LawnDialog *DoDialog(int theDialogId, bool theModal, Sexy::String const &theHeader, Sexy::String const &theLines, Sexy::String const &theFooter, int theButtonMode); // [103]
     // TV LawnApp::KillDialog(int) overrides the base's by-id close slot.
     // This port names that slot KillDialogById; keep KillDialog as a forwarder.
     bool KillDialogById(int theDialogId) override;
@@ -696,12 +696,12 @@ Sexy::Dialog *DoConfirmRestartDialog();
     // `int` and stored `->mId` on the way out, which lost the dialog the callers
     // in StoreScreen.cpp and ZenGarden.cpp then dereference.
     Sexy::Dialog *DoNotEnoughMoneyDialog();
-    Sexy::Dialog *DoUpgradeDialog();
+    LawnDialog *DoUpgradeDialog();
     // _ZN7LawnApp22DoRestartConfirmDialogEv @0x2b8ba8 is the sibling of
     // DoConfirmRestartDialog above and returns its DoDialog result the same way.
     Sexy::Dialog *DoRestartConfirmDialog();
-    Sexy::Dialog *DoTreeItemDialog();
-    Sexy::Dialog *DoStoreItemDialog();
+    LawnDialog *DoTreeItemDialog();
+    LawnDialog *DoStoreItemDialog();
     Sexy::Dialog *DoZenSellDialog();
     Sexy::Dialog *DoPacketPurchaseDialog(int theCost, int theCount);
     void DoProfileChangeDialog();
@@ -730,7 +730,7 @@ Sexy::Dialog *DoConfirmRestartDialog();
     int ShowGameSelector();
     int DoBackToMain();
     int ShowTitleScreen(bool theFromGame);
-    int DrawDialogFade(Sexy::Graphics *g);
+    void DrawDialogFade(Sexy::Graphics *g);
     int DrawQRCode(Sexy::Graphics *g);
     void DoGameSaveErrorDialog();
     int ShowSavingDingus();
@@ -815,7 +815,8 @@ Sexy::Dialog *DoConfirmRestartDialog();
     int ShowZombieChooserScreen();
     int KillZombieChooserScreen();
     int StartPlaying();
-    ConfirmBackToMainDialog *DoConfirmBackToMain(bool theFromGameSelector);
+    // Returns nullptr for a direct garden exit or a failed level save.
+    ConfirmBackToMainDialog *DoConfirmBackToMain(bool theSaveGame);
     int DoContinueDialog();
     int FinishTimesUpDialog();
     void FinishModelessDialogs();

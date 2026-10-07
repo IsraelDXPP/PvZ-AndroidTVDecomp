@@ -307,43 +307,35 @@ bool StoreScreen::IsComingSoon(StoreItem theItem)
 // StoreScreen::IsItemSoldOut(StoreItem)
 // @0018DE94  268 bytes
 // ==========================================================================
-int StoreScreen::IsItemSoldOut(StoreItem theItem)
+bool StoreScreen::IsItemSoldOut(StoreItem theItem)
 {
   LawnPlayerInfo *aPlayerInfo = mApp->mPlayerInfo;
-  int result; // r0
-  int CurrentDaysSince2000; // r6
 
-  if ( theItem == -1 )
-    return 0;
-  if ( theItem == 21 )
-    return aPlayerInfo->mPurchases[21] > 3;
-  if ( (unsigned int)(theItem - 14) <= 1 )
+  if ( theItem == STORE_ITEM_INVALID )
+    return false;
+  if ( theItem == STORE_ITEM_PACKET_UPGRADE )
+    return aPlayerInfo->mPurchases[STORE_ITEM_PACKET_UPGRADE] >= 4;
+  if ( theItem == STORE_ITEM_FERTILIZER || theItem == STORE_ITEM_BUG_SPRAY )
     return aPlayerInfo->mPurchases[theItem] >= 1016;
-  if ( theItem == 28 )
-    return aPlayerInfo->mPurchases[28] > 1009;
-  if ( theItem == 9 )
-    return aPlayerInfo->mPurchases[9] > 1;
-  result = IsPottedPlant(theItem);
-  if ( result != 0 )
+  if ( theItem == STORE_ITEM_TREE_FOOD )
+    return aPlayerInfo->mPurchases[STORE_ITEM_TREE_FOOD] > 1009;
+  if ( theItem == STORE_ITEM_BONUS_LAWN_MOWER )
+    return aPlayerInfo->mPurchases[STORE_ITEM_BONUS_LAWN_MOWER] > 1;
+  if ( IsPottedPlant(theItem) )
   {
-    CurrentDaysSince2000 = GetCurrentDaysSince2000();
-    result = mApp->mZenGarden->IsZenGardenFull(true);
-    if ( result == 0 )
-      return CurrentDaysSince2000 == aPlayerInfo->mPurchases[theItem];
+    int aCurrentDay = GetCurrentDaysSince2000();
+    return mApp->mZenGarden->IsZenGardenFull(true)
+        || aCurrentDay == aPlayerInfo->mPurchases[theItem];
   }
-  else if ( (unsigned int)(theItem - 31) > 4 )
+  if ( theItem >= STORE_ITEM_BLUEPRINT_BLING && theItem <= STORE_ITEM_BLUEPRINT_CLOWN )
   {
-    if ( theItem != 36 )
-      return aPlayerInfo->mPurchases[theItem] != 0;
+    if ( theItem == STORE_ITEM_BLUEPRINT_BLING )
+      return aPlayerInfo->mPurchases[STORE_ITEM_BLUEPRINT_BLING] > 1;
+    return aPlayerInfo->mPurchases[theItem] > 4;
   }
-  else
-  {
-    if ( theItem == 31 )
-      return aPlayerInfo->mPurchases[31] > 1;
-    else
-      return aPlayerInfo->mPurchases[theItem] > 4;
-  }
-  return result;
+  if ( theItem == STORE_ITEM_BLUEPRINT_CHANGE )
+    return false;
+  return aPlayerInfo->mPurchases[theItem] != 0;
 }
 
 // ==========================================================================
@@ -962,7 +954,7 @@ bool StoreScreen::CanAffordItem(StoreItem theItem)
 // counters, the four blueprints record which level was unlocked, the house
 // hands over to HouseChooserDialog, and the mower item walks the board's lawn
 // mowers and respawns each one as a super mower.
-int StoreScreen::PurchaseItem(StoreItem theItem)
+void StoreScreen::PurchaseItem(StoreItem theItem)
 {
     mApp->SetCursor(0);
     mBubbleCountDown = 0;
@@ -973,75 +965,71 @@ int StoreScreen::PurchaseItem(StoreItem theItem)
         // The app builds the "not enough money" dialog and the store waits on
         // it; the wait flag keeps Update from touching the screen meanwhile.
         mWaitForDialog = true;
-        int aResult = mApp->DoNotEnoughMoneyDialog()->WaitForResult(true);
+        mApp->DoNotEnoughMoneyDialog()->WaitForResult(true);
         mWaitForDialog = false;
-        return aResult;
+        return;
     }
 
-    Sexy::Dialog *aDialog = mApp->DoStoreItemDialog();
-    ((LawnDialog *)aDialog)->mLawnYesButton->SetLabel(Sexy::String("[DIALOG_BUTTON_YES]"));
-    ((LawnDialog *)aDialog)->mLawnNoButton->SetLabel(Sexy::String("[DIALOG_BUTTON_NO]"));
+    LawnDialog *aDialog = mApp->DoStoreItemDialog();
+    aDialog->mLawnYesButton->SetLabel(Sexy::String("[DIALOG_BUTTON_YES]"));
+    aDialog->mLawnNoButton->SetLabel(Sexy::String("[DIALOG_BUTTON_NO]"));
 
     mWaitForDialog = true;
     int aResult = aDialog->WaitForResult(true);
     mWaitForDialog = false;
 
     if (aResult != 1000)
-        return aResult;
+        return;
 
     int anItemCost = GetItemCost(theItem);
     mApp->mPlayerInfo->AddCoins(-anItemCost);
     mApp->mPlayerInfo->mGameStats.ChangeMiscStat(STAT_MONEY_SPENT, anItemCost);
 
-    switch (theItem)
+    // TV's special purchases jump directly to the shared save/refresh path.
+    // Keep them in this chain so a generic one-time purchase cannot overwrite them.
+    if (theItem == STORE_ITEM_PACKET_UPGRADE)
     {
-    case 21:
         // The seed-slot upgrade announces itself and then widens the seed bank.
-        ++mApp->mPlayerInfo->mPurchases[21];
+        ++mApp->mPlayerInfo->mPurchases[STORE_ITEM_PACKET_UPGRADE];
         mWaitForDialog = true;
         mApp->DoUpgradeDialog()->WaitForResult(true);
         mWaitForDialog = false;
         if (mApp->mBoard != nullptr && mApp->mBoard->mSeedBank[0] != nullptr)
-            ((SeedBank *)mApp->mBoard->mSeedBank[0])->UpdateWidth();
-        break;
-
-    case 9:
-        ++mApp->mPlayerInfo->mPurchases[9];
-        break;
-
-    case 24:
-        mApp->mPlayerInfo->mPurchases[24] = 3;
-        break;
-
-    case 20:
-        mApp->mPlayerInfo->mPurchases[20] = (int)time(nullptr);
-        break;
-
-    default:
-        break;
+            mApp->mBoard->mSeedBank[0]->UpdateWidth();
     }
-
-    if ((unsigned int)(theItem - 14) <= 1)
+    else if (theItem == STORE_ITEM_BONUS_LAWN_MOWER)
+    {
+        ++mApp->mPlayerInfo->mPurchases[STORE_ITEM_BONUS_LAWN_MOWER];
+    }
+    else if (theItem == STORE_ITEM_RAKE)
+    {
+        mApp->mPlayerInfo->mPurchases[STORE_ITEM_RAKE] = 3;
+    }
+    else if (theItem == STORE_ITEM_STINKY_THE_SNAIL)
+    {
+        mApp->mPlayerInfo->mPurchases[STORE_ITEM_STINKY_THE_SNAIL] = (int)time(nullptr);
+    }
+    else if (theItem == STORE_ITEM_FERTILIZER || theItem == STORE_ITEM_BUG_SPRAY)
     {
         // The fertiliser and the bug spray: five more uses, from a floor of
         // 1000 so the count can never be mistaken for "not bought".
         int &aCount = mApp->mPlayerInfo->mPurchases[theItem];
         aCount = (aCount < 1000) ? 1005 : (aCount + 5);
     }
-    else if (theItem == 28)
+    else if (theItem == STORE_ITEM_TREE_FOOD)
     {
-        int &aCount = mApp->mPlayerInfo->mPurchases[28];
+        int &aCount = mApp->mPlayerInfo->mPurchases[STORE_ITEM_TREE_FOOD];
         aCount = (aCount < 1000) ? 1001 : (aCount + 1);
     }
-    else if (theItem == 27)
+    else if (theItem == STORE_ITEM_TREE_OF_WISDOM)
     {
         // The tree of wisdom: ask for its own dialog, then remember the choice.
-        mApp->mPlayerInfo->mPurchases[27] = 1;
-        mApp->mPlayerInfo->mGameStats.mHouseType = BLUEPRINT_SCARY;
+        mApp->mPlayerInfo->mPurchases[STORE_ITEM_TREE_OF_WISDOM] = 1;
+        mApp->mPlayerInfo->mChallengeRecords[GAMEMODE_TREE_OF_WISDOM - GAMEMODE_SURVIVAL_NORMAL_STAGE_1] = 1;
 
-        Sexy::Dialog *aTreeDialog = mApp->DoTreeItemDialog();
-        ((LawnDialog *)aTreeDialog)->mLawnYesButton->SetLabel(Sexy::String("[DIALOG_BUTTON_YES]"));
-        ((LawnDialog *)aTreeDialog)->mLawnNoButton->SetLabel(Sexy::String("[DIALOG_BUTTON_NO]"));
+        LawnDialog *aTreeDialog = mApp->DoTreeItemDialog();
+        aTreeDialog->mLawnYesButton->SetLabel(Sexy::String("[DIALOG_BUTTON_YES]"));
+        aTreeDialog->mLawnNoButton->SetLabel(Sexy::String("[DIALOG_BUTTON_NO]"));
 
         mWaitForDialog = true;
         int aTreeResult = aTreeDialog->WaitForResult(true);
@@ -1049,7 +1037,7 @@ int StoreScreen::PurchaseItem(StoreItem theItem)
 
         if (aTreeResult == 1000)
         {
-            mPurchasedFullVersion = true;
+            mGoToTreeNow = true;
             mResult = 1000;
         }
     }
@@ -1059,19 +1047,13 @@ int StoreScreen::PurchaseItem(StoreItem theItem)
         // variant, and the purchase date is stamped on the profile.
         mApp->mZenGarden->AddPottedPlant(&mPottedPlantSpecs);
         mPottedPlantSpecs.InitializePottedPlant(SEED_MARIGOLD);
-        int aVariant = RandRangeInt(2, 12);
-        mPottedPlantSpecs.mDrawVariation = (unsigned int)(aVariant & 0xF);
+        mPottedPlantSpecs.mDrawVariation = RandRangeInt(VARIATION_MARIGOLD_WHITE, VARIATION_MARIGOLD_LIGHT_GREEN);
         mApp->mPlayerInfo->mPurchases[theItem] = GetCurrentDaysSince2000();
-        if (theItem == 29)
-            SetBubbleText(3400, 800, false);
-        if (mApp->mSeedChooserScreen != nullptr)
-            mApp->mSeedChooserScreen->UpdateAfterPurchase();
-        return mApp->TryToSaveProfile();
     }
-    else if (theItem == 22)
+    else if (theItem == STORE_ITEM_POOL_CLEANER)
     {
         // The pool cleaner: every pool-row mower on the board is replaced.
-        ++mApp->mPlayerInfo->mPurchases[22];
+        ++mApp->mPlayerInfo->mPurchases[STORE_ITEM_POOL_CLEANER];
 
         LawnMower *aMower = nullptr;
         while (mApp->mBoard != nullptr && mApp->mBoard->IterateLawnMowers(aMower))
@@ -1079,13 +1061,14 @@ int StoreScreen::PurchaseItem(StoreItem theItem)
             if (aMower == nullptr)
                 continue;
 
-            if (mApp->mBoard->mPlantRow[aMower->mRow] == 2)
+            if (mApp->mBoard->mPlantRow[aMower->mRow] == PLANTROW_POOL)
             {
-                Reanimation *aReanim = mApp->AddReanimation(0.0f, 90.0f, aMower->mRenderOrder,
+                Reanimation *aReanim = mApp->AddReanimation(0.0f, 18.0f, aMower->mRenderOrder,
                                                             REANIM_POOL_CLEANER);
                 if (aReanim == nullptr)
                     continue;
 
+                aMower->mMowerType = LAWNMOWER_POOL;
                 Reanimation *anOldReanim = mApp->ReanimationTryToGet(aMower->mReanimID);
                 anOldReanim->ReanimationDie();
 
@@ -1103,7 +1086,7 @@ int StoreScreen::PurchaseItem(StoreItem theItem)
             }
         }
     }
-    else if (theItem == 36)
+    else if (theItem == STORE_ITEM_BLUEPRINT_CHANGE)
     {
         // The house: HouseChooserDialog decides, and the money comes back
         // if it was not bought.
@@ -1113,14 +1096,14 @@ int StoreScreen::PurchaseItem(StoreItem theItem)
         mApp->mWidgetManager->AddWidget(aHouseDialog);
 
         if (aHouseDialog->WaitForResult(true) == 0)
-            mApp->mPlayerInfo->AddCoins(GetItemCost((StoreItem)36));
+            mApp->mPlayerInfo->AddCoins(GetItemCost(STORE_ITEM_BLUEPRINT_CHANGE));
 
         if (mApp->mPlayerInfo->mGameStats.mHouseType == anOldHouseType)
-            mApp->mPlayerInfo->AddCoins(GetItemCost((StoreItem)36));
+            mApp->mPlayerInfo->AddCoins(GetItemCost(STORE_ITEM_BLUEPRINT_CHANGE));
 
         mApp->WriteHouse(true);
     }
-    else if ((unsigned int)(theItem - 31) > 4)
+    else if (theItem < STORE_ITEM_BLUEPRINT_BLING || theItem > STORE_ITEM_BLUEPRINT_CLOWN)
     {
         mApp->mPlayerInfo->mPurchases[theItem] = 1;
     }
@@ -1130,20 +1113,20 @@ int StoreScreen::PurchaseItem(StoreItem theItem)
         // which one so the store can price the next.
         int anOldCount = mApp->mPlayerInfo->mPurchases[theItem];
         int aNewCount = anOldCount + 1;
-        if (theItem == 31)
+        if (theItem == STORE_ITEM_BLUEPRINT_BLING)
             anOldCount += 3;
         mApp->mPlayerInfo->mPurchases[theItem] = aNewCount;
         mApp->mPlayerInfo->mGameStats.mHouseLevel = anOldCount;
-        mApp->mPlayerInfo->mGameStats.mHouseType = HouseType(theItem - 31);
+        mApp->mPlayerInfo->mGameStats.mHouseType = HouseType(theItem - STORE_ITEM_BLUEPRINT_BLING);
         mApp->WriteHouse(true);
     }
 
-    if (theItem == 29)
+    if (theItem == STORE_ITEM_FIRSTAID)
         SetBubbleText(3400, 800, false);
 
     if (mApp->mSeedChooserScreen != nullptr)
         mApp->mSeedChooserScreen->UpdateAfterPurchase();
-    return mApp->TryToSaveProfile();
+    mApp->TryToSaveProfile();
 }
 // ==========================================================================
 // StoreScreen::EnableButtons(bool)

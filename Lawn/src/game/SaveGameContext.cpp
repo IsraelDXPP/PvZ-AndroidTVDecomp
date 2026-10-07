@@ -561,22 +561,18 @@ void SyncBoard(SaveGameContext *theContext, Board *theBoard)
 
 } // namespace
 
-int LawnSaveGame(Board *theBoard, const Sexy::String &theFileName)
+bool LawnSaveGame(Board *theBoard, const Sexy::String &theFileName)
 {
-    if (gLawnApp->IsFullVersion() == 0)
-        return 1;
+    if (!theBoard->mApp->IsFullVersion())
+        return true;
 
-    SaveGameContext *aContext = new SaveGameContext();
-    int aHeader[3];
-    aHeader[0] = kSaveMagic;
-    aHeader[1] = kSaveVersion;
-    aHeader[2] = 0;
-    aContext->SyncBytes(aHeader, 12);
-    SyncBoard(aContext, theBoard);
+    SaveGameContext context;
+    int header[] = {kSaveMagic, kSaveVersion, 0};
+    context.SyncBytes(header, sizeof(header));
+    SyncBoard(&context, theBoard);
+    bool saved = theBoard->mApp->WriteBufferToFile(theFileName, &context);
     theBoard->mApp->mNeedGoBackToMain = false;
-    int aWritten = theBoard->mApp->WriteBufferToFile(theFileName, aContext);
-    delete aContext;
-    return aWritten;
+    return saved;
 }
 
 int LawnLoadGame(Board *theBoard, SaveGameContext *theContext)

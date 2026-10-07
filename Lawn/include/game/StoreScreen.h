@@ -150,7 +150,7 @@ public:
     bool IsPottedPlant(StoreItem theItem);
     int IsFullVersionOnly(StoreItem theItem);
     bool IsComingSoon(StoreItem theItem);
-    int IsItemSoldOut(StoreItem theItem);
+    bool IsItemSoldOut(StoreItem theItem);
     int IsItemUnavailable(StoreItem theItem);
     unsigned int NextSlotInDir(StoreScreen_ItemDir theDir);
     void DrawItemHighlight();
@@ -162,7 +162,7 @@ public:
     static int GetItemCost(StoreItem theItem);
     int DrawItem(Sexy::Graphics *g, int theSlot, StoreItem theItem);
     bool CanAffordItem(StoreItem theItem);
-    int PurchaseItem(StoreItem theItem);
+    void PurchaseItem(StoreItem theItem);
     int EnableButtons(bool theEnabled);
     int AdvanceCrazyDaveDialog();
     int SetupForIntro(int theDialog);

@@ -90,7 +90,7 @@ public:
     void StinkyPickGoal(GridItem *theStinky);
     int PixelToGridX(int theX, int theY);
     int PixelToGridY(int theX, int theY);
-    void GetGridSize(int &theGridWidth, int &theGridHeight);
+    void GetGridSize(int &theGridHeight, int &theGridWidth);
     int GridToPixelX(int theGridX, int theGridY);
     int GridToPixelY(int theGridX, int theGridY);
     int GridCellWidth(int theGridX, int theGridY);

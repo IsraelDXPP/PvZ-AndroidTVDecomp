@@ -932,9 +932,27 @@ int LawnApp::StartPlaying()
 // LawnApp::DoConfirmBackToMain(bool)
 // @002B3A5C  52 bytes
 // ==========================================================================
-ConfirmBackToMainDialog * LawnApp::DoConfirmBackToMain(bool theFromGameSelector)
+ConfirmBackToMainDialog * LawnApp::DoConfirmBackToMain(bool theSaveGame)
 {
-  ConfirmBackToMainDialog *aDialog = new ConfirmBackToMainDialog(theFromGameSelector);
+  // Garden progress lives in the profile. Returning from it has no level to
+  // restart or resume, so request the board's deferred exit instead of a prompt.
+  if (mBoard != nullptr
+      && (mGameMode == GAMEMODE_CHALLENGE_ZEN_GARDEN || mGameMode == GAMEMODE_TREE_OF_WISDOM))
+  {
+    if (!mBoard->mExitRequested)
+    {
+      PostLeaveLevel();
+      SetBoardResult(BOARDRESULT_QUIT);
+      mBoard->TryToExit();
+    }
+    return nullptr;
+  }
+
+  // The confirmation says the game is saved. Write its snapshot before showing it.
+  if (theSaveGame && mBoard != nullptr && !mBoard->TryToSaveGame())
+    return nullptr;
+
+  ConfirmBackToMainDialog *aDialog = new ConfirmBackToMainDialog(theSaveGame);
   AddDialogWithId(23, aDialog);
   mWidgetManager->SetFocus(aDialog);
   return aDialog;
@@ -944,7 +962,7 @@ ConfirmBackToMainDialog * LawnApp::DoConfirmBackToMain(bool theFromGameSelector)
 // LawnApp::NewDialog(int,bool,Sexy::String const&,Sexy::String const&,Sexy::String const&,int)
 // @002B3AC4  68 bytes
 // ==========================================================================
-Sexy::Dialog * LawnApp::NewDialog(int theDialogId, bool theModal, Sexy::String const& theHeader, Sexy::String const& theLines, Sexy::String const& theFooter, int theButtonMode)
+LawnDialog * LawnApp::NewDialog(int theDialogId, bool theModal, Sexy::String const& theHeader, Sexy::String const& theLines, Sexy::String const& theFooter, int theButtonMode)
 {
   LawnDialog *aDialog = new LawnDialog(this, nullptr, theDialogId, theModal, theHeader, theLines, theFooter, theButtonMode);
   CenterDialog(aDialog, aDialog->mWidth, aDialog->mHeight);// TODO FAIL
@@ -4059,14 +4077,13 @@ Sexy::Dialog * LawnApp::DoNotEnoughMoneyDialog()
 // LawnApp::DoUpgradeDialog()
 // @002B8A30  298 bytes
 // ==========================================================================
-Sexy::Dialog * LawnApp::DoUpgradeDialog()
+LawnDialog * LawnApp::DoUpgradeDialog()
 {
-  // The body is "[UPGRADE_DIALOG_BODY]" with {SLOTS} replaced by how many potted
-  // plants the next upgrade allows, six more than the current count.
+  // TV formats the new bank size after recording the purchased upgrade.
   Sexy::String aTemplate;
-  TodStringTranslate(&aTemplate, "[UPGRADE_DIALOG_BODY]");
+  TodStringTranslate(&aTemplate, "[NOW_YOU_CAN_CHOOSE_X_SEEDS]");
   Sexy::String aBody;
-  TodReplaceNumberString(&aBody, &aTemplate, "{SLOTS}", mPlayerInfo->mNumPottedPlants + 6);
+  StrFormat(&aBody, aTemplate.c_str(), mPlayerInfo->mPurchases[STORE_ITEM_PACKET_UPGRADE] + 6);
 
   return DoDialog(27, true,
                   Sexy::String("[MORE_SLOTS]"),
@@ -4105,7 +4122,7 @@ Sexy::Dialog * LawnApp::DoRestartConfirmDialog()
 // LawnApp::DoTreeItemDialog()
 // @002B8D20  232 bytes
 // ==========================================================================
-Sexy::Dialog * LawnApp::DoTreeItemDialog()
+LawnDialog * LawnApp::DoTreeItemDialog()
 {
   return DoDialog(49, true,
                   Sexy::String("[VISIT_TREE_HEADER]"),
@@ -4118,7 +4135,7 @@ Sexy::Dialog * LawnApp::DoTreeItemDialog()
 // LawnApp::DoStoreItemDialog()
 // @002B8E48  232 bytes
 // ==========================================================================
-Sexy::Dialog * LawnApp::DoStoreItemDialog()
+LawnDialog * LawnApp::DoStoreItemDialog()
 {
   return DoDialog(48, true,
                   Sexy::String("[BUY_ITEM_HEADER]"),
@@ -4700,9 +4717,20 @@ int LawnApp::DoBackToMain()
   // torn down and the game selector comes back.
   mMusic->StopAllMusic();
   mSoundSystem->CancelPausedFoley();
-  TryToSaveProfile();
-  KillNewOptionsDialog();
-  KillBoard();
+  if (mGameMode == GAMEMODE_CHALLENGE_ZEN_GARDEN || mGameMode == GAMEMODE_TREE_OF_WISDOM)
+  {
+    // DisposeBoard finishes garden tools, coins and Stinky's position. Save
+    // those profile changes after that cleanup, before opening the main menu.
+    KillNewOptionsDialog();
+    KillBoard();
+    TryToSaveProfile();
+  }
+  else
+  {
+    TryToSaveProfile();
+    KillNewOptionsDialog();
+    KillBoard();
+  }
   ClearSecondPlayer();
   return ShowGameSelector();
 }
@@ -4743,31 +4771,24 @@ int LawnApp::ShowTitleScreen(bool theFromGame)
 // LawnApp::DrawDialogFade(Sexy::Graphics *)
 // @002B9F78  142 bytes
 // ==========================================================================
-int LawnApp::DrawDialogFade(Sexy::Graphics * g)
+void LawnApp::DrawDialogFade(Sexy::Graphics *g)
 {
-  if ( mDialogFadeDrawn )
-    return 0;
+    if (mDialogFadeDrawn)
+        return;
 
-  // The flag latches, so the fade is drawn once.
-  mDialogFadeDrawn = true;
+    // TV draws one black overlay per frame, shared by stacked dialogs.
+    mDialogFadeDrawn = true;
+    float savedTransX = g->mTransX;
+    float savedTransY = g->mTransY;
+    g->mTransX = 0.0f;
+    g->mTransY = 0.0f;
 
-  // The shade is a 2500x2500 rect anchored at (-500, -500), and it ignores the
-  // current translation -- so the transform is cleared for the duration. The
-  // alpha is the same byte the ARM reads back as the shade's grey level.
-  float aSavedTransX = g->mTransX;
-  float aSavedTransY = g->mTransY;
-  g->mTransX = 0;
-  g->mTransY = 0;
+    g->SetColor(Sexy::Color(0, 0, 0, 170));
+    g->FillRect(Sexy::TRect<int>(-500, -500, 2500, 2500));
+    g->SetColor(Sexy::Color::White);
 
-  int aShade = (int)(unsigned char)mDialogFadeDrawn;
-  Sexy::TRect<int> aRect(-500, -500, 2500, 2500);
-  g->SetColor(Sexy::Color(aShade, aShade, aShade, 170));
-  g->FillRect(aRect);
-  g->SetColor(Sexy::Color::White);
-
-  g->mTransX = aSavedTransX;
-  g->mTransY = aSavedTransY;
-  return 0;
+    g->mTransX = savedTransX;
+    g->mTransY = savedTransY;
 }
 
 // ==========================================================================
@@ -7026,8 +7047,8 @@ void LawnApp::ButtonDepress(int theId)
           {
             if ( mSaveGameOperation == 2 )
             {
+              // Windows saves complete synchronously and clear their pending flag.
               mBoard->TryToSaveGame();
-              mNeedGoBackToMain = true;
             }
             else if ( mSaveGameOperation == 1 )
             {
@@ -7185,12 +7206,13 @@ void LawnApp::ButtonDepress(int theId)
     }
     if ( aButton == 23 )
     {
+      Board *aBoard = mBoard;
+      if (aBoard == nullptr || !aBoard->TryToSaveGame())
+        return;
       PostLeaveLevel();
       KillDialogById(23);
-      Board *aBoard = mBoard;
       mBoardResult = BOARDRESULT_QUIT;
-      aBoard->TryToSaveGame();
-      mBoard->TryToExit();
+      aBoard->TryToExit();
       return;
     }
     KillDialogById(aButton);
@@ -7280,7 +7302,7 @@ void LawnApp::ReadFromRegistry()
 // LawnApp::DoDialog(int,bool,Sexy::String const&,Sexy::String const&,Sexy::String const&,int)
 // @002C1640  338 bytes
 // ==========================================================================
-Sexy::Dialog * LawnApp::DoDialog(int theDialogId, bool theModal, Sexy::String const& theHeader, Sexy::String const& theLines, Sexy::String const& theFooter, int theButtonMode)
+LawnDialog * LawnApp::DoDialog(int theDialogId, bool theModal, Sexy::String const& theHeader, Sexy::String const& theLines, Sexy::String const& theFooter, int theButtonMode)
 {
   Sexy::String aHeader;
   TodStringTranslate(&aHeader, theHeader.c_str());
@@ -7295,15 +7317,17 @@ Sexy::Dialog * LawnApp::DoDialog(int theDialogId, bool theModal, Sexy::String co
   TodReplaceButtons(&aButtons, &aBody);
   aBody = aButtons;
 
-  Sexy::Dialog *aDialog = SexyAppBase::DoDialog(theDialogId, theModal, aHeader, aBody, aFooter, theButtonMode);
+  // Keep the base DoDialog lifecycle while retaining NewDialog's real type.
+  KillDialog(theDialogId);
+  LawnDialog *aDialog = NewDialog(theDialogId, theModal, aHeader, aBody, aFooter, theButtonMode);
+  AddDialogWithId(theDialogId, aDialog);
   if ( mWidgetManager->mFocusWidget == nullptr )
   {
     // Nothing holds the focus yet, so the dialog takes it and hands it on to
     // its first button.
     mWidgetManager->SetFocus(aDialog);
-    LawnDialog *aLawnDialog = (LawnDialog *)aDialog;
-    aDialog->SetFocus(aLawnDialog->mLawnYesButton != nullptr ? aLawnDialog->mLawnYesButton
-                                                            : aLawnDialog->mLawnNoButton, true);
+    aDialog->SetFocus(aDialog->mLawnYesButton != nullptr ? aDialog->mLawnYesButton
+                                                      : aDialog->mLawnNoButton, true);
   }
   return aDialog;
 }
@@ -7696,7 +7720,7 @@ int LawnApp::HardwareInit()
 // ==========================================================================
 bool LawnApp::DrawDirtyStuff()
 {
-  mCloseRequest = false;
+  mDialogFadeDrawn = false;
   return SexyAppBase::DrawDirtyStuff();
 }
 

@@ -654,22 +654,23 @@ int ZenGarden::PixelToGridY(int theX, int theY)
 // ZenGarden::GetGridSize(int &,int &)
 // @0019E510  90 bytes
 // ==========================================================================
-void ZenGarden::GetGridSize(int & theGridWidth, int & theGridHeight)
+void ZenGarden::GetGridSize(int &theGridHeight, int &theGridWidth)
 {
-  theGridHeight = 0;
-  theGridWidth = 0;
+    // TV returns the row count first, then the column count.
+    theGridWidth = 0;
+    theGridHeight = 0;
 
-  int aCount = 0;
-  SpecialGridPlacement *aGrids = GetSpecialGridPlacements(aCount);
-  for ( int i = 0; i < aCount; ++i )
-  {
-    if ( theGridWidth < aGrids[i].mGridX )
-      theGridWidth = aGrids[i].mGridX;
-    if ( theGridHeight < aGrids[i].mGridY )
-      theGridHeight = aGrids[i].mGridY;
-  }
-  ++theGridWidth;
-  ++theGridHeight;
+    int placementCount = 0;
+    SpecialGridPlacement *placements = GetSpecialGridPlacements(placementCount);
+    for (int index = 0; index < placementCount; ++index)
+    {
+        if (theGridHeight < placements[index].mGridY)
+            theGridHeight = placements[index].mGridY;
+        if (theGridWidth < placements[index].mGridX)
+            theGridWidth = placements[index].mGridX;
+    }
+    ++theGridHeight;
+    ++theGridWidth;
 }
 
 // ==========================================================================

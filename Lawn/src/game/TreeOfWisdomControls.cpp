@@ -8,10 +8,7 @@
 #include "BaseGamepadControls.h"
 #include "game/Board.h"
 #include "Challenge.h"
-// Complete types the bodies call members on: LawnApp.h is not pulled in by the
-// class header (it only forward-declares LawnApp), and ConfirmBackToMainDialog /
-// LawnPlayerInfo are needed for WaitForResult and mPurchases.
-#include "ConfirmBackToMainDialog.h"
+// LawnApp and LawnPlayerInfo are complete types used by these controls.
 #include "GamepadControls.h"
 #include "Graphics.h"
 #include "Image.h"
@@ -108,12 +105,8 @@ void TreeOfWisdomControls::OnButtonDown(int theButton, int thePlayerIndex, unsig
       }
       break;
     case 2:
-    {
-      ConfirmBackToMainDialog *aDialog = mApp->DoConfirmBackToMain(true);
-      if (aDialog->WaitForResult(true) == 1000)
-        mApp->ShowGameSelector();
+      mApp->DoConfirmBackToMain(false);
       break;
-    }
     case 3:
       mApp->mBoard->mChallenge->TreeOfWisdomOpenStore();
       break;
@@ -323,12 +316,7 @@ bool TreeOfWisdomControls::OnKeyDown(Sexy::KeyCode theKey, unsigned int theFlags
 
   if (theKey == Sexy::KEYCODE_ESCAPE)
   {
-    ConfirmBackToMainDialog *aDialog = mApp->DoConfirmBackToMain(true);
-    if (aDialog->WaitForResult(true) == 1000)
-    {
-      aHandled = true;
-      mApp->ShowGameSelector();
-    }
+    mApp->DoConfirmBackToMain(false);
     return true;
   }
 

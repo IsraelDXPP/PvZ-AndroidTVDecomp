@@ -350,7 +350,7 @@ bool Board::NeedSaveGame()
 // Board::SaveGame(Sexy::String const&)
 // @00151AA0  66 bytes
 // ==========================================================================
-int Board::SaveGame(const Sexy::String &theFileName)
+bool Board::SaveGame(const Sexy::String &theFileName)
 {
   // Player 2 may be holding a usable seed at save time; put it back down first.
   CursorObject *aCursor = mCursorObject[1];
@@ -360,8 +360,9 @@ int Board::SaveGame(const Sexy::String &theFileName)
     if ( aCoin != nullptr )
       aCoin->DroppedUsableSeed();
   }
-  LawnSaveGame(this, theFileName);
-  return mApp->ClearUpdateBacklog(false);
+  bool saved = LawnSaveGame(this, theFileName);
+  mApp->ClearUpdateBacklog(false);
+  return saved;
 }
 
 // ==========================================================================
@@ -5941,34 +5942,37 @@ int Board::CompleteEndLevelSequenceForSaving()
 // Board::TryToSaveGame(void)
 // @00158FD4  360 bytes
 // ==========================================================================
-void Board::TryToSaveGame()
+bool Board::TryToSaveGame()
 {
-  if ( mApp->IsFullVersion() != 0 && !mLevelFinished )
-  {
-    // The save file is named after the game mode and the two profile ids.
-    Sexy::String aSavedGameName;
-    GetSavedGameName(&aSavedGameName, mApp->mGameMode, mApp->mPlayerInfo->GetProfileId(), mApp->mPlayerInfo->GetId());
-    if ( NeedSaveGame() )
-    {
-      if ( mBoardFadeOutCounter < 0 )
-      {
-        mApp->mSaveGameOperation = 2;
+    if (!mApp->IsFullVersion() || mLevelFinished || !NeedSaveGame())
+        return true;
 
-        // Make sure the userdata directory the save file goes into exists.
-        Sexy::String aDir;
-        GetAppDataFolder(&aDir);
-        aDir += "userdata";
-        MkDir(aDir.c_str());
-        mApp->mMusic->GameMusicPause(true);
-        mApp->mNeedGoBackToMain = true;
-        SaveGame(aSavedGameName);
-      }
-      else
-      {
+    if (mBoardFadeOutCounter >= 0)
+    {
         CompleteEndLevelSequenceForSaving();
-      }
+        return true;
     }
-  }
+
+    Sexy::String savedGameName;
+    GetSavedGameName(&savedGameName, mApp->mGameMode,
+                    mApp->mPlayerInfo->GetProfileId(), mApp->mPlayerInfo->GetId());
+    mApp->mSaveGameOperation = 2;
+    Sexy::String directory;
+    GetAppDataFolder(&directory);
+    directory += "userdata";
+    MkDir(directory);
+    mApp->mMusic->GameMusicPause(true);
+    mApp->mNeedGoBackToMain = true;
+    if (SaveGame(savedGameName))
+        return true;
+
+    logfe("Failed to save game: %s", savedGameName.c_str());
+    mApp->mMusic->GameMusicPause(mPaused);
+    Sexy::Dialog *errorDialog = mApp->DoDialog(63, true, u8"关卡保存失败",
+        u8"未能写入关卡存档，游戏尚未退出。\n请确认存档目录可以写入后重试。",
+        "[DIALOG_BUTTON_OK]", 3);
+    mApp->mWidgetManager->SetFocus(errorDialog);
+    return false;
 }
 
 // ==========================================================================
@@ -8379,11 +8383,9 @@ GamepadControls * Board::GetGamepadControlsByGamepadIndex(int theGamepadIndex)
 // Board::TryToExit(void)
 // @0015DBEC  8 bytes
 // ==========================================================================
-int Board::TryToExit()
+void Board::TryToExit()
 {
-  // Callers only test that the exit was requested. The old leftover was this.
-  mExitRequested = 1;
-  return 0;
+  mExitRequested = true;
 }
 
 // ==========================================================================
@@ -11456,10 +11458,12 @@ Board::Board(LawnApp * theApp)
   // empty, so push_back is the first insert.
   mLoadedResourceGroups.clear();
   SyncBlockInfo aBlock;
-  aBlock.mData = &mPaused;
-  aBlock.mSize = 0x58D2 - 0x259;
+  unsigned char *stateBegin = reinterpret_cast<unsigned char *>(&mPaused);
+  unsigned char *stateEnd = reinterpret_cast<unsigned char *>(&mCatapultPlantsUsed) + sizeof(mCatapultPlantsUsed);
+  aBlock.mData = stateBegin;
+  aBlock.mSize = static_cast<int>(stateEnd - stateBegin);
   mSyncBlocks.push_back(aBlock);
-  memset(&mPaused, 0, 0x58D2 - 0x259);
+  memset(stateBegin, 0, aBlock.mSize);
   mApp = theApp;
   theApp->mBoard = this;
   mExitRequested = 0;

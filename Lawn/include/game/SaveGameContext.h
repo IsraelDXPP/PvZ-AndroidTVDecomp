@@ -31,8 +31,8 @@ class SaveGameContext : public Sexy::Buffer
 public:
     // TODO(recon): the authoritative tree has no header for this class, so the two
     // flags below carry names derived from their use rather than from a symbol.
-    bool mReadError;  // +0x1C  set when a read found fewer bytes than it needed
-    bool mReading;    // +0x1D  non-zero selects the read path, zero the write path
+    bool mReadError = false;  // +0x1C  set when a read found fewer bytes than it needed
+    bool mReading = false;    // +0x1D  non-zero selects the read path, zero the write path
 
     int ByteLeftToRead();
     unsigned int SyncInt(int &theValue);
