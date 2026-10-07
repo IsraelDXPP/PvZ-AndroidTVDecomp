@@ -1258,7 +1258,7 @@ void Sexy::Widget::SetFocus(Sexy::Widget *theWidget, bool force)
     while (aParent != this)
     {
         aNewChild = aParent;
-        aNewChain.push_back(aParent);
+        aNewChain.insert(aNewChain.begin(), aParent);
         aParent = static_cast<Widget *>(aParent->mParent);
     }
 
@@ -1296,7 +1296,7 @@ void Sexy::Widget::SetFocus(Sexy::Widget *theWidget, bool force)
     {
         // @0x3B01DE walks the parent chain from its first entry. The last
         // entry points at the target. Every earlier entry points at the
-        // entry that was pushed after it.
+        // next child along the path to the target.
         for (int i = 0; i < aNewCount; ++i)
         {
             if (aNewChain[i]->mHasWindowFocus != aThisWindowFocus)

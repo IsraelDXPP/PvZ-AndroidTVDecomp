@@ -62,36 +62,36 @@ int WaitForSecondPlayerDialog::KeyDown(Sexy::KeyCode theKey)
 // WaitForSecondPlayerDialog::GameButtonDown(Sexy::GamepadButton,int,unsigned int)
 // @0013F2A8  226 bytes
 // ==========================================================================
-void WaitForSecondPlayerDialog::GameButtonDown(Sexy::GamepadButton theButton, int thePlayerIndex, unsigned int theGamepadIndex)
+void WaitForSecondPlayerDialog::GameButtonDown(Sexy::GamepadButton theButton, int theGamepadIndex, unsigned int theFlags)
 {
-  (void)theButton;
+  (void)theFlags;
   // Only button A joins a player.
-  if ( thePlayerIndex != GAMEPAD_BUTTON_A )
+  if ( theButton != GAMEPAD_BUTTON_A )
     return;
 
-  if ( theGamepadIndex == (unsigned int)mApp->mPlayerInfo->GetId() || mApp->mBoard == nullptr )
+  if ( theGamepadIndex == mApp->mPlayerInfo->GetId() || mApp->mBoard == nullptr )
   {
     // The pad already belongs to player one (or there is no board to join): this
     // press is the "back out" path, and only does something once joined.
-    if ( m2PJoined == 0 )
+    if ( !m2PJoined )
       return;
     ButtonDepress(1000);
     return;
   }
 
-  if ( m2PJoined != 0 )
+  if ( m2PJoined )
   {
     // Already joined, so the same press means "back out".
     ButtonDepress(1000);
     return;
   }
 
-  mApp->SetSecondPlayer((int)theGamepadIndex);
+  mApp->SetSecondPlayer(theGamepadIndex);
   // Make sure the keyboard/gamepad focus is on this dialog before it takes the
   // new pad.
   if ( mApp->mWidgetManager->mFocusWidget != this )
     mApp->mWidgetManager->SetFocus(this);
-  mApp->mBoard->mGamepadControls[1]->mGamepadIndex = (int)theGamepadIndex;
+  mApp->mBoard->mGamepadControls[1]->mGamepadIndex = theGamepadIndex;
 
   // Announce the join in the dialog's line text. The dump builds the string,
   // assigns it and releases the temporary by hand; Sexy::String does that.
@@ -99,7 +99,7 @@ void WaitForSecondPlayerDialog::GameButtonDown(Sexy::GamepadButton theButton, in
   TodStringTranslate(&aJoined, "[2P_JOINED]");
   mDialogLines = aJoined;
 
-  m2PJoined = 1;
+  m2PJoined = true;
 }
 
 // ==========================================================================
@@ -113,5 +113,5 @@ WaitForSecondPlayerDialog::WaitForSecondPlayerDialog(LawnApp *theApp)
   // The dump's placement-new onto `this` is the base constructor, which the
   // mem-initializer list above performs.
   mApp->ClearSecondPlayer();
-  m2PJoined = 0;
+  m2PJoined = false;
 }

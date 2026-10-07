@@ -13,6 +13,7 @@
 #include "Font.h"
 #include "Graphics.h"
 #include "LawnApp.h"
+#include "NativeDisplay.h"
 #include "SexyAppBase.h"
 #include <string>
 #include <vector>
@@ -177,13 +178,9 @@ void ToolTipWidget::Draw(Sexy::Graphics *theGraphics)
   float aTransX = theGraphics->mTransX;
   float aTransY = theGraphics->mTransY;
 
-  // The box is pushed off the left edge by the fullscreen rect's left coordinate
-  // when the platform layer reports the app as fullscreen, and by -80 otherwise.
-  // The platform object's type was never recovered, so the flag stays a byte
-  // read at +0x60 of whatever mPlatformDriverOrQueue points at.
-  LawnApp *aTheApp = (LawnApp *)gLawnApp;
-  const unsigned char *aPlatform = (const unsigned char *)aTheApp->mPlatformDriverOrQueue;
-  float aScreenOffsetX = (aPlatform[0x60] != 0) ? (float)LawnApp::FULLSCREEN_RECT.mX : -80.0f;
+  // Read the display's wide-screen state through its field on both x86 and x64.
+  const Sexy::NativeDisplay *aDisplay = gLawnApp->mPlatformDriverOrQueue;
+  float aScreenOffsetX = aDisplay->mWideScreen ? (float)LawnApp::FULLSCREEN_RECT.mX : -80.0f;
 
   int aDrawX = (int)((float)mX - aTransX - aScreenOffsetX);
   if (mCenter)
@@ -256,8 +253,6 @@ void ToolTipWidget::Draw(Sexy::Graphics *theGraphics)
 
   for (unsigned int i = 0; i < aLines.size(); ++i)
   {
-    // The binary copy-constructs each line before measuring it; on this string
-    // type that copy is a refcount bump on the shared buffer.
     Sexy::String aLine(aLines[i]);
 
     int aLineAscent = mWarningTextFont->GetAscent();

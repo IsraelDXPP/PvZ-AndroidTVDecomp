@@ -54,7 +54,7 @@
 // 0/2/3/4/5/6/7 (no case 1) while MakeButton is called with 0/1/2/3/4/5/7/8/1000.
 // The enum below keeps the authoritative names and adds the two extra ids this
 // build uses.
-// TODO(recon): name id 8 and id 1000 once their buttons' labels are read.
+// Id 8 is the full-version prompt; id 1000 resumes the game.
 
 #pragma once
 
@@ -96,8 +96,8 @@ public:
         NewOptionsDialog_Restart = 5,
         NewOptionsDialog_Update = 6,
         NewOptionsDialog_ClearSecondPlayer = 7,
-        NewOptionsDialog_Unk8 = 8,
-        NewOptionsDialog_Unk1000 = 1000,
+        NewOptionsDialog_UnlockFullVersion = 8,
+        NewOptionsDialog_Resume = 1000,
     };
 
     virtual ~NewOptionsDialog();
@@ -126,21 +126,16 @@ public:
     // ---- members, absolute offsets ----
     // LawnDialog occupies +0x00..+0x2FB, the SliderListener base's vptr is
     // +0x2FC and the CheckboxListener base's vptr is +0x300, so this class's own
-    // members start at +0x304 -- which is exactly the authoritative table's mApp
-    // ("193" * 4). The 18 words are named from the MakeButton call sites, which
-    // pin each id: the constructor stores 2 at +0x308, then 0, 1, 3, 3-again-or-
-    // 8, 8, 5, 7, 4 and 1000 in that order.
+    // members start at +0x304, where the opening gamepad index is stored.
+    // The button ids and labels follow the constructor at 0x14140C.
     int mGamepadIndex;              // +0x304  the constructor stores the gamepad index here
     GameButton * mHelpDialogButton; // +0x308  MakeButton(2) "[HELP AND OPTIONS]"
     GameButton * mLeaderboardsButton; // +0x30C  MakeButton(0) "[LEADERBOARDS]"
     GameButton * mAchievementsButton; // +0x310  MakeButton(1) "[ACHIEVEMENTS]"
     GameButton * mAlmanacButton;    // +0x314  MakeButton(3), either label
-    // TODO(recon): MakeButton(8) "[UNLOCK_FULL_VERSION]" on the way the
-    // constructor reaches this slot; the post-construction branch below rewrites
-    // it, so the label at this offset is the unlock one.
     GameButton * mUnlockButton;     // +0x318  MakeButton(8)
     GameButton * mRestartButton;    // +0x31C  MakeButton(5), restart or concede
-    GameButton * mStoreButton;      // +0x320  MakeButton(3) "[SHOP_BUTTON]"
+    GameButton * mDropP2Button;      // +0x320  MakeButton(7) "[DROP_P2]"
     GameButton * mMainMenuButton;   // +0x324  MakeButton(4)
     GameButton * mBackToGameButton;
     // True when the pause dialog was opened from a menu rather than a level.
@@ -156,4 +151,3 @@ public:
     NewOptionsDialog(LawnApp *theApp, bool theFromMenu, unsigned int theGamepadIndex);
     virtual void GameButtonDown(Sexy::GamepadButton theButton, int thePlayerIndex, unsigned int theFlags);
 };
-

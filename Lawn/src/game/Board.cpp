@@ -591,8 +591,7 @@ Coin * Board::AddCoin(int theX, int theY, CoinType theType, CoinMotion theMotion
 // ==========================================================================
 Coin * Board::AddCoinHeavyWeapon(int theX, int theY, CoinType theType)
 {
-  // The heavy-weapon coin (slot machine / whack-a-zombie) never leaves the
-  // ground: it falls straight to y=700 rather than following the sky motion.
+  // Heavy Weapon drops fall to the bottom pickup line.
   Coin *aCoin = AddCoin(theX, theY, theType, COIN_MOTION_FROM_SKY);
   aCoin->mGroundY = 700;
   return aCoin;
@@ -1078,15 +1077,15 @@ void Board::Pause(bool thePause)
 // ==========================================================================
 void Board::SetupBungeeDrop(BungeeDropGrid *theDrop)
 {
-  // Bungee zombies may only be dropped on the five middle columns of rows 4..8.
+  // Use columns 4..8 and rows 0..4 for zombie deliveries.
   int aIndex = 0;
   theDrop->mGridArrayCount = 0;
-  for ( int aRow = 4; aRow < 9; ++aRow )
+  for ( int aCol = 4; aCol < 9; ++aCol )
   {
-    for ( int aCol = 0; aCol < 5; ++aCol )
+    for ( int aRow = 0; aRow < 5; ++aRow )
     {
-      theDrop->mGridArray[aIndex].mX = aRow;
-      theDrop->mGridArray[aIndex].mY = aCol;
+      theDrop->mGridArray[aIndex].mX = aCol;
+      theDrop->mGridArray[aIndex].mY = aRow;
       theDrop->mGridArray[aIndex].mWeight = 10000;
       ++aIndex;
     }
@@ -5795,46 +5794,40 @@ int Board::CountCoinByType(CoinType theType)
 // ==========================================================================
 Coin * Board::DropLootPiece(int theX, int theY, int thePiece)
 {
-  // Three one-off adventure levels drop a fixed coin instead of rolling the
-  // ordinary loot table, each only while the player has not earned its flag yet
-  // and only if that coin is not already on the board. The flag bits are
-  // PlayerFlags 0x4000 / 0x10 / 0x20, and the coins are CoinType 26 / 25 / 27.
+  // Drop each mode-unlock present once, without duplicating one on the board.
   if ( mApp->IsFirstTimeAdventureMode() && mLevel == 11 && mCurrentWave > 3
     && !mApp->mPlayerInfo->GetFlag(PlayerFlags(0x4000))
-    && CountCoinByType(CoinType(26)) == 0 )
+    && CountCoinByType(COIN_PRESENT_PUZZLE_MODE) == 0 )
   {
     mApp->PlayFoley(FOLEY_SPAWN_SUN);
-    return AddCoin(theX - 40, theY, CoinType(26), COIN_MOTION_COIN);
+    return AddCoin(theX - 40, theY, COIN_PRESENT_PUZZLE_MODE, COIN_MOTION_COIN);
   }
   if ( mApp->IsFirstTimeAdventureMode() && mLevel == 22 && mCurrentWave > 5
     && !mApp->mPlayerInfo->GetFlag(PlayerFlags(0x10))
-    && CountCoinByType(CoinType(25)) == 0 )
+    && CountCoinByType(COIN_PRESENT_MINIGAMES) == 0 )
   {
     mApp->PlayFoley(FOLEY_SPAWN_SUN);
-    return AddCoin(theX - 40, theY, CoinType(25), COIN_MOTION_COIN);
+    return AddCoin(theX - 40, theY, COIN_PRESENT_MINIGAMES, COIN_MOTION_COIN);
   }
   if ( mApp->IsFirstTimeAdventureMode() && mLevel == 36 && mCurrentWave > 5
     && !mApp->mPlayerInfo->GetFlag(PlayerFlags(0x20))
-    && CountCoinByType(CoinType(27)) == 0 )
+    && CountCoinByType(Present32) == 0 )
   {
     mApp->PlayFoley(FOLEY_SPAWN_SUN);
-    return AddCoin(theX - 40, theY, CoinType(27), COIN_MOTION_COIN);
+    return AddCoin(theX - 40, theY, Present32, COIN_MOTION_COIN);
   }
 
-  // The loot roll. Sexy::Rand() takes no bound; the `stru_7528` IDA prints is
-  // the (empty) receiver it was handed, not a range.
-  int aRoll = Rand();
+  int aRoll = Rand(30000);
   // Level 1-11's first coin is guaranteed.
   if ( mApp->IsFirstTimeAdventureMode() && mLevel == 11
     && !mDroppedFirstCoin && mCurrentWave > 5 )
     aRoll = 1000;
-  if ( mApp->mGameMode == GAMEMODE_CHALLENGE_LAST_STAND )
+  if ( mApp->mGameMode == GAMEMODE_CHALLENGE_COLUMN )
     aRoll *= 5;
 
   if ( mApp->IsWhackAZombieLevel() )
   {
-    // The rarer the coin, the larger the roll it needs. The threshold falls as
-    // the player's sun bank grows, so a poor player gets coins sooner.
+    // Whack-a-Zombie drops more sun while the player's bank is low.
     int aSunThreshold;
     if ( mSunMoney1 <= 200 )
       aSunThreshold = 5000;
@@ -5888,28 +5881,27 @@ Coin * Board::DropLootPiece(int theX, int theY, int thePiece)
       aLootWeight += 72;
   }
 
-  // Which coin the roll lands on. CoinType 23 is the chocolate, 17 the potted
-  // plant, 3 silver, 2 gold and 1 sun; thePiece scales every band.
+  // Each zombie's loot value scales the width of the drop bands.
   CoinType aCoinType;
   if ( aRoll < aPottedPlantLoot )
   {
-    aCoinType = CoinType(17);
+    aCoinType = COIN_PRESENT_PLANT;
   }
   else
   {
     int aBand = thePiece * aLootWeight;
     if ( aRoll < aBand )
     {
-      aCoinType = CoinType(23);
+      aCoinType = COIN_CHOCOLATE;
     }
     else
     {
       aBand += 14 * thePiece;
       if ( aRoll < aBand )
       {
-        // A silver coin unless the player already owns the packet upgrade
-        // (StoreItem 21).
-        aCoinType = (mApp->mPlayerInfo->mPurchases[21] > 0) ? COIN_SILVER : COIN_GOLD;
+        // Diamonds become available after the first seed-slot upgrade.
+        aCoinType = mApp->mPlayerInfo->mPurchases[STORE_ITEM_PACKET_UPGRADE] > 0
+          ? COIN_DIAMOND : COIN_GOLD;
       }
       else
       {
@@ -5922,21 +5914,20 @@ Coin * Board::DropLootPiece(int theX, int theY, int thePiece)
         {
           if ( aRoll >= aBand + 2250 * thePiece )
             return nullptr;
-          aCoinType = COIN_SUN;
+          aCoinType = COIN_SILVER;
         }
       }
     }
   }
 
-  // Wallnut Bowling only drops the plain coins (1..3), and level 1-11 only while
-  // the player still cannot afford the packet upgrade.
-  if ( mApp->IsWallnutBowlingLevel() && (unsigned int)((int)aCoinType - 1) <= 2 )
+  // Wallnut Bowling suppresses ordinary money drops.
+  if ( mApp->IsWallnutBowlingLevel()
+    && (aCoinType == COIN_SILVER || aCoinType == COIN_GOLD || aCoinType == COIN_DIAMOND) )
     return nullptr;
   if ( mApp->IsFirstTimeAdventureMode() && mLevel == 11 )
   {
-    int aMowerValue = mLawnMowers.mSize * Coin::GetCoinValue(COIN_SILVER);
-    // StoreItem 21 is the packet upgrade, the next thing the player would buy.
-    int aItemCost = StoreScreen::GetItemCost(StoreItem(21));
+    int aMowerValue = mLawnMowers.mSize * Coin::GetCoinValue(COIN_GOLD);
+    int aItemCost = StoreScreen::GetItemCost(STORE_ITEM_PACKET_UPGRADE);
     int aMoney = mApp->mPlayerInfo->mCoins + CountCoinsBeingCollected();
     if ( aItemCost <= aMowerValue + Coin::GetCoinValue(aCoinType) + aMoney )
       return nullptr;
@@ -5944,7 +5935,7 @@ Coin * Board::DropLootPiece(int theX, int theY, int thePiece)
 
   mApp->PlayFoley(FOLEY_SPAWN_SUN);
   Coin *aCoin;
-  if ( mApp->mGameMode == GAMEMODE_CHALLENGE_SLOT_MACHINE )
+  if ( mApp->mGameMode == GAMEMODE_CHALLENGE_HEAVY_WEAPON )
     aCoin = AddCoinHeavyWeapon(theX - 40, theY, aCoinType);
   else
     aCoin = AddCoin(theX - 40, theY, aCoinType, COIN_MOTION_COIN);
@@ -9491,7 +9482,7 @@ Zombie * Board::AddZombie(ZombieType theZombieType, int theFromWave, bool theIsV
 // Board::BungeeDropZombie(BungeeDropGrid *,ZombieType)
 // @0015F0CC  70 bytes
 // ==========================================================================
-int Board::BungeeDropZombie(BungeeDropGrid *theDrop, ZombieType theZombieType)
+void Board::BungeeDropZombie(BungeeDropGrid *theDrop, ZombieType theZombieType)
 {
   // @0x15F0CC. The pick returns a cell of the grid. Its weight is spent, then a
   // bungee and the carried zombie are both spawned against the countdown.
@@ -9502,7 +9493,6 @@ int Board::BungeeDropZombie(BungeeDropGrid *theDrop, ZombieType theZombieType)
   Zombie *aDropped = AddZombie(theZombieType, mZombieCountDown, false);
   // Callers ignore the attached reanim. The drop still runs.
   aBungee->BungeeDropZombie(aDropped, aCell->mX, aCell->mY);
-  return 0;
 }
 
 // ==========================================================================
@@ -9550,16 +9540,16 @@ void Board::SpawnZombiesFromSky()
 // Board::SpawnZombieWave(void)
 // @0015F1A8  338 bytes
 // ==========================================================================
-int Board::SpawnZombieWave()
+void Board::SpawnZombieWave()
 {
-  BungeeDropGrid aBungeeGrid; // [sp+Ch] [bp-290h] BYREF
+  BungeeDropGrid aBungeeGrid;
   int aWave;
 
   mChallenge->SpawnZombieWave();
   if (!mApp->IsBungeeBlitzLevel())
   {
     aWave = mCurrentWave;
-    if (mApp->mGameMode == GAMEMODE_CHALLENGE_BUNGEE_BLITZ && aWave == mNumWaves)
+    if (mApp->mGameMode == GAMEMODE_MP_VS && aWave == mNumWaves)
     {
       aWave = 0;
       mCurrentWave = 0;
@@ -9567,11 +9557,11 @@ int Board::SpawnZombieWave()
     for (int i = 0; ; i++)
     {
       ZombieType aZombieType = mZombiesInWave[aWave][i];
-      if (aZombieType == (ZombieType)-1)
+      if (aZombieType == ZOMBIE_INVALID)
         break;
-      if (aZombieType == ZOMBIE_BUNGEE)
+      if (aZombieType == ZOMBIE_BOBSLED)
       {
-        // A bungee wave keeps the sled zombies out unless a sled can be added.
+        // Replace a sled team with walkers when the lawn cannot support it.
         if (!CanAddBobSled())
         {
           for (int j = 4; j != 0; --j)
@@ -9597,9 +9587,9 @@ int Board::SpawnZombieWave()
     for (;;)
     {
       ZombieType aZombieType = mZombiesInWave[mCurrentWave][i];
-      if (aZombieType == (ZombieType)-1)
+      if (aZombieType == ZOMBIE_INVALID)
         break;
-      if (aZombieType == ZOMBIE_BUNGEE || aZombieType == ZOMBIE_POGO)
+      if (aZombieType == ZOMBIE_BUNGEE || aZombieType == ZOMBIE_ZAMBONI)
         AddZombie(aZombieType, mCurrentWave, true);
       else
         BungeeDropZombie(&aBungeeGrid, aZombieType);
@@ -9621,12 +9611,10 @@ int Board::SpawnZombieWave()
       mRiseFromGraveCounter = 200;
     }
   }
-  int aResult = IsFlagWave(aWave);
-  if (aResult)
+  if (IsFlagWave(aWave))
     mFlagRaiseCounter = 100;
   mTotalSpawnedWaves++;
   mCurrentWave++;
-  return aResult;
 }
 
 // ==========================================================================

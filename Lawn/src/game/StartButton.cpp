@@ -10,6 +10,8 @@
 #include "Font.h"
 #include "GamepadApp.h"
 #include "Graphics.h"
+#include "LawnApp.h"
+#include "TitleScreen.h"
 #include "Widget.h"
 #include <cmath>
 
@@ -100,7 +102,8 @@ int StartButton::KeyDown(Sexy::KeyCode theKey)
   // (Sexy::GamepadApp::ProcessMessage @0x2AF984 passes it the same way).
   Sexy::Widget *aTopLevel = GetTopLevel();
   if ( aTopLevel->mEvent != 0 )
-    mGamepadIndex = ((GamepadApp *)gSexyAppBase)->GetGamepadIndex((int)aTopLevel->mEvent->lateModifiers, 0);
+    mGamepadIndex = mParent->mApp->GetGamepadIndex(aTopLevel->mEvent->lateModifiers,
+                                                aTopLevel->mEvent->eventType);
   return Sexy::ButtonWidget::KeyDown(theKey);
 }
 

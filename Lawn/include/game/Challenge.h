@@ -222,9 +222,9 @@ public:
     int MouseMove(int theX, int theY);
     bool BeghouledFallIntoSquare(unsigned int theGridX, int theGridY, BeghouledBoardState *theState);
     bool BeghouledMakePlantsFall(BeghouledBoardState *theState);
-    int BeghouledCreatePlants(BeghouledBoardState *theOldState, BeghouledBoardState *theNewState);
-    int BeghouledMakeStartBoard();
-    int BeghouledPopulateBoard();
+    void BeghouledCreatePlants(const BeghouledBoardState *theOldState, const BeghouledBoardState *theNewState);
+    void BeghouledMakeStartBoard();
+    void BeghouledPopulateBoard();
     void BeghouledFlashAMatch();
     void UpdateConveyorBelt(int thePlayerIndex);
     void UpdateMPGraveStones();

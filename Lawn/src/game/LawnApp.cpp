@@ -4013,7 +4013,7 @@ int LawnApp::DoSettingsDialog(bool theFromGameSelector)
 // LawnApp::DoConfirmRestartDialog()
 // @002B86A4  452 bytes
 // ==========================================================================
-Sexy::Dialog * LawnApp::DoConfirmRestartDialog()
+LawnDialog * LawnApp::DoConfirmRestartDialog()
 {
   // The header and body depend on which game the player is in.
   Sexy::String aHeader;
@@ -4046,7 +4046,7 @@ Sexy::Dialog * LawnApp::DoConfirmRestartDialog()
 
   // Dialog id 0x18. The footer is the empty C string. Button labels are
   // translated, then assigned into ButtonWidget::mLabel at button+0x120.
-  LawnDialog *aDialog = static_cast<LawnDialog *>(DoDialog(0x18, true, aHeader, aBody, Sexy::String(gEmptyCString), 1));
+  LawnDialog *aDialog = DoDialog(24, true, aHeader, aBody, Sexy::String(gEmptyCString), 1);
   if ( mGameMode == GAMEMODE_MP_VS )
   {
     TodStringTranslate(&aDialog->mLawnYesButton->mLabel, "[CONCEDE_VS_LABEL]");

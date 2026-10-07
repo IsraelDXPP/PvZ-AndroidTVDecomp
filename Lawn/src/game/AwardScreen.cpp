@@ -518,11 +518,9 @@ int AwardScreen::KeyDown(Sexy::KeyCode theKey)
 {
   // The event's own gamepad index decides whether this screen handles the key:
   // only the pad that owns the focused player's profile may press start.
-  int aGamepadIndex = 0;
+  int aPad = -1;
   if (mEvent != nullptr)
-    aGamepadIndex = mEvent->modifiers;
-
-  int aPad = mApp->GetGamepadIndex(aGamepadIndex, 0);
+    aPad = mApp->GetGamepadIndex(mEvent->lateModifiers, mEvent->eventType);
   if (mApp->HasGamepad() != 0 && mApp->mPlayerInfo->GetId() != aPad)
   {
     int aSecondPad = mApp->mSecondPlayerGamepadIndex;
@@ -543,12 +541,10 @@ int AwardScreen::KeyDown(Sexy::KeyCode theKey)
 // ==========================================================================
 void AwardScreen::GameButtonDown(Sexy::GamepadButton theButton, int thePlayerIndex, unsigned int theFlags)
 {
-  // `theFlags` is the gamepad index the press came from, so the button only acts when
-  // that pad owns the focused player's profile.
-  if ((mApp->mPlayerInfo->GetId() == (int)theFlags
+  if ((mApp->mPlayerInfo->GetId() == thePlayerIndex
        || (mApp->mSecondPlayerGamepadIndex != -1
-           && (int)theFlags == mApp->mSecondPlayerGamepadIndex))
-      && thePlayerIndex == GAMEPAD_BUTTON_A)
+           && thePlayerIndex == mApp->mSecondPlayerGamepadIndex))
+      && theButton == GAMEPAD_BUTTON_A)
   {
     StartButtonPressed();
   }

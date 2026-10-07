@@ -133,7 +133,7 @@ int LawnDialog::KeyDown(Sexy::KeyCode theKey)
   // and escape is left to the gamepad handler in that case.
   Sexy::Widget * aTopLevel = GetTopLevel();
   int aModifiers = 0;
-  if ( aTopLevel != nullptr )
+  if ( aTopLevel != nullptr && aTopLevel->mEvent != nullptr )
     aModifiers = aTopLevel->mEvent->modifierMask;
 
   if ( theKey != Sexy::KEYCODE_ESCAPE )

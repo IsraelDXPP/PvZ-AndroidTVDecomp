@@ -1201,46 +1201,44 @@ bool Challenge::BeghouledMakePlantsFall(BeghouledBoardState *theState)
 // Challenge::BeghouledCreatePlants(theOldState,theNewState)
 // @0017F28C  120 bytes
 // ==========================================================================
-int Challenge::BeghouledCreatePlants(BeghouledBoardState *theOldState, BeghouledBoardState *theNewState)
+void Challenge::BeghouledCreatePlants(const BeghouledBoardState *theOldState, const BeghouledBoardState *theNewState)
 {
-  int aResult = 0;
   for ( int aCol = 0; aCol < 8; ++aCol )
   {
     // Each plant of a falling column starts higher up than the one below it.
     int aDropIndex = 0;
     for ( int aRow = 4; aRow >= 0; --aRow )
     {
-      if ( theNewState->mSeedType[aCol][aRow] == SEED_NONE && theOldState->mSeedType[aCol][aRow] != SEED_NONE )
+      if ( theOldState->mSeedType[aCol][aRow] == SEED_NONE && theNewState->mSeedType[aCol][aRow] != SEED_NONE )
       {
         ++aDropIndex;
-        Plant *aPlant = mBoard->NewPlant(aCol, aRow, theOldState->mSeedType[aCol][aRow], SEED_NONE, -1);
+        Plant *aPlant = mBoard->NewPlant(aCol, aRow, theNewState->mSeedType[aCol][aRow], SEED_NONE, -1);
         aPlant->mY = -100 * aDropIndex + 80;
-        aResult = BeghouledStartFalling(STATECHALLENGE_BEGHOULED_FALLING);
+        BeghouledStartFalling(STATECHALLENGE_BEGHOULED_FALLING);
       }
     }
   }
-  return aResult;
 }
 
 // ==========================================================================
 // Challenge::BeghouledMakeStartBoard(void)
 // @0017F304  46 bytes
 // ==========================================================================
-int Challenge::BeghouledMakeStartBoard()
+void Challenge::BeghouledMakeStartBoard()
 {
   BeghouledBoardState aOldState;
   BeghouledBoardState aNewState;
   LoadBeghouledBoardState(&aOldState);
   LoadBeghouledBoardState(&aNewState);
   BeghouledFillHoles(&aNewState, false);
-  return BeghouledCreatePlants(&aOldState, &aNewState);
+  BeghouledCreatePlants(&aOldState, &aNewState);
 }
 
 // ==========================================================================
 // Challenge::BeghouledPopulateBoard(void)
 // @0017F334  76 bytes
 // ==========================================================================
-int Challenge::BeghouledPopulateBoard()
+void Challenge::BeghouledPopulateBoard()
 {
   BeghouledBoardState aOldState;
   BeghouledBoardState aNewState;
@@ -1257,7 +1255,7 @@ int Challenge::BeghouledPopulateBoard()
   }
   while ( --aTries != 0 );
 
-  return BeghouledCreatePlants(&aOldState, &aNewState);
+  BeghouledCreatePlants(&aOldState, &aNewState);
 }
 
 // ==========================================================================

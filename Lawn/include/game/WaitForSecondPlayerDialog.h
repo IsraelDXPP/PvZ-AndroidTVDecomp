@@ -46,7 +46,7 @@ class WaitForSecondPlayerDialog : public LawnDialog
 public:
     virtual ~WaitForSecondPlayerDialog();                          // [  0],[1] 0x000/0x004
     virtual int KeyDown(Sexy::KeyCode theKey);
-    virtual void GameButtonDown(Sexy::GamepadButton theButton, int thePlayerIndex, unsigned int theGamepadIndex);
+    virtual void GameButtonDown(Sexy::GamepadButton theButton, int theGamepadIndex, unsigned int theFlags);
 
     // LawnDialog ends at 0x2FC. Set once the second gamepad joins.
     bool m2PJoined;

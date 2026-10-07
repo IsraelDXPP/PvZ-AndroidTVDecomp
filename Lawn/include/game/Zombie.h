@@ -135,9 +135,7 @@ public:
     int mBodyMaxHealth;                               // +0xDC (55)
     int mHelmHealth;                                  // +0xE0 (56)
     int mHelmMaxHealth;                               // +0xE4 (57)
-    // TODO(recon): the authoritative header types this as `ShieldType`; this tree's
-    // ReconTypes.h defines no such enum, so int is used instead.
-    int mShieldType;                                  // +0xE8 (58)
+    ShieldType mShieldType;                           // +0xE8 (58)
     int mShieldHealth;                                // +0xEC (59)
     int mShieldMaxHealth;                             // +0xF0 (60)
     int mFlyingHealth;                                // +0xF4 (61)
@@ -242,7 +240,7 @@ public:
     bool UpdateZombieFalling();
     void GetDrawPos(ZombieDrawPosition &theDrawPos);
     Reanimation *UpdateReanim();
-    int DrawBungeeTarget(Sexy::Graphics *g);
+    void DrawBungeeTarget(Sexy::Graphics *g);
     void CheckForHighGround();
     void StartMindControlled();
     void BungeeDropPlant();
@@ -287,7 +285,7 @@ public:
     Reanimation * GetTrackPosition(char const *theTrackName, float &thePosX, float &thePosY);
     void DropFlag();
     int DrawButter(Sexy::Graphics *g, ZombieDrawPosition &theDrawPos);
-    int DrawBungeeCord(Sexy::Graphics *g, int theCordEndX, int theCordEndY);
+    void DrawBungeeCord(Sexy::Graphics *g, int theCordEndX, int theCordEndY);
     bool IsFlying();
     int DrawShadow(Sexy::Graphics *g);
     int GetBobsledPosition();
@@ -337,7 +335,7 @@ public:
     void PogoBreak(unsigned int theDamageFlags);
     void LoadReanim(ReanimationType theReanimType);
     float UpdateZombieImp();
-    Zombie * DetachShield();
+    void DetachShield();
     void BungeeStealTarget();
     void BungeeLiftTarget();
     // 0x1AE474. The early paths leave this in r0. The path that drops a
@@ -377,7 +375,7 @@ public:
     int TakeHelmDamage(int theDamage, unsigned int theDamageFlags);
     int EffectedByDamage(unsigned int theDamageFlags);
     int UpdateZombiePogo();
-    Zombie * UpdateLadder();
+    void UpdateLadder();
     Zombie * FindZombieTarget();
     // 0x1B0734. r0 is this or TodAnimateCurve's int. Both callers ignore it.
     void UpdateZombieChimney();

@@ -686,11 +686,8 @@ public:
     int On2PProfileLoadError();
     int DoHelpDialog(bool theFromGameSelector);
     int DoSettingsDialog(bool theFromGameSelector);
-    // The restart prompt is a plain `Sexy::Dialog` created by `DoDialog(24, ...)`
-// and returned by id; ConfirmBackToMainDialog is a different dialog.
-// _ZN7LawnApp22DoConfirmRestartDialogEv @0x2b86a4 returns the dialog the
-// DoDialog call produced, and the body re-labels its two LawnDialog buttons.
-Sexy::Dialog *DoConfirmRestartDialog();
+    // DoDialog creates the LawnDialog whose buttons are relabelled for restart or concede.
+    LawnDialog *DoConfirmRestartDialog();
     // Every Do*Dialog below ends in the `DoDialog(...)` call, and the binary
     // hands that call's return value straight back. The transcription typed them
     // `int` and stored `->mId` on the way out, which lost the dialog the callers

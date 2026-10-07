@@ -1065,9 +1065,7 @@ int SeedChooserScreen::ShowToolTip(int thePlayerIndex)
     if (aZombieType == ZOMBIE_INVALID)
       return 0;
 
-    // GetZombieDefinition returns a ZombieDefinition*; the tree declares it as a
-    // plain word, so the name field at +24 is read through the returned value.
-    const char *aZombieName = *(const char **)GetZombieDefinition(aZombieType)->mZombieName;
+    const char *aZombieName = GetZombieDefinition(aZombieType)->mZombieName;
 
     Sexy::String aFormat;
     StrFormat(&aFormat, "[%s]", aZombieName);
@@ -2063,15 +2061,15 @@ int SeedChooserScreen::GameButtonDown(Sexy::GamepadButton theButton, int theGame
   int aPad = theGamepadIndex;
   if (aPad < 0 || aPad >= 4)
     return 0;
-  int aSecondPad = mPlayerIndex;
-  if (aSecondPad == 0 && aPad != 0 && mApp->mGamepads[0]->mStatus <= Sexy::Gamepad::STATUS_CONNECTED)
+  int aChooserPad = mPlayerIndex;
+  if (aChooserPad == 0 && aPad != 0 && mApp->mGamepads[0]->mStatus <= Sexy::Gamepad::STATUS_CONNECTED)
   {
     aPad = 0;
     mApp->SwapGamepadId(0, theGamepadIndex);
-    aSecondPad = mPlayerIndex;
+    aChooserPad = mPlayerIndex;
   }
 
-  if (aPad != aSecondPad)
+  if (aPad != aChooserPad)
   {
     const int aSecondPlayerPad = mApp->mSecondPlayerGamepadIndex;
     if (aSecondPlayerPad == -1 && theButton == GAMEPAD_BUTTON_START)
@@ -2080,7 +2078,7 @@ int SeedChooserScreen::GameButtonDown(Sexy::GamepadButton theButton, int theGame
         return 0;
       mApp->SetSecondPlayer(aPad);
     }
-    else if (aSecondPlayerPad != (int)aPad)
+    else if (aSecondPlayerPad != aPad)
     {
       return 0;
     }
@@ -2167,15 +2165,11 @@ int SeedChooserScreen::GameButtonDown(Sexy::GamepadButton theButton, int theGame
         ButtonDepress(SeedChooserScreen_Start);
         return 1;
       }
-      // Menu remains usable before all required packets have been selected.
-      {
-        mApp->DoConfirmBackToMain(false);
-        return 1;
-      }
+      return 0;
 
     case GAMEPAD_BUTTON_A:
     {
-      if (mApp->mSecondPlayerGamepadIndex == -1 && mPlayerIndex != (int)aPad)
+      if (mApp->mSecondPlayerGamepadIndex == -1 && mPlayerIndex != aPad)
         return 0;
 
       // A on the Imitater packet opens the copy dialog, or banks it.
@@ -2183,7 +2177,7 @@ int SeedChooserScreen::GameButtonDown(Sexy::GamepadButton theButton, int theGame
       {
         if (mChosenSeeds[SEED_IMITATER].mSeedState != SEED_IN_BANK)
         {
-          ImitaterDialog *aDialog = new ImitaterDialog((int)aPad);
+          ImitaterDialog *aDialog = new ImitaterDialog(aPad);
           AddWidget(aDialog);
           aDialog->Resize((800 - aDialog->mWidth) / 2, (600 - aDialog->mHeight) / 2,
                           aDialog->mWidth, aDialog->mHeight);
@@ -2239,7 +2233,7 @@ int SeedChooserScreen::GameButtonDown(Sexy::GamepadButton theButton, int theGame
       if (mChooseState == CHOOSE_VIEW_LAWN)
         return 0;
 
-      // B hands Crazy Dave's free packets back, or offers to quit.
+      // B removes the last packet chosen by this player, or asks to leave.
       if (mApp->mGameMode != GAMEMODE_MP_VS)
       {
         int aFreeIndex = 0;
@@ -2284,7 +2278,16 @@ int SeedChooserScreen::GameButtonDown(Sexy::GamepadButton theButton, int theGame
         }
       }
 
-      mApp->DoConfirmBackToMain(false);
+      Sexy::Dialog *aQuitDialog = mApp->ConfirmQuit();
+      mOpeningDialog = true;
+      int aQuitResult = aQuitDialog->WaitForResult(true);
+      mOpeningDialog = false;
+      if (aQuitResult == 1000)
+      {
+        mApp->PostLeaveLevel();
+        mApp->SetBoardResult(BOARDRESULT_QUIT);
+        mApp->DoBackToMain();
+      }
       return 0;
     }
 

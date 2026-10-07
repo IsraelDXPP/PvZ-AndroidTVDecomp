@@ -17,6 +17,7 @@
 #include "ImageFont.h"
 #include "LawnApp.h"
 #include "LawnDialog.h"
+#include "LawnStoneButton.h"
 #include "SexyAppBase.h"
 #include "TodFoley.h"
 #include "VSResultsMenu.h"
@@ -63,7 +64,7 @@ NewOptionsDialog::~NewOptionsDialog()
   // (+0x00, +0x100, +0x2FC, +0x300) are the compiler's own and are left to the
   // implicit base destructor calls.
   delete mHelpDialogButton;
-  delete mStoreButton;
+  delete mDropP2Button;
   delete mRestartButton;
   delete mMainMenuButton;
   delete mAchievementsButton;
@@ -85,7 +86,7 @@ NewOptionsDialog::NewOptionsDialog(LawnApp *theApp, bool theFromMenu, unsigned i
   mFromMenu = theFromMenu;
   mGamepadIndex = theGamepadIndex;
   SetColor(3, aBackColor);
-  mHelpDialogButton = (GameButton *)MakeButton(2, (ButtonListener *)this, this, "[HELP AND OPTIONS]");
+  mHelpDialogButton = MakeButton(2, this, this, "[HELP AND OPTIONS]");
   // In the Zen Garden or the Tree of Wisdom, without a gamepad, the third
   // button opens the shop. A menu-opened dialog always shows the almanac label.
   bool aShopInstead = !mFromMenu
@@ -93,16 +94,16 @@ NewOptionsDialog::NewOptionsDialog(LawnApp *theApp, bool theFromMenu, unsigned i
           || mApp->mGameMode == GAMEMODE_TREE_OF_WISDOM)
       && !mApp->HasGamepad();
   if (aShopInstead)
-    mAlmanacButton = (GameButton *)MakeButton(3, (ButtonListener *)this, this, "[SHOP_BUTTON]");
+    mAlmanacButton = MakeButton(3, this, this, "[SHOP_BUTTON]");
   else
-    mAlmanacButton = (GameButton *)MakeButton(3, (ButtonListener *)this, this, "[VIEW_ALMANAC_BUTTON]");
+    mAlmanacButton = MakeButton(3, this, this, "[VIEW_ALMANAC_BUTTON]");
   if (mApp->mGameMode == GAMEMODE_MP_VS)
-    mRestartButton = (GameButton *)MakeButton(5, (ButtonListener *)this, this, "[CONCEDE_VS_BUTTON]");
+    mRestartButton = MakeButton(5, this, this, "[CONCEDE_VS_BUTTON]");
   else
-    mRestartButton = (GameButton *)MakeButton(5, (ButtonListener *)this, this, "[RESTART_LEVEL_BUTTON]");
-  mMainMenuButton = (GameButton *)MakeButton(4, (ButtonListener *)this, this, "[MAIN_MENU_BUTTON]");
-  mAchievementsButton = (GameButton *)MakeButton(1, (ButtonListener *)this, this, "[ACHIEVEMENTS]");
-  mLeaderboardsButton = (GameButton *)MakeButton(0, (ButtonListener *)this, this, "[LEADERBOARDS]");
+    mRestartButton = MakeButton(5, this, this, "[RESTART_LEVEL_BUTTON]");
+  mMainMenuButton = MakeButton(4, this, this, "[MAIN_MENU_BUTTON]");
+  mAchievementsButton = MakeButton(1, this, this, "[ACHIEVEMENTS]");
+  mLeaderboardsButton = MakeButton(0, this, this, "[LEADERBOARDS]");
   // Widget slot 42 is SetVisible and slot 48 is SetDisabled; the binary hides
   // both buttons and disables them (the achievements and leaderboards screens
   // are not part of this build).
@@ -110,18 +111,18 @@ NewOptionsDialog::NewOptionsDialog(LawnApp *theApp, bool theFromMenu, unsigned i
   mAchievementsButton->SetDisabled(true);
   mLeaderboardsButton->SetVisible(false);
   mLeaderboardsButton->SetDisabled(true);
-  mUnlockButton = (GameButton *)MakeButton(7, (ButtonListener *)this, this, "[DROP_P2]");
-  mStoreButton = (GameButton *)MakeButton(8, (ButtonListener *)this, this, "[UNLOCK_FULL_VERSION]");
-  mBackToGameButton = (GameButton *)MakeButton(1000, (ButtonListener *)this, this, "[BACK_TO_GAME]");
+  mDropP2Button = MakeButton(7, this, this, "[DROP_P2]");
+  mUnlockButton = MakeButton(8, this, this, "[UNLOCK_FULL_VERSION]");
+  mBackToGameButton = MakeButton(1000, this, this, "[BACK_TO_GAME]");
   // The focus ring, one link per button, in the order the binary sets it.
   mHelpDialogButton->SetFocusLinks(mBackToGameButton, mLeaderboardsButton, nullptr, nullptr);
   mLeaderboardsButton->SetFocusLinks(mHelpDialogButton, mAchievementsButton, nullptr, nullptr);
   mAchievementsButton->SetFocusLinks(mLeaderboardsButton, mAlmanacButton, nullptr, nullptr);
   mAlmanacButton->SetFocusLinks(mAchievementsButton, mUnlockButton, nullptr, nullptr);
-  mUnlockButton->SetFocusLinks(mAlmanacButton, mRestartButton, nullptr, nullptr);
-  mRestartButton->SetFocusLinks(mUnlockButton, mStoreButton, nullptr, nullptr);
-  mStoreButton->SetFocusLinks(mRestartButton, mMainMenuButton, nullptr, nullptr);
-  mMainMenuButton->SetFocusLinks(mStoreButton, mBackToGameButton, nullptr, nullptr);
+  mUnlockButton->SetFocusLinks(mAlmanacButton, mDropP2Button, nullptr, nullptr);
+  mDropP2Button->SetFocusLinks(mUnlockButton, mRestartButton, nullptr, nullptr);
+  mRestartButton->SetFocusLinks(mDropP2Button, mMainMenuButton, nullptr, nullptr);
+  mMainMenuButton->SetFocusLinks(mRestartButton, mBackToGameButton, nullptr, nullptr);
   mBackToGameButton->SetFocusLinks(mMainMenuButton, mHelpDialogButton, nullptr, nullptr);
   if (mFromMenu)
   {
@@ -152,20 +153,16 @@ NewOptionsDialog::NewOptionsDialog(LawnApp *theApp, bool theFromMenu, unsigned i
   if (mApp->IsFullVersion() != 0)
   {
     mUnlockButton->SetVisible(false);
-    // From a menu, the Tree of Wisdom still shows the almanac and the Zen
-    // Garden hides it. Every other menu open hides it. In a level it is hidden
-    // during the intro, in those two modes, and when the profile cannot open it.
-    bool aShowAlmanac = true;
-    if (mFromMenu && mApp->mGameMode == GAMEMODE_CHALLENGE_ZEN_GARDEN)
-      aShowAlmanac = false;
-    else if (mFromMenu && mApp->mGameMode == GAMEMODE_TREE_OF_WISDOM)
+    bool aShowAlmanac;
+    if (!mFromMenu && mApp->mGameMode == GAMEMODE_CHALLENGE_ZEN_GARDEN)
+      aShowAlmanac = mApp->CanShowStore() && mApp->mZenGarden->mShowShopButton;
+    else if (!mFromMenu && mApp->mGameMode == GAMEMODE_TREE_OF_WISDOM)
       aShowAlmanac = true;
-    else if (mApp->CanShowAlmanac() == 0
-        || mApp->mGameScene == SCENE_LEVEL_INTRO
-        || mApp->mGameMode == GAMEMODE_CHALLENGE_ZEN_GARDEN
-        || mApp->mGameMode == GAMEMODE_TREE_OF_WISDOM
-        || mFromMenu)
-      aShowAlmanac = false;
+    else
+      aShowAlmanac = !mFromMenu && mApp->CanShowAlmanac()
+          && mApp->mGameScene != SCENE_LEVEL_INTRO
+          && mApp->mGameMode != GAMEMODE_CHALLENGE_ZEN_GARDEN
+          && mApp->mGameMode != GAMEMODE_TREE_OF_WISDOM;
     mAlmanacButton->SetVisible(aShowAlmanac);
   }
   else
@@ -173,13 +170,12 @@ NewOptionsDialog::NewOptionsDialog(LawnApp *theApp, bool theFromMenu, unsigned i
     mUnlockButton->SetVisible(true);
     mAlmanacButton->SetVisible(false);
   }
-  // The store is offered in adventure mode while the level is being played, and
-  // only when no second gamepad has claimed the second player slot (+0xA7C).
+  // Adventure only offers removal of P2 while both players are in a level.
   if (mApp->mGameScene != SCENE_PLAYING || mApp->mGameMode != GAMEMODE_ADVENTURE
       || mApp->mSecondPlayerGamepadIndex == -1)
-    mStoreButton->SetVisible(false);
+    mDropP2Button->SetVisible(false);
   else
-    mStoreButton->SetVisible(true);
+    mDropP2Button->SetVisible(true);
   mFontId = FONT_DWARVENTODCRAFT18;
   ((Sexy::ImageFont *)FONT_DWARVENTODCRAFT18)->SetScale(
       ((Sexy::SexyAppBase *)gSexyAppBase)->GetDouble("OPTION_DLG_LABEL_FONT_SCALE", 1.0));
@@ -199,7 +195,7 @@ void NewOptionsDialog::AddedToManager(Sexy::WidgetManager *theManager)
   AddWidget(mAlmanacButton);
   AddWidget(mUnlockButton);
   AddWidget(mRestartButton);
-  AddWidget(mStoreButton);
+  AddWidget(mDropP2Button);
   AddWidget(mMainMenuButton);
   AddWidget(mBackToGameButton);
   SetFocus(mBackToGameButton, true);
@@ -219,7 +215,7 @@ void NewOptionsDialog::RemovedFromManager(Sexy::WidgetManager *theManager)
   RemoveWidget(mAlmanacButton);
   RemoveWidget(mUnlockButton);
   RemoveWidget(mRestartButton);
-  RemoveWidget(mStoreButton);
+  RemoveWidget(mDropP2Button);
   RemoveWidget(mMainMenuButton);
   RemoveWidget(mBackToGameButton);
 }
@@ -279,11 +275,11 @@ void NewOptionsDialog::Resize(int theX, int theY, int theWidth, int theHeight)
   else
   {
     aFilledButtons = aNumButtons++;
-    mStoreButton->Resize(anX, aRowY, aRowTop, 46);
+    mUnlockButton->Resize(anX, aRowY, aRowTop, 46);
     aNextY = aFirstFreeRow;
     aFirstFreeRow += 46;
   }
-  if (mApp->mGameMode != GAMEMODE_ADVENTURE || mApp->mPlayerInfo->mId == -1)
+  if (mApp->mGameMode != GAMEMODE_ADVENTURE || mApp->mSecondPlayerGamepadIndex == -1)
   {
     if (mRestartButton->mVisible)
     {
@@ -294,29 +290,29 @@ void NewOptionsDialog::Resize(int theX, int theY, int theWidth, int theHeight)
     }
     int aMainMenuY = aFirstFreeRow;
     aFirstFreeRow = aNextY + 92;
-    int aLastButtonRow = aFilledButtons + 4;
+    int aLastButtonRow = aNumButtons + 2;
     mMainMenuButton->Resize(anX, aMainMenuY, aRowTop, 46);
     mBackToGameButton->Resize(30, aMainMenuY + 98, 350, 46);
     aRowY = aLastButtonRow;
   }
   else
   {
-    int aStoreY = aNextY + 92;
+    int aMainMenuY = aNextY + 92;
     int aSavedY = aNextY;
-    mStoreButton->Resize(anX, aFirstFreeRow, aRowTop, 46);
+    mDropP2Button->Resize(anX, aFirstFreeRow, aRowTop, 46);
     if (mRestartButton->mVisible)
     {
-      int aRestartY = aStoreY;
+      int aRestartY = aMainMenuY;
       aNumButtons = aFilledButtons + 3;
-      aStoreY = aSavedY + 138;
+      aMainMenuY = aSavedY + 138;
       mRestartButton->Resize(anX, aRestartY, aRowTop, 46);
     }
     else
     {
       aNumButtons = aFilledButtons + 2;
     }
-    mMainMenuButton->Resize(anX, aStoreY, aRowTop, 46);
-    int aBackY = aStoreY + 98;
+    mMainMenuButton->Resize(anX, aMainMenuY, aRowTop, 46);
+    int aBackY = aMainMenuY + 98;
     aRowY = aNumButtons + 2;
     mBackToGameButton->Resize(30, aBackY, 350, 46);
   }
@@ -441,10 +437,7 @@ void NewOptionsDialog::ButtonDepress(int theId)
     case NewOptionsDialog_Restart:
       if ( mApp->mBoard != nullptr )
       {
-        // LawnApp::DoConfirmRestartDialog hands back a plain Sexy::Dialog built
-        // by DoDialog(24, ...); the binary then reads LawnDialog::mLawnYesButton
-        // (+0x2F0) and Dialog::mId (+0x2CC) off it, so it is a LawnDialog.
-        LawnDialog *aConfirmDialog = (LawnDialog *)mApp->DoConfirmRestartDialog();
+        LawnDialog *aConfirmDialog = mApp->DoConfirmRestartDialog();
         if ( aConfirmDialog->WaitForResult(false) == 1000 )
         {
           mApp->mMusic->StopAllMusic();
@@ -520,13 +513,13 @@ void NewOptionsDialog::GameButtonDown(Sexy::GamepadButton theButton, int thePlay
 // ==========================================================================
 int NewOptionsDialog::KeyDown(Sexy::KeyCode theKey)
 {
-  // Only the gamepad that opened this dialog may drive it: the top-level
-  // widget's mEvent carries the device id in its `lateModifiers` word (+8), and
-  // the dialog's own mGamepadIndex has to match the resulting gamepad slot.
+  // Only the gamepad that opened this dialog may drive it. Windows events
+  // identify both the input driver and the device belonging to that driver.
   Sexy::Widget *aTopLevel = GetTopLevel();
   int aGamepadIndex;
   if ( aTopLevel->mEvent == nullptr
-    || (aGamepadIndex = mApp->GetGamepadIndex((int)aTopLevel->mEvent->lateModifiers, 0)) == -1 )
+    || (aGamepadIndex = mApp->GetGamepadIndex(aTopLevel->mEvent->lateModifiers,
+                                           aTopLevel->mEvent->eventType)) == -1 )
   {
     if ( mGamepadIndex != 0 )
       return 1;

@@ -762,9 +762,9 @@ public:
     Zombie * AddZombie(ZombieType theZombieType, int theFromWave, bool theIsVisible);
     // _ZN5Board16BungeeDropZombieEP14BungeeDropGrid10ZombieType -- the first
     // parameter is the filled grid, not an int.
-    int BungeeDropZombie(BungeeDropGrid *theDrop, ZombieType theZombieType);
+    void BungeeDropZombie(BungeeDropGrid *theDrop, ZombieType theZombieType);
     void SpawnZombiesFromSky();
-    int SpawnZombieWave();
+    void SpawnZombieWave();
     Zombie * SpawnZombiesFromGraves();
     void UpdateZombieSpawning();
     int UpdateGame();

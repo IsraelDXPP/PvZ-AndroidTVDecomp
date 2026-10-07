@@ -1840,33 +1840,25 @@ Reanimation *Zombie::UpdateReanim()
 // Zombie::DrawBungeeTarget(Sexy::Graphics *)
 // @001A9EE4  250 bytes
 // ==========================================================================
-int Zombie::DrawBungeeTarget(Sexy::Graphics * aGraphics)
+void Zombie::DrawBungeeTarget(Sexy::Graphics * aGraphics)
 {
-    int result = IsOnBoard();
-    if (result != 0)
+    if (!IsOnBoard() || mApp->IsFinalBossLevel()
+        || mZombiePhase == PHASE_BUNGEE_RISING
+        || mZombiePhase == PHASE_BUNGEE_HIT_OUCHY
+        || mRelatedZombieID != ZOMBIEID_NULL)
+        return;
+
+    ZombieDrawPosition aDrawPos;
+    GetDrawPos(aDrawPos);
+    float aPosY = ((aDrawPos.mBodyY + aDrawPos.mImageOffsetY) + 60.0f) + (float)mY;
+    float aPosX = (float)mX + 10.0f;
+    if (mZombiePhase == PHASE_BUNGEE_DIVING || mZombiePhase == PHASE_BUNGEE_DIVING_SCREAMING)
     {
-        result = mApp->IsFinalBossLevel();
-        if (result == 0
-            && (unsigned int)(mZombiePhase - PHASE_BUNGEE_RISING) > 1
-            && mTargetPlantID == PLANTID_NULL)
-        {
-            ZombieDrawPosition aDrawPos;
-            GetDrawPos(aDrawPos);
-            ZombieDrawPosition &aPos = aDrawPos;
-
-            float aPosY = ((aPos.mImageOffsetY + aPos.mBodyY) + 60.0f) + (float)mY;
-            float aPosX = (float)mX + 10.0f;
-            if ((unsigned int)(mZombiePhase - PHASE_BUNGEE_DIVING) <= 1)
-            {
-                aPosX += TodAnimateCurveFloat(3000, 2600, (int)mAltitude, 30.0f, 0.0f, CURVE_LINEAR);
-                aPosY += TodAnimateCurveFloat(3000, 2600, (int)mAltitude, -592.0f, 0.0f, CURVE_LINEAR);
-            }
-
-            aGraphics->DrawImageF(IMAGE_BUNGEETARGET, aPosX, aPosY + mAltitude);
-  return 0;
-        }
+        aPosX += TodAnimateCurveFloat(3000, 2600, (int)mAltitude, 30.0f, 0.0f, CURVE_LINEAR);
+        aPosY += TodAnimateCurveFloat(3000, 2600, (int)mAltitude, -600.0f, 0.0f, CURVE_LINEAR);
     }
-    return result;
+
+    aGraphics->DrawImageF(IMAGE_BUNGEETARGET, aPosX, aPosY + mAltitude);
 }
 
 // ==========================================================================
@@ -3052,7 +3044,7 @@ int Zombie::DrawButter(Sexy::Graphics * g, ZombieDrawPosition & theDrawPos)
 // Zombie::DrawBungeeCord(Sexy::Graphics *,int,int)
 // @001AB484  410 bytes
 // ==========================================================================
-int Zombie::DrawBungeeCord(Sexy::Graphics * g, int theCordEndX, int theCordEndY)
+void Zombie::DrawBungeeCord(Sexy::Graphics * g, int theCordEndX, int theCordEndY)
 {
     int aCordCelHeight = (int)((float)(IMAGE_BUNGEECORD)->GetCelHeight() * mScaleZombie);
 
@@ -3073,7 +3065,7 @@ int Zombie::DrawBungeeCord(Sexy::Graphics * g, int theCordEndX, int theCordEndY)
 
         if (mTargetCol > aBossZombie->mTargetCol)
         {
-            g->SetClipRect(Sexy::Rect(-(int)g->mTransX, aClipAmount - (int)g->mTransY, 800, 600));
+            g->SetClipRect(Sexy::Rect((int)-g->mTransX, (int)((float)aClipAmount - g->mTransY), 800, 600));
             aSetClip = true;
         }
     }
@@ -3092,8 +3084,6 @@ int Zombie::DrawBungeeCord(Sexy::Graphics * g, int theCordEndX, int theCordEndY)
 
     if (aSetClip)
         g->ClearClipRect();
-  return 0;
-    return 0;
 }
 
 // ==========================================================================
@@ -4233,17 +4223,14 @@ void Zombie::DrawBungeeReanim(Sexy::Graphics * aGraphics, ZombieDrawPosition & a
 // ==========================================================================
 void Zombie::Draw(Sexy::Graphics * aGraphics)
 {
-    // A zombiquarium zombie is drawn by the aquarium itself.
-    if (mZombieType == ZOMBIE_ZOMBLOB)
+    // The bungee draws its payload at the current delivery altitude.
+    if (mZombieHeight == HEIGHT_GETTING_BUNGEE_DROPPED)
         return;
 
     ZombieDrawPosition aDrawPos;
     GetDrawPos(aDrawPos);
 
-    // Outside the playing scene the zombie only draws through the
-    // "zombies won" setup; a zombiquarium game mode keeps the aquarium's own
-    // zombies out of the lawn's draw, except the one the mode spawns.
-    if (mApp->mGameScene != SCENE_PLAYING && SetupDrawZombieWon(aGraphics) == 0)
+    if (mApp->mGameScene == SCENE_ZOMBIES_WON && SetupDrawZombieWon(aGraphics) == 0)
         return;
 
     // The ice trap goes both behind and in front of the body, the butter only
@@ -4323,7 +4310,7 @@ int Zombie::CountBungeesTargetingSunFlowers()
         if (aZombie->mTargetCol == -1)
             continue;
 
-        Plant *aPlant = mBoard->GetTopPlantAt(aZombie->mTargetCol, aZombie->mRow, (PlantPriority)2);
+        Plant *aPlant = mBoard->GetTopPlantAt(aZombie->mTargetCol, aZombie->mRow, TOPPLANT_PUMPKIN_ORDER);
         if (aPlant == nullptr || !aPlant->MakesSun())
             continue;
 
@@ -5209,14 +5196,14 @@ float Zombie::UpdateZombieImp()
 // Zombie::DetachShield(void)
 // @001AE2BC  142 bytes
 // ==========================================================================
-Zombie * Zombie::DetachShield()
+void Zombie::DetachShield()
 {
     Reanimation *aBodyReanim = mApp->ReanimationTryToGet(mBodyReanimID);
     if (aBodyReanim == nullptr)
     {
         mShieldType = SHIELDTYPE_NONE;
         mShieldHealth = 0;
-        return nullptr;
+        return;
     }
 
     switch (mShieldType)
@@ -5242,7 +5229,6 @@ Zombie * Zombie::DetachShield()
 
     mShieldType = SHIELDTYPE_NONE;
     mShieldHealth = 0;
-    return this;
 }
 
 // ==========================================================================
@@ -5312,18 +5298,17 @@ void Zombie::BungeeLanding()
     Plant *aPlant = mBoard->FindUmbrellaPlant(mTargetCol, mRow);
     if (aPlant != nullptr)
     {
-        // The umbrella bounces the bungee back up. PlaySample(int,bool) hides
-        // the one-argument base overload, so the loop flag is spelled out.
-        mApp->PlaySample(SOUND_BOING, false);
+        // The umbrella bounces the bungee back up.
+        mApp->PlaySample(SOUND_BOING, true);
         mApp->PlayFoley(FOLEY_UMBRELLA);
         aPlant->DoSpecial();
         mZombiePhase = PHASE_BUNGEE_RISING;
-        mRenderOrder = Board::MakeRenderOrder((RenderLayer)400000, 0, 1);
+        mRenderOrder = Board::MakeRenderOrder(RENDER_LAYER_UI_TOP, 0, 1);
         mHitUmbrella = true;
         return;
     }
 
-    mBoard->GetTopPlantAt(mTargetCol, mRow, (PlantPriority)2);
+    mBoard->GetTopPlantAt(mTargetCol, mRow, TOPPLANT_PUMPKIN_ORDER);
     if (mAltitude > 0.0f)
         return;
 
@@ -5798,6 +5783,7 @@ void Zombie::DropShield(unsigned int theDamageFlags)
     if (mShieldType == SHIELDTYPE_NONE)
         return;
 
+    const ShieldType aDroppedShieldType = mShieldType;
     ZombieDrawPosition aPos;
     GetDrawPos(aPos);
 
@@ -5808,7 +5794,7 @@ void Zombie::DropShield(unsigned int theDamageFlags)
     float aPosX = 0.0f;
     float aPosY = 0.0f;
 
-    switch (mShieldType)
+    switch (aDroppedShieldType)
     {
         case SHIELDTYPE_DOOR:
         case SHIELDTYPE_TRASHCAN:
@@ -5816,10 +5802,9 @@ void Zombie::DropShield(unsigned int theDamageFlags)
             if ((theDamageFlags & 0x10) == 0)
             {
                 GetTrackPosition("anim_screendoor", aPosX, aPosY);
-                aParticle = (TodParticleSystem *)mApp->AddTodParticle(aPosX,
-                                                                      aPosY,
-                                                                      mRenderOrder + 1,
-                                                                      mShieldType == SHIELDTYPE_DOOR ? (ParticleEffect)12 : (ParticleEffect)13);
+                ParticleEffect aShieldEffect = aDroppedShieldType == SHIELDTYPE_DOOR
+                    ? PARTICLE_ZOMBIE_DOOR : PARTICLE_ZOMBIE_TRASHCAN;
+                aParticle = mApp->AddTodParticle(aPosX, aPosY, mRenderOrder + 1, aShieldEffect);
             }
             break;
         case SHIELDTYPE_NEWSPAPER:
@@ -5837,7 +5822,7 @@ void Zombie::DropShield(unsigned int theDamageFlags)
             if ((theDamageFlags & 0x10) == 0)
             {
                 GetTrackPosition("Zombie_paper_paper", aPosX, aPosY);
-                aParticle = (TodParticleSystem *)mApp->AddTodParticle(aPosX, aPosY, mRenderOrder + 1, (ParticleEffect)14);
+                aParticle = mApp->AddTodParticle(aPosX, aPosY, mRenderOrder + 1, PARTICLE_ZOMBIE_NEWSPAPER);
             }
 
             // The torn paper itself is an attached reanimation.
@@ -5850,7 +5835,7 @@ void Zombie::DropShield(unsigned int theDamageFlags)
         case SHIELDTYPE_LADDER:
             DetachShield();
             if ((theDamageFlags & 0x10) == 0)
-                aParticle = (TodParticleSystem *)mApp->AddTodParticle(mPosX + 31.0f, mPosY + 80.0f, mRenderOrder + 1, (ParticleEffect)55);
+                aParticle = mApp->AddTodParticle(mPosX + 31.0f, mPosY + 80.0f, mRenderOrder + 1, PARTICLE_ZOMBIE_LADDER);
             break;
         default:
             break;
@@ -5858,7 +5843,6 @@ void Zombie::DropShield(unsigned int theDamageFlags)
 
     OverrideParticleScale(aParticle);
     mShieldType = SHIELDTYPE_NONE;
-    return;
 }
 
 // ==========================================================================
@@ -7047,36 +7031,36 @@ int Zombie::UpdateZombiePogo()
 // Zombie::UpdateLadder(void)
 // @001B05CC  194 bytes
 // ==========================================================================
-Zombie * Zombie::UpdateLadder()
+void Zombie::UpdateLadder()
 {
   // Only a zombie that still has its head and is not mind-controlled climbs.
   // The dump's +800 / +808 are the x4 form of bytes 200 and 202.
   if ( mMindControlled || !mHasHead )
-    return this;
+    return;
   if ( IsDeadOrDying() )
-    return this;
+    return;
 
   if ( mZombiePhase == PHASE_LADDER_CARRYING )
   {
     if ( mZombieHeight != HEIGHT_ZOMBIE_NORMAL )
-      return this;
+      return;
 
     // Only place the ladder if there is something to climb.
     if ( FindPlantTarget((ZombieAttackType)3) == nullptr )
-      return this;
+      return;
 
     StopEating();
     mZombiePhase = PHASE_LADDER_PLACING;
     PlayZombieReanim("anim_placeladder", REANIM_PLAY_ONCE_AND_HOLD, 10, 24.0f);
-    return this;
+    return;
   }
 
   if ( mZombiePhase != PHASE_LADDER_PLACING )
-    return this;
+    return;
 
   Reanimation *aBodyReanim = mApp->ReanimationTryToGet(mBodyReanimID);
   if ( aBodyReanim->mLoopCount <= 0 )
-    return this;
+    return;
 
   Plant *aTarget = FindPlantTarget((ZombieAttackType)3);
   if ( aTarget == nullptr )
@@ -7084,14 +7068,14 @@ Zombie * Zombie::UpdateLadder()
     // The plant is gone: go back to carrying the ladder.
     mZombiePhase = PHASE_LADDER_CARRYING;
     StartWalkAnim(0);
-    return this;
+    return;
   }
 
   mBoard->AddALadder(aTarget->mPlantCol, aTarget->mRow);
   mApp->PlaySample(SOUND_LADDER_ZOMBIE, true);
   mZombieHeight = HEIGHT_UP_LADDER;
   mUseLadderCol = aTarget->mPlantCol;
-  return DetachShield();
+  DetachShield();
 }
 // ==========================================================================
 // Zombie::FindZombieTarget(void)
@@ -7470,10 +7454,9 @@ void Zombie::BossBungeeAttack()
 // ==========================================================================
 bool Zombie::BossAreBungeesDone()
 {
-  // Walk this zombie's four follower ids. Done means either no follower exists
-  // at all, or one of them has reached the bungee-hit phase.
+  // The boss leaves once a bungee starts rising, or none of its three remain.
   int aFound = 0;
-  for ( int i = 0; i < 4; i++ )
+  for ( int i = 0; i < 3; i++ )
   {
     Zombie *aFollower = mBoard->ZombieTryToGet(mFollowerZombieID[i]);
     if ( aFollower != nullptr )
@@ -7994,11 +7977,11 @@ Reanimation * Zombie::BossBungeeLeave()
 {
   mZombiePhase = PHASE_BOSS_BUNGEES_LEAVE;
 
-  // Walk this zombie's four follower ids and kill off any that are still alive.
-  for ( int i = 0; i < 4; i++ )
+  // Buttered bungees cannot rise; clear them when the boss leaves.
+  for ( int i = 0; i < 3; i++ )
   {
     Zombie *aFollower = mBoard->ZombieTryToGet(mFollowerZombieID[i]);
-    if ( aFollower != nullptr && aFollower->mBodyHealth > 0 )
+    if ( aFollower != nullptr && aFollower->mButteredCounter > 0 )
       aFollower->DieWithLoot();
   }
 
@@ -8660,7 +8643,7 @@ void Zombie::PlayDeathAnim(unsigned int theDamageFlags)
     AttachmentReanimTypeDie(mAttachmentID, REANIM_ZOMBIE_SURPRISE);
     StopEating();
 
-    if (mShieldType != 0)
+    if (mShieldType != SHIELDTYPE_NONE)
         DropShield(1);
 
     if (mZombieType == ZOMBIE_SQUASH_HEAD && !mHasHead)
@@ -9308,7 +9291,7 @@ void Zombie::TakeDamage(int theDamage, unsigned int theDamageFlags)
     // theDamageFlags bit 0 = the damage passes the shield by; bit 1 = it hits the shield and
     // the body at once, so the body still takes the full original damage rather
     // than what is left of it after the shield.
-    if (mShieldType != 0 && (theDamageFlags & 1) == 0)
+    if (mShieldType != SHIELDTYPE_NONE && (theDamageFlags & 1) == 0)
     {
         int aShieldDamage = TakeShieldDamage(theDamage, theDamageFlags);
         aDamageRemaining = (theDamageFlags & 2) != 0 ? theDamage : aShieldDamage;
@@ -10431,10 +10414,10 @@ int Zombie::IsFireResistant()
   // The shield type itself is the answer for 1 (SHIELDTYPE_DOOR); the two
   // metal shields, 3 (SHIELDTYPE_LADDER) and 4 (SHIELDTYPE_TRASHCAN), also
   // resist fire, and nothing else does.
-  if (mShieldType == 1)
+  if (mShieldType == SHIELDTYPE_DOOR)
     return 1;
 
-  return (mShieldType == 3 || mShieldType == 4);
+  return (mShieldType == SHIELDTYPE_LADDER || mShieldType == SHIELDTYPE_TRASHCAN);
 }
 // ==========================================================================
 // Zombie::EnableMustache(bool)
@@ -10616,7 +10599,7 @@ void Zombie::ZombieInitialize(int theRow, ZombieType theType, bool theVariant, Z
     mInPool = false;
     mOnHighGround = false;
     mHelmType = 0;                              // HELMTYPE_NONE
-    mShieldType = 0;                            // SHIELDTYPE_NONE
+    mShieldType = SHIELDTYPE_NONE;
     mYuckyFace = false;
     mYuckyFaceCounter = 0;
     mWalnutDeath = false;
@@ -10713,14 +10696,14 @@ void Zombie::ZombieInitialize(int theRow, ZombieType theType, bool theVariant, Z
         return FinishInitialize(theType, theFromWave, aRenderLayer, aRenderOffset);
 
     case ZOMBIE_DOOR:
-        mShieldType = 1;                        // SHIELDTYPE_DOOR
+        mShieldType = SHIELDTYPE_DOOR;
         mShieldHealth = 1100;
         aRenderOffset = 4;
         LoadPlainZombieReanim();
         AttachShield();
         return FinishInitialize(theType, theFromWave, aRenderLayer, aRenderOffset);
     case ZOMBIE_TRASHCAN:
-        mShieldType = 4;                        // SHIELDTYPE_TRASHCAN
+        mShieldType = SHIELDTYPE_TRASHCAN;
         mShieldHealth = 800;
         aRenderOffset = 4;
         LoadPlainZombieReanim();
@@ -10740,7 +10723,7 @@ void Zombie::ZombieInitialize(int theRow, ZombieType theType, bool theVariant, Z
     case ZOMBIE_LADDER:
         mBodyHealth = 500;
         mShieldHealth = 500;
-        mShieldType = 3;                        // SHIELDTYPE_LADDER
+        mShieldType = SHIELDTYPE_LADDER;
         mZombieAttackRect.mX = 10;
         mZombieAttackRect.mY = 0;
         mZombieAttackRect.mWidth = 50;
@@ -11067,7 +11050,7 @@ void Zombie::ZombieInitialize(int theRow, ZombieType theType, bool theVariant, Z
                 mVariant = false;
                 mZombieAttackRect.mHeight = 115;
                 mZombiePhase = PHASE_NEWSPAPER_READING;
-                mShieldType = 2;                    // SHIELDTYPE_NEWSPAPER
+                mShieldType = SHIELDTYPE_NEWSPAPER;
                 mShieldHealth = 150;
                 aRenderOffset = 4;
                 AttachShield();

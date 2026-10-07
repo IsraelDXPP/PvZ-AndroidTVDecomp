@@ -104,9 +104,10 @@ void GameButton::Update()
 
 int GameButton::KeyDown(Sexy::KeyCode theKey)
 {
-    Sexy::Widget* topLevel = GetTopLevel();
-    if (topLevel->mEvent != nullptr)
-        mGamepadIndex = mApp->GetGamepadIndex(topLevel->mEvent->modifiers, 0);
+    Sexy::Widget* aTopLevel = GetTopLevel();
+    if (aTopLevel->mEvent != nullptr)
+        mGamepadIndex = mApp->GetGamepadIndex(aTopLevel->mEvent->lateModifiers,
+                                            aTopLevel->mEvent->eventType);
     return Sexy::ButtonWidget::KeyDown(theKey);
 }
 
