@@ -53,6 +53,7 @@ public:
     bool                mAutoRelease;
     double              mBaseVolume;
     double              mVolume;
+    int                 mBasePan;
     int                 mPan;
     double              mBaseRate;
 

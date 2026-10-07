@@ -304,7 +304,7 @@ SDLSoundBuffer::~SDLSoundBuffer() = default;
 
 SDLSoundInstance::SDLSoundInstance(SDLSoundManager* manager, const std::shared_ptr<SDLSoundBuffer>& buffer)
     : mManager(manager), mStream(nullptr), mBuffer(buffer), mPlaying(false), mReleased(false),
-      mAutoRelease(false), mBaseVolume(1.0), mVolume(1.0), mPan(0), mBaseRate(1.0)
+      mAutoRelease(false), mBaseVolume(1.0), mVolume(1.0), mBasePan(0), mPan(0), mBaseRate(1.0)
 {
     if (manager && buffer) mStream = CreateStream(manager->mDevice, buffer->mRate);
 }
@@ -323,7 +323,11 @@ void SDLSoundInstance::SetBaseVolume(double theVolume)
     ApplyState();
 }
 
-void SDLSoundInstance::SetBasePan(int pan) { mPan = pan; ApplyState(); }
+void SDLSoundInstance::SetBasePan(int thePan)
+{
+    mBasePan = thePan;
+    ApplyState();
+}
 
 void SDLSoundInstance::SetBaseRate(double theRate)
 {
@@ -353,7 +357,8 @@ void SDLSoundInstance::SetMasterVolumeIdx(int theIndex)
 
 void SDLSoundInstance::SetPan(int thePan)
 {
-    SetBasePan(thePan);
+    mPan = thePan;
+    ApplyState();
 }
 
 void SDLSoundInstance::Play(bool loop, bool autoRelease)
@@ -369,10 +374,11 @@ void SDLSoundInstance::Stop() { if (mStream) SDL_ClearAudioStream(mStream); mPla
 bool SDLSoundInstance::IsPlaying()
 {
     if (!mStream || !mPlaying) return false;
-    double pan = mPan > 1 || mPan < -1 ? mPan / 10000.0 : double(mPan);
-    pan = std::clamp(pan, -1.0, 1.0);
+    // AudiereSoundInstance::SetPan/SetBasePan @0x441648/0x441664 scale
+    // every integer by 0.0001; RehupPan adds the two offsets before clamping.
+    const double aPan = std::clamp((double(mBasePan) + double(mPan)) * 0.0001, -1.0, 1.0);
     while (SDL_GetAudioStreamQueued(mStream) < 8192 * int(sizeof(float)) &&
-           QueuePcm(mStream, *mBuffer, mCursor, mLoop, pan)) {}
+           QueuePcm(mStream, *mBuffer, mCursor, mLoop, aPan)) {}
     if (!mLoop && mCursor >= mBuffer->mSamples.size() / mBuffer->mChannels && StreamEmpty(mStream)) mPlaying = false;
     return mPlaying;
 }

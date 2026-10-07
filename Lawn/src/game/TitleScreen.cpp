@@ -51,10 +51,18 @@ int TitleScreen::KeyDown(Sexy::KeyCode theKey)
   if ( mTitleState == GuideLogo && theKey == Sexy::KEYCODE_GAMEPAD_A )
     mTitleStateCounter = 0;
 
-  if ( (theKey == 304 || theKey == 315 || theKey == 13) && mLoadingThreadComplete && mCurBarWidth == mTotalBarWidth )
+  const bool aStartRequested = theKey == Sexy::KEYCODE_GAMEPAD_A
+      || theKey == Sexy::KEYCODE_GAMEPAD_START || theKey == Sexy::KEYCODE_RETURN;
+  if ( aStartRequested && mLoadingThreadComplete && mCurBarWidth == mTotalBarWidth )
+  {
+    // Navigation while the start button is disabled can clear its focus.
+    // Restore it before Widget dispatches confirmation to the button.
+    if ( !mStartButton->mHasFocus )
+      SetFocus(mStartButton, false);
     mApp->PlaySample(SOUND_BUTTONCLICK, true);
+  }
 
-  if ( theKey == 27 )
+  if ( theKey == Sexy::KEYCODE_ESCAPE )
     return 1;
 
   return Sexy::Widget::KeyDown(theKey);
