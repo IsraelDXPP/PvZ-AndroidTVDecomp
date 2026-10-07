@@ -4,7 +4,7 @@
     <Platform Name="x86" />
   </Configurations>
   <Folder Name="/Tools/">
-    <Project Path="Tools/ResourceGen/ResourceGen.vcxproj" Id="4c8d1674-9794-4753-b0e4-72ddca709079" />
+    
   </Folder>
   <Project Path="Lawn/Lawn.vcxproj" Id="7e2a1c4b-9d3f-4a86-b5c1-2f8e6a0d4b73" />
   <Project Path="Sexy/Sexy.vcxproj" Id="c4e8a1b2-6d3f-4e91-9a70-11b2c3d4e5f6" />
