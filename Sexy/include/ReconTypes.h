@@ -1317,7 +1317,8 @@ class PakLib_Driver;
 // WEAPON_PRIMARY is the name Projectile.cpp already gives the primary shot.
 enum PlantWeapon : int
 {
-    WEAPON_PRIMARY = 0
+    WEAPON_PRIMARY = 0,
+    WEAPON_SECONDARY = 1
 };
 
 // Types a placeholder typedef used to name. Every use is by pointer, so

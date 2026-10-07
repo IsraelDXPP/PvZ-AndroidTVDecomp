@@ -887,7 +887,7 @@ void Projectile::UpdateLobMotion()
   float aPosZ;
   if (mProjectileType == PROJECTILE_COBBIG && mPosZ < -700.0)
   {
-    mAccZ = 8.0;
+    mVelZ = 8.0f;
     mPosX = mCobTargetX;
     mRow = mCobTargetRow;
     int aGridX = mBoard->PixelToGridXKeepOnBoard((int)mCobTargetX, 0);
@@ -903,18 +903,16 @@ void Projectile::UpdateLobMotion()
     aPosZ = mPosZ;
   }
 
-  int aType = mProjectileType;
+  ProjectileType aType = mProjectileType;
   bool aHighGravity = (mApp->mGameMode == GAMEMODE_CHALLENGE_HIGH_GRAVITY);
 
   // Vertical integration: the velocity picks up the acceleration, and under high
   // gravity it picks it up twice.
   float aVelZ = mVelZ + mAccZ;
-  mAccZ = aVelZ;
   if (aHighGravity)
-  {
-    aVelZ += mVelZ;
-    mAccZ = aVelZ;
-  }
+    aVelZ += mAccZ;
+  // @0x193E24 / @0x193E44 update velocity (+0x54), leaving acceleration fixed.
+  mVelZ = aVelZ;
   float aNewPosY = aPosY + mVelY;
   float aNewPosZ = aVelZ + aPosZ;
   float aNewPosX = mPosX + mVelX;
@@ -923,9 +921,7 @@ void Projectile::UpdateLobMotion()
   mPosX = aNewPosX;
   if (aVelZ < 0.0)
   {
-    // Still rising: a basketball and a cob shell cannot land, and no projectile
-    // collides during its first 20 ticks.
-    if ((aType & 0xFFFFFFFD) == PROJECTILE_BASKETBALL || mProjectileAge > 20)
+    if (aType == PROJECTILE_BASKETBALL || aType == PROJECTILE_COBBIG || mProjectileAge > 20)
       return;
   }
   else if (mProjectileAge > 20)
@@ -947,42 +943,32 @@ void Projectile::UpdateLobMotion()
       aMinCollisionZ = 0.0;
 
     // A pool row sits lower, so the shot has that much further to fall.
-    if (mBoard->mPlantRow[mRow] == 2)
+    if (mBoard->mPlantRow[mRow] == PLANTROW_POOL)
       aMinCollisionZ += 40.0;
     if (aMinCollisionZ >= aNewPosZ)
       return;
   }
-  // Gather the three kinds of target. A basketball and a cob shell only ever hit
-  // plants; everything else looks for zombies and, in VS mode, for grid items.
+  // Enemy basketballs and peas target plants; other shots target zombies
+  // and, in versus mode, grid items.
   Plant * aPlantTarget = nullptr;
   Zombie * aZombieTarget = nullptr;
   GridItem * aGridItemTarget = nullptr;
-  bool aNoZombieTarget;
-  bool aNoGridItemTarget;
-
-  if ((aType & 0xFFFFFFFB) == PROJECTILE_BASKETBALL)
+  if (aType == PROJECTILE_BASKETBALL || aType == PROJECTILE_ZOMBIE_PEA)
   {
     aPlantTarget = FindCollisionTargetPlant();
-    aNoZombieTarget = (aPlantTarget == nullptr);
-    aNoGridItemTarget = true;
   }
   else
   {
     aZombieTarget = FindCollisionTarget();
     if (mApp->mGameMode == GAMEMODE_MP_VS)
       aGridItemTarget = FindCollisionTargetGridItem();
-    aNoZombieTarget = (aZombieTarget == nullptr);
-    aNoGridItemTarget = true;
   }
   // How far the shot may still be above the ground and count as a landing.
   float aGroundZ = (aType == PROJECTILE_COBBIG) ? -40.0 : 80.0;
 
-  if (aNoZombieTarget && aNoGridItemTarget)
-  {
-    if (aGridItemTarget == nullptr && mPosZ <= aGroundZ)
-      return;
-  }
-  else if (aPlantTarget != nullptr)
+  if (aPlantTarget == nullptr && aZombieTarget == nullptr && aGridItemTarget == nullptr && mPosZ <= aGroundZ)
+    return;
+  if (aPlantTarget != nullptr)
   {
     Plant * aUmbrella = mBoard->FindUmbrellaPlant(aPlantTarget->mPlantCol, aPlantTarget->mRow);
     if (aUmbrella != nullptr)
@@ -992,6 +978,7 @@ void Projectile::UpdateLobMotion()
         mApp->PlayFoley(FOLEY_SPLAT);
         // 400001 is Board::MakeRenderOrder(RENDER_LAYER_TOP, 0, 1), folded.
         mApp->AddTodParticle(mPosX + 20.0, mPosY + 20.0, RENDER_LAYER_TOP + 1, PARTICLE_UMBRELLA_REFLECT);
+        Die();
       }
       else if (aUmbrella->mState != STATE_UMBRELLA_TRIGGERED)
       {

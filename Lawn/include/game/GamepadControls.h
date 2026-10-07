@@ -110,7 +110,7 @@ public:
     int DrawHighlightPolys(Sexy::Graphics * g);
     float DrawReticuleHorizontal(Sexy::Graphics *g, int theX, int theY);
     int DrawReticuleVertical(Sexy::Graphics *g, int theX, int theY);
-    int DrawDigIndicator(Sexy::Graphics *g, float theX, float theY, float theProgress);
+    void DrawDigIndicator(Sexy::Graphics *g, float theX, float theY, float theProgress);
     SeedBank * GetSeedBank();
     int PlantShopPacket();
     int FreeUseShopPacketAndBack();

@@ -392,31 +392,20 @@ int GamepadControls::DrawReticuleVertical(Sexy::Graphics *theGraphics, int theX,
 // GamepadControls::DrawDigIndicator(Sexy::Graphics *,float,float,float)
 // @001BFB40  626 bytes
 // ==========================================================================
-int GamepadControls::DrawDigIndicator(Sexy::Graphics *theGraphics, float theX, float theY, float theProgress)
+void GamepadControls::DrawDigIndicator(Sexy::Graphics *theGraphics, float theX, float theY, float theProgress)
 {
-  // 100 pie slices, three vertices each. The binary clears all 300 first
-  // (mU = 0, mV = 1, mColor = 0), then overwrites the first aSliceCount slices.
-  SexyVertex2D aVerts[100][3];
+  SexyVertex2D aVerts[100][3]{};
   theGraphics->mTransX += theX;
   theGraphics->mTransY += theY;
   int aSliceCount = (int)(theProgress * 100.0f);
-  // The clear stores only mU/mV/mColor (0, 1, 0). mX and mY stay uninitialized,
-  // matching the binary's 16-byte stride that skips the two position floats.
-  for ( int i = 0; i < 100; ++i )
-  {
-    for ( int j = 0; j < 3; ++j )
-    {
-      aVerts[i][j].mU = 0.0f;
-      aVerts[i][j].mV = 1.0f;
-      aVerts[i][j].mColor = 0;
-    }
-  }
   if ( aSliceCount <= 0 )
   {
     aSliceCount = 0;
   }
   else
   {
+    if (aSliceCount > 100)
+      aSliceCount = 100;
     for ( int aStep = 0; aStep < aSliceCount; ++aStep )
     {
       float aAngle = (float)(aStep * 2) * 0.031416f;
@@ -427,8 +416,9 @@ int GamepadControls::DrawDigIndicator(Sexy::Graphics *theGraphics, float theX, f
       float aNextSin = sinf(aNextAngle);
       aVerts[aStep][0].mX = 23.0f;
       aVerts[aStep][0].mY = 23.0f;
-      aVerts[aStep][0].mU = 0.0f;
-      aVerts[aStep][0].mV = 1.0f;
+      // @0x1BFC3C / @0x1BFC40 store the texture centre for the fan centre.
+      aVerts[aStep][0].mU = 0.5f;
+      aVerts[aStep][0].mV = 0.5f;
       aVerts[aStep][0].mColor = 0;
       aVerts[aStep][1].mX = aCos * 22.0f + 23.0f;
       aVerts[aStep][1].mY = aSin * 22.0f + 23.0f;
@@ -459,7 +449,6 @@ int GamepadControls::DrawDigIndicator(Sexy::Graphics *theGraphics, float theX, f
   theGraphics->SetDrawMode(0);
   theGraphics->mTransX -= theX;
   theGraphics->mTransY -= theY;
-  return 0;
 }
 
 // ==========================================================================

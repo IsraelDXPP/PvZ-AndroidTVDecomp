@@ -3777,27 +3777,26 @@ GridItem * Plant::DoRowAreaDamage(int theDamage, unsigned int theDamageFlags)
 // Plant::Fire(Zombie *,int,PlantWeapon,GridItem *)
 // @0016EB80  1500 bytes
 // ==========================================================================
-float Plant::Fire(Zombie * theTargetZombie, int theRow, PlantWeapon theWeapon, GridItem * theTargetGridItem)
+void Plant::Fire(Zombie * theTargetZombie, int theRow, PlantWeapon theWeapon, GridItem * theTargetGridItem)
 {
-  // The binary returns the r0 of the last call it made. Callers never read it.
   SeedType aSeedType = mSeedType;
   switch ( aSeedType )
   {
     case SEED_FUMESHROOM:
       DoRowAreaDamage(20, 2u);
       mApp->PlayFoley(FOLEY_FUME);
-      return 0.0f;
+      return;
     case SEED_GLOOMSHROOM:
       DoRowAreaDamage(20, 2u);
-      return 0.0f;
+      return;
     case SEED_STARFRUIT:
       StarFruitFire();
-      return 0.0f;
+      return;
     default:
       break;
   }
 
-  int aProjectileType = 0;
+  ProjectileType aProjectileType = PROJECTILE_PEA;
   switch ( aSeedType )
   {
     case SEED_PEASHOOTER:
@@ -3806,37 +3805,37 @@ float Plant::Fire(Zombie * theTargetZombie, int theRow, PlantWeapon theWeapon, G
     case SEED_SPLITPEA:
     case SEED_GATLINGPEA:
     case SEED_LEFTPEATER:
-      aProjectileType = 0;
+      aProjectileType = PROJECTILE_PEA;
       break;
     case SEED_SNOWPEA:
-      aProjectileType = 1;
+      aProjectileType = PROJECTILE_SNOWPEA;
       break;
     case SEED_PUFFSHROOM:
     case SEED_SCAREDYSHROOM:
     case SEED_SEASHROOM:
-      aProjectileType = 4;
+      aProjectileType = PROJECTILE_PUFF;
       break;
     case SEED_CACTUS:
     case SEED_CATTAIL:
-      aProjectileType = 8;
+      aProjectileType = PROJECTILE_SPIKE;
       break;
     case SEED_CABBAGEPULT:
-      aProjectileType = 2;
+      aProjectileType = PROJECTILE_CABBAGE;
       break;
     case SEED_KERNELPULT:
-      if ( theWeapon == 1 )
-        aProjectileType = 12;
+      if ( theWeapon == WEAPON_SECONDARY )
+        aProjectileType = PROJECTILE_BUTTER;
       else
-        aProjectileType = 10;
+        aProjectileType = PROJECTILE_KERNEL;
       break;
     case SEED_MELONPULT:
-      aProjectileType = 3;
+      aProjectileType = PROJECTILE_MELON;
       break;
     case SEED_WINTERMELON:
-      aProjectileType = 5;
+      aProjectileType = PROJECTILE_WINTERMELON;
       break;
     case SEED_COBCANNON:
-      aProjectileType = 11;
+      aProjectileType = PROJECTILE_COBBIG;
       break;
     default:
       break;
@@ -3883,12 +3882,12 @@ float Plant::Fire(Zombie * theTargetZombie, int theRow, PlantWeapon theWeapon, G
   }
   else if ( aSeedType == SEED_KERNELPULT )
   {
-    if ( theWeapon == 0 )
+    if ( theWeapon == WEAPON_PRIMARY )
     {
       aOriginX = mX + 19;
       aOriginY = mY - 37;
     }
-    else if ( theWeapon == 1 )
+    else if ( theWeapon == WEAPON_SECONDARY )
     {
       aOriginX = mX + 12;
       aOriginY = mY - 56;
@@ -3935,7 +3934,7 @@ float Plant::Fire(Zombie * theTargetZombie, int theRow, PlantWeapon theWeapon, G
         int aHeadY = 0;
         GetPeaHeadOffset(aHeadX, aHeadY);
         aOriginY = aHeadY + mY - 33;
-        if ( theWeapon == 1 )
+        if ( theWeapon == WEAPON_SECONDARY )
           aOriginX = aHeadX + mX - 64;
         else
           aOriginX = aHeadX + mX + 24;
@@ -3950,7 +3949,7 @@ float Plant::Fire(Zombie * theTargetZombie, int theRow, PlantWeapon theWeapon, G
         aOriginY = mY + 21;
         break;
       case SEED_CACTUS:
-        if ( theWeapon != 0 )
+        if ( theWeapon != WEAPON_PRIMARY )
         {
           aOriginX = mX + 70;
           aOriginY = mY + 23;
@@ -4002,7 +4001,7 @@ float Plant::Fire(Zombie * theTargetZombie, int theRow, PlantWeapon theWeapon, G
   }
 
   Projectile *aProjectile = mBoard->AddProjectile(
-      aOriginX, aOriginY, mRenderOrder - 1, theRow, (ProjectileType)aProjectileType);
+      aOriginX, aOriginY, mRenderOrder - 1, theRow, aProjectileType);
   aProjectile->mDamageRangeFlags = GetDamageRangeFlags(theWeapon);
   aSeedType = mSeedType;
   if (aSeedType == SEED_CABBAGEPULT || aSeedType == SEED_KERNELPULT
@@ -4070,7 +4069,7 @@ float Plant::Fire(Zombie * theTargetZombie, int theRow, PlantWeapon theWeapon, G
   }
   else if ( aSeedType == SEED_SPLITPEA )
   {
-    if ( theWeapon == 1 )
+    if ( theWeapon == WEAPON_SECONDARY )
       aProjectile->mMotionType = MOTION_BACKWARDS;
   }
   else if ( aSeedType == SEED_LEFTPEATER )
@@ -4087,7 +4086,7 @@ float Plant::Fire(Zombie * theTargetZombie, int theRow, PlantWeapon theWeapon, G
   }
   else if ( aSeedType == SEED_COBCANNON )
   {
-    aProjectile->mDamageRangeFlags = GetDamageRangeFlags((PlantWeapon)0);
+    aProjectile->mDamageRangeFlags = GetDamageRangeFlags(WEAPON_PRIMARY);
     aProjectile->mMotionType = MOTION_LOBBED;
     aProjectile->mVelX = 0.001f;
     aProjectile->mVelY = 0.0f;
@@ -4096,7 +4095,7 @@ float Plant::Fire(Zombie * theTargetZombie, int theRow, PlantWeapon theWeapon, G
     aProjectile->mCobTargetX = (float)(mTargetX - 40);
     aProjectile->mCobTargetRow = mBoard->PixelToGridYKeepOnBoard(mTargetX, mTargetY);
   }
-  return 0.0f;
+  return;
 }
 
 // ==========================================================================
@@ -5443,12 +5442,12 @@ Zombie * Plant::UpdateChomper()
 // Plant::UpdateShooting(void)
 // @00170CBC  1104 bytes
 // ==========================================================================
-float Plant::UpdateShooting()
+void Plant::UpdateShooting()
 {
-  // Callers ignore the leftover float. Gatling fires on the four pea frames
+  // Gatling fires on the four pea frames
   // that survive clearing bit 4 of 0x23, plus the two extra frames 18 and 68.
   if (NotOnGround() != 0 || mShootingCounter == 0)
-    return 0.0f;
+    return;
 
   mShootingCounter -= 1;
   int aCounter = mShootingCounter;
@@ -5456,7 +5455,7 @@ float Plant::UpdateShooting()
   int aParticleOrder = Board::MakeRenderOrder(RenderLayer::RENDER_LAYER_PARTICLE, mRow, 0);
   if (aSeed == SEED_FUMESHROOM && aCounter == 15)
   {
-    AddAttachedParticle(mX + 85, mY + 31, aParticleOrder, (ParticleEffect)2);
+    AddAttachedParticle(mX + 85, mY + 31, aParticleOrder, PARTICLE_FUME_CLOUD);
     aSeed = mSeedType;
     aCounter = mShootingCounter;
   }
@@ -5465,12 +5464,12 @@ float Plant::UpdateShooting()
   {
     if (aCounter == 108 || aCounter == 136 || aCounter == 80 || aCounter == 52)
     {
-      AddAttachedParticle(mX + 40, mY + 40, aParticleOrder, (ParticleEffect)61);
+      AddAttachedParticle(mX + 40, mY + 40, aParticleOrder, PARTICLE_GLOOM_CLOUD);
       aCounter = mShootingCounter;
     }
     if (aCounter == 98 || aCounter == 126 || aCounter == 70 || aCounter == 42)
     {
-      Fire(nullptr, mRow, (PlantWeapon)0, nullptr);
+      Fire(nullptr, mRow, WEAPON_PRIMARY, nullptr);
       aCounter = mShootingCounter;
     }
   }
@@ -5478,7 +5477,7 @@ float Plant::UpdateShooting()
   {
     if ((aCounter & ~0x10) == 0x23 || aCounter == 18 || aCounter == 68)
     {
-      Fire(nullptr, mRow, (PlantWeapon)0, nullptr);
+      Fire(nullptr, mRow, WEAPON_PRIMARY, nullptr);
       aCounter = mShootingCounter;
     }
   }
@@ -5486,10 +5485,10 @@ float Plant::UpdateShooting()
   {
     if (aCounter == 19)
     {
-      Zombie *aZombie = FindTargetZombie(mRow, (PlantWeapon)0);
+      Zombie *aZombie = FindTargetZombie(mRow, WEAPON_PRIMARY);
       GridItem *aGrid = FindTargetGridItem(mRow);
       if (aZombie != nullptr)
-        Fire(aZombie, mRow, (PlantWeapon)0, aGrid);
+        Fire(aZombie, mRow, WEAPON_PRIMARY, aGrid);
       aCounter = mShootingCounter;
     }
   }
@@ -5502,31 +5501,31 @@ float Plant::UpdateShooting()
       Reanimation *aHead2 = mApp->ReanimationTryToGet(mHeadReanimID2);
       Reanimation *aHead3 = mApp->ReanimationTryToGet(mHeadReanimID3);
       if (aHead1->mLoopType == REANIM_PLAY_ONCE_AND_HOLD)
-        Fire(nullptr, aRow + 1, (PlantWeapon)0, nullptr);
+        Fire(nullptr, aRow + 1, WEAPON_PRIMARY, nullptr);
       if (aHead2->mLoopType == REANIM_PLAY_ONCE_AND_HOLD)
-        Fire(nullptr, mRow, (PlantWeapon)0, nullptr);
+        Fire(nullptr, mRow, WEAPON_PRIMARY, nullptr);
       if (aHead3->mLoopType == REANIM_PLAY_ONCE_AND_HOLD)
-        Fire(nullptr, aRow - 1, (PlantWeapon)0, nullptr);
-      return 0.0f;
+        Fire(nullptr, aRow - 1, WEAPON_PRIMARY, nullptr);
+      return;
     }
     if (aSeed == SEED_SPLITPEA)
     {
       Reanimation *aHead1 = mApp->ReanimationTryToGet(mHeadReanimID);
       Reanimation *aHead2 = mApp->ReanimationTryToGet(mHeadReanimID2);
       if (aHead1->mLoopType == REANIM_PLAY_ONCE_AND_HOLD)
-        Fire(nullptr, mRow, (PlantWeapon)0, nullptr);
+        Fire(nullptr, mRow, WEAPON_PRIMARY, nullptr);
       if (aHead2->mLoopType == REANIM_PLAY_ONCE_AND_HOLD)
-        Fire(nullptr, mRow, (PlantWeapon)1, nullptr);
-      return 0.0f;
+        Fire(nullptr, mRow, WEAPON_SECONDARY, nullptr);
+      return;
     }
     if (mState == STATE_CACTUS_LOW)
-      return Fire(nullptr, mRow, (PlantWeapon)1, nullptr);
+      return Fire(nullptr, mRow, WEAPON_SECONDARY, nullptr);
     if ((aSeed & ~2) == SEED_CABBAGEPULT || aSeed == SEED_MELONPULT || aSeed == SEED_WINTERMELON)
     {
-      PlantWeapon aWeapon = (PlantWeapon)0;
+      PlantWeapon aWeapon = WEAPON_PRIMARY;
       if (mState == STATE_KERNELPULT_BUTTER)
       {
-        aWeapon = (PlantWeapon)1;
+        aWeapon = WEAPON_SECONDARY;
         Reanimation *aBody = mApp->ReanimationGet(mBodyReanimID);
         aBody->AssignRenderGroupToPrefix("Cornpult_butter", -1);
         aBody->AssignRenderGroupToPrefix("Cornpult_kernal", 0);
@@ -5536,11 +5535,11 @@ float Plant::UpdateShooting()
       GridItem *aGrid = FindTargetGridItem(mRow);
       return Fire(aZombie, mRow, aWeapon, aGrid);
     }
-    return Fire(nullptr, mRow, (PlantWeapon)0, nullptr);
+    return Fire(nullptr, mRow, WEAPON_PRIMARY, nullptr);
   }
 
   if (aCounter != 0)
-    return 0.0f;
+    return;
 
   Reanimation *aBody = mApp->ReanimationTryToGet(mBodyReanimID);
   Reanimation *aHead = mApp->ReanimationTryToGet(mHeadReanimID);
@@ -5552,7 +5551,7 @@ float Plant::UpdateShooting()
     if (aHead2->mLoopCount <= 0)
     {
       mShootingCounter = 1;
-      return 0.0f;
+      return;
     }
     if (aHead->mLoopType == REANIM_PLAY_ONCE_AND_HOLD)
     {
@@ -5575,7 +5574,7 @@ float Plant::UpdateShooting()
       aHead3->SetAnimRate(aBody->mAnimRate);
       aHead3->mAnimTime = aBody->mAnimTime;
     }
-    return 0.0f;
+    return;
   }
   if (aSeed == SEED_SPLITPEA)
   {
@@ -5596,20 +5595,20 @@ float Plant::UpdateShooting()
       aHead2->SetAnimRate(aBody->mAnimRate);
       aHead2->mAnimTime = aBody->mAnimTime;
     }
-    return 0.0f;
+    return;
   }
   if (mState == STATE_CACTUS_HIGH)
   {
     if (aBody->mLoopCount <= 0)
     {
       mShootingCounter = 1;
-      return 0.0f;
+      return;
     }
     PlayBodyReanim("anim_idlehigh", REANIM_LOOP, 20, 0.0f);
     aBody->SetAnimRate(aBody->mDefinition->mFPS);
     if (mApp->IsIZombieLevel() != 0)
       aBody->SetAnimRate(0.0f);
-    return 0.0f;
+    return;
   }
   if (aHead == nullptr)
   {
@@ -5618,16 +5617,21 @@ float Plant::UpdateShooting()
       if (aBody->mLoopCount <= 0)
       {
         mShootingCounter = 1;
-        return 0.0f;
+        return;
       }
       mState = STATE_COBCANNON_ARMING;
       mStateCountdown = 3000;
       aBody->PlayReanim("anim_unarmed_idle", REANIM_LOOP, 20, aBody->mDefinition->mFPS);
-      return 0.0f;
+      return;
     }
     if (aBody != nullptr && aBody->mLoopCount > 0)
+    {
       PlayIdleAnim(aBody->mDefinition->mFPS);
-    return 0.0f;
+      return;
+    }
+    // @0x170D2A retries completion until the body can return to its idle loop.
+    mShootingCounter = 1;
+    return;
   }
   if (aHead->mLoopCount > 0)
   {
@@ -5636,10 +5640,10 @@ float Plant::UpdateShooting()
     aHead->SetFramesForLayer("anim_head_idle");
     aHead->SetAnimRate(aBody->mAnimRate);
     aHead->mAnimTime = aBody->mAnimTime;
-    return 0.0f;
+    return;
   }
   mShootingCounter = 1;
-  return 0.0f;
+  return;
 }
 
 // ==========================================================================

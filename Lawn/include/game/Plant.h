@@ -361,7 +361,7 @@ public:
     Sexy::Rect GetPlantRect();
     Sexy::Rect GetPlantAttackRect(PlantWeapon theWeapon);
     GridItem * DoRowAreaDamage(int theDamage, unsigned int theDamageFlags);
-    float Fire(Zombie *theTargetZombie, int theRow, PlantWeapon theWeapon, GridItem *theTargetGridItem);
+    void Fire(Zombie *theTargetZombie, int theRow, PlantWeapon theWeapon, GridItem *theTargetGridItem);
     int UpdateTorchwood();
     int DoSquashDamage();
     Zombie * FindSquashTarget();
@@ -385,7 +385,7 @@ public:
     Zombie * UpdateSpikeweed();
     Zombie * UpdateCactus();
     Zombie * UpdateChomper();
-    float UpdateShooting();
+    void UpdateShooting();
     float UpdateAbilities();
     int Update();
     Plant();
