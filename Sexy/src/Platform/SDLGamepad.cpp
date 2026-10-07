@@ -2,6 +2,7 @@
 // queries for Gamepad::UpdateStates.
 
 #include "SDLGamepad.h"
+#include "SDLFile.h"
 
 #include "InputManager.h"
 #include "ReconHelpers.h"
@@ -54,6 +55,56 @@ const Sexy::KeyCode kDirectionKeys[] = {
     Sexy::KEYCODE_GAMEPAD_DPAD_RIGHT, Sexy::KEYCODE_GAMEPAD_DPAD_DOWN
 };
 const int kDirectionCount = (int)(sizeof(kDirectionKeys) / sizeof(kDirectionKeys[0]));
+
+bool MapUnrecognizedGamepad(SDL_JoystickID theInstanceId)
+{
+    SDL_JoystickType aType = SDL_GetJoystickTypeForID(theInstanceId);
+    if (aType != SDL_JOYSTICK_TYPE_UNKNOWN && aType != SDL_JOYSTICK_TYPE_GAMEPAD)
+        return false;
+
+    SDL_Joystick* aJoystick = SDL_OpenJoystick(theInstanceId);
+    if (aJoystick == nullptr)
+        return false;
+
+    const int anAxisCount = SDL_GetNumJoystickAxes(aJoystick);
+    const int aButtonCount = SDL_GetNumJoystickButtons(aJoystick);
+    const int aHatCount = SDL_GetNumJoystickHats(aJoystick);
+    if (aButtonCount < 4 || (anAxisCount < 2 && aHatCount == 0))
+    {
+        SDL_CloseJoystick(aJoystick);
+        return false;
+    }
+
+    char aGuid[33];
+    SDL_GUIDToString(SDL_GetJoystickGUID(aJoystick), aGuid, sizeof(aGuid));
+    const char* aDeviceName = SDL_GetJoystickName(aJoystick);
+    std::string aName = aDeviceName != nullptr ? aDeviceName : "HID Gamepad";
+    std::replace(aName.begin(), aName.end(), ',', ' ');
+    std::string aMapping = std::string(aGuid) + "," + aName + ",a:b0,b:b1,x:b2,y:b3,";
+    if (anAxisCount >= 2)
+        aMapping += "leftx:a0,lefty:a1,";
+    if (anAxisCount >= 4)
+        aMapping += "rightx:a2,righty:a3,";
+    if (aButtonCount >= 6)
+        aMapping += "leftshoulder:b4,rightshoulder:b5,";
+    if (aButtonCount >= 10)
+        aMapping += "lefttrigger:b6,righttrigger:b7,back:b8,start:b9,";
+    else if (aButtonCount >= 8)
+        aMapping += "back:b6,start:b7,";
+    if (aButtonCount >= 12)
+        aMapping += "leftstick:b10,rightstick:b11,";
+    if (aHatCount > 0)
+        aMapping += "dpup:h0.1,dpright:h0.2,dpdown:h0.4,dpleft:h0.8,";
+
+    const bool aMapped = SDL_SetGamepadMapping(theInstanceId, aMapping.c_str());
+    if (aMapped)
+        logfi("HID gamepad fallback: %s guid=%s axes=%d buttons=%d hats=%d mapping=%s",
+            aName.c_str(), aGuid, anAxisCount, aButtonCount, aHatCount, aMapping.c_str());
+    else
+        logfe("HID gamepad mapping failed: %s: %s", aName.c_str(), SDL_GetError());
+    SDL_CloseJoystick(aJoystick);
+    return aMapped;
+}
 
 float StickAxis(Sint16 theValue)
 {
@@ -124,6 +175,7 @@ public:
     void ApplyRumble();
     void PollGamepads();
     void SyncGamepads();
+    PolledPad* FindPad(int theDevice);
     bool mSubsystemInitialized = false;
 
     bool mEnabled;
@@ -159,6 +211,12 @@ int SDLGamepadInterface::Init()
 {
     // The game also polls controllers from hidden windows and modal loops.
     SDL_SetHint(SDL_HINT_JOYSTICK_ALLOW_BACKGROUND_EVENTS, "1");
+    if (const char* aMapping = Sexy::GetEnv(SDL_HINT_GAMECONTROLLERCONFIG))
+        SDL_SetHint(SDL_HINT_GAMECONTROLLERCONFIG, aMapping);
+    const char* aMappingFile = Sexy::GetEnv(SDL_HINT_GAMECONTROLLERCONFIG_FILE);
+    const std::string aFile = aMappingFile != nullptr ? aMappingFile : "gamecontrollerdb.txt";
+    if (Sexy::SDLFile::FileExists(aFile))
+        SDL_SetHint(SDL_HINT_GAMECONTROLLERCONFIG_FILE, Sexy::SDLFile::ResolvePath(aFile).c_str());
     if (!mSubsystemInitialized) mSubsystemInitialized = SDL_InitSubSystem(SDL_INIT_GAMEPAD);
     if (!mSubsystemInitialized) return 0;
     SyncGamepads(); return 1;
@@ -256,20 +314,31 @@ void SDLGamepadInterface::SyncGamepads()
         SDL_CloseGamepad(iterator->mGamepad); iterator = mPads.erase(iterator); removed = true;
     }
     int count = 0;
-    SDL_JoystickID* ids = SDL_GetGamepads(&count);
+    SDL_JoystickID* ids = SDL_GetJoysticks(&count);
     for (int index = 0; ids && index < count; ++index)
     {
         auto found = std::find_if(mPads.begin(), mPads.end(), [id = ids[index]](const PolledPad& pad) { return pad.mInstanceId == id; });
         if (found != mPads.end()) continue;
+        // Keep SDL's known mappings (including Xbox) and only map unknown HID pads.
+        if (!SDL_IsGamepad(ids[index]) && !MapUnrecognizedGamepad(ids[index])) continue;
         SDL_Gamepad* gamepad = SDL_OpenGamepad(ids[index]);
-        if (!gamepad) continue;
+        if (!gamepad)
+        {
+            logfe("SDL_OpenGamepad failed: %s: %s", SDL_GetJoystickNameForID(ids[index]), SDL_GetError());
+            continue;
+        }
         PolledPad pad{};
         pad.mGamepad = gamepad; pad.mInstanceId = ids[index]; pad.mConnected = true;
+        while (std::any_of(mPads.begin(), mPads.end(), [slot = pad.mUserIndex](const PolledPad& connected) {
+            return connected.mUserIndex == slot;
+        })) ++pad.mUserIndex;
         const char* name = SDL_GetGamepadName(gamepad); pad.mName = name ? name : "SDL Gamepad";
+        logfi("SDL gamepad connected: device=%d instance=%u name=%s vendor=%04x product=%04x",
+            pad.mUserIndex, pad.mInstanceId, pad.mName.c_str(),
+            SDL_GetGamepadVendor(gamepad), SDL_GetGamepadProduct(gamepad));
         mPads.push_back(std::move(pad)); added = true;
     }
     SDL_free(ids);
-    for (size_t index = 0; index < mPads.size(); ++index) mPads[index].mUserIndex = static_cast<int>(index);
     if (mApp && mApp->mInputManager)
     {
         if (removed) mApp->mInputManager->DispatchEvent(this, DEVICE_REMOVED, nullptr);
@@ -327,17 +396,27 @@ int SDLGamepadInterface::Update()
 
 int SDLGamepadInterface::GetNumDevices()
 {
-    return static_cast<int>(mPads.size());
+    int aCount = 0;
+    for (const PolledPad& aPad : mPads)
+        aCount = std::max(aCount, aPad.mUserIndex + 1);
+    return aCount;
+}
+
+PolledPad* SDLGamepadInterface::FindPad(int theDevice)
+{
+    auto aPad = std::find_if(mPads.begin(), mPads.end(), [theDevice](const PolledPad& pad) {
+        return pad.mUserIndex == theDevice;
+    });
+    return aPad != mPads.end() ? &*aPad : nullptr;
 }
 
 bool SDLGamepadInterface::GetInfo(InputInfo &theInfo, int theDevice)
 {
-    if (theDevice < 0 || theDevice >= (int)mPads.size())
-        return false;
-    if (!mPads[theDevice].mConnected)
+    const PolledPad* aPad = FindPad(theDevice);
+    if (aPad == nullptr || !aPad->mConnected)
         return false;
 
-    theInfo.mName = mPads[theDevice].mName.c_str();
+    theInfo.mName = aPad->mName.c_str();
     theInfo.mHasPointer = 0;
     theInfo.mHasKeys = 1;
     theInfo.mHasTouch = 0;
@@ -396,10 +475,11 @@ bool SDLGamepadInterface::GetAxisInfo(Axis theAxis, InputAxisInfo &theInfo, int 
 bool SDLGamepadInterface::GetAxisInfo(std::vector<InputAxisInfo> &theInfos, int theDevice)
 {
     theInfos.clear();
-    if (theDevice < 0 || theDevice >= (int)mPads.size() || !mPads[theDevice].mConnected)
+    const PolledPad* aDevicePad = FindPad(theDevice);
+    if (aDevicePad == nullptr || !aDevicePad->mConnected)
         return false;
 
-    const PolledPad &aPad = mPads[theDevice];
+    const PolledPad &aPad = *aDevicePad;
     InputAxisInfo anAxis;
     anAxis.mCode = AXIS_LEFT_X;
     anAxis.mValue = aPad.mLeftX;

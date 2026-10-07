@@ -7579,12 +7579,11 @@ int Zombie::BossDestroyIceballInRow(int aRow)
 // Zombie::BossDestroyFireball(void)
 // @001B0FE0  244 bytes
 // ==========================================================================
-int Zombie::BossDestroyFireball()
+void Zombie::BossDestroyFireball()
 {
-  // Plant::IceZombies recovers r0. The early-out word is the fireball reanim.
   Reanimation *aFireball = mApp->ReanimationTryToGet(mBossFireBallReanimID);
   if ( aFireball == nullptr || !mIsFireBall )
-    return (int)aFireball;
+    return;
 
   // Six jalapeno-fire bursts on a circle around the fireball. 0x3F860A92 is
   // pi/3 and 0x3FC90FDB is pi/2, so the sparks start at the top.
@@ -7595,21 +7594,15 @@ int Zombie::BossDestroyFireball()
     float aAngle = (float)aIndex * 1.0471975803375244f + 1.5707963705062866f;
     Reanimation *aSpark = mApp->AddReanimation(aCenterX + sinf(aAngle) * 60.0f,
                                                aCenterY + cosf(aAngle) * 60.0f,
-                                               400000,
+                                               RENDER_LAYER_UI_TOP,
                                                REANIM_JALAPENO_FIRE);
     aSpark->mLoopType = REANIM_PLAY_ONCE_FULL_LAST_FRAME;
     aSpark->mAnimTime = 0.2f;
-    union
-    {
-      int bits;
-      float value;
-    } aRate;
-    aRate.bits = RandRangeFloat(20.0f, 25.0f);
-    aSpark->SetAnimRate(aRate.value);
+    aSpark->SetAnimRate(RandRangeFloat(20.0f, 25.0f));
   }
   aFireball->ReanimationDie();
   mBossFireBallReanimID = ReanimationID::REANIMATIONID_NULL;
-  return mBoard->RemoveParticleByType((ParticleEffect)80);
+  mBoard->RemoveParticleByType(PARTICLE_FIREBALL_TRAIL);
 }// ==========================================================================
 // Zombie::BossHeadSpitEffect(void)
 // @001B10E8  254 bytes
@@ -7728,22 +7721,11 @@ void Zombie::UpdateBossFireball()
     return;
   }
 
-  union
-  {
-    int bits;
-    float value;
-  } aXJitter;
-  aXJitter.bits = RandRangeFloat(0.0f, 20.0f);
-  float aSparkX = aX + 100.0f + aXJitter.value;
-  union
-  {
-    int bits;
-    float value;
-  } aYJitter;
-  aYJitter.bits = RandRangeFloat(-50.0f, 0.0f);
-  float aSparkY = mBoard->GetPosYBasedOnRow(aSparkX - 40.0f, mFireballRow) + aYJitter.value;
+  float aSparkX = aX + 100.0f + RandRangeFloat(0.0f, 20.0f);
+  float aGroundY = mBoard->GetPosYBasedOnRow(aSparkX - 40.0f, mFireballRow);
+  float aSparkY = aGroundY + RandRangeFloat(-50.0f, 0.0f);
   int aOrder = Board::MakeRenderOrder(RenderLayer::RENDER_LAYER_GRAVE_STONE, mFireballRow, 6);
-  ParticleEffect aEffect = mIsFireBall ? (ParticleEffect)80 : (ParticleEffect)79;
+  ParticleEffect aEffect = mIsFireBall ? PARTICLE_FIREBALL_TRAIL : PARTICLE_ICEBALL_TRAIL;
   mApp->AddTodParticle(aSparkX, aSparkY + 90.0f, aOrder, aEffect);
   aBall->Update();
 }// ==========================================================================

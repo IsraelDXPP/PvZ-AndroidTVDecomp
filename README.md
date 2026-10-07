@@ -63,6 +63,8 @@ set SEXY_VIDEO_DRIVER=dx11
 
 原 `Win32AppDriver`、`Win32File`、`Win32Gamepad` 已替换为 `SDLAppDriver`、`SDLFile`、`SDLGamepad`，未使用的 Win32 窗口和输入实现已删除。窗口、事件、手柄热插拔及震动、音频流、线程、互斥锁、时钟和文件操作使用 SDL3；存档目录由 `SDL_GetPrefPath` 选择，文件路径统一使用 UTF-8，输出先写临时文件再替换原文件。
 
+手柄优先使用 SDL 自带映射；缺少映射的通用 HID 手柄也会枚举并生成基础映射，默认轴 0/1 为左摇杆、轴 2/3 为右摇杆，按钮 0/1/2/3 为 A/B/X/Y。不同设备的布局可以用资源根下的 `gamecontrollerdb.txt` 覆盖，或在 `setup.env` 中指定 `SDL_GAMECONTROLLERCONFIG_FILE`（资源根相对路径或绝对路径），也支持 `SDL_GAMECONTROLLERCONFIG` 映射字符串。连接日志会记录设备名、GUID 和使用的基础映射。已有映射的 Xbox 手柄保持 SDL 的映射，另一只手柄断开时保留仍连接设备的绑定。
+
 应用驱动使用普通 C++ 虚函数和具名字段，不再读取对象偏移或拼接 Win32 虚表。原账号/商店服务使用 `LocalGameCenter`；原 Java 通知和 RPC 服务保持已有的不可用行为。bgfx 获取系统窗口句柄的适配集中在 SDL 窗口属性接口，无直接 Win32 API 调用。现有 Visual Studio 工程中的 `Win32` 仍是 x86 构建配置名称。
 
 ## 运行
@@ -75,6 +77,8 @@ LawnTV.exe [--assets <dir>] [--width N] [--height N]
 ```
 
 默认窗口 1280×720。不传 `--assets` 时，资源根是 **exe 所在目录**下的 `assets`。运行中按 F12 保存离屏缓冲到 `screenshots/shot_NNNN.png`；`--screenshot` 使用同一个 bgfx 离屏目标，不受窗口遮挡或 DPI 影响。例如：`LawnTV.exe --frames 180 --screenshot out.png --headless`。
+
+重型武器模式用左摇杆移动车子，右摇杆向上半区瞄准时自动连续开火，不需要按射击键。
 
 ## 许可
 

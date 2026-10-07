@@ -404,7 +404,7 @@ public:
     void BossHeadAttack();
     void BossHeadSpit();
     int BossDestroyIceballInRow(int theRow);
-    int BossDestroyFireball();
+    void BossDestroyFireball();
     void BossHeadSpitEffect();
     void BossHeadSpitContact();
     // 0x1B1304. Reanimation::Update is void; the only caller ignores r0.

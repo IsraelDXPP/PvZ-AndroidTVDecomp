@@ -2844,11 +2844,10 @@ bool Challenge::UpdateZombieSpawning()
     return true;
 
   GameMode aGameMode = mApp->mGameMode;
-  if ( (unsigned int)(aGameMode - GAMEMODE_CHALLENGE_LAST_STAND) <= 1 )
+  // @0x1816AC checks modes 43 and 44, not last stand or heavy weapon.
+  if (aGameMode == GAMEMODE_CHALLENGE_ICE || aGameMode == GAMEMODE_CHALLENGE_ZEN_GARDEN)
     return true;
-  if ( aGameMode == GAMEMODE_CHALLENGE_ZOMBIQUARIUM )
-    return true;
-  if ( aGameMode == GAMEMODE_CHALLENGE_HEAVY_WEAPON )
+  if (aGameMode == GAMEMODE_TREE_OF_WISDOM || aGameMode == GAMEMODE_CHALLENGE_ZOMBIQUARIUM)
     return true;
   if ( mApp->IsIZombieLevel() )
     return true;
@@ -2857,10 +2856,8 @@ bool Challenge::UpdateZombieSpawning()
   if ( mApp->IsScaryPotterLevel() )
     return true;
 
-  // Slot machine is the one endless mode that keeps the normal spawner once its
-  // roll counter has run out.
-  if ( mApp->mGameMode == GAMEMODE_CHALLENGE_SLOT_MACHINE )
-    return mSlotMachineRollCount != 10;
+  if (aGameMode == GAMEMODE_CHALLENGE_LAST_STAND)
+    return mChallengeState != STATECHALLENGE_LAST_STAND_ONSLAUGHT;
 
   return false;
 }
@@ -2945,7 +2942,7 @@ void Challenge::SpawnZombieWave()
         if ( aType == ZOMBIE_INVALID )
           break;
         if ( aType == ZOMBIE_FLAG )
-          *(aTypes - 1) = ZOMBIE_INVALID;
+          *(aTypes - 1) = ZOMBIE_NORMAL;
         if ( aTypes == mBoard->mZombiesInWave[aWave] + MAX_ZOMBIES_IN_WAVE )
           break;
       }
@@ -2975,7 +2972,7 @@ void Challenge::SpawnZombieWave()
   // grave stones, fewer on the normal difficulty than on the hard ones.
   if ( mApp->IsSurvivalMode() )
   {
-    if ( mBoard->mNextSurvivalStageCounter == 1 &&
+    if (mBoard->mBackground == BACKGROUND_2_NIGHT &&
          mBoard->mCurrentWave == mBoard->mNumWaves - 1 )
     {
       int aGraveStoneCount = mBoard->GetGraveStoneCount();
@@ -2993,7 +2990,7 @@ void Challenge::SpawnZombieWave()
     }
   }
 
-  if ( mApp->mGameMode == GAMEMODE_CHALLENGE_RAINING_SEEDS )
+  if (mApp->mGameMode == GAMEMODE_CHALLENGE_HEAVY_WEAPON)
     mBoard->SpawnZombiesFromSky();
 
   if ( mApp->IsBungeeBlitzLevel() && aIsFlagWave )

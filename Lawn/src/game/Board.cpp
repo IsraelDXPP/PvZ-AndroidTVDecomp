@@ -5498,8 +5498,8 @@ int Board::FreezeEffectsForCutscene(bool theFreeze)
   TodParticleSystem * aSystem = nullptr;
   while ( IterateParticles(aSystem) != 0 )
   {
-    if ( aSystem->mEffectType != (ParticleEffect)25
-      && (aSystem->mEffectType != (ParticleEffect)35 || mIceTrapCounter != 0) )
+    if (aSystem->mEffectType != PARTICLE_GRAVE_BUSTER
+      && (aSystem->mEffectType != PARTICLE_POOL_SPARKLY || mIceTrapCounter != 0))
       continue;
     aSystem->mDontUpdate = theFreeze;
   }
@@ -5515,12 +5515,7 @@ int Board::FreezeEffectsForCutscene(bool theFreeze)
       }
       else
       {
-        // RandRangeFloat is declared int. Soft-float returns the bits in r0,
-        // and SetAnimRate takes that register as the float argument.
-        int aRateBits = RandRangeFloat(6.0f, 8.0f);
-        float aRate;
-        std::memcpy(&aRate, &aRateBits, sizeof(aRate));
-        aReanim->SetAnimRate(aRate);
+        aReanim->SetAnimRate(RandRangeFloat(6.0f, 8.0f));
       }
     }
   }
@@ -6437,13 +6432,13 @@ Plant * Board::FindUmbrellaPlant(int theGridX, int theGridY)
 // Board::DoFwoosh(int)
 // @0015A800  292 bytes
 // ==========================================================================
-int Board::DoFwoosh(int theRow)
+ReanimationID Board::DoFwoosh(int theRow)
 {
   // @0x15A800. Twelve flames along the row, 68.182 apart, starting at x=10.
   // The layer immediate is 307000 (MOV R0, #0x4AF38). Type 0x22 is stored as
   // the stack argument of AddReanimation. +0x20 is mLoopType; 1 is
   // REANIM_LOOP_FULL_LAST_FRAME. Rand(2) picks the sign of the x scale.
-  int aResult = 0;
+  ReanimationID aResult = REANIMATIONID_NULL;
   for ( int aCol = 0; aCol != 12; ++aCol )
   {
     Reanimation * aOld = mApp->ReanimationTryToGet(mFwooshID[theRow][aCol]);
@@ -6452,24 +6447,17 @@ int Board::DoFwoosh(int theRow)
 
     float aX = (float)aCol * 68.182f + 10.0f;
     float aY = GetPosYBasedOnRow(aX + 10.0f, theRow) - 10.0f;
-    int aOrder = MakeRenderOrder((RenderLayer)307000, theRow, 1);
+    int aOrder = MakeRenderOrder(RENDER_LAYER_PARTICLE, theRow, 1);
     Reanimation * aFlame = mApp->AddReanimation(aX, aY, aOrder, REANIM_JALAPENO_FIRE);
     aFlame->SetFramesForLayer("anim_flame");
     aFlame->mLoopType = REANIM_LOOP_FULL_LAST_FRAME;
-    // 0x3F333333 and 0x3FA66666 are 0.7f and 1.3f. The product is stored as the rate.
-    int aRateBits = RandRangeFloat(0.7f, 1.3f);
-    float aRate;
-    std::memcpy(&aRate, &aRateBits, sizeof(aRate));
-    aFlame->SetAnimRate(aRate * aFlame->mAnimRate);
-    // 0x3F666666 and 0x3F8CCCCD are 0.9f and 1.1f. Rand(2) == 0 negates the scale.
-    int aScaleBits = RandRangeFloat(0.9f, 1.1f);
-    float aSigned;
-    std::memcpy(&aSigned, &aScaleBits, sizeof(aSigned));
-    if ( Sexy::Rand(2) == 0 )
-      aSigned = -aSigned;
-    aFlame->OverrideScale(aSigned, 1.0f);
+    aFlame->SetAnimRate(RandRangeFloat(0.7f, 1.3f) * aFlame->mAnimRate);
+    float aScaleX = RandRangeFloat(0.9f, 1.1f);
+    if (Sexy::Rand(2) == 0)
+      aScaleX = -aScaleX;
+    aFlame->OverrideScale(aScaleX, 1.0f);
     aResult = mApp->ReanimationGetID(aFlame);
-    mFwooshID[theRow][aCol] = ReanimationID(aResult);
+    mFwooshID[theRow][aCol] = aResult;
   }
   mFwooshCountDown = 100;
   return aResult;

@@ -90,7 +90,13 @@ int Sexy::GamepadApp::ProcessDeviceEvents()
             {
                 Gamepad *aPad = mGamepads[i];
                 if ((aPad->mDeviceId >> 16) == aDeviceId)
-                    aPad->CheckDeviceRemoved(aPad->mDeviceId);
+                {
+                    IInputDriver* aDriver = mInputManager->Find(aDeviceId);
+                    InputInfo aInfo{};
+                    if (aDriver == nullptr || !aDriver->GetInfo(aInfo, aPad->mDeviceId & 65535)
+                        || aInfo.mHasJoystick == 0)
+                        aPad->CheckDeviceRemoved(aPad->mDeviceId);
+                }
             }
             continue;
         }

@@ -690,7 +690,7 @@ public:
     int UpdateProgressMeter();
     void DrawDebugText(Sexy::Graphics * g);
     Plant * FindUmbrellaPlant(int theGridX, int theGridY);
-    int DoFwoosh(int theRow);
+    ReanimationID DoFwoosh(int theRow);
     void UpdateFwoosh();
     int UpdateGridItems();
     bool PlantingRequirementsMet(SeedType theSeedType);
