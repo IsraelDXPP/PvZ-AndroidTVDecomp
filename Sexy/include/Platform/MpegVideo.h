@@ -2,7 +2,7 @@
 //
 // The Android build played movies/intro.mp4 through the AG platform library.
 // This port plays the converted MPEG-1 program stream movies/intro.mpg:
-// PL_MPEG decodes the picture, OpenAL plays the soundtrack, and TitleScreen
+// PL_MPEG decodes the picture, SDL plays the soundtrack, and TitleScreen
 // draws the current frame. The file has to be MPEG-1 video and MP2 audio in
 // an MPEG program stream. MPEG-4 and AAC stay in the original file and are
 // not what this player opens.

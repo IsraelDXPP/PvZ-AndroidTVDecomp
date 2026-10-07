@@ -1,4 +1,5 @@
 #include "MemoryImage.h"
+#include "Platform/Bgfx/BgfxRenderDevice.h"
 #include "CritSect.h"
 #include "Image.h"
 #include "PixelData.h"
@@ -2397,6 +2398,8 @@ void Sexy::MemoryImage::WriteToJPEG(std::string theFileName)
 
 Sexy::MemoryImage::~MemoryImage()
 {
+    if (Sexy::BgfxRenderDevice::sCurrent != nullptr)
+        Sexy::BgfxRenderDevice::sCurrent->RemoveTexture(this);
     // Cleanup clears gSexyAppBase before the app object is freed. A capture
     // image in Run outlives that delete and must not lock the dead critsect.
     if (mApp != nullptr && gSexyAppBase != nullptr)

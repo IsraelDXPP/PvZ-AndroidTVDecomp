@@ -38,11 +38,11 @@ Sexy::PerfTimer::PerfTimer()
 // differences and the two scalings are integer arithmetic, exactly as the
 // binary computes them, and only the two halves are added as doubles.
 // ---------------------------------------------------------------------------
-__time_t Sexy::PerfTimer::CalcDuration()
+int64_t Sexy::PerfTimer::CalcDuration()
 {
-    struct timeval aNow;
+    PlatformTimeval aNow;
 
-    gettimeofday(&aNow, nullptr);
+    PlatformGetTimeOfDay(&aNow, nullptr);
     mDuration =
         (double)((aNow.tv_usec - mStartUsec) / 1000)
         + (double)(1000 * (aNow.tv_sec - mStartSec));
@@ -60,11 +60,11 @@ __time_t Sexy::PerfTimer::CalcDuration()
 // ---------------------------------------------------------------------------
 int Sexy::PerfTimer::Start()
 {
-    struct timeval aNow;
+    PlatformTimeval aNow;
     int aResult;
 
     mRunning = 1;
-    aResult = gettimeofday(&aNow, nullptr);
+    aResult = PlatformGetTimeOfDay(&aNow, nullptr);
     mStartSec = (int)aNow.tv_sec;
     mStartUsec = (int)aNow.tv_usec;
     return aResult;

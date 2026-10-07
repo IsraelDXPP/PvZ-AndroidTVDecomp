@@ -1,3 +1,4 @@
+#include <SDL3_net/SDL_net.h>
 // LogManager -- reconstructed from libGameMain.so.
 //
 // This header carries TWO classes that the transcription had merged into one
@@ -123,7 +124,7 @@ public:
     std::list<std::string> mRetryQueue;    // entries the server rejected
     std::list<std::string> mBackupQueue;   // entries to hand to the local file
     std::list<std::string> mIncomingQueue; // entries read back from the file
-    int          mSocket;           // -1 while the socket is closed
+    NET_StreamSocket* mSocket;
     int          mLastSendTime;     // milliseconds, from gettimeofday
     Sexy::String mServerAddr;       // host or host:port
     std::atomic<bool> mStopRequested; // set by destroy(), polled by both threads
@@ -147,7 +148,7 @@ public:
     Sexy::String getServerIp(Sexy::String const& theHost);
     void setServerAddr(Sexy::String const& theAddr);
     void setLocalLogPath(Sexy::String const& thePath);
-    int myClose(int & theSocket);
+    int myClose(NET_StreamSocket*& theSocket);
     int sendLog(Sexy::String const& theLine);
     int appendLogToLocalFile(Sexy::String const& theLine);
     void sendLogToServer(Sexy::String const& theLine);

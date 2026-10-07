@@ -30,7 +30,6 @@
 #include "TodParticleSystem.h"
 #include "WaitForSecondPlayerDialog.h"
 #include "Zombie.h"
-#include <windows.h>
 #include <algorithm>
 #include <string>
 #include <vector>

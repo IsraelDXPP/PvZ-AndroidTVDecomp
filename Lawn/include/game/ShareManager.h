@@ -16,7 +16,7 @@ class ShareManager
 {
 public:
     // ShareManager::Listener -- a NESTED class in the binary, the same shape as
-    // GameCenter::Listener (Game/ShareManager.cpp already spells the __imp_
+    // GameCenter::Listener (game/ShareManager.cpp already spells the __imp_
     // reference as _ZN6Native12ShareManager11setListenerEPNS0_8ListenerE). Its
     // three entry points are real functions:
     //   00537264  2 bytes  Listener::onComplete(ShareManager *, int)

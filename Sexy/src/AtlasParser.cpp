@@ -7,7 +7,7 @@
 
 #include "PixelUtil.h"
 #include "ReconHelpers.h"
-#include "Win32File.h"
+#include "SDLFile.h"
 #include "XMLElement.h"
 
 #include <string>
@@ -136,7 +136,7 @@ int Sexy::AtlasParser::ParseAtlases(Sexy::XMLParser& theParser, Sexy::XMLElement
 
 int Sexy::AtlasParser::Load(const Sexy::String& thePath)
 {
-    Sexy::String aFile(Sexy::Win32File::ResolvePath(thePath.c_str()).c_str());
+    Sexy::String aFile(Sexy::SDLFile::ResolvePath(thePath.c_str()).c_str());
     Sexy::XMLParser aParser;
     if (aParser.OpenFile(aFile) == 0)
         return 0;

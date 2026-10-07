@@ -19,12 +19,9 @@
 #include <string>
 #include <vector>
 
-#include <winsock2.h>
-#include <ws2tcpip.h>
-#include <windows.h>
-#include <process.h>
 
-#pragma comment(lib, "ws2_32.lib")
+#include <SDL3/SDL.h>
+#include <SDL3_net/SDL_net.h>
 
 // ---------------------------------------------------------------------------
 // The listener family. LogListener has formatMessage at slot 2 and log at
@@ -79,13 +76,13 @@ int LogListener::formatMessage(int theLevel, Sexy::String const& theTag,
     if ((aFormat & 4) != 0)
     {
         Sexy::String aPid;
-        StrFormat(&aPid, "/%u", (unsigned)_getpid());
+        StrFormat(&aPid, "/thread:%llu", static_cast<unsigned long long>(SDL_GetCurrentThreadID()));
         aResult += aPid;
     }
 
     if ((aFormat & 2) != 0)
     {
-        unsigned aTicks = ::GetTickCount();
+        unsigned aTicks = SDL_GetTicks();
         Sexy::String aTime;
         StrFormat(&aTime, " %u.%03u", aTicks / 1000, aTicks % 1000);
         aResult += aTime;
@@ -459,7 +456,7 @@ namespace {
 // Milliseconds since the epoch, which is what gettimeofday gives the binary.
 int NowMillis()
 {
-    return (int)((long long)::GetTickCount());
+    return (int)((long long)SDL_GetTicks());
 }
 
 } // namespace
@@ -483,23 +480,24 @@ void LogManager::SendThreadMain(void* theSelf)
 
 // 4EF0D8. Resolves the host the caller named. An unresolvable name leaves
 // the result empty, which is what the binary's gethostbyname failure does.
-Sexy::String LogManager::getServerIp(Sexy::String const& theHost)
+Sexy::String LogManager::getServerIp(Sexy::String const& host)
 {
-    WSADATA aData;
-    ::WSAStartup(MAKEWORD(2, 2), &aData);
-
-    Sexy::String aResult;
-    struct hostent* aHost = ::gethostbyname(theHost.c_str());
-    if (aHost != nullptr && aHost->h_addr_list != nullptr && aHost->h_addr_list[0] != nullptr)
+    Sexy::String result;
+    if (!NET_Init()) return result;
+    NET_Address* address = NET_ResolveHostname(host.c_str());
+    if (address)
     {
-        struct in_addr aAddress;
-        std::memcpy(&aAddress, aHost->h_addr_list[0], sizeof(aAddress));
-        const char* aText = ::inet_ntoa(aAddress);
-        if (aText != nullptr)
-            aResult.assign(aText);
+        if (NET_WaitUntilResolved(address, 5000) == 1)
+        {
+            const char* name = NET_GetAddressString(address);
+            if (name) result = name;
+        }
+        NET_UnrefAddress(address);
     }
-    return aResult;
+    NET_Quit();
+    return result;
 }
+
 
 // 4EF120.
 void LogManager::setServerAddr(Sexy::String const& theAddress)
@@ -522,19 +520,13 @@ void LogManager::setLocalLogPath(Sexy::String const& theDirectory)
 }
 
 // 4EF1EC. Closes the socket the caller holds and clears it.
-int LogManager::myClose(int& theSocket)
-{
-    if (theSocket >= 0)
-    {
-        ::closesocket((SOCKET)theSocket);
-        theSocket = -1;
-    }
-    return 1;
-}
+int LogManager::myClose(NET_StreamSocket*& socket)
+{ if (socket) NET_DestroyStreamSocket(socket); socket = nullptr; return 1; }
+
 
 // 4EF2A8.
 LogManager::LogManager(Sexy::String const& theServer, Sexy::String theDirectory)
-    : mSocket(-1),
+    : mSocket(nullptr),
       mLastSendTime(0),
       mStopRequested(false)
 {
@@ -553,7 +545,7 @@ LogManager::~LogManager()
 // thread. The binary's stringstream preamble is the fixed text below.
 int LogManager::sendLog(Sexy::String const& theLine)
 {
-    ::OutputDebugStringA("push message to vector!\n");
+    SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION, "push message to vector");
 
     Sexy::String aEntry = theLine;
     aEntry += mRemoteLogPath;

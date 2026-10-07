@@ -1,211 +1,114 @@
-// TM::Thread starts a Win32 thread and waits on its handle.
-// Sexy::Thread reports the calling thread's id.
-
 #include "Thread.h"
-#include "ReconHelpers.h"
-#include <windows.h>
-#include <process.h>
-
-namespace TM {
-
-Thread::Thread()
-    : mHandle(nullptr), mId(0), mRunning(false)
-{
-}
-
-Thread::~Thread()
-{
-    if (mRunning && mHandle != nullptr)
-    {
-        WaitForSingleObject((HANDLE)mHandle, INFINITE);
-        CloseHandle((HANDLE)mHandle);
-        mHandle = nullptr;
-        mRunning = false;
-    }
-}
-
-Thread& Thread::operator=(const Thread& theOther)
-{
-    if (this != &theOther)
-    {
-        mHandle = theOther.mHandle;
-        mId = theOther.mId;
-        mRunning = theOther.mRunning;
-    }
-    return *this;
-}
 
 namespace {
-
-struct ThreadStart
+struct ThreadStart { void (*mProc)(void*); void* mArg; };
+int SDLCALL RunThread(void* argument)
 {
-    void (*mProc)(void*);
-    void*  mArg;
-};
-
-unsigned __stdcall ThreadTrampoline(void* theParam)
-{
-    ThreadStart* aStart = static_cast<ThreadStart*>(theParam);
-    void (*aProc)(void*) = aStart->mProc;
-    void* aArg = aStart->mArg;
-    delete aStart;
-
-    if (aProc != nullptr)
-        aProc(aArg);
+    std::unique_ptr<ThreadStart> start(static_cast<ThreadStart*>(argument));
+    start->mProc(start->mArg);
     return 0;
 }
-
-} // namespace
-
-int Thread::Create(Thread* theThread, void (*theProc)(void*), void* theArg)
+SDL_Thread* StartWorker(void (*procedure)(void*), void* argument)
 {
-    if (theThread == nullptr || theProc == nullptr)
-        return 0;
-
-    ThreadStart* aStart = new ThreadStart;
-    aStart->mProc = theProc;
-    aStart->mArg = theArg;
-
-    unsigned int aId = 0;
-    HANDLE aHandle = (HANDLE)_beginthreadex(nullptr, 0, ThreadTrampoline, aStart, 0, &aId);
-    if (aHandle == nullptr)
-    {
-        delete aStart;
-        return 0;
-    }
-
-    theThread->mHandle = aHandle;
-    theThread->mId = aId;
-    theThread->mRunning = true;
-    return 1;
+    if (!procedure) return nullptr;
+    auto start = std::make_unique<ThreadStart>();
+    start->mProc = procedure; start->mArg = argument;
+    SDL_Thread* thread = SDL_CreateThread(RunThread, "framework-worker", start.get());
+    if (thread) start.release();
+    return thread;
 }
-
-int Thread::Acquire(Thread* theThread)
+}
+namespace TM {
+Thread::~Thread()
 {
-    if (theThread == nullptr || !theThread->mRunning)
-        return 0;
-    WaitForSingleObject((HANDLE)theThread->mHandle, INFINITE);
-    return 1;
+    if (mHandle && mId == SDL_GetCurrentThreadID()) SDL_DetachThread(mHandle);
+    else Join();
 }
-
-int Thread::Release(Thread* theThread)
+int Thread::Create(Thread* thread, void (*procedure)(void*), void* argument)
 {
-    if (theThread == nullptr || theThread->mHandle == nullptr)
-        return 0;
-    CloseHandle((HANDLE)theThread->mHandle);
-    theThread->mHandle = nullptr;
-    theThread->mRunning = false;
-    return 1;
+    if (!thread || !procedure) return 0;
+    thread->Join();
+    thread->mHandle = StartWorker(procedure, argument);
+    thread->mRunning = thread->mHandle != nullptr;
+    thread->mId = thread->mHandle ? SDL_GetThreadID(thread->mHandle) : 0;
+    return thread->mRunning ? 1 : 0;
 }
-
-void Thread::Sleep(int theMillis)
-{
-    ::Sleep((DWORD)theMillis);
-}
-
+int Thread::Acquire(Thread* thread) { return thread ? thread->Join() : 0; }
+int Thread::Release(Thread* thread) { return thread ? thread->Join() : 0; }
+void Thread::Sleep(int milliseconds) { if (milliseconds > 0) SDL_Delay(static_cast<Uint32>(milliseconds)); }
 int Thread::Join()
 {
-    if (mHandle == nullptr)
-        return 0;
-    WaitForSingleObject((HANDLE)mHandle, INFINITE);
-    mRunning = false;
+    if (!mHandle) return 0;
+    if (mId == SDL_GetCurrentThreadID()) return 0;
+    SDL_WaitThread(mHandle, nullptr);
+    mHandle = nullptr; mRunning = false;
     return 1;
 }
-
-int Thread::End()
-{
-    mHandle = nullptr;
-    mRunning = false;
-    return 1;
-}
-
-bool Thread::IsValid()
-{
-    return mHandle != nullptr;
-}
-
+int Thread::End() { return Join(); }
+bool Thread::IsValid() { return mRunning; }
 Thread* Thread::Self()
 {
-    static Thread aSelf;
-    aSelf.mHandle = (void*)(unsigned int)::GetCurrentThreadId();
-    aSelf.mId = (unsigned int)aSelf.mHandle;
-    aSelf.mRunning = true;
-    return &aSelf;
+    static thread_local Thread self;
+    self.mId = SDL_GetCurrentThreadID(); self.mRunning = true;
+    return &self;
 }
-
-int Thread::GetCurrentThreadId()
-{
-    return (int)::GetCurrentThreadId();
+SDL_ThreadID Thread::GetCurrentThreadId() { return SDL_GetCurrentThreadID(); }
+Thread::Mutex::Mutex() : mSection(SDL_CreateMutex()) {}
+Thread::Mutex::~Mutex() { SDL_DestroyMutex(mSection); }
+void Thread::Mutex::Acquire() { SDL_LockMutex(mSection); }
+void Thread::Mutex::Release() { SDL_UnlockMutex(mSection); }
+void Thread::Mutex::Lock() { Acquire(); }
+void Thread::Mutex::Unlock() { Release(); }
 }
-
-Thread::Mutex::Mutex()
-    : mSection(nullptr)
-{
-    mSection = new CRITICAL_SECTION;
-    ::InitializeCriticalSection(mSection);
-}
-
-Thread::Mutex::~Mutex()
-{
-    if (mSection != nullptr)
-    {
-        ::DeleteCriticalSection(mSection);
-        delete mSection;
-        mSection = nullptr;
-    }
-}
-
-void Thread::Mutex::Acquire()
-{
-    if (mSection == nullptr)
-        return;
-    ::EnterCriticalSection(mSection);
-}
-
-void Thread::Mutex::Release()
-{
-    if (mSection == nullptr)
-        return;
-    ::LeaveCriticalSection(mSection);
-}
-
-void Thread::Mutex::Lock()
-{
-    Acquire();
-}
-
-void Thread::Mutex::Unlock()
-{
-    Release();
-}
-
-} // namespace TM
-
 namespace Sexy {
-
+struct Thread::Worker
+{
+    SDL_Thread* mHandle;
+    SDL_Mutex* mJoinMutex = SDL_CreateMutex();
+    explicit Worker(SDL_Thread* handle) : mHandle(handle) {}
+    ~Worker()
+    {
+        if (mHandle && SDL_GetThreadID(mHandle) == SDL_GetCurrentThreadID()) SDL_DetachThread(mHandle);
+        else Join();
+        SDL_DestroyMutex(mJoinMutex);
+    }
+    bool Join()
+    {
+        SDL_LockMutex(mJoinMutex);
+        bool joined = mHandle != nullptr;
+        if (mHandle) { SDL_WaitThread(mHandle, nullptr); mHandle = nullptr; }
+        SDL_UnlockMutex(mJoinMutex);
+        return joined;
+    }
+    bool IsValid()
+    {
+        SDL_LockMutex(mJoinMutex);
+        bool valid = mHandle != nullptr;
+        SDL_UnlockMutex(mJoinMutex);
+        return valid;
+    }
+};
 Thread* Thread::Self()
 {
-    static thread_local Thread aSelf;
-    aSelf.mThread = (unsigned int)::GetCurrentThreadId();
-    aSelf.mValid = true;
-    return &aSelf;
+    static thread_local Thread self;
+    self.mThread = SDL_GetCurrentThreadID(); self.mValid = true;
+    return &self;
 }
-
-bool Thread::IsValid()
-{
-    return mValid;
-}
-
+bool Thread::IsValid() { return mWorker ? mWorker->IsValid() : mValid; }
 int Thread::Join()
 {
-    return 0;
+    if (!mWorker || mThread == SDL_GetCurrentThreadID()) return 0;
+    bool joined = mWorker->Join(); mValid = false; return joined ? 1 : 0;
 }
-
-Thread Thread::Create(void (*theProc)(void*), void* theArg)
+Thread Thread::Create(void (*procedure)(void*), void* argument)
 {
-    (void)theProc;
-    (void)theArg;
-    return Thread();
+    Thread result;
+    SDL_Thread* handle = StartWorker(procedure, argument);
+    if (handle)
+    {
+        result.mThread = SDL_GetThreadID(handle); result.mValid = true;
+        result.mWorker = std::make_shared<Worker>(handle);
+    }
+    return result;
 }
-
-} // namespace Sexy
+}

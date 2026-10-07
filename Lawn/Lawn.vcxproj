@@ -60,8 +60,8 @@
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>false</SDLCheck>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;_CRT_SECURE_NO_WARNINGS;LAWNTV_DECOMP;NOMINMAX;GLFW_INCLUDE_NONE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\Sexy\include;$(ProjectDir)..\Sexy\include\Platform;$(ProjectDir)..\Sexy\include\Platform\GL;$(ProjectDir)..\Sexy\include\Platform\Audio;$(ProjectDir)..\Sexy\include\Runtime;$(ProjectDir)..\TodLib\include;$(ProjectDir)..\Lawn\include;$(ProjectDir)..\Lawn\include\game;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_CRT_SECURE_NO_WARNINGS;LAWNTV_DECOMP;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\Sexy\include;$(ProjectDir)..\Sexy\include\Platform;$(ProjectDir)..\Sexy\include\Platform\Bgfx;$(ProjectDir)..\Sexy\include\Platform\Audio;$(ProjectDir)..\Sexy\include\Runtime;$(ProjectDir)..\TodLib\include;$(ProjectDir)..\Lawn\include;$(ProjectDir)..\Lawn\include\game;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ConformanceMode>false</ConformanceMode>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <AdditionalOptions>/bigobj /source-charset:utf-8 %(AdditionalOptions)</AdditionalOptions>
@@ -95,25 +95,25 @@
     <Link>
       <GenerateMapFile>true</GenerateMapFile>
       <MapFileName>$(OutDir)$(TargetName).map</MapFileName>
-      <AdditionalDependencies>winmm.lib;ws2_32.lib;xinput.lib;glad.lib;glfw3dll.lib;opengl32.lib;jpeg.lib;pugixml.lib;OpenAL32.lib;ogg.lib;vorbis.lib;vorbisfile.lib;minizip-ng.lib;openmpt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>bgfx.lib;bimg.lib;bx.lib;SDL3.lib;SDL3_image.lib;SDL3_net.lib;psapi.lib;pugixml.lib;ogg.lib;vorbis.lib;vorbisfile.lib;minizip-ng.lib;openmpt.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Debug'">
     <Link>
-      <AdditionalDependencies>libpng16d.lib;zd.lib;freetyped.lib;bz2d.lib;fmtd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>zd.lib;bz2d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Release'">
     <Link>
-      <AdditionalDependencies>libpng16.lib;z.lib;freetype.lib;bz2.lib;fmt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>z.lib;bz2.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ProjectReference Include="..\Sexy\Sexy.vcxproj">
-      <Project>C4E8A1B2-6D3F-4E91-9A70-11B2C3D4E5F6</Project>
+      <Project>{C4E8A1B2-6D3F-4E91-9A70-11B2C3D4E5F6}</Project>
     </ProjectReference>
     <ProjectReference Include="..\TodLib\TodLib.vcxproj">
-      <Project>D5F9B2C3-7E40-4FA2-8B81-22C3D4E5F607</Project>
+      <Project>{D5F9B2C3-7E40-4FA2-8B81-22C3D4E5F607}</Project>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
@@ -381,4 +381,11 @@
     <ClInclude Include="include\game\Zombie.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <Target Name="StageShaderPackages" AfterTargets="Build">
+    <ItemGroup>
+      <ShaderPackage Include="$(ProjectDir)..\Shaders\*.scbp" />
+    </ItemGroup>
+    <MakeDir Directories="$(OutDir)assets\shaders" />
+    <Copy SourceFiles="@(ShaderPackage)" DestinationFolder="$(OutDir)assets\shaders" SkipUnchangedFiles="true" />
+  </Target>
 </Project>

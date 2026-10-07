@@ -37,8 +37,8 @@ double gDurationMs = 0.0;
 
 long long NowMs()
 {
-    struct timeval stamp;
-    gettimeofday(&stamp, nullptr);
+    PlatformTimeval stamp;
+    PlatformGetTimeOfDay(&stamp, nullptr);
     return (long long)stamp.tv_sec * 1000 + stamp.tv_usec / 1000;
 }
 

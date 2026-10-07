@@ -44,7 +44,7 @@
 // no header in the tree declares it, so it is declared file-locally -- never in
 // a header -- with its libc signature; it belongs in Runtime/AndroidShims.h
 // together with an implementation.
-long lrand48();
+long PlatformRandomLong();
 
 // ==========================================================================
 // DaveHelp::~DaveHelp()
@@ -248,8 +248,8 @@ void DaveHelp::DrawDave(Sexy::Graphics *theGraphics)
     Sexy::String aReplaced;
     TodReplaceString(&aReplaced, &aMessage, "{SHAKE}", &aEmpty);
     aMessage = aReplaced;
-    aTextRect.mX += lrand48() % 2;
-    aTextRect.mY += lrand48() % 2;
+    aTextRect.mX += PlatformRandomLong() % 2;
+    aTextRect.mY += PlatformRandomLong() % 2;
   }
 
   // ARM at 0x1ec6f8: `CMP R3,#0x48 / BEQ loc_1EC754`, and loc_1EC754 is the

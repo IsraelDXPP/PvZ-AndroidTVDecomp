@@ -69,7 +69,7 @@ namespace TM { using ::LogComposer; }
 #include "Plant.h"
 #include "PlayerInfo.h"
 #include "PoolEffect.h"
-#include "Platform/Win32GameCenter.h"
+#include "Platform/LocalGameCenter.h"
 #include "PurchaseLimitDialog.h"
 #include "Reanimation.h"
 #include "ReanimationHolder.h"
@@ -107,7 +107,6 @@ namespace TM { using ::LogComposer; }
 #include "XMLParser.h"
 #include "ZenGarden.h"
 #include "Zombie.h"
-#include <windows.h>
 #include <string>
 #include <vector>
 
@@ -182,7 +181,7 @@ static void* gVtable_2[16] = {};
 
 // The exception-cleanup registration RegisterAtExit wants a plain function pointer,
 // which a destructor's address is not under MSVC; the same thunk the other
-// callers of gGuard_getCurUser__user_1 use (see Game/LawnUser.cpp).
+// callers of gGuard_getCurUser__user_1 use (see game/LawnUser.cpp).
 static void LawnUserDtorThunk(LawnUser *theObject) { theObject->~LawnUser(); }
 
 
@@ -2320,7 +2319,7 @@ int LawnApp::SrvQueryCoin()
 // ==========================================================================
 void LawnApp::onPay(int theResult)
 {
-  if ( theResult == 0 && dynamic_cast<Sexy::Win32GameCenter*>(mGameCenter) != nullptr )
+  if ( theResult == 0 && dynamic_cast<Sexy::LocalGameCenter*>(mGameCenter) != nullptr )
   {
     mQueryCoinState.mPending = false;
     int aBalance = atoi(LawnUser::getCurUser()->mCoinText.c_str());
@@ -2418,7 +2417,7 @@ SessionWaitingDialog * LawnApp::DoSessionWaitDialog()
 //  mSession.StartTask(aTask);` once that header exists.
 bool LawnApp::SrvBuyTool(E_SHOP_PACKET thePacket)
 {
-  if ( dynamic_cast<Sexy::Win32GameCenter*>(mGameCenter) != nullptr )
+  if ( dynamic_cast<Sexy::LocalGameCenter*>(mGameCenter) != nullptr )
     return buyToolForDemo(thePacket);
 
   mPendingBuyToolId = thePacket;
@@ -3357,8 +3356,8 @@ void LawnApp::DrawCrazyDave(Sexy::Graphics * g)
     Sexy::String aEmpty;
     TodReplaceString(&aReplacement, &aText, "{SHAKE}", &aEmpty);
     aText = aReplacement;
-    aRect.mX += lrand48() % 2;
-    aRect.mY += lrand48() % 2;
+    aRect.mX += PlatformRandomLong() % 2;
+    aRect.mY += PlatformRandomLong() % 2;
   }
 
   // {NO_CLICK} and {CHOOSE_HOUSE} are the two markers that suppress the
@@ -4848,7 +4847,7 @@ int LawnApp::ShowSavingDingus()
     // flag at +96 of mPlatformDriverOrQueue picks the start position.
     float aStartY = mPlatformDriverOrQueue->mWideScreen ? 1000.0f : 700.0f;
     Reanimation *aDingus;
-    if ( lrand48() % 100 > 97 )
+    if ( PlatformRandomLong() % 100 > 97 )
     {
       aDingus = AddReanimation(aStartY, mSavingDingusCurrentY, 304000, REANIM_ZOMBIE);
       Zombie::SetupReanimLayers(aDingus, (ZombieType)0);
@@ -4943,7 +4942,7 @@ char ** LawnApp::DrawSavingDingus(Sexy::Graphics * g)
   {
     float aStartY = mPlatformDriverOrQueue->mWideScreen ? 1000.0f : 700.0f;
     Reanimation *aZombie;
-    if ( lrand48() % 100 > 97 )
+    if ( PlatformRandomLong() % 100 > 97 )
     {
       aZombie = AddReanimation(aStartY, mSavingDingusCurrentY, 304000, REANIM_ZOMBIE);
       Zombie::SetupReanimLayers(aZombie, (ZombieType)0);
@@ -5518,44 +5517,14 @@ int LawnApp::SrvLoginToServer()
 
 // Runs the resource-group load under its own SEH frame, so a fault in the
 // transcribed loader is reported instead of ending startup.
-static int GuardedCall(Music* theMusic, void (Music::*theMethod)())
-{
-  __try
-  {
-    (theMusic->*theMethod)();
-    return 1;
-  }
-  __except (EXCEPTION_EXECUTE_HANDLER)
-  {
-    return 0;
-  }
-}
+static int GuardedCall(Music* music, void (Music::*method)())
+{ (music->*method)(); return 1; }
 
-static int GuardedLoadGroup(const Sexy::String* theGroup)
-{
-  __try
-  {
-    TodLoadResources(*theGroup);
-    return 1;
-  }
-  __except (EXCEPTION_EXECUTE_HANDLER)
-  {
-    return 0;
-  }
-}
+static int GuardedLoadGroup(const Sexy::String* group)
+{ TodLoadResources(*group); return 1; }
 
-static int GuardedPreload(LawnApp* theApp)
-{
-  __try
-  {
-    theApp->PreloadForUser();
-    return 1;
-  }
-  __except (EXCEPTION_EXECUTE_HANDLER)
-  {
-    return 0;
-  }
-}
+static int GuardedPreload(LawnApp* app)
+{ app->PreloadForUser(); return 1; }
 
 void LawnApp::Init()
 {
@@ -5639,7 +5608,7 @@ void LawnApp::Init()
   // The local session uses the TV preset prices instead of a server response.
   setItemToShopItems();
   setItemToCoinItems();
-  if ( dynamic_cast<Sexy::Win32GameCenter*>(mGameCenter) != nullptr )
+  if ( dynamic_cast<Sexy::LocalGameCenter*>(mGameCenter) != nullptr )
     loadCoinNum();
   Sexy::PerfTimer aTimer;
   aTimer.Start();
@@ -5696,13 +5665,10 @@ void LawnApp::Init()
   LoadResourceManifest();
   Sexy::String aInitGroup("Init");
   fprintf(stderr, "step: before TodLoadResources(\"Init\")\n"); fflush(stderr);
-  // The group's own loader still faults on a transcribed body. The title
-  // screen is created just below and draws from the images already decoded, so
-  // a fault here must not stop startup. The guard lives in its own function:
-  // this one has C++ objects, and __try cannot share a frame with them.
+  // Load the initial resource group before constructing the title screen.
   if (GuardedLoadGroup(&aInitGroup) == 0)
   {
-    fprintf(stderr, "step: TodLoadResources(\"Init\") faulted; continuing\n");
+    fprintf(stderr, "step: TodLoadResources(\"Init\") failed; continuing\n");
     fflush(stderr);
   }
   fprintf(stderr, "step: after TodLoadResources(\"Init\")\n"); fflush(stderr);
@@ -6624,7 +6590,7 @@ LawnApp::LawnApp()
   mMailboxRefreshed = 0;
   mDialogFadeDrawn = 0;
   // The binary allocates 0x40 bytes here, which is sizeof(Mailbox) now that
-  // Game/Mailbox.h models the class at its real size.
+  // game/Mailbox.h models the class at its real size.
   mMailBox = new Mailbox(this);
   mWindowed = 1;
   mMusicVolume = 0.85;

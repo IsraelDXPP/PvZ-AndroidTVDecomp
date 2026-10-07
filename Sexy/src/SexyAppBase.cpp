@@ -8,7 +8,7 @@
 #include "SexyAppBase.h"
 #include "ReconData.h"
 #include "ReconHelpers.h"
-#include "Platform/Win32AppDriver.h"
+#include "Platform/SDLAppDriver.h"
 #include "AuthManager.h"
 #include "BaseAppDriver.h"
 #include "Buffer.h"
@@ -36,7 +36,6 @@
 #include "Widget.h"
 #include "WidgetManager.h"
 
-#include <windows.h>
 #include <algorithm>
 #include <cctype>
 #include <cstdio>
@@ -228,12 +227,12 @@ public:
 
 BaseAppDriver* BaseAppDriver::CreateAppDriver(SexyAppBase* theApp)
 {
-    return static_cast<BaseAppDriver*>(LawnTV_CreateAppDriver(theApp));
+    return LawnTV_CreateAppDriver(theApp);
 }
 
 IAppDriver* IAppDriver::CreateAppDriver(SexyAppBase* theApp)
 {
-    return static_cast<IAppDriver*>(LawnTV_CreateAppDriver(theApp));
+    return LawnTV_CreateAppDriver(theApp);
 }
 
 IResStreamsDriver* IResStreamsDriver::CreateResStreamsDriver()
@@ -243,12 +242,12 @@ IResStreamsDriver* IResStreamsDriver::CreateResStreamsDriver()
 
 IAudioDriver* IAudioDriver::CreateAudioDriver(SexyAppBase* theApp)
 {
-    return static_cast<IAudioDriver*>(LawnTV_CreateAudioDriver(theApp));
+    return LawnTV_CreateAudioDriver(theApp);
 }
 
 IHttpDriver* IHttpDriver::CreateHttpDriver(SexyAppBase* theApp)
 {
-    return static_cast<IHttpDriver*>(LawnTV_CreateHttpDriver(theApp));
+    return LawnTV_CreateHttpDriver(theApp);
 }
 
 // --------------------------------------------------------------------------
@@ -2268,7 +2267,7 @@ Sexy::String SexyAppBase::FormatHelpString()
 IFileDriver* SexyAppBase::InitFileDriver()
 {
     if (gFileDriver == nullptr)
-        gFileDriver = static_cast<IFileDriver*>(LawnTV_CreateFileDriver(nullptr));
+        gFileDriver = LawnTV_CreateFileDriver(nullptr);
     mFileDriver = gFileDriver;
     return gFileDriver;
 }

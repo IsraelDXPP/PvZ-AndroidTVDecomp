@@ -25,7 +25,7 @@
 // Group 1 (391 names) is the `extern Sexy::Image * IMAGE_...;` block in
 // Sexy/ReconFreeFunctions.h, lines 688-1078 (the line numbers are recomputed on
 // every run, so they stay right when the header above them changes).
-// Group 2 (15 names) is declared file-locally in Game/Plant.cpp and
+// Group 2 (15 names) is declared file-locally in game/Plant.cpp and
 // Sexy/ReconSubsLow.cpp and was never in the header.
 //
 // Total: 406 definitions.
@@ -440,7 +440,7 @@ Sexy::Image * IMAGE_ZOMBIE_SEEDBANK = nullptr;
 // ---------------------------------------------------------------------------
 // Group 2 -- declared file-locally, never in the header (15 names).
 //
-// Game/Plant.cpp declares the first fourteen at lines 42-55 and
+// game/Plant.cpp declares the first fourteen at lines 42-55 and
 // Sexy/ReconSubsLow.cpp declares the last at line 105. Both are the same kind
 // of runtime-filled word as group 1; they were simply left out of the header.
 // ---------------------------------------------------------------------------

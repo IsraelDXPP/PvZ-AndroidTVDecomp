@@ -100,7 +100,7 @@ namespace
 // no names in this tree yet. The values below are the ones from the authoritative
 // PvZ\Lawn\Common\ConstEnums.h; naming them here keeps the call sites readable
 // and makes the swap to real enumerators a one-line change each. Same convention
-// as Game/GridItem.cpp.
+// as game/GridItem.cpp.
 
 
 // The four DrawVariation values the zen garden draws pots with.
@@ -110,7 +110,7 @@ namespace
 // The tree of wisdom is a fifth garden the GardenType enum does not name:
 // GotoGarden switches on 0/1/3/4, and 4 is the tree -- its case is the one that
 // kills the board and starts GAMEMODE_TREE_OF_WISDOM. 2 is the wheelbarrow,
-// which is never a destination. Same convention as Game/GridItem.cpp.
+// which is never a destination. Same convention as game/GridItem.cpp.
 
 }
 
@@ -199,8 +199,8 @@ bool ZenGarden::WasPlantNeedFulfilledToday(PottedPlant * thePottedPlant)
   time_t aLast = thePottedPlant->mLastNeedFulfilledTime;
   struct tm aNowTm;
   struct tm aLastTm;
-  localtime_r(&aNow, &aNowTm);
-  localtime_r(&aLast, &aLastTm);
+  PlatformLocalTime(&aNow, &aNowTm);
+  PlatformLocalTime(&aLast, &aLastTm);
   return aNowTm.tm_year <= aLastTm.tm_year && aNowTm.tm_yday <= aLastTm.tm_yday;
 }
 
@@ -227,8 +227,8 @@ bool ZenGarden::PlantShouldRefreshNeed(PottedPlant * thePottedPlant)
   time_t aLast = thePottedPlant->mLastWateredTime;
   struct tm aNowTm;
   struct tm aLastTm;
-  localtime_r(&aNow, &aNowTm);
-  localtime_r(&aLast, &aLastTm);
+  PlatformLocalTime(&aNow, &aNowTm);
+  PlatformLocalTime(&aLast, &aLastTm);
   return aNowTm.tm_year > aLastTm.tm_year || aNowTm.tm_yday > aLastTm.tm_yday;
 }
 

@@ -120,7 +120,7 @@ public:
 // stays a small record the app can copy from that type's public fields.
 struct ThreadStorage
 {
-    unsigned int mThread;         // +0x00
+    SDL_ThreadID mThread;
     bool mValid;                  // +0x04
     unsigned char mPad[3];        // +0x05
 };

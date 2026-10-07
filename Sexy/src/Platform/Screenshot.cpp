@@ -11,7 +11,7 @@
 //   signature, IHDR, IDAT (zlib stream, stored blocks), IEND
 
 #include "Screenshot.h"
-#include "Win32File.h"
+#include "SDLFile.h"
 #include "SexyTypes.h"
 
 #include "AndroidShims.h"
@@ -166,7 +166,7 @@ bool Screenshot::Save(MemoryImage* theImage, const std::string& thePath)
     // IEND
     WriteChunk(png, "IEND", {});
 
-    if (!Win32File::WriteOutputFile(thePath, png.data(), png.size()))
+    if (!SDLFile::WriteOutputFile(thePath, png.data(), png.size()))
     {
         TOD_ERROR("Screenshot: failed to write %s", thePath.c_str());
         return false;
@@ -181,7 +181,7 @@ bool Screenshot::SaveRaw(MemoryImage* theImage, const std::string& thePath)
 {
     if (!theImage || !theImage->mBits) return false;
     size_t bytes = (size_t)theImage->mWidth * theImage->mHeight * 4;
-    return Win32File::WriteOutputFile(thePath, theImage->mBits, bytes);
+    return SDLFile::WriteOutputFile(thePath, theImage->mBits, bytes);
 }
 
 bool Screenshot::SaveNext(MemoryImage* theImage)

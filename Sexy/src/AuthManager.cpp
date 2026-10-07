@@ -50,9 +50,7 @@ void Sexy::AuthManager::Start()
     if (mAuthMode != 0)
     {
         mAuthState = 1;
-        TM::Thread worker;
-        TM::Thread::Create(&worker, AuthorizeProcThunk, this);
-        mThread = worker;
+        TM::Thread::Create(&mThread, AuthorizeProcThunk, this);
         return;
     }
 

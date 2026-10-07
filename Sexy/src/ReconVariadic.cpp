@@ -43,10 +43,10 @@
 #include "ReconExterns.h"
 #include "ReconTypes.h"
 #include "ReconFreeFunctions.h"
-#include "Game/Board.h"
-#include "Game/Plant.h"
-#include "Game/LawnApp.h"
-#include "Game/LawnStoneButton.h"
+#include "game/Board.h"
+#include "game/Plant.h"
+#include "game/LawnApp.h"
+#include "game/LawnStoneButton.h"
 #include "Dialog.h"
 #include "SexyAppBase.h"
 #include "ReconData.h"
@@ -60,13 +60,9 @@
 #include "Font.h"
 #include "SexyTransform2D.h"
 
-#ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN
-#endif
 #ifndef NOMINMAX
 #define NOMINMAX
 #endif
-#include <windows.h>
 #include <cmath>
 #include <ctime>
 #include <cstdio>
@@ -1027,7 +1023,7 @@ bool LineSegmentIntersects(const Sexy::TPoint<float>& theStart, const Sexy::TPoi
     }
     return true;
 }
-// NOT a variadic stub any more: Game/TodFoley.cpp:103 defines the real
+// NOT a variadic stub any more: game/TodFoley.cpp:103 defines the real
 // `FoleyParams *LookupFoley(FoleyType)` (@0x1FF778) and every call site passes a
 // FoleyType, so the fixed overload wins overload resolution and the `return 0`
 // body here was unreachable dead code. Deleted so the name cannot silently fall
@@ -1257,7 +1253,7 @@ void SexyMatrix3Translation(Sexy::SexyMatrix3* theMatrix, float theX, float theY
     theMatrix->m02 += theX;
     theMatrix->m12 += theY;
 }
-// NOT a variadic stub any more: Game/TodFoley.cpp defines all four
+// NOT a variadic stub any more: game/TodFoley.cpp defines all four
 // `SoundSystem*(TodFoley *, ...)` helpers from the binary's own symbols
 // (_Z23SoundSystemFindInstanceP8TodFoley9FoleyType @0x1FF810,
 // _Z31SoundSystemGetFreeInstanceIndexP8TodFoley9FoleyType @0x1FF86C,
@@ -2337,7 +2333,7 @@ void MD5Final(unsigned char* theDigest, MD5Context* theContext)
 // `int MSleep(int theMillis)` in Sexy/ReconHelpers.cpp:580, declared for the
 // whole tree by Runtime/AndroidShims.h:380 (which ReconTypes.h includes), so
 // every call site already bound to it. The two file-local `int MSleep(...)`
-// declarations in Game/LawnSession.cpp:19 and Sexy/SexyCommonApp.cpp:206 are
+// declarations in game/LawnSession.cpp:19 and Sexy/SexyCommonApp.cpp:206 are
 // the leftovers to delete, not this definition.
 //
 // The body that used to be here was `{ ::Sleep(1); return 0; }` -- a one
@@ -2350,7 +2346,7 @@ void MD5Final(unsigned char* theDigest, MD5Context* theContext)
 // TODO(recon): the log helpers format and dispatch through the framework log
 // listeners; the argument lists are real (printf-style) but unreadable here.
 // There is no global composeLog: the real one is TM::LogComposer::composeLog in
-// Game/LogComposer.cpp.
+// game/LogComposer.cpp.
 void OutputDebug(const char* theFormat, ...)
 {
     va_list aArgs;
@@ -2389,7 +2385,7 @@ int j_AGShowMessageBox(...) { return 0; }
 //
 // Same story as the AG* family: `__imp__<mangled>` is the name the transcriber
 // gave the import stubs, and the Android platform library behind them does not
-// exist on Windows. The bodies in Game/GameCenter.cpp and Game/ShareManager.cpp
+// exist on Windows. The bodies in game/GameCenter.cpp and game/ShareManager.cpp
 // fall back to a default when these return 0.
 // ---------------------------------------------------------------------------
 // TODO(recon)

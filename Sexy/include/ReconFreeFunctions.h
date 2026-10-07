@@ -10,7 +10,7 @@
 #pragma once
 
 #include "ReconTypes.h"
-#include "Game/Definition.h"
+#include "game/Definition.h"
 
 #include <cstdarg>
 #include <cstring>
@@ -307,7 +307,7 @@ template <class T> inline float CoerceToFloat(T* thePointer)
 #define COERCE_FLOAT(x)  CoerceToFloat(x)
 #define COERCE_DOUBLE(x) ((double)(x))
 // Only ever used to widen a 64-bit result back to 64 bits; see the call sites.
-#define COERCE_UNSIGNED_INT64(x) ((unsigned __int64)(x))
+#define COERCE_UNSIGNED_INT64(x) ((std::uint64_t)(x))
 int CalcParticlePerfInfo(...);
 void CalcReanimPerfInfo(Reanimation* theReanim, int* theImageCount, int* thePixelCount);
 void CenterDialog(Sexy::Dialog* theDialog, int theWidth, int theHeight);
@@ -443,7 +443,7 @@ void SexyMatrix3Translation(Sexy::SexyMatrix3* theMatrix, float theX, float theY
 
 // The old catch-all `int SimpleMessageWidget(...)` is GONE: it hid the class
 // name of the same scope, which SessionWaitingDialog constructs. The real
-// class is in Game/SimpleMessageWidget.h.
+// class is in game/SimpleMessageWidget.h.
 
 int TodAnimateCurve(int theTimeStart, int theTimeEnd, int theTimeAge, int thePositionStart, float thePositionEnd, int theCurve);
 // _Z20TodAnimateCurveFloatiiiff9TodCurves returns a FLOAT, not an int. Board's

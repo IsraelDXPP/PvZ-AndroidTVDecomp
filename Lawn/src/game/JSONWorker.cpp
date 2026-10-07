@@ -34,7 +34,7 @@ static int gTypeInfo_1 = 0;
 // that the JSON singleton guards protect. C++ cannot take the address of a
 // destructor, and no header declares `jsonSingletonEMPTY_STD_STRING` or
 // `jsonSingletonEMPTY_JSON_STRING`, so the registration goes through this inert
-// thunk -- the same one Game/JSONNode.cpp uses. The guard is never destroyed in
+// thunk -- the same one game/JSONNode.cpp uses. The guard is never destroyed in
 // practice; a header should declare those singletons so the real destructor can
 // be named.
 static void jsonSingletonDtorThunk(void *theObject)
@@ -269,7 +269,7 @@ static char *private_RemoveWhiteSpace(const Sexy::String &theSource, bool theDec
       }
       // TODO(recon): Sexy/ReconData.h declares `used_ascii_one` as a const array,
       // but the binary both reads and writes it -- it is the JSON writer's "saw a
-      // decoded quote" flag, read back in Game/internalJSONNode.cpp. The header
+      // decoded quote" flag, read back in game/internalJSONNode.cpp. The header
       // should drop the const; the cast keeps the shared flag working meanwhile.
       const_cast<unsigned char *>(used_ascii_one)[0] = (unsigned char)aSawQuote;
       continue;

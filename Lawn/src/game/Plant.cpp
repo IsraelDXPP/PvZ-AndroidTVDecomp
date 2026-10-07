@@ -73,9 +73,9 @@ extern Sexy::Image * IMAGE_ZOMBIEPOGO;
 // TODO(recon): lrand48 is the Android libc's 48-bit pseudo-random generator,
 // which the binary calls by name. Windows has no such function and no header in
 // the tree declares it, so it is declared file-locally -- never in a header --
-// with its libc signature, exactly as Game/DaveHelp.cpp does; it belongs in
+// with its libc signature, exactly as game/DaveHelp.cpp does; it belongs in
 // Runtime/AndroidShims.h together with an implementation.
-long lrand48();
+long PlatformRandomLong();
 
 // ==========================================================================
 // Plant::~Plant()
@@ -1015,7 +1015,7 @@ int Plant::UpdateProductionPlant()
   {
     if (mState == STATE_SUNSHROOM_SMALL)
       mBoard->AddCoin(mX, mY, COIN_SMALLSUN, (CoinMotion)COIN_MOTION_FROM_PLANT);
-    else if (mApp->IsCoopMode() && lrand48() % 100 <= 4)
+    else if (mApp->IsCoopMode() && PlatformRandomLong() % 100 <= 4)
       mBoard->AddCoin(mX, mY, COIN_COOP_DOUBLE_SUN, (CoinMotion)COIN_MOTION_FROM_PLANT);
     else
       mBoard->AddCoin(mX, mY, COIN_SUN, (CoinMotion)COIN_MOTION_FROM_PLANT);

@@ -1,8 +1,10 @@
-// ImageLib. GetImage finds the asset and decodes it with stb. Writers still
+// ImageLib. SDL_image decodes the asset; stb covers additional formats. Writers still
 // report failure: this port does not emit PNG or JPEG files.
 
 #include "ImageLib.h"
-#include "Win32File.h"
+#include "SDLFile.h"
+#include <SDL3/SDL.h>
+#include <SDL3_image/SDL_image.h>
 
 #include <string>
 #include <vector>
@@ -57,17 +59,43 @@ bool ExtensionMatches(const std::string& theExt, const char* theName)
 {
     if (theExt.empty())
         return true;
-    return _stricmp(theExt.c_str(), theName) == 0;
+    return SDL_strcasecmp(theExt.c_str(), theName) == 0;
 }
 
 Image* DecodeFile(const std::string& thePath)
 {
-    if (!Sexy::Win32File::FileExists(thePath))
+    if (!Sexy::SDLFile::FileExists(thePath))
         return nullptr;
 
     std::vector<unsigned char> aBytes;
-    if (!Sexy::Win32File::ReadFile(thePath, aBytes) || aBytes.empty())
+    if (!Sexy::SDLFile::ReadFile(thePath, aBytes) || aBytes.empty())
         return nullptr;
+
+    SDL_Surface* decoded = IMG_Load_IO(SDL_IOFromConstMem(aBytes.data(), aBytes.size()), true);
+    if (decoded != nullptr)
+    {
+        SDL_Surface* rgba = SDL_ConvertSurface(decoded, SDL_PIXELFORMAT_RGBA32);
+        SDL_DestroySurface(decoded);
+        if (rgba != nullptr)
+        {
+            Image* image = new Image();
+            image->mWidth = rgba->w;
+            image->mHeight = rgba->h;
+            image->mOwnsBits = 1;
+            image->mBits = new unsigned int[size_t(rgba->w) * rgba->h];
+            const unsigned char* pixels = static_cast<const unsigned char*>(rgba->pixels);
+            for (int row = 0; row < rgba->h; ++row)
+                for (int column = 0; column < rgba->w; ++column)
+                {
+                    const unsigned char* pixel = pixels + size_t(row) * rgba->pitch + column * 4;
+                    image->mBits[size_t(row) * rgba->w + column] = (static_cast<unsigned int>(pixel[3]) << 24)
+                        | (static_cast<unsigned int>(pixel[0]) << 16) | (static_cast<unsigned int>(pixel[1]) << 8)
+                        | static_cast<unsigned int>(pixel[2]);
+                }
+            SDL_DestroySurface(rgba);
+            return image;
+        }
+    }
 
     int aWidth = 0;
     int aHeight = 0;

@@ -37,8 +37,8 @@
 // --- IDA primitive spellings ------------------------------------------------
 typedef unsigned short      _WORD;
 typedef unsigned char       _BYTE;
-typedef unsigned __int64    _QWORD;
-typedef signed __int64      __int64_t_;
+typedef std::uint64_t    _QWORD;
+typedef std::int64_t      __int64_t_;
 typedef int                 _BOOL4;
 typedef unsigned char       _BOOL1;
 // The decompiler's "type unknown" placeholder. It appears only in casts such as
@@ -105,8 +105,8 @@ public:
     // A 64-bit value truncated to a word. The decompiler does this freely --
     // `LODWORD` is exactly this operation -- because the binary only ever keeps
     // the low word.
-    _DWORD(unsigned __int64 theValue) : mValue((unsigned int)theValue) {}
-    _DWORD(__int64 theValue) : mValue((unsigned int)theValue) {}
+    _DWORD(std::uint64_t theValue) : mValue((unsigned int)theValue) {}
+    _DWORD(std::int64_t theValue) : mValue((unsigned int)theValue) {}
     _DWORD(char theValue) : mValue((unsigned int)(unsigned char)theValue) {}
     _DWORD(_WORD theValue) : mValue(theValue) {}
     // `nullptr` is not a pointer type, so the template constructor below does
@@ -176,12 +176,12 @@ public:
         mValue = BitsOf((float)theValue);
         return *this;
     }
-    _DWORD& operator=(unsigned __int64 theValue)
+    _DWORD& operator=(std::uint64_t theValue)
     {
         mValue = (unsigned int)theValue;
         return *this;
     }
-    _DWORD& operator=(__int64 theValue)
+    _DWORD& operator=(std::int64_t theValue)
     {
         mValue = (unsigned int)theValue;
         return *this;

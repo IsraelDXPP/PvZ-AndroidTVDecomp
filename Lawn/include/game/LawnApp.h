@@ -833,7 +833,7 @@ Sexy::Dialog *DoConfirmRestartDialog();
     // Members. +0x8A0 .. +0xB27, 0x288 bytes.
     //
     // Every offset below is absolute and was cross-checked against a raw-offset
-    // access in Game/LawnApp.cpp; the restore tree's ordinal comments agree
+    // access in game/LawnApp.cpp; the restore tree's ordinal comments agree
     // (ordinal N -> byte 4*N) except for the last two, which it numbered one
     // too high.
     // -----------------------------------------------------------------------

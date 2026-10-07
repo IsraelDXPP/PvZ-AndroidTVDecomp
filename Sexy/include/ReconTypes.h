@@ -458,7 +458,7 @@ struct TodWeightedArray
 // TodPickFromWeightedGridArray @0x1FC4C0, walks the array with a stride of 12 and
 // reads each element's weight from +8, so an element is three ints. That is also
 // the layout the reference header PvZ\TodLib\Common\TodCommon.h:47 gives.
-// Game/CutScene.cpp is the only user in this tree.
+// game/CutScene.cpp is the only user in this tree.
 struct TodWeightedGridArray
 {
     int mX;

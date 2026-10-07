@@ -4,7 +4,7 @@
 // Every stride below is the header's own (a FoleyTypeData record is 164 bytes,
 // a FoleyTypeDataElement 20) and the field names come from
 // Game\FoleyTypeData.h. The sound instance is Sexy::SoundInstance. Calls go through its virtual
-// methods, so the Windows override (OpenALSoundInstance) is the one that runs.
+// methods, so the Windows override (SDLSoundInstance) is the one that runs.
 // The app sound device is Sexy::SoundManager, already a virtual interface.
 
 #include "TodFoley.h"

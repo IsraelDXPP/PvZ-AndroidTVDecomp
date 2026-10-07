@@ -23,17 +23,13 @@
 // lead should decide how the native imports are declared (ReconExterns.h is the
 // natural place) and restore the calls' real names.
 // ---------------------------------------------------------------------------
-// __stdcall, not __fastcall: the linker asks for @NativeNotificationManagerCreate@4
-// and friends, and @N counts the bytes the caller pushes. One pointer argument
-// under __fastcall travels in ECX and pushes nothing, which would decorate as
-// @0; under __stdcall it is pushed, which gives @4. The binary's imports are
-// __stdcall, so the declarations follow the decoration the linker printed.
-extern "C" int __stdcall NativeNotificationManagerCreate(void * theObject);
-extern "C" int __stdcall NativeNotificationManagerGetFeatures(void * theObject);
-extern "C" int __stdcall NativeNotificationManagerGetName(void * theObject);
-extern "C" int __stdcall NativeNotificationManagerSetAlias();
-extern "C" int __stdcall NativeNotificationManagerSetTags();
-extern "C" int __stdcall NativeNotificationManagerCancelAllNotifications(void * theObject);
+// Platform notification placeholders use ordinary C linkage.
+extern "C" int NativeNotificationManagerCreate(void * theObject);
+extern "C" int NativeNotificationManagerGetFeatures(void * theObject);
+extern "C" int NativeNotificationManagerGetName(void * theObject);
+extern "C" int NativeNotificationManagerSetAlias();
+extern "C" int NativeNotificationManagerSetTags();
+extern "C" int NativeNotificationManagerCancelAllNotifications(void * theObject);
 
 // ==========================================================================
 // Native::NotificationManager::create(void)

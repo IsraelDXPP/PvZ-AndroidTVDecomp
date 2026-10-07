@@ -36,7 +36,6 @@
 #include "ToolTipWidget.h"
 #include "ZenGarden.h"
 #include "Zombie.h"
-#include <windows.h>
 #include <cstring>
 #include <cmath>
 
@@ -2348,7 +2347,7 @@ int Challenge::InitZombieWavesSurvival()
     while ( mBoard->mZombieAllowed[aZombieType] );
 
     // TODO(recon): Board::IsZombieTypePoolOnly is STATIC in the binary but
-    // Game/Board.h declares it as a member, so it is called on the board here.
+    // game/Board.h declares it as a member, so it is called on the board here.
     if ( mBoard->IsZombieTypePoolOnly((ZombieType)aZombieType) && !mBoard->StageHasPool() )
       continue;
 

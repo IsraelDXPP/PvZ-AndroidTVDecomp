@@ -9,38 +9,42 @@
   "builtin-baseline": "3f7b5a12ef0a55e7b59339b2b69cac4b56d6dbf9",
 
   "$comment-dependencies": {
-    "glad": "OpenGL function loader. Desktop GL 3.3 core. The Android build used GLES2 (AndroidGL20RenderEffect / AndroidRenderDeviceES20); we keep the same GPU architecture (shaders, textures, FBOs) on desktop GL.",
-    "glfw3": "Window creation + GL context. Replaces Sexy::AndroidDisplay and the Android activity lifecycle.",
+    "sdl3": "Window creation, input, game controllers and audio device/stream output. Replaces GLFW and OpenAL Soft in the platform layer; existing codecs continue to decode audio to PCM.",
+    "sdl3-net": "Portable hostname resolution and typed sockets for the existing logging interfaces.",
+    "bgfx": "Cross-platform rendering backend replacing direct OpenGL and glad. Enables multithreaded rendering and the shaderc, texturec and geometryc tools for the native Windows build.",
     "glm": "Matrix/vector math for the transform pipeline (SexyMatrix3 / SexyTransform2D / SexyMatrix4).",
-    "libpng": "Decodes files/images/*.png and the image atlases.",
-    "libjpeg-turbo": "Decodes JPEG assets (MemoryImage import, TexturePacker atlases).",
-    "freetype": "TrueType rendering. The Android build uses FreeTypeFont / FreeTypeScaledFont.",
+    "sdl3-image": "Primary image decoder producing CPU surfaces for upload to bgfx. PNG and JPEG features bring libpng and libjpeg-turbo as transitive dependencies.",
     "zlib": "Inflate for .pak archives and compressed resource streams.",
     "minizip-ng": "Reads the .zip pak files under assets/paks (PakLib::ZipFileSystem).",
     "bzip2": "Secondary compression used by some pak entries.",
     "libogg": "OGG container parsing for the Music2 streaming path.",
     "libvorbis": "Vorbis decoding. Music2 loads 11 OGG tracks and is the default music path.",
-    "openal-soft": "Audio backend. Replaces Sexy::AudiereSoundManager (the binary embeds audiere).",
+    "libopenmpt": "Tracker music decoding and channel control for the existing music path; decoded PCM is sent to SDL3 audio.",
     "nlohmann-json": "JSON parsing for DataSync / JSONNode / userdata.",
     "pugixml": "XML parsing for levels/levels-*.xml, properties/*.xml and defaultSetting.xml.",
-    "stb": "Header-only image helpers (screenshot encoding, odd formats)."
+    "stb": "Fallback image decoding for formats such as PSD, HDR and Softimage PIC."
   },
 
   "dependencies": [
+    "sdl3",
+    "sdl3-net",
     {
-      "name": "glad",
+      "name": "bgfx",
       "default-features": false,
       "features": [
-        "gl-api-33",
-        "extensions",
-        "loader"
+        "multithreaded",
+        "tools"
       ]
     },
-    "glfw3",
     "glm",
-    "libpng",
-    "libjpeg-turbo",
-    "freetype",
+    {
+      "name": "sdl3-image",
+      "default-features": false,
+      "features": [
+        "png",
+        "jpeg"
+      ]
+    },
     "zlib",
     {
       "name": "minizip-ng",
@@ -53,10 +57,6 @@
     "bzip2",
     "libogg",
     "libvorbis",
-    {
-      "name": "openal-soft",
-      "default-features": false
-    },
     "nlohmann-json",
     "pugixml",
     "stb",

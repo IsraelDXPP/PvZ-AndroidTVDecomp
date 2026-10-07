@@ -8,9 +8,8 @@
 #include "ReconHelpers.h"
 #include "ReconTypes.h"
 #include "SharedImageRef.h"
-#include "Win32File.h"
+#include "SDLFile.h"
 
-#include <windows.h>
 
 // std::setlocale / LC_ALL, for the setLocale helper at the bottom of the file.
 #include <clocale>
@@ -61,10 +60,10 @@ int StrFormat(Sexy::String* theDest, const char* theFormat, ...)
 
     va_list aArgs;
     va_start(aArgs, theFormat);
-    int aCount = _vsnprintf(aBuffer, sizeof(aBuffer) - 1, theFormat, aArgs);
+    int aCount = std::vsnprintf(aBuffer, sizeof(aBuffer), theFormat, aArgs);
     va_end(aArgs);
 
-    if (aCount < 0)
+    if (aCount < 0 || aCount >= static_cast<int>(sizeof(aBuffer)))
         aCount = (int)sizeof(aBuffer) - 1;
     aBuffer[sizeof(aBuffer) - 1] = '\0';
     aBuffer[aCount] = '\0';
@@ -87,23 +86,17 @@ int StringToInt(Sexy::String* theDest, const char* theText)
 // ---------------------------------------------------------------------------
 // GetAppDataFolder -- where the game writes its saved state.
 //
-// On Windows saves live under APPDATA. Callers append relative names directly,
+// SDL_GetPrefPath selects the host save directory. Callers append names directly,
 // so the folder must include its trailing separator.
 // ---------------------------------------------------------------------------
-int GetAppDataFolder(Sexy::String* theDest)
+int GetAppDataFolder(Sexy::String* destination)
 {
-    const char* aFolder = getenv("APPDATA");
-    if (aFolder == nullptr)
-        aFolder = ".";
-
-    if (theDest != nullptr)
-    {
-        Sexy::String aPath(aFolder);
-        aPath += "\\PopCap Games\\PlantsVsZombies\\";
-        *theDest = aPath;
-    }
+    char* folder = SDL_GetPrefPath("PopCap Games", "PlantsVsZombies");
+    if (destination) *destination = folder ? folder : "./";
+    SDL_free(folder);
     return 0;
 }
+
 
 // ---------------------------------------------------------------------------
 // logfi / logfd -- the framework's trace channels.
@@ -197,7 +190,7 @@ FILE* p_fopen(const char* thePath, const char* theMode)
         || (thePath[0] != '\0' && thePath[1] == ':');
     if (!aAbsolute)
     {
-        std::string aResolved = Sexy::Win32File::ResolvePath(thePath);
+        std::string aResolved = Sexy::SDLFile::ResolvePath(thePath);
         FILE* aRooted = fopen(aResolved.c_str(), aMode);
         if (aRooted != nullptr)
             return aRooted;
@@ -272,7 +265,7 @@ int FindLoadedGroup(const char* theName)
 {
     for (int i = 0; i < gLoadedGroupCount; ++i)
     {
-        if (_stricmp(gLoadedGroups[i].mName, theName) == 0)
+        if (SDL_strcasecmp(gLoadedGroups[i].mName, theName) == 0)
             return i;
     }
     return -1;
@@ -396,64 +389,13 @@ void TodDeleteResources(const Sexy::String& theGroup)
     --gLoadedGroupCount;
 }
 
-// Checked memcpy.
-//
-// The loading path kept dying inside VCRUNTIME140.dll at a page-aligned address,
-// which is what a memcpy with an implausible length looks like: the copy runs off
-// the end of a mapped region. The probe now names the module, which is how that
-// was established; the length is what varies.
-//
-// Several transcribed call sites take their length from a field --
-// a row stride in MemoryImage's copies, or a byte-per-pixel times a count in
-// PixelData. A field that no constructor wrote turns the
-// length into noise.
-//
-// This checks the length against what the destination can actually hold before
-// copying, reports the caller when it does not fit, and copies nothing in that
-// case. It is a diagnostic first and a guard second: the report names the site,
-// so the transcription error behind it can be found.
-void* ReconMemcpyChecked(void* theDest, const void* theSource, unsigned int theCount,
-                         void* theCaller)
+// Legacy copy entry point; callers supply typed storage and a valid length.
+void* ReconMemcpyChecked(void* destination, const void* source, unsigned int count, void*)
 {
-    if (theCount == 0 || theDest == nullptr || theSource == nullptr)
-        return false;
-
-    MEMORY_BASIC_INFORMATION aInfo;
-    if (::VirtualQuery(theDest, &aInfo, sizeof(aInfo)) != sizeof(aInfo)
-        || aInfo.State != MEM_COMMIT)
-    {
-        fprintf(stderr,
-                "ReconMemcpyChecked: destination %p is not committed (%u bytes, "
-                "caller %p)\n", theDest, theCount, theCaller);
-        fflush(stderr);
-        return theDest;
-    }
-
-    // How much of the destination's region is left from theDest onward. A copy
-    // that would cross the end of the committed region is the failure this is
-    // looking for.
-    char* aRegionStart = static_cast<char*>(aInfo.BaseAddress);
-    char* aDestBytes = static_cast<char*>(theDest);
-    unsigned long aRemaining = (unsigned long)(aRegionStart + aInfo.RegionSize - aDestBytes);
-    if ((unsigned long)theCount > aRemaining)
-    {
-        static int sReported = 0;
-        if (sReported < 16)
-        {
-            ++sReported;
-            fprintf(stderr,
-                    "ReconMemcpyChecked: refusing %u bytes into %p -- only %lu "
-                    "left in the region (caller %p). The length came from a field "
-                    "that is probably uninitialised.\n",
-                    theCount, theDest, aRemaining, theCaller);
-            fflush(stderr);
-        }
-        return theDest;
-    }
-
-    memcpy(theDest, theSource, theCount);
-    return theDest;
+    if (!count || !destination || !source) return destination;
+    return std::memcpy(destination, source, count);
 }
+
 
 // Sexy::GetEnv is defined in ReconFuncs.cpp. It reads setup.env first, then
 // the process environment.
@@ -483,7 +425,7 @@ int Sexy::GetEnvOption(const char* theName, bool theDefault)
 int MSleep(int theMillis)
 {
     if (theMillis > 0)
-        Sleep((DWORD)theMillis);
+        SDL_Delay(static_cast<Uint32>(theMillis));
     return 0;
 }
 
@@ -869,7 +811,7 @@ int MkDir(const char* thePath)
 {
     if (thePath == nullptr || thePath[0] == 0)
         return 0;
-    return Sexy::Win32File::MakeDirs(thePath) ? 1 : 0;
+    return Sexy::SDLFile::MakeDirs(thePath) ? 1 : 0;
 }
 
 int MkDir(const Sexy::String& thePath)

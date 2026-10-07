@@ -48,22 +48,22 @@ inline int vcvts_n_s32_f32(float theValue, unsigned int theShift)
 //
 // The decompiler writes `__PAIR64__(hi, lo)`, so the arguments are high first.
 // ---------------------------------------------------------------------------
-inline unsigned __int64 __PAIR64__(unsigned int theHigh, unsigned int theLow)
+inline std::uint64_t __PAIR64__(unsigned int theHigh, unsigned int theLow)
 {
-    return ((unsigned __int64)theHigh << 32) | (unsigned __int64)theLow;
+    return ((std::uint64_t)theHigh << 32) | (std::uint64_t)theLow;
 }
 
-inline __int64 __SPAIR64__(unsigned int theHigh, unsigned int theLow)
+inline std::int64_t __SPAIR64__(unsigned int theHigh, unsigned int theLow)
 {
-    return (__int64)__PAIR64__(theHigh, theLow);
+    return (std::int64_t)__PAIR64__(theHigh, theLow);
 }
 
 // The two halves, which the decompiler also emits as macros.
 #ifndef __HIDWORD
-#define __HIDWORD(x) ((unsigned int)(((unsigned __int64)(x)) >> 32))
+#define __HIDWORD(x) ((unsigned int)(((std::uint64_t)(x)) >> 32))
 #endif
 #ifndef __LODWORD
-#define __LODWORD(x) ((unsigned int)((unsigned __int64)(x)))
+#define __LODWORD(x) ((unsigned int)((std::uint64_t)(x)))
 #endif
 
 // ---------------------------------------------------------------------------

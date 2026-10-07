@@ -22,7 +22,6 @@
 #include "WidgetContainer.h"
 #include "WidgetManager.h"
 #include "Platform/MpegVideo.h"
-#include <windows.h>
 #include <cmath>
 
 // `access` and 0x1A6C68 (`OnIntroVideoEvent`) are both declared in

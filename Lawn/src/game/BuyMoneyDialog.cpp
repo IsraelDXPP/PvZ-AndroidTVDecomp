@@ -24,7 +24,7 @@
 #include "LawnDialog.h"
 #include "LawnStoneButton.h"
 #include "LawnUser.h"
-#include "Platform/Win32GameCenter.h"
+#include "Platform/LocalGameCenter.h"
 #include "ReanimationWidget.h"
 #include "WidgetManager.h"
 #include <string>
@@ -71,7 +71,7 @@ BuyMoneyDialog::BuyMoneyDialog(LawnApp *theApp, Sexy::String const& theTierName)
     // destructors. The two vptr stores are compiler-generated.
     : LawnDialog(theApp, nullptr, 82, true, "[MONEY_NOT_ENOUGH_HEADER]", "", "", 3)
 {
-  bool aLocalRecharge = dynamic_cast<Sexy::Win32GameCenter*>(theApp->mGameCenter) != nullptr;
+  bool aLocalRecharge = dynamic_cast<Sexy::LocalGameCenter*>(theApp->mGameCenter) != nullptr;
   // The tier vector at +0x2FC is cleared by its own constructor, and +0x308
   // with it; the three layout words are the dialog's own constants.
   mBoughtTier = 0;

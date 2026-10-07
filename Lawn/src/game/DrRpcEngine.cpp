@@ -57,7 +57,7 @@ static int gGuardVar_9 = 0;
 // `curl_global_init(3)` (CURL_GLOBAL_ALL), `curl_escape(text)` -- libcurl's own
 // signature also takes the length, which this call site does not pass --
 // `curl_unescape(text, length)` and `curl_free(ptr)`. Their definitions belong
-// with Game/DrCurlEngine or in whatever curl target the build links.
+// with game/DrCurlEngine or in whatever curl target the build links.
 extern "C" {
 int    curl_global_init(int theFlags);
 char * curl_escape(const char *theText);
@@ -97,7 +97,7 @@ static int logStream(int theLogger, const void *theObject)
 // TODO(recon): `RegisterAtExit` registers the destructor of the function-local
 // DrRpcEngine static with the runtime, and C++ cannot take the address of a
 // destructor; the registration goes through this inert thunk, the same shape
-// Game/JSONNode.cpp and Game/JSONWorker.cpp use for their JSON singletons.
+// game/JSONNode.cpp and game/JSONWorker.cpp use for their JSON singletons.
 static void drRpcEngineDtorThunk(DrRpcEngine *theObject)
 {
     theObject->~DrRpcEngine();

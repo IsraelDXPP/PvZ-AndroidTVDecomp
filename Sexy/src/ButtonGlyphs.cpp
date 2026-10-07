@@ -60,7 +60,7 @@ bool ButtonGlyphsActive()
         return false;
     if (Sexy::GetEnvOption("LAWN_GAMEPAD_MODE", false) == 0)
         return false;
-    // An icon needs a live XInput pad. A keyboard does not count.
+    // An icon needs a live SDL pad. A keyboard does not count.
     Sexy::GamepadApp* aApp = static_cast<Sexy::GamepadApp*>(gSexyAppBase);
     if (aApp->mInputManager == nullptr)
         return false;
@@ -68,7 +68,7 @@ bool ButtonGlyphsActive()
     {
         if (aDriver == nullptr || aDriver->mOwner == nullptr)
             continue;
-        if (aDriver->mOwner->mName != "Win32Gamepad")
+        if (aDriver->mOwner->mName != "SDLGamepad")
             continue;
         if (aDriver->GetNumDevices() > 0)
             return true;

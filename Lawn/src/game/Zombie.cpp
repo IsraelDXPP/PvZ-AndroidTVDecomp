@@ -11361,7 +11361,7 @@ void Zombie::FinishInitialize(ZombieType theType, int theFromWave, int theRender
     }
 
     // Only a plain zombie ever arrives bloated, and only rarely.
-    mBloated = theType == ZOMBIE_NORMAL && lrand48() % 300 == 1;
+    mBloated = theType == ZOMBIE_NORMAL && PlatformRandomLong() % 300 == 1;
     UpdateReanim();
 }
 

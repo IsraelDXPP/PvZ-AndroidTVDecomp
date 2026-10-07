@@ -14,7 +14,7 @@
 // The binary's mangled name is LawnMenuParser::LawnParseWidget, but the header
 // declares the class at global scope (see LawnParseWidget.h), so the out-of-line
 // definition is written with the spelling that names that same class. Same
-// arrangement as Game/LogComposer.cpp.
+// arrangement as game/LogComposer.cpp.
 //
 // The binary's body is the 14-byte vptr store alone, so with `virtual` declared
 // on the header the body is empty and the compiler emits the store itself.

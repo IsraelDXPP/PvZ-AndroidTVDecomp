@@ -5,16 +5,16 @@
 // an out-of-line definition with the class-qualified name. The declarations
 // live in the classes:
 //
-//   Board::PLANT_WIN_TIME                 Game/Board.h:843
-//   Challenge::gVSSuddenDeathMode         Game/Challenge.h:106
-//   Challenge::gVSZombieSpawnMode         Game/Challenge.h:107
-//   DeckChooserButton::gDeckDefs          Game/DeckChooserButton.h:118  (const array)
-//   LawnApp::MP_FLOWERPOT_TEST            Game/LawnApp.h:373
-//   LawnApp::MP_GRAVESTONE_TARGETS_TEST   Game/LawnApp.h:374
-//   Mailbox::INVALID_MESSAGE              Game/Mailbox.h:66
+//   Board::PLANT_WIN_TIME                 game/Board.h:843
+//   Challenge::gVSSuddenDeathMode         game/Challenge.h:106
+//   Challenge::gVSZombieSpawnMode         game/Challenge.h:107
+//   DeckChooserButton::gDeckDefs          game/DeckChooserButton.h:118  (const array)
+//   LawnApp::MP_FLOWERPOT_TEST            game/LawnApp.h:373
+//   LawnApp::MP_GRAVESTONE_TARGETS_TEST   game/LawnApp.h:374
+//   Mailbox::INVALID_MESSAGE              game/Mailbox.h:66
 //   PIParticleInstance::mCount            Sexy/ReconTypes.h:276
 //   Sexy::Color::White / Black            Runtime/CoreTypes.h:164-165
-//   VSResultsMenu::msPlayerRecords        Game/VSResultsMenu.h:112       (private)
+//   VSResultsMenu::msPlayerRecords        game/VSResultsMenu.h:112       (private)
 //
 // MainMenu::msMenuOffsetX, VSSetupMenu::GAMEPAD_X_POSITIONS and
 // VSSetupMenu::msNextFirstPick used to be defined here too. Their own .cpp
@@ -30,13 +30,13 @@
 // than a zero word (a zeroed Color would be transparent black, which would
 // change what every default-coloured draw produces).
 
-// Game/Board.h, not "Board.h": a quoted include is searched for in the
+// game/Board.h, not "Board.h": a quoted include is searched for in the
 // including file's own directory first, and Sexy\Board.h -- a different class,
 // Sexy::Board -- shadows the Game one from here. With the shadow in place
 // `Board` was incomplete, so the definition below was reported as an incomplete
 // type and then mis-recovered as a plain global that collided with the
 // PLANT_WIN_TIME declaration in Sexy\ReconFreeFunctions.h.
-#include "Game/Board.h"
+#include "game/Board.h"
 #include "Challenge.h"
 #include "CoreTypes.h"
 #include "DeckChooserButton.h"

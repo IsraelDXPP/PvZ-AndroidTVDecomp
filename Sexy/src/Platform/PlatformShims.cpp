@@ -12,20 +12,13 @@
 // start the game, so the four entry points are stubbed rather than pulling in a
 // network stack.
 //
-// The declarations in Game/DrRpcEngine.cpp are at file scope with C linkage,
+// The declarations in game/DrRpcEngine.cpp are at file scope with C linkage,
 // which is why the linker asks for the undecorated `_curl_*` names.
 //
 // --- Android notification JNI ---------------------------------------------
 //
-// Native::NotificationManager forwards to six __stdcall imports that the
-// Android build resolves out of its Java bridge. There is no such bridge here.
-// The calling convention matters: `@N` in the decoration counts the bytes the
-// caller pushes, so these must be __stdcall to match
-// @NativeNotificationManagerCreate@4 -- see the note in Game/NotificationManager.cpp.
-//
-// TODO(recon): both groups are platform placeholders. A Windows build that
-// wants the RPC client working needs libcurl added to vcpkg.json; one that wants
-// notifications needs a real implementation over the Windows APIs.
+// Native notification services remain unavailable without the original Java bridge.
+// RPC and notifications retain the existing unavailable-service behavior.
 
 // ---------------------------------------------------------------------------
 // libcurl
@@ -62,30 +55,30 @@ extern "C" void curl_free(void * thePointer)
 // Android notification JNI
 // ---------------------------------------------------------------------------
 
-extern "C" int __stdcall NativeNotificationManagerCreate(void * theObject)
+extern "C" int NativeNotificationManagerCreate(void * theObject)
 {
     (void)theObject;
     return 0;               // "not available" -- callers take the no-notification path
 }
 
-extern "C" int __stdcall NativeNotificationManagerGetFeatures(void * theObject)
+extern "C" int NativeNotificationManagerGetFeatures(void * theObject)
 {
     (void)theObject;
     return 0;               // no capabilities, so every feature test reads unsupported
 }
 
-extern "C" int __stdcall NativeNotificationManagerGetName(void * theObject)
+extern "C" int NativeNotificationManagerGetName(void * theObject)
 {
     (void)theObject;
     return 0;
 }
 
-extern "C" int __stdcall NativeNotificationManagerSetAlias()
+extern "C" int NativeNotificationManagerSetAlias()
 {
     return 0;               // not set
 }
 
-extern "C" int __stdcall NativeNotificationManagerSetTags()
+extern "C" int NativeNotificationManagerSetTags()
 {
     return 0;               // not set
 }
@@ -93,7 +86,7 @@ extern "C" int __stdcall NativeNotificationManagerSetTags()
 // Returns 1 rather than 0: nothing was ever posted, so a cancellation succeeds
 // trivially, and a failure code would make the caller retry an operation that
 // cannot be performed here.
-extern "C" int __stdcall NativeNotificationManagerCancelAllNotifications(void * theObject)
+extern "C" int NativeNotificationManagerCancelAllNotifications(void * theObject)
 {
     (void)theObject;
     return 1;

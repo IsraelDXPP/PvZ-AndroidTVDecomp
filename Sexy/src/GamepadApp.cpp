@@ -95,7 +95,7 @@ int Sexy::GamepadApp::ProcessDeviceEvents()
         if (aDriver == nullptr)
             continue;
 
-        // Slot 0 can be an empty XInput user. Walk the live devices and keep
+        // Slot 0 can be an empty SDL user. Walk the live devices and keep
         // the first one that actually has a stick.
         InputInfo aInfo;
         aInfo.mHasJoystick = 0;

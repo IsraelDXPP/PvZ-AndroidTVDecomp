@@ -29,7 +29,7 @@
 // ---------------------------------------------------------------------------
 
 // The sound-instance record. mInstance is a Sexy::SoundInstance; the Windows
-// override is OpenALSoundInstance, reached through the virtual call.
+// override is SDLSoundInstance, reached through the virtual call.
 struct FoleyTypeDataElement
 {
     Sexy::SoundInstance *mInstance; // +0x00

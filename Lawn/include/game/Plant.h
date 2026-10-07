@@ -357,7 +357,7 @@ public:
     // vptr, and forced every call site into "the receiver is also the result
     // buffer". The call sites were already converted to
     // `Sexy::Rect aRect = aPlant->GetPlantRect();`, so this is what unblocks
-    // Game/Projectile.cpp.
+    // game/Projectile.cpp.
     Sexy::Rect GetPlantRect();
     Sexy::Rect GetPlantAttackRect(PlantWeapon theWeapon);
     GridItem * DoRowAreaDamage(int theDamage, unsigned int theDamageFlags);

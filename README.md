@@ -1,6 +1,6 @@
 # LawnProjectTV
 
-把《植物大战僵尸》电视 / Android 版里的 `libGameMain.so` 还原成可在 Windows 上编译、运行的 C++ 工程。目标是对照原二进制把类、虚表和字段偏移对齐，再在桌面上接一套窗口、OpenGL 和音频，而不是做一版新的移植。
+把《植物大战僵尸》电视 / Android 版里的 `libGameMain.so` 还原成可在 Windows 上编译、运行的 C++ 工程。游戏逻辑对照原二进制还原，桌面平台层使用 SDL3 窗口、输入和音频，以及 bgfx 渲染。
 
 当前状态是**重建进行中**。工程可以编出 `LawnTV.exe` 并进入帧循环，但大量函数仍是对着反编译结果逐段誊写的，启动期的堆损坏和布局偏差还在查。不要把它当成能完整通关的客户端。
 
@@ -10,14 +10,16 @@
 
 | 路径 | 内容 |
 | --- | --- |
-| `src/Game` | 游戏逻辑：`LawnApp`、`Board`、植物、僵尸、关卡、对话框 |
-| `src/Sexy` | PopCap SexyApp 框架的还原（控件、资源、渲染接口） |
-| `src/Platform` | Windows 替代层：GLFW 窗口、桌面 OpenGL 3.3、OpenAL、文件路径 |
-| `src/Runtime` | 让 ARM/libstdc++ 反编译结果能在 MSVC x86 上编译的类型和字符串垫片 |
-| `src/main.cpp` | Windows 入口和帧循环 |
+| `Lawn` | 游戏逻辑：`LawnApp`、`Board`、植物、僵尸、关卡、对话框 |
+| `Sexy` | PopCap SexyApp 框架的还原（控件、资源、渲染接口） |
+| `Sexy/src/Platform` | SDL3 窗口、输入、手柄、音频、文件及 bgfx 渲染 |
+| `Sexy/include/Runtime` | ARM 反编译结果的运行库兼容实现和 `Sexy::String` |
+| `Lawn/src/main.cpp` | SDL3 入口和帧循环 |
 | `vcpkg.json` | 第三方库清单 |
+| `Tools` | [SCBP 着色器编译打包脚本与格式说明](Tools/scbp.md) |
+| `Shaders` | [游戏着色器源码及多平台 SCBP 包](Shaders/README.md) |
 
-原 Android 构建从 JNI 进 `Native::BridgeApp`，由 `Sexy::AndroidAppDriver` 驱动。Windows 上由 `WinMain` 自己构造 `LawnApp` 并跑帧循环。
+原 Android 构建从 JNI 进 `Native::BridgeApp`，由 `Sexy::AndroidAppDriver` 驱动。当前由 SDL3 的 `main` 构造 `LawnApp` 并跑帧循环。
 
 资源路径按 APK 里的 `files/` 来解析。把资源解到可执行文件旁边的 `assets/`（或 `assets/files/`）即可；程序会在发现 `files` 子目录时自动走进去。也可以用 `--assets` 指到别的目录。
 
@@ -29,31 +31,48 @@
 - 带 manifest 模式的 [vcpkg](https://github.com/microsoft/vcpkg)，并集成进 MSBuild
 - **Win32（x86）**。类布局按 32 位 ARM 二进制的字段偏移还原，x64 配置虽然写在工程里，但对象大小对不上。
 
-依赖（见 `vcpkg.json`）：GLFW、glad（桌面 GL 3.3）、GLM、libpng、libjpeg-turbo、FreeType、zlib、minizip-ng、bzip2、libogg、libvorbis、OpenAL Soft、nlohmann-json、pugixml、stb。原版用的是 GLES2 和 Audiere，桌面这边保持同一套 GPU 用法（着色器、纹理、FBO），音频换成 OpenAL。
+依赖见 `vcpkg.json`：SDL3、SDL3_net、bgfx（multithreaded、tools）、SDL3_image（PNG、JPEG）、GLM、zlib、minizip-ng、bzip2、libogg、libvorbis、libopenmpt、nlohmann-json、pugixml、stb。SDL3_image 优先解码图像，stb 补充其他格式；Vorbis/openmpt 解码后交给 SDL3 音频流，SDL3_net 负责日志接口的主机名解析。游戏字体使用原资源的位图字体，无需 FreeType。
 
 ```text
 vcpkg install --triplet x86-windows
 ```
 
-用 Visual Studio 打开 `LawnProjectTV.slnx`，选 **Debug | Win32** 或 **Release | Win32** 生成。产物是仓库根下的：
+用 Visual Studio 打开 `Lawn.slnx`，选 **Debug | x86** 或 **Release | x86**（项目平台为 Win32）生成。产物是仓库根下的：
 
 ```text
 build\Win32\<Configuration>\LawnTV.exe
 ```
 
-把 `vcpkg_installed\x86-windows\bin` 里的 DLL（`glfw3.dll`、`OpenAL32.dll`、`ogg.dll`、`vorbis.dll` 等）放到 exe 旁边，再放上资源目录。
+vcpkg 的 MSBuild 集成自动复制所需 DLL，Lawn 项目自动把 `Shaders/*.scbp` 复制到 exe 旁边的 `assets/shaders`。另外放上游戏资源目录；使用 `--assets` 时把着色器也复制到对应目录的 `shaders` 下。
+
+## 渲染后端配置
+
+在游戏资源根的 `setup.env`（`assets/setup.env` 或 `assets/files/setup.env`）设置：
+
+```text
+set SEXY_VIDEO_DRIVER=dx11
+```
+
+可选 `auto`（默认）、`dx11`、`dx12`、`gl`、`vk`、`metal`，修改后重启。指定后端不可用或着色器包缺失会报告启动失败。Windows 已验证 DX11、DX12、GL、Vulkan；Metal 分段已打包。窗口连接通过 SDL 属性支持 Windows、Cocoa、X11 和 Wayland，Linux/macOS 尚未实机验证，游戏还原代码仍有独立的 32 位布局假设。配置示例见 [setup.env.example](setup.env.example)。
+
+原直接 OpenGL 后端已移除；`gl` 使用 bgfx 的 OpenGL renderer。`GLImage` 保留原类名，当前绘制目标会路由到 bgfx，其他目标继续使用 `MemoryImage` 软件绘制。
+
+## SDL 平台层
+
+原 `Win32AppDriver`、`Win32File`、`Win32Gamepad` 已替换为 `SDLAppDriver`、`SDLFile`、`SDLGamepad`，未使用的 Win32 窗口和输入实现已删除。窗口、事件、手柄热插拔及震动、音频流、线程、互斥锁、时钟和文件操作使用 SDL3；存档目录由 `SDL_GetPrefPath` 选择，文件路径统一使用 UTF-8，输出先写临时文件再替换原文件。
+
+应用驱动使用普通 C++ 虚函数和具名字段，不再读取对象偏移或拼接 Win32 虚表。原账号/商店服务使用 `LocalGameCenter`；原 Java 通知和 RPC 服务保持已有的不可用行为。bgfx 获取系统窗口句柄的适配集中在 SDL 窗口属性接口，无直接 Win32 API 调用。现有 Visual Studio 工程中的 `Win32` 仍是 x86 构建配置名称。
 
 ## 运行
 
 ```text
 LawnTV.exe [--assets <dir>] [--width N] [--height N]
            [--frames N]         跑 N 帧后退出
-           [--headless]         不显示窗口（仍会建隐藏的 GL 上下文）
-           [--screenshot <f>]   计划把最后一帧写到 <f> 后退出
-           [--test-pattern]     计划画一张固定图供像素对比；尚未实现
+           [--headless]         隐藏 SDL 窗口，仍使用 GPU 绘制
+           [--screenshot <f>]   保存最后一帧离屏图像后退出（隐含 headless）
 ```
 
-默认窗口 800×600。不传 `--assets` 时，资源根是 **exe 所在目录**下的 `assets`，不看当前工作目录。运行中按 F12 计划截背缓冲到 `screenshots/shot_NNNN.png`；截图表面还没接到渲染设备上，所以 `--screenshot` 和 F12 目前写不出图。
+默认窗口 1280×720。不传 `--assets` 时，资源根是 **exe 所在目录**下的 `assets`。运行中按 F12 保存离屏缓冲到 `screenshots/shot_NNNN.png`；`--screenshot` 使用同一个 bgfx 离屏目标，不受窗口遮挡或 DPI 影响。例如：`LawnTV.exe --frames 180 --screenshot out.png --headless`。
 
 ## 许可
 

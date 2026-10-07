@@ -21,15 +21,9 @@
 #include <vector>
 #include <map>
 
-#ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN
-#endif
 #ifndef NOMINMAX
 #define NOMINMAX
 #endif
-#include <windows.h>
-#include <io.h>
-#include <direct.h>
 
 #include "MTRand.h"
 #include "LogManager.h"
@@ -43,12 +37,12 @@
 #include "Buffer.h"
 #include "PIEffect.h"
 #include "SexyCommonApp.h"
-#include "Win32GameCenter.h"
-// Game/DriverFactory.h, not "DriverFactory.h": a quoted include is searched
+#include "LocalGameCenter.h"
+// game/DriverFactory.h, not "DriverFactory.h": a quoted include is searched
 // in this file's directory first, and Sexy\DriverFactory.h is a different class.
-#include "Game/DriverFactory.h"
+#include "game/DriverFactory.h"
 #include "GameCenter.h"
-#include "Platform/Win32File.h"
+#include "Platform/SDLFile.h"
 #include "ShareManager.h"
 #include "BridgeApp.h"
 #include "NotificationManager.h"
@@ -63,7 +57,7 @@
 #include "ImageLib.h"
 #include "Listener.h"
 #include "CritSect.h"
-#include "Platform/Win32File.h"
+#include "Platform/SDLFile.h"
 
 // File-local shapes for types that have no header of their own.
 namespace Sexy
@@ -356,33 +350,21 @@ std::exception* DestroyOutOfRange(std::exception* theException)
 }
 
 // The framework free function, not SexyAppBase::FileExists.
-bool Sexy::FileExists(Sexy::String const& thePath)
+bool Sexy::FileExists(Sexy::String const& path)
 {
-    return ::_access(thePath.c_str(), 0) == 0;
+    SDL_PathInfo info{};
+    return SDL_GetPathInfo(path.c_str(), &info) && info.type == SDL_PATHTYPE_FILE;
 }
+
 
 unsigned int Sexy::TickCountDiff(unsigned int theEarlier, unsigned int theLater)
 {
     return (theEarlier < theLater) ? (theLater - theEarlier) : (theEarlier - theLater);
 }
 
-// Milliseconds on the monotonic clock. QueryPerformanceCounter is that clock
-// on Windows; the Win32 tick count is a different epoch.
-int Sexy::GetTickCount()
-{
-    static LARGE_INTEGER sFrequency = []()
-    {
-        LARGE_INTEGER aValue;
-        QueryPerformanceFrequency(&aValue);
-        if (aValue.QuadPart == 0)
-            aValue.QuadPart = 1;
-        return aValue;
-    }();
+// Milliseconds since SDL initialization on the monotonic clock.
+int Sexy::GetTickCount() { return static_cast<int>(SDL_GetTicks()); }
 
-    LARGE_INTEGER aCounter;
-    QueryPerformanceCounter(&aCounter);
-    return (int)((aCounter.QuadPart * 1000) / sFrequency.QuadPart);
-}
 
 // Sexy::GetEnv @0x2FB880. The first call loads setup.env from the asset root
 // through p_fopen. A name listed there wins; anything else falls through to
@@ -495,7 +477,7 @@ void LoadSetupEnv()
     // The first lookup can happen before main() points the asset root at the
     // real assets directory. Caching that miss would ignore setup.env for the
     // rest of the process, including LAWN_NO_INTRO_VIDEO.
-    std::string aRoot = Sexy::Win32File::GetAssetRoot();
+    std::string aRoot = Sexy::SDLFile::GetAssetRoot();
     if (aTable.mLoaded && aTable.mRoot == aRoot)
         return;
     aTable.mLoaded = true;
@@ -539,7 +521,7 @@ char const* Sexy::GetEnv(char const* theName)
     std::map<std::string, std::string>::iterator aFound = SetupEnv().mValues.find(theName);
     if (aFound != SetupEnv().mValues.end())
         return aFound->second.c_str();
-    return ::getenv(theName);
+    return SDL_getenv(theName);
 }
 
 char const* Sexy::logLevelName(Sexy::LogLevel theLevel)
@@ -1514,7 +1496,7 @@ int j_AGShowMoreGame()
 void* Sexy::IGameCenter::Create(Sexy::SexyCommonApp* theApp)
 {
     (void)theApp;
-    return new Sexy::Win32GameCenter();
+    return new Sexy::LocalGameCenter();
 }
 
 void* Sexy::INotificationManager::Create(Sexy::SexyCommonApp* theApp)

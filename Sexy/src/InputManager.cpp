@@ -7,12 +7,11 @@
 #include "InputDriver.h"
 #include "InputDriverFactory.h"
 #include "NativeDisplay.h"
-#include "Platform/GLWindow.h"
+#include "Platform/SDLWindow.h"
 #include "ReconHelpers.h"
 #include "SexyAppBase.h"
 #include "WidgetManager.h"
 
-#include <windows.h>
 
 namespace {
 
@@ -67,7 +66,7 @@ void StampEvent(Sexy::Event& theEvent)
 {
     if (((unsigned int)theEvent.modifierMask & kHasTimestamp) != 0)
         return;
-    theEvent.eventCode = (int)GetTickCount();
+    theEvent.eventCode = static_cast<int>(SDL_GetTicks());
     theEvent.modifierMask = (int)(((unsigned int)theEvent.modifierMask) | kHasTimestamp);
 }
 
@@ -460,10 +459,10 @@ int Sexy::InputManager::Update()
         aDisplay = mApp->mPlatformDriverOrQueue;
     }
 
-    // The GLFW window is the keyboard. AndroidDisplay::GetEvent is a stub;
+    // The SDL window supplies keyboard events. AndroidDisplay::GetEvent is a stub;
     // the real keys arrived through AndroidInput::HandleKeyEvents. The port
     // posts the same shape here, with device 0 so a key is not a pad.
-    GLWindow* aWindow = ActiveWindow();
+    SDLWindow* aWindow = ActiveWindow();
     while (aWindow != nullptr && aWindow->PopKeyEvent(aEvent))
     {
         aEvent.lateModifiers = 0;

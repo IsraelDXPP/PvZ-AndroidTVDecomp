@@ -19,6 +19,7 @@
 #include <cstdio>
 #include <cstddef>
 #include <cstdlib>
+#include <SDL3/SDL_stdinc.h>
 
 // ---------------------------------------------------------------------------
 // StrFormat(dest, format, ...) -- sprintf into a Sexy::String.
@@ -83,8 +84,8 @@ inline void* qmemcpy(void* theDest, const void* theSource, size_t theCount)
 // Without the float one, `Rand(2.0f)` silently converts to the int overload.
 //
 // The zero-argument form is the generator's own `operator()` -- a full-range
-// draw with no bound. Several files call it (`Game/Board.cpp` and
-// `Game/MainMenu.cpp` had each declared their own local `int Rand();` to get
+// draw with no bound. Several files call it (`game/Board.cpp` and
+// `game/MainMenu.cpp` had each declared their own local `int Rand();` to get
 // past its absence), so it is declared here once instead.
 // All three are mangled inside namespace Sexy (`_ZN4Sexy4RandE...`). The
 // zero-argument form is the generator's own draw; the int and float forms
@@ -303,17 +304,13 @@ const char* GetNameString(int theId);
 void  BuildLine(Sexy::String* theDest, const char* theSource, int theWidth);
 
 // ---------------------------------------------------------------------------
-// The C runtime names the binary was linked against. On Windows these are the
-// underscore-prefixed forms, so each is forwarded rather than reimplemented.
+// Case-insensitive comparisons use SDL's portable implementations.
 // ---------------------------------------------------------------------------
 #ifndef strcasecmp
-#define strcasecmp _stricmp
+#define strcasecmp SDL_strcasecmp
 #endif
 #ifndef strncasecmp
-#define strncasecmp _strnicmp
-#endif
-#ifndef snprintf
-#define snprintf _snprintf
+#define strncasecmp SDL_strncasecmp
 #endif
 
 // ---------------------------------------------------------------------------
@@ -387,8 +384,7 @@ String* _S_create(String* theResult, unsigned int theLength);
 //
 // The binary's TM::Thread is a handle plus a run function, which is what the
 // transcribed constructors store and what Create starts. The Android
-// implementation uses pthreads; the Windows equivalent is a Win32 thread,
-// which is the same operation.
+// implementation uses pthreads; this platform layer uses SDL3 threads.
 //
 // ReconFreeFunctions.h already forward-declares TM::Thread as a class of
 // static helpers; the real definition lives in Thread.h, which this header

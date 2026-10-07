@@ -60,8 +60,8 @@
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>false</SDLCheck>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;_CRT_SECURE_NO_WARNINGS;LAWNTV_DECOMP;NOMINMAX;GLFW_INCLUDE_NONE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\Sexy\include;$(ProjectDir)..\Sexy\include\Platform;$(ProjectDir)..\Sexy\include\Platform\GL;$(ProjectDir)..\Sexy\include\Platform\Audio;$(ProjectDir)..\Sexy\include\Runtime;$(ProjectDir)..\TodLib\include;$(ProjectDir)..\Lawn\include;$(ProjectDir)..\Lawn\include\game;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_CRT_SECURE_NO_WARNINGS;LAWNTV_DECOMP;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\Sexy\include;$(ProjectDir)..\Sexy\include\Platform;$(ProjectDir)..\Sexy\include\Platform\Bgfx;$(ProjectDir)..\Sexy\include\Platform\Audio;$(ProjectDir)..\Sexy\include\Runtime;$(ProjectDir)..\TodLib\include;$(ProjectDir)..\Lawn\include;$(ProjectDir)..\Lawn\include\game;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ConformanceMode>false</ConformanceMode>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <AdditionalOptions>/bigobj /source-charset:utf-8 %(AdditionalOptions)</AdditionalOptions>
@@ -213,26 +213,20 @@
     <ClCompile Include="src\XMLParser.cpp" />
     <ClCompile Include="src\XMLWriter.cpp" />
     <ClCompile Include="src\Runtime\AndroidShims.cpp" />
-    <ClCompile Include="src\Runtime\DeleteGuard.cpp" />
     <ClCompile Include="src\Runtime\SexyString.cpp" />
-    <ClCompile Include="src\Platform\Audio\OpenALAudioBackend.cpp" />
-    <ClCompile Include="src\Platform\GL\GLRenderBackend.cpp" />
-    <ClCompile Include="src\Platform\GL\GLRenderDevice.cpp" />
-    <ClCompile Include="src\Platform\GL\GLShader.cpp" />
-    <ClCompile Include="src\Platform\GL\GLStateManager.cpp" />
-    <ClCompile Include="src\Platform\GL\GLTexture.cpp" />
-    <ClCompile Include="src\Platform\GL\GLUtil.cpp" />
-    <ClCompile Include="src\Platform\GL\GLVertexBuffer.cpp" />
-    <ClCompile Include="src\Platform\GLWindow.cpp" />
+    <ClCompile Include="src\Platform\Audio\SDLAudioBackend.cpp" />
+    <ClCompile Include="src\Platform\Bgfx\BgfxRenderBackend.cpp" />
+    <ClCompile Include="src\Platform\Bgfx\BgfxRenderDevice.cpp" />
+    <ClCompile Include="src\Platform\Bgfx\BgfxTexture.cpp" />
+    <ClCompile Include="src\Platform\Bgfx\ShaderPackage.cpp" />
+    <ClCompile Include="src\Platform\SDLWindow.cpp" />
     <ClCompile Include="src\Platform\MpegVideo.cpp" />
     <ClCompile Include="src\Platform\PlatformShims.cpp" />
     <ClCompile Include="src\Platform\Screenshot.cpp" />
-    <ClCompile Include="src\Platform\Win32AppDriver.cpp" />
-    <ClCompile Include="src\Platform\Win32File.cpp" />
-    <ClCompile Include="src\Platform\Win32GameCenter.cpp" />
-    <ClCompile Include="src\Platform\Win32Gamepad.cpp" />
-    <ClCompile Include="src\Platform\Win32Input.cpp" />
-    <ClCompile Include="src\Platform\Win32Window.cpp" />
+    <ClCompile Include="src\Platform\SDLAppDriver.cpp" />
+    <ClCompile Include="src\Platform\SDLFile.cpp" />
+    <ClCompile Include="src\Platform\LocalGameCenter.cpp" />
+    <ClCompile Include="src\Platform\SDLGamepad.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\ActiveFontLayer.h" />
@@ -314,23 +308,17 @@
     <ClInclude Include="include\PIValue2D.h" />
     <ClInclude Include="include\PixelData.h" />
     <ClInclude Include="include\PixelUtil.h" />
-    <ClInclude Include="include\Platform\Audio\OpenALAudioBackend.h" />
-    <ClInclude Include="include\Platform\GLWindow.h" />
-    <ClInclude Include="include\Platform\GL\GLHeaders.h" />
-    <ClInclude Include="include\Platform\GL\GLRenderBackend.h" />
-    <ClInclude Include="include\Platform\GL\GLRenderDevice.h" />
-    <ClInclude Include="include\Platform\GL\GLShader.h" />
-    <ClInclude Include="include\Platform\GL\GLStateManager.h" />
-    <ClInclude Include="include\Platform\GL\GLTexture.h" />
-    <ClInclude Include="include\Platform\GL\GLVertexBuffer.h" />
+    <ClInclude Include="include\Platform\Audio\SDLAudioBackend.h" />
+    <ClInclude Include="include\Platform\Bgfx\BgfxRenderBackend.h" />
+    <ClInclude Include="include\Platform\Bgfx\BgfxRenderDevice.h" />
+    <ClInclude Include="include\Platform\Bgfx\ShaderPackage.h" />
+    <ClInclude Include="include\Platform\SDLWindow.h" />
     <ClInclude Include="include\Platform\MpegVideo.h" />
     <ClInclude Include="include\Platform\Screenshot.h" />
-    <ClInclude Include="include\Platform\Win32AppDriver.h" />
-    <ClInclude Include="include\Platform\Win32File.h" />
-    <ClInclude Include="include\Platform\Win32GameCenter.h" />
-    <ClInclude Include="include\Platform\Win32Gamepad.h" />
-    <ClInclude Include="include\Platform\Win32Input.h" />
-    <ClInclude Include="include\Platform\Win32Window.h" />
+    <ClInclude Include="include\Platform\SDLAppDriver.h" />
+    <ClInclude Include="include\Platform\SDLFile.h" />
+    <ClInclude Include="include\Platform\LocalGameCenter.h" />
+    <ClInclude Include="include\Platform\SDLGamepad.h" />
     <ClInclude Include="include\PlayerInfo.h" />
     <ClInclude Include="include\PopAnim.h" />
     <ClInclude Include="include\ProfileEventListener.h" />

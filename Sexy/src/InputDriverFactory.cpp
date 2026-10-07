@@ -7,7 +7,7 @@
 #include "InputDriverFactory.h"
 
 #include "DriverFactory.h"
-#include "Win32Gamepad.h"
+#include "SDLGamepad.h"
 
 // ==========================================================================
 // Sexy::InputDriverFactory::InputDriverFactory(void)
@@ -54,7 +54,7 @@ Sexy::InputDriverFactory* Sexy::InputDriverFactory::GetInputDriverFactory()
 // ==========================================================================
 void Sexy::InputDriverFactory::Load()
 {
-  if (Find(String("Win32Gamepad")) != nullptr)
+  if (Find(String("SDLGamepad")) != nullptr)
     return;
-  AddDriver(new Win32GamepadDriver());
+  AddDriver(new SDLGamepadDriver());
 }

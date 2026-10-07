@@ -24,7 +24,7 @@ public:
     int mPad1C;
 
     PerfTimer();
-    __time_t CalcDuration();
+    int64_t CalcDuration();
     int Start();
     PerfTimer * Stop();
     double GetDuration();

@@ -2,8 +2,8 @@
 //
 // The binary dispatched these through an Itanium vtable stored in the first
 // word. This build uses C++ virtual functions, so the compiler owns that word.
-// Win32AppDriver.cpp supplies the overrides that actually run on Windows.
-// A method with no Windows body returns the same success or failure the old
+// SDLAppDriver.cpp supplies the SDL3 implementations.
+// A method without a platform implementation returns the success or failure the old
 // stub slot returned.
 
 #pragma once
@@ -225,7 +225,7 @@ public:
     virtual int UpdateInput()                               { return 1; }
 };
 
-class IAppDriver
+class IAppDriver : public BaseAppDriver
 {
 public:
     static IAppDriver* CreateAppDriver(Sexy::SexyAppBase* theApp);

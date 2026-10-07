@@ -74,7 +74,6 @@
 #include "ZenGarden.h"
 #include "ZenGardenControls.h"
 #include "Zombie.h"
-#include <windows.h>
 #include <string>
 #include <vector>
 #include <map>
@@ -2089,7 +2088,7 @@ void Board::UpdateSunSpawning()
     aCoinType = COIN_SUN;
     mSunCountDown = 2 * mSunCountDown / 3;
   }
-  if ( mApp->IsCoopMode() != 0 && lrand48() % 4 <= 1 )
+  if ( mApp->IsCoopMode() != 0 && PlatformRandomLong() % 4 <= 1 )
     aCoinType = COIN_COOP_DOUBLE_SUN;
   if ( mApp->mGameMode == GAMEMODE_MP_VS )
   {

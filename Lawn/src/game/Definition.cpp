@@ -993,7 +993,7 @@ int ReanimatorEnsureDefinitionLoaded(ReanimationType theType, bool theRequireCom
     {
         ReanimatorTrack& aRow = aDefinition->mTracks[aTrack];
         aRow.mTrackId = ReanimatorTrackNameToId(aRow.mName);
-        aRow.mIsAttacher = _strnicmp(aRow.mName, "attacher__", 10) == 0;
+        aRow.mIsAttacher = SDL_strncasecmp(aRow.mName, "attacher__", 10) == 0;
     }
     if (aTimer.GetDuration() > 100.0 && gGetCurrentLevelName != nullptr)
         gGetCurrentLevelName();

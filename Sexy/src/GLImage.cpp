@@ -1,19 +1,19 @@
-// GLImage routes a draw to the live GL device when this image is the current
+// GLImage routes a draw to the live bgfx device when this image is the current
 // draw target, and to MemoryImage otherwise. The check is the one in
 // Sexy::GLImage::Blt @0x475888: the display's current target takes the
 // hardware path, and every other destination stays on the software rasterizer.
 
 #include "GLImage.h"
-#include "GLRenderDevice.h"
+#include "BgfxRenderDevice.h"
 #include <cmath>
 
 namespace {
 
-Sexy::GLRenderDevice::DrawMode ToDeviceMode(int theDrawMode)
+Sexy::BgfxRenderDevice::DrawMode ToDeviceMode(int theDrawMode)
 {
     if (theDrawMode == 1)
-        return Sexy::GLRenderDevice::DRAWMODE_ADDITIVE;
-    return Sexy::GLRenderDevice::DRAWMODE_NORMAL;
+        return Sexy::BgfxRenderDevice::DRAWMODE_ADDITIVE;
+    return Sexy::BgfxRenderDevice::DRAWMODE_NORMAL;
 }
 
 Sexy::MemoryImage* AsMemory(Sexy::Image* theImage)
@@ -65,7 +65,7 @@ Sexy::GLImage::~GLImage() = default;
 
 bool Sexy::GLImage::IsCurrentTarget() const
 {
-    GLRenderDevice* aDevice = GLRenderDevice::sCurrent;
+    BgfxRenderDevice* aDevice = BgfxRenderDevice::sCurrent;
     return aDevice != nullptr && aDevice->GetDrawTarget() == this;
 }
 
@@ -83,7 +83,7 @@ void Sexy::GLImage::FillRect(const TRect<int> & theRect, const Color & theColor,
         MemoryImage::FillRect(theRect, theColor, theDrawMode);
         return;
     }
-    GLRenderDevice::sCurrent->FillRect(theRect, theColor, ToDeviceMode(theDrawMode));
+    BgfxRenderDevice::sCurrent->FillRect(theRect, theColor, ToDeviceMode(theDrawMode));
 }
 
 void Sexy::GLImage::ClearRect(const TRect<int> & theRect)
@@ -93,7 +93,7 @@ void Sexy::GLImage::ClearRect(const TRect<int> & theRect)
         MemoryImage::ClearRect(theRect);
         return;
     }
-    GLRenderDevice::sCurrent->FillRect(theRect, Color(0, 0, 0, 0), GLRenderDevice::DRAWMODE_NORMAL);
+    BgfxRenderDevice::sCurrent->FillRect(theRect, Color(0, 0, 0, 0), BgfxRenderDevice::DRAWMODE_NORMAL);
 }
 
 void Sexy::GLImage::DrawLine(double theStartX, double theStartY, double theEndX, double theEndY,
@@ -104,7 +104,7 @@ void Sexy::GLImage::DrawLine(double theStartX, double theStartY, double theEndX,
         MemoryImage::DrawLine(theStartX, theStartY, theEndX, theEndY, theColor, theDrawMode);
         return;
     }
-    GLRenderDevice::sCurrent->DrawLine((float)theStartX, (float)theStartY,
+    BgfxRenderDevice::sCurrent->DrawLine((float)theStartX, (float)theStartY,
                                        (float)theEndX, (float)theEndY,
                                        theColor, ToDeviceMode(theDrawMode));
 }
@@ -139,7 +139,7 @@ void Sexy::GLImage::Blt(Image * theSource, int theX, int theY, const TRect<int> 
     // software replace path; the font outline is already in the atlas, so a
     // replace here erases it. The flag stays off on this path.
     (void)theColorize;
-    GLRenderDevice::sCurrent->DrawImage(
+    BgfxRenderDevice::sCurrent->DrawImage(
         aSource, TRect<int>(aX, aY, aSrc.mWidth, aSrc.mHeight), aSrc,
         theColor, ToDeviceMode(theDrawMode), false, true, false);
 }
@@ -163,7 +163,7 @@ void Sexy::GLImage::BltF(Image * theSource, float theX, float theY, const TRect<
     if (!ClipSource(theSourceRect, (int)theX, (int)theY, theClipRect, aSrc, aX, aY))
         return;
 
-    GLRenderDevice::sCurrent->DrawImage(
+    BgfxRenderDevice::sCurrent->DrawImage(
         aSource, TRect<int>(aX, aY, aSrc.mWidth, aSrc.mHeight), aSrc,
         theColor, ToDeviceMode(theDrawMode), false, true, false);
 }
@@ -227,7 +227,7 @@ void Sexy::GLImage::StretchBlt(Image * theSource, const TRect<int> & theDestRect
     if (aSrc.mWidth <= 0 || aSrc.mHeight <= 0)
         return;
 
-    GLRenderDevice::sCurrent->DrawImage(aSource, aDest, aSrc, theColor, ToDeviceMode(theDrawMode),
+    BgfxRenderDevice::sCurrent->DrawImage(aSource, aDest, aSrc, theColor, ToDeviceMode(theDrawMode),
                                         false, theFastStretch, false);
 }
 
@@ -258,7 +258,7 @@ void Sexy::GLImage::BltMatrix(Image * theSource, float theX, float theY, const S
     if (aClip.mWidth <= 0 || aClip.mHeight <= 0)
         return;
 
-    GLRenderDevice* aDevice = GLRenderDevice::sCurrent;
+    BgfxRenderDevice* aDevice = BgfxRenderDevice::sCurrent;
     bool aNeedsClip = aClip != aScreen;
     if (aNeedsClip)
         aDevice->SetClipRect(aClip);
@@ -294,7 +294,7 @@ void Sexy::GLImage::BltTrianglesTex(Image * theSource, const SexyVertex2D (*theT
     TRect<int> aClip = theClipRect.Intersection(aScreen);
     if (aClip.mWidth <= 0 || aClip.mHeight <= 0)
         aClip = aScreen;
-    GLRenderDevice* aDevice = GLRenderDevice::sCurrent;
+    BgfxRenderDevice* aDevice = BgfxRenderDevice::sCurrent;
     aDevice->SetClipRect(aClip);
     aDevice->DrawTriangles(aSource, theTriangles, theTriangleCount, theColor,
                            ToDeviceMode(theDrawMode), theTx, theTy);
@@ -321,7 +321,7 @@ void Sexy::GLImage::BltMirror(Image * theSource, int theX, int theY, const TRect
     if (!ClipSource(theSourceRect, theX, theY, aClip, aSrc, aX, aY))
         return;
 
-    GLRenderDevice::sCurrent->DrawImage(
+    BgfxRenderDevice::sCurrent->DrawImage(
         aSource, TRect<int>(aX, aY, aSrc.mWidth, aSrc.mHeight), aSrc,
         theColor, ToDeviceMode(theDrawMode), true, true, false);
 }
@@ -345,6 +345,6 @@ void Sexy::GLImage::StretchBltMirror(Image * theSource, const TRect<int> & theDe
     if (aDest.mWidth <= 0 || aDest.mHeight <= 0)
         return;
 
-    GLRenderDevice::sCurrent->DrawImage(aSource, aDest, theSrcRect, theColor, ToDeviceMode(theDrawMode),
+    BgfxRenderDevice::sCurrent->DrawImage(aSource, aDest, theSrcRect, theColor, ToDeviceMode(theDrawMode),
                                         true, theFastStretch, false);
 }
