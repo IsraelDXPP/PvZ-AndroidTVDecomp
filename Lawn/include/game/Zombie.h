@@ -212,10 +212,6 @@ public:
     // 0x1A8920. Early outs do nothing. The other paths hide or restore the
     // yucky-face tracks. No caller reads a return.
     void ShowYuckyFace(bool theShow);
-    // The two halves of UpdateYuckyFace's body, split out because the ARM
-    // reaches them from two different entry points in the same function.
-    int UpdateYuckyFaceAt70();
-    int StopYuckyFace();
     void UpdateAnaphylaxis();
     // The three draw helpers take the Graphics and the draw position; the
     // mangled names (`_ZN6Zombie14DrawZombieHeadEPN4Sexy8GraphicsER18ZombieDrawPositioni`
@@ -355,7 +351,7 @@ public:
     int UpdateDolphinJumpLanding();
     // 0x1AEDD4. Returns this. The last path tail-calls UpdateAnimSpeed.
     Zombie * StopEating();
-    int UpdateYuckyFace();
+    void UpdateYuckyFace();
     int DragUnder();
     int DropShield(unsigned int theDamageFlags);
     int TakeShieldDamage(int theDamage, unsigned int theDamageFlags);

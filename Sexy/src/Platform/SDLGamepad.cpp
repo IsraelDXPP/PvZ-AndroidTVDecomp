@@ -113,6 +113,37 @@ float StickAxis(Sint16 theValue)
     return (float)theValue * kStickScale;
 }
 
+void LogGamepadState(SDL_Gamepad* theGamepad, int theDevice, const char* theReason)
+{
+    SDL_Joystick* aJoystick = SDL_GetGamepadJoystick(theGamepad);
+    std::string anAxisValues;
+    for (int anAxis = 0; anAxis < SDL_GetNumJoystickAxes(aJoystick); ++anAxis)
+    {
+        if (!anAxisValues.empty()) anAxisValues += ',';
+        anAxisValues += std::to_string(SDL_GetJoystickAxis(aJoystick, anAxis));
+    }
+    std::string aHatValues;
+    for (int aHat = 0; aHat < SDL_GetNumJoystickHats(aJoystick); ++aHat)
+    {
+        if (!aHatValues.empty()) aHatValues += ',';
+        aHatValues += std::to_string(SDL_GetJoystickHat(aJoystick, aHat));
+    }
+    std::string aPressedButtons;
+    for (int aButton = 0; aButton < SDL_GetNumJoystickButtons(aJoystick); ++aButton)
+    {
+        if (!SDL_GetJoystickButton(aJoystick, aButton)) continue;
+        if (!aPressedButtons.empty()) aPressedButtons += ',';
+        aPressedButtons += std::to_string(aButton);
+    }
+    char* aMapping = SDL_GetGamepadMapping(theGamepad);
+    const char* aName = SDL_GetGamepadName(theGamepad);
+    logfi("SDL gamepad state: device=%d name=%s reason=%s raw_axes=[%s] raw_hats=[%s] raw_buttons=[%s] mapping=%s",
+        theDevice, aName != nullptr ? aName : "SDL Gamepad", theReason,
+        anAxisValues.c_str(), aHatValues.c_str(), aPressedButtons.c_str(),
+        aMapping != nullptr ? aMapping : "");
+    SDL_free(aMapping);
+}
+
 } // namespace
 
 // ---------------------------------------------------------------------------
@@ -142,6 +173,7 @@ struct PolledPad
     bool  mTriggerLeft;
     bool  mTriggerRight;
     DirectionButtonState mDirections[kDirectionCount];
+    bool mInitialStateLogged;
     std::string mName;
 };
 
@@ -271,7 +303,8 @@ void SDLGamepadInterface::PushButton(int theDevice, KeyCode theKey, bool theDown
     anEvent.eventType = (TMLongCard)theDevice;
     anEvent.eventCodeMask = (TMLongCard)theKey;
     mEvents.push_back(anEvent);
-    logfi("Pad map %s: device %d -> pad 0x%X", theDown ? "down" : "up", theDevice, theKey);
+    const char* aAction = (theModifiers & 128) != 0 ? "repeat" : (theDown ? "down" : "up");
+    logfi("Pad map %s: device %d -> pad 0x%X", aAction, theDevice, theKey);
 }
 
 void SDLGamepadInterface::UpdateDirection(PolledPad &thePad, int theDirection,
@@ -373,6 +406,14 @@ void SDLGamepadInterface::PollGamepads()
             pad.mLeftX > kDirectionDeadZone, pad.mLeftY > kDirectionDeadZone,
             SDL_GetGamepadButton(pad.mGamepad, SDL_GAMEPAD_BUTTON_DPAD_LEFT), SDL_GetGamepadButton(pad.mGamepad, SDL_GAMEPAD_BUTTON_DPAD_UP),
             SDL_GetGamepadButton(pad.mGamepad, SDL_GAMEPAD_BUTTON_DPAD_RIGHT), SDL_GetGamepadButton(pad.mGamepad, SDL_GAMEPAD_BUTTON_DPAD_DOWN)};
+        bool aDpadChanged = false;
+        for (int aDirection = 4; aDirection < kDirectionCount; ++aDirection)
+            aDpadChanged |= directions[aDirection] != pad.mDirections[aDirection].mDown;
+        if (!pad.mInitialStateLogged || aDpadChanged)
+        {
+            LogGamepadState(pad.mGamepad, pad.mUserIndex, pad.mInitialStateLogged ? "dpad changed" : "initial");
+            pad.mInitialStateLogged = true;
+        }
         for (int direction = 0; direction < kDirectionCount; ++direction) UpdateDirection(pad, direction, directions[direction], tick);
         if (pad.mUserIndex == mRumbleDevice)
             SDL_RumbleGamepad(pad.mGamepad, static_cast<Uint16>(std::clamp(mRumbleLow, 0.0f, 1.0f) * 65535),

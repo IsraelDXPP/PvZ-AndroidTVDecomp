@@ -5727,22 +5727,11 @@ Zombie * Zombie::StopEating()
 // Zombie::UpdateYuckyFace(void)
 // @001AEE28  368 bytes
 // ==========================================================================
-int Zombie::UpdateYuckyFace()
+void Zombie::UpdateYuckyFace()
 {
-    int aOldCounter = mYuckyFaceCounter;
-    mYuckyFaceCounter = aOldCounter + 1;
+    ++mYuckyFaceCounter;
 
-    // The face is only allowed to start in a narrow window, and it is torn
-    // down once the counter passes 270. The two windows (70 and 170) share the
-    // rest of the body, which is why they are spelled out below.
-    if ((unsigned int)(aOldCounter - 20) > 0x94)
-    {
-        if (mYuckyFaceCounter <= 270)
-            return UpdateYuckyFaceAt70();
-        return StopYuckyFace();
-    }
-
-    if (!HasYuckyFaceImage())
+    if (mYuckyFaceCounter > 20 && mYuckyFaceCounter < 170 && !HasYuckyFaceImage())
     {
         StopEating();
         mYuckyFaceCounter = 170;
@@ -5754,16 +5743,13 @@ int Zombie::UpdateYuckyFace()
     }
 
     if (mYuckyFaceCounter > 270)
-        return StopYuckyFace();
+    {
+        ShowYuckyFace(false);
+        mYuckyFace = false;
+        mYuckyFaceCounter = 0;
+        return;
+    }
 
-    return UpdateYuckyFaceAt70();
-}
-
-// The 70-frame half of UpdateYuckyFace: the face is shown, and once the
-// counter reaches 170 the zombie steps to a neighbouring row. 2 is
-// PLANTROW_POOL: the zombie only steps onto a pool row or away from one.
-int Zombie::UpdateYuckyFaceAt70()
-{
     if (mYuckyFaceCounter == 70)
     {
         StopEating();
@@ -5776,41 +5762,23 @@ int Zombie::UpdateYuckyFaceAt70()
     }
 
     if (mYuckyFaceCounter != 170)
-        return (int)this;
+        return;
 
     StartWalkAnim(20);
 
-    int aRow = mRow;
-    bool aRowAboveIsPool = mBoard->mPlantRow[aRow - 1] == 2;
-    bool aCanStepUp = mBoard->RowCanHaveZombies(aRow - 1)
-                   && mBoard->mPlantRow[aRow - 2] == 2;
+    // TV 0x1AEE28 only crosses into an adjacent row of the same terrain type.
+    bool aIsPool = mBoard->mPlantRow[mRow] == PLANTROW_POOL;
+    bool aCanStepUp = mBoard->RowCanHaveZombies(mRow - 1)
+                  && (mBoard->mPlantRow[mRow - 1] == PLANTROW_POOL) == aIsPool;
+    bool aCanStepDown = mBoard->RowCanHaveZombies(mRow + 1)
+                    && (mBoard->mPlantRow[mRow + 1] == PLANTROW_POOL) == aIsPool;
 
-    if (mBoard->RowCanHaveZombies(aRow + 1) && mBoard->mPlantRow[aRow + 1] == 2)
-    {
-        if (!aRowAboveIsPool)
-            return SetRow(aRow + 1);
-    }
-    else if (aRowAboveIsPool)
-    {
-        return SetRow(aRow + 1);
-    }
-
-    if (!aCanStepUp)
-        return (int)this;
-
-    if (Rand(2) == 0)
-        return SetRow(mRow + 1);
-
-    return SetRow(mRow - 1);
-}
-
-// The tail of UpdateYuckyFace: the face is hidden and the counters are reset.
-int Zombie::StopYuckyFace()
-{
-    ShowYuckyFace(false);
-    mYuckyFace = false;
-    mYuckyFaceCounter = 0;
-    return (int)this;
+    if (aCanStepUp && aCanStepDown)
+        SetRow(Rand(2) == 0 ? mRow + 1 : mRow - 1);
+    else if (aCanStepUp)
+        SetRow(mRow - 1);
+    else if (aCanStepDown)
+        SetRow(mRow + 1);
 }
 
 // ==========================================================================

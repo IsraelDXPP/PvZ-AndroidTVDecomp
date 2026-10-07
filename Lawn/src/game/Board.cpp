@@ -1466,12 +1466,12 @@ int Board::UpdateLayers()
 // ==========================================================================
 bool Board::RowCanHaveZombies(int theRow)
 {
-  if ( theRow > 5 )
+  if (theRow < 0 || theRow > 5)
     return false;
-  // The resodded challenge kills row 5 outright, so zombies may walk it even
-  // though its PlantRowType is dirt.
+  // The resodded challenge allows zombies in the first five rows regardless
+  // of their PlantRowType.
   if ( mApp->mGameMode != GAMEMODE_CHALLENGE_RESODDED || theRow == 5 )
-    return mPlantRow[theRow] != 0;
+    return mPlantRow[theRow] != PLANTROW_DIRT;
   return true;
 }
 
