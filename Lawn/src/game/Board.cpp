@@ -9361,10 +9361,10 @@ Zombie * Board::AddZombieInRow(ZombieType theZombieType, int theRow, int theFrom
   // mZombiesVisible: while the level data is loaded and that flag is clear, it
   // is passed as both the parent slot and the last flag (both are 0 on that
   // path); otherwise the parent is null and the last flag is 1. A bobsled
-  // (type 13) that is on the board brings three flag zombies with it, with
+  // (type 13) that is on the board brings three teammates with it, with
   // the bobsled as their parent. A non-negative wave, a row in 0..5, a live
   // cover-layer reanimation, theIsVisible set, and a background of at most 3 rustles
-  // that row's cover. REANIM_LOOP is 3.
+  // that row's cover once, then holds its final frame (loop type 3).
   if ( mZombies.mSize >= mZombies.mMaxSize - 1 )
     return nullptr;
 
@@ -9377,13 +9377,13 @@ Zombie * Board::AddZombieInRow(ZombieType theZombieType, int theRow, int theFrom
 
   if ( theZombieType == ZOMBIE_BOBSLED && aZombie->IsOnBoard() != 0 )
   {
-    Zombie *aFlag0 = mZombies.DataArrayAlloc();
-    Zombie *aFlag1 = mZombies.DataArrayAlloc();
-    Zombie *aFlag2 = mZombies.DataArrayAlloc();
+    Zombie *aTeammate0 = mZombies.DataArrayAlloc();
+    Zombie *aTeammate1 = mZombies.DataArrayAlloc();
+    Zombie *aTeammate2 = mZombies.DataArrayAlloc();
     bool aLoaded = IsLevelDataLoaded() && !mApp->mLevel.mZombiesVisible;
-    aFlag0->ZombieInitialize(theRow, (ZombieType)13, false, aZombie, theFromWave, !aLoaded);
-    aFlag1->ZombieInitialize(theRow, (ZombieType)13, false, aZombie, theFromWave, !aLoaded);
-    aFlag2->ZombieInitialize(theRow, (ZombieType)13, false, aZombie, theFromWave, !aLoaded);
+    aTeammate0->ZombieInitialize(theRow, ZOMBIE_BOBSLED, false, aZombie, theFromWave, !aLoaded);
+    aTeammate1->ZombieInitialize(theRow, ZOMBIE_BOBSLED, false, aZombie, theFromWave, !aLoaded);
+    aTeammate2->ZombieInitialize(theRow, ZOMBIE_BOBSLED, false, aZombie, theFromWave, !aLoaded);
   }
 
   if ( theFromWave < 0 || theRow > 5 || mCoverLayerAnimIDs[0] == 0 || !theIsVisible
@@ -9392,7 +9392,7 @@ Zombie * Board::AddZombieInRow(ZombieType theZombieType, int theRow, int theFrom
 
   Reanimation *aCover = mApp->ReanimationTryToGet(mCoverLayerAnimIDs[theRow]);
   if ( aCover != nullptr )
-    aCover->PlayReanim("anim_rustle", REANIM_LOOP, 0, 10.0f);
+    aCover->PlayReanim("anim_rustle", REANIM_PLAY_ONCE_AND_HOLD, 0, 10.0f);
   return aZombie;
 }
 
