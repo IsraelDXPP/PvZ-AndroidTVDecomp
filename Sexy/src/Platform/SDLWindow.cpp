@@ -56,7 +56,7 @@ bool SDLWindow::Create(const char* theTitle, int theWidth, int theHeight,
     if (!theVisible) flags |= SDL_WINDOW_HIDDEN;
     if (!theWindowed) flags |= SDL_WINDOW_FULLSCREEN;
     // bgfx owns its graphics context/device. SDL provides the native window.
-    mWindow = SDL_CreateWindow(theTitle ? theTitle : "LawnTV", theWidth, theHeight, flags);
+    mWindow = SDL_CreateWindow(theTitle ? theTitle : "Lawn", theWidth, theHeight, flags);
     if (mWindow == nullptr)
     {
         TOD_ERROR("SDLWindow: %s", SDL_GetError());

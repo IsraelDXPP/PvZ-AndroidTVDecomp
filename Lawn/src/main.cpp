@@ -1,6 +1,6 @@
 // main.cpp -- SDL3 entry point.
 //
-//   LawnTV.exe [--assets <dir>] [--width N] [--height N]
+//   Lawn.exe [--assets <dir>] [--width N] [--height N]
 //              [--frames N] [--screenshot <file>] [--headless]
 //
 // F12 writes the offscreen frame to screenshots/shot_NNNN.png.
@@ -139,10 +139,10 @@ static bool PresentFrame(Sexy::SDLWindow& window, Sexy::BgfxRenderDevice& device
 static int Run(const LaunchOptions& options)
 {
     Sexy::SDLWindow window;
-    if (!window.Create("Plants vs. Zombies TV", options.width, options.height,
+    if (!window.Create("Plants vs. Zombies", options.width, options.height,
                        true, true, !options.headless))
     {
-        LogLine("LawnTV: failed to create the window");
+        LogLine("Lawn: failed to create the window");
         return 1;
     }
 
@@ -158,7 +158,7 @@ static int Run(const LaunchOptions& options)
 
     if (Sexy::BgfxRenderDevice::sCurrent == nullptr)
     {
-        LogLine("LawnTV: graphics startup failed; check SEXY_VIDEO_DRIVER and assets/shaders");
+        LogLine("Lawn: graphics startup failed; check SEXY_VIDEO_DRIVER and assets/shaders");
         app->mCloseRequest = true;
         app->WaitForLoadingThread();
         app->Shutdown();
@@ -205,7 +205,7 @@ static int Run(const LaunchOptions& options)
         window.WaitForFrame(frameStart, aMaxFps);
     }
 
-    LogLine("LawnTV: exited after %d frame(s)", frames);
+    LogLine("Lawn: exited after %d frame(s)", frames);
     // Stop background loading before the graphics device is destroyed.
     app->mCloseRequest = true;
     app->WaitForLoadingThread();
@@ -220,7 +220,7 @@ int main(int argc, char** argv)
     LaunchOptions options = ParseCommandLine(argc, argv);
     ResolveAssetRoot(options);
     Sexy::SDLFile::SetAssetRoot(options.assetRoot);
-    LogLine("LawnTV: asset root = %s", Sexy::SDLFile::GetAssetRoot().c_str());
+    LogLine("Lawn: asset root = %s", Sexy::SDLFile::GetAssetRoot().c_str());
 
     int result = Run(options);
     Sexy::ShutdownSDL();

@@ -227,12 +227,12 @@ public:
 
 BaseAppDriver* BaseAppDriver::CreateAppDriver(SexyAppBase* theApp)
 {
-    return LawnTV_CreateAppDriver(theApp);
+    return Lawn_CreateAppDriver(theApp);
 }
 
 IAppDriver* IAppDriver::CreateAppDriver(SexyAppBase* theApp)
 {
-    return LawnTV_CreateAppDriver(theApp);
+    return Lawn_CreateAppDriver(theApp);
 }
 
 IResStreamsDriver* IResStreamsDriver::CreateResStreamsDriver()
@@ -242,12 +242,12 @@ IResStreamsDriver* IResStreamsDriver::CreateResStreamsDriver()
 
 IAudioDriver* IAudioDriver::CreateAudioDriver(SexyAppBase* theApp)
 {
-    return LawnTV_CreateAudioDriver(theApp);
+    return Lawn_CreateAudioDriver(theApp);
 }
 
 IHttpDriver* IHttpDriver::CreateHttpDriver(SexyAppBase* theApp)
 {
-    return LawnTV_CreateHttpDriver(theApp);
+    return Lawn_CreateHttpDriver(theApp);
 }
 
 // --------------------------------------------------------------------------
@@ -2267,7 +2267,7 @@ Sexy::String SexyAppBase::FormatHelpString()
 IFileDriver* SexyAppBase::InitFileDriver()
 {
     if (gFileDriver == nullptr)
-        gFileDriver = LawnTV_CreateFileDriver(nullptr);
+        gFileDriver = Lawn_CreateFileDriver(nullptr);
     mFileDriver = gFileDriver;
     return gFileDriver;
 }

@@ -5537,7 +5537,7 @@ void LawnApp::Init()
   // object's own field at byte 992 -- which holds garbage, 0x100 in the observed
   // run -- and then dereferenced that to find the function address:
   //
-  //     InitFault: code=0xC0000005 instr=LawnTV.exe+0x4516CC
+  //     InitFault: code=0xC0000005 instr=Lawn.exe+0x4516CC
   //     InitFault:   info[0] = 0x00000000     <- a read
   //     InitFault:   info[1] = 0x00000100     <- address 0x100
   //
@@ -5582,7 +5582,7 @@ void LawnApp::Init()
   //
   // The fault it caused, traced end to end:
   //
-  //     InitFault: instr=LawnTV.exe+0x2EAAAA   info[1] = 0x00000204
+  //     InitFault: instr=Lawn.exe+0x2EAAAA   info[1] = 0x00000204
   //     -> String::Release, this = 0x204
   //
   // because setDefaultUrl assigns the String at byte 516 of the engine, and 516
