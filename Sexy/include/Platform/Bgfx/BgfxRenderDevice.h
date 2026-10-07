@@ -36,6 +36,7 @@ public:
     void SetDrawTarget(MemoryImage* theImage) { mDrawTarget = theImage; }
     void SetDrawMode(DrawMode theMode);
     void SetColorizeImages(bool theColorize);
+    void SetFilterEffect(FilterEffect theEffect);
     void SetClipRect(const Rect& theRect);
     void ClearClipRect();
     void SetTransform(const SexyMatrix3& theTransform);
@@ -80,6 +81,7 @@ private:
     SexyMatrix3 mTransform;
     Rect mClip;
     bool mClipped = false, mColorize = false;
+    FilterEffect mFilterEffect = FILTER_EFFECT_NONE;
     bool mFrameOpen = false;
     Program mBatchProgram = Program::Blit;
     DrawMode mBatchMode = DRAWMODE_NORMAL;
@@ -98,7 +100,8 @@ private:
                 uint32_t theCount, const SexyMatrix3& theTransform, int theWidth, int theHeight,
                 bool theBlend, DrawMode theMode, bool theColorize,
                 bgfx::TextureHandle theTexture, uint32_t theSampler,
-                bool theClip, const bgfx::TextureHandle* thePlanes = nullptr);
+                bool theClip, const bgfx::TextureHandle* thePlanes = nullptr,
+                FilterEffect theFilterEffect = FILTER_EFFECT_NONE);
     BgfxTexture* EnsureTexture(MemoryImage* theImage, int& theOriginX, int& theOriginY);
     void RemoveReleasedTextures();
     bool CreateTarget();

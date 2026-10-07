@@ -67,8 +67,10 @@
 #include <ctime>
 #include <cstdio>
 #include <cstring>
+#include <algorithm>
 #include <cstdarg>
 #include <map>
+#include <mutex>
 #include <vector>
 #include <cctype>
 
@@ -661,31 +663,161 @@ void DrawStoneButton(Sexy::Graphics* theGraphics, int theX, int theY, int theWid
     aMatrix.Translate((float)aTextX + theGraphics->mTransX, (float)aTextY + theGraphics->mTransY);
     TodDrawStringMatrix(theGraphics, aFont, aMatrix, theLabel, aColor);
 }
-// TODO(recon)
-Sexy::Image* FilterEffectGetImage(Sexy::Image* theImage, FilterEffect)
+namespace
 {
-    // _Z20FilterEffectGetImagePN4Sexy5ImageE12FilterEffect is a single BX LR.
-    // The image arrives in r0 and leaves in r0.
-    return theImage;
+bool gFilterCacheAvailable = false;
+
+struct FilterImageCache
+{
+    std::map<Sexy::Image*, Sexy::Image*> mMaps[NUM_FILTER_EFFECTS];
+    std::recursive_mutex mMutex;
+
+    FilterImageCache() { gFilterCacheAvailable = true; }
+    ~FilterImageCache()
+    {
+        gFilterCacheAvailable = false;
+        for (auto &aMap : mMaps)
+            for (auto &aEntry : aMap)
+                delete aEntry.second;
+    }
+};
+
+FilterImageCache gFilterCache;
+
+unsigned int AdjustFilterPixel(unsigned int thePixel, float theLightnessScale, float theSaturationScale)
+{
+    // FilterEffectDoLumSat @0x206A38 scales HSL lightness and saturation.
+    float aRed = (float)((thePixel >> 16) & 255) * 0.0039216f;
+    float aGreen = (float)((thePixel >> 8) & 255) * 0.0039216f;
+    float aBlue = (float)(thePixel & 255) * 0.0039216f;
+    float aMax = std::max(aRed, std::max(aGreen, aBlue));
+    float aMin = std::min(aRed, std::min(aGreen, aBlue));
+    float aLightness = (aMax + aMin) * 0.5f;
+    float aSaturation = 0.0f;
+    float aHue = 0.0f;
+    float aRange = aMax - aMin;
+    if (aRange > 0.0f)
+    {
+        aSaturation = aRange / (aLightness > 0.5f ? 2.0f - aMax - aMin : aMax + aMin);
+        if (aMax == aRed)
+            aHue = (aGreen - aBlue) / aRange + (aGreen < aBlue ? 6.0f : 0.0f);
+        else if (aMax == aGreen)
+            aHue = (aBlue - aRed) / aRange + 2.0f;
+        else
+            aHue = (aRed - aGreen) / aRange + 4.0f;
+        aHue *= 0.16667f;
+    }
+    aLightness *= theLightnessScale;
+    aSaturation *= theSaturationScale;
+    float aHigh = aLightness <= 0.5f ? aLightness * (1.0f + aSaturation)
+        : aLightness + aSaturation - aLightness * aSaturation;
+    float aLow = 2.0f * aLightness - aHigh;
+    float aHueSector = aHue * 6.0f;
+    int aSector = (int)aHueSector;
+    float aFraction = aHueSector - (float)aSector;
+    float aRising = aLow + (aHigh - aLow) * aFraction;
+    float aFalling = aHigh - (aHigh - aLow) * aFraction;
+    switch (aSector)
+    {
+        case 0: aRed = aHigh; aGreen = aRising; aBlue = aLow; break;
+        case 1: aRed = aFalling; aGreen = aHigh; aBlue = aLow; break;
+        case 2: aRed = aLow; aGreen = aHigh; aBlue = aRising; break;
+        case 3: aRed = aLow; aGreen = aFalling; aBlue = aHigh; break;
+        case 4: aRed = aRising; aGreen = aLow; aBlue = aHigh; break;
+        default: aRed = aHigh; aGreen = aLow; aBlue = aFalling; break;
+    }
+    unsigned int aResultRed = (unsigned int)std::clamp((int)(aRed * 255.0f), 0, 255);
+    unsigned int aResultGreen = (unsigned int)std::clamp((int)(aGreen * 255.0f), 0, 255);
+    unsigned int aResultBlue = (unsigned int)std::clamp((int)(aBlue * 255.0f), 0, 255);
+    return (thePixel & 0xFF000000u) | (aResultRed << 16) | (aResultGreen << 8) | aResultBlue;
 }
-// Four maps, 0x6D59E4 through 0x6D5A44. Each value image is owned by the map.
-static const int FILTER_MAP_COUNT = 4;
-static std::map<Sexy::Image*, Sexy::Image*> gFilterMap[FILTER_MAP_COUNT];
+}
+
+Sexy::Image* FilterEffectGetImage(Sexy::Image* theImage, FilterEffect theEffect)
+{
+    if (theImage == nullptr || theEffect == FILTER_EFFECT_NONE || !gFilterCacheAvailable)
+        return theImage;
+    if (theEffect < FILTER_EFFECT_WASHED_OUT || theEffect >= NUM_FILTER_EFFECTS)
+        return theImage;
+
+    std::lock_guard<std::recursive_mutex> aLock(gFilterCache.mMutex);
+    std::map<Sexy::Image*, Sexy::Image*>& aMap = gFilterCache.mMaps[theEffect];
+    auto aCached = aMap.find(theImage);
+    if (aCached != aMap.end())
+        return aCached->second;
+
+    // Shared software fallback for FilterEffectCreateImage @0x206CB8.
+    Sexy::MemoryImage *aFiltered = new Sexy::MemoryImage();
+    aFiltered->Create(theImage->mWidth, theImage->mHeight);
+    unsigned int *aPixels = aFiltered->GetBits();
+    Sexy::MemoryImage *aSource = theImage->AsMemoryImage();
+    if (aSource != nullptr)
+    {
+        const unsigned int *aSourcePixels = aSource->GetBits();
+        int aSourcePitch = aSource->GetPitch();
+        for (int aRow = 0; aRow < aFiltered->mHeight; ++aRow)
+            std::copy_n(aSourcePixels + (size_t)aRow * aSourcePitch, aFiltered->mWidth,
+                aPixels + (size_t)aRow * aFiltered->mWidth);
+    }
+    else
+    {
+        Sexy::Graphics aCopy(aFiltered);
+        aCopy.DrawImage(theImage, 0, 0);
+    }
+    size_t aPixelCount = (size_t)aFiltered->mWidth * (size_t)aFiltered->mHeight;
+    for (size_t aIndex = 0; aIndex < aPixelCount; ++aIndex)
+    {
+        if (theEffect == FILTER_EFFECT_WHITE)
+            aPixels[aIndex] |= 0x00FFFFFFu;
+        else if (theEffect == FILTER_EFFECT_WASHED_OUT)
+            aPixels[aIndex] = AdjustFilterPixel(aPixels[aIndex], 1.8f, 0.2f);
+        else
+            aPixels[aIndex] = AdjustFilterPixel(aPixels[aIndex], 1.2f, 0.3f);
+    }
+    aFiltered->mNumRows = theImage->mNumRows;
+    aFiltered->mNumCols = theImage->mNumCols;
+    aFiltered->BitsChanged();
+    aMap.emplace(theImage, aFiltered);
+    return aFiltered;
+}
 
 void FilterEffectDisposeForApp()
 {
-    for (int aIndex = 0; aIndex < FILTER_MAP_COUNT; ++aIndex)
+    if (!gFilterCacheAvailable)
+        return;
+    std::vector<Sexy::Image*> aImages;
     {
-        std::map<Sexy::Image*, Sexy::Image*>& aMap = gFilterMap[aIndex];
-        for (std::map<Sexy::Image*, Sexy::Image*>::iterator anItr = aMap.begin();
-             anItr != aMap.end();
-             ++anItr)
+        std::lock_guard<std::recursive_mutex> aLock(gFilterCache.mMutex);
+        for (auto &aMap : gFilterCache.mMaps)
         {
-            if (anItr->second != nullptr)
-                delete anItr->second;
+            for (auto &aEntry : aMap)
+                aImages.push_back(aEntry.second);
+            aMap.clear();
         }
-        aMap.clear();
     }
+    for (Sexy::Image *aImage : aImages)
+        delete aImage;
+}
+
+void FilterEffectDisposeForImage(Sexy::Image *theImage)
+{
+    if (!gFilterCacheAvailable)
+        return;
+    std::vector<Sexy::Image*> aImages;
+    {
+        std::lock_guard<std::recursive_mutex> aLock(gFilterCache.mMutex);
+        for (auto &aMap : gFilterCache.mMaps)
+        {
+            auto aCached = aMap.find(theImage);
+            if (aCached != aMap.end())
+            {
+                aImages.push_back(aCached->second);
+                aMap.erase(aCached);
+            }
+        }
+    }
+    for (Sexy::Image *aImage : aImages)
+        delete aImage;
 }
 
 void FilterEffectInitForApp()

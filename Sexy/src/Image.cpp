@@ -8,6 +8,7 @@
 #include "Graphics.h"
 #include "IGraphicsDriver.h"
 #include "SexyAppBase.h"
+#include "ReconFreeFunctions.h"
 
 int Sexy::Image::MakeTag(char theA, char theB, char theC, char theD)
 {
@@ -82,6 +83,7 @@ Sexy::Image::Image(Sexy::Image const& theOther)
 
 Sexy::Image::~Image()
 {
+    FilterEffectDisposeForImage(this);
     delete mAnimInfo;
 }
 

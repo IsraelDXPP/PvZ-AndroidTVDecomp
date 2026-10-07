@@ -9,11 +9,11 @@
 | 文件 | 用途 | 配对 |
 | --- | --- | --- |
 | `main.vert.scbp` | 通用顶点变换、UV 和颜色传递 | 以下三种片元共用 |
-| `main.frag.scbp` | 纹理、顶点颜色调制、染色、alpha test | `main.vert.scbp` |
+| `main.frag.scbp` | 纹理、顶点颜色调制、染色、alpha test、植物滤镜 | `main.vert.scbp` |
 | `solid.frag.scbp` | 纯色矩形、线条等 | `main.vert.scbp` |
 | `yuv.frag.scbp` | MPEG 视频的 Y/Cb/Cr 转 RGB | `main.vert.scbp` |
 
-全部文件使用 SCBP v1，`target_flags = 0x00000017`。每个包有 DX、Metal、OpenGL、Vulkan 四个二进制分段，支持 DX11、DX12、GL、VK、Metal 五种渲染后端。DX11/12 共用 `s_5_0` 分段，当前不打包 GLES。协议定义见 [Tools/scbp.md](../Tools/scbp.md)。
+全部文件使用 SCBP v1，`target_flags = 0x0000001F`。每个包有 DX、Metal、OpenGL、OpenGLES、Vulkan 五个二进制分段，覆盖这些平台的 bgfx 渲染后端。DX11/12 共用 `s_5_0` 分段。协议定义见 [Tools/scbp.md](../Tools/scbp.md)。
 
 源码和已生成 `.scbp` 保存在本目录。bgfx 后端从 `<assets>/shaders` 读取这些包，构建 Lawn 项目时自动复制到 `$(OutDir)assets/shaders`。使用 `--assets` 指定其他资源目录时，也需复制四个包到该目录的 `shaders` 子目录；若资源在 `assets/files`，着色器仍在 `assets/shaders`。
 
@@ -24,7 +24,7 @@
 在项目根目录运行：
 
 ```powershell
-python Tools/pack_scbp.py build Shaders/main.vert.sc Shaders/main.frag.sc Shaders/solid.frag.sc Shaders/yuv.frag.sc --flags 0x17 --werror
+python Tools/pack_scbp.py build Shaders/main.vert.sc Shaders/main.frag.sc Shaders/solid.frag.sc Shaders/yuv.frag.sc --flags 0x1F --werror
 python Tools/pack_scbp.py inspect Shaders/main.vert.scbp
 python Tools/pack_scbp.py inspect Shaders/main.frag.scbp
 ```
@@ -40,7 +40,7 @@ python Tools/pack_scbp.py inspect Shaders/main.frag.scbp
 | `a_color0` | `Attrib::Color0`，4 个 Uint8，normalized | 当前顶点 RGBA；沿用现有预乘约定 |
 | `u_transform` | `UniformType::Mat3` | 当前仿射矩阵，默认单位阵 |
 | `u_viewport` | `UniformType::Vec4` | `(width, height, 0, 0)` |
-| `u_blitParams` | `UniformType::Vec4` | `(colorize ? 1 : 0, alphaTest ? 1 : 0, alphaRef, 0)`，默认全 0 |
+| `u_blitParams` | `UniformType::Vec4` | `(colorize ? 1 : 0, alphaTest ? 1 : 0, alphaRef, FilterEffect + 1)`，默认全 0 |
 | `s_texture` | `UniformType::Sampler`，stage 0 | 纹理绘制的 RGBA 图像 |
 | `s_y` | `UniformType::Sampler`，stage 0 | 视频 Y 平面，R8 |
 | `s_cb` | `UniformType::Sampler`，stage 1 | 视频 Cb 平面，R8 |
@@ -51,3 +51,5 @@ python Tools/pack_scbp.py inspect Shaders/main.frag.scbp
 视频路径沿用当前 `DrawYuv` 的单位变换矩阵，不将顶点颜色乘入视频输出。纯色和视频片元仍声明相同的完整 varying 接口，以匹配通用顶点着色器的 bgfx interface hash。
 
 着色器不设置混合、裁剪、纹理采样或深度状态。普通预乘 alpha 混合使用 `ONE / INV_SRC_ALPHA`，叠加绘制使用 `ONE / ONE`，由 `BgfxRenderDevice` 设置。
+
+植物滤镜按原版 `FilterEffectDoLumSat`（`0x206a38`）处理 HSL：褪色滤镜的亮度和饱和度分别乘 1.8、0.2，轻度褪色分别乘 1.2、0.3，白色滤镜保留 alpha。`u_blitParams.w` 为 0 时关闭，为 1、2、3 时分别应用这三种滤镜。IZ 纸板植物使用褪色滤镜和 `(255,201,160)` 着色。共用软件渲染路径使用相同的变换。

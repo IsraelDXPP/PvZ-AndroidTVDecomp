@@ -1778,7 +1778,7 @@ Reanimation *Zombie::UpdateReanim()
 
     // A dancer facing the wrong way is mirrored, except while it is eating and
     // except when it has been mind-controlled.
-    int aWalkingBackwards = IsWalkingBackwards();
+    bool aWalkingBackwards = IsWalkingBackwards();
     if (mZombieType == ZOMBIE_DANCER || mZombieType == ZOMBIE_BACKUP_DANCER)
     {
         if (mZombiePhase == PHASE_DANCER_DANCING_IN
@@ -5564,7 +5564,7 @@ void Zombie::UpdateZombieDolphinRider()
             if (mX <= 10)
             {
                 mZombieHeight = HEIGHT_OUT_OF_POOL;
-                mZombiePhase = PHASE_DOLPHIN_WALKING_IN_POOL;
+                mZombiePhase = PHASE_DOLPHIN_WALKING;
                 mAltitude = -25.0f;
                 PoolSplash(false);
                 PlayZombieReanim("anim_walkdolphin", REANIM_LOOP, 0, 0.0f);
@@ -5577,7 +5577,7 @@ void Zombie::UpdateZombieDolphinRider()
                 {
                     mApp->PlayFoley(FOLEY_DOLPHIN_BEFORE_JUMPING);
                     mApp->PlayFoley(FOLEY_PLANT_WATER);
-                    mVelZ = 0.5f;
+                    mVelX = 0.5f;
                     mPhaseCounter = 120;
                     mZombiePhase = PHASE_DOLPHIN_IN_JUMP;
                     PlayZombieReanim("anim_dolphinjump", REANIM_PLAY_ONCE_AND_HOLD, 0, 10.0f);
@@ -5588,7 +5588,7 @@ void Zombie::UpdateZombieDolphinRider()
         case PHASE_DOLPHIN_IN_JUMP:
         {
             Reanimation *aBodyReanim = mApp->ReanimationGet(mBodyReanimID);
-            mAltitude = TodAnimateCurveFloat(120, 0, mPhaseCounter, 0.0f, 5.0f, CURVE_LINEAR);
+            mAltitude = TodAnimateCurveFloat(120, 0, mPhaseCounter, 0.0f, 10.0f, CURVE_LINEAR);
 
             if (aBodyReanim->ShouldTriggerTimedEvent(0.3f))
             {
@@ -5623,7 +5623,7 @@ void Zombie::UpdateZombieDolphinRider()
                                      mRenderOrder + 1,
                                      (ParticleEffect)23);
                 mApp->PlayFoley(FOLEY_ZOMBIE_ENTERING_WATER);
-                mVelZ = 0.0f;
+                mVelX = 0.0f;
                 return;
             }
 
@@ -5644,7 +5644,7 @@ void Zombie::UpdateZombieDolphinRider()
             // water, then switches to the plain walk.
             if (mX > 10)
             {
-                if (mX <= 680 || aWalkingBackwards)
+                if (mX <= 680 || !aWalkingBackwards)
                     return;
             }
             else if (aWalkingBackwards)
@@ -5668,15 +5668,11 @@ void Zombie::UpdateZombieDolphinRider()
 // rectangle shrinks to a walking zombie's.
 void Zombie::UpdateDolphinJumpLanding()
 {
-    mZombiePhase = PHASE_DOLPHIN_WALKING_WITHOUT_DOLPHIN;
+    mZombiePhase = PHASE_DOLPHIN_WALKING_IN_POOL;
     mZombieAttackRect = Sexy::Rect(30, 0, 30, 115);
     mZombieRect = Sexy::Rect(20, 0, 42, 115);
     mCachedZombieRect.mWidth = 0;
-    mX = (int)mPosX;
-    {
-        StartWalkAnim(0);
-        return;
-    }
+    StartWalkAnim(0);
 }
 
 // ==========================================================================
@@ -5990,14 +5986,14 @@ void Zombie::EatPlant(Plant * thePlant)
         // A chilled zombie does not take a bite every other frame.
         if (mChilledCounter <= 0 || mZombieAge % 2 != 1)
         {
-            // A zombie eating a wall-nut in I, Zombie spits out a sun.
-            if (mApp->IsIZombieLevel() && thePlant->mState == STATE_READY)
+            // Each forty points of sunflower damage releases one sun in I, Zombie.
+            if (mApp->IsIZombieLevel() && aSeedType == SEED_SUNFLOWER)
             {
                 int aHealth = thePlant->mPlantHealth;
                 int aNewHealth = aHealth - 8;
                 if (aHealth / 40 > aNewHealth / 40 || aHealth <= 8)
                 {
-                    mBoard->AddCoin(thePlant->mX, thePlant->mY, COIN_SUN, CoinMotion(2));
+                    mBoard->AddCoin(thePlant->mX, thePlant->mY, COIN_SUN, COIN_MOTION_FROM_PLANT);
                 }
                 else
                 {
@@ -6013,9 +6009,8 @@ void Zombie::EatPlant(Plant * thePlant)
                 thePlant->mRecentlyEatenCountdown = 50;
             }
 
-            // A hypnotised zombie eats a wall-nut, a tall-nut or a pumpkin
-            // twice as fast.
-            if (mApp->IsIZombieLevel() && mZombieAge < -500)
+            // Zombies that have gone without a hit eat tough shells twice as fast.
+            if (mApp->IsIZombieLevel() && mJustGotShotCounter < -500)
             {
                 if (aSeedType == SEED_WALLNUT
                     || aSeedType == SEED_TALLNUT
@@ -8263,8 +8258,7 @@ void Zombie::UpdateZombieJackInTheBox()
 {
   if ( mZombiePhase == PHASE_JACK_IN_THE_BOX_RUNNING )
   {
-    // The box pops either when its run-down reaches zero, or when the level is
-    // "Little Trouble" and the zombie is already eating.
+    // Versus zombies also open their boxes when they start eating.
     if ( (mPhaseCounter <= 0 && mHasHead)
       || (mApp->mGameMode == GAMEMODE_MP_VS && mIsEating) )
     {
@@ -8285,7 +8279,7 @@ void Zombie::UpdateZombieJackInTheBox()
 
   // The pop plays out; the squeak lands 80 frames in and the bang at the end.
   if ( mPhaseCounter == 80 )
-    mApp->PlayFoley(FOLEY_JACKINTHEBOX);
+    mApp->PlayFoley(FOLEY_JACK_SURPRISE);
 
   if ( mPhaseCounter > 0 )
     return;

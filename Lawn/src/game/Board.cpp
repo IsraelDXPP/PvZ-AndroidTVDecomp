@@ -1692,7 +1692,18 @@ int Board::DrawFog(Sexy::Graphics * g)
       if ( aFadeAmount == 0 )
         continue;
 
-      int aCelLook = mGridCelLook[aCol][aCelY % MAX_GRID_SIZE_Y];
+      int aCelLook;
+      if (aCol < MAX_GRID_SIZE_X)
+      {
+        aCelLook = mGridCelLook[aCol][aCelY % MAX_GRID_SIZE_Y];
+      }
+      else
+      {
+        // The original's six extra columns use the following grid jitter samples.
+        int aJitterIndex = (aCol - MAX_GRID_SIZE_X) * MAX_GRID_SIZE_Y + aCelY % MAX_GRID_SIZE_Y;
+        aCelLook = mGridCelOffset[aJitterIndex / (MAX_GRID_SIZE_Y * 2)]
+            [(aJitterIndex / 2) % MAX_GRID_SIZE_Y][aJitterIndex % 2];
+      }
       float aTime = (float)mMainCounter;
       float aWave = (float)sin(aTime * 0.0069813 + (float)aCelY * 2.6928);
       float aSway = (float)sin(aPhaseX + aTime * 0.012566);
@@ -11592,9 +11603,9 @@ Board::Board(LawnApp * theApp)
     for ( int aY = 0; aY < MAX_GRID_SIZE_Y; ++aY )
     {
       mGridSquareType[aX][aY] = GRIDSQUARE_GRASS;
-      mGridCelLook[aX][aY] = Rand();
-      mGridCelOffset[aX][aY][0] = Rand() - 5;
-      mGridCelOffset[aX][aY][1] = Rand() - 5;
+      mGridCelLook[aX][aY] = Rand(20);
+      mGridCelOffset[aX][aY][0] = Rand(10) - 5;
+      mGridCelOffset[aX][aY][1] = Rand(10) - 5;
     }
     for ( int aY = 0; aY <= MAX_GRID_SIZE_Y; ++aY )
       mGridCelFog[aX][aY] = 0;

@@ -4530,71 +4530,54 @@ void Challenge::IZombiePlacePlantInSquare(SeedType theSeedType, int theGridX, in
 // Challenge::IZombiePlacePlants(theSeedType,theCount,theGridY)
 // @00183A30  264 bytes
 // ==========================================================================
-Plant * Challenge::IZombiePlacePlants(SeedType theSeedType, int theCount, int theGridY)
+void Challenge::IZombiePlacePlants(SeedType theSeedType, int theCount, int theGridY)
 {
-  // The grid width depends on the level: the five-wide I, Zombie levels need
-  // five columns, the others six, and the two "3" levels five again.
-  GameMode aGameMode = mApp->mGameMode;
-  int aWidth;
-  if ( (aGameMode & ~2) == 0x35 )
-    aWidth = 4;
-  else if ( (aGameMode & ~2) == 57 || aGameMode == 61 )
-    aWidth = 4;
-  else
+  int aWidth = 6;
+  switch (mApp->mGameMode)
   {
-    aWidth = 6;
-    if ( aGameMode == 71 )
+    case GAMEMODE_PUZZLE_I_ZOMBIE_1:
+    case GAMEMODE_PUZZLE_I_ZOMBIE_2:
+    case GAMEMODE_PUZZLE_I_ZOMBIE_3:
+    case GAMEMODE_PUZZLE_I_ZOMBIE_4:
+    case GAMEMODE_PUZZLE_I_ZOMBIE_5:
+      aWidth = 4;
+      break;
+    case GAMEMODE_PUZZLE_I_ZOMBIE_6:
+    case GAMEMODE_PUZZLE_I_ZOMBIE_7:
+    case GAMEMODE_PUZZLE_I_ZOMBIE_8:
+    case GAMEMODE_PUZZLE_I_ZOMBIE_ENDLESS:
       aWidth = 5;
-    if ( (aGameMode & ~2) == 65 || aGameMode == 63 )
-      aWidth = 5;
+      break;
+    default:
+      break;
   }
 
-  int aRowStart;
-  if ( theGridY == -1 )
-  {
-    aRowStart = 0;
-    theGridY = 4;
-  }
-  else
-  {
-    aRowStart = theGridY;
-  }
+  int aRowStart = theGridY == -1 ? 0 : theGridY;
+  int aRowEnd = theGridY == -1 ? 4 : theGridY;
 
   // Collect every (column, row) the seed can go in, then pick theCount of them at
   // random. Each candidate is a { column, row, weight } triple.
-  TodWeightedGridArray aCandidates[163];
+  TodWeightedGridArray aCandidates[MAX_GRID_SIZE_X * MAX_GRID_SIZE_Y];
   int aCount = 0;
-  int aRow = aRowStart;
-  do
+  for (int aRow = aRowStart; aRow <= aRowEnd; ++aRow)
   {
-    for ( int aCol = 0; aCol < aWidth; ++aCol )
+    for (int aCol = 0; aCol < aWidth; ++aCol)
     {
-      while ( true )
-      {
-        if ( mBoard->CanPlantAt(aCol, aRow, theSeedType) == PLANTING_OK )
-        {
-          // The brain (the WallNut slot) and the two wide plants need three
-          // free columns to their right, so they cannot go in the last three.
-          if ( theSeedType == SEED_WALLNUT || theSeedType == SEED_TORCHWOOD || theSeedType == SEED_TALLNUT )
-          {
-            if ( aWidth - aCol > 3 )
-              break;
-          }
-          aCandidates[aCount].mX = aCol;
-          aCandidates[aCount].mY = aRow;
-          aCandidates[aCount].mWeight = 1;
-          ++aCount;
-        }
-        if ( aWidth <= ++aCol )
-          break;
-      }
+      if (mBoard->CanPlantAt(aCol, aRow, theSeedType) != PLANTING_OK)
+        continue;
+      // Defensive plants occupy one of the three columns nearest the zombies.
+      if ((theSeedType == SEED_WALLNUT || theSeedType == SEED_TORCHWOOD || theSeedType == SEED_TALLNUT)
+        && aWidth - aCol > 3)
+        continue;
+      aCandidates[aCount].mX = aCol;
+      aCandidates[aCount].mY = aRow;
+      aCandidates[aCount].mWeight = 1;
+      ++aCount;
     }
-    ++aRow;
   }
-  while ( theGridY >= aRow );
 
   int aToPlace = theCount < aCount ? theCount : aCount;
-  for ( int aPlaced = 0; aPlaced != aToPlace; ++aPlaced )
+  for (int aPlaced = 0; aPlaced < aToPlace; ++aPlaced)
   {
     TodWeightedGridArray *aPick = TodPickFromWeightedGridArray(aCandidates, aCount);
     Plant *aPlant = mBoard->NewPlant(aPick->mX, aPick->mY, theSeedType, SEED_NONE, -1);
@@ -4602,7 +4585,6 @@ Plant * Challenge::IZombiePlacePlants(SeedType theSeedType, int theCount, int th
     IZombieSetupPlant(aPlant);
   }
 
-  return nullptr;
 }// ==========================================================================
 // Challenge::IZombieStart(void)
 // @00183B38  90 bytes
@@ -4626,14 +4608,12 @@ void Challenge::IZombieUpdate()
       aSun += aCoin->GetSunValue();
   }
 
-  // A zombie stuck far off the left edge, not eating and not in the rising
-  // phase, gets a new speed. Phase 12 is PHASE_DIGGER_RISING. Byte 97 is
-  // mIsEating. Word 25 is mJustGotShotCounter (+0x64).
+  // Idle zombies resume their normal speed once the hit slowdown expires.
   Zombie *aZombie = nullptr;
   while (mBoard->IterateZombies(aZombie) != 0)
   {
     if (aZombie->IsDeadOrDying() == 0
-        && aZombie->mZombiePhase != PHASE_DIGGER_RISING
+        && aZombie->mZombiePhase != PHASE_POLEVAULTER_IN_VAULT
         && !aZombie->mIsEating
         && aZombie->mJustGotShotCounter < -500)
     {
@@ -4646,13 +4626,9 @@ void Challenge::IZombieUpdate()
   Plant *aPlant = nullptr;
   while ( mBoard->IteratePlants(aPlant) != 0 )
   {
-    unsigned int aState = (unsigned int)aPlant->mState;
-    unsigned int aFromSquash = aState - 6;
-    unsigned int aFromChomp = aState - 10;
-    bool aIdle = aFromSquash > 1;
-    if ( aFromSquash > 1 )
-      aIdle = aFromChomp > 1;
-    if ( !aIdle )
+    PlantState aState = aPlant->mState;
+    if (aState == STATE_SQUASH_FALLING || aState == STATE_SQUASH_DONE_FALLING
+      || aState == STATE_CHOMPER_BITING || aState == STATE_CHOMPER_BITING_GOT_ONE)
     {
       aBusy = true;
       break;
@@ -4663,17 +4639,15 @@ void Challenge::IZombieUpdate()
   TodParticleSystem *aParticle = nullptr;
   while ( mBoard->IterateParticles(aParticle) != 0 )
   {
-    if ( aParticle->mEffectType == (ParticleEffect)49 )
+    if (aParticle->mEffectType == PARTICLE_POTATO_MINE)
     {
       aBusy = true;
       break;
     }
   }
 
-  // LawnApp+2208 is mBoard (+0x8A0). Board+296 is mSpecialGraveStoneY
-  // (+0x6C0). The zombies win when the sun is at most 49, that grave column
-  // is unset, nothing is still playing, and no award has dropped.
-  if ( (aSun == 49 || aSun <= 49) && mBoard->mSpecialGraveStoneY == 0
+  // Keep playing while deployed zombies or pending attacks can earn more sun.
+  if ( aSun < 50 && mBoard->mZombies.mSize == 0
     && mBoard->HasLevelAwardDropped() == 0 && !aBusy )
   {
     aCoin = nullptr;
@@ -4850,10 +4824,10 @@ void Challenge::IZombieDrawPlant(Sexy::Graphics * g, Plant * thePlant)
   if ( aReanim != nullptr )
   {
     g->SetColor(Color(255, 201, 160));
-    // FilterEffect -1 is the "no filter" value the binary passes here.
-    IZombieSetPlantFilterEffect(thePlant, FilterEffect(-1));
+    g->SetColorizeImages(true);
+    IZombieSetPlantFilterEffect(thePlant, FILTER_EFFECT_WASHED_OUT);
     aReanim->DrawRenderGroup(g, 0);
-    IZombieSetPlantFilterEffect(thePlant, FilterEffect(-1));
+    IZombieSetPlantFilterEffect(thePlant, FILTER_EFFECT_NONE);
     g->SetDrawMode(0);
     g->SetColorizeImages(false);
   }
@@ -7153,10 +7127,10 @@ bool Challenge::MouseDown(int theX, int theY, int theClickCount, HitResult *theH
 // Challenge::IZombieInitLevel(void)
 // @00187E6C  2100 bytes
 // ==========================================================================
-int Challenge::IZombieInitLevel()
+void Challenge::IZombieInitLevel()
 {
   int aRow = 0;
-  mConveyorBeltCounter2 = 0;
+  mChallengeScore = 0;
   do
   {
     GridItem *aBrain = mBoard->mGridItems.DataArrayAlloc();
@@ -7179,112 +7153,112 @@ int Challenge::IZombieInitLevel()
   switch ( mApp->mGameMode )
   {
     case GAMEMODE_PUZZLE_I_ZOMBIE_1:
-      IZombiePlacePlantInSquare((SeedType)1, 3u, 2u);
-      IZombiePlacePlantInSquare((SeedType)1, 3u, 3u);
-      IZombiePlacePlants((SeedType)(1), 7, -1);
-      IZombiePlacePlants((SeedType)(17), 3, -1);
-      IZombiePlacePlants((SeedType)(0), 6, -1);
-      IZombiePlacePlants((SeedType)(5), 2, -1);
+      IZombiePlacePlantInSquare(SEED_SUNFLOWER, 3u, 2u);
+      IZombiePlacePlantInSquare(SEED_SUNFLOWER, 3u, 3u);
+      IZombiePlacePlants(SEED_SUNFLOWER, 7, -1);
+      IZombiePlacePlants(SEED_SQUASH, 3, -1);
+      IZombiePlacePlants(SEED_PEASHOOTER, 6, -1);
+      IZombiePlacePlants(SEED_SNOWPEA, 2, -1);
       break;
     case GAMEMODE_PUZZLE_I_ZOMBIE_2:
-      IZombiePlacePlantInSquare((SeedType)21, 3u, 0);
-      IZombiePlacePlantInSquare((SeedType)1, 2u, 0);
-      IZombiePlacePlantInSquare((SeedType)1, 3u, 3u);
-      IZombiePlacePlants((SeedType)(21), 1, 0);
-      IZombiePlacePlants((SeedType)(0), 1, 0);
-      IZombiePlacePlants((SeedType)(5), 2, 3);
-      IZombiePlacePlants((SeedType)(1), 1, 3);
-      IZombiePlacePlants((SeedType)(1), 4, -1);
-      IZombiePlacePlants((SeedType)(21), 2, -1);
-      IZombiePlacePlants((SeedType)(5), 2, -1);
-      IZombiePlacePlants((SeedType)(0), 4, -1);
+      IZombiePlacePlantInSquare(SEED_SPIKEWEED, 3u, 0);
+      IZombiePlacePlantInSquare(SEED_SUNFLOWER, 2u, 0);
+      IZombiePlacePlantInSquare(SEED_SUNFLOWER, 3u, 3u);
+      IZombiePlacePlants(SEED_SPIKEWEED, 1, 0);
+      IZombiePlacePlants(SEED_PEASHOOTER, 1, 0);
+      IZombiePlacePlants(SEED_SNOWPEA, 2, 3);
+      IZombiePlacePlants(SEED_SUNFLOWER, 1, 3);
+      IZombiePlacePlants(SEED_SUNFLOWER, 4, -1);
+      IZombiePlacePlants(SEED_SPIKEWEED, 2, -1);
+      IZombiePlacePlants(SEED_SNOWPEA, 2, -1);
+      IZombiePlacePlants(SEED_PEASHOOTER, 4, -1);
       break;
     case GAMEMODE_PUZZLE_I_ZOMBIE_3:
-      IZombiePlacePlantInSquare((SeedType)4, 3u, 0);
-      IZombiePlacePlantInSquare((SeedType)1, 2u, 0);
-      IZombiePlacePlantInSquare((SeedType)4, 2u, 2u);
-      IZombiePlacePlantInSquare((SeedType)1, 2u, 4u);
-      IZombiePlacePlantInSquare((SeedType)22, 3u, 3u);
-      IZombiePlacePlants((SeedType)(22), 2, -1);
-      IZombiePlacePlants((SeedType)(1), 5, -1);
-      IZombiePlacePlants((SeedType)(0), 7, -1);
-      IZombiePlacePlants((SeedType)(28), 1, -1);
+      IZombiePlacePlantInSquare(SEED_POTATOMINE, 3u, 0);
+      IZombiePlacePlantInSquare(SEED_SUNFLOWER, 2u, 0);
+      IZombiePlacePlantInSquare(SEED_POTATOMINE, 2u, 2u);
+      IZombiePlacePlantInSquare(SEED_SUNFLOWER, 2u, 4u);
+      IZombiePlacePlantInSquare(SEED_TORCHWOOD, 3u, 3u);
+      IZombiePlacePlants(SEED_TORCHWOOD, 2, -1);
+      IZombiePlacePlants(SEED_SUNFLOWER, 5, -1);
+      IZombiePlacePlants(SEED_PEASHOOTER, 7, -1);
+      IZombiePlacePlants(SEED_SPLITPEA, 1, -1);
       break;
     case GAMEMODE_PUZZLE_I_ZOMBIE_4:
-      IZombiePlacePlantInSquare((SeedType)3, 3u, 0);
-      IZombiePlacePlantInSquare((SeedType)1, 2u, 0);
-      IZombiePlacePlantInSquare((SeedType)3, 3u, 1u);
-      IZombiePlacePlantInSquare((SeedType)3, 3u, 2u);
-      IZombiePlacePlantInSquare((SeedType)1, 2u, 2u);
-      IZombiePlacePlantInSquare((SeedType)3, 3u, 3u);
-      IZombiePlacePlantInSquare((SeedType)3, 3u, 4u);
-      IZombiePlacePlantInSquare((SeedType)1, 2u, 4u);
-      IZombiePlacePlants((SeedType)(0), 1, 0);
-      IZombiePlacePlants((SeedType)(5), 1, 1);
-      IZombiePlacePlants((SeedType)(10), 2, 2);
-      IZombiePlacePlants((SeedType)(5), 1, 3);
-      IZombiePlacePlants((SeedType)(0), 1, 4);
-      IZombiePlacePlants((SeedType)(0), 2, -1);
-      IZombiePlacePlants((SeedType)(1), 4, -1);
+      IZombiePlacePlantInSquare(SEED_WALLNUT, 3u, 0);
+      IZombiePlacePlantInSquare(SEED_SUNFLOWER, 2u, 0);
+      IZombiePlacePlantInSquare(SEED_WALLNUT, 3u, 1u);
+      IZombiePlacePlantInSquare(SEED_WALLNUT, 3u, 2u);
+      IZombiePlacePlantInSquare(SEED_SUNFLOWER, 2u, 2u);
+      IZombiePlacePlantInSquare(SEED_WALLNUT, 3u, 3u);
+      IZombiePlacePlantInSquare(SEED_WALLNUT, 3u, 4u);
+      IZombiePlacePlantInSquare(SEED_SUNFLOWER, 2u, 4u);
+      IZombiePlacePlants(SEED_PEASHOOTER, 1, 0);
+      IZombiePlacePlants(SEED_SNOWPEA, 1, 1);
+      IZombiePlacePlants(SEED_FUMESHROOM, 2, 2);
+      IZombiePlacePlants(SEED_SNOWPEA, 1, 3);
+      IZombiePlacePlants(SEED_PEASHOOTER, 1, 4);
+      IZombiePlacePlants(SEED_PEASHOOTER, 2, -1);
+      IZombiePlacePlants(SEED_SUNFLOWER, 4, -1);
       break;
     case GAMEMODE_PUZZLE_I_ZOMBIE_5:
-      IZombiePlacePlantInSquare((SeedType)1, 3u, 2u);
-      IZombiePlacePlantInSquare((SeedType)1, 3u, 3u);
-      IZombiePlacePlants((SeedType)(26), 1, 1);
-      IZombiePlacePlants((SeedType)(26), 1, 4);
-      IZombiePlacePlants((SeedType)(31), 1, -1);
-      IZombiePlacePlants((SeedType)(1), 5, -1);
-      IZombiePlacePlants((SeedType)(0), 8, -1);
-      IZombiePlacePlants((SeedType)(5), 2, -1);
+      IZombiePlacePlantInSquare(SEED_SUNFLOWER, 3u, 2u);
+      IZombiePlacePlantInSquare(SEED_SUNFLOWER, 3u, 3u);
+      IZombiePlacePlants(SEED_CACTUS, 1, 1);
+      IZombiePlacePlants(SEED_CACTUS, 1, 4);
+      IZombiePlacePlants(SEED_MAGNETSHROOM, 1, -1);
+      IZombiePlacePlants(SEED_SUNFLOWER, 5, -1);
+      IZombiePlacePlants(SEED_PEASHOOTER, 8, -1);
+      IZombiePlacePlants(SEED_SNOWPEA, 2, -1);
       break;
     case GAMEMODE_PUZZLE_I_ZOMBIE_6:
-      IZombiePlacePlantInSquare((SeedType)36, 4u, 1u);
-      IZombiePlacePlantInSquare((SeedType)36, 4u, 3u);
-      IZombiePlacePlants((SeedType)(1), 3, 1);
-      IZombiePlacePlants((SeedType)(1), 3, 3);
-      IZombiePlacePlants((SeedType)(22), 2, -1);
-      IZombiePlacePlants((SeedType)(1), 2, -1);
-      IZombiePlacePlants((SeedType)(21), 3, -1);
-      IZombiePlacePlants((SeedType)(5), 1, -1);
-      IZombiePlacePlants((SeedType)(0), 5, -1);
-      IZombiePlacePlants((SeedType)(17), 2, -1);
-      IZombiePlacePlants((SeedType)(34), 2, -1);
+      IZombiePlacePlantInSquare(SEED_GARLIC, 4u, 1u);
+      IZombiePlacePlantInSquare(SEED_GARLIC, 4u, 3u);
+      IZombiePlacePlants(SEED_SUNFLOWER, 3, 1);
+      IZombiePlacePlants(SEED_SUNFLOWER, 3, 3);
+      IZombiePlacePlants(SEED_TORCHWOOD, 2, -1);
+      IZombiePlacePlants(SEED_SUNFLOWER, 2, -1);
+      IZombiePlacePlants(SEED_SPIKEWEED, 3, -1);
+      IZombiePlacePlants(SEED_SNOWPEA, 1, -1);
+      IZombiePlacePlants(SEED_PEASHOOTER, 5, -1);
+      IZombiePlacePlants(SEED_SQUASH, 2, -1);
+      IZombiePlacePlants(SEED_KERNELPULT, 2, -1);
       break;
     case GAMEMODE_PUZZLE_I_ZOMBIE_7:
-      IZombiePlacePlantInSquare((SeedType)1, 4u, 2u);
-      IZombiePlacePlantInSquare((SeedType)1, 4u, 4u);
-      IZombiePlacePlants((SeedType)(1), 6, -1);
-      IZombiePlacePlants((SeedType)(4), 9, -1);
-      IZombiePlacePlants((SeedType)(6), 8, -1);
+      IZombiePlacePlantInSquare(SEED_SUNFLOWER, 4u, 2u);
+      IZombiePlacePlantInSquare(SEED_SUNFLOWER, 4u, 4u);
+      IZombiePlacePlants(SEED_SUNFLOWER, 6, -1);
+      IZombiePlacePlants(SEED_POTATOMINE, 9, -1);
+      IZombiePlacePlants(SEED_CHOMPER, 8, -1);
       break;
     case GAMEMODE_PUZZLE_I_ZOMBIE_8:
-      IZombiePlacePlants((SeedType)(3), 3, -1);
-      IZombiePlacePlants((SeedType)(31), 2, -1);
-      IZombiePlacePlants((SeedType)(0), 8, -1);
-      IZombiePlacePlants((SeedType)(17), 2, -1);
-      IZombiePlacePlants((SeedType)(4), 2, -1);
-      IZombiePlacePlants((SeedType)(1), 8, -1);
+      IZombiePlacePlants(SEED_WALLNUT, 3, -1);
+      IZombiePlacePlants(SEED_MAGNETSHROOM, 2, -1);
+      IZombiePlacePlants(SEED_PEASHOOTER, 8, -1);
+      IZombiePlacePlants(SEED_SQUASH, 2, -1);
+      IZombiePlacePlants(SEED_POTATOMINE, 2, -1);
+      IZombiePlacePlants(SEED_SUNFLOWER, 8, -1);
       break;
     case GAMEMODE_PUZZLE_I_ZOMBIE_9:
-      IZombiePlacePlantInSquare((SeedType)23, 5u, 1u);
-      IZombiePlacePlantInSquare((SeedType)22, 5u, 3u);
-      IZombiePlacePlants((SeedType)(4), 4, 0);
-      IZombiePlacePlants((SeedType)(1), 2, 0);
-      IZombiePlacePlants((SeedType)(1), 2, 1);
-      IZombiePlacePlants((SeedType)(18), 1, 1);
-      IZombiePlacePlants((SeedType)(5), 1, 1);
-      IZombiePlacePlants((SeedType)(28), 1, 1);
-      IZombiePlacePlants((SeedType)(6), 3, 2);
-      IZombiePlacePlants((SeedType)(1), 2, 2);
-      IZombiePlacePlants((SeedType)(17), 1, 2);
-      IZombiePlacePlants((SeedType)(0), 3, 3);
-      IZombiePlacePlants((SeedType)(1), 2, 3);
-      IZombiePlacePlants((SeedType)(1), 1, 4);
-      IZombiePlacePlants((SeedType)(10), 1, 4);
-      IZombiePlacePlants((SeedType)(13), 1, 4);
-      IZombiePlacePlants((SeedType)(29), 1, 4);
-      IZombiePlacePlants((SeedType)(28), 1, 4);
-      IZombiePlacePlants((SeedType)(31), 1, 4);
+      IZombiePlacePlantInSquare(SEED_TALLNUT, 5u, 1u);
+      IZombiePlacePlantInSquare(SEED_TORCHWOOD, 5u, 3u);
+      IZombiePlacePlants(SEED_POTATOMINE, 4, 0);
+      IZombiePlacePlants(SEED_SUNFLOWER, 2, 0);
+      IZombiePlacePlants(SEED_SUNFLOWER, 2, 1);
+      IZombiePlacePlants(SEED_THREEPEATER, 1, 1);
+      IZombiePlacePlants(SEED_SNOWPEA, 1, 1);
+      IZombiePlacePlants(SEED_SPLITPEA, 1, 1);
+      IZombiePlacePlants(SEED_CHOMPER, 3, 2);
+      IZombiePlacePlants(SEED_SUNFLOWER, 2, 2);
+      IZombiePlacePlants(SEED_SQUASH, 1, 2);
+      IZombiePlacePlants(SEED_PEASHOOTER, 3, 3);
+      IZombiePlacePlants(SEED_SUNFLOWER, 2, 3);
+      IZombiePlacePlants(SEED_SUNFLOWER, 1, 4);
+      IZombiePlacePlants(SEED_FUMESHROOM, 1, 4);
+      IZombiePlacePlants(SEED_SCAREDYSHROOM, 1, 4);
+      IZombiePlacePlants(SEED_STARFRUIT, 1, 4);
+      IZombiePlacePlants(SEED_SPLITPEA, 1, 4);
+      IZombiePlacePlants(SEED_MAGNETSHROOM, 1, 4);
       break;
     case GAMEMODE_PUZZLE_I_ZOMBIE_ENDLESS:
     {
@@ -7319,81 +7293,81 @@ int Challenge::IZombieInitLevel()
           aPuffCount = RandRangeInt(5, 7);
         aSunCount = 8 - aPuffCount;
       }
-      IZombiePlacePlants((SeedType)(1), aSunCount, -1);
-      IZombiePlacePlants((SeedType)(8), aPuffCount, -1);
+      IZombiePlacePlants(SEED_SUNFLOWER, aSunCount, -1);
+      IZombiePlacePlants(SEED_PUFFSHROOM, aPuffCount, -1);
       if (aLayout != 0 || mSurvivalStage <= 0)
       {
         unsigned int aPack = RandRangeInt(0, 5);
         if (aPack <= 2)
         {
-          IZombiePlacePlants((SeedType)(3), 1, -1);
-          IZombiePlacePlants((SeedType)(22), 1, -1);
-          IZombiePlacePlants((SeedType)(4), 1, -1);
-          IZombiePlacePlants((SeedType)(6), 2, -1);
-          IZombiePlacePlants((SeedType)(0), 1, -1);
-          IZombiePlacePlants((SeedType)(28), 1, -1);
-          IZombiePlacePlants((SeedType)(34), 1, -1);
-          IZombiePlacePlants((SeedType)(18), 1, -1);
-          IZombiePlacePlants((SeedType)(5), 1, -1);
-          IZombiePlacePlants((SeedType)(17), 1, -1);
-          IZombiePlacePlants((SeedType)(10), 1, -1);
-          IZombiePlacePlants((SeedType)(37), 1, -1);
-          IZombiePlacePlants((SeedType)(29), 1, -1);
-          IZombiePlacePlants((SeedType)(31), 1, -1);
-          IZombiePlacePlants((SeedType)(21), 2, -1);
+          IZombiePlacePlants(SEED_WALLNUT, 1, -1);
+          IZombiePlacePlants(SEED_TORCHWOOD, 1, -1);
+          IZombiePlacePlants(SEED_POTATOMINE, 1, -1);
+          IZombiePlacePlants(SEED_CHOMPER, 2, -1);
+          IZombiePlacePlants(SEED_PEASHOOTER, 1, -1);
+          IZombiePlacePlants(SEED_SPLITPEA, 1, -1);
+          IZombiePlacePlants(SEED_KERNELPULT, 1, -1);
+          IZombiePlacePlants(SEED_THREEPEATER, 1, -1);
+          IZombiePlacePlants(SEED_SNOWPEA, 1, -1);
+          IZombiePlacePlants(SEED_SQUASH, 1, -1);
+          IZombiePlacePlants(SEED_FUMESHROOM, 1, -1);
+          IZombiePlacePlants(SEED_UMBRELLA, 1, -1);
+          IZombiePlacePlants(SEED_STARFRUIT, 1, -1);
+          IZombiePlacePlants(SEED_MAGNETSHROOM, 1, -1);
+          IZombiePlacePlants(SEED_SPIKEWEED, 2, -1);
         }
         else
         {
           if (aPack - 3 <= 1)
           {
-            IZombiePlacePlants((SeedType)(22), 1, -1);
-            IZombiePlacePlants((SeedType)(28), 3, -1);
-            IZombiePlacePlants((SeedType)(7), 1, -1);
-            IZombiePlacePlants((SeedType)(34), 3, -1);
-            IZombiePlacePlants((SeedType)(18), 1, -1);
-            IZombiePlacePlants((SeedType)(5), 3, -1);
-            IZombiePlacePlants((SeedType)(37), 1, -1);
-            IZombiePlacePlants((SeedType)(31), 1, -1);
+            IZombiePlacePlants(SEED_TORCHWOOD, 1, -1);
+            IZombiePlacePlants(SEED_SPLITPEA, 3, -1);
+            IZombiePlacePlants(SEED_REPEATER, 1, -1);
+            IZombiePlacePlants(SEED_KERNELPULT, 3, -1);
+            IZombiePlacePlants(SEED_THREEPEATER, 1, -1);
+            IZombiePlacePlants(SEED_SNOWPEA, 3, -1);
+            IZombiePlacePlants(SEED_UMBRELLA, 1, -1);
+            IZombiePlacePlants(SEED_MAGNETSHROOM, 1, -1);
           }
           else
           {
-            IZombiePlacePlants((SeedType)(4), 4, -1);
-            IZombiePlacePlants((SeedType)(6), 3, -1);
-            IZombiePlacePlants((SeedType)(17), 3, -1);
-            IZombiePlacePlants((SeedType)(10), 4, -1);
+            IZombiePlacePlants(SEED_POTATOMINE, 4, -1);
+            IZombiePlacePlants(SEED_CHOMPER, 3, -1);
+            IZombiePlacePlants(SEED_SQUASH, 3, -1);
+            IZombiePlacePlants(SEED_FUMESHROOM, 4, -1);
           }
-          IZombiePlacePlants((SeedType)(21), 3, -1);
+          IZombiePlacePlants(SEED_SPIKEWEED, 3, -1);
         }
         break;
       }
       int aOpening = RandRangeInt(0, 4);
       if (aOpening == 0)
       {
-        IZombiePlacePlants((SeedType)(5), 9, -1);
-        IZombiePlacePlants((SeedType)(28), 4, -1);
-        IZombiePlacePlants((SeedType)(7), 4, -1);
+        IZombiePlacePlants(SEED_SNOWPEA, 9, -1);
+        IZombiePlacePlants(SEED_SPLITPEA, 4, -1);
+        IZombiePlacePlants(SEED_REPEATER, 4, -1);
         break;
       }
       if (aOpening == 1)
       {
-        IZombiePlacePlants((SeedType)(4), 9, -1);
-        IZombiePlacePlants((SeedType)(6), 8, -1);
+        IZombiePlacePlants(SEED_POTATOMINE, 9, -1);
+        IZombiePlacePlants(SEED_CHOMPER, 8, -1);
         break;
       }
       if (aOpening == 2)
       {
-        IZombiePlacePlants((SeedType)(21), 9, -1);
-        IZombiePlacePlants((SeedType)(29), 8, -1);
+        IZombiePlacePlants(SEED_SPIKEWEED, 9, -1);
+        IZombiePlacePlants(SEED_STARFRUIT, 8, -1);
       }
       else if (aOpening == 3)
       {
-        IZombiePlacePlants((SeedType)(10), 9, -1);
-        IZombiePlacePlants((SeedType)(31), 8, -1);
+        IZombiePlacePlants(SEED_FUMESHROOM, 9, -1);
+        IZombiePlacePlants(SEED_MAGNETSHROOM, 8, -1);
       }
       else
       {
-        IZombiePlacePlants((SeedType)(13), 12, -1);
-        IZombiePlacePlants((SeedType)(1), 5, -1);
+        IZombiePlacePlants(SEED_SCAREDYSHROOM, 12, -1);
+        IZombiePlacePlants(SEED_SUNFLOWER, 5, -1);
       }
       break;
     }
@@ -7403,7 +7377,6 @@ int Challenge::IZombieInitLevel()
   mBoard->mBonusLawnMowersRemaining = 0;
   mBoard->mGamepadControls[0]->mIsZombie = true;
   mBoard->mGamepadControls[1]->mIsZombie = true;
-  return 0;
 }// ==========================================================================
 // Challenge::InitLevel(void)
 // @001886A0  596 bytes

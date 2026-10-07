@@ -9,6 +9,7 @@
 // lives in ReanimAtlas.h.
 
 #include "Reanimation.h"
+#include "BgfxRenderDevice.h"
 #include "DataArrayMethods.h"
 #include "RawObject.h"
 #include "ReanimAtlas.h"
@@ -195,7 +196,7 @@ Reanimation::~Reanimation()
 Reanimation * Reanimation::SetAnimRate(float theRate)
 {
   mAnimRate = theRate;
-  mAnimTimeStep = (theRate * 0.01f) / (float)mFrameCount;
+  mAnimTimeStep = mFrameCount > 0 ? (theRate * 0.01f) / (float)mFrameCount : 0.0f;
   return this;
 }
 
@@ -350,7 +351,8 @@ void Reanimation::ReanimBltMatrix(Sexy::Graphics * g, Sexy::Image * theImage, Se
 // ==========================================================================
 void Reanimation::SetFilterEffectShader(FilterEffect theFilterEffect)
 {
-  (void)theFilterEffect;
+  if (Sexy::BgfxRenderDevice::sCurrent != nullptr)
+    Sexy::BgfxRenderDevice::sCurrent->SetFilterEffect(theFilterEffect);
 }
 
 // ==========================================================================
@@ -359,6 +361,8 @@ void Reanimation::SetFilterEffectShader(FilterEffect theFilterEffect)
 // ==========================================================================
 bool Reanimation::DrawTrack(Sexy::Graphics * g, int theTrackIndex, int theRenderGroup, TodTriangleGroup *theTriangleGroup)
 {
+  const Sexy::BgfxRenderDevice *aRenderDevice = Sexy::BgfxRenderDevice::sCurrent;
+  bool aUseFilterShader = aRenderDevice != nullptr && g->mDestImage == aRenderDevice->GetDrawTarget();
   ReanimatorTransform *aTransform = mReanimatorTransforms + theTrackIndex;
   ReanimatorTrackInstance *aTrackInstance = &mTrackInstances[theTrackIndex];
   Sexy::Color aColor = aTrackInstance->mTrackColor;
@@ -477,29 +481,44 @@ bool Reanimation::DrawTrack(Sexy::Graphics * g, int theTrackIndex, int theRender
     TRect<int> aAtlasRect(anAtlasImage->mX, anAtlasImage->mY,
                           anAtlasImage->mWidth, anAtlasImage->mHeight);
     Sexy::Image *anAtlasTexture = mDefinition->mReanimAtlas->mImage;
-    if ( mFilterEffect != FilterEffect(-1) )
-      SetFilterEffectShader(mFilterEffect);
+    if (!aUseFilterShader)
+      anAtlasTexture = FilterEffectGetImage(anAtlasTexture, mFilterEffect);
+    SetFilterEffectShader(aUseFilterShader ? mFilterEffect : FILTER_EFFECT_NONE);
     theTriangleGroup->AddTriangle(g, anAtlasTexture, aMatrix, aClipRect, aColor, (int)g->mDrawMode, aAtlasRect);
     if ( mEnableExtraAdditiveDraw && !aTrackInstance->mIgnoreExtraAdditiveColor )
       theTriangleGroup->AddTriangle(g, anAtlasTexture, aMatrix, aClipRect, anAdditiveColor, 1, aAtlasRect);
     if ( mEnableExtraOverlayDraw )
     {
-      Sexy::Image *aFilteredImage = FilterEffectGetImage(anAtlasTexture, FilterEffect(2));
+      Sexy::Image *aFilteredImage = anAtlasTexture;
+      if (aUseFilterShader)
+        SetFilterEffectShader(FILTER_EFFECT_WHITE);
+      else
+        aFilteredImage = FilterEffectGetImage(anAtlasTexture, FILTER_EFFECT_WHITE);
       theTriangleGroup->AddTriangle(g, aFilteredImage, aMatrix, aClipRect, anOverlayColor, 0, aAtlasRect);
     }
-    SetFilterEffectShader(FilterEffect(-1));
+    SetFilterEffectShader(FILTER_EFFECT_NONE);
     return true;
   }
 
   if ( aImage != nullptr )
   {
     Sexy::Image *aDrawImage = aTrackInstance->mImageOverride;
-    SetFilterEffectShader(mFilterEffect);
+    SetFilterEffectShader(aUseFilterShader ? mFilterEffect : FILTER_EFFECT_NONE);
     if ( aDrawImage == nullptr )
       aDrawImage = aImage;
+    if (!aUseFilterShader)
+    {
+      aDrawImage = FilterEffectGetImage(aDrawImage, mFilterEffect);
+      if (aImage2 != nullptr)
+        aImage2 = FilterEffectGetImage(aImage2, mFilterEffect);
+    }
     int aCelCount = aDrawImage->mNumCols;
-    while ( aFrame >= aCelCount )
-      aFrame -= aCelCount;
+    if (aCelCount <= 0 || aDrawImage->mNumRows <= 0)
+    {
+      SetFilterEffectShader(FILTER_EFFECT_NONE);
+      return false;
+    }
+    aFrame %= aCelCount;
     int aCelWidth = aDrawImage->GetCelWidth();
     TRect<int> aCelRect(aCelWidth * aFrame, 0, aCelWidth, aDrawImage->GetCelHeight());
     int aDrawMode = (int)g->mDrawMode;
@@ -541,7 +560,7 @@ bool Reanimation::DrawTrack(Sexy::Graphics * g, int theTrackIndex, int theRender
       g->SetColor(aSavedColor);
     }
   }
-  SetFilterEffectShader(FilterEffect(-1));
+  SetFilterEffectShader(FILTER_EFFECT_NONE);
   return true;
 }
 

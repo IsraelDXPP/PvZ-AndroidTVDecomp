@@ -193,6 +193,7 @@ void BgfxRenderDevice::BeginFrame(const Color& clear)
     bgfx::setViewFrameBuffer(SceneView, mTarget);
     bgfx::touch(SceneView);
     mClipped = false; mColorize = false; mTransform.LoadIdentity(); mFrameOpen = true;
+    mFilterEffect = FILTER_EFFECT_NONE;
 }
 void BgfxRenderDevice::EndFrame() { FlushBatch(); }
 void BgfxRenderDevice::Present()
@@ -226,6 +227,12 @@ void BgfxRenderDevice::BlitImage(MemoryImage* image)
 }
 void BgfxRenderDevice::SetDrawMode(DrawMode mode) { FlushBatch(); mBatchMode = mode; }
 void BgfxRenderDevice::SetColorizeImages(bool colorize) { FlushBatch(); mColorize = colorize; }
+void BgfxRenderDevice::SetFilterEffect(FilterEffect theEffect)
+{
+    if (mFilterEffect == theEffect) return;
+    FlushBatch();
+    mFilterEffect = theEffect;
+}
 void BgfxRenderDevice::SetTransform(const SexyMatrix3& transform) { FlushBatch(); mTransform = transform; }
 void BgfxRenderDevice::SetClipRect(const Rect& clip)
 {
@@ -244,7 +251,8 @@ void BgfxRenderDevice::BeginBatch(Program program, DrawMode mode, bgfx::TextureH
 }
 void BgfxRenderDevice::Submit(bgfx::ViewId view, Program program, const BgfxVertex* vertices, uint32_t count,
     const SexyMatrix3& transform, int width, int height, bool blend, DrawMode mode, bool colorize,
-    bgfx::TextureHandle texture, uint32_t sampler, bool clip, const bgfx::TextureHandle* planes)
+    bgfx::TextureHandle texture, uint32_t sampler, bool clip, const bgfx::TextureHandle* planes,
+    FilterEffect theFilterEffect)
 {
     if (clip && (mClip.mWidth <= 0 || mClip.mHeight <= 0)) return;
     if (bgfx::getAvailTransientVertexBuffer(count, mLayout) < count)
@@ -254,7 +262,7 @@ void BgfxRenderDevice::Submit(bgfx::ViewId view, Program program, const BgfxVert
     std::memcpy(buffer.data, vertices, size_t(count) * sizeof(BgfxVertex));
     float matrix[] = {transform.m00,transform.m10,transform.m20,transform.m01,transform.m11,transform.m21,transform.m02,transform.m12,transform.m22};
     float viewport[] = {float(width), float(height), 0, 0};
-    float params[] = {colorize ? 1.0f : 0.0f, 0, 0, 0};
+    float params[] = {colorize ? 1.0f : 0.0f, 0, 0, float(theFilterEffect + 1)};
     bgfx::setUniform(mTransformUniform, matrix);
     bgfx::setUniform(mViewportUniform, viewport);
     if (program == Program::Blit) { bgfx::setUniform(mBlitUniform, params); bgfx::setTexture(0, mTextureUniform, texture, sampler); }
@@ -273,7 +281,7 @@ void BgfxRenderDevice::FlushBatch()
 {
     if (mVertices.empty()) return;
     Submit(SceneView, mBatchProgram, mVertices.data(), uint32_t(mVertices.size()), mTransform, mWidth, mHeight,
-        true, mBatchMode, mBatchColorize, mBatchTexture, mBatchSampler, mClipped);
+        true, mBatchMode, mBatchColorize, mBatchTexture, mBatchSampler, mClipped, nullptr, mFilterEffect);
     mVertices.clear();
 }
 void BgfxRenderDevice::AddQuad(float left, float top, float right, float bottom,

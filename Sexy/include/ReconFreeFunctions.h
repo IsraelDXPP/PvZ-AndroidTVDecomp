@@ -328,6 +328,7 @@ int EndianShort(short theValue);
 int EndianUINT16(unsigned short theValue);
 unsigned int EndianUINT32(unsigned int theValue);
 void FilterEffectDisposeForApp();
+void FilterEffectDisposeForImage(Sexy::Image* theImage);
 Sexy::Image* FilterEffectGetImage(Sexy::Image* theImage, FilterEffect theEffect);
 void FilterEffectInitForApp();
 class TodAllocator;

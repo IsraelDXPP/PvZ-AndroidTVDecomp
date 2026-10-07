@@ -183,8 +183,10 @@ TodParticleSystem * GridItem::UpdateBrain()
 int GridItem::DrawIZombieBrain(Sexy::Graphics *theGraphics)
 {
   if ( mGridItemState == GRIDITEM_STATE_BRAIN_SQUISHED )
+  {
     TodDrawImageScaledF(theGraphics, IMAGE_BRAIN, mPosX, mPosY + 20.0f, 1.0f, 0.25f);
     return 0;
+  }
 
   // The brain flashes while the "eat all the brains" hint is on screen.
   if ( mBoard->mAdvice->mDuration > 0 && mBoard->mHelpIndex == ADVICE_I_ZOMBIE_EAT_ALL_BRAINS )

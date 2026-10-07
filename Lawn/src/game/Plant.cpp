@@ -435,7 +435,7 @@ int Plant::UpdateLilypad()
 // ==========================================================================
 MagnetItem * Plant::GetFreeMagnetItem()
 {
-  if ( mSeedType != 45 )
+  if ( mSeedType != SEED_GOLD_MAGNET )
     return &mMagnetItems[0];
   for ( int i = 0; i < MAX_MAGNET_ITEMS; ++i )
   {
@@ -449,7 +449,7 @@ MagnetItem * Plant::GetFreeMagnetItem()
 // Plant::MagnetShroomAttactItem(Zombie *)
 // @00169B54  1586 bytes
 // ==========================================================================
-float Plant::MagnetShroomAttactItem(Zombie * theZombie)
+void Plant::MagnetShroomAttactItem(Zombie * theZombie)
 {
   mState = STATE_MAGNETSHROOM_SUCKING;
   mStateCountdown = 1500;
@@ -489,7 +489,7 @@ float Plant::MagnetShroomAttactItem(Zombie * theZombie)
   {
     int aDamageIndex = theZombie->GetShieldDamageIndex();
     theZombie->DetachShield();
-    theZombie->mZombiePhase = (ZombiePhase)0;
+    theZombie->mZombiePhase = PHASE_ZOMBIE_NORMAL;
     if (theZombie->mIsEating == 0)
       theZombie->StartWalkAnim(0);
     theZombie->GetTrackPosition("anim_screendoor", aItem->mPosX, aItem->mPosY);
@@ -503,7 +503,7 @@ float Plant::MagnetShroomAttactItem(Zombie * theZombie)
   {
     int aDamageIndex = theZombie->GetShieldDamageIndex();
     theZombie->DetachShield();
-    theZombie->mZombiePhase = (ZombiePhase)0;
+    theZombie->mZombiePhase = PHASE_ZOMBIE_NORMAL;
     if (theZombie->mIsEating == 0)
       theZombie->StartWalkAnim(0);
     theZombie->GetTrackPosition("anim_screendoor", aItem->mPosX, aItem->mPosY);
@@ -511,7 +511,7 @@ float Plant::MagnetShroomAttactItem(Zombie * theZombie)
     aItem->mPosY -= (float)(IMAGE_REANIM_ZOMBIE_TRASHCAN1->mHeight / 2);
     aItem->mDestOffsetX = RandRangeFloat(-10.0f, 10.0f) + 30.0f;
     aItem->mDestOffsetY = RandRangeFloat(-10.0f, 10.0f);
-    aItem->mItemType = (MagnetItemType)(aDamageIndex + 10);
+    aItem->mItemType = (MagnetItemType)(aDamageIndex + MAGNET_ITEM_TRASHCAN_1);
   }
   else if (theZombie->mShieldType == SHIELDTYPE_LADDER)
   {
@@ -521,7 +521,7 @@ float Plant::MagnetShroomAttactItem(Zombie * theZombie)
     aItem->mPosY = theZombie->mPosY + 20.0f - (float)(IMAGE_REANIM_ZOMBIE_LADDER_5->GetCelHeight() / 2);
     aItem->mDestOffsetX = RandRangeFloat(-10.0f, 10.0f) + 30.0f;
     aItem->mDestOffsetY = RandRangeFloat(-10.0f, 10.0f);
-    aItem->mItemType = (MagnetItemType)(aDamageIndex + 17);
+    aItem->mItemType = (MagnetItemType)(aDamageIndex + MAGNET_ITEM_LADDER_1);
   }
   else if (theZombie->mZombieType == ZOMBIE_POGO)
   {
@@ -531,13 +531,13 @@ float Plant::MagnetShroomAttactItem(Zombie * theZombie)
     aItem->mPosY = (aItem->mPosY + 84.0f) - (float)(IMAGE_REANIM_ZOMBIE_POGO_STICKDAMAGE1->mHeight / 2);
     aItem->mDestOffsetX = RandRangeFloat(-10.0f, 10.0f) + 44.0f;
     aItem->mDestOffsetY = RandRangeFloat(-10.0f, 10.0f) + 10.0f;
-    aItem->mItemType = (MagnetItemType)(theZombie->mHasArm != 0 ? 13 : 15);
+    aItem->mItemType = theZombie->mHasArm ? MAGNET_ITEM_POGO_1 : MAGNET_ITEM_POGO_3;
   }
-  else if (theZombie->mZombiePhase == PHASE_JACK_IN_THE_BOX_POPPING)
+  else if (theZombie->mZombiePhase == PHASE_JACK_IN_THE_BOX_RUNNING)
   {
     theZombie->StopZombieSound();
     theZombie->PickRandomSpeed();
-    theZombie->mZombiePhase = (ZombiePhase)0;
+    theZombie->mZombiePhase = PHASE_ZOMBIE_NORMAL;
     theZombie->ReanimShowTrack("Zombie_jackbox_box", -1);
     theZombie->ReanimShowTrack("Zombie_jackbox_handle", -1);
     theZombie->GetTrackPosition("Zombie_jackbox_box", aItem->mPosX, aItem->mPosY);
@@ -545,7 +545,7 @@ float Plant::MagnetShroomAttactItem(Zombie * theZombie)
     aItem->mPosY -= (float)(IMAGE_REANIM_ZOMBIE_JACKBOX_BOX->mHeight / 2);
     aItem->mDestOffsetX = RandRangeFloat(-10.0f, 10.0f) + 20.0f;
     aItem->mDestOffsetY = RandRangeFloat(-10.0f, 10.0f) + 15.0f;
-    aItem->mItemType = (MagnetItemType)16;
+    aItem->mItemType = MAGNET_ITEM_JACK_IN_THE_BOX;
   }
   else if (theZombie->mZombieType == ZOMBIE_DIGGER)
   {
@@ -555,9 +555,8 @@ float Plant::MagnetShroomAttactItem(Zombie * theZombie)
     aItem->mPosY -= (float)(IMAGE_REANIM_ZOMBIE_DIGGER_PICKAXE->mHeight / 2);
     aItem->mDestOffsetX = RandRangeFloat(-10.0f, 10.0f) + 45.0f;
     aItem->mDestOffsetY = RandRangeFloat(-10.0f, 10.0f) + 15.0f;
-    aItem->mItemType = (MagnetItemType)24;
+    aItem->mItemType = MAGNET_ITEM_PICK_AXE;
   }
-  return 0.0f;
 }
 
 // ==========================================================================
@@ -566,7 +565,7 @@ float Plant::MagnetShroomAttactItem(Zombie * theZombie)
 // ==========================================================================
 int Plant::DrawMagnetItemsOnTop()
 {
-  if ( mSeedType == 45 )
+  if ( mSeedType == SEED_GOLD_MAGNET )
   {
     for ( int i = 0; i < MAX_MAGNET_ITEMS; ++i )
     {
@@ -575,7 +574,7 @@ int Plant::DrawMagnetItemsOnTop()
     }
     return 0;
   }
-  if ( mSeedType != 31 )
+  if ( mSeedType != SEED_MAGNETSHROOM )
     return 0;
   for ( int i = 0; i < MAX_MAGNET_ITEMS; ++i )
   {
@@ -595,7 +594,7 @@ int Plant::DrawMagnetItemsOnTop()
 // Plant::UpdateMagnetShroom(void)
 // @0016A230  962 bytes
 // ==========================================================================
-float Plant::UpdateMagnetShroom()
+void Plant::UpdateMagnetShroom()
 {
   for (int aSlot = 0; aSlot < MAX_MAGNET_ITEMS; ++aSlot)
   {
@@ -615,13 +614,13 @@ float Plant::UpdateMagnetShroom()
   {
     if (mStateCountdown == 0)
     {
-      mState = (PlantState)1;
+      mState = STATE_READY;
       PlayBodyReanim("anim_idle", REANIM_LOOP, 30, RandRangeFloat(10.0f, 15.0f));
       if (mApp->IsIZombieLevel() != 0)
         mApp->ReanimationTryToGet(mBodyReanimID)->SetAnimRate(0.0f);
       mMagnetItems[0].mItemType = MAGNET_ITEM_NONE;
     }
-    return 0.0f;
+    return;
   }
 
   if (mState == STATE_MAGNETSHROOM_SUCKING)
@@ -634,7 +633,7 @@ float Plant::UpdateMagnetShroom()
         mApp->ReanimationTryToGet(mBodyReanimID)->SetAnimRate(0.0f);
       mState = STATE_MAGNETSHROOM_CHARGING;
     }
-    return 0.0f;
+    return;
   }
 
   Zombie *aClosest = nullptr;
@@ -653,18 +652,19 @@ float Plant::UpdateMagnetShroom()
     if ((unsigned int)(aRowGap + 2) > 4)
       continue;
 
-    unsigned int aPhase = aZombie->mZombiePhase;
-    bool aPhaseIsMetal = aPhase <= 0x20 || (aPhase != 32 && aPhase - 36 <= 1);
-    if (!aPhaseIsMetal || aZombie->mZombieType == ZOMBIE_POGO)
+    ZombiePhase aPhase = aZombie->mZombiePhase;
+    bool aCanLoseTool = aPhase == PHASE_DIGGER_TUNNELING
+        || aPhase == PHASE_DIGGER_STUNNED || aPhase == PHASE_DIGGER_WALKING
+        || aZombie->mZombieType == ZOMBIE_POGO;
+    if (aCanLoseTool)
     {
       if (aZombie->mHasObject == 0)
         continue;
     }
-    else if ((unsigned int)(aZombie->mHelmType - 2) > 1)
+    else if (aZombie->mHelmType != HELMTYPE_PAIL && aZombie->mHelmType != HELMTYPE_FOOTBALL)
     {
-      int aShield = aZombie->mShieldType;
-      if (aShield != SHIELDTYPE_DOOR
-        && (unsigned int)(aShield - SHIELDTYPE_LADDER) > 1
+      ShieldType aShield = aZombie->mShieldType;
+      if (aShield != SHIELDTYPE_DOOR && aShield != SHIELDTYPE_LADDER && aShield != SHIELDTYPE_TRASHCAN
         && aPhase != PHASE_JACK_IN_THE_BOX_RUNNING)
         continue;
     }
@@ -683,7 +683,10 @@ float Plant::UpdateMagnetShroom()
     }
   }
   if (aClosest != nullptr)
-    return MagnetShroomAttactItem(aClosest);
+  {
+    MagnetShroomAttactItem(aClosest);
+    return;
+  }
 
   GridItem *aClosestLadder = nullptr;
   float aClosestLadderScore = 0.0f;
@@ -709,7 +712,7 @@ float Plant::UpdateMagnetShroom()
     }
   }
   if (aClosestLadder == nullptr)
-    return 0.0f;
+    return;
 
   mState = STATE_MAGNETSHROOM_SUCKING;
   mStateCountdown = 1500;
@@ -721,8 +724,7 @@ float Plant::UpdateMagnetShroom()
   aSlot->mPosY = (float)mBoard->GridToPixelY(aClosestLadder->mGridX, aClosestLadder->mGridY);
   aSlot->mDestOffsetX = RandRangeFloat(-10.0f, 10.0f) + 10.0f;
   aSlot->mDestOffsetY = RandRangeFloat(-10.0f, 10.0f);
-  aSlot->mItemType = (MagnetItemType)20;
-  return 0.0f;
+  aSlot->mItemType = MAGNET_ITEM_LADDER_PLACED;
 }
 
 // ==========================================================================
@@ -774,11 +776,11 @@ int Plant::GoldMagnetFindTargets()
     aSlot->mDestOffsetX = RandRangeFloat(20.0f, 40.0f);
     aSlot->mDestOffsetY = RandRangeFloat(-20.0f, 0.0f) + 20.0f;
     if (aCoin->mType == COIN_SILVER)
-      aSlot->mItemType = (MagnetItemType)21;
+      aSlot->mItemType = MAGNET_ITEM_SILVER_COIN;
     else if (aCoin->mType == COIN_GOLD)
-      aSlot->mItemType = (MagnetItemType)22;
+      aSlot->mItemType = MAGNET_ITEM_GOLD_COIN;
     else if (aCoin->mType == COIN_DIAMOND)
-      aSlot->mItemType = (MagnetItemType)23;
+      aSlot->mItemType = MAGNET_ITEM_DIAMOND;
     aCoin->Die();
   }
 }
@@ -2588,128 +2590,64 @@ int Plant::FinishPlantInitialize()
 // Plant::DrawMagnetItems(Sexy::Graphics *)
 // @0016D258  606 bytes
 // ==========================================================================
-float Plant::DrawMagnetItems(Sexy::Graphics * g)
+void Plant::DrawMagnetItems(Sexy::Graphics * g)
 {
-  // The switch values are the item types MagnetShroomAttactItem stores. The
-  // enum in Plant.h disagrees with those stores (a pogo lands at 13, a ladder
-  // at 17), so the cases stay numeric rather than taking the wrong name.
-  float result = PlantDrawHeightOffset(mBoard, this, mSeedType, mPlantCol, mRow);
-  for ( MagnetItem *aItem = &mMagnetItems[0]; aItem != &mMagnetItems[MAX_MAGNET_ITEMS]; )
+  float aHeightOffset = PlantDrawHeightOffset(mBoard, this, mSeedType, mPlantCol, mRow);
+  for (const MagnetItem &aItem : mMagnetItems)
   {
-    int aItemType = aItem->mItemType;
-    if ( aItemType == MAGNET_ITEM_NONE )
-    {
-      ++aItem;
-      continue;
-    }
-
     Sexy::Image *aImage = nullptr;
     int aCelCol = 0;
-    switch ( aItemType )
+    bool aScaleItem = true;
+    switch (aItem.mItemType)
     {
-      case 1:
-        aImage = IMAGE_REANIM_ZOMBIE_BUCKET1;
+      case MAGNET_ITEM_NONE: continue;
+      case MAGNET_ITEM_PAIL_1: aImage = IMAGE_REANIM_ZOMBIE_BUCKET1; break;
+      case MAGNET_ITEM_PAIL_2: aImage = IMAGE_REANIM_ZOMBIE_BUCKET2; break;
+      case MAGNET_ITEM_PAIL_3: aImage = IMAGE_REANIM_ZOMBIE_BUCKET3; break;
+      case MAGNET_ITEM_FOOTBALL_HELMET_1: aImage = IMAGE_REANIM_ZOMBIE_FOOTBALL_HELMET; break;
+      case MAGNET_ITEM_FOOTBALL_HELMET_2: aImage = IMAGE_REANIM_ZOMBIE_FOOTBALL_HELMET2; break;
+      case MAGNET_ITEM_FOOTBALL_HELMET_3: aImage = IMAGE_REANIM_ZOMBIE_FOOTBALL_HELMET3; break;
+      case MAGNET_ITEM_DOOR_1: aImage = IMAGE_REANIM_ZOMBIE_SCREENDOOR1; break;
+      case MAGNET_ITEM_DOOR_2: aImage = IMAGE_REANIM_ZOMBIE_SCREENDOOR2; break;
+      case MAGNET_ITEM_DOOR_3: aImage = IMAGE_REANIM_ZOMBIE_SCREENDOOR3; break;
+      case MAGNET_ITEM_TRASHCAN_1: aImage = IMAGE_REANIM_ZOMBIE_TRASHCAN1; break;
+      case MAGNET_ITEM_TRASHCAN_2: aImage = IMAGE_REANIM_ZOMBIE_TRASHCAN2; break;
+      case MAGNET_ITEM_TRASHCAN_3: aImage = IMAGE_REANIM_ZOMBIE_TRASHCAN3; break;
+      case MAGNET_ITEM_POGO_1:
+      case MAGNET_ITEM_POGO_2:
+      case MAGNET_ITEM_POGO_3:
+        aImage = IMAGE_ZOMBIEPOGO;
+        aCelCol = aItem.mItemType - MAGNET_ITEM_POGO_1;
         break;
-      case 2:
-        aImage = IMAGE_REANIM_ZOMBIE_BUCKET2;
+      case MAGNET_ITEM_JACK_IN_THE_BOX: aImage = IMAGE_REANIM_ZOMBIE_JACKBOX_BOX; break;
+      case MAGNET_ITEM_LADDER_1: aImage = IMAGE_REANIM_ZOMBIE_LADDER_1; break;
+      case MAGNET_ITEM_LADDER_2: aImage = IMAGE_REANIM_ZOMBIE_LADDER_1_DAMAGE1; break;
+      case MAGNET_ITEM_LADDER_3: aImage = IMAGE_REANIM_ZOMBIE_LADDER_1_DAMAGE2; break;
+      case MAGNET_ITEM_LADDER_PLACED: aImage = IMAGE_REANIM_ZOMBIE_LADDER_5; break;
+      case MAGNET_ITEM_PICK_AXE: aImage = IMAGE_REANIM_ZOMBIE_DIGGER_PICKAXE; break;
+      case MAGNET_ITEM_SILVER_COIN:
+        aImage = IMAGE_REANIM_COIN_SILVER_DOLLAR;
+        aScaleItem = false;
         break;
-      case 3:
-        aImage = IMAGE_REANIM_ZOMBIE_BUCKET3;
+      case MAGNET_ITEM_GOLD_COIN:
+        aImage = IMAGE_REANIM_COIN_GOLD_DOLLAR;
+        aScaleItem = false;
         break;
-      case 4:
-        aImage = IMAGE_REANIM_ZOMBIE_FOOTBALL_HELMET;
+      case MAGNET_ITEM_DIAMOND:
+        aImage = IMAGE_REANIM_DIAMOND;
+        aScaleItem = false;
         break;
-      case 5:
-        aImage = IMAGE_REANIM_ZOMBIE_FOOTBALL_HELMET2;
-        break;
-      case 6:
-        aImage = IMAGE_REANIM_ZOMBIE_FOOTBALL_HELMET3;
-        break;
-      case 7:
-        aImage = IMAGE_REANIM_ZOMBIE_SCREENDOOR1;
-        break;
-      case 8:
-        aImage = IMAGE_REANIM_ZOMBIE_SCREENDOOR2;
-        break;
-      case 9:
-        aImage = IMAGE_REANIM_ZOMBIE_SCREENDOOR3;
-        break;
-      case 0xA:
-        aImage = IMAGE_REANIM_ZOMBIE_TRASHCAN1;
-        break;
-      case 0xB:
-        aImage = IMAGE_REANIM_ZOMBIE_TRASHCAN2;
-        break;
-      case 0xC:
-        aImage = IMAGE_REANIM_ZOMBIE_TRASHCAN3;
-        break;
-      default:
-        if ( (unsigned int)(aItemType - 13) <= 2 )
-        {
-          aCelCol = aItemType - 13;
-          aImage = IMAGE_ZOMBIEPOGO;
-          break;
-        }
-        switch ( aItemType )
-        {
-          case 0x11:
-            aImage = IMAGE_REANIM_ZOMBIE_LADDER_1;
-            break;
-          case 0x12:
-            aImage = IMAGE_REANIM_ZOMBIE_LADDER_1_DAMAGE1;
-            break;
-          case 0x13:
-            aImage = IMAGE_REANIM_ZOMBIE_LADDER_1_DAMAGE2;
-            break;
-          case 0x14:
-            aImage = IMAGE_REANIM_ZOMBIE_LADDER_5;
-            break;
-          case 0x10:
-            aImage = IMAGE_REANIM_ZOMBIE_JACKBOX_BOX;
-            break;
-          case 0x18:
-            aImage = IMAGE_REANIM_ZOMBIE_DIGGER_PICKAXE;
-            break;
-          default:
-            switch ( aItemType )
-            {
-              case 0x15:
-                aImage = IMAGE_REANIM_COIN_SILVER_DOLLAR;
-                break;
-              case 0x16:
-                aImage = IMAGE_REANIM_COIN_GOLD_DOLLAR;
-                break;
-              case 0x17:
-                aImage = IMAGE_REANIM_DIAMOND;
-                break;
-              default:
-                break;
-            }
-            g->DrawImageCel(
-                aImage,
-                (int)(aItem->mPosX - (float)mX),
-                (int)((result - (float)mY) + aItem->mPosY),
-                0,
-                0);
-            ++aItem;
-            continue;
-        }
-        break;
+      default: continue;
     }
-    TodDrawImageCelScaledF(
-        g,
-        aImage,
-        aItem->mPosX - (float)mX,
-        (result - (float)mY) + aItem->mPosY,
-        aCelCol,
-        0,
-        0.8,
-        0.8);
-    ++aItem;
-  }
-  return result;
-}
 
+    float aDrawX = aItem.mPosX - (float)mX;
+    float aDrawY = aHeightOffset - (float)mY + aItem.mPosY;
+    if (aScaleItem)
+      TodDrawImageCelScaledF(g, aImage, aDrawX, aDrawY, aCelCol, 0, 0.8f, 0.8f);
+    else
+      g->DrawImageCel(aImage, (int)aDrawX, (int)aDrawY, 0, 0);
+  }
+}
 // ==========================================================================
 // Plant::UpdateReanim(void)
 // @0016D514  662 bytes
@@ -3347,11 +3285,8 @@ Plant * Plant::UpdateImitater()
 // Plant::Draw(Sexy::Graphics *)
 // @0016E2D4  1248 bytes
 // ==========================================================================
-float Plant::Draw(Sexy::Graphics * g)
+void Plant::Draw(Sexy::Graphics * g)
 {
-  // The binary returns the r0 of whichever draw call it fell off on. Callers
-  // never read it, so the value is only preserved where the old body returned
-  // a real pointer word (DrawMagnetItems).
   float aOffset = PlantDrawHeightOffset(mBoard, this, mSeedType, mPlantCol, mRow);
   // 0x16E304: CBZ IsFlying, skip the bob. The transcribed `!IsFlying` was inverted.
   if ( Plant::IsFlying(mSeedType) != 0 && mSquished != 0 )
@@ -3365,9 +3300,9 @@ float Plant::Draw(Sexy::Graphics * g)
     else if ( mSeedType == SEED_INSTANT_COFFEE )
       aOffset = aOffset - 20.0f;
     g->SetScale(1.0f, 0.25f, 0.0f, 0.0f);
-    Plant::DrawSeedType(g, mSeedType, mImitaterType, (DrawVariation)0, 0.0f, aOffset + 60.0f);
+    Plant::DrawSeedType(g, mSeedType, mImitaterType, VARIATION_NORMAL, 0.0f, aOffset + 60.0f);
     g->SetScale(1.0f, 1.0f, 0.0f, 0.0f);
-    return 0.0f;
+    return;
   }
 
   Plant *aPumpkin = nullptr;
@@ -3424,7 +3359,7 @@ float Plant::Draw(Sexy::Graphics * g)
         && IsOnBoard() != 0
         && aBodyReanim->mAnimRate == 0.0f
         && aBodyReanim->IsAnimPlaying("anim_idle") != 0)
-        mApp->mReanimatorCache->DrawCachedPlant(g, aShakeX, aShakeY, mSeedType, (DrawVariation)0);
+        mApp->mReanimatorCache->DrawCachedPlant(g, aShakeX, aShakeY, mSeedType, VARIATION_NORMAL);
       else
         aBodyReanim->DrawRenderGroup(g, 0);
     }
@@ -3480,8 +3415,8 @@ float Plant::Draw(Sexy::Graphics * g)
     }
   }
   if (mSeedType == SEED_MAGNETSHROOM && DrawMagnetItemsOnTop() == 0)
-    return DrawMagnetItems(g);
-  return 0.0f;
+    DrawMagnetItems(g);
+  return;
 }
 
 // ==========================================================================

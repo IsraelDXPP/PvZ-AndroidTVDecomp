@@ -60,10 +60,7 @@ class LawnApp;
 // 100 = 5 * sizeof(MagnetItem), which is the proof.
 inline constexpr int MAX_MAGNET_ITEMS = 5;
 
-// MagnetItemType -- a real enum. Values taken from the authoritative header
-// PvZ\Lawn\Board\Plant.h:131 and identical to libGameMain115.h:1076
-// (Pail1=1 .. GoldCoin=0x13, PickAxe=0x15); the IDA export is missing 0x14, which
-// the authoritative header supplies as `MAGNET_ITEM_DIAMOND = 20`.
+// TV adds three trashcan damage stages after the screen doors.
 enum MagnetItemType {
     MAGNET_ITEM_NONE = 0,
     MAGNET_ITEM_PAIL_1 = 1,
@@ -75,19 +72,21 @@ enum MagnetItemType {
     MAGNET_ITEM_DOOR_1 = 7,
     MAGNET_ITEM_DOOR_2 = 8,
     MAGNET_ITEM_DOOR_3 = 9,
-    // MAGNET_ITEM_PROPELLER,
-    MAGNET_ITEM_POGO_1 = 10,
-    MAGNET_ITEM_POGO_2 = 11,
-    MAGNET_ITEM_POGO_3 = 12,
-    MAGNET_ITEM_JACK_IN_THE_BOX = 13,
-    MAGNET_ITEM_LADDER_1 = 14,
-    MAGNET_ITEM_LADDER_2 = 15,
-    MAGNET_ITEM_LADDER_3 = 16,
-    MAGNET_ITEM_LADDER_PLACED = 17,
-    MAGNET_ITEM_SILVER_COIN = 18,
-    MAGNET_ITEM_GOLD_COIN = 19,
-    MAGNET_ITEM_DIAMOND = 20,
-    MAGNET_ITEM_PICK_AXE = 21,
+    MAGNET_ITEM_TRASHCAN_1 = 10,
+    MAGNET_ITEM_TRASHCAN_2 = 11,
+    MAGNET_ITEM_TRASHCAN_3 = 12,
+    MAGNET_ITEM_POGO_1 = 13,
+    MAGNET_ITEM_POGO_2 = 14,
+    MAGNET_ITEM_POGO_3 = 15,
+    MAGNET_ITEM_JACK_IN_THE_BOX = 16,
+    MAGNET_ITEM_LADDER_1 = 17,
+    MAGNET_ITEM_LADDER_2 = 18,
+    MAGNET_ITEM_LADDER_3 = 19,
+    MAGNET_ITEM_LADDER_PLACED = 20,
+    MAGNET_ITEM_SILVER_COIN = 21,
+    MAGNET_ITEM_GOLD_COIN = 22,
+    MAGNET_ITEM_DIAMOND = 23,
+    MAGNET_ITEM_PICK_AXE = 24,
 };
 
 // MagnetItem -- 20 bytes, identical in the authoritative header Plant.h:157 and in
@@ -259,9 +258,9 @@ public:
     int UpdateFlowerPot();
     int UpdateLilypad();
     MagnetItem * GetFreeMagnetItem();
-    float MagnetShroomAttactItem(Zombie * theZombie);
+    void MagnetShroomAttactItem(Zombie * theZombie);
     int DrawMagnetItemsOnTop();
-    float UpdateMagnetShroom();
+    void UpdateMagnetShroom();
     Coin * FindGoldMagnetTarget();
     int GoldMagnetFindTargets();
     int RemoveEffects();
@@ -332,7 +331,7 @@ public:
     int CalcRenderOrder();
     int PlantInitialize(int theGridX, int theGridY, SeedType theSeedType, SeedType theImitaterType, int thePlayerIndex);
     int FinishPlantInitialize();
-    float DrawMagnetItems(Sexy::Graphics *g);
+    void DrawMagnetItems(Sexy::Graphics *g);
     int UpdateReanim();
     void DrawShadow(Sexy::Graphics *g, float theOffsetX, float theOffsetY);
     int Die();
@@ -345,7 +344,7 @@ public:
     int Squish();
     int ImitaterMorph();
     Plant * UpdateImitater();
-    float Draw(Sexy::Graphics *g);
+    void Draw(Sexy::Graphics *g);
     bool IsSpiky();
     // Both return a 16-byte Rect BY VALUE, so on this target the result buffer
     // arrives in r0 and the real object in r1:

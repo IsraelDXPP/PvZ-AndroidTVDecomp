@@ -299,7 +299,7 @@ public:
     void IZombiePlaceZombie(ZombieType theZombieType, int theGridX, int theGridY);
     void IZombieSetupPlant(Plant * thePlant);
     void IZombiePlacePlantInSquare(SeedType theSeedType, int theGridX, int theGridY);
-    Plant * IZombiePlacePlants(SeedType theSeedType, int theCount, int theGridY);
+    void IZombiePlacePlants(SeedType theSeedType, int theCount, int theGridY);
     void IZombieStart();
     void IZombieUpdate();
     static int IsZombieSeedType(SeedType theSeedType);
@@ -356,7 +356,7 @@ public:
     int ScaryPotterPopulate();
     void AdvanceCrazyDaveDialog();
     bool MouseDown(int theX, int theY, int theClickCount, HitResult *theHitResult, int thePlayerIndex);
-    int IZombieInitLevel();
+    void IZombieInitLevel();
     void InitLevel();
     int SquirrelStart();
     void StartLevel();

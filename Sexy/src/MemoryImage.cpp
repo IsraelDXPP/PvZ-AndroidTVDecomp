@@ -10,6 +10,7 @@
 #include "SexyAppBase.h"
 #include "LawnApp.h"
 #include "ReconData.h"
+#include "ReconFreeFunctions.h"
 #include <string>
 #include <vector>
 #include <map>
@@ -501,6 +502,7 @@ void Sexy::MemoryImage::ClearRect(const TRect<int> & theRect)
 
 void Sexy::MemoryImage::BitsChanged()
 {
+    FilterEffectDisposeForImage(this);
     ++mBitsChangedCount;
     mBitsChanged = true;
 
