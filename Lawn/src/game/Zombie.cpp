@@ -261,7 +261,7 @@ int Zombie::ZombieCatapultFire(Plant * thePlant)
                                                     (ProjectileType)9);
     float aFlightDistance = (aPosX - (float)aTargetX) - 20.0f;
     float aVelX = 40.0f;
-    aProjectile->mMotionType = 1;
+    aProjectile->mMotionType = MOTION_LOBBED;
     if (aFlightDistance >= 40.0f)
         aVelX = aFlightDistance;
     aProjectile->mVelY = 0.0f;
@@ -358,7 +358,7 @@ void Zombie::UpdateZombiePeaHead()
                                                     mRenderOrder,
                                                     mRow,
                                                     (ProjectileType)13);
-    aProjectile->mMotionType = 6;
+    aProjectile->mMotionType = MOTION_BACKWARDS;
     mPhaseCounter = 150;
 }
 
@@ -401,7 +401,7 @@ void Zombie::UpdateZombieGatlingHead()
                                                         mRenderOrder,
                                                         mRow,
                                                         (ProjectileType)13);
-        aProjectile->mMotionType = 6;
+        aProjectile->mMotionType = MOTION_BACKWARDS;
         return;
     }
 
@@ -5353,20 +5353,18 @@ void Zombie::BungeeLanding()
 // Zombie::ZombiquariumFindClosestBrain(void)
 // @001AE5D8  388 bytes
 // ==========================================================================
-int Zombie::ZombiquariumFindClosestBrain()
+bool Zombie::ZombiquariumFindClosestBrain()
 {
-    // A zombiquarium zombie only hunts while the level award is still out and
-    // it has not been feeding for too long.
-    if (mBoard->HasLevelAwardDropped() || mPhaseCounter > 150)
-        return 0;
+    if (mBoard->HasLevelAwardDropped() || mBodyHealth > 150)
+        return false;
 
     GridItem *aClosest = nullptr;
     float aClosestDistance = 0.0f;
     GridItem *aGridItem = nullptr;
     while (mBoard->IterateGridItems(aGridItem))
     {
-        // Only a brain that is at least a quarter eaten is worth chasing.
-        if (aGridItem->mGridItemType != (GridItemType)6 || aGridItem->mGridItemCounter <= 14)
+        // Give a newly dropped brain 15 ticks before it can be eaten.
+        if (aGridItem->mGridItemType != GRIDITEM_BRAIN || aGridItem->mGridItemCounter <= 14)
             continue;
 
         float aDistance = sqrtf(((mPosX + 35.0f) - aGridItem->mPosX) * ((mPosX + 35.0f) - aGridItem->mPosX)
@@ -5378,23 +5376,28 @@ int Zombie::ZombiquariumFindClosestBrain()
         }
     }
 
-    bool aFound = aClosest != nullptr;
-    if (!aFound || aClosestDistance >= 50.0f)
-        return 0;
+    if (aClosest == nullptr)
+        return false;
 
-    // Close enough to eat: the brain is destroyed and the zombie starts a
-    // 200-frame bite, but the feeding clock only moves 200 frames forward.
-    aClosest->GridItemDie();
-    mApp->PlayFoley(FOLEY_CHOMP);
-    if (mPhaseCounter > mZombieAge + 200)
-        mPhaseCounter = mZombieAge + 200;
-    else
-        mPhaseCounter = mZombieAge;
+    if (aClosestDistance < 50.0f)
+    {
+        aClosest->GridItemDie();
+        mApp->PlayFoley(FOLEY_SLURP);
+        int aFedHealth = mBodyHealth + 200;
+        mBodyHealth = aFedHealth < mBodyMaxHealth ? aFedHealth : mBodyMaxHealth;
+        PlayZombieReanim("anim_aquarium_bite", REANIM_PLAY_ONCE_AND_HOLD, 10, 24.0f);
+        mZombiePhase = PHASE_ZOMBIQUARIUM_BITE;
+        mPhaseCounter = 200;
+        return false;
+    }
 
-    PlayZombieReanim("anim_aquarium_bite", REANIM_PLAY_ONCE_AND_HOLD, 10, 24.0f);
-    mZombiePhase = PHASE_ZOMBIQUARIUM_BITE;
-    mPhaseCounter = 200;
-    return 0;
+    float aHeading = atan2f(aClosest->mPosY - 25.0f - mPosY,
+                           aClosest->mPosX - 35.0f - mPosX);
+    if (aHeading < 0.0f)
+        aHeading += 6.2832f;
+    mVelZ = aHeading;
+    mZombiePhase = PHASE_ZOMBIQUARIUM_ACCEL;
+    return true;
 }
 
 // ==========================================================================
@@ -9580,24 +9583,24 @@ float Zombie::UpdateZombieBobsled()
 // Zombie::UpdateZombiquarium(void)
 // @001B3D9C  674 bytes
 // ==========================================================================
-int Zombie::UpdateZombiquarium()
+void Zombie::UpdateZombiquarium()
 {
     if (IsDeadOrDying())
-        return 0;
+        return;
 
     Reanimation *aBodyReanim = mApp->ReanimationGet(mBodyReanimID);
 
     if (mZombiePhase == PHASE_ZOMBIQUARIUM_BITE)
     {
-        // The bite is over: pick a new heading and swim off again.
+        // After eating, resume the slow swim before choosing another heading.
         if (aBodyReanim->mLoopCount > 0)
         {
             PlayZombieReanim("anim_aquarium_swim", REANIM_LOOP, 20, RandRangeFloat(8.0f, 10.0f));
-            mZombiePhase = PHASE_ZOMBIQUARIUM_ACCEL;
+            mZombiePhase = PHASE_ZOMBIQUARIUM_DRIFT;
             mPhaseCounter = 100;
         }
     }
-    else if (ZombiquariumFindClosestBrain() == 0 && mPhaseCounter == 0)
+    else if (!ZombiquariumFindClosestBrain() && mPhaseCounter == 0)
     {
         // No brain in reach: drift in a random direction, or head straight for
         // the side of the tank. The heading lives in mVelZ, which this state
@@ -9670,13 +9673,12 @@ int Zombie::UpdateZombiquarium()
             {
                 // A sun token drifts out of the zombiquarium.
                 mApp->PlayFoley(FOLEY_SPAWN_SUN);
-                mBoard->AddCoin(mX + 50, mY + 40, COIN_SUN,
-                                (CoinMotion)2);  // COIN_MOTION_FROM_PLANT
+                mBoard->AddCoin(mX + 50, mY + 40, COIN_SUN, COIN_MOTION_FROM_PLANT);
                 mSummonCounter = RandRangeInt(1000, 1500);
             }
         }
 
-        // The fish loses a point of health every hundred ticks.
+        // Hunger costs ten health every hundred ticks.
         if (mZombieAge % 100 == 0)
         {
             TakeDamage(10, 8U);
@@ -9684,7 +9686,6 @@ int Zombie::UpdateZombiquarium()
                 mApp->PlaySample(SOUND_ZOMBAQUARIUM_DIE, true);
         }
     }
-    return 0;
 }
 // ==========================================================================
 // Zombie::EatZombie(Zombie*)

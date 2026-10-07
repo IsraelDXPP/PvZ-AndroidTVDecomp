@@ -120,14 +120,7 @@ public:
     float    mShadowY;              // +0x5C  (23)
     bool     mDead;                 // +0x60  (authoritative header says 96)
     int      mAnimTicksPerFrame;    // +0x64  (25)
-    // TODO(recon): the authoritative header says `ProjectileMotion mMotionType`
-    // but this project has no such type (only the enum definition in
-    // PvZ\Lawn\Common\ConstEnums.h:980). Its value domain is
-    // MOTION_STRAIGHT=0 / MOTION_LOBBED=1 / MOTION_THREEPEATER=2 / MOTION_BEE=3 /
-    // MOTION_BEE_BACKWARDS=4 / MOTION_PUFF=5 / MOTION_BACKWARDS=6 / MOTION_STAR=7 /
-    // MOTION_FLOAT_OVER=8 / MOTION_HOMING=9, which is what the plain integers in
-    // the .cpp compare against, so keep the int placeholder.
-    int      mMotionType;           // +0x68  (26)
+    ProjectileMotion mMotionType;   // +0x68  (26)
     ProjectileType mProjectileType; // +0x6C  (27)
     int      mProjectileAge;        // +0x70  (28)
     int      mClickBackoffCounter;  // +0x74  (29)

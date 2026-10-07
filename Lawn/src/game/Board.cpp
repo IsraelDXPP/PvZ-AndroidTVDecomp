@@ -2901,16 +2901,16 @@ int Board::GridCellHeight(int theGridX, int theGridY)
 // Board::ZombieGetID(Zombie *)
 // @00154DBC  6 bytes
 // ==========================================================================
-int Board::ZombieGetID(Zombie * theZombie)
+ZombieID Board::ZombieGetID(Zombie * theZombie)
 {
   // The id word sits in the slot that owns this zombie.
   ZombieSlot *aSlots = mZombies.mBlock;
   for (unsigned int anIndex = 0; anIndex < mZombies.mMaxSize; ++anIndex)
   {
     if (&aSlots[anIndex].mItem == theZombie)
-      return aSlots[anIndex].mID;
+      return static_cast<ZombieID>(aSlots[anIndex].mID);
   }
-  return 0;
+  return ZOMBIEID_NULL;
 }
 
 // ==========================================================================

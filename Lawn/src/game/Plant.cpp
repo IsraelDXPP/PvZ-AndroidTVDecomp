@@ -288,7 +288,7 @@ int Plant::StarFruitFire()
   {
     Projectile *aStarProjectile = mBoard->AddProjectile(mX + 25, mY + 25, mRenderOrder - 1, mRow, (ProjectileType)7);
     aStarProjectile->mDamageRangeFlags = aFlags;
-    aStarProjectile->mMotionType = 7;
+    aStarProjectile->mMotionType = MOTION_STAR;
     switch (aStar)
     {
       case 0:
@@ -4046,41 +4046,41 @@ float Plant::Fire(Zombie * theTargetZombie, int theRow, PlantWeapon theWeapon, G
       aRange = aTargetX;
     aProjectile->mVelY = 0.0f;
     aProjectile->mAccZ = 0.115f;
-    aProjectile->mMotionType = 1;
+    aProjectile->mMotionType = MOTION_LOBBED;
     aProjectile->mVelX = aRange * 0.0083333f;
   }
   else if ( aSeedType == SEED_THREEPEATER )
   {
     if ( theRow < mRow )
     {
-      aProjectile->mMotionType = 2;
+      aProjectile->mMotionType = MOTION_THREEPEATER;
       aProjectile->mVelY = -3.0f;
       aProjectile->mShadowY = aProjectile->mShadowY + 80.0f;
     }
     else if ( theRow > mRow )
     {
-      aProjectile->mMotionType = 2;
+      aProjectile->mMotionType = MOTION_THREEPEATER;
       aProjectile->mVelY = 3.0f;
       aProjectile->mShadowY = aProjectile->mShadowY - 80.0f;
     }
   }
   else if (aSeedType == SEED_PUFFSHROOM || aSeedType == SEED_LILYPAD)
   {
-    aProjectile->mMotionType = 5;
+    aProjectile->mMotionType = MOTION_PUFF;
   }
   else if ( aSeedType == SEED_SPLITPEA )
   {
     if ( theWeapon == 1 )
-      aProjectile->mMotionType = 6;
+      aProjectile->mMotionType = MOTION_BACKWARDS;
   }
   else if ( aSeedType == SEED_LEFTPEATER )
   {
-    aProjectile->mMotionType = 6;
+    aProjectile->mMotionType = MOTION_BACKWARDS;
   }
   else if ( aSeedType == SEED_CATTAIL )
   {
     aProjectile->mVelX = 2.0f;
-    aProjectile->mMotionType = 9;
+    aProjectile->mMotionType = MOTION_HOMING;
     // 0x16F096 BL Board::ZombieGetID; 0x16F09A STR r0, [projectile,#0x98].
     // The id is the register as returned; ZombieID is that word.
     aProjectile->mTargetZombieID = (ZombieID)mBoard->ZombieGetID(theTargetZombie);
@@ -4088,7 +4088,7 @@ float Plant::Fire(Zombie * theTargetZombie, int theRow, PlantWeapon theWeapon, G
   else if ( aSeedType == SEED_COBCANNON )
   {
     aProjectile->mDamageRangeFlags = GetDamageRangeFlags((PlantWeapon)0);
-    aProjectile->mMotionType = 1;
+    aProjectile->mMotionType = MOTION_LOBBED;
     aProjectile->mVelX = 0.001f;
     aProjectile->mVelY = 0.0f;
     aProjectile->mAccZ = 0.0f;

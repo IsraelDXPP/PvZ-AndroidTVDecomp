@@ -71,7 +71,9 @@ int BaseGamepadControls::GotoState(MovementState theState)
   mGamepadState = theState;
   int aResult = EnterState((int)aPrevious);
   if (theState != aPrevious)
-    mMovementStateTimer = 0.0f;
+    // GotoState @0x1BCE78 resets +0x68, the elapsed time for this state.
+    // UpdateStates uses it to raise the cursor speed only after 0.5 seconds.
+    mDigIndicatorPercentage = 0.0f;
   return aResult;
 }
 

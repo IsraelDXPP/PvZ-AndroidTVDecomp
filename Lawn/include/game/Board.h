@@ -593,7 +593,7 @@ public:
     int DrawIce(Sexy::Graphics * g, int theRow);
     int GridCellWidth(int theGridX, int theGridY);
     int GridCellHeight(int theGridX, int theGridY);
-    int ZombieGetID(Zombie * theZombie);
+    ZombieID ZombieGetID(Zombie * theZombie);
     Zombie * ZombieGet(ZombieID theId);
     Zombie * ZombieTryToGet(ZombieID theId);
     void ShakeBoard(int theShakeAmountX, int theShakeAmountY);

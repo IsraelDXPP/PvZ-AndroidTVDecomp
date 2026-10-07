@@ -348,7 +348,7 @@ public:
     // carried zombie tail-calls PlayZombieReanim. The one caller,
     // UpdateZombieBungee, discards the word, so the function returns nothing.
     void BungeeLanding();
-    int ZombiquariumFindClosestBrain();
+    bool ZombiquariumFindClosestBrain();
     float UpdateZombiePolevaulter();
     int UpdateZombieDolphinRider();
     // The shared tail of the three dolphin-jump arms of the above.
@@ -453,7 +453,7 @@ public:
     void UpdateZombieSnorkel();
     int UpdateZombieSquashHead();
     float UpdateZombieBobsled();
-    int UpdateZombiquarium();
+    void UpdateZombiquarium();
     Zombie * EatZombie(Zombie *theZombie);
     void CheckIfPreyCaught();
     Reanimation * HitIceTrap();

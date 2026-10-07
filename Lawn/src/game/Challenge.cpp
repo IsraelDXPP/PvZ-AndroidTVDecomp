@@ -3923,7 +3923,7 @@ int Challenge::ZombiquariumPacketClicked(SeedPacket * thePacket)
     if ( thePacket->mPacketType == SEED_ZOMBIQUARIUM_TROPHY )
     {
       SpawnLevelAward(2, 0);
-      mBoard->ClearAdvice(AdviceType(-1));
+      mBoard->ClearAdvice(ADVICE_NONE);
     }
     return mBoard->TakeSunMoney(aCost, 0);
   }
@@ -3935,7 +3935,7 @@ int Challenge::ZombiquariumPacketClicked(SeedPacket * thePacket)
 
   if ( mBoard->mTutorialState == TUTORIAL_ZOMBIQUARIUM_BUY_SNORKEL )
   {
-    mBoard->ClearAdvice(AdviceType(52));
+    mBoard->ClearAdvice(ADVICE_ZOMBIQUARIUM_BUY_SNORKEL);
     mBoard->TutorialArrowRemove();
     mBoard->mTutorialState = TUTORIAL_ZOMBIQUARIUM_BOUGHT_SNORKEL;
   }
@@ -3943,7 +3943,7 @@ int Challenge::ZombiquariumPacketClicked(SeedPacket * thePacket)
   Zombie *aZombie = ZombiquariumSpawnSnorkel();
   mApp->PlayFoley(FOLEY_ZOMBIESPLASH);
   mApp->AddTodParticle(aZombie->mPosX + 60.0f, aZombie->mPosY + 20.0f,
-                       400000, (ParticleEffect)23);
+                       400000, PARTICLE_PLANTING_POOL);
   return mBoard->TakeSunMoney(aCost, 0);
 }
 // ==========================================================================
@@ -3952,84 +3952,75 @@ int Challenge::ZombiquariumPacketClicked(SeedPacket * thePacket)
 // ==========================================================================
 void Challenge::ZombiquariumUpdate()
 {
-  // The level is lost the moment the trophy packet leaves the bank, unless the
-  // award has already dropped.
-  if ( mApp->mBoard->mSeedBank[0]->mSeedPackets[0].mPacketType == SEED_NONE &&
-       !mBoard->HasLevelAwardDropped() )
+  if (mBoard->mZombies.mSize == 0 && !mBoard->HasLevelAwardDropped())
   {
     mBoard->ZombiesWon(nullptr);
     return;
   }
 
   // The sun counter is the level's progress: 1000 sun wins it.
-  int aSun = mBoard->mSunMoney1;
-
-  if ( !mBoard->mAdvice->IsBeingDisplayed() && !mBoard->mHelpDisplayed[18] )
+  if (!mBoard->mAdvice->IsBeingDisplayed() &&
+      !mBoard->mHelpDisplayed[ADVICE_ZOMBIQUARIUM_COLLECT_SUN])
   {
     Sexy::String aAdvice;
     TodStringTranslate(&aAdvice, "[ADVICE_ZOMBIQUARIUM_COLLECT_SUN]");
     Sexy::String aText;
     TodReplaceNumberString(&aText, &aAdvice, "{SCORE}", 1000);
-    mBoard->DisplayAdvice(aText, MESSAGE_STYLE_HINT_TALL_FAST, AdviceType(50));
+    mBoard->DisplayAdvice(aText, MESSAGE_STYLE_HINT_TALL_FAST, ADVICE_ZOMBIQUARIUM_COLLECT_SUN);
   }
 
-  if ( aSun <= 0 )
-    mBoard->mProgressMeterWidth = TodAnimateCurve(0, 1000, 0, 0, COERCE_FLOAT(150), 1);
-  else if ( aSun >= 1000 )
-    mBoard->mProgressMeterWidth = TodAnimateCurve(0, 1000, 1000, 0, COERCE_FLOAT(150), 1);
-  else
-    mBoard->mProgressMeterWidth = TodAnimateCurve(0, 1000, aSun, 0, COERCE_FLOAT(150), 1);
+  int aSun = mBoard->mSunMoney1;
+  if (aSun < 0)
+    aSun = 0;
+  else if (aSun > 1000)
+    aSun = 1000;
+  mBoard->mProgressMeterWidth = TodAnimateCurve(0, 1000, aSun, 0, 150.0f, CURVE_LINEAR);
 
   // Past 900 sun the "almost there" advice comes up.
   if ( aSun >= 900 )
   {
     Sexy::String aAdvice;
     TodStringTranslate(&aAdvice, "[ADVICE_ALMOST_THERE]");
-    mBoard->DisplayAdvice(aAdvice, MESSAGE_STYLE_HINT_TALL_FAST, AdviceType(48));
+    mBoard->DisplayAdvice(aAdvice, MESSAGE_STYLE_HINT_TALL_FAST, ADVICE_ALMOST_THERE);
   }
 
   // The tutorial walks the player through buying a snorkel and then clicking the
   // trophy packet, one step per threshold on the sun counter.
-  if ( aSun > 109 )
+  if (aSun >= 110 && mBoard->mTutorialState == TUTORIAL_OFF)
   {
-    if ( mBoard->mTutorialState == TUTORIAL_ZOMBIQUARIUM_BUY_SNORKEL )
-    {
-      mBoard->mTutorialState = TUTORIAL_ZOMBIQUARIUM_BOUGHT_SNORKEL;
-      SeedPacket *aSnorkel = &mBoard->mSeedBank[0]->mSeedPackets[0];
-      mBoard->TutorialArrowShow((int)(aSnorkel->mX + mBoard->mX),
-                                (int)(aSnorkel->mY + mBoard->mY));
-      Sexy::String aAdvice;
-      TodStringTranslate(&aAdvice, "[ADVICE_ZOMBIQUARIUM_BUY_SNORKEL]");
-      mBoard->DisplayAdvice(aAdvice, MESSAGE_STYLE_HINT_TALL_FAST, AdviceType(52));
-    }
-    else if ( mBoard->mTutorialState == TUTORIAL_ZOMBIQUARIUM_CLICK_TROPHY && aSun == 1000 )
-    {
-      mBoard->mTutorialState = (TutorialState)(TUTORIAL_ZOMBIQUARIUM_CLICK_TROPHY + 1);
-      SeedPacket *aTrophy = &mBoard->mSeedBank[0]->mSeedPackets[1];
-      mBoard->TutorialArrowShow((int)(aTrophy->mX + mBoard->mX),
-                                (int)(aTrophy->mY + mBoard->mY));
-      Sexy::String aAdvice;
-      TodStringTranslate(&aAdvice, "[ADVICE_ZOMBIQUARIUM_CLICK_TROPHY]");
-      mBoard->DisplayAdvice(aAdvice, MESSAGE_STYLE_HINT_TALL_FAST, AdviceType(49));
-    }
+    mBoard->mTutorialState = TUTORIAL_ZOMBIQUARIUM_BUY_SNORKEL;
+    SeedBank *aBank = mBoard->mSeedBank[0];
+    SeedPacket *aSnorkel = &aBank->mSeedPackets[0];
+    mBoard->TutorialArrowShow(aBank->mX + aSnorkel->mX, aBank->mY + aSnorkel->mY);
+    Sexy::String aAdvice;
+    TodStringTranslate(&aAdvice, "[ADVICE_ZOMBIQUARIUM_BUY_SNORKEL]");
+    mBoard->DisplayAdvice(aAdvice, MESSAGE_STYLE_HINT_TALL_FAST, ADVICE_ZOMBIQUARIUM_BUY_SNORKEL);
   }
-  else if ( aSun > 99 )
-  {
-    if ( mBoard->mTutorialState == TUTORIAL_ZOMBIQUARIUM_CLICK_TROPHY )
-    {
-      mBoard->TutorialArrowRemove();
-      mBoard->ClearAdvice(AdviceType(49));
-      mBoard->mTutorialState = TUTORIAL_ZOMBIQUARIUM_BOUGHT_SNORKEL;
-    }
-  }
-  else if ( mBoard->mTutorialState == TUTORIAL_ZOMBIQUARIUM_BUY_SNORKEL )
+  else if (aSun < 100 && mBoard->mTutorialState == TUTORIAL_ZOMBIQUARIUM_BUY_SNORKEL)
   {
     mBoard->TutorialArrowRemove();
-    mBoard->ClearAdvice(AdviceType(52));
-    mBoard->mTutorialState = TUTORIAL_LEVEL_1_PICK_UP_PEASHOOTER;
+    mBoard->ClearAdvice(ADVICE_ZOMBIQUARIUM_BUY_SNORKEL);
+    mBoard->mTutorialState = TUTORIAL_OFF;
   }
 
-  // The brain the trophy drops drifts upward and vanishes at 500.
+  if (aSun == 1000 && mBoard->mTutorialState == TUTORIAL_ZOMBIQUARIUM_BOUGHT_SNORKEL)
+  {
+    mBoard->mTutorialState = TUTORIAL_ZOMBIQUARIUM_CLICK_TROPHY;
+    SeedBank *aBank = mBoard->mSeedBank[0];
+    SeedPacket *aTrophy = &aBank->mSeedPackets[1];
+    mBoard->TutorialArrowShow(aBank->mX + aTrophy->mX, aBank->mY + aTrophy->mY);
+    Sexy::String aAdvice;
+    TodStringTranslate(&aAdvice, "[ADVICE_ZOMBIQUARIUM_CLICK_TROPHY]");
+    mBoard->DisplayAdvice(aAdvice, MESSAGE_STYLE_HINT_TALL_FAST, ADVICE_ZOMBIQUARIUM_CLICK_TROPHY);
+  }
+  else if (aSun < 1000 && mBoard->mTutorialState == TUTORIAL_ZOMBIQUARIUM_CLICK_TROPHY)
+  {
+    mBoard->TutorialArrowRemove();
+    mBoard->ClearAdvice(ADVICE_ZOMBIQUARIUM_CLICK_TROPHY);
+    mBoard->mTutorialState = TUTORIAL_ZOMBIQUARIUM_BOUGHT_SNORKEL;
+  }
+
+  // Dropped brains slowly sink to the bottom of the tank.
   GridItem *aGridItem = nullptr;
   while ( mBoard->IterateGridItems(aGridItem) != 0 )
   {
@@ -5921,7 +5912,7 @@ int Challenge::HeavyWeaponStart()
     mReanimHeavyWeaponID2 = mApp->ReanimationGetID(aIdle);
     mReanimHeavyWeaponID3 = mApp->ReanimationGetID(aDrive);
   }
-  mChallengeState = STATECHALLENGE_NORMAL;
+  mChallengeStateCounter = 0;
   mHeavyWeaponAngle = 0;
   mHeavyWeaponCatTailLevel = 0;
   mHeavyWeaponCatTailAttackCounter = 0;
@@ -6187,7 +6178,7 @@ void Challenge::HeavyWeaponFire(float theDirX, float theDirY)
       int aPixelX = (int)((mHeavyWeaponX + 13.0f) + aOffsetX);
       int aRow = mBoard->PixelToGridYKeepOnBoard(aPixelX, aPixelY);
       Projectile *aProjectile = mBoard->AddProjectile(aPixelX, aPixelY, 307000, aRow, aType);
-      aProjectile->mMotionType = 7;
+      aProjectile->mMotionType = MOTION_STAR;
       aProjectile->mVelX = theDirX * 3.33f;
       aProjectile->mVelY = aVelY;
       float aAngle = acosf(theDirX);
@@ -6248,12 +6239,12 @@ void Challenge::HeavyWeaponUpdate()
     aX = 25.0f;
   mHeavyWeaponX = aX;
 
-  int aState = mChallengeState - 1;
-  if ( aState <= 0 )
-    aState = 0;
-  else if ( aState >= 1000 )
-    aState = 1000;
-  mChallengeState = ChallengeState(aState);
+  int aFireCounter = mChallengeStateCounter - 1;
+  if (aFireCounter <= 0)
+    aFireCounter = 0;
+  else if (aFireCounter >= 1000)
+    aFireCounter = 1000;
+  mChallengeStateCounter = aFireCounter;
 
   int aIdleTimer = mHeavyWeaponIdleTimer - 1;
   if ( aIdleTimer <= 0 )
@@ -6289,16 +6280,17 @@ void Challenge::HeavyWeaponUpdate()
   float aAngle = mHeavyWeaponAngle;
   float aDirX = 0.0f;
   float aDirY = 1.0f;
+  bool aAiming = true;
   if ( mApp->HasGamepad() != 0 || (mApp->mGamePad1IsOn && mApp->mGamePad2IsOn) )
   {
     float aLength = sqrtf(aAimX * aAimX + aAimY * aAimY);
-    if (aLength > 0.2f && aAimY / aLength >= 0.0f)
+    aAiming = aLength > 0.2f && aAimY / aLength >= 0.0f;
+    if (aAiming)
     {
       aDirX = aAimX / aLength;
       aDirY = aAimY / aLength;
     }
   }
-  bool aAiming = sqrtf(aDirX * aDirX + aDirY * aDirY) != 0.0f;
   if (!aAiming)
   {
     Reanimation *aIdle = mApp->ReanimationTryToGet(mReanimHeavyWeaponID2);
@@ -6307,61 +6299,49 @@ void Challenge::HeavyWeaponUpdate()
   }
   else
   {
-  aAngle = acosf(aDirX) - 1.5708f;
-  if ( mChallengeState == 0 )
-  {
-    mChallengeState = ChallengeState(25);
-    HeavyWeaponFire(aDirX, aDirY);
-    mHeavyWeaponAngle = aAngle;
-  }
-  int aCatCounter = mHeavyWeaponCatTailAttackCounter;
-  if ( aCatCounter == 45 )
-  {
-    if (mHeavyWeaponCatTailLevel <= 0)
+    aAngle = acosf(aDirX) - 1.5708f;
+    if (mChallengeStateCounter == 0)
     {
-      aAiming = false;
+      mChallengeStateCounter = 25;
+      HeavyWeaponFire(aDirX, aDirY);
+      mHeavyWeaponAngle = aAngle;
     }
-    else
+    if (mHeavyWeaponCatTailAttackCounter == 45 && mHeavyWeaponCatTailLevel > 0)
     {
-    Reanimation *aCat = mApp->ReanimationTryToGet(mReanimHeavyWeaponID3);
-    if ( aCat != nullptr )
-      aCat->PlayReanim("anim_shoot02", REANIM_PLAY_ONCE_AND_HOLD, 0, 30.0f);
-    aCatCounter = mHeavyWeaponCatTailAttackCounter;
-  }
-  if ( aCatCounter == 0 && mHeavyWeaponCatTailLevel > 0 )
-  {
-    mHeavyWeaponCatTailAttackCounter = -25 * mHeavyWeaponCatTailLevel + 125;
-    Projectile *aSpike = mBoard->AddProjectile(
-        (int)(mHeavyWeaponX + 25.0f), (int)(mHeavyWeaponY - 20.0f), 400000, 4, (ProjectileType)8);
-    aSpike->mMotionType = 9;
-    aSpike->mVelX = 3.33f;
-    aSpike->mVelY = 0.0f;
-    aSpike->mDamageRangeFlags = 1;
-    Zombie *aClosest = nullptr;
-    int aBestRow = 0;
-    int aBestDist = 10000;
-    Zombie *aZombie = nullptr;
-    while ( mBoard->IterateZombies(aZombie) != 0 )
+      Reanimation *aCat = mApp->ReanimationTryToGet(mReanimHeavyWeaponID3);
+      if (aCat != nullptr)
+        aCat->PlayReanim("anim_shoot02", REANIM_PLAY_ONCE_AND_HOLD, 0, 30.0f);
+    }
+    if (mHeavyWeaponCatTailAttackCounter == 0 && mHeavyWeaponCatTailLevel > 0)
     {
-      while ( aBestRow < aZombie->mRow )
+      mHeavyWeaponCatTailAttackCounter = -25 * mHeavyWeaponCatTailLevel + 125;
+      Projectile *aSpike = mBoard->AddProjectile(
+          (int)(mHeavyWeaponX + 25.0f), (int)(mHeavyWeaponY - 20.0f), 400000, 4, PROJECTILE_SPIKE);
+      aSpike->mMotionType = MOTION_HOMING;
+      aSpike->mVelX = 3.33f;
+      aSpike->mVelY = 0.0f;
+      aSpike->mDamageRangeFlags = 1;
+      Zombie *aClosest = nullptr;
+      int aBestRow = 0;
+      int aBestDist = 10000;
+      Zombie *aZombie = nullptr;
+      while (mBoard->IterateZombies(aZombie))
       {
+        if (aZombie->mRow <= aBestRow)
+          continue;
         int aDist = (int)(aZombie->mX - mHeavyWeaponX);
-        if ( aDist < 0 )
+        if (aDist < 0)
           aDist = -aDist;
-        if ( aBestDist > aDist )
+        if (aBestDist > aDist)
         {
           aBestDist = aDist;
           aClosest = aZombie;
           aBestRow = aZombie->mRow;
         }
-        if (mBoard->IterateZombies(aZombie) == 0)
-          break;
       }
+      if (aClosest != nullptr)
+        aSpike->mTargetZombieID = mBoard->ZombieGetID(aClosest);
     }
-    if (aClosest != nullptr)
-      aSpike->mTargetZombieID = (ZombieID)mBoard->ZombieGetID(aClosest);
-    }
-  }
   }
   Reanimation *aTurret = mApp->ReanimationTryToGet(mReanimHeavyWeaponID2);
   if ( aTurret != nullptr )
@@ -6750,9 +6730,9 @@ int Challenge::ZombiquariumDropBrain(int theX, int theY)
   // A dropped brain is a GridItem of type GRIDITEM_BRAIN drawn on the UI layer,
   // falling from the click point. The grid position and the item counter are
   // cleared.
-  mBoard->ClearAdvice((AdviceType)51);
+  mBoard->ClearAdvice(ADVICE_ZOMBIQUARIUM_CLICK_TO_FEED);
   GridItem *aBrain = mBoard->mGridItems.DataArrayAlloc();
-  aBrain->mGridItemType = (GridItemType)GRIDITEM_BRAIN;
+  aBrain->mGridItemType = GRIDITEM_BRAIN;
   aBrain->mRenderOrder = RENDER_LAYER_UI_TOP;
   aBrain->mPosX = (float)theX - 15.0f;
   aBrain->mPosY = (float)theY - 15.0f;

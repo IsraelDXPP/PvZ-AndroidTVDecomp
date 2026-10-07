@@ -1204,14 +1204,14 @@ void Projectile::UpdateNormalMotion()
 
     case MOTION_FLOAT_OVER:
       // MOTION_FLOAT_OVER drifts up over the board under a very small gravity.
-      if (mAccZ < 0.0)
+      if (mVelZ < 0.0f)
       {
-        float aAccZ = mAccZ + 0.002;
-        if (aAccZ > 0.0)
-          aAccZ = 0.0;
-        mAccZ = aAccZ;
-        mPosY += aAccZ;
-        mRotation = (float)((aAccZ * -0.7) + 0.3) * 0.7854;
+        float aVelZ = mVelZ + 0.002f;
+        if (aVelZ > 0.0f)
+          aVelZ = 0.0f;
+        mVelZ = aVelZ;
+        mPosY += aVelZ;
+        mRotation = (aVelZ * -0.7f + 0.3f) * 0.7854f;
       }
       mPosX += 0.4;
       break;
@@ -1234,12 +1234,11 @@ void Projectile::UpdateNormalMotion()
       break;
   }
 
-  // The heavy-weapon challenge gives every projectile gravity.
-  if (mApp->mGameMode == GAMEMODE_CHALLENGE_HEAVY_WEAPON)
+  if (mApp->mGameMode == GAMEMODE_CHALLENGE_HIGH_GRAVITY)
   {
-    float aGravity = (mMotionType == MOTION_FLOAT_OVER) ? 0.004 : 0.2;
-    mAccZ += aGravity;
-    mPosY += mAccZ;
+    float aGravity = mMotionType == MOTION_FLOAT_OVER ? 0.004f : 0.2f;
+    mVelZ += aGravity;
+    mPosY += mVelZ;
   }
 
   CheckForCollision();
