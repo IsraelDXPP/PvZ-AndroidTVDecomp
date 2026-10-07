@@ -1227,7 +1227,14 @@ bool Win32AppDriver::WriteBufferToFile(const Sexy::String& theFileName, const Se
 {
     if (theBuffer == nullptr)
         return false;
-    return WriteBytesToFile(theFileName, theBuffer->GetDataPtr(), theBuffer->GetDataLen());
+    int dataLength = theBuffer->GetDataLen();
+    if (dataLength < 0 || static_cast<size_t>(dataLength) != theBuffer->mData.size())
+    {
+        logfe("Invalid output buffer: path=%s, bytes=%d, allocated=%zu",
+              theFileName.c_str(), dataLength, theBuffer->mData.size());
+        return false;
+    }
+    return WriteBytesToFile(theFileName, theBuffer->GetDataPtr(), dataLength);
 }
 bool Win32AppDriver::WriteBytesToFile(const Sexy::String& theFileName, const void* theData, unsigned long theLength)
 {

@@ -7,6 +7,8 @@
 #include "GamepadControls.h"
 #include "BaseGamepadControls.h"
 #include "game/Board.h"
+#include "DataArrayMethods.h"
+#include "LawnPlayerInfo.h"
 #include "Challenge.h"
 #include "Coin.h"
 #include "CursorObject.h"
@@ -637,12 +639,13 @@ void GamepadControls::DrawPreview(Sexy::Graphics * g)
       PottedPlant *aPottedPlant = nullptr;
       if ( aCursorType == CURSOR_TYPE_PLANT_FROM_GLOVE )
       {
-        // DataArray item is Plant (0x15C) plus a 4-byte id, stride 0x160.
-        // The glove id is the halfword at CursorObject+0x48, zero-extended
-        // into the MLA index. GetPottedPlantByIndex is declared int; it
-        // returns the pointer in r0.
-        PlantSlot *aSlots = mBoard->mPlants.mBlock;
-        Plant *aGlovePlant = &aSlots[aCursor->mGlovePlantID].mItem;
+        Plant *aGlovePlant = mBoard->mPlants.DataArrayTryToGet(aCursor->mGlovePlantID);
+        if (aGlovePlant == nullptr || aGlovePlant->mPottedPlantIndex < 0
+            || aGlovePlant->mPottedPlantIndex >= mApp->mPlayerInfo->mNumPottedPlants)
+        {
+          g->SetColorizeImages(false);
+          return;
+        }
         aPottedPlant = mApp->GetPottedPlantByIndex(aGlovePlant->mPottedPlantIndex);
       }
       else

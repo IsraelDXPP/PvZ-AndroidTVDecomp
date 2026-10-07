@@ -14,6 +14,8 @@
 #include "CursorPreview.h"
 #include "BaseGamepadControls.h"
 #include "game/Board.h"
+#include "DataArrayMethods.h"
+#include "LawnPlayerInfo.h"
 #include "GameObject.h"
 #include "Graphics.h"
 #include "LawnApp.h"
@@ -103,25 +105,22 @@ int CursorPreview::Draw(Sexy::Graphics * g)
   CursorObject * aCursorObject = mBoard->mCursorObject[mPlayerIndex];
   CursorType aCursorType = aCursorObject->mCursorType;
 
-  // A plant carried in the wheelbarrow -- or picked out of it with the glove --
-  // is drawn from the zen garden rather than from its seed packet. Both lookups
-  // really return a PottedPlant*; Game\ZenGarden.h and Game\LawnApp.h still
-  // declare them as int, so the result is cast here.
+  // A carried garden plant uses its potted-plant record.
   PottedPlant * aPottedPlant = nullptr;
   if ( aCursorType == CURSOR_TYPE_WHEEELBARROW || aCursorType == CURSOR_TYPE_PLANT_FROM_WHEEL_BARROW )
   {
-    aPottedPlant = (PottedPlant *)mApp->mZenGarden->GetPottedPlantInWheelbarrow();
+    aPottedPlant = mApp->mZenGarden->GetPottedPlantInWheelbarrow();
   }
   else if ( aCursorType == CURSOR_TYPE_PLANT_FROM_GLOVE )
   {
-    // Board::mPlants is still the opaque DataArrayBlock placeholder, so the
-    // element has to be addressed by hand: DataArrayItem<T> appends an id word
-    // to T, which makes the stride sizeof(Plant) + 4, and Plant's
-    // mPottedPlantIndex sits at +0x14C. This is
-    // mBoard->mPlants[id].mPottedPlantIndex; the binary reads the glove's plant
-    // id as 16 bits.
-    Plant * aGlovePlant = &mBoard->mPlants.mBlock[aCursorObject->mGlovePlantID].mItem;
-    aPottedPlant = (PottedPlant *)mApp->GetPottedPlantByIndex(aGlovePlant->mPottedPlantIndex);
+    Plant *aGlovePlant = mBoard->mPlants.DataArrayTryToGet(aCursorObject->mGlovePlantID);
+    if (aGlovePlant == nullptr || aGlovePlant->mPottedPlantIndex < 0
+        || aGlovePlant->mPottedPlantIndex >= mApp->mPlayerInfo->mNumPottedPlants)
+    {
+      g->SetColorizeImages(false);
+      return 0;
+    }
+    aPottedPlant = mApp->GetPottedPlantByIndex(aGlovePlant->mPottedPlantIndex);
   }
 
   if ( aPottedPlant != nullptr )

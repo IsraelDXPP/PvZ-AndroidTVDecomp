@@ -1697,11 +1697,13 @@ Reanimation::Reanimation()
   // explicit base construction are both gone. The overlay matrix is the identity
   // until a later assignment replaces it.
 
-  // The first sync block covers the whole object: the binary pushes a
-  // SyncBlockInfo whose data pointer is the object itself and whose size is 172.
+  // Reanimation::Reanimation @0x1FB75C saves the state beginning at +0x10,
+  // ending before mDirtyFlags. SyncObject and its vector are not save data.
   SyncBlockInfo aBlock;
-  aBlock.mData = this;
-  aBlock.mSize = 172;
+  unsigned char *stateBegin = reinterpret_cast<unsigned char *>(&mReanimationType);
+  unsigned char *stateEnd = reinterpret_cast<unsigned char *>(&mDirtyFlags);
+  aBlock.mData = &mReanimationType;
+  aBlock.mSize = static_cast<int>(stateEnd - stateBegin);
   mSyncBlocks.push_back(aBlock);
 
   mAnimTime = 0.0f;

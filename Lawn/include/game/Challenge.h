@@ -132,7 +132,7 @@ public:
     int            mSurvivalStage;                // +0x84
     int            mSlotMachineRollCount;         // +0x88
     ReanimationID  mReanimChallenge;              // +0x8C
-    int            mReanimCloud[6];               // +0x90
+    ReanimationID  mReanimCloud[6];               // +0x90
     int            mCloudCounter[6];              // +0xA8
     int            mChallengeGridX;               // +0xC0
     int            mChallengeGridY;               // +0xC4

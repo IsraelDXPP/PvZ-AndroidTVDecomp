@@ -111,7 +111,6 @@ namespace
 // GotoGarden switches on 0/1/3/4, and 4 is the tree -- its case is the one that
 // kills the board and starts GAMEMODE_TREE_OF_WISDOM. 2 is the wheelbarrow,
 // which is never a destination. Same convention as Game/GridItem.cpp.
-constexpr int GARDEN_TREE_OF_WISDOM = 4;
 
 }
 
@@ -2957,7 +2956,7 @@ void ZenGarden::DrawPottedPlantIcon(Sexy::Graphics * g, float x, float y, Potted
 void ZenGarden::GotoGarden(int theGardenIndex)
 {
   // The tree of wisdom keeps its own garden progression.
-  if ( mGardenType == (GardenType)GARDEN_TREE_OF_WISDOM )
+  if ( mGardenType == GARDEN_TREE_OF_WISDOM )
     mBoard->mChallenge->TreeOfWisdomNextGarden();
   else
     LeaveGarden();

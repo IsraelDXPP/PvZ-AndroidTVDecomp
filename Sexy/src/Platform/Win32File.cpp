@@ -130,21 +130,70 @@ bool Win32File::WriteOutputFile(const std::string& thePath,
 {
     if (thePath.empty() || (theSize > 0 && theData == nullptr))
         return false;
-    std::string p = thePath;
 
-    size_t slash = p.find_last_of("/\\");
-    if (slash != std::string::npos && slash > 0 && !MakeDirs(p.substr(0, slash)))
+    auto reportError = [&](const char *theOperation, DWORD theError)
+    {
+        char message[1024];
+        std::snprintf(message, sizeof(message),
+            "File write failed: %s, error=%lu, bytes=%zu, path=%s\n",
+            theOperation, theError, theSize, thePath.c_str());
+        std::fputs(message, stderr);
+        ::OutputDebugStringA(message);
+    };
+
+    size_t slash = thePath.find_last_of("/\\");
+    if (slash != std::string::npos && slash > 0 && !MakeDirs(thePath.substr(0, slash)))
+    {
+        reportError("create directory", ::GetLastError());
         return false;
+    }
 
-    FILE* fp = fopen(p.c_str(), "wb");
-    if (!fp) return false;
+    // Keep the last complete save until the new file has been written and flushed.
+    std::string temporaryPath = thePath + ".tmp";
+    HANDLE file = ::CreateFileA(temporaryPath.c_str(), GENERIC_WRITE, 0, nullptr,
+                                CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
+    if (file == INVALID_HANDLE_VALUE)
+    {
+        reportError("open temporary file", ::GetLastError());
+        return false;
+    }
 
     bool ok = true;
-    if (theSize > 0)
-        ok = fwrite(theData, 1, theSize, fp) == theSize;
+    const unsigned char *bytes = static_cast<const unsigned char *>(theData);
+    size_t written = 0;
+    while (written < theSize)
+    {
+        size_t remaining = theSize - written;
+        DWORD chunkSize = remaining > MAXDWORD ? MAXDWORD : static_cast<DWORD>(remaining);
+        DWORD chunkWritten = 0;
+        if (!::WriteFile(file, bytes + written, chunkSize, &chunkWritten, nullptr)
+            || chunkWritten == 0)
+        {
+            reportError("write", ::GetLastError());
+            ok = false;
+            break;
+        }
+        written += chunkWritten;
+    }
 
-    if (fclose(fp) != 0)
+    if (ok && !::FlushFileBuffers(file))
+    {
+        reportError("flush", ::GetLastError());
         ok = false;
+    }
+    if (!::CloseHandle(file))
+    {
+        reportError("close", ::GetLastError());
+        ok = false;
+    }
+    if (ok && !::MoveFileExA(temporaryPath.c_str(), thePath.c_str(),
+                             MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH))
+    {
+        reportError("replace", ::GetLastError());
+        ok = false;
+    }
+    if (!ok)
+        ::DeleteFileA(temporaryPath.c_str());
     return ok;
 }
 

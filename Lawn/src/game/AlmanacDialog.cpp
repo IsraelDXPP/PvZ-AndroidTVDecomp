@@ -12,6 +12,7 @@
 #include "CustomScrollbarWidget.h"
 #include "Font.h"
 #include "GameButton.h"
+#include "Gamepad.h"
 #include "Graphics.h"
 #include "HelpBarWidget.h"
 #include "IInputDriver.h"
@@ -200,8 +201,8 @@ void AlmanacDialog::SetupHelpbar(bool theIsZombie)
 {
     mHelpBarWidget->ClearButtons(3);
     if (theIsZombie)
-        mHelpBarWidget->AddButton((Sexy::GamepadButton)15, Sexy::String("[SCROLL]"),
-                                  HelpBarWidget::HELP_ALIGN_NONE);
+        mHelpBarWidget->AddButton(GAMEPAD_BUTTON_THUMBR, Sexy::String("[SCROLL]"),
+                                  HelpBarWidget::HELP_ALIGN_RIGHT);
 }
 
 // ==========================================================================
@@ -1613,7 +1614,20 @@ void AlmanacDialog::Update()
     mPlantButton->Update();
     mZombieButton->Update();
 
-    if (mAxisScrollActive && mAxisDeviceIndex >= 0.0f)
+    // Windows polls gamepad axes without dispatching the TV's packed axis event.
+    // Use the active player's right stick for the same per-frame scroll step.
+    int gamepadIndex = mApp->mPlayerInfo->GetId();
+    Sexy::Gamepad *gamepad = gamepadIndex >= 0 ? mApp->GetGamepad(gamepadIndex) : nullptr;
+    bool hasGamepadScroll = gamepad != nullptr && gamepad->IsConnected();
+    if (hasGamepadScroll && mScrollTextView != nullptr
+        && (mOpenPage == ALMANAC_PAGE_PLANTS || mOpenPage == ALMANAC_PAGE_ZOMBIES))
+    {
+        float axisValue = gamepad->GetRightAxisYPosition();
+        if (fabsf(axisValue) >= 0.2f)
+            GameAxisMove(GAMEPAD_AXIS_RIGHT_Y, axisValue > 0.0f ? 1 : -1,
+                         mApp->mPlayerInfo->GetId());
+    }
+    else if (mAxisScrollActive && mAxisDeviceIndex >= 0.0f)
     {
         // Re-read the device the scroll came from and keep scrolling while its
         // axis is still past the dead zone. Find returns the driver as an int
@@ -1666,6 +1680,7 @@ void AlmanacDialog::Update()
     mApp->SetCursor(aOverSomething ? 1 : 0);
 
     mApp->mPoolEffect->PoolEffectUpdate();
+    MarkDirty();
 }
 
 // ==========================================================================

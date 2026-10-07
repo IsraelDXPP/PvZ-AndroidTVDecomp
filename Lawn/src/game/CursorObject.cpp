@@ -16,6 +16,7 @@
 #include "BaseGamepadControls.h"
 #include "game/Board.h"
 #include "CutScene.h"
+#include "DataArrayMethods.h"
 #include "GameObject.h"
 // Complete type: Update() calls mGamepadControls[i]->GetCursorPosition.
 #include "GamepadControls.h"
@@ -82,10 +83,9 @@ void CursorObject::Draw(Sexy::Graphics *theGraphics)
   case CURSOR_TYPE_WATERING_CAN:
   {
     // The gold watering can replaces the plain one once it has been bought.
-    // mPurchases[13] is StoreItem::STORE_ITEM_GOLD_WATERINGCAN; this tree has no
-    // StoreItem enum yet, so the slot index is written out.
+    // The purchase records which watering can is available.
     Sexy::Image *aWateringCanImage = IMAGE_WATERINGCAN;
-    if ( mApp->mPlayerInfo->mPurchases[13] != 0 )
+    if ( mApp->mPlayerInfo->mPurchases[STORE_ITEM_GOLD_WATERINGCAN] != 0 )
     {
       theGraphics->DrawImage(IMAGE_ZEN_GOLDTOOLRETICLE, -62, -37);
       aWateringCanImage = IMAGE_WATERINGCANGOLD;
@@ -124,7 +124,7 @@ void CursorObject::Draw(Sexy::Graphics *theGraphics)
 
   case CURSOR_TYPE_WHEEELBARROW:
   {
-    PottedPlant *aPottedPlant = (PottedPlant *)mApp->mZenGarden->GetPottedPlantInWheelbarrow();
+    PottedPlant *aPottedPlant = mApp->mZenGarden->GetPottedPlantInWheelbarrow();
     if ( aPottedPlant != nullptr )
     {
       theGraphics->DrawImage(IMAGE_ZEN_WHEELBARROW, -20, -23);
@@ -147,8 +147,11 @@ void CursorObject::Draw(Sexy::Graphics *theGraphics)
   {
     // mGlovePlantID is a DataArray<Plant> key; the potted plant the glove is
     // carrying is the one the recorded Plant points at.
-    Plant *aPlant = &mBoard->mPlants.mBlock[mGlovePlantID].mItem;
-    PottedPlant *aPottedPlant = (PottedPlant *)mApp->GetPottedPlantByIndex(aPlant->mPottedPlantIndex);
+    Plant *aPlant = mBoard->mPlants.DataArrayTryToGet(mGlovePlantID);
+    if (aPlant == nullptr || aPlant->mPottedPlantIndex < 0
+        || aPlant->mPottedPlantIndex >= mApp->mPlayerInfo->mNumPottedPlants)
+      return;
+    PottedPlant *aPottedPlant = mApp->GetPottedPlantByIndex(aPlant->mPottedPlantIndex);
     // In the Zen garden itself the plant is drawn under the cursor; elsewhere
     // (the tree of wisdom) it is drawn above it.
     if ( mBoard->mBackground == BACKGROUND_MUSHROOM_GARDEN || mBoard->mBackground == BACKGROUND_ZOMBIQUARIUM )
@@ -160,7 +163,7 @@ void CursorObject::Draw(Sexy::Graphics *theGraphics)
 
   case CURSOR_TYPE_PLANT_FROM_WHEEL_BARROW:
   {
-    PottedPlant *aPottedPlant = (PottedPlant *)mApp->mZenGarden->GetPottedPlantInWheelbarrow();
+    PottedPlant *aPottedPlant = mApp->mZenGarden->GetPottedPlantInWheelbarrow();
     if ( mBoard->mBackground == BACKGROUND_MUSHROOM_GARDEN || mBoard->mBackground == BACKGROUND_ZOMBIQUARIUM )
       mApp->mZenGarden->DrawPottedPlant(theGraphics, -10.0f, -10.0f, aPottedPlant, 1.0f, false);
     else
@@ -186,14 +189,14 @@ void CursorObject::Draw(Sexy::Graphics *theGraphics)
     }
 
     // A negative type means "nothing selected yet"; there is nothing to draw.
-    if ( mType != (SeedType)-1 )
-      Plant::DrawSeedType(theGraphics, mType, mImitaterType, (DrawVariation)0, aOffsetX, aPosY);
+    if ( mType != SEED_NONE )
+      Plant::DrawSeedType(theGraphics, mType, mImitaterType, VARIATION_NORMAL, aOffsetX, aPosY);
     return;
   }
 
   case CURSOR_TYPE_HAMMER:
   {
-    Reanimation *aReanim = (Reanimation *)mApp->ReanimationGet(mReanimCursorID);
+    Reanimation *aReanim = mApp->ReanimationGet(mReanimCursorID);
     aReanim->Draw(theGraphics);
     return;
   }

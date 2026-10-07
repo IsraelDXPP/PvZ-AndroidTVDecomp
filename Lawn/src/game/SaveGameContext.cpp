@@ -586,9 +586,9 @@ int LawnLoadGame(Board *theBoard, SaveGameContext *theContext)
         unsigned int mVersion;
         int mPad;
     };
-    SaveHeader aHeader;
+    SaveHeader aHeader = {};
     theContext->SyncBytes(&aHeader, 12);
-    if (aHeader.mMagic != kSaveMagic || aHeader.mVersion > 8)
+    if (theContext->mReadError || aHeader.mMagic != kSaveMagic || aHeader.mVersion > 8)
     {
         gLawnApp->HandleCorruptedGameFile();
         return 0;

@@ -11,6 +11,7 @@
 #include "Dialog.h"
 #include "LawnApp.h"
 #include "LawnDialog.h"
+#include "LawnStoneButton.h"
 #include "LawnPlayerInfo.h"
 #include "ReanimationWidget.h"
 #include "SexyAppBase.h"
@@ -66,10 +67,10 @@ ContinueDialog::ContinueDialog(LawnApp *theApp)
     TodStringTranslate(&aText, "[CONTINUE_GAME_OR_RESTART]");
     mDialogLines = aText;
 
-    mContinueButton = (Sexy::DialogButton *)MakeButton(
+    mContinueButton = MakeButton(
         ContinueDialog_Continue, static_cast<Sexy::ButtonListener *>(this), this,
         Sexy::String("[CONTINUE_BUTTON]"));
-    mNewGameButton = (Sexy::DialogButton *)MakeButton(
+    mNewGameButton = MakeButton(
         ContinueDialog_NewGame, static_cast<Sexy::ButtonListener *>(this), this,
         Sexy::String("[RESTART_LEVEL_BUTTON]"));
   }
@@ -79,10 +80,10 @@ ContinueDialog::ContinueDialog(LawnApp *theApp)
     TodStringTranslate(&aText, "[CONTINUE_GAME]");
     mDialogLines = aText;
 
-    mContinueButton = (Sexy::DialogButton *)MakeButton(
+    mContinueButton = MakeButton(
         ContinueDialog_Continue, static_cast<Sexy::ButtonListener *>(this), this,
         Sexy::String("[CONTINUE_BUTTON]"));
-    mNewGameButton = (Sexy::DialogButton *)MakeButton(
+    mNewGameButton = MakeButton(
         ContinueDialog_NewGame, static_cast<Sexy::ButtonListener *>(this), this,
         Sexy::String("[NEW_GAME_BUTTON]"));
   }
@@ -91,7 +92,7 @@ ContinueDialog::ContinueDialog(LawnApp *theApp)
   // continue button and the new-game button both hang off the dialog's yes
   // button (the ARM reads +0x2F0 at 0x1b7572/0x1b758c), and the yes button
   // points back at the continue button.
-  mContinueButton->SetFocusLinks(nullptr, mLawnYesButton, nullptr, nullptr);
+  mContinueButton->SetFocusLinks(nullptr, mLawnYesButton, nullptr, mNewGameButton);
   mNewGameButton->SetFocusLinks(nullptr, mLawnYesButton, mContinueButton, nullptr);
   mLawnYesButton->SetFocusLinks(mContinueButton, nullptr, nullptr, nullptr);
 
@@ -192,14 +193,13 @@ void ContinueDialog::Resize(int theX, int theY, int theWidth, int theHeight)
 {
   LawnDialog::Resize(theX, theY, theWidth, theHeight);
 
-  // The two buttons share the dialog's bottom strip: the continue button sits
-  // on the left, the new-game one on the right, and the strip's height is what
-  // the dialog's own height leaves over the content inset.
-  int aButtonHeight = mHeight - mContentInsets.mBottom;
-  int aButtonY = mContentInsets.mTop + (mWidth - mContentInsets.mLeft - mContentInsets.mRight) / 2 + 10;
-  mContinueButton->Resize(mContentInsets.mLeft - 20, aButtonHeight, aButtonY, mContentInsets.mBottom);
-  mNewGameButton->Resize(mContentInsets.mLeft + mContentInsets.mTop - aButtonY + 20,
-                         aButtonHeight, aButtonY, mContentInsets.mBottom);
+  // ContinueDialog::Resize @0x1B79FC places both choices above Cancel.
+  int buttonHeight = mLawnYesButton->mHeight;
+  int buttonY = mLawnYesButton->mY - buttonHeight;
+  int buttonWidth = mLawnYesButton->mWidth / 2 + 10;
+  mContinueButton->Resize(mLawnYesButton->mX - 20, buttonY, buttonWidth, buttonHeight);
+  mNewGameButton->Resize(mLawnYesButton->mX + mLawnYesButton->mWidth - buttonWidth + 20,
+                         buttonY, buttonWidth, buttonHeight);
 }
 
 // ==========================================================================
@@ -255,9 +255,10 @@ int ContinueDialog::KeyUp(Sexy::KeyCode theKey)
 // ==========================================================================
 void ContinueDialog::GotFocus()
 {
+  bool hadFocusedChild = mFocusedChildWidget != nullptr;
   LawnDialog::GotFocus();
   // Nothing in this container holds the focus yet, so hand it to the continue
   // button and raise it (Widget::SetFocus, slot 57).
-  if ( mFocusedChildWidget == nullptr )
+  if ( !hadFocusedChild )
     SetFocus(mContinueButton, true);
 }

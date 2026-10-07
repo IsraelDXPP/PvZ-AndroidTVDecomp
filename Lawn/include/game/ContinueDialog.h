@@ -82,8 +82,8 @@ public:
     virtual void ButtonDepress(int theId);
 
     // ---- members, absolute offsets (base LawnDialog = 0x2FC) ----
-    Sexy::DialogButton * mContinueButton; // +0x2FC
-    Sexy::DialogButton * mNewGameButton;  // +0x300
+    LawnStoneButton * mContinueButton;
+    LawnStoneButton * mNewGameButton;
 
     // ---- methods that are not vtable slots (kept from the transcription) ----
     void GotGameFocus();

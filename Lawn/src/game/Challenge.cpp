@@ -26,6 +26,7 @@
 #include "Plant.h"
 #include "Projectile.h"
 #include "Reanimation.h"
+#include "ReconData.h"
 #include "ReconTypes.h"
 #include "SeedBank.h"
 #include "SeedPacket.h"
@@ -5296,7 +5297,7 @@ void Challenge::TreeOfWisdomDraw(Sexy::Graphics * g)
   aTree->DrawRenderGroup(g, 1);
   for ( int i = 0; i < 6; ++i )
   {
-    Reanimation *aCloud = mApp->ReanimationTryToGet((ReanimationID)mReanimCloud[i]);
+    Reanimation *aCloud = mApp->ReanimationTryToGet(mReanimCloud[i]);
     if ( aCloud != nullptr )
       aCloud->Draw(g);
   }
@@ -5325,8 +5326,8 @@ void Challenge::TreeOfWisdomDraw(Sexy::Graphics * g)
   }
   aTree->DrawRenderGroup(g, 4);
 
-  int aPhase = mBeghouledMatchesThisMove;
-  if ( (aPhase & 0xFFFFFFFD) == 0xC )
+  if ( mChallengeState == STATECHALLENGE_TREE_GIVE_WISDOM
+      || mChallengeState == STATECHALLENGE_TREE_BABBLING )
   {
     int aTextX;
     int aTextY;
@@ -5358,16 +5359,14 @@ void Challenge::TreeOfWisdomDraw(Sexy::Graphics * g)
     StrFormat(&aTalk, "[TREE_OF_WISDOM_%d]", mTreeOfWisdomTalkIndex);
     Sexy::Rect aTalkRect(aTextX, aTextY, 233, 144);
     TodDrawStringWrapped(g, aTalk, aTalkRect, FONT_BRIANNETOD16, Sexy::Color::Black, 5, 0);
-    aPhase = mBeghouledMatchesThisMove;
   }
 
   float aScale = 1.0f;
-  if ( aPhase == 11 )
+  if ( mChallengeState == STATECHALLENGE_TREE_JUST_GREW )
   {
-    // 0x3F800000 is 1.0, 0x3F99999A is 1.2. Curve 9 is CURVE_BOUNCE.
-    if ( (int)mChallengeState > 30 )
+    if ( mChallengeStateCounter > 30 )
       --aSize;
-    aScale = TodAnimateCurveFloat(55, 20, (int)mChallengeState, 1.0f, 1.2f, (TodCurves)9);
+    aScale = TodAnimateCurveFloat(55, 20, mChallengeStateCounter, 1.0f, 1.2f, CURVE_BOUNCE);
   }
   if ( aSize > 49 )
   {
@@ -5393,15 +5392,14 @@ void Challenge::TreeOfWisdomDraw(Sexy::Graphics * g)
 // ==========================================================================
 void Challenge::TreeOfWisdomRebuildHelpbar(bool theFromDialog)
 {
-  // Board+22760 is mDanceMode (+0x5885). The help bar rebuild clears it.
-  mBoard->mDanceMode = false;
+  mBoard->mHelpTextDirty = false;
   if ( theFromDialog )
   {
     mHelpBar->ClearButtons(0);
     Sexy::String aShop("[SHOP_BUTTON]");
-    mHelpBar->AddButton((Sexy::GamepadButton)8, aShop, HelpBarWidget::HELP_ALIGN_NONE);
+    mHelpBar->AddButton(GAMEPAD_BUTTON_X, aShop, HelpBarWidget::HELP_ALIGN_NONE);
     Sexy::String aBack("[BACK]");
-    mHelpBar->AddButton((Sexy::GamepadButton)7, aBack, HelpBarWidget::HELP_ALIGN_NONE);
+    mHelpBar->AddButton(GAMEPAD_BUTTON_B, aBack, HelpBarWidget::HELP_ALIGN_NONE);
   }
   else
   {
@@ -5458,7 +5456,7 @@ void Challenge::TreeOfWisdomRebuildHelpbar(bool theFromDialog)
   if ( !aTool.empty() )
   {
     Sexy::String aButton = aTool;
-    mHelpBar->AddButton((Sexy::GamepadButton)6, aButton, HelpBarWidget::HELP_ALIGN_NONE);
+    mHelpBar->AddButton(GAMEPAD_BUTTON_A, aButton, HelpBarWidget::HELP_ALIGN_NONE);
   }
   // HelpBar+284 is mDrawShade (+0x11C).
   mHelpBar->mDrawShade = false;
@@ -5499,11 +5497,8 @@ void Challenge::TreeOfWisdomInit()
   StrFormat(&aGrow, "anim_grow%d", aSize);
   aTree->PlayReanim(aGrow.c_str(), REANIM_PLAY_ONCE_AND_HOLD, 0, 18.0f);
 
-  // LawnApp+2348 is mPlayerInfo (+0x92C). +556 is mChallengeRecords[100], one
-  // past the 100-entry table; the binary reads that word, so it stays a raw
-  // index rather than a named slot that does not exist.
   bool aFirstGrow = aSize == 1
-      && mApp->mPlayerInfo->mChallengeRecords[100] < 1000;
+      && mApp->mPlayerInfo->mPurchases[STORE_ITEM_TREE_FOOD] < 1000;
   if ( aFirstGrow )
   {
     int aFrameCount = aTree->mFrameCount;
@@ -5540,13 +5535,10 @@ void Challenge::TreeOfWisdomInit()
     }
   }
 
-  // The decompiler's byte_9 + 4 is the literal 13.
-  mBeghouledMatchesThisMove = 13;
-  mChallengeState = (ChallengeState)RandRangeInt(700, 1500);
-  // Board+568 is mCursorObject[0]; +64 is mCursorType. 17 is tree food.
+  mChallengeState = STATECHALLENGE_TREE_WAITING_TO_BABBLE;
+  mChallengeStateCounter = RandRangeInt(700, 1500);
   mBoard->mCursorObject[0]->mCursorType = CURSOR_TYPE_TREE_FOOD;
-  // ZenGarden+8 is mGardenType. 4 is not one of the four named gardens.
-  mApp->mZenGarden->mGardenType = (GardenType)4;
+  mApp->mZenGarden->mGardenType = GARDEN_TREE_OF_WISDOM;
 }// ==========================================================================
 // Challenge::TreeOfWisdomGrow(void)
 // @001853D4  160 bytes
@@ -5572,12 +5564,12 @@ void Challenge::TreeOfWisdomGrow()
   mApp->PlayFoley(FOLEY_PLANTGROW);
   if ( aSize <= 1 )
   {
-    mBeghouledMatchesThisMove = 0;
+    mChallengeState = STATECHALLENGE_NORMAL;
   }
   else
   {
-    mChallengeState = (ChallengeState)120;
-    mBeghouledMatchesThisMove = 11;
+    mChallengeStateCounter = 120;
+    mChallengeState = STATECHALLENGE_TREE_JUST_GREW;
   }
 }// ==========================================================================
 // Challenge::TreeOfWisdomToolUpdate(theZenTool *)
@@ -5603,8 +5595,8 @@ int Challenge::TreeOfWisdomBabble()
   int Size;
   int result;
 
-  mBeghouledMatchesThisMove = 14;
-  mChallengeState = ChallengeState(400);
+  mChallengeState = STATECHALLENGE_TREE_BABBLING;
+  mChallengeStateCounter = 400;
   Size = TreeOfWisdomGetSize();
   result = RandRangeInt(0, 2);
   if (Size <= 1)
@@ -5646,8 +5638,8 @@ int Challenge::TreeOfWisdomGiveWisdom()
 {
   int result; // r0
 
-  mBeghouledMatchesThisMove = 12;
-  mChallengeState = ChallengeState(1000);
+  mChallengeState = STATECHALLENGE_TREE_GIVE_WISDOM;
+  mChallengeStateCounter = 1000;
   result = TreeOfWisdomGetSize();
   switch ( result )
   {
@@ -5691,19 +5683,19 @@ int Challenge::TreeOfWisdomSayRepeat()
   if ( aSize > 99 && Rand(47) == 0 )
   {
     mTreeOfWisdomTalkIndex = 800;
-    mChallengeState = (ChallengeState)600;
+    mChallengeStateCounter = 600;
     return 0;
   }
   if ( aSize >= 500 && Rand(47) == 0 )
   {
     mTreeOfWisdomTalkIndex = 900;
-    mChallengeState = (ChallengeState)600;
+    mChallengeStateCounter = 600;
     return 0;
   }
   if ( aSize >= 1000 && Rand(47) == 0 )
   {
     mTreeOfWisdomTalkIndex = 1000;
-    mChallengeState = (ChallengeState)600;
+    mChallengeStateCounter = 600;
     return 0;
   }
 
@@ -5716,7 +5708,7 @@ int Challenge::TreeOfWisdomSayRepeat()
     aMax = aSize - 1;
   int aIndex = RandRangeInt(2, aMax);
   mTreeOfWisdomTalkIndex = aIndex;
-  mChallengeState = (ChallengeState)600;
+  mChallengeStateCounter = 600;
   return aIndex;
 }// ==========================================================================
 // Challenge::TreeOfWisdomUpdate(void)
@@ -5724,34 +5716,30 @@ int Challenge::TreeOfWisdomSayRepeat()
 // ==========================================================================
 void Challenge::TreeOfWisdomUpdate()
 {
-  // Board+22760 is mDanceMode. The help bar is rebuilt only while it is set.
-  if ( mApp->mGameMode == GAMEMODE_TREE_OF_WISDOM && mBoard->mDanceMode )
+  if ( mApp->mGameMode == GAMEMODE_TREE_OF_WISDOM && mBoard->mHelpTextDirty )
     TreeOfWisdomRebuildHelpbar(false);
 
   GridItem *aItem = nullptr;
   while ( mBoard->IterateGridItems(aItem) != 0 )
   {
-    // Grid item word 6 is mGridItemType. 9 has no named constant.
-    if ( aItem->mGridItemType == (GridItemType)9 )
+    if ( aItem->mGridItemType == GRIDITEM_ZEN_TOOL )
       TreeOfWisdomToolUpdate(aItem);
   }
 
-  // LawnApp+2304 is mGameScene (+0x900). 3 is the playing scene.
-  int aState = (int)mChallengeState;
-  if ( mApp->mGameScene == (GameScenes)3 && aState > 0 )
-    mChallengeState = (ChallengeState)--aState;
-  if ( aState == 0 )
+  if ( mApp->mGameScene == SCENE_PLAYING && mChallengeStateCounter > 0 )
+    --mChallengeStateCounter;
+  if ( mChallengeStateCounter == 0 )
   {
-    int aPhase = mBeghouledMatchesThisMove;
-    if ( aPhase == 11 )
+    if ( mChallengeState == STATECHALLENGE_TREE_JUST_GREW )
     {
       TreeOfWisdomGiveWisdom();
     }
-    else if ( aPhase == 13 )
+    else if ( mChallengeState == STATECHALLENGE_TREE_WAITING_TO_BABBLE )
     {
       TreeOfWisdomBabble();
     }
-    else if ( (aPhase & 0xFFFFFFFD) == 12 )
+    else if ( mChallengeState == STATECHALLENGE_TREE_GIVE_WISDOM
+        || mChallengeState == STATECHALLENGE_TREE_BABBLING )
     {
       if ( mTreeOfWisdomTalkIndex == 500 )
       {
@@ -5759,8 +5747,8 @@ void Challenge::TreeOfWisdomUpdate()
       }
       else
       {
-        mBeghouledMatchesThisMove = 13;
-        mChallengeState = (ChallengeState)RandRangeInt(700, 1000);
+        mChallengeState = STATECHALLENGE_TREE_WAITING_TO_BABBLE;
+        mChallengeStateCounter = RandRangeInt(700, 1000);
       }
     }
   }
@@ -5769,7 +5757,7 @@ void Challenge::TreeOfWisdomUpdate()
   // steps one word at a time, so the two arrays stay paired.
   for ( int i = 0; i < 6; ++i )
   {
-    Reanimation *aCloud = mApp->ReanimationGet((ReanimationID)mReanimCloud[i]);
+    Reanimation *aCloud = mApp->ReanimationGet(mReanimCloud[i]);
     if ( mCloudCounter[i] > 0 )
     {
       if ( --mCloudCounter[i] == 0 )
@@ -5796,25 +5784,24 @@ Reanimation * Challenge::TreeOfWisdomLeave()
   GridItem *aItem = nullptr;
   while ( mBoard->IterateGridItems(aItem) != 0 )
   {
-    // Grid item word 6 is mGridItemType. 9 has no named constant.
-    if ( aItem->mGridItemType == (GridItemType)9 )
+    if ( aItem->mGridItemType == GRIDITEM_ZEN_TOOL )
     {
       TreeOfWisdomGrow();
       aItem->GridItemDie();
     }
   }
-  // The walk covers the six cloud ids at +0x90 and stops before mHelpBar.
+  // Release the six cloud animations before the tree itself.
   for ( int i = 0; i < 6; ++i )
   {
-    Reanimation *aCloud = mApp->ReanimationTryToGet((ReanimationID)mReanimCloud[i]);
+    Reanimation *aCloud = mApp->ReanimationTryToGet(mReanimCloud[i]);
     if ( aCloud != nullptr )
       aCloud->ReanimationDie();
-    mReanimCloud[i] = 0;
+    mReanimCloud[i] = REANIMATIONID_NULL;
   }
   Reanimation *aTree = mApp->ReanimationTryToGet(mReanimChallenge);
   if ( aTree != nullptr )
     aTree->ReanimationDie();
-  mReanimChallenge = (ReanimationID)0;
+  mReanimChallenge = REANIMATIONID_NULL;
   return aTree;
 }// ==========================================================================
 // Challenge::TreeOfWisdomNextGarden(void)
@@ -5899,11 +5886,11 @@ int Challenge::TreeOfWisdomCanFeed()
 {
   GridItem *aGridItem = nullptr;
 
-  if ( mBeghouledMatchesThisMove == 11 )
+  if ( mChallengeState == STATECHALLENGE_TREE_JUST_GREW )
     return 0;
   while ( mBoard->IterateGridItems(aGridItem) != 0 )
   {
-    if ( aGridItem->mGridItemType == (GridItemType)9 )
+    if ( aGridItem->mGridItemType == GRIDITEM_ZEN_TOOL )
       return 0;
   }
   return 1;
@@ -7748,11 +7735,11 @@ void Challenge::TreeOfWisdomFertilize()
   aTool->mGridX = 0;
   aTool->mGridY = 0;
   Reanimation *aReanim = mApp->AddReanimation(320.0f, 280.0f, 0, REANIM_TREEOFWISDOM_TREEFOOD);
-  aReanim->mLoopType = (ReanimLoopType)3;
+  aReanim->mLoopType = REANIM_PLAY_ONCE_AND_HOLD;
   aTool->mGridItemReanimID = mApp->ReanimationGetID(aReanim);
   aTool->mGridItemState = GRIDITEM_STATE_ZEN_TOOL_FERTILIZER;
   mApp->PlayFoley(FOLEY_FERTILIZER);
-  --mApp->mPlayerInfo->mPurchases[28];
+  --mApp->mPlayerInfo->mPurchases[STORE_ITEM_TREE_FOOD];
   mChallengeState = STATECHALLENGE_NORMAL;
 }// ==========================================================================
 // Challenge::TreeOfWisdomTool(theMouseX,theMouseY)
@@ -7776,9 +7763,17 @@ Challenge * Challenge::TreeOfWisdomTool(int theMouseX, int theMouseY)
 // ==========================================================================
 Challenge::Challenge()
 {
-  // SyncObject's own constructor has already set up mSyncBlocks, so only the
-  // Challenge members are initialised here.
-  mApp = static_cast<LawnApp *>((void *)gSexyAppBase);
+  // Challenge::Challenge @0x1892E0 registers state from +0x1C to +0x140.
+  // App, board and helpbar pointers belong to the current session.
+  SyncBlockInfo stateBlock;
+  unsigned char *stateBegin = reinterpret_cast<unsigned char *>(&mBeghouledMouseCapture);
+  unsigned char *stateEnd = reinterpret_cast<unsigned char *>(&mReanimHeavyWeaponID3)
+                          + sizeof(mReanimHeavyWeaponID3);
+  stateBlock.mData = &mBeghouledMouseCapture;
+  stateBlock.mSize = static_cast<int>(stateEnd - stateBegin);
+  mSyncBlocks.push_back(stateBlock);
+  std::memset(stateBegin, 0, stateBlock.mSize);
+  mApp = gLawnApp;
   mBoard = mApp->mBoard;
   mHelpBar = mApp->mHelpBarWidget;
 
@@ -7803,7 +7798,7 @@ Challenge::Challenge()
   mReanimChallenge = REANIMATIONID_NULL;
   for ( int aCloud = 0; aCloud < 6; ++aCloud )
   {
-    mReanimCloud[aCloud] = 0;
+    mReanimCloud[aCloud] = REANIMATIONID_NULL;
     mCloudCounter[aCloud] = 0;
   }
   mChallengeGridX = 0;

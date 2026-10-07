@@ -731,11 +731,11 @@ enum GridItemType : int
     GRIDITEM_PORTAL = 4,
     GRIDITEM_PORTAL_CIRCLE = 4,
     GRIDITEM_PORTAL_SQUARE = 5,
-    GRIDITEM_ZEN_TOOL = 5,
     GRIDITEM_BRAIN = 6,
     GRIDITEM_SCARY_POT = 7,
     GRIDITEM_SQUIRREL = 8,
     GRIDITEM_SQUISHER = 8,
+    GRIDITEM_ZEN_TOOL = 9,
     GRIDITEM_STINKY = 10,
     GRIDITEM_RAKE = 11,
     GRIDITEM_IZOMBIE_BRAIN = 12,
@@ -3322,12 +3322,13 @@ enum DebugTextMode {
 // authoritative PvZ\Lawn\Common\ConstEnums.h.
 // ---------------------------------------------------------------------------
 
-// enum GardenType. PottedPlant::mWhichZenGarden, 2 bits.
+// Garden locations. Potted plants use the first four values; the tree is a separate scene.
 enum GardenType : unsigned int {
     GARDEN_MAIN = 0,
     GARDEN_MUSHROOM = 1,
     GARDEN_WHEELBARROW = 2,
     GARDEN_AQUARIUM = 3,
+    GARDEN_TREE_OF_WISDOM = 4,
 };
 
 // enum PottedPlantNeed. PottedPlant::mPlantNeed, 3 bits.

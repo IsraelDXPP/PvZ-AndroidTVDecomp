@@ -105,6 +105,47 @@ extern int gShownMoreSunTutorial;
 // owns it yet (lead: add to Sexy/ReconHelpers.h).
 namespace Sexy { bool FileExists(const Sexy::String& thePath); }
 
+namespace {
+
+class SaveGameErrorDialog : public LawnDialog
+{
+public:
+  explicit SaveGameErrorDialog(LawnApp *theApp)
+    : LawnDialog(theApp, nullptr, 63, true, u8"关卡保存失败",
+        u8"未能保存本次关卡进度。\n返回主菜单会放弃本次进度；\n也可以继续游戏，稍后重试保存。", "", 1)
+  {
+    mLawnYesButton->SetLabel(u8"返回主菜单");
+    mLawnNoButton->SetLabel(u8"继续游戏");
+    CalcSize(0, 30, true);
+  }
+
+  void GotFocus() override
+  {
+    LawnDialog::GotFocus();
+    SetFocus(mLawnNoButton, true);
+  }
+
+  void ButtonDepress(int theId) override
+  {
+    if (mUpdateCnt <= mButtonDelay)
+      return;
+    LawnApp *app = mApp;
+    bool leaveGame = theId == mLawnYesButton->mWidgetId;
+    app->KillDialogById(mId);
+    app->KillDialogById(23);
+    app->KillNewOptionsDialog();
+    if (!leaveGame || app->mBoard == nullptr)
+      return;
+
+    app->PostLeaveLevel();
+    app->SetBoardResult(BOARDRESULT_QUIT);
+    app->mNeedGoBackToMain = false;
+    app->mBoard->TryToExit();
+  }
+};
+
+} // namespace
+
 // Sexy::GetFileDate(Sexy::String const&) @0x2fb06c (72 bytes) -- a namespace-scope
 // function (_ZN4Sexy11GetFileDateERKSs) whose body is a `_findfirst`/`_findclose`
 // pair returning the file's modification time. The dump calls it as
@@ -5968,9 +6009,9 @@ bool Board::TryToSaveGame()
 
     logfe("Failed to save game: %s", savedGameName.c_str());
     mApp->mMusic->GameMusicPause(mPaused);
-    Sexy::Dialog *errorDialog = mApp->DoDialog(63, true, u8"关卡保存失败",
-        u8"未能写入关卡存档，游戏尚未退出。\n请确认存档目录可以写入后重试。",
-        "[DIALOG_BUTTON_OK]", 3);
+    SaveGameErrorDialog *errorDialog = new SaveGameErrorDialog(mApp);
+    CenterDialog(errorDialog, errorDialog->mWidth, errorDialog->mHeight);
+    mApp->AddDialogWithId(63, errorDialog);
     mApp->mWidgetManager->SetFocus(errorDialog);
     return false;
 }
@@ -8862,7 +8903,7 @@ void Board::DrawUIBottom(Sexy::Graphics * g)
   // abs((max(mMainCounter, 0) >> 3) % 22 - 11). Column 0 is IMAGE_WAVESIDE,
   // columns 1..6 are IMAGE_WAVECENTER, and column 7 is IMAGE_WAVESIDE mirrored
   // over the cel rect (0, cel * height, width, height). The greenhouse and the
-  // tree of wisdom (backgrounds 7 and 9) then draw the greenhouse overlay
+  // zombiquarium (backgrounds 7 and 8) then draw the greenhouse overlay
   // stretched to the fullscreen rect, also in additive mode. Both callers
   // ignore the return.
   if ( mBackground == BACKGROUND_ZOMBIQUARIUM )
@@ -8890,7 +8931,7 @@ void Board::DrawUIBottom(Sexy::Graphics * g)
     }
     g->SetDrawMode(0);
   }
-  if ( mBackground == BACKGROUND_GREENHOUSE || mBackground == BACKGROUND_TREEOFWISDOM )
+  if ( mBackground == BACKGROUND_GREENHOUSE || mBackground == BACKGROUND_ZOMBIQUARIUM )
   {
     g->SetDrawMode(1);
     Sexy::TRect<int> aSrc(
