@@ -14,49 +14,86 @@ bool BgfxTexture::Upload(MemoryImage* image)
     PixelFormat format = image->GetPixelFormat();
     int stride = image->GetStride();
     if (stride <= 0) stride = image->mWidth * PixelUtil::GetBytePerPixel(format);
-    std::vector<unsigned int> expanded(size_t(image->mWidth) * image->mHeight);
-    PixelData source(format, image->mWidth, image->mHeight, stride, pixels);
-    PixelData destination(PIXEL_FORMAT_A8R8G8B8, image->mWidth, image->mHeight, image->mWidth * 4, expanded.data());
-    if (!destination.Convert(source)) return false;
+    std::vector<unsigned int> expanded;
+    const unsigned int* uploadPixels = pixels;
+    if (format != PIXEL_FORMAT_A8R8G8B8 || stride != image->mWidth * 4)
+    {
+        expanded.resize(size_t(image->mWidth) * image->mHeight);
+        PixelData source(format, image->mWidth, image->mHeight, stride, pixels);
+        PixelData destination(PIXEL_FORMAT_A8R8G8B8, image->mWidth, image->mHeight, image->mWidth * 4, expanded.data());
+        if (!destination.Convert(source)) return false;
+        uploadPixels = expanded.data();
+    }
     // GLTexture::CreateTexture @0x470f88 extends edge texels into POT padding.
     int width = 1, height = 1;
     while (width < image->mWidth) width *= 2;
     while (height < image->mHeight) height *= 2;
     if (width > bgfx::getCaps()->limits.maxTextureSize || height > bgfx::getCaps()->limits.maxTextureSize) return false;
-    std::vector<uint32_t> level(size_t(width) * height);
-    for (int row = 0; row < height; ++row)
-        for (int column = 0; column < width; ++column)
+    size_t pixelCount = size_t(width) * height;
+    for (int mipWidth = width, mipHeight = height; mipWidth > 1 || mipHeight > 1;)
+    {
+        mipWidth = std::max(1, mipWidth / 2);
+        mipHeight = std::max(1, mipHeight / 2);
+        pixelCount += size_t(mipWidth) * mipHeight;
+    }
+    std::vector<uint32_t> mipmaps(pixelCount);
+    uint32_t* baseLevel = mipmaps.data();
+    for (int row = 0; row < image->mHeight; ++row)
+    {
+        const unsigned int* sourceRow = uploadPixels + size_t(row) * image->mWidth;
+        uint32_t* destinationRow = baseLevel + size_t(row) * width;
+        for (int column = 0; column < image->mWidth; ++column)
         {
-            uint32_t color = expanded[size_t(std::min(row, image->mHeight - 1)) * image->mWidth + std::min(column, image->mWidth - 1)];
+            uint32_t color = sourceRow[column];
             uint32_t alpha = color >> 24;
-            uint32_t red = ((color >> 16) & 255) * alpha / 255;
-            uint32_t green = ((color >> 8) & 255) * alpha / 255;
-            uint32_t blue = (color & 255) * alpha / 255;
-            level[size_t(row) * width + column] = (alpha << 24) | (red << 16) | (green << 8) | blue;
+            if (alpha == 255)
+                destinationRow[column] = color;
+            else if (alpha == 0)
+                destinationRow[column] = 0;
+            else
+            {
+                uint32_t red = ((color >> 16) & 255) * alpha / 255;
+                uint32_t green = ((color >> 8) & 255) * alpha / 255;
+                uint32_t blue = (color & 255) * alpha / 255;
+                destinationRow[column] = (alpha << 24) | (red << 16) | (green << 8) | blue;
+            }
         }
-    std::vector<uint32_t> mipmaps = level;
+        std::fill(destinationRow + image->mWidth, destinationRow + width, destinationRow[image->mWidth - 1]);
+    }
+    const uint32_t* lastRow = baseLevel + size_t(image->mHeight - 1) * width;
+    for (int row = image->mHeight; row < height; ++row)
+        std::memcpy(baseLevel + size_t(row) * width, lastRow, size_t(width) * sizeof(uint32_t));
+
     int mipWidth = width, mipHeight = height;
+    const uint32_t* previousLevel = baseLevel;
+    uint32_t* nextLevel = baseLevel + size_t(width) * height;
     while (mipWidth > 1 || mipHeight > 1)
     {
         int nextWidth = std::max(1, mipWidth / 2), nextHeight = std::max(1, mipHeight / 2);
-        std::vector<uint32_t> next(size_t(nextWidth) * nextHeight);
+        int columnOffset = mipWidth > 1 ? 1 : 0;
+        int rowOffset = mipHeight > 1 ? mipWidth : 0;
         for (int row = 0; row < nextHeight; ++row)
+        {
+            const uint32_t* topRow = previousLevel + size_t(row * 2) * mipWidth;
+            const uint32_t* bottomRow = topRow + rowOffset;
+            uint32_t* destinationRow = nextLevel + size_t(row) * nextWidth;
             for (int column = 0; column < nextWidth; ++column)
             {
-                uint32_t color = 0;
-                for (int shift = 0; shift <= 24; shift += 8)
-                {
-                    uint32_t sum = 0;
-                    for (int offsetY = 0; offsetY < 2; ++offsetY)
-                        for (int offsetX = 0; offsetX < 2; ++offsetX)
-                            sum += (level[size_t(std::min(mipHeight - 1, row * 2 + offsetY)) * mipWidth
-                                + std::min(mipWidth - 1, column * 2 + offsetX)] >> shift) & 255;
-                    color |= ((sum + 2) / 4) << shift;
-                }
-                next[size_t(row) * nextWidth + column] = color;
+                uint32_t topLeft = topRow[column * 2], topRight = topRow[column * 2 + columnOffset];
+                uint32_t bottomLeft = bottomRow[column * 2], bottomRight = bottomRow[column * 2 + columnOffset];
+                // Two channels per word, with room for four 8-bit samples in
+                // each 16-bit lane. Preserve the original rounded average.
+                constexpr uint32_t channels = 0x00ff00ff;
+                uint32_t redBlue = (topLeft & channels) + (topRight & channels)
+                    + (bottomLeft & channels) + (bottomRight & channels);
+                uint32_t alphaGreen = ((topLeft >> 8) & channels) + ((topRight >> 8) & channels)
+                    + ((bottomLeft >> 8) & channels) + ((bottomRight >> 8) & channels);
+                destinationRow[column] = (((redBlue + 0x00020002) >> 2) & channels)
+                    | ((((alphaGreen + 0x00020002) >> 2) & channels) << 8);
             }
-        mipmaps.insert(mipmaps.end(), next.begin(), next.end());
-        level = std::move(next);
+        }
+        previousLevel = nextLevel;
+        nextLevel += size_t(nextWidth) * nextHeight;
         mipWidth = nextWidth; mipHeight = nextHeight;
     }
     bgfx::TextureHandle replacement = bgfx::createTexture2D(uint16_t(width), uint16_t(height), true, 1,

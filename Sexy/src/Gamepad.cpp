@@ -282,7 +282,7 @@ void Sexy::Gamepad::UpdateStates(float theDelta)
     }
 
     std::vector<Sexy::InputAxisInfo> aEvents;
-    if (!aDriver->GetAxisInfo(aEvents, 0))
+    if (!aDriver->GetAxisInfo(aEvents, mDeviceId & 65535))
         return;
 
     bool aMoved = false;
@@ -374,6 +374,13 @@ bool Sexy::Gamepad::CheckDeviceRemoved(int theDeviceId)
     mIsConnected = false;
     mDeviceId = 0;
     mActiveCount = 0;
+    for (int anAxis = 0; anAxis < kAxisCount; ++anAxis)
+    {
+        mAxisRaw[anAxis] = 0;
+        mAxisValue[anAxis] = 0.0f;
+    }
+    for (int aButton = 0; aButton < kButtonCount; ++aButton)
+        mButtonDown[aButton] = 0;
     return true;
 }
 

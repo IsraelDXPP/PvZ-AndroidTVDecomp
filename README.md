@@ -55,6 +55,8 @@ set SEXY_VIDEO_DRIVER=dx11
 
 可选 `auto`（默认）、`dx11`、`dx12`、`gl`、`vk`、`metal`，修改后重启。指定后端不可用或着色器包缺失会报告启动失败。Windows 已验证 DX11、DX12、GL、Vulkan；Metal 分段已打包。窗口连接通过 SDL 属性支持 Windows、Cocoa、X11 和 Wayland，Linux/macOS 尚未实机验证，游戏还原代码仍有独立的 32 位布局假设。配置示例见 [setup.env.example](setup.env.example)。
 
+显卡调试层与性能标记默认关闭，包括 C++ Debug 构建。需要检查 GPU 调用时，在 `setup.env` 设置 `SEXY_BGFX_DEBUG=1`；需要 GPU 性能标记时设置 `SEXY_BGFX_PROFILE=1`。这些选项会增加驱动和调试器的开销，修改后重启生效。
+
 原直接 OpenGL 后端已移除；`gl` 使用 bgfx 的 OpenGL renderer。`GLImage` 保留原类名，当前绘制目标会路由到 bgfx，其他目标继续使用 `MemoryImage` 软件绘制。
 
 ## SDL 平台层

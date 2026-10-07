@@ -631,6 +631,10 @@ void TitleScreen::Update()
 
   float aPreviousBarWidth = mCurBarWidth;
   float aTotalBarWidth = mTotalBarWidth;
+  // Clamp before advancing, including the initial estimate and unchanged progress.
+  const float aMaxVelocity = mApp->mTodCheatKeys ? 100.0f : 2.0f;
+  if (mBarVel > aMaxVelocity)
+    mBarVel = aMaxVelocity;
   mCurBarWidth += mBarVel;
 
   if ( mLoadingThreadComplete )
@@ -674,13 +678,8 @@ void TitleScreen::Update()
       anIntegerError = -anIntegerError;
     mBarVel += (float)anIntegerError * aBarError * anAcceleration;
 
-    float aNormalMinVelocity = TodAnimateCurveFloatTime(0.0f, 1.0f, aNormalizedProgress, 0.2f, 0.01f, CURVE_LINEAR);
-    float aMinVelocity = 0.0f;
-    float aMaxVelocity = 2.0f;
-    if ( mApp->mTodCheatKeys )
-      aMaxVelocity = 100.0f;
-    else
-      aMinVelocity = aNormalMinVelocity;
+    float aMinVelocity = mApp->mTodCheatKeys ? 0.0f :
+        TodAnimateCurveFloatTime(0.0f, 1.0f, aNormalizedProgress, 0.2f, 0.01f, CURVE_LINEAR);
 
     if ( aMinVelocity <= mBarVel )
     {

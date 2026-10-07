@@ -7883,6 +7883,8 @@ void LawnApp::AuthFinished(bool theSuccess)
 // ==========================================================================
 bool LawnApp::ProcessMessage(Sexy::Event & theEvent)
 {
-  SexyAppBase::ProcessMessage(theEvent);
+  // Update held gamepad buttons before widgets handle the event. B's dig
+  // state and the other held actions read Gamepad::IsButtonDown each tick.
+  Sexy::GamepadApp::ProcessMessage(theEvent);
   return true;
 }

@@ -41,6 +41,10 @@ bool BgfxRenderDevice::Init(int width, int height)
     bgfx::Init init;
     init.type = RequestedRenderer(valid);
     if (!valid) return false;
+    // bgfx's Debug library enables driver validation and profiling by default.
+    // Keep C++ debugging independent of the graphics driver's diagnostic layer.
+    init.debug = GetEnvOption("SEXY_BGFX_DEBUG", false) != 0;
+    init.profile = GetEnvOption("SEXY_BGFX_PROFILE", false) != 0;
     if (init.type != bgfx::RendererType::Count)
     {
         bgfx::RendererType::Enum supported[bgfx::RendererType::Count];
@@ -122,6 +126,8 @@ void BgfxRenderDevice::Shutdown()
 {
     if (sCurrent == this) sCurrent = nullptr;
     if (!mInitialized) return;
+    FlushBatch();
+    FinishGpuWork();
     mVertices.clear();
     mTextures.clear();
     { std::lock_guard<std::mutex> lock(mTextureRemovalMutex); mPendingTextureRemovals.clear(); }
@@ -134,6 +140,23 @@ void BgfxRenderDevice::Shutdown()
     mInitialized = false;
     mFrameOpen = false;
     mDrawTarget = nullptr;
+}
+void BgfxRenderDevice::FinishGpuWork()
+{
+    // frame() queues work on bgfx's render thread. A readback also waits for
+    // the GPU, so DX11 can release cached states after their last use finishes.
+    if (!bgfx::isValid(mColorTarget) || !(bgfx::getCaps()->supported & BGFX_CAPS_TEXTURE_READ_BACK)
+        || !(bgfx::getCaps()->supported & BGFX_CAPS_TEXTURE_BLIT))
+        return;
+    bgfx::TextureHandle fence = bgfx::createTexture2D(1, 1, false, 1,
+        bgfx::TextureFormat::BGRA8, BGFX_TEXTURE_READ_BACK | BGFX_TEXTURE_BLIT_DST);
+    if (!bgfx::isValid(fence)) return;
+    uint32_t pixel = 0;
+    bgfx::blit(ReadbackView, fence, 0, 0, mColorTarget, 0, 0, 1, 1);
+    uint32_t ready = bgfx::readTexture(fence, &pixel);
+    uint32_t frame = bgfx::frame();
+    while (int32_t(frame - ready) < 0) frame = bgfx::frame();
+    bgfx::destroy(fence);
 }
 bool BgfxRenderDevice::CreateTarget()
 {

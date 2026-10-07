@@ -100,9 +100,8 @@ int SeedChooserScreen::KeyUp(Sexy::KeyCode theKey)
   if (mEvent == nullptr)
     return Sexy::Widget::KeyUp(theKey);
 
-  // Without a gamepad an attached event still reaches the gamepad navigation
-  // code: OnKeyUp turns the key into a virtual button press.
-  if (!mApp->HasGamepad() && (!mApp->mGamePad1IsOn || !mApp->mGamePad2IsOn))
+  // Keyboard releases use OnKeyUp even when a gamepad is connected.
+  if (mEvent->lateModifiers == 0 || (!mApp->HasGamepad() && (!mApp->mGamePad1IsOn || !mApp->mGamePad2IsOn)))
   {
     if (OnKeyUp(theKey, mEvent->modifierMask) == 0)
       return Sexy::Widget::KeyUp(theKey);
@@ -128,10 +127,9 @@ int SeedChooserScreen::KeyDown(Sexy::KeyCode theKey)
   if (mFocusedChildWidget != nullptr || mEvent == nullptr)
     return Sexy::Widget::KeyDown(theKey);
 
-  // A connected gamepad turns the key into a virtual button; without one the key
-  // goes through OnKeyDown. Both paths share the escape handling below.
+  // Keyboard events keep their keyboard path even with a connected gamepad.
   bool aHandled = false;
-  if (!mApp->HasGamepad() && (!mApp->mGamePad1IsOn || !mApp->mGamePad2IsOn))
+  if (mEvent->lateModifiers == 0 || (!mApp->HasGamepad() && (!mApp->mGamePad1IsOn || !mApp->mGamePad2IsOn)))
   {
     aHandled = OnKeyDown(theKey, mEvent->modifierMask) != 0;
   }
@@ -142,7 +140,7 @@ int SeedChooserScreen::KeyDown(Sexy::KeyCode theKey)
     unsigned int aFlags = 0;
     if (mApp->MapToButtonEvent(mEvent, aButton, aPlayerIndex, aFlags) != 0)
     {
-      GameButtonDown((Sexy::GamepadButton)aPlayerIndex, aButton, aFlags);
+      GameButtonDown((Sexy::GamepadButton)aButton, aPlayerIndex, aFlags);
       return 1;
     }
   }
@@ -152,16 +150,7 @@ int SeedChooserScreen::KeyDown(Sexy::KeyCode theKey)
 
   if (theKey == Sexy::KEYCODE_ESCAPE)
   {
-    Sexy::Dialog *aDialog = mApp->ConfirmQuit();
-    mOpeningDialog = true;
-    const int aResult = aDialog->WaitForResult(true);
-    mOpeningDialog = false;
-    if (aResult == 1000)
-    {
-      mApp->PostLeaveLevel();
-      mApp->SetBoardResult(BOARDRESULT_QUIT);
-      mApp->DoBackToMain();
-    }
+    mApp->DoConfirmBackToMain(false);
     return 1;
   }
 
@@ -1953,16 +1942,7 @@ int SeedChooserScreen::OnKeyDown(Sexy::KeyCode theKey, unsigned int theFlags)
           }
         }
 
-        // Otherwise Escape offers to quit the level.
-        Sexy::Dialog *aDialog = mApp->ConfirmQuit();
-        mOpeningDialog = true;
-        const int aResult = aDialog->WaitForResult(true);
-        mOpeningDialog = false;
-        if (aResult != 1000)
-          return 1;
-        mApp->PostLeaveLevel();
-        mApp->SetBoardResult(BOARDRESULT_QUIT);
-        mApp->DoBackToMain();
+        mApp->DoConfirmBackToMain(false);
         return 1;
       }
 
@@ -2077,20 +2057,21 @@ int SeedChooserScreen::OnKeyDown(Sexy::KeyCode theKey, unsigned int theFlags)
 // SeedChooserScreen::GameButtonDown(Sexy::GamepadButton,int,unsigned int)
 // @0014F618  1304 bytes
 // ==========================================================================
-int SeedChooserScreen::GameButtonDown(Sexy::GamepadButton theGamepadIndex, int theButton, unsigned int theFlags)
+int SeedChooserScreen::GameButtonDown(Sexy::GamepadButton theButton, int theGamepadIndex, unsigned int theFlags)
 {
-  // Claim the pad for player 2 when only one gamepad is attached, so a second
-  // pad plugged in mid-level can still join.
-  unsigned int aPad = theFlags;
+  // Let an unused first-player slot claim the pad that generated this event.
+  int aPad = theGamepadIndex;
+  if (aPad < 0 || aPad >= 4)
+    return 0;
   int aSecondPad = mPlayerIndex;
   if (aSecondPad == 0 && aPad != 0 && mApp->mGamepads[0]->mStatus <= Sexy::Gamepad::STATUS_CONNECTED)
   {
     aPad = 0;
-    mApp->SwapGamepadId(0, theFlags);
+    mApp->SwapGamepadId(0, theGamepadIndex);
     aSecondPad = mPlayerIndex;
   }
 
-  if (aPad != (unsigned int)aSecondPad)
+  if (aPad != aSecondPad)
   {
     const int aSecondPlayerPad = mApp->mSecondPlayerGamepadIndex;
     if (aSecondPlayerPad == -1 && theButton == GAMEPAD_BUTTON_START)
@@ -2186,7 +2167,11 @@ int SeedChooserScreen::GameButtonDown(Sexy::GamepadButton theGamepadIndex, int t
         ButtonDepress(SeedChooserScreen_Start);
         return 1;
       }
-      return 0;
+      // Menu remains usable before all required packets have been selected.
+      {
+        mApp->DoConfirmBackToMain(false);
+        return 1;
+      }
 
     case GAMEPAD_BUTTON_A:
     {
@@ -2299,16 +2284,7 @@ int SeedChooserScreen::GameButtonDown(Sexy::GamepadButton theGamepadIndex, int t
         }
       }
 
-      Sexy::Dialog *aDialog = mApp->ConfirmQuit();
-      mOpeningDialog = true;
-      const int aResult = aDialog->WaitForResult(true);
-      mOpeningDialog = false;
-      if (aResult == 1000)
-      {
-        mApp->PostLeaveLevel();
-        mApp->SetBoardResult(BOARDRESULT_QUIT);
-        mApp->DoBackToMain();
-      }
+      mApp->DoConfirmBackToMain(false);
       return 0;
     }
 

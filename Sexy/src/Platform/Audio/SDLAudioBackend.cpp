@@ -331,7 +331,12 @@ void SDLSoundInstance::SetBaseRate(double theRate)
     ApplyState();
 }
 
-void SDLSoundInstance::AdjustPitch(double pitch) { mPitch = pitch; ApplyState(); }
+void SDLSoundInstance::AdjustPitch(double thePitch)
+{
+    // AdjustPitch uses semitones, as in AudiereSoundInstance @0x4416d0.
+    mPitchRatio = std::pow(1.0594630943592953, thePitch);
+    ApplyState();
+}
 
 void SDLSoundInstance::SetVolume(double theVolume)
 {
@@ -383,7 +388,7 @@ void SDLSoundInstance::ApplyState()
     double gain = mVolume * mBaseVolume;
     if (mManager) gain *= mManager->mVolume * mManager->mMasterVolume;
     SDL_SetAudioStreamGain(mStream, ToGain(gain));
-    SDL_SetAudioStreamFrequencyRatio(mStream, float(std::clamp(mBaseRate * mPitch, 0.01, 100.0)));
+    SDL_SetAudioStreamFrequencyRatio(mStream, float(std::clamp(mBaseRate * mPitchRatio, 0.5, 2.0)));
 }
 
 SDLSoundManager::SDLSoundManager()

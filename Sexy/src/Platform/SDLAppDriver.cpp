@@ -393,6 +393,10 @@ int SDLAppDriver::UpdateAppStep(bool* theContinue)
             ? aStepSeconds : std::clamp(aNow - self->mLastUpdateTime, 0.0, 0.25);
         self->mLastUpdateTime = aNow;
         anApp->mPendingUpdatesAcc += anElapsed * anApp->mUpdateMultiplier;
+        // Resource loading may run synchronously in TitleScreen::Update.
+        // Do not replay its blocking time as a burst of loading-bar updates.
+        if (anApp->mTitleScreen != nullptr)
+            anApp->mPendingUpdatesAcc = std::min(anApp->mPendingUpdatesAcc, aStepSeconds);
         while (anApp->mPendingUpdatesAcc >= aStepSeconds)
         {
             anApp->mPendingUpdatesAcc -= aStepSeconds;

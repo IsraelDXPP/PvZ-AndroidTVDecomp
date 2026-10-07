@@ -21,6 +21,7 @@
 #include "EffectSystem.h"
 #include "Font.h"
 #include "GameObject.h"
+#include <functional>
 #include "GameOverDialog.h"
 #include "GamepadApp.h"
 #include "GamepadControls.h"
@@ -188,11 +189,42 @@ LawnMower * Board::ResetLawnMowers()
     return aFound;
 }
 
-// The binary inlines std::__introsort_loop and std::__insertion_sort. One
-// std::sort with the same comparator orders the list by mOrder.
-static bool RenderItemSortFunc(const BoardRenderItem & a, const BoardRenderItem & b)
+static const void *RenderItemObject(const BoardRenderItem &theItem)
 {
-    return a.mOrder < b.mOrder;
+    switch (theItem.mType)
+    {
+        case 0: case 1: case 2: case 3: case 4: case 5: case 6:
+        case 7: case 8: case 9: case 11: case 29:
+            return theItem.mObject;
+        case 12:
+            return theItem.mParticle;
+        case 13:
+            return theItem.mReanimation;
+        case 30:
+            return theItem.mMower;
+        case 33: case 34:
+            return theItem.mGridItem;
+        default:
+            return nullptr;
+    }
+}
+
+// RenderItemSortFunc @0x1517FC uses the payload as a tie breaker. Compare
+// actual pointers without interpreting the integer UI/ice/boss payloads as pointers.
+static bool RenderItemSortFunc(const BoardRenderItem &theLeft, const BoardRenderItem &theRight)
+{
+    if (theLeft.mOrder != theRight.mOrder)
+        return theLeft.mOrder < theRight.mOrder;
+
+    const void *aLeftObject = RenderItemObject(theLeft);
+    const void *aRightObject = RenderItemObject(theRight);
+    if (aLeftObject != nullptr && aRightObject != nullptr)
+        return std::less<const void *>()(aLeftObject, aRightObject);
+    if (aLeftObject != nullptr || aRightObject != nullptr)
+        return aLeftObject == nullptr;
+    const int aLeftValue = theLeft.mType == 14 || theLeft.mType == 32 ? theLeft.mValue : 0;
+    const int aRightValue = theRight.mType == 14 || theRight.mType == 32 ? theRight.mValue : 0;
+    return aLeftValue < aRightValue;
 }
 
 // ==========================================================================

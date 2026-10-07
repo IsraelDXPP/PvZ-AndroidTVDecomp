@@ -87,7 +87,11 @@ int Sexy::GamepadApp::ProcessDeviceEvents()
         if (!anEvent.mAdded)
         {
             for (int i = 0; i < 4; i++)
-                mGamepads[i]->CheckDeviceRemoved(aDeviceId << 16);
+            {
+                Gamepad *aPad = mGamepads[i];
+                if ((aPad->mDeviceId >> 16) == aDeviceId)
+                    aPad->CheckDeviceRemoved(aPad->mDeviceId);
+            }
             continue;
         }
 
@@ -95,40 +99,25 @@ int Sexy::GamepadApp::ProcessDeviceEvents()
         if (aDriver == nullptr)
             continue;
 
-        // Slot 0 can be an empty SDL user. Walk the live devices and keep
-        // the first one that actually has a stick.
-        InputInfo aInfo;
-        aInfo.mHasJoystick = 0;
-        bool aFoundStick = false;
+        // SDL exposes multiple controllers through one driver. Keep its device
+        // index in the low word so button events and axis polling use the same pad.
         const int aDeviceCount = aDriver->GetNumDevices();
-        for (int aIndex = 0; aIndex < aDeviceCount; ++aIndex)
+        for (int aIndex = 0; aIndex < aDeviceCount && aIndex < 65536; ++aIndex)
         {
-            aInfo.mHasPointer = 0;
-            aInfo.mHasKeys = 0;
-            aInfo.mHasTouch = 0;
-            aInfo.mHasMultiTouch = 0;
-            aInfo.mHasJoystick = 0;
-            aInfo.mDeviceIndex = -1;
-            if (!aDriver->GetInfo(aInfo, aIndex))
+            InputInfo aInfo{};
+            if (!aDriver->GetInfo(aInfo, aIndex) || aInfo.mHasJoystick == 0)
                 continue;
-            if (aInfo.mHasJoystick != 0)
-            {
-                aFoundStick = true;
-                break;
-            }
-        }
-        if (!aFoundStick)
-            continue;
-
-        logfi("Input device added: %s", aInfo.mName.c_str());
-        if (aFoundStick)
-        {
+            const int aDeviceKey = (aDeviceId << 16) | aIndex;
+            if (GetGamepadIndex(aDeviceId, aIndex) != -1)
+                continue;
             for (int i = 0; i < 4; i++)
             {
-                if (mGamepads[i]->CheckDeviceAdded(aDeviceId << 16) != 0)
+                if (mGamepads[i]->CheckDeviceAdded(aDeviceKey))
+                {
+                    logfi("Recognized gamepad: %d:%d: %s", aDeviceId, aIndex, aInfo.mName.c_str());
                     break;
+                }
             }
-            logfi("Recognized gamepad: %d:0", aDeviceId);
         }
     }
     return 0;
@@ -317,15 +306,11 @@ bool Sexy::GamepadApp::ProcessMessage(Sexy::Event &theEvent)
 {
     if (theEvent.modifiers - 1 <= 1)
     {
-        const int aDeviceKey = (int)theEvent.lateModifiers << 16;
-        if (aDeviceKey != 0)
+        if (theEvent.lateModifiers != 0)
         {
-            for (int i = 0; i < 4; i++)
-            {
-                Gamepad *aPad = mGamepads[i];
-                if (aPad->mDeviceId == aDeviceKey)
-                    aPad->CheckEvent(theEvent);
-            }
+            const int aPadIndex = GetGamepadIndex(theEvent.lateModifiers, theEvent.eventType);
+            if (aPadIndex != -1)
+                mGamepads[aPadIndex]->CheckEvent(theEvent);
         }
     }
 

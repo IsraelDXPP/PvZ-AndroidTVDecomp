@@ -46,7 +46,7 @@ public:
     SDL_AudioStream* mStream;
     size_t mCursor = 0;
     bool mLoop = false;
-    double mPitch = 1.0;
+    double mPitchRatio = 1.0;
     std::shared_ptr<SDLSoundBuffer> mBuffer;
     bool                mPlaying;
     bool                mReleased;

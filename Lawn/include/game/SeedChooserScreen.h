@@ -208,9 +208,8 @@ public:
     virtual int OnKeyDown(Sexy::KeyCode theKey, unsigned int theFlags);
     virtual int OnKeyUp(Sexy::KeyCode theKey, unsigned int theFlags);
     virtual int GameAxisMove(int theAxis, int theButton, int thePlayerIndex);
-    // TV passes the gamepad index first and the button second. theGamepadIndex
-    // is the pad the event came from; theButton is compared with GAMEPAD_BUTTON_*.
-    virtual int GameButtonDown(Sexy::GamepadButton theGamepadIndex, int theButton, unsigned int theFlags);
+    // TV passes the button first, then the originating gamepad index and flags.
+    virtual int GameButtonDown(Sexy::GamepadButton theButton, int theGamepadIndex, unsigned int theFlags);
     virtual int GameButtonUp(Sexy::GamepadButton theButton, int thePlayerIndex, unsigned int theFlags);
 
     // Widget occupies +0x00..+0xFF; ButtonListener's vptr +0x100..+0x103.

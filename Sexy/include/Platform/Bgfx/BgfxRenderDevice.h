@@ -103,6 +103,7 @@ private:
     void RemoveReleasedTextures();
     bool CreateTarget();
     void DestroyTarget();
+    void FinishGpuWork();
     uint32_t PackColor(const Color& theColor) const;
 };
 }
