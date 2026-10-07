@@ -180,7 +180,7 @@ CursorPreview::CursorPreview(int thePlayerIndex)
   // reproduced here exactly as the shipped binary behaves.
   mPlayerIndex = thePlayerIndex;
 
-  const int aSyncBlockSize = 12;
+  const size_t aSyncBlockSize = MakeSyncBlock(mGridX, mPlayerIndex).mSize;
   SyncBlockInfo aBlock;
   aBlock.mData = &mGridX;
   aBlock.mSize = aSyncBlockSize;

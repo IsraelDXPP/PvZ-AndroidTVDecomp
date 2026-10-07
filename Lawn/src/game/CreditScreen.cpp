@@ -89,41 +89,6 @@ bool IterateParticles(TodParticleSystem *&theParticle, TodParticleHolder *theHol
   return false;
 }
 
-// ReanimatorTrack is the 20-byte track record. Credits reads its name, transform
-// array and transform count.
-
-// ReanimatorTrackInstance has a file-local definition in Reanimation.cpp; of its
-// 100 bytes only the attachment id and the render group are touched from here.
-struct ReanimatorTrackInstanceLayout
-{
-    int          mBlendCounter;             // +0x00
-    int          mBlendTime;                // +0x04
-    float        mBlendTransform[12];       // +0x08 .. +0x37
-    float        mShakeOverride;            // +0x38
-    float        mShakeX;                   // +0x3C
-    float        mShakeY;                   // +0x40
-    int          mAttachmentID;             // +0x44
-    Sexy::Image *mImageOverride;            // +0x48
-    int          mRenderGroup;              // +0x4C
-    unsigned char mTrackColorAndFlags[20];  // +0x50 .. +0x63
-};
-
-// PreLoadCredits walks three vectors inside one reanimator definition. Only
-// the (base, count) pairs it reaches are named. Each pair is a vector of
-// 20-byte records, so the two words are the vector's start and its count.
-struct ReanimatorDefTable
-{
-    unsigned char mDefsBeforeWords[0x7A0];
-    void         *mWordsDefs;   // +0x7A0
-    int           mWordsCount;  // +0x7A4
-    unsigned char mDefsBeforeWords2[8];
-    void         *mWords2Defs;  // +0x7B0
-    int           mWords2Count; // +0x7B4
-    unsigned char mDefsBeforeFog[0xF8];
-    void         *mFogDefs;     // +0x8B0
-    int           mFogCount;    // +0x8B4
-};
-
 // The number of frames in a reanimation: every credits body derives it as
 // `mDefinition->mTracks[0].mTransformCount`, which is exactly what
 // `Reanimation::mFrameCount - 1` means elsewhere.
@@ -351,57 +316,30 @@ int CreditScreen::PreLoadCredits()
   PreLoadReanimForCredits(REANIM_PUFFSHROOM);
   int result = PreLoadReanimForCredits(REANIM_SUNSHROOM);
 
-  // The three definition lists the credits re-skin: the two "Words"
-  // text tracks are switched to the credits font, and the third list's
-  // tracks are switched only where a font was already set. Every list is
-  // a libstdc++ vector of 20-byte records whose element holds the track
-  // array base at +0x08 and its count at +0x0C, and a track is 48 bytes
-  // with its font word at +0x28.
-  ReanimatorDefTable *aTable = (ReanimatorDefTable *)gReanimatorDefArray;
-
-  for ( int aList = 0; aList < 2; aList++ )
+  // @0x1B9ACC: TV offsets 1952, 1968 and 2224 select definitions 122, 123
+  // and 139. Access the native records by animation type on both architectures.
+  const ReanimationType aTextAnimations[] = {REANIM_CREDITS_MAIN2, REANIM_CREDITS_MAIN3};
+  for (ReanimationType aType : aTextAnimations)
   {
-    int aCount = (aList == 0) ? aTable->mWordsCount : aTable->mWords2Count;
-    ReanimatorTrack *aRecords = (ReanimatorTrack *)(
-        (aList == 0) ? aTable->mWordsDefs : aTable->mWords2Defs);
-    if ( aCount <= 0 )
-      continue;
-
-    for ( int aRecord = 0; aRecord != aCount; ++aRecord, ++aRecords )
+    ReanimatorDefinition &aDefinition = gReanimatorDefArray[aType];
+    for (int aTrackIndex = 0; aTrackIndex < aDefinition.mTrackCount; ++aTrackIndex)
     {
-      const int aTrackCount = aRecords->mTransformCount;
-      if ( aTrackCount <= 0 )
-        continue;
-
-      const char *aName = aRecords->mName;
+      ReanimatorTrack &aTrack = aDefinition.mTracks[aTrackIndex];
+      const char *aName = aTrack.mName;
       if ( strcmp(aName, "Words") != 0 && strcmp(aName, "Words2") != 0 )
         continue;
-
-      ReanimatorTransform *aTrack = aRecords->mTransforms;
-      for ( int i = 0; i != aTrackCount; ++i, ++aTrack )
-      {
-        if ( i <= 123 )
-          aTrack->mFont = FONT_BRIANNETOD32BLACK;
-      }
+      for (int aFrame = 0; aFrame < aTrack.mTransformCount && aFrame <= 123; ++aFrame)
+        aTrack.mTransforms[aFrame].mFont = FONT_BRIANNETOD32BLACK;
     }
   }
-
-  if ( aTable->mFogCount > 0 )
+  ReanimatorDefinition &anUndeadDefinition = gReanimatorDefArray[REANIM_CREDITS_WEARETHEUNDEAD];
+  for (int aTrackIndex = 0; aTrackIndex < anUndeadDefinition.mTrackCount; ++aTrackIndex)
   {
-    ReanimatorTrack *aRecords = (ReanimatorTrack *)aTable->mFogDefs;
-    Sexy::Font *aCreditsFont = FONT_BRIANNETOD32BLACK;
-    for ( int aRecord = 0; aRecord != aTable->mFogCount; ++aRecord, ++aRecords )
+    ReanimatorTrack &aTrack = anUndeadDefinition.mTracks[aTrackIndex];
+    for (int aFrame = 0; aFrame < aTrack.mTransformCount; ++aFrame)
     {
-      const int aTrackCount = aRecords->mTransformCount;
-      if ( aTrackCount <= 0 )
-        continue;
-
-      ReanimatorTransform *aTrack = aRecords->mTransforms;
-      for ( int i = 0; i != aTrackCount; ++i, ++aTrack )
-      {
-        if ( aTrack->mFont != nullptr )
-          aTrack->mFont = aCreditsFont;
-      }
+      if (aTrack.mTransforms[aFrame].mFont != nullptr)
+        aTrack.mTransforms[aFrame].mFont = FONT_BRIANNETOD32BLACK;
     }
   }
   return result;
@@ -699,34 +637,18 @@ void CreditScreen::ExportMovieFrame(int theFrame)
 // ==========================================================================
 void CreditScreen::TurnOffTongues(Reanimation * theReanim, int theTrack)
 {
-  // @0x1BAB9C. theReanim+0x10 is mReanimationType; the compared immediate is 124 and
-  // no enumerator in this tree carries that value. theReanim+0x1C is mDefinition,
-  // theReanim+0x68 is mTrackInstances. The loop index is a byte offset of 20, the
-  // size of one ReanimatorTrack / ReanimatorTrackInstance. theTrack % 4 is the
-  // arithmetic form the body actually uses (sign-correct for a negative theTrack).
-  if ( theReanim->mDefinition->mTrackCount > 0 )
+  // @0x1BAB9C uses distinct strides for definition and runtime tracks.
+  int aTonguePhase = theTrack % 4;
+  for (int aIndex = 0; aIndex < theReanim->mDefinition->mTrackCount; ++aIndex)
   {
-    int aTrackOffset = 0;
-    int aIndex = 0;
-    int aTonguePhase = theTrack % 4;
-    do
-    {
-      ReanimatorTrackInstanceLayout *aInstance =
-          (ReanimatorTrackInstanceLayout *)((char *)theReanim->mTrackInstances + aTrackOffset);
-      ReanimatorTrack *aTrack =
-          (ReanimatorTrack *)((char *)theReanim->mDefinition->mTracks + aTrackOffset);
-      if ( theReanim->mReanimationType == REANIM_ZOMBIE_CREDITS_DANCE && aTonguePhase != 1 &&
-           strcasecmp(aTrack->mName, "anim_tongue") == 0 )
-        aInstance->mRenderGroup = -1;
-
-      aTrackOffset += 20;
-      Reanimation *aAttached =
-          FindReanimAttachment(aInstance->mAttachmentID);
-      if ( aAttached != nullptr )
-        TurnOffTongues(aAttached, aIndex);
-      ++aIndex;
-    }
-    while ( theReanim->mDefinition->mTrackCount > aIndex );
+    ReanimatorTrackInstance &anInstance = theReanim->mTrackInstances[aIndex];
+    ReanimatorTrack &aTrack = theReanim->mDefinition->mTracks[aIndex];
+    if (theReanim->mReanimationType == REANIM_ZOMBIE_CREDITS_DANCE && aTonguePhase != 1 &&
+        strcasecmp(aTrack.mName, "anim_tongue") == 0)
+      anInstance.mRenderGroup = -1;
+    Reanimation *anAttached = FindReanimAttachment(anInstance.mAttachmentID);
+    if (anAttached != nullptr)
+      TurnOffTongues(anAttached, aIndex);
   }
 }
 

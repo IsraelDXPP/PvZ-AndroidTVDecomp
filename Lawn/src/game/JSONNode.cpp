@@ -344,7 +344,7 @@ JSONNode JSONNode::as_array() const
         jsonChildren *aChildren = aArray.mInternal->CHILDREN;
         if (aChildren != nullptr)
         {
-            for (unsigned int aIndex = 0; aIndex < aChildren->mSize; ++aIndex)
+            for (unsigned int aIndex = 0; aIndex < aChildren->mChildren.size(); ++aIndex)
             {
                 JSONNode *aChild = aChildren->mChildren[aIndex];
                 if (aChild == nullptr || aChild->mInternal == nullptr)
@@ -429,7 +429,7 @@ JSONNode * JSONNode::at(unsigned int theIndex) const
         ThrowOutOfRange();
     mInternal->Fetch();
     jsonChildren *aChildren = mInternal->CHILDREN;
-    if (aChildren == nullptr || theIndex >= aChildren->mSize)
+    if (aChildren == nullptr || theIndex >= aChildren->mChildren.size())
         ThrowOutOfRange();
     return aChildren->mChildren[theIndex];
 }
@@ -460,7 +460,7 @@ JSONNode JSONNode::pop_back(unsigned int theIndex)
         ThrowOutOfRange();
     mInternal->Fetch();
     jsonChildren *aChildren = mInternal->CHILDREN;
-    if (aChildren == nullptr || theIndex >= aChildren->mSize)
+    if (aChildren == nullptr || theIndex >= aChildren->mChildren.size())
         ThrowOutOfRange();
     MakeUnique();
     JSONNode *aRemoved = (JSONNode *)mInternal->pop_back(theIndex);

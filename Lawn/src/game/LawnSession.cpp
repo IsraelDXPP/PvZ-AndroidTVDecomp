@@ -32,7 +32,7 @@ LawnSession::~LawnSession()
 // LawnSession::HandleTask()
 // @001EBCEC  26 bytes
 // ==========================================================================
-int * LawnSession::HandleTask()
+bool LawnSession::HandleTask()
 {
   if ( mTask != nullptr )
   {
@@ -42,9 +42,9 @@ int * LawnSession::HandleTask()
     mTaskDone = true;
     // Non-null means "a task was run"; the only caller tests the result against
     // zero. The binary returns `&dword_0 + 1`, which is that same 1.
-    return (int *)1;
+    return true;
   }
-  return nullptr;
+  return false;
 }
 
 // ==========================================================================
@@ -56,7 +56,7 @@ LawnSession * LawnSession::SessionThreadProc(void *theUnused)
   (void)theUnused;
   while ( !mShutdown )
   {
-    if ( HandleTask() == nullptr )
+    if ( !HandleTask() )
     {
       MSleep(20);
       HandleTask();

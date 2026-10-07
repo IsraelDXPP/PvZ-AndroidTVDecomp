@@ -1497,7 +1497,7 @@ Projectile::Projectile()
 {
   // Only clear the derived state. Debug STL bookkeeping enlarges GameObject;
   // subtracting the original base size would overwrite the data array slot ID.
-  const unsigned int aStateSize = sizeof(Projectile) - sizeof(GameObject);
+  const size_t aStateSize = MakeSyncBlock(mFrame, mLastPortalX).mSize;
   mSyncBlocks.push_back(SyncBlockInfo{&mFrame, aStateSize});
   memset(&mFrame, 0, aStateSize);
 }

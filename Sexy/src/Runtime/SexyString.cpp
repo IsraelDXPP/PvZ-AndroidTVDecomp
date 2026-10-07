@@ -1,15 +1,5 @@
-// String.cpp -- the game's string.
-//
-// Each String owns its own character buffer. The object is still one pointer,
-// so it occupies the same 4-byte slots the transcribed objects give it, but
-// there is no shared buffer and no reference count to get wrong. Copying a
-// string copies its characters. An empty string points at one static
-// zero-terminated byte that is never freed.
-//
-// The header in front of the characters stays, because transcribed code reads
-// the length from data - 12. The capacity and the old reference-count slot are
-// unused; the count is kept negative so a leftover release never frees the
-// block.
+// Each String owns a character buffer; copying copies the characters.
+// The object contains one native pointer. Empty strings share a static buffer.
 
 #include "SexyString.h"
 
@@ -19,36 +9,21 @@
 namespace Sexy
 {
 
-// The shared empty rep. The 12-byte header is what a release guard subtracts
-// before comparing, and the byte after it is the empty character data.
-extern "C" char gEmptyRepStorageBytes[16] = {0};
-
-StringRep gEmptyStringRep;
-char* const gEmptyStringData = gEmptyRepStorageBytes + sizeof(StringRep);
-
-struct EmptyRepInit
+namespace
 {
-    EmptyRepInit()
-    {
-        gEmptyStringRep.mLength = 0;
-        gEmptyStringRep.mCapacity = 0;
-        gEmptyStringRep.mRefCount = -1;
-        *gEmptyStringData = '\0';
-
-        reinterpret_cast<StringRep*>(gEmptyRepStorageBytes)->mLength = 0;
-        reinterpret_cast<StringRep*>(gEmptyRepStorageBytes)->mCapacity = 0;
-        reinterpret_cast<StringRep*>(gEmptyRepStorageBytes)->mRefCount = -1;
-    }
+struct EmptyStringStorage
+{
+    StringRep mRep;
+    char mText[4];
 };
-
-static EmptyRepInit gEmptyRepInit;
+EmptyStringStorage gEmptyStringStorage = {{0, 0, -1}, {}};
+}
+StringRep &gEmptyStringRep = gEmptyStringStorage.mRep;
+char *const gEmptyStringData = gEmptyStringStorage.mText;
 
 static bool Usable(const char* theData)
 {
-    return theData != nullptr
-        && (uintptr_t)theData >= 0x10000u
-        && theData != reinterpret_cast<const char*>(0xCCCCCCCCu)
-        && theData != reinterpret_cast<const char*>(0xCDCDCDCDu);
+    return theData != nullptr;
 }
 
 static char* Fresh(const char* theText, unsigned int theLength)

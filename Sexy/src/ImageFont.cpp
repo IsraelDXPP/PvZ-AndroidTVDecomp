@@ -611,13 +611,12 @@ int Sexy::ImageFont::HasTag(Sexy::WString const& theTag)
     return 0;
 }
 
-int Sexy::ImageFont::GetDefine(Sexy::WString const& theName)
+Sexy::String Sexy::ImageFont::GetDefine(Sexy::WString const& theName)
 {
     Sexy::DataElement* aElement = mFontData->Dereference(AsString(theName));
     if (aElement == nullptr)
-        return 0;
-    Sexy::String aText = mFontData->DataElementToString(aElement, true);
-    return (int)aText.ToInt();
+        return Sexy::String();
+    return mFontData->DataElementToString(aElement, true);
 }
 
 int Sexy::ImageFont::StringWidth(Sexy::WString const& theString)

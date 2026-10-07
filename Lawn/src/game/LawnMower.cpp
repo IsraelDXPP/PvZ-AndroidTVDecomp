@@ -285,11 +285,15 @@ int LawnMower::MowZombie(Zombie *theZombie)
     else
       aReanim->PlayReanim("anim_landsuck", REANIM_PLAY_ONCE_AND_HOLD, 10, 35.0f);
 
-    return theZombie->DieWithLoot();
+    {
+      theZombie->DieWithLoot();
+      return 0;
+    }
   }
 
   mApp->PlayFoley(FOLEY_SPLAT);
-  return theZombie->MowDown();
+  theZombie->MowDown();
+  return 0;
 }
 
 // ==========================================================================
@@ -408,11 +412,9 @@ LawnMower::LawnMower()
   // 60 bytes) as one sync block, then zero-fills exactly that range. The dump
   // renders the registration as a mislabelled `_M_insert_aux` on an empty vector,
   // which is what push_back does.
-  SyncBlockInfo aBlock;
-  aBlock.mData = &mPosX;
-  aBlock.mSize = 60;
+  SyncBlockInfo aBlock = MakeSyncBlock(mPosX, mLastPortalX);
   mSyncBlocks.push_back(aBlock);
-  memset(&mPosX, 0, 60);
+  memset(aBlock.mData, 0, aBlock.mSize);
 }
 
 // ==========================================================================

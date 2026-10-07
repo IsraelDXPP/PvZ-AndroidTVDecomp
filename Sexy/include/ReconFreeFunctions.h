@@ -291,17 +291,9 @@ void BoardInitForPlayer();
 // sites pass a pointer, and a pointer does not convert to float. The pointer
 // overload takes the address as a number.
 template <class T> inline int CoerceToInt(T theValue) { return (int)theValue; }
-template <class T> inline int CoerceToInt(T* thePointer)
-{
-    int aValue = 0;
-    std::memcpy(&aValue, &thePointer, sizeof(aValue));
-    return aValue;
-}
+template <class T> int CoerceToInt(T*) = delete;
 template <class T> inline float CoerceToFloat(T theValue) { return (float)theValue; }
-template <class T> inline float CoerceToFloat(T* thePointer)
-{
-    return (float)CoerceToInt(thePointer);
-}
+template <class T> float CoerceToFloat(T*) = delete;
 
 #define COERCE_INT(x)    CoerceToInt(x)
 #define COERCE_FLOAT(x)  CoerceToFloat(x)
@@ -344,7 +336,7 @@ void FilterEffectInitForApp();
 class TodAllocator;
 int FindBuddyImageSize(Sexy::MemoryImage *theImage, Sexy::TRect<int> *theRect);
 AttachEffect* FindFirstAttachment(const int& theId);
-TodAllocator *FindGlobalAllocator(int theItemSize);
+TodAllocator *FindGlobalAllocator(size_t theItemSize);
 Reanimation* FindReanimAttachment(const int& theId);
 float FloatTrackEvaluate(FloatParameterTrack& theTrack, float theTime, float theSeed);
 bool FloatTrackIsSet(const FloatParameterTrack* theTrack);

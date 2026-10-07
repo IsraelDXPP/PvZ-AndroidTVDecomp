@@ -5,6 +5,7 @@
 #include "SexyTypes.h"
 #include "SexyString.h"
 #include "ReconExterns.h"
+#include "RawObject.h"
 
 #include <cstring>
 #include <new>
@@ -20,9 +21,7 @@ namespace
 
 const unsigned int kStringMax = 1073741820u;
 
-// A text stream is 184 bytes. TextStream names the mode, the character
-// String, the buffer object, the cursor and the exhausted flag.
-const unsigned int kStreamBytes = 184;
+// TextStream names the mode, character buffer, cursor and exhausted flag.
 
 bool IsBlank(char theChar)
 {
@@ -389,7 +388,7 @@ String* StringAssignRange(String* theString, const char* theFirst,
 }
 
 int StringReplace(String* theString, unsigned int thePos, unsigned int theCount,
-                  unsigned int theReplacement, unsigned int theFlags)
+                  const char *theReplacement, unsigned int theFlags)
 {
     if (theString == nullptr)
         return 0;
@@ -404,7 +403,7 @@ int StringReplace(String* theString, unsigned int thePos, unsigned int theCount,
     if (theFlags > kStringMax - aLength + aRemove)
         throw std::length_error("basic_string::replace");
 
-    const char* aInsert = (const char*)theReplacement;
+    const char* aInsert = theReplacement;
     ReplaceOwned(theString, thePos, theCount, aInsert, theFlags);
     return 1;
 }
@@ -605,12 +604,8 @@ void* ConstructIStringStream(void* theStream, const String* theSource, int theMo
     if (theStream == nullptr)
         return nullptr;
 
-    TextStream* aStream = AsTextStream(theStream);
-    memset(aStream, 0, kStreamBytes);
+    TextStream* aStream = ConstructRaw(AsTextStream(theStream));
     aStream->mMode = (unsigned int)theMode | 8u;
-    aStream->mText.mData = gEmptyStringData;
-    aStream->mStringBuf = nullptr;
-    aStream->mCursor = 0;
     if (theSource != nullptr)
         aStream->mText = *theSource;
     return theStream;

@@ -729,7 +729,7 @@ Attachment::Attachment()
     mEffectArray[anEffectIndex].mOffset = Sexy::SexyTransform2D();
 
   // TV registers the effect array, count and dead flag (773 bytes on ARM).
-  const int aSyncBlockSize = sizeof(mEffectArray) + sizeof(mNumEffects) + sizeof(mDead);
+  const size_t aSyncBlockSize = MakeSyncBlock(mEffectArray, mDead).mSize;
   SyncBlockInfo aBlock;
   aBlock.mData = &mEffectArray[0];
   aBlock.mSize = aSyncBlockSize;

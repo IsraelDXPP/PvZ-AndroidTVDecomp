@@ -127,37 +127,5 @@ String* _S_create(String* theResult, unsigned int theLength)
 
 } // namespace StringHelpers
 
-namespace StlInternals {
 
-// Allocate the node map a deque needs. A node holds 128 strings. The map is
-// at least 8 pointers, centered on the nodes the count needs, and the finish
-// cursor sits theCount % 128 into the last node.
-void _M_initialize_map(XMLWriter::StringDeque* theDeque, size_t theCount)
-{
-    if (theDeque == nullptr)
-        return;
-
-    unsigned int theNodes = (unsigned int)(theCount >> 7) + 1;
-    unsigned int theMapSize = theNodes + 2;
-    if (theMapSize < 8)
-        theMapSize = 8;
-
-    Sexy::String** theMap = new Sexy::String*[theMapSize];
-    unsigned int theStart = (theMapSize - theNodes) >> 1;
-    for (unsigned int i = 0; i < theNodes; ++i)
-        theMap[theStart + i] = static_cast<Sexy::String*>(static_cast<void*>(new char[512]));
-
-    theDeque->mMap = theMap;
-    theDeque->mMapSize = theMapSize;
-    theDeque->mStartNode = theMap + theStart;
-    theDeque->mFinishNode = theMap + theStart + theNodes - 1;
-    theDeque->mStartFirst = theMap[theStart];
-    theDeque->mStartLast = theMap[theStart] + 128;
-    theDeque->mStartCur = theMap[theStart];
-    theDeque->mFinishFirst = theDeque->mFinishNode[0];
-    theDeque->mFinishLast = theDeque->mFinishNode[0] + 128;
-    theDeque->mFinishCur = theDeque->mFinishNode[0] + (theCount & 0x7F);
-}
-
-} // namespace StlInternals
 } // namespace Sexy

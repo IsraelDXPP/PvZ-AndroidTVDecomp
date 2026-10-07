@@ -42,6 +42,7 @@
 #include <vector>
 #include <map>
 #include <set>
+#include <deque>
 
 namespace Sexy {
 
@@ -50,67 +51,6 @@ class XMLElement;
 class XMLWriter
 {
 public:
-    // A std::deque<Sexy::String> as libstdc++ lays one out: the node map, the map
-    // size, then the _M_start and _M_finish _Deque_iterators, each of which is
-    // { _M_cur, _M_first, _M_last, _M_node }. sizeof(Sexy::String) == 4, so a node
-    // buffer holds 512/4 = 128 elements and the bodies' 512 / 508 / 4 byte
-    // distances are 128 elements, the last element and one element.
-    //
-    // The iterators are Sexy::String pointers. A node holds 128 of them.
-    struct StringDeque
-    {
-        Sexy::String **mMap;        // +0x00  _M_map
-        unsigned int mMapSize;       // +0x04
-        Sexy::String *mStartCur;     // +0x08  _M_start._M_cur
-        Sexy::String *mStartFirst;   // +0x0C  _M_start._M_first
-        Sexy::String *mStartLast;    // +0x10  _M_start._M_last
-        Sexy::String **mStartNode;   // +0x14  _M_start._M_node
-        Sexy::String *mFinishCur;    // +0x18  _M_finish._M_cur
-        Sexy::String *mFinishFirst;  // +0x1C  _M_finish._M_first
-        Sexy::String *mFinishLast;   // +0x20  _M_finish._M_last
-        Sexy::String **mFinishNode;  // +0x24  _M_finish._M_node
-
-        // libstdc++ deque<String>::size: 128 strings per 512-byte node.
-        int Size() const
-        {
-            return (int)(mFinishCur - mFinishFirst)
-                + (((int)(mFinishNode - mStartNode) - 1) << 7)
-                + (int)(mStartLast - mStartCur);
-        }
-
-        // The string just before _M_finish, wrapping to the previous node
-        // when the cursor sits on the first slot of this node.
-        Sexy::String *Back() const
-        {
-            if (mFinishCur == mFinishFirst)
-                return *(mFinishNode - 1) + 127;
-            return mFinishCur - 1;
-        }
-
-        // Destroy that string and step _M_finish back. At a node boundary the
-        // emptied node buffer is freed and the iterator moves to the previous
-        // node's last string. Matches StopElement @0x3B7F2C.
-        void PopBack()
-        {
-            if (mFinishCur == mFinishFirst)
-            {
-                operator delete(mFinishCur);
-                Sexy::String **aNode = mFinishNode - 1;
-                mFinishNode = aNode;
-                Sexy::String *aFirst = *aNode;
-                mFinishFirst = aFirst;
-                mFinishLast = aFirst + 128;
-                mFinishCur = aFirst + 127;
-                (aFirst + 127)->~String();
-            }
-            else
-            {
-                --mFinishCur;
-                mFinishCur->~String();
-            }
-        }
-    };
-
 public:
     virtual ~XMLWriter();
 
@@ -157,16 +97,9 @@ public:
     bool mWritingToMemory;   // no FILE*, the output goes to mOutputText
     Sexy::String mOutputText; // +0x18, everything the writer emits is appended here
     char mBuffer[0x400];     // +0x1C .. +0x41B, memset to 0 by Init
-    StringDeque mElements;   // +0x41C .. +0x443, the open-element stack
-    StringDeque mComments;   // the pending-comment stack
+    std::deque<Sexy::String> mElements;   // +0x41C .. +0x443, the open-element stack
+    std::deque<Sexy::String> mComments;   // the pending-comment stack
 };
-
-// std::_Deque_base<string>::_M_initialize_map @0x3B8980. The body is in
-// CxxRuntime.cpp; the declaration lives here because StringDeque is a member
-// of XMLWriter and is not complete until this class closes.
-namespace StlInternals {
-void _M_initialize_map(XMLWriter::StringDeque* theDeque, size_t theCount);
-}
 
 } // namespace Sexy
 

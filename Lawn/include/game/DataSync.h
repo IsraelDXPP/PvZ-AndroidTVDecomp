@@ -7,8 +7,7 @@
 // The member names come from the PC reference source
 // (LawnProject\src\Lawn\DataSync.h), which declares the same five fields in the
 // same order; the offsets are the raw `this`-relative ones DataSync.cpp uses.
-// The two pointer maps are modelled with Sexy\ReconTypes.h's MapStorage, which
-// is word for word the old libstdc++ std::map layout DataSync.cpp walks.
+// Pointer indices are stored in ordinary maps using native pointer keys.
 
 #pragma once
 
@@ -16,6 +15,7 @@
 #include "DataReader.h"
 #include "DataWriter.h"
 #include <vector>
+#include <map>
 
 class DataSync
 {
@@ -84,8 +84,8 @@ public:
     int SyncSByte(short &theNum);
     int SyncSByte(char &theNum);
     int SyncBool(bool &theValue);
-    int SyncFloat(float &theValue);
-    int SyncDouble(double &theValue);
+    void SyncFloat(float &theValue);
+    void SyncDouble(double &theValue);
     int SyncString(Sexy::String &theString);
     int SyncPointer(void **theSlot);
     int ResetPointerTable();
@@ -104,35 +104,12 @@ public:
     DataReader *mReader;      // +0x04, PC: DataReader* mReader
     DataWriter *mWriter;      // +0x08, PC: DataWriter* mWriter
     int mVersion;             // +0x0C, PC: int mVersion
-    // The two pointer maps, in libstdc++'s layout: the stateless comparator
-    // first, then the _Rb_tree_header (whose mParent is the root and whose own
-    // address is end()) and the node count. MapStorage is the same 24-byte
-    // block Sexy\ReconTypes.h models for every other tree in this build, and
-    // the two of them together are the 0x30 bytes the transcription left as a
-    // bare array. The helpers DataSync.cpp calls carry the instantiation in
-    // their mangled names, which fixes which is which:
-    //   +0x10  std::map<void *, int>  _Rb_tree<void *, pair<void * const, int>>
-    //   +0x28  std::map<int, void *>  _Rb_tree<int, pair<int const, void *>>
-    Sexy::RbTree::MapStorage mPointerToIntMap;   // +0x10, PC: mPointerToIntMap
-    Sexy::RbTree::MapStorage mIntToPointerMap;   // +0x28, PC: mIntToPointerMap
-
-    // A node of either tree. libstdc++'s _Rb_tree_node is the 16-byte link
-    // block followed by the pair the tree stores, so the key is at +0x10 and
-    // the value at +0x14 whichever way round the map is.
-    struct PointerToIntNode : Sexy::RbTree::NodeBase
-    {
-        void *mKey;      // +0x10
-        int   mValue;    // +0x14
-    };
-    struct IntToPointerNode : Sexy::RbTree::NodeBase
-    {
-        int   mKey;      // +0x10
-        void *mValue;    // +0x14
-    };
+    // Save files refer to registered pointers through fixed-width integer IDs.
+    std::map<void *, int> mPointerToIntMap;
+    std::map<int, void *> mIntToPointerMap;
 
     // Address of each pointer slot SyncPointer was handed. SyncPointers writes
     // the resolved pointer back through that address.
     std::vector<void **> mPointerSyncList;
     int mCurPointerIndex;
 };
-

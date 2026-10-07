@@ -20,6 +20,7 @@
 #include "RawObject.h"
 #include <cstring>
 #include <vector>
+#include <limits>
 
 
 // ==========================================================================
@@ -69,9 +70,14 @@ unsigned int SaveGameContext::SyncInt(int &theValue)
 // SaveGameContext::SyncBytes(void *,int)
 // @001426B0  84 bytes
 // ==========================================================================
-signed int SaveGameContext::SyncBytes(void *theData, int theSize)
+signed int SaveGameContext::SyncBytes(void *theData, size_t theSize)
 {
-  int aFileSize = theSize;
+  if (theSize > static_cast<size_t>(std::numeric_limits<int>::max()))
+  {
+    mReadError = true;
+    return 0;
+  }
+  int aFileSize = static_cast<int>(theSize);
   signed int aResult = SyncInt(aFileSize);
   if (mReading == 0)
   {
@@ -237,7 +243,8 @@ Sexy::Image * SaveGameContext::SyncImage(Sexy::Image *&theImage)
 namespace {
 
 const int kSaveMagic = -17965395;
-const int kSaveVersion = 8;
+const int kSaveVersion = 9;
+const int kSavePointerSize = sizeof(void *);
 
 template<class T>
 struct SaveArraySlot
@@ -313,13 +320,10 @@ void SyncDataIDList(List &theList, SaveGameContext *theContext, TodAllocator *th
 {
     if (theContext->mReading)
     {
-        if (theList.mHead != nullptr)
-        {
-            theList.mpAllocator = thePool;
-            theList.mHead = nullptr;
-            theList.mTail = nullptr;
-            theList.mSize = 0;
-        }
+        theList.mpAllocator = thePool;
+        theList.mHead = nullptr;
+        theList.mTail = nullptr;
+        theList.mSize = 0;
         int aCount = 0;
         theContext->SyncInt(aCount);
         for (int i = 0; i < aCount; ++i)
@@ -329,7 +333,7 @@ void SyncDataIDList(List &theList, SaveGameContext *theContext, TodAllocator *th
             TodAllocator *aPool = theList.mpAllocator;
             if (aPool == nullptr)
             {
-                aPool = FindGlobalAllocator(12);
+                aPool = FindGlobalAllocator(sizeof(DataIdNode));
                 theList.mpAllocator = aPool;
             }
             DataIdNode *aNode = static_cast<DataIdNode *>(TodAllocatorAlloc(aPool));
@@ -400,26 +404,51 @@ void SyncReanimationState(SaveGameContext *theContext, Board *theBoard, Reanimat
     theContext->SyncReanimationDef(theReanim->mDefinition);
     if (theContext->mReading)
         theReanim->mReanimationHolder = theBoard->mApp->mEffectSystem->mReanimationHolder;
+    if (theContext->mReadError || theReanim->mDefinition == nullptr)
+    {
+        theContext->mReadError = true;
+        return;
+    }
     int aTrackCount = theReanim->mDefinition->mTrackCount;
     if (aTrackCount == 0)
+    {
+        if (theContext->mReading)
+        {
+            theReanim->mTrackInstances = nullptr;
+            theReanim->mReanimatorTransforms = nullptr;
+        }
         return;
+    }
     if (theContext->mReading)
     {
-        TodAllocator *aPool = FindGlobalAllocator(148 * aTrackCount);
+        size_t aBufferSize = (sizeof(ReanimatorTrackInstance) + sizeof(ReanimatorTransform)) * aTrackCount;
+        TodAllocator *aPool = FindGlobalAllocator(aBufferSize);
         ReanimatorTrackInstance *aInstances =
             static_cast<ReanimatorTrackInstance *>(TodAllocatorAlloc(aPool));
-        std::memset(aInstances, 0, 148 * aTrackCount);
+        std::memset(aInstances, 0, aBufferSize);
         theReanim->mTrackInstances = aInstances;
-        theReanim->mReanimatorTransforms = (ReanimatorTransform *)&aInstances[aTrackCount];
+        theReanim->mReanimatorTransforms = reinterpret_cast<ReanimatorTransform *>(&aInstances[aTrackCount]);
+        for (int aTrackIndex = 0; aTrackIndex < aTrackCount; ++aTrackIndex)
+        {
+            ConstructRaw<ReanimatorTrackInstance>(&aInstances[aTrackIndex]);
+            ConstructRaw<ReanimatorTransform>(&theReanim->mReanimatorTransforms[aTrackIndex]);
+        }
         theReanim->mDirtyFlags = 7;
+        theReanim->mFrameTimeReady = false;
         theReanim->SetAnimRate(theReanim->mAnimRate);
     }
-    theContext->SyncBytes(theReanim->mTrackInstances, 100 * aTrackCount);
+    theContext->SyncBytes(theReanim->mTrackInstances, sizeof(ReanimatorTrackInstance) * aTrackCount);
     for (int i = 0; i < aTrackCount; ++i)
     {
         theContext->SyncImage(theReanim->mTrackInstances[i].mImageOverride);
         if (theContext->mReading)
-            theReanim->mTrackInstances[i].mBlendTransform.mText = gEmptyCString;
+        {
+            ReanimatorTransform &aBlend = theReanim->mTrackInstances[i].mBlendTransform;
+            aBlend.mImage = nullptr;
+            aBlend.mImage2 = nullptr;
+            aBlend.mFont = nullptr;
+            aBlend.mText = gEmptyCString;
+        }
     }
 }
 
@@ -567,7 +596,7 @@ bool LawnSaveGame(Board *theBoard, const Sexy::String &theFileName)
         return true;
 
     SaveGameContext context;
-    int header[] = {kSaveMagic, kSaveVersion, 0};
+    int header[] = {kSaveMagic, kSaveVersion, kSavePointerSize};
     context.SyncBytes(header, sizeof(header));
     SyncBoard(&context, theBoard);
     bool saved = theBoard->mApp->WriteBufferToFile(theFileName, &context);
@@ -584,16 +613,16 @@ int LawnLoadGame(Board *theBoard, SaveGameContext *theContext)
     {
         int mMagic;
         unsigned int mVersion;
-        int mPad;
+        int mPointerSize;
     };
     SaveHeader aHeader = {};
-    theContext->SyncBytes(&aHeader, 12);
-    if (theContext->mReadError || aHeader.mMagic != kSaveMagic || aHeader.mVersion > 8)
+    theContext->SyncBytes(&aHeader, sizeof(aHeader));
+    if (theContext->mReadError || aHeader.mMagic != kSaveMagic || aHeader.mVersion > kSaveVersion)
     {
         gLawnApp->HandleCorruptedGameFile();
         return 0;
     }
-    if (aHeader.mVersion != 8)
+    if (aHeader.mVersion != kSaveVersion || aHeader.mPointerSize != kSavePointerSize)
     {
         gLawnApp->HandleOldGameFile();
         return 0;

@@ -795,7 +795,7 @@ Music::Music()
     // mCurMusicTune (+0x18) up to mPauseVolume (+0x60), 72 bytes. Registering
     // it and then clearing it is how the binary initialises the tail of the
     // object, so every field below is written after the clear.
-    const int aSyncBlockSize = 72;
+    const size_t aSyncBlockSize = MakeSyncBlock(mCurMusicTune, mNormalVolume).mSize;
     SyncBlockInfo aBlock;
     aBlock.mData = &mCurMusicTune;
     aBlock.mSize = aSyncBlockSize;

@@ -43,15 +43,6 @@
 // ==========================================================================
 CutScene::CutScene()
 {
-    // The tail is a libstdc++ std::set of the resource names LoadResources has
-    // already loaded; this is `_Rb_tree_header::_M_header`'s own
-    // initialisation. The comparator word at +0x60 is never written.
-    mLoadedResources.mHeader.mColor = 0;
-    mLoadedResources.mHeader.mParent = nullptr;
-    mLoadedResources.mHeader.mLeft = &mLoadedResources.mHeader;
-    mLoadedResources.mHeader.mRight = &mLoadedResources.mHeader;
-    mLoadedResources.mCount = 0;
-
     mMPWonPosX = 0.0f;
     mMPWonPosY = 0.0f;
 
@@ -1710,13 +1701,6 @@ void CutScene::DrawGameObjectsHook(BoardRenderItem *aList, int &aCount)
   ++aCount;
 }
 
-// libstdc++'s _Rb_tree_node<Sexy::String>: the four-word node base followed by
-// the stored string, which is what mLoadedResources holds one of per resource.
-struct CutSceneResourceNode : Sexy::RbTree::NodeBase
-{
-  Sexy::String mName;   // +0x10
-};
-
 // ==========================================================================
 // CutScene::~CutScene()
 // @001797EC  70 bytes
@@ -1733,13 +1717,8 @@ CutScene::~CutScene()
   // The cutscene is over, so the app may make noise again, and every resource
   // the intro loaded is this object's to release.
   mApp->mMuteSoundsForCutscene = false;
-  for ( CutSceneResourceNode *aNode = (CutSceneResourceNode *)mLoadedResources.mHeader.mLeft;
-        aNode != (CutSceneResourceNode *)&mLoadedResources.mHeader;
-        aNode = (CutSceneResourceNode *)Sexy::RbTree::_M_increment(aNode) )
-  {
-    TodDeleteResources(aNode->mName);
-  }
-  Sexy::RbTree::_M_erase(mLoadedResources.mHeader.mParent);
+  for (const Sexy::String &aGroup : mLoadedResources)
+    TodDeleteResources(aGroup);
 }
 
 // ==========================================================================
@@ -1748,17 +1727,12 @@ CutScene::~CutScene()
 // ==========================================================================
 int CutScene::LoadResources(Sexy::String const& theGroup)
 {
-  // The set is the list of names already loaded, so asking for one twice is a
-  // no-op. find returns the header node when the name is absent. A hit returns
-  // 0 without loading. A miss loads, and on success inserts the name. Callers
-  // only test the result for zero, so the inserted node is discarded and the
-  // load result is what comes back.
-  if (Sexy::RbTree::find(&mLoadedResources, &theGroup) != &mLoadedResources.mHeader)
+  if (mLoadedResources.find(theGroup) != mLoadedResources.end())
     return 0;
 
   int aResult = TodLoadResources(theGroup);
   if (aResult != 0)
-    Sexy::RbTree::_M_insert_unique(&mLoadedResources, &theGroup);
+    mLoadedResources.insert(theGroup);
   return aResult;
 }
 

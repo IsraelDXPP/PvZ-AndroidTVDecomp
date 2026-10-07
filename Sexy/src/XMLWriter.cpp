@@ -13,77 +13,6 @@
 #include <cstdio>
 #include <cstring>
 
-// ---------------------------------------------------------------------------
-// TODO(recon): the dump calls `std::deque<Sexy::String>::_M_push_back_aux(deque)`
-// (libstdc++'s debug-mode slow path, which appends and returns the new slot).
-// The open-element and comment stacks are deques. This shim appends one string
-// and keeps the node map consistent. A node holds 128 strings.
-// ---------------------------------------------------------------------------
-static Sexy::String *XmlWriterPushBackString(XMLWriter::StringDeque *theDeque, const Sexy::String& theValue)
-{
-  // The caller arrives with finish sitting on the last slot of the current
-  // node. The new string goes in that slot, then finish moves to a fresh node.
-  unsigned int aIndex = (unsigned int)(theDeque->mFinishNode - theDeque->mMap);
-  if (aIndex + 1 >= theDeque->mMapSize)
-  {
-    unsigned int aNewSize = theDeque->mMapSize == 0 ? 3u : theDeque->mMapSize * 2 + 2;
-    Sexy::String **aNewMap = new Sexy::String *[aNewSize];
-    unsigned int aUsed = aIndex + 1;
-    unsigned int aShift = (aNewSize - aUsed) / 2;
-    for (unsigned int i = 0; i < aUsed; ++i)
-      aNewMap[aShift + i] = theDeque->mMap[i];
-    unsigned int aStartIndex = (unsigned int)(theDeque->mStartNode - theDeque->mMap);
-    delete[] theDeque->mMap;
-    theDeque->mMap = aNewMap;
-    theDeque->mMapSize = aNewSize;
-    theDeque->mStartNode = aNewMap + aShift + aStartIndex;
-    theDeque->mFinishNode = aNewMap + aShift + aIndex;
-  }
-
-  Sexy::String *aSlot = theDeque->mFinishCur;
-  if (aSlot != nullptr)
-    new (aSlot) Sexy::String(theValue);
-  Sexy::String *aBuffer = static_cast<Sexy::String *>(static_cast<void *>(new char[512]));
-  theDeque->mFinishNode[1] = aBuffer;
-  theDeque->mFinishNode += 1;
-  theDeque->mFinishFirst = aBuffer;
-  theDeque->mFinishCur = aBuffer;
-  theDeque->mFinishLast = aBuffer + 128;
-  return aSlot;
-}
-
-// ---------------------------------------------------------------------------
-// TODO(recon): the dump ends the constructor with
-// `std::_Deque_base<Sexy::String>::~_Deque_base(deque, map)` for the two
-// temporaries it built. ReconHelpers.h declares StlInternals with only
-// _M_initialize_map, so the release is done here: free each node buffer the
-// map points at, then the map itself. Main agent: add
-// `void StlInternals::_M_deallocate_map(void* theDeque);` and drop this shim.
-// ---------------------------------------------------------------------------
-static void XmlWriterDequeRelease(XMLWriter::StringDeque *theDeque)
-{
-  // Destroy every live string, free each node buffer the map owns, then the
-  // map. The constructor's temporaries are empty, so this only frees buffers.
-  if (theDeque->mStartCur != nullptr && theDeque->mFinishCur != nullptr)
-  {
-    while (theDeque->Size() > 0)
-      theDeque->PopBack();
-  }
-  Sexy::String **aBegin = theDeque->mStartNode;
-  Sexy::String **aEnd = theDeque->mFinishNode;
-  if (aBegin != nullptr && aEnd != nullptr)
-  {
-    for (Sexy::String **aNode = aBegin; aNode <= aEnd; ++aNode)
-      operator delete(*aNode);
-  }
-  delete[] theDeque->mMap;
-  theDeque->mMap = nullptr;
-  theDeque->mMapSize = 0;
-  theDeque->mStartCur = nullptr;
-  theDeque->mStartNode = nullptr;
-  theDeque->mFinishNode = nullptr;
-}
-
 // ==========================================================================
 // Sexy::XMLWriter::Fail(Sexy::String const&)
 // @003B7D80  10 bytes
@@ -237,14 +166,14 @@ int Sexy::XMLWriter::StopElement()
   CheckFileOpen();
   if (mHasFailed)
     return 0;
-  if (mElements.mFinishCur == mElements.mStartCur)
+  if (mElements.empty())
   {
     Fail(Sexy::String("Stop Element Calls do not match StartElement Calls."));
     return 0;
   }
 
-  Sexy::String aName = *mElements.Back();
-  mElements.PopBack();
+  Sexy::String aName = mElements.back();
+  mElements.pop_back();
 
   bool& aAttributesOpen = mAttributesOpen;
   if (aAttributesOpen)
@@ -254,7 +183,7 @@ int Sexy::XMLWriter::StopElement()
   }
   else
   {
-    int aDepth = mElements.Size();
+    int aDepth = mElements.size();
     for (int aTab = 0; aTab < aDepth; ++aTab)
       mOutputText.Append("\t", 1u);
     sprintf(mBuffer, "</%s>\n", aName.c_str());
@@ -262,11 +191,11 @@ int Sexy::XMLWriter::StopElement()
   }
 
   aAttributesOpen = false;
-  while (mComments.mStartCur != mComments.mFinishCur)
+  while (!mComments.empty())
   {
-    sprintf(mBuffer, "<!--  %s -->\n", mComments.Back()->c_str());
+    sprintf(mBuffer, "<!--  %s -->\n", mComments.back().c_str());
     mOutputText.Append(mBuffer, (unsigned int)strlen(mBuffer));
-    mComments.PopBack();
+    mComments.pop_back();
   }
   return 1;
 }
@@ -277,7 +206,7 @@ int Sexy::XMLWriter::StopElement()
 // ==========================================================================
 int Sexy::XMLWriter::CloseFile()
 {
-  while (mElements.mFinishCur != mElements.mStartCur)
+  while (!mElements.empty())
     StopElement();
   if (mFile != nullptr)
   {
@@ -314,19 +243,10 @@ int Sexy::XMLWriter::OpenFile(Sexy::String const& theFileName)
 // Sexy::XMLWriter::Comment(Sexy::String const&)
 // @003B8B44  48 bytes
 // ==========================================================================
-Sexy::String *Sexy::XMLWriter::Comment(Sexy::String const& theComment)
+Sexy::String *Sexy::XMLWriter::Comment(const Sexy::String &theComment)
 {
-  Sexy::String *aSlot = mComments.mFinishCur;
-  Sexy::String *aLast = mComments.mFinishLast;
-  if (aSlot == aLast - 1)
-    return XmlWriterPushBackString(&mComments, theComment);
-  if (aSlot != nullptr)
-  {
-    new (aSlot) Sexy::String(theComment);
-    aSlot = mComments.mFinishCur;
-  }
-  mComments.mFinishCur = aSlot + 1;
-  return aSlot;
+  mComments.push_back(theComment);
+  return &mComments.back();
 }
 
 // ==========================================================================
@@ -351,8 +271,8 @@ int Sexy::XMLWriter::WriteAttribute(Sexy::String const& theName, Sexy::String co
   bool& aAttributesOpen = mAttributesOpen;
   if (!aAttributesOpen)
   {
-    if (mElements.Size() != 0)
-      Fail(Sexy::String("Attributes Section already closed for ") + *mElements.Back());
+    if (mElements.size() != 0)
+      Fail(Sexy::String("Attributes Section already closed for ") + *&mElements.back());
     else
       Fail(Sexy::String("No Element Nodes Open for Writing Attributes."));
     return 0;
@@ -407,31 +327,16 @@ int Sexy::XMLWriter::StartElement(Sexy::String const& theName)
   if (ValidateElementNodeName(theName) == 0)
     Warn(theName + " is an Invalid Node Name.");
 
-  while (mComments.mStartCur != mComments.mFinishCur)
+  while (!mComments.empty())
   {
-    sprintf(mBuffer, "<!--  %s -->\n", mComments.Back()->c_str());
+    sprintf(mBuffer, "<!--  %s -->\n", mComments.back().c_str());
     mOutputText.Append(mBuffer, (unsigned int)strlen(mBuffer));
-    mComments.PopBack();
+    mComments.pop_back();
   }
 
-  // Same push as Comment, onto the open-element stack.
-  {
-    Sexy::String *aSlot = mElements.mFinishCur;
-    Sexy::String *aLast = mElements.mFinishLast;
-    if (aSlot == aLast - 1)
-      XmlWriterPushBackString(&mElements, theName);
-    else
-    {
-      if (aSlot != nullptr)
-      {
-        new (aSlot) Sexy::String(theName);
-        aSlot = mElements.mFinishCur;
-      }
-      mElements.mFinishCur = aSlot + 1;
-    }
-  }
+  mElements.push_back(theName);
 
-  int aDepth = mElements.Size();
+  int aDepth = mElements.size();
   for (int aTab = 1; aTab < aDepth; ++aTab)
     mOutputText.Append("\t", 1u);
   sprintf(mBuffer, "<%s", theName.c_str());
@@ -473,78 +378,11 @@ int Sexy::XMLWriter::AddAttribute(Sexy::XMLElement *theElement, Sexy::String con
 }
 
 // ==========================================================================
-// Sexy::XMLWriter::XMLWriter()
-// @003B9488  1386 bytes
-// ==========================================================================
+// Sexy::XMLWriter::XMLWriter() @0x3B9488
 Sexy::XMLWriter::XMLWriter()
+    : mLineNum(0), mFile(nullptr), mHasFailed(false), mSpareFlag(false),
+      mAttributesOpen(false), mWritingToMemory(false), mBuffer{}
 {
-  // @0x3B9488 builds an empty temporary deque, copies its (empty) size into
-  // mElements, destroys the temporary, then does the same for mComments. The
-  // net state is two empty deques plus the three empty strings and the flags.
-  StringDeque aScratch;
-  aScratch.mMap = nullptr;
-  aScratch.mMapSize = 0;
-  aScratch.mStartCur = nullptr;
-  aScratch.mStartFirst = nullptr;
-  aScratch.mStartLast = nullptr;
-  aScratch.mStartNode = nullptr;
-  aScratch.mFinishCur = nullptr;
-  aScratch.mFinishFirst = nullptr;
-  aScratch.mFinishLast = nullptr;
-  aScratch.mFinishNode = nullptr;
-  Sexy::StlInternals::_M_initialize_map(&aScratch, 0);
-
-  mFileName = "";
-  mErrorText = "";
-  mOutputText = "";
-
-  mElements.mMap = nullptr;
-  mElements.mMapSize = 0;
-  mElements.mStartCur = nullptr;
-  mElements.mStartFirst = nullptr;
-  mElements.mStartLast = nullptr;
-  mElements.mStartNode = nullptr;
-  mElements.mFinishCur = nullptr;
-  mElements.mFinishFirst = nullptr;
-  mElements.mFinishLast = nullptr;
-  mElements.mFinishNode = nullptr;
-  Sexy::StlInternals::_M_initialize_map(&mElements, aScratch.Size());
-  XmlWriterDequeRelease(&aScratch);
-
-  StringDeque aCommentsScratch;
-  aCommentsScratch.mMap = nullptr;
-  aCommentsScratch.mMapSize = 0;
-  aCommentsScratch.mStartCur = nullptr;
-  aCommentsScratch.mStartFirst = nullptr;
-  aCommentsScratch.mStartLast = nullptr;
-  aCommentsScratch.mStartNode = nullptr;
-  aCommentsScratch.mFinishCur = nullptr;
-  aCommentsScratch.mFinishFirst = nullptr;
-  aCommentsScratch.mFinishLast = nullptr;
-  aCommentsScratch.mFinishNode = nullptr;
-  Sexy::StlInternals::_M_initialize_map(&aCommentsScratch, 0);
-
-  mComments.mMap = nullptr;
-  mComments.mMapSize = 0;
-  mComments.mStartCur = nullptr;
-  mComments.mStartFirst = nullptr;
-  mComments.mStartLast = nullptr;
-  mComments.mStartNode = nullptr;
-  mComments.mFinishCur = nullptr;
-  mComments.mFinishFirst = nullptr;
-  mComments.mFinishLast = nullptr;
-  mComments.mFinishNode = nullptr;
-  Sexy::StlInternals::_M_initialize_map(&mComments, aCommentsScratch.Size());
-  XmlWriterDequeRelease(&aCommentsScratch);
-
-  mFile = nullptr;
-  mLineNum = 0;
-  bool& aWriterFlag = mSpareFlag;
-  bool& aAttributesOpen = mAttributesOpen;
-  bool& aWritingToMemory = mWritingToMemory;
-  aWriterFlag = false;
-  aAttributesOpen = false;
-  aWritingToMemory = false;
 }
 
 // ==========================================================================
@@ -565,23 +403,5 @@ Sexy::XMLWriter::~XMLWriter()
     mFile = nullptr;
   }
 
-  // Then the two std::deque<Sexy::String> stacks at +0x41C (mElements) and
-  // +0x444 (mComments) are released. Each element is a COW string, so the dump
-  // walks the deque's node map, drops every string's rep and frees the node
-  // buffers and the map itself. This file already has that operation under the
-  // name XmlWriterDequeRelease (the same shim the constructor uses), and the
-  // two walks in the dump are it applied to each deque in turn.
-  //
-  // The bodies drive the deques through std::deque's private members, which
-  // this tree models as the bare StringDeque word blocks rather than as a real
-  // container, so there is no destructor to lean on and both releases are
-  // written out.
-  XmlWriterDequeRelease(&mElements);
-  XmlWriterDequeRelease(&mComments);
 
-  // The three trailing statements are the releases of mErrorText (+0x08),
-  // mOutputText (+0x18) and mFileName (+0x04), in that order. All three are
-  // Sexy::String members, whose own destructors perform exactly the dump's
-  // "subtract 12, drop the refcount, free at zero", so they are not written
-  // here. mBuffer (+0x1C) is an in-object char array and owns nothing.
 }

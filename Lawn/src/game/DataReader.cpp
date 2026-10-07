@@ -113,18 +113,18 @@ bool DataReader::ReadBool()
     return ReadByte() != 0;
 }
 
-// The four raw bytes. Callers that want a float bit-cast the int themselves.
-int DataReader::ReadFloat()
+// @0x189970 and @0x189984: return the stored floating-point value.
+float DataReader::ReadFloat()
 {
-    int value = 0;
-    ReadBytes(&value, 4u);
+    float value = 0.0f;
+    ReadBytes(&value, sizeof(value));
     return value;
 }
 
-long long DataReader::ReadDouble()
+double DataReader::ReadDouble()
 {
-    long long value = 0;
-    ReadBytes(&value, 8u);
+    double value = 0.0;
+    ReadBytes(&value, sizeof(value));
     return value;
 }
 

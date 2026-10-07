@@ -46,7 +46,7 @@ public:
     int Shutdown();
     int StartTask(LawnSessionTask *theTask);
     int IsTaskDone();
-    int * HandleTask();
+    bool HandleTask();
     LawnSession * SessionThreadProc(void *theUnused);
 };
 

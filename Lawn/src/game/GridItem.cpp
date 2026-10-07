@@ -745,7 +745,8 @@ int GridItem::TakeDamage(int theDamage, unsigned int theFlags)
       return 0;
     }
 
-    return (int)GridItemDie();
+    GridItemDie();
+    return 0;
   }
 
   if ( mGridItemType != GRIDITEM_GRAVESTONE )
@@ -761,7 +762,10 @@ int GridItem::TakeDamage(int theDamage, unsigned int theFlags)
   const int aNewHealth = aOldHealth - theDamage;
   mVSGraveStoneHealth = aNewHealth;
   if ( aNewHealth <= 0 )
-    return (int)GridItemDie();
+  {
+    GridItemDie();
+    return 0;
+  }
 
   mGraveJustGotShotCounter = std::max(mGraveJustGotShotCounter, 25);
 
@@ -816,11 +820,9 @@ GridItem::GridItem()
   // range. The dump renders the registration as a mislabelled `_M_insert_aux` on
   // an empty vector, which is what push_back does. The transcriber scaled the base
   // offset by 4 on the way out and wrote +96 where the binary uses +0x18.
-  SyncBlockInfo aBlock;
-  aBlock.mData = &mGridItemType;
-  aBlock.mSize = 260;
+  SyncBlockInfo aBlock = MakeSyncBlock(mGridItemType, mVSTargetZombieDieCounter);
   mSyncBlocks.push_back(aBlock);
-  memset(&mGridItemType, 0, 260);
+  memset(aBlock.mData, 0, aBlock.mSize);
 
   mApp = (LawnApp *)gSexyAppBase;
   mBoard = mApp->mBoard;
@@ -955,7 +957,10 @@ int GridItem::Update()
     if ( mVSTargetZombieDieCounter > 0 )
     {
       if ( --mVSTargetZombieDieCounter == 0 )
-        return (int)GridItemDie();
+      {
+        GridItemDie();
+        return 0;
+      }
       return 0;
     }
 

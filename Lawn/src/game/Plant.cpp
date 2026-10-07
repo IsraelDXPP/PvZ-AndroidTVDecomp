@@ -5821,7 +5821,7 @@ Plant::Plant()
   // i.e. it multiplied the 52-word offset by 4 a second time; 208 + 290 also
   // runs past the end of the 0x15C-byte object, which is what gives the error
   // away.
-  const int aSyncBlockSize = 290;
+  const size_t aSyncBlockSize = MakeSyncBlock(mSeedType, mHighlighted).mSize;
   SyncBlockInfo aBlock;
   aBlock.mData = &mSeedType;
   aBlock.mSize = aSyncBlockSize;

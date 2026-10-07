@@ -40,19 +40,10 @@
 namespace Sexy { bool FileExists(const Sexy::String& thePath); }
 namespace Sexy { int GetFileDate(const Sexy::String& thePath); }
 
-// ImageRes embeds AnimInfo, and AnimInfo's vectors are no longer the 12-byte
-// stand-in the size checks at the bottom of ResourceManager.h were written
-// against. Those checks are not this class's. The macro keeps them from
-// firing while the header is parsed; the class itself is unchanged.
-#define static_assert(cond, msg) struct ResourceAssertNotThisClass
 #include "ResourceManager.h"
-#undef static_assert
 
 namespace {
 
-const int kParticleSlotStride = 60;
-const int kTrailSlotStride = 252;
-const int kReanimSlotStride = 220;
 const int kMaxImageNames = 100;
 const int kMaxReanimDefs = 100;
 const int kBuddyFrames = 32;

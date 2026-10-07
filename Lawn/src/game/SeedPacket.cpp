@@ -956,11 +956,9 @@ SeedPacket::SeedPacket()
 {
     // The packet's own synced range is the 60 bytes from the refresh counter
     // through the selection scale.
-    SyncBlockInfo block;
-    block.mData = &mRefreshCounter;
-    block.mSize = 60;
+    SyncBlockInfo block = MakeSyncBlock(mRefreshCounter, mSelectScale);
     mSyncBlocks.push_back(block);
-    std::memset(&mRefreshCounter, 0, 60);
+    std::memset(block.mData, 0, block.mSize);
 
     mSlotMachiningPosition = 0.0f;
     mActive = true;

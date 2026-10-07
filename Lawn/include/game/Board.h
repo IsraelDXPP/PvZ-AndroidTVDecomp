@@ -710,7 +710,7 @@ public:
     int DrawFadeOut(Sexy::Graphics * g);
     void UpdateLevelEndSequence();
     int RemoveParticleByType(ParticleEffect theEffect);
-    int GetWinningZombie();
+    Zombie *GetWinningZombie();
     int ResetFPSStats();
     int PlantUsesAcceleratedPricing(SeedType theSeedType);
     int GetCurrentPlantCost(SeedType theSeedType, SeedType theImitaterType);

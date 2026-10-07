@@ -307,11 +307,9 @@ void SeedBank::RefreshAllPackets()
 
 SeedBank::SeedBank(bool theIsZombie)
 {
-    SyncBlockInfo aBlock;
-    aBlock.mData = &mNumPackets;
-    aBlock.mSize = 13;
+    SyncBlockInfo aBlock = MakeSyncBlock(mNumPackets, mIsZombie);
     mSyncBlocks.push_back(aBlock);
-    memset(&mNumPackets, 0, 13);
+    memset(aBlock.mData, 0, aBlock.mSize);
 
     mWidth = IMAGE_SEEDBANK->GetWidth();
     mHeight = IMAGE_SEEDBANK->GetHeight();

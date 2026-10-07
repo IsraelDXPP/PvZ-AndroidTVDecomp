@@ -8,6 +8,7 @@
 #include "ReconTypes.h"
 #include "Bezier.h"
 #include "PIValue.h"
+#include "PIInterpolator.h"
 
 namespace Sexy {
 
@@ -19,10 +20,8 @@ public:
     int mUnused008;
     Sexy::PIValue mValues[28];
     int mSpawnFlags[19];
-    void* mPtr7C8;
-    int mColorKeyEnd;
-    void* mPtr7D4;
-    int mAlphaKeys[6];
+    Sexy::PIInterpolator mColorKeys;
+    Sexy::PIInterpolator mAlphaKeys;
 
     PIParticleDef();
     PIParticleDef(Sexy::PIParticleDef const& other);

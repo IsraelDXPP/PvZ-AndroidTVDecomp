@@ -90,8 +90,8 @@
 #define LOWORD(x)  (*(unsigned short *)&(x))
 #define HIWORD(x)  (*(unsigned short *)((unsigned char *)&(x) + 2))
 #define WORD1(x)   (*(unsigned short *)((unsigned char *)&(x) + 2))
-#define LODWORD(x) (*(_DWORD *)&(x))
-#define HIDWORD(x) (*(_DWORD *)((unsigned char *)&(x) + 4))
+#define LODWORD(x) (*reinterpret_cast<std::uint32_t *>(&(x)))
+#define HIDWORD(x) (*reinterpret_cast<std::uint32_t *>(reinterpret_cast<unsigned char *>(&(x)) + 4))
 
 // The signed spellings (SLODWORD / SHIDWORD / SLOBYTE) are deliberately NOT
 // defined here. They are defined in Sexy/ReconFreeFunctions.h instead, next to

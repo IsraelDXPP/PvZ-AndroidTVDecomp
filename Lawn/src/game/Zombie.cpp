@@ -233,7 +233,7 @@ bool Zombie::IsBouncingPogo()
 // The lob: it leaves 113 pixels right of and 44 above the zombie, aims at the
 // plant's mX/mY, and falls at 0.115. 9 is PROJECTILE_BASKETBALL and 37 is
 // FOLEY_BASKETBALL; 1 is MOTION_LOBBED.
-int Zombie::ZombieCatapultFire(Plant * thePlant)
+void Zombie::ZombieCatapultFire(Plant * thePlant)
 {
     float aPosX = mPosX + 113.0f;
     float aPosY = mPosY - 44.0f;
@@ -268,7 +268,7 @@ int Zombie::ZombieCatapultFire(Plant * thePlant)
     aProjectile->mAccZ = 0.115f;
     aProjectile->mVelZ = (aTargetY - aPosY) * 0.0083333f - 7.0f;
     aProjectile->mVelX = -(aVelX * 0.0083333f);
-    return (int)aProjectile;
+    return;
 }
 
 // ==========================================================================
@@ -451,7 +451,7 @@ int Zombie::NeedsMoreBackupDancers()
 // HEIGHT_DOWN_OFF_HIGH_GROUND (this tree has no such enum, see Zombie.h); the
 // ZOMBIE_POGO test keeps the pogo zombie out, its altitude comes from the
 // bounce phases.
-int Zombie::UpdateZombieHighGround()
+void Zombie::UpdateZombieHighGround()
 {
     if (mZombieType != ZOMBIE_POGO)
     {
@@ -475,20 +475,20 @@ int Zombie::UpdateZombieHighGround()
             }
         }
     }
-    return (int)this;
+    return;
 }
 
 // ==========================================================================
 // Zombie::OverrideParticleScale(TodParticleSystem *)
 // @001A8654  18 bytes
 // ==========================================================================
-int Zombie::OverrideParticleScale(TodParticleSystem * theParticleSystem)
+void Zombie::OverrideParticleScale(TodParticleSystem * theParticleSystem)
 {
     if (theParticleSystem == nullptr)
-        return (int)this;
+        return;
 
     theParticleSystem->OverrideScale(nullptr, mScaleZombie);
-    return (int)this;
+    return;
 }
 
 // ==========================================================================
@@ -498,10 +498,10 @@ int Zombie::OverrideParticleScale(TodParticleSystem * theParticleSystem)
 // A mind-controlled zombie tints its particles white; a chilled or frozen one
 // tints them blue. The static the mind-controlled arm passes is 0xFFFFFFFF,
 // i.e. white.
-int Zombie::OverrideParticleColor(TodParticleSystem * theParticleSystem)
+void Zombie::OverrideParticleColor(TodParticleSystem * theParticleSystem)
 {
     if (theParticleSystem == nullptr)
-        return (int)this;
+        return;
 
     // A mind-controlled zombie tints its particles with the mind-control colour
     // the static constructor installs; a chilled or frozen one tints them blue.
@@ -513,14 +513,14 @@ int Zombie::OverrideParticleColor(TodParticleSystem * theParticleSystem)
     else
     {
         if (mChilledCounter <= 0 && mIceTrapCounter <= 0)
-            return (int)this;
+            return;
 
         Sexy::Color aColor(75, 75, 255, 255);
         theParticleSystem->OverrideColor(nullptr, aColor);
     }
 
     theParticleSystem->OverrideExtraAdditiveDraw(nullptr, true);
-    return (int)this;
+    return;
 }
 
 // ==========================================================================
@@ -626,16 +626,16 @@ GridItem * Zombie::UpdateClimbingLadder()
 // The header's `int` return is the leftover r0 of the void original: the early
 // out leaves GetDialog's Dialog* there and the other path leaves SetFocus' --
 // SetFocus returns void. Both call sites ignore it.
-int Zombie::DoRevivalDialog(int theDialogId)
+void Zombie::DoRevivalDialog(int theDialogId)
 {
     Sexy::Dialog *aDialog = mApp->GetDialog(17);
     if (aDialog != nullptr)
-        return (int)aDialog;
+        return;
 
     RevivalGameDialog *aRevivalDialog = new RevivalGameDialog(this, theDialogId);
     mApp->AddDialogWithId(17, aRevivalDialog);
     mApp->mWidgetManager->SetFocus(aRevivalDialog);
-    return 0;
+    return;
 }
 
 // ==========================================================================
@@ -643,16 +643,16 @@ int Zombie::DoRevivalDialog(int theDialogId)
 // @001A88A8  70 bytes
 // ==========================================================================
 // The same shape as DoRevivalDialog, with dialog id 84.
-int Zombie::DoBuySunMoneyDialog(int theDialogId)
+void Zombie::DoBuySunMoneyDialog(int theDialogId)
 {
     Sexy::Dialog *aDialog = mApp->GetDialog(84);
     if (aDialog != nullptr)
-        return (int)aDialog;
+        return;
 
     BuySunMoneyDialog *aBuySunMoneyDialog = new BuySunMoneyDialog(this, theDialogId);
     mApp->AddDialogWithId(84, aBuySunMoneyDialog);
     mApp->mWidgetManager->SetFocus(aBuySunMoneyDialog);
-    return 0;
+    return;
 }
 
 // ==========================================================================
@@ -892,10 +892,10 @@ int Zombie::GetShieldDamageIndex()
 // boss. Each type offsets and scales the block differently; the last argument
 // picks the front (IMAGE_ICETRAP) or the back (IMAGE_ICETRAP2) art. The Y
 // origin is the draw position's mBodyY (byte 12 of the record) plus 92.
-int Zombie::DrawIceTrap(Sexy::Graphics *g, ZombieDrawPosition &theDrawPos, int theIceTrapCounter)
+void Zombie::DrawIceTrap(Sexy::Graphics *g, ZombieDrawPosition &theDrawPos, int theIceTrapCounter)
 {
     if (mInPool || mZombieType == ZOMBIE_BOSS)
-        return (int)this;
+        return;
 
     ZombieDrawPosition &aDrawPos = theDrawPos;
     float aOffsetY = aDrawPos.mBodyY + 92.0f;
@@ -944,7 +944,7 @@ int Zombie::DrawIceTrap(Sexy::Graphics *g, ZombieDrawPosition &theDrawPos, int t
 
     Sexy::Image *aImage = theIceTrapCounter != 0 ? IMAGE_ICETRAP : IMAGE_ICETRAP2;
     TodDrawImageScaledF(g, aImage, aOffsetX, aOffsetY, aScale, aScale);
-    return 0;
+    return;
 }
 
 // ==========================================================================
@@ -1876,10 +1876,10 @@ int Zombie::DrawBungeeTarget(Sexy::Graphics * aGraphics)
 // r0 is `this` when the height is not normal or the type is bungee. Otherwise
 // it is IsOnHighGround's 0/1, and that same test writes height 4 (stepping up)
 // or 5 (stepping off).
-int Zombie::CheckForHighGround()
+void Zombie::CheckForHighGround()
 {
     if (mZombieHeight != HEIGHT_ZOMBIE_NORMAL || mZombieType == ZOMBIE_BUNGEE)
-        return (int)this;
+        return;
 
     bool aOnHighGround = IsOnHighGround();
     if (mOnHighGround)
@@ -1892,19 +1892,18 @@ int Zombie::CheckForHighGround()
         mZombieHeight = HEIGHT_UP_TO_HIGH_GROUND;
         mOnHighGround = true;
     }
-    return aOnHighGround;
+    return;
 }
 
 // ==========================================================================
 // Zombie::StartMindControlled(void)
 // @001AA01C  150 bytes
 // ==========================================================================
-int Zombie::StartMindControlled()
+void Zombie::StartMindControlled()
 {
     // PlaySample returns void in this tree; the dump's r0 is a leftover.
     mApp->PlaySample(SOUND_MINDCONTROLLED, true);
 
-    int result = 0;
     ZombieType aZombieType = mZombieType;
     mMindControlled = true;
     mLastPortalX = -1;
@@ -1922,11 +1921,9 @@ int Zombie::StartMindControlled()
 
         if (aZombieType == ZOMBIE_BACKUP_DANCER)
         {
-            result = (int)aBackupDancer;
             if (aBackupDancer != nullptr)
             {
                 ZombieID aMyID = (ZombieID)mBoard->ZombieGetID(this);
-                result = (int)aMyID;
 
                 for (int i = 0; i < 4; i++)
                 {
@@ -1942,7 +1939,6 @@ int Zombie::StartMindControlled()
         }
         else
         {
-            result = (int)aBackupDancer;
             if (aBackupDancer != nullptr)
             {
                 aBackupDancer->mRelatedZombieID = ZOMBIEID_NULL;
@@ -1951,7 +1947,7 @@ int Zombie::StartMindControlled()
         }
     }
 
-    return result;
+    return;
 }
 
 // ==========================================================================
@@ -1962,31 +1958,30 @@ int Zombie::StartMindControlled()
 // the target id is 0, mMaxSize if the slot index is out of range, the slot
 // address if the id word does not match, otherwise the plant (or Plant::Die).
 // No caller reads it.
-int Zombie::BungeeDropPlant()
+void Zombie::BungeeDropPlant()
 {
     if (mZombiePhase != PHASE_BUNGEE_GRABBING)
-        return (int)this;
+        return;
     if (mTargetPlantID == PLANTID_NULL)
-        return (int)this;
+        return;
 
     unsigned short aPlantID = (unsigned short)mTargetPlantID;
     if (aPlantID >= mBoard->mPlants.mMaxSize)
-        return (int)mBoard->mPlants.mMaxSize;
+        return;
 
     PlantSlot *aSlots = mBoard->mPlants.mBlock;
     PlantSlot *aSlot = &aSlots[aPlantID];
     if (mTargetPlantID != (PlantID)aSlot->mID)
-        return (int)aSlot;
+        return;
 
     Plant *aPlant = &aSlot->mItem;
-    int aResult = (int)aPlant;
     if (aPlant->mOnBungeeState == GETTING_GRABBED_BY_BUNGEE)
         aPlant->mOnBungeeState = NOT_ON_BUNGEE;
     else if (aPlant->mOnBungeeState == RISING_WITH_BUNGEE)
-        aResult = aPlant->Die();
+        aPlant->Die();
 
     mTargetPlantID = PLANTID_NULL;
-    return aResult;
+    return;
 }
 
 // ==========================================================================
@@ -2012,7 +2007,7 @@ void Zombie::PlayZombieAppearSound()
 // Zombie::StartZombieSound(void)
 // @001AA13C  62 bytes
 // ==========================================================================
-int Zombie::StartZombieSound()
+void Zombie::StartZombieSound()
 {
     if (!mPlayingSong)
     {
@@ -2031,7 +2026,7 @@ int Zombie::StartZombieSound()
         }
     }
 
-    return (int)this;
+    return;
 }
 
 // ==========================================================================
@@ -2395,7 +2390,7 @@ bool Zombie::TrySpawnLevelAward()
 // Zombie::DropLoot(void)
 // @001AA890  324 bytes
 // ==========================================================================
-int Zombie::DropLoot()
+void Zombie::DropLoot()
 {
     int result = IsOnBoard();
     if (result != 0)
@@ -2434,7 +2429,10 @@ int Zombie::DropLoot()
                                     mBoard->AddCoinHeavyWeapon(aX, aY, COIN_DIAMOND);
                                     mBoard->AddCoinHeavyWeapon(aX + 20, aY, COIN_DIAMOND);
                                     mBoard->AddCoinHeavyWeapon(aX - 20, aY, COIN_DIAMOND);
-                                    return (int)mBoard->AddCoinHeavyWeapon(aX, aY + 30, COIN_DIAMOND);
+                                    {
+                                        mBoard->AddCoinHeavyWeapon(aX, aY + 30, COIN_DIAMOND);
+                                        return;
+                                    }
                                 }
                                 else
                                 {
@@ -2442,12 +2440,18 @@ int Zombie::DropLoot()
                                     mBoard->AddCoin(aX - 20, aY, COIN_DIAMOND, (CoinMotion)3);
                                     mBoard->AddCoin(aX - 30, aY, COIN_DIAMOND, (CoinMotion)3);
                                     mBoard->AddCoin(aX - 40, aY, COIN_DIAMOND, (CoinMotion)3);
-                                    return (int)mBoard->AddCoin(aX - 50, aY, COIN_DIAMOND, (CoinMotion)3);
+                                    {
+                                        mBoard->AddCoin(aX - 50, aY, COIN_DIAMOND, (CoinMotion)3);
+                                        return;
+                                    }
                                 }
                             }
                             else
                             {
-                                return (int)mBoard->DropLootPiece(aX, aY, aLootType);
+                                {
+                                    mBoard->DropLootPiece(aX, aY, aLootType);
+                                    return;
+                                }
                             }
                         }
                     }
@@ -2455,7 +2459,7 @@ int Zombie::DropLoot()
             }
         }
     }
-    return result;
+    return;
 }
 
 // ==========================================================================
@@ -2516,10 +2520,10 @@ Plant * Zombie::FindPlantTarget(ZombieAttackType theAttackType)
 // level has one, 0 when nothing is being chewed, AddTodParticle's id when a
 // wallnut or tallnut spurts, and the plant otherwise. MakeRenderOrder's layer
 // is the immediate 305000 (IDA prints it as a string).
-int Zombie::AnimateChewEffect()
+void Zombie::AnimateChewEffect()
 {
     if (mZombiePhase == PHASE_SNORKEL_UP_TO_EAT)
-        return (int)this;
+        return;
 
     if (mApp->IsIZombieLevel())
     {
@@ -2528,17 +2532,16 @@ int Zombie::AnimateChewEffect()
         {
             if (aBrainTarget->mTransparentCounter < 25)
                 aBrainTarget->mTransparentCounter = 25;
-            return (int)aBrainTarget;
+            return;
         }
     }
 
     Plant *aPlant = FindPlantTarget((ZombieAttackType)0);
     if (aPlant == nullptr)
-        return 0;
+        return;
 
     // Only a wallnut or a tallnut spurts the chew particles. The particle
     // call is what r0 holds on the way out of that path.
-    int aResult = (int)aPlant;
     if (aPlant->mSeedType == SEED_WALLNUT || aPlant->mSeedType == SEED_TALLNUT)
     {
         // 305000 is RENDER_LAYER_PROJECTILE, 36 the chew particle.
@@ -2574,7 +2577,7 @@ int Zombie::AnimateChewEffect()
 
     if (aPlant->mEatenFlashCountdown < 25)
         aPlant->mEatenFlashCountdown = 25;
-    return aResult;
+    return;
 }
 
 // ==========================================================================
@@ -2620,11 +2623,14 @@ GridItem * Zombie::CheckSquish(ZombieAttackType theAttackType)
 // A zamboni or catapult that still has tires tail-calls CheckSquish(1). Every
 // other path returns `this`. 1 is ATTACKTYPE_DRIVE_OVER; ZombieAttackType is
 // still `typedef int`.
-int Zombie::CheckForZombieStep()
+void Zombie::CheckForZombieStep()
 {
     if ((mZombieType == ZOMBIE_ZAMBONI || mZombieType == ZOMBIE_CATAPULT) && !mFlatTires)
-        return (int)CheckSquish((ZombieAttackType)1);
-    return (int)this;
+        {
+            CheckSquish((ZombieAttackType)1);
+            return;
+        }
+    return;
 }
 
 // ==========================================================================
@@ -2796,23 +2802,23 @@ void Zombie::ReanimShowTrack(char const* theTrackName, int theRenderGroup)
 // Zombie::DoDaisies(void)
 // @001AAFB8  200 bytes
 // ==========================================================================
-int Zombie::DoDaisies()
+void Zombie::DoDaisies()
 {
     if (IsWalkingBackwards())
-        return 0;
+        return;
 
     // 2 is PLANTROW_POOL: no daisies grow on the pool rows. PlantRowType lives
     // only in the TV build's ConstEnums.h, which this tree cannot include.
     if (mBoard->mPlantRow[mRow] == 2)
-        return 0;
+        return;
 
     if (mZombieType == ZOMBIE_ZAMBONI
         || mZombieType == ZOMBIE_BOBSLED
         || mZombieType == ZOMBIE_CATAPULT)
-        return 0;
+        return;
 
     if (mBoard->StageHasRoof())
-        return 0;
+        return;
 
     float aDaisyOffsetX;
     float aDaisyOffsetY;
@@ -2947,7 +2953,7 @@ Reanimation * Zombie::GetTrackPosition(char const* theTrackName, float & thePosX
 // Zombie::DropFlag(void)
 // @001AB200  160 bytes
 // ==========================================================================
-int Zombie::DropFlag()
+void Zombie::DropFlag()
 {
     if (mZombieType == ZOMBIE_FLAG && mHasObject)
     {
@@ -2967,9 +2973,12 @@ int Zombie::DropFlag()
                                                                                           mRenderOrder + 1,
                                                                                           (ParticleEffect)11);
         OverrideParticleColor(aParticle);
-        return OverrideParticleScale(aParticle);
+        {
+            OverrideParticleScale(aParticle);
+            return;
+        }
     }
-    return (int)this;
+    return;
 }
 
 // ==========================================================================
@@ -3298,7 +3307,7 @@ int Zombie::GetBobsledPosition()
 
         // The ARM leaves the leader's address in r0 on the way out of the chain;
         // the original tail is void and no caller reads this value.
-        return (int)aLeaderZombie;
+        return -1;
     }
     else if (mFollowerZombieID[0] != 0)
     {
@@ -3499,16 +3508,16 @@ bool Zombie::CanLoseBodyParts()
 // Zombie::DropArm(unsigned int)
 // @001ABE38  1476 bytes
 // ==========================================================================
-int Zombie::DropArm(unsigned int theDamageFlags)
+void Zombie::DropArm(unsigned int theDamageFlags)
 {
     if (!CanLoseBodyParts())
-        return 0;
+        return;
 
     // A door, a newspaper or a trash can is held in front of the arm.
     if (mShieldType == SHIELDTYPE_DOOR
         || mShieldType == SHIELDTYPE_NEWSPAPER
         || mShieldType == SHIELDTYPE_TRASHCAN)
-        return 1;
+        return;
 
     // The dolphin and snorkel phases and the newspaper-reading phase need both
     // arms, and so does a zombie that has already lost the one.
@@ -3519,7 +3528,7 @@ int Zombie::DropArm(unsigned int theDamageFlags)
         || mZombiePhase == PHASE_DOLPHIN_IN_JUMP
         || mZombiePhase == PHASE_SNORKEL_INTO_POOL
         || !mHasArm)
-        return 1;
+        return;
 
     mHasArm = false;
     switch (mZombieType)
@@ -4219,11 +4228,11 @@ void Zombie::DrawBungeeReanim(Sexy::Graphics * aGraphics, ZombieDrawPosition & a
 // Zombie::Draw(Sexy::Graphics *)
 // @001ACF6C  328 bytes
 // ==========================================================================
-int Zombie::Draw(Sexy::Graphics * aGraphics)
+void Zombie::Draw(Sexy::Graphics * aGraphics)
 {
     // A zombiquarium zombie is drawn by the aquarium itself.
     if (mZombieType == ZOMBIE_ZOMBLOB)
-        return (int)this;
+        return;
 
     ZombieDrawPosition aDrawPos;
     GetDrawPos(aDrawPos);
@@ -4232,7 +4241,7 @@ int Zombie::Draw(Sexy::Graphics * aGraphics)
     // "zombies won" setup; a zombiquarium game mode keeps the aquarium's own
     // zombies out of the lawn's draw, except the one the mode spawns.
     if (mApp->mGameScene != SCENE_PLAYING && SetupDrawZombieWon(aGraphics) == 0)
-        return (int)this;
+        return;
 
     // The ice trap goes both behind and in front of the body, the butter only
     // in front.
@@ -4277,7 +4286,7 @@ int Zombie::Draw(Sexy::Graphics * aGraphics)
     }
 
     aGraphics->ClearClipRect();
-  return 0;
+  return;
 }
 
 // ==========================================================================
@@ -4518,7 +4527,7 @@ Reanimation * Zombie::BungeeDropZombie(Zombie *theZombie, int theCol, int theRow
 // Zombie::UpdateZombieCatapult(void)
 // @001AD500  362 bytes
 // ==========================================================================
-int Zombie::UpdateZombieCatapult()
+void Zombie::UpdateZombieCatapult()
 {
     if (mZombiePhase == PHASE_ZOMBIE_NORMAL)
     {
@@ -4529,43 +4538,42 @@ int Zombie::UpdateZombieCatapult()
             mPhaseCounter = 300;
             mZombiePhase = PHASE_CATAPULT_LAUNCHING;
             PlayZombieReanim("anim_shoot", REANIM_PLAY_ONCE_AND_HOLD, 0, 24.0f);
-            return 0;
+            return;
         }
-        return 0;
+        return;
     }
 
     if (mZombiePhase == PHASE_CATAPULT_RELOADING)
     {
         if (mPhaseCounter != 0)
-            return 0;
+            return;
 
         if (FindCatapultTarget() != nullptr)
         {
             mZombiePhase = PHASE_CATAPULT_LAUNCHING;
             mPhaseCounter = 300;
             PlayZombieReanim("anim_shoot", REANIM_PLAY_ONCE_AND_HOLD, 20, 24.0f);
-            return 0;
+            return;
         }
 
         // Nothing left to lob. Phase is cleared after the reanim so
         // UpdateAnimSpeed still sees reloading.
         PlayZombieReanim("anim_walk", REANIM_LOOP, 20, 6.0f);
         mZombiePhase = PHASE_ZOMBIE_NORMAL;
-        return 0;
+        return;
     }
 
     if (mZombiePhase != PHASE_CATAPULT_LAUNCHING)
-        return (int)this;
+        return;
 
     Reanimation *aBodyReanim = mApp->ReanimationGet(mBodyReanimID);
     // A miss leaves ShouldTrigger's 0 in r0; a hit leaves ZombieCatapultFire's r0.
     // Either is the return when the shoot animation has not looped yet.
-    int aResult = aBodyReanim->ShouldTriggerTimedEvent(0.545f);
-    if (aResult != 0)
-        aResult = (int)ZombieCatapultFire(FindCatapultTarget());
+    if (aBodyReanim->ShouldTriggerTimedEvent(0.545f))
+        ZombieCatapultFire(FindCatapultTarget());
 
     if (aBodyReanim->mLoopCount <= 0)
-        return aResult;
+        return;
 
     // The four basketballs disappear one per loop, then the zombie reloads.
     mSummonCounter--;
@@ -4591,12 +4599,12 @@ int Zombie::UpdateZombieCatapult()
     {
         PlayZombieReanim("anim_idle", REANIM_LOOP, 20, 12.0f);
         mZombiePhase = PHASE_CATAPULT_RELOADING;
-        return 0;
+        return;
     }
 
     PlayZombieReanim("anim_walk", REANIM_LOOP, 20, 6.0f);
     mZombiePhase = PHASE_ZOMBIE_NORMAL;
-    return 0;
+    return;
 }
 
 // ==========================================================================
@@ -4605,10 +4613,10 @@ int Zombie::UpdateZombieCatapult()
 // r0 is this, TodAnimateCurve, GetDancerPhase, PlayZombieReanim, or
 // ReanimationGet. The only caller ignores it.
 // ==========================================================================
-int Zombie::UpdateZombieBackupDancer()
+void Zombie::UpdateZombieBackupDancer()
 {
     if (mIsEating)
-        return (int)this;
+        return;
 
     // The dancer rises out of the ground on a linear curve. A still-running
     // rise returns TodAnimateCurve's r0. High ground then pins the altitude
@@ -4618,7 +4626,7 @@ int Zombie::UpdateZombieBackupDancer()
         int aRise = TodAnimateCurve(150, 0, mPhaseCounter, -200, 0, CURVE_LINEAR);
         mAltitude = (float)aRise;
         if (mPhaseCounter != 0)
-            return aRise;
+            return;
 
         if (IsOnHighGround())
             mAltitude = 30.0f;
@@ -4626,14 +4634,14 @@ int Zombie::UpdateZombieBackupDancer()
 
     int aDancerPhase = GetDancerPhase();
     if (aDancerPhase == mZombiePhase)
-        return aDancerPhase;
+        return;
 
     // 0x2C. Unmatched phases leave GetDancerPhase in r0.
     if (aDancerPhase == PHASE_DANCER_DANCING_LEFT)
     {
         mZombiePhase = (ZombiePhase)aDancerPhase;
         PlayZombieReanim("anim_walk", REANIM_LOOP, 10, 0.0f);
-        return 0;
+        return;
     }
     // 0x2D. The walk-to-raise path sets the body animation time after starting
     // the raise. The caller ignores the leftover register.
@@ -4643,16 +4651,16 @@ int Zombie::UpdateZombieBackupDancer()
         PlayZombieReanim("anim_armraise", REANIM_LOOP, 10, 18.0f);
         Reanimation *aBodyReanim = mApp->ReanimationGet(mBodyReanimID);
         aBodyReanim->mAnimTime = 0.6f;
-        return 0;
+        return;
     }
     // 0x2E..0x31: RAISE_LEFT_1, RAISE_RIGHT_1, RAISE_LEFT_2, RAISE_RIGHT_2.
     if ((unsigned)(aDancerPhase - PHASE_DANCER_RAISE_LEFT_1) <= 3)
     {
         mZombiePhase = (ZombiePhase)aDancerPhase;
         PlayZombieReanim("anim_armraise", REANIM_LOOP, 10, 18.0f);
-        return 0;
+        return;
     }
-    return aDancerPhase;
+    return;
 }
 
 // ==========================================================================
@@ -4662,14 +4670,13 @@ int Zombie::UpdateZombieBackupDancer()
 // PickRandomSpeed, GetDancerPhase, PlayZombieReanim, or NeedsMoreBackupDancers.
 // The only caller ignores it.
 // ==========================================================================
-int Zombie::UpdateZombieDancer()
+void Zombie::UpdateZombieDancer()
 {
     if (mIsEating)
-        return (int)this;
+        return;
 
     // A failed beat leaves GetDancerFrame in r0. That value is what the
     // dancing-in and hold early-outs return; every other path overwrites it.
-    int aResult = (int)this;
     bool aCheckedDancingIn = false;
     if (mSummonCounter > 0 && --mSummonCounter == 0)
     {
@@ -4682,7 +4689,6 @@ int Zombie::UpdateZombieDancer()
         else
         {
             mSummonCounter = 1;
-            aResult = aFrame;
             aCheckedDancingIn = mZombiePhase != PHASE_DANCER_DANCING_IN;
         }
     }
@@ -4694,9 +4700,9 @@ int Zombie::UpdateZombieDancer()
             mZombiePhase = PHASE_DANCER_SNAPPING_FINGERS;
             PlayZombieReanim("anim_point", REANIM_PLAY_ONCE_AND_HOLD, 20, 24.0f);
             PickRandomSpeed();
-            return 0;
+            return;
         }
-        return aResult;
+        return;
     }
 
     // 0x29 and 0x2A. A still-playing point returns ReanimationGet.
@@ -4704,35 +4710,33 @@ int Zombie::UpdateZombieDancer()
     {
         Reanimation *aBodyReanim = mApp->ReanimationGet(mBodyReanimID);
         if (aBodyReanim->mLoopCount <= 0)
-            return (int)aBodyReanim;
+            return;
 
         if (mZombiePhase == PHASE_DANCER_SNAPPING_FINGERS && mBoard->CountZombiesOnScreen() <= 15)
             mApp->PlayFoley(FOLEY_DANCER);
 
-        aResult = SummonBackupDancers();
+        SummonBackupDancers();
         mZombiePhase = PHASE_DANCER_SNAPPING_FINGERS_HOLD;
         mPhaseCounter = 200;
-        return aResult;
+        return;
     }
 
     if (mZombiePhase == PHASE_DANCER_SNAPPING_FINGERS_HOLD)
     {
         if (mPhaseCounter != 0)
-            return aResult;
+            return;
 
         mZombiePhase = PHASE_DANCER_DANCING_LEFT;
         PlayZombieReanim("anim_walk", REANIM_LOOP, 20, 0.0f);
     }
 
     int aDancerPhase = GetDancerPhase();
-    aResult = aDancerPhase;
     if (aDancerPhase != mZombiePhase)
     {
         if (aDancerPhase == PHASE_DANCER_DANCING_LEFT)
         {
             mZombiePhase = PHASE_DANCER_DANCING_LEFT;
             PlayZombieReanim("anim_walk", REANIM_LOOP, 10, 0.0f);
-            aResult = 0;
         }
         else if (aDancerPhase == PHASE_DANCER_WALK_TO_RAISE)
         {
@@ -4740,23 +4744,20 @@ int Zombie::UpdateZombieDancer()
             PlayZombieReanim("anim_armraise", REANIM_LOOP, 10, 18.0f);
             Reanimation *aBodyReanim = mApp->ReanimationGet(mBodyReanimID);
             aBodyReanim->mAnimTime = 0.6f;
-            aResult = (int)aBodyReanim;
         }
         else if ((unsigned)(aDancerPhase - PHASE_DANCER_RAISE_LEFT_1) <= 3)
         {
             mZombiePhase = (ZombiePhase)aDancerPhase;
             PlayZombieReanim("anim_armraise", REANIM_LOOP, 10, 18.0f);
-            aResult = 0;
         }
     }
 
     if (!mHasHead || mSummonCounter != 0)
-        return aResult;
+        return;
 
-    aResult = NeedsMoreBackupDancers();
-    if (aResult != 0)
+    if (NeedsMoreBackupDancers())
         mSummonCounter = 100;
-    return aResult;
+    return;
 }
 
 // ==========================================================================
@@ -5100,10 +5101,10 @@ Zombie * Zombie::DropHelm(unsigned int theDamageFlags)
 // Zombie::PogoBreak(unsigned int)
 // @001AE07C  160 bytes
 // ==========================================================================
-int Zombie::PogoBreak(unsigned int theDamageFlags)
+void Zombie::PogoBreak(unsigned int theDamageFlags)
 {
     if (!mHasObject)
-        return (int)this;
+        return;
 
     if ((theDamageFlags & 0x10) == 0)
     {
@@ -5138,14 +5139,14 @@ int Zombie::PogoBreak(unsigned int theDamageFlags)
     mBodyMaxHealth = 115;
     mHelmMaxHealth = 115;
     mBodyHealth = 50;
-    return (int)this;
+    return;
 }
 
 // ==========================================================================
 // Zombie::LoadReanim(ReanimationType)
 // @001AE120  204 bytes
 // ==========================================================================
-int Zombie::LoadReanim(ReanimationType theReanimationType)
+void Zombie::LoadReanim(ReanimationType theReanimationType)
 {
     Reanimation *aReanim = mApp->AddReanimation(0.0f, 0.0f, 0, theReanimationType);
     mBodyReanimID = mApp->ReanimationGetID(aReanim);
@@ -5155,7 +5156,7 @@ int Zombie::LoadReanim(ReanimationType theReanimationType)
     if (IsOnBoard())
     {
         StartWalkAnim(0);
-        return (int)aReanim;
+        return;
     }
 
     // An off-board zombie idles instead of walking, and starts the idle cycle
@@ -5166,7 +5167,7 @@ int Zombie::LoadReanim(ReanimationType theReanimationType)
         PlayZombieReanim("anim_idle", REANIM_LOOP, 0, RandRangeFloat(12.0f, 18.0f));
 
     aReanim->mAnimTime = Rand(0.99f);
-    return (int)aReanim;
+    return;
 }
 
 // ==========================================================================
@@ -5530,11 +5531,11 @@ float Zombie::UpdateZombiePolevaulter()
 // Zombie::UpdateZombieDolphinRider(void)
 // @001AE9FC  956 bytes
 // ==========================================================================
-int Zombie::UpdateZombieDolphinRider()
+void Zombie::UpdateZombieDolphinRider()
 {
     // A dolphin rider caught by tangle kelp is not riding any more.
     if (IsTangleKelpTarget())
-        return 1;
+        return;
 
     int aWalkingBackwards = IsWalkingBackwards();
     switch (mZombiePhase)
@@ -5545,7 +5546,7 @@ int Zombie::UpdateZombieDolphinRider()
             {
                 mZombiePhase = PHASE_DOLPHIN_INTO_POOL;
                 PlayZombieReanim("anim_jumpinpool", REANIM_PLAY_ONCE_AND_HOLD, 20, 16.0f);
-                return 0;
+                return;
             }
             break;
         case PHASE_DOLPHIN_INTO_POOL:
@@ -5577,7 +5578,7 @@ int Zombie::UpdateZombieDolphinRider()
                 mPosX = aPosX - 70.0f;
                 mBodyMaxHealth = 115;
                 PlayZombieReanim("anim_ride", REANIM_LOOP_FULL_LAST_FRAME, 0, 12.0f);
-                return 0;
+                return;
             }
             break;
         }
@@ -5591,7 +5592,7 @@ int Zombie::UpdateZombieDolphinRider()
                 PoolSplash(false);
                 PlayZombieReanim("anim_walkdolphin", REANIM_LOOP, 0, 0.0f);
                 PickRandomSpeed();
-                return 0;
+                return;
             }
             if (mHasHead)
             {
@@ -5603,7 +5604,7 @@ int Zombie::UpdateZombieDolphinRider()
                     mPhaseCounter = 120;
                     mZombiePhase = PHASE_DOLPHIN_IN_JUMP;
                     PlayZombieReanim("anim_dolphinjump", REANIM_PLAY_ONCE_AND_HOLD, 0, 10.0f);
-                    return 0;
+                    return;
                 }
             }
             break;
@@ -5616,7 +5617,7 @@ int Zombie::UpdateZombieDolphinRider()
             {
                 Plant *aTarget = FindPlantTarget((ZombieAttackType)2);
                 if (aTarget == nullptr || aTarget->mSeedType != SEED_TALLNUT)
-                    return (int)aTarget;
+                    return;
 
                 mApp->PlayFoley(FOLEY_BONK);
                 mApp->AddTodParticle((float)(aTarget->mX + 60),
@@ -5627,7 +5628,10 @@ int Zombie::UpdateZombieDolphinRider()
                 mZombieHeight = HEIGHT_FALLING;
                 mAltitude = 30.0f;
                 mPosX = (float)aTargetX + 25.0f;
-                return UpdateDolphinJumpLanding();
+                {
+                    UpdateDolphinJumpLanding();
+                    return;
+                }
             }
 
             if (aBodyReanim->ShouldTriggerTimedEvent(0.49f))
@@ -5643,7 +5647,7 @@ int Zombie::UpdateZombieDolphinRider()
                                      (ParticleEffect)23);
                 mApp->PlayFoley(FOLEY_ZOMBIE_ENTERING_WATER);
                 mVelZ = 0.0f;
-                return (int)aSplash;
+                return;
             }
 
             if (aBodyReanim->mLoopCount > 0)
@@ -5651,7 +5655,10 @@ int Zombie::UpdateZombieDolphinRider()
                 float aPosX = mPosX;
                 mAltitude = 0.0f;
                 mPosX = aPosX - 94.0f;
-                return UpdateDolphinJumpLanding();
+                {
+                    UpdateDolphinJumpLanding();
+                    return;
+                }
             }
             break;
         }
@@ -5661,11 +5668,11 @@ int Zombie::UpdateZombieDolphinRider()
             if (mX > 10)
             {
                 if (mX <= 680 || aWalkingBackwards)
-                    return 0;
+                    return;
             }
             else if (aWalkingBackwards)
             {
-                return 0;
+                return;
             }
             mZombieHeight = HEIGHT_OUT_OF_POOL;
             mZombiePhase = PHASE_DOLPHIN_WALKING_WITHOUT_DOLPHIN;
@@ -5673,16 +5680,16 @@ int Zombie::UpdateZombieDolphinRider()
             PoolSplash(false);
             PlayZombieReanim("anim_walk", REANIM_LOOP, 0, 0.0f);
             PickRandomSpeed();
-            return 0;
+            return;
         default:
-            return 0;
+            return;
     }
-    return 0;
+    return;
 }
 
 // The landing half of the dolphin jump: the rider loses the dolphin and its
 // rectangle shrinks to a walking zombie's.
-int Zombie::UpdateDolphinJumpLanding()
+void Zombie::UpdateDolphinJumpLanding()
 {
     mZombiePhase = PHASE_DOLPHIN_WALKING_WITHOUT_DOLPHIN;
     mZombieAttackRect = Sexy::Rect(30, 0, 30, 115);
@@ -5694,7 +5701,10 @@ int Zombie::UpdateDolphinJumpLanding()
     mIceTrapCounter = 20;
     mButteredCounter = 42;
     mX = (int)mPosX;
-    return (int)StartWalkAnim(0);
+    {
+        StartWalkAnim(0);
+        return;
+    }
 }
 
 // ==========================================================================
@@ -5796,10 +5806,10 @@ int Zombie::DragUnder()
 // Zombie::DropShield(unsigned int)
 // @001AEFB0  336 bytes
 // ==========================================================================
-int Zombie::DropShield(unsigned int theDamageFlags)
+void Zombie::DropShield(unsigned int theDamageFlags)
 {
     if (mShieldType == SHIELDTYPE_NONE)
-        return (int)this;
+        return;
 
     ZombieDrawPosition aPos;
     GetDrawPos(aPos);
@@ -5861,7 +5871,7 @@ int Zombie::DropShield(unsigned int theDamageFlags)
 
     OverrideParticleScale(aParticle);
     mShieldType = SHIELDTYPE_NONE;
-    return (int)this;
+    return;
 }
 
 // ==========================================================================
@@ -6072,21 +6082,24 @@ void Zombie::EatPlant(Plant * thePlant)
 // Zombie::RemoveIceTrap(void)
 // @001AF4A8  40 bytes
 // ==========================================================================
-int Zombie::RemoveIceTrap()
+void Zombie::RemoveIceTrap()
 {
     mIceTrapCounter = 0;
     if (mZombieType == ZOMBIE_BALLOON)
         BalloonPropellerHatSpin(true);
 
     UpdateAnimSpeed();
-    return StartZombieSound();
+    {
+        StartZombieSound();
+        return;
+    }
 }
 
 // ==========================================================================
 // Zombie::RemoveButter(void)
 // @001AF4D0  134 bytes
 // ==========================================================================
-int Zombie::RemoveButter()
+void Zombie::RemoveButter()
 {
     if (mZombieType == ZOMBIE_BALLOON)
         BalloonPropellerHatSpin(true);
@@ -6114,7 +6127,10 @@ int Zombie::RemoveButter()
     }
 
     UpdateAnimSpeed();
-    return StartZombieSound();
+    {
+        StartZombieSound();
+        return;
+    }
 }
 
 // ==========================================================================
@@ -6313,7 +6329,7 @@ Zombie * Zombie::DropHead(unsigned int theDamageFlags)
 // Zombie::UpdateYeti(void)
 // @001AF974  56 bytes
 // ==========================================================================
-Reanimation * Zombie::UpdateYeti()
+void Zombie::UpdateYeti()
 {
     // The yeti runs for the lawn edge as soon as it has lost its object and
     // still has its head.
@@ -6321,17 +6337,20 @@ Reanimation * Zombie::UpdateYeti()
     {
         mHasObject = false;
         mZombiePhase = PHASE_YETI_RUNNING;
-        return PickRandomSpeed();
+        {
+            PickRandomSpeed();
+            return;
+        }
     }
 
-    return (Reanimation *)this;
+    return;
 }
 
 // ==========================================================================
 // Zombie::StopZombieSound(void)
 // @001AF9AC  170 bytes
 // ==========================================================================
-int Zombie::StopZombieSound()
+void Zombie::StopZombieSound()
 {
     // A dancer or a backup dancer stops the dancer foley, but only when no
     // other dancer is still on the board.
@@ -6347,7 +6366,7 @@ int Zombie::StopZombieSound()
                     && aZombie->IsOnBoard()
                     && (unsigned int)(aZombie->mZombieType - ZOMBIE_DANCER) <= 1)
                 {
-                    return (int)this;
+                    return;
                 }
             }
         }
@@ -6361,12 +6380,18 @@ int Zombie::StopZombieSound()
         ZombieType aType = mZombieType;
         mPlayingSong = false;
         if (aType == ZOMBIE_JACK_IN_THE_BOX)
-            return (int)mApp->mSoundSystem->StopFoley(FOLEY_JACKINTHEBOX);
+            {
+                mApp->mSoundSystem->StopFoley(FOLEY_JACKINTHEBOX);
+                return;
+            }
         if (aType == ZOMBIE_BALLOON)
-            return (int)mApp->mSoundSystem->StopFoley(FOLEY_BALLOONINFLATE);
+            {
+                mApp->mSoundSystem->StopFoley(FOLEY_BALLOONINFLATE);
+                return;
+            }
     }
 
-    return (int)this;
+    return;
 }
 
 // ==========================================================================
@@ -6396,13 +6421,13 @@ void Zombie::DiggerLoseAxe()
 // ==========================================================================
 // 0xC2F00000 is -120, not -80. The rise tails return SetAnimRate's r0; the
 // stunned early-out returns the body reanim ReanimationGet left in r0.
-Reanimation * Zombie::UpdateZombieDigger()
+void Zombie::UpdateZombieDigger()
 {
     switch (mZombiePhase)
     {
         case PHASE_DIGGER_TUNNELING:
             if (mPosX >= 10.0f)
-                return (Reanimation *)this;
+                return;
 
             mAltitude = -120.0f;
             mZombiePhase = PHASE_DIGGER_RISING;
@@ -6413,9 +6438,12 @@ Reanimation * Zombie::UpdateZombieDigger()
             AttachmentDetachCrossFadeParticleType(mAttachmentID, (ParticleEffect)33, nullptr);
             StopZombieSound();
             mApp->AddTodParticle(mPosX + 60.0f, mPosY + 118.0f, mRenderOrder + 1, (ParticleEffect)32);
-            return (Reanimation *)mApp
+            {
+                mApp
                 ->AddReanimation(mPosX + 13.0f, mPosY + 97.0f, mRenderOrder + 1, REANIM_DIGGER_DIRT)
                 ->SetAnimRate(24.0f);
+                return;
+            }
 
         case PHASE_DIGGER_RISING:
         {
@@ -6430,16 +6458,19 @@ Reanimation * Zombie::UpdateZombieDigger()
             {
                 Reanimation *aLanding = PlayZombieReanim("anim_landing", REANIM_PLAY_ONCE_AND_HOLD, 0, 12.0f);
                 if (mPhaseCounter != 0)
-                    return aLanding;
+                    return;
             }
             else if (mPhaseCounter != 0)
             {
-                return (Reanimation *)aCurve;
+                return;
             }
 
             mZombiePhase = PHASE_DIGGER_STUNNED;
             mAltitude = 0.0f;
-            return PlayZombieReanim("anim_dizzy", REANIM_LOOP, 10, 12.0f);
+            {
+                PlayZombieReanim("anim_dizzy", REANIM_LOOP, 10, 12.0f);
+                return;
+            }
         }
 
         case PHASE_DIGGER_TUNNELING_PAUSE_WITHOUT_AXE:
@@ -6447,11 +6478,11 @@ Reanimation * Zombie::UpdateZombieDigger()
             {
                 AddAttachedReanim(23, 93, REANIM_ZOMBIE_SURPRISE);
                 if (mPhaseCounter != 0)
-                    return nullptr;
+                    return;
             }
             else if (mPhaseCounter != 0)
             {
-                return (Reanimation *)this;
+                return;
             }
 
             mZombiePhase = PHASE_DIGGER_RISE_WITHOUT_AXE;
@@ -6460,9 +6491,12 @@ Reanimation * Zombie::UpdateZombieDigger()
             PlayZombieReanim("anim_landing", REANIM_PLAY_ONCE_AND_HOLD, 0, 0.0f);
             mApp->PlayFoley(FOLEY_DIRT_RISE);
             mApp->AddTodParticle(mPosX + 60.0f, mPosY + 118.0f, mRenderOrder + 1, (ParticleEffect)32);
-            return (Reanimation *)mApp
+            {
+                mApp
                 ->AddReanimation(mPosX + 13.0f, mPosY + 97.0f, mRenderOrder + 1, REANIM_DIGGER_DIRT)
                 ->SetAnimRate(24.0f);
+                return;
+            }
 
         case PHASE_DIGGER_RISE_WITHOUT_AXE:
         {
@@ -6477,16 +6511,19 @@ Reanimation * Zombie::UpdateZombieDigger()
             {
                 Reanimation *aLanding = PlayZombieReanim("anim_landing", REANIM_PLAY_ONCE_AND_HOLD, 20, 12.0f);
                 if (mPhaseCounter != 0)
-                    return aLanding;
+                    return;
             }
             else if (mPhaseCounter != 0)
             {
-                return (Reanimation *)aCurve;
+                return;
             }
 
             mZombiePhase = PHASE_DIGGER_WALKING_WITHOUT_AXE;
             mAltitude = 0.0f;
-            return StartWalkAnim(20);
+            {
+                StartWalkAnim(20);
+                return;
+            }
         }
 
         case PHASE_DIGGER_STUNNED:
@@ -6494,15 +6531,18 @@ Reanimation * Zombie::UpdateZombieDigger()
             // mLoopCount > 1 only while the digger still has its axe.
             Reanimation *aBodyReanim = mApp->ReanimationGet(mBodyReanimID);
             if (aBodyReanim->mLoopCount <= 1)
-                return aBodyReanim;
+                return;
             mZombiePhase = PHASE_DIGGER_WALKING;
-            return StartWalkAnim(20);
+            {
+                StartWalkAnim(20);
+                return;
+            }
         }
 
         default:
             break;
     }
-    return (Reanimation *)this;
+    return;
 }
 // ==========================================================================
 // Zombie::~Zombie()
@@ -6608,19 +6648,19 @@ bool Zombie::CanBeFrozen()
 // related zombie, if any) is released at the same time, the counter is set to
 // 400 ticks, and a pogo drops back to the ground or to 30 if it was on the
 // high ground when it was hit.
-int Zombie::ApplyButter()
+void Zombie::ApplyButter()
 {
     if (!mHasHead || !CanBeFrozen())
-        return 0;
+        return;
 
     if (mZombieType == ZOMBIE_ZAMBONI || mZombieType == ZOMBIE_BOSS)
-        return 0;
+        return;
     if (IsTangleKelpTarget() != 0)
-        return 0;
+        return;
     if (IsBobsledTeamWithSled())
-        return 0;
+        return;
     if (IsFlying())
-        return 0;
+        return;
 
     mButteredCounter = 400;
 
@@ -6651,7 +6691,10 @@ int Zombie::ApplyButter()
     }
 
     UpdateAnimSpeed();
-    return StopZombieSound();
+    {
+        StopZombieSound();
+        return;
+    }
 }
 // ==========================================================================
 // Zombie::ApplyChill(bool)
@@ -6980,7 +7023,8 @@ int Zombie::UpdateZombiePogo()
                            mRenderOrder + 1,
                            (ParticleEffect)30);
       mShieldType = SHIELDTYPE_NONE;
-      return (int)PogoBreak(0);
+      PogoBreak(false);
+      return 0;
     }
   }
 
@@ -7522,18 +7566,18 @@ void Zombie::BossHeadSpit()
 // Zombie::BossDestroyIceballInRow(int)
 // @001B0F6C  112 bytes
 // ==========================================================================
-int Zombie::BossDestroyIceballInRow(int aRow)
+void Zombie::BossDestroyIceballInRow(int aRow)
 {
   // Early outs leave a pointer in r0. Plant::BurnRow recovers it, so the
   // int return keeps that word. A fireball is left alone.
   if ( mFireballRow != aRow )
-    return (int)this;
+    return;
 
   Reanimation *aFireball = mApp->ReanimationTryToGet(mBossFireBallReanimID);
   if ( aFireball == nullptr )
-    return 0;
+    return;
   if ( mIsFireBall )
-    return (int)aFireball;
+    return;
 
   // 400000 is the particle render order; effect 78 is the iceball burst.
   mApp->AddTodParticle(aFireball->mOverlayMatrix.m02 + 80.0f,
@@ -7542,7 +7586,8 @@ int Zombie::BossDestroyIceballInRow(int aRow)
                        (ParticleEffect)78);
   aFireball->ReanimationDie();
   mBossFireBallReanimID = ReanimationID::REANIMATIONID_NULL;
-  return mBoard->RemoveParticleByType((ParticleEffect)79);
+  mBoard->RemoveParticleByType((ParticleEffect)79);
+  return;
 }// ==========================================================================
 // Zombie::BossDestroyFireball(void)
 // @001B0FE0  244 bytes
@@ -7788,10 +7833,11 @@ void Zombie::DieNoLoot()
 // Zombie::DieWithLoot(void)
 // @001B17B8  18 bytes
 // ==========================================================================
-int Zombie::DieWithLoot()
+void Zombie::DieWithLoot()
 {
   DieNoLoot();
-  return DropLoot();
+  DropLoot();
+  return;
 }
 // ==========================================================================
 // Zombie::LandFlyer(unsigned int)
@@ -7810,14 +7856,17 @@ int Zombie::LandFlyer(unsigned int aFlags)
     aResult = 0;
   }
   if ( mBoard->mPlantRow[mRow] == PLANTROW_POOL )
-    return DieWithLoot();
+    {
+      DieWithLoot();
+      return 0;
+    }
   mZombieHeight = HEIGHT_FALLING;
   return aResult;
 }// ==========================================================================
 // Zombie::UpdateZombieFlyer(void)
 // @001B1840  154 bytes
 // ==========================================================================
-GridItem * Zombie::UpdateZombieFlyer()
+void Zombie::UpdateZombieFlyer()
 {
   // 0x2D is GAMEMODE_CHALLENGE_HIGH_GRAVITY. Below 720 the balloon sinks;
   // past -35 it lands. 0x4A/0x4B/0x49 are the balloon pop/walk/fly phases.
@@ -7839,12 +7888,15 @@ GridItem * Zombie::UpdateZombieFlyer()
   // IsIZombieLevel's r0 is the return when this is not the flying phase.
   int aIsIZombie = mApp->IsIZombieLevel();
   if ( aIsIZombie == 0 )
-    return nullptr;
+    return;
   if ( mZombiePhase != PHASE_BALLOON_FLYING )
-    return (GridItem *)aIsIZombie;
+    return;
   if ( mBoard->mChallenge->IZombieGetBrainTarget(this) == nullptr )
-    return nullptr;
-  return (GridItem *)LandFlyer(0);
+    return;
+  {
+      LandFlyer(0);
+      return;
+  }
 }// ==========================================================================
 // Zombie::TakeFlyingDamage(int,unsigned int)
 // @001B18E8  50 bytes
@@ -7926,27 +7978,33 @@ Reanimation * Zombie::CatapultDeath(unsigned int theDamageFlags)
 // Zombie::UpdateBurn(void)
 // @001B1B20  14 bytes
 // ==========================================================================
-Zombie * Zombie::UpdateBurn()
+void Zombie::UpdateBurn()
 {
   mPhaseCounter -= 1;
   if ( mPhaseCounter == 0 )
-    return (Zombie *)DieWithLoot();
-  return this;
+    {
+        DieWithLoot();
+        return;
+    }
+  return;
 }
 // ==========================================================================
 // Zombie::UpdateMowered(void)
 // @001B1B30  50 bytes
 // ==========================================================================
-int Zombie::UpdateMowered()
+void Zombie::UpdateMowered()
 {
   Reanimation *aReanim = mApp->ReanimationTryToGet(mMoweredReanimID);
   if ( aReanim == nullptr || aReanim->mLoopCount > 0 )
   {
     DropHead(0);
     DropArm(0);
-    return DieWithLoot();
+    {
+        DieWithLoot();
+        return;
+    }
   }
-  return (int)aReanim;
+  return;
 }
 // ==========================================================================
 // Zombie::BossBungeeLeave(void)
@@ -7970,15 +8028,15 @@ Reanimation * Zombie::BossBungeeLeave()
 // Zombie::MowDown(void)
 // @001B1BB0  512 bytes
 // ==========================================================================
-int Zombie::MowDown()
+void Zombie::MowDown()
 {
   // Already dead, already mowered, or the boss: nothing to do.
   if ( mDead )
-    return (int)this;
+    return;
   if ( mZombiePhase == PHASE_ZOMBIE_MOWERED )
-    return (int)this;
+    return;
   if ( mZombieType == ZOMBIE_BOSS )
-    return (int)this;
+    return;
 
   // The two vehicles explode instead of being run down.
   if ( mZombieType == ZOMBIE_CATAPULT || mZombieType == ZOMBIE_ZAMBONI )
@@ -7987,7 +8045,10 @@ int Zombie::MowDown()
       ? (ParticleEffect)66 : (ParticleEffect)64;
     mApp->AddTodParticle(mPosX + 80.0f, mPosY + 60.0f, mRenderOrder + 1, anEffect);
     mApp->PlayFoley(FOLEY_EXPLOSION);
-    return (int)DieWithLoot();
+    {
+        DieWithLoot();
+        return;
+    }
   }
 
   // Everything the mower passes through is destroyed outright, except the types
@@ -8021,7 +8082,10 @@ int Zombie::MowDown()
       DropHelm(0);
       DropShield(0);
     }
-    return (int)DieWithLoot();
+    {
+        DieWithLoot();
+        return;
+    }
   }
 
   if ( mIceTrapCounter > 0 )
@@ -8052,7 +8116,8 @@ int Zombie::MowDown()
   aMowered->SetAnimRate(8.0f);
   mMoweredReanimID = mApp->ReanimationGetID(aMowered);
   mZombiePhase = PHASE_ZOMBIE_MOWERED;
-  return (int)DropLoot();
+  DropLoot();
+  return;
 }
 // ==========================================================================
 // Zombie::UpdateZombiePosition(void)
@@ -8231,7 +8296,7 @@ void Zombie::UpdateZombieBungee()
 // Zombie::UpdateZombieJackInTheBox(void)
 // @001B212C  330 bytes
 // ==========================================================================
-Reanimation * Zombie::UpdateZombieJackInTheBox()
+void Zombie::UpdateZombieJackInTheBox()
 {
   if ( mZombiePhase == PHASE_JACK_IN_THE_BOX_RUNNING )
   {
@@ -8244,20 +8309,23 @@ Reanimation * Zombie::UpdateZombieJackInTheBox()
       mZombiePhase = PHASE_JACK_IN_THE_BOX_POPPING;
       StopZombieSound();
       mApp->PlaySample(SOUND_BOING, true);
-      return PlayZombieReanim("anim_pop", REANIM_PLAY_ONCE_AND_HOLD, 20, 28.0f);
+      {
+          PlayZombieReanim("anim_pop", REANIM_PLAY_ONCE_AND_HOLD, 20, 28.0f);
+          return;
+      }
     }
-    return (Reanimation *)this;
+    return;
   }
 
   if ( mZombiePhase != PHASE_JACK_IN_THE_BOX_POPPING )
-    return (Reanimation *)this;
+    return;
 
   // The pop plays out; the squeak lands 80 frames in and the bang at the end.
   if ( mPhaseCounter == 80 )
     mApp->PlayFoley(FOLEY_JACKINTHEBOX);
 
   if ( mPhaseCounter > 0 )
-    return (Reanimation *)this;
+    return;
 
   mApp->PlayFoley(FOLEY_EXPLOSION);
   int aCenterX = mX + mWidth / 2;
@@ -8283,7 +8351,7 @@ Reanimation * Zombie::UpdateZombieJackInTheBox()
 
   if ( mApp->IsScaryPotterLevel() )
     mBoard->mChallenge->ScaryPotterJackExplode(aCenterX, aCenterY);
-  return (Reanimation *)this;
+  return;
 }
 // ==========================================================================
 // Zombie::UpdateZombieJalapenoHead(void)
@@ -9071,7 +9139,7 @@ void Zombie::ApplyBossSmokeParticles(bool theEnable)
 // Zombie::TakeBodyDamage(int,unsigned int)
 // @001B31FC  980 bytes
 // ==========================================================================
-Zombie * Zombie::TakeBodyDamage(int theDamage, unsigned int theDamageFlags)
+void Zombie::TakeBodyDamage(int theDamage, unsigned int theDamageFlags)
 {
     // DAMAGE_DOESNT_CAUSE_FLASH: a hit that should not make the zombie flash.
     if ((theDamageFlags & 8) == 0)
@@ -9220,7 +9288,7 @@ Zombie * Zombie::TakeBodyDamage(int theDamage, unsigned int theDamageFlags)
         // death sequence.
         if (mBodyHealth <= 0)
             mBodyHealth = 1;
-        return this;
+        return;
     }
     else
     {
@@ -9233,29 +9301,29 @@ Zombie * Zombie::TakeBodyDamage(int theDamage, unsigned int theDamageFlags)
         PlayDeathAnim(theDamageFlags);
         // 0x1B31FC returns this. DropLoot's coin is not the function's result.
         DropLoot();
-        return this;
+        return;
     }
-    return this;
+    return;
 }
 // ==========================================================================
 // Zombie::TakeDamage(int,unsigned int)
 // @001B368C  120 bytes
 // ==========================================================================
-int Zombie::TakeDamage(int theDamage, unsigned int theDamageFlags)
+void Zombie::TakeDamage(int theDamage, unsigned int theDamageFlags)
 {
     // A jack-in-the-box zombie is invulnerable while it is popping.
     if (mZombiePhase == PHASE_JACK_IN_THE_BOX_POPPING)
-        return 0;
+        return;
 
     if (IsDeadOrDying())
-        return 0;
+        return;
 
     int aDamageRemaining = theDamage;
     if (IsFlying())
         aDamageRemaining = TakeFlyingDamage(theDamage, theDamageFlags);
 
     if (aDamageRemaining <= 0)
-        return 0;
+        return;
 
     // theDamageFlags bit 0 = the damage passes the shield by; bit 1 = it hits the shield and
     // the body at once, so the body still takes the full original damage rather
@@ -9265,17 +9333,20 @@ int Zombie::TakeDamage(int theDamage, unsigned int theDamageFlags)
         int aShieldDamage = TakeShieldDamage(theDamage, theDamageFlags);
         aDamageRemaining = (theDamageFlags & 2) != 0 ? theDamage : aShieldDamage;
         if (aDamageRemaining <= 0)
-            return 0;
+            return;
     }
 
     if (mHelmType != 0)
     {
         aDamageRemaining = TakeHelmDamage(theDamage, theDamageFlags);
         if (aDamageRemaining <= 0)
-            return 0;
+            return;
     }
 
-    return (int)TakeBodyDamage(aDamageRemaining, theDamageFlags);
+    {
+        TakeBodyDamage(aDamageRemaining, theDamageFlags);
+        return;
+    }
 }
 // ==========================================================================
 // Zombie::UpdateZombieSnorkel(void)
@@ -9462,7 +9533,10 @@ int Zombie::UpdateZombieSquashHead()
         // The head is spent: kill it and take the body with it.
         mApp->ReanimationGet(mSpecialHeadReanimID)->ReanimationDie();
         mSpecialHeadReanimID = REANIMATIONID_NULL;
-        return TakeDamage(1800, 9U);
+        {
+      TakeDamage(1800, 9U);
+      return 0;
+    }
     }
     return 0;
 }
@@ -9930,7 +10004,7 @@ int Zombie::BobsledBurn()
 // Zombie::UpdateZombieGargantuar(void)
 // @001B45EC  890 bytes
 // ==========================================================================
-Reanimation * Zombie::UpdateZombieGargantuar()
+void Zombie::UpdateZombieGargantuar()
 {
     if (mZombiePhase == PHASE_GARGANTUAR_SMASHING)
     {
@@ -9972,9 +10046,12 @@ Reanimation * Zombie::UpdateZombieGargantuar()
         if (aBodyReanim->mLoopCount > 0)
         {
             mZombiePhase = PHASE_ZOMBIE_NORMAL;
-            return StartWalkAnim(20);
+            {
+                StartWalkAnim(20);
+                return;
+            }
         }
-        return (Reanimation *)this;
+        return;
     }
 
     // How far the gargantuar stands from the front of the lawn, which decides
@@ -9992,7 +10069,7 @@ Reanimation * Zombie::UpdateZombieGargantuar()
 
             Zombie *aImp = mBoard->AddZombie(ZOMBIE_IMP, mFromWave, false);
             if (aImp == nullptr)
-                return nullptr;
+                return;
 
             float aThrowDistance = 40.0f;
             if (mBoard->StageHasRoof())
@@ -10026,9 +10103,12 @@ Reanimation * Zombie::UpdateZombieGargantuar()
         if (aBodyReanim->mLoopCount > 0)
         {
             mZombiePhase = PHASE_ZOMBIE_NORMAL;
-            return StartWalkAnim(20);
+            {
+                StartWalkAnim(20);
+                return;
+            }
         }
-        return (Reanimation *)this;
+        return;
     }
 
     if (!IsImmobilizied() && mHasHead)
@@ -10037,7 +10117,10 @@ Reanimation * Zombie::UpdateZombieGargantuar()
         if (mHasObject && mBodyHealth < mBodyMaxHealth / 2 && aThrowingDistance > 40.0f)
         {
             mZombiePhase = PHASE_GARGANTUAR_THROWING;
-            return PlayZombieReanim("anim_throw", REANIM_PLAY_ONCE_AND_HOLD, 20, 24.0f);
+            {
+                PlayZombieReanim("anim_throw", REANIM_PLAY_ONCE_AND_HOLD, 20, 24.0f);
+                return;
+            }
         }
 
         // Otherwise look for something worth smashing: a plant, a scary pot or
@@ -10057,11 +10140,14 @@ Reanimation * Zombie::UpdateZombieGargantuar()
         {
             mZombiePhase = PHASE_GARGANTUAR_SMASHING;
             mApp->PlayFoley(FOLEY_LOW_GROAN);
-            return PlayZombieReanim("anim_smash", REANIM_PLAY_ONCE_AND_HOLD, 20, 16.0f);
+            {
+                PlayZombieReanim("anim_smash", REANIM_PLAY_ONCE_AND_HOLD, 20, 16.0f);
+                return;
+            }
         }
     }
 
-    return (Reanimation *)this;
+    return;
 }
 // ==========================================================================
 // Zombie::UpdateActions(void)
@@ -10138,7 +10224,7 @@ float Zombie::UpdateActions()
 // Zombie::UpdateBoss(void)
 // @001B4B38  1098 bytes
 // ==========================================================================
-int Zombie::UpdateBoss()
+void Zombie::UpdateBoss()
 {
     Reanimation *aBodyReanim = mApp->ReanimationTryToGet(mBodyReanimID);
 
@@ -10151,7 +10237,7 @@ int Zombie::UpdateBoss()
             mApp->PlayFoley(FOLEY_THUMP);
             mBoard->ShakeBoard(1, 4);
         }
-        return 0;
+        return;
     }
 
     Reanimation *aHeadReanim = mApp->ReanimationGet(mSpecialHeadReanimID);
@@ -10188,17 +10274,17 @@ int Zombie::UpdateBoss()
     {
         case PHASE_BOSS_ENTER:
             BossPlayIdle();
-            return 0;
+            return;
 
         case PHASE_BOSS_IDLE:
             // One point of body health left means the boss is on its way out.
             if (mBodyHealth == 1)
             {
                 PlayDeathAnim(0);
-                return 0;
+                return;
             }
             if (mPhaseCounter > 0)
-                return 0;
+                return;
 
             {
                 int aDamageIndex = GetBodyDamageIndex();
@@ -10208,7 +10294,7 @@ int Zombie::UpdateBoss()
                     if (aDamageIndex != 1)
                     {
                         BossRVAttack();
-                        return 0;
+                        return;
                     }
                 }
                 else
@@ -10216,7 +10302,7 @@ int Zombie::UpdateBoss()
                     if (mBossStompCounter == 0)
                     {
                         BossStompAttack();
-                        return 0;
+                        return;
                     }
                     if (mBossBungeeCounter != 0)
                     {
@@ -10231,7 +10317,7 @@ int Zombie::UpdateBoss()
                         {
                             BossHeadAttack();
                         }
-                        return 0;
+                        return;
                     }
 
                     // Nothing else is pending: once in a while send the bungees,
@@ -10240,11 +10326,11 @@ int Zombie::UpdateBoss()
                     {
                         mBossBungeeCounter = RandRangeInt(4000, 5000);
                         BossRVAttack();
-                        return 0;
+                        return;
                     }
                 }
                 BossBungeeAttack();
-                return 0;
+                return;
             }
 
         case PHASE_BOSS_SPAWNING:
@@ -10261,12 +10347,12 @@ int Zombie::UpdateBoss()
         case PHASE_BOSS_BUNGEES_ENTER:
             if (aBodyReanim->ShouldTriggerTimedEvent(0.4f))
                 BossBungeeSpawn();
-            return 0;
+            return;
 
         case PHASE_BOSS_BUNGEES_DROP:
             if (BossAreBungeesDone())
                 BossBungeeLeave();
-            return 0;
+            return;
 
         case PHASE_BOSS_BUNGEES_LEAVE:
             break;
@@ -10287,17 +10373,17 @@ int Zombie::UpdateBoss()
                 PlayZombieReanim("anim_head_idle", REANIM_LOOP, 0, 12.0f);
                 mPhaseCounter = 500;
             }
-            return 0;
+            return;
 
         case PHASE_BOSS_HEAD_IDLE_BEFORE_SPIT:
             if (mBodyHealth != 1)
             {
                 if (mPhaseCounter == 0)
                     BossHeadSpit();
-                return 0;
+                return;
             }
             BossStartDeath();
-            return 0;
+            return;
 
         case PHASE_BOSS_HEAD_IDLE_AFTER_SPIT:
             if (mBodyHealth != 1)
@@ -10307,10 +10393,10 @@ int Zombie::UpdateBoss()
                     mZombiePhase = PHASE_BOSS_HEAD_LEAVE;
                     PlayZombieReanim("anim_head_leave", REANIM_PLAY_ONCE_AND_HOLD, 0, 12.0f);
                 }
-                return 0;
+                return;
             }
             BossStartDeath();
-            return 0;
+            return;
 
         case PHASE_BOSS_HEAD_SPIT:
             if (aBodyReanim->ShouldTriggerTimedEvent(0.37f))
@@ -10325,7 +10411,7 @@ int Zombie::UpdateBoss()
                 PlayZombieReanim("anim_head_idle", REANIM_LOOP, 0, 12.0f);
                 mPhaseCounter = 300;
             }
-            return 0;
+            return;
 
         case PHASE_BOSS_HEAD_LEAVE:
             if (aBodyReanim->ShouldTriggerTimedEvent(0.23f))
@@ -10343,10 +10429,10 @@ int Zombie::UpdateBoss()
                 ApplyBossSmokeParticles(false);
                 BossPlayIdle();
             }
-            return 0;
+            return;
 
         default:
-            return 0;
+            return;
     }
 
     if (aBodyReanim->mLoopCount > 0)
@@ -10437,24 +10523,27 @@ void Zombie::EnableFuture(bool theEnable)
 // Zombie::EnableDanceMode(bool)
 // @001B5108  54 bytes
 // ==========================================================================
-int Zombie::EnableDanceMode(bool theEnable)
+void Zombie::EnableDanceMode(bool theEnable)
 {
     (void)theEnable;
     // UI and cutscene zombies (from-wave -3 and -2) stay as they are.
     if ((unsigned int)(mFromWave + 3) <= 1)
-        return (int)this;
+        return;
 
     if (ZombieNotWalking())
-        return (int)this;
+        return;
 
     if (IsDeadOrDying() != 0)
-        return (int)this;
+        return;
 
     // A plain zombie, a flag zombie, or a bucket zombie starts the dance walk.
     if ((mZombieType & ~2) == 0 || mZombieType == ZOMBIE_PAIL)
-        return (int)StartWalkAnim(0);
+        {
+            StartWalkAnim(0);
+            return;
+        }
 
-    return 0;
+    return;
 }
 // ==========================================================================
 // Zombie::SetupWaterTrack(char const*)
@@ -11379,9 +11468,7 @@ Zombie::Zombie()
     // so the compiler emits both.
     mVisible = true;
 
-    SyncBlockInfo aBlock;
-    aBlock.mData = &mZombieType;
-    aBlock.mSize = 317;
+    SyncBlockInfo aBlock = MakeSyncBlock(mZombieType, mWalnutDeath);
     mSyncBlocks.push_back(aBlock);
 
     mZombieRect.mX = 0;
@@ -11397,7 +11484,7 @@ Zombie::Zombie()
     mCachedZombieRect.mWidth = 0;
     mCachedZombieRect.mHeight = 0;
 
-    memset(&mZombieType, 0, 317);
+    memset(aBlock.mData, 0, aBlock.mSize);
 }
 // ==========================================================================
 // Zombie::BuySunMoneyItem(void)
@@ -11579,7 +11666,10 @@ int Zombie::UpdatePlaying()
                 aDamage = 3;
 
             if (Rand(5) == 0)
-                return TakeDamage(aDamage, 9);
+                {
+      TakeDamage(aDamage, 9);
+      return 0;
+    }
         }
     }
     return result;

@@ -20,12 +20,10 @@ int Sexy::Driver::IsDisabled()
     return mDisabled;
 }
 
-// A by-value return. The published signature still names the source as an int;
-// the name copied is this driver's own, which is the only string the method has.
-PakLib::Driver* PakLib::Driver::GetName(int)
+// @0x444290: the first ARM argument is the hidden string return buffer.
+Sexy::String PakLib::Driver::GetName() const
 {
-    StringCopyCtor(static_cast<Sexy::String*>(static_cast<void*>(this)), &mName);
-    return this;
+    return mName;
 }
 
 int PakLib::Driver::GetPriority()

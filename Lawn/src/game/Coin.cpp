@@ -2100,9 +2100,7 @@ Coin::Coin()
 {
   // The base constructor registers GameObject's own state block; this one adds
   // the coin's whole derived area (+0x34..+0xC5, 146 bytes) and zeroes it.
-  SyncBlockInfo aBlock;
-  aBlock.mData = &mPosX;
-  aBlock.mSize = 146;
+  SyncBlockInfo aBlock = MakeSyncBlock(mPosX, mDoubleSunHighlight1);
   mSyncBlocks.push_back(aBlock);
-  memset(&mPosX, 0, 146);
+  memset(aBlock.mData, 0, aBlock.mSize);
 }

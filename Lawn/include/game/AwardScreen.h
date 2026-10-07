@@ -106,14 +106,5 @@ public:
     LawnApp *mApp;            // +0x10C
     int mFadeInCounter;       // +0x110
     AwardType mAwardType;     // +0x114
-    // The set of resource names this screen has already loaded -- the same
-    // std::set<Sexy::String> CutScene keeps, ordered with std::less<std::string>.
-    // A libstdc++ std::map object is one stateless-comparator word followed by
-    // the 20-byte tree header, so its own header node -- the end() a lookup
-    // returns when a name is absent -- sits at +0x11C, and mHeader.mParent at
-    // +0x120 is the root the destructor hands to RbTree::_M_erase. The
-    // constructor stores &mHeader into both link words, exactly libstdc++'s
-    // _Rb_tree_header initialisation, which is what fixes the boundary.
-    Sexy::RbTree::MapStorage mLoadedResources; // +0x118 .. +0x12F
-    // size 0x130
+    std::set<Sexy::String> mLoadedResources;
 };

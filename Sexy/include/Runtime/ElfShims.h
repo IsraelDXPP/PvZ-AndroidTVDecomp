@@ -34,15 +34,14 @@
 // ---------------------------------------------------------------------------
 struct Elf32_Sym
 {
-    _DWORD  st_name;
-    _DWORD  st_value;
-    _DWORD  st_size;
+    std::uint32_t  st_name;
+    std::uint32_t  st_value;
+    std::uint32_t  st_size;
     _BYTE   st_info;
     _BYTE   st_other;
     _WORD   st_shndx;
 };
 
-static_assert(sizeof(Elf32_Sym) == 16, "Elf32_Sym must be 16 bytes");
 
 // The header, for the code that reads the table's location out of it.
 struct Elf32_Ehdr
@@ -50,11 +49,11 @@ struct Elf32_Ehdr
     _BYTE   e_ident[16];
     _WORD   e_type;
     _WORD   e_machine;
-    _DWORD  e_version;
-    _DWORD  e_entry;
-    _DWORD  e_phoff;
-    _DWORD  e_shoff;
-    _DWORD  e_flags;
+    std::uint32_t  e_version;
+    std::uint32_t  e_entry;
+    std::uint32_t  e_phoff;
+    std::uint32_t  e_shoff;
+    std::uint32_t  e_flags;
     _WORD   e_ehsize;
     _WORD   e_phentsize;
     _WORD   e_phnum;
@@ -65,22 +64,22 @@ struct Elf32_Ehdr
 
 struct Elf32_Shdr
 {
-    _DWORD  sh_name;
-    _DWORD  sh_type;
-    _DWORD  sh_flags;
-    _DWORD  sh_addr;
-    _DWORD  sh_offset;
-    _DWORD  sh_size;
-    _DWORD  sh_link;
-    _DWORD  sh_info;
-    _DWORD  sh_addralign;
-    _DWORD  sh_entsize;
+    std::uint32_t  sh_name;
+    std::uint32_t  sh_type;
+    std::uint32_t  sh_flags;
+    std::uint32_t  sh_addr;
+    std::uint32_t  sh_offset;
+    std::uint32_t  sh_size;
+    std::uint32_t  sh_link;
+    std::uint32_t  sh_info;
+    std::uint32_t  sh_addralign;
+    std::uint32_t  sh_entsize;
 };
 
 struct Elf32_Dyn
 {
-    _DWORD  d_tag;
-    _DWORD  d_un;
+    std::uint32_t  d_tag;
+    std::uint32_t  d_un;
 };
 
 // ---------------------------------------------------------------------------

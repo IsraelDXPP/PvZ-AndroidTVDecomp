@@ -120,12 +120,12 @@ public:
     int AddSelectorParticle(int theSeedIndex);
     unsigned int IncSelectedSeed();
     unsigned int DecSelectedSeed();
-    int IncShopSeed();
-    int DecShopSeed();
-    int otherPlayerDownSelectedSeed();
-    int DownSelectedSeed();
-    int otherPlayerUpSelectedSeed();
-    int UpSelectedSeed();
+    void IncShopSeed();
+    void DecShopSeed();
+    void otherPlayerDownSelectedSeed();
+    void DownSelectedSeed();
+    void otherPlayerUpSelectedSeed();
+    void UpSelectedSeed();
     // The binary returns the direction through the sret pointer (ARM r0), so the
     // real return type is the same 8-byte pair BaseGamepadControls's
     // GetSnapToGridPos hands back; the transcription mistook that destination for

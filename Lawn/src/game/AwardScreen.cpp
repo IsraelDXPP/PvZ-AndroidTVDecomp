@@ -598,21 +598,8 @@ AwardScreen::~AwardScreen()
   if (mStartButton != nullptr)
     delete mStartButton;
 
-  // mLoadedResources is a std::set<Sexy::String>. A node is the four-word
-  // base plus the stored string at +0x10. Walk in order, release each name,
-  // then erase the tree. The binary's next-node call is RbTreeNextConst, the same
-  // _Rb_tree_increment as Sexy::RbTree::_M_increment.
-  struct ResourceNameNode : Sexy::RbTree::NodeBase
-  {
-    Sexy::String mName;
-  };
-  for (ResourceNameNode *aNode = static_cast<ResourceNameNode *>(mLoadedResources.mHeader.mLeft);
-       aNode != static_cast<ResourceNameNode *>(&mLoadedResources.mHeader);
-       aNode = static_cast<ResourceNameNode *>(Sexy::RbTree::_M_increment(aNode)))
-  {
-    TodDeleteResources(aNode->mName);
-  }
-  Sexy::RbTree::_M_erase(mLoadedResources.mHeader.mParent);
+  for (const Sexy::String &aGroup : mLoadedResources)
+    TodDeleteResources(aGroup);
 }
 
 // ==========================================================================
@@ -621,17 +608,12 @@ AwardScreen::~AwardScreen()
 // ==========================================================================
 int AwardScreen::LoadResources(Sexy::String const& theGroup)
 {
-  // The set of names this screen has already loaded, so asking for one twice
-  // is a no-op. find walks from the root at +0x120 and returns the header
-  // node when the name is absent. A hit returns 0 without loading. A miss
-  // loads, and on success inserts; the binary discards the inserted node
-  // and returns TodLoadResources' result.
-  if (Sexy::RbTree::find(&mLoadedResources, &theGroup) != &mLoadedResources.mHeader)
+  if (mLoadedResources.find(theGroup) != mLoadedResources.end())
     return 0;
 
   int aResult = TodLoadResources(theGroup);
   if (aResult != 0)
-    Sexy::RbTree::_M_insert_unique(&mLoadedResources, &theGroup);
+    mLoadedResources.insert(theGroup);
   return aResult;
 }
 
@@ -646,11 +628,6 @@ AwardScreen::AwardScreen(LawnApp *theApp, AwardType theAward)
   mApp = theApp;
   mAwardType = theAward;
   mFadeInCounter = 180;
-  mLoadedResources.mHeader.mColor = 0;
-  mLoadedResources.mHeader.mParent = nullptr;
-  mLoadedResources.mHeader.mLeft = &mLoadedResources.mHeader;
-  mLoadedResources.mHeader.mRight = &mLoadedResources.mHeader;
-  mLoadedResources.mCount = 0;
   mClip = false;
 
   int aLevel = mApp->mPlayerInfo->GetLevel();

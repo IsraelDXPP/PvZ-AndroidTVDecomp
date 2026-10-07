@@ -65,32 +65,23 @@ char * curl_unescape(const char *theText, int theLength);
 void   curl_free(void *thePointer);
 }
 
-// TODO(recon): the binary logs through liblogger -- a member
-// `logger::Clog::operator<<` fed by the global `logger::debug` sink -- and no
-// header in the tree declares either. C++ forbids a *static* `operator<<`
-// (C2801) and the dump writes the receiver explicitly
-// (`logger::Clog::operator<<(v3, text)`), so each such site below calls
-// `logStream(v3, text)` instead: the same receiver-in/receiver-out chain, with
-// the text forwarded to the framework's info logger. The `const void *`
-// overload carries the one site that streams an object (`<< this` in
-// encodeRequesArgs' trace), and the null writes that close a line are spelled
-// `(const char *)nullptr`. A header should declare logger::Clog so the real
-// `operator<<` can be named.
 namespace logger
 {
-static int debug = 0;
+struct Clog {};
+static Clog debug;
 }
 
-static int logStream(int theLogger, const char *theText)
+static logger::Clog *logStream(logger::Clog *theLogger, const char *theText)
 {
     if (theText != nullptr)
-        logfi(theText);
+        logfi("%s", theText);
     return theLogger;
 }
 
-static int logStream(int theLogger, const void *theObject)
+static logger::Clog *logStream(logger::Clog *theLogger, const void *theObject)
 {
-    (void)theObject;
+    if (theObject != nullptr)
+        logfi("%p", theObject);
     return theLogger;
 }
 
@@ -159,7 +150,7 @@ void * DrRpcEngine::getRpcEngine()
 
     if (gInitState == 0)
     {
-        int aLog = logStream((int)&logger::debug, "Initializing RPC engine...");
+        logger::Clog *aLog = logStream(&logger::debug, "Initializing RPC engine...");
         logStream(aLog, (const char *)nullptr);
 
         curl_global_init(3);
@@ -170,7 +161,7 @@ void * DrRpcEngine::getRpcEngine()
         else
             gInitState = -1;
 
-        aLog = logStream((int)&logger::debug, "RPC engine initialized ");
+        aLog = logStream(&logger::debug, "RPC engine initialized ");
         const char *aOutcome = "successfully";
         if (gInitState == 0)
             aOutcome = "with failures";
@@ -258,7 +249,7 @@ DrRpcRes DrRpcEngine::parseResponse(Sexy::String const& theBody)
     JSONWorker aRoot;
     aRoot.parse(theBody);
 
-    int aLog = logStream((int)&logger::debug, "\n");
+    logger::Clog *aLog = logStream(&logger::debug, "\n");
 
     {
         Sexy::String aDumped;
@@ -391,7 +382,7 @@ Sexy::String DrRpcEngine::encodeRequesArgs(DrCurlRequest const& theRequest)
 
         // operator<<(char const*) then operator<<(string const&) of the result
         // (r4 holds the sorted fields, not the engine), then endl.
-        int aLog = logStream((int)&logger::debug, "args: ");
+        logger::Clog *aLog = logStream(&logger::debug, "args: ");
         aLog = logStream(aLog, aResult.c_str());
         const char *aEndl = nullptr;
         logStream(aLog, aEndl);
@@ -660,7 +651,7 @@ DrRpcResWithText DrRpcEngine::call_QueryCoin(Sexy::String const& theToken)
             {
                 aPerformed.mList->Fetch();
                 if (aPerformed.mList->CHILDREN != nullptr
-                    && aPerformed.mList->CHILDREN->mSize != 0)
+                    && aPerformed.mList->CHILDREN->mChildren.size() != 0)
                 {
                     JSONNode aRow;
                     JSONNode::Bind(aRow, aPerformed.mList);
@@ -744,7 +735,7 @@ DrRpcResWithText DrRpcEngine::call_GetKeyValue(Sexy::String const& theToken, Sex
             {
                 aPerformed.mList->Fetch();
                 if (aPerformed.mList->CHILDREN != nullptr
-                    && aPerformed.mList->CHILDREN->mSize != 0)
+                    && aPerformed.mList->CHILDREN->mChildren.size() != 0)
                 {
                     JSONNode aRow;
                     JSONNode::Bind(aRow, aPerformed.mList);
@@ -968,7 +959,7 @@ DrRpcResWithString DrRpcEngine::call_DebugAddMoney(Sexy::String const& theToken,
             {
                 aPerformed.mList->Fetch();
                 if (aPerformed.mList->CHILDREN != nullptr
-                    && aPerformed.mList->CHILDREN->mSize != 0)
+                    && aPerformed.mList->CHILDREN->mChildren.size() != 0)
                 {
                     JSONNode aRow;
                     JSONNode::Bind(aRow, aPerformed.mList);
@@ -1128,7 +1119,7 @@ DrRpcResOfLoggin DrRpcEngine::call_Loggin(Sexy::String const& theAccount, Sexy::
             {
                 aPerformed.mList->Fetch();
                 if (aPerformed.mList->CHILDREN != nullptr
-                    && aPerformed.mList->CHILDREN->mSize != 0)
+                    && aPerformed.mList->CHILDREN->mChildren.size() != 0)
                 {
                     JSONNode aRow;
                     JSONNode::Bind(aRow, aPerformed.mList);
@@ -1226,7 +1217,7 @@ DrRpcResOfCoinList DrRpcEngine::call_QueryCoinList()
                 if (aChildren != nullptr)
                 {
                     unsigned int aIndex = 0;
-                    while (aIndex < aChildren->mSize)
+                    while (aIndex < aChildren->mChildren.size())
                     {
                         aPerformed.mList->Fetch();
                         JSONNode aList;
@@ -1492,7 +1483,7 @@ DrRpcResOfAllItems DrRpcEngine::call_QueryAllItems(Sexy::String const& theToken)
                 if (aChildren != nullptr)
                 {
                     unsigned int aIndex = 0;
-                    while (aIndex < aChildren->mSize)
+                    while (aIndex < aChildren->mChildren.size())
                     {
                         aPerformed.mList->Fetch();
                         JSONNode aList;

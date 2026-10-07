@@ -146,7 +146,7 @@ MessageWidget::MessageWidget(LawnApp *theApp)
   // mLabel to the end of the object. The binary builds the descriptor on the
   // stack, pushes it into the SyncObject base's vector (the dump's
   // `_M_insert_aux` at `this + 4`), and then zero-fills the same range.
-  const int aStateSize = (int)(sizeof(MessageWidget) - offsetof(MessageWidget, mLabel));
+  const size_t aStateSize = MakeSyncBlock(mLabel, mMessageStyleNext).mSize;
   mSyncBlocks.push_back(SyncBlockInfo{&mLabel, aStateSize});
   memset(mLabel, 0, (size_t)aStateSize);
 

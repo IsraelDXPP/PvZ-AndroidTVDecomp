@@ -83,163 +83,6 @@ int WriteByteOf(DataWriter *theWriter, T theNum)
     return theWriter->WriteByte(static_cast<unsigned char>(theNum));
 }
 
-void SeatHeader(Sexy::RbTree::MapStorage &theMap)
-{
-    theMap.mComparator = 0;
-    theMap.mHeader.mColor = 0;
-    theMap.mHeader.mParent = nullptr;
-    theMap.mHeader.mLeft = &theMap.mHeader;
-    theMap.mHeader.mRight = &theMap.mHeader;
-    theMap.mCount = 0;
-}
-
-// Free every node, then leave the header as an empty tree.
-void ClearMap(Sexy::RbTree::MapStorage &theMap)
-{
-    Sexy::RbTree::NodeBase *theNode = theMap.mHeader.mParent;
-    while (theNode != nullptr)
-    {
-        Sexy::RbTree::NodeBase *theRight = theNode->mRight;
-        Sexy::RbTree::NodeBase *theLeft = theNode->mLeft;
-        if (theRight != nullptr)
-        {
-            theNode->mRight = nullptr;
-            theNode = theRight;
-            continue;
-        }
-        ::operator delete(theNode);
-        theNode = theLeft;
-    }
-    SeatHeader(theMap);
-}
-
-DataSync::PointerToIntNode *FindPointer(Sexy::RbTree::MapStorage &theMap, void *theKey)
-{
-    Sexy::RbTree::NodeBase *theHeader = &theMap.mHeader;
-    Sexy::RbTree::NodeBase *theNode = theHeader->mParent;
-    DataSync::PointerToIntNode *theFound = static_cast<DataSync::PointerToIntNode *>(theHeader);
-
-    while (theNode != nullptr)
-    {
-        DataSync::PointerToIntNode *thePair = static_cast<DataSync::PointerToIntNode *>(theNode);
-        if (theKey > thePair->mKey)
-            theNode = theNode->mRight;
-        else
-        {
-            theFound = thePair;
-            theNode = theNode->mLeft;
-        }
-    }
-    if (theFound == static_cast<DataSync::PointerToIntNode *>(theHeader) || theKey < theFound->mKey)
-        return nullptr;
-    return theFound;
-}
-
-DataSync::IntToPointerNode *FindIndex(Sexy::RbTree::MapStorage &theMap, int theKey)
-{
-    Sexy::RbTree::NodeBase *theHeader = &theMap.mHeader;
-    Sexy::RbTree::NodeBase *theNode = theHeader->mParent;
-    DataSync::IntToPointerNode *theFound = static_cast<DataSync::IntToPointerNode *>(theHeader);
-
-    while (theNode != nullptr)
-    {
-        DataSync::IntToPointerNode *thePair = static_cast<DataSync::IntToPointerNode *>(theNode);
-        if (theKey > thePair->mKey)
-            theNode = theNode->mRight;
-        else
-        {
-            theFound = thePair;
-            theNode = theNode->mLeft;
-        }
-    }
-    if (theFound == static_cast<DataSync::IntToPointerNode *>(theHeader) || theKey < theFound->mKey)
-        return nullptr;
-    return theFound;
-}
-
-void LinkNode(Sexy::RbTree::MapStorage &theMap, Sexy::RbTree::NodeBase *theParent, bool theLeft, Sexy::RbTree::NodeBase *theNode)
-{
-    bool theInsertLeft = theLeft || theParent == &theMap.mHeader;
-    Sexy::RbTree::_Rb_tree_insert_and_rebalance(theInsertLeft, theNode, theParent, theMap.mHeader);
-    ++theMap.mCount;
-}
-
-void RememberPointer(Sexy::RbTree::MapStorage &theMap, void *thePointer, int theIndex)
-{
-    Sexy::RbTree::NodeBase *theHeader = &theMap.mHeader;
-    Sexy::RbTree::NodeBase *theWalk = theHeader->mParent;
-    Sexy::RbTree::NodeBase *theParent = theHeader;
-    bool theLeft = true;
-
-    while (theWalk != nullptr)
-    {
-        DataSync::PointerToIntNode *thePair = static_cast<DataSync::PointerToIntNode *>(theWalk);
-        theParent = theWalk;
-        if (thePointer < thePair->mKey)
-        {
-            theLeft = true;
-            theWalk = theWalk->mLeft;
-        }
-        else if (thePointer > thePair->mKey)
-        {
-            theLeft = false;
-            theWalk = theWalk->mRight;
-        }
-        else
-        {
-            thePair->mValue = theIndex;
-            return;
-        }
-    }
-
-    DataSync::PointerToIntNode *theNode = new DataSync::PointerToIntNode();
-    theNode->mColor = 0;
-    theNode->mParent = nullptr;
-    theNode->mLeft = nullptr;
-    theNode->mRight = nullptr;
-    theNode->mKey = thePointer;
-    theNode->mValue = theIndex;
-    LinkNode(theMap, theParent, theLeft, theNode);
-}
-
-void RememberIndex(Sexy::RbTree::MapStorage &theMap, int theIndex, void *thePointer)
-{
-    Sexy::RbTree::NodeBase *theHeader = &theMap.mHeader;
-    Sexy::RbTree::NodeBase *theWalk = theHeader->mParent;
-    Sexy::RbTree::NodeBase *theParent = theHeader;
-    bool theLeft = true;
-
-    while (theWalk != nullptr)
-    {
-        DataSync::IntToPointerNode *thePair = static_cast<DataSync::IntToPointerNode *>(theWalk);
-        theParent = theWalk;
-        if (theIndex < thePair->mKey)
-        {
-            theLeft = true;
-            theWalk = theWalk->mLeft;
-        }
-        else if (theIndex > thePair->mKey)
-        {
-            theLeft = false;
-            theWalk = theWalk->mRight;
-        }
-        else
-        {
-            thePair->mValue = thePointer;
-            return;
-        }
-    }
-
-    DataSync::IntToPointerNode *theNode = new DataSync::IntToPointerNode();
-    theNode->mColor = 0;
-    theNode->mParent = nullptr;
-    theNode->mLeft = nullptr;
-    theNode->mRight = nullptr;
-    theNode->mKey = theIndex;
-    theNode->mValue = thePointer;
-    LinkNode(theMap, theParent, theLeft, theNode);
-}
-
 } // namespace
 
 int DataSync::SyncBytes(void *theData, unsigned long theDataLen)
@@ -689,26 +532,20 @@ int DataSync::SyncBool(bool &theValue)
     return theRead;
 }
 
-int DataSync::SyncFloat(float &theValue)
-{
-    if (mReader == nullptr)
-        return mWriter->WriteFloat(theValue);
-    int theBits = mReader->ReadFloat();
-    float theRead = 0.0f;
-    std::memcpy(&theRead, &theBits, sizeof(theRead));
-    theValue = theRead;
-    return theBits;
-}
-
-int DataSync::SyncDouble(double &theValue)
+void DataSync::SyncFloat(float &theValue)
 {
     if (mReader != nullptr)
-    {
-        long long theBits = mReader->ReadDouble();
-        std::memcpy(&theValue, &theBits, sizeof(theValue));
-        return static_cast<int>(theBits);
-    }
-    return mWriter->WriteDouble(theValue);
+        theValue = mReader->ReadFloat();
+    else
+        mWriter->WriteFloat(theValue);
+}
+
+void DataSync::SyncDouble(double &theValue)
+{
+    if (mReader != nullptr)
+        theValue = mReader->ReadDouble();
+    else
+        mWriter->WriteDouble(theValue);
 }
 
 int DataSync::SyncString(Sexy::String &theString)
@@ -726,13 +563,13 @@ int DataSync::SyncPointer(void **theSlot)
 
 int DataSync::ResetPointerTable()
 {
-    ClearMap(mIntToPointerMap);
-    ClearMap(mPointerToIntMap);
+    mIntToPointerMap.clear();
+    mPointerToIntMap.clear();
     mPointerSyncList.clear();
     mCurPointerIndex = 1;
     // Index 0 is the null pointer, both ways.
-    RememberPointer(mPointerToIntMap, nullptr, 0);
-    RememberIndex(mIntToPointerMap, 0, nullptr);
+    mPointerToIntMap.emplace(nullptr, 0);
+    mIntToPointerMap.emplace(0, nullptr);
     return 0;
 }
 
@@ -745,23 +582,17 @@ int DataSync::Reset()
 
 DataSync::DataSync()
 {
-    SeatHeader(mPointerToIntMap);
-    SeatHeader(mIntToPointerMap);
     Reset();
 }
 
 DataSync::DataSync(DataReader &theReader)
 {
-    SeatHeader(mPointerToIntMap);
-    SeatHeader(mIntToPointerMap);
     Reset();
     mReader = &theReader;
 }
 
 DataSync::DataSync(DataWriter &theWriter)
 {
-    SeatHeader(mPointerToIntMap);
-    SeatHeader(mIntToPointerMap);
     Reset();
     mWriter = &theWriter;
 }
@@ -787,10 +618,10 @@ int DataSync::SyncPointers()
         for (void **theSlot : mPointerSyncList)
         {
             int theIndex = mReader->ReadLong();
-            IntToPointerNode *theFound = FindIndex(mIntToPointerMap, theIndex);
-            if (theFound == nullptr)
+            auto theFound = mIntToPointerMap.find(theIndex);
+            if (theFound == mIntToPointerMap.end())
                 throw DataReaderException();
-            *theSlot = theFound->mValue;
+            *theSlot = theFound->second;
         }
     }
     else
@@ -798,10 +629,10 @@ int DataSync::SyncPointers()
         for (void **theSlot : mPointerSyncList)
         {
             void *thePointer = *theSlot;
-            PointerToIntNode *theFound = FindPointer(mPointerToIntMap, thePointer);
+            auto theFound = mPointerToIntMap.find(thePointer);
             // A pointer that was never registered has no index. Null's index is
             // 0, which is the only reserved miss the save format understands.
-            int theIndex = theFound != nullptr ? theFound->mValue : 0;
+            int theIndex = theFound != mPointerToIntMap.end() ? theFound->second : 0;
             mWriter->WriteLong(static_cast<unsigned long>(theIndex));
         }
     }
@@ -810,19 +641,19 @@ int DataSync::SyncPointers()
 
 int DataSync::RegisterPointer(void *thePointer)
 {
-    PointerToIntNode *theExisting = FindPointer(mPointerToIntMap, thePointer);
-    if (theExisting != nullptr)
-        return theExisting->mValue;
+    auto theExisting = mPointerToIntMap.find(thePointer);
+    if (theExisting != mPointerToIntMap.end())
+        return theExisting->second;
 
     int theIndex = mCurPointerIndex;
     ++mCurPointerIndex;
-    RememberPointer(mPointerToIntMap, thePointer, theIndex);
-    RememberIndex(mIntToPointerMap, theIndex, thePointer);
+    mPointerToIntMap.emplace(thePointer, theIndex);
+    mIntToPointerMap.emplace(theIndex, thePointer);
     return theIndex;
 }
 
 DataSync::~DataSync()
 {
-    ClearMap(mIntToPointerMap);
-    ClearMap(mPointerToIntMap);
+    mIntToPointerMap.clear();
+    mPointerToIntMap.clear();
 }

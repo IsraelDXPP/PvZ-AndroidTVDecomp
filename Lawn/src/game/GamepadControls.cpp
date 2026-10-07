@@ -1254,48 +1254,48 @@ unsigned int GamepadControls::DecSelectedSeed()
 // GamepadControls::IncShopSeed()
 // @001C10BC  18 bytes
 // ==========================================================================
-int GamepadControls::IncShopSeed()
+void GamepadControls::IncShopSeed()
 {
   // LDR.W/STR.W of the int at +0xF8. CMP #6 / MOVGT clamps; BX LR leaves this in r0.
   int aIndex = mSelectedShopSeedIndex + 1;
   if ( aIndex > 6 )
     aIndex = 6;
   mSelectedShopSeedIndex = aIndex;
-  return (int)this;
+  return;
 }
 
 // ==========================================================================
 // GamepadControls::DecShopSeed()
 // @001C10D0  16 bytes
 // ==========================================================================
-int GamepadControls::DecShopSeed()
+void GamepadControls::DecShopSeed()
 {
   // LDR.W/STR.W of the int at +0xF8. SUBS #1 / IT MI / MOVMI clamps at 0; BX LR leaves this in r0.
   int aIndex = mSelectedShopSeedIndex - 1;
   if ( aIndex < 0 )
     aIndex = 0;
   mSelectedShopSeedIndex = aIndex;
-  return (int)this;
+  return;
 }
 
 // ==========================================================================
 // GamepadControls::otherPlayerDownSelectedSeed()
 // @001C10E0  4 bytes
 // ==========================================================================
-int GamepadControls::otherPlayerDownSelectedSeed()
+void GamepadControls::otherPlayerDownSelectedSeed()
 {
-  return DownSelectedSeed();
+  DownSelectedSeed();
 }
 
 // ==========================================================================
 // GamepadControls::DownSelectedSeed()
 // @001C10E4  96 bytes
 // ==========================================================================
-int GamepadControls::DownSelectedSeed()
+void GamepadControls::DownSelectedSeed()
 {
   // Nonzero byte at +0xF5: POP {R4,PC} leaves this in r0.
   if ( mIsInShopSeedBank != 0 )
-    return (int)this;
+    return;
 
   // STRB #1 at +0xF5, then signed % 7 (magic 0x92492493) of +0xB4 into +0xF8.
   mIsInShopSeedBank = true;
@@ -1303,49 +1303,49 @@ int GamepadControls::DownSelectedSeed()
 
   int aTwoPlayer = mApp->IsTwoPlayerGame();
   if ( aTwoPlayer == 0 )
-    return aTwoPlayer;
+    return;
 
   // Word 0x8D - mPlayerIndex is the other mGamepadControls slot (+0x230).
   // +0x98 == -1 returns that pointer (or null); otherwise tail-call on it.
   GamepadControls *aOther = mBoard->mGamepadControls[1 - mPlayerIndex];
   if ( aOther == 0 || aOther->mGamepadIndex == -1 )
-    return (int)aOther;
-  return aOther->otherPlayerDownSelectedSeed();
+    return;
+  aOther->otherPlayerDownSelectedSeed();
 }
 
 // ==========================================================================
 // GamepadControls::otherPlayerUpSelectedSeed()
 // @001C1144  4 bytes
 // ==========================================================================
-int GamepadControls::otherPlayerUpSelectedSeed()
+void GamepadControls::otherPlayerUpSelectedSeed()
 {
-  return UpSelectedSeed();
+  UpSelectedSeed();
 }
 
 // ==========================================================================
 // GamepadControls::UpSelectedSeed()
 // @001C1148  104 bytes
 // ==========================================================================
-int GamepadControls::UpSelectedSeed()
+void GamepadControls::UpSelectedSeed()
 {
   if (mIsInShopSeedBank == 0)
-    return (int)this;
+    return;
 
   mIsInShopSeedBank = false;
   SeedBank *aBank = GetSeedBank();
   int aCount = aBank->mNumPackets;
   if (mBoard->HasConveyorBeltSeedBank(false) != 0)
     aCount = aBank->GetNumVisibleSeedsOnConveyorBelt();
-  mSelectedSeedIndex = mSelectedShopSeedIndex % aCount;
+  mSelectedSeedIndex = aCount > 0 ? mSelectedShopSeedIndex % aCount : 0;
 
   int aTwoPlayer = mApp->IsTwoPlayerGame();
   if (aTwoPlayer == 0)
-    return aTwoPlayer;
+    return;
 
   GamepadControls *aOther = mBoard->mGamepadControls[1 - mPlayerIndex];
   if (aOther == 0 || aOther->mGamepadIndex == -1)
-    return (int)aOther;
-  return aOther->otherPlayerUpSelectedSeed();
+    return;
+  aOther->otherPlayerUpSelectedSeed();
 }
 
 // ==========================================================================
@@ -2562,11 +2562,9 @@ GamepadControls::GamepadControls(Board * theBoard, int thePlayerIndex1, int theP
   // registered as one sync block and then zero-filled. libstdcxx::vector's own
   // default constructor has already initialised mSyncBlocks, so only the push is
   // written out here.
-  SyncBlockInfo aBlock;
-  aBlock.mData = &mDerivedSyncBlockPadding;
-  aBlock.mSize = 64;
+  SyncBlockInfo aBlock = MakeSyncBlock(mDerivedSyncBlockPadding, mPreviewingSeedType);
   mSyncBlocks.push_back(aBlock);
-  memset(&mDerivedSyncBlockPadding, 0, 64);
+  memset(aBlock.mData, 0, aBlock.mSize);
 
   mSelectedSeedType = SEED_NONE;
   mPreviewingSeedType = SEED_NONE;

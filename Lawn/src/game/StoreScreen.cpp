@@ -1697,7 +1697,8 @@ void StoreScreen::Update()
                     // part only starts once the hatch is mostly up.
                     mShakeX = 0;
                     if (mHatchTimer > 35)
-                        mShakeY = Rand((void *)3, mHatchTimer + 1) - 1;                    else
+                        mShakeY = Rand(3) - 1;
+                    else
                         mShakeY = 0;
                 }
             }

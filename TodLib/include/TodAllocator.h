@@ -1,6 +1,9 @@
 #pragma once
 
 #include <cstring>
+#include <cstddef>
+#include <limits>
+#include <new>
 
 // The pool the per-track arrays, particle-list nodes and cached-image nodes
 // are carved out of. Five words: a free list threaded through the first word
@@ -13,7 +16,7 @@ public:
     void *mBlockList;  // +0x04
     int   mGrowCount;  // +0x08
     int   mTotalItems; // +0x0C
-    int   mItemSize;   // +0x10
+    size_t mItemSize;
 };
 
 
@@ -34,24 +37,34 @@ inline void TodAllocatorWriteLink(void *theItem, void *theLink)
 // pushed onto the free list, leaving the last item at the head.
 inline void TodAllocatorGrow(TodAllocator *theAllocator)
 {
-    char *aBlock = new char[theAllocator->mGrowCount * theAllocator->mItemSize + 4];
+    const size_t aAlignment = alignof(std::max_align_t);
+    const size_t aHeaderSize = aAlignment;
+    const size_t aMinimumSize = theAllocator->mItemSize < sizeof(void *)
+        ? sizeof(void *) : theAllocator->mItemSize;
+    if (aMinimumSize > (std::numeric_limits<size_t>::max)() - aAlignment + 1)
+        throw std::bad_alloc();
+    const size_t anItemStride = (aMinimumSize + aAlignment - 1) / aAlignment * aAlignment;
+    const size_t aGrowCount = theAllocator->mGrowCount > 0 ? theAllocator->mGrowCount : 0;
+    if (aGrowCount == 0 || aGrowCount > ((std::numeric_limits<size_t>::max)() - aHeaderSize) / anItemStride)
+        throw std::bad_alloc();
+    char *aBlock = new char[aGrowCount * anItemStride + aHeaderSize];
     TodAllocatorWriteLink(aBlock, theAllocator->mBlockList);
     theAllocator->mBlockList = aBlock;
 
     void *aFree = theAllocator->mFreeList;
     if (theAllocator->mGrowCount > 0)
     {
-        char *anItem = aBlock + 4;
+        char *anItem = aBlock + aHeaderSize;
         int anIndex = 0;
         do
         {
             ++anIndex;
             TodAllocatorWriteLink(anItem, aFree);
             aFree = anItem;
-            anItem += theAllocator->mItemSize;
+            anItem += anItemStride;
         }
         while (anIndex != theAllocator->mGrowCount);
-        aFree = aBlock + theAllocator->mItemSize * (anIndex - 1) + 4;
+        aFree = aBlock + anItemStride * (anIndex - 1) + aHeaderSize;
     }
     theAllocator->mFreeList = aFree;
 }

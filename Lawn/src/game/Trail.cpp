@@ -255,7 +255,7 @@ void Trail::Draw(Sexy::Graphics* theGraphics)
 Trail::Trail()
 {
     // Bytes +0x10..+0xF7 (232 bytes) are one synchronised block, then cleared.
-    const int aSyncBlockSize = 232;
+    const size_t aSyncBlockSize = MakeSyncBlock(mPoints[0][0], mColor).mSize;
     SyncBlockInfo aBlock;
     aBlock.mData = &mPoints[0][0];
     aBlock.mSize = aSyncBlockSize;

@@ -1,9 +1,4 @@
-// ReanimAtlas -- the packed image table a ReanimatorDefinition points at.
-//
-// GetEncodedReanimAtlas answers `this + 20 * (id - 1)` for an id in 1..1000, so
-// the table is 64 entries of 20 bytes. The packed image sits at +0x504 and the
-// live count at +0x500. ReanimAtlasDispose drops the packed image, then clears
-// the count.
+// Packed animation images are matched by their original Image pointer.
 
 #pragma once
 
@@ -23,7 +18,7 @@ public:
 class ReanimAtlas
 {
 public:
-    ReanimAtlasImage *GetEncodedReanimAtlas(Sexy::Image *theImage);
+    ReanimAtlasImage *FindAtlasImage(Sexy::Image *theImage);
     void ReanimAtlasDispose();
 
     ReanimAtlasImage mAtlasImages[64]; // +0x0000

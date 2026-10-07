@@ -1,12 +1,9 @@
-// Definition maps -- the tables DefinitionFreeMap walks.
-//
-// A map is a 12-byte header: the field list, the byte size of one record, and
-// an unused constructor pointer. Each field is 16 bytes: name, offset, type,
-// and an extra pointer (the nested map, for an array field). An empty name
-// ends the list. Freeing only acts on strings, float tracks and arrays; the
-// other types are skipped.
+// Definition tables describe native fields and the fixed TV file layout separately.
+// Empty field names terminate a table.
 
 #pragma once
+
+#include <cstddef>
 
 enum ReanimationType;
 enum ParticleEffect : int;
@@ -14,15 +11,17 @@ enum ParticleEffect : int;
 struct DefField
 {
     const char *mName;
-    int         mOffset;
+    size_t      mOffset;
     int         mType;
     void       *mExtra;
+    int         mFileOffset;
 };
 
 struct DefMap
 {
     const DefField *mFields;
-    int             mSize;
+    size_t          mSize;
+    int             mFileSize;
     void           *mConstructor;
 };
 

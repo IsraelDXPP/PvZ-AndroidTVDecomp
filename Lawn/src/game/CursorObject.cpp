@@ -234,11 +234,9 @@ CursorObject::CursorObject()
 {
   // The derived member area +0x34..+0x5B (40 bytes) is this object's sync block,
   // and registering it also clears it.
-  SyncBlockInfo aBlock;
-  aBlock.mData = &mSelectedIndex;
-  aBlock.mSize = 40;
+  SyncBlockInfo aBlock = MakeSyncBlock(mSelectedIndex, mReanimCursorID);
   mSyncBlocks.push_back(aBlock);
-  memset(&mSelectedIndex, 0, 40);
+  memset(aBlock.mData, 0, aBlock.mSize);
 
   mSelectedIndex = 0;
   // -1 is "no seed chosen"; SeedType has no NONE enumerator.

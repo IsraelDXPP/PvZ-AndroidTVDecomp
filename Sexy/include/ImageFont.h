@@ -69,7 +69,7 @@ public:
     virtual int AddTag(Sexy::String const& theTag);
     virtual int RemoveTag(Sexy::String const& theTag);
     virtual int HasTag(Sexy::String const& theTag);
-    virtual int GetDefine(Sexy::WString const& theName);
+    virtual Sexy::String GetDefine(Sexy::WString const& theName);
     virtual ImageFont* Prepare();
 
     Sexy::FontData* mFontData;

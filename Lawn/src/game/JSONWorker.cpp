@@ -463,9 +463,7 @@ static bool AppendArrayElement(internalJSONNode *theNode, const Sexy::String &th
   aStored->_comment = aComment;
 
   jsonChildren *aChildren = theNode->CHILDREN;
-  aChildren->inc();
-  aChildren->mChildren[aChildren->mSize] = aChild;
-  aChildren->mSize += 1;
+  aChildren->mChildren.push_back(aChild);
   return true;
 }
 
@@ -530,9 +528,7 @@ static void AppendObjectMember(internalJSONNode *theNode, Sexy::String &theName,
   aStored->_comment = aComment;
 
   jsonChildren *aChildren = theNode->CHILDREN;
-  aChildren->inc();
-  aChildren->mChildren[aChildren->mSize] = aChild;
-  aChildren->mSize += 1;
+  aChildren->mChildren.push_back(aChild);
 }
 
 // ==========================================================================

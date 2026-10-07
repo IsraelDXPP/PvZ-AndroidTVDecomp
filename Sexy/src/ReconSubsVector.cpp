@@ -722,22 +722,26 @@ int InitCtypeWiden(void* theFacet)
     return aDifference;
 }
 
-void* FileBufFinish(void* theFileBuf)
+struct FileBufferState
 {
-    void** aSlot = (void**)theFileBuf;
-    if (aSlot == nullptr || aSlot[0] == nullptr)
-        return theFileBuf;
-    if (*((unsigned char*)aSlot + 4) == 0)
-        return theFileBuf;
+    FILE *mFile;
+    bool mIsOpen;
+};
 
+void *FileBufFinish(void *theFileBuf)
+{
+    auto *aBuffer = static_cast<FileBufferState *>(theFileBuf);
+    if (aBuffer == nullptr || aBuffer->mFile == nullptr || !aBuffer->mIsOpen)
+        return theFileBuf;
     errno = 0;
-    int aResult = 0;
+    int aResult;
     do
     {
-        aResult = fclose((FILE*)aSlot[0]);
+        aResult = fclose(aBuffer->mFile);
     }
     while (aResult != 0 && errno == EINTR);
-    aSlot[0] = nullptr;
+    aBuffer->mFile = nullptr;
+    aBuffer->mIsOpen = false;
     return theFileBuf;
 }
 
@@ -797,19 +801,19 @@ void* OStreamPut(void* theStream, char theFill)
     return theStream;
 }
 
-void* OStreamWrite(void* theStream, int theValue, int theBase)
+void* OStreamWrite(void* theStream, const char *theValue, int theBase)
 {
     IosFields* aIos = StreamIos(theStream);
     if (aIos == nullptr)
         return theStream;
 
     if (OutputSentry(aIos))
-        StreamPutN(aIos, aIos->mStreambuf, (const char*)theValue, theBase);
+        StreamPutN(aIos, aIos->mStreambuf, theValue, theBase);
     OutputEpilogue(aIos);
     return theStream;
 }
 
-int* OStreamInsert(int* theStream, int theValue, int theBase)
+int* OStreamInsert(int* theStream, const char *theValue, int theBase)
 {
     IosFields* aIos = StreamIos(theStream);
     if (aIos == nullptr)
@@ -822,7 +826,7 @@ int* OStreamInsert(int* theStream, int theValue, int theBase)
     }
 
     int aCount = theBase;
-    const char* aText = (const char*)theValue;
+    const char* aText = theValue;
     if (aIos->mWidth <= aCount)
     {
         StreamPutN(aIos, aIos->mStreambuf, aText, aCount);

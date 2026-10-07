@@ -23,17 +23,17 @@
 // collapsed all of them onto gGuard_getValue__single_1, so the second and later
 // tokens read the first one's text; every singleton below is separated again and
 // named after the slot the dump points at.
-static int gGuard_getValue__single_1 = 0;   // EMPTY_JSON_STRING @0x69FC7C
+static Sexy::String gGuard_getValue__single_1;   // EMPTY_JSON_STRING @0x69FC7C
 static int gGuard_single_2 = 0;             // its guard @0x69FCA0
-static int gGuard_getValue_CONST_NULL = 0;  // CONST_NULL @0x7871A8
+static Sexy::String gGuard_getValue_CONST_NULL;  // CONST_NULL @0x7871A8
 static int gGuard_CONST_NULL = 0;           // its guard @0x7871B4
-static int gGuard_getValue_CONST_FALSE = 0; // CONST_FALSE @0x7871AC
+static Sexy::String gGuard_getValue_CONST_FALSE; // CONST_FALSE @0x7871AC
 static int gGuard_CONST_FALSE = 0;          // its guard @0x7871B8
-static int gGuard_getValue_CONST_TRUE = 0;  // CONST_TRUE @0x7871B0
+static Sexy::String gGuard_getValue_CONST_TRUE;  // CONST_TRUE @0x7871B0
 static int gGuard_CONST_TRUE = 0;           // its guard @0x7871BC
-static int gGuard_getValue_NEW_LINE = 0;    // NEW_LINE @0x787230
+static Sexy::String gGuard_getValue_NEW_LINE;    // NEW_LINE @0x787230
 static int gGuard_NEW_LINE = 0;             // its guard @0x787244
-static int gGuard_getValue_SINGLELINE_COMMENT = 0;  // SINGLELINE_COMMENT @0x7871CC
+static Sexy::String gGuard_getValue_SINGLELINE_COMMENT;  // SINGLELINE_COMMENT @0x7871CC
 static int gGuard_SINGLELINE_COMMENT = 0;   // its guard @0x787240
 
 // Linker symbols IDA printed verbatim; each becomes a stub whose
@@ -547,14 +547,14 @@ internalJSONNode::internalJSONNode(Sexy::String const& theName)
   if ( (gGuard_single_2 & 1) == 0
     && CxaGuardAcquire(&gGuard_single_2) != 0 )
   {
-    gGuard_getValue__single_1 = (int)Sexy::gEmptyStringData;
+    gGuard_getValue__single_1.clear();
     CxaGuardRelease(&gGuard_single_2);
     RegisterAtExit(
       &gGuard_getValue__single_1,
       jsonSingletonDtorThunk,
       nullptr);
   }
-  StringCopyCtor(&_comment, (const Sexy::String*)&gGuard_getValue__single_1);
+  StringCopyCtor(&_comment, &gGuard_getValue__single_1);
   aFirst = theName.c_str();
   CHILDREN = nullptr;
   if ( *aFirst == '[' )
@@ -754,14 +754,14 @@ internalJSONNode::internalJSONNode(Sexy::String const& theName, Sexy::String con
   if ( (gGuard_single_2 & 1) == 0
     && CxaGuardAcquire(&gGuard_single_2) != 0 )
   {
-    gGuard_getValue__single_1 = (int)Sexy::gEmptyStringData;
+    gGuard_getValue__single_1.clear();
     CxaGuardRelease(&gGuard_single_2);
     RegisterAtExit(
       &gGuard_getValue__single_1,
       jsonSingletonDtorThunk,
       nullptr);
   }
-  StringCopyCtor(&_comment, (const Sexy::String*)&gGuard_getValue__single_1);
+  StringCopyCtor(&_comment, &gGuard_getValue__single_1);
   aValue = theValue.c_str();
   CHILDREN = nullptr;
   if ( theValue.empty() )
@@ -788,13 +788,13 @@ internalJSONNode::internalJSONNode(Sexy::String const& theName, Sexy::String con
       if ( (gGuard_CONST_FALSE & 1) == 0
         && CxaGuardAcquire(&gGuard_CONST_FALSE) != 0 )
       {
-        StringCtor((Sexy::String*)&gGuard_getValue_CONST_FALSE, "false", nullptr);
+        gGuard_getValue_CONST_FALSE = "false";
         CxaGuardRelease(&gGuard_CONST_FALSE);
         RegisterAtExit(&gGuard_getValue_CONST_FALSE, jsonSingletonDtorThunk, nullptr);
       }
       aLength = theValue.size();
-      if ( aLength != *(unsigned int *)(gGuard_getValue_CONST_FALSE - 12)
-        || memcmp(theValue.c_str(), (const void *)gGuard_getValue_CONST_FALSE, aLength) != 0 )
+      if ( aLength != gGuard_getValue_CONST_FALSE.size()
+        || memcmp(theValue.c_str(), gGuard_getValue_CONST_FALSE.c_str(), aLength) != 0 )
       {
         break;
       }
@@ -808,13 +808,13 @@ internalJSONNode::internalJSONNode(Sexy::String const& theName, Sexy::String con
       if ( (gGuard_CONST_NULL & 1) == 0
         && CxaGuardAcquire(&gGuard_CONST_NULL) != 0 )
       {
-        StringCtor((Sexy::String*)&gGuard_getValue_CONST_NULL, "null", nullptr);
+        gGuard_getValue_CONST_NULL = "null";
         CxaGuardRelease(&gGuard_CONST_NULL);
         RegisterAtExit(&gGuard_getValue_CONST_NULL, jsonSingletonDtorThunk, nullptr);
       }
       aLength = theValue.size();
-      if ( aLength != *(unsigned int *)(gGuard_getValue_CONST_NULL - 12)
-        || memcmp(theValue.c_str(), (const void *)gGuard_getValue_CONST_NULL, aLength) != 0 )
+      if ( aLength != gGuard_getValue_CONST_NULL.size()
+        || memcmp(theValue.c_str(), gGuard_getValue_CONST_NULL.c_str(), aLength) != 0 )
       {
         break;
       }
@@ -827,13 +827,13 @@ internalJSONNode::internalJSONNode(Sexy::String const& theName, Sexy::String con
       if ( (gGuard_CONST_TRUE & 1) == 0
         && CxaGuardAcquire(&gGuard_CONST_TRUE) != 0 )
       {
-        StringCtor((Sexy::String*)&gGuard_getValue_CONST_TRUE, "true", nullptr);
+        gGuard_getValue_CONST_TRUE = "true";
         CxaGuardRelease(&gGuard_CONST_TRUE);
         RegisterAtExit(&gGuard_getValue_CONST_TRUE, jsonSingletonDtorThunk, nullptr);
       }
       aLength = theValue.size();
-      if ( aLength != *(unsigned int *)(gGuard_getValue_CONST_TRUE - 12)
-        || memcmp(theValue.c_str(), (const void *)gGuard_getValue_CONST_TRUE, aLength) != 0 )
+      if ( aLength != gGuard_getValue_CONST_TRUE.size()
+        || memcmp(theValue.c_str(), gGuard_getValue_CONST_TRUE.c_str(), aLength) != 0 )
       {
         break;
       }
@@ -1020,13 +1020,12 @@ internalJSONNode::internalJSONNode(internalJSONNode const& theOther)
   {
     jsonChildren *aChildren = NewJsonChildren();
     CHILDREN = aChildren;
-    unsigned int aCount = theOther.CHILDREN->mSize;
+    unsigned int aCount = theOther.CHILDREN->mChildren.size();
     if ( aCount != 0 )
     {
-      aChildren->mCapacity = aCount;
-      aChildren->mChildren = (JSONNode **)malloc(4 * aCount);
-      JSONNode **aSrc = theOther.CHILDREN->mChildren;
-      JSONNode **aEnd = aSrc + theOther.CHILDREN->mSize;
+      aChildren->mChildren.reserve(aCount);
+      JSONNode **aSrc = theOther.CHILDREN->mChildren.data();
+      JSONNode **aEnd = aSrc + theOther.CHILDREN->mChildren.size();
       while ( aSrc != aEnd )
       {
         JSONNode *aChild = *aSrc++;
@@ -1036,8 +1035,7 @@ internalJSONNode::internalJSONNode(internalJSONNode const& theOther)
         // JSONNode has no default constructor, so the destination is a raw slot.
         JSONNode aCopy = aChild->duplicate();
         JSONNode *aNewChild = aCopy.Steal();
-        JSONNode **aSlots = aChildren->inc();
-        aSlots[aChildren->mSize++] = aNewChild;
+        aChildren->mChildren.push_back(aNewChild);
         internalJSONNode *aTemp = aCopy.mInternal;
         if (aTemp != nullptr && --aTemp->refcount == 0)
           aTemp->deleteInternal(aTemp);
@@ -1286,7 +1284,7 @@ void internalJSONNode::WriteComment(unsigned int theIndent, Sexy::String *theOut
 void internalJSONNode::WriteChildren(unsigned char *theUnused, int theIndent, Sexy::String *theOut)
 {
   (void)theUnused;
-  if (CHILDREN == nullptr || CHILDREN->mSize == 0)
+  if (CHILDREN == nullptr || CHILDREN->mChildren.size() == 0)
     return;
 
   int aChildIndent = theIndent;
@@ -1297,8 +1295,8 @@ void internalJSONNode::WriteChildren(unsigned char *theUnused, int theIndent, Se
     aPrefix = Sexy::String("\n") + IndentTabs((unsigned int)aChildIndent);
   }
 
-  unsigned int aLast = CHILDREN->mSize - 1;
-  for (unsigned int aIndex = 0; aIndex < CHILDREN->mSize; ++aIndex)
+  unsigned int aLast = CHILDREN->mChildren.size() - 1;
+  for (unsigned int aIndex = 0; aIndex < CHILDREN->mChildren.size(); ++aIndex)
   {
     *theOut += aPrefix;
     JSONNode *aChild = CHILDREN->mChildren[aIndex];
@@ -1368,21 +1366,21 @@ int internalJSONNode::Set(bool theValue)
   {
     if ((gGuard_CONST_TRUE & 1) == 0 && CxaGuardAcquire(&gGuard_CONST_TRUE) != 0)
     {
-      StringCtor((Sexy::String*)&gGuard_getValue_CONST_TRUE, "true", nullptr);
+      gGuard_getValue_CONST_TRUE = "true";
       CxaGuardRelease(&gGuard_CONST_TRUE);
       RegisterAtExit(&gGuard_getValue_CONST_TRUE, jsonSingletonDtorThunk, nullptr);
     }
-    _string = *(const Sexy::String*)&gGuard_getValue_CONST_TRUE;
+    _string = *&gGuard_getValue_CONST_TRUE;
   }
   else
   {
     if ((gGuard_CONST_FALSE & 1) == 0 && CxaGuardAcquire(&gGuard_CONST_FALSE) != 0)
     {
-      StringCtor((Sexy::String*)&gGuard_getValue_CONST_FALSE, "false", nullptr);
+      gGuard_getValue_CONST_FALSE = "false";
       CxaGuardRelease(&gGuard_CONST_FALSE);
       RegisterAtExit(&gGuard_getValue_CONST_FALSE, jsonSingletonDtorThunk, nullptr);
     }
-    _string = *(const Sexy::String*)&gGuard_getValue_CONST_FALSE;
+    _string = *&gGuard_getValue_CONST_FALSE;
   }
   fetched = true;
   return 0;
@@ -1397,11 +1395,11 @@ int internalJSONNode::Nullify()
   _type = 0;
   if ((gGuard_CONST_NULL & 1) == 0 && CxaGuardAcquire(&gGuard_CONST_NULL) != 0)
   {
-    StringCtor((Sexy::String*)&gGuard_getValue_CONST_NULL, "null", nullptr);
+    gGuard_getValue_CONST_NULL = "null";
     CxaGuardRelease(&gGuard_CONST_NULL);
     RegisterAtExit(&gGuard_getValue_CONST_NULL, jsonSingletonDtorThunk, nullptr);
   }
-  _string = *(const Sexy::String*)&gGuard_getValue_CONST_NULL;
+  _string = *&gGuard_getValue_CONST_NULL;
   fetched = true;
   return 0;
 }
@@ -1443,9 +1441,9 @@ int internalJSONNode::IsEqualTo(const internalJSONNode *theOther)
     {
       jsonChildren *aMine = CHILDREN;
       jsonChildren *aOther = theOther->CHILDREN;
-      if (aMine->mSize != aOther->mSize)
+      if (aMine->mChildren.size() != aOther->mChildren.size())
         return 0;
-      for (unsigned int aIndex = 0; aIndex < aMine->mSize; ++aIndex)
+      for (unsigned int aIndex = 0; aIndex < aMine->mChildren.size(); ++aIndex)
       {
         if (aMine->mChildren[aIndex]->mInternal->IsEqualTo(aOther->mChildren[aIndex]->mInternal) == 0)
           return 0;
@@ -1469,8 +1467,7 @@ internalJSONNode * internalJSONNode::push_back(JSONNode const& theChild)
     // newJSONNode() ignores its receiver and wraps the node it is handed, so the
     // source node doubles as the receiver here.
     JSONNode *aNewChild = const_cast<JSONNode &>(theChild).Share();
-    JSONNode **aSlots = aChildren->inc();
-    aSlots[aChildren->mSize++] = aNewChild;
+    aChildren->mChildren.push_back(aNewChild);
     return this;
   }
   return this;
@@ -1486,11 +1483,8 @@ JSONNode ** internalJSONNode::push_front(JSONNode const& theChild)
   {
     jsonChildren *aChildren = CHILDREN;
     JSONNode *aNewChild = const_cast<JSONNode &>(theChild).Share();
-    aChildren->inc();
-    // Shift the whole array up one slot, then drop the new child at the front.
-    memmove(aChildren->mChildren + 1, aChildren->mChildren, 4 * aChildren->mSize++);
-    aChildren->mChildren[0] = aNewChild;
-    return aChildren->mChildren;
+    aChildren->mChildren.insert(aChildren->mChildren.begin(), aNewChild);
+    return aChildren->mChildren.data();
   }
   return nullptr;
 }
@@ -1504,17 +1498,10 @@ JSONNode * internalJSONNode::pop_back(unsigned int theIndex)
   if ( (unsigned __int8)(_type - 4) > 1u )
     return 0;
   jsonChildren *aChildren = CHILDREN;
-  unsigned int aCount = aChildren->mSize;
+  if (theIndex >= aChildren->mChildren.size())
+    return nullptr;
   JSONNode *aRemoved = aChildren->mChildren[theIndex];
-  unsigned int aTail = aCount - theIndex - 1;
-  --aChildren->mSize;
-  memmove(aChildren->mChildren + theIndex, aChildren->mChildren + theIndex + 1, 4 * aTail);
-  if ( aChildren->mSize == 0 )
-  {
-    free(aChildren->mChildren);
-    aChildren->mChildren = nullptr;
-  }
-  aChildren->mCapacity = aChildren->mSize;
+  aChildren->mChildren.erase(aChildren->mChildren.begin() + theIndex);
   return aRemoved;
 }
 
@@ -1528,7 +1515,7 @@ JSONNode ** internalJSONNode::at(Sexy::String const& theName)
     return nullptr;
   Fetch();
   jsonChildren *aChildren = CHILDREN;
-  for (unsigned int aIndex = 0; aIndex < aChildren->mSize; ++aIndex)
+  for (unsigned int aIndex = 0; aIndex < aChildren->mChildren.size(); ++aIndex)
   {
     const Sexy::String &aName = aChildren->mChildren[aIndex]->mInternal->_name;
     if (aName.size() == theName.size() && memcmp(aName.c_str(), theName.c_str(), aName.size()) == 0)
@@ -1550,16 +1537,8 @@ JSONNode * internalJSONNode::pop_back(Sexy::String const& theName)
     return nullptr;
   jsonChildren *aChildren = CHILDREN;
   JSONNode *aRemoved = *aSlot;
-  unsigned int aIndex = (unsigned int)(aSlot - aChildren->mChildren);
-  unsigned int aTail = aChildren->mSize - aIndex - 1;
-  --aChildren->mSize;
-  memmove(aSlot, aSlot + 1, 4 * aTail);
-  if ( aChildren->mSize == 0 )
-  {
-    free(aChildren->mChildren);
-    aChildren->mChildren = nullptr;
-  }
-  aChildren->mCapacity = aChildren->mSize;
+  const auto anIndex = aSlot - aChildren->mChildren.data();
+  aChildren->mChildren.erase(aChildren->mChildren.begin() + anIndex);
   return aRemoved;
 }
 
@@ -1573,7 +1552,7 @@ JSONNode ** internalJSONNode::at_nocase(Sexy::String const& theName)
     return nullptr;
   Fetch();
   jsonChildren *aChildren = CHILDREN;
-  for (unsigned int aIndex = 0; aIndex < aChildren->mSize; ++aIndex)
+  for (unsigned int aIndex = 0; aIndex < aChildren->mChildren.size(); ++aIndex)
   {
     internalJSONNode *aChild = aChildren->mChildren[aIndex]->mInternal;
     if (aChild->AreEqualNoCase(aChild->_name.c_str(), theName.c_str()))
@@ -1595,16 +1574,8 @@ JSONNode * internalJSONNode::pop_back_nocase(Sexy::String const& theName)
     return nullptr;
   jsonChildren *aChildren = CHILDREN;
   JSONNode *aRemoved = *aSlot;
-  unsigned int aIndex = (unsigned int)(aSlot - aChildren->mChildren);
-  unsigned int aTail = aChildren->mSize - aIndex - 1;
-  --aChildren->mSize;
-  memmove(aSlot, aSlot + 1, 4 * aTail);
-  if ( aChildren->mSize == 0 )
-  {
-    free(aChildren->mChildren);
-    aChildren->mChildren = nullptr;
-  }
-  aChildren->mCapacity = aChildren->mSize;
+  const auto anIndex = aSlot - aChildren->mChildren.data();
+  aChildren->mChildren.erase(aChildren->mChildren.begin() + anIndex);
   return aRemoved;
 }
 
@@ -1618,7 +1589,16 @@ void internalJSONNode::preparse()
   if ( (unsigned __int8)(_type - 4) <= 1u )
   {
     jsonChildren *aChildren = CHILDREN;
-    for (unsigned int aIndex = 0; aIndex < aChildren->mSize; ++aIndex)
+    for (unsigned int aIndex = 0; aIndex < aChildren->mChildren.size(); ++aIndex)
       aChildren->mChildren[aIndex]->mInternal->preparse();
   }
+}
+
+internalJSONNode::~internalJSONNode()
+{
+    if (CHILDREN != nullptr)
+    {
+        CHILDREN->deleteAll();
+        delete CHILDREN;
+    }
 }

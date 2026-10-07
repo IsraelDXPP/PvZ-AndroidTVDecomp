@@ -64,7 +64,7 @@
       <AdditionalIncludeDirectories>$(ProjectDir)..\Sexy\include;$(ProjectDir)..\Sexy\include\Platform;$(ProjectDir)..\Sexy\include\Platform\Bgfx;$(ProjectDir)..\Sexy\include\Platform\Audio;$(ProjectDir)..\Sexy\include\Runtime;$(ProjectDir)..\TodLib\include;$(ProjectDir)..\Lawn\include;$(ProjectDir)..\Lawn\include\game;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ConformanceMode>false</ConformanceMode>
       <BufferSecurityCheck>false</BufferSecurityCheck>
-      <AdditionalOptions>/bigobj /source-charset:utf-8 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/bigobj /we4302 /we4311 /we4312 /source-charset:utf-8 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

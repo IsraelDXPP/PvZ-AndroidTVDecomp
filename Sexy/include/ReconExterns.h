@@ -55,8 +55,8 @@ int RbTreeInsert(int theInsertLeft, void* theNode, void* theParent, void* theHea
 void* RbTreeErase(void* theNode, void* theHeader); // @0x2D7A14
 void* OStreamFlush(void* theStream); // @0x2D7F60
 void* OStreamPut(void* theStream, char theFill); // @0x2D822C
-void* OStreamWrite(void* theStream, int theValue, int theBase); // @0x2D83B4
-int* OStreamInsert(int* theStream, int theValue, int theBase); // @0x2D8528
+void* OStreamWrite(void* theStream, const char *theValue, int theBase); // @0x2D83B4
+int* OStreamInsert(int* theStream, const char *theValue, int theBase); // @0x2D8528
 void* OStreamWriteNum(void* theStream, int theValue); // @0x2D8B28
 void* OStreamWriteInt(void* theStream, int theValue); // @0x2D8B2C
 void* IStreamReadInt(void* theStream, int* theValue); // @0x2E7078
@@ -96,7 +96,7 @@ Sexy::String* StringPushBack(Sexy::String* theString, char theChar); // @0x2ECE5
 Sexy::String* StringCheckedSubstr(Sexy::String* theResult, const Sexy::String* theSource, unsigned int thePos, unsigned int theCount); // @0x2ED0D4
 char* StringConstructIter(const char* theFirst, const char* theLast, const void* theAlloc, int theTag); // @0x2ED108
 Sexy::String* StringAssignRange(Sexy::String* theString, const char* theFirst, const char* theLast, int theChar); // @0x2ED1CC
-int StringReplace(Sexy::String* theString, unsigned int thePos, unsigned int theCount, unsigned int theReplacement, unsigned int theFlags); // @0x2ED1F4
+int StringReplace(Sexy::String* theString, unsigned int thePos, unsigned int theCount, const char *theReplacement, unsigned int theFlags); // @0x2ED1F4
 
 // --- remaining game-side helpers ------------------------------------------
 char* CloneBufferStringRep(const char* theRep, int theExtra); // @0x2F7548
@@ -122,5 +122,5 @@ Sexy::String* SpliceRemapPattern(const Sexy::String* theInput, unsigned int theB
 float MeasureCurvePiece(void* theCurve, int theIndex, float theStart, float theEnd); // @0x40EDFC
 Sexy::String* AssignStringThunk(Sexy::String* theTarget, const Sexy::String* theSource); // @0x5229AC
 void* HookListNode(void* theNode, void* thePos); // @0x5229CC
-Sexy::String* MutateStringThunk(Sexy::String* theString, unsigned int thePos, unsigned int theCount, unsigned int theReplacement); // @0x522A1C
+Sexy::String* MutateStringThunk(Sexy::String* theString, unsigned int thePos, unsigned int theCount, const char *theReplacement); // @0x522A1C
 

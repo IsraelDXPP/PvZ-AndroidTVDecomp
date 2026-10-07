@@ -53,7 +53,7 @@ void AppendEmitter(TodParticleSystem::EmitterIdList *theList, unsigned int theIn
     TodAllocator *anAllocator = theList->mpAllocator;
     if (anAllocator == nullptr)
     {
-        anAllocator = FindGlobalAllocator(12);
+        anAllocator = FindGlobalAllocator(sizeof(DataArrayIdNode));
         theList->mpAllocator = anAllocator;
     }
 
@@ -203,7 +203,7 @@ TodEmitterDefinition *TodParticleSystem::FindEmitterDefByName(const char *theEmi
 
 TodParticleSystem::TodParticleSystem()
 {
-    const int aSyncBlockSize = 37;
+    const size_t aSyncBlockSize = MakeSyncBlock(mEffectType, mDontUpdate).mSize;
 
     SyncBlockInfo aBlock;
     aBlock.mData = &mEffectType;

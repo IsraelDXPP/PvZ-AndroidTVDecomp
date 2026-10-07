@@ -33,7 +33,7 @@
 TodAllocator gGlobalAllocators[128];
 int gGlobalAllocatorCount = 0;
 
-TodAllocator *FindGlobalAllocator(int theItemSize)
+TodAllocator *FindGlobalAllocator(size_t theItemSize)
 {
   for (int i = 0; i < gGlobalAllocatorCount; ++i)
   {
@@ -41,6 +41,8 @@ TodAllocator *FindGlobalAllocator(int theItemSize)
       return &gGlobalAllocators[i];
   }
 
+  if (gGlobalAllocatorCount >= 128)
+    throw std::bad_alloc();
   TodAllocator *aSlot = &gGlobalAllocators[gGlobalAllocatorCount];
   aSlot->mFreeList = nullptr;
   aSlot->mBlockList = nullptr;
@@ -132,7 +134,7 @@ static int CountPixelInTrack(Reanimation* theReanim, int theTrackIndex)
     ReanimAtlas* anAtlas = theReanim->mDefinition->mReanimAtlas;
     if (anAtlas != nullptr)
     {
-        ReanimAtlasImage* anAtlasImage = anAtlas->GetEncodedReanimAtlas(anImage);
+        ReanimAtlasImage* anAtlasImage = anAtlas->FindAtlasImage(anImage);
         if (anAtlasImage != nullptr)
             anImage = anAtlasImage->mOriginalImage;
     }
@@ -161,15 +163,16 @@ void CalcReanimPerfInfo(Reanimation* theReanim, int* theImageCount, int* thePixe
     }
 }
 
-ReanimAtlasImage *ReanimAtlas::GetEncodedReanimAtlas(Sexy::Image *theImage)
+ReanimAtlasImage *ReanimAtlas::FindAtlasImage(Sexy::Image *theImage)
 {
-    // The argument is used as a small atlas-image id, never dereferenced. Every
-    // real Image pointer is far above 1000, so the shipped build always answers
-    // "no encoded atlas" here; the arithmetic is the binary's.
-    unsigned int anId = (unsigned int)theImage;
-    if (anId == 0 || anId > 1000)
+    if (theImage == nullptr)
         return nullptr;
-    return &mAtlasImages[anId - 1];
+    for (int anIndex = 0; anIndex < mNumAtlasImages; ++anIndex)
+    {
+        if (mAtlasImages[anIndex].mOriginalImage == theImage)
+            return &mAtlasImages[anIndex];
+    }
+    return nullptr;
 }
 
 // ==========================================================================
@@ -414,7 +417,7 @@ bool Reanimation::DrawTrack(Sexy::Graphics * g, int theTrackIndex, int theRender
   aImage2 = aTransform->mImage2;
   if ( aAtlas != nullptr && aImage != nullptr )
   {
-    anAtlasImage = aAtlas->GetEncodedReanimAtlas(aImage);
+    anAtlasImage = aAtlas->FindAtlasImage(aImage);
     if ( anAtlasImage != nullptr )
       aImage = anAtlasImage->mOriginalImage;
     if ( aTrackInstance->mImageOverride != nullptr )
@@ -622,7 +625,7 @@ void Reanimation::GetTrackMatrix(int theTrackIndex, Sexy::SexyTransform2D & theM
   ReanimAtlas *aAtlas = mDefinition->mReanimAtlas;
   if ( aAtlas != nullptr && aImage != nullptr )
   {
-    ReanimAtlasImage *anAtlasImage = aAtlas->GetEncodedReanimAtlas(aImage);
+    ReanimAtlasImage *anAtlasImage = aAtlas->FindAtlasImage(aImage);
     if ( anAtlasImage != nullptr )
       aImage = anAtlasImage->mOriginalImage;
   }
@@ -676,7 +679,7 @@ Sexy::Image * Reanimation::GetCurrentTrackImage(char *theTrackName)
   ReanimAtlas *aAtlas = mDefinition->mReanimAtlas;
   if ( aAtlas != nullptr && aImage != nullptr )
   {
-    ReanimAtlasImage *anAtlasImage = aAtlas->GetEncodedReanimAtlas(aImage);
+    ReanimAtlasImage *anAtlasImage = aAtlas->FindAtlasImage(aImage);
     if ( anAtlasImage != nullptr )
       return anAtlasImage->mOriginalImage;
   }
@@ -716,7 +719,7 @@ Sexy::Image * Reanimation::GetCurrentTrackImage(char const* theTrackName)
   ReanimAtlas *aAtlas = mDefinition->mReanimAtlas;
   if ( aAtlas != nullptr && aImage != nullptr )
   {
-    ReanimAtlasImage *anAtlasImage = aAtlas->GetEncodedReanimAtlas(aImage);
+    ReanimAtlasImage *anAtlasImage = aAtlas->FindAtlasImage(aImage);
     if ( anAtlasImage != nullptr )
       return anAtlasImage->mOriginalImage;
   }
@@ -1139,7 +1142,8 @@ TodAllocator * Reanimation::ReanimationDelete()
 
   // The two arrays were handed out by one pool whose element size is the track
   // instance, so they are returned together through that pool's free list.
-  TodAllocator *aPool = FindGlobalAllocator(148 * mDefinition->mTrackCount);
+  TodAllocator *aPool = FindGlobalAllocator(
+      (sizeof(ReanimatorTrackInstance) + sizeof(ReanimatorTransform)) * mDefinition->mTrackCount);
   void *aBlock = mTrackInstances;
   void *aNext = aPool->mFreeList;
   --aPool->mTotalItems;
@@ -1275,11 +1279,12 @@ void Reanimation::ReanimationInitialize(float theX, float theY, ReanimatorDefini
     SetAnimRate(mAnimRate);
 
     // One pool serves both arrays: the track instances first, then the
-    // transforms, and the pool's item size is the track instance's 148 bytes.
+    // transforms. Both arrays use their native sizes and alignments.
     int aTrackCount = mDefinition->mTrackCount;
-    TodAllocator *aPool = FindGlobalAllocator(148 * aTrackCount);
+    size_t aBufferSize = (sizeof(ReanimatorTrackInstance) + sizeof(ReanimatorTransform)) * aTrackCount;
+    TodAllocator *aPool = FindGlobalAllocator(aBufferSize);
     ReanimatorTrackInstance *aTrackInstances = static_cast<ReanimatorTrackInstance *>(TodAllocatorAlloc(aPool));
-    memset(aTrackInstances, 0, 148 * aTrackCount);
+    memset(aTrackInstances, 0, aBufferSize);
     mTrackInstances = aTrackInstances;
     mReanimatorTransforms = (ReanimatorTransform *)&aTrackInstances[aTrackCount];
 
@@ -1703,7 +1708,7 @@ Reanimation::Reanimation()
   unsigned char *stateBegin = reinterpret_cast<unsigned char *>(&mReanimationType);
   unsigned char *stateEnd = reinterpret_cast<unsigned char *>(&mDirtyFlags);
   aBlock.mData = &mReanimationType;
-  aBlock.mSize = static_cast<int>(stateEnd - stateBegin);
+  aBlock.mSize = static_cast<size_t>(stateEnd - stateBegin);
   mSyncBlocks.push_back(aBlock);
 
   mAnimTime = 0.0f;

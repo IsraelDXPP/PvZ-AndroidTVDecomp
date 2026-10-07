@@ -194,20 +194,20 @@ public:
     int ReanimIgnoreClipRect(char const *theTrackName, bool theIgnore);
     int ReanimReenableClipping();
     bool IsBouncingPogo();
-    int ZombieCatapultFire(Plant *thePlant);
+    void ZombieCatapultFire(Plant *thePlant);
     Plant * FindCatapultTarget();
     int IsTanglekelpTarget();
     void UpdateZombiePeaHead();
     void UpdateZombieGatlingHead();
     int NeedsMoreBackupDancers();
-    int UpdateZombieHighGround();
-    int OverrideParticleScale(TodParticleSystem *theParticleSystem);
-    int OverrideParticleColor(TodParticleSystem *theParticleSystem);
+    void UpdateZombieHighGround();
+    void OverrideParticleScale(TodParticleSystem *theParticleSystem);
+    void OverrideParticleColor(TodParticleSystem *theParticleSystem);
     void UpdateZamboni();
     bool IsOnBoard();
     GridItem * UpdateClimbingLadder();
-    int DoRevivalDialog(int theDialogId);
-    int DoBuySunMoneyDialog(int theDialogId);
+    void DoRevivalDialog(int theDialogId);
+    void DoBuySunMoneyDialog(int theDialogId);
     bool HasYuckyFaceImage();
     // 0x1A8920. Early outs do nothing. The other paths hide or restore the
     // yucky-face tracks. No caller reads a return.
@@ -225,7 +225,7 @@ public:
     int GetHelmDamageIndex();
     int GetBodyDamageIndex();
     int GetShieldDamageIndex();
-    int DrawIceTrap(Sexy::Graphics *g, ZombieDrawPosition &theDrawPos, int theIceTrapCounter);
+    void DrawIceTrap(Sexy::Graphics *g, ZombieDrawPosition &theDrawPos, int theIceTrapCounter);
     int CanTargetPlant(Plant *thePlant, ZombieAttackType theAttackType);
     int SquishAllInSquare(int theGridX, int theGridY, ZombieAttackType theAttackType);
     bool IsImmobilizied();
@@ -243,11 +243,11 @@ public:
     void GetDrawPos(ZombieDrawPosition &theDrawPos);
     Reanimation *UpdateReanim();
     int DrawBungeeTarget(Sexy::Graphics *g);
-    int CheckForHighGround();
-    int StartMindControlled();
-    int BungeeDropPlant();
+    void CheckForHighGround();
+    void StartMindControlled();
+    void BungeeDropPlant();
     void PlayZombieAppearSound();
-    int StartZombieSound();
+    void StartZombieSound();
     int SetRow(int theRow);
     float GetPosYBasedOnRow(int theRow);
     int SummonBackupDancer(int theRow, int thePosX);
@@ -264,14 +264,14 @@ public:
     float ZombieTargetLeadX(float theTime);
     Plant * IsStandingOnSpikeweed();
     bool TrySpawnLevelAward();
-    int DropLoot();
+    void DropLoot();
     // 0x1AA9D4. Same sret story as GetZombieRect: the rect is returned by value,
     // built from mZombieAttackRect (words 43..46) and then adjusted.
     Sexy::Rect GetZombieAttackRect();
     Plant * FindPlantTarget(ZombieAttackType theAttackType);
-    int AnimateChewEffect();
+    void AnimateChewEffect();
     GridItem * CheckSquish(ZombieAttackType theAttackType);
-    int CheckForZombieStep();
+    void CheckForZombieStep();
     void AddAttachedParticle(int thePosX, int thePosY, ParticleEffect theEffect);
     Reanimation * AddAttachedReanim(int thePosX, int thePosY, ReanimationType theReanimType);
     int IsTangleKelpTarget();
@@ -281,11 +281,11 @@ public:
     void DropPole();
     void AttachShield();
     void ReanimShowTrack(char const *theTrackName, int theRenderGroup);
-    int DoDaisies();
+    void DoDaisies();
     bool HasShadow();
     int SetupDrawZombieWon(Sexy::Graphics *g);
     Reanimation * GetTrackPosition(char const *theTrackName, float &thePosX, float &thePosY);
-    int DropFlag();
+    void DropFlag();
     int DrawButter(Sexy::Graphics *g, ZombieDrawPosition &theDrawPos);
     int DrawBungeeCord(Sexy::Graphics *g, int theCordEndX, int theCordEndY);
     bool IsFlying();
@@ -294,7 +294,7 @@ public:
     int DrawBobsledReanim(Sexy::Graphics *g, ZombieDrawPosition &theDrawPos, bool theClip);
     bool IsBobsledTeamWithSled();
     bool CanLoseBodyParts();
-    int DropArm(unsigned int theDamageFlags);
+    void DropArm(unsigned int theDamageFlags);
     // 0x1AC4B4. r0 is whatever the last call left (ZombieNotWalking, a bool, or
     // AddTodParticle). The one caller that keeps it recovers with (char *)(intptr_t).
     void UpdateZombieWalking();
@@ -303,7 +303,7 @@ public:
     void UpdateZombieWalkingIntoHouse();
     int DrawReanim(Sexy::Graphics *g, ZombieDrawPosition &theDrawPos, int theBaseRenderGroup);
     void DrawBungeeReanim(Sexy::Graphics *g, ZombieDrawPosition &theDrawPos);
-    int Draw(Sexy::Graphics *g);
+    void Draw(Sexy::Graphics *g);
     int IsDeadOrDying();
     int CountBungeesTargetingSunFlowers();
     // 0x1AD144. Every path either does nothing or calls ApplyAnimRate. The
@@ -315,11 +315,11 @@ public:
     Reanimation * BungeeDropZombie(Zombie *theZombie, int theGridX, int theGridY);
     // 0x1AD500. Early outs leave this in r0; the shoot and walk paths return
     // PlayZombieReanim's r0. The only caller ignores it.
-    int UpdateZombieCatapult();
+    void UpdateZombieCatapult();
     // 0x1AD694. Mixed r0 (this, a curve, a phase, or a reanim). The only caller ignores it.
-    int UpdateZombieBackupDancer();
+    void UpdateZombieBackupDancer();
     // 0x1AD770. Mixed r0. The only caller ignores it.
-    int UpdateZombieDancer();
+    void UpdateZombieDancer();
     Zombie * StartEating();
     // 0x1AF298 `_ZN6Zombie8EatPlantEP5Plant`. It was missing from this header
     // entirely, which made the .cpp definition a C2039 and turned every `this`
@@ -334,8 +334,8 @@ public:
     void BobsledCrash();
     // 0x1ADF08. Every path returns this.
     Zombie * DropHelm(unsigned int theDamageFlags);
-    int PogoBreak(unsigned int theDamageFlags);
-    int LoadReanim(ReanimationType theReanimType);
+    void PogoBreak(unsigned int theDamageFlags);
+    void LoadReanim(ReanimationType theReanimType);
     float UpdateZombieImp();
     Zombie * DetachShield();
     void BungeeStealTarget();
@@ -346,32 +346,32 @@ public:
     void BungeeLanding();
     bool ZombiquariumFindClosestBrain();
     float UpdateZombiePolevaulter();
-    int UpdateZombieDolphinRider();
+    void UpdateZombieDolphinRider();
     // The shared tail of the three dolphin-jump arms of the above.
-    int UpdateDolphinJumpLanding();
+    void UpdateDolphinJumpLanding();
     // 0x1AEDD4. Returns this. The last path tail-calls UpdateAnimSpeed.
     Zombie * StopEating();
     void UpdateYuckyFace();
     int DragUnder();
-    int DropShield(unsigned int theDamageFlags);
+    void DropShield(unsigned int theDamageFlags);
     int TakeShieldDamage(int theDamage, unsigned int theDamageFlags);
-    int RemoveIceTrap();
-    int RemoveButter();
+    void RemoveIceTrap();
+    void RemoveButter();
     int RemoveColdEffects();
     // 0x1AF58C. Returns this. The add-on-head path returns that head reanimation.
     Zombie * DropHead(unsigned int theDamageFlags);
     // 0x1AF974. Returns this, or PickRandomSpeed's reanimation when it wakes.
-    Reanimation * UpdateYeti();
-    int StopZombieSound();
+    void UpdateYeti();
+    void StopZombieSound();
     void DiggerLoseAxe();
-    Reanimation * UpdateZombieDigger();
+    void UpdateZombieDigger();
     // Real polymorphism: the compiler writes the vptr (slots 0/1 = destructor,
     // overriding GameObject's virtual destructor).
     virtual ~Zombie();
     Reanimation * ConvertToNormalZombie();
     int CanBeChilled();
     bool CanBeFrozen();
-    int ApplyButter();
+    void ApplyButter();
     Reanimation * ApplyChill(bool theIsIceTrap);
     void CheckForPool();
     int TakeHelmDamage(int theDamage, unsigned int theDamageFlags);
@@ -399,7 +399,7 @@ public:
     bool BossAreBungeesDone();
     void BossHeadAttack();
     void BossHeadSpit();
-    int BossDestroyIceballInRow(int theRow);
+    void BossDestroyIceballInRow(int theRow);
     void BossDestroyFireball();
     void BossHeadSpitEffect();
     void BossHeadSpitContact();
@@ -407,25 +407,25 @@ public:
     void UpdateBossFireball();
     int BossDie();
     void DieNoLoot();
-    int DieWithLoot();
+    void DieWithLoot();
     // 0x1B17CC. r0 is PlayZombieReanim, DieWithLoot, or aFlags<<27. Callers
     // that read it cast the int.
     int LandFlyer(unsigned int theDamageFlags);
-    GridItem * UpdateZombieFlyer();
+    void UpdateZombieFlyer();
     int TakeFlyingDamage(int theDamage, unsigned int theDamageFlags);
     Reanimation * ZamboniDeath(unsigned int theDamageFlags);
     Reanimation * CatapultDeath(unsigned int theDamageFlags);
-    Zombie * UpdateBurn();
-    int UpdateMowered();
+    void UpdateBurn();
+    void UpdateMowered();
     Reanimation * BossBungeeLeave();
-    int MowDown();
+    void MowDown();
     float UpdateZombiePosition();
     void PickBungeeZombieTarget(int theTargetCol);
     int BossBungeeSpawn();
     void UpdateZombieBungee();
     // 0x1B212C. The idle paths return this. The pop path tail-calls
     // PlayZombieReanim and returns that reanimation.
-    Reanimation * UpdateZombieJackInTheBox();
+    void UpdateZombieJackInTheBox();
     void UpdateZombieJalapenoHead();
     void BobsledDie();
     void BungeeDie();
@@ -444,8 +444,8 @@ public:
     void ApplyBossSmokeParticles(bool theEnable);
     // 0x1B31FC. Returns this. TakeDamage forwards the word and its callers
     // discard it.
-    Zombie * TakeBodyDamage(int theDamage, unsigned int theDamageFlags);
-    int TakeDamage(int theDamage, unsigned int theDamageFlags);
+    void TakeBodyDamage(int theDamage, unsigned int theDamageFlags);
+    void TakeDamage(int theDamage, unsigned int theDamageFlags);
     void UpdateZombieSnorkel();
     int UpdateZombieSquashHead();
     float UpdateZombieBobsled();
@@ -457,13 +457,13 @@ public:
     int BobsledBurn();
     // 0x1B45EC. The idle paths return this. The paths that start a walk, a
     // throw or a smash tail-call that animation and return the reanimation.
-    Reanimation * UpdateZombieGargantuar();
+    void UpdateZombieGargantuar();
     float UpdateActions();
-    int UpdateBoss();
+    void UpdateBoss();
     int IsFireResistant();
     void EnableMustache(bool theEnable);
     void EnableFuture(bool theEnable);
-    int EnableDanceMode(bool theEnable);
+    void EnableDanceMode(bool theEnable);
     // 0x1B5140 `_ZN6Zombie15SetupWaterTrackEPKc` -- the parameter is a track
     // name, not an int; the transcription's `int theDrawPos` was a mangled-name slip.
     void SetupWaterTrack(char const *theTrackName);

@@ -77,12 +77,7 @@ public:
     int mMPZombieWonPosition;                // +0x54 (byte 84)
     float mMPWonPosX;                        // +0x58 (byte 88)
     float mMPWonPosY;                        // +0x5C (byte 92)
-    // +0x60 .. +0x77: a libstdc++ std::set<Sexy::String> of the resource names
-    // LoadResources has already loaded. MapStorage is the same 6-word rb-tree
-    // object (comparator, header node, element count) that the constructor
-    // initialises and the destructor erases.
-    Sexy::RbTree::MapStorage mLoadedResources;
-    // 0x78
+    std::set<Sexy::String> mLoadedResources;
 
     CutScene();
     bool Is2x2Zombie(ZombieType theZombieType);
@@ -152,4 +147,3 @@ public:
     void Update();
     void DrawUpsell(Sexy::Graphics * theGraphics);
 };
-

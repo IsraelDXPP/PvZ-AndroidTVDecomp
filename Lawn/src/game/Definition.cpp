@@ -65,111 +65,111 @@ static DefMap gEmitterDefMap;
 static DefMap gReanimatorDefMap;
 
 static const DefField gParticleFieldDefFields[] = {
-    { "FieldType", 0, DEF_FIELD_ENUM, nullptr },
-    { "x", 4, DEF_FIELD_TRACK, nullptr },
-    { "y", 12, DEF_FIELD_TRACK, nullptr },
+    { "FieldType", offsetof(ParticleField, mFieldType), DEF_FIELD_ENUM, nullptr, 0 },
+    { "x", offsetof(ParticleField, mX), DEF_FIELD_TRACK, nullptr, 4 },
+    { "y", offsetof(ParticleField, mY), DEF_FIELD_TRACK, nullptr, 12 },
     { gEmptyCString, 0, 0, nullptr }
 };
 
 static const DefField gTransformDefFields[] = {
-    { "x", 0, DEF_FIELD_FLOAT, nullptr },
-    { "y", 4, DEF_FIELD_FLOAT, nullptr },
-    { "kx", 8, DEF_FIELD_FLOAT, nullptr },
-    { "ky", 12, DEF_FIELD_FLOAT, nullptr },
-    { "sx", 16, DEF_FIELD_FLOAT, nullptr },
-    { "sy", 20, DEF_FIELD_FLOAT, nullptr },
-    { "f", 24, DEF_FIELD_FLOAT, nullptr },
-    { "a", 28, DEF_FIELD_FLOAT, nullptr },
+    { "x", offsetof(ReanimatorTransform, mTransX), DEF_FIELD_FLOAT, nullptr, 0 },
+    { "y", offsetof(ReanimatorTransform, mTransY), DEF_FIELD_FLOAT, nullptr, 4 },
+    { "kx", offsetof(ReanimatorTransform, mSkewX), DEF_FIELD_FLOAT, nullptr, 8 },
+    { "ky", offsetof(ReanimatorTransform, mSkewY), DEF_FIELD_FLOAT, nullptr, 12 },
+    { "sx", offsetof(ReanimatorTransform, mScaleX), DEF_FIELD_FLOAT, nullptr, 16 },
+    { "sy", offsetof(ReanimatorTransform, mScaleY), DEF_FIELD_FLOAT, nullptr, 20 },
+    { "f", offsetof(ReanimatorTransform, mFrame), DEF_FIELD_FLOAT, nullptr, 24 },
+    { "a", offsetof(ReanimatorTransform, mAlpha), DEF_FIELD_FLOAT, nullptr, 28 },
     // TV transform field table at 0x698c00. "i" is type 0xB, so one field reads
     // two images: id+resource into mImage, then id+resource into mImage2.
     // That is the decrypted <i><resource><i2><resource2>. font is type 0xA,
     // text is type 3.
-    { "i", 32, DEF_FIELD_IMAGE_PAIR, nullptr },
-    { "font", 40, DEF_FIELD_FONT, nullptr },
-    { "text", 44, DEF_FIELD_STRING, nullptr },
+    { "i", offsetof(ReanimatorTransform, mImage), DEF_FIELD_IMAGE_PAIR, nullptr, 32 },
+    { "font", offsetof(ReanimatorTransform, mFont), DEF_FIELD_FONT, nullptr, 40 },
+    { "text", offsetof(ReanimatorTransform, mText), DEF_FIELD_STRING, nullptr, 44 },
     { gEmptyCString, 0, 0, nullptr }
 };
 
 static const DefField gTrackDefFields[] = {
-    { "name", 4, DEF_FIELD_STRING, nullptr },
-    { "t", 8, DEF_FIELD_ARRAY, &gTransformDefMap },
+    { "name", offsetof(ReanimatorTrack, mName), DEF_FIELD_STRING, nullptr, 4 },
+    { "t", offsetof(ReanimatorTrack, mTransforms), DEF_FIELD_ARRAY, &gTransformDefMap, 8 },
     { gEmptyCString, 0, 0, nullptr }
 };
 
 static const DefField gReanimatorDefFields[] = {
-    { "track", 0, DEF_FIELD_ARRAY, &gTrackDefMap },
-    { "fps", 8, DEF_FIELD_FLOAT, nullptr },
+    { "track", offsetof(ReanimatorDefinition, mTracks), DEF_FIELD_ARRAY, &gTrackDefMap, 0 },
+    { "fps", offsetof(ReanimatorDefinition, mFPS), DEF_FIELD_FLOAT, nullptr, 8 },
     { gEmptyCString, 0, 0, nullptr }
 };
 
 static const DefField gEmitterDefFields[] = {
-    { "Image", 0, DEF_FIELD_IMAGE, nullptr },
-    { "ImageRow", 8, DEF_FIELD_INT, nullptr },
-    { "ImageCol", 4, DEF_FIELD_INT, nullptr },
-    { "ImageFrames", 12, DEF_FIELD_INT, nullptr },
-    { "Animated", 16, DEF_FIELD_INT, nullptr },
-    { "ParticleFlags", 20, DEF_FIELD_FLAGS, nullptr },
-    { "EmitterType", 24, DEF_FIELD_ENUM, nullptr },
-    { "Name", 28, DEF_FIELD_STRING, nullptr },
-    { "SystemDuration", 36, DEF_FIELD_TRACK, nullptr },
-    { "OnDuration", 32, DEF_FIELD_STRING, nullptr },
-    { "CrossFadeDuration", 44, DEF_FIELD_TRACK, nullptr },
-    { "SpawnRate", 52, DEF_FIELD_TRACK, nullptr },
-    { "SpawnMinActive", 60, DEF_FIELD_TRACK, nullptr },
-    { "SpawnMaxActive", 68, DEF_FIELD_TRACK, nullptr },
-    { "SpawnMaxLaunched", 76, DEF_FIELD_TRACK, nullptr },
-    { "EmitterRadius", 84, DEF_FIELD_TRACK, nullptr },
-    { "EmitterOffsetX", 92, DEF_FIELD_TRACK, nullptr },
-    { "EmitterOffsetY", 100, DEF_FIELD_TRACK, nullptr },
-    { "EmitterBoxX", 108, DEF_FIELD_TRACK, nullptr },
-    { "EmitterBoxY", 116, DEF_FIELD_TRACK, nullptr },
-    { "EmitterPath", 140, DEF_FIELD_TRACK, nullptr },
-    { "EmitterSkewX", 124, DEF_FIELD_TRACK, nullptr },
-    { "EmitterSkewY", 132, DEF_FIELD_TRACK, nullptr },
-    { "ParticleDuration", 148, DEF_FIELD_TRACK, nullptr },
-    { "SystemRed", 172, DEF_FIELD_TRACK, nullptr },
-    { "SystemGreen", 180, DEF_FIELD_TRACK, nullptr },
-    { "SystemBlue", 188, DEF_FIELD_TRACK, nullptr },
-    { "SystemAlpha", 196, DEF_FIELD_TRACK, nullptr },
-    { "SystemBrightness", 204, DEF_FIELD_TRACK, nullptr },
-    { "LaunchSpeed", 156, DEF_FIELD_TRACK, nullptr },
-    { "LaunchAngle", 164, DEF_FIELD_TRACK, nullptr },
-    { "Field", 212, DEF_FIELD_ARRAY, &gParticleFieldDefMap },
-    { "SystemField", 220, DEF_FIELD_ARRAY, &gParticleFieldDefMap },
-    { "ParticleRed", 228, DEF_FIELD_TRACK, nullptr },
-    { "ParticleGreen", 236, DEF_FIELD_TRACK, nullptr },
-    { "ParticleBlue", 244, DEF_FIELD_TRACK, nullptr },
-    { "ParticleAlpha", 252, DEF_FIELD_TRACK, nullptr },
-    { "ParticleBrightness", 260, DEF_FIELD_TRACK, nullptr },
-    { "ParticleSpinAngle", 268, DEF_FIELD_TRACK, nullptr },
-    { "ParticleSpinSpeed", 276, DEF_FIELD_TRACK, nullptr },
-    { "ParticleScale", 284, DEF_FIELD_TRACK, nullptr },
-    { "ParticleStretch", 292, DEF_FIELD_TRACK, nullptr },
-    { "CollisionReflect", 300, DEF_FIELD_TRACK, nullptr },
-    { "CollisionSpin", 308, DEF_FIELD_TRACK, nullptr },
-    { "ClipTop", 316, DEF_FIELD_TRACK, nullptr },
-    { "ClipBottom", 324, DEF_FIELD_TRACK, nullptr },
-    { "ClipLeft", 332, DEF_FIELD_TRACK, nullptr },
-    { "ClipRight", 340, DEF_FIELD_TRACK, nullptr },
-    { "AnimationRate", 348, DEF_FIELD_TRACK, nullptr },
+    { "Image", offsetof(TodEmitterDefinition, mImage), DEF_FIELD_IMAGE, nullptr, 0 },
+    { "ImageRow", offsetof(TodEmitterDefinition, mImageRow), DEF_FIELD_INT, nullptr, 8 },
+    { "ImageCol", offsetof(TodEmitterDefinition, mImageCol), DEF_FIELD_INT, nullptr, 4 },
+    { "ImageFrames", offsetof(TodEmitterDefinition, mImageFrames), DEF_FIELD_INT, nullptr, 12 },
+    { "Animated", offsetof(TodEmitterDefinition, mAnimated), DEF_FIELD_INT, nullptr, 16 },
+    { "ParticleFlags", offsetof(TodEmitterDefinition, mFlags), DEF_FIELD_FLAGS, nullptr, 20 },
+    { "EmitterType", offsetof(TodEmitterDefinition, mEmitterType), DEF_FIELD_ENUM, nullptr, 24 },
+    { "Name", offsetof(TodEmitterDefinition, mName), DEF_FIELD_STRING, nullptr, 28 },
+    { "SystemDuration", offsetof(TodEmitterDefinition, mSystemDuration), DEF_FIELD_TRACK, nullptr, 36 },
+    { "OnDuration", offsetof(TodEmitterDefinition, mOnDuration), DEF_FIELD_STRING, nullptr, 32 },
+    { "CrossFadeDuration", offsetof(TodEmitterDefinition, mCrossFadeDuration), DEF_FIELD_TRACK, nullptr, 44 },
+    { "SpawnRate", offsetof(TodEmitterDefinition, mSpawnRate), DEF_FIELD_TRACK, nullptr, 52 },
+    { "SpawnMinActive", offsetof(TodEmitterDefinition, mSpawnMinActive), DEF_FIELD_TRACK, nullptr, 60 },
+    { "SpawnMaxActive", offsetof(TodEmitterDefinition, mSpawnMaxActive), DEF_FIELD_TRACK, nullptr, 68 },
+    { "SpawnMaxLaunched", offsetof(TodEmitterDefinition, mSpawnMaxLaunched), DEF_FIELD_TRACK, nullptr, 76 },
+    { "EmitterRadius", offsetof(TodEmitterDefinition, mEmitterRadius), DEF_FIELD_TRACK, nullptr, 84 },
+    { "EmitterOffsetX", offsetof(TodEmitterDefinition, mEmitterOffsetX), DEF_FIELD_TRACK, nullptr, 92 },
+    { "EmitterOffsetY", offsetof(TodEmitterDefinition, mEmitterOffsetY), DEF_FIELD_TRACK, nullptr, 100 },
+    { "EmitterBoxX", offsetof(TodEmitterDefinition, mEmitterBoxX), DEF_FIELD_TRACK, nullptr, 108 },
+    { "EmitterBoxY", offsetof(TodEmitterDefinition, mEmitterBoxY), DEF_FIELD_TRACK, nullptr, 116 },
+    { "EmitterPath", offsetof(TodEmitterDefinition, mEmitterPath), DEF_FIELD_TRACK, nullptr, 140 },
+    { "EmitterSkewX", offsetof(TodEmitterDefinition, mEmitterSkewX), DEF_FIELD_TRACK, nullptr, 124 },
+    { "EmitterSkewY", offsetof(TodEmitterDefinition, mEmitterSkewY), DEF_FIELD_TRACK, nullptr, 132 },
+    { "ParticleDuration", offsetof(TodEmitterDefinition, mParticleDuration), DEF_FIELD_TRACK, nullptr, 148 },
+    { "SystemRed", offsetof(TodEmitterDefinition, mSystemRed), DEF_FIELD_TRACK, nullptr, 172 },
+    { "SystemGreen", offsetof(TodEmitterDefinition, mSystemGreen), DEF_FIELD_TRACK, nullptr, 180 },
+    { "SystemBlue", offsetof(TodEmitterDefinition, mSystemBlue), DEF_FIELD_TRACK, nullptr, 188 },
+    { "SystemAlpha", offsetof(TodEmitterDefinition, mSystemAlpha), DEF_FIELD_TRACK, nullptr, 196 },
+    { "SystemBrightness", offsetof(TodEmitterDefinition, mSystemBrightness), DEF_FIELD_TRACK, nullptr, 204 },
+    { "LaunchSpeed", offsetof(TodEmitterDefinition, mLaunchSpeed), DEF_FIELD_TRACK, nullptr, 156 },
+    { "LaunchAngle", offsetof(TodEmitterDefinition, mLaunchAngle), DEF_FIELD_TRACK, nullptr, 164 },
+    { "Field", offsetof(TodEmitterDefinition, mParticleFields), DEF_FIELD_ARRAY, &gParticleFieldDefMap, 212 },
+    { "SystemField", offsetof(TodEmitterDefinition, mSystemFields), DEF_FIELD_ARRAY, &gParticleFieldDefMap, 220 },
+    { "ParticleRed", offsetof(TodEmitterDefinition, mParticleRed), DEF_FIELD_TRACK, nullptr, 228 },
+    { "ParticleGreen", offsetof(TodEmitterDefinition, mParticleGreen), DEF_FIELD_TRACK, nullptr, 236 },
+    { "ParticleBlue", offsetof(TodEmitterDefinition, mParticleBlue), DEF_FIELD_TRACK, nullptr, 244 },
+    { "ParticleAlpha", offsetof(TodEmitterDefinition, mParticleAlpha), DEF_FIELD_TRACK, nullptr, 252 },
+    { "ParticleBrightness", offsetof(TodEmitterDefinition, mParticleBrightness), DEF_FIELD_TRACK, nullptr, 260 },
+    { "ParticleSpinAngle", offsetof(TodEmitterDefinition, mParticleSpinAngle), DEF_FIELD_TRACK, nullptr, 268 },
+    { "ParticleSpinSpeed", offsetof(TodEmitterDefinition, mParticleSpinSpeed), DEF_FIELD_TRACK, nullptr, 276 },
+    { "ParticleScale", offsetof(TodEmitterDefinition, mParticleScale), DEF_FIELD_TRACK, nullptr, 284 },
+    { "ParticleStretch", offsetof(TodEmitterDefinition, mParticleStretch), DEF_FIELD_TRACK, nullptr, 292 },
+    { "CollisionReflect", offsetof(TodEmitterDefinition, mCollisionReflect), DEF_FIELD_TRACK, nullptr, 300 },
+    { "CollisionSpin", offsetof(TodEmitterDefinition, mCollisionSpin), DEF_FIELD_TRACK, nullptr, 308 },
+    { "ClipTop", offsetof(TodEmitterDefinition, mClipTop), DEF_FIELD_TRACK, nullptr, 316 },
+    { "ClipBottom", offsetof(TodEmitterDefinition, mClipBottom), DEF_FIELD_TRACK, nullptr, 324 },
+    { "ClipLeft", offsetof(TodEmitterDefinition, mClipLeft), DEF_FIELD_TRACK, nullptr, 332 },
+    { "ClipRight", offsetof(TodEmitterDefinition, mClipRight), DEF_FIELD_TRACK, nullptr, 340 },
+    { "AnimationRate", offsetof(TodEmitterDefinition, mAnimationRate), DEF_FIELD_TRACK, nullptr, 348 },
     { gEmptyCString, 0, 0, nullptr }
 };
 
 static const DefField gParticleDefFields[] = {
-    { "Emitter", 0, DEF_FIELD_ARRAY, &gEmitterDefMap },
+    { "Emitter", offsetof(TodParticleDefinition, mEmitterDefs), DEF_FIELD_ARRAY, &gEmitterDefMap, 0 },
     { gEmptyCString, 0, 0, nullptr }
 };
 
 static const DefField gTrailDefFields[] = {
-    { "Image", 0, DEF_FIELD_IMAGE, nullptr },
-    { "MaxPoints", 4, DEF_FIELD_INT, nullptr },
-    { "MinPointDistance", 8, DEF_FIELD_FLOAT, nullptr },
-    { "TrailFlags", 12, DEF_FIELD_FLAGS, nullptr },
-    { "WidthOverLength", 24, DEF_FIELD_TRACK, nullptr },
-    { "WidthOverTime", 32, DEF_FIELD_TRACK, nullptr },
-    { "AlphaOverLength", 40, DEF_FIELD_TRACK, nullptr },
-    { "AlphaOverTime", 48, DEF_FIELD_TRACK, nullptr },
-    { "TrailDuration", 16, DEF_FIELD_TRACK, nullptr },
+    { "Image", offsetof(TrailDefinition, mImage), DEF_FIELD_IMAGE, nullptr, 0 },
+    { "MaxPoints", offsetof(TrailDefinition, mMaxPoints), DEF_FIELD_INT, nullptr, 4 },
+    { "MinPointDistance", offsetof(TrailDefinition, mMinPointDistance), DEF_FIELD_FLOAT, nullptr, 8 },
+    { "TrailFlags", offsetof(TrailDefinition, mTrailFlags), DEF_FIELD_FLAGS, nullptr, 12 },
+    { "WidthOverLength", offsetof(TrailDefinition, mWidthOverLength), DEF_FIELD_TRACK, nullptr, 24 },
+    { "WidthOverTime", offsetof(TrailDefinition, mWidthOverTime), DEF_FIELD_TRACK, nullptr, 32 },
+    { "AlphaOverLength", offsetof(TrailDefinition, mAlphaOverLength), DEF_FIELD_TRACK, nullptr, 40 },
+    { "AlphaOverTime", offsetof(TrailDefinition, mAlphaOverTime), DEF_FIELD_TRACK, nullptr, 48 },
+    { "TrailDuration", offsetof(TrailDefinition, mTrailDuration), DEF_FIELD_TRACK, nullptr, 16 },
     { gEmptyCString, 0, 0, nullptr }
 };
 
@@ -181,19 +181,26 @@ static void EnsureDefMaps()
     if (gParticleDefMap.mFields != nullptr)
         return;
     gParticleFieldDefMap.mFields = gParticleFieldDefFields;
-    gParticleFieldDefMap.mSize = 20;
+    gParticleFieldDefMap.mSize = sizeof(ParticleField);
+    gParticleFieldDefMap.mFileSize = 20;
     gTransformDefMap.mFields = gTransformDefFields;
-    gTransformDefMap.mSize = 48;
+    gTransformDefMap.mSize = sizeof(ReanimatorTransform);
+    gTransformDefMap.mFileSize = 48;
     gTrackDefMap.mFields = gTrackDefFields;
-    gTrackDefMap.mSize = 20;
+    gTrackDefMap.mSize = sizeof(ReanimatorTrack);
+    gTrackDefMap.mFileSize = 20;
     gEmitterDefMap.mFields = gEmitterDefFields;
-    gEmitterDefMap.mSize = 356;
+    gEmitterDefMap.mSize = sizeof(TodEmitterDefinition);
+    gEmitterDefMap.mFileSize = 356;
     gReanimatorDefMap.mFields = gReanimatorDefFields;
-    gReanimatorDefMap.mSize = 16;
+    gReanimatorDefMap.mSize = sizeof(ReanimatorDefinition);
+    gReanimatorDefMap.mFileSize = 16;
     gParticleDefMap.mFields = gParticleDefFields;
-    gParticleDefMap.mSize = 8;
+    gParticleDefMap.mSize = sizeof(TodParticleDefinition);
+    gParticleDefMap.mFileSize = 8;
     gTrailDefMap.mFields = gTrailDefFields;
-    gTrailDefMap.mSize = 56;
+    gTrailDefMap.mSize = sizeof(TrailDefinition);
+    gTrailDefMap.mFileSize = 56;
 }
 
 static void DefinitionFree(const void *theData)
@@ -316,10 +323,10 @@ void TodParticleFreeDefinitions()
     gParticleParamArraySize = 0;
 }
 
-static void* DefinitionAlloc(int theSize)
+static void* DefinitionAlloc(size_t theSize)
 {
-    void* aBlock = operator new[]((unsigned)theSize);
-    std::memset(aBlock, 0, (unsigned)theSize);
+    void* aBlock = operator new[](theSize);
+    std::memset(aBlock, 0, theSize);
     return aBlock;
 }
 
@@ -368,6 +375,37 @@ static const char* ReadCacheCString(const char*& theCursor, const char* theEnd)
 
 static int DefMapReadFromCache(const char*& theCursor, const char* theEnd, const DefMap* theMap, void* theObject);
 
+// Compiled TV resources retain their ARM record layout. Only scalar fields
+// and array counts are copied; file pointer placeholders never become addresses.
+static int ReadCacheRecord(const char *&theCursor, const char *theEnd,
+                           const DefMap *theMap, void *theObject)
+{
+    if (theEnd - theCursor < theMap->mFileSize)
+        return 0;
+    for (const DefField *aField = theMap->mFields; aField->mName[0] != 0; ++aField)
+    {
+        char *aSlot = static_cast<char *>(theObject) + aField->mOffset;
+        const char *aFileSlot = theCursor + aField->mFileOffset;
+        switch (aField->mType)
+        {
+        case DEF_FIELD_INT:
+        case DEF_FIELD_FLOAT:
+        case DEF_FIELD_ENUM:
+        case DEF_FIELD_FLAGS:
+            std::memcpy(aSlot, aFileSlot, sizeof(int));
+            break;
+        case DEF_FIELD_ARRAY:
+            std::memcpy(&reinterpret_cast<DefinitionArrayField *>(aSlot)->mCount,
+                        aFileSlot + sizeof(int), sizeof(int));
+            break;
+        default:
+            break;
+        }
+    }
+    theCursor += theMap->mFileSize;
+    return 1;
+}
+
 static int ReadCacheArray(const char*& theCursor, const char* theEnd, DefinitionArrayField* theField, const DefMap* theNested)
 {
     // The integer in the file is the element stride. The element count was
@@ -378,15 +416,20 @@ static int ReadCacheArray(const char*& theCursor, const char* theEnd, Definition
     // the empty ones. Reading the strings inside the packed blob consumes the
     // next frame's floats as a name, which shears the sprout without crashing.
     int aStride = ReadCacheInt(theCursor, theEnd);
-    if (aStride != theNested->mSize)
+    if (aStride != theNested->mFileSize)
         return 0;
     if (theField->mCount < 0)
         return 0;
     if (theField->mCount == 0)
         return 1;
     theField->mData = DefinitionAlloc(theNested->mSize * theField->mCount);
-    if (ReadCacheBytes(theCursor, theEnd, theField->mData, theNested->mSize * theField->mCount) == 0)
-        return 0;
+    char *aRecord = static_cast<char *>(theField->mData);
+    for (int aIndex = 0; aIndex < theField->mCount; ++aIndex)
+    {
+        if (!ReadCacheRecord(theCursor, theEnd, theNested, aRecord))
+            return 0;
+        aRecord += theNested->mSize;
+    }
     char* aElement = static_cast<char*>(theField->mData);
     for (int aIndex = 0; aIndex < theField->mCount; ++aIndex)
     {
@@ -405,8 +448,8 @@ static int ReadCacheTrack(const char*& theCursor, const char* theEnd, FloatParam
     if (theTrack->mCountNodes == 0)
         return 1;
     theTrack->mNodes = static_cast<FloatParameterTrackNode*>(
-        DefinitionAlloc(20 * theTrack->mCountNodes));
-    return ReadCacheBytes(theCursor, theEnd, theTrack->mNodes, 20 * theTrack->mCountNodes);
+        DefinitionAlloc(sizeof(FloatParameterTrackNode) * theTrack->mCountNodes));
+    return ReadCacheBytes(theCursor, theEnd, theTrack->mNodes, sizeof(FloatParameterTrackNode) * theTrack->mCountNodes);
 }
 
 static int ReadCacheString(const char*& theCursor, const char* theEnd, const char** theSlot)
@@ -688,7 +731,7 @@ static int DefinitionReadCompiledFile(const Sexy::String& thePath, DefMap* theMa
             aOwned = 1;
         }
     }
-    if (aSize < theMap->mSize + 4)
+    if (aSize < theMap->mFileSize + 4)
     {
         if (aOwned != 0)
             DefinitionFreeBlock(aOwnedBytes);
@@ -706,7 +749,7 @@ static int DefinitionReadCompiledFile(const Sexy::String& thePath, DefMap* theMa
             DefinitionFreeBlock(aBytes);
         return 0;
     }
-    if (ReadCacheBytes(aCursor, aEnd, theObject, theMap->mSize) == 0)
+    if (ReadCacheRecord(aCursor, aEnd, theMap, theObject) == 0)
     {
         if (aOwned != 0)
             DefinitionFreeBlock(aOwnedBytes);
@@ -740,7 +783,7 @@ static void FloatTrackSetDefault(FloatParameterTrack* theTrack, float theValue)
     if (theTrack->mNodes != nullptr || theValue == 0.0f)
         return;
     theTrack->mCountNodes = 1;
-    theTrack->mNodes = static_cast<FloatParameterTrackNode*>(DefinitionAlloc(20));
+    theTrack->mNodes = static_cast<FloatParameterTrackNode*>(DefinitionAlloc(sizeof(FloatParameterTrackNode)));
     theTrack->mNodes->mTime = 0.0f;
     theTrack->mNodes->mLowValue = theValue;
     theTrack->mNodes->mHighValue = theValue;
@@ -1007,7 +1050,7 @@ void ReanimatorLoadDefinitions(ReanimationParamRecord* theParams, int theCount)
     gReanimationParamArray = theParams;
     gReanimatorDefCount = theCount;
     gReanimatorDefArray = static_cast<ReanimatorDefinition*>(
-        operator new[]((unsigned)(16 * theCount)));
+        operator new[](sizeof(ReanimatorDefinition) * theCount));
     for (int aIndex = 0; aIndex < theCount; ++aIndex)
         ConstructRaw<ReanimatorDefinition>(&gReanimatorDefArray[aIndex]);
     // DefinitionIsCompiled is constantly true in this build, so a compiled

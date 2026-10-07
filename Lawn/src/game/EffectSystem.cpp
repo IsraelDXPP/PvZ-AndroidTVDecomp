@@ -180,13 +180,11 @@ void EffectSystem::EffectSystemFreeAll()
     if ((aEmitters[i].mID & 0xFFFF0000u) == 0)
       continue;
 
-    // Return each live particle node to the emitter's allocator. The next live
-    // node is the second pointer. The free-list head is the first word.
+    // Return each live particle node to the emitter's allocator.
     TodAllocator *aAllocator = aEmitters[i].mItem.mParticleList.mpAllocator;
-    for (void *aNode = aEmitters[i].mItem.mParticleList.mHead; aNode != nullptr; )
+    for (DataArrayIdNode *aNode = aEmitters[i].mItem.mParticleList.mHead; aNode != nullptr; )
     {
-      void *aNext = nullptr;
-      std::memcpy(&aNext, (char *)aNode + sizeof(void *), sizeof(aNext));
+      DataArrayIdNode *aNext = aNode->mNext;
       TodAllocatorWriteLink(aNode, aAllocator->mFreeList);
       --aAllocator->mTotalItems;
       aAllocator->mFreeList = aNode;

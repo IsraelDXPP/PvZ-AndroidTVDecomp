@@ -697,17 +697,13 @@ BaseGamepadControls::BaseGamepadControls(Board * theBoard, int thePlayerIndex, i
 
   // Two sync blocks: the cursor frame byte and the sixteen-word movement area.
   // The dump's `memset`s are what zero every one of the movement members.
-  SyncBlockInfo aFrameBlock;
-  aFrameBlock.mData = &mDrawCursorFrame;
-  aFrameBlock.mSize = 8;
+  SyncBlockInfo aFrameBlock = MakeSyncBlock(mDrawCursorFrame, mCursorHighlightAnimPhase);
   mSyncBlocks.push_back(aFrameBlock);
-  memset(&mDrawCursorFrame, 0, 8);
+  memset(aFrameBlock.mData, 0, aFrameBlock.mSize);
 
-  SyncBlockInfo aMovementBlock;
-  aMovementBlock.mData = &mGamepadAccLeftX;
-  aMovementBlock.mSize = 96;
+  SyncBlockInfo aMovementBlock = MakeSyncBlock(mGamepadAccLeftX, mButterCursorMoveCounter);
   mSyncBlocks.push_back(aMovementBlock);
-  memset(&mGamepadAccLeftX, 0, 96);
+  memset(aMovementBlock.mData, 0, aMovementBlock.mSize);
 
   mPlayerIndex = thePlayerIndex;
   mGamepadIndex = theGamepadIndex;

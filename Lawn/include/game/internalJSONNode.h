@@ -37,12 +37,7 @@
 // The unreferenced bytes at +0x11..+0x17, +0x21..+0x23 and +0x25..+0x27 are the
 // padding the 8-byte alignment of _value needs; no body in the dump touches them.
 //
-// TODO(recon): ~internalJSONNode is not declared here (the transcribed .cpp does
-// not define one and the implicit destructor is what the tree compiles today).
-// The binary's destructor at 0x00133558 also tears CHILDREN down -- it calls
-// jsonChildren::deleteAll, `free(children->mChildren)` and `operator delete` --
-// and a raw CHILDREN pointer will not do that. Declare the destructor and delete
-// CHILDREN there.
+// The destructor at 0x00133558 releases the child nodes and their container.
 
 #pragma once
 
@@ -86,6 +81,7 @@ class jsonChildren;
 class internalJSONNode
 {
 public:
+    ~internalJSONNode();
     double FetchNumber();
     int Set(int theValue);
     void Set(char theValue);

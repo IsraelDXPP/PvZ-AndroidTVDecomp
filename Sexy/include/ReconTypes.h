@@ -48,15 +48,6 @@
 // pointer or reference only, so an incomplete type is enough.
 class ParseWidget;
 
-// Address of one vtable slot. theByteOffset is the original layout offset
-// of that slot (4 bytes per entry). The result points at the function pointer.
-inline void** VTSLOT(void* theObject, size_t theByteOffset)
-{
-    void** aObjectWords = static_cast<void**>(theObject);
-    void** aTable = static_cast<void**>(aObjectWords[0]);
-    return aTable + (theByteOffset / sizeof(void*));
-}
-
 // ---------------------------------------------------------------------------
 // Sexy::RbTree -- libstdc++'s red-black-tree helpers.
 //
@@ -1296,14 +1287,20 @@ class ReanimAtlas;
 class Graphics3D;
 // SyncBlockInfo -- one entry of a game object's synchronised state.
 //
-// It is a vector element, so the bodies need the complete type. The insert
-// sites store a data pointer and a size, two words per element: the pointer
-// at +0 and the size at +4.
+// Each entry stores a native pointer and the byte count of its state range.
 struct SyncBlockInfo
 {
     void*   mData;
-    int     mSize;
+    size_t  mSize;
 };
+
+template<class First, class Last>
+SyncBlockInfo MakeSyncBlock(First &theFirst, Last &theLast)
+{
+    auto *aBegin = reinterpret_cast<unsigned char *>(&theFirst);
+    auto *anEnd = reinterpret_cast<unsigned char *>(&theLast) + sizeof(theLast);
+    return {&theFirst, static_cast<size_t>(anEnd - aBegin)};
+}
 
 class MultiplexLogListener;
 class TodEmitterDefinition;
@@ -1372,8 +1369,7 @@ public:
     // Size 0x0C.
 
     Driver(Sexy::String theName, int thePriority);
-    // The parameter is the destination the name is copied into.
-    Driver* GetName(int theDest);
+    Sexy::String GetName() const;
     int GetPriority();
 };
 

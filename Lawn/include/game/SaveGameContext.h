@@ -36,7 +36,7 @@ public:
 
     int ByteLeftToRead();
     unsigned int SyncInt(int &theValue);
-    signed int SyncBytes(void *theData, int theSize);
+    signed int SyncBytes(void *theData, size_t theSize);
     unsigned int SyncUint(unsigned int &theValue);
     int SyncReanimationDef(ReanimatorDefinition *&theDef);
     unsigned int SyncParticleDef(TodParticleDefinition *&theDef);

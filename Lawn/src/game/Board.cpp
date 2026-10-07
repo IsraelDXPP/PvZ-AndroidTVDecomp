@@ -7375,22 +7375,15 @@ int Board::RemoveParticleByType(ParticleEffect theEffect)
 // Board::GetWinningZombie(void)
 // @0015C314  46 bytes
 // ==========================================================================
-int Board::GetWinningZombie()
+Zombie *Board::GetWinningZombie()
 {
-  int aResult;
   Zombie *aZombie = nullptr;
-
-  // mFromWave == -4 is the winner marker. The hit returns the zombie pointer
-  // as an int; a miss returns the iterator's 0.
-  do
+  while (IterateZombies(aZombie))
   {
-    aResult = IterateZombies(aZombie);
-    if ( aResult == 0 )
-      return aResult;
-    if ( aZombie->mFromWave == -4 )
-      return (int)aZombie;
+    if (aZombie->mFromWave == -4)
+      return aZombie;
   }
-  while ( true );
+  return nullptr;
 }
 
 // ==========================================================================
@@ -11521,7 +11514,7 @@ Board::Board(LawnApp * theApp)
   unsigned char *stateBegin = reinterpret_cast<unsigned char *>(&mPaused);
   unsigned char *stateEnd = reinterpret_cast<unsigned char *>(&mCatapultPlantsUsed) + sizeof(mCatapultPlantsUsed);
   aBlock.mData = stateBegin;
-  aBlock.mSize = static_cast<int>(stateEnd - stateBegin);
+  aBlock.mSize = static_cast<size_t>(stateEnd - stateBegin);
   mSyncBlocks.push_back(aBlock);
   memset(stateBegin, 0, aBlock.mSize);
   mApp = theApp;

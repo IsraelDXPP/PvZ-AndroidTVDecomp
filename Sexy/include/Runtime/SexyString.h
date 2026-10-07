@@ -1,50 +1,5 @@
-// String.h -- the game's string type.
-//
-// The binary does NOT use std::string as MSVC defines it. Its SetLabel is
-//
-//     TodStringTranslate(&v6, a2);
-//     StringAssign(a1 + 288, &v6);            // assign
-//     v3 = (void *)(v6 - 12);
-//     if ( (int *)(v6 - 12) != (int *)Sexy::gEmptyStringData ) {
-//         v4 = (unsigned int *)(v6 - 4);
-//         __dmb(0xFu);
-//         do v5 = __ldrex(v4); while ( __strex(v5 - 1, v4) != 0 );
-//         __dmb(0xFu);
-//         if ( v5 <= 0 ) operator delete(v3);
-//     }
-//
-// That is textbook libstdc++ copy-on-write std::string (_GLIBCXX_USE_CXX11_ABI=0):
-//
-//     the object is ONE pointer (4 bytes on this target)
-//     the pointer refers to the character data
-//     immediately before the data sits a 12-byte _Rep header:
-//
-//         data - 12 : length
-//         data -  8 : capacity
-//         data -  4 : reference count
-//
-//     an empty string points at a single shared static _Rep (the decompiler's
-//     (int *)Sexy::gEmptyStringData is that rep's data pointer), so the "!= (int *)Sexy::gEmptyStringData"
-//     tests are "is this the shared empty rep?".
-//
-// The consequences matter for transcription and are why this class exists
-// rather than an alias to std::string:
-//
-//   * sizeof is 4. The dumps store strings into 4-byte object slots, e.g.
-//     GameButton's label at +0x120 and its 5-slot string array at +0x2B0..+0x2C0
-//     (`*((_DWORD *)this + 172) = 0; ... *((_DWORD *)this + 176) = 0;`).
-//     MSVC's std::string is 28 bytes, which would overrun every one of them.
-//
-//   * Assignment is a pointer copy plus a refcount bump, not a deep copy.
-//     Transcribed code that assigns a string then mutates the source would
-//     behave differently under a deep-copying type.
-//
-//   * The refcount is manipulated with ldrex/strex -- ARM exclusives. On x86 we
-//     use an interlocked decrement, which is the same operation.
-//
-// So this is a faithful reimplementation of the same ABI, not a wrapper: it has
-// the same size, the same shared-empty optimisation, and the same refcount
-// protocol, so the transcribed offsets and ownership rules both hold.
+// One native character pointer with deep-copy ownership and a shared empty buffer.
+// StringRep stores character lengths, independent of the host pointer size.
 
 #ifndef __SEXYSTRING_H__
 #define __SEXYSTRING_H__
@@ -76,10 +31,8 @@ struct StringRep
     char* Data()  { return reinterpret_cast<char*>(this + 1); }
 };
 
-// The one shared empty representation. libstdc++ calls this
-// _S_empty_rep_storage; the binary's (int *)Sexy::gEmptyStringData is its data pointer, which
-// is what String::c_str() returns for an empty string.
-extern StringRep  gEmptyStringRep;
+// The header and characters refer to the same shared empty representation.
+extern StringRep& gEmptyStringRep;
 extern char* const gEmptyStringData;
 
 // Refcount helpers. The binary uses __ldrex/__strex pairs; these are the same
@@ -92,7 +45,7 @@ int     StringRelease(StringRep* theRep);
 class String
 {
 public:
-    // The ONLY member. sizeof(String) == 4, as in the binary.
+    // The only member; its size follows the host pointer size.
     char*       mData;
 
 public:
@@ -174,39 +127,11 @@ public:
     char        operator[](unsigned int theIndex) const { return mData[theIndex]; }
     char&       operator[](unsigned int theIndex)       { return mData[theIndex]; }
 
-    // The whole object packs into a word, as a pointer.
-    //
-    // On this ABI a String IS its data pointer. libstdc++'s COW string is four
-    // bytes wide and the value in it is the `char*` into the shared rep, which
-    // is why `sizeof(String) == 4` holds here and why the binary can pass one
-    // in a single register with no copy.
-    //
-    // Naming the member is what makes a String usable as a `_DWORD`, and it has
-    // to be a member: `_DWORD`'s converting constructor is SFINAE-tested on
-    // `decltype(T::ToInt())` (Runtime/SexyTypes.h), so a type opts into the
-    // conversion by having the member. Every `sub_XXXXXX` in
-    // Sexy/ReconExterns.h takes `_DWORD` parameters, and the transcribed call
-    // sites hand them Strings all over the tree -- `StringCtor(&v9, a2, v8)` is
-    // called with a `Sexy::String` 1633 times. Without this member none of them
-    // convert and the whole tree fails to compile with C2664.
-    //
-    // It returns the raw word on purpose, not a number derived from the text:
-    // the callee receives the same value the binary put in the register.
-    //
-    // Do NOT instead add a blanket `template <class T> _DWORD(const T&)`: that
-    // was tried, it beats the built-in operators for every assignment, and it
-    // makes `_DWORD w = someColor;` ambiguous. The SFINAE test exists to keep
-    // the conversion to the types that deliberately opt in.
-    unsigned int ToInt() const { return (unsigned int)(uintptr_t)mData; }
-
     // --- mutation -----------------------------------------------------------
 
     void clear() { Assign("", 0); }
 
-    // basic_string::assign(const basic_string&) -- the COW assign the binary
-    // calls at _ZNSbIiSt11char_traitsIiESaIiEE6assignERKS2_. It refcounts the
-    // source and releases the target, exactly like operator=, which is why the
-    // shared-rep path is the fast one.
+    // Assignment owns a deep copy of the source characters.
     String& assign(const String& theOther)
     {
         return *this = theOther;
@@ -304,54 +229,22 @@ public:
 
     // --- internals ----------------------------------------------------------
 
-    // A buffer that cannot be a real one is treated as the shared empty rep.
-    //
-    // On the target a String is never null: every constructor and every
-    // assignment leaves it pointing at a rep, and a default-constructed one
-    // points at the shared empty rep. This tree cannot rely on that, because the
-    // transcribed constructors do not initialise every field -- the probe in
-    // main.cpp found 543 dwords in LawnApp that no constructor ever writes, and
-    // the String members among them come out holding whatever the block held.
-    //
-    // Three shapes have been seen so far, and the first check below subsumes the
-    // whole family rather than listing them:
-    //
-    //   * Windows never maps the first 64 KiB of the address space; that range is
-    //     the null-pointer guard. So ANY buffer pointer below 0x10000 is invalid
-    //     by construction, whatever produced it. The observed value was 0x47,
-    //     which made StringRelease read a refcount at 0x4F.
-    //   * `Sexy::gEmptyStringData`: in the binary 0x71BB54 is the shared empty rep and
-    //     0x71BB60 is its character data, so a String holding 0x71BB60 IS the
-    //     empty string. The transcriber spells that as `(_DWORD)Sexy::gEmptyStringData`, and
-    //     in this tree `Sexy::gEmptyStringData` and `dword_71BB54` are two unrelated globals,
-    //     so the twelve bytes below it are not a StringRep. Such a String does
-    //     not look empty, and the release path ran `operator delete` on an
-    //     address inside the executable's image -- STATUS_HEAP_CORRUPTION.
-    //   * 0xCCCCCCCC, the Debug build's fill for an uninitialised local, which is
-    //     the same story one level down. Release fills those slots with 0xCD
-    //     instead, so the two configurations failed at different addresses for
-    //     one cause.
-    //
-    // Folding these here fixes AddRef, Release, IsShared, Detach and
-    // EnsureCapacity in one place.
+    // Null and the shared empty buffer have no owned characters.
     static bool IsNotARealBuffer(const char* theData)
     {
-        return (uintptr_t)theData < 0x10000u
-            || theData == gEmptyStringData
-            || theData == (const char*)0xCCCCCCCCu
-            || theData == (const char*)0xCDCDCDCDu;
+        return theData == nullptr || theData == gEmptyStringData;
     }
 
     static StringRep* RepOf(char* theData)
     {
         if (IsNotARealBuffer(theData))
-            return const_cast<StringRep*>(RepOf(gEmptyStringData));
+            return &gEmptyStringRep;
         return reinterpret_cast<StringRep*>(theData - sizeof(StringRep));
     }
     static const StringRep* RepOf(const char* theData)
     {
         if (IsNotARealBuffer(theData))
-            theData = gEmptyStringData;
+            return &gEmptyStringRep;
         return reinterpret_cast<const StringRep*>(theData - sizeof(StringRep));
     }
 

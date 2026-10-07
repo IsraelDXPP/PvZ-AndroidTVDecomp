@@ -6446,7 +6446,7 @@ TodParticleSystem * Challenge::MoveAPortal()
   // loop ends (IterateGridItems returned null), then walks columns 0..9.
   // +28 is mGridItemState, +24 is mGridItemType. A portal is either shape
   // (4 or 5) and not in state 2.
-  TodWeightedArray aPortals[4];
+  GridItem *aPortals[4];
   int aPortalCount = 0;
   GridItem *aGridItem = nullptr;
   while ( mBoard->IterateGridItems(aGridItem) != 0 )
@@ -6454,12 +6454,13 @@ TodParticleSystem * Challenge::MoveAPortal()
     if ( aGridItem->mGridItemState != 2
          && (unsigned int)(aGridItem->mGridItemType - GRIDITEM_PORTAL_CIRCLE) <= 1 )
     {
-      aPortals[aPortalCount].mItem = (int)aGridItem;
-      aPortals[aPortalCount].mWeight = 1;
+      aPortals[aPortalCount] = aGridItem;
       ++aPortalCount;
     }
   }
-  GridItem *aMoving = (GridItem *)TodPickFromWeightedArray(aPortals, aPortalCount);
+  if (aPortalCount == 0)
+    return nullptr;
+  GridItem *aMoving = aPortals[Rand(aPortalCount)];
   GridItem *aOther = GetOtherPortal(aMoving);
   TodWeightedGridArray aSpots[50];
   int aSpotCount = 0;
@@ -7746,7 +7747,7 @@ Challenge::Challenge()
   unsigned char *stateEnd = reinterpret_cast<unsigned char *>(&mReanimHeavyWeaponID3)
                           + sizeof(mReanimHeavyWeaponID3);
   stateBlock.mData = &mBeghouledMouseCapture;
-  stateBlock.mSize = static_cast<int>(stateEnd - stateBegin);
+  stateBlock.mSize = static_cast<size_t>(stateEnd - stateBegin);
   mSyncBlocks.push_back(stateBlock);
   std::memset(stateBegin, 0, stateBlock.mSize);
   mApp = gLawnApp;

@@ -61,7 +61,7 @@ void InitNodePool(TodAllocator *thePool)
     thePool->mBlockList = nullptr;
     thePool->mGrowCount = 1024;
     thePool->mTotalItems = 0;
-    thePool->mItemSize = 12;
+    thePool->mItemSize = sizeof(DataArrayIdNode);
     TodAllocatorGrow(thePool);
 }
 

@@ -134,57 +134,6 @@ inline T abs32(T theValue)
 }
 
 // ---------------------------------------------------------------------------
-// Slot dispatch for the binary's hand-built / Itanium vtables.
-//
-// Several of the interfaces the tree talks to (the platform driver at +0x2EC,
-// the audio interfaces, the file driver, the widget manager's drivers) are
-// reached through vtables the binary laid out with the Itanium ABI. MSVC spends
-// ONE slot on a virtual destructor where Itanium spends two, so writing them as
-// C++ `virtual` classes would put every method one slot early. InvokeSlot reads
-// the entry at the binary's own byte offset from the object's vtable pointer and
-// calls it with the object first, which is what the ARM code does.
-//
-// This used to live in Sexy\SexyAppBase.cpp, which made it invisible to
-// Sexy\BaseAppDriver.h once the driver tables moved there.
-// ---------------------------------------------------------------------------
-#if defined(_M_IX86)
-    #define LTDRIVERCALL __cdecl
-#else
-    #define LTDRIVERCALL
-#endif
-
-template <class T, class... Args>
-T InvokeSlot(void *theObject, int theByteOffset, Args... theArgs)
-{
-    typedef T (LTDRIVERCALL *SlotFn)(void *, Args...);
-
-    // THE OBJECT'S FIRST WORD IS THE VTABLE POINTER, so the entry is read
-    // THROUGH it -- `(*(void***)theObject)[offset/4]`, exactly what the VSLOT
-    // helper in Runtime\SexyTypes.h does.
-    //
-    // This used to index the object itself, `((void**)theObject)[offset/4]`,
-    // which is only correct when the object IS the table. The platform drivers
-    // are real C++ objects: the compiler writes the vptr, and their methods
-    // are virtual. This helper remains for other polymorphic objects whose
-    // transcribed bodies still name a slot by byte offset.
-    //
-    // Every other caller passes a real polymorphic object whose vptr is at +0
-    // (SexyAppBase's own slot dispatches, mTrialTimeCheck, mPlatformIntegration),
-    // and for those the two spellings happen to agree only because their vptr is
-    // the first word of the table they point at. Dereferencing is correct for
-    // both cases and is what the ARM does.
-    void** aTable = *static_cast<void***>(theObject);
-    SlotFn aSlot = nullptr;
-    if (aTable != nullptr)
-    {
-        void* aEntry = aTable[theByteOffset / 4];
-        std::memcpy(&aSlot, &aEntry, sizeof(aSlot));
-    }
-    return aSlot(theObject, theArgs...);
-}
-
-
-// ---------------------------------------------------------------------------
 // The framework's string conversions.
 //
 // The binary's own helpers for moving between its 4-byte string type, the wide

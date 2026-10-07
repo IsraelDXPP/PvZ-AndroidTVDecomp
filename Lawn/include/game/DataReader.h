@@ -30,7 +30,7 @@ public:
     int ReadShort();
     int ReadByte();
     bool ReadBool();
-    int ReadFloat();
-    long long ReadDouble();
+    float ReadFloat();
+    double ReadDouble();
     int ReadString(Sexy::String& theStr);
 };

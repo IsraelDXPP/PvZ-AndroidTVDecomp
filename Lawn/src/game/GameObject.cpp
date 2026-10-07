@@ -57,11 +57,9 @@ GameObject::GameObject()
   // 28 bytes) as one sync block, then zero-fills exactly that range. The
   // vector's three-pointer initialisation is libstdcxx::vector's own default
   // constructor, so it is not repeated here.
-  SyncBlockInfo aBlock;
-  aBlock.mData = &mX;
-  aBlock.mSize = 0x1C;
+  SyncBlockInfo aBlock = MakeSyncBlock(mX, mRenderOrder);
   mSyncBlocks.push_back(aBlock);
-  memset(&mX, 0, 0x1C);
+  memset(aBlock.mData, 0, aBlock.mSize);
 
   // mRenderOrder's value is 400000 == RenderLayer::RENDER_LAYER_TOP. The dump
   // renders it as the address of the string "...HAND_DAMAGE2E", because that
