@@ -409,7 +409,7 @@ void SDLGamepadInterface::PollGamepads()
         bool aDpadChanged = false;
         for (int aDirection = 4; aDirection < kDirectionCount; ++aDirection)
             aDpadChanged |= directions[aDirection] != pad.mDirections[aDirection].mDown;
-        if (!pad.mInitialStateLogged || aDpadChanged)
+        if (!pad.mInitialStateLogged)
         {
             LogGamepadState(pad.mGamepad, pad.mUserIndex, pad.mInitialStateLogged ? "dpad changed" : "initial");
             pad.mInitialStateLogged = true;
