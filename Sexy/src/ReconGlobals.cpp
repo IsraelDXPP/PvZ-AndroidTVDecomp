@@ -259,6 +259,22 @@ int SOUND_YUCK2 = -1;
 int SOUND_ZAMBONI = -1;
 int SOUND_ZOMBIE_FALLING_1 = -1;
 int SOUND_ZOMBIE_FALLING_2 = -1;
+int SOUND_ROLL_IN = -1;
+int SOUND_CROW_FLAP1 = -1;
+int SOUND_CROW_FLAP2 = -1;
+int SOUND_CROW_FLAP3 = -1;
+int SOUND_CROW_CAW1 = -1;
+int SOUND_CROW_CAW2 = -1;
+int SOUND_CROW_CAW3 = -1;
+int SOUND_THUNDER_1 = -1;
+int SOUND_THUNDER_2 = -1;
+int SOUND_THUNDER_3 = -1;
+int SOUND_THUNDER_1R = -1;
+int SOUND_THUNDER_2R = -1;
+int SOUND_THUNDER_3R = -1;
+int SOUND_MENU_L_ST = -1;
+int SOUND_MENU_C_ST = -1;
+int SOUND_MENU_R_ST = -1;
 int ZOMBIE_XML_FILE;
 // The empty string, not a counter.
 //

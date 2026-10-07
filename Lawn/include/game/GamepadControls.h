@@ -78,7 +78,7 @@ public:
     ReanimationID mPreviewReanimID4;      // +0xE0
     SeedType mPreviewingSeedType;         // +0xE4
     Sexy::Image * mPreviewImage;          // +0xE8
-    int mButterZombieID;                  // +0xEC, TODO(recon): ZombieID in the authoritative header
+    ZombieID mButterZombieID;             // +0xEC
     int mDigIndicatorStartCounter;        // +0xF0
     bool mIsShowingDigIndicator;          // +0xF4 (244)
     bool mIsInShopSeedBank;               // +0xF5 (245)
@@ -139,6 +139,8 @@ public:
     void HandlePauseButton();
     void HandleCancelButton();
     void HandleButterButton();
+    void ReleaseButter();
+    void ActivateShopRecharge();
     void MagnetizeNearbyCoins();
     bool HandleVersusZombiePlant(int thePlantAccepted);
     void PlaceVersusGrave(SeedPacket *thePacket, int theCost);

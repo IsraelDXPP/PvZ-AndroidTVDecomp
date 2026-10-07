@@ -613,10 +613,10 @@ bool Board::IsPlantInCursor(int thePlayerIndex)
 // Board::GetSeedTypeInCursor(int)
 // @00151EC0  138 bytes
 // ==========================================================================
-int Board::GetSeedTypeInCursor(int thePlayerIndex)
+SeedType Board::GetSeedTypeInCursor(int thePlayerIndex)
 {
-  if ( thePlayerIndex > 1 )
-    return -1;
+  if ( thePlayerIndex < 0 || thePlayerIndex > 1 )
+    return SEED_NONE;
 
   // The wheelbarrow holds a potted plant rather than a seed packet; the seed
   // type is the low seven bits of the pot's first word.
@@ -624,7 +624,7 @@ int Board::GetSeedTypeInCursor(int thePlayerIndex)
   {
     PottedPlant *aPotted = mApp->mZenGarden->GetPottedPlantInWheelbarrow();
     if ( aPotted != nullptr )
-      return (int)aPotted->mSeedType;
+      return aPotted->mSeedType;
   }
 
   // Whack-a-zombie has no cursor seed; the packet under the gamepad cursor is
@@ -633,11 +633,11 @@ int Board::GetSeedTypeInCursor(int thePlayerIndex)
   {
     if ( mSunMoney1 > 0 )
       return mSeedBank[0]->mSeedPackets[mGamepadControls[thePlayerIndex]->mSelectedSeedIndex].mPacketType;
-    return -1;
+    return SEED_NONE;
   }
 
   if ( !IsPlantInCursor(thePlayerIndex) )
-    return -1;
+    return SEED_NONE;
 
   CursorObject *aCursor = mCursorObject[thePlayerIndex];
   if ( aCursor->mType == SEED_IMITATER )
@@ -10357,7 +10357,9 @@ void Board::MouseDownWithPlant(int theX, int theY, int theClickCount, int thePla
   if ( mApp->mGameMode == GAMEMODE_CHALLENGE_ZOMBIQUARIUM || mApp->mGameMode == GAMEMODE_CHALLENGE_HEAVY_WEAPON )
     return;
 
-  SeedType aSeed = (SeedType)GetSeedTypeInCursor(thePlayerIndex);
+  SeedType aSeed = GetSeedTypeInCursor(thePlayerIndex);
+  if (aSeed == SEED_NONE)
+    return;
   unsigned int aGridX = PlantingPixelToGridX(theX, theY, aSeed);
   unsigned int aGridY = PlantingPixelToGridY(theX, theY, aSeed);
   if ( aGridX > 8 || aGridY > 5 )
@@ -10899,7 +10901,9 @@ int Board::PickZombieWaves()
         {
           if ( aFlagBudget > 8 )
             aFlagBudget = 8;
-          for ( int aCone = 0; aCone != aFlagBudget; ++aCone )
+          // Forced wave entries can spend the entire budget before the flag.
+          // The original @0x161870 skips normal zombies when that value is <= 0.
+          for ( int aCone = 0; aCone < aFlagBudget; ++aCone )
             PutZombieInWave(ZOMBIE_NORMAL, aWave, &aPicker);
           PutZombieInWave(ZOMBIE_FLAG, aWave, &aPicker);
           aPlaceMode = mApp->mGameMode;

@@ -147,8 +147,7 @@ void MainMenu::Enter()
   if ( aCrowReanim != nullptr )
   {
     aCrowReanim->PlayReanim("anim_land", REANIM_PLAY_ONCE_AND_HOLD, 0, 7.0);
-    // Sound 622 is the first of the three crow caws; the sample is picked at
-    // random so consecutive entries do not repeat.
+    // Resource IDs 622-624 are the three crow wing-flap samples.
     mApp->PlaySample(Sexy::GetSoundById(Rand() % 3 + 622), true);
   }
 

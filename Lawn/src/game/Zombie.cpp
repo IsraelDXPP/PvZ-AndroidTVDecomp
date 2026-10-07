@@ -1994,10 +1994,13 @@ void Zombie::PlayZombieAppearSound()
     {
         case ZOMBIE_DOLPHIN_RIDER:
             mApp->PlayFoley(FOLEY_DOLPHIN_APPEARS);
+            break;
         case ZOMBIE_BALLOON:
             mApp->PlayFoley(FOLEY_BALLOONINFLATE);
+            break;
         case ZOMBIE_ZAMBONI:
             mApp->PlayFoley(FOLEY_ZAMBONI);
+            break;
         default:
             break;
     }
@@ -5123,22 +5126,16 @@ void Zombie::PogoBreak(unsigned int theDamageFlags)
         OverrideParticleScale(aParticle);
     }
 
-    // The pogo stick is gone: the zombie falls back to a plain walk and loses
-    // the shield and helm it was carrying.
+    // Losing the pogo stick changes the walking rectangles, not body health.
     mZombieHeight = HEIGHT_FALLING;
     mZombiePhase = PHASE_ZOMBIE_NORMAL;
     StartWalkAnim(0);
-    mIceTrapCounter = 0;
-    mButteredCounter = 0;
+    mCachedZombieRect.mWidth = 0;
     mShieldHealth = 0;
     mHasObject = false;
-    mZombieRect = Sexy::Rect(36, 0, 42, 115);
-    mZombieAttackRect = Sexy::Rect(17, 0, 42, 115);
-    mHelmType = HELMTYPE_NONE;
+    mZombieRect = Sexy::Rect(36, 17, 42, 115);
+    mZombieAttackRect = Sexy::Rect(20, 17, 50, 115);
     mShieldType = SHIELDTYPE_NONE;
-    mBodyMaxHealth = 115;
-    mHelmMaxHealth = 115;
-    mBodyHealth = 50;
     return;
 }
 
@@ -5461,10 +5458,7 @@ float Zombie::UpdateZombiePolevaulter()
         float aPosX = mPosX;
         mZombiePhase = PHASE_POLEVAULTER_POST_VAULT;
         mZombieAttackRect = Sexy::Rect(50, 0, 20, 115);
-        mZombieRect = Sexy::Rect(17, 0, 42, 115);
-        mHelmType = HELMTYPE_NONE;
         mX = (int)aPosX;
-        mBodyMaxHealth = 115;
         StartWalkAnim(0);
         return mPosY;
     }
@@ -5572,11 +5566,9 @@ void Zombie::UpdateZombieDolphinRider()
             {
                 float aPosX = mPosX;
                 mZombiePhase = PHASE_DOLPHIN_RIDING;
-                mZombieAttackRect = Sexy::Rect(10, 0, 45, 115);
+                mZombieAttackRect = Sexy::Rect(-29, 0, 70, 115);
                 mInPool = true;
-                mZombieRect = Sexy::Rect(-29, 0, 70, 115);
                 mPosX = aPosX - 70.0f;
-                mBodyMaxHealth = 115;
                 PlayZombieReanim("anim_ride", REANIM_LOOP_FULL_LAST_FRAME, 0, 12.0f);
                 return;
             }
@@ -5693,13 +5685,8 @@ void Zombie::UpdateDolphinJumpLanding()
 {
     mZombiePhase = PHASE_DOLPHIN_WALKING_WITHOUT_DOLPHIN;
     mZombieAttackRect = Sexy::Rect(30, 0, 30, 115);
-    mZombieRect = Sexy::Rect(30, 0, 30, 115);
-    mHelmType = HELMTYPE_NONE;
-    mShieldType = SHIELDTYPE_NONE;
-    mBodyMaxHealth = 115;
-    mHelmMaxHealth = 115;
-    mIceTrapCounter = 20;
-    mButteredCounter = 42;
+    mZombieRect = Sexy::Rect(20, 0, 42, 115);
+    mCachedZombieRect.mWidth = 0;
     mX = (int)mPosX;
     {
         StartWalkAnim(0);
@@ -6352,10 +6339,9 @@ void Zombie::UpdateYeti()
 // ==========================================================================
 void Zombie::StopZombieSound()
 {
-    // A dancer or a backup dancer stops the dancer foley, but only when no
-    // other dancer is still on the board.
-    if ((unsigned int)(mZombieType - ZOMBIE_DANCER) <= 1)
+    if (mZombieType == ZOMBIE_DANCER || mZombieType == ZOMBIE_BACKUP_DANCER)
     {
+        bool aDancerStillPlaying = false;
         if (mApp->mBoard != nullptr)
         {
             Zombie *aZombie = nullptr;
@@ -6364,34 +6350,28 @@ void Zombie::StopZombieSound()
                 if (aZombie->mHasHead
                     && !aZombie->IsDeadOrDying()
                     && aZombie->IsOnBoard()
-                    && (unsigned int)(aZombie->mZombieType - ZOMBIE_DANCER) <= 1)
+                    && (aZombie->mZombieType == ZOMBIE_DANCER
+                        || aZombie->mZombieType == ZOMBIE_BACKUP_DANCER))
                 {
-                    return;
+                    aDancerStillPlaying = true;
+                    break;
                 }
             }
         }
 
-        mApp->mSoundSystem->StopFoley(FOLEY_DANCER);
+        if (!aDancerStillPlaying)
+            mApp->mSoundSystem->StopFoley(FOLEY_DANCER);
     }
 
-    // The jack-in-the-box and the balloon each own a looping foley.
+    // Each jack-in-the-box or tunneling miner owns one shared loop reference.
     if (mPlayingSong)
     {
-        ZombieType aType = mZombieType;
         mPlayingSong = false;
-        if (aType == ZOMBIE_JACK_IN_THE_BOX)
-            {
-                mApp->mSoundSystem->StopFoley(FOLEY_JACKINTHEBOX);
-                return;
-            }
-        if (aType == ZOMBIE_BALLOON)
-            {
-                mApp->mSoundSystem->StopFoley(FOLEY_BALLOONINFLATE);
-                return;
-            }
+        if (mZombieType == ZOMBIE_JACK_IN_THE_BOX)
+            mApp->mSoundSystem->StopFoley(FOLEY_JACKINTHEBOX);
+        else if (mZombieType == ZOMBIE_DIGGER)
+            mApp->mSoundSystem->StopFoley(FOLEY_DIGGER);
     }
-
-    return;
 }
 
 // ==========================================================================

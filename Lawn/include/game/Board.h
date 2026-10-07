@@ -484,7 +484,7 @@ public:
     Coin * AddCoin(int theX, int theY, CoinType theType, CoinMotion theMotion);
     Coin * AddCoinHeavyWeapon(int theX, int theY, CoinType theType);
     bool IsPlantInCursor(int thePlayerIndex);
-    int GetSeedTypeInCursor(int thePlayerIndex);
+    SeedType GetSeedTypeInCursor(int thePlayerIndex);
     bool IsPoolSquare(int theGridX, int theGridY);
     Plant * NewPlant(int theGridX, int theGridY, SeedType theSeedType, SeedType theImitaterType, int thePlayerIndex);
     Plant * GetPumpkinAt(int theGridX, int theGridY);

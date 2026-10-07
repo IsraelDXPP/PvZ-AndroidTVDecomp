@@ -62,11 +62,8 @@ void logtfi(int theLevel, char* theFormat, ...);
 Sexy::String SexyWStringFromString(Sexy::String const& theText);
 
 // Sexy::GetSoundById(int) @0x1e4ee8 (16 bytes):
-//   if (theId != -1) return the sound table entry for that id;
-//   return theId;
-// The framework sound table is what the audio backend fills.
-// Two files (GameButton.cpp, MainMenu.cpp) had to invent file-local shims for
-// this because no header declared it -- one of them with the wrong arity.
+// Resource IDs index globals containing the sound manager's loaded sample IDs.
+// An absent or unloaded sound returns -1.
 int GetSoundById(int theId);
 
 // Sexy::GetImageById(int) @0x1e4eb8. A resource id of -1 returns null; any
@@ -723,6 +720,22 @@ extern int SOUND_YUCK2;
 extern int SOUND_ZAMBONI;
 extern int SOUND_ZOMBIE_FALLING_1;
 extern int SOUND_ZOMBIE_FALLING_2;
+extern int SOUND_ROLL_IN;
+extern int SOUND_CROW_FLAP1;
+extern int SOUND_CROW_FLAP2;
+extern int SOUND_CROW_FLAP3;
+extern int SOUND_CROW_CAW1;
+extern int SOUND_CROW_CAW2;
+extern int SOUND_CROW_CAW3;
+extern int SOUND_THUNDER_1;
+extern int SOUND_THUNDER_2;
+extern int SOUND_THUNDER_3;
+extern int SOUND_THUNDER_1R;
+extern int SOUND_THUNDER_2R;
+extern int SOUND_THUNDER_3R;
+extern int SOUND_MENU_L_ST;
+extern int SOUND_MENU_C_ST;
+extern int SOUND_MENU_R_ST;
 
 extern Sexy::Font * FONT_BRIANNETOD12;
 extern Sexy::Font * FONT_BRIANNETOD16;

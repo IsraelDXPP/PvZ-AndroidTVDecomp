@@ -544,36 +544,19 @@ LawnSessionTask::~LawnSessionTask()
 {
 }
 
-// ---------------------------------------------------------------------------
-// Sexy::GetSoundById  (declared in ReconFreeFunctions.h)
-// ---------------------------------------------------------------------------
 namespace Sexy {
 
-// The framework's sound table. It is an array of pointers to the loaded Sound
-// objects, indexed by sound id. The audio backend in this project is still a
-// stub, so the table exists but stays empty; the accessor below returns null
-// for a real id and the id itself for -1.
-void* gSoundTable[512] = { nullptr };
-
-int GetSoundById(int theId)
-{
-    if (theId != -1)
-    {
-        if (theId >= 0 && theId < (int)(sizeof(gSoundTable) / sizeof(gSoundTable[0])))
-            return theId;
-        return 0;
-    }
-    return theId;
-}
+// Image resource slots; sound resource slots are published in ExtractResources.cpp.
+Sexy::Image* gImageTable[512] = { nullptr };
 
 // GetImageById @0x1e4eb8: if (theId + 1 == 0) return 0; else return *table[theId].
 Sexy::Image* GetImageById(int theId)
 {
     if (theId == -1)
         return nullptr;
-    if (theId < 0 || theId >= (int)(sizeof(gSoundTable) / sizeof(gSoundTable[0])))
+    if (theId < 0 || theId >= (int)(sizeof(gImageTable) / sizeof(gImageTable[0])))
         return nullptr;
-    return static_cast<Sexy::Image*>(gSoundTable[theId]);
+    return gImageTable[theId];
 }
 
 // GetIdByImage @0x1e7fa4 walks the same 757-slot table. An image that is not
@@ -584,11 +567,11 @@ int GetIdByImage(Sexy::Image* theImage)
     if (theImage == nullptr)
         return aSlotCount;
     int aLimit = aSlotCount;
-    if (aLimit > (int)(sizeof(gSoundTable) / sizeof(gSoundTable[0])))
-        aLimit = (int)(sizeof(gSoundTable) / sizeof(gSoundTable[0]));
+    if (aLimit > (int)(sizeof(gImageTable) / sizeof(gImageTable[0])))
+        aLimit = (int)(sizeof(gImageTable) / sizeof(gImageTable[0]));
     for (int aSlot = 0; aSlot < aLimit; ++aSlot)
     {
-        if (gSoundTable[aSlot] == theImage)
+        if (gImageTable[aSlot] == theImage)
             return aSlot;
     }
     return aSlotCount;

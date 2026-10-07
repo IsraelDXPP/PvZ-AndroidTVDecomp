@@ -92,21 +92,7 @@ GamepadControls::~GamepadControls()
 void GamepadControls::OnButtonUp(int theButton, int thePlayerIndex, unsigned int theFlags)
 {
   if ( theButton == GAMEPAD_BUTTON_X )
-  {
-    // Releasing X drops the butter this player had thrown at a zombie.
-    if ( mButterZombieID != ZOMBIEID_NULL )
-    {
-      Zombie *aZombie = mBoard->ZombieTryToGet((ZombieID)mButterZombieID);
-      if ( aZombie != nullptr )
-      {
-        aZombie->mButteredCounter = 0;
-        aZombie->RemoveButter();
-      }
-      mButterZombieID = ZOMBIEID_NULL;
-    }
-    if ( mGamepadState == MOVEMENT_STATE_BUTTER_HELD )
-      GotoState(MOVEMENT_STATE_BUTTER_RELEASED);
-  }
+    ReleaseButter();
   if ( mBoard->mChallenge != nullptr )
     mBoard->mChallenge->GameButtonUp(theButton, thePlayerIndex, theFlags);
 }
@@ -129,7 +115,7 @@ int GamepadControls::OnKeyUp(Sexy::KeyCode theKey, unsigned int theFlags)
 {
   if ( XButtonKeyCodeDown(theKey) && mGamepadState == MOVEMENT_STATE_BUTTER_HELD )
   {
-    GotoState(MOVEMENT_STATE_BUTTER_RELEASED);
+    ReleaseButter();
   }
   else
   {
@@ -1094,6 +1080,12 @@ int GamepadControls::UpdateSeedSelect(float /*theDeltaTime*/)
 // ==========================================================================
 int GamepadControls::UpdateStates(float theDeltaTime)
 {
+  // State 4 also belongs to Beghouled's drag cursor. Cooperative butter has
+  // finished on release and must return to the ordinary movement states.
+  if (mGamepadState == MOVEMENT_STATE_BUTTER_RELEASED
+      && (mApp->IsCoopMode() || (mApp->IsAdventureMode() && mApp->IsTwoPlayerGame())))
+    GotoState(MOVEMENT_STATE_NORMAL);
+
   // Direct base call. A cast does not suppress virtual dispatch, and slot 12
   // of a GamepadControls is this function, so the cast form recursed.
   int aResult = BaseGamepadControls::UpdateStates(theDeltaTime);
@@ -1717,6 +1709,18 @@ bool GamepadControls::OnKeyDown(Sexy::KeyCode theKey, unsigned int theFlags)
     {
       if ( mIsInShopSeedBank != 0 )
       {
+        if (mSelectedShopSeedIndex == 6)
+        {
+          ActivateShopRecharge();
+          return true;
+        }
+        if (mSelectedShopSeedIndex < 4 || mSelectedShopSeedIndex > 5)
+        {
+          PlantShopPacket();
+          mBoard->ClearCursor(mPlayerIndex);
+          GotoState(MOVEMENT_STATE_NORMAL);
+          return true;
+        }
         // Fresh GetSeedBank, not the pointer captured on entry. Shop packet
         // stride is 0x54 and mSeedType sits at +0x4C.
         SeedBank *aShopBank = GetSeedBank();
@@ -1725,6 +1729,12 @@ bool GamepadControls::OnKeyDown(Sexy::KeyCode theKey, unsigned int theFlags)
         int aGridY = mBoard->PlantingPixelToGridY((int)mCursorPositionX, (int)mCursorPositionY, aShopSeed);
         if ( mBoard->CanPlantAt(aGridX, aGridY, aShopSeed) != PLANTING_OK )
           return true;
+        CursorObject *aCursor = mBoard->mCursorObject[mPlayerIndex];
+        aCursor->mCursorType = CURSOR_TYPE_PLANT_FROM_BANK;
+        aCursor->mSelectedIndex = mSelectedShopSeedIndex;
+        aCursor->mType = aShopSeed;
+        aCursor->mImitaterType = SEED_NONE;
+        mSelectedSeedType = aShopSeed;
         mApp->PlaySample(SOUND_SEEDLIFT, true);
         mBoard->MouseDownWithPlant((int)mCursorPositionX, (int)mCursorPositionY, 1, mPlayerIndex);
         mBoard->ClearCursor(mPlayerIndex);
@@ -1785,20 +1795,7 @@ bool GamepadControls::OnKeyDown(Sexy::KeyCode theKey, unsigned int theFlags)
     {
       if ( mSelectedShopSeedIndex == 6 )
       {
-        if ( mApp->judgeDoTransRecharge() )
-        {
-          mApp->doTransRecharge();
-          return true;
-        }
-        {
-          // ADD R1, PC at 0x1C1D6A clears bit 1, so the pool lands on "c"
-          // at 0x57D7E8, not IDA's gEmptyCString. The string dies before GetDialog.
-          Sexy::String aDialogName("c");
-          mApp->DoBuyMoneyDialog(aDialogName);
-        }
-        Sexy::Dialog *aDialog = mApp->GetDialog(82);
-        if ( aDialog != nullptr )
-          aDialog->WaitForResult(true);
+        ActivateShopRecharge();
         return true;
       }
       // 0x1C1BB6 branches unconditionally over GotoBuyTool. The second copy
@@ -2010,19 +2007,11 @@ void GamepadControls::HandlePauseButton()
         return;
     for (int aSide = 0; aSide != 2; ++aSide)
     {
-        CursorObject *aCursor = mBoard->mCursorObject[aSide];
-        if (aCursor == nullptr)
+        GamepadControls *aControls = mBoard->mGamepadControls[aSide];
+        if (aControls == nullptr)
             continue;
-        int aButterId = aCursor->mHammerDownCounter;
-        if (aButterId == 0)
-            continue;
-        Zombie *aZombie = mBoard->ZombieTryToGet((ZombieID)aButterId);
-        if (aZombie != nullptr)
-        {
-            aZombie->mButteredCounter = 0;
-            aZombie->RemoveButter();
-        }
-        aCursor->mHammerDownCounter = 0;
+        if (aControls->mButterZombieID != ZOMBIEID_NULL)
+            aControls->ReleaseButter();
     }
     mApp->PlaySample(SOUND_PAUSE, true);
     mApp->DoNewOptions(false, mGamepadIndex);
@@ -2062,22 +2051,54 @@ void GamepadControls::HandleButterButton()
         return;
 
     Zombie *aHit = mBoard->ZombieHitTest((int)mCursorPositionX, (int)mCursorPositionY, true);
-    if (aHit != nullptr && mButterZombieID != 0)
-        aHit = mBoard->ZombieTryToGet((ZombieID)mButterZombieID);
+    if (aHit != nullptr && mButterZombieID != ZOMBIEID_NULL)
+        aHit = mBoard->ZombieTryToGet(mButterZombieID);
     if (aHit == nullptr)
     {
-        mButterZombieID = 0;
+        mButterZombieID = ZOMBIEID_NULL;
         return;
     }
     if (aHit->mButteredCounter > 100)
         return;
-    int aId = mBoard->ZombieGetID(aHit);
+    ZombieID aId = mBoard->ZombieGetID(aHit);
     int aAlreadyButtered = aHit->mButteredCounter;
     mButterZombieID = aId;
     if (aAlreadyButtered == 0)
         mApp->PlayFoley(FOLEY_BUTTER);
     aHit->ApplyButter();
     GotoState(MOVEMENT_STATE_BUTTER_HELD);
+}
+
+void GamepadControls::ReleaseButter()
+{
+    if (mButterZombieID != ZOMBIEID_NULL)
+    {
+        Zombie *aZombie = mBoard->ZombieTryToGet(mButterZombieID);
+        if (aZombie != nullptr)
+        {
+            aZombie->mButteredCounter = 0;
+            aZombie->RemoveButter();
+        }
+        mButterZombieID = ZOMBIEID_NULL;
+    }
+    if (mGamepadState == MOVEMENT_STATE_BUTTER_HELD)
+        GotoState(MOVEMENT_STATE_BUTTER_RELEASED);
+}
+
+void GamepadControls::ActivateShopRecharge()
+{
+    if (mApp->judgeDoTransRecharge())
+    {
+        mApp->doTransRecharge();
+        return;
+    }
+
+    // OnKeyDown @0x1C14FC uses the "c" purchase dialog for the recharge slot.
+    Sexy::String aDialogName("c");
+    mApp->DoBuyMoneyDialog(aDialogName);
+    Sexy::Dialog *aDialog = mApp->GetDialog(82);
+    if (aDialog != nullptr)
+        aDialog->WaitForResult(true);
 }
 
 void GamepadControls::MagnetizeNearbyCoins()
@@ -2300,7 +2321,11 @@ bool GamepadControls::HandleNormalPlant(int thePlantAccepted)
 
     if (mIsInShopSeedBank)
     {
-        if (mSelectedShopSeedIndex > 3)
+        if (mSelectedShopSeedIndex == 6)
+        {
+            ActivateShopRecharge();
+        }
+        else if (mSelectedShopSeedIndex == 4 || mSelectedShopSeedIndex == 5)
         {
             ShopSeedPacket *aShop = &aBank->mShopSeedPackets[mSelectedShopSeedIndex];
             int aGridX = mBoard->PlantingPixelToGridX(
@@ -2309,6 +2334,13 @@ bool GamepadControls::HandleNormalPlant(int thePlantAccepted)
                 (int)mCursorPositionX, (int)mCursorPositionY, aShop->mSeedType);
             if (mBoard->CanPlantAt(aGridX, aGridY, aShop->mSeedType) != PLANTING_OK)
                 return false;
+            // Input can switch shop slots before the next Update fills the cursor.
+            // Plant the packet being purchased, rather than the previous cursor.
+            aCursor->mCursorType = CURSOR_TYPE_PLANT_FROM_BANK;
+            aCursor->mSelectedIndex = mSelectedShopSeedIndex;
+            aCursor->mType = aShop->mSeedType;
+            aCursor->mImitaterType = SEED_NONE;
+            mSelectedSeedType = aShop->mSeedType;
             mApp->PlaySample(SOUND_SEEDLIFT, true);
             if (mApp->GotoBuyTool((E_SHOP_PACKET)mSelectedShopSeedIndex) != 0)
                 mBoard->MouseDownWithPlant(
@@ -2340,16 +2372,16 @@ bool GamepadControls::HandleNormalPlant(int thePlantAccepted)
         (int)mCursorPositionX, (int)mCursorPositionY, aPacket->mPacketType);
     int aGridY = mBoard->PlantingPixelToGridY(
         (int)mCursorPositionX, (int)mCursorPositionY, aPacket->mPacketType);
-    bool aNeedsPickup = true;
+    bool aCanPlant = false;
     if (aPacket->mPacketType == SEED_IMITATER)
-        aNeedsPickup = mBoard->CanPlantAt(aGridX, aGridY, aPacket->mImitaterType) != PLANTING_OK;
-    if (!aNeedsPickup)
-        aNeedsPickup = mBoard->CanPlantAt(aGridX, aGridY, aPacket->mPacketType) != PLANTING_OK;
-    if (aNeedsPickup)
+        aCanPlant = mBoard->CanPlantAt(aGridX, aGridY, aPacket->mImitaterType) == PLANTING_OK;
+    if (!aCanPlant)
+        aCanPlant = mBoard->CanPlantAt(aGridX, aGridY, aPacket->mPacketType) == PLANTING_OK;
+    if (aCanPlant)
         aPacket->MouseDown(0, 0, 1, mPlayerIndex);
 
     mBoard->MouseDownWithPlant((int)mCursorPositionX, (int)mCursorPositionY, 1, mPlayerIndex);
-    if (mBoard->HasConveyorBeltSeedBank(false) != 0 && mSelectedSeedIndex > 0 && !aNeedsPickup)
+    if (mBoard->HasConveyorBeltSeedBank(false) != 0 && mSelectedSeedIndex > 0 && aCanPlant)
         mSelectedSeedIndex -= 1;
     mBoard->ClearCursor(mPlayerIndex);
     GotoState(MOVEMENT_STATE_NORMAL);
@@ -2818,7 +2850,7 @@ int GamepadControls::Update(float theDeltaTime)
       GotoState(MOVEMENT_STATE_NORMAL);
     if ( aPad != nullptr && !aPad->IsButtonDown(GAMEPAD_BUTTON_X)
       && mGamepadState == MOVEMENT_STATE_BUTTER_HELD )
-      GotoState(MOVEMENT_STATE_BUTTER_RELEASED);
+      ReleaseButter();
   }
   else
   {
@@ -3003,7 +3035,7 @@ int GamepadControls::Update(float theDeltaTime)
     if ( mIsInShopSeedBank )
     {
       aCursor->mSelectedIndex = mSelectedShopSeedIndex;
-      if ( mGamepadState != MOVEMENT_STATE_NORMAL
+      if ( mGamepadState == MOVEMENT_STATE_NORMAL
         || mApp->IsChallengeWithoutSeedBank()
         || (unsigned int)(mSelectedShopSeedIndex - 4) > 1 )
       {
