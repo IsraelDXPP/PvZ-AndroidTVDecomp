@@ -43,7 +43,7 @@ void ImitaterDialog::DrawOverlay(Sexy::Graphics *theGraphics)
 {
     // The binary tail-calls ToolTipWidget::Draw, which is why this override is
     // `void` like the Sexy::Widget slot it replaces.
-    mToolTipWidget->Draw(theGraphics);
+    mToolTipWidget->Draw(theGraphics, true);
 }
 
 // ==========================================================================
@@ -63,12 +63,20 @@ ImitaterDialog::~ImitaterDialog()
 // @0014BF3C  568 bytes
 // ==========================================================================
 ImitaterDialog::ImitaterDialog(int thePlayerIndex)
-    : LawnDialog((LawnApp *)gLawnApp, nullptr, 52, true,
+    : LawnDialog(gLawnApp, nullptr, 52, true,
                  "[CHOOSE_SEED_TO_COPY]", "", "[DIALOG_BUTTON_OK]", 1)
 {
     // Before anything else the dialog is sized to the seed chooser's own
     // rectangle: 550x600, adjusted by however much CalcSize grows the frame.
     CalcSize(550 - mWidth, 600 - mHeight, true);
+    // CalcSize subtracts the base dialog's already rounded height. Keep the
+    // original 600-pixel target while retaining whole frame tiles.
+    if (mHeight < 600)
+    {
+        const int aFrameHeight = IMAGE_DIALOG_TOPLEFT->mHeight + 45 + IMAGE_DIALOG_BOTTOMLEFT->mHeight;
+        const int aHeight = aFrameHeight + MakeMultiple(600 - aFrameHeight, IMAGE_DIALOG_CENTERLEFT->mHeight);
+        Resize(mX, mY, mWidth, aHeight);
+    }
 
     // The tool tip is owned by this object; the destructor deletes it.
     mToolTipSeed = -1;
@@ -261,7 +269,7 @@ void ImitaterDialog::ShowToolTip()
 
     // Centre the tool tip over the packet and put it 72 pixels below the packet's
     // top-left corner, in the dialog's own coordinate space.
-    mToolTipWidget->mX = mX + aToolTipX + (50 - mToolTipWidget->mWidth) / 2;
+    mToolTipWidget->mX = aToolTipX + (50 - mToolTipWidget->mWidth) / 2;
     mToolTipWidget->mY = aToolTipY + 72;
     mToolTipWidget->mVisible = true;
     mToolTipSeed = aSeed;

@@ -223,6 +223,7 @@
     <ClCompile Include="src\Platform\MpegVideo.cpp" />
     <ClCompile Include="src\Platform\PlatformShims.cpp" />
     <ClCompile Include="src\Platform\Screenshot.cpp" />
+    <ClCompile Include="src\Platform\CrashDiagnostics.cpp" />
     <ClCompile Include="src\Platform\SDLAppDriver.cpp" />
     <ClCompile Include="src\Platform\SDLFile.cpp" />
     <ClCompile Include="src\Platform\LocalGameCenter.cpp" />
@@ -315,6 +316,7 @@
     <ClInclude Include="include\Platform\SDLWindow.h" />
     <ClInclude Include="include\Platform\MpegVideo.h" />
     <ClInclude Include="include\Platform\Screenshot.h" />
+    <ClInclude Include="include\Platform\CrashDiagnostics.h" />
     <ClInclude Include="include\Platform\SDLAppDriver.h" />
     <ClInclude Include="include\Platform\SDLFile.h" />
     <ClInclude Include="include\Platform\LocalGameCenter.h" />

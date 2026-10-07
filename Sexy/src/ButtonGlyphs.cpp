@@ -58,7 +58,7 @@ bool ButtonGlyphsActive()
 {
     if (gSexyAppBase == nullptr)
         return false;
-    if (Sexy::GetEnvOption("LAWN_GAMEPAD_MODE", false) == 0)
+    if (Sexy::GetEnvOption("LAWN_GAMEPAD_MODE", true) == 0)
         return false;
     // An icon needs a live SDL pad. A keyboard does not count.
     Sexy::GamepadApp* aApp = static_cast<Sexy::GamepadApp*>(gSexyAppBase);

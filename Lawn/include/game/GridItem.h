@@ -96,7 +96,7 @@ public:
     TodParticleSystem * GridItemDie();
     float * DrawGridItemOverlay(Sexy::Graphics *theGraphics);
     TodParticleSystem * UpdateBrain();
-    int DrawIZombieBrain(Sexy::Graphics *theGraphics);
+    void DrawIZombieBrain(Sexy::Graphics *theGraphics);
     void DrawGraveStone(Sexy::Graphics *theGraphics);
     void DrawMPTarget(Sexy::Graphics *theGraphics);
     void DrawStinky(Sexy::Graphics *theGraphics);

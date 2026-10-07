@@ -50,6 +50,7 @@
 #include "ReanimationHolder.h"
 #include "ReanimatorDefinition.h"
 #include "NativeDisplay.h"
+#include "Platform/CrashDiagnostics.h"
 #include "ReconHelpers.h"
 #include "ReconTypes.h"
 #include "ResourceManager.h"
@@ -4713,7 +4714,7 @@ void Board::DoTypingCheck(char *theKey)
 // Board::IterateGridItems(GridItem *&)
 // @00157394  80 bytes
 // ==========================================================================
-int Board::IterateGridItems(GridItem *& theGridItem)
+bool Board::IterateGridItems(GridItem *& theGridItem)
 {
   // @0x157394. A null cursor starts at slot 0; otherwise the cursor advances one
   // 0x130-byte slot. Halfword +0x12E is the slot id's high half (0 means the
@@ -4742,11 +4743,12 @@ int Board::IterateGridItems(GridItem *& theGridItem)
     }
     theGridItem = &aSlot->mItem;
     if ( !aSlot->mItem.mDead )
-      return 1;
+      return true;
     ++aSlot;
   }
-  theGridItem = (GridItem *)-1;
-  return 0;
+  // Retain the last visited slot as an exhausted cursor; it remains a real
+  // pointer and another call still returns false after scanning the tail.
+  return false;
 }
 
 // ==========================================================================
@@ -5588,6 +5590,23 @@ int Board::PlantsWon(GridItem * theBrain)
 // ==========================================================================
 void Board::StartLevel()
 {
+#ifndef NDEBUG
+  int aGraves = 0;
+  GridItem* aGrave = nullptr;
+  while (IterateGridItems(aGrave))
+  {
+    if (aGrave->mGridItemType == GRIDITEM_GRAVESTONE)
+      ++aGraves;
+  }
+  Sexy::SetCrashContext(mApp->mGameMode, mLevel, mApp->mGameScene, mMainCounter,
+                        mCutScene->mCutsceneTime, aGraves, mEnableGraveStones);
+  Sexy::SetCrashPhase("Board.StartLevel");
+  Sexy::RecordCrashContext("level_start");
+#endif
+  // Grave creation belongs to PickBackground. Once the intro is over their
+  // counters must advance even if its one-time rise event was skipped.
+  if (StageHasGraveStones())
+    mEnableGraveStones = true;
   mCoinBankFadeCount = 0;
   mApp->mLastLevelStats->Reset();
   mChallenge->StartLevel();
@@ -7649,7 +7668,7 @@ int Board::MouseHitTest(int theX, int theY, HitResult *theHitResult, int thePlay
           int aTop = (int)(aStinky->mPosY - 10.0f);
           if ( theY >= aTop && theY < aTop + 90 )
           {
-            theHitResult->mObjectType = OBJECT_TYPE_TREE_OF_WISDOM_GARDEN;
+            theHitResult->mObjectType = OBJECT_TYPE_STINKY;
             return 1;
           }
         }
@@ -11818,6 +11837,18 @@ void Board::RemovedFromManager(Sexy::WidgetManager *theWidgetManager)
 // ==========================================================================
 void Board::Update()
 {
+#ifndef NDEBUG
+  int aGraves = 0;
+  GridItem* aGrave = nullptr;
+  while (IterateGridItems(aGrave))
+  {
+    if (aGrave->mGridItemType == GRIDITEM_GRAVESTONE)
+      ++aGraves;
+  }
+  Sexy::SetCrashContext(mApp->mGameMode, mLevel, mApp->mGameScene, mMainCounter,
+                        mCutScene->mCutsceneTime, aGraves, mEnableGraveStones);
+  Sexy::SetCrashPhase("Board.Update");
+#endif
   TodHesitationBracket aBracket("Board::Update");
   Widget::Update();
   MarkDirty();
@@ -12103,6 +12134,9 @@ static bool GamepadRenderVisible(GamepadControls *aControls, GameScenes aScene, 
 // match them.
 int Board::DrawGameObjects(Sexy::Graphics *g)
 {
+#ifndef NDEBUG
+  Sexy::SetCrashPhase("Board.DrawGameObjects");
+#endif
   BoardRenderItem aItems[MAX_RENDER_ITEMS];
   int aCount = 0;
 

@@ -207,6 +207,11 @@ void ReanimatorCache::DrawCachedPlant(Sexy::Graphics * theGraphics, float theX, 
   int aOffsetX, aOffsetY, aWidth, aHeight;
   GetPlantImageSize(theSeedType, aOffsetX, aOffsetY, aWidth, aHeight);
 
+  if (theVariation == VARIATION_IMITATER)
+    aPlantImage = FilterEffectGetImage(aPlantImage, FILTER_EFFECT_WASHED_OUT);
+  else if (theVariation == VARIATION_IMITATER_LESS)
+    aPlantImage = FilterEffectGetImage(aPlantImage, FILTER_EFFECT_LESS_WASHED_OUT);
+
   // Unscaled and not 3D: blit at the natural size. The binary only takes this
   // path when the app is NOT 3D accelerated AND both scales are exactly 1.
   // Is3DAccelerated comes from SexyAppBase, which LawnApp reaches through

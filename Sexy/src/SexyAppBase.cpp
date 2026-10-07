@@ -9,6 +9,7 @@
 #include "ReconData.h"
 #include "ReconHelpers.h"
 #include "Platform/SDLAppDriver.h"
+#include "Platform/CrashDiagnostics.h"
 #include "AuthManager.h"
 #include "BaseAppDriver.h"
 #include "Buffer.h"
@@ -887,6 +888,9 @@ void SexyAppBase::Start()
 
 void SexyAppBase::Init()
 {
+#ifndef NDEBUG
+    InstallCrashDiagnostics();
+#endif
     if (mInputManager != nullptr)
     {
         Sexy::InputDriverFactory::GetInputDriverFactory()->Load();

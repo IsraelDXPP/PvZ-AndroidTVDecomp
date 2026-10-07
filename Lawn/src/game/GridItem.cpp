@@ -180,19 +180,19 @@ TodParticleSystem * GridItem::UpdateBrain()
 // GridItem::DrawIZombieBrain(Sexy::Graphics *)
 // @0013C840  242 bytes
 // ==========================================================================
-int GridItem::DrawIZombieBrain(Sexy::Graphics *theGraphics)
+void GridItem::DrawIZombieBrain(Sexy::Graphics *theGraphics)
 {
   if ( mGridItemState == GRIDITEM_STATE_BRAIN_SQUISHED )
   {
     TodDrawImageScaledF(theGraphics, IMAGE_BRAIN, mPosX, mPosY + 20.0f, 1.0f, 0.25f);
-    return 0;
+    return;
   }
 
   // The brain flashes while the "eat all the brains" hint is on screen.
   if ( mBoard->mAdvice->mDuration > 0 && mBoard->mHelpIndex == ADVICE_I_ZOMBIE_EAT_ALL_BRAINS )
   {
     Sexy::Color aFlashColor;
-    GetFlashingColor(&aFlashColor, mBoard->mMainCounter);
+    GetFlashingColor(&aFlashColor, mBoard->mMainCounter, 75);
     theGraphics->SetColorizeImages(true);
     theGraphics->SetColor(aFlashColor);
   }
@@ -214,7 +214,6 @@ int GridItem::DrawIZombieBrain(Sexy::Graphics *theGraphics)
   }
 
   theGraphics->SetColorizeImages(false);
-  return 0;
 }
 
 // ==========================================================================

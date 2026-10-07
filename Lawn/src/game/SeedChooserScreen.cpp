@@ -197,8 +197,8 @@ void SeedChooserScreen::DrawOverlay(Sexy::Graphics *g)
 {
   if (mApp->mHelpTextScreen == nullptr && mSelectedButton == nullptr)
   {
-    mToolTip1->Draw(g);
-    mToolTip2->Draw(g);
+    mToolTip1->Draw(g, true);
+    mToolTip2->Draw(g, true);
   }
 }
 
@@ -1086,11 +1086,11 @@ int SeedChooserScreen::ShowToolTip(int thePlayerIndex)
   GetSeedPositionInChooser(aSeedPacketIndex, aSeedX, aSeedY);
 
   // Centre the tooltip over the packet, but keep it inside the chooser.
-  int aToolTipX = mX + 14;
-  const int aCenteredX = mX + aSeedX + (50 - aToolTip->mWidth) / 2;
-  if (aCenteredX > mX + 14)
+  int aToolTipX = 14;
+  const int aCenteredX = aSeedX + (50 - aToolTip->mWidth) / 2;
+  if (aCenteredX > 14)
   {
-    aToolTipX = mX + mWidth - aToolTip->mWidth - 14;
+    aToolTipX = mWidth - aToolTip->mWidth - 14;
     if (aToolTipX >= aCenteredX)
       aToolTipX = aCenteredX;
   }
@@ -2085,6 +2085,8 @@ int SeedChooserScreen::GameButtonDown(Sexy::GamepadButton theButton, int theGame
   }
 
   const int aPlayerIndex = mApp->GamepadToPlayerIndex(aPad);
+  if (aPlayerIndex < 0 || aPlayerIndex >= 2)
+    return 0;
 
   if (mSeedsInFlight > 0)
   {
@@ -2160,12 +2162,14 @@ int SeedChooserScreen::GameButtonDown(Sexy::GamepadButton theButton, int theGame
       return 0;
 
     case GAMEPAD_BUTTON_START:
-      if (mShowHelpText && mApp->mGameMode != GAMEMODE_MP_VS)
+      if (mShowHelpText)
       {
-        ButtonDepress(SeedChooserScreen_Start);
+        if (mApp->mGameMode != GAMEMODE_MP_VS)
+          ButtonDepress(SeedChooserScreen_Start);
         return 1;
       }
-      return 0;
+      mApp->DoConfirmBackToMain(false);
+      return 1;
 
     case GAMEPAD_BUTTON_A:
     {

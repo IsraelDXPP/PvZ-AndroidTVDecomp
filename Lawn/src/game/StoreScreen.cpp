@@ -770,9 +770,10 @@ int StoreScreen::DrawItem(Sexy::Graphics * g, int theSlot, StoreItem theItem)
         }
         else
         {
-            Sexy::TRect<int> aSlotsRect(aLabelX, aLabelY - 30, anImageWidth, anImageHeight);
+            constexpr int DS_ALIGN_CENTER_MIDDLE = 5;
+            Sexy::TRect<int> aSlotsRect(aLabelX, aLabelY, anImageWidth, anImageHeight);
             TodDrawStringWrapped(g, aSlotsText, aSlotsRect, FONT_HOUSEOFTERROR16,
-                                 Sexy::Color::White, 2, 0);
+                                 Sexy::Color::White, DS_ALIGN_CENTER_MIDDLE, false);
         }
     }
     else if ((unsigned int)(theItem - 31) <= 4)

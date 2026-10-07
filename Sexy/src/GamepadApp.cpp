@@ -217,9 +217,9 @@ Sexy::GamepadApp::GamepadApp()
     if (mInputManager != nullptr)
         mInputManager->AddListener(static_cast<InputDeviceListener *>(this));
 
-    mGamePad1IsOn = false;
+    mGamePad1IsOn = GetEnvOption("LAWN_SIMULATE_GAMEPAD", false) != 0;
     mHasGamepad = false;
-    mGamePad2IsOn = GetEnvOption("LAWN_GAMEPAD_MODE", false) != 0;
+    mGamePad2IsOn = GetEnvOption("LAWN_GAMEPAD_MODE", true) != 0;
     mPendingEventsReady = false;
 }
 

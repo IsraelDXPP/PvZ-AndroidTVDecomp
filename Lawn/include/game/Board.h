@@ -644,7 +644,7 @@ public:
     void DrawDebugObjectRects(Sexy::Graphics * g);
     int SetSuperMowerMode(bool theEnable);
     void DoTypingCheck(char *theKey);
-    int IterateGridItems(GridItem *& theGridItem);
+    bool IterateGridItems(GridItem *& theGridItem);
     GridItem * GetGridItemAt(GridItemType theType, int theGridX, int theGridY);
     GridItem * GetGraveStoneAt(int theGridX, int theGridY);
     GridItem * GetCraterAt(int theGridX, int theGridY);

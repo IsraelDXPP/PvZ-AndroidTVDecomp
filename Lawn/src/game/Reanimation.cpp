@@ -903,6 +903,11 @@ void Reanimation::CheckDirtyFlags()
   if ( mFrameCount == 0 || mDead )
     return;
 
+  // A new animation or a changed clip can be drawn before its first update.
+  // Build that frame's pose before reading the cached track transforms.
+  if ( !mFrameTimeReady )
+    mDirtyFlags |= 5;
+
   int aDirty = mDirtyFlags;
   if ( aDirty == 0 )
     return;

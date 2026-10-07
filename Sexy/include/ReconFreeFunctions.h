@@ -1319,3 +1319,19 @@ namespace Sexy { bool ExtractResourcesByName(ResourceManager* theResourceManager
 // classes. Adding them needs each one's exact signature, taken from
 // `build/unresolved.txt` (which records the mangled name the linker asked for)
 // rather than from the readable form. See tools/unresolved.py.
+
+extern Sexy::Image * IMAGE_REANIM_CREDITS_DISCOLIGHTS;
+extern Sexy::Image * IMAGE_REANIM_DIAMOND;
+extern Sexy::Image * IMAGE_REANIM_GARLIC_BODY2;
+extern Sexy::Image * IMAGE_REANIM_GARLIC_BODY3;
+extern Sexy::Image * IMAGE_REANIM_PUMPKIN_DAMAGE1;
+extern Sexy::Image * IMAGE_REANIM_PUMPKIN_DAMAGE3;
+extern Sexy::Image * IMAGE_REANIM_WALLNUT_BODY;
+extern Sexy::Image * IMAGE_REANIM_ZOMBIE_BUCKET1;
+extern Sexy::Image * IMAGE_REANIM_ZOMBIE_DIGGER_PICKAXE;
+extern Sexy::Image * IMAGE_REANIM_ZOMBIE_FOOTBALL_HELMET;
+extern Sexy::Image * IMAGE_REANIM_ZOMBIE_JACKBOX_BOX;
+extern Sexy::Image * IMAGE_REANIM_ZOMBIE_LADDER_1;
+extern Sexy::Image * IMAGE_REANIM_ZOMBIE_POGO_STICKDAMAGE1;
+extern Sexy::Image * IMAGE_REANIM_ZOMBIE_SCREENDOOR1;
+extern Sexy::Image * IMAGE_ZOMBIEPOGO;

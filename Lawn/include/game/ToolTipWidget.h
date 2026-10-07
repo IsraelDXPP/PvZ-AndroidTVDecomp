@@ -53,6 +53,5 @@ public:
     void SetTitle(const Sexy::String& theTitle);
     void SetWarningText(const Sexy::String& theWarningText);
     void GetLines(std::vector<Sexy::String>& theLines);
-    void Draw(Sexy::Graphics* theGraphics);
+    void Draw(Sexy::Graphics* theGraphics, bool theLocalCoordinates = false);
 };
-

@@ -1,6 +1,7 @@
 // ZenGarden -- reconstructed from libGameMain.so.
 
 #include "ZenGarden.h"
+#include "Platform/CrashDiagnostics.h"
 #include "game/Board.h"
 #include "DataArrayMethods.h"
 #include "Challenge.h"
@@ -1149,7 +1150,7 @@ void ZenGarden::PlantWatered(Plant * thePlant)
     aDelay = 9;
   aPotted->mLastWateredTime = aNow - aDelay;
 
-  mApp->PlayFoley(FOLEY_PLANT);
+  mApp->PlayFoley(FOLEY_SPAWN_SUN);
   mBoard->AddCoin(thePlant->mX + 40, thePlant->mY, COIN_SILVER, COIN_MOTION_COIN);
 
   // A fully grown plant with no need yet picks one now.
@@ -2468,6 +2469,9 @@ void ZenGarden::MouseDownWithMoneySign(Plant * thePlant)
 // ==========================================================================
 void ZenGarden::MouseDownWithFeedingTool(int x, int y, CursorType theCursorType, int thePlayerIndex)
 {
+#ifndef NDEBUG
+  Sexy::SetCrashPhase("ZenGarden.MouseDownWithFeedingTool");
+#endif
   // The first plant on the board that is highlighted and holds a pot. aHasPlant
   // is the flag the branches below test; aPlant is the pointer they use.
   Plant *aPlant = nullptr;

@@ -2198,10 +2198,10 @@ void Challenge::CheckForCompleteArtChallenge(int theGridX, int theGridY)
     for ( int aCol = 0; aCol != 9; ++aCol )
     {
       SeedType aArtSeed = GetArtChallengeSeed(aCol, aRow);
-      if ( aArtSeed == (SeedType)-1 )
+      if ( aArtSeed == SEED_NONE )
         continue;
 
-      Plant *aPlant = mBoard->GetTopPlantAt(aCol, aRow, TOPPLANT_ONLY_PUMPKIN);
+      Plant *aPlant = mBoard->GetTopPlantAt(aCol, aRow, TOPPLANT_ONLY_NORMAL_POSITION);
       if ( aPlant == nullptr || aArtSeed != aPlant->mSeedType )
         return;
     }
@@ -2223,13 +2223,13 @@ void Challenge::DrawArtChallenge(Sexy::Graphics * g)
     // Every cell the level asks for that is still empty gets its ghost plant.
     for ( int aCol = 0; aCol != 9; ++aCol )
     {
-      int aSeed = GetArtChallengeSeed(aCol, aRow);
-      if ( aSeed != -1 &&
-           mBoard->GetTopPlantAt(aCol, aRow, TOPPLANT_ONLY_PUMPKIN) == nullptr )
+      SeedType aSeed = GetArtChallengeSeed(aCol, aRow);
+      if ( aSeed != SEED_NONE &&
+           mBoard->GetTopPlantAt(aCol, aRow, TOPPLANT_ONLY_NORMAL_POSITION) == nullptr )
       {
         int aPixelX = mBoard->GridToPixelX(aCol, aRow);
         int aPixelY = mBoard->GridToPixelY(aCol, aRow);
-        Plant::DrawSeedType(g, (SeedType)aSeed, (SeedType)-1, (DrawVariation)0, (float)aPixelX, (float)aPixelY);
+        Plant::DrawSeedType(g, aSeed, SEED_NONE, VARIATION_NORMAL, (float)aPixelX, (float)aPixelY);
       }
     }
   }
@@ -4821,16 +4821,36 @@ void Challenge::IZombieSetPlantFilterEffect(Plant * thePlant, FilterEffect theFi
 void Challenge::IZombieDrawPlant(Sexy::Graphics * g, Plant * thePlant)
 {
   Reanimation *aReanim = mApp->ReanimationTryToGet(thePlant->mBodyReanimID);
-  if ( aReanim != nullptr )
+  if ( aReanim == nullptr )
+    return;
+
+  // The TV binary retains the cardboard color, but omits its silhouette pass.
+  // Draw that backing around the complete body/head pose, then draw the normal
+  // plant over it so the printed artwork keeps its original colors.
+  Sexy::Graphics aCardboardGraphics(*g);
+  aCardboardGraphics.SetDrawMode(Sexy::Graphics::DRAWMODE_NORMAL);
+  aCardboardGraphics.SetColorizeImages(true);
+  aCardboardGraphics.SetColor(Color(255, 201, 160));
+  IZombieSetPlantFilterEffect(thePlant, FILTER_EFFECT_WHITE);
+  constexpr int aCardboardBorder = 2;
+  for (int aOffsetY = -aCardboardBorder; aOffsetY <= aCardboardBorder; aOffsetY += aCardboardBorder)
   {
-    g->SetColor(Color(255, 201, 160));
-    g->SetColorizeImages(true);
-    IZombieSetPlantFilterEffect(thePlant, FILTER_EFFECT_WASHED_OUT);
-    aReanim->DrawRenderGroup(g, 0);
-    IZombieSetPlantFilterEffect(thePlant, FILTER_EFFECT_NONE);
-    g->SetDrawMode(0);
-    g->SetColorizeImages(false);
+    for (int aOffsetX = -aCardboardBorder; aOffsetX <= aCardboardBorder; aOffsetX += aCardboardBorder)
+    {
+      if (aOffsetX == 0 && aOffsetY == 0)
+        continue;
+      aCardboardGraphics.mTransX = g->mTransX + aOffsetX;
+      aCardboardGraphics.mTransY = g->mTransY + aOffsetY;
+      aReanim->DrawRenderGroup(&aCardboardGraphics, 0);
+    }
   }
+  IZombieSetPlantFilterEffect(thePlant, FILTER_EFFECT_NONE);
+  aCardboardGraphics.mTransX = g->mTransX;
+  aCardboardGraphics.mTransY = g->mTransY;
+  aCardboardGraphics.SetColorizeImages(false);
+  aReanim->DrawRenderGroup(&aCardboardGraphics, 0);
+  g->SetDrawMode(Sexy::Graphics::DRAWMODE_NORMAL);
+  g->SetColorizeImages(false);
 }// ==========================================================================
 // Challenge::IZombieGetBrainTarget(theZombie *)
 // @0018409C  104 bytes
@@ -7836,16 +7856,29 @@ void Challenge::DrawBackdrop(Sexy::Graphics * g)
   if ( mApp->IsWallnutBowlingLevel() != 0 && mShowBowlingLine )
     g->DrawImage(IMAGE_WALLNUT_BOWLINGSTRIPE, 268, 77);
 
-  GameMode aMode = mApp->mGameMode;
-  if ( aMode == GAMEMODE_PUZZLE_I_ZOMBIE_1 || aMode == GAMEMODE_PUZZLE_I_ZOMBIE_2
-       || aMode == GAMEMODE_PUZZLE_I_ZOMBIE_3 || aMode == GAMEMODE_PUZZLE_I_ZOMBIE_5 )
-    g->DrawImage(IMAGE_WALLNUT_BOWLINGSTRIPE, 352, 73);
-  aMode = mApp->mGameMode;
-  if ( aMode == GAMEMODE_PUZZLE_I_ZOMBIE_4 || aMode == GAMEMODE_PUZZLE_I_ZOMBIE_7
-       || aMode == GAMEMODE_PUZZLE_I_ZOMBIE_ENDLESS )
-    g->DrawImage(IMAGE_WALLNUT_BOWLINGSTRIPE, 432, 73);
-  if ( mApp->mGameMode == GAMEMODE_PUZZLE_I_ZOMBIE_9 )
-    g->DrawImage(IMAGE_WALLNUT_BOWLINGSTRIPE, 512, 73);
+  // @0x189606: the original bit tests group IZ 1-5 at four plant columns,
+  // IZ 6-8/endless at five, and IZ 9 at six. Keep their literal coordinates.
+  switch (mApp->mGameMode)
+  {
+    case GAMEMODE_PUZZLE_I_ZOMBIE_1:
+    case GAMEMODE_PUZZLE_I_ZOMBIE_2:
+    case GAMEMODE_PUZZLE_I_ZOMBIE_3:
+    case GAMEMODE_PUZZLE_I_ZOMBIE_4:
+    case GAMEMODE_PUZZLE_I_ZOMBIE_5:
+      g->DrawImage(IMAGE_WALLNUT_BOWLINGSTRIPE, 352, 73);
+      break;
+    case GAMEMODE_PUZZLE_I_ZOMBIE_6:
+    case GAMEMODE_PUZZLE_I_ZOMBIE_7:
+    case GAMEMODE_PUZZLE_I_ZOMBIE_8:
+    case GAMEMODE_PUZZLE_I_ZOMBIE_ENDLESS:
+      g->DrawImage(IMAGE_WALLNUT_BOWLINGSTRIPE, 432, 73);
+      break;
+    case GAMEMODE_PUZZLE_I_ZOMBIE_9:
+      g->DrawImage(IMAGE_WALLNUT_BOWLINGSTRIPE, 512, 73);
+      break;
+    default:
+      break;
+  }
   if ( mApp->IsSlotMachineLevel() != 0 )
     DrawSlotMachine(g);
   if ( mApp->mGameMode == GAMEMODE_CHALLENGE_ZEN_GARDEN )

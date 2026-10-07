@@ -536,7 +536,7 @@ void DrawSeedPacket(Sexy::Graphics* theGraphics, float theX, float theY, SeedTyp
         theGraphics->PopState();
     };
     if (theDrawBackground && aHasIcon)
-        aDrawIcon(aDrawn);
+        aDrawIcon(theSeedType);
 
     if (thePercentDark > 0.0f)
     {

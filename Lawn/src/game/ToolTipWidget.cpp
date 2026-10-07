@@ -170,7 +170,7 @@ void ToolTipWidget::SetWarningText(const Sexy::String& theWarningText)
 // ToolTipWidget::Draw(Sexy::Graphics *)
 // @001E8938  888 bytes
 // ==========================================================================
-void ToolTipWidget::Draw(Sexy::Graphics *theGraphics)
+void ToolTipWidget::Draw(Sexy::Graphics *theGraphics, bool theLocalCoordinates)
 {
   if (!mVisible)
     return;
@@ -178,19 +178,24 @@ void ToolTipWidget::Draw(Sexy::Graphics *theGraphics)
   float aTransX = theGraphics->mTransX;
   float aTransY = theGraphics->mTransY;
 
-  // Read the display's wide-screen state through its field on both x86 and x64.
-  const Sexy::NativeDisplay *aDisplay = gLawnApp->mPlatformDriverOrQueue;
-  float aScreenOffsetX = aDisplay->mWideScreen ? (float)LawnApp::FULLSCREEN_RECT.mX : -80.0f;
-
-  int aDrawX = (int)((float)mX - aTransX - aScreenOffsetX);
+  int aDrawX = mX;
+  // Chooser overlays provide widget-local positions. Other tooltips use the
+  // original board coordinates and need the screen translation removed.
+  if (!theLocalCoordinates)
+  {
+    const Sexy::NativeDisplay *aDisplay = gLawnApp->mPlatformDriverOrQueue;
+    float aScreenOffsetX = aDisplay->mWideScreen ? (float)LawnApp::FULLSCREEN_RECT.mX : -80.0f;
+    aDrawX = (int)((float)mX - aTransX - aScreenOffsetX);
+  }
   if (mCenter)
     aDrawX -= mWidth / 2;
 
   int aDrawY = mY;
 
   // Keep the box on screen: never left of mMinLeft and never above the top.
-  if ((float)aDrawX < (float)mMinLeft - aTransX)
-    aDrawX = mMinLeft - (int)aTransX;
+  const float aMinLeft = theLocalCoordinates ? (float)mMinLeft : (float)mMinLeft - aTransX;
+  if ((float)aDrawX < aMinLeft)
+    aDrawX = (int)aMinLeft;
 
   float aMinTop = -aTransY;
   if ((float)aDrawY < aMinTop)
