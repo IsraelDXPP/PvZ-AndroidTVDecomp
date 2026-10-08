@@ -125,9 +125,7 @@ void HelpBarWidget::MouseUp(int x, int y, int theClickCount)
     {
         if (button == GAMEPAD_BUTTON_Y && board->mApp->CanShopLevel())
         {
-            board->mMouseShopOpen = !board->mMouseShopOpen;
-            if (!board->mMouseShopOpen)
-                board->CancelMouseSelection(0);
+            board->ToggleToolBar();
             return;
         }
         if (button == GAMEPAD_BUTTON_X && board->mApp->mGameMode == GAMEMODE_CHALLENGE_ZEN_GARDEN)

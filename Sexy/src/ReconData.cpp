@@ -543,38 +543,3 @@ void BetaSubmitFunc()
 LawnSessionTask::~LawnSessionTask()
 {
 }
-
-namespace Sexy {
-
-// Image resource slots; sound resource slots are published in ExtractResources.cpp.
-Sexy::Image* gImageTable[512] = { nullptr };
-
-// GetImageById @0x1e4eb8: if (theId + 1 == 0) return 0; else return *table[theId].
-Sexy::Image* GetImageById(int theId)
-{
-    if (theId == -1)
-        return nullptr;
-    if (theId < 0 || theId >= (int)(sizeof(gImageTable) / sizeof(gImageTable[0])))
-        return nullptr;
-    return gImageTable[theId];
-}
-
-// GetIdByImage @0x1e7fa4 walks the same 757-slot table. An image that is not
-// present returns 757, the past-the-end id the binary uses.
-int GetIdByImage(Sexy::Image* theImage)
-{
-    const int aSlotCount = 757;
-    if (theImage == nullptr)
-        return aSlotCount;
-    int aLimit = aSlotCount;
-    if (aLimit > (int)(sizeof(gImageTable) / sizeof(gImageTable[0])))
-        aLimit = (int)(sizeof(gImageTable) / sizeof(gImageTable[0]));
-    for (int aSlot = 0; aSlot < aLimit; ++aSlot)
-    {
-        if (gImageTable[aSlot] == theImage)
-            return aSlot;
-    }
-    return aSlotCount;
-}
-
-} // namespace Sexy

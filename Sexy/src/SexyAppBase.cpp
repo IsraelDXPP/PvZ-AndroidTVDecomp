@@ -923,9 +923,9 @@ void SexyAppBase::Start()
 
 void SexyAppBase::Init()
 {
-#ifndef NDEBUG
+// #ifndef NDEBUG
     InstallCrashDiagnostics();
-#endif
+// #endif
     if (mInputManager != nullptr)
     {
         Sexy::InputDriverFactory::GetInputDriverFactory()->Load();

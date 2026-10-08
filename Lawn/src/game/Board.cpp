@@ -22,6 +22,7 @@
 #include "Font.h"
 #include "GameObject.h"
 #include <functional>
+#include <algorithm>
 #include "GameOverDialog.h"
 #include "GamepadApp.h"
 #include "GamepadControls.h"
@@ -34,6 +35,7 @@
 #include "LawnApp.h"
 #include "LawnMower.h"
 #include "LawnPlayerInfo.h"
+#include "LawnStoneButton.h"
 #include "Level.h"
 #include "LevelStats.h"
 #include "MTRand.h"
@@ -262,6 +264,58 @@ void Board::ButtonMouseLeave(int theId)
 // ==========================================================================
 void Board::ButtonPress(int theId)
 {
+}
+
+// PvZ TV Touch Team menu button (GPL-3.0-or-later).
+void Board::ButtonDepress(int theId)
+{
+    if (mPaused || !OkToPause())
+        return;
+    if (theId == BOARD_BUTTON_TOOLS)
+    {
+        ToggleToolBar();
+        return;
+    }
+    if (theId != BOARD_BUTTON_MENU)
+        return;
+    if (mApp->mGameMode == GAMEMODE_CHALLENGE_ZEN_GARDEN
+        || mApp->mGameMode == GAMEMODE_TREE_OF_WISDOM)
+    {
+        mApp->DoBackToMain();
+        return;
+    }
+    mApp->PlaySample(SOUND_PAUSE, true);
+    const int gamepadIndex = mGamepadControls[0]->mGamepadIndex;
+    mApp->DoNewOptions(false, gamepadIndex < 0 ? 0 : gamepadIndex);
+}
+
+void Board::UpdateMenuButton()
+{
+    if (mBoardMenuButton == nullptr)
+        return;
+    const bool showMenu = mApp->mGameScene == SCENE_PLAYING
+        && mBoardFadeOutCounter < 0 && !mLevelComplete;
+    mBoardMenuButton->SetVisible(showMenu);
+    mBoardMenuButton->SetDisabled(!showMenu || mPaused || !OkToPause());
+    if (mBoardStoreButton != nullptr)
+    {
+        const bool showTools = showMenu && mApp->CanShopLevel();
+        mBoardStoreButton->SetVisible(showTools);
+        mBoardStoreButton->SetDisabled(!showTools || mPaused || !OkToPause());
+    }
+}
+
+void Board::ToggleToolBar()
+{
+    if (mPaused || !OkToPause() || !mApp->CanShopLevel())
+        return;
+    GamepadControls* controls = mGamepadControls[0];
+    const bool toolBarOpen = mMouseShopOpen || controls->mIsInShopSeedBank
+        || controls->mGamepadState == BaseGamepadControls::MOVEMENT_STATE_SELECT_SEED;
+    mMouseShopOpen = !toolBarOpen;
+    if (toolBarOpen)
+        CancelMouseSelection(0);
+    MarkDirty();
 }
 
 // ==========================================================================
@@ -726,6 +780,20 @@ void Board::UseMouseSelection(int theX, int theY)
 // ==========================================================================
 Board::~Board()
 {
+  if (mBoardStoreButton != nullptr)
+  {
+    if (HasWidget(mBoardStoreButton))
+      RemoveWidget(mBoardStoreButton);
+    delete mBoardStoreButton;
+    mBoardStoreButton = nullptr;
+  }
+  if (mBoardMenuButton != nullptr)
+  {
+    if (HasWidget(mBoardMenuButton))
+      RemoveWidget(mBoardMenuButton);
+    delete mBoardMenuButton;
+    mBoardMenuButton = nullptr;
+  }
   // The dump opens with three vptr stores (this, +0x100, +0x104) -- one for
   // this class and one for each secondary base, ButtonListener and SyncObject.
   // The compiler emits those, so they are not written here.
@@ -8935,7 +9003,7 @@ bool Board::OkToPause()
   return mBoardFadeOutCounter <= 0
       && mApp->mGameMode != GAMEMODE_INTRO
       && IsScaryPotterDaveTalking() == 0
-      && mApp->mGameScene == GameScenes(3);
+      && mApp->mGameScene == SCENE_PLAYING;
 }
 
 // ==========================================================================
@@ -8963,13 +9031,15 @@ void Board::RebuildHelpBar()
       mApp->mHelpBarWidget->ClearButtons(mLevelComplete);
       if (mApp->mGameScene == SCENE_PLAYING)
       {
-        mApp->mHelpBarWidget->AddButton(GAMEPAD_BUTTON_START, Sexy::String("[MENU]"), HelpBarWidget::HELP_ALIGN_LEFT);
         if (mApp->CanShopLevel())
           mApp->mHelpBarWidget->AddButton(GAMEPAD_BUTTON_Y, Sexy::String("[SHOP_BUTTON]"), HelpBarWidget::HELP_ALIGN_RIGHT);
         if (mApp->mGameMode == GAMEMODE_CHALLENGE_LAST_STAND
             && mChallenge->mChallengeState == STATECHALLENGE_NORMAL)
           mApp->mHelpBarWidget->AddButton(GAMEPAD_BUTTON_X, Sexy::String("[START_ONSLAUGHT]"), HelpBarWidget::HELP_ALIGN_RIGHT);
-        mApp->ShowHelpBarWidget();
+        if (mApp->mHelpBarWidget->mButtons.empty())
+          mApp->HideHelpBarWidget();
+        else
+          mApp->ShowHelpBarWidget();
       }
     }
   }
@@ -12201,6 +12271,33 @@ Board::Board(LawnApp * theApp)
   mSecondPlayerBannerVisible = false;
   mHelpTextDirty = false;
   mBoardInitCounter = 0;
+
+  // TV touch extension layout: keep the stone face at native image size.
+  const bool gardenMenu = mApp->mGameMode == GAMEMODE_CHALLENGE_ZEN_GARDEN
+      || mApp->mGameMode == GAMEMODE_TREE_OF_WISDOM;
+  mBoardMenuButton = MakeButton(BOARD_BUTTON_MENU, this, this,
+      Sexy::String(gardenMenu ? "[MAIN_MENU_BUTTON]" : "[MENU_BUTTON]"));
+  const bool twoPlayerLayout = mApp->IsCoopMode()
+      || mApp->mGameMode == GAMEMODE_MP_VS || mApp->mGameMode == GAMEMODE_MP_VS_DEBUG;
+  const int menuX = twoPlayerLayout ? 880 : 705;
+  mBoardMenuButton->Resize(menuX, -3, 120, 80);
+  mBoardMenuButton->mParentWidget = this;
+  mBoardMenuButton->mMousePreservesFocus = true;
+  mBoardMenuButton->SetVisible(false);
+  mBoardMenuButton->SetDisabled(true);
+  AddWidget(mBoardMenuButton);
+
+  // DrawStoneButton @0x1A2A70 uses the native stone image height (50 here).
+  // Stack the faces with a four-pixel gap rather than the 80-pixel input box.
+  const int menuFaceHeight = IMAGE_BUTTON_LEFT->GetHeight();
+  mBoardMenuButton->mMouseInsets.mBottom = std::max(0, mBoardMenuButton->mHeight - menuFaceHeight);
+  mBoardStoreButton = MakeButton(BOARD_BUTTON_TOOLS, this, this, Sexy::String("[TOOLS_BUTTON]"));
+  mBoardStoreButton->Resize(menuX, mBoardMenuButton->mY + menuFaceHeight + 4, 120, menuFaceHeight);
+  mBoardStoreButton->mParentWidget = this;
+  mBoardStoreButton->mMousePreservesFocus = true;
+  mBoardStoreButton->SetVisible(false);
+  mBoardStoreButton->SetDisabled(true);
+  AddWidget(mBoardStoreButton);
 }
 
 // ==========================================================================
@@ -12345,6 +12442,7 @@ void Board::Update()
   if ( aSecondIndex != -1 && mGamepadControls[1]->mGamepadIndex == -1 )
     mGamepadControls[1]->mGamepadIndex = aSecondIndex;
   mCutScene->Update();
+  UpdateMenuButton();
   const bool lastStandReady = mApp->mGameMode == GAMEMODE_CHALLENGE_LAST_STAND
       && mChallenge->mChallengeState == STATECHALLENGE_NORMAL;
   if (mApp->mGameScene != mMouseHelpScene || lastStandReady != mMouseLastStandReady)

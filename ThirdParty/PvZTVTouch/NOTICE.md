@@ -12,6 +12,10 @@ Copyright (C) 2023-2026 PvZ TV Touch Team
 
 上述从原项目移植或派生的代码按 GPL-3.0-or-later 提供。原有 MIT 代码的版权与许可声明继续适用于原有部分；包含这些 GPL 部分的组合程序分发须遵守 GPL。
 
+2026-10-08：继续移植 Board 顶部菜单按钮的位置、可用状态与点击行为，并修复商店翻页点击入口的图片资源查询。
+
+2026-10-08：菜单下方增加小道具栏显示开关，并按原版解锁条件限制选卡界面的商店和图鉴按钮。
+
 This code is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
 
 This code is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.

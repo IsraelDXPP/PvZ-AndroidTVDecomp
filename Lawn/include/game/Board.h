@@ -288,6 +288,9 @@ public:
     virtual void ButtonMouseEnter(int theId); // [122] 0x1E8
     virtual void ButtonMouseLeave(int theId); // [123] 0x1EC
     virtual void ButtonPress(int theId);      // [124] 0x1F0
+    // Desktop menu button adapted from the TV touch extension.
+    void ButtonDepress(int theId) override;
+    enum BoardButtons { BOARD_BUTTON_MENU = 1000, BOARD_BUTTON_TOOLS = 1001 };
 
     // ------------------------------------------------------------------
     // Member area, +0x114 .. +0x591B.
@@ -473,21 +476,13 @@ public:
     void CancelMouseSelection(int thePlayerIndex);
     void UseMouseSelection(int theX, int theY);
     void ReleaseMouseControl(int thePlayerIndex);
+    void UpdateMenuButton();
+    void ToggleToolBar();
     // 0x591C (the tail bool rounds the object up to a 4-byte boundary).
 
     // ------------------------------------------------------------------
     // The remaining methods. None of these owns a vtable slot.
     // ------------------------------------------------------------------
-    // ButtonDepress is NOT declared here. It was, and the note that used to sit
-    // in its place already recorded why that was wrong: `void ButtonDepress(int)`
-    // matches Sexy::ButtonListener::ButtonDepress, so a same-signature
-    // declaration is an implicit override even without the keyword -- which made
-    // MSVC emit `?ButtonDepress@Board@@UAEXH@Z` into this class's vtable and then
-    // want a definition for it. The binary has no such symbol: the only
-    // ButtonDepress in the image is `_ZN4Sexy5Board13ButtonDepressEi` @0x1F8898
-    // (plus its `_ZThn256_` thunk), and Game::Board's secondary vtable points
-    // that slot at Sexy::ButtonListener's own body. Nothing called the
-    // declaration either.
     int DisposeBoard();
     bool NeedSaveGame();
     bool SaveGame(const Sexy::String &theFileName);

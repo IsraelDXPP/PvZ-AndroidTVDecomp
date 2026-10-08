@@ -16,6 +16,7 @@
 #include "Image.h"
 #include "ImitaterDialog.h"
 #include "LawnApp.h"
+#include "LawnStoneButton.h"
 #include "Level.h"
 #include "MTRand.h"
 #include "Plant.h"
@@ -1741,18 +1742,20 @@ void SeedChooserScreen::ButtonDepress(int theId)
   {
     mChooseState = CHOOSE_VIEW_LAWN;
     mViewLawnTime = 0;
-    ((LawnApp *)gLawnApp)->HideHelpBarWidget();
+    gLawnApp->HideHelpBarWidget();
   }
   else if (theId == SeedChooserScreen_Almanac)
   {
+    if (!mApp->CanShowAlmanac() || mIsZombieChooser || mApp->mGameMode == GAMEMODE_MP_VS)
+      return;
     AlmanacDialog *aDialog = mApp->DoAlmanacDialog(SEED_NONE, ZOMBIE_INVALID);
     aDialog->WaitForResult(true);
-    // 6 == MUSIC_TUNE_CHOOSE_YOUR_SEEDS; MusicTune is a one-int surrogate in
-    // Sexy\ReconTypes.h with no enumerators.
-    mApp->mMusic->MakeSureMusicIsPlaying(MusicTune(6));
+    mApp->mMusic->MakeSureMusicIsPlaying(MUSIC_TUNE_CHOOSE_YOUR_SEEDS);
   }
   else if (theId == SeedChooserScreen_Store)
   {
+    if (!mApp->CanShowStore() || mIsZombieChooser || mApp->mGameMode == GAMEMODE_MP_VS)
+      return;
     StoreScreen *aStore = mApp->ShowStoreScreen();
     aStore->WaitForResult(false);
     bool aGoToTreeNow = aStore->mGoToTreeNow;
@@ -1765,7 +1768,7 @@ void SeedChooserScreen::ButtonDepress(int theId)
       return;
     }
     mWidgetManager->SetFocus(this);
-    mApp->mMusic->MakeSureMusicIsPlaying(MusicTune(6));
+    mApp->mMusic->MakeSureMusicIsPlaying(MUSIC_TUNE_CHOOSE_YOUR_SEEDS);
   }
   else
   {
@@ -2963,8 +2966,7 @@ SeedChooserScreen::SeedChooserScreen(bool theIsZombieChooser)
   if (mBoard->mCutScene->IsSurvivalRepick() && mChooseState == CHOOSE_NORMAL)
   {
     Sexy::String aViewLawnLabel("[VIEW_LAWN]");
-    mViewLawnButton = (GameButton *)MakeButton(SeedChooserScreen_ViewLawn,
-        static_cast<Sexy::ButtonListener *>(this), this, aViewLawnLabel);
+    mViewLawnButton = MakeButton(SeedChooserScreen_ViewLawn, this, this, aViewLawnLabel);
     mViewLawnButton->mParentWidget = this;
     mButtons.push_back(mViewLawnButton);
   }
@@ -2974,21 +2976,26 @@ SeedChooserScreen::SeedChooserScreen(bool theIsZombieChooser)
   }
 
   Sexy::String aStoreLabel("[SHOP_BUTTON]");
-  mStoreButton = (GameButton *)MakeButton(SeedChooserScreen_Store,
-      static_cast<Sexy::ButtonListener *>(this), this, aStoreLabel);
+  mStoreButton = MakeButton(SeedChooserScreen_Store, this, this, aStoreLabel);
   mStoreButton->mParentWidget = this;
+  const bool storeUnlocked = mApp->CanShowStore() && !mIsZombieChooser
+      && mApp->mGameMode != GAMEMODE_MP_VS;
+  mStoreButton->SetVisible(storeUnlocked);
+  mStoreButton->SetDisabled(!storeUnlocked);
   mButtons.push_back(mStoreButton);
 
   Sexy::String aStartLabel("[LETS_ROCK_BUTTON]");
-  mStartButton = (GameButton *)MakeButton(SeedChooserScreen_Start,
-      static_cast<Sexy::ButtonListener *>(this), this, aStartLabel);
+  mStartButton = MakeButton(SeedChooserScreen_Start, this, this, aStartLabel);
   mStartButton->mParentWidget = this;
   mButtons.push_back(mStartButton);
 
   Sexy::String aAlmanacLabel("[ALMANAC_BUTTON]");
-  mAlmanacButton = (GameButton *)MakeButton(SeedChooserScreen_Almanac,
-      static_cast<Sexy::ButtonListener *>(this), this, aAlmanacLabel);
+  mAlmanacButton = MakeButton(SeedChooserScreen_Almanac, this, this, aAlmanacLabel);
   mAlmanacButton->mParentWidget = this;
+  const bool almanacUnlocked = mApp->CanShowAlmanac() && !mIsZombieChooser
+      && mApp->mGameMode != GAMEMODE_MP_VS;
+  mAlmanacButton->SetVisible(almanacUnlocked);
+  mAlmanacButton->SetDisabled(!almanacUnlocked);
   mButtons.push_back(mAlmanacButton);
 
   mSelectedButton = nullptr;
