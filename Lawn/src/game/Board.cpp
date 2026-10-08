@@ -9031,8 +9031,6 @@ void Board::RebuildHelpBar()
       mApp->mHelpBarWidget->ClearButtons(mLevelComplete);
       if (mApp->mGameScene == SCENE_PLAYING)
       {
-        if (mApp->CanShopLevel())
-          mApp->mHelpBarWidget->AddButton(GAMEPAD_BUTTON_Y, Sexy::String("[SHOP_BUTTON]"), HelpBarWidget::HELP_ALIGN_RIGHT);
         if (mApp->mGameMode == GAMEMODE_CHALLENGE_LAST_STAND
             && mChallenge->mChallengeState == STATECHALLENGE_NORMAL)
           mApp->mHelpBarWidget->AddButton(GAMEPAD_BUTTON_X, Sexy::String("[START_ONSLAUGHT]"), HelpBarWidget::HELP_ALIGN_RIGHT);
