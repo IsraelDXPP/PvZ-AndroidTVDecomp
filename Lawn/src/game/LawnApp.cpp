@@ -7698,151 +7698,28 @@ void LawnApp::SafeDeleteWidget(Sexy::Widget * theWidget)
 {
   SexyAppBase::SafeDeleteWidget(theWidget);
 }
-// LawnApp::LoadLevelConfiguration(int,int)
-// LawnApp::LoadLevelConfiguration(int,int)
-// ==========================================================================
-// LawnApp::LoadLevelConfiguration(int,int)
-// @002C28E4  3738 bytes
-namespace {
-
-// The level file writes several attributes as space-separated integers, and
-// the plant and tomb lists as groups of "[x y id]".
-void ReadIntList(Sexy::String const& theText, std::vector<int>& theOut)
+// LawnApp::LoadLevelConfiguration @0x2C28E4. The XML loader now selects
+// a record using the mode, adventure cycle and current survival stage.
+bool LawnApp::LoadLevelConfiguration(GameMode theMode, int theLevelId)
 {
-  std::istringstream aStream(theText.c_str());
-  int aValue = 0;
-  while (aStream >> aValue)
-    theOut.push_back(aValue);
-}
+  Sexy::LevelLoadContext context;
+  context.mGameMode = theMode;
+  context.mLevelId = theLevelId;
+  context.mAdventureComplete = HasFinishedAdventure();
+  if (mBoard != nullptr && mBoard->mChallenge != nullptr)
+    context.mSurvivalStage = mBoard->mChallenge->mSurvivalStage;
 
-void ReadPlants(Sexy::String const& theText, std::vector<LevelPlantInfo>& theOut)
-{
-  std::istringstream aStream(theText.c_str());
-  for (;;)
+  if (!mLevel.InitFromXML(context, Sexy::String("properties/levels.xml")))
   {
-    char aMark = 0;
-    aStream >> aMark;
-    if (!aStream || aMark != '[')
-      return;
-    LevelPlantInfo aPlant;
-    aPlant.mX = 0;
-    aPlant.mY = 0;
-    aPlant.mPlantId = 0;
-    aStream >> aPlant.mX >> aPlant.mY >> aPlant.mPlantId;
-    theOut.push_back(aPlant);
-    aStream >> aMark;
+    if (!mLevel.mConfigurationError.empty())
+      fprintf(stderr, "levels.xml: mode=%d level=%d stage=%d: %s\n",
+              static_cast<int>(theMode), theLevelId, context.mSurvivalStage,
+              mLevel.mConfigurationError.c_str());
+    return false;
   }
-}
-
-void ReadTombs(Sexy::String const& theText, std::vector<Sexy::TombConfig>& theOut)
-{
-  std::istringstream aStream(theText.c_str());
-  for (;;)
-  {
-    char aMark = 0;
-    aStream >> aMark;
-    if (!aStream || aMark != '[')
-      return;
-    Sexy::TombConfig aTomb;
-    aTomb.mGridX = 0;
-    aTomb.mGridY = 0;
-    aStream >> aTomb.mGridX >> aTomb.mGridY;
-    theOut.push_back(aTomb);
-    aStream >> aMark;
-  }
-}
-
-} // namespace
-
-int LawnApp::LoadLevelConfiguration(int theMode, int theLevelId)
-{
-  // properties/levels.xml lists one <Level> per stage. The matching stage is
-  // the one whose mode and id are the two arguments. Everything it says is
-  // copied onto mLevel; a file that cannot be opened leaves mLevel alone.
-  Sexy::XMLParser aParser;
-  Sexy::String aPath("properties/levels.xml");
-  if (aParser.OpenFile(aPath) == 0)
-    return 0;
-
-  bool aInsideLevel = false;
-  bool aMatched = false;
-  for (;;)
-  {
-    Sexy::XMLElement aElement;
-    if (aParser.NextElement(&aElement) == 0)
-      break;
-
-    bool aIsLevel = aElement.mInstruction == "Level";
-
-    if (aElement.mType == 2)
-    {
-      if (aIsLevel)
-      {
-        if (aMatched)
-          return 1;
-        aInsideLevel = false;
-      }
-      continue;
-    }
-    if (aElement.mType != 1)
-      continue;
-
-    if (aIsLevel && aElement.mValue == "PVZ" && !aInsideLevel)
-    {
-      int aId = 0;
-      int aMode = 0;
-      StringToInt(aElement.GetAttribute(Sexy::String("id")), &aId);
-      StringToInt(aElement.GetAttribute(Sexy::String("mode")), &aMode);
-      aInsideLevel = true;
-      aMatched = aId == theLevelId && aMode == theMode;
-      if (!aMatched)
-        continue;
-
-      mLevel.reset();
-      mLevel.mLevelId = theLevelId;
-      mLevel.mGameMode = theMode;
-      StringToInt(aElement.GetAttribute(Sexy::String("scene")), &mLevel.mScene);
-      ReadIntList(aElement.GetAttribute(Sexy::String("allowedZombies")), mLevel.mAllowedZombies);
-
-      Sexy::String aVisible = aElement.GetAttribute(Sexy::String("zombieVisible"));
-      int aVisibleFlag = 1;
-      StringToInt(aVisible, &aVisibleFlag);
-      mLevel.mZombiesVisible = aVisible.empty() || aVisibleFlag == 1;
-
-      StringToInt(aElement.GetAttribute(Sexy::String("initialSunMoney")), &mLevel.mInitialSun);
-      ReadPlants(aElement.GetAttribute(Sexy::String("initPlantSetting")), mLevel.mPlants);
-      ReadIntList(aElement.GetAttribute(Sexy::String("initSeeds")), mLevel.mSeedConfig);
-      ReadIntList(aElement.GetAttribute(Sexy::String("forbiddenPlants")), mLevel.mForbiddenSeeds);
-      StringToInt(aElement.GetAttribute(Sexy::String("initSlotLimit")), &mLevel.mSeedBankLimit);
-      ReadTombs(aElement.GetAttribute(Sexy::String("initTomb")), mLevel.mTombs);
-      StringToInt(aElement.GetAttribute(Sexy::String("initFogColumns")), &mLevel.mFogColumns);
-
-      int aWinType = 0;
-      StringToInt(aElement.GetAttribute(Sexy::String("winCodeType")), &aWinType);
-      mLevel.mWinType = aWinType;
-      ReadIntList(aElement.GetAttribute(Sexy::String("winCodeCondition")), mLevel.mWinConditions);
-      continue;
-    }
-
-    if (!aInsideLevel || !aMatched || aElement.mValue != "PVZ/Level" || aElement.mInstruction != "Wave")
-      continue;
-
-    int aPoints = 0;
-    int aFlag = 0;
-    StringToInt(aElement.GetAttribute(Sexy::String("points")), &aPoints);
-    StringToInt(aElement.GetAttribute(Sexy::String("flag")), &aFlag);
-
-    std::vector<int> aMustHave;
-    ReadIntList(aElement.GetAttribute(Sexy::String("mustHaveZombies")), aMustHave);
-
-    LevelWave& aWave = mLevel.mWaves[(int)mLevel.mWaves.size()];
-    aWave.mPoints = aPoints;
-    aWave.mFlag = aFlag == 1;
-    aWave.mMustHave = aMustHave;
-    if (aFlag == 1)
-      ++mLevel.mFlagWaveCount;
-  }
-  return aMatched ? 1 : 0;
+  if (mLevel.mSkipShopSeedTutorial && mPlayerInfo != nullptr)
+    mPlayerInfo->mPassedShopSeedTutorial = true;
+  return true;
 }
 
 void LawnApp::StartAuth()

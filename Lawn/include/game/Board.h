@@ -487,7 +487,7 @@ public:
     bool NeedSaveGame();
     bool SaveGame(const Sexy::String &theFileName);
     int GetNumWavesPerFlag();
-    int IsFlagWave(int theWaveIndex);
+    bool IsFlagWave(int theWaveIndex);
     int PutZombieInWave(ZombieType theZombieType, int theWaveIndex, ZombiePicker *thePicker);
     int GetLevelRandSeed();
     int DisplayAdvice(Sexy::String const& theAdvice, MessageStyle theStyle, AdviceType theType);
@@ -677,7 +677,7 @@ public:
     int RemoveAllGridItems();
     int GetGraveStoneCount();
     int GetMPTargetCount();
-    LawnApp * DrawProgressMeter(Sexy::Graphics * g, int theX, int theY);
+    void DrawProgressMeter(Sexy::Graphics * g, int theX, int theY);
     GridItem * PickSpecialGraveStone();
     int IterateParticles(TodParticleSystem *& theParticle);
     int IterateReanimations(Reanimation *& theReanimation);

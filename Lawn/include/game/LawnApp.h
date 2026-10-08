@@ -771,7 +771,7 @@ public:
     // True when the PNG writer accepted the image.
     bool WriteImage(Sexy::String const &thePath, Sexy::Image *theImage);
     int HardwareInit();
-    int LoadLevelConfiguration(int theLevel, int theStage);
+    bool LoadLevelConfiguration(GameMode theMode, int theLevelId);
     int SaveFileExists();
     int NeedRegister();
     void UpdateRegisterInfo();

@@ -18,6 +18,7 @@
 | `vcpkg.json` | 第三方库清单 |
 | `Tools` | [SCBP 着色器编译打包脚本与格式说明](Tools/scbp.md) |
 | `Shaders` | [游戏着色器源码及多平台 SCBP 包](Shaders/README.md) |
+| `Config/OriginalSpawns` | [统一关卡 XML：冒险周目、所有 TV 模式及生存阶段](Config/OriginalSpawns/README.md) |
 
 原 Android 构建从 JNI 进 `Native::BridgeApp`，由 `Sexy::AndroidAppDriver` 驱动。当前由 SDL3 的 `main` 构造 `LawnApp` 并跑帧循环。
 
@@ -43,7 +44,7 @@ vcpkg install --triplet x86-windows
 build\Win32\<Configuration>\LawnTV.exe
 ```
 
-vcpkg 的 MSBuild 集成自动复制所需 DLL，Lawn 项目自动把 `Shaders/*.scbp` 复制到 exe 旁边的 `assets/shaders`。另外放上游戏资源目录；使用 `--assets` 时把着色器也复制到对应目录的 `shaders` 下。
+vcpkg 的 MSBuild 集成自动复制所需 DLL，Lawn 项目自动把 `Shaders/*.scbp` 复制到 exe 旁边的 `assets/shaders`，并把统一的 `Config/OriginalSpawns/levels.xml` 复制到资源根的 `properties/levels.xml`（支持已有 `assets/files/`）。另外放上游戏资源目录；使用 `--assets` 时把着色器和统一关卡配置复制到所指定的资源根。关卡配置会按模式、冒险周目和生存阶段自动选择，构建会更新默认目录里的 XML。
 
 ## 渲染后端配置
 

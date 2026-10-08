@@ -395,4 +395,12 @@
     <MakeDir Directories="$(OutDir)assets\shaders" />
     <Copy SourceFiles="@(ShaderPackage)" DestinationFolder="$(OutDir)assets\shaders" SkipUnchangedFiles="true" />
   </Target>
+  <Target Name="StageLevelConfiguration" AfterTargets="Build">
+    <PropertyGroup>
+      <LevelConfigurationRoot>$(OutDir)assets\</LevelConfigurationRoot>
+      <LevelConfigurationRoot Condition="Exists('$(OutDir)assets\files')">$(OutDir)assets\files\</LevelConfigurationRoot>
+    </PropertyGroup>
+    <MakeDir Directories="$(LevelConfigurationRoot)properties" />
+    <Copy SourceFiles="$(ProjectDir)..\Config\OriginalSpawns\levels.xml" DestinationFolder="$(LevelConfigurationRoot)properties" SkipUnchangedFiles="true" />
+  </Target>
 </Project>

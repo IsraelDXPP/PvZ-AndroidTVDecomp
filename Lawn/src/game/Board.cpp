@@ -926,17 +926,27 @@ int Board::GetNumWavesPerFlag()
 // Board::IsFlagWave(int)
 // @00151B04  92 bytes
 // ==========================================================================
-int Board::IsFlagWave(int theWaveIndex)
+bool Board::IsFlagWave(int theWaveIndex)
 {
+  if (mNumWaves <= 0 || theWaveIndex < 0 || theWaveIndex >= mNumWaves)
+    return false;
+  if (IsLevelDataLoaded())
+  {
+    const Sexy::Level& level = mApp->mLevel;
+    const LevelWave* wave = level.FindWave(theWaveIndex);
+    if (wave != nullptr && wave->mHasFlag)
+      return wave->mFlag;
+    if (level.mFlagRules == Sexy::LevelFlagRules::Xml
+        || (level.mFlagRules == Sexy::LevelFlagRules::Legacy && mApp->IsAdventureMode()))
+      return wave != nullptr && wave->mFlag;
+  }
   if ( mApp->mGameMode == GAMEMODE_MP_VS )
-    return 1;
+    return true;
   if ( mApp->IsFirstTimeAdventureMode() && mLevel == 1 )
-    return 0;
-  if ( mApp->mGameMode == GAMEMODE_ADVENTURE )
-    return mApp->mLevel.isFlagWave(theWaveIndex);
+    return false;
 
   int aWavesPerFlag = GetNumWavesPerFlag();
-  return theWaveIndex % aWavesPerFlag == aWavesPerFlag - 1;
+  return aWavesPerFlag > 0 && theWaveIndex % aWavesPerFlag == aWavesPerFlag - 1;
 }
 
 // ==========================================================================
@@ -945,6 +955,9 @@ int Board::IsFlagWave(int theWaveIndex)
 // ==========================================================================
 int Board::PutZombieInWave(ZombieType theZombieType, int theWaveIndex, ZombiePicker *thePicker)
 {
+  if (theWaveIndex < 0 || theWaveIndex >= MAX_ZOMBIE_WAVES
+      || thePicker->mZombieCount >= MAX_ZOMBIES_IN_WAVE)
+    return 0;
   // The wave's zombie list is kept ZOMBIE_INVALID terminated one slot past the
   // last entry, so the spawner can walk it without a separate count.
   mZombiesInWave[theWaveIndex][thePicker->mZombieCount] = theZombieType;
@@ -1265,16 +1278,18 @@ bool Board::CanZombieSpawnOnLevel(ZombieType theZombieType, int theLevel)
 // ==========================================================================
 int Board::PutInMissingZombies(int theWaveIndex, ZombiePicker *thePicker)
 {
-  // Walk every zombie type and add the first one the level allows that this
-  // wave still has none of. The yeti is never added automatically.
-  for ( int i = 0; i < NUM_ZOMBIE_TYPES; ++i )
+  // @0x1521C4 continues after each insertion. The count is for this wave;
+  // the yeti is handled by its separate introduction rule.
+  int lastValue = 0;
+  for (int typeIndex = 0; typeIndex < NUM_ZOMBIE_TYPES; ++typeIndex)
   {
-    if ( i == ZOMBIE_YETI )
+    const ZombieType zombieType = static_cast<ZombieType>(typeIndex);
+    if (zombieType == ZOMBIE_YETI)
       continue;
-    if ( thePicker->mZombieTypeCount[i] <= 0 && CanZombieSpawnOnLevel((ZombieType)i, mLevel) )
-      return PutZombieInWave((ZombieType)i, theWaveIndex, thePicker);
+    if (thePicker->mZombieTypeCount[typeIndex] == 0 && CanZombieSpawnOnLevel(zombieType, mLevel))
+      lastValue = PutZombieInWave(zombieType, theWaveIndex, thePicker);
   }
-  return 0;
+  return lastValue;
 }
 
 // ==========================================================================
@@ -5721,19 +5736,18 @@ int Board::GetMPTargetCount()
 // Board::DrawProgressMeter(Sexy::Graphics *,int,int)
 // @00157A5C  2502 bytes
 // ==========================================================================
-LawnApp * Board::DrawProgressMeter(Sexy::Graphics * g, int theX, int theY)
+void Board::DrawProgressMeter(Sexy::Graphics * g, int theX, int theY)
 {
   // theX/theY are the top-left corner the caller picked for the meter; everything
-  // below hangs off them. The return value is a leftover of the decompilation
-  // -- every caller ignores it.
+  // below hangs off them. @0x157A5C is a draw operation with no return value.
   if ( HasProgressMeter() == 0 )
-    return nullptr;
+    return;
 
   // Versus draws a row of target markers instead of a meter.
   if ( mApp->mGameMode == GAMEMODE_MP_VS )
   {
     if ( Challenge::gVSWinMode != 1 )
-      return nullptr;
+      return;
 
     int aTargetY = theY - 24;
     int aTargetsLeft = StageHas6Rows() ? 6 : 5;
@@ -5746,7 +5760,7 @@ LawnApp * Board::DrawProgressMeter(Sexy::Graphics * g, int theX, int theY)
       aTargetX += 45;
       aTargetsLeft--;
     }
-    return nullptr;
+    return;
   }
 
   // The empty meter, then the filled portion cropped from its right end: the
@@ -5838,12 +5852,18 @@ LawnApp * Board::DrawProgressMeter(Sexy::Graphics * g, int theX, int theY)
     // passed, at the baseline for waves still ahead, and animates while the
     // current wave's flag is being raised.
     int aNumWavesPerFlag = GetNumWavesPerFlag();
-    if ( mApp->IsAdventureMode() )
+    bool configuredFlags = false;
+    if (IsLevelDataLoaded())
     {
-      int aWaveCount = mApp->mLevel.getWaveCount();
-      for ( int aWave = 0; aWave < aWaveCount; aWave++ )
+      configuredFlags = mApp->mLevel.mFlagRules == Sexy::LevelFlagRules::Xml;
+      for (const auto& entry : mApp->mLevel.mWaves)
+        configuredFlags = configuredFlags || entry.second.mHasFlag;
+    }
+    if (mApp->IsAdventureMode() || configuredFlags)
+    {
+      for ( int aWave = 0; aWave < mNumWaves; aWave++ )
       {
-        if ( !mApp->mLevel.isFlagWave(aWave) )
+        if ( !IsFlagWave(aWave) )
           continue;
 
         int aPennantOffset;
@@ -5859,7 +5879,7 @@ LawnApp * Board::DrawProgressMeter(Sexy::Graphics * g, int theX, int theY)
         g->DrawImageCel(IMAGE_FLAGMETERPARTS, aX, theY - aPennantOffset - 3, 2, 0);
       }
     }
-    else if ( mNumWaves / aNumWavesPerFlag > 0 )
+    else if ( aNumWavesPerFlag > 0 && mNumWaves / aNumWavesPerFlag > 0 )
     {
       // The other modes have no per-wave flag table, so the flag waves are
       // every aNumWavesPerFlag'th wave.
@@ -5901,7 +5921,6 @@ LawnApp * Board::DrawProgressMeter(Sexy::Graphics * g, int theX, int theY)
     g->DrawImageCel(IMAGE_FLAGMETERPARTS, aMeterRight - aArrowOffset - 20, theY - 3, 0, 0);
   }
 
-  return nullptr;
 }
 
 // ==========================================================================
@@ -9379,10 +9398,13 @@ void Board::StartHelp(int theHelpIndex)
 // ==========================================================================
 bool Board::IsLevelDataLoaded()
 {
-  // The loaded record remembers which level number and mode its data was loaded for.
-  // the app's level record remembers which level number and mode its data was
-  // loaded for, and this asks whether they are still the ones this board wants.
-  return mApp->mLevel.mLevelId == mLevel && mApp->mLevel.mGameMode == mApp->mGameMode;
+  Sexy::LevelLoadContext context;
+  context.mGameMode = mApp->mGameMode;
+  context.mLevelId = mLevel;
+  context.mAdventureComplete = mApp->HasFinishedAdventure();
+  if (mChallenge != nullptr)
+    context.mSurvivalStage = mChallenge->mSurvivalStage;
+  return mApp->mLevel.MatchesContext(context);
 }
 
 // ==========================================================================
@@ -10357,6 +10379,12 @@ void Board::UpdateZombieSpawning()
       mZombieCountDown = Sexy::Rand(600) + 2500;
     }
   }
+  if (IsLevelDataLoaded())
+  {
+    const LevelWave* wave = mApp->mLevel.FindWave(mCurrentWave - 1);
+    if (wave != nullptr && wave->mNextWaveDelay > 0 && mCurrentWave < mNumWaves)
+      mZombieCountDown = wave->mNextWaveDelay;
+  }
   mZombieCountDownStart = mZombieCountDown;
 }
 
@@ -10538,6 +10566,7 @@ void Board::LoadBackgroundImages()
 // ==========================================================================
 int Board::PostLoadGame()
 {
+  mApp->LoadLevelConfiguration(mApp->mGameMode, mLevel);
   LoadBackgroundImages();
   // Loading resumes a playing board without replaying the intro's grave-rise event.
   if (StageHasGraveStones())
@@ -10693,6 +10722,8 @@ int Board::PickBackground()
     default:
       break;
   }
+  if (IsLevelDataLoaded() && mApp->mLevel.mHasScene)
+    mBackground = mApp->mLevel.mScene;
   LoadBackgroundImages();
 
   // The row layout follows the background. The front lawn keeps one unsodded
@@ -11359,12 +11390,14 @@ int Board::PickZombieWaves()
   int aLevelLoaded = IsLevelDataLoaded();
   if ( aLevelLoaded != 0 )
   {
-    memset(mZombieAllowed, 0, sizeof(mZombieAllowed));
-    // LawnApp+0x978 / +0x97C are mLevel's vector at +0x0C. The element type is
-    // still void *; the walk stores each word into mZombieAllowed[value].
-    for (size_t aAllowed = 0; aAllowed < mApp->mLevel.mAllowedZombies.size(); ++aAllowed)
-      mZombieAllowed[mApp->mLevel.mAllowedZombies[aAllowed]] = 1;
-    mNumWaves = mApp->mLevel.getWaveCount();
+    if (mApp->mLevel.mHasAllowedZombies)
+    {
+      memset(mZombieAllowed, 0, sizeof(mZombieAllowed));
+      for (ZombieType zombieType : mApp->mLevel.mAllowedZombies)
+        mZombieAllowed[zombieType] = true;
+    }
+    if (mApp->mLevel.mHasWaveCount)
+      mNumWaves = mApp->mLevel.getWaveCount();
   }
   if ( mNumWaves <= 0 )
     return aLevelLoaded;
@@ -11375,7 +11408,7 @@ int Board::PickZombieWaves()
   {
     ZombiePickerInitForWave(&aPicker);
     aWaveRow[0] = ZOMBIE_INVALID;
-    int aIsFlag = IsFlagWave(aWave);
+    bool aIsFlag = IsFlagWave(aWave);
     bool aIsLast = mNumWaves - 1 == aWave;
     if ( mApp->IsBungeeBlitzLevel() != 0 && aIsFlag != 0 )
     {
@@ -11422,22 +11455,18 @@ int Board::PickZombieWaves()
 
       if ( aLevelLoaded != 0 )
       {
-        std::map<int, LevelWave>& aWaves = mApp->mLevel.mWaves;
-        if ( (int)aWaves.size() > aWave )
+        const LevelWave* wave = mApp->mLevel.FindWave(aWave);
+        if (wave != nullptr)
         {
-          LevelWave& aRecord = aWaves[aWave];
-          aPicker.mZombiePoints = aRecord.mPoints;
-        }
-        std::map<int, LevelWave>::iterator aHit = aWaves.find(aWave);
-        if ( aHit != aWaves.end() )
-        {
-          for ( size_t aIndex = 0; aIndex < aHit->second.mMustHave.size(); ++aIndex )
-            PutZombieInWave((ZombieType)aHit->second.mMustHave[aIndex], aWave, &aPicker);
+          if (wave->mHasPoints)
+            aPicker.mZombiePoints = wave->mPoints;
+          for (ZombieType zombieType : wave->mMustHave)
+            PutZombieInWave(zombieType, aWave, &aPicker);
         }
       }
 
       GameMode aPlaceMode = mApp->mGameMode;
-      if ( aIsFlag != 0 )
+      if (aIsFlag && (!aLevelLoaded || mApp->mLevel.mApplyNativeFlagWave))
       {
         int aFlagBudget = aPicker.mZombiePoints;
         aPicker.mZombiePoints = (int)((double)aPicker.mZombiePoints * 2.5);
@@ -11454,7 +11483,11 @@ int Board::PickZombieWaves()
           aPlaceMode = mApp->mGameMode;
         }
       }
-      if ( aPlaceMode == GAMEMODE_CHALLENGE_COLUMN )
+      if (aLevelLoaded && !mApp->mLevel.mApplyNativePointMultiplier)
+      {
+        // The XML budget already includes the mode's multiplier.
+      }
+      else if ( aPlaceMode == GAMEMODE_CHALLENGE_COLUMN )
         aPicker.mZombiePoints *= 6;
       else if ( mApp->IsLittleTroubleLevel() != 0 || mApp->IsWallnutBowlingLevel() != 0 )
         aPicker.mZombiePoints *= 4;
@@ -11467,7 +11500,8 @@ int Board::PickZombieWaves()
                 || mApp->mGameMode == GAMEMODE_CHALLENGE_INVISIGHOUL )
         aPicker.mZombiePoints *= 2;
 
-      if ( aIntroduced != ZOMBIE_DUCKY_TUBE && aIntroduced != ZOMBIE_INVALID )
+      if ((!aLevelLoaded || mApp->mLevel.mApplyNativeIntroductions)
+          && aIntroduced != ZOMBIE_DUCKY_TUBE && aIntroduced != ZOMBIE_INVALID)
       {
         bool aPlaceIntro = false;
         if ( (unsigned)(aIntroduced - ZOMBIE_BALLOON) <= 1 )
@@ -11479,7 +11513,7 @@ int Board::PickZombieWaves()
         if ( aPlaceIntro )
           PutZombieInWave(aIntroduced, aWave, &aPicker);
       }
-      if ( mLevel == 50 )
+      if ((!aLevelLoaded || mApp->mLevel.mApplyNativeLastWave) && mLevel == 50)
       {
         if ( aIsLast )
         {
@@ -11490,7 +11524,8 @@ int Board::PickZombieWaves()
         else
           mApp->IsAdventureMode();
       }
-      else if ( mApp->IsAdventureMode() != 0 && aIsLast )
+      else if ((!aLevelLoaded || mApp->mLevel.mApplyNativeLastWave)
+               && mApp->IsAdventureMode() && aIsLast)
         PutInMissingZombies(aWave, &aPicker);
 
       if ( mApp->mGameMode == GAMEMODE_CHALLENGE_COLUMN )
@@ -11527,6 +11562,13 @@ int Board::PickZombieWaves()
               PutZombieInWave(ZOMBIE_GARGANTUAR, 29, &aPicker);
           }
         }
+      }
+      if (aLevelLoaded)
+      {
+        const LevelWave* wave = mApp->mLevel.FindWave(aWave);
+        if (wave != nullptr)
+          for (ZombieType zombieType : wave->mAfterNativeZombies)
+            PutZombieInWave(zombieType, aWave, &aPicker);
       }
       while ( aPicker.mZombiePoints > 0 && aPicker.mZombieCount <= 49 )
       {
@@ -11569,6 +11611,10 @@ int Board::PickZombieWaves()
 // ==========================================================================
 int Board::InitZombieWaves()
 {
+  // Survival and last stand re-enter here for each stage, including without
+  // revisiting InitLevel. Select the matching stage record before generation.
+  if (!IsLevelDataLoaded())
+    mApp->LoadLevelConfiguration(mApp->mGameMode, mLevel);
   // mZombieAllowed[] is the level's 100-slot "may this type appear" table.
   memset(mZombieAllowed, 0, sizeof(mZombieAllowed));
   if ( mApp->IsAdventureMode() )
@@ -11596,7 +11642,9 @@ int Board::InitZombieWaves()
       aCountDown = 1800;
   }
   mZombieCountDown = aCountDown;
-  mZombieCountDownStart = aCountDown;
+  if (IsLevelDataLoaded() && mApp->mLevel.mFirstWaveDelay > 0)
+    mZombieCountDown = mApp->mLevel.mFirstWaveDelay;
+  mZombieCountDownStart = mZombieCountDown;
   mZombieHealthToNextWave = -1;
   mZombieHealthWaveStart = 0;
   mLastBungeeWave = 0;
@@ -11692,7 +11740,8 @@ int Board::InitLevel()
   InitZombieWaves();
 
   int aSun;
-  if ( IsLevelDataLoaded() != 0 && mApp->mLevel.mInitialSun > 0 )
+  if (IsLevelDataLoaded() && mApp->mLevel.mHasInitialSun
+      && (mApp->mLevel.mSpawnRules == Sexy::LevelSpawnRules::Native || mApp->mLevel.mInitialSun > 0))
   {
     aSun = mApp->mLevel.mInitialSun;
   }
