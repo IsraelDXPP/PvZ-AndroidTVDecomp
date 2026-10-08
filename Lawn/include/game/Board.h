@@ -503,6 +503,7 @@ public:
     Coin * AddCoinHeavyWeapon(int theX, int theY, CoinType theType);
     bool IsPlantInCursor(int thePlayerIndex);
     SeedType GetSeedTypeInCursor(int thePlayerIndex);
+    SeedType GetAvailableUpgradeSeedInCursor(int thePlayerIndex);
     bool IsPoolSquare(int theGridX, int theGridY);
     Plant * NewPlant(int theGridX, int theGridY, SeedType theSeedType, SeedType theImitaterType, int thePlayerIndex);
     Plant * GetPumpkinAt(int theGridX, int theGridY);

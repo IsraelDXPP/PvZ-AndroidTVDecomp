@@ -1060,6 +1060,46 @@ SeedType Board::GetSeedTypeInCursor(int thePlayerIndex)
   return aCursorSeed;
 }
 
+SeedType Board::GetAvailableUpgradeSeedInCursor(int thePlayerIndex)
+{
+  GamepadControls *aControls = mGamepadControls[thePlayerIndex];
+  if (aControls == nullptr || aControls->mGamepadIndex == -1
+    || aControls->mGamepadState != BaseGamepadControls::MOVEMENT_STATE_PLANT_CURSOR)
+  {
+    return SEED_NONE;
+  }
+
+  SeedType aSeedType = GetSeedTypeInCursor(thePlayerIndex);
+  if (!Plant::IsUpgrade(aSeedType))
+  {
+    return SEED_NONE;
+  }
+
+  SeedBank *aSeedBank = aControls->GetSeedBank();
+  int aSelectedIndex = aControls->mSelectedSeedIndex;
+  if (aSeedBank == nullptr || aSelectedIndex < 0
+    || aSelectedIndex >= aSeedBank->mNumPackets || aSelectedIndex >= 10)
+  {
+    return SEED_NONE;
+  }
+
+  SeedPacket &aSeedPacket = aSeedBank->mSeedPackets[aSelectedIndex];
+  SeedType aPacketType = aSeedPacket.mPacketType == SEED_IMITATER
+    ? aSeedPacket.mImitaterType : aSeedPacket.mPacketType;
+  if (aPacketType != aSeedType || !aSeedPacket.mActive || aSeedPacket.mRefreshing)
+  {
+    return SEED_NONE;
+  }
+
+  // 按当前卡槽的实际价格和该玩家的阳光余额判断，包括无尽模式的紫卡涨价。
+  int aCost = GetCurrentPlantCost(aSeedPacket.mPacketType, aSeedPacket.mImitaterType);
+  if (!CanTakeSunMoney(aCost, thePlayerIndex))
+  {
+    return SEED_NONE;
+  }
+  return aSeedType;
+}
+
 // ==========================================================================
 // Board::IsPoolSquare(int,int)
 // @00151F4C  34 bytes
