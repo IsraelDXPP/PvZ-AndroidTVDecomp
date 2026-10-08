@@ -874,8 +874,9 @@ int Plant::UpdateReanimColor()
   if (aBody == nullptr)
     return 0;
 
-  SeedType aCursorSeed = mBoard->GetSeedTypeInCursor(0);
-  SeedType aCursorSeed2 = mBoard->GetSeedTypeInCursor(1);
+  // TV 允许直接拿起不可用的卡片，升级提示需额外检查冷却和阳光。
+  SeedType aCursorSeed = mBoard->GetAvailableUpgradeSeedInCursor(0);
+  SeedType aCursorSeed2 = mBoard->GetAvailableUpgradeSeedInCursor(1);
   Sexy::Color aOverride = Sexy::Color();
   CursorObject *aCursor = mBoard->mCursorObject[0];
   bool aOnGlove = false;
@@ -894,13 +895,14 @@ int Plant::UpdateReanimColor()
   }
 
   bool aUpgradeReady = (IsPartOfUpgradableTo(aCursorSeed) != 0
-      || IsPartOfUpgradableTo(aCursorSeed2) != 0)
-    && (mBoard->CanPlantAt(mPlantCol, mRow, aCursorSeed) == PLANTING_OK
-      || mBoard->CanPlantAt(mPlantCol, mRow, aCursorSeed2) == PLANTING_OK);
-  bool aCobReady = (aCursorSeed == SEED_COBCANNON || aCursorSeed2 == SEED_COBCANNON)
-    && mSeedType == SEED_KERNELPULT
-    && (mBoard->CanPlantAt(mPlantCol - 1, mRow, aCursorSeed) == PLANTING_OK
-      || mBoard->CanPlantAt(mPlantCol - 1, mRow, aCursorSeed2) == PLANTING_OK);
+      && mBoard->CanPlantAt(mPlantCol, mRow, aCursorSeed) == PLANTING_OK)
+    || (IsPartOfUpgradableTo(aCursorSeed2) != 0
+      && mBoard->CanPlantAt(mPlantCol, mRow, aCursorSeed2) == PLANTING_OK);
+  bool aCobReady = mSeedType == SEED_KERNELPULT
+    && ((aCursorSeed == SEED_COBCANNON
+        && mBoard->CanPlantAt(mPlantCol - 1, mRow, aCursorSeed) == PLANTING_OK)
+      || (aCursorSeed2 == SEED_COBCANNON
+        && mBoard->CanPlantAt(mPlantCol - 1, mRow, aCursorSeed2) == PLANTING_OK));
 
   if (aOnGlove)
     aOverride = Sexy::Color(128, 128, 128);
@@ -3378,16 +3380,16 @@ void Plant::Draw(Sexy::Graphics * g)
     SeedType aCursorSeed2 = SEED_NONE;
     if (mBoard != nullptr)
     {
-      aCursorSeed = mBoard->GetSeedTypeInCursor(0);
-      aCursorSeed2 = mBoard->GetSeedTypeInCursor(1);
+      aCursorSeed = mBoard->GetAvailableUpgradeSeedInCursor(0);
+      aCursorSeed2 = mBoard->GetAvailableUpgradeSeedInCursor(1);
     }
     if (IsPartOfUpgradableTo(aCursorSeed) != 0
         && mBoard->CanPlantAt(mPlantCol, mRow, aCursorSeed) == PLANTING_OK
       || IsPartOfUpgradableTo(aCursorSeed2) != 0
         && mBoard->CanPlantAt(mPlantCol, mRow, aCursorSeed2) == PLANTING_OK
-      || aCursorSeed == SEED_COBCANNON
+      || mSeedType == SEED_KERNELPULT && aCursorSeed == SEED_COBCANNON
         && mBoard->CanPlantAt(mPlantCol - 1, mRow, SEED_COBCANNON) == PLANTING_OK
-      || aCursorSeed2 == SEED_COBCANNON
+      || mSeedType == SEED_KERNELPULT && aCursorSeed2 == SEED_COBCANNON
         && mBoard->CanPlantAt(mPlantCol - 1, mRow, SEED_COBCANNON) == PLANTING_OK
       || mBoard != nullptr && mBoard->mTutorialState == TUTORIAL_SHOVEL_DIG)
     {
