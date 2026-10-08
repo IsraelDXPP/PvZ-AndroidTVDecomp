@@ -66,10 +66,76 @@ namespace {
 // StoreScreen::MouseDown(int,int,int)
 // @0018D7B8  2 bytes
 // ==========================================================================
-// The binary's body is a bare `BX LR`: the touch handling lives in
-// StoreScreenOverlay, which forwards to DrawOverlay only.
+// The original mouse entry is empty; desktop shelf gestures are adapted from
+// PvZ TV Touch Team's touch extension (GPL-3.0-or-later).
 void StoreScreen::MouseDown(int theX, int theY, int theClickCount)
 {
+    mMousePressedButton = -1;
+    if (theClickCount <= 0 || theClickCount == 3)
+        return;
+    if (mBubbleClickToContinue)
+    {
+        AdvanceCrazyDaveDialog();
+        return;
+    }
+    if (!CanInteractWithButtons())
+        return;
+    // Button origins from StoreScreen::Draw @0x19017C.
+    Sexy::Image* backImage = Sexy::GetImageById(std::min(mCarKeyImageIndex, 11) + 701);
+    if (backImage == nullptr || IMAGE_STORE_PREVBUTTON == nullptr || IMAGE_STORE_NEXTBUTTON == nullptr)
+        return;
+    const Sexy::Rect back(mShakeX + 305, mShakeY + 510, backImage->mWidth, backImage->mHeight);
+    const Sexy::Rect previous(mShakeX + 172, mShakeY + 375, IMAGE_STORE_PREVBUTTON->mWidth, IMAGE_STORE_PREVBUTTON->mHeight);
+    const Sexy::Rect next(mShakeX + 573, mShakeY + 373, IMAGE_STORE_NEXTBUTTON->mWidth, IMAGE_STORE_NEXTBUTTON->mHeight);
+    if (back.Contains(theX, theY))
+    {
+        mMousePressedButton = 100;
+        mMousePressedRect = back;
+    }
+    else if (IsPageShown(STORE_PAGE_PLANT_UPGRADES) && previous.Contains(theX, theY))
+    {
+        mMousePressedButton = 101;
+        mMousePressedRect = previous;
+    }
+    else if (IsPageShown(STORE_PAGE_PLANT_UPGRADES) && next.Contains(theX, theY))
+    {
+        mMousePressedButton = 102;
+        mMousePressedRect = next;
+    }
+    if (mMousePressedButton != -1)
+        return;
+    // PvZ TV Touch Team shelf hit testing, using this build's item layout.
+    for (int slot = 0; slot < 8; ++slot)
+    {
+        const StoreItem item = StoreItem(GetStoreItemType(slot));
+        if (item == STORE_ITEM_INVALID)
+            continue;
+        Sexy::Image *image = nullptr;
+        int itemX = 0;
+        int itemY = 0;
+        int count = 0;
+        GetStoreItemInfo(slot, item, &image, itemX, itemY, count);
+        if (IsPottedPlant(item))
+            image = mPottedPlantImage[slot];
+        const int width = image != nullptr ? image->GetWidth() : 80;
+        const int height = image != nullptr ? image->GetHeight() : 80;
+        if (!Sexy::Rect(itemX - width / 2, itemY - height, width, height).Contains(theX, theY))
+            continue;
+        if (mSelectedSlot == slot)
+            KeyDown(Sexy::KEYCODE_RETURN);
+        else
+            SetSelectedSlot(slot);
+        return;
+    }
+}
+
+void StoreScreen::MouseUp(int x, int y, int theClickCount)
+{
+    const int button = mMousePressedButton;
+    mMousePressedButton = -1;
+    if (button != -1 && theClickCount > 0 && theClickCount != 3
+        && CanInteractWithButtons() && mMousePressedRect.Contains(x, y))
+        ButtonDepress(button);
 }
 
 // ==========================================================================

@@ -1506,6 +1506,12 @@ namespace Sexy {
     // settled by anything in this tree yet.
     struct Event
     {
+        static constexpr int MOUSE_DOWN = 3;
+        static constexpr int MOUSE_UP = 4;
+        static constexpr int MOUSE_MOVE = 7;
+        static constexpr int MOUSE_WHEEL = 512;
+        static constexpr int MOUSE_EXIT = 1024;
+        static constexpr int MOUSE_CANCEL = 2048;
 #ifdef _DEBUG
         // Windows text input shares the platform event queue with key presses.
         static constexpr int CHARACTER_INPUT = 256;

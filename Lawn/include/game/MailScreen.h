@@ -42,6 +42,8 @@ public:
     void Update() override;
     void Draw(Sexy::Graphics* g) override;
     int KeyDown(Sexy::KeyCode theKey) override;
+    void MouseDown(int x, int y, int theClickCount) override;
+    void MouseUp(int x, int y, int theClickCount) override;
     void GameButtonDown(Sexy::GamepadButton theButton, int thePlayerIndex, unsigned int theFlags);
     void SetCurrentMessageIndex(int theIndex);
     void MessagesShiftLeft();
@@ -49,6 +51,8 @@ public:
     void InitMessages();
 
 private:
+    int mMouseDownX = 0;
+    bool mMousePressed = false;
     std::vector<MessageDrawInfo>& CurrentMessages();
     void UpdateHelpButtons();
 };

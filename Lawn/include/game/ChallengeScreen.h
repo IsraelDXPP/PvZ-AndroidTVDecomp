@@ -140,6 +140,14 @@ public:
     int DoUnlockSurvivalDialog(int theChallengeIndex);
     int SaveSurvivalCount();
     int LoadSurvivalCount();
+    void MouseDown(int x, int y, int theClickCount) override;
+    void MouseDrag(int x, int y) override;
+    void MouseUp(int x, int y, int theClickCount) override;
+    void MouseWheel(int theDelta) override;
+    int mMouseDownY = 0;
+    int mMouseScrollStart = 0;
+    bool mMousePressed = false;
+    bool mMouseScrolled = false;
 };
 
 // TODO(recon): the binary also defines ChallengeDefinition (six members:

@@ -61,7 +61,10 @@ int ZenGardenControls::Update(float theDeltaTime)
     return 0;
 
   // Nothing selected yet: start on the watering can.
-  if (mSelectedTool == OBJECT_TYPE_NONE)
+  if (mBoard->mMouseInputActive[mPlayerIndex]
+      && mBoard->mCursorObject[mPlayerIndex]->mCursorType == CURSOR_TYPE_NORMAL)
+    mSelectedTool = OBJECT_TYPE_NONE;
+  if (mSelectedTool == OBJECT_TYPE_NONE && !mBoard->mMouseInputActive[mPlayerIndex])
   {
     mSelectedTool = OBJECT_TYPE_WATERING_CAN;
     mBoard->PickUpTool(OBJECT_TYPE_WATERING_CAN, mPlayerIndex);
@@ -92,7 +95,7 @@ int ZenGardenControls::Update(float theDeltaTime)
   // out parameter `GridItem **`, so the address travels through a cast.
   HitResult aHitResult;
   mBoard->MouseHitTest((int)mCursorPositionX, (int)mCursorPositionY, &aHitResult, 0);
-  if (aHitResult.mObjectType == OBJECT_TYPE_COIN)
+  if (!mBoard->mMouseInputActive[mPlayerIndex] && aHitResult.mObjectType == OBJECT_TYPE_COIN)
     static_cast<Coin *>(aHitResult.mObject)->GamepadCursorOver(mPlayerIndex);
 
   // The preview cursor is switched on just before the state machine runs.
@@ -110,8 +113,11 @@ int ZenGardenControls::Update(float theDeltaTime)
     aY = 580.0f;
   if (aY < 80.0f)
     aY = 80.0f;
-  mCursorPositionX = aX;
-  mCursorPositionY = aY;
+  if (!mBoard->mMouseInputActive[mPlayerIndex])
+  {
+    mCursorPositionX = aX;
+    mCursorPositionY = aY;
+  }
 
   return aResult;
 }

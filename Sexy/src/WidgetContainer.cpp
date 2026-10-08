@@ -589,7 +589,8 @@ Widget *Sexy::WidgetContainer::GetWidgetAtHelper(int x, int y, int theFlags, boo
 
     int aHitFlags = (theFlags | mWidgetFlagsMod.mAddFlags) & ~mWidgetFlagsMod.mRemoveFlags;
     bool aFoundBelow = false;
-    WidgetListLink *aNode = BeginChild(this);
+    // GetWidgetAtHelper @0x3AD5A0 uses reverse iterators: test the front first.
+    WidgetListLink *aNode = PrevChild(EndChild(this));
 
     while (true)
     {
@@ -627,9 +628,9 @@ Widget *Sexy::WidgetContainer::GetWidgetAtHelper(int x, int y, int theFlags, boo
             }
         }
 
-        if (mWidgetManager->mFocusWidget == aWidget)
+        if (mWidgetManager->mBaseModalWidget == aWidget)
             aFoundBelow = true;
-        aNode = NextChild(aNode);
+        aNode = PrevChild(aNode);
         if (aNode == EndChild(this))
         {
             *found = false;

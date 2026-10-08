@@ -69,6 +69,9 @@ public:
     virtual void Update();
     // slot 36
     virtual void Draw(Sexy::Graphics * theGraphics);
+    bool IsPointVisible(int x, int y) override;
+    void MouseDown(int x, int y, int theClickCount) override;
+    void MouseUp(int x, int y, int theClickCount) override;
 
     // One help-button entry, including its column, row and animation state.
     struct ButtonDef
@@ -96,6 +99,7 @@ public:
     int mState;                  // +0x124
     int mAnimCounter;            // +0x128
     std::unique_ptr<Sexy::Font> mOutlineFont;
+    Sexy::GamepadButton mMousePressedButton = GAMEPAD_BUTTON_NONE;
 
     // ---- methods that are not vtable slots (kept from the transcription) ----
     // Button renderer @0x1470BC: incoming/outgoing set and fade alpha.
@@ -103,4 +107,5 @@ public:
     HelpBarWidget();
     void AddButton(Sexy::GamepadButton theButton, Sexy::String theLabel, HelpAlign theAlign);
     void ClearButtons(unsigned int theFirstKept);
+    Sexy::GamepadButton HitTestButton(int x, int y) const;
 };

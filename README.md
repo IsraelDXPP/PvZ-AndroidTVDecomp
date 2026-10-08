@@ -80,6 +80,19 @@ LawnTV.exe [--assets <dir>] [--width N] [--height N]
 
 重型武器模式用左摇杆移动车子，右摇杆向上半区瞄准时自动连续开火，不需要按射击键。
 
+鼠标左键可点击菜单、选卡、收集阳光和金币；选中卡片后点击草坪种植，也可从卡槽拖到草坪松开。右键取消当前卡片、工具或加农炮选择。铲子和花园工具支持点击选择后使用；加农炮点击选择后再点击目标发射。图鉴说明、小游戏列表支持拖动和滚轮，底部操作提示可直接点击。合作模式可用鼠标操作两排卡槽；选卡时先填玩家一的四张卡，再填玩家二。重型武器支持按住左键左右拖动车辆，并自动向上开火。
+
+在资源根的 `setup.env` 可启用以下选项，修改后重启生效：
+
+```text
+set LAWN_AUTO_COLLECT=1
+set LAWN_HIDE_COVER_LAYER=1
+```
+
+`LAWN_AUTO_COLLECT` 自动收集普通阳光、金币、钻石和对战脑，沿用掉落物原有的收集延迟与动画；合作模式阳光保留双人拾取规则。`LAWN_HIDE_COVER_LAYER` 隐藏右侧灌木、前景遮挡和屋顶树杆。两个选项未配置时默认关闭，示例配置已启用，设为 `0` 可关闭相应扩展。
+
 ## 许可
 
-重建代码按 `vcpkg.json` 所标的 MIT 许可分发。游戏名称、美术、音乐和关卡数据不属于本仓库，使用原版资源需自行遵守权利人的许可。
+原有重建代码按 `vcpkg.json` 所标的 MIT 许可分发。本次鼠标支持包含从 [PlantsVsZombies-AndroidTV](https://github.com/ZombieYetis/PlantsVsZombies-AndroidTV) 移植、改写的触控代码，这些部分使用 GPL-3.0-or-later；包含这些部分的组合程序分发时须遵守 GPL。来源、版权和改动说明见 [ThirdParty/PvZTVTouch/NOTICE.md](ThirdParty/PvZTVTouch/NOTICE.md)，许可证全文见 [ThirdParty/PvZTVTouch/LICENSE](ThirdParty/PvZTVTouch/LICENSE)。
+
+游戏名称、美术、音乐和关卡数据不属于本仓库，使用原版资源需自行遵守权利人的许可。

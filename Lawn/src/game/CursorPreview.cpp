@@ -12,6 +12,7 @@
 // BeginDraw/EndDraw/MakeParentGraphicsFrame.
 
 #include "CursorPreview.h"
+#include "GamepadControls.h"
 #include "BaseGamepadControls.h"
 #include "game/Board.h"
 #include "DataArrayMethods.h"
@@ -57,7 +58,8 @@ unsigned int CursorPreview::Update()
   // forward-declares GamepadControls -- including its header here would close an
   // include cycle -- so the call goes through the base, exactly as the binary's
   // direct call to BaseGamepadControls::GetCursorPosition does.
-  ((BaseGamepadControls *)mApp->mBoard->mGamepadControls[0])->GetCursorPosition(aPixelX, aPixelY);
+  const int player = mBoard->mMouseInputActive[mPlayerIndex] ? mPlayerIndex : 0;
+  mApp->mBoard->mGamepadControls[player]->GetCursorPosition(aPixelX, aPixelY);
 
   mGridX = mBoard->PlantingPixelToGridX(aPixelX, aPixelY, aSeedType);
   mGridY = mBoard->PlantingPixelToGridY(aPixelX, aPixelY, aSeedType);

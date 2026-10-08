@@ -137,6 +137,24 @@ int BaseGamepadControls::Update(float theDeltaTime)
 {
   ++mGamepadFrameCounter;
 
+  if (mBoard->mMouseInputActive[mPlayerIndex])
+  {
+    Sexy::Gamepad* gamepad = mGamepadIndex >= 0 ? mBoard->mApp->mGamepads[mGamepadIndex] : nullptr;
+    if (gamepad != nullptr && gamepad->IsConnected()
+        && (fabsf(gamepad->GetAxisXPositionRamped()) >= 0.274f
+            || fabsf(gamepad->GetAxisYPositionRamped()) >= 0.274f))
+      mBoard->ReleaseMouseControl(mPlayerIndex);
+  }
+  if (mBoard->mMouseInputActive[mPlayerIndex])
+  {
+    mCursorHighlightAnimPhase += theDeltaTime;
+    mInputLeftStickX = 0.0f;
+    mInputLeftStickY = 0.0f;
+    mInputRightStickX = 0.0f;
+    mInputRightStickY = 0.0f;
+    return 0;
+  }
+
   if (mGamepadIndex != -1)
   {
     // The dump reaches Board::mApp through an offset on the board pointer, and
@@ -331,6 +349,8 @@ int BaseGamepadControls::ExitState()
 // grows downward.
 int BaseGamepadControls::UpdateStates(float theDeltaTime)
 {
+  if (mBoard->mMouseInputActive[mPlayerIndex])
+    return 0;
   mDigIndicatorPercentage += theDeltaTime;
 
   switch (mGamepadState)

@@ -28,6 +28,15 @@ WaitForSecondPlayerDialog::~WaitForSecondPlayerDialog()
   // real inheritance the compiler emits all three.
 }
 
+void WaitForSecondPlayerDialog::MouseDown(int x, int y, int theClickCount)
+{
+  if (theClickCount <= 0 || theClickCount == 3 || mApp->mBoard == nullptr)
+    return;
+  const int firstPlayer = mApp->mPlayerInfo->GetId();
+  const int secondPlayer = firstPlayer == 0 ? 1 : 0;
+  GameButtonDown(GAMEPAD_BUTTON_A, secondPlayer, 0);
+}
+
 // ==========================================================================
 // WaitForSecondPlayerDialog::KeyDown(Sexy::KeyCode)
 // @0013EDF4  100 bytes

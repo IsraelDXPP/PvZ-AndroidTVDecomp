@@ -81,7 +81,8 @@ void SDLWindow::Destroy()
     if (sActiveWindow == this) sActiveWindow = nullptr;
     if (mWindow) SDL_DestroyWindow(mWindow);
     mWindow = nullptr;
-    mKeyEvents.clear();
+    mInputEvents.clear();
+    mMouseButtons = 0;
     if (mVideoInitialized) SDL_QuitSubSystem(SDL_INIT_VIDEO | SDL_INIT_EVENTS);
     mVideoInitialized = false;
 }
@@ -97,7 +98,46 @@ bool SDLWindow::ProcessEvents()
         {
             if (event.type == SDL_EVENT_WINDOW_CLOSE_REQUESTED) mClosed = true;
             if (event.type == SDL_EVENT_WINDOW_FOCUS_GAINED) mActive = true;
-            if (event.type == SDL_EVENT_WINDOW_FOCUS_LOST) mActive = false;
+            if (event.type == SDL_EVENT_WINDOW_MOUSE_LEAVE)
+            {
+                Event exitEvent = {};
+                exitEvent.modifiers = Event::MOUSE_EXIT;
+                mInputEvents.push_back(exitEvent);
+            }
+            if (event.type == SDL_EVENT_WINDOW_FOCUS_LOST)
+            {
+                mActive = false;
+                Event cancelEvent = {};
+                cancelEvent.modifiers = Event::MOUSE_CANCEL;
+                mInputEvents.push_back(cancelEvent);
+                mMouseButtons = 0;
+                SDL_CaptureMouse(false);
+            }
+        }
+        if (event.type == SDL_EVENT_MOUSE_MOTION && event.motion.windowID == SDL_GetWindowID(mWindow))
+            QueueMouseEvent(Event::MOUSE_MOVE, event.motion.x, event.motion.y);
+        if ((event.type == SDL_EVENT_MOUSE_BUTTON_DOWN || event.type == SDL_EVENT_MOUSE_BUTTON_UP)
+            && event.button.windowID == SDL_GetWindowID(mWindow)
+            && (event.button.button == SDL_BUTTON_LEFT || event.button.button == SDL_BUTTON_RIGHT || event.button.button == SDL_BUTTON_MIDDLE))
+        {
+            const int clickCount = event.button.button == SDL_BUTTON_RIGHT ? -1
+                : event.button.button == SDL_BUTTON_MIDDLE ? 3 : std::clamp(int(event.button.clicks), 1, 2);
+            if (event.button.down)
+                mMouseButtons |= SDL_BUTTON_MASK(event.button.button);
+            else
+                mMouseButtons &= ~SDL_BUTTON_MASK(event.button.button);
+            SDL_CaptureMouse(mMouseButtons != 0);
+            QueueMouseEvent(event.button.down ? Event::MOUSE_DOWN : Event::MOUSE_UP,
+                            event.button.x, event.button.y, clickCount);
+        }
+        if (event.type == SDL_EVENT_MOUSE_WHEEL && event.wheel.windowID == SDL_GetWindowID(mWindow))
+        {
+            Event wheel = {};
+            wheel.modifiers = Event::MOUSE_WHEEL;
+            const float direction = event.wheel.direction == SDL_MOUSEWHEEL_FLIPPED ? -1.0f : 1.0f;
+            wheel.eventCodeMask = int(event.wheel.x * direction * 100.0f);
+            wheel.matchEvent = int(event.wheel.y * direction * 100.0f);
+            mInputEvents.push_back(wheel);
         }
         if ((event.type == SDL_EVENT_KEY_DOWN || event.type == SDL_EVENT_KEY_UP)
             && event.key.windowID == SDL_GetWindowID(mWindow))
@@ -108,7 +148,7 @@ bool SDLWindow::ProcessEvents()
                 Event key = {};
                 key.modifiers = event.key.down ? 1 : 2;
                 key.eventCodeMask = code;
-                mKeyEvents.push_back(key);
+                mInputEvents.push_back(key);
             }
         }
 #ifdef _DEBUG
@@ -128,7 +168,7 @@ bool SDLWindow::ProcessEvents()
                 Event character = {};
                 character.modifiers = Event::CHARACTER_INPUT;
                 character.eventCodeMask = codepoint;
-                mKeyEvents.push_back(character);
+                mInputEvents.push_back(character);
             }
         }
 #endif
@@ -141,11 +181,29 @@ bool SDLWindow::ProcessEvents()
     mLastTime = now;
     return !mClosed;
 }
-bool SDLWindow::PopKeyEvent(Event& theEvent)
+void SDLWindow::QueueMouseEvent(int theKind, float theX, float theY, int theClickCount)
 {
-    if (mKeyEvents.empty()) return false;
-    theEvent = mKeyEvents.front();
-    mKeyEvents.pop_front();
+    int width = 0;
+    int height = 0;
+    SDL_GetWindowSize(mWindow, &width, &height);
+    if (width <= 0 || height <= 0)
+        return;
+    Event pointer = {};
+    pointer.modifiers = theKind == Event::MOUSE_UP
+        && (theX < 0 || theX >= width || theY < 0 || theY >= height) ? Event::MOUSE_CANCEL : theKind;
+    pointer.modifierMask = 1 | 32; // Absolute coordinates scaled by InputManager to the render surface.
+    pointer.eventCodeMask = int(theX);
+    pointer.matchEvent = int(theY);
+    pointer.standard = theClickCount;
+    pointer.mScaleDivisorX = width;
+    pointer.mScaleDivisorY = height;
+    mInputEvents.push_back(pointer);
+}
+bool SDLWindow::PopInputEvent(Event& theEvent)
+{
+    if (mInputEvents.empty()) return false;
+    theEvent = mInputEvents.front();
+    mInputEvents.pop_front();
     return true;
 }
 bool SDLWindow::IsKeyDown(int theKeyCode) const

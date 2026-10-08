@@ -741,7 +741,8 @@ void GamepadControls::Draw(Sexy::Graphics * g)
     return;
 
   CursorObject *aCursor = mBoard->mCursorObject[mPlayerIndex];
-  if ( aCursor->mCursorType == CURSOR_TYPE_HAMMER )
+  if ( aCursor->mCursorType == CURSOR_TYPE_HAMMER
+      || (mBoard->mMouseInputActive[mPlayerIndex] && aCursor->mCursorType == CURSOR_TYPE_SHOVEL) )
   {
     // BeginDraw is GameObject's virtual at slot 2. A false result skips the
     // hammer draw and falls out of the function; it does not fall through.
@@ -2836,6 +2837,7 @@ int GamepadControls::Update(float theDeltaTime)
   // A live pad releases a held dig or a held butter the moment the button
   // comes up. Without a pad, the same release is the keyboard shovel key,
   // which the widget manager records under key 27.
+  const bool mouseInput = mBoard->mMouseInputActive[mPlayerIndex];
   bool aPadLive = mApp->HasGamepad() != 0 || (mApp->mGamePad1IsOn && mApp->mGamePad2IsOn);
   if ( aPadLive )
   {
@@ -2848,7 +2850,7 @@ int GamepadControls::Update(float theDeltaTime)
     if ( aPad != nullptr && !aPad->IsButtonDown(GAMEPAD_BUTTON_B)
       && mGamepadState == MOVEMENT_STATE_DIG_HOLD )
       GotoState(MOVEMENT_STATE_NORMAL);
-    if ( aPad != nullptr && !aPad->IsButtonDown(GAMEPAD_BUTTON_X)
+    if ( !mouseInput && aPad != nullptr && !aPad->IsButtonDown(GAMEPAD_BUTTON_X)
       && mGamepadState == MOVEMENT_STATE_BUTTER_HELD )
       ReleaseButter();
   }
@@ -2928,7 +2930,7 @@ int GamepadControls::Update(float theDeltaTime)
   {
     HitResult aHit;
     mBoard->MouseHitTest((int)mCursorPositionX, (int)mCursorPositionY, &aHit, mGamepadIndex);
-    if ( aHit.mObjectType == OBJECT_TYPE_COIN )
+    if ( !mouseInput && aHit.mObjectType == OBJECT_TYPE_COIN )
     {
       Coin *aCoin = static_cast<Coin *>(aHit.mObject);
       GameMode aMode = mApp->mGameMode;
@@ -2990,7 +2992,7 @@ int GamepadControls::Update(float theDeltaTime)
 
   // Coins near the cursor glow, except while a heavy-weapon shot or a dig is
   // in progress. Versus only glows the pickup that belongs to this side.
-  if ( mApp->mGameMode != GAMEMODE_CHALLENGE_HEAVY_WEAPON && mGamepadState != MOVEMENT_STATE_DIG_HOLD )
+  if ( !mouseInput && mApp->mGameMode != GAMEMODE_CHALLENGE_HEAVY_WEAPON && mGamepadState != MOVEMENT_STATE_DIG_HOLD )
   {
     Coin *aCoin = nullptr;
     while ( mBoard->IterateCoins(aCoin) != 0 )
@@ -3017,6 +3019,18 @@ int GamepadControls::Update(float theDeltaTime)
   // coin and a hammer keep the type the cursor already has.
   CursorObject *aCursor = mBoard->mCursorObject[mPlayerIndex];
   CursorPreview *aCursorPreview = mBoard->mCursorPreview[mPlayerIndex];
+  if (mouseInput)
+  {
+    if (mGamepadState == MOVEMENT_STATE_PLANT_CURSOR && aCursor->mCursorType == CURSOR_TYPE_PLANT_FROM_BANK)
+    {
+      aCursor->mSelectedIndex = mIsInShopSeedBank ? mSelectedShopSeedIndex : mSelectedSeedIndex;
+      aCursor->mType = mIsInShopSeedBank ? aSeedBank->mShopSeedPackets[mSelectedShopSeedIndex].mSeedType : aPacket->mPacketType;
+      aCursor->mImitaterType = mIsInShopSeedBank ? SEED_NONE : aPacket->mImitaterType;
+    }
+    mSelectedSeedType = aCursor->mType == SEED_IMITATER ? aCursor->mImitaterType : aCursor->mType;
+    if (aCursor->mCursorType == CURSOR_TYPE_NORMAL || aCursor->mCursorType == CURSOR_TYPE_SHOVEL)
+      mSelectedSeedType = SEED_NONE;
+  }
   if ( aCursor->mCursorType == CURSOR_TYPE_PLANT_FROM_USABLE_COIN )
   {
     aCursorPreview->mVisible = true;
@@ -3028,7 +3042,7 @@ int GamepadControls::Update(float theDeltaTime)
     aCursor->mX = (int)(mCursorPositionX - 20.0f);
     aCursor->mY = (int)(mCursorPositionY - 32.0f);
   }
-  else
+  else if (!mouseInput)
   {
     aCursorPreview->mVisible = true;
     aCursor->mCursorType = CURSOR_TYPE_PLANT_FROM_BANK;
@@ -3111,10 +3125,13 @@ int GamepadControls::Update(float theDeltaTime)
     aNextX = 40.0f;
   if ( aNextY > 580.0f )
     aNextY = 580.0f;
-  if ( aNextY < 80.0f )
+  if ( !mouseInput && aNextY < 80.0f )
     aNextY = 80.0f;
-  mCursorPositionX = aNextX;
-  mCursorPositionY = aNextY;
+  if (!mouseInput)
+  {
+    mCursorPositionX = aNextX;
+    mCursorPositionY = aNextY;
+  }
   mGamepadAccLeftX = (mGamepadVelocityLeftX + mGamepadAccLeftX * 3.0f) * 0.25f;
   mGamepadAccLeftY = (mGamepadVelocityLeftY + mGamepadAccLeftY * 3.0f) * 0.25f;
 

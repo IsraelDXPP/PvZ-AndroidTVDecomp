@@ -798,6 +798,41 @@ bool SexyAppBase::ProcessMessage(Sexy::Event& theEvent)
 {
     switch (theEvent.modifiers)
     {
+        case Event::MOUSE_DOWN:
+        case Event::MOUSE_UP:
+        case Event::MOUSE_MOVE:
+        {
+            mLastUserInputTick = mLastTimerTime;
+            if (mWidgetManager == nullptr)
+                return true;
+            int mouseX = int(theEvent.eventCodeMask);
+            int mouseY = theEvent.matchEvent;
+            mWidgetManager->RemapMouse(mouseX, mouseY);
+            if (theEvent.modifiers == Event::MOUSE_DOWN)
+                mWidgetManager->MouseDown(mouseX, mouseY, theEvent.standard);
+            else if (theEvent.modifiers == Event::MOUSE_UP)
+                mWidgetManager->MouseUp(mouseX, mouseY, theEvent.standard);
+            else
+                mWidgetManager->MouseMove(mouseX, mouseY);
+            return true;
+        }
+        case Event::MOUSE_WHEEL:
+            mLastUserInputTick = mLastTimerTime;
+            if (mWidgetManager != nullptr)
+                mWidgetManager->MouseWheel(int(theEvent.eventCodeMask), theEvent.matchEvent);
+            return true;
+        case Event::MOUSE_EXIT:
+        case Event::MOUSE_CANCEL:
+            if (mWidgetManager != nullptr)
+            {
+                mWidgetManager->MouseExit(0, 0);
+                if (theEvent.modifiers == Event::MOUSE_CANCEL)
+                {
+                    for (int clickCount : {1, -1, 3})
+                        mWidgetManager->MouseUp(-10000, -10000, clickCount);
+                }
+            }
+            return true;
 #ifdef _DEBUG
         case Sexy::Event::CHARACTER_INPUT:
             mLastUserInputTick = mLastTimerTime;

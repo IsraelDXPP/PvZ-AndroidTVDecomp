@@ -138,6 +138,9 @@ public:
     virtual void GotFocus();                                            // [ 61] 0x195380
     virtual int KeyChar(char theChar);                                 // [ 67] 0x194ed8
     virtual int KeyDown(Sexy::KeyCode theKey);                         // [ 71] 0x19516c
+    void MouseDown(int x, int y, int theClickCount) override;
+    void MouseDrag(int x, int y) override;
+    void MouseUp(int x, int y, int theClickCount) override;
 
     // The five entries this class appends.
     virtual void ButtonPress(int theId);                                // [128] 0x194ecc
@@ -153,9 +156,9 @@ public:
     void CloseVSSetup(bool theTearDown);
     int EndSeedChooser();
     int EndZombieChooser();
-    int OnStateExit(VSSetupMenu_VSSetupState theResult, VSSetupMenu_VSSetupState theNext);
+    int OnStateExit(VSSetupMenu_VSSetupState theState, VSSetupMenu_VSSetupState theNext);
     int SetSecondPlayerIndex(int theIndex);
-    int OnStateEnter(VSSetupMenu_VSSetupState theResult, VSSetupMenu_VSSetupState theNext);
+    int OnStateEnter(VSSetupMenu_VSSetupState theState, VSSetupMenu_VSSetupState thePrevious);
     int GoToState(int theState);
     int OnPlayerPickedSeed(int theSeed);
     void PickRandomZombies(std::vector<SeedType> &theOut);
@@ -182,6 +185,7 @@ public:
     // Set by the selector's quick-play cheat. GotFocus then fills both banks
     // from msQuickPlayDecks and closes the setup.
     bool mQuickPlay;              // +0x14C
+    int mMouseController = -1;
+    int mMouseLastX = 0;
     // size 0x150, matching `operator new(0x150u)` at LawnApp.cpp:1040.
 };
-

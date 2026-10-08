@@ -678,6 +678,12 @@ int Sexy::WidgetManager::MouseDown(int x, int y, int theClickCount)
     int aButtons = mDownButtons;
     if (aDown == nullptr)
         aDown = aWidgetAt;
+    else
+    {
+        Point aAbsPos = aDown->GetAbsPos();
+        aWidgetX = x - aAbsPos.mX;
+        aWidgetY = y - aAbsPos.mY;
+    }
 
     if (theClickCount < 0)
     {
@@ -698,7 +704,8 @@ int Sexy::WidgetManager::MouseDown(int x, int y, int theClickCount)
     mLastDownWidget = aDown;
     if (aDown != nullptr)
     {
-        SetFocus(aDown);
+        if (!aDown->mMousePreservesFocus)
+            SetFocus(aDown);
         aDown->mIsDown = true;
         aDown->MouseDown(aWidgetX, aWidgetY, theClickCount);
     }

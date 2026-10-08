@@ -47,6 +47,7 @@
 #include "WidgetContainer.h"
 #include "WidgetManager.h"
 #include <cstdio>
+#include <algorithm>
 
 namespace {
 // ChallengePage values, from the authoritative PvZ\Lawn\Common\ConstEnums.h.
@@ -1236,7 +1237,11 @@ void ChallengeScreen::AddedToManager(Sexy::WidgetManager * theWidgetManager)
     Sexy::WidgetContainer::AddedToManager(theWidgetManager);
 
     for (int i = 0; i < NUM_CHALLENGE_MODES; ++i)
+    {
+        // Draw() scrolls these decorative rows; the screen owns hit testing.
+        mChallengeButtons[i]->mMouseVisible = false;
         AddWidget(mChallengeButtons[i]);
+    }
 
     mApp->ShowHelpBarWidget();
 }
@@ -1285,4 +1290,54 @@ ChallengeScreen::~ChallengeScreen()
     // object -- which is exactly `delete` on a ToolTipWidget, whose three
     // Sexy::String members release themselves.
     delete mToolTip;
+}
+
+// Adapted from PvZ TV Touch Team's scrolling challenge list (GPL-3.0-or-later).
+// Row origins/spacing and clipping are from Draw @0x18AEE4 and DrawButton @0x18A710.
+void ChallengeScreen::MouseDown(int x, int y, int theClickCount)
+{
+    mMousePressed = theClickCount > 0 && theClickCount != 3 && x >= -20 && x < 760 && y >= 80 && y < 555;
+    mMouseScrolled = false;
+    mMouseDownY = y;
+    mMouseScrollStart = mScrollTargetPosition;
+    if (theClickCount < 0)
+        GameButtonDown(GAMEPAD_BUTTON_B, 0, 0);
+}
+
+void ChallengeScreen::MouseDrag(int x, int y)
+{
+    (void)x;
+    if (!mMousePressed)
+        return;
+    const int rows = (mMouseDownY - y) / 60;
+    if (rows != 0)
+    {
+        mMouseScrolled = true;
+        SetScrollTarget(std::clamp(mMouseScrollStart + rows, 0, std::max(0, mPageChallengeCount - 4)));
+    }
+}
+
+void ChallengeScreen::MouseUp(int x, int y, int theClickCount)
+{
+    const bool click = mMousePressed && !mMouseScrolled;
+    mMousePressed = false;
+    if (!click || theClickCount <= 0 || theClickCount == 3 || x < -20 || x >= 760 || y < 80 || y >= 555)
+        return;
+    const int row = mScrollPosition + (y - 80) / 120;
+    if (row < 0 || row >= mPageChallengeCount || mScrollPosition != mScrollTargetPosition)
+        return;
+    const int index = mPageChallengeIndex[row];
+    const bool activate = mSelectedChallengeIndex == index;
+    mSelectedChallengeIndex = index;
+    mSelectedGameMode = ChallengeDefOf(index)->mChallengeMode;
+    UpdateToolTip();
+    if (activate)
+        GameButtonDown(GAMEPAD_BUTTON_A, 0, 0);
+    else
+        mApp->PlaySample(SOUND_BUTTONCLICK, true);
+}
+
+void ChallengeScreen::MouseWheel(int theDelta)
+{
+    SetScrollTarget(std::clamp(mScrollTargetPosition - theDelta, 0, std::max(0, mPageChallengeCount - 4)));
 }

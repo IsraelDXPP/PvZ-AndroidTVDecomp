@@ -13,6 +13,19 @@ void HelpTextScreen::AddedToManager(Sexy::WidgetManager* theWidgetManager)
     // Loading a menu can change focus; the shared bar must already be usable.
     mHelpBarWidget = mApp->mHelpBarWidget;
     MenuWidget::AddedToManager(theWidgetManager);
+    for (Sexy::Widget* child : mWidgetVector)
+        child->mMouseVisible = false;
+    // The second page scrolls by 2560 pixels (constructor @0x189C98).
+    // Keep both pages inside the mouse hit area after the menu is loaded.
+    Resize(mX, mY, 2560 + mApp->mWidth + 15, mHeight);
+}
+
+void HelpTextScreen::MouseDown(int x, int y, int theClickCount)
+{
+    if (theClickCount <= 0 || theClickCount == 3)
+        return;
+    const int screenX = x + GetAbsPos().mX;
+    GameButtonDown(screenX < mApp->mWidth / 2 ? GAMEPAD_BUTTON_LEFT : GAMEPAD_BUTTON_RIGHT, 0, 0);
 }
 
 void HelpTextScreen::DrawAll(Sexy::ModalFlags* theFlags, Sexy::Graphics* g)

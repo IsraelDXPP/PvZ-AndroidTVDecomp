@@ -102,6 +102,9 @@ void VSSetupMenu::GameButtonUp(Sexy::GamepadButton theButton, int thePlayerIndex
 void VSSetupMenu::AddedToManager(Sexy::WidgetManager *theWidgetManager)
 {
   MenuWidget::AddedToManager(theWidgetManager);
+  for (int widgetId = BACKGROUND_FRAME; widgetId <= CONTROLLER_1; ++widgetId)
+    if (Sexy::Widget* widget = FindWidget(widgetId))
+      widget->mMouseVisible = false;
   // The VS setup screen owns the music from the moment it is added: the binary
   // calls Music2::MakeSureMusicIsPlaying (slot 14) on the shared Music2 unit.
   ((LawnApp *)gLawnApp)->mMusic->MakeSureMusicIsPlaying(MUSIC_TUNE_CHOOSE_YOUR_SEEDS);
@@ -116,6 +119,52 @@ VSSetupMenu::~VSSetupMenu()
   // The dump's body is the two vptr stores plus the explicit
   // ~LawnMenuWidget() call; with a real base class the compiler emits all
   // three, and this class owns no resource of its own.
+}
+
+// Local form of PvZ TV Touch Team's controller drag gesture.
+void VSSetupMenu::MouseDown(int x, int y, int theClickCount)
+{
+    mMouseController = -1;
+    if (theClickCount <= 0 || theClickCount == 3 || mState != VS_SETUP_STATE_SIDES)
+        return;
+    for (int player = 0; player < 2; ++player)
+    {
+        Sexy::Widget* marker = FindWidget(CONTROLLER_0 + player);
+        if (marker != nullptr && Sexy::Rect(marker->mX, marker->mY, marker->mWidth, marker->mHeight).Contains(x, y))
+        {
+            mMouseController = player;
+            mMouseLastX = x;
+            mSideLocked[player] = false;
+            return;
+        }
+    }
+}
+
+void VSSetupMenu::MouseDrag(int x, int y)
+{
+    if (mMouseController < 0 || mState != VS_SETUP_STATE_SIDES)
+        return;
+    if (Sexy::Widget* marker = FindWidget(CONTROLLER_0 + mMouseController))
+        marker->Move(marker->mX + x - mMouseLastX, marker->mY);
+    mMouseLastX = x;
+}
+
+void VSSetupMenu::MouseUp(int x, int y, int theClickCount)
+{
+    const int player = mMouseController;
+    mMouseController = -1;
+    if (player < 0 || theClickCount <= 0 || theClickCount == 3 || mState != VS_SETUP_STATE_SIDES)
+        return;
+    Sexy::Widget* marker = FindWidget(CONTROLLER_0 + player);
+    if (marker == nullptr)
+        return;
+    VSSide side = marker->mX > 400 ? VS_SIDE_ZOMBIE : marker->mX > 250 ? VS_SIDE_NONE : VS_SIDE_PLANT;
+    if (x < 0 || x >= mWidth || y < 0 || y >= mHeight
+        || (side == mSides[1 - player] && mSideLocked[1 - player]))
+        side = VS_SIDE_NONE;
+    mSides[player] = side;
+    if (side != VS_SIDE_NONE)
+        GameButtonDown(GAMEPAD_BUTTON_A, mControllerIndex[player], 0);
 }
 
 // ==========================================================================
@@ -315,9 +364,9 @@ int VSSetupMenu::EndZombieChooser()
 // VSSetupMenu::OnStateExit(VSSetupMenu::VSSetupState,VSSetupMenu::VSSetupState)
 // @00195430  86 bytes
 // ==========================================================================
-int VSSetupMenu::OnStateExit(VSSetupMenu_VSSetupState theResult, VSSetupMenu_VSSetupState theNext)
+int VSSetupMenu::OnStateExit(VSSetupMenu_VSSetupState theState, VSSetupMenu_VSSetupState theNext)
 {
-  if ( theNext == (VSSetupMenu_VSSetupState)3 )
+  if (theState == VS_SETUP_STATE_CUSTOM_BATTLE)
   {
     // Leaving the custom-battle state: the nine side widgets lose their alpha,
     // and the three chooser buttons after them are hidden.
@@ -331,10 +380,10 @@ int VSSetupMenu::OnStateExit(VSSetupMenu_VSSetupState theResult, VSSetupMenu_VSS
     {
       Sexy::Widget *aWidget = FindWidget(i);
       if ( aWidget != nullptr )
-        aWidget->SetVisible(false);
+        aWidget->SetVisible(true);
     }
   }
-  return theResult;
+  return 0;
 }
 
 // ==========================================================================
@@ -356,15 +405,16 @@ int VSSetupMenu::SetSecondPlayerIndex(int theIndex)
 // VSSetupMenu::OnStateEnter(VSSetupMenu::VSSetupState,VSSetupMenu::VSSetupState)
 // @001954B0  354 bytes
 // ==========================================================================
-int VSSetupMenu::OnStateEnter(VSSetupMenu_VSSetupState theResult, VSSetupMenu_VSSetupState theNext)
+int VSSetupMenu::OnStateEnter(VSSetupMenu_VSSetupState theState, VSSetupMenu_VSSetupState thePrevious)
 {
-  switch ( theNext )
+  int result = 0;
+  switch (theState)
   {
     case 0:
     {
       // Entering the first state puts up the "waiting for player two" dialog and
       // waits on it; its result decides between the pick screen and the menu.
-      mControllerIndex[0] = -1;
+      mControllerIndex[1] = -1;
       WaitForSecondPlayerDialog *aDialog = new WaitForSecondPlayerDialog(mApp);
       mApp->AddDialog(aDialog);
       int aDialogWidth = aDialog->mWidth;
@@ -373,13 +423,13 @@ int VSSetupMenu::OnStateEnter(VSSetupMenu_VSSetupState theResult, VSSetupMenu_VS
       if ( aDialog->WaitForResult(true) == 1000 )
       {
         SetSecondPlayerIndex(mApp->mSecondPlayerGamepadIndex);
-        theResult = (VSSetupMenu_VSSetupState)GoToState((VSSetupMenu_VSSetupState)1);
+        result = GoToState(VS_SETUP_STATE_SIDES);
       }
       else
       {
         CloseVSSetup(true);
         mApp->KillBoard();
-        theResult = (VSSetupMenu_VSSetupState)mApp->ShowGameSelector();
+        result = mApp->ShowGameSelector();
       }
       break;
     }
@@ -425,13 +475,13 @@ int VSSetupMenu::OnStateEnter(VSSetupMenu_VSSetupState theResult, VSSetupMenu_VS
       }
       mSeedPickTurn = (VSSide)msNextFirstPick;
       mApp->mSeedChooserScreen->VSAutoPickResourceGen();
-      theResult = (VSSetupMenu_VSSetupState)mApp->mZombieChooserScreen->VSAutoPickResourceGen();
+      result = mApp->mZombieChooserScreen->VSAutoPickResourceGen();
       break;
     }
     default:
-      return theResult;
+      return result;
   }
-  return theResult;
+  return result;
 }
 
 // ==========================================================================
@@ -482,7 +532,7 @@ void VSSetupMenu::Update()
       aColumn = 0;
     int aTargetX = GAMEPAD_X_POSITIONS[aColumn];
     int aDelta = aTargetX - aMarker->mX;
-    if (aDelta != 0)
+    if (aDelta != 0 && mMouseController != i)
     {
       // A shortfall of less than 4 pixels waits; larger gaps close by a quarter.
       int aBiased = aDelta < 0 ? aDelta + 3 : aDelta;

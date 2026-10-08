@@ -339,7 +339,7 @@ void SeedBank::Draw(Sexy::Graphics *theGraphics)
     GamepadControls *aControls = mBoard->mGamepadControls[0];
     bool aCanShop = mApp->CanShopLevel();
     bool aSelectingSeeds = aControls->mGamepadState == BaseGamepadControls::MOVEMENT_STATE_SELECT_SEED;
-    bool aShowShop = aCanShop && (aSelectingSeeds || aControls->mIsInShopSeedBank);
+    bool aShowShop = aCanShop && (aSelectingSeeds || aControls->mIsInShopSeedBank || mBoard->mMouseShopOpen);
     if (!aHasPad && !aPadsOn && aCanShop && aSelectingSeeds)
     {
         DrawTip(theGraphics, "[GAMEPAD_CONTROLLER_TIP_1]", 220, -12);

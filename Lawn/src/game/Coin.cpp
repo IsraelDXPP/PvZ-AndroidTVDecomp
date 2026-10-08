@@ -30,6 +30,7 @@
 #include "MessageWidget.h"
 #include "PottedPlant.h"
 #include "Reanimation.h"
+#include "ReconHelpers.h"
 #include "ReconTypes.h"
 #include "SeedPacket.h"
 #include "SexyAppBase.h"
@@ -1974,7 +1975,14 @@ void Coin::Update()
   }
   else
   {
-    UpdateFall();
+    static const bool aAutoCollect = Sexy::GetEnvOption("LAWN_AUTO_COLLECT", false) != 0;
+    // Keep the normal delay and collection animation. Cooperative sun still
+    // follows the two-player pickup rules so it is not assigned to player one.
+    if ( aAutoCollect && mCoinAge >= mAutoCollectAge
+         && (IsMoney() || IsDeath() || (IsSun() && !mApp->IsCoopMode())) )
+      Collect(0);
+    else
+      UpdateFall();
   }
 
   // Each attachment is moved to follow the coin and tinted with its colour. The
@@ -2043,7 +2051,7 @@ void Coin::Update()
     {
       int aAttachmentID = i == 0 ? mAttachmentID[0] : mAttachmentID[1];
       Reanimation *aReanim = FindReanimAttachment(aAttachmentID);
-      BaseGamepadControls *aControls = (BaseGamepadControls *)mBoard->mGamepadControls[i];
+      BaseGamepadControls *aControls = mBoard->mGamepadControls[i];
       float aDeltaX = aControls->mCursorPositionX - aSunX;
       float aDeltaY = aControls->mCursorPositionY - aSunY;
       bool aClose = aDeltaX * aDeltaX + aDeltaY * aDeltaY <= 15625.0f;

@@ -455,6 +455,24 @@ public:
     void *mShovelWidget = nullptr;                 // +0x5910  TODO(recon): ShovelRedirectWidget*, not reconstructed yet
     void *mReplayControlsWidget = nullptr;         // +0x5914  TODO(recon): ReplayControlsWidget*, not reconstructed yet
     bool mJacksonDanceMode = false;                // +0x5918
+    // Transient desktop input, outside the saved board state.
+    enum class MouseGesture { None, SeedBank, Tool, CobCannon, UsableSeed, Lawn, Challenge, HeavyWeapon };
+    MouseGesture mMouseGesture = MouseGesture::None;
+    bool mMouseInputActive[2] = {false, false};
+    int mMousePlayerIndex = 0;
+    int mMouseDownX = 0;
+    int mMouseDownY = 0;
+    bool mMouseExecuteOnRelease = false;
+    bool mMouseButterSelected = false;
+    float mMouseHeavyWeaponStartX = 0.0f;
+    float mMouseHeavyWeaponLastX = 0.0f;
+    bool mMouseShopOpen = false;
+    bool mMouseLastStandReady = false;
+    GameScenes mMouseHelpScene = SCENE_LOADING;
+    void SetMouseCursor(int theX, int theY, int thePlayerIndex);
+    void CancelMouseSelection(int thePlayerIndex);
+    void UseMouseSelection(int theX, int theY);
+    void ReleaseMouseControl(int thePlayerIndex);
     // 0x591C (the tail bool rounds the object up to a 4-byte boundary).
 
     // ------------------------------------------------------------------

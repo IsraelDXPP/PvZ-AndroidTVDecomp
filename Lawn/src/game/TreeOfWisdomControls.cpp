@@ -198,6 +198,8 @@ int TreeOfWisdomControls::Update(float theFrac)
 
   // Qualified, as in the binary: the base implementation, not GamepadControls'.
   int aResult = BaseGamepadControls::Update(theFrac);
+  if (mBoard->mMouseInputActive[mPlayerIndex])
+    return aResult;
   if (mGamepadIndex == -1)
     return aResult;
 

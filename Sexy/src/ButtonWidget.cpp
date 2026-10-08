@@ -29,6 +29,11 @@ namespace Sexy {
 // +0x2E4, so the class is not redeclared here.
 } // namespace Sexy
 
+bool Sexy::ButtonWidget::IsPointVisible(int x, int y)
+{
+  return !mBtnNoDraw && Widget::IsPointVisible(x, y);
+}
+
 // ==========================================================================
 // Sexy::ButtonWidget::~ButtonWidget()
 // @002F8EE0  208 bytes
@@ -540,7 +545,8 @@ void Sexy::ButtonWidget::MouseEnter()
   if ( mIsDown || HaveButtonImage(mOverImage, mOverRect) || mColors[1] != mColors[0] )
     MarkDirty();
 
-  mListener->ButtonMouseEnter(mWidgetId);
+  if (mListener != nullptr)
+    mListener->ButtonMouseEnter(mWidgetId);
 }
 
 // ==========================================================================
@@ -568,7 +574,8 @@ void Sexy::ButtonWidget::MouseLeave()
   if ( mIsDown || HaveButtonImage(mOverImage, mOverRect) || mColors[1] != mColors[0] )
     MarkDirty();
 
-  mListener->ButtonMouseLeave(mWidgetId);
+  if (mListener != nullptr)
+    mListener->ButtonMouseLeave(mWidgetId);
 }
 
 // ==========================================================================
@@ -578,7 +585,8 @@ void Sexy::ButtonWidget::MouseLeave()
 void Sexy::ButtonWidget::MouseMove(int x, int y)
 {
   Widget::MouseMove(x, y);
-  mListener->ButtonMouseMove(mWidgetId, x, y);
+  if (mListener != nullptr)
+    mListener->ButtonMouseMove(mWidgetId, x, y);
 }
 
 // ==========================================================================
@@ -587,10 +595,14 @@ void Sexy::ButtonWidget::MouseMove(int x, int y)
 // ==========================================================================
 void Sexy::ButtonWidget::MouseDown(int x, int y, int theBtnNum, int theClickCount)
 {
+  if (theBtnNum != 0 || mDisabled)
+    return;
+  mMousePressed = true;
   Widget::MouseDown(x, y, theBtnNum, theClickCount);
 
   // ButtonPress(mId, theClickCount): listener vtable byte 12, slot [3].
-  mListener->ButtonPress(mWidgetId, theClickCount);
+  if (mListener != nullptr)
+    mListener->ButtonPress(mWidgetId, theClickCount);
   MarkDirty();
 }
 
@@ -601,8 +613,13 @@ void Sexy::ButtonWidget::MouseDown(int x, int y, int theBtnNum, int theClickCoun
 void Sexy::ButtonWidget::MouseUp(int x, int y, int theBtnNum, int theClickCount)
 {
   Widget::MouseUp(x, y, theBtnNum, theClickCount);
+  if (theBtnNum != 0)
+    return;
 
-  bool aDepress = mIsDown && mWidgetManager != nullptr && mWidgetManager->mHasFocus;
+  bool aDepress = theBtnNum == 0 && mMousePressed && !mDisabled && mVisible
+      && x >= 0 && x < mWidth && y >= 0 && y < mHeight
+      && mWidgetManager != nullptr && mWidgetManager->mHasFocus;
+  mMousePressed = false;
   MarkDirty();
   if (aDepress && mListener != nullptr)
     mListener->ButtonDepress(mWidgetId);

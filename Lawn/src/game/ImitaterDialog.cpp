@@ -281,6 +281,8 @@ void ImitaterDialog::ShowToolTip()
 // ==========================================================================
 void ImitaterDialog::MouseDown(int theX, int theY, int theClickCount)
 {
+    if (theClickCount <= 0 || theClickCount == 3)
+        return;
     int aSeed = SeedHitTest(theX, theY);
     if (aSeed == -1)
     {
@@ -299,7 +301,7 @@ void ImitaterDialog::MouseDown(int theX, int theY, int theClickCount)
     aImitater.mImitaterType = (SeedType)aSeed;
     aImitater.mSeedState = SEED_IN_CHOOSER;
     aChooser->GetSeedPositionInChooser(SEED_IMITATER, aImitater.mX, aImitater.mY);
-    aChooser->ClickedSeedInChooser(aImitater, -1);
+    aChooser->ClickedSeedInChooser(aImitater, aChooser->mMouseChoosingPlayer);
     aChooser->UpdateImitaterButton();
 
     // The chooser owns this child window; it is not in the app's dialog map.

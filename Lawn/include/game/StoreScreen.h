@@ -90,6 +90,9 @@ public:
     virtual int KeyChar(char theChar);                      // slot 67
     virtual int KeyDown(Sexy::KeyCode theKey);              // slot 71
     virtual void MouseDown(int x, int y, int theClickCount); // slot 76
+    void MouseUp(int x, int y, int theClickCount) override;
+    int mMousePressedButton = -1;
+    Sexy::Rect mMousePressedRect;
     virtual void ButtonPress(int theId);                    // slot 128
     virtual void ButtonDepress(int theId);                  // slot 129
 

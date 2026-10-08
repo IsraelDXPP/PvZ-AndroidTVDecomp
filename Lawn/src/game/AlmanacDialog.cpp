@@ -104,8 +104,9 @@ void AlmanacDialog::MouseWheel(int theDelta)
     if (mScrollTextView == nullptr || !mScrollTextView->mVisible)
         return;
 
-    int aMouseX = mApp->mWidgetManager->mLastMouseX;
-    int aMouseY = mApp->mWidgetManager->mLastMouseY;
+    const Sexy::Point position = GetAbsPos();
+    int aMouseX = mApp->mWidgetManager->mLastMouseX - position.mX;
+    int aMouseY = mApp->mWidgetManager->mLastMouseY - position.mY;
     if (aMouseX < mDescriptionRect.mX ||
         aMouseX >= mDescriptionRect.mX + mDescriptionRect.mWidth)
         return;
@@ -113,6 +114,7 @@ void AlmanacDialog::MouseWheel(int theDelta)
         aMouseY >= mDescriptionRect.mY + mDescriptionRect.mHeight)
         return;
 
+    mMouseScrollActive = true;
     if (theDelta > 0)
         mScrollTextView->SetValue(mScrollTextView->mValue - 5.0);
     else if (theDelta != 0)
@@ -367,11 +369,17 @@ void AlmanacDialog::SetPage(AlmanacPage thePage)
 // ==========================================================================
 void AlmanacDialog::MouseUp(int x, int y, int theClickCount)
 {
-    // Releasing over either of the index buttons switches to that page.
-    if (mPlantButton->IsMouseOver())
-        SetPage(ALMANAC_PAGE_PLANTS);
-    else if (mZombieButton->IsMouseOver())
-        SetPage(ALMANAC_PAGE_ZOMBIES);
+    mMouseDraggingDescription = false;
+}
+
+void AlmanacDialog::MouseDrag(int x, int y)
+{
+    if (!mMouseDraggingDescription || mScrollTextView == nullptr)
+        return;
+    if (mDescriptionTextHeight > 0)
+        mScrollTextView->SetValue(mScrollTextView->mValue
+            + double(mMouseLastY - y) * 100.0 / mDescriptionTextHeight);
+    mMouseLastY = y;
 }
 
 // ==========================================================================
@@ -380,6 +388,7 @@ void AlmanacDialog::MouseUp(int x, int y, int theClickCount)
 // ==========================================================================
 void AlmanacDialog::ButtonDepress(int theId)
 {
+    mMouseScrollActive = true;
     if (theId == 0)
         SetPage(ALMANAC_PAGE_PLANTS);
     else if (theId == 1)
@@ -1173,12 +1182,14 @@ ZombieType AlmanacDialog::ZombieHitTest(int x, int y)
 // ==========================================================================
 void AlmanacDialog::MouseDown(int x, int y, int theClickCount)
 {
-    if (mPlantButton->IsMouseOver())
-        mApp->PlaySample(SOUND_TAP, true);
-    if (mZombieButton->IsMouseOver())
-        mApp->PlaySample(SOUND_GRAVEBUTTON, true);
+    if (theClickCount <= 0 || theClickCount == 3 || mOpenPage == ALMANAC_PAGE_INDEX)
+        return;
+    mMouseScrollActive = true;
+    mMouseDraggingDescription = mScrollTextView != nullptr && mScrollTextView->mVisible
+        && mDescriptionRect.Contains(x, y);
+    mMouseLastY = y;
 
-    SeedType aSeedType = SeedHitTest(x, y);
+    SeedType aSeedType = mOpenPage == ALMANAC_PAGE_PLANTS ? SeedHitTest(x, y) : SEED_NONE;
     if (aSeedType != SEED_NONE && aSeedType != mSelectedSeed)
     {
         mSelectedSeed = aSeedType;
@@ -1186,7 +1197,7 @@ void AlmanacDialog::MouseDown(int x, int y, int theClickCount)
         mApp->PlaySample(SOUND_TAP, true);
     }
 
-    ZombieType aZombieType = ZombieHitTest(x, y);
+    ZombieType aZombieType = mOpenPage == ALMANAC_PAGE_ZOMBIES ? ZombieHitTest(x, y) : ZOMBIE_INVALID;
     if (aZombieType != ZOMBIE_INVALID && aZombieType != mSelectedZombie)
     {
         mSelectedZombie = aZombieType;
@@ -1608,7 +1619,7 @@ void AlmanacDialog::Update()
     Widget::Update();
 
     // The description creeps downwards on its own, one step every 50 frames.
-    if (mScrollTextView != nullptr && ++gAlmanacScrollTick % 50 == 0)
+    if (!mMouseScrollActive && mScrollTextView != nullptr && ++gAlmanacScrollTick % 50 == 0)
         mScrollTextView->SetValue(mScrollTextView->mValue + 1.0);
 
     mPlantButton->Update();

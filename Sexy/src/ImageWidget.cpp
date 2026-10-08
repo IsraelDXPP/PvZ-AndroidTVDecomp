@@ -25,4 +25,5 @@ Sexy::ImageWidget::ImageWidget()
   mImage = NULL;
   mAlpha = 255;
   mClip = false;
+  mMouseVisible = false;
 }

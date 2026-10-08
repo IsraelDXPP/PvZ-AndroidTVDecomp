@@ -138,7 +138,12 @@ int Sexy::InputManager::PreprocessEvent(Event& theEvent)
     int aTop = 0;
     int aWidth = mApp->mWidth;
     int aHeight = mApp->mHeight;
-    if (mApp->mDDInterface != nullptr && mApp->mWidgetManager != nullptr)
+    // SDL/bgfx has no DDInterface. Mouse events still enter in render-surface
+    // coordinates; RemapMouse applies the stage's centering offset afterward.
+    // Using the 800x600 stage here scales and clamps a 1280x720 window twice.
+    if (mApp->mWidgetManager != nullptr
+        && mApp->mWidgetManager->mMouseSourceRect.mWidth > 0
+        && mApp->mWidgetManager->mMouseSourceRect.mHeight > 0)
     {
         Rect& aSource = mApp->mWidgetManager->mMouseSourceRect;
         aLeft = aSource.mX;
@@ -459,11 +464,11 @@ int Sexy::InputManager::Update()
         aDisplay = mApp->mPlatformDriverOrQueue;
     }
 
-    // The SDL window supplies keyboard events. AndroidDisplay::GetEvent is a stub;
+    // The SDL window supplies keyboard and mouse events. AndroidDisplay::GetEvent is a stub;
     // the real keys arrived through AndroidInput::HandleKeyEvents. The port
     // posts the same shape here, with device 0 so a key is not a pad.
     SDLWindow* aWindow = ActiveWindow();
-    while (aWindow != nullptr && aWindow->PopKeyEvent(aEvent))
+    while (aWindow != nullptr && aWindow->PopInputEvent(aEvent))
     {
         aEvent.lateModifiers = 0;
         PushEvent(aEvent, nullptr);

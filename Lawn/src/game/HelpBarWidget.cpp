@@ -17,6 +17,12 @@
 #include "NativeDisplay.h"
 #include "ButtonGlyphs.h"
 #include "ImageFont.h"
+#include "game/Board.h"
+#include "GamepadControls.h"
+#include "HouseChooserDialog.h"
+#include "HelpTextScreen.h"
+#include "SeedChooserScreen.h"
+#include "VSSetupMenu.h"
 #include <string>
 #include <vector>
 #include <map>
@@ -60,6 +66,143 @@ Sexy::String HelpButtonTag(Sexy::GamepadButton theButton)
 }
 
 } // namespace
+
+Sexy::GamepadButton HelpBarWidget::HitTestButton(int x, int y) const
+{
+    if (mFontId == nullptr || IMAGE_HELP_BUTTONS == nullptr || !mVisible || mAlpha < 0.4f)
+        return GAMEPAD_BUTTON_NONE;
+    const bool wideScreen = gLawnApp->mPlatformDriverOrQueue->mWideScreen;
+    const int glyphWidth = IMAGE_HELP_BUTTONS->GetCelWidth();
+    const int spaceWidth = mFontId->StringWidth(Sexy::String(" "));
+    const int slide = TodAnimateCurve(0, 10, mAnimCounter, 0, 20, CURVE_EASE_IN_OUT);
+    int nextRow[2] = {0, 0};
+    for (const ButtonDef& button : mButtons)
+    {
+        if (button.mButton == NUM_GAMEPAD_BUTTONS)
+            continue;
+        const bool right = button.mAlign == HELP_ALIGN_RIGHT;
+        const int column = right ? 1 : 0;
+        const int row = button.mRow < 0 ? nextRow[column] : button.mRow;
+        ++nextRow[column];
+        int glyphX = right ? (wideScreen ? 1156 : 1036) - glyphWidth : (wideScreen ? 124 : 244);
+        if (button.mAnimating && mAlpha < 1.0f)
+        {
+            const float offscreenX = float(right ? LawnApp::FULLSCREEN_RECT.mWidth + 256
+                                                : LawnApp::FULLSCREEN_RECT.mX - 256);
+            glyphX = int(TodAnimateCurveFloatTime(0.4f, 1.0f, mAlpha, offscreenX, float(glyphX), CURVE_EASE_IN));
+        }
+        const int labelWidth = mFontId->StringWidth(button.mLabel);
+        const int left = right ? glyphX - spaceWidth - labelWidth : glyphX;
+        // Same columns, rows and slide as DrawButtons @0x1470BC / Draw @0x148608.
+        if (Sexy::Rect(left, 42 * row + slide, glyphWidth + spaceWidth + labelWidth, 42).Contains(x, y))
+            return button.mButton;
+    }
+    return GAMEPAD_BUTTON_NONE;
+}
+
+bool HelpBarWidget::IsPointVisible(int x, int y)
+{
+    return HitTestButton(x, y) != GAMEPAD_BUTTON_NONE;
+}
+
+void HelpBarWidget::MouseDown(int x, int y, int theClickCount)
+{
+    mMousePressedButton = theClickCount > 0 && theClickCount != 3
+        ? HitTestButton(x, y) : GAMEPAD_BUTTON_NONE;
+}
+
+void HelpBarWidget::MouseUp(int x, int y, int theClickCount)
+{
+    const Sexy::GamepadButton button = mMousePressedButton;
+    mMousePressedButton = GAMEPAD_BUTTON_NONE;
+    if (button == GAMEPAD_BUTTON_NONE || theClickCount <= 0 || theClickCount == 3
+        || HitTestButton(x, y) != button || mWidgetManager == nullptr)
+        return;
+    Sexy::Widget* target = mWidgetManager->mFocusWidget;
+    if (target == nullptr || target == this)
+        return;
+    if (Board* board = dynamic_cast<Board*>(target))
+    {
+        if (button == GAMEPAD_BUTTON_Y && board->mApp->CanShopLevel())
+        {
+            board->mMouseShopOpen = !board->mMouseShopOpen;
+            if (!board->mMouseShopOpen)
+                board->CancelMouseSelection(0);
+            return;
+        }
+        if (button == GAMEPAD_BUTTON_X && board->mApp->mGameMode == GAMEMODE_CHALLENGE_ZEN_GARDEN)
+        {
+            board->mApp->mZenGarden->OpenStore();
+            return;
+        }
+        if (button == GAMEPAD_BUTTON_X && board->mApp->mGameMode == GAMEMODE_TREE_OF_WISDOM)
+        {
+            board->mChallenge->TreeOfWisdomOpenStore();
+            return;
+        }
+        if (button == GAMEPAD_BUTTON_START || button == GAMEPAD_BUTTON_X)
+        {
+            if (board->mApp->mGameMode == GAMEMODE_CHALLENGE_LAST_STAND && button == GAMEPAD_BUTTON_X)
+            {
+                board->mChallenge->OnKeyDown(Sexy::KEYCODE_GAMEPAD_X, 0);
+                board->mZombieCountDown = 9;
+                board->mZombieCountDownStart = 9;
+                board->RebuildHelpBar();
+            }
+            else if (board->OkToPause())
+                board->mApp->DoNewOptions(false, board->mGamepadControls[0]->mGamepadIndex);
+            return;
+        }
+    }
+    if (HouseChooserDialog* chooser = dynamic_cast<HouseChooserDialog*>(target))
+    {
+        chooser->GameButtonDown(button, 0, 0);
+        return;
+    }
+    if (VSSetupMenu* menu = dynamic_cast<VSSetupMenu*>(target))
+    {
+        menu->GameButtonDown(button, menu->mControllerIndex[0], 0);
+        return;
+    }
+    if (SeedChooserScreen* chooser = dynamic_cast<SeedChooserScreen*>(target))
+    {
+        if (button == GAMEPAD_BUTTON_X)
+            chooser->ButtonDepress(SeedChooserScreen::SeedChooserScreen_Store);
+        else if (button == GAMEPAD_BUTTON_Y)
+            chooser->ButtonDepress(SeedChooserScreen::SeedChooserScreen_Almanac);
+        else if (button == GAMEPAD_BUTTON_SELECT)
+            chooser->ButtonDepress(SeedChooserScreen::SeedChooserScreen_ViewLawn);
+        else if (button == GAMEPAD_BUTTON_A)
+            chooser->OnStartButton();
+        else
+            chooser->GameButtonDown(button, chooser->mPlayerIndex, 0);
+        return;
+    }
+    if (HelpTextScreen* help = dynamic_cast<HelpTextScreen*>(target))
+    {
+        if (button == GAMEPAD_BUTTON_UP)
+            help->GameButtonDown(help->mScrollTo > 15.0f ? GAMEPAD_BUTTON_LEFT : GAMEPAD_BUTTON_RIGHT, 0, 0);
+        else
+            help->GameButtonDown(button, 0, 0);
+        return;
+    }
+    Sexy::KeyCode key = Sexy::KEYCODE_UNKNOWN;
+    switch (button)
+    {
+    case GAMEPAD_BUTTON_A: key = Sexy::KEYCODE_RETURN; break;
+    case GAMEPAD_BUTTON_B:
+    case GAMEPAD_BUTTON_SELECT: key = Sexy::KEYCODE_ESCAPE; break;
+    case GAMEPAD_BUTTON_X: key = Sexy::KEYCODE_GAMEPAD_X; break;
+    case GAMEPAD_BUTTON_Y: key = Sexy::KEYCODE_GAMEPAD_Y; break;
+    case GAMEPAD_BUTTON_START: key = Sexy::KEYCODE_GAMEPAD_START; break;
+    case GAMEPAD_BUTTON_LEFT:
+    case GAMEPAD_BUTTON_DPAD_LEFT: key = Sexy::KEYCODE_LEFT; break;
+    case GAMEPAD_BUTTON_RIGHT:
+    case GAMEPAD_BUTTON_DPAD_RIGHT: key = Sexy::KEYCODE_RIGHT; break;
+    default: return;
+    }
+    target->KeyDown(key);
+}
 
 // @0x1470BC: two columns, 42-pixel rows, with sliding/fading page hints.
 void HelpBarWidget::DrawButtons(Sexy::Graphics* theGraphics, std::vector<ButtonDef>& theButtons,
@@ -153,7 +296,8 @@ void HelpBarWidget::Draw(Sexy::Graphics * theGraphics)
     // gLawnApp is the game's LawnApp, whose GamepadApp base owns the gamepad
     // state at +0x839/+0x895.
     Sexy::GamepadApp* anApp = gLawnApp;
-    if (anApp->HasGamepad() != 0 || (anApp->mGamePad1IsOn && anApp->mGamePad2IsOn))
+    if (anApp->HasGamepad() != 0 || (anApp->mGamePad1IsOn && anApp->mGamePad2IsOn)
+        || mMouseVisible)
     {
         int aSlide = TodAnimateCurve(0, 10, mAnimCounter, 0, 20, CURVE_EASE_IN_OUT);
 
@@ -191,6 +335,7 @@ HelpBarWidget::HelpBarWidget()
     // Native button discs extend past the bar's 96-pixel layout after its 20-pixel slide.
     // Keep the parent's clip so the complete discs remain visible during the animation.
     mClip = false;
+    mMousePreservesFocus = true;
 
     // The bar sits at the bottom of the screen; a second construction reuses the
     // height the first one settled on.

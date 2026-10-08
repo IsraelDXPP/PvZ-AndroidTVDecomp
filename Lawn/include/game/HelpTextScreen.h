@@ -20,6 +20,7 @@ public:
     virtual void DrawAll(Sexy::ModalFlags* theFlags, Sexy::Graphics* g);
     virtual void GotFocus();
     virtual int KeyDown(Sexy::KeyCode theKey);
+    void MouseDown(int x, int y, int theClickCount) override;
 
     HelpTextScreen(LawnApp* theApp, int thePage);
 

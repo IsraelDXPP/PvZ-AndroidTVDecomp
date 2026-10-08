@@ -64,7 +64,8 @@ void CursorObject::Update()
     aReanim->Update();
 
   mVisible = true;
-  mBoard->mGamepadControls[0]->GetCursorPosition(mX, mY);
+  const int player = this == mBoard->mCursorObject[1] && mBoard->mMouseInputActive[1] ? 1 : 0;
+  mBoard->mGamepadControls[player]->GetCursorPosition(mX, mY);
 }
 
 // ==========================================================================

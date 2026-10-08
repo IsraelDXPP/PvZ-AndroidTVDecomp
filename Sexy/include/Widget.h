@@ -165,6 +165,7 @@ public:
     Insets mMouseInsets;
     bool mDoFinger;
     bool mWantsFocus;
+    bool mMousePreservesFocus = false;
     bool mSelected;
     bool mDeselectOnEscape;
     bool mFocusable;

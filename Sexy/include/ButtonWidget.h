@@ -92,6 +92,8 @@ public:
     double mOverAlphaFadeInSpeed;
     // The return-key press KeyDown and KeyUp maintain.
     bool mReturnPressed;
+    bool mMousePressed = false;
+    bool IsPointVisible(int x, int y) override;
     // Set while LockState has pinned mLockedState.
     bool mStateLocked;
     int mLockedState;

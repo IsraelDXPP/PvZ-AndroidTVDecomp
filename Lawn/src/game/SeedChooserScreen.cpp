@@ -30,6 +30,65 @@
 #include "WidgetManager.h"
 #include <cstring>
 #include <cmath>
+#include <algorithm>
+
+Sexy::Rect SeedChooserScreen::GetMouseButtonRect(const GameButton& theButton) const
+{
+    // Draw @0x14FB4C places these manually at their anchors. The stone face
+    // uses image height (DrawStoneButton @0x1A2A70), not MakeButton's height 33.
+    int faceHeight = theButton.mHeight;
+    for (Sexy::Image* image : {IMAGE_BUTTON_LEFT, IMAGE_BUTTON_MIDDLE, IMAGE_BUTTON_RIGHT})
+        if (image != nullptr)
+            faceHeight = std::max(faceHeight, image->GetHeight());
+
+    float originX = float(int(theButton.mAnchorX));
+    float originY = float(int(theButton.mAnchorY));
+    if (theButton.mUseFixedOrigin)
+    {
+        originX += theButton.mAnchorX - theButton.mX;
+        originY += theButton.mAnchorY - theButton.mY;
+    }
+    // Match the last drawn pulse around the logical button centre.
+    const float pivotX = theButton.mWidth * 0.5f;
+    const float pivotY = theButton.mHeight * 0.5f;
+    const int left = int(std::floor(originX + pivotX * (1.0f - theButton.mAppliedScaleX)));
+    const int top = int(std::floor(originY + pivotY * (1.0f - theButton.mAppliedScaleY)));
+    const int right = int(std::ceil(originX + pivotX + (theButton.mWidth - pivotX) * theButton.mAppliedScaleX));
+    const int bottom = int(std::ceil(originY + pivotY + (faceHeight - pivotY) * theButton.mAppliedScaleY));
+    return Sexy::Rect(left, top, right - left, bottom - top);
+}
+
+GameButton* SeedChooserScreen::MouseButtonHitTest(int theX, int theY) const
+{
+    if (mApp->HasGamepad() || (mApp->mGamePad1IsOn && mApp->mGamePad2IsOn))
+        return nullptr;
+    for (GameButton* button : mButtons)
+        if (button->mVisible && !button->mDisabled && !button->mBtnNoDraw
+            && GetMouseButtonRect(*button).Contains(theX, theY))
+            return button;
+    return nullptr;
+}
+
+Sexy::Rect SeedChooserScreen::GetInsetRect()
+{
+    Sexy::Rect bounds = Sexy::Widget::GetInsetRect();
+    if (mApp->HasGamepad() || (mApp->mGamePad1IsOn && mApp->mGamePad2IsOn))
+        return bounds;
+    // The background is drawn at Y=87, and the button row at Y=548 is below
+    // the widget's image-sized height. Include it without changing the layout.
+    for (GameButton* button : mButtons)
+    {
+        if (!button->mVisible || button->mBtnNoDraw)
+            continue;
+        const Sexy::Rect buttonRect = GetMouseButtonRect(*button);
+        const int left = std::min(bounds.mX, mX + buttonRect.mX);
+        const int top = std::min(bounds.mY, mY + buttonRect.mY);
+        const int right = std::max(bounds.mX + bounds.mWidth, mX + buttonRect.mX + buttonRect.mWidth);
+        const int bottom = std::max(bounds.mY + bounds.mHeight, mY + buttonRect.mY + buttonRect.mHeight);
+        bounds = Sexy::Rect(left, top, right - left, bottom - top);
+    }
+    return bounds;
+}
 
 // ==========================================================================
 // SeedChooserScreen::ButtonPress(int)
@@ -45,6 +104,61 @@ void SeedChooserScreen::ButtonPress(int theId)
 // ==========================================================================
 void SeedChooserScreen::MouseUp(int x, int y, int theClickCount)
 {
+    const int buttonId = mMousePressedButton;
+    const SeedType seed = mMousePressedSeed;
+    mMousePressedButton = -1;
+    mMousePressedSeed = SEED_NONE;
+    if (theClickCount <= 0 || theClickCount == 3 || !mMouseVisible
+        || mChooseState == CHOOSE_VIEW_LAWN || mApp->GetDialogCount() != 0 || mImitaterDialog != nullptr)
+        return;
+    if (buttonId != -1)
+    {
+        if (GameButton* button = MouseButtonHitTest(x, y))
+            if (button->mWidgetId == buttonId)
+                ButtonDepress(buttonId);
+        return;
+    }
+    if (x < 0 || x >= mWidth || y < 0 || y >= mHeight)
+        return;
+    if (seed == SEED_NONE)
+        return;
+    if (SeedNotAllowedToPick(seed))
+    {
+        mApp->PlaySample(SOUND_BUZZER, true);
+        return;
+    }
+    if (SeedNotAllowedDuringTrial(seed))
+    {
+        mApp->LawnMessageBox(51, "[GET_FULL_VERSION_TITLE]", "[GET_FULL_VERSION_BODY]",
+                           "[GET_FULL_VERSION_YES_BUTTON]", "[GET_FULL_VERSION_NO_BUTTON]", 1);
+        return;
+    }
+    for (ChosenSeedData& chosen : mChosenSeeds)
+        LandFlyingSeed(chosen);
+    ChosenSeedData& chosen = mChosenSeeds[GetSeedPacketIndex(seed)];
+    if (seed == SEED_IMITATER && chosen.mSeedState == SEED_PACKET_HIDDEN)
+    {
+        const bool bankFull = mApp->IsCoopMode()
+            ? (mMouseChoosingPlayer == 0 ? mSeedsIn1PBank : mSeedsIn2PBank) >= 4
+            : mSeedsInBank >= mSeedBank1->mNumPackets;
+        if (bankFull)
+            return;
+        ImitaterDialog* dialog = new ImitaterDialog(mBoard->mGamepadControls[mMouseChoosingPlayer]->mGamepadIndex);
+        AddWidget(dialog);
+        dialog->Resize((800 - dialog->mWidth) / 2, (600 - dialog->mHeight) / 2, dialog->mWidth, dialog->mHeight);
+        mApp->mWidgetManager->SetFocus(dialog);
+        mImitaterDialog = dialog;
+        return;
+    }
+    if (chosen.mSeedState == SEED_IN_BANK)
+    {
+        if (chosen.mCrazyDavePicked)
+            mApp->PlaySample(SOUND_BUZZER, true);
+        else if (mApp->mGameMode != GAMEMODE_MP_VS)
+            ClickedSeedInBank(chosen, mMouseChoosingPlayer);
+    }
+    else if (chosen.mSeedState == SEED_IN_CHOOSER)
+        ClickedSeedInChooser(chosen, mMouseChoosingPlayer);
 }
 
 // ==========================================================================
@@ -88,7 +202,86 @@ void SeedChooserScreen::RemovedFromManager(Sexy::WidgetManager *theWidgetManager
 // ==========================================================================
 void SeedChooserScreen::MouseDown(int x, int y, int theClickCount)
 {
-  Sexy::Widget::MouseDown(x, y, theClickCount);
+    Sexy::Widget::MouseDown(x, y, theClickCount);
+    mMousePressedSeed = SEED_NONE;
+    mMousePressedButton = -1;
+    if (theClickCount <= 0 || theClickCount == 3 || !mMouseVisible || mApp->GetDialogCount() != 0 || mImitaterDialog != nullptr)
+        return;
+    if (mChooseState == CHOOSE_VIEW_LAWN)
+    {
+        CancelLawnView();
+        RebuildHelpbar();
+        return;
+    }
+    if (GameButton* button = MouseButtonHitTest(x, y))
+    {
+        mMousePressedButton = button->mWidgetId;
+        mApp->PlaySample(SOUND_TAP, true);
+        return;
+    }
+    mMousePressedSeed = MouseSeedHitTest(x, y);
+    if (mMousePressedSeed == SEED_NONE)
+        return;
+    if (mSelectedButton != nullptr)
+        mSelectedButton->mIsOver = false;
+    mSelectedButton = nullptr;
+    UpdateMouseSeedCursor(mMousePressedSeed);
+}
+
+// PvZ TV Touch Team gesture adaptation (GPL-3.0-or-later).
+void SeedChooserScreen::MouseMove(int x, int y)
+{
+    if (!mMouseVisible || mChooseState != CHOOSE_NORMAL || mApp->GetDialogCount() != 0 || mImitaterDialog != nullptr)
+        return;
+    const SeedType seed = MouseSeedHitTest(x, y);
+    if (seed == SEED_NONE)
+        return;
+    UpdateMouseSeedCursor(seed);
+}
+
+SeedType SeedChooserScreen::MouseSeedHitTest(int theX, int theY)
+{
+    if (!mMouseVisible)
+        return SEED_NONE;
+    if (mImitaterButton != nullptr && !mImitaterButton->mBtnNoDraw && !mImitaterButton->mDisabled
+        && Sexy::Rect(mImitaterButton->mX, mImitaterButton->mY,
+                      mImitaterButton->mWidth, mImitaterButton->mHeight).Contains(theX, theY))
+        return SEED_IMITATER;
+    return SeedType(SeedHitTest(theX, theY));
+}
+
+void SeedChooserScreen::UpdateMouseSeedCursor(SeedType theSeed)
+{
+    const int seedIndex = GetSeedPacketIndex(theSeed);
+    mMouseChoosingPlayer = 0;
+    if (mApp->mGameMode == GAMEMODE_MP_VS && mApp->mVSSetupMenu != nullptr)
+    {
+        const VSSetupMenu::VSSide side = mIsZombieChooser ? VSSetupMenu::VS_SIDE_ZOMBIE : VSSetupMenu::VS_SIDE_PLANT;
+        mMouseChoosingPlayer = mApp->mVSSetupMenu->mSides[0] == side ? 0 : 1;
+    }
+    else if (mApp->IsCoopMode())
+        mMouseChoosingPlayer = mChosenSeeds[seedIndex].mSeedState == SEED_IN_BANK
+            ? mChosenSeeds[seedIndex].mChosenPlayerIndex : (mSeedsIn1PBank < 4 ? 0 : 1);
+    GamepadControls* controls = mBoard->mGamepadControls[mMouseChoosingPlayer];
+    if (controls->mGamepadIndex == -1)
+        controls->mGamepadIndex = mMouseChoosingPlayer;
+    if (mMouseChoosingPlayer == 0)
+    {
+        mSeedIndex1 = seedIndex;
+        GetSeedPositionInChooser(seedIndex, mCursorPositionX1, mCursorPositionY1);
+    }
+    else
+    {
+        mSeedIndex2 = seedIndex;
+        GetSeedPositionInChooser(seedIndex, mCursorPositionX2, mCursorPositionY2);
+    }
+}
+
+void SeedChooserScreen::MouseDrag(int x, int y)
+{
+    // Keep the pressed packet selected while dragging it toward the bank.
+    (void)x;
+    (void)y;
 }
 
 // ==========================================================================

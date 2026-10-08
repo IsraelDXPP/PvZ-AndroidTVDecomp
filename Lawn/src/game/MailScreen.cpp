@@ -16,6 +16,26 @@ MailScreen::MailScreen(LawnApp* theApp)
       mRightHintAnimValue(0.0f), mLeftHintAnimValue(0.0f)
 {
     mClip = false;
+    Resize(0, 0, 800, 600);
+}
+
+// PvZ TV Touch Team's swipe/page gesture, kept local to this dialog.
+void MailScreen::MouseDown(int x, int y, int theClickCount)
+{
+    mMousePressed = theClickCount > 0 && theClickCount != 3;
+    mMouseDownX = x;
+}
+
+void MailScreen::MouseUp(int x, int y, int theClickCount)
+{
+    const bool pressed = mMousePressed;
+    mMousePressed = false;
+    if (!pressed || theClickCount <= 0 || theClickCount == 3
+        || x < 0 || x >= mWidth || y < 0 || y >= mHeight)
+        return;
+    const int distance = x - mMouseDownX;
+    KeyDown(distance > 20 || (distance >= -20 && mMouseDownX < 400)
+        ? Sexy::KEYCODE_LEFT : Sexy::KEYCODE_RIGHT);
 }
 
 MailScreen::~MailScreen()

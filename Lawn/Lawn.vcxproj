@@ -379,6 +379,13 @@
     <ClInclude Include="include\game\ZenGarden.h" />
     <ClInclude Include="include\game\ZenGardenControls.h" />
     <ClInclude Include="include\game\Zombie.h" />
+    <ClInclude Include="resource.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Lawn.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\main_ico.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <Target Name="StageShaderPackages" AfterTargets="Build">

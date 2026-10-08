@@ -270,7 +270,250 @@ void Board::ButtonPress(int theId)
 // ==========================================================================
 void Board::MouseDown(int theX, int theY, int theClickCount)
 {
-  Sexy::Widget::MouseDown(theX, theY, theClickCount);
+    Sexy::Widget::MouseDown(theX, theY, theClickCount);
+    mMouseGesture = MouseGesture::None;
+    mMouseExecuteOnRelease = false;
+    if (theClickCount == 3 || mPaused || mBoardFadeOutCounter >= 0)
+        return;
+    if (theClickCount < 0)
+    {
+        CancelMouseSelection(mMousePlayerIndex);
+        return;
+    }
+    if (mApp->mGameScene == SCENE_LEVEL_INTRO)
+    {
+        SeedChooserScreen *chooser = mApp->mSeedChooserScreen;
+        if (chooser != nullptr && chooser->mChooseState == CHOOSE_VIEW_LAWN)
+        {
+            chooser->CancelLawnView();
+            chooser->RebuildHelpbar();
+        }
+        else
+            mCutScene->MouseDown(theX, theY);
+        if (!mCutScene->IsInShovelTutorial())
+            return;
+    }
+    if (mApp->mGameScene != SCENE_PLAYING && !mCutScene->IsInShovelTutorial())
+        return;
+    if (HasWidget(mApp->mDaveHelp) && mApp->mCrazyDaveState != 0)
+    {
+        mApp->mDaveHelp->DealClick(Sexy::KEYCODE_RETURN);
+        return;
+    }
+
+    mMouseDownX = theX;
+    mMouseDownY = theY;
+    if (!mMouseInputActive[mMousePlayerIndex])
+        CancelMouseSelection(mMousePlayerIndex);
+    if (mMouseShopOpen && mApp->CanShopLevel())
+    {
+        SeedBank* bank = mSeedBank[0];
+        for (int slot = 0; slot < 7; ++slot)
+        {
+            ShopSeedPacket& packet = bank->mShopSeedPackets[slot];
+            if (!Sexy::Rect(bank->mX + packet.mPacketOffsetX, bank->mY + 96, 48, 66).Contains(theX, theY))
+                continue;
+            mMousePlayerIndex = 0;
+            SetMouseCursor(theX, theY, 0);
+            CancelMouseSelection(0);
+            GamepadControls* controls = mGamepadControls[0];
+            controls->mIsInShopSeedBank = true;
+            controls->mSelectedShopSeedIndex = slot;
+            if (slot == 4 || slot == 5)
+            {
+                controls->mSelectedSeedType = packet.mSeedType;
+                controls->mGamepadState = BaseGamepadControls::MOVEMENT_STATE_PLANT_CURSOR;
+                mCursorObject[0]->mType = packet.mSeedType;
+                mCursorObject[0]->mImitaterType = SEED_NONE;
+                mCursorObject[0]->mSelectedIndex = slot;
+                mCursorObject[0]->mCursorType = CURSOR_TYPE_PLANT_FROM_BANK;
+                mMouseGesture = MouseGesture::SeedBank;
+            }
+            else
+            {
+                controls->HandleNormalPlant(1);
+                controls->mIsInShopSeedBank = false;
+            }
+            return;
+        }
+    }
+    const bool twoBanks = mApp->IsCoopMode() || (mApp->mGameMode == GAMEMODE_MP_VS);
+    for (int player = 0; player < (twoBanks ? 2 : 1); ++player)
+    {
+        SeedBank *bank = mGamepadControls[player]->GetSeedBank();
+        int bankX = theX;
+        int bankY = theY;
+        if (bank != nullptr && mApp->mGameMode == GAMEMODE_MP_VS)
+        {
+            // Inverse of SeedBank::Draw @0x175394's 0.9 transform.
+            bankX = bank->mX + int(float(theX - bank->mX) / 0.9f);
+            bankY = bank->mY + int(float(theY - bank->mY) / 0.9f);
+        }
+        if (bank == nullptr || !bank->ContainsPoint(bankX, bankY))
+            continue;
+        mMousePlayerIndex = player;
+        SetMouseCursor(theX, theY, player);
+        HitResult packetHit = {};
+        if (!bank->MouseHitTest(bankX, bankY, &packetHit))
+            return;
+        SeedPacket *packet = static_cast<SeedPacket *>(packetHit.mObject);
+        GamepadControls *controls = mGamepadControls[player];
+        const bool deselect = controls->mGamepadState == BaseGamepadControls::MOVEMENT_STATE_PLANT_CURSOR
+            && !controls->mIsInShopSeedBank && controls->mSelectedSeedIndex == packet->mIndex;
+        CancelMouseSelection(player);
+        controls->mSelectedSeedIndex = packet->mIndex;
+        packet->mLastSelectedTime = 0.0f;
+        if (deselect)
+            return;
+        if (mApp->IsSlotMachineLevel())
+        {
+            HitResult handle = {};
+            handle.mObjectType = OBJECT_TYPE_SLOT_MACHINE_HANDLE;
+            mChallenge->MouseDown(theX, theY, 1, &handle, player);
+            return;
+        }
+        if (mApp->mGameMode == GAMEMODE_CHALLENGE_HEAVY_WEAPON
+            || mApp->mGameMode == GAMEMODE_CHALLENGE_BEGHOULED
+            || mApp->mGameMode == GAMEMODE_CHALLENGE_BEGHOULED_TWIST
+            || mApp->mGameMode == GAMEMODE_CHALLENGE_ZOMBIQUARIUM)
+        {
+            packet->MouseDown(theX, theY, 1, player);
+            return;
+        }
+        if (controls->mIsZombie && (mApp->mGameMode == GAMEMODE_MP_VS || mApp->mGameMode == GAMEMODE_MP_VS_DEBUG))
+        {
+            // SeedPacket::MouseDown @0x173938 checks sun, while VS zombies spend death money.
+            if (!packet->CanPickUp())
+            {
+                mApp->PlaySample(SOUND_BUZZER, true);
+                return;
+            }
+            mCursorObject[player]->mCursorType = CURSOR_TYPE_PLANT_FROM_BANK;
+            mApp->PlaySample(SOUND_SEEDLIFT, true);
+        }
+        else
+            packet->MouseDown(theX, theY, 1, player);
+        if (mCursorObject[player]->mCursorType != CURSOR_TYPE_PLANT_FROM_BANK)
+            return;
+        // Mouse selection keeps the packet available until it is planted.
+        packet->Activate();
+        controls->mIsInShopSeedBank = false;
+        controls->mSelectedSeedType = packet->mPacketType == SEED_IMITATER ? packet->mImitaterType : packet->mPacketType;
+        controls->mGamepadState = BaseGamepadControls::MOVEMENT_STATE_PLANT_CURSOR;
+        CursorObject *cursor = mCursorObject[player];
+        cursor->mCursorType = CURSOR_TYPE_PLANT_FROM_BANK;
+        cursor->mSelectedIndex = packet->mIndex;
+        cursor->mType = packet->mPacketType;
+        cursor->mImitaterType = packet->mImitaterType;
+        mMouseGesture = MouseGesture::SeedBank;
+        return;
+    }
+
+    if (mShowShovel && GetShovelButtonRect().Contains(theX, theY) && CanInteractWithBoardButtons())
+    {
+        const bool deselect = mCursorObject[0]->mCursorType == CURSOR_TYPE_SHOVEL;
+        mMousePlayerIndex = 0;
+        SetMouseCursor(theX, theY, 0);
+        CancelMouseSelection(0);
+        if (!deselect)
+            PickUpTool(OBJECT_TYPE_SHOVEL, 0);
+        mMouseGesture = MouseGesture::Tool;
+        return;
+    }
+    if (mShowButter && GetButterButtonRect().Contains(theX, theY) && CanInteractWithBoardButtons())
+    {
+        const bool deselect = mMouseButterSelected;
+        mMousePlayerIndex = 1;
+        SetMouseCursor(theX, theY, 1);
+        CancelMouseSelection(1);
+        mMouseButterSelected = !deselect;
+        mMouseGesture = MouseGesture::Tool;
+        return;
+    }
+
+    // A selected packet/tool keeps its owner when the pointer crosses the lawn.
+    if (!IsPlantInCursor(mMousePlayerIndex) && !mGamepadControls[mMousePlayerIndex]->mIsCobCannonSelected
+        && mCursorObject[mMousePlayerIndex]->mCursorType != CURSOR_TYPE_SHOVEL && !mMouseButterSelected)
+    {
+        if ((mApp->mGameMode == GAMEMODE_MP_VS))
+            mMousePlayerIndex = PixelToGridX(theX, theY) > 5 ? 1 : 0;
+        else if (mApp->IsCoopMode())
+            mMousePlayerIndex = theX > 400 ? 1 : 0;
+        else
+            mMousePlayerIndex = 0;
+    }
+    SetMouseCursor(theX, theY, mMousePlayerIndex);
+    HitResult hit = {};
+    MouseHitTest(theX, theY, &hit, mMousePlayerIndex);
+    if (hit.mObjectType == OBJECT_TYPE_COIN)
+    {
+        Coin *coin = static_cast<Coin *>(hit.mObject);
+        if (coin->mType == COIN_USABLE_SEED_PACKET)
+        {
+            CancelMouseSelection(mMousePlayerIndex);
+            coin->PlayCollectSound();
+            coin->Collect(mMousePlayerIndex);
+            mMouseGesture = MouseGesture::UsableSeed;
+        }
+        else if (twoBanks)
+        {
+            coin->PlayCollectSound();
+            coin->Collect(mMousePlayerIndex);
+        }
+        else
+            coin->MouseDown(theX, theY, 1);
+        return;
+    }
+    if (mApp->mGameMode == GAMEMODE_CHALLENGE_ZEN_GARDEN || mApp->mGameMode == GAMEMODE_TREE_OF_WISDOM)
+    {
+        if (hit.mObjectType >= OBJECT_TYPE_WATERING_CAN && hit.mObjectType <= OBJECT_TYPE_TREE_OF_WISDOM_GARDEN)
+        {
+            CancelMouseSelection(0);
+            if (PickUpTool(hit.mObjectType, 0))
+            {
+                if (ZenGardenControls *controls = dynamic_cast<ZenGardenControls *>(mGamepadControls[0]))
+                    controls->mSelectedTool = hit.mObjectType;
+                if (TreeOfWisdomControls* controls = dynamic_cast<TreeOfWisdomControls*>(mGamepadControls[0]))
+                    controls->mSelectedTool = hit.mObjectType;
+                mMouseGesture = MouseGesture::Tool;
+                if (hit.mObjectType >= OBJECT_TYPE_MUSHROOM_GARDEN)
+                    MouseDownWithTool(theX, theY, 1, mCursorObject[0]->mCursorType, 0);
+            }
+            return;
+        }
+    }
+
+    GamepadControls *controls = mGamepadControls[mMousePlayerIndex];
+    CursorObject *cursor = mCursorObject[mMousePlayerIndex];
+    const bool holding = controls->mIsCobCannonSelected || IsPlantInCursor(mMousePlayerIndex)
+        || cursor->mCursorType == CURSOR_TYPE_SHOVEL || cursor->mCursorType >= CURSOR_TYPE_WATERING_CAN || mMouseButterSelected;
+    if (holding)
+    {
+        mMouseGesture = MouseGesture::Lawn;
+        mMouseExecuteOnRelease = true;
+        if (mMouseButterSelected)
+            controls->HandleButterButton();
+        return;
+    }
+    if (hit.mObjectType == OBJECT_TYPE_PLANT)
+    {
+        Plant *plant = static_cast<Plant *>(hit.mObject);
+        if (plant->mSeedType == SEED_COBCANNON && plant->mState == STATE_COBCANNON_READY
+            && controls->ButtonDownPlantTest(GAMEPAD_BUTTON_A, controls->mGamepadIndex, 0))
+        {
+            mMouseGesture = MouseGesture::CobCannon;
+            return;
+        }
+    }
+    if (mApp->mGameMode == GAMEMODE_CHALLENGE_HEAVY_WEAPON)
+    {
+        mMouseGesture = MouseGesture::HeavyWeapon;
+        mMouseHeavyWeaponStartX = mChallenge->mHeavyWeaponX;
+        mMouseHeavyWeaponLastX = mChallenge->mHeavyWeaponX;
+        return;
+    }
+    if (mChallenge->MouseDown(theX, theY, 1, &hit, mMousePlayerIndex))
+        mMouseGesture = MouseGesture::Challenge;
 }
 
 // ==========================================================================
@@ -289,6 +532,12 @@ void Board::Move(int theX, int theY)
 void Board::MouseMove(int theX, int theY)
 {
   Sexy::Widget::MouseMove(theX, theY);
+  if (mPaused || mBoardFadeOutCounter >= 0
+      || (mApp->mGameScene != SCENE_PLAYING && !mCutScene->IsInShovelTutorial()))
+    return;
+  if (!mMouseInputActive[mMousePlayerIndex])
+    CancelMouseSelection(mMousePlayerIndex);
+  SetMouseCursor(theX, theY, mMousePlayerIndex);
   mChallenge->MouseMove(theX, theY);
 }
 
@@ -298,8 +547,32 @@ void Board::MouseMove(int theX, int theY)
 // ==========================================================================
 void Board::MouseDrag(int theX, int theY)
 {
-  Sexy::Widget::MouseDrag(theX, theY);
-  mChallenge->MouseMove(theX, theY);
+    Sexy::Widget::MouseDrag(theX, theY);
+    if (mMouseGesture == MouseGesture::None || mPaused)
+        return;
+    SetMouseCursor(theX, theY, mMousePlayerIndex);
+    if (mMouseGesture == MouseGesture::HeavyWeapon)
+    {
+        mChallenge->mHeavyWeaponX = mMouseHeavyWeaponStartX + theX - mMouseDownX;
+        return;
+    }
+    if (mMouseGesture == MouseGesture::SeedBank)
+    {
+        SeedBank *bank = mGamepadControls[mMousePlayerIndex]->GetSeedBank();
+        mMouseExecuteOnRelease = bank != nullptr && theY >= bank->mY + bank->mHeight;
+    }
+    else if (mMouseGesture == MouseGesture::Tool)
+    {
+        HitResult hit = {};
+        MouseHitTest(theX, theY, &hit, mMousePlayerIndex);
+        mMouseExecuteOnRelease = theY >= 72 && (hit.mObjectType < OBJECT_TYPE_WATERING_CAN
+            || hit.mObjectType > OBJECT_TYPE_TREE_OF_WISDOM_GARDEN);
+    }
+    else if (mMouseGesture == MouseGesture::CobCannon || mMouseGesture == MouseGesture::UsableSeed)
+        mMouseExecuteOnRelease = std::abs(theX - mMouseDownX) > 40 || std::abs(theY - mMouseDownY) > 40;
+    if (mMouseButterSelected && mMouseExecuteOnRelease)
+        mGamepadControls[mMousePlayerIndex]->HandleButterButton();
+    mChallenge->MouseMove(theX, theY);
 }
 
 // ==========================================================================
@@ -308,14 +581,143 @@ void Board::MouseDrag(int theX, int theY)
 // ==========================================================================
 void Board::MouseUp(int theX, int theY, int theClickCount)
 {
-  Sexy::Widget::MouseUp(theX, theY, theClickCount);
-  if ( mSwallowMouseUp != 0 )
-  {
-    // The first mouse-up after a swallowed event is consumed here.
-    mSwallowMouseUp = 0;
-    return;
-  }
-  mChallenge->MouseUp(theX, theY);
+    Sexy::Widget::MouseUp(theX, theY, theClickCount);
+    const bool execute = mMouseExecuteOnRelease && mMouseGesture != MouseGesture::None;
+    mMouseGesture = MouseGesture::None;
+    mMouseExecuteOnRelease = false;
+    if (mSwallowMouseUp != 0)
+    {
+        mSwallowMouseUp = 0;
+        return;
+    }
+    if (mMouseButterSelected)
+        mGamepadControls[mMousePlayerIndex]->ReleaseButter();
+    if (theClickCount > 0 && theClickCount != 3 && !mPaused && mBoardFadeOutCounter < 0
+        && theX >= 0 && theX < mWidth && theY >= 72 && theY < mHeight && execute)
+    {
+        SetMouseCursor(theX, theY, mMousePlayerIndex);
+        UseMouseSelection(theX, theY);
+    }
+    mChallenge->MouseUp(theX, theY);
+}
+
+// Adapted from PvZ TV Touch Team's Board touch handlers (GPL-3.0-or-later).
+// Desktop gestures are board-owned and reuse the game's planting/tool rules.
+void Board::SetMouseCursor(int theX, int theY, int thePlayerIndex)
+{
+    GamepadControls *controls = mGamepadControls[thePlayerIndex];
+    if (controls == nullptr)
+        return;
+    mMouseInputActive[thePlayerIndex] = true;
+    if (controls->mGamepadIndex == -1)
+        controls->mGamepadIndex = thePlayerIndex;
+    controls->mGamepadVelocityLeftX = 0.0f;
+    controls->mGamepadVelocityLeftY = 0.0f;
+    controls->mGamepadAccLeftX = 0.0f;
+    controls->mGamepadAccLeftY = 0.0f;
+    controls->mCursorPositionX = float(theX);
+    controls->mCursorPositionY = float(theY);
+    if (mApp->mGameMode == GAMEMODE_CHALLENGE_BEGHOULED_TWIST
+        || (mCursorObject[thePlayerIndex]->mCursorType == CURSOR_TYPE_WATERING_CAN
+            && mApp->mPlayerInfo->mPurchases[STORE_ITEM_GOLD_WATERINGCAN] != 0))
+    {
+        controls->mCursorPositionX -= 40.0f;
+        controls->mCursorPositionY -= 40.0f;
+    }
+    controls->mGridCenterPositionX = controls->mCursorPositionX;
+    controls->mGridCenterPositionY = controls->mCursorPositionY;
+    if (controls->mGamepadState == BaseGamepadControls::MOVEMENT_STATE_SELECT_SEED
+        || controls->mGamepadState == BaseGamepadControls::MOVEMENT_STATE_GRID_STEP)
+        controls->mGamepadState = BaseGamepadControls::MOVEMENT_STATE_NORMAL;
+    mPrevMouseX = theX;
+    mPrevMouseY = theY;
+}
+
+void Board::CancelMouseSelection(int thePlayerIndex)
+{
+    GamepadControls *controls = mGamepadControls[thePlayerIndex];
+    RefreshSeedPacketFromCursor(thePlayerIndex);
+    controls->HandleCancelButton();
+    controls->ReleaseButter();
+    ClearCursor(thePlayerIndex);
+    controls->mSelectedSeedType = SEED_NONE;
+    controls->mGamepadState = BaseGamepadControls::MOVEMENT_STATE_NORMAL;
+    controls->mIsInShopSeedBank = false;
+    mMouseButterSelected = false;
+}
+
+void Board::ReleaseMouseControl(int thePlayerIndex)
+{
+    if (mMouseInputActive[thePlayerIndex])
+    {
+        CancelMouseSelection(thePlayerIndex);
+        mMouseInputActive[thePlayerIndex] = false;
+        mMouseGesture = MouseGesture::None;
+        mMouseExecuteOnRelease = false;
+    }
+}
+
+void Board::UseMouseSelection(int theX, int theY)
+{
+    const int player = mMousePlayerIndex;
+    GamepadControls *controls = mGamepadControls[player];
+    CursorObject *cursor = mCursorObject[player];
+    if (controls->mIsCobCannonSelected)
+    {
+        MouseDownCobcannonFire(theX, theY, player);
+        return;
+    }
+    if (mMouseButterSelected)
+        return;
+    if (cursor->mCursorType == CURSOR_TYPE_SHOVEL || cursor->mCursorType >= CURSOR_TYPE_WATERING_CAN
+        || cursor->mCursorType == CURSOR_TYPE_PLANT_FROM_GLOVE)
+    {
+        MouseDownWithTool(int(controls->mCursorPositionX), int(controls->mCursorPositionY), 1, cursor->mCursorType, player);
+        return;
+    }
+    if (!IsPlantInCursor(player))
+        return;
+    if (cursor->mCursorType == CURSOR_TYPE_PLANT_FROM_BANK)
+    {
+        if (controls->mIsInShopSeedBank)
+        {
+            controls->HandleNormalPlant(1);
+            return;
+        }
+        SeedBank *bank = controls->GetSeedBank();
+        if (bank == nullptr || controls->mSelectedSeedIndex < 0 || controls->mSelectedSeedIndex >= bank->mNumPackets)
+            return;
+        SeedPacket *packet = &bank->mSeedPackets[controls->mSelectedSeedIndex];
+        if (!packet->CanPickUp())
+        {
+            mApp->PlaySample(SOUND_BUZZER, true);
+            return;
+        }
+        if ((mApp->mGameMode == GAMEMODE_MP_VS) && controls->mIsZombie)
+        {
+            controls->HandleVersusZombiePlant(1);
+            if (packet->mRefreshing || !packet->mActive || packet->mPacketType == SEED_NONE)
+                CancelMouseSelection(player);
+            return;
+        }
+        SeedType seed = packet->mPacketType == SEED_IMITATER ? packet->mImitaterType : packet->mPacketType;
+        int gridX = PlantingPixelToGridX(theX, theY, seed);
+        int gridY = PlantingPixelToGridY(theX, theY, seed);
+        if (gridX >= 0 && gridX < 9 && gridY >= 0 && gridY < 6 && CanPlantAt(gridX, gridY, seed) == PLANTING_OK)
+            packet->Deactivate();
+    }
+    MouseDownWithPlant(theX, theY, 1, player);
+    if (cursor->mCursorType == CURSOR_TYPE_PLANT_FROM_BANK && !controls->mIsInShopSeedBank)
+    {
+        SeedPacket& packet = controls->GetSeedBank()->mSeedPackets[controls->mSelectedSeedIndex];
+        if (!packet.mRefreshing)
+            packet.Activate();
+    }
+    if (cursor->mCursorType == CURSOR_TYPE_NORMAL || cursor->mCursorType == CURSOR_TYPE_HAMMER)
+    {
+        controls->mGamepadState = BaseGamepadControls::MOVEMENT_STATE_NORMAL;
+        controls->mSelectedSeedType = SEED_NONE;
+    }
 }
 
 // ==========================================================================
@@ -984,7 +1386,11 @@ void Board::UpdateToolTip()
 // ==========================================================================
 void Board::MouseDownCobcannonFire(int theX, int theY, int thePlayerIndex)
 {
-  ;
+    GamepadControls *controls = mGamepadControls[thePlayerIndex];
+    controls->mCursorPositionX = float(theX);
+    controls->mCursorPositionY = float(theY);
+    mCobCannonCursorDelayCounter = 0;
+    controls->ButtonDownFireCobcannonTest();
 }
 
 // ==========================================================================
@@ -1772,9 +2178,10 @@ void Board::DrawCoverLayer(Sexy::Graphics * g, int theRow)
   // Callers ignore the return. Backgrounds 0..3 draw the cover reanimation,
   // and layer 6 also draws the cover image. Background 4 draws the roof tree
   // and pole. Heavy weapon skips the day cover.
-  if ( mBackground < 0 )
+  static const bool aHideCoverLayer = Sexy::GetEnvOption("LAWN_HIDE_COVER_LAYER", false) != 0;
+  if ( mBackground < BACKGROUND_1_DAY || aHideCoverLayer )
     return;
-  if ( mBackground <= 3 )
+  if ( mBackground <= BACKGROUND_4_FOG )
   {
     Reanimation *aReanimation = mApp->ReanimationTryToGet(mCoverLayerAnimIDs[theRow]);
     if ( aReanimation != nullptr )
@@ -1785,21 +2192,21 @@ void Board::DrawCoverLayer(Sexy::Graphics * g, int theRow)
     Sexy::Image *aCover = nullptr;
     int aX = 0;
     int aY = 0;
-    if ( mBackground != 0 )
+    if ( mBackground != BACKGROUND_1_DAY )
     {
       switch ( mBackground )
       {
-        case 1:
+        case BACKGROUND_2_NIGHT:
           aCover = IMAGE_BACKGROUND2_COVER;
           aX = 684;
           aY = 557;
           break;
-        case 2:
+        case BACKGROUND_3_POOL:
           aCover = IMAGE_BACKGROUND3_COVER;
           aX = 671;
           aY = 613;
           break;
-        case 3:
+        case BACKGROUND_4_FOG:
           aCover = IMAGE_BACKGROUND4_COVER;
           aX = 672;
           aY = 613;
@@ -1819,7 +2226,7 @@ void Board::DrawCoverLayer(Sexy::Graphics * g, int theRow)
     g->DrawImage(aCover, aX, aY);
     return;
   }
-  if ( mBackground == 4 && theRow == 6 )
+  if ( mBackground == BACKGROUND_5_ROOF && theRow == 6 )
   {
     g->DrawImage(IMAGE_ROOF_TREE,
       (int)(float)((float)((float)mOffsetMoved * 1.5) + 628.0),
@@ -8100,6 +8507,12 @@ int Board::DrawShovel(Sexy::Graphics * g)
 // ==========================================================================
 void Board::GameAxisMove(Sexy::GamepadAxis theAxis, int theValue, int thePlayerIndex)
 {
+  if (std::abs(theValue) > 8192)
+  {
+    for (int player = 0; player < 2; ++player)
+      if (mGamepadControls[player]->mGamepadIndex == thePlayerIndex)
+        ReleaseMouseControl(player);
+  }
   // @0x15D384. Two slots at +0x230, four bytes apart. Word +0x98 of each
   // controls object is mGamepadIndex. A match calls vtable slot +8, which is
   // OnGameAxisMove, then keeps walking. The epilogue leaves the last call's
@@ -8508,8 +8921,16 @@ void Board::RebuildHelpBar()
     if ( mApp->mHelpBarWidget != nullptr )
     {
       mApp->mHelpBarWidget->ClearButtons(mLevelComplete);
-      if ( mApp->mGameScene == GameScenes(3) )
-        OkToPause();
+      if (mApp->mGameScene == SCENE_PLAYING)
+      {
+        mApp->mHelpBarWidget->AddButton(GAMEPAD_BUTTON_START, Sexy::String("[MENU]"), HelpBarWidget::HELP_ALIGN_LEFT);
+        if (mApp->CanShopLevel())
+          mApp->mHelpBarWidget->AddButton(GAMEPAD_BUTTON_Y, Sexy::String("[SHOP_BUTTON]"), HelpBarWidget::HELP_ALIGN_RIGHT);
+        if (mApp->mGameMode == GAMEMODE_CHALLENGE_LAST_STAND
+            && mChallenge->mChallengeState == STATECHALLENGE_NORMAL)
+          mApp->mHelpBarWidget->AddButton(GAMEPAD_BUTTON_X, Sexy::String("[START_ONSLAUGHT]"), HelpBarWidget::HELP_ALIGN_RIGHT);
+        mApp->ShowHelpBarWidget();
+      }
     }
   }
 }
@@ -8519,6 +8940,9 @@ void Board::RebuildHelpBar()
 // ==========================================================================
 int Board::GameButtonDown(Sexy::GamepadButton theButton, int thePlayerIndex, unsigned int theFlags)
 {
+  for (int player = 0; player < 2; ++player)
+    if (mGamepadControls[player]->mGamepadIndex == thePlayerIndex)
+      ReleaseMouseControl(player);
   // thePlayerIndex is the gamepad index the button came from. Crazy Dave's help box has
   // first refusal on every button while it is up. DealClick returns int, and
   // the button-A path tail-calls it, so this returns that int rather than a pointer.
@@ -8647,6 +9071,7 @@ int Board::GameButtonDown(Sexy::GamepadButton theButton, int thePlayerIndex, uns
 // ==========================================================================
 int Board::KeyDown(Sexy::KeyCode theKey)
 {
+  ReleaseMouseControl(0);
   // theKey is the key the widget system routed here; aEventModifiers is the raw
   // event's modifier word at +0x04. The binary tests the modifier bits as well
   // as the key, so this does too.
@@ -11880,6 +12305,15 @@ void Board::Update()
   if ( aSecondIndex != -1 && mGamepadControls[1]->mGamepadIndex == -1 )
     mGamepadControls[1]->mGamepadIndex = aSecondIndex;
   mCutScene->Update();
+  const bool lastStandReady = mApp->mGameMode == GAMEMODE_CHALLENGE_LAST_STAND
+      && mChallenge->mChallengeState == STATECHALLENGE_NORMAL;
+  if (mApp->mGameScene != mMouseHelpScene || lastStandReady != mMouseLastStandReady)
+  {
+    mMouseHelpScene = mApp->mGameScene;
+    mMouseLastStandReady = lastStandReady;
+    if (mHasFocus && mApp->GetDialogCount() == 0)
+      RebuildHelpBar();
+  }
   UpdateMousePosition();
   UpdateGamepad(0.16f);
   if ( mApp->mGameMode == GAMEMODE_CHALLENGE_ZEN_GARDEN )

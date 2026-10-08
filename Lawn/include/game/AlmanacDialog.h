@@ -115,6 +115,9 @@ public:
     float mAxisDeviceIndex;
     // Set while an axis-driven scroll is in progress.
     bool mAxisScrollActive;
+    bool mMouseDraggingDescription = false;
+    bool mMouseScrollActive = false;
+    int mMouseLastY = 0;
 
     // ---- the LawnDialog/Dialog slots this class overrides, in binary order ----
     virtual ~AlmanacDialog();                                                  // [  0]
@@ -127,6 +130,7 @@ public:
     virtual int KeyDown(Sexy::KeyCode theKey);                               // [ 71]
     virtual void MouseDown(int x, int y, int theClickCount);                  // [ 76]
     virtual void MouseUp(int x, int y, int theClickCount);                    // [ 79]
+    void MouseDrag(int x, int y) override;
     virtual void MouseWheel(int theDelta);                                    // [ 82]
     virtual void AxisMoved(const Sexy::Event & theEvent);                     // [104]
     virtual void ButtonPress(int theId);                                      // [128]
@@ -164,4 +168,3 @@ public:
     void GameAxisMove(Sexy::GamepadAxis theAxis, int theValue, int thePlayerIndex);
     AlmanacDialog(LawnApp * theApp);
 };
-

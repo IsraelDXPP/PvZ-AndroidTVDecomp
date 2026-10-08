@@ -17,6 +17,7 @@ public:
     virtual void Draw(Sexy::Graphics* g);
     virtual void Resize(int theX, int theY, int theWidth, int theHeight);
     virtual void GotFocus();
+    void MouseDown(int x, int y, int theClickCount) override;
 
     HouseChooserDialog(LawnApp* theApp);
     void GameButtonDown(Sexy::GamepadButton theButton, int thePlayerIndex, unsigned int theFlags);

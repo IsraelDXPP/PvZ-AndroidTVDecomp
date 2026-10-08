@@ -42,7 +42,7 @@
 //
 // MouseMove (slot 75) and MouseDrag (slot 81) still hold Sexy::Widget's own
 // addresses -- `_ZN17SeedChooserScreen9MouseMoveEii` does not exist -- so they are
-// plain methods here, NOT virtual (map-lawn section 2.I).
+// Mouse support now overrides both inherited methods.
 //
 // TODO(recon): in the ARM binary ButtonPress and ButtonDepress also occupy slots
 // 122/123 of the PRIMARY vtable, because GCC appends overrides of secondary-base
@@ -202,6 +202,9 @@ public:
     virtual int KeyUp(Sexy::KeyCode theKey);
     virtual void MouseDown(int x, int y, int theClickCount);
     virtual void MouseUp(int x, int y, int theClickCount);
+    void MouseMove(int x, int y) override;
+    void MouseDrag(int x, int y) override;
+    Sexy::Rect GetInsetRect() override;
     // ButtonListener overrides, then this class's own new virtuals.
     virtual void ButtonPress(int theId);
     virtual void ButtonDepress(int theId);
@@ -253,6 +256,9 @@ public:
     // The bottom-row buttons: view lawn, store, start, almanac.
     std::vector<GameButton *> mButtons;
     GameButton *mSelectedButton;
+    SeedType mMousePressedSeed = SEED_NONE;
+    int mMousePressedButton = -1;
+    int mMouseChoosingPlayer = 0;
     // Size 0xF18 (3864).
 
     SeedChooserScreen(bool theIsZombieChooser);
@@ -285,6 +291,10 @@ public:
     int GetSeedPositionInChooser(int theIndex, int &theX, int &theY);
     int GetNextSeedInDir(int theIndex, SeedDir theDirection);
     int SeedHitTest(int theX, int theY);
+    SeedType MouseSeedHitTest(int theX, int theY);
+    void UpdateMouseSeedCursor(SeedType theSeed);
+    Sexy::Rect GetMouseButtonRect(const GameButton& theButton) const;
+    GameButton* MouseButtonHitTest(int theX, int theY) const;
     int UpdateCursor();
     int ShowToolTip(int thePlayerIndex);
     int FindSeedInBank(int theIndexInBank, int thePlayerIndex);
@@ -298,12 +308,4 @@ public:
     bool CanPickNow();
     int ClickedSeedInChooser(ChosenSeedData &theChosenSeed, int thePlayerIndex);
     int ShouldDisplayCursor(int thePlayerIndex);
-    // MouseMove and MouseDrag are NOT declared here. The binary has no
-    // `_ZN17SeedChooserScreen9MouseMoveEii` / `...MouseDragEii` at all: slots 75
-    // and 81 of this class's vtable still hold Sexy::Widget's own bodies (see the
-    // note at the top of this header). Two declarations used to sit here, and
-    // because a same-signature declaration implicitly overrides the base's
-    // virtual, MSVC emitted `?MouseMove@SeedChooserScreen@@UAEXHH@Z` into the
-    // vtable and then wanted a definition for it -- a link error for two
-    // functions the binary does not have. Nothing called them either.
 };

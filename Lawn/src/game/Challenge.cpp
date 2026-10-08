@@ -6221,10 +6221,12 @@ void Challenge::HeavyWeaponUpdate()
   GamepadControls *aControls = mBoard->GetGamepadControlsByPlayerIndex(0);
   mBoard->mCursorObject[0]->mCursorType = CURSOR_TYPE_NORMAL;
   mBoard->mCursorObject[1]->mCursorType = CURSOR_TYPE_NORMAL;
-  Sexy::Gamepad *aGamepad = mApp->mGamepads[aControls->mGamepadIndex];
+  const bool mouseInput = mBoard->mMouseInputActive[0];
+  Sexy::Gamepad *aGamepad = aControls->mGamepadIndex >= 0 ? mApp->mGamepads[aControls->mGamepadIndex] : nullptr;
   float aStickX = 0.0f;
   float aStickY = 0.0f;
-  aControls->GetGamepadVelocity(aStickX, aStickY);
+  if (!mouseInput)
+    aControls->GetGamepadVelocity(aStickX, aStickY);
 
   float aX = mHeavyWeaponX + aStickX * 0.016f;
   if ( aX > 700.0f )
@@ -6232,6 +6234,12 @@ void Challenge::HeavyWeaponUpdate()
   if ( aX < 25.0f )
     aX = 25.0f;
   mHeavyWeaponX = aX;
+  if (mouseInput)
+  {
+    // Mouse dragging already moved the tank; use its displacement for the treads.
+    aStickX = (aX - mBoard->mMouseHeavyWeaponLastX) / 0.016f;
+    mBoard->mMouseHeavyWeaponLastX = aX;
+  }
 
   int aFireCounter = mChallengeStateCounter - 1;
   if (aFireCounter <= 0)
@@ -6269,14 +6277,15 @@ void Challenge::HeavyWeaponUpdate()
   mHeavyWeaponTorchWoodCounter = aTorch;
 
   // Vtable bytes 52/56 are Gamepad slots [13]/[14].
-  float aAimX = aGamepad->GetRightAxisXPosition();
-  float aAimY = aGamepad->GetRightAxisYPosition();
   float aAngle = mHeavyWeaponAngle;
   float aDirX = 0.0f;
   float aDirY = 1.0f;
   bool aAiming = true;
-  if ( mApp->HasGamepad() != 0 || (mApp->mGamePad1IsOn && mApp->mGamePad2IsOn) )
+  if ( !mouseInput && aGamepad != nullptr
+      && (mApp->HasGamepad() != 0 || (mApp->mGamePad1IsOn && mApp->mGamePad2IsOn)) )
   {
+    float aAimX = aGamepad->GetRightAxisXPosition();
+    float aAimY = aGamepad->GetRightAxisYPosition();
     float aLength = sqrtf(aAimX * aAimX + aAimY * aAimY);
     aAiming = aLength > 0.2f && aAimY / aLength >= 0.0f;
     if (aAiming)

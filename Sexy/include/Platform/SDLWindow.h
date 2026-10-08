@@ -31,14 +31,16 @@ public:
     double GetFrameTime() const { return mFrameTime; }
     void ResetTimer();
     bool IsKeyDown(int theKeyCode) const;
-    bool PopKeyEvent(Event& theEvent);
+    bool PopInputEvent(Event& theEvent);
     bool IsMouseButtonDown(int theButton) const;
     void GetCursorPos(double& theX, double& theY) const;
 private:
     bool mVideoInitialized = false;
     double mStartTime = 0.0;
     double mLastTime = 0.0;
-    std::deque<Event> mKeyEvents;
+    std::deque<Event> mInputEvents;
+    unsigned int mMouseButtons = 0;
+    void QueueMouseEvent(int theKind, float theX, float theY, int theClickCount = 0);
 };
 
 SDLWindow* ActiveWindow();

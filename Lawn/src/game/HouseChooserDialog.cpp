@@ -12,6 +12,36 @@ HouseChooserDialog::~HouseChooserDialog()
 {
 }
 
+bool HouseChooserDialog::IsHouseAvaliable(HouseType houseType)
+{
+    return houseType == BLUEPRINT_BLING
+        || (houseType >= BLUEPRINT_SCARY && houseType <= BLUEPRINT_CLOWN
+            && gLawnApp->mPlayerInfo->mPurchases[STORE_ITEM_BLUEPRINT_BLING + int(houseType)] > 0);
+}
+
+// Touch selection adapted from PvZ TV Touch Team; original layout @0x192990.
+void HouseChooserDialog::MouseDown(int x, int y, int theClickCount)
+{
+    if (theClickCount <= 0 || theClickCount == 3)
+        return;
+    for (int house = BLUEPRINT_BLING; house <= BLUEPRINT_CLOWN; ++house)
+    {
+        if (!Sexy::Rect(75 + 90 * house, 125, IMAGE_STORE_BLUEPRINT_CLOWN->mWidth,
+                        IMAGE_STORE_BLUEPRINT_CLOWN->mHeight).Contains(x, y)
+            || !IsHouseAvaliable(HouseType(house)))
+            continue;
+        if (mSelectedHouseType == house)
+            GameButtonDown(GAMEPAD_BUTTON_A, 0, 0);
+        else
+        {
+            mSelectedHouseType = HouseType(house);
+            mGrowTime = 0.0f;
+            mApp->PlaySample(SOUND_BLEEP, true);
+        }
+        return;
+    }
+}
+
 void HouseChooserDialog::GotFocus()
 {
     mApp->mHelpBarWidget->ClearButtons(0);
