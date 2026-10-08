@@ -3510,10 +3510,10 @@ bool LawnApp::CanShowZenGarden()
 // ==========================================================================
 bool LawnApp::HasSeedType(SeedType theSeedType, bool theIncludeImitater)
 {
-  // The three Zen Garden purchases and the six store upgrades are one word each
-  // in the player record's mPurchases, which starts at SEED_GATLINGPEA.
+  // @0x2B756C: these reads are the nine plant purchase slots, the same slots
+  // StoreScreen::PurchaseItem writes. Seed ids and store item ids differ.
   if ( theSeedType == SEED_GATLINGPEA )
-    return mPlayerInfo->mPurchases[SEED_GATLINGPEA - 28] > 0;
+    return mPlayerInfo->mPurchases[STORE_ITEM_PLANT_GATLINGPEA] > 0;
   if ( IsTrialStageLocked() != 0 )
   {
     // The trial build only has the first twenty seeds.
@@ -3523,25 +3523,25 @@ bool LawnApp::HasSeedType(SeedType theSeedType, bool theIncludeImitater)
   else
   {
     if ( theSeedType == SEED_TWINSUNFLOWER )
-      return mPlayerInfo->mPurchases[SEED_TWINSUNFLOWER - 28] > 0;
+      return mPlayerInfo->mPurchases[STORE_ITEM_PLANT_TWINSUNFLOWER] > 0;
     if ( theSeedType == SEED_GLOOMSHROOM )
-      return mPlayerInfo->mPurchases[SEED_GLOOMSHROOM - 28] > 0;
+      return mPlayerInfo->mPurchases[STORE_ITEM_PLANT_GLOOMSHROOM] > 0;
   }
 
   switch ( theSeedType )
   {
     case SEED_CATTAIL:
-      return mPlayerInfo->mPurchases[SEED_CATTAIL - 28] > 0;
+      return mPlayerInfo->mPurchases[STORE_ITEM_PLANT_CATTAIL] > 0;
     case SEED_WINTERMELON:
-      return mPlayerInfo->mPurchases[SEED_WINTERMELON - 28] > 0;
+      return mPlayerInfo->mPurchases[STORE_ITEM_PLANT_WINTERMELON] > 0;
     case SEED_GOLD_MAGNET:
-      return mPlayerInfo->mPurchases[SEED_GOLD_MAGNET - 28] > 0;
+      return mPlayerInfo->mPurchases[STORE_ITEM_PLANT_GOLD_MAGNET] > 0;
     case SEED_SPIKEROCK:
-      return mPlayerInfo->mPurchases[SEED_SPIKEROCK - 28] > 0;
+      return mPlayerInfo->mPurchases[STORE_ITEM_PLANT_SPIKEROCK] > 0;
     case SEED_COBCANNON:
-      return mPlayerInfo->mPurchases[SEED_COBCANNON - 28] > 0;
+      return mPlayerInfo->mPurchases[STORE_ITEM_PLANT_COBCANNON] > 0;
     case SEED_IMITATER:
-      return mPlayerInfo->mPurchases[SEED_IMITATER - 28] > 0;
+      return mPlayerInfo->mPurchases[STORE_ITEM_PLANT_IMITATER] > 0;
     default:
       break;
   }
