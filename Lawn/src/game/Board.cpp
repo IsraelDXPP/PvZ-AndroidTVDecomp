@@ -1672,7 +1672,7 @@ void Board::DrawUICoinBank(Sexy::Graphics * g)
 // Board::DrawFog(Sexy::Graphics *)
 // @001534C4  610 bytes
 // ==========================================================================
-int Board::DrawFog(Sexy::Graphics * g)
+void Board::DrawFog(Sexy::Graphics * g)
 {
   Sexy::Image *aFogImage = IMAGE_FOG;
   if ( !mApp->Is3DAccelerated() )
@@ -1681,7 +1681,6 @@ int Board::DrawFog(Sexy::Graphics * g)
   // The fog covers fifteen columns of 80 px, drawn one column at a time; the
   // columns past the ninth reuse the ninth column's fade samples. Each column is
   // seven 85 px cells tall, and a cell whose fade sample is zero is skipped.
-  int aResult = 0;
   for ( int aCol = 0; aCol < 15; ++aCol )
   {
     int aFogCol = (aCol >= 8) ? 8 : aCol;
@@ -1693,18 +1692,11 @@ int Board::DrawFog(Sexy::Graphics * g)
       if ( aFadeAmount == 0 )
         continue;
 
-      int aCelLook;
-      if (aCol < MAX_GRID_SIZE_X)
-      {
-        aCelLook = mGridCelLook[aCol][aCelY % MAX_GRID_SIZE_Y];
-      }
-      else
-      {
-        // The original's six extra columns use the following grid jitter samples.
-        int aJitterIndex = (aCol - MAX_GRID_SIZE_X) * MAX_GRID_SIZE_Y + aCelY % MAX_GRID_SIZE_Y;
-        aCelLook = mGridCelOffset[aJitterIndex / (MAX_GRID_SIZE_Y * 2)]
-            [(aJitterIndex / 2) % MAX_GRID_SIZE_Y][aJitterIndex % 2];
-      }
+      // DrawFog @0x1534C4 extends the fog beyond the lawn. Its original read
+      // runs off mGridCelLook into signed mGridCelOffset values in those extra
+      // columns. Reuse the edge's fog appearance as well as its fade sample;
+      // a negative jitter value is not a valid image cel and leaves a hole.
+      int aCelLook = mGridCelLook[aFogCol][aCelY % MAX_GRID_SIZE_Y];
       float aTime = (float)mMainCounter;
       float aWave = (float)sin(aTime * 0.0069813 + (float)aCelY * 2.6928);
       float aSway = (float)sin(aPhaseX + aTime * 0.012566);
@@ -1739,7 +1731,6 @@ int Board::DrawFog(Sexy::Graphics * g)
       g->SetColorizeImages(false);
     }
   }
-  return aResult;
 }
 
 // ==========================================================================

@@ -168,7 +168,7 @@ int ImitaterDialog::GetNextSeedInDir(int theIndex, SeedChooserScreen_SeedDir the
 
     int aRow;
     int aCol;
-    if (theIndex == 48)
+    if (theIndex == SEED_IMITATER)
     {
         // The imitater packet sits below the 5x8 grid of real seeds.
         aRow = 5;
@@ -182,21 +182,21 @@ int ImitaterDialog::GetNextSeedInDir(int theIndex, SeedChooserScreen_SeedDir the
 
     // Clamp at the edges instead of wrapping: the caller keeps the current
     // selection when the move runs off the grid.
-    switch ((int)theDir)
+    switch (theDir)
     {
-    case 0: // SEED_DIR_UP
+    case SEED_DIR_UP:
         if (aRow > 0)
             --aRow;
         break;
-    case 1: // SEED_DIR_DOWN
+    case SEED_DIR_DOWN:
         if (aRow <= 3)
             ++aRow;
         break;
-    case 2: // SEED_DIR_LEFT
+    case SEED_DIR_LEFT:
         if (aCol > 0)
             --aCol;
         break;
-    case 3: // SEED_DIR_RIGHT
+    case SEED_DIR_RIGHT:
         if (aCol <= 6)
             ++aCol;
         break;
@@ -386,15 +386,19 @@ void ImitaterDialog::GameButtonDown(Sexy::GamepadButton theButton, int thePlayer
     switch (theButton)
     {
     case GAMEPAD_BUTTON_UP:
+    case GAMEPAD_BUTTON_DPAD_UP:
         mSelectedSeed = GetNextSeedInDir(mSelectedSeed, SEED_DIR_UP);
         break;
     case GAMEPAD_BUTTON_DOWN:
+    case GAMEPAD_BUTTON_DPAD_DOWN:
         mSelectedSeed = GetNextSeedInDir(mSelectedSeed, SEED_DIR_DOWN);
         break;
     case GAMEPAD_BUTTON_LEFT:
+    case GAMEPAD_BUTTON_DPAD_LEFT:
         mSelectedSeed = GetNextSeedInDir(mSelectedSeed, SEED_DIR_LEFT);
         break;
     case GAMEPAD_BUTTON_RIGHT:
+    case GAMEPAD_BUTTON_DPAD_RIGHT:
         mSelectedSeed = GetNextSeedInDir(mSelectedSeed, SEED_DIR_RIGHT);
         break;
 
@@ -434,31 +438,30 @@ void ImitaterDialog::GameButtonDown(Sexy::GamepadButton theButton, int thePlayer
 // ==========================================================================
 int ImitaterDialog::KeyDown(Sexy::KeyCode theKey)
 {
-    // The key event the framework delivered lives on the top-level widget; with
-    // none there is nothing to map and the base gets the key.
+    // A focused child receives its parent's key event. Prefer a directly
+    // delivered event, otherwise use the chooser's current event.
     Sexy::Widget * aTopLevelWidget = GetTopLevel();
-    if (aTopLevelWidget->mEvent == nullptr)
-        return Sexy::Widget::KeyDown(theKey);
+    const Sexy::Event* aEvent = mEvent != nullptr ? mEvent : aTopLevelWidget->mEvent;
 
-    if (mApp->HasGamepad() == 0 && (mApp->mGamePad1IsOn == 0 || mApp->mGamePad2IsOn == 0))
+    if (aEvent == nullptr || aEvent->lateModifiers == 0
+        || (mApp->HasGamepad() == 0 && (mApp->mGamePad1IsOn == 0 || mApp->mGamePad2IsOn == 0)))
     {
-        // No gamepad: feed the raw key to OnKeyDown, which is this class's new
-        // slot 133. The modifier mask comes from this widget's own event.
+        // Keyboard input remains on its own path with a gamepad connected;
+        // direct KeyDown calls without an event also use the raw key.
         unsigned int aModifiers = 0;
-        if (mEvent != nullptr)
-            aModifiers = (unsigned int)mEvent->modifierMask;
+        if (aEvent != nullptr)
+            aModifiers = (unsigned int)aEvent->modifierMask;
 
         if (OnKeyDown(theKey, aModifiers) == 0)
             return Sexy::Widget::KeyDown(theKey);
         return 1;
     }
 
-    // One or two gamepads are on: the framework has already translated the event
-    // into a button, a gamepad index and a flag word.
+    // Map controller input while preserving the dialog owner's gamepad index.
     int aButtonCode;
     int aPlayerIndex;
     unsigned int aButtonFlags;
-    if (mApp->MapToButtonEvent(aTopLevelWidget->mEvent, aButtonCode, aPlayerIndex, aButtonFlags) == 0)
+    if (mApp->MapToButtonEvent(aEvent, aButtonCode, aPlayerIndex, aButtonFlags) == 0)
         return Sexy::Widget::KeyDown(theKey);
 
     // MapToButtonEvent hands the button code back through an `int&` (the mangled

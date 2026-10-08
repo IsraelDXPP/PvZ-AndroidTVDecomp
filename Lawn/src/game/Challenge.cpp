@@ -4824,31 +4824,34 @@ void Challenge::IZombieDrawPlant(Sexy::Graphics * g, Plant * thePlant)
   if ( aReanim == nullptr )
     return;
 
-  // The TV binary retains the cardboard color, but omits its silhouette pass.
-  // Draw that backing around the complete body/head pose, then draw the normal
-  // plant over it so the printed artwork keeps its original colors.
-  Sexy::Graphics aCardboardGraphics(*g);
-  aCardboardGraphics.SetDrawMode(Sexy::Graphics::DRAWMODE_NORMAL);
-  aCardboardGraphics.SetColorizeImages(true);
-  aCardboardGraphics.SetColor(Color(255, 201, 160));
+  // Restore the original cardboard passes from Challenge::IZombieDrawPlant
+  // @0x42B690. The TV function @0x184034 retained only the final color/pass.
+  const float aOffsetX = g->mTransX;
+  const float aOffsetY = g->mTransY;
   IZombieSetPlantFilterEffect(thePlant, FILTER_EFFECT_WHITE);
-  constexpr int aCardboardBorder = 2;
-  for (int aOffsetY = -aCardboardBorder; aOffsetY <= aCardboardBorder; aOffsetY += aCardboardBorder)
-  {
-    for (int aOffsetX = -aCardboardBorder; aOffsetX <= aCardboardBorder; aOffsetX += aCardboardBorder)
-    {
-      if (aOffsetX == 0 && aOffsetY == 0)
-        continue;
-      aCardboardGraphics.mTransX = g->mTransX + aOffsetX;
-      aCardboardGraphics.mTransY = g->mTransY + aOffsetY;
-      aReanim->DrawRenderGroup(&aCardboardGraphics, 0);
-    }
-  }
+  g->SetColorizeImages(true);
+
+  g->mTransX = aOffsetX + 4.0f;
+  g->mTransY = aOffsetY + 4.0f;
+  g->SetColor(Color(122, 86, 58));
+  aReanim->DrawRenderGroup(g, 0);
+
+  g->mTransX = aOffsetX + 2.0f;
+  g->mTransY = aOffsetY + 2.0f;
+  g->SetColor(Color(171, 135, 107));
+  aReanim->DrawRenderGroup(g, 0);
+
+  g->mTransX = aOffsetX - 2.0f;
+  g->mTransY = aOffsetY - 2.0f;
+  g->SetColor(Color(171, 135, 107));
+  aReanim->DrawRenderGroup(g, 0);
+
+  g->mTransX = aOffsetX;
+  g->mTransY = aOffsetY;
+  g->SetColor(Color(255, 201, 160));
   IZombieSetPlantFilterEffect(thePlant, FILTER_EFFECT_NONE);
-  aCardboardGraphics.mTransX = g->mTransX;
-  aCardboardGraphics.mTransY = g->mTransY;
-  aCardboardGraphics.SetColorizeImages(false);
-  aReanim->DrawRenderGroup(&aCardboardGraphics, 0);
+  aReanim->DrawRenderGroup(g, 0);
+  IZombieSetPlantFilterEffect(thePlant, FILTER_EFFECT_NONE);
   g->SetDrawMode(Sexy::Graphics::DRAWMODE_NORMAL);
   g->SetColorizeImages(false);
 }// ==========================================================================

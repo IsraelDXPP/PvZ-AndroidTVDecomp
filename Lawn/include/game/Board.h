@@ -533,7 +533,7 @@ public:
     void DrawHouseDoorTop(Sexy::Graphics * g);
     int DrawTopRightUI(Sexy::Graphics * g);
     void DrawUICoinBank(Sexy::Graphics * g);
-    int DrawFog(Sexy::Graphics * g);
+    void DrawFog(Sexy::Graphics * g);
     Reanimation * UpdateCoverLayer();
     void DrawCoverLayer(Sexy::Graphics * g, int theRow);
     int IsScaryPotterDaveTalking();
