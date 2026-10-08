@@ -36,6 +36,27 @@
 // Group 1 -- declared in Sexy/ReconFreeFunctions.h (391 names).
 // ---------------------------------------------------------------------------
 Sexy::Image * IMAGE_ = nullptr;
+Sexy::Image * IMAGE_ZOMBIEDANCERHEAD = nullptr;
+Sexy::Image * IMAGE_ZOMBIEBACKUPDANCERHEAD = nullptr;
+Sexy::Image * IMAGE_ZOMBIEBOBSLEDHEAD = nullptr;
+Sexy::Image * IMAGE_ZOMBIELADDERHEAD = nullptr;
+Sexy::Image * IMAGE_ZOMBIEIMPHEAD = nullptr;
+Sexy::Image * IMAGE_ZOMBIEFOOTBALLHEAD = nullptr;
+Sexy::Image * IMAGE_ZOMBIEPOLEVAULTERHEAD = nullptr;
+Sexy::Image * IMAGE_REANIM_ZOMBIE_SNORKLE_HEAD = nullptr;
+Sexy::Image * IMAGE_ZOMBIEDIGGERHEAD = nullptr;
+Sexy::Image * IMAGE_ZOMBIEDOLPHINRIDERHEAD = nullptr;
+Sexy::Image * IMAGE_ZOMBIEYETIHEAD = nullptr;
+Sexy::Image * IMAGE_REANIM_ZOMBIE_FOOTBALL_LEFTARM_HAND = nullptr;
+Sexy::Image * IMAGE_REANIM_ZOMBIE_PAPER_LEFTARM_LOWER = nullptr;
+Sexy::Image * IMAGE_REANIM_ZOMBIE_DISCO_OUTERARM_HAND = nullptr;
+Sexy::Image * IMAGE_REANIM_ZOMBIE_BACKUP_INNERARM_HAND = nullptr;
+Sexy::Image * IMAGE_REANIM_ZOMBIE_BOBSLED_OUTERARM_HAND = nullptr;
+Sexy::Image * IMAGE_REANIM_ZOMBIE_IMP_ARM2 = nullptr;
+Sexy::Image * IMAGE_REANIM_ZOMBIE_YETI_OUTERARM_HAND = nullptr;
+Sexy::Image * IMAGE_ZOMBIEJACKBOXARM = nullptr;
+Sexy::Image * IMAGE_ZOMBIEDIGGERARM = nullptr;
+Sexy::Image * IMAGE_REANIM_ZOMBIE_OUTERARM_HAND = nullptr;
 Sexy::Image * IMAGE_ALMANAC = nullptr;
 Sexy::Image * IMAGE_ALMANAC_GROUNDDAY = nullptr;
 Sexy::Image * IMAGE_ALMANAC_GROUNDICE = nullptr;

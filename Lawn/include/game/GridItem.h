@@ -91,8 +91,7 @@ public:
     // 12 bytes, exactly the space `unkMems2[3]` used to occupy, and it sits
     // OUTSIDE the 260-byte sync block that starts at mGridItemType.
     Sexy::SharedImageRef mTargetImageOverride; // +0x120
-    // size 0x12C
-
+    Sexy::SharedImageRef mSquirrelImage;
     TodParticleSystem * GridItemDie();
     float * DrawGridItemOverlay(Sexy::Graphics *theGraphics);
     TodParticleSystem * UpdateBrain();
@@ -106,7 +105,7 @@ public:
     void OpenPortal();
     TodParticleSystem * ClosePortal();
     TodParticleSystem * UpdatePortal();
-    int DrawSquirrel(Sexy::Graphics *theGraphics);
+    void DrawSquirrel(Sexy::Graphics *theGraphics);
     Zombie * RakeFindZombie();
     Zombie * UpdateRake();
     int UpdateBurialMound();

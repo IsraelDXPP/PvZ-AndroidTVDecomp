@@ -622,7 +622,7 @@ void Projectile::DoImpact(Zombie *theZombie)
   // just past this projectile's own.
   int aRow = mRenderOrder + 1;
   float aSpawnX = mPosX - mVelX;
-  float aSpawnY = (mPosY + mPosZ) - mShadowY - mAccZ;
+  float aSpawnY = (mPosY + mPosZ) - mVelY - mVelZ;
 
   switch (mProjectileType)
   {
@@ -799,8 +799,8 @@ void Projectile::DoImpactGridItem(GridItem *theGridItem)
   // the shadow; aRenderOrder is the slot just past this projectile's own.
   int aRenderOrder = mRenderOrder + 1;
   float aSpawnX = mPosX - mVelX;
-  float aSpawnY = (mPosY + mPosZ) - mShadowY;
-  float aTrailY = aSpawnY - mAccZ;
+  float aSpawnY = (mPosY + mPosZ) - mVelY;
+  float aTrailY = aSpawnY - mVelZ;
 
   switch (mProjectileType)
   {

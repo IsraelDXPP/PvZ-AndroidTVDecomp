@@ -341,7 +341,7 @@ void AlmanacDialog::SetPage(AlmanacPage thePage)
         mPlant = new Plant();
         mPlant->mBoard = nullptr;
         mPlant->mIsOnBoard = false;
-        mPlant->PlantInitialize(0, 0, SEED_PEASHOOTER, SEED_NONE, -1);
+        mPlant->PlantInitialize(0, 0, SEED_SUNFLOWER, SEED_NONE, -1);
         mPlant->mX = 167;
         mPlant->mY = 225;
 

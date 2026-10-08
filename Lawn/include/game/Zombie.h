@@ -356,8 +356,8 @@ public:
     void RemoveIceTrap();
     void RemoveButter();
     int RemoveColdEffects();
-    // 0x1AF58C. Returns this. The add-on-head path returns that head reanimation.
-    Zombie * DropHead(unsigned int theDamageFlags);
+    // 0x1AF58C. Detaches the head and creates the matching debris.
+    void DropHead(unsigned int theDamageFlags);
     // 0x1AF974. Returns this, or PickRandomSpeed's reanimation when it wakes.
     void UpdateYeti();
     void StopZombieSound();

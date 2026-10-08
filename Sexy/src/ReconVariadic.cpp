@@ -411,8 +411,10 @@ void DrawSeedPacket(Sexy::Graphics* theGraphics, float theX, float theY, SeedTyp
     else if (theSeedType == SEED_ZOMBIQUARIUM_TROPHY)
         aCel = 8;
 
+    // The larger packet artwork has only the green background. Upgrades keep
+    // their purple cel when the almanac enlarges the selected packet.
     const bool aLargePacket = theDrawBackground && theGraphics->mScaleX > 1.0f
-        && theSeedType <= SEED_LEFTPEATER;
+        && theSeedType <= SEED_LEFTPEATER && !Plant::IsUpgrade(aDrawn);
     if (theDrawBackground)
     {
         if (aLargePacket)

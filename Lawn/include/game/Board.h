@@ -614,7 +614,7 @@ public:
     Plant * GetTopPlantAt(int theGridX, int theGridY, PlantPriority thePriority);
     bool IsPlantInGoldWateringCanRange(int theGridX, int theGridY, Plant * thePlant);
     int PlantingPixelToGridY(int theX, int theY, SeedType theSeedType);
-    float GridCellBounds(int theGridX, int theGridY, SexyVector2 & theTopLeft, SexyVector2 & theTopRight, SexyVector2 & theBottomLeft, SexyVector2 & theBottomRight, SexyVector2 & theCenter, SexyVector2 & theTop, SexyVector2 & theBottom, SexyVector2 & theSide);
+    void GridCellBounds(int theGridX, int theGridY, SexyVector2 & theTopLeft, SexyVector2 & theTopRight, SexyVector2 & theBottomLeft, SexyVector2 & theBottomRight, SexyVector2 & theCenter, SexyVector2 & theTop, SexyVector2 & theBottom, SexyVector2 & theSide);
     int CountSunFlowers();
     int CountPlantByType(SeedType theSeedType);
     void UpdateTutorial();

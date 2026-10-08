@@ -1914,9 +1914,10 @@ int MainMenu::KeyDown(Sexy::KeyCode theKey)
             || theKey == Sexy::KEYCODE_GAMEPAD_LEFT
             || theKey == Sexy::KEYCODE_GAMEPAD_DPAD_LEFT )
   {
-    int aWidgetId = mFocusedChildWidget->mWidgetId;
+    int aWidgetId = mFocusedChildWidget != nullptr ? mFocusedChildWidget->mWidgetId : -1;
     if ( aWidgetId >= 0 && aWidgetId <= MORE_WAYS_BUTTON )
     {
+      SetScene(MENUSCENE_MORE_WAYS);
       CancelCrowTalk();
       return 1;
     }
@@ -1931,7 +1932,7 @@ int MainMenu::KeyDown(Sexy::KeyCode theKey)
             || theKey == Sexy::KEYCODE_GAMEPAD_RIGHT
             || theKey == Sexy::KEYCODE_GAMEPAD_DPAD_RIGHT )
   {
-    int aWidgetId = mFocusedChildWidget->mWidgetId;
+    int aWidgetId = mFocusedChildWidget != nullptr ? mFocusedChildWidget->mWidgetId : -1;
     if ( aWidgetId == MORE_BUTTON )
     {
       SetScene(MENUSCENE_EXTRA);
@@ -2141,8 +2142,8 @@ void MainMenu::DrawOverlay(Sexy::Graphics *theGraphics)
       aMainMenuReanim->GetCurrentTransform(aTrackIndex, &aTransform);
       aTransform.mTransX = (mCameraOffsetX + aTransform.mTransX) + (float)aButtonOffsetX;
       aTransform.mTransY = (mCameraOffsetY + aTransform.mTransY) + aButtonOffsetY;
-      aTransform.mSkewX = -1.0f;
-      aTransform.mSkewY = -1.0f;
+      aTransform.mSkewX = -4.0f;
+      aTransform.mSkewY = -4.0f;
       aTransform.mScaleX = aAdventureButton->mAppliedScaleX * 0.5f;
       aTransform.mScaleY = aAdventureButton->mAppliedScaleY * 0.5f;
 

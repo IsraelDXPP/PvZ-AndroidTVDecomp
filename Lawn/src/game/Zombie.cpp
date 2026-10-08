@@ -3673,42 +3673,58 @@ void Zombie::DropArm(unsigned int theDamageFlags)
 
     if (!mInPool && (theDamageFlags & 0x10) == 0)
     {
-        // A zombie that is being mowed down throws the vault dust (74), every
-        // other one the plain puff (7); 99 is PARTICLE_... the arm debris.
-        TodParticleSystem *aParticles = (TodParticleSystem *)mApp->AddTodParticle(
+        TodParticleSystem *aParticles = mApp->AddTodParticle(
             aStumpX,
             aStumpY,
             mRenderOrder + 1,
-            mZombiePhase == PHASE_ZOMBIE_MOWERED ? (ParticleEffect)74 : (ParticleEffect)7);
+            mZombiePhase == PHASE_ZOMBIE_MOWERED ? PARTICLE_MOWERED_ZOMBIE_ARM : PARTICLE_ZOMBIE_ARM);
         OverrideParticleColor(aParticles);
         OverrideParticleScale(aParticles);
 
         if (aParticles != nullptr)
         {
-            // Each of these types overrides the debris with its own hand image.
-            // Those IMAGE_* symbols are not declared in this tree, so the call
-            // still passes a null image.
+            Sexy::Image *aArmImage = nullptr;
             switch (mZombieType)
             {
-                case ZOMBIE_POLEVAULTER:
-                case ZOMBIE_NEWSPAPER:
                 case ZOMBIE_FOOTBALL:
+                    aArmImage = IMAGE_REANIM_ZOMBIE_FOOTBALL_LEFTARM_HAND;
+                    break;
+                case ZOMBIE_NEWSPAPER:
+                    aArmImage = IMAGE_REANIM_ZOMBIE_PAPER_LEFTARM_LOWER;
+                    break;
                 case ZOMBIE_DANCER:
+                    aArmImage = IMAGE_REANIM_ZOMBIE_DISCO_OUTERARM_HAND;
+                    break;
                 case ZOMBIE_BACKUP_DANCER:
+                    aArmImage = IMAGE_REANIM_ZOMBIE_BACKUP_INNERARM_HAND;
+                    break;
                 case ZOMBIE_BOBSLED:
-                case ZOMBIE_DOLPHIN_RIDER:
+                    aArmImage = IMAGE_REANIM_ZOMBIE_BOBSLED_OUTERARM_HAND;
+                    break;
+                case ZOMBIE_IMP:
+                    aArmImage = IMAGE_REANIM_ZOMBIE_IMP_ARM2;
+                    break;
+                case ZOMBIE_YETI:
+                    aArmImage = IMAGE_REANIM_ZOMBIE_YETI_OUTERARM_HAND;
+                    break;
                 case ZOMBIE_JACK_IN_THE_BOX:
+                    aArmImage = IMAGE_ZOMBIEJACKBOXARM;
+                    break;
+                case ZOMBIE_DIGGER:
+                    aArmImage = IMAGE_ZOMBIEDIGGERARM;
+                    break;
+                case ZOMBIE_POLEVAULTER:
+                case ZOMBIE_DOLPHIN_RIDER:
                 case ZOMBIE_BALLOON:
                 case ZOMBIE_POGO:
-                case ZOMBIE_YETI:
-                case ZOMBIE_DIGGER:
                 case ZOMBIE_LADDER:
-                case ZOMBIE_IMP:
-                    aParticles->OverrideImage(nullptr, 0);
+                    aArmImage = IMAGE_REANIM_ZOMBIE_OUTERARM_HAND;
                     break;
                 default:
                     break;
             }
+            if (aArmImage != nullptr)
+                aParticles->OverrideImage(nullptr, aArmImage);
         }
     }
 
@@ -6122,10 +6138,10 @@ int Zombie::RemoveColdEffects()
 // Zombie::DropHead(unsigned int)
 // @001AF58C  882 bytes
 // ==========================================================================
-Zombie * Zombie::DropHead(unsigned int theDamageFlags)
+void Zombie::DropHead(unsigned int theDamageFlags)
 {
     if (!CanLoseBodyParts() || !mHasHead)
-        return this;
+        return;
 
     if (mYuckyFaceCounter > 0)
     {
@@ -6140,7 +6156,7 @@ Zombie * Zombie::DropHead(unsigned int theDamageFlags)
 
     // A damage that does not leave the body behind keeps the head attached.
     if ((theDamageFlags & 0x10) != 0)
-        return this;
+        return;
 
     // A zombie with one of the add-on heads (pea, wall-nut, jalapeno, gatling,
     // squash, tall-nut) just loses that head reanimation.
@@ -6148,10 +6164,8 @@ Zombie * Zombie::DropHead(unsigned int theDamageFlags)
     {
         Reanimation *aHeadReanim = mApp->ReanimationGet(mSpecialHeadReanimID);
         aHeadReanim->ReanimationDie();
-        mSpecialHeadReanimID = (ReanimationID)(theDamageFlags & 0x10);
-        // 0x1AF58C returns this. The head reanimation is already dead; the
-        // pointer it left in r0 is not what the function hands back.
-        return this;
+        mSpecialHeadReanimID = REANIMATIONID_NULL;
+        return;
     }
 
     // The head particle starts where the head was.
@@ -6166,14 +6180,13 @@ Zombie * Zombie::DropHead(unsigned int theDamageFlags)
     if (mBodyReanimID != 0)
         GetTrackPosition("anim_head1", aPosX, aPosY);
 
-    // Which head particle: a burned or a zombiquarium zombie has its own.
-    int aEffect;
-    if (mZombiePhase == PHASE_ZOMBIE_BURNED)
-        aEffect = 73;
+    ParticleEffect aEffect;
+    if (mZombiePhase == PHASE_ZOMBIE_MOWERED)
+        aEffect = PARTICLE_MOWERED_ZOMBIE_HEAD;
     else if (mInPool)
-        aEffect = 75;
+        aEffect = PARTICLE_ZOMBIE_HEAD_POOL;
     else
-        aEffect = 6;
+        aEffect = PARTICLE_ZOMBIE_HEAD;
 
     switch (mZombieType)
     {
@@ -6181,14 +6194,14 @@ Zombie * Zombie::DropHead(unsigned int theDamageFlags)
             aParticleOrder = mRenderOrder - 1;
             break;
         case ZOMBIE_NEWSPAPER:
-            aEffect = 18;
+            aEffect = PARTICLE_ZOMBIE_NEWSPAPER_HEAD;
             break;
         case ZOMBIE_POGO:
             PogoBreak(theDamageFlags);
-            aEffect = 62;
+            aEffect = PARTICLE_ZOMBIE_POGO_HEAD;
             break;
         case ZOMBIE_BALLOON:
-            aEffect = 19;
+            aEffect = PARTICLE_ZOMBIE_BALLOON_HEAD;
             ReanimShowPrefix("anim_hat", -1);
             ReanimShowPrefix("hat", -1);
             break;
@@ -6202,58 +6215,78 @@ Zombie * Zombie::DropHead(unsigned int theDamageFlags)
             break;
     }
 
-    TodParticleSystem *aHead = (TodParticleSystem *)mApp->AddTodParticle(aPosX, aPosY, aParticleOrder, (ParticleEffect)aEffect);
+    TodParticleSystem *aHead = mApp->AddTodParticle(aPosX, aPosY, aParticleOrder, aEffect);
     OverrideParticleColor(aHead);
     OverrideParticleScale(aHead);
 
     if (aHead != nullptr)
     {
-        // A few types draw the head from the particle's own image, so it is
-        // cleared for them.
+        Sexy::Image *aHeadImage = nullptr;
         switch (mZombieType)
         {
             case ZOMBIE_DANCER:
+                aHeadImage = IMAGE_ZOMBIEDANCERHEAD;
                 ReanimShowPrefix("Zombie_disco_chops", -1);
                 ReanimShowPrefix("Zombie_disco_glasses", -1);
                 break;
             case ZOMBIE_BACKUP_DANCER:
+                aHeadImage = IMAGE_ZOMBIEBACKUPDANCERHEAD;
                 ReanimShowPrefix("Zombie_disco_chops", -1);
                 ReanimShowPrefix("Zombie_backup_stash", -1);
                 break;
             case ZOMBIE_BOBSLED:
+                aHeadImage = IMAGE_ZOMBIEBOBSLEDHEAD;
+                break;
             case ZOMBIE_LADDER:
+                aHeadImage = IMAGE_ZOMBIELADDERHEAD;
+                break;
             case ZOMBIE_IMP:
+                aHeadImage = IMAGE_ZOMBIEIMPHEAD;
+                break;
             case ZOMBIE_FOOTBALL:
+                aHeadImage = IMAGE_ZOMBIEFOOTBALLHEAD;
+                break;
             case ZOMBIE_POLEVAULTER:
+                aHeadImage = IMAGE_ZOMBIEPOLEVAULTERHEAD;
+                break;
             case ZOMBIE_SNORKEL:
+                aHeadImage = IMAGE_REANIM_ZOMBIE_SNORKLE_HEAD;
+                break;
             case ZOMBIE_DIGGER:
+                aHeadImage = IMAGE_ZOMBIEDIGGERHEAD;
+                break;
             case ZOMBIE_DOLPHIN_RIDER:
+                aHeadImage = IMAGE_ZOMBIEDOLPHINRIDERHEAD;
+                break;
             case ZOMBIE_YETI:
+                aHeadImage = IMAGE_ZOMBIEYETIHEAD;
                 break;
             default:
-                aHead->OverrideImage(nullptr, nullptr);
                 break;
         }
+        if (aHeadImage != nullptr)
+            aHead->OverrideImage(nullptr, aHeadImage);
     }
 
     // The three cosmetic modes each throw their own particle on top of the
     // head: the mustache, the sunglasses and the future (hat) mode.
     Reanimation *aBodyReanim = mApp->ReanimationTryToGet(mBodyReanimID);
 
-    if (mBoard->mMustacheMode)
+    if (mBoard->mMustacheMode && aBodyReanim != nullptr)
     {
         if (aBodyReanim->TrackExistsById(ReanimTrackId_zombie_mustache) != 0)
         {
             ReanimShowPrefix("Zombie_mustache", -1);
-            TodParticleSystem *aMustache = (TodParticleSystem *)mApp->AddTodParticle(aPosX, aPosY, aParticleOrder, (ParticleEffect)95);
+            TodParticleSystem *aMustache = mApp->AddTodParticle(aPosX, aPosY, aParticleOrder, PARTICLE_ZOMBIE_MUSTACHE);
             OverrideParticleColor(aMustache);
             OverrideParticleScale(aMustache);
-            if (aBodyReanim->GetImageOverride("Zombie_mustache") != 0 && aMustache != nullptr)
-                aMustache->OverrideImage(nullptr, nullptr);
+            Sexy::Image *aMustacheImage = aBodyReanim->GetImageOverride("Zombie_mustache");
+            if (aMustacheImage != nullptr && aMustache != nullptr)
+                aMustache->OverrideImage(nullptr, aMustacheImage);
         }
     }
 
-    if (mBoard->mSuperMowerMode)
+    if (mBoard->mSuperMowerMode && aBodyReanim != nullptr)
     {
         Sexy::Image *aGlasses = aBodyReanim->GetImageOverride("anim_head1");
         if (aGlasses != 0)
@@ -6272,7 +6305,7 @@ Zombie * Zombie::DropHead(unsigned int theDamageFlags)
 
             if (aFrame >= 0)
             {
-                TodParticleSystem *aGlassesParticle = (TodParticleSystem *)mApp->AddTodParticle(aPosX, aPosY, aParticleOrder, (ParticleEffect)96);
+                TodParticleSystem *aGlassesParticle = mApp->AddTodParticle(aPosX, aPosY, aParticleOrder, PARTICLE_ZOMBIE_FUTURE_GLASSES);
                 OverrideParticleColor(aGlassesParticle);
                 OverrideParticleScale(aGlassesParticle);
                 if (aGlassesParticle != nullptr)
@@ -6281,14 +6314,14 @@ Zombie * Zombie::DropHead(unsigned int theDamageFlags)
         }
     }
 
-    if (mBoard->mFutureMode && mZombiePhase != PHASE_ZOMBIE_BURNED)
+    if (mBoard->mFutureMode && mZombiePhase != PHASE_ZOMBIE_MOWERED)
     {
-        TodParticleSystem *aHat = (TodParticleSystem *)mApp->AddTodParticle(aPosX, aPosY, aParticleOrder, (ParticleEffect)97);
+        TodParticleSystem *aHat = mApp->AddTodParticle(aPosX, aPosY, aParticleOrder, PARTICLE_PINATA);
         OverrideParticleScale(aHat);
     }
 
     mApp->PlayFoley(FOLEY_LIMBS_POP);
-    return this;
+    return;
 }
 
 // ==========================================================================

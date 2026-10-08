@@ -874,8 +874,8 @@ int Plant::UpdateReanimColor()
   if (aBody == nullptr)
     return 0;
 
-  int aCursorSeed = mBoard->GetSeedTypeInCursor(0);
-  int aCursorSeed2 = mBoard->GetSeedTypeInCursor(1);
+  SeedType aCursorSeed = mBoard->GetSeedTypeInCursor(0);
+  SeedType aCursorSeed2 = mBoard->GetSeedTypeInCursor(1);
   Sexy::Color aOverride = Sexy::Color();
   CursorObject *aCursor = mBoard->mCursorObject[0];
   bool aOnGlove = false;
@@ -893,19 +893,19 @@ int Plant::UpdateReanimColor()
     }
   }
 
-  bool aUpgradeReady = (IsPartOfUpgradableTo((SeedType)aCursorSeed) != 0
-      || IsPartOfUpgradableTo((SeedType)aCursorSeed2) != 0)
-    && (mBoard->CanPlantAt(mPlantCol, mRow, (SeedType)aCursorSeed) == PLANTING_OK
-      || mBoard->CanPlantAt(mPlantCol, mRow, (SeedType)aCursorSeed2) == PLANTING_OK);
+  bool aUpgradeReady = (IsPartOfUpgradableTo(aCursorSeed) != 0
+      || IsPartOfUpgradableTo(aCursorSeed2) != 0)
+    && (mBoard->CanPlantAt(mPlantCol, mRow, aCursorSeed) == PLANTING_OK
+      || mBoard->CanPlantAt(mPlantCol, mRow, aCursorSeed2) == PLANTING_OK);
   bool aCobReady = (aCursorSeed == SEED_COBCANNON || aCursorSeed2 == SEED_COBCANNON)
     && mSeedType == SEED_KERNELPULT
-    && (mBoard->CanPlantAt(mPlantCol - 1, mRow, (SeedType)aCursorSeed) == PLANTING_OK
-      || mBoard->CanPlantAt(mPlantCol - 1, mRow, (SeedType)aCursorSeed2) == PLANTING_OK);
+    && (mBoard->CanPlantAt(mPlantCol - 1, mRow, aCursorSeed) == PLANTING_OK
+      || mBoard->CanPlantAt(mPlantCol - 1, mRow, aCursorSeed2) == PLANTING_OK);
 
   if (aOnGlove)
     aOverride = Sexy::Color(128, 128, 128);
   else if (aUpgradeReady || aCobReady)
-    GetFlashingColor(&aOverride, mBoard->mMainCounter);
+    GetFlashingColor(&aOverride, mBoard->mMainCounter, 90);
   else if (mSeedType == SEED_EXPLODE_O_NUT)
     aOverride = Sexy::Color(255, 64, 64);
   else
@@ -1358,6 +1358,14 @@ Reanimation * Plant::DoBlink()
 // ==========================================================================
 Reanimation * Plant::UpdateBlink()
 {
+  // Keep cardboard frozen when continuing saves made before its blink
+  // countdown was restored in IZombieSetupPlant.
+  if (IsOnBoard() && mApp->IsIZombieLevel())
+  {
+    EndBlink();
+    mBlinkCountdown = 0;
+    return nullptr;
+  }
   Reanimation *aBlink = nullptr;
   if (mBlinkReanimID != 0)
   {
@@ -2519,7 +2527,7 @@ int Plant::PlantInitialize(int theGridX, int theGridY, SeedType theSeedType, See
   {
     mStateCountdown = 50;
     if (IsOnBoard() == 0 || mApp->mGameMode != GAMEMODE_CHALLENGE_ZEN_GARDEN)
-      AddAttachedParticle(mX + 40, mY + 40, 0, (ParticleEffect)47);
+      AddAttachedParticle(mX + 40, mY + 40, RENDER_LAYER_FOG + 1, PARTICLE_LANTERN_SHINE);
     if (IsInPlay() != 0)
       mApp->PlaySample(SOUND_PLANTERN, true);
   }
@@ -3366,17 +3374,17 @@ void Plant::Draw(Sexy::Graphics * g)
   }
   else
   {
-    int aCursorSeed = -1;
-    int aCursorSeed2 = -1;
+    SeedType aCursorSeed = SEED_NONE;
+    SeedType aCursorSeed2 = SEED_NONE;
     if (mBoard != nullptr)
     {
       aCursorSeed = mBoard->GetSeedTypeInCursor(0);
       aCursorSeed2 = mBoard->GetSeedTypeInCursor(1);
     }
-    if (IsPartOfUpgradableTo((SeedType)aCursorSeed) != 0
-        && mBoard->CanPlantAt(mPlantCol, mRow, (SeedType)aCursorSeed) == PLANTING_OK
-      || IsPartOfUpgradableTo((SeedType)aCursorSeed2) != 0
-        && mBoard->CanPlantAt(mPlantCol, mRow, (SeedType)aCursorSeed2) == PLANTING_OK
+    if (IsPartOfUpgradableTo(aCursorSeed) != 0
+        && mBoard->CanPlantAt(mPlantCol, mRow, aCursorSeed) == PLANTING_OK
+      || IsPartOfUpgradableTo(aCursorSeed2) != 0
+        && mBoard->CanPlantAt(mPlantCol, mRow, aCursorSeed2) == PLANTING_OK
       || aCursorSeed == SEED_COBCANNON
         && mBoard->CanPlantAt(mPlantCol - 1, mRow, SEED_COBCANNON) == PLANTING_OK
       || aCursorSeed2 == SEED_COBCANNON
@@ -3385,7 +3393,7 @@ void Plant::Draw(Sexy::Graphics * g)
     {
       g->SetColorizeImages(true);
       Sexy::Color aFlashColor;
-      GetFlashingColor(&aFlashColor, mBoard->mMainCounter);
+      GetFlashingColor(&aFlashColor, mBoard->mMainCounter, 90);
       g->SetColor(aFlashColor);
     }
     TodDrawImageCelF(g, aImage, aShakeX, aShakeY, aFrame, 0);
@@ -5093,7 +5101,7 @@ int Plant::UpdateCobCannon()
       if (aCob != nullptr)
       {
         Sexy::Color aFlash;
-        GetFlashingColor(&aFlash, mBoard->mMainCounter);
+        GetFlashingColor(&aFlash, mBoard->mMainCounter, 75);
         aCob->mTrackColor = aFlash;
       }
       break;

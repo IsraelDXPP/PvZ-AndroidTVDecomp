@@ -606,7 +606,9 @@ bool Board::IsPlantInCursor(int thePlayerIndex)
 {
   // Cursor types 1..5 all carry a seed: bank, usable coin, glove, duplicator,
   // wheelbarrow.
-  return thePlayerIndex <= 2 && (unsigned int)(mCursorObject[thePlayerIndex]->mCursorType - 1) <= 4;
+  return thePlayerIndex >= 0 && thePlayerIndex < 2
+    && mCursorObject[thePlayerIndex] != nullptr
+    && (unsigned int)(mCursorObject[thePlayerIndex]->mCursorType - CURSOR_TYPE_PLANT_FROM_BANK) <= 4;
 }
 
 // ==========================================================================
@@ -640,9 +642,20 @@ SeedType Board::GetSeedTypeInCursor(int thePlayerIndex)
     return SEED_NONE;
 
   CursorObject *aCursor = mCursorObject[thePlayerIndex];
-  if ( aCursor->mType == SEED_IMITATER )
-    return aCursor->mImitaterType;
-  return aCursor->mType;
+  SeedType aCursorSeed = aCursor->mType == SEED_IMITATER ? aCursor->mImitaterType : aCursor->mType;
+  if (aCursor->mCursorType == CURSOR_TYPE_PLANT_FROM_BANK && Plant::IsUpgrade(aCursorSeed))
+  {
+    GamepadControls *aControls = mGamepadControls[thePlayerIndex];
+    if (aControls != nullptr && !aControls->mIsInShopSeedBank)
+    {
+      SeedBank *aBank = aControls->GetSeedBank();
+      int aPacketIndex = aCursor->mSelectedIndex;
+      if (aBank != nullptr && aPacketIndex >= 0 && aPacketIndex < aBank->mNumPackets
+          && aBank->mSeedPackets[aPacketIndex].mRefreshing)
+        return SEED_NONE;
+    }
+  }
+  return aCursorSeed;
 }
 
 // ==========================================================================
@@ -2826,11 +2839,7 @@ void Board::UpdateIce()
           (float)mIceMinX[aRow], (float)aY, GetIceZPos(aRow) + 1, (ParticleEffect)28);
       mIceParticleID[aRow] = mApp->ParticleGetID(aSystem);
     }
-    int aAlpha = 255 * mIceTimer[aRow] / 10;
-    if ( aAlpha < 0 )
-      aAlpha = 0;
-    else if ( aAlpha > 255 )
-      aAlpha = 255;
+    int aAlpha = mIceTimer[aRow] >= 10 ? 255 : 255 * mIceTimer[aRow] / 10;
     Sexy::Color aColor(255, 255, 255, aAlpha);
     aSystem->OverrideColor(nullptr, aColor);
   }
@@ -3494,16 +3503,15 @@ int Board::PlantingPixelToGridY(int theX, int theY, SeedType theSeedType)
 // Board::GridCellBounds(int,int,Sexy::SexyVector2 &,Sexy::SexyVector2 &,Sexy::SexyVector2 &,Sexy::SexyVector2 &,Sexy::SexyVector2 &,Sexy::SexyVector2 &,Sexy::SexyVector2 &,Sexy::SexyVector2 &)
 // @00155578  2248 bytes
 // ==========================================================================
-float Board::GridCellBounds(int theGridX, int theGridY, SexyVector2 & theTopLeft, SexyVector2 & theTopRight, SexyVector2 & theBottomLeft, SexyVector2 & theBottomRight, SexyVector2 & theCenter, SexyVector2 & theTop, SexyVector2 & theBottom, SexyVector2 & theSide)
+void Board::GridCellBounds(int theGridX, int theGridY, SexyVector2 & theTopLeft, SexyVector2 & theTopRight, SexyVector2 & theBottomLeft, SexyVector2 & theBottomRight, SexyVector2 & theCenter, SexyVector2 & theTop, SexyVector2 & theBottom, SexyVector2 & theSide)
 {
-  // The eight outputs are two quads describing one grid cell: (theTopLeft, theTopRight, theBottomLeft, theBottomRight)
-  // is the cell itself and (theCenter, theTop, theBottom, theSide) the narrower strip a plant
-  // occupies inside it. Each quad is written top-left, top-right, bottom-left,
-  // bottom-right -- so theTopLeft/theBottomLeft/theCenter/theBottom are the left edge and theTopRight/theBottomRight/theTop/theSide the right.
+  // The first four outputs are the outer corners. The remaining outputs are
+  // the inner top/bottom pair for the left half, then the pair for the right
+  // half. DrawFrame maps each half to its corresponding half of the texture.
   //
   // Three of the branches finish with the same adjustment, applied to the whole
-  // quad: every x moves right by 6, every y down by 16, and the bottom-right
-  // corners drop a further 5. The binary inlines it each time.
+  // outline: every x moves right by 6, every y down by 16, and the bottom
+  // points drop a further 5. The binary inlines it each time.
   const float kCellWidth = 80.0f;
   const float kCellHeight = 100.0f;
   const float kStripInsetX = 40.0f;
@@ -3536,7 +3544,7 @@ float Board::GridCellBounds(int theGridX, int theGridY, SexyVector2 & theTopLeft
   PlantsOnLawn aPlants;
   GetPlantsOnLawn(theGridX, theGridY, &aPlants);
   Plant *aPlant = aPlants.mNormalPlant;
-  if ( aPlant != NULL && aPlant->mSeedType == SEED_COBCANNON )
+  if ( aPlant != nullptr && aPlant->mSeedType == SEED_COBCANNON )
   {
     int aPlantGridX = PixelToGridX(aPlant->mX, aPlant->mY);
     int aPlantGridY = PixelToGridY(aPlant->mX, aPlant->mY);
@@ -3632,7 +3640,7 @@ float Board::GridCellBounds(int theGridX, int theGridY, SexyVector2 & theTopLeft
         theTop.mY += 5.0f;
         theSide.mY += 5.0f;
       }
-      return 0.0f;
+      return;
     }
 
     // The cannon is in a different cell, so the whole outline slides one cell
@@ -3662,7 +3670,7 @@ float Board::GridCellBounds(int theGridX, int theGridY, SexyVector2 & theTopLeft
       theBottom.mY = (float)(aPixelY - 10);
       theSide.mX = aXMid;
       theSide.mY = (float)(aPixelY + 75);
-      return 0.0f;
+      return;
     }
 
     if ( StageHas6Rows() )
@@ -3688,19 +3696,22 @@ float Board::GridCellBounds(int theGridX, int theGridY, SexyVector2 & theTopLeft
       theBottom.mY = aTop;
       theSide.mX = aXMid;
       theSide.mY = aBottom;
-      return 0.0f;
+      return;
     }
 
     if ( StageHasRoof() )
     {
       float aLeftX = (float)(aPixelX - (int)kCellWidth);
-      theTopLeft.mX = aX;
+      float aMidX = (float)(aPixelX - (int)kStripInsetX);
+      // GridCellBounds @0x155578: the cannon's right cell keeps its left
+      // edge 80 pixels back and its inner edge 40 pixels back.
+      theTopLeft.mX = aLeftX;
       theTopLeft.mY = aY;
-      theBottomLeft.mX = aX;
+      theBottomLeft.mX = aLeftX;
       theBottomLeft.mY = (float)(aPixelY + 85);
-      theCenter.mX = aLeftX;
+      theCenter.mX = aMidX;
       theCenter.mY = aY;
-      theTop.mX = aLeftX;
+      theTop.mX = aMidX;
       theTop.mY = (float)(aPixelY + 85);
       theTopRight.mX = aXRight;
       theTopRight.mY = aY;
@@ -3724,7 +3735,7 @@ float Board::GridCellBounds(int theGridX, int theGridY, SexyVector2 & theTopLeft
       theTop.mY += 5.0f;
       theSide.mY += 5.0f;
     }
-    return 0.0f;
+    return;
   }
 
   if ( StageHasRoof() )
@@ -3761,7 +3772,7 @@ float Board::GridCellBounds(int theGridX, int theGridY, SexyVector2 & theTopLeft
     theBottomRight.mY += 5.0f;
     theTop.mY += 5.0f;
     theSide.mY += 5.0f;
-    return 0.0f;
+    return;
   }
 
   if ( StageHas6Rows() )
@@ -3784,7 +3795,7 @@ float Board::GridCellBounds(int theGridX, int theGridY, SexyVector2 & theTopLeft
     theSide.mY = (float)(aRowOffset + aPixelY + 90);
     theTop = theSide;
   }
-  return 0.0f;
+  return;
 }
 
 // ==========================================================================
@@ -7073,7 +7084,7 @@ void Board::DrawLevel(Sexy::Graphics * g)
   {
     // The endless puzzles count a streak, and the current stage counts as one
     // more once its award has spawned.
-    int aStreak = mChallenge->mChallengeScore;
+    int aStreak = mChallenge->mSurvivalStage;
     if ( mLevelAwardSpawned )
       aStreak++;
     if ( aStreak > 0 )
@@ -9449,24 +9460,13 @@ Zombie * Board::SpawnZombiesFromPool()
     aBudget = (aLevelFrom23 > 2 && aLevelFrom33 > 2) ? 7 : 5;
   }
 
-  // Eight candidates, stride 12. The fill walks a pointer that starts 8 bytes
-  // into the array and steps 24, so each pass writes one cell's column and the
-  // next cell's row, weight and the constant 3. After four passes the eight
-  // cells are columns 5..8, rows 2 then 3, weight 10000. The 3 is never read.
+  // SpawnZombiesFromPool @0x15EFC8 fills both pool rows in columns 5..8.
   TodWeightedGridArray aCells[8];
-  int *aFill = &aCells[0].mWeight;
-  int aColumn = 5;
-  do
+  for (int aColumn = 5; aColumn < 9; ++aColumn)
   {
-    aFill[0] = aColumn;
-    aFill += 6;
-    aFill[-5] = aColumn++;
-    aFill[-7] = 2;
-    aFill[-6] = 10000;
-    aFill[-4] = 3;
-    aFill[-3] = 10000;
+    aCells[(aColumn - 5) * 2] = {aColumn, 2, 10000};
+    aCells[(aColumn - 5) * 2 + 1] = {aColumn, 3, 10000};
   }
-  while ( aColumn != 9 );
 
   Zombie *aZombie = nullptr;
   int aDropped = 0;
@@ -10006,6 +10006,9 @@ void Board::LoadBackgroundImages()
 int Board::PostLoadGame()
 {
   LoadBackgroundImages();
+  // Loading resumes a playing board without replaying the intro's grave-rise event.
+  if (StageHasGraveStones())
+    mEnableGraveStones = true;
   mApp->ClearUpdateBacklog(false);
   ResetFPSStats();
   UpdateLayers();

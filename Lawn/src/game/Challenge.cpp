@@ -38,6 +38,8 @@
 #include "Zombie.h"
 #include <cstring>
 #include <cmath>
+#include <algorithm>
+#include <limits>
 
 // Definitions for the class statics declared in the header.
 int Challenge::gVSResourceDropCount = 0;
@@ -4511,8 +4513,9 @@ void Challenge::IZombieSetupPlant(Plant * thePlant)
     // Word 19 is mState (+0x4C). 16 is STATE_POTATO_ARMED.
     thePlant->mState = STATE_POTATO_ARMED;
   }
-  // Word 48 is mWakeUpCounter (+0x140).
-  thePlant->mWakeUpCounter = 0;
+  // IZombieSetupPlant @0x183950 clears +0xC0, the blink countdown.
+  thePlant->EndBlink();
+  thePlant->mBlinkCountdown = 0;
   thePlant->UpdateReanim();
 }// ==========================================================================
 // Challenge::IZombiePlacePlantInSquare(theSeedType,theGridX,theGridY)
@@ -6400,7 +6403,7 @@ void Challenge::PortalStart()
   // Board+22144 is mRiseFromGraveCounter; +56/+60 from there is
   // mZombieCountDown / mZombieCountDownStart. Types 4 and 5 are the two
   // portal shapes (GRIDITEM_PORTAL_CIRCLE / GRIDITEM_PORTAL_SQUARE).
-  mChallengeState = ChallengeState(9000);
+  mChallengeStateCounter = 9000;
   GridItem *aSquare0 = mBoard->mGridItems.DataArrayAlloc();
   aSquare0->mGridItemType = GRIDITEM_PORTAL_SQUARE;
   aSquare0->mGridX = 2;
@@ -6430,7 +6433,7 @@ void Challenge::PortalStart()
   aCircle4->OpenPortal();
   mBoard->mZombieCountDown = 200;
   mBoard->mZombieCountDownStart = 200;
-  mChallengeStateCounter = 200;
+  mConveyorBeltCounter1 = 200;
 }// ==========================================================================
 // Challenge::MoveAPortal(void)
 // @001866F0  230 bytes
@@ -6571,16 +6574,14 @@ void Challenge::Update()
     ScaryPotterUpdate();
   if ( mApp->IsScaryPotterLevel() != 0 || mApp->IsWhackAZombieLevel() != 0 )
   {
-    if ( mBoard->mSeedBank[0]->mCutSceneDarken < 0 )
+    if ( mBoard->mSeedBank[0]->mY < 0 )
     {
       int aSunMoney = mBoard->mSunMoney1;
       if ( mBoard->CountSunBeingCollected(0) + aSunMoney > 0
-           || mBoard->mSeedBank[0]->mCutSceneDarken > -IMAGE_SEEDBANK->GetHeight() )
+           || mBoard->mSeedBank[0]->mY > -IMAGE_SEEDBANK->GetHeight() )
       {
-        int aDarken = mBoard->mSeedBank[0]->mCutSceneDarken + 2;
-        mBoard->mSeedBank[0]->mCutSceneDarken = aDarken;
-        if ( aDarken > 0 )
-          mBoard->mSeedBank[0]->mCutSceneDarken = 0;
+        SeedBank *aBank = mBoard->mSeedBank[0];
+        aBank->mY = std::min(aBank->mY + 2, 0);
       }
     }
   }
@@ -7541,8 +7542,8 @@ void Challenge::StartLevel()
     {
       if ( mBoard->mPlantRow[aRow] != PLANTROW_POOL )
       {
-        mBoard->mIceTimer[aRow] = 400;
-        mBoard->mIceParticleID[aRow] = ParticleSystemID(0x7FFFFFFF);
+        mBoard->mIceMinX[aRow] = 400;
+        mBoard->mIceTimer[aRow] = std::numeric_limits<int>::max();
       }
     }
   }

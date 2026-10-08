@@ -594,29 +594,36 @@ TodParticleSystem * GridItem::UpdatePortal()
 // GridItem::DrawSquirrel(Sexy::Graphics *)
 // @0013D698  162 bytes
 // ==========================================================================
-int GridItem::DrawSquirrel(Sexy::Graphics *theGraphics)
+void GridItem::DrawSquirrel(Sexy::Graphics *theGraphics)
 {
-  // The binary calls both converters for their side effects and returns the
-  // animation offset for the current state; the caller places the squirrel.
-  mBoard->GridToPixelX(mGridX, mGridY);
-  const int aBaseY = mBoard->GridToPixelY(mGridX, mGridY);
-
+  // Restore the missing draw using the offsets in 0x13D698 and the recovered asset.
+  int aPosX = mBoard->GridToPixelX(mGridX, mGridY);
+  int aPosY = mBoard->GridToPixelY(mGridX, mGridY);
   switch ( mGridItemState )
   {
     case GRIDITEM_STATE_SQUIRREL_PEEKING:
-      return TodAnimateCurve(50, 0, mGridItemCounter, 0, -40, CURVE_BOUNCE_SLOW_MIDDLE);
+      aPosY += TodAnimateCurve(50, 0, mGridItemCounter, 0, -40, CURVE_BOUNCE_SLOW_MIDDLE);
+      break;
     case GRIDITEM_STATE_SQUIRREL_RUNNING_UP:
-      return TodAnimateCurve(50, 0, mGridItemCounter, 100, 0, CURVE_EASE_IN);
+      aPosY += TodAnimateCurve(50, 0, mGridItemCounter, 100, 0, CURVE_EASE_IN);
+      break;
     case GRIDITEM_STATE_SQUIRREL_RUNNING_DOWN:
-      return TodAnimateCurve(50, 0, mGridItemCounter, -100, 0, CURVE_EASE_IN);
+      aPosY += TodAnimateCurve(50, 0, mGridItemCounter, -100, 0, CURVE_EASE_IN);
+      break;
     case GRIDITEM_STATE_SQUIRREL_RUNNING_LEFT:
-      return TodAnimateCurve(50, 0, mGridItemCounter, 80, 0, CURVE_EASE_IN);
+      aPosX += TodAnimateCurve(50, 0, mGridItemCounter, 80, 0, CURVE_EASE_IN);
+      break;
     case GRIDITEM_STATE_SQUIRREL_RUNNING_RIGHT:
-      return TodAnimateCurve(50, 0, mGridItemCounter, -80, 0, CURVE_EASE_IN);
+      aPosX += TodAnimateCurve(50, 0, mGridItemCounter, -80, 0, CURVE_EASE_IN);
+      break;
     default:
       break;
   }
-  return aBaseY;
+  if (mSquirrelImage.mImage == nullptr)
+    mSquirrelImage = mApp->GetSharedImage(Sexy::String("addonFiles/images/squirrel"),
+                                        Sexy::String(), nullptr, true, false);
+  if (mSquirrelImage.mImage != nullptr)
+    theGraphics->DrawImage(mSquirrelImage.mImage, aPosX, aPosY);
 }
 
 // ==========================================================================
@@ -1063,10 +1070,10 @@ int GridItem::DrawScaryPot(Sexy::Graphics *theGraphics)
         break;
     }
 
+    theGraphics->PopState();
     const int aAlpha = TodAnimateCurve(0, 50, mTransparentCounter, 255, 58, CURVE_LINEAR);
     theGraphics->SetColorizeImages(true);
     theGraphics->SetColor(Sexy::Color(255, 255, 255, aAlpha));
-    theGraphics->PopState();
   }
 
   theGraphics->DrawImageCel(IMAGE_SCARY_POT, aXPos, aYPos, aImageCol, 1);

@@ -527,6 +527,9 @@ bool CutScene::CanGetSecondPacketUpgrade()
 // ==========================================================================
 void CutScene::StartSeedChooser()
 {
+    if (mBoard->StageHasRoof() && !IsSurvivalRepick())
+        AddFlowerPots();
+
     mSeedChoosing = true;
 
     if (mApp->mSeedChooserScreen)
@@ -641,13 +644,6 @@ void CutScene::AddGraveStoneParticles()
     }
 }
 
-// Take the head of the plant free list, clear the slot, construct the plant,
-// and store `index | (key << 16)` in the slot id.
-static Plant *AllocPlant(Board *theBoard)
-{
-    return theBoard->mPlants.DataArrayAlloc();
-}
-
 // ==========================================================================
 // CutScene::AddFlowerPots()
 // @0017784C  302 bytes
@@ -661,35 +657,34 @@ void CutScene::AddFlowerPots()
     constexpr int LEVEL_5_3 = 42;
 
     int aLevel = mBoard->mLevel;
-    int aNumRows;
+    int aNumColumns;
     if (aLevel == LEVEL_5_2)
-        aNumRows = 5;
+        aNumColumns = 5;
     else if (aLevel == LEVEL_5_3)
-        aNumRows = 4;
+        aNumColumns = 4;
     else if (aLevel >= 43 && aLevel <= 50)
-        aNumRows = 3;
+        aNumColumns = 3;
     else if (mApp->mGameMode == GAMEMODE_CHALLENGE_COLUMN)
-        aNumRows = 8;
+        aNumColumns = 8;
     else if (mBoard->StageHasRoof())
-        aNumRows = 3;
+        aNumColumns = 3;
     else if ((mApp->mGameMode == GAMEMODE_MP_VS_DEBUG || mApp->mGameMode == GAMEMODE_MP_VS)
              && LawnApp::MP_FLOWERPOT_TEST != 0)
-        aNumRows = 6;
+        aNumColumns = 6;
     else
         return;
 
     // Fill every row that has no flower pot yet; a cell that already blocks
     // planting (a grave stone, a pool tile, ...) is skipped.
-    for (int aRow = 0; aRow < aNumRows; aRow++)
+    for (int aColumn = 0; aColumn < aNumColumns; ++aColumn)
     {
-        for (int aCol = 0; aCol < 6; aCol++)
+        for (int aRow = 0; aRow < MAX_GRID_SIZE_Y; ++aRow)
         {
-            if (mBoard->CanPlantAt(aRow, aCol, SEED_FLOWERPOT) != PLANTING_OK)
+            if (mBoard->CanPlantAt(aColumn, aRow, SEED_FLOWERPOT) != PLANTING_OK)
                 continue;
 
-            Plant *aPlant = AllocPlant(mBoard);
-            aPlant->mIsOnBoard = true;
-            aPlant->PlantInitialize(aRow, aCol, SEED_FLOWERPOT, SEED_NONE, -1);
+            Plant *aFlowerPot = mBoard->NewPlant(aColumn, aRow, SEED_FLOWERPOT, SEED_NONE, -1);
+            mBoard->mFlowerPotTree.insert(aFlowerPot);
         }
     }
 }
