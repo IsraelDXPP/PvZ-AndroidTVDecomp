@@ -2217,7 +2217,7 @@ bool GamepadControls::HandleVersusZombiePlant(int thePlantAccepted)
         {
             if (aZombieType == ZOMBIE_BUNGEE)
             {
-                Zombie *aDropped = mBoard->AddZombieInRow(ZOMBIE_BUNGEE, aCellY, 0, true);
+                Zombie* aDropped = mBoard->AddZombieInRow(aZombieType, aCellY, 0, true);
                 if (aDropped != nullptr)
                 {
                     aDropped->mRow = aCellX;

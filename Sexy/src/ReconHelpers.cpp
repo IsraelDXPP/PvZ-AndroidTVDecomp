@@ -9,6 +9,7 @@
 #include "ReconTypes.h"
 #include "SharedImageRef.h"
 #include "SDLFile.h"
+#include "MTRand.h"
 
 
 // std::setlocale / LC_ALL, for the setLocale helper at the bottom of the file.
@@ -432,30 +433,30 @@ int MSleep(int theMillis)
 // ---------------------------------------------------------------------------
 // Rand -- the framework's random-in-range helper.
 //
-// The decompiled call sites pass the app object and a range, and use the
-// result as an offset within that range:
-//
-//     Rand(theApp, theRange)
-//
-// The generator has the PC build's constants, so the sequence has the same
-// character; the object argument is the state holder the original advances.
+// @0x2F9EC8 / 0x2F9ED4 / 0x2F9EE4 all use the shared MTRand at
+// 0x71C4EC. Its draws cover 31 bits, including large weighted-pick ranges.
 // ---------------------------------------------------------------------------
-static unsigned int gRandState = 0;
+namespace
+{
+Sexy::MTRand& SharedRandom()
+{
+    static Sexy::MTRand random;
+    return random;
+}
+}
 
 // _ZN4Sexy4RandEv @0x2F9EC8 -- the generator's own draw, no bound. The int
 // and float forms scale this into [0, theRange).
 int Sexy::Rand()
 {
-    gRandState = 1103515245u * gRandState + 12345u;
-    return (int)((gRandState >> 16) & 0x7FFF);
+    return static_cast<int>(SharedRandom().Next());
 }
 
 int Sexy::Rand(void* /*theObject*/, int theRange)
 {
     if (theRange <= 0)
         return 0;
-    gRandState = 1103515245u * gRandState + 12345u;
-    return (int)((gRandState >> 16) & 0x7FFF) % theRange;
+    return static_cast<int>(SharedRandom().Next(static_cast<unsigned int>(theRange)));
 }
 
 int Sexy::Rand(int theRange)
@@ -470,9 +471,7 @@ float Sexy::Rand(float theRange)
 {
     if (theRange <= 0.0f)
         return 0.0f;
-    gRandState = 1103515245u * gRandState + 12345u;
-    float aUnit = (float)((gRandState >> 16) & 0x7FFF) / 32768.0f;
-    return aUnit * theRange;
+    return SharedRandom().Next(theRange);
 }
 
 // The double literal form; see the declaration for why it exists.

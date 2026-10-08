@@ -397,10 +397,13 @@
   </Target>
   <Target Name="StageLevelConfiguration" AfterTargets="Build">
     <PropertyGroup>
+      <LevelConfigurationVariant Condition="'$(LevelConfigurationVariant)' == ''">tv</LevelConfigurationVariant>
+      <LevelConfigurationSource>$(ProjectDir)..\Config\OriginalSpawns\levels.$(LevelConfigurationVariant).xml</LevelConfigurationSource>
       <LevelConfigurationRoot>$(OutDir)assets\</LevelConfigurationRoot>
       <LevelConfigurationRoot Condition="Exists('$(OutDir)assets\files')">$(OutDir)assets\files\</LevelConfigurationRoot>
     </PropertyGroup>
     <MakeDir Directories="$(LevelConfigurationRoot)properties" />
-    <Copy SourceFiles="$(ProjectDir)..\Config\OriginalSpawns\levels.xml" DestinationFolder="$(LevelConfigurationRoot)properties" SkipUnchangedFiles="true" />
+    <Error Condition="'$(LevelConfigurationVariant)' != 'tv' and '$(LevelConfigurationVariant)' != 'pc'" Text="LevelConfigurationVariant must be tv or pc." />
+    <Copy SourceFiles="$(LevelConfigurationSource)" DestinationFiles="$(LevelConfigurationRoot)properties\levels.xml" />
   </Target>
 </Project>

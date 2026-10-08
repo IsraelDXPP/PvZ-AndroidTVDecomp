@@ -505,7 +505,6 @@ public:
     Plant * GetFlowerPotAt(int theGridX, int theGridY);
     Projectile * AddProjectile(int theX, int theY, int theRenderOrder, int theRow, ProjectileType theType);
     bool CanZombieSpawnOnLevel(ZombieType theZombieType, int theLevel);
-    int PutInMissingZombies(int theWaveIndex, ZombiePicker *thePicker);
     int IsZombieWaveDistributionOk();
     int InitZombieWavesForLevel(int theLevel);
     int GetIntroducedZombieType();

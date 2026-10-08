@@ -1,64 +1,86 @@
-# 统一关卡配置
+# TV 与 NormalLevel 原版出怪 XML
 
-只加载一个 `properties/levels.xml`。本目录的 [levels.xml](levels.xml) 包含冒险 50 关的两个周目、所有已定义的模式（0–93）、生存阶段，以及同一文件中的原版数据表和规则来源。94 是原枚举空洞，没有对应关卡。
+提供两个独立的分发文件，均使用 `schemaVersion="3"`：
 
-构建 Lawn 项目会将文件复制到 exe 旁的 `assets/properties/levels.xml`；如果已有 `assets/files/`，则复制到其 `properties/`。使用 `--assets` 时，将文件放到所指定资源根的 `properties/levels.xml`。不需要二周目文件或额外规则文件。重新构建会更新默认目录里的配置。
+| 文件 | 冒险数据 | 1-1 一周目 | 1-1 二周目 |
+| --- | --- | --- | --- |
+| [levels.tv.xml](levels.tv.xml) | 用户提供的 TV 原版 levels.xml | 4 波，预算 1、1、2、2，6 只普通僵尸 | 沿用 TV XML，4 波 |
+| [levels.pc.xml](levels.pc.xml) | 参考工程 NormalLevel 恢复的内置原版算法 | 4 波，预算 1、1、1、2，5 只普通僵尸 | 20 波，预算 2*index/5+1，第 10、20 波为旗帜波 |
 
-## 选择记录
+两份都包含完整模式和生存阶段，以及重型武器、双人、合作等 TV 专属模式。差异集中在冒险的场景、波数、预算、允许列表和周目选择。PC 文件指用户要求的 NormalLevel 方案：参考工程通过禁用 TV XML、调用原二进制算法恢复出怪，并非对独立 PC 可执行文件的再次提取。两份都显式跳过 1-1 商店种子教学，追加规则仍完全由 XML 动作执行。
 
-`Level` 通过 `mode`、`id`、`adventureCycle` 和 `survivalStage` 选择。模式、关卡和阶段支持精确整数、闭区间（例如 `0-1`）、`*`。冒险周目为 `first`、`repeat`、`any`，按存档是否已通关冒险判断；阶段从 0 开始，生存和坚不可摧换阶段时重新选择。读档也重新加载当前记录。
+分发时任选一份，复制并改名为资源目录的 `properties/levels.xml`。游戏每次运行只加载该文件，两份之间没有引用或依赖。枚举 94 是空洞；91、93 是参考工程扩展，并在 XML 中标明。
 
-优先使用 `priority` 较大的记录（默认 0）；相同优先级按精确选择器优于区间、区间优于通配符累计评分。最终最优记录同分则报错，不依赖文件排列顺序。没有匹配、文件缺失或当前记录解析失败时，清除旧配置并回到原版规则；解析错误写入 stderr。
+构建默认将 `levels.tv.xml` 部署成 exe 旁的 `assets/properties/levels.xml`；已有 `assets/files/` 时使用其 properties 目录。构建原版方案时加入 `/p:LevelConfigurationVariant=pc`，TV 方案为 `/p:LevelConfigurationVariant=tv`。构建不会修改两份源配置。分发后更换出怪只需替换运行资源中的 levels.xml。
 
-## 继承与逐波覆盖
+源文件缺少 `</PVZ>`，转换时只在内存中补齐；原文件未改。`tv-adventure-source.txt` 保存原始字节供重新导出，运行不读取它。冒险的场景、允许列表、波数、每波 points、flag 和 mustHaveZombies 均保留。原 TV 文件的 mode=0 扩为 0-1，让双人冒险共享配置；TV 文件的两个周目都采用这份 TV XML。PC 文件按 NormalLevel 分别还原两个周目。1-1 是 4 波，预算 1、1、2、2，共 6 只普通僵尸。明确跳过商店种子教学，取消其第四波的全类型额外僵尸。
+
+## 与旧格式的行为差异
+
+旧扩展格式以开关控制 C++ 中的旗帜追加、登场追加、末波补齐和关卡倍率。新格式把这些规则写成 XML 动作；代码只解释动作，不再按关卡号硬塞僵尸。原 nativeFlagWave、nativePointMultiplier、nativeIntroductions、nativeLastWave 和 afterNativeZombies 已由动作替代，不应继续使用。
+
+`points` 仍是必出列表、旗帜和倍率处理前的预算，不等于僵尸数量。`mustHaveZombies` 先按顺序加入并扣除点数，然后执行动作。允许列表只约束随机 Fill，Spawn、Missing 和 mustHaveZombies 可以显式指定列表以外的类型，保留原 TV 文件的行为。最多 100 波，每波最多 50 个条目。
+
+配置缺失或无法选择时清空旧配置，不再回退到代码里的固定追加。XML 模式没有 Fill 就不会随机填充；允许列表为空或没有符合抽选条件的类型时也不会凭空补普通僵尸。旧不带 spawnRules 的 XML 仍解析顺序 Wave 和原有场景/种子/墓碑属性，但不恢复已经移除的代码追加。
+
+## 选择、默认值和动作
+
+Level 选择器为 mode、id、adventureCycle、survivalStage。数字支持整数、闭区间或 *；adventureCycle 为 first/repeat/any。priority 默认 0，较大者优先，然后比较精确程度，最终最优同分会报错。生存换阶段和读档重新选择配置。Defaults 必须在全部 Level 前。
 
 ```xml
-<PVZ schemaVersion="2">
-  <Defaults spawnRules="native" flagRules="native"
-            allowedZombies="native" waveCount="native" />
-  <Level mode="20" id="*" waveCount="25" name="重型武器">
-    <Wave index="0" points="0" />
-    <!-- 未填写的波保留原版预算、旗帜与出怪规则 -->
+<PVZ schemaVersion="3">
+  <Defaults spawnRules="xml" flagRules="xml" allowedZombies="" waveCount="0">
+    <Fill />
+  </Defaults>
+  <Level mode="0" id="1" waveCount="2" allowedZombies="0 2">
+    <Wave index="0" points="2" />
+    <Wave index="1" points="0" replaceActions="true">
+      <Spawn types="4" count="2" />
+    </Wave>
   </Level>
-  <Level mode="2" id="*" survivalStage="*" />
-  <Level mode="2" id="*" survivalStage="0" waveCount="10" />
 </PVZ>
 ```
 
-`spawnRules="native"` 保留未指定的字段。`waveCount`、`allowedZombies` 和每波 `points` 可写 `native`；缺省也继承。稀疏 `Wave index` 只覆盖指定波，不把总波数改为覆盖条数。旧 XML 不写 `spawnRules` 时使用 `legacy`：波数由 Wave 推导、允许列表来自 XML，冒险旗帜由 XML 决定，保留旧文件行为。
+Level 内的动作替换 Defaults 的整套动作；Wave 内的动作替换 Level 的整套动作。`replaceActions="true"` 可以显式设置空动作列表。Wave 的 index 从 0 开始；不写时顺序递增。flag 只标记大波，是否加旗帜僵尸由 Spawn 决定。
 
-| 属性 | 用途 |
+| 动作 | 效果 |
 | --- | --- |
-| `waveCount` | 波数 0–100；`native` 继承原版 |
-| `allowedZombies` | 空格分隔的僵尸类型 0–33；`native` 保留存档和阶段判断 |
-| `scene` | 场景枚举 0–9；未写时使用原版场景 |
-| `initialSunMoney` | 初始阳光；native 策略允许显式 0 |
-| `skipShopSeedTutorial` | 跳过 1-1 商店道具教学，避免教学额外大群出怪 |
-| `firstWaveDelay` | 首波等待，游戏更新次数，1–600000 |
-| `flagRules` | `native` 原版旗帜；`xml` 仅由 XML 指定；`legacy` 旧文件策略 |
-| `nativeFlagWave` | 是否执行旗帜波的预算倍率和固定追加，默认 true |
-| `nativePointMultiplier` | 是否执行关卡的点数倍率，默认 true |
-| `nativeIntroductions` | 是否执行冒险新僵尸追加，默认 true |
-| `nativeLastWave` | 是否执行冒险最后一波补怪，默认 true |
+| Scale numerator="5" denominator="2" | 剩余预算乘分数，向零取整 |
+| Spawn types="0 2" count="3" | 按列表顺序生成，整份列表重复 3 次，并扣点 |
+| Spawn types="0" budgetCountLimit="8" | 重复次数取最近一次 Scale 前预算与 8 的较小值，最低 0；用于原版旗帜波 |
+| Missing types="0 2 4" | 仅补齐当前波缺少的指定类型，扣点 |
+| Fill | 从 allowedZombies 按原版权重、最早波次和预算限制填充剩余预算 |
 
-每个 `Wave` 可用 `index`（0–99，不写则接上一波）、`points`（允许 0）、`flag="0|1|native"`、`mustHaveZombies`、`afterNativeZombies`、`nextWaveDelay`。两种必出列表合计最多 50 只；索引不能超过显式波数。`mustHaveZombies` 在旗帜处理前加入并扣点，`afterNativeZombies` 在原版固定追加之后、随机填充之前加入并扣点。`nextWaveDelay` 覆盖该波之后的等待，但原版教学暂停、血量提前出怪和大波提示仍有效。
+动作可附 `flagOnly="true"`、`lastOnly="true"`、`yetiUnkilledOnly="true"`。雪人条件同时要求存档许可且未杀死后重开。蹦极突袭的旗帜波明确写 Spawn types=20 count=5，不再执行通用动作。
 
-原有的 `initPlantSetting="[列 行 种子]"`、`initTomb="[列 行]"`、`initSeeds`、`forbiddenPlants`、`initSlotLimit`、`initFogColumns`、`zombieVisible`、`winCodeType` 和 `winCodeCondition` 继续解析；各字段仍交给现有玩法代码处理。特殊种子按钮和 I-Zombie 种子在 `initSeeds` 中可使用原版 ID 55–79。
+生存的未指定波预算为：
 
-## 原版配置
+`floor((index + pointIndexOffset + stage * pointStageStride) * pointNumerator / pointDenominator) + pointOffset`
 
-一周目预算为 `waveIndex / 3 + 1`；二周目通常为 `2 * waveIndex / 5 + 1`，保龄球和锤僵尸例外。一周目 1-1 为 4 波、预算 `1 1 1 2`、无旗帜，跳过商店道具教学后总计 5 只普通僵尸。
+默认参数为 1/3、offset=1、其余 0。显式 Wave points 优先。生存后续阶段设置 2/5 和阶段波数作为 stride；坚不可摧增加 indexOffset=10。allowedZombies="survival" 明确选择原版按阶段抽取允许类型的算法；普通记录使用明确数字列表。allowYeti 明确控制是否根据存档额外开放随机雪人，默认 false。
 
-`points` 始终是旗帜处理和特殊关卡倍率前的预算。新僵尸和最后一波补怪没有在 XML 中重复追加。`PutInMissingZombies` 已按汇编修正为补齐当前波缺少的全部允许类型，跳过雪人。
+## 专用玩法数据
 
-重型武器（mode=20）明确列出 25 波，预算 `3 * waveIndex / 4` 向下取整，第一波为 0。原版允许普通、撑杆、橄榄球、跳跳、巨人，雪人仍受存档许可控制；空中出怪和炮台沿用 TV 专属控制器。双人冒险、合作、对战及其他 TV 模式也有记录。
+这些节点都参与运行，不再只是说明：
 
-生存阶段 0 列出原版预算，后续阶段保留随阶段增长的预算和抽选僵尸。砸罐子、I-Zombie、锤僵尸、僵王、禅境等仍由各自原版控制器实际运行，不能把这些玩法替换成普通 Wave 刷怪。`controller` 和 `name` 是说明属性，加载器不使用它们选择控制器。
+| 节点 | 可定制内容 |
+| --- | --- |
+| ExtraSpawns | graves、graveMinimumAge、graveCountdownChance、gravesOnFlag；poolCount/poolPoints；skyCount/skyPoints、skyEveryWave；types、carrier、bobsledFallback |
+| WhackSpawns | initialGraves、graveTarget、waveDelay、rollRange、finalCount/finalTypes；首尾最小/最大召唤间隔及 delayEndWave |
+| WhackSpawns/Stage | 按当前波阶段选择；twoWeight、threeWeight 定义 2/3 只概率，其余为 1 只；types/weights 定义僵尸分布，threeTypes/threeWeights 可覆盖一次出 3 只时的分布 |
+| BossSpawns | type 指定开场僵王；Spawn 按 maximumAge、row 和 types 选择召唤，按文件顺序取第一个匹配项 |
+| Vases | minimumStage/maximumStage、excludedColumns、leafCount；Pot 的 kind=plant/zombie/sun、plant/zombie、count；stageDelta/stageDivisor/maximumCount 支持无尽增长 |
+| Mound | 对战墓堆的 minimumLevel/maximumLevel、types |
+| Summons | backupDancer、imp、bossBungee/bossBungeeCount、aquarium、squirrel、bobsled；类型 -1 禁用对应召唤 |
 
-91（Buttered Popcorn）和 93（Pool Party）是参考 AndroidTV 工程的扩展模式，也列出了其波数和预算；完整扩展玩法需要对应控制器，本次配置加载不新增这些玩法。
+ExtraSpawns 未声明的数量默认 0、墓碑补怪默认关闭。types 是补怪候选池，仍受本关允许列表约束。重型武器明确声明每波空降 3 只、预算 7，以及允许列表 0 3 7 18 23；第一波的常规预算为 0，空降独立执行。蹦极载体也由 carrier 指定。保留原版地形落点、动画和玩法控制器；召唤类型需适合对应的动画动作。
 
-`OriginalSpawnRules` 子树记录原版表、地址、阶段顺序与动态条件，仅供核对，不参与运行选择；因此运行仍只需这个 XML。
+锤僵尸的墓碑位置仍按原版随机选格，初始数量由 initialGraves 指定。已修复原随机函数只有 15 位而权重为 100000 的问题，恢复原版 31 位 Mersenne Twister，避免墓碑总是填满前两列。
 
-## 重新生成
+原属性 initPlantSetting、initTomb、initSeeds、forbiddenPlants、initSlotLimit、initFogColumns、zombieVisible、winCodeType、winCodeCondition 继续支持。firstWaveDelay/nextWaveDelay 单位为游戏更新次数。控制器的动画、地形、玩家主动操作（例如 I-Zombie 放置）继续由玩法代码运行，出怪配置通过本文件选择。
 
-从仓库根运行 `python Tools/export_original_spawns.py`。脚本读取重建代码中的原版表和模式枚举，只生成本目录的一个 `levels.xml`。
+## 重新导出
+
+`python Tools/export_original_spawns.py`
+
+指定另一份原 TV 冒险文件：`python Tools/export_original_spawns.py --tv-source "C:/path/levels.xml"`。默认生成本目录的 levels.tv.xml 和 levels.pc.xml；也可加 --profile tv 或 --profile pc 单独生成。构建会将所选方案复制为资源目录里的 levels.xml，手动定制请改对应源配置，或使用独立 --assets 目录。

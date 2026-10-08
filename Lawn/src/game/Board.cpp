@@ -1273,26 +1273,6 @@ bool Board::CanZombieSpawnOnLevel(ZombieType theZombieType, int theLevel)
 }
 
 // ==========================================================================
-// Board::PutInMissingZombies(int,ZombiePicker *)
-// @001521C4  76 bytes
-// ==========================================================================
-int Board::PutInMissingZombies(int theWaveIndex, ZombiePicker *thePicker)
-{
-  // @0x1521C4 continues after each insertion. The count is for this wave;
-  // the yeti is handled by its separate introduction rule.
-  int lastValue = 0;
-  for (int typeIndex = 0; typeIndex < NUM_ZOMBIE_TYPES; ++typeIndex)
-  {
-    const ZombieType zombieType = static_cast<ZombieType>(typeIndex);
-    if (zombieType == ZOMBIE_YETI)
-      continue;
-    if (thePicker->mZombieTypeCount[typeIndex] == 0 && CanZombieSpawnOnLevel(zombieType, mLevel))
-      lastValue = PutZombieInWave(zombieType, theWaveIndex, thePicker);
-  }
-  return lastValue;
-}
-
-// ==========================================================================
 // Board::IsZombieWaveDistributionOk()
 // @00152210  160 bytes
 // ==========================================================================
@@ -1328,19 +1308,9 @@ int Board::IsZombieWaveDistributionOk()
 // ==========================================================================
 int Board::InitZombieWavesForLevel(int theLevel)
 {
-  // These three modes build their waves in Challenge rather than from the table.
-  if ( mApp->IsWhackAZombieLevel()
-    || (mApp->IsWallnutBowlingLevel() && !mApp->IsFirstTimeAdventureMode())
-    || mApp->mGameMode == GAMEMODE_CHALLENGE_HEAVY_WEAPON )
-  {
-    mChallenge->InitZombieWaves();
-    return 0;
-  }
-
-  int result = 0;
-  for ( int i = 0; i < NUM_ZOMBIE_TYPES; ++i )
-    result = mZombieAllowed[i] = CanZombieSpawnOnLevel((ZombieType)i, theLevel);
-  return result;
+  (void)theLevel;
+  mChallenge->InitZombieWaves();
+  return 0;
 }
 
 // ==========================================================================
@@ -1370,74 +1340,16 @@ int Board::GetIntroducedZombieType()
 // ==========================================================================
 int Board::PickGraveRisingZombieTypeMP(int theLevel)
 {
-  // Each pair is { zombie type, cost }. The 0x114-byte frame is 69 words;
-  // the picker only reads the pairs this function fills.
-  TodWeightedArray aWeights[69];
-  int aCount = 0;
-  GameMode aMode = mApp->mGameMode;
-  if ( aMode == GAMEMODE_MP_VS_DEBUG )
+  for (const LevelMoundSpawn& spawn : mApp->mLevel.mMoundSpawns)
   {
-    if ( theLevel > 3 )
-    {
-      aWeights[0].mItem = 23;
-      aWeights[0].mWeight = GetZombieDefinition(23)->mZombieCost;
-      aWeights[1].mItem = 22;
-      aWeights[1].mWeight = GetZombieDefinition(22)->mZombieCost;
-      aWeights[2].mItem = 12;
-      aWeights[2].mWeight = GetZombieDefinition(12)->mZombieCost;
-      aCount = 3;
-    }
-    else
-    {
-      switch ( theLevel )
-      {
-        case 3:
-          aWeights[0].mItem = 6;
-          aWeights[0].mWeight = GetZombieDefinition(6)->mZombieCost;
-          aWeights[1].mItem = 15;
-          aWeights[1].mWeight = GetZombieDefinition(15)->mZombieCost;
-          aCount = 2;
-          break;
-        case 2:
-          aWeights[0].mItem = 3;
-          aWeights[0].mWeight = GetZombieDefinition(3)->mZombieCost;
-          aWeights[1].mItem = 7;
-          aWeights[1].mWeight = GetZombieDefinition(7)->mZombieCost;
-          aCount = 2;
-          break;
-        case 1:
-          aWeights[0].mItem = 5;
-          aWeights[0].mWeight = GetZombieDefinition(5)->mZombieCost;
-          aWeights[1].mItem = 2;
-          aWeights[1].mWeight = GetZombieDefinition(2)->mZombieCost;
-          aCount = 2;
-          break;
-        default:
-          aWeights[0].mItem = 0;
-          aWeights[0].mWeight = GetZombieDefinition(0)->mZombieCost;
-          aCount = 1;
-          break;
-      }
-    }
-    return TodPickFromWeightedArray(aWeights, aCount);
+    if (theLevel < spawn.mMinimumLevel || theLevel > spawn.mMaximumLevel) continue;
+    std::vector<TodWeightedArray> choices;
+    for (ZombieType type : spawn.mTypes)
+      choices.emplace_back(type, GetZombieDefinition(type)->mZombieCost);
+    return choices.size() == 1 ? choices.front().mItem
+        : TodPickFromWeightedArray(choices.data(), static_cast<int>(choices.size()));
   }
-  if ( aMode != GAMEMODE_MP_VS )
-    return TodPickFromWeightedArray(aWeights, 0);
-  switch ( theLevel )
-  {
-    case 0:
-      return 0;
-    case 1:
-      return 6;
-    case 2:
-      return 3;
-    case 3:
-      return 7;
-    case 4:
-      return 23;
-    default:
-      return TodPickFromWeightedArray(aWeights, 0);
-  }
+  return ZOMBIE_INVALID;
 }
 
 // ==========================================================================
@@ -2719,41 +2631,18 @@ int Board::StageHasGraveStones()
 // Board::PickGraveRisingZombieType(int)
 // @00153E50  190 bytes
 // ==========================================================================
-int Board::PickGraveRisingZombieType(int theLevel)
+int Board::PickGraveRisingZombieType(int thePoints)
 {
-  // The wave index is unused. Two pairs always: normal (0) and traffic cone
-  // (2). A stage without graves adds a third, pole vaulter (4). The 69-word
-  // frame is what the binary reserves; the picker only reads aCount pairs.
-  (void)theLevel;
-  TodWeightedArray aWeights[69];
-  int aCount = 2;
-  aWeights[0].mItem = 0;
-  aWeights[0].mWeight = GetZombieDefinition(0)->mZombieCost;
-  aWeights[1].mItem = 2;
-  aWeights[1].mWeight = GetZombieDefinition(2)->mZombieCost;
-  if ( StageHasGraveStones() == 0 )
+  (void)thePoints; // The original @0x153E50 weights types, without a point gate.
+  if (!IsLevelDataLoaded()) return ZOMBIE_INVALID;
+  std::vector<TodWeightedArray> weights;
+  for (ZombieType type : mApp->mLevel.mExtraSpawns.mTypes)
   {
-    aCount = 3;
-    aWeights[2].mItem = 4;
-    aWeights[2].mWeight = GetZombieDefinition(4)->mZombieCost;
+    const ZombieDefinition* definition = GetZombieDefinition(type);
+    if (mZombieAllowed[type] && definition->mZombieCost > 0)
+      weights.push_back({static_cast<int>(type), definition->mZombieCost});
   }
-  for ( int i = 0; i < aCount; ++i )
-  {
-    int aType = aWeights[i].mItem;
-    ZombieDefinition *aDefinition = GetZombieDefinition(aType);
-    if ( mApp->IsFirstTimeAdventureMode() != 0 && mLevel < aDefinition->mStartingLevel )
-    {
-      aWeights[i].mWeight = 0;
-      continue;
-    }
-    // An allowed type, and the normal zombie, keep the cost. A disallowed
-    // type keeps the byte the table stored, which is 0.
-    if ( mZombieAllowed[aType] != 0 || aType == 0 )
-      aWeights[i].mWeight = aDefinition->mZombieCost;
-    else
-      aWeights[i].mWeight = mZombieAllowed[aType];
-  }
-  return TodPickFromWeightedArray(aWeights, aCount);
+  return weights.empty() ? ZOMBIE_INVALID : TodPickFromWeightedArray(weights.data(), static_cast<int>(weights.size()));
 }
 
 // ==========================================================================
@@ -7423,13 +7312,13 @@ int Board::PickZombieType(int theWaveIndex, int thePointCount, ZombiePicker *the
         {
           int aLimit = TodAnimateCurve(14, 100, aFlags, 1, 50, (TodCurves)1);
           if ( aLimit <= thePicker->mZombieTypeCount[ZOMBIE_REDEYE_GARGANTUAR] )
-            return TodPickFromWeightedArray(aPicks, aCount);
+            return aCount > 0 ? TodPickFromWeightedArray(aPicks, aCount) : ZOMBIE_INVALID;
         }
         else
         {
           int aLimit = TodAnimateCurve(10, 110, aFlags, 1, 50, (TodCurves)1);
           if ( aLimit <= thePicker->mAllWavesZombieTypeCount[ZOMBIE_REDEYE_GARGANTUAR] )
-            return TodPickFromWeightedArray(aPicks, aCount);
+            return aCount > 0 ? TodPickFromWeightedArray(aPicks, aCount) : ZOMBIE_INVALID;
           aWeight = 1000;
         }
       }
@@ -7447,7 +7336,7 @@ int Board::PickZombieType(int theWaveIndex, int thePointCount, ZombiePicker *the
     aPicks[aCount].mWeight = aWeight;
     ++aCount;
   }
-  return TodPickFromWeightedArray(aPicks, aCount);
+  return aCount > 0 ? TodPickFromWeightedArray(aPicks, aCount) : ZOMBIE_INVALID;
 }
 
 // ==========================================================================
@@ -9992,28 +9881,11 @@ Zombie * Board::AddZombieInRow(ZombieType theZombieType, int theRow, int theFrom
 // ==========================================================================
 Zombie * Board::SpawnZombiesFromPool()
 {
-  // @0x15EFC8. The ice trap holds the spawn. Levels 21-22 and 31-32 drop two
-  // zombies worth 3 points; levels 23-25 and 33-35 drop three worth 5; every
-  // other level drops three worth 7.
-  if ( mIceTrapCounter > 0 )
-    return nullptr;
-
-  int aBudget;
-  int aDropCount;
-  unsigned int aLevelFrom21 = (unsigned int)(mLevel - 21);
-  unsigned int aLevelFrom31 = (unsigned int)(mLevel - 31);
-  if ( aLevelFrom31 <= 1 || aLevelFrom21 <= 1 )
-  {
-    aBudget = 3;
-    aDropCount = 2;
-  }
-  else
-  {
-    unsigned int aLevelFrom23 = (unsigned int)(mLevel - 23);
-    unsigned int aLevelFrom33 = (unsigned int)(mLevel - 33);
-    aDropCount = 3;
-    aBudget = (aLevelFrom23 > 2 && aLevelFrom33 > 2) ? 7 : 5;
-  }
+  if (mIceTrapCounter > 0 || !IsLevelDataLoaded()) return nullptr;
+  const LevelExtraSpawns& extra = mApp->mLevel.mExtraSpawns;
+  int aBudget = extra.mPoolPoints;
+  const int aDropCount = extra.mPoolCount;
+  if (aDropCount == 0) return nullptr;
 
   // SpawnZombiesFromPool @0x15EFC8 fills both pool rows in columns 5..8.
   TodWeightedGridArray aCells[8];
@@ -10030,6 +9902,7 @@ Zombie * Board::SpawnZombiesFromPool()
     TodWeightedGridArray *aCell = TodPickFromWeightedGridArray(aCells, 8);
     aCell->mWeight = 0;
     int aType = PickGraveRisingZombieType(aBudget);
+    if (aType == ZOMBIE_INVALID) break;
     ++aDropped;
     ZombieDefinition *aDefinition = GetZombieDefinition(aType);
     aZombie = AddZombieInRow((ZombieType)aType, aCell->mY, mZombieCountDown, false);
@@ -10062,13 +9935,15 @@ void Board::BungeeDropZombie(BungeeDropGrid *theDrop, ZombieType theZombieType)
 {
   // @0x15F0CC. The pick returns a cell of the grid. Its weight is spent, then a
   // bungee and the carried zombie are both spawned against the countdown.
+  if (theDrop->mGridArrayCount == 0 || theZombieType == ZOMBIE_INVALID) return;
   TodWeightedGridArray *aCell =
       TodPickFromWeightedGridArray(theDrop->mGridArray, theDrop->mGridArrayCount);
   aCell->mWeight = 1;
-  Zombie *aBungee = AddZombie(ZOMBIE_BUNGEE, mZombieCountDown, false);
-  Zombie *aDropped = AddZombie(theZombieType, mZombieCountDown, false);
-  // Callers ignore the attached reanim. The drop still runs.
-  aBungee->BungeeDropZombie(aDropped, aCell->mX, aCell->mY);
+  const ZombieType carrier = mApp->mLevel.mExtraSpawns.mCarrier;
+  if (carrier == ZOMBIE_INVALID) return;
+  Zombie* aBungee = AddZombie(carrier, mZombieCountDown, false);
+  Zombie* aDropped = AddZombie(theZombieType, mZombieCountDown, false);
+  if (aBungee && aDropped) aBungee->BungeeDropZombie(aDropped, aCell->mX, aCell->mY);
 }
 
 // ==========================================================================
@@ -10077,24 +9952,11 @@ void Board::BungeeDropZombie(BungeeDropGrid *theDrop, ZombieType theZombieType)
 // ==========================================================================
 void Board::SpawnZombiesFromSky()
 {
-  // @0x15F114. The ice trap holds the drop. Levels 41-42 drop two zombies worth
-  // 3 points; levels 43-45 drop three worth 5; every other level drops three
-  // worth 7. The count is capped by how many cells SetupBungeeDrop filled.
-  if ( mIceTrapCounter > 0 )
-    return;
-
-  int aBudget;
-  int aDropCount;
-  if ( (unsigned int)(mLevel - 41) <= 1 )
-  {
-    aBudget = 3;
-    aDropCount = 2;
-  }
-  else
-  {
-    aDropCount = 3;
-    aBudget = (unsigned int)(mLevel - 43) <= 2 ? 5 : 7;
-  }
+  if (mIceTrapCounter > 0 || !IsLevelDataLoaded()) return;
+  const LevelExtraSpawns& extra = mApp->mLevel.mExtraSpawns;
+  int aBudget = extra.mSkyPoints;
+  int aDropCount = extra.mSkyCount;
+  if (aDropCount == 0 || extra.mCarrier == ZOMBIE_INVALID) return;
 
   BungeeDropGrid aBungeeGrid;
   SetupBungeeDrop(&aBungeeGrid);
@@ -10105,6 +9967,7 @@ void Board::SpawnZombiesFromSky()
   for ( int aDropped = 0; aDropped < aDropCount; ++aDropped )
   {
     int aType = PickGraveRisingZombieType(aBudget);
+    if (aType == ZOMBIE_INVALID) break;
     BungeeDropZombie(&aBungeeGrid, (ZombieType)aType);
     aBudget -= GetZombieDefinition(aType)->mZombieValue;
     if ( aBudget < 1 )
@@ -10140,8 +10003,8 @@ void Board::SpawnZombieWave()
         // Replace a sled team with walkers when the lawn cannot support it.
         if (!CanAddBobSled())
         {
-          for (int j = 4; j != 0; --j)
-            AddZombie(ZOMBIE_NORMAL, mCurrentWave, true);
+          for (ZombieType type : mApp->mLevel.mExtraSpawns.mBobsledFallback)
+            AddZombie(type, mCurrentWave, true);
           aWave = mCurrentWave;
           if (i + 1 == MAX_ZOMBIES_IN_WAVE)
             break;
@@ -10199,33 +10062,28 @@ void Board::SpawnZombieWave()
 // ==========================================================================
 Zombie * Board::SpawnZombiesFromGraves()
 {
-  // @0x15F2FC. War and Peas (17) and its sequel (33) spawn nothing here. A roof
-  // drops from the sky and then continues into the graves; a pool returns the
-  // pool spawn and never reaches the graves.
-  if ( mApp->mGameMode == GAMEMODE_CHALLENGE_WAR_AND_PEAS
-      || mApp->mGameMode == GAMEMODE_CHALLENGE_WAR_AND_PEAS_2 )
-    return nullptr;
-
-  if ( StageHasRoof() )
-    SpawnZombiesFromSky();
-  else if ( StageHasPool() )
-    return SpawnZombiesFromPool();
+  if (!IsLevelDataLoaded()) return nullptr;
+  const LevelExtraSpawns& extra = mApp->mLevel.mExtraSpawns;
+  if (StageHasRoof()) SpawnZombiesFromSky();
+  else if (StageHasPool()) return SpawnZombiesFromPool();
+  if (!extra.mGraves) return nullptr;
 
   int aBudget = GetGraveStoneCount();
   GridItem *aItem = nullptr;
   Zombie *aZombie = nullptr;
   while ( IterateGridItems(aItem) != 0 )
   {
-    if ( aItem->mGridItemType != (GridItemType)1 || aItem->mGridItemCounter <= 99 )
+    if ( aItem->mGridItemType != GRIDITEM_GRAVESTONE || aItem->mGridItemCounter < extra.mGraveMinimumAge )
       continue;
 
     // Grave Danger (46) draws against the countdown start at +0x569C and skips
     // the stone when the draw is larger. Every other mode always rises.
-    if ( mApp->mGameMode == GAMEMODE_CHALLENGE_GRAVE_DANGER
+    if ( extra.mGraveCountdownChance
         && Rand(mZombieCountDownStart) > mZombieCountDown )
       continue;
 
     int aType = PickGraveRisingZombieType(aBudget);
+    if (aType == ZOMBIE_INVALID) return aZombie;
     ZombieDefinition *aDefinition = GetZombieDefinition(aType);
     aZombie = AddZombie((ZombieType)aType, mZombieCountDown, false);
     if ( aZombie == nullptr )
@@ -10805,7 +10663,7 @@ int Board::PickBackground()
     }
     else if (mApp->IsWhackAZombieLevel())
     {
-      mChallenge->WhackAZombiePlaceGraves(9);
+      mChallenge->WhackAZombiePlaceGraves(mApp->mLevel.mWhackSpawns.mInitialGraves);
     }
     else if (mBackground == BACKGROUND_2_NIGHT)
     {
@@ -11313,296 +11171,68 @@ void Board::MouseDownWithTool(int theX, int theY, int theClickCount, CursorType 
 // ==========================================================================
 int Board::PickZombieWaves()
 {
+  // The original @0x161870 pipeline is declared as ordered XML actions.
+  // A missing configuration produces no waves; it never activates hidden extras.
+  mNumWaves = 0;
+  for (auto& wave : mZombiesInWave)
+    std::fill(std::begin(wave), std::end(wave), ZOMBIE_INVALID);
+  if (!IsLevelDataLoaded())
+    return 0;
 
-  // @0x161870. Adventure plus whack-a-zombie is six waves. The other
-  // adventure path clamps mLevel-1 into 0..49 and reads gZombieWaves; a repeat
-  // of the adventure that is not a mini-boss then raises that count (20 when it
-  // was 9 or fewer, otherwise +10). Every other mode stores a fixed count.
-  GameMode aMode = mApp->mGameMode;
-  if ( mApp->IsAdventureMode() != 0 && mApp->IsWhackAZombieLevel() != 0 )
+  const Sexy::Level& level = mApp->mLevel;
+  mNumWaves = level.getWaveCount();
+  ZombiePicker picker;
+  ZombiePickerInit(&picker);
+  for (int waveIndex = 0; waveIndex < mNumWaves; ++waveIndex)
   {
-    mNumWaves = 6;
-  }
-  else if ( mApp->IsAdventureMode() != 0 )
-  {
-    int aIndex = mLevel - 1;
-    if ( aIndex < 0 )
-      aIndex = 0;
-    else if ( aIndex > 49 )
-      aIndex = 49;
-    mNumWaves = gZombieWaves[aIndex];
-    if ( mApp->IsFirstTimeAdventureMode() == 0 && mApp->IsMiniBossLevel() == 0 )
+    ZombiePickerInitForWave(&picker);
+    const long long index = waveIndex + level.mPointIndexOffset
+        + static_cast<long long>(level.mPointStageStride) * mChallenge->mSurvivalStage;
+    picker.mZombiePoints = static_cast<int>(std::min(1000000LL,
+        index * level.mPointNumerator / level.mPointDenominator + level.mPointOffset));
+    const LevelWave* wave = level.FindWave(waveIndex);
+    if (wave != nullptr)
     {
-      if ( mNumWaves <= 9 )
-        mNumWaves = 20;
-      else
-        mNumWaves += 10;
+      if (wave->mHasPoints) picker.mZombiePoints = wave->mPoints;
+      for (ZombieType type : wave->mMustHave)
+        PutZombieInWave(type, waveIndex, &picker);
     }
-  }
-  else if ( mApp->IsSurvivalMode() != 0 || aMode == GAMEMODE_CHALLENGE_LAST_STAND )
-  {
-    mNumWaves = GetNumWavesPerSurvivalStage();
-  }
-  else if ( aMode == GAMEMODE_CHALLENGE_ZEN_GARDEN || aMode == GAMEMODE_TREE_OF_WISDOM
-            || mApp->IsSquirrelLevel() != 0 )
-  {
-    mNumWaves = 0;
-  }
-  else if ( aMode == GAMEMODE_CHALLENGE_HEAVY_WEAPON )
-  {
-    mNumWaves = 25;
-  }
-  else if ( aMode == GAMEMODE_CHALLENGE_WHACK_A_ZOMBIE )
-  {
-    mNumWaves = 12;
-  }
-  else if ( aMode == GAMEMODE_CHALLENGE_AIR_RAID || (unsigned)(aMode - GAMEMODE_CHALLENGE_HIGH_GRAVITY) <= 1
-            || aMode == GAMEMODE_CHALLENGE_PORTAL_COMBAT
-            || (unsigned)(aMode - GAMEMODE_CHALLENGE_WAR_AND_PEAS) <= 1 || aMode == GAMEMODE_CHALLENGE_INVISIGHOUL )
-  {
-    mNumWaves = 20;
-  }
-  else if ( mApp->IsStormyNightLevel() != 0 || mApp->IsLittleTroubleLevel() != 0
-            || mApp->IsBungeeBlitzLevel() != 0 || aMode == GAMEMODE_CHALLENGE_COLUMN
-            || mApp->IsShovelLevel() != 0 || (unsigned)(aMode - GAMEMODE_CHALLENGE_WAR_AND_PEAS_2) <= 2 )
-  {
-    mNumWaves = 30;
-  }
-  else if ( aMode == GAMEMODE_MP_VS )
-  {
-    mNumWaves = 5;
-  }
-  else if ( (unsigned)(aMode - 79) <= 1 )
-  {
-    mNumWaves = 20;
-  }
-  else if ( (unsigned)(aMode - 81) <= 2 )
-  {
-    mNumWaves = 30;
-  }
-  else
-  {
-    mNumWaves = 40;
-  }
-  ZombiePicker aPicker;
-  ZombiePickerInit(&aPicker);
-  ZombieType aIntroduced = (ZombieType)GetIntroducedZombieType();
-  int aLevelLoaded = IsLevelDataLoaded();
-  if ( aLevelLoaded != 0 )
-  {
-    if (mApp->mLevel.mHasAllowedZombies)
+    int budgetBeforeScale = picker.mZombiePoints;
+    const auto& actions = wave != nullptr && wave->mHasActions ? wave->mActions : level.mActions;
+    for (const LevelWaveAction& action : actions)
     {
-      memset(mZombieAllowed, 0, sizeof(mZombieAllowed));
-      for (ZombieType zombieType : mApp->mLevel.mAllowedZombies)
-        mZombieAllowed[zombieType] = true;
-    }
-    if (mApp->mLevel.mHasWaveCount)
-      mNumWaves = mApp->mLevel.getWaveCount();
-  }
-  if ( mNumWaves <= 0 )
-    return aLevelLoaded;
-
-  int aWave = 0;
-  ZombieType *aWaveRow = &mZombiesInWave[0][0];
-  for ( ;; )
-  {
-    ZombiePickerInitForWave(&aPicker);
-    aWaveRow[0] = ZOMBIE_INVALID;
-    bool aIsFlag = IsFlagWave(aWave);
-    bool aIsLast = mNumWaves - 1 == aWave;
-    if ( mApp->IsBungeeBlitzLevel() != 0 && aIsFlag != 0 )
-    {
-      for ( int aLeft = 5; aLeft != 0; --aLeft )
-        PutZombieInWave(ZOMBIE_BUNGEE, aWave, &aPicker);
-      if ( !aIsLast )
+      if ((action.mFlagOnly && !IsFlagWave(waveIndex))
+          || (action.mLastOnly && waveIndex != mNumWaves - 1)
+          || (action.mYetiUnkilledOnly && (!mApp->CanSpawnYetis() || mApp->mKilledYetiAndRestarted)))
+        continue;
+      if (action.mType == LevelWaveActionType::Scale)
       {
-        // 0x15FA.. calls IsAdventureMode and discards the bool it leaves in r0.
-        mApp->IsAdventureMode();
+        budgetBeforeScale = picker.mZombiePoints;
+        picker.mZombiePoints = static_cast<int>(std::clamp(
+            static_cast<long long>(picker.mZombiePoints) * action.mNumerator / action.mDenominator,
+            -1000000LL, 1000000LL));
+      }
+      else if (action.mType == LevelWaveActionType::Fill)
+      {
+        while (picker.mZombiePoints > 0 && picker.mZombieCount < MAX_ZOMBIES_IN_WAVE)
+        {
+          const ZombieType type = static_cast<ZombieType>(PickZombieType(picker.mZombiePoints, waveIndex, &picker));
+          if (type == ZOMBIE_INVALID) break;
+          PutZombieInWave(type, waveIndex, &picker);
+        }
       }
       else
-        break;
-    }
-    else
-    {
-      if ( mApp->mGameMode == GAMEMODE_CHALLENGE_LAST_STAND )
       {
-        int aScaled = 2 * (aWave + GetNumWavesPerSurvivalStage() * mChallenge->mSurvivalStage + 10);
-        aPicker.mZombiePoints = aScaled / 5 + 1;
-      }
-      else if ( mApp->IsSurvivalMode() != 0 && mChallenge->mSurvivalStage > 0 )
-      {
-        int aScaled = 2 * (aWave + GetNumWavesPerSurvivalStage() * mChallenge->mSurvivalStage);
-        aPicker.mZombiePoints = aScaled / 5 + 1;
-      }
-      else if ( mApp->IsAdventureMode() == 0
-                || mApp->HasFinishedAdventure() == 0
-                || mLevel == 5 )
-      {
-        if ( mApp->mGameMode == GAMEMODE_CHALLENGE_HEAVY_WEAPON )
-          aPicker.mZombiePoints = (3 * aWave) >> 2;
-        else if ( mApp->mGameMode == GAMEMODE_MP_VS )
-          aPicker.mZombiePoints = 4;
-        else
-          aPicker.mZombiePoints = aWave / 3 + 1;
-      }
-      else if ( mApp->IsWhackAZombieLevel() != 0 )
-        aPicker.mZombiePoints = aWave / 3 + 1;
-      else
-      {
-        int aScaled = 2 * aWave;
-        aPicker.mZombiePoints = aScaled / 5 + 1;
-      }
-
-      if ( aLevelLoaded != 0 )
-      {
-        const LevelWave* wave = mApp->mLevel.FindWave(aWave);
-        if (wave != nullptr)
-        {
-          if (wave->mHasPoints)
-            aPicker.mZombiePoints = wave->mPoints;
-          for (ZombieType zombieType : wave->mMustHave)
-            PutZombieInWave(zombieType, aWave, &aPicker);
-        }
-      }
-
-      GameMode aPlaceMode = mApp->mGameMode;
-      if (aIsFlag && (!aLevelLoaded || mApp->mLevel.mApplyNativeFlagWave))
-      {
-        int aFlagBudget = aPicker.mZombiePoints;
-        aPicker.mZombiePoints = (int)((double)aPicker.mZombiePoints * 2.5);
-        if ( aPlaceMode != GAMEMODE_CHALLENGE_WAR_AND_PEAS_2
-             && aPlaceMode != GAMEMODE_CHALLENGE_WAR_AND_PEAS )
-        {
-          if ( aFlagBudget > 8 )
-            aFlagBudget = 8;
-          // Forced wave entries can spend the entire budget before the flag.
-          // The original @0x161870 skips normal zombies when that value is <= 0.
-          for ( int aCone = 0; aCone < aFlagBudget; ++aCone )
-            PutZombieInWave(ZOMBIE_NORMAL, aWave, &aPicker);
-          PutZombieInWave(ZOMBIE_FLAG, aWave, &aPicker);
-          aPlaceMode = mApp->mGameMode;
-        }
-      }
-      if (aLevelLoaded && !mApp->mLevel.mApplyNativePointMultiplier)
-      {
-        // The XML budget already includes the mode's multiplier.
-      }
-      else if ( aPlaceMode == GAMEMODE_CHALLENGE_COLUMN )
-        aPicker.mZombiePoints *= 6;
-      else if ( mApp->IsLittleTroubleLevel() != 0 || mApp->IsWallnutBowlingLevel() != 0 )
-        aPicker.mZombiePoints *= 4;
-      else if ( mApp->IsMiniBossLevel() != 0
-                || (mApp->IsStormyNightLevel() != 0 && mApp->IsAdventureMode() != 0) )
-        aPicker.mZombiePoints *= 3;
-      else if ( mApp->IsShovelLevel() != 0
-                || mApp->IsBungeeBlitzLevel() != 0
-                || mApp->mGameMode == GAMEMODE_CHALLENGE_PORTAL_COMBAT
-                || mApp->mGameMode == GAMEMODE_CHALLENGE_INVISIGHOUL )
-        aPicker.mZombiePoints *= 2;
-
-      if ((!aLevelLoaded || mApp->mLevel.mApplyNativeIntroductions)
-          && aIntroduced != ZOMBIE_DUCKY_TUBE && aIntroduced != ZOMBIE_INVALID)
-      {
-        bool aPlaceIntro = false;
-        if ( (unsigned)(aIntroduced - ZOMBIE_BALLOON) <= 1 )
-          aPlaceIntro = aWave == 6 || aIsLast;
-        else if ( aIntroduced == ZOMBIE_YETI )
-          aPlaceIntro = aWave == mNumWaves / 2 && mApp->mKilledYetiAndRestarted == 0;
-        else
-          aPlaceIntro = aWave == mNumWaves / 2 || aIsLast;
-        if ( aPlaceIntro )
-          PutZombieInWave(aIntroduced, aWave, &aPicker);
-      }
-      if ((!aLevelLoaded || mApp->mLevel.mApplyNativeLastWave) && mLevel == 50)
-      {
-        if ( aIsLast )
-        {
-          PutZombieInWave(ZOMBIE_GARGANTUAR, aWave, &aPicker);
-          if ( mApp->IsAdventureMode() != 0 )
-            PutInMissingZombies(aWave, &aPicker);
-        }
-        else
-          mApp->IsAdventureMode();
-      }
-      else if ((!aLevelLoaded || mApp->mLevel.mApplyNativeLastWave)
-               && mApp->IsAdventureMode() && aIsLast)
-        PutInMissingZombies(aWave, &aPicker);
-
-      if ( mApp->mGameMode == GAMEMODE_CHALLENGE_COLUMN )
-      {
-        // @0x161BC8. Remainder 5 plants ten ladders, then falls into the
-        // remainder-8 test (which fails). Remainder 8 plants ten jacks and,
-        // when the wave is also 19, three gargantuars, then skips the wave-29
-        // test. Any other wave tests 19, then 29.
-        if ( aWave % 10 == 5 )
-        {
-          for ( int aLeft = 10; aLeft != 0; --aLeft )
-            PutZombieInWave(ZOMBIE_LADDER, aWave, &aPicker);
-        }
-        else if ( aWave % 10 == 8 )
-        {
-          for ( int aLeft = 10; aLeft != 0; --aLeft )
-            PutZombieInWave(ZOMBIE_JACK_IN_THE_BOX, aWave, &aPicker);
-          if ( aWave == 19 )
-          {
-            for ( int aLeft = 3; aLeft != 0; --aLeft )
-              PutZombieInWave(ZOMBIE_GARGANTUAR, 19, &aPicker);
-          }
-        }
-        else
-        {
-          if ( aWave == 19 )
-          {
-            for ( int aLeft = 3; aLeft != 0; --aLeft )
-              PutZombieInWave(ZOMBIE_GARGANTUAR, 19, &aPicker);
-          }
-          if ( aWave == 29 )
-          {
-            for ( int aLeft = 5; aLeft != 0; --aLeft )
-              PutZombieInWave(ZOMBIE_GARGANTUAR, 29, &aPicker);
-          }
-        }
-      }
-      if (aLevelLoaded)
-      {
-        const LevelWave* wave = mApp->mLevel.FindWave(aWave);
-        if (wave != nullptr)
-          for (ZombieType zombieType : wave->mAfterNativeZombies)
-            PutZombieInWave(zombieType, aWave, &aPicker);
-      }
-      while ( aPicker.mZombiePoints > 0 && aPicker.mZombieCount <= 49 )
-      {
-        int aType = PickZombieType(aPicker.mZombiePoints, aWave, &aPicker);
-        PutZombieInWave((ZombieType)aType, aWave, &aPicker);
-      }
-      // Wave 3 of adventure mode with mLevel == 1 plants one of every type a
-      // row can hold, while the shop-seed tutorial byte at LawnPlayerInfo+0x732
-      // is still clear.
-      if ( mLevel == 1 && aWave == 3 && mApp->mGameMode == GAMEMODE_ADVENTURE
-           && mApp->mPlayerInfo->mPassedShopSeedTutorial == 0 )
-      {
-        for ( int aType = 0; aType != (int)ZOMBIE_BOSS; ++aType )
-        {
-          bool aRowCanHold = false;
-          for ( int aRow = 0; aRow != 6; ++aRow )
-          {
-            if ( RowCanHaveZombieType(aRow, (ZombieType)aType) != 0 )
-            {
-              aRowCanHold = true;
-              break;
-            }
-          }
-          if ( aRowCanHold )
-            PutZombieInWave((ZombieType)aType, 3, &aPicker);
-        }
+        const int count = action.mBudgetCountLimit >= 0
+            ? std::clamp(budgetBeforeScale, 0, action.mBudgetCountLimit) : action.mCount;
+        for (int repeat = 0; repeat < count; ++repeat)
+          for (ZombieType type : action.mZombies)
+            if (action.mType != LevelWaveActionType::Missing || picker.mZombieTypeCount[type] == 0)
+              PutZombieInWave(type, waveIndex, &picker);
       }
     }
-    ++aWave;
-    aWaveRow += 50;
-    if ( mNumWaves <= aWave )
-      break;
   }
-  return aLevelLoaded;
+  return 1;
 }
 
 // ==========================================================================
@@ -11617,10 +11247,8 @@ int Board::InitZombieWaves()
     mApp->LoadLevelConfiguration(mApp->mGameMode, mLevel);
   // mZombieAllowed[] is the level's 100-slot "may this type appear" table.
   memset(mZombieAllowed, 0, sizeof(mZombieAllowed));
-  if ( mApp->IsAdventureMode() )
-    InitZombieWavesForLevel(mLevel);
-  else
-    mChallenge->InitZombieWaves();
+  if (mApp->IsAdventureMode()) InitZombieWavesForLevel(mLevel);
+  else mChallenge->InitZombieWaves();
   PickZombieWaves();
   mCurrentWave = 0;
   mTotalSpawnedWaves = 0;
@@ -11741,7 +11369,7 @@ int Board::InitLevel()
 
   int aSun;
   if (IsLevelDataLoaded() && mApp->mLevel.mHasInitialSun
-      && (mApp->mLevel.mSpawnRules == Sexy::LevelSpawnRules::Native || mApp->mLevel.mInitialSun > 0))
+      && (mApp->mLevel.mSpawnRules != Sexy::LevelSpawnRules::Legacy || mApp->mLevel.mInitialSun > 0))
   {
     aSun = mApp->mLevel.mInitialSun;
   }

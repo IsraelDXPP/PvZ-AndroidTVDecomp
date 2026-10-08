@@ -247,7 +247,7 @@ public:
     void InitZombieWavesFromList(const ZombieType *theZombieList, int theListLength);
     void InitZombieWaves();
     int WhackAZombiePlaceGraves(int theGraveCount);
-    int * WhackAZombieSpawning();
+    void WhackAZombieSpawning();
     bool UpdateZombieSpawning();
     void GraveDangerSpawnGraveAt(int theGridX, int theGridY);
     int GraveDangerSpawnRandomGrave();

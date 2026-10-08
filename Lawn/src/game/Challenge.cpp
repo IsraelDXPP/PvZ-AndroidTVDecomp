@@ -1600,7 +1600,7 @@ void Challenge::UpdateMPGraveStones()
       {
         ZombieType aZombieType =
             (ZombieType)mBoard->PickGraveRisingZombieTypeMP(aMoundLevel);
-        Zombie *aZombie = mBoard->AddZombie(aZombieType, -5, 0);
+        Zombie* aZombie = aZombieType == ZOMBIE_INVALID ? nullptr : mBoard->AddZombie(aZombieType, -5, false);
         if ( aZombie != nullptr )
         {
           // Summon 0 rises on the mound, 1 one row up, 2 one row down; both
@@ -2402,166 +2402,11 @@ void Challenge::InitZombieWavesFromList(const ZombieType *theZombieList, int the
 // ==========================================================================
 void Challenge::InitZombieWaves()
 {
-  // Every per-mode zombie list, in the order the binary's own tables hold it.
-  enum
-  {
-    WAVES_SPEED,
-    WAVES_POGO_PARTY,
-    WAVES_BUNGEE_BLITZ,
-    WAVES_SUNNY_DAY,
-    WAVES_PORTAL_COMBAT,
-    WAVES_LITTLE_TROUBLE,
-    WAVES_BIG_TIME,
-    WAVES_RAINING_SEEDS,
-    WAVES_HIGH_GRAVITY,
-    WAVES_BOBSLED_BONANZA,
-    WAVES_AIR_RAID,
-    WAVES_BEGHOULED,
-    WAVES_LAST_STAND,
-    WAVES_COLUMN,
-    WAVES_INVISIGHOUL,
-    WAVES_WAR_AND_PEAS,
-    WAVES_WAR_AND_PEAS_2,
-    WAVES_WALLNUT_BOWLING,
-    WAVES_WALLNUT_BOWLING_2,
-    WAVES_STORMY_NIGHT,
-    WAVES_VS_COOP,
-    WAVES_COOP_DAY,
-    WAVES_COOP_NIGHT,
-    WAVES_COOP_POOL,
-    WAVES_COOP_ROOF,
-    WAVES_COOP_BOWLING,
-    WAVES_HEAVY_WEAPON,
-    WAVES_SURVIVAL_NORMAL,
-    WAVES_SURVIVAL_HARD,
-  };
-  static const ZombieType sWaves[][15] =
-  {
-    { ZOMBIE_NORMAL, ZOMBIE_TRAFFIC_CONE, ZOMBIE_DOLPHIN_RIDER, ZOMBIE_POLEVAULTER },
-    { ZOMBIE_POGO },
-    { ZOMBIE_NORMAL, ZOMBIE_PAIL, ZOMBIE_TRAFFIC_CONE, ZOMBIE_LADDER },
-    { ZOMBIE_NORMAL, ZOMBIE_PAIL, ZOMBIE_TRAFFIC_CONE, ZOMBIE_FOOTBALL, ZOMBIE_POLEVAULTER, ZOMBIE_JACK_IN_THE_BOX },
-    { ZOMBIE_NORMAL, ZOMBIE_PAIL, ZOMBIE_FOOTBALL, ZOMBIE_BALLOON },
-    { ZOMBIE_NORMAL, ZOMBIE_TRAFFIC_CONE, ZOMBIE_FOOTBALL, ZOMBIE_SNORKEL },
-    { ZOMBIE_NORMAL, ZOMBIE_TRAFFIC_CONE, ZOMBIE_PAIL, ZOMBIE_DOOR, ZOMBIE_FOOTBALL, ZOMBIE_JACK_IN_THE_BOX },
-    { ZOMBIE_NORMAL, ZOMBIE_TRAFFIC_CONE, ZOMBIE_PAIL, ZOMBIE_DOOR, ZOMBIE_FOOTBALL, ZOMBIE_NEWSPAPER, ZOMBIE_JACK_IN_THE_BOX, ZOMBIE_BUNGEE },
-    { ZOMBIE_NORMAL, ZOMBIE_TRAFFIC_CONE, ZOMBIE_PAIL, ZOMBIE_DOOR, ZOMBIE_BALLOON, ZOMBIE_BOBSLED },
-    { ZOMBIE_BOBSLED, ZOMBIE_ZAMBONI },
-    { ZOMBIE_BALLOON },
-    { ZOMBIE_NORMAL, ZOMBIE_TRAFFIC_CONE, ZOMBIE_PAIL, ZOMBIE_DOOR, ZOMBIE_FOOTBALL, ZOMBIE_NEWSPAPER },
-    { ZOMBIE_NORMAL, ZOMBIE_TRAFFIC_CONE, ZOMBIE_PAIL, ZOMBIE_DOOR, ZOMBIE_FOOTBALL, ZOMBIE_NEWSPAPER, ZOMBIE_JACK_IN_THE_BOX, ZOMBIE_POLEVAULTER, ZOMBIE_DOLPHIN_RIDER, ZOMBIE_LADDER },
-    { ZOMBIE_NORMAL, ZOMBIE_TRAFFIC_CONE, ZOMBIE_PAIL, ZOMBIE_FOOTBALL },
-    { ZOMBIE_NORMAL, ZOMBIE_TRAFFIC_CONE, ZOMBIE_PAIL, ZOMBIE_DOLPHIN_RIDER, ZOMBIE_ZAMBONI, ZOMBIE_JACK_IN_THE_BOX },
-    { ZOMBIE_PEA_HEAD, ZOMBIE_WALLNUT_HEAD },
-    { ZOMBIE_PEA_HEAD, ZOMBIE_WALLNUT_HEAD, ZOMBIE_JALAPENO_HEAD, ZOMBIE_GATLING_HEAD, ZOMBIE_SQUASH_HEAD, ZOMBIE_TALLNUT_HEAD },
-    { ZOMBIE_NORMAL, ZOMBIE_TRAFFIC_CONE, ZOMBIE_PAIL, ZOMBIE_POLEVAULTER, ZOMBIE_NEWSPAPER },
-    { ZOMBIE_NORMAL, ZOMBIE_TRAFFIC_CONE, ZOMBIE_PAIL, ZOMBIE_POLEVAULTER, ZOMBIE_NEWSPAPER, ZOMBIE_DANCER, ZOMBIE_DOOR },
-    { ZOMBIE_NORMAL, ZOMBIE_TRAFFIC_CONE, ZOMBIE_DOLPHIN_RIDER, ZOMBIE_BALLOON },
-    { ZOMBIE_NORMAL, ZOMBIE_TRAFFIC_CONE, ZOMBIE_PAIL, ZOMBIE_POLEVAULTER, ZOMBIE_ZAMBONI, ZOMBIE_BOBSLED, ZOMBIE_DOLPHIN_RIDER },
-    { ZOMBIE_NORMAL, ZOMBIE_TRAFFIC_CONE, ZOMBIE_PAIL, ZOMBIE_POLEVAULTER, ZOMBIE_FLAG },
-    { ZOMBIE_NORMAL, ZOMBIE_TRAFFIC_CONE, ZOMBIE_PAIL, ZOMBIE_POLEVAULTER, ZOMBIE_FLAG, ZOMBIE_NEWSPAPER, ZOMBIE_DOOR, ZOMBIE_FOOTBALL, ZOMBIE_DANCER, ZOMBIE_BACKUP_DANCER },
-    { ZOMBIE_NORMAL, ZOMBIE_TRAFFIC_CONE, ZOMBIE_PAIL, ZOMBIE_POLEVAULTER, ZOMBIE_FLAG, ZOMBIE_NEWSPAPER, ZOMBIE_DOOR, ZOMBIE_FOOTBALL, ZOMBIE_DANCER, ZOMBIE_BACKUP_DANCER, ZOMBIE_DUCKY_TUBE, ZOMBIE_SNORKEL, ZOMBIE_ZAMBONI, ZOMBIE_BOBSLED, ZOMBIE_DOLPHIN_RIDER },
-    { ZOMBIE_NORMAL, ZOMBIE_TRAFFIC_CONE, ZOMBIE_PAIL, ZOMBIE_POLEVAULTER, ZOMBIE_FLAG, ZOMBIE_NEWSPAPER, ZOMBIE_DOOR, ZOMBIE_FOOTBALL, ZOMBIE_DANCER, ZOMBIE_BACKUP_DANCER, ZOMBIE_JACK_IN_THE_BOX, ZOMBIE_BALLOON, ZOMBIE_DIGGER, ZOMBIE_POGO, ZOMBIE_YETI },
-    { ZOMBIE_NORMAL, ZOMBIE_TRAFFIC_CONE, ZOMBIE_FLAG, ZOMBIE_PAIL, ZOMBIE_POLEVAULTER, ZOMBIE_ZAMBONI, ZOMBIE_BOBSLED, ZOMBIE_GARGANTUAR },
-    { ZOMBIE_NORMAL, ZOMBIE_POLEVAULTER, ZOMBIE_FOOTBALL, ZOMBIE_POGO, ZOMBIE_GARGANTUAR },
-    { ZOMBIE_NORMAL, ZOMBIE_TRAFFIC_CONE },
-    { ZOMBIE_NORMAL, ZOMBIE_TRAFFIC_CONE, ZOMBIE_PAIL },
-  };
-  static const unsigned char sWaveLengths[] =
-  { 4, 1, 4, 6, 4, 4, 6, 8, 6, 2, 1, 6, 10, 4, 6, 2, 6, 5, 7, 4, 7, 5, 10, 15, 15, 8, 5, 2, 3 };
-
-  int aWaves = -1;
-  bool aSurvivalWaves = false;
-
-  if ( mApp->IsSurvivalMode() )
-  {
-    if ( mSurvivalStage != 0 )
-      aSurvivalWaves = true;
-    else if ( mApp->IsSurvivalNormal(mApp->mGameMode) )
-      aWaves = WAVES_SURVIVAL_NORMAL;
-    else
-      aWaves = WAVES_SURVIVAL_HARD;
-  }
-  else
-  {
-    GameMode aGameMode = mApp->mGameMode;
-    if ( aGameMode == GAMEMODE_CHALLENGE_SPEED )
-      aWaves = WAVES_SPEED;
-    else if ( aGameMode == GAMEMODE_CHALLENGE_POGO_PARTY )
-      aWaves = WAVES_POGO_PARTY;
-    else if ( mApp->IsBungeeBlitzLevel() )
-      aWaves = WAVES_BUNGEE_BLITZ;
-    else if ( aGameMode == GAMEMODE_CHALLENGE_SUNNY_DAY )
-      aWaves = WAVES_SUNNY_DAY;
-    else if ( aGameMode == GAMEMODE_CHALLENGE_PORTAL_COMBAT )
-      aWaves = WAVES_PORTAL_COMBAT;
-    else if ( mApp->IsLittleTroubleLevel() )
-      aWaves = WAVES_LITTLE_TROUBLE;
-    else if ( aGameMode == GAMEMODE_CHALLENGE_BIG_TIME )
-      aWaves = WAVES_BIG_TIME;
-    else if ( aGameMode == GAMEMODE_CHALLENGE_RAINING_SEEDS )
-      aWaves = WAVES_RAINING_SEEDS;
-    else if ( aGameMode == GAMEMODE_CHALLENGE_HIGH_GRAVITY )
-      aWaves = WAVES_HIGH_GRAVITY;
-    else if ( mApp->IsWhackAZombieLevel() )
-      aWaves = WAVES_SURVIVAL_HARD;
-    else if ( aGameMode == GAMEMODE_CHALLENGE_BOBSLED_BONANZA )
-      aWaves = WAVES_BOBSLED_BONANZA;
-    else if ( aGameMode == GAMEMODE_CHALLENGE_AIR_RAID )
-      aWaves = WAVES_AIR_RAID;
-    else if ( aGameMode == GAMEMODE_CHALLENGE_BEGHOULED || aGameMode == GAMEMODE_CHALLENGE_BEGHOULED_TWIST )
-      aWaves = WAVES_BEGHOULED;
-    else if ( aGameMode == GAMEMODE_CHALLENGE_LAST_STAND )
-      aWaves = WAVES_LAST_STAND;
-    else if ( aGameMode == GAMEMODE_CHALLENGE_COLUMN )
-      aWaves = WAVES_COLUMN;
-    else if ( aGameMode == GAMEMODE_CHALLENGE_INVISIGHOUL )
-      aWaves = WAVES_INVISIGHOUL;
-    else if ( aGameMode == GAMEMODE_CHALLENGE_WAR_AND_PEAS )
-      aWaves = WAVES_WAR_AND_PEAS;
-    else if ( aGameMode == GAMEMODE_CHALLENGE_WAR_AND_PEAS_2 )
-      aWaves = WAVES_WAR_AND_PEAS_2;
-    else if ( mApp->IsShovelLevel() )
-      aWaves = WAVES_SURVIVAL_NORMAL;
-    else if ( aGameMode == GAMEMODE_CHALLENGE_WALLNUT_BOWLING || mApp->IsAdventureMode() )
-      aWaves = WAVES_WALLNUT_BOWLING;
-    else if ( aGameMode == GAMEMODE_CHALLENGE_WALLNUT_BOWLING_2 )
-      aWaves = WAVES_WALLNUT_BOWLING_2;
-    else if ( mApp->IsStormyNightLevel() )
-      aWaves = WAVES_STORMY_NIGHT;
-    else if ( (unsigned int)(aGameMode - 77) <= 1 )
-      aWaves = WAVES_VS_COOP;
-    else if ( aGameMode == GAMEMODE_TWO_PLAYER_COOP_DAY )
-      aWaves = WAVES_COOP_DAY;
-    else if ( aGameMode == GAMEMODE_TWO_PLAYER_COOP_NIGHT )
-      aWaves = WAVES_COOP_NIGHT;
-    else if ( aGameMode == GAMEMODE_TWO_PLAYER_COOP_POOL )
-      aWaves = WAVES_COOP_POOL;
-    else if ( aGameMode == GAMEMODE_TWO_PLAYER_COOP_ROOF )
-      aWaves = WAVES_COOP_ROOF;
-    else if ( aGameMode == GAMEMODE_TWO_PLAYER_COOP_BOWLING )
-      aWaves = WAVES_COOP_BOWLING;
-    else if ( (unsigned int)(aGameMode - 84) <= 3 )
-      aSurvivalWaves = true;
-    else if ( aGameMode == GAMEMODE_TWO_PLAYER_COOP_BOSS || aGameMode == GAMEMODE_TWO_PLAYER_COOP_ENDLESS )
-      aWaves = WAVES_VS_COOP;
-    else if ( aGameMode == GAMEMODE_CHALLENGE_HEAVY_WEAPON )
-      aWaves = WAVES_HEAVY_WEAPON;
-    else
-      aWaves = WAVES_SURVIVAL_HARD;
-  }
-
-  if ( aSurvivalWaves )
-    InitZombieWavesSurvival();
-  else
-    InitZombieWavesFromList(sWaves[aWaves], sWaveLengths[aWaves]);
-
-  // The yeti only turns up where the level allows it, and never in the two
-  // challenges that bring their own zombies.
-  if ( !mApp->CanSpawnYetis() )
-    return;
-  if ( !mApp->IsWhackAZombieLevel() && !mApp->IsLittleTroubleLevel() )
-    mBoard->mZombieAllowed[ZOMBIE_YETI] = true;
+  if (!mBoard->IsLevelDataLoaded()) return;
+  const Sexy::Level& level = mApp->mLevel;
+  if (level.mSurvivalAllowed) InitZombieWavesSurvival();
+  else InitZombieWavesFromList(level.mAllowedZombies.data(), static_cast<int>(level.mAllowedZombies.size()));
+  if (level.mAllowYeti && mApp->CanSpawnYetis()) mBoard->mZombieAllowed[ZOMBIE_YETI] = true;
 }
 
 // ==========================================================================
@@ -2576,9 +2421,9 @@ int Challenge::WhackAZombiePlaceGraves(int theGraveCount)
   int aGraveCount = 0;
   int aResult = 0;
 
-  // Rows 3..8 are the graveyard rows. A square that already accepts a grave
+  // Columns 3..8 are the graveyard. A square that accepts a grave
   // stone becomes a candidate, weighted 1 when a plant stands on it and 100000
-  // when it is empty, so the plants get dug up first.
+  // when it is empty, so empty squares are strongly preferred.
   for ( int aRow = 3; aRow != 9; ++aRow )
   {
     for ( int aCol = 0; aCol != 6; ++aCol )
@@ -2624,16 +2469,10 @@ int Challenge::WhackAZombiePlaceGraves(int theGraveCount)
 // Challenge::WhackAZombieSpawning(void)
 // @0018131C  864 bytes
 // ==========================================================================
-int * Challenge::WhackAZombieSpawning()
+void Challenge::WhackAZombieSpawning()
 {
-  // The per-wave weights. aGraveZombieWeights holds the types that rise from a
-  // grave stone, aGraveWeights the rest; aMinRiseWeights is added to
-  // aRiseWeights to form the second threshold. Each is six entries wide and
-  // indexed by a stage derived from the current wave, clamped to 0..5.
-  int aGraveZombieWeights[6];
-  int aGraveWeights[6];
-  int aRiseWeights[6];
-  int aMinRiseWeights[6];
+  const LevelWhackSpawns& config = mApp->mLevel.mWhackSpawns;
+  if (config.mStages.empty()) return;
 
   // One weight per candidate grid item, in the order the walk found them, plus
   // the grid item each candidate stands for.
@@ -2642,7 +2481,7 @@ int * Challenge::WhackAZombieSpawning()
   int aCandidateCount = 0;
 
   if ( mBoard->mNumWaves == mBoard->mCurrentWave && mBoard->mZombieCountDown == 0 )
-    return nullptr;
+    return;
 
   --mBoard->mZombieCountDown;
 
@@ -2657,7 +2496,7 @@ int * Challenge::WhackAZombieSpawning()
   {
     if ( mBoard->mCurrentWave > 0 )
     {
-      int aGraveCount = 5 - mBoard->GetGraveStoneCount();
+      int aGraveCount = config.mGraveTarget - mBoard->GetGraveStoneCount();
       if ( aGraveCount < 1 )
         aGraveCount = 1;
       WhackAZombiePlaceGraves(aGraveCount);
@@ -2667,98 +2506,42 @@ int * Challenge::WhackAZombieSpawning()
   if ( mBoard->mZombieCountDown != 0 )
   {
     if ( mBoard->mZombieCountDown < 300 )
-      return nullptr;
+      return;
 
     // From here on the counter is a delay to the next spawn rather than a
     // schedule point, so it only counts down to zero.
     if ( --mChallengeStateCounter != 0 )
-      return nullptr;
+      return;
   }
   else
   {
     // A new wave: five seconds of quiet, a fresh pair of spawn delays, and the
     // wave counter moves on. Reaching the last wave disables spawning.
-    mBoard->mZombieCountDownStart = 2000;
-    mBoard->mZombieCountDown = 2000;
+    mBoard->mZombieCountDownStart = config.mWaveDelay;
+    mBoard->mZombieCountDown = config.mWaveDelay;
     if ( ++mBoard->mCurrentWave == mBoard->mNumWaves )
     {
       mChallengeStateCounter = 299;
-      return nullptr;
+      return;
     }
     mChallengeStateCounter = 0;
   }
 
-  aGraveZombieWeights[0] = 0;
-  aGraveZombieWeights[1] = 30;
-  aGraveZombieWeights[2] = 10;
-  aGraveZombieWeights[3] = 10;
-  aGraveZombieWeights[4] = 15;
-  aGraveZombieWeights[5] = 18;
-
-  aGraveWeights[0] = 0;
-  aGraveWeights[1] = 0;
-  aGraveWeights[2] = 0;
-  aGraveWeights[3] = 0;
-  aGraveWeights[4] = 10;
-  aGraveWeights[5] = 13;
-
-  aRiseWeights[0] = 0;
-  aRiseWeights[1] = 0;
-  aRiseWeights[2] = 0;
-  aRiseWeights[3] = 10;
-  aRiseWeights[4] = 15;
-  aRiseWeights[5] = 15;
-
-  aMinRiseWeights[0] = 0;
-  aMinRiseWeights[1] = 0;
-  aMinRiseWeights[2] = 30;
-  aMinRiseWeights[3] = 30;
-  aMinRiseWeights[4] = 30;
-  aMinRiseWeights[5] = 30;
-
-  // Half of one less than the wave number, clamped to 0..5.
-  int aStage = (mBoard->mCurrentWave - 1) / 2;
-  if ( aStage <= 0 )
-    aStage = 0;
-  if ( aStage >= 5 )
-    aStage = 5;
-
-  // aGraveRoll picks how many zombies the wave spawns, aRiseRoll picks how they
-  // arrive. The two are independent: the first only ever chooses a count, and
-  // the second only ever chooses a zombie type.
-  int aGraveRoll = Rand(30);
-  int aRiseRoll = Rand(30);
-
-  // The last wave has no grave stones left, so it takes the fallback path: 20
-  // zombies, all of them raised the slow way.
-  bool aNoGraveStones = mBoard->mCurrentWave == mBoard->mNumWaves;
-  int aZombieCount;
-  if ( aNoGraveStones )
-  {
-    aZombieCount = 20;
-  }
-  else if ( aGraveRoll < aGraveWeights[aStage] )
-  {
-    aZombieCount = 3;
-  }
-  else if ( aGraveRoll >= aGraveWeights[aStage] + aGraveZombieWeights[aStage] )
-  {
-    aZombieCount = 1;
-  }
-  else
-  {
-    aZombieCount = 2;
-  }
-
-  // aRiseRoll decides whether the zombie comes out of a grave stone (type 4)
-  // or rises out of the ground (type 2, or 0 past the second threshold).
-  int aZombieType;
-  if ( aRiseRoll < aRiseWeights[aStage] )
-    aZombieType = 4;
-  else if ( aRiseRoll >= aRiseWeights[aStage] + aMinRiseWeights[aStage] )
-    aZombieType = 0;
-  else
-    aZombieType = 2;
+  const int stageIndex = std::clamp((mBoard->mCurrentWave - 1) / 2, 0,
+      static_cast<int>(config.mStages.size()) - 1);
+  const LevelWhackStage& stage = config.mStages[stageIndex];
+  const int countRoll = Rand(config.mRollRange);
+  const bool aNoGraveStones = mBoard->mCurrentWave == mBoard->mNumWaves;
+  int aZombieCount = aNoGraveStones ? config.mFinalCount
+      : countRoll < stage.mThreeCountWeight ? 3
+      : countRoll < stage.mThreeCountWeight + stage.mTwoCountWeight ? 2 : 1;
+  const bool three = aZombieCount == 3 && !stage.mThreeTypes.empty();
+  const auto& spawnTypes = three ? stage.mThreeTypes : stage.mTypes;
+  const auto& spawnWeights = three ? stage.mThreeWeights : stage.mWeights;
+  std::vector<TodWeightedArray> types;
+  for (size_t index = 0; index < spawnTypes.size(); ++index)
+    types.emplace_back(spawnTypes[index], spawnWeights[index]);
+  ZombieType zombieType = static_cast<ZombieType>(TodPickFromWeightedArray(types.data(), static_cast<int>(types.size())));
 
   // Every grave stone not already carrying a gravebuster is a candidate square.
   GridItem *aGridItem = nullptr;
@@ -2784,7 +2567,7 @@ int * Challenge::WhackAZombieSpawning()
 
   // The rise speed runs from 1 to 12 as the wave counter climbs.
   float aRiseRate =
-      (float)TodAnimateCurve(1, 12, mBoard->mCurrentWave, 1, COERCE_FLOAT(3), 2);
+      (float)TodAnimateCurve(1, 12, mBoard->mCurrentWave, 1, 3, 2);
 
   for ( int aSpawned = 0; aSpawned != aZombieCount; ++aSpawned )
   {
@@ -2794,28 +2577,27 @@ int * Challenge::WhackAZombieSpawning()
 
     if ( aNoGraveStones )
     {
-      // Nothing left to rise from: pick between a normal zombie and a traffic
-      // cone, and always rise at the slow rate.
+      // The final rush picks from its own XML pool and uses the slow rise rate.
       aRiseRate = 2.0f;
-      ZombieType aFallbackTypes[2] = { ZOMBIE_NORMAL, ZOMBIE_TRAFFIC_CONE };
-      aZombieType = TodPickFromArray((const int *)aFallbackTypes, 2);
+      if (config.mFinalTypes.empty()) break;
+      zombieType = config.mFinalTypes[Rand(static_cast<int>(config.mFinalTypes.size()))];
     }
 
-    Zombie *aZombie = mBoard->AddZombie((ZombieType)aZombieType, mBoard->mCurrentWave, false);
+    Zombie *aZombie = mBoard->AddZombie(zombieType, mBoard->mCurrentWave, false);
     if ( aZombie == nullptr )
       break;
 
     aZombie->RiseFromGrave(aGrave->mGridX, aGrave->mGridY);
     aZombie->mPhaseCounter = 50;
     aZombie->mVelX = RandRangeFloat(0.5f, aRiseRate);
-    if ( mApp->HasGamepad() == 0 && (!mApp->mGamePad1IsOn || !mApp->mGamePad2IsOn) )
+    if (mApp->HasGamepad() == 0 && (!mApp->mGamePad1IsOn || !mApp->mGamePad2IsOn))
       aZombie->mVelX = RandRangeFloat(0.1f, 0.5f);
 
     aZombie->UpdateAnimSpeed();
   }
 
-  int aMinDelay = TodAnimateCurve(1, 12, mBoard->mCurrentWave, 100, COERCE_FLOAT(30), 1);
-  int aMaxDelay = TodAnimateCurve(1, 12, mBoard->mCurrentWave, 200, COERCE_FLOAT(60), 1);
+  int aMinDelay = TodAnimateCurve(1, config.mDelayEndWave, mBoard->mCurrentWave, config.mFirstMinimumDelay, config.mLastMinimumDelay, CURVE_LINEAR);
+  int aMaxDelay = TodAnimateCurve(1, config.mDelayEndWave, mBoard->mCurrentWave, config.mFirstMaximumDelay, config.mLastMaximumDelay, CURVE_LINEAR);
   mChallengeStateCounter = RandRangeInt(aMinDelay, aMaxDelay);
 
   if ( aNoGraveStones )
@@ -2824,7 +2606,7 @@ int * Challenge::WhackAZombieSpawning()
     mChallengeStateCounter = 0;
   }
 
-  return nullptr;
+  return;
 }
 
 // ==========================================================================
@@ -2957,11 +2739,11 @@ void Challenge::SpawnZombieWave()
   {
     if ( mBoard->mCurrentWave != mBoard->mNumWaves - 1 )
     {
-      if ( aIsFlagWave )
+      if ( aIsFlagWave && mApp->mLevel.mExtraSpawns.mGravesOnFlag )
       {
         mBoard->SpawnZombiesFromGraves();
       }
-      else if ( mBoard->mCurrentWave > 5 )
+      else if ( !aIsFlagWave && mBoard->mCurrentWave > 5 )
       {
         GraveDangerSpawnRandomGrave();
       }
@@ -2990,7 +2772,7 @@ void Challenge::SpawnZombieWave()
     }
   }
 
-  if (mApp->mGameMode == GAMEMODE_CHALLENGE_HEAVY_WEAPON)
+  if (mApp->mLevel.mExtraSpawns.mSkyEveryWave)
     mBoard->SpawnZombiesFromSky();
 
   if ( mApp->IsBungeeBlitzLevel() && aIsFlagWave )
@@ -3159,7 +2941,8 @@ void Challenge::DrawWeather(Sexy::Graphics * g)
 // ==========================================================================
 Zombie * Challenge::PlayBossEnter()
 {
-  return mBoard->AddZombie(ZOMBIE_BOSS, 0, true);
+  const ZombieType boss = mApp->mLevel.mBossType;
+  return boss == ZOMBIE_INVALID ? nullptr : mBoard->AddZombie(boss, 0, true);
 }
 
 // ==========================================================================
@@ -3898,7 +3681,10 @@ void Challenge::UpdateBeghouled()
 // ==========================================================================
 Zombie * Challenge::ZombiquariumSpawnSnorkel()
 {
-  Zombie *aZombie = mBoard->AddZombieInRow(ZOMBIE_SNORKEL, 0, 0, 0);
+  const ZombieType type = mApp->mLevel.mSummons.mAquarium;
+  if (type == ZOMBIE_INVALID) return nullptr;
+  Zombie* aZombie = mBoard->AddZombieInRow(type, 0, 0, false);
+  if (aZombie == nullptr) return nullptr;
   aZombie->mPosX = RandRangeFloat(50.0f, 650.0f);
   aZombie->mPosY = RandRangeFloat(100.0f, 400.0f);
   return aZombie;
@@ -5025,8 +4811,9 @@ void Challenge::SquirrelFound(GridItem * theSquirrel)
   // State 13 is the squirrel that has found a zombie instead of a plant.
   if ( theSquirrel->mGridItemState == (GridItemState)13 )
   {
-    Zombie *aZombie = mBoard->AddZombieInRow(ZOMBIE_NORMAL, theSquirrel->mGridY, 0, false);
-    aZombie->mPosX = (float)mBoard->GridToPixelX(theSquirrel->mGridX, theSquirrel->mGridY);
+    const ZombieType type = mApp->mLevel.mSummons.mSquirrel;
+    Zombie* aZombie = type == ZOMBIE_INVALID ? nullptr : mBoard->AddZombieInRow(type, theSquirrel->mGridY, 0, false);
+    if (aZombie) aZombie->mPosX = (float)mBoard->GridToPixelX(theSquirrel->mGridX, theSquirrel->mGridY);
     theSquirrel->GridItemDie();
     Sexy::String aAdvice("[ADVICE_SQUIRREL_ZOMBIE]");
     mBoard->DisplayAdvice(aAdvice, MESSAGE_STYLE_HINT_FAST, (AdviceType)(-1));
@@ -6630,7 +6417,8 @@ void Challenge::Update()
         if ( aTimer == 0 )
         {
           mMPZombieConveyorTimer = 6000;
-          mBoard->AddZombie(ZOMBIE_BOBSLED, -5, true);
+          const ZombieType type = mApp->mLevel.mSummons.mBobsled;
+          if (type != ZOMBIE_INVALID) mBoard->AddZombie(type, -5, true);
         }
       }
       if (mIsMPSuddenDeathNow == false
@@ -6811,246 +6599,30 @@ int Challenge::ScaryPotterPlacePot(int thePotType, int theZombieType, int theSee
 // ==========================================================================
 int Challenge::ScaryPotterPopulate()
 {
-  int result = 0;
-  TodWeightedGridArray aGrid[45];
-
-  for (int aCol = 0; aCol != 9; ++aCol)
+  if (!mBoard->IsLevelDataLoaded()) mApp->LoadLevelConfiguration(mApp->mGameMode, mBoard->mLevel);
+  TodWeightedGridArray grid[45];
+  for (int column = 0; column < 9; ++column)
+    for (int row = 0; row < 5; ++row)
+      grid[column * 5 + row] = {column, row, 1};
+  for (const LevelVaseLayout& layout : mApp->mLevel.mVaseLayouts)
   {
-    for (int aRow = 0; aRow != 5; ++aRow)
+    if (mSurvivalStage < layout.mMinimumStage || mSurvivalStage > layout.mMaximumStage) continue;
+    for (int column : layout.mExcludedColumns) ScaryPotterDontPlaceInCol(column, grid, 45);
+    for (const LevelVaseContents& pot : layout.mContents)
     {
-      aGrid[5 * aCol + aRow].mX = aCol;
-      aGrid[5 * aCol + aRow].mY = aRow;
-      aGrid[5 * aCol + aRow].mWeight = 1;
+      const int available = static_cast<int>(std::count_if(std::begin(grid), std::end(grid),
+          [](const TodWeightedGridArray& cell) { return cell.mWeight > 0; }));
+      const int count = std::clamp(pot.mCount + mSurvivalStage / pot.mStageDivisor * pot.mStageDelta,
+          0, std::min(pot.mMaximumCount, available));
+      ScaryPotterPlacePot(pot.mKind, pot.mZombie, pot.mPlant, count, grid, 45);
     }
+    if (layout.mLeafCount > 0) ScaryPotterChangePotType(GRIDITEM_STATE_SCARY_POT_LEAF, layout.mLeafCount);
+    break;
   }
-  if ( mApp->IsAdventureMode() == 0 || mBoard->mLevel != 35 )
-  {
-    int aGameMode = mApp->mGameMode;
-    if ( aGameMode == GAMEMODE_SCARY_POTTER_1 )
-    {
-      ScaryPotterDontPlaceInCol(0, aGrid, 45);
-      ScaryPotterDontPlaceInCol(1, aGrid, 45);
-      ScaryPotterDontPlaceInCol(2, aGrid, 45);
-      ScaryPotterDontPlaceInCol(3, aGrid, 45);
-      ScaryPotterPlacePot(1, -1, 0, 5, aGrid, 45);
-      ScaryPotterPlacePot(1, -1, 5, 5, aGrid, 45);
-      ScaryPotterPlacePot(1, -1, 17, 5, aGrid, 45);
-      ScaryPotterPlacePot(2, 0, -1, 6, aGrid, 45);
-      ScaryPotterPlacePot(2, 4, -1, 3, aGrid, 45);
-      ScaryPotterPlacePot(2, 15, -1, 1, aGrid, 45);
-    }
-    else if ( aGameMode == GAMEMODE_SCARY_POTTER_2 )
-    {
-      ScaryPotterDontPlaceInCol(0, aGrid, 45);
-      ScaryPotterDontPlaceInCol(1, aGrid, 45);
-      ScaryPotterDontPlaceInCol(2, aGrid, 45);
-      ScaryPotterDontPlaceInCol(8, aGrid, 45);
-      ScaryPotterPlacePot(1, -1, 53, 7, aGrid, 45);
-      ScaryPotterPlacePot(1, -1, 5, 3, aGrid, 45);
-      ScaryPotterPlacePot(1, -1, 3, 3, aGrid, 45);
-      ScaryPotterPlacePot(1, -1, 4, 2, aGrid, 45);
-      ScaryPotterPlacePot(2, 0, -1, 6, aGrid, 45);
-      ScaryPotterPlacePot(2, 4, -1, 3, aGrid, 45);
-      ScaryPotterPlacePot(2, 15, -1, 1, aGrid, 45);
-    }
-    else if ( aGameMode == GAMEMODE_SCARY_POTTER_3 )
-    {
-      ScaryPotterDontPlaceInCol(0, aGrid, 45);
-      ScaryPotterDontPlaceInCol(1, aGrid, 45);
-      ScaryPotterDontPlaceInCol(2, aGrid, 45);
-      ScaryPotterPlacePot(1, -1, 53, 6, aGrid, 45);
-      ScaryPotterPlacePot(1, -1, 5, 4, aGrid, 45);
-      ScaryPotterPlacePot(1, -1, 17, 2, aGrid, 45);
-      ScaryPotterPlacePot(1, -1, 12, 3, aGrid, 45);
-      ScaryPotterPlacePot(1, -1, 3, 3, aGrid, 45);
-      ScaryPotterPlacePot(2, 0, -1, 8, aGrid, 45);
-      ScaryPotterPlacePot(2, 4, -1, 2, aGrid, 45);
-      ScaryPotterPlacePot(2, 8, -1, 1, aGrid, 45);
-      ScaryPotterPlacePot(2, 15, -1, 1, aGrid, 45);
-    }
-    else if ( aGameMode == GAMEMODE_SCARY_POTTER_4 )
-    {
-      ScaryPotterDontPlaceInCol(0, aGrid, 45);
-      ScaryPotterDontPlaceInCol(1, aGrid, 45);
-      ScaryPotterPlacePot(1, -1, 8, 11, aGrid, 45);
-      ScaryPotterPlacePot(1, -1, 12, 4, aGrid, 45);
-      ScaryPotterPlacePot(1, -1, 53, 4, aGrid, 45);
-      ScaryPotterPlacePot(2, 15, -1, 8, aGrid, 45);
-      ScaryPotterPlacePot(2, 0, -1, 7, aGrid, 45);
-      ScaryPotterPlacePot(2, 7, -1, 1, aGrid, 45);
-    }
-    else if ( aGameMode == GAMEMODE_SCARY_POTTER_5 )
-    {
-      ScaryPotterDontPlaceInCol(0, aGrid, 45);
-      ScaryPotterDontPlaceInCol(1, aGrid, 45);
-      ScaryPotterPlacePot(1, -1, 53, 6, aGrid, 45);
-      ScaryPotterPlacePot(1, -1, 30, 3, aGrid, 45);
-      ScaryPotterPlacePot(1, -1, 17, 4, aGrid, 45);
-      ScaryPotterPlacePot(1, -1, 12, 2, aGrid, 45);
-      ScaryPotterPlacePot(1, -1, 5, 2, aGrid, 45);
-      ScaryPotterPlacePot(1, -1, 31, 3, aGrid, 45);
-      ScaryPotterPlacePot(2, 0, -1, 6, aGrid, 45);
-      ScaryPotterPlacePot(2, 4, -1, 5, aGrid, 45);
-      ScaryPotterPlacePot(2, 15, -1, 1, aGrid, 45);
-      ScaryPotterPlacePot(2, 7, -1, 3, aGrid, 45);
-    }
-    else
-    {
-      if ( aGameMode == GAMEMODE_SCARY_POTTER_6 )
-      {
-        ScaryPotterDontPlaceInCol(0, aGrid, 45);
-        ScaryPotterDontPlaceInCol(1, aGrid, 45);
-        ScaryPotterPlacePot(1, -1, 53, 7, aGrid, 45);
-        ScaryPotterPlacePot(1, -1, 17, 2, aGrid, 45);
-        ScaryPotterPlacePot(1, -1, 23, 5, aGrid, 45);
-        ScaryPotterPlacePot(1, -1, 18, 2, aGrid, 45);
-        ScaryPotterPlacePot(1, -1, 22, 4, aGrid, 45);
-        ScaryPotterPlacePot(2, 0, -1, 7, aGrid, 45);
-        ScaryPotterPlacePot(2, 3, -1, 5, aGrid, 45);
-        ScaryPotterPlacePot(2, 7, -1, 2, aGrid, 45);
-        ScaryPotterPlacePot(2, 15, -1, 1, aGrid, 45);
-        ScaryPotterChangePotType(GRIDITEM_STATE_SCARY_POT_LEAF, 2);
-        mScaryPotterPots = ScaryPotterCountPots();
-        return mScaryPotterPots;
-      }
-      if ( aGameMode == GAMEMODE_SCARY_POTTER_7 )
-      {
-        ScaryPotterDontPlaceInCol(0, aGrid, 45);
-        ScaryPotterDontPlaceInCol(1, aGrid, 45);
-        ScaryPotterDontPlaceInCol(2, aGrid, 45);
-        ScaryPotterPlacePot(1, -1, 21, 13, aGrid, 45);
-        ScaryPotterPlacePot(1, -1, 3, 3, aGrid, 45);
-        ScaryPotterPlacePot(1, -1, 17, 3, aGrid, 45);
-        ScaryPotterPlacePot(2, 0, -1, 10, aGrid, 45);
-        ScaryPotterPlacePot(2, 4, -1, 1, aGrid, 45);
-      }
-      else if ( aGameMode == GAMEMODE_SCARY_POTTER_8 )
-      {
-        ScaryPotterDontPlaceInCol(0, aGrid, 45);
-        ScaryPotterDontPlaceInCol(1, aGrid, 45);
-        ScaryPotterPlacePot(1, -1, 8, 7, aGrid, 45);
-        ScaryPotterPlacePot(1, -1, 23, 3, aGrid, 45);
-        ScaryPotterPlacePot(1, -1, 17, 5, aGrid, 45);
-        ScaryPotterPlacePot(1, -1, 53, 4, aGrid, 45);
-        ScaryPotterPlacePot(2, 15, -1, 8, aGrid, 45);
-        ScaryPotterPlacePot(2, 0, -1, 4, aGrid, 45);
-        ScaryPotterPlacePot(2, 18, -1, 4, aGrid, 45);
-      }
-      else
-      {
-        if ( aGameMode != GAMEMODE_SCARY_POTTER_9 )
-        {
-          if ( aGameMode == GAMEMODE_SCARY_POTTER_ENDLESS )
-          {
-            int aBand = mSurvivalStage / 10;
-            int aNormalCount = 8;
-            int aJackCount = 1;
-            if (aBand <= 0)
-            {
-              aNormalCount = 8;
-              aJackCount = 1;
-            }
-            else if (aBand > 7)
-            {
-              aNormalCount = 0;
-              aJackCount = 9;
-            }
-            else
-            {
-              aNormalCount = 8 - aBand;
-              aJackCount = aBand + 1;
-            }
-            ScaryPotterDontPlaceInCol(0, aGrid, 45);
-            ScaryPotterDontPlaceInCol(1, aGrid, 45);
-            ScaryPotterPlacePot(1, -1, 53, 6, aGrid, 45);
-            ScaryPotterPlacePot(1, -1, 5, 2, aGrid, 45);
-            ScaryPotterPlacePot(1, -1, 0, 1, aGrid, 45);
-            ScaryPotterPlacePot(1, -1, 18, 2, aGrid, 45);
-            ScaryPotterPlacePot(1, -1, 17, 5, aGrid, 45);
-            ScaryPotterPlacePot(1, -1, 4, 1, aGrid, 45);
-            ScaryPotterPlacePot(1, -1, 3, 1, aGrid, 45);
-            ScaryPotterPlacePot(1, -1, 25, 1, aGrid, 45);
-            ScaryPotterPlacePot(3, -1, -1, 1, aGrid, 45);
-            ScaryPotterPlacePot(2, 0, -1, aNormalCount, aGrid, 45);
-            ScaryPotterPlacePot(2, 4, -1, 5, aGrid, 45);
-            ScaryPotterPlacePot(2, 15, -1, 1, aGrid, 45);
-            ScaryPotterPlacePot(2, 23, -1, aJackCount, aGrid, 45);
-            ScaryPotterChangePotType(GRIDITEM_STATE_SCARY_POT_LEAF, 2);
-          }
-          mScaryPotterPots = ScaryPotterCountPots();
-          return mScaryPotterPots;
-        }
-        ScaryPotterDontPlaceInCol(0, aGrid, 45);
-        ScaryPotterDontPlaceInCol(1, aGrid, 45);
-        ScaryPotterPlacePot(1, -1, 53, 6, aGrid, 45);
-        ScaryPotterPlacePot(1, -1, 5, 2, aGrid, 45);
-        ScaryPotterPlacePot(1, -1, 0, 2, aGrid, 45);
-        ScaryPotterPlacePot(1, -1, 18, 2, aGrid, 45);
-        ScaryPotterPlacePot(1, -1, 17, 5, aGrid, 45);
-        ScaryPotterPlacePot(1, -1, 4, 1, aGrid, 45);
-        ScaryPotterPlacePot(1, -1, 3, 1, aGrid, 45);
-        ScaryPotterPlacePot(1, -1, 25, 1, aGrid, 45);
-        ScaryPotterPlacePot(2, 0, -1, 8, aGrid, 45);
-        ScaryPotterPlacePot(2, 4, -1, 5, aGrid, 45);
-        ScaryPotterPlacePot(2, 15, -1, 1, aGrid, 45);
-        ScaryPotterPlacePot(2, 23, -1, 1, aGrid, 45);
-      }
-    }
-    ScaryPotterChangePotType(GRIDITEM_STATE_SCARY_POT_LEAF, 2);
-    mScaryPotterPots = ScaryPotterCountPots();
-    return mScaryPotterPots;
-  }
-  int aStage = mSurvivalStage;
-  if (aStage != 0)
-  {
-    if (aStage == 1)
-    {
-      ScaryPotterDontPlaceInCol(0, aGrid, 45);
-      ScaryPotterDontPlaceInCol(1, aGrid, 45);
-      ScaryPotterDontPlaceInCol(2, aGrid, 45);
-      ScaryPotterDontPlaceInCol(3, aGrid, 45);
-      ScaryPotterDontPlaceInCol(4, aGrid, 45);
-      ScaryPotterPlacePot(1, -1, 0, 4, aGrid, 45);
-      ScaryPotterPlacePot(1, -1, 5, 5, aGrid, 45);
-      ScaryPotterPlacePot(1, -1, 17, 4, aGrid, 45);
-      ScaryPotterPlacePot(2, 0, -1, 5, aGrid, 45);
-      ScaryPotterPlacePot(2, 4, -1, 1, aGrid, 45);
-      ScaryPotterPlacePot(2, 7, -1, 1, aGrid, 45);
-      ScaryPotterChangePotType(GRIDITEM_STATE_SCARY_POT_LEAF, 2);
-    }
-    else if (aStage == 2)
-    {
-      ScaryPotterDontPlaceInCol(0, aGrid, 45);
-      ScaryPotterDontPlaceInCol(1, aGrid, 45);
-      ScaryPotterDontPlaceInCol(2, aGrid, 45);
-      ScaryPotterDontPlaceInCol(3, aGrid, 45);
-      ScaryPotterPlacePot(1, -1, 0, 5, aGrid, 45);
-      ScaryPotterPlacePot(1, -1, 5, 5, aGrid, 45);
-      ScaryPotterPlacePot(1, -1, 12, 5, aGrid, 45);
-      ScaryPotterPlacePot(2, 0, -1, 6, aGrid, 45);
-      ScaryPotterPlacePot(2, 4, -1, 2, aGrid, 45);
-      ScaryPotterPlacePot(2, 8, -1, 1, aGrid, 45);
-      ScaryPotterPlacePot(2, 15, -1, 1, aGrid, 45);
-      ScaryPotterChangePotType(GRIDITEM_STATE_SCARY_POT_LEAF, 3);
-    }
-  }
-  else
-  {
-    ScaryPotterDontPlaceInCol(0, aGrid, 45);
-    ScaryPotterDontPlaceInCol(1, aGrid, 45);
-    ScaryPotterDontPlaceInCol(2, aGrid, 45);
-    ScaryPotterDontPlaceInCol(3, aGrid, 45);
-    ScaryPotterDontPlaceInCol(4, aGrid, 45);
-    ScaryPotterDontPlaceInCol(5, aGrid, 45);
-    ScaryPotterPlacePot(1, -1, 0, 5, aGrid, 45);
-    ScaryPotterPlacePot(1, -1, 17, 5, aGrid, 45);
-    ScaryPotterPlacePot(2, 0, -1, 4, aGrid, 45);
-    ScaryPotterPlacePot(2, 4, -1, 1, aGrid, 45);
-  }
-  result = ScaryPotterCountPots();
-  mScaryPotterPots = result;
-  return result;
-}// ==========================================================================
+  mScaryPotterPots = ScaryPotterCountPots();
+  return mScaryPotterPots;
+}
+// ==========================================================================
 // Challenge::AdvanceCrazyDaveDialog(void)
 // @00187C54  88 bytes
 // ==========================================================================

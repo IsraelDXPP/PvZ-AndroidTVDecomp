@@ -27,6 +27,7 @@
 #include <map>
 #include <set>
 #include <cstring>
+#include <algorithm>
 #include <cctype>
 
 // The text walk used to be the 5776-byte character state machine at 0x3B5720.
@@ -69,24 +70,15 @@ bool IsSpaceOnly(const char* theText)
     return true;
 }
 
-int LineAt(const char* theText, size_t theSize, ptrdiff_t theOffset)
+int LineAt(const std::vector<size_t>& theNewlines, ptrdiff_t theOffset)
 {
-    int aLine = 1;
-    if (theText == nullptr || theOffset <= 0)
-        return aLine;
-    size_t aEnd = static_cast<size_t>(theOffset);
-    if (aEnd > theSize)
-        aEnd = theSize;
-    for (size_t aIndex = 0; aIndex < aEnd; ++aIndex)
-    {
-        if (theText[aIndex] == '\n')
-            ++aLine;
-    }
-    return aLine;
+    if (theOffset <= 0) return 1;
+    const auto position = std::lower_bound(theNewlines.begin(), theNewlines.end(), static_cast<size_t>(theOffset));
+    return 1 + static_cast<int>(position - theNewlines.begin());
 }
 
 void AppendNode(std::vector<XmlEvent>& theEvents, pugi::xml_node theNode,
-                std::string& theSection, const char* theText, size_t theSize)
+                std::string& theSection, const std::vector<size_t>& theNewlines)
 {
     // A processing instruction, including the "<?xml ...?>" declaration. The
     // manifest reader skips a start tag whose name begins with '?', so the
@@ -99,7 +91,7 @@ void AppendNode(std::vector<XmlEvent>& theEvents, pugi::xml_node theNode,
         aEvent.mInstruction = std::string("?") + theNode.name();
         aEvent.mValue = theSection;
         aEvent.mSectionAfter = theSection;
-        aEvent.mLine = LineAt(theText, theSize, theNode.offset_debug());
+        aEvent.mLine = LineAt(theNewlines, theNode.offset_debug());
         for (pugi::xml_attribute aAttr = theNode.first_attribute(); aAttr; aAttr = aAttr.next_attribute())
             aEvent.mAttrs.emplace_back(aAttr.name(), aAttr.value());
         theEvents.push_back(aEvent);
@@ -114,7 +106,7 @@ void AppendNode(std::vector<XmlEvent>& theEvents, pugi::xml_node theNode,
         aEvent.mText = theNode.value();
         aEvent.mValue = theSection;
         aEvent.mSectionAfter = theSection;
-        aEvent.mLine = LineAt(theText, theSize, theNode.offset_debug());
+        aEvent.mLine = LineAt(theNewlines, theNode.offset_debug());
         theEvents.push_back(aEvent);
         return;
     }
@@ -125,7 +117,7 @@ void AppendNode(std::vector<XmlEvent>& theEvents, pugi::xml_node theNode,
     aStart.mType = 1;
     aStart.mInstruction = theNode.name();
     aStart.mValue = theSection;
-    aStart.mLine = LineAt(theText, theSize, theNode.offset_debug());
+    aStart.mLine = LineAt(theNewlines, theNode.offset_debug());
     for (pugi::xml_attribute aAttr = theNode.first_attribute(); aAttr; aAttr = aAttr.next_attribute())
         aStart.mAttrs.emplace_back(aAttr.name(), aAttr.value());
 
@@ -137,7 +129,7 @@ void AppendNode(std::vector<XmlEvent>& theEvents, pugi::xml_node theNode,
     theEvents.push_back(std::move(aStart));
 
     for (pugi::xml_node aChild = theNode.first_child(); aChild; aChild = aChild.next_sibling())
-        AppendNode(theEvents, aChild, theSection, theText, theSize);
+        AppendNode(theEvents, aChild, theSection, theNewlines);
 
     XmlEvent aEnd;
     aEnd.mType = 2;
@@ -192,9 +184,14 @@ void LoadXmlText(Sexy::XMLParser* theParser, const char* theText, size_t theSize
         theParser->Fail(aResult.description());
         return;
     }
+    // Compute line offsets once. Scanning the whole prefix for every node was
+    // quadratic for the unified levels.xml and delayed every stage selection.
+    std::vector<size_t> newlines;
+    for (size_t offset = 0; offset < theSize; ++offset)
+        if (theText[offset] == '\n') newlines.push_back(offset);
     std::string aSection;
     for (pugi::xml_node aChild = aDoc.first_child(); aChild; aChild = aChild.next_sibling())
-        AppendNode(aCursor.mEvents, aChild, aSection, theText, theSize);
+        AppendNode(aCursor.mEvents, aChild, aSection, newlines);
 }
 
 } // namespace

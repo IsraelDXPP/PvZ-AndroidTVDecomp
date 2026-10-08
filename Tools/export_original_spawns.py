@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
-"""Export all TV game modes and both adventure cycles into one levels.xml."""
+"""Export standalone TV and NormalLevel/PC spawn configurations in schema 3."""
 
 from __future__ import annotations
 
 import argparse
+import copy
+import hashlib
 from dataclasses import dataclass
 from pathlib import Path
 import re
@@ -78,235 +80,6 @@ def read_tables(repository: Path) -> SpawnTables:
     return SpawnTables(wave_counts, permissions, definitions)
 
 
-def wave_count(tables: SpawnTables, level: int, repeat: bool) -> int:
-    if level == WHACK_LEVEL:
-        return 6
-    count = tables.wave_counts[level - 1]
-    if repeat and level not in MINI_BOSS_LEVELS:
-        return 20 if count <= 9 else count + 10
-    return count
-
-
-def can_spawn_yeti(level: int, repeat: bool) -> bool:
-    # Used only for the explanatory introduction table. Runtime permissions
-    # remain native so that profile flag 32768 is also respected.
-    return repeat and level >= 40
-
-
-def allowed_zombies(tables: SpawnTables, level: int, repeat: bool) -> list[int]:
-    if level == WHACK_LEVEL:
-        return [0, 2, 4]
-    if repeat and level == BOWLING_LEVEL:
-        return [0, 2, 3, 4, 5]
-    return [
-        definition.zombie_type
-        for definition in tables.definitions
-        if (
-            can_spawn_yeti(level, repeat)
-            if definition.zombie_type == YETI_TYPE
-            else definition.starting_level <= level
-            and definition.random_weight > 0
-            and tables.permissions[definition.zombie_type][level - 1] != 0
-        )
-    ]
-
-
-def base_points(level: int, wave_index: int, repeat: bool) -> int:
-    if not repeat or level in {BOWLING_LEVEL, WHACK_LEVEL}:
-        return wave_index // 3 + 1
-    return 2 * wave_index // 5 + 1
-
-
-def is_flag_wave(level: int, wave_index: int, count: int, repeat: bool) -> bool:
-    if not repeat and level == 1:
-        return False
-    interval = 10 if repeat or count >= 10 else count
-    return wave_index % interval == interval - 1
-
-
-def point_multiplier(level: int) -> int:
-    if level in {5, 25}:
-        return 4
-    if level in {10, 20, 30, 40}:
-        return 3
-    if level == 45:
-        return 2
-    return 1
-
-
-def introduced_zombie(tables: SpawnTables, level: int, repeat: bool) -> int | None:
-    if level == 1:
-        return None
-    return next(
-        (
-            definition.zombie_type
-            for definition in tables.definitions
-            if definition.starting_level == level
-            and (definition.zombie_type != YETI_TYPE or can_spawn_yeti(level, repeat))
-        ),
-        None,
-    )
-
-
-def introduced_wave_indices(zombie_type: int | None, count: int) -> list[int]:
-    if zombie_type is None or zombie_type == 10:
-        return []
-    if zombie_type in {16, 17}:
-        return sorted({6, count - 1})
-    if zombie_type == YETI_TYPE:
-        return [count // 2]
-    return sorted({count // 2, count - 1})
-
-
-def scene_for_level(level: int) -> int:
-    if level == 35:
-        return 1
-    if level == 50:
-        return 5
-    return (level - 1) // 10
-
-
-def write_xml(root: ET.Element, destination: Path) -> None:
-    ET.indent(root, space="  ")
-    ET.ElementTree(root).write(destination, encoding="utf-8", xml_declaration=True)
-    with destination.open("a", encoding="utf-8", newline="\n") as stream:
-        stream.write("\n")
-
-
-def build_levels(tables: SpawnTables, repeat: bool) -> ET.Element:
-    root = ET.Element("AdventureRecords")
-    cycle = "repeat" if repeat else "first"
-    root.append(ET.Comment(" 冒险二周目。 " if repeat else " 冒险一周目。 "))
-    for level in range(1, 51):
-        count = wave_count(tables, level, repeat)
-        world, stage = divmod(level - 1, 10)
-        root.append(ET.Comment(f" {world + 1}-{stage + 1}：{count} 波；原版预算倍率 {point_multiplier(level)}。 "))
-        element = ET.SubElement(
-            root,
-            "Level",
-            id=str(level),
-            mode="0-1",
-            adventureCycle=cycle,
-            scene=str(scene_for_level(level)),
-            waveCount=str(count),
-            allowedZombies="native",
-        )
-        if level == 1:
-            element.set("skipShopSeedTutorial", "true")
-        if level == 15:
-            element.append(ET.Comment(" 锤僵尸由 Challenge::WhackAZombieSpawning 出怪，下面的 points 不控制实际出怪数量。 "))
-        elif level == 35:
-            element.append(ET.Comment(" 砸罐子由罐子内容决定出怪，常规波次不用于实际刷怪。 "))
-        elif level == 50:
-            element.append(ET.Comment(" 僵王关由 Boss 的召唤逻辑出怪，常规波次不用于实际刷怪。 "))
-
-        introduction = introduced_zombie(tables, level, repeat)
-        introduction_indices = introduced_wave_indices(introduction, count)
-        for wave_index in range(count):
-            flag = is_flag_wave(level, wave_index, count, repeat)
-            if level == 45 and flag:
-                element.append(ET.Comment(" 原版代码将这波替换为 5 只蹦极僵尸，跳过普通旗帜波预算和新僵尸追加。 "))
-            elif wave_index in introduction_indices:
-                condition = "（未杀死雪人并重开时）" if introduction == YETI_TYPE else ""
-                element.append(ET.Comment(f" 原版代码在本波追加僵尸 {introduction}{condition}；不再写入 mustHaveZombies。 "))
-            wave_attributes = {"index": str(wave_index), "points": str(base_points(level, wave_index, repeat)), "flag": "1" if flag else "0"}
-            ET.SubElement(element, "Wave", wave_attributes)
-    return root
-
-
-def rule(parent: ET.Element, name: str, description: str, **attributes: str) -> ET.Element:
-    element = ET.SubElement(parent, name, attributes)
-    element.text = description
-    return element
-
-
-def build_rules(tables: SpawnTables) -> ET.Element:
-    root = ET.Element("OriginalSpawnRules", version="2", waveIndexBase="0")
-    rule(root, "Scope", "原版 TV 模式的配置和动态规则；预算供原生加权选怪使用，不是某次随机运行的固定僵尸名单。此节点仅记录来源，不参与 Level 选择。")
-    sources = ET.SubElement(root, "Sources")
-    ET.SubElement(sources, "Native", function="Board::PickZombieWaves", address="0x161870")
-    ET.SubElement(sources, "Native", table="gZombieWaves", address="0x695C38", entries="50")
-    ET.SubElement(sources, "Native", table="gZombieAllowedLevels", address="0x694120", rows="34", integersPerRow="51")
-    ET.SubElement(sources, "Native", table="ZombieDefinition", address="0x697660", entries="34")
-    ET.SubElement(sources, "Reference", function="Board::IsFlagWave", file="PvZ/src/Lawn/Board/Board.cpp", line="4616")
-    ET.SubElement(sources, "Reference", function="MainMenu::SyncProfile", file="PvZ/src/Lawn/Widget/MainMenu.cpp", line="372")
-
-    profiles = ET.SubElement(root, "Profiles")
-    first = ET.SubElement(profiles, "Profile", name="first-adventure", file="levels.xml", hasFinishedAdventure="0")
-    rule(first, "WaveCount", "使用内置表；2-5 锤僵尸例外，始终 6 波。", expression="nativeWaveCounts[level - 1]")
-    rule(first, "BasePoints", "所有冒险关卡的基础点数。", expression="waveIndex // 3 + 1")
-    rule(first, "Flags", "1-1 无旗帜；少于 10 波的关卡以最后一波为旗帜，其余每 10 波一旗。")
-    repeat = ET.SubElement(profiles, "Profile", name="repeat-adventure", file="levels.xml", hasFinishedAdventure="1", profileFlag32768="0", killedYetiAndRestarted="0")
-    rule(repeat, "WaveCount", "1-10、2-10、3-10 保持内置波数；2-5 始终 6 波；其他关卡原波数不超过 9 时改为 20，否则增加 10。")
-    rule(repeat, "BasePoints", "二周目公式；1-5 保龄球和 2-5 锤僵尸继续使用 waveIndex // 3 + 1。", expression="2 * waveIndex // 5 + 1")
-    rule(repeat, "Flags", "每 10 波一旗，短于 10 波时没有旗帜。", expression="waveIndex % 10 == 9")
-
-    definitions = ET.SubElement(root, "ZombieDefinitions")
-    for definition in tables.definitions:
-        allowed_levels = [str(index + 1) for index, allowed in enumerate(tables.permissions[definition.zombie_type]) if allowed]
-        ET.SubElement(definitions, "Zombie", id=str(definition.zombie_type), name=definition.name,
-                      pointValue=str(definition.point_value), startingLevel=str(definition.starting_level),
-                      minimumWave=str(definition.minimum_wave), randomWeight=str(definition.random_weight),
-                      nativeAllowedLevels=" ".join(allowed_levels))
-    ET.SubElement(root, "NativeWaveCounts", values=" ".join(map(str, tables.wave_counts)))
-
-    permissions = ET.SubElement(root, "AllowedZombieRules")
-    rule(permissions, "Normal", "原生允许表为真、已达到 startingLevel、randomWeight 非零才允许；雪人单独判断。")
-    rule(permissions, "Yeti", "已通关冒险，并且当前关卡至少为 4-10，或者存档标志 32768 已设置。", expression="hasFinishedAdventure and (profileFlag32768 or level >= 40)")
-    rule(permissions, "WhackAZombie", "两个周目都交给 Challenge 初始化允许种类。", level="15", zombies="0 2 4")
-    rule(permissions, "RepeatBowling", "二周目 1-5 改用 Challenge 的保龄球种类。", level="5", zombies="0 2 3 4 5")
-
-    order = ET.SubElement(root, "WaveGenerationOrder")
-    rule(order, "Reset", "每波清空计数；读取本波基础 points。", step="1")
-    rule(order, "BungeeFlag", "5-5 的旗帜波固定加入 5 只蹦极，然后结束本波；其他步骤不再执行。", step="2", level="45", zombies="20 20 20 20 20")
-    rule(order, "XmlMustHave", "XML 的 mustHaveZombies 在旗帜倍率之前加入并扣点；冒险记录不重复填写原生追加。", step="3")
-    rule(order, "Flag", "预算乘 2.5 后向零取整；先加 min(原预算, 8) 只普通僵尸，再加 1 只旗帜僵尸，逐只扣点。", step="4", budgetExpression="int(basePoints * 2.5) - min(basePoints, 8) - 1")
-    rule(order, "SpecialMultiplier", "对旗帜添加之后剩余的预算应用关卡倍率；不能把倍率提前乘进 XML。", step="5")
-    rule(order, "Introduction", "按 Introductions 追加新僵尸并扣点。", step="6")
-    rule(order, "LastWave", "5-10 最后一波先加巨人；所有冒险最后一波随后执行 LastWaveMissing。", step="7", bossLevel="50", bossExtraZombie="23")
-    rule(order, "XmlAfterNative", "afterNativeZombies 在原版固定追加之后、随机填充之前加入并扣点。", step="8")
-    rule(order, "RandomFill", "预算大于 0 且已排入数量小于 50 时加权随机选怪；类型必须允许、minimumWave 不大于 waveIndex + 1、pointValue 不大于剩余预算。每只扣 pointValue。", step="9", maxZombiesPerWave="50")
-
-    multipliers = ET.SubElement(root, "SpecialMultipliers")
-    for level in (5, 10, 20, 25, 30, 40, 45):
-        ET.SubElement(multipliers, "Level", id=str(level), multiplier=str(point_multiplier(level)))
-
-    introductions = ET.SubElement(root, "Introductions")
-    rule(introductions, "Selection", "1-1 不选择新僵尸；其余关卡按类型顺序取第一个 startingLevel 等于关卡号的类型；不能出雪人时跳过雪人。与 allowedZombies 筛选分开执行。")
-    rule(introductions, "Placement", "气球、矿工在 waveIndex=6 和最后一波追加；雪人在 waveCount // 2 且未杀死后重开时追加；泳圈不追加；其余在 waveCount // 2 和最后一波追加。")
-    for repeat_profile in (False, True):
-        profile = ET.SubElement(introductions, "Profile", name="repeat-adventure" if repeat_profile else "first-adventure")
-        for level in range(1, 51):
-            zombie_type = introduced_zombie(tables, level, repeat_profile)
-            count = wave_count(tables, level, repeat_profile)
-            indices = [index for index in introduced_wave_indices(zombie_type, count)
-                       if not (level == 45 and is_flag_wave(level, index, count, repeat_profile))]
-            if indices:
-                attributes = {"id": str(level), "zombie": str(zombie_type), "waveIndices": " ".join(map(str, indices))}
-                if zombie_type == YETI_TYPE:
-                    attributes["condition"] = "not killedYetiAndRestarted"
-                ET.SubElement(profile, "Level", attributes)
-
-    rule(root, "LastWaveMissing", "Board::PutInMissingZombies（0x1521C4）遍历全部 34 类；雪人除外，对当前波尚未加入且 CanZombieSpawnOnLevel 为真的每一类追加一只并扣点。依赖当前波计数，无法用静态 mustHaveZombies 完整表达。")
-    controllers = ET.SubElement(root, "NativeSpawnControllers")
-    rule(controllers, "Level", "锤僵尸按墓碑、计时器和 Challenge 状态连续刷怪，points 不决定实际数量。", id="15", controller="Challenge::WhackAZombieSpawning")
-    rule(controllers, "Level", "砸罐子的僵尸来自罐子内容，常规波次不触发。", id="35", controller="ScaryPotter")
-    rule(controllers, "Level", "僵王及其召唤逻辑负责出怪，常规波次不触发。", id="50", controller="Zombie::BossSpawnAttack")
-
-    timing = ET.SubElement(root, "SpawnTiming", controller="Board::UpdateZombieSpawning", unit="gameUpdateTicks")
-    rule(timing, "FirstWave", "一般为 1800；一周目 1-2 为 5000；教学状态可暂停计时。")
-    rule(timing, "NormalInterval", "下一波普通等待为 2500..3099；3-5 小僵尸关固定为 750。")
-    rule(timing, "BeforeFlag", "下一波为旗帜时等待 4500；保龄球不使用这项等待；临近旗帜还有 750 的大波提示倒计时。")
-    rule(timing, "EarlyNextWave", "当前波刷出超过 400 次更新，剩余血量不超过初始血量的随机 50%..65%，且等待大于 200 时，将等待缩短到 200。")
-
-    compatibility = ET.SubElement(root, "Compatibility")
-    rule(compatibility, "ShopTutorial", "1-1 的 skipShopSeedTutorial=true 在加载时设置存档教学标志，匹配参考项目 normalLevel；第四波不会追加全部种类。")
-    rule(compatibility, "RepeatSelection", "adventureCycle 按是否通关冒险自动选择；survivalStage 按当前阶段自动选择。")
-    rule(compatibility, "YetiState", "allowedZombies=native 保留实时存档判断，不冻结雪人许可。")
-    rule(compatibility, "MissingZombieImplementation", "PutInMissingZombies 已按原汇编修正为遍历全部类型，跳过雪人。")
-    return root
-
-
 def mode_names(repository: Path) -> dict[int, str]:
     text = (repository / "Sexy/include/ReconTypes.h").read_text(encoding="utf-8")
     block = re.search(r"enum GameMode\s*\{(.*?)\};", text, re.S)
@@ -347,71 +120,400 @@ def challenge_scene(mode: int) -> int | None:
     return next((scene for scene, modes in groups.items() if mode in modes), None)
 
 
-def controller_for_mode(mode: int) -> str:
-    if mode == 20:
-        return "Challenge::UpdateZombieSpawning / Board::SpawnZombieWave (sky)"
-    if mode == 31:
-        return "Challenge::WhackAZombieSpawning"
-    if mode in {36, 88}:
-        return "Zombie::BossSpawnAttack"
-    if mode in range(52, 72):
-        return "ScaryPotter" if mode % 2 == 0 else "IZombie"
-    if mode in {44, 51}:
-        return "ZenGarden"
-    return "native"
+MODE_POOLS = {
+    17: [27, 28], 18: [0, 2, 4, 3, 5], 20: [0, 3, 7, 18, 23],
+    21: [0, 2, 4, 6, 7, 5], 22: [0, 2, 4, 14, 12, 15],
+    25: [0, 2, 4, 6, 7, 5], 26: [0, 2, 7, 11], 27: [0, 4, 7, 16],
+    28: [0, 2, 4, 7], 29: [13, 12], 30: [0, 2, 14, 3], 31: [0, 2, 4],
+    32: [0, 2, 4, 6, 7, 5, 15, 3, 14, 21], 33: [27, 28, 29, 30, 31, 32],
+    34: [0, 2, 4, 3, 5, 8, 6], 35: [18], 38: [0, 4, 2, 7, 3, 15],
+    40: [0, 2, 4, 6, 7, 15], 42: [16], 45: [0, 2, 4, 6, 16],
+    48: [0, 2, 14, 16], 49: [0, 4, 2, 21],
+    77: [0, 2, 4, 3, 12, 13, 14], 78: [0, 2, 4, 3, 12, 13, 14],
+    79: [0, 2, 4, 3, 1], 80: [0, 2, 4, 3, 1, 5, 6, 7, 8, 9],
+    81: [0, 2, 4, 3, 1, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14],
+    82: [0, 2, 4, 3, 1, 5, 6, 7, 8, 9, 15, 16, 17, 18, 19],
+    83: [0, 2, 1, 4, 3, 12, 13, 23],
+    88: [0, 2, 4, 3, 12, 13, 14], 89: [0, 2, 4, 3, 12, 13, 14],
+    90: [0, 4, 2, 6, 7, 5, 15, 20],
+}
 
 
-def build_manifest(tables: SpawnTables) -> ET.Element:
-    root = ET.Element("PVZ", version="1.2.0.1073", schemaVersion="2")
-    root.append(ET.Comment(" 单一运行配置：所有定义的 TV 模式、冒险两个周目和生存全部阶段。索引从 0 开始。 "))
-    root.append(ET.Comment(" points 是旗帜处理和关卡倍率之前的预算；动态许可与特殊控制器继承原版。 "))
-    ET.SubElement(root, "Defaults", spawnRules="native", flagRules="native", allowedZombies="native", waveCount="native")
+def number_list(values: list[int]) -> str:
+    return " ".join(map(str, values))
+
+
+def pipeline(multiplier: int = 1, war: bool = False) -> list[ET.Element]:
+    actions = [ET.Element("Scale", flagOnly="true", numerator="5", denominator="2")]
+    if not war:
+        actions.extend([
+            ET.Element("Spawn", flagOnly="true", types="0", budgetCountLimit="8"),
+            ET.Element("Spawn", flagOnly="true", types="1"),
+        ])
+    if multiplier != 1:
+        actions.append(ET.Element("Scale", numerator=str(multiplier)))
+    actions.append(ET.Element("Fill"))
+    return actions
+
+
+def extra_policy(parent: ET.Element, scene: int, level: int = 0, mode: int = 0) -> None:
+    pool_count, pool_points = (2, 3) if level in {21, 22, 31, 32} else (3, 5) if level in {23, 24, 25, 33, 34, 35} else (3, 7)
+    sky_count, sky_points = (2, 3) if level in {41, 42} else (3, 5) if level in {43, 44, 45} else (3, 7)
+    disabled = mode in {17, 33}
+    ET.SubElement(parent, "ExtraSpawns", graves="false" if disabled else "true",
+        types="0 2" if scene == 1 else "0 2 4", carrier="20", bobsledFallback="0 0 0 0",
+        poolCount=str(pool_count if scene in {2, 3} and not disabled else 0), poolPoints=str(pool_points),
+        skyCount=str(sky_count if (scene in {4, 5} or mode == 20) and not disabled else 0), skyPoints=str(sky_points),
+        skyEveryWave="true" if mode == 20 else "false", graveMinimumAge="100",
+        gravesOnFlag="true" if mode == 46 else "false", graveCountdownChance="true" if mode == 46 else "false")
+
+
+def whack_policy(parent: ET.Element) -> None:
+    whack = ET.SubElement(parent, "WhackSpawns", rollRange="30", waveDelay="2000",
+        initialGraves="9", graveTarget="5", finalCount="20", finalTypes="2 4",
+        firstMinimumDelay="100", firstMaximumDelay="200", lastMinimumDelay="30", lastMaximumDelay="60", delayEndWave="12")
+    two = [0, 30, 10, 10, 15, 18]
+    three = [0, 0, 0, 0, 10, 13]
+    pail = [0, 0, 0, 10, 15, 15]
+    cone = [0, 0, 30, 30, 30, 30]
+    # The native type roll is also Rand(30). The second threshold can exceed 30.
+    for index in range(6):
+        cone_weight = min(cone[index], 30 - pail[index])
+        ET.SubElement(whack, "Stage", twoWeight=str(min(two[index], 30 - three[index])), threeWeight=str(three[index]),
+            types="4 2 0", weights=number_list([pail[index], cone_weight, 30 - pail[index] - cone_weight]),
+            threeTypes="2", threeWeights="30")
+
+
+def boss_policy(parent: ET.Element) -> None:
+    boss = ET.SubElement(parent, "BossSpawns", type="25")
+    for age, types in [(3499, [0]), (7999, [2]), (12499, [4])]:
+        ET.SubElement(boss, "Spawn", maximumAge=str(age), types=number_list(types))
+    # gBossZombieList @0x697630, verified from the TV binary.
+    pool = [2, 4, 7, 3, 15, 21, 12, 22, 18, 5, 6, 23]
+    ET.SubElement(boss, "Spawn", row="0", types=number_list(pool[:11]))
+    ET.SubElement(boss, "Spawn", types=number_list(pool))
+
+
+def load_tv_source(source: Path) -> tuple[ET.Element, str]:
+    raw = source.read_bytes()
+    text = raw.decode("utf-8-sig")
+    if not text.rstrip().endswith("</PVZ>"):
+        text += "\n</PVZ>\n"
+    original = ET.fromstring(text)
+    records = original.findall("Level")
+    if len(records) != 50 or {int(record.get("id", "0")) for record in records} != set(range(1, 51)):
+        raise ValueError("The supplied TV source must contain adventure levels 1 through 50")
+    return original, hashlib.sha256(raw).hexdigest()
+
+
+def vase_policy(parent: ET.Element, mode: int = 0) -> None:
+    # Challenge::ScaryPotterPopulate @0x187008, including adventure's three rounds.
+    def layout(columns: list[int], pots: list[tuple[int, int, int, int]], leaf: int = 2, **attributes: str) -> ET.Element:
+        element = ET.SubElement(parent, "Vases", excludedColumns=number_list(columns), leafCount=str(leaf), **attributes)
+        for kind, zombie, plant, count in pots:
+            options = dict(kind={1: "plant", 2: "zombie", 3: "sun"}[kind], count=str(count))
+            if zombie >= 0:
+                options["zombie"] = str(zombie)
+            if plant >= 0:
+                options["plant"] = str(plant)
+            ET.SubElement(element, "Pot", options)
+        return element
+    if mode == 0:
+        layout(list(range(6)), [(1,-1,0,5), (1,-1,17,5), (2,0,-1,4), (2,4,-1,1)], 0, minimumStage="0", maximumStage="0")
+        layout(list(range(5)), [(1,-1,0,4), (1,-1,5,5), (1,-1,17,4), (2,0,-1,5), (2,4,-1,1), (2,7,-1,1)], minimumStage="1", maximumStage="1")
+        layout(list(range(4)), [(1,-1,0,5), (1,-1,5,5), (1,-1,12,5), (2,0,-1,6), (2,4,-1,2), (2,8,-1,1), (2,15,-1,1)], 3, minimumStage="2", maximumStage="2")
+    elif mode == 70:
+        element = layout([0,1], [(1,-1,53,6), (1,-1,5,2), (1,-1,0,1), (1,-1,18,2), (1,-1,17,5),
+            (1,-1,4,1), (1,-1,3,1), (1,-1,25,1), (3,-1,-1,1), (2,0,-1,8), (2,4,-1,5), (2,15,-1,1), (2,23,-1,1)])
+        element.findall("Pot")[9].attrib.update(stageDelta="-1", stageDivisor="10", maximumCount="8")
+        element.findall("Pot")[12].attrib.update(stageDelta="1", stageDivisor="10", maximumCount="9")
+    elif mode in VASE_LAYOUTS:
+        columns, pots = VASE_LAYOUTS[mode]
+        layout(columns, pots)
+
+
+def mound_policy(parent: ET.Element, mode: int) -> None:
+    if mode == 76:
+        rows = [(0,0,[0]), (1,1,[6]), (2,2,[3]), (3,3,[7]), (4,4,[23])]
+    else:
+        rows = [(0,0,[0]), (1,1,[5,2]), (2,2,[3,7]), (3,3,[6,15]), (4,1000000,[23,22,12])]
+    for minimum, maximum, types in rows:
+        ET.SubElement(parent, "Mound", minimumLevel=str(minimum), maximumLevel=str(maximum), types=number_list(types))
+
+
+VASE_LAYOUTS = {
+    52: ([0, 1, 2, 3], [
+        (1, -1, 0, 5),
+        (1, -1, 5, 5),
+        (1, -1, 17, 5),
+        (2, 0, -1, 6),
+        (2, 4, -1, 3),
+        (2, 15, -1, 1),
+    ]),
+    54: ([0, 1, 2, 8], [
+        (1, -1, 53, 7),
+        (1, -1, 5, 3),
+        (1, -1, 3, 3),
+        (1, -1, 4, 2),
+        (2, 0, -1, 6),
+        (2, 4, -1, 3),
+        (2, 15, -1, 1),
+    ]),
+    56: ([0, 1, 2], [
+        (1, -1, 53, 6),
+        (1, -1, 5, 4),
+        (1, -1, 17, 2),
+        (1, -1, 12, 3),
+        (1, -1, 3, 3),
+        (2, 0, -1, 8),
+        (2, 4, -1, 2),
+        (2, 8, -1, 1),
+        (2, 15, -1, 1),
+    ]),
+    58: ([0, 1], [
+        (1, -1, 8, 11),
+        (1, -1, 12, 4),
+        (1, -1, 53, 4),
+        (2, 15, -1, 8),
+        (2, 0, -1, 7),
+        (2, 7, -1, 1),
+    ]),
+    60: ([0, 1], [
+        (1, -1, 53, 6),
+        (1, -1, 30, 3),
+        (1, -1, 17, 4),
+        (1, -1, 12, 2),
+        (1, -1, 5, 2),
+        (1, -1, 31, 3),
+        (2, 0, -1, 6),
+        (2, 4, -1, 5),
+        (2, 15, -1, 1),
+        (2, 7, -1, 3),
+    ]),
+    62: ([0, 1], [
+        (1, -1, 53, 7),
+        (1, -1, 17, 2),
+        (1, -1, 23, 5),
+        (1, -1, 18, 2),
+        (1, -1, 22, 4),
+        (2, 0, -1, 7),
+        (2, 3, -1, 5),
+        (2, 7, -1, 2),
+        (2, 15, -1, 1),
+    ]),
+    64: ([0, 1, 2], [
+        (1, -1, 21, 13),
+        (1, -1, 3, 3),
+        (1, -1, 17, 3),
+        (2, 0, -1, 10),
+        (2, 4, -1, 1),
+    ]),
+    66: ([0, 1], [
+        (1, -1, 8, 7),
+        (1, -1, 23, 3),
+        (1, -1, 17, 5),
+        (1, -1, 53, 4),
+        (2, 15, -1, 8),
+        (2, 0, -1, 4),
+        (2, 18, -1, 4),
+    ]),
+    68: ([0, 1], [
+        (1, -1, 53, 6),
+        (1, -1, 5, 2),
+        (1, -1, 0, 2),
+        (1, -1, 18, 2),
+        (1, -1, 17, 5),
+        (1, -1, 4, 1),
+        (1, -1, 3, 1),
+        (1, -1, 25, 1),
+        (2, 0, -1, 8),
+        (2, 4, -1, 5),
+        (2, 15, -1, 1),
+        (2, 23, -1, 1),
+    ]),
+}
+
+def normal_adventure_records(tables: SpawnTables) -> ET.Element:
+    # NormalLevel disables XML in the reference project's Board::IsLevelDataLoaded
+    # and LawnApp::LoadLevelConfiguration, then calls the binary's wave picker.
+    # gZombieWaves @0x695C38; permission table @0x694120; picker @0x161870.
+    original = ET.Element("PVZ", version="1.2.0.1073")
     for repeat in (False, True):
-        root.extend(build_levels(tables, repeat))
-    root.append(ET.Comment(" 挑战、生存、解谜、双人及 TV 专属模式。未枚举的 mode=94 是原枚举空洞。 "))
+        for level in range(1, 51):
+            count = 6 if level == WHACK_LEVEL else tables.wave_counts[level - 1]
+            if repeat and level != WHACK_LEVEL and level not in MINI_BOSS_LEVELS:
+                count = 20 if count <= 9 else count + 10
+            scene = 1 if level == 35 else 5 if level == 50 else (level - 1) // 10
+            pool = [definition.zombie_type for definition in tables.definitions
+                if definition.zombie_type != YETI_TYPE and definition.starting_level <= level
+                and definition.random_weight > 0 and tables.permissions[definition.zombie_type][level - 1]]
+            if level == WHACK_LEVEL:
+                pool = [0, 2, 4]
+            elif repeat and level == BOWLING_LEVEL:
+                pool = [0, 2, 4, 3, 5]
+            element = ET.SubElement(original, "Level", mode="0", id=str(level), scene=str(scene),
+                adventureCycle="repeat" if repeat else "first", allowedZombies=number_list(pool),
+                allowYeti="true" if repeat and level != WHACK_LEVEL else "false")
+            for index in range(count):
+                points = 2 * index // 5 + 1 if repeat and level not in {BOWLING_LEVEL, WHACK_LEVEL} else index // 3 + 1
+                interval = count if not repeat and count < 10 else 10
+                flag = not (level == 1 and not repeat) and index % interval == interval - 1
+                ET.SubElement(element, "Wave", points=str(points), flag="1" if flag else "0")
+    return original
+
+
+def build_manifest(tables: SpawnTables, source: Path, profile: str = "tv") -> ET.Element:
+    if profile == "tv":
+        original, checksum = load_tv_source(source)
+        root = ET.Element("PVZ", version=original.get("version", "1.2.0.1073"), schemaVersion="3", tvSourceSHA256=checksum)
+        root.append(ET.Comment(" TV 方案：冒险保留用户提供的 TV XML。完整独立文件，分发时改名 levels.xml。波次索引从 0 开始。 "))
+    elif profile == "pc":
+        original = normal_adventure_records(tables)
+        root = ET.Element("PVZ", version=original.get("version"), schemaVersion="3", spawnSource="NormalLevel")
+        root.append(ET.Comment(" 原版方案：参考工程 NormalLevel 恢复的内置冒险算法，一周目和二周目分别配置。保留全部 TV 模式，分发时改名 levels.xml。 "))
+    else:
+        raise ValueError("Unknown spawn profile")
+    defaults = ET.SubElement(root, "Defaults", spawnRules="xml", flagRules="xml", waveCount="0", allowedZombies="")
+    defaults.extend(pipeline())
+    ET.SubElement(defaults, "Summons", backupDancer="9", imp="24", bossBungee="20", bossBungeeCount="3",
+        aquarium="11", squirrel="0", bobsled="13")
+    for record in original.findall("Level"):
+        level = int(record.get("id"))
+        element = copy.deepcopy(record)
+        element.set("mode", "0-1")
+        element.set("waveCount", str(len(record.findall("Wave"))))
+        root.append(element)
+        count = int(element.get("waveCount"))
+        multiplier = 4 if level in {5, 25} else 3 if level in {10, 20, 30, 40} else 2 if level == 45 else 1
+        actions = pipeline(multiplier)
+        if multiplier != 1:
+            element.extend(copy.deepcopy(actions))
+        if level == 1:
+            element.set("skipShopSeedTutorial", "true")
+        scene = int(element.get("scene", "0"))
+        extra_policy(element, scene, level)
+        if level == 15:
+            whack_policy(element)
+        if level == 50:
+            boss_policy(element)
+        if level == 35:
+            vase_policy(element)
+        introduction = next((definition.zombie_type for definition in tables.definitions
+            if definition.starting_level == level and level > 1), None)
+        missing = [definition.zombie_type for definition in tables.definitions
+            if definition.zombie_type != YETI_TYPE and definition.starting_level <= level
+            and definition.random_weight > 0 and tables.permissions[definition.zombie_type][level - 1]]
+        for index, wave in enumerate(element.findall("Wave")):
+            wave.set("index", str(index))
+            flag = wave.get("flag", "0") == "1"
+            wave.set("flag", "1" if flag else "0")
+            if level == 45 and flag:
+                wave.set("replaceActions", "true")
+                ET.SubElement(wave, "Spawn", types="20", count="5")
+                continue
+            additions = []
+            introduced_here = introduction is not None and introduction != 10 and (
+                index in {6, count - 1} if introduction in {16, 17} else
+                index == count // 2 if introduction == YETI_TYPE else index in {count // 2, count - 1})
+            if introduced_here:
+                attributes = {"types": str(introduction)}
+                if introduction == YETI_TYPE:
+                    attributes["yetiUnkilledOnly"] = "true"
+                additions.append(ET.Element("Spawn", attributes))
+            if index == count - 1:
+                if level == 50:
+                    additions.append(ET.Element("Spawn", types="23"))
+                if missing:
+                    additions.append(ET.Element("Missing", types=number_list(missing)))
+            if additions:
+                wave.set("replaceActions", "true")
+                wave.extend(copy.deepcopy(actions[:-1]))
+                wave.extend(additions)
+                wave.append(copy.deepcopy(actions[-1]))
+
     for mode, name in mode_names(REPOSITORY).items():
         if mode <= 1:
             continue
-        attributes = {"mode": str(mode), "id": "*", "name": name, "controller": controller_for_mode(mode)}
         scene = challenge_scene(mode)
-        if scene is not None:
-            attributes["scene"] = str(scene)
-        if 2 <= mode <= 16 or mode == 32:
-            attributes["survivalStage"] = "*"
+        stage_mode = 2 <= mode <= 16 or mode == 32
+        count = (10 if mode <= 6 or mode == 32 else 20) if stage_mode else challenge_wave_count(mode)
+        stages = ["*", "0"] if 2 <= mode <= 16 else ["*"]
+        for stage in stages:
+            attributes = dict(mode=str(mode), id="*", name=name, waveCount=str(count), allowYeti="false" if mode in {26, 31} else "true")
+            if scene is not None:
+                attributes["scene"] = str(scene)
+            if stage_mode:
+                attributes["survivalStage"] = stage
+            pool = [0, 2] if 2 <= mode <= 6 else MODE_POOLS.get(mode, [0, 2, 4])
+            attributes["allowedZombies"] = "survival" if (2 <= mode <= 16 and stage == "*") or mode in {84, 85, 86, 87} else number_list(pool)
             element = ET.SubElement(root, "Level", attributes)
-            element.append(ET.Comment(" 后续阶段预算按阶段增长，允许列表按阶段抽选；缺省 Wave 继承原版，不会变成零波。 "))
-            attributes = {**attributes, "survivalStage": "0", "waveCount": "10" if mode <= 6 or mode == 32 else "20"}
-            element = ET.SubElement(root, "Level", attributes)
-            for index in range(int(attributes["waveCount"])):
-                points = 2 * (index + 10) // 5 + 1 if mode == 32 else index // 3 + 1
-                ET.SubElement(element, "Wave", index=str(index), points=str(points))
-            continue
-        count = challenge_wave_count(mode)
-        attributes["waveCount"] = str(count)
-        element = ET.SubElement(root, "Level", attributes)
-        if mode == 20:
-            element.append(ET.Comment(" 重型武器：25 波；3*index/4 向下取整；原版允许普通、撑杆、橄榄球、跳跳、巨人（0 3 7 18 23），雪人按存档动态追加；保留空中出怪和炮台逻辑。 "))
-        if mode in {91, 93}:
-            element.append(ET.Comment(" 参考 AndroidTV 工程新增模式；这里只提取场景、波数和预算，玩法仍依赖模式控制器实现。 "))
-        for index in range(count):
-            points = 3 * index // 4 if mode == 20 else 4 if mode == 76 else 4 * index // 5 + 1 if mode in {91, 93} else index // 3 + 1
-            wave_attributes = {"index": str(index), "points": str(points)}
-            if mode == 91 and index == count - 1:
-                wave_attributes["afterNativeZombies"] = "23"
-            ET.SubElement(element, "Wave", wave_attributes)
-    root.append(build_rules(tables))
+            if stage_mode and (stage != "0" or mode == 32):
+                element.set("pointNumerator", "2")
+                element.set("pointDenominator", "5")
+                element.set("pointStageStride", str(count))
+                if mode == 32:
+                    element.set("pointIndexOffset", "10")
+                if mode != 32:
+                    element.set("firstWaveDelay", "600")
+            multiplier = 6 if mode == 28 else 4 if mode in {18, 26, 34, 83} else 2 if mode in {22, 27, 47, 49} else 1
+            actions = pipeline(multiplier, mode in {17, 33})
+            if multiplier != 1 or mode in {17, 33}:
+                element.extend(copy.deepcopy(actions))
+            extra_policy(element, scene if scene is not None else 0, mode=mode)
+            if mode == 31:
+                whack_policy(element)
+            if mode in {36, 88}:
+                boss_policy(element)
+            if mode in range(52, 71, 2):
+                vase_policy(element, mode)
+            if mode in {75, 76}:
+                mound_policy(element, mode)
+            if mode in {91, 93}:
+                element.append(ET.Comment(" 参考工程扩展模式；并非 TV 原版发售模式。 "))
+            for index in range(count):
+                wave_attributes = dict(index=str(index), flag="1" if mode == 76 or index % 10 == 9 else "0")
+                if not stage_mode or stage == "0":
+                    points = 3 * index // 4 if mode == 20 else 4 if mode == 76 else 4 * index // 5 + 1 if mode in {91, 93} else index // 3 + 1
+                    wave_attributes["points"] = str(points)
+                wave = ET.SubElement(element, "Wave", wave_attributes)
+                if mode == 49 and wave_attributes["flag"] == "1":
+                    wave.set("replaceActions", "true")
+                    ET.SubElement(wave, "Spawn", types="20", count="5")
+                elif mode == 28:
+                    types = [21] * 10 if index % 10 == 5 else [15] * 10 if index % 10 == 8 else [23] * 3 if index == 19 else [23] * 5 if index == 29 else []
+                    if types:
+                        wave.set("replaceActions", "true")
+                        wave.extend(copy.deepcopy(actions[:-1]))
+                        ET.SubElement(wave, "Spawn", types=number_list(types))
+                        wave.append(copy.deepcopy(actions[-1]))
+                elif mode == 91 and index == count - 1:
+                    wave.set("replaceActions", "true")
+                    wave.extend(copy.deepcopy(actions[:-1]))
+                    ET.SubElement(wave, "Spawn", types="23")
+                    wave.append(copy.deepcopy(actions[-1]))
     return root
+
+
+def write_manifest(root: ET.Element, destination: Path) -> None:
+    ET.indent(root, space="  ")
+    ET.ElementTree(root).write(destination, encoding="utf-8", xml_declaration=True)
+    with destination.open("a", encoding="utf-8", newline="\n") as stream:
+        stream.write("\n")
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output-dir", type=Path, default=REPOSITORY / "Config/OriginalSpawns")
+    parser.add_argument("--tv-source", type=Path, default=REPOSITORY / "Config/OriginalSpawns/tv-adventure-source.txt")
+    parser.add_argument("--profile", choices=("both", "tv", "pc"), default="both")
     options = parser.parse_args()
     tables = read_tables(REPOSITORY)
     options.output_dir.mkdir(parents=True, exist_ok=True)
-    destination = options.output_dir / "levels.xml"
-    write_xml(build_manifest(tables), destination)
-    print(destination)
+    profiles = ("tv", "pc") if options.profile == "both" else (options.profile,)
+    for profile in profiles:
+        destination = options.output_dir / f"levels.{profile}.xml"
+        write_manifest(build_manifest(tables, options.tv_source, profile), destination)
+        print(destination)
 
 
 if __name__ == "__main__":

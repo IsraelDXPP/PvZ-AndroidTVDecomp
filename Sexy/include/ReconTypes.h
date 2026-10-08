@@ -439,6 +439,7 @@ struct TodWeightedArray
     int mWeight;
 
     TodWeightedArray() : mItem(0), mWeight(0) {}
+    TodWeightedArray(int theItem, int theWeight) : mItem(theItem), mWeight(theWeight) {}
     TodWeightedArray(int theValue) : mItem(theValue), mWeight(0) {}
     operator int() const { return mItem; }
     TodWeightedArray& operator=(int theValue) { mItem = theValue; return *this; }

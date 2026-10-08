@@ -2071,12 +2071,13 @@ float Zombie::GetPosYBasedOnRow(int theRow)
 // ==========================================================================
 int Zombie::SummonBackupDancer(int theRow, int thePosX)
 {
-    if (!mBoard->RowCanHaveZombieType(theRow, ZOMBIE_BACKUP_DANCER))
+    const ZombieType backup = mApp->mLevel.mSummons.mBackupDancer;
+    if (backup == ZOMBIE_INVALID || !mBoard->RowCanHaveZombieType(theRow, backup))
         return 0;
     if (thePosX < -80)
         return 0;
 
-    Zombie *aZombie = mBoard->AddZombie(ZOMBIE_BACKUP_DANCER, mFromWave, false);
+    Zombie *aZombie = mBoard->AddZombie(backup, mFromWave, false);
     if (aZombie == nullptr)
         return 0;
 
@@ -7373,24 +7374,18 @@ void Zombie::BossSpawnAttack()
 // ==========================================================================
 Zombie * Zombie::BossSpawnContact()
 {
-  // 3499 / 8000 / 12499. Past that, MOVNE #12 is the constant 12 (IDA's byte_9+3).
-  ZombieType aType;
-  if ( mZombieAge <= 3499 )
-    aType = ZOMBIE_NORMAL;
-  else if ( mZombieAge < 8000 )
-    aType = ZOMBIE_TRAFFIC_CONE;
-  else if ( mZombieAge <= 12499 )
-    aType = ZOMBIE_PAIL;
-  else
+  // Original @0x1B0BC8 age thresholds and row-specific pool are XML records.
+  for (const LevelBossSpawn& spawn : mApp->mLevel.mBossSpawns)
   {
-    int aCount = (mTargetRow == 0) ? 11 : 12;
-    aType = (ZombieType)TodPickFromArray(gBossZombieList, aCount);
+    if (mZombieAge > spawn.mMaximumAge || (spawn.mRow >= 0 && spawn.mRow != mTargetRow)) continue;
+    const ZombieType type = spawn.mTypes[spawn.mTypes.size() == 1 ? 0 : Rand(static_cast<int>(spawn.mTypes.size()))];
+    Zombie* zombie = mBoard->AddZombieInRow(type, mTargetRow, 0, true);
+    if (zombie) zombie->mPosX = 600.0f;
+    return zombie;
   }
-
-  Zombie *aSpawned = mBoard->AddZombieInRow(aType, mTargetRow, 0, true);
-  aSpawned->mPosX = 600.0f;
-  return aSpawned;
-}// ==========================================================================
+  return nullptr;
+}
+// ==========================================================================
 // Zombie::BossCanStompRow(int)
 // @001B0C30  70 bytes
 // ==========================================================================
@@ -8215,9 +8210,12 @@ int Zombie::BossBungeeSpawn()
   // The +4 walk is mFollowerZombieID[0..2], not a cast of this.
   mZombiePhase = PHASE_BOSS_BUNGEES_DROP;
   int aId = 0;
-  for ( int i = 0; i < 3; i++ )
+  for (int i = 0; i < mApp->mLevel.mSummons.mBossBungeeCount; ++i)
   {
-    Zombie *aBungee = mBoard->AddZombieInRow(ZOMBIE_BUNGEE, 0, 0, true);
+    const ZombieType type = mApp->mLevel.mSummons.mBossBungee;
+    if (type == ZOMBIE_INVALID) break;
+    Zombie* aBungee = mBoard->AddZombieInRow(type, 0, 0, true);
+    if (aBungee == nullptr) break;
     aBungee->PickBungeeZombieTarget(mTargetCol + i);
     aBungee->mAltitude = aBungee->mPosY - 50.0f;
     aId = mBoard->ZombieGetID(aBungee);
@@ -9049,12 +9047,9 @@ int Zombie::PreloadZombieResources(ZombieType theZombieType)
             ReanimatorEnsureDefinitionLoaded(REANIM_BOSS_FIREBALL, true);
             ReanimatorEnsureDefinitionLoaded(REANIM_BOSS_ICEBALL, true);
             // Everything the boss can summon.
-            for (int i = 0; i < 12; i++)
-            {
-                int aSummonedType = gBossZombieList[i];
-                ReanimationType aSummonedReanim = GetZombieDefinition((ZombieType)aSummonedType)->mReanimationType;
-                ReanimatorEnsureDefinitionLoaded(aSummonedReanim, true);
-            }
+            for (const LevelBossSpawn& spawn : gLawnApp->mLevel.mBossSpawns)
+                for (ZombieType type : spawn.mTypes)
+                    ReanimatorEnsureDefinitionLoaded(GetZombieDefinition(type)->mReanimationType, true);
             break;
 
         case ZOMBIE_DANCER:
@@ -10057,7 +10052,8 @@ void Zombie::UpdateZombieGargantuar()
             ReanimShowTrack("Zombie_gargantuar_whiterope", -1);    // RENDER_GROUP_HIDDEN
             mApp->PlayFoley(FOLEY_SWING);
 
-            Zombie *aImp = mBoard->AddZombie(ZOMBIE_IMP, mFromWave, false);
+            const ZombieType imp = mApp->mLevel.mSummons.mImp;
+            Zombie* aImp = imp == ZOMBIE_INVALID ? nullptr : mBoard->AddZombie(imp, mFromWave, false);
             if (aImp == nullptr)
                 return;
 
