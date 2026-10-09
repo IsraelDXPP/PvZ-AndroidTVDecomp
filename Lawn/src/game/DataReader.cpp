@@ -16,7 +16,7 @@ void DataReader::Close()
 {
     if (mFile != nullptr)
     {
-        fclose(mFile);
+        SDL_CloseIO(mFile);
         mFile = nullptr;
     }
     if (mOwnData && mData != nullptr)
@@ -35,7 +35,7 @@ DataReader::~DataReader()
 bool DataReader::OpenFile(const Sexy::String& theFileName)
 {
     Close();
-    mFile = fopen(theFileName.c_str(), "rb");
+    mFile = SDL_IOFromFile(theFileName.c_str(), "rb");
     return mFile != nullptr;
 }
 
@@ -74,7 +74,7 @@ int DataReader::ReadBytes(void* theMem, unsigned long theNumBytes)
     if (mFile == nullptr)
         throw DataReaderException();
 
-    unsigned long bytesRead = (unsigned long)fread(theMem, 1u, theNumBytes, mFile);
+    const size_t bytesRead = SDL_ReadIO(mFile, theMem, theNumBytes);
     if (theNumBytes != bytesRead)
         throw DataReaderException();
     return (int)bytesRead;

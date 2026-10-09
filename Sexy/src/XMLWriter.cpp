@@ -206,13 +206,18 @@ int Sexy::XMLWriter::StopElement()
 // ==========================================================================
 int Sexy::XMLWriter::CloseFile()
 {
-  while (!mElements.empty())
+  while (!mElements.empty() && !mHasFailed)
     StopElement();
   if (mFile != nullptr)
   {
-    fputs(mOutputText.c_str(), mFile);
-    fclose(mFile);
+    const bool aWritten = SDL_WriteIO(mFile, mOutputText.c_str(), mOutputText.size()) == mOutputText.size();
+    const bool aClosed = SDL_CloseIO(mFile);
     mFile = nullptr;
+    if (!aWritten || !aClosed)
+    {
+      Fail(Sexy::String("Unable to write file ") + mFileName);
+      return 0;
+    }
     return 1;
   }
   Fail(Sexy::String("File not Open"));
@@ -225,7 +230,7 @@ int Sexy::XMLWriter::CloseFile()
 // ==========================================================================
 int Sexy::XMLWriter::OpenFile(Sexy::String const& theFileName)
 {
-  FILE *aFile = fopen(theFileName.c_str(), "w");
+  SDL_IOStream* aFile = SDL_IOFromFile(theFileName.c_str(), "wb");
   mFile = aFile;
   if (aFile != nullptr)
   {
@@ -394,12 +399,11 @@ Sexy::XMLWriter::~XMLWriter()
   // The vptr store is the compiler's; XMLWriter is a root class, so no base
   // destructor follows.
   //
-  // The file is flushed and closed first: the dump fputs mOutputText into
-  // mFile and then fclose's it, which is CloseFile's own tail.
+  // Flush the accumulated text before closing the stream.
   if ( mFile != nullptr )
   {
-    fputs( mOutputText.c_str(), mFile );
-    fclose( mFile );
+    SDL_WriteIO(mFile, mOutputText.c_str(), mOutputText.size());
+    SDL_CloseIO(mFile);
     mFile = nullptr;
   }
 

@@ -11,7 +11,7 @@
 // holds the characters this port stores.
 //
 // Layout, after the compiler's vptr:
-//   mFile                  the stdio stream OpenFile opened
+//   mFile                  the SDL stream OpenFile opened
 //   mBufferedText          characters PutChar / SetStringSource pushed ahead
 //                          of the file
 //   mGetCharFunc           which decoder GetChar calls
@@ -23,6 +23,7 @@
 #pragma once
 
 #include "ReconTypes.h"
+#include <SDL3/SDL_iostream.h>
 #include <string>
 #include <vector>
 #include <map>
@@ -44,7 +45,7 @@ public:
     virtual int PutChar(wchar_t const& theChar);
     virtual int PutString(Sexy::String const& theText);
 
-    FILE* mFile;
+    SDL_IOStream* mFile;
     std::vector<wchar_t> mBufferedText;
     int (Sexy::EncodingParser::*mGetCharFunc)(wchar_t *, bool *);
     int mGetCharFuncAdj;

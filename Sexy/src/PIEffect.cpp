@@ -308,22 +308,22 @@ Sexy::String Sexy::PIEffect::ReadString()
 
 size_t Sexy::PIEffect::WriteByte(char theByte)
 {
-    return fwrite(&theByte, 1u, 1u, mWriteFile);
+    return p_fwrite(&theByte, 1u, 1u, mWriteFile);
 }
 
 size_t Sexy::PIEffect::WriteInt(int theValue)
 {
-    return fwrite(&theValue, 4u, 1u, mWriteFile);
+    return p_fwrite(&theValue, 4u, 1u, mWriteFile);
 }
 
 size_t Sexy::PIEffect::WriteShort(short theValue)
 {
-    return fwrite(&theValue, 2u, 1u, mWriteFile);
+    return p_fwrite(&theValue, 2u, 1u, mWriteFile);
 }
 
 size_t Sexy::PIEffect::WriteFloat(float theValue)
 {
-    return fwrite(&theValue, 4u, 1u, mWriteFile);
+    return p_fwrite(&theValue, 4u, 1u, mWriteFile);
 }
 
 size_t Sexy::PIEffect::WriteBool(bool theValue)
@@ -336,7 +336,7 @@ const void * Sexy::PIEffect::WriteString(const Sexy::String *theText)
     int length = (int)theText->size();
     WriteByte((char)length);
     if (length != 0)
-        fwrite(theText->c_str(), 1u, (size_t)length, mWriteFile);
+        p_fwrite(theText->c_str(), 1u, (size_t)length, mWriteFile);
     return theText->c_str();
 }
 
@@ -1352,7 +1352,7 @@ int Sexy::PIEffect::LoadEffect(Sexy::String const& thePath)
 
     for (;;)
     {
-        if (feof(mReadFile) != 0)
+        if (p_feof(mReadFile) != 0)
             break;
         Sexy::String command = ReadStringS();
         if (command.empty())
@@ -3131,4 +3131,3 @@ int Sexy::PIEffect::WriteImage(Sexy::String const& unusedResult, int theFrame,
         *theResult = true;
     return 1;
 }
-

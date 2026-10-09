@@ -1,19 +1,19 @@
 // DataReader -- binary reader used by DataSync.
 //
 // Polymorphic only so the destructor is virtual. The object holds either an
-// open FILE or a byte buffer plus a cursor that walks through that buffer.
+// open SDL stream or a byte buffer plus a cursor that walks through that buffer.
 
 #pragma once
 
 #include "ReconTypes.h"
-#include <stdio.h>
+#include <SDL3/SDL_iostream.h>
 
 class DataReader
 {
 public:
     virtual ~DataReader();
 
-    FILE* mFile;
+    SDL_IOStream* mFile;
     char* mData;
     unsigned long mDataLen;
     unsigned long mDataPos;

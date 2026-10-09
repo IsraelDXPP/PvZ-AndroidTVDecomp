@@ -805,7 +805,7 @@ public:
     int KillMainMenu();
     int KillGameSelector();
     Board *ShowHelpTextScreen(int theHelpIndex);
-    char *KillHelpTextScreen();
+    void KillHelpTextScreen();
     Board *TryHelpTextScreen(int theHelpIndex);
     void KillLeaderboardScreen();
     void KillHouseScreen();

@@ -15,12 +15,14 @@
 #include "SexyAppBase.h"
 #include "SharedImageRef.h"
 #include "SingleDataElement.h"
+#include "ReconHelpers.h"
 
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
 #include <map>
 #include <string>
+#include <sstream>
 #include <vector>
 
 namespace {
@@ -207,37 +209,36 @@ int Sexy::FontData::LoadLegacy(Sexy::Image* theImage, Sexy::String const& theFil
     aLayer->mDefaultHeight = aImageHeight;
     aLayer->mAscent = aImageHeight;
 
-    FILE* aFile = fopen(theFileName.c_str(), "r");
+    SDL_IOStream* aFile = p_fopen(theFileName.c_str(), "rb");
     if (aFile == nullptr)
         return 0;
+    size_t aSize = 0;
+    char* aContents = static_cast<char*>(SDL_LoadFile_IO(aFile, &aSize, true));
+    if (aContents == nullptr)
+        return 0;
+    std::string aText(aContents, aSize);
+    SDL_free(aContents);
+    std::istringstream aInput(aText);
     mFileName = theFileName;
 
     int aHeight = 0;
-    fscanf(aFile, "%d%d", &aHeight, &aLayer->mHeight);
+    if (!(aInput >> aHeight >> aLayer->mHeight))
+        return 0;
     CharData* aSpace = aLayer->GetCharData(32);
     aSpace->mAdvance = (unsigned short)aHeight;
 
-    if (feof(aFile) == 0)
+    int aBaseline = 0;
+    char aChar = 0;
+    int aCharWidth = 0;
+    while (aInput >> aChar >> aCharWidth)
     {
-        int aBaseline = 0;
-        for (;;)
-        {
-            char aCharText[8] = { 0 };
-            int aCharHeight = 0;
-            fscanf(aFile, "%1s%d", aCharText, &aCharHeight);
-            if (aCharText[0] == 0)
-                break;
-            int aChar = (unsigned char)aCharText[0];
-            CharData* aGlyph = aLayer->GetCharData(aChar);
-            aGlyph->mX = (unsigned short)aBaseline;
-            aGlyph->mHeight = (unsigned short)aImageHeight;
-            aGlyph->mY = 0;
-            aGlyph->mWidth = (unsigned short)aCharHeight;
-            aBaseline = (unsigned short)(aBaseline + aCharHeight);
-            aGlyph->mAdvance = (unsigned short)aCharHeight;
-            if (feof(aFile) != 0)
-                break;
-        }
+        CharData* aGlyph = aLayer->GetCharData(static_cast<unsigned char>(aChar));
+        aGlyph->mX = (unsigned short)aBaseline;
+        aGlyph->mHeight = (unsigned short)aImageHeight;
+        aGlyph->mY = 0;
+        aGlyph->mWidth = (unsigned short)aCharWidth;
+        aBaseline = (unsigned short)(aBaseline + aCharWidth);
+        aGlyph->mAdvance = (unsigned short)aCharWidth;
     }
 
     for (int aUpper = 65; aUpper != 91; ++aUpper)
@@ -256,7 +257,6 @@ int Sexy::FontData::LoadLegacy(Sexy::Image* theImage, Sexy::String const& theFil
     }
 
     mIsListFont = true;
-    fclose(aFile);
     return 1;
 }
 

@@ -1,9 +1,6 @@
 // MpegVideo.cpp -- PL_MPEG picture decode and SDL3 soundtrack for the intro.
-// pl_mpeg.h names FILE in its prototypes and only includes stdio.h inside the
-// implementation, so the header has to come first.
-
-#include <stdio.h>
-
+// File access stays in SDL so movies can use UTF-8 paths and Android assets.
+#define PLM_NO_STDIO
 #define PL_MPEG_IMPLEMENTATION
 #include "third_party/pl_mpeg.h"
 
@@ -16,6 +13,7 @@
 #include <SDL3/SDL.h>
 
 #include <cstring>
+#include <limits>
 #include <algorithm>
 #include <string>
 #include <vector>
@@ -26,6 +24,7 @@ namespace
 struct VideoPlayer
 {
     plm_t* mMovie;
+    SDL_IOStream* mMovieFile;
     bool mOpened;
     bool mPlaying;
     bool mEnded;
@@ -45,6 +44,7 @@ struct VideoPlayer
 
     VideoPlayer()
         : mMovie(nullptr)
+        , mMovieFile(nullptr)
         , mOpened(false)
         , mPlaying(false)
         , mEnded(false)
@@ -102,6 +102,11 @@ void ReleasePlayer(VideoPlayer& thePlayer)
         plm_destroy(thePlayer.mMovie);
         thePlayer.mMovie = nullptr;
     }
+    if (thePlayer.mMovieFile != nullptr)
+    {
+        SDL_CloseIO(thePlayer.mMovieFile);
+        thePlayer.mMovieFile = nullptr;
+    }
     thePlayer.mOpened = false;
     thePlayer.mPlaying = false;
     thePlayer.mEnded = false;
@@ -128,6 +133,33 @@ std::string ResolveMovie(const char* thePath)
     if (aMovies != nullptr && Sexy::SDLFile::FileExists(aMovies))
         return Sexy::SDLFile::ResolvePath(aMovies);
     return {};
+}
+
+void LoadMovieBytes(plm_buffer_t* theBuffer, void* theUser)
+{
+    SDL_IOStream* aFile = static_cast<SDL_IOStream*>(theUser);
+    // Match PL_MPEG's file loader without changing the total file length at
+    // EOF; signal_end() is intended for ring buffers and would overwrite it.
+    if (theBuffer->discard_read_bytes)
+        plm_buffer_discard_read_bytes(theBuffer);
+    const size_t aAvailable = theBuffer->capacity - theBuffer->length;
+    const size_t aRead = SDL_ReadIO(aFile, theBuffer->bytes + theBuffer->length, aAvailable);
+    theBuffer->length += aRead;
+    if (aRead == 0)
+        theBuffer->has_ended = TRUE;
+}
+
+void SeekMovieBytes(plm_buffer_t*, size_t theOffset, void* theUser)
+{
+    SDL_IOStream* aFile = static_cast<SDL_IOStream*>(theUser);
+    SDL_SeekIO(aFile, static_cast<Sint64>(theOffset), SDL_IO_SEEK_SET);
+}
+
+size_t TellMovieBytes(plm_buffer_t*, void* theUser)
+{
+    SDL_IOStream* aFile = static_cast<SDL_IOStream*>(theUser);
+    const Sint64 aPosition = SDL_TellIO(aFile);
+    return aPosition >= 0 ? static_cast<size_t>(aPosition) : 0;
 }
 
 void OnAudio(plm_t*, plm_samples_t* samples, void* user)
@@ -216,9 +248,30 @@ int MpegVideoOpen(const char* thePath)
     if (aFile.empty())
         return 1;
 
-    aPlayer.mMovie = plm_create_with_filename(aFile.c_str());
-    if (aPlayer.mMovie == nullptr)
+    aPlayer.mMovieFile = SDL_IOFromFile(aFile.c_str(), "rb");
+    if (aPlayer.mMovieFile == nullptr)
         return 1;
+    const Sint64 aSize = SDL_GetIOSize(aPlayer.mMovieFile);
+    if (aSize <= 0 || static_cast<Uint64>(aSize) > std::numeric_limits<size_t>::max())
+    {
+        ReleasePlayer(aPlayer);
+        return 1;
+    }
+    plm_buffer_t* aBuffer = plm_buffer_create_with_callbacks(LoadMovieBytes, SeekMovieBytes,
+                                                           TellMovieBytes, static_cast<size_t>(aSize),
+                                                           aPlayer.mMovieFile);
+    if (aBuffer == nullptr)
+    {
+        ReleasePlayer(aPlayer);
+        return 1;
+    }
+    aPlayer.mMovie = plm_create_with_buffer(aBuffer, 1);
+    if (aPlayer.mMovie == nullptr)
+    {
+        plm_buffer_destroy(aBuffer);
+        ReleasePlayer(aPlayer);
+        return 1;
+    }
     if (plm_get_width(aPlayer.mMovie) <= 0 || plm_get_height(aPlayer.mMovie) <= 0)
     {
         ReleasePlayer(aPlayer);

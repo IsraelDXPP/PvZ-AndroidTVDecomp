@@ -5,10 +5,14 @@
 #include <csignal>
 #include <cstdlib>
 #include <exception>
+#include <limits>
 #include <string>
 
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
 #include <Windows.h>
 #include <DbgHelp.h>
 #pragma comment(lib, "Dbghelp.lib")
@@ -32,10 +36,53 @@ bool gInstalled = false;
 
 #ifdef _WIN32
 HANDLE gLogFile = INVALID_HANDLE_VALUE;
-std::string gDumpPath;
+std::wstring gDumpPath;
 #else
 int gLogFile = -1;
 #endif
+
+#ifdef _WIN32
+std::wstring Utf8ToWindowsPath(const std::string& thePath)
+{
+    if (thePath.empty() || thePath.size() > std::numeric_limits<int>::max())
+        return {};
+    const int aByteCount = static_cast<int>(thePath.size());
+    const int aLength = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS,
+                                          thePath.data(), aByteCount, nullptr, 0);
+    if (aLength <= 0)
+        return {};
+    std::wstring aResult(aLength, L'\0');
+    if (MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, thePath.data(), aByteCount,
+                            aResult.data(), aLength) != aLength)
+        return {};
+    return aResult;
+}
+#endif
+
+bool OpenDiagnosticsDirectory(const std::string& theDirectory)
+{
+    const std::string aLogPath = theDirectory + "LawnTV-diagnostics.log";
+#ifdef _WIN32
+    // Fatal handlers cannot call SDL's I/O/locking code. Unicode native opens
+    // also preserve append-only writes and allow a debugger to read the log.
+    const std::wstring aWindowsLogPath = Utf8ToWindowsPath(aLogPath);
+    if (aWindowsLogPath.empty())
+        return false;
+    gLogFile = CreateFileW(aWindowsLogPath.c_str(), FILE_APPEND_DATA,
+                          FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_ALWAYS,
+                          FILE_ATTRIBUTE_NORMAL, nullptr);
+    if (gLogFile == INVALID_HANDLE_VALUE)
+        return false;
+    // DbgHelp requires a native file handle; cache UTF-16 during startup,
+    // rather than converting strings after an exception has damaged the heap.
+    gDumpPath = Utf8ToWindowsPath(theDirectory + "LawnTV-crash.dmp");
+    return true;
+#else
+    // POSIX paths are UTF-8 bytes; retain an async-signal-safe write target.
+    gLogFile = open(aLogPath.c_str(), O_WRONLY | O_CREAT | O_APPEND, 0600);
+    return gLogFile >= 0;
+#endif
+}
 
 // Fixed storage and direct OS writes keep reporting independent of a damaged
 // heap, the renderer and the application's logging locks.
@@ -111,7 +158,9 @@ void WriteReport(const char* theEvent, unsigned long long theCode)
 #ifdef _WIN32
 void WriteDump(EXCEPTION_POINTERS* theException)
 {
-    HANDLE aDumpFile = CreateFileA(gDumpPath.c_str(), GENERIC_WRITE, FILE_SHARE_READ,
+    if (gDumpPath.empty())
+        return;
+    HANDLE aDumpFile = CreateFileW(gDumpPath.c_str(), GENERIC_WRITE, FILE_SHARE_READ,
                                   nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
     if (aDumpFile == INVALID_HANDLE_VALUE)
         return;
@@ -175,36 +224,19 @@ void Sexy::InstallCrashDiagnostics()
         return;
     gInstalled = true;
     const char* aBasePath = SDL_GetBasePath();
-    std::string aDirectory = aBasePath != nullptr ? aBasePath : "";
-#ifdef _WIN32
-    gLogFile = CreateFileA((aDirectory + "LawnTV-diagnostics.log").c_str(), FILE_APPEND_DATA,
-                          FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
-    gDumpPath = aDirectory + "LawnTV-crash.dmp";
-    SetUnhandledExceptionFilter(ReportWindowsException);
-#else
-    gLogFile = open((aDirectory + "LawnTV-diagnostics.log").c_str(), O_WRONLY | O_CREAT | O_APPEND, 0600);
-#endif
-#ifdef _WIN32
-    const bool aNeedsFallback = gLogFile == INVALID_HANDLE_VALUE;
-#else
-    const bool aNeedsFallback = gLogFile < 0;
-#endif
-    if (aNeedsFallback)
+    const std::string aDirectory = aBasePath != nullptr ? aBasePath : "";
+    if (!OpenDiagnosticsDirectory(aDirectory))
     {
         char* aUserPath = SDL_GetPrefPath("LawnProjectTV", "LawnTV");
         if (aUserPath != nullptr)
         {
-            aDirectory = aUserPath;
+            OpenDiagnosticsDirectory(aUserPath);
             SDL_free(aUserPath);
-#ifdef _WIN32
-            gLogFile = CreateFileA((aDirectory + "LawnTV-diagnostics.log").c_str(), FILE_APPEND_DATA,
-                                  FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
-            gDumpPath = aDirectory + "LawnTV-crash.dmp";
-#else
-            gLogFile = open((aDirectory + "LawnTV-diagnostics.log").c_str(), O_WRONLY | O_CREAT | O_APPEND, 0600);
-#endif
         }
     }
+#ifdef _WIN32
+    SetUnhandledExceptionFilter(ReportWindowsException);
+#endif
     std::set_terminate(ReportTerminate);
     std::signal(SIGABRT, ReportSignal);
     std::signal(SIGSEGV, ReportSignal);

@@ -43,6 +43,7 @@ int SortedKern::Compare(const void* a, const void* b)
 #include <cstdlib>
 #include <cstring>
 #include <ctime>
+#include <limits>
 
 // ---------------------------------------------------------------------------
 // StrFormat -- the framework's sprintf into a String slot.
@@ -165,54 +166,123 @@ int SMemW(char* theDest, const char* theSource, int theCount, int theLimit)
 }
 
 // ---------------------------------------------------------------------------
-// p_fread -- libc fread with the stream as a word.
+// Preserve the framework's stdio element counts over SDL's byte-based I/O.
 // ---------------------------------------------------------------------------
-size_t p_fread(void* theBuffer, size_t theSize, size_t theCount, FILE* theStream)
+// SDL_SeekIO does not clear SDL_GetIOStatus. Keep the framework's EOF flag
+// on the stream so a successful seek clears it, as the original fseek did.
+static constexpr const char* kFrameworkFileEof = "Sexy.file.eof";
+
+size_t p_fread(void* theBuffer, size_t theSize, size_t theCount, SDL_IOStream* theStream)
 {
-    if (theStream == nullptr)
+    if (theStream == nullptr || theSize == 0 || theCount == 0
+        || theCount > std::numeric_limits<size_t>::max() / theSize)
         return 0;
-    return fread(theBuffer, theSize, theCount, theStream);
+    const size_t aRead = SDL_ReadIO(theStream, theBuffer, theSize * theCount);
+    SDL_SetBooleanProperty(SDL_GetIOProperties(theStream), kFrameworkFileEof,
+                           SDL_GetIOStatus(theStream) == SDL_IO_STATUS_EOF);
+    return aRead / theSize;
+}
+
+size_t p_fwrite(const void* theBuffer, size_t theSize, size_t theCount, SDL_IOStream* theStream)
+{
+    if (theStream == nullptr || theSize == 0 || theCount == 0
+        || theCount > std::numeric_limits<size_t>::max() / theSize)
+        return 0;
+    return SDL_WriteIO(theStream, theBuffer, theSize * theCount) / theSize;
+}
+
+int p_fgetc(SDL_IOStream* theStream)
+{
+    unsigned char aByte = 0;
+    return p_fread(&aByte, 1, 1, theStream) == 1 ? aByte : EOF;
+}
+
+char* p_fgets(char* theBuffer, int theCapacity, SDL_IOStream* theStream)
+{
+    if (theBuffer == nullptr || theCapacity < 2 || theStream == nullptr)
+        return nullptr;
+    int aLength = 0;
+    while (aLength < theCapacity - 1)
+    {
+        const int aByte = p_fgetc(theStream);
+        if (aByte == EOF)
+            break;
+        theBuffer[aLength++] = static_cast<char>(aByte);
+        if (aByte == '\n')
+            break;
+    }
+    theBuffer[aLength] = '\0';
+    return aLength > 0 ? theBuffer : nullptr;
+}
+
+int p_feof(SDL_IOStream* theStream)
+{
+    return theStream != nullptr
+        && SDL_GetBooleanProperty(SDL_GetIOProperties(theStream), kFrameworkFileEof, false);
 }
 
 // ---------------------------------------------------------------------------
 // The remaining framework file helpers.
 // ---------------------------------------------------------------------------
-FILE* p_fopen(const char* thePath, const char* theMode)
+SDL_IOStream* p_fopen(const char* thePath, const char* theMode)
 {
     // The game asks for assets by their manifest path ("properties/resources.xml",
     // "images/titlescreen"). Those files live under the asset root main.cpp
     // installs, so a relative name is resolved there first. An absolute path, or
     // a file that really does sit in the working directory, is opened as given.
-    const char* aMode = theMode ? theMode : "rb";
     if (thePath == nullptr || thePath[0] == '\0')
         return nullptr;
 
-    bool aAbsolute = thePath[0] == '\\' || thePath[0] == '/'
-        || (thePath[0] != '\0' && thePath[1] == ':');
-    if (!aAbsolute)
+    std::string aMode = theMode != nullptr ? theMode : "rb";
+    // EncodingParser needs unmodified bytes, including UTF-16 and DOS EOF.
+    if (aMode.find('b') == std::string::npos)
+        aMode += 'b';
+    // Only read-only resource opens search the asset root. Writable files
+    // must remain at their requested save/log path.
+    if (aMode.front() == 'r' && aMode.find('+') == std::string::npos)
     {
         std::string aResolved = Sexy::SDLFile::ResolvePath(thePath);
-        FILE* aRooted = fopen(aResolved.c_str(), aMode);
+        SDL_IOStream* aRooted = SDL_IOFromFile(aResolved.c_str(), aMode.c_str());
         if (aRooted != nullptr)
             return aRooted;
+        if (aResolved == thePath)
+            return nullptr;
     }
 
-    return fopen(thePath, aMode);
+    return SDL_IOFromFile(thePath, aMode.c_str());
 }
 
-int p_fclose(FILE* theStream)
+int p_fclose(SDL_IOStream* theStream)
 {
-    return (theStream != nullptr) ? fclose(theStream) : 0;
+    return theStream == nullptr || SDL_CloseIO(theStream) ? 0 : EOF;
 }
 
-int p_fseek(FILE* theStream, long theOffset, int theOrigin)
+int p_fseek(SDL_IOStream* theStream, long theOffset, int theOrigin)
 {
-    return (theStream != nullptr) ? fseek(theStream, theOffset, theOrigin) : -1;
+    if (theStream == nullptr)
+        return -1;
+    SDL_IOWhence aWhence;
+    switch (theOrigin)
+    {
+    case SEEK_SET: aWhence = SDL_IO_SEEK_SET; break;
+    case SEEK_CUR: aWhence = SDL_IO_SEEK_CUR; break;
+    case SEEK_END: aWhence = SDL_IO_SEEK_END; break;
+    default: return -1;
+    }
+    if (SDL_SeekIO(theStream, theOffset, aWhence) < 0)
+        return -1;
+    SDL_SetBooleanProperty(SDL_GetIOProperties(theStream), kFrameworkFileEof, false);
+    return 0;
 }
 
-long p_ftell(FILE* theStream)
+long p_ftell(SDL_IOStream* theStream)
 {
-    return (theStream != nullptr) ? ftell(theStream) : -1L;
+    if (theStream == nullptr)
+        return -1L;
+    const Sint64 aPosition = SDL_TellIO(theStream);
+    if (aPosition < 0 || aPosition > std::numeric_limits<long>::max())
+        return -1L;
+    return static_cast<long>(aPosition);
 }
 
 // GetFileDir writes the directory part of thePath into theDest.

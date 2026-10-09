@@ -1508,7 +1508,7 @@ Image* SexyAppBase::GetTexImage(const Sexy::String& theFileName, bool commitBits
     if (!NameContains(theFileName, ".tex") && !NameContains(theFileName, ".TEX"))
         return nullptr;
 
-    FILE* aFile = p_fopen(theFileName.c_str(), "rb");
+    SDL_IOStream* aFile = p_fopen(theFileName.c_str(), "rb");
     if (aFile == nullptr)
         return nullptr;
 
@@ -2313,7 +2313,7 @@ int SexyAppBase::InitDDInterface() { return 0; }
 
 bool SexyAppBase::FileExists(const Sexy::String& theFileName)
 {
-    FILE* aFile = p_fopen(theFileName.c_str(), "rb");
+    SDL_IOStream* aFile = p_fopen(theFileName.c_str(), "rb");
     if (aFile == nullptr)
         return false;
     p_fclose(aFile);
@@ -2322,7 +2322,7 @@ bool SexyAppBase::FileExists(const Sexy::String& theFileName)
 
 bool SexyAppBase::EraseFile(const Sexy::String& theFileName)
 {
-    return std::remove(theFileName.c_str()) == 0;
+    return SDL_RemovePath(theFileName.c_str());
 }
 
 int SexyAppBase::ReadBufferFromFile(const Sexy::String& theFileName, Buffer* theBuffer, bool dontWriteToDemo)

@@ -22,15 +22,8 @@
 #include "WidgetContainer.h"
 #include "WidgetManager.h"
 #include "Platform/MpegVideo.h"
+#include "Platform/SDLFile.h"
 #include <cmath>
-
-// `access` and 0x1A6C68 (`OnIntroVideoEvent`) are both declared in
-// Sexy/ReconExterns.h; `access` is repeated here so this file has the C-linkage
-// declaration it calls through. A local `int OnIntroVideoEvent();` used to sit next
-// to it and had to go: two declarations of one name differing in return type
-// and parameters is an overload conflict (C2556), not a redeclaration, and the
-// header's own declaration is the one that must win.
-extern "C" int access(const char *name, int type);
 
 namespace {
 
@@ -489,7 +482,7 @@ void TitleScreen::Update()
         aFileName.assign("movies/intro.mpg", 16);
 
         Sexy::String aUrl;
-        if ( !aDirectory.empty() && access(aFileName.c_str(), 0) == 0 )
+        if ( !aDirectory.empty() && Sexy::SDLFile::FileExists(aFileName.c_str()) )
         {
           aUrl.assign("file://", 7);
           aUrl += aFileName;

@@ -1130,13 +1130,21 @@ int ChallengeScreen::SaveSurvivalCount()
     aFilePath = aFolder;
     aFilePath += "userdata/survival.dat";
 
-    FILE *aFile = fopen(aFilePath.c_str(), "wb+");
+    SDL_IOStream* aFile = SDL_IOFromFile(aFilePath.c_str(), "wb");
     if (aFile == nullptr)
+    {
         printf("error creating file");
+        return 0;
+    }
 
     int aCount = mSurvivalCount;
-    fwrite(&aCount, 4u, 1u, aFile);
-    fclose(aFile);
+    const bool aWritten = SDL_WriteIO(aFile, &aCount, sizeof(aCount)) == sizeof(aCount);
+    const bool aClosed = SDL_CloseIO(aFile);
+    if (!aWritten || !aClosed)
+    {
+        printf("error writing survival.dat");
+        return 0;
+    }
     printf("write to survival.dat");
     return 0;
 }
@@ -1154,12 +1162,16 @@ int ChallengeScreen::LoadSurvivalCount()
     Sexy::String aFilePath = aFolder;
     aFilePath += "userdata/survival.dat";
 
-    FILE *aFile = fopen(aFilePath.c_str(), "rb");
+    SDL_IOStream* aFile = SDL_IOFromFile(aFilePath.c_str(), "rb");
     if (aFile != nullptr)
     {
-        fread(&aCount, 4u, 1u, aFile);
-        fclose(aFile);
-        printf("read survival.dat");
+        int aSavedCount = 0;
+        if (SDL_ReadIO(aFile, &aSavedCount, sizeof(aSavedCount)) == sizeof(aSavedCount))
+        {
+            aCount = aSavedCount;
+            printf("read survival.dat");
+        }
+        SDL_CloseIO(aFile);
     }
     else
     {

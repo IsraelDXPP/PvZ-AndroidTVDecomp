@@ -391,6 +391,35 @@ void Board::MouseDown(int theX, int theY, int theClickCount)
             return;
         }
     }
+    // The co-op bank's logical width includes the tool row. Test the visible
+    // tools first so an empty part of that bank cannot swallow their clicks.
+    if (mShowShovel && GetShovelButtonRect().Contains(theX, theY) && CanInteractWithBoardButtons(true))
+    {
+        const bool deselect = mCursorObject[0]->mCursorType == CURSOR_TYPE_SHOVEL;
+        if (mMousePlayerIndex != 0 && mMouseButterSelected)
+            CancelMouseSelection(mMousePlayerIndex);
+        mMousePlayerIndex = 0;
+        SetMouseCursor(theX, theY, 0);
+        CancelMouseSelection(0);
+        if (!deselect)
+            PickUpTool(OBJECT_TYPE_SHOVEL, 0);
+        mMouseGesture = MouseGesture::Tool;
+        return;
+    }
+    if (mShowButter && GetButterButtonRect().Contains(theX, theY) && CanInteractWithBoardButtons(true))
+    {
+        const bool deselect = mMouseButterSelected;
+        if (mMousePlayerIndex != 1 && mMouseInputActive[mMousePlayerIndex]
+            && mCursorObject[mMousePlayerIndex]->mCursorType == CURSOR_TYPE_SHOVEL)
+            CancelMouseSelection(mMousePlayerIndex);
+        mMousePlayerIndex = 1;
+        SetMouseCursor(theX, theY, 1);
+        CancelMouseSelection(1);
+        mMouseButterSelected = !deselect;
+        mMouseGesture = MouseGesture::Tool;
+        return;
+    }
+
     const bool twoBanks = mApp->IsCoopMode() || (mApp->mGameMode == GAMEMODE_MP_VS);
     for (int player = 0; player < (twoBanks ? 2 : 1); ++player)
     {
@@ -460,28 +489,6 @@ void Board::MouseDown(int theX, int theY, int theClickCount)
         cursor->mType = packet->mPacketType;
         cursor->mImitaterType = packet->mImitaterType;
         mMouseGesture = MouseGesture::SeedBank;
-        return;
-    }
-
-    if (mShowShovel && GetShovelButtonRect().Contains(theX, theY) && CanInteractWithBoardButtons())
-    {
-        const bool deselect = mCursorObject[0]->mCursorType == CURSOR_TYPE_SHOVEL;
-        mMousePlayerIndex = 0;
-        SetMouseCursor(theX, theY, 0);
-        CancelMouseSelection(0);
-        if (!deselect)
-            PickUpTool(OBJECT_TYPE_SHOVEL, 0);
-        mMouseGesture = MouseGesture::Tool;
-        return;
-    }
-    if (mShowButter && GetButterButtonRect().Contains(theX, theY) && CanInteractWithBoardButtons())
-    {
-        const bool deselect = mMouseButterSelected;
-        mMousePlayerIndex = 1;
-        SetMouseCursor(theX, theY, 1);
-        CancelMouseSelection(1);
-        mMouseButterSelected = !deselect;
-        mMouseGesture = MouseGesture::Tool;
         return;
     }
 
@@ -1461,27 +1468,22 @@ void Board::TutorialArrowShow(int theX, int theY)
 // Board::CanInteractWithBoardButtons(void)
 // @00152544  110 bytes
 // ==========================================================================
-bool Board::CanInteractWithBoardButtons()
+bool Board::CanInteractWithBoardButtons(bool theReplaceCursor)
 {
-  // An open dialog or a paused board swallows the click first.
-  if ( mPaused || mApp->GetDialogCount() > 0 )
+  if (mPaused || mApp->GetDialogCount() > 0 || mBoardFadeOutCounter >= 0
+      || mChallenge->mChallengeState == STATECHALLENGE_ZEN_FADING)
     return false;
 
-  // Player 0 already carrying something (the shovel, a garden tool, a seed from
-  // the wheelbarrow) owns the input; only a bare cursor may press a button.
-  if ( !IsPlantInCursor(0) )
+  // Explicit mouse tool selection can replace a held packet or put a tool
+  // down. Other callers retain the original empty-cursor requirement.
+  if (!theReplaceCursor)
   {
-    CursorType aCursorType = mCursorObject[0]->mCursorType;
-    if ( aCursorType != CURSOR_TYPE_SHOVEL
-      && (unsigned int)(aCursorType - CURSOR_TYPE_WATERING_CAN) > 8
-      && mBoardFadeOutCounter < 0
-      && mChallenge->mChallengeState != STATECHALLENGE_ZEN_FADING )
-    {
-      // The upsell screen has no Crazy Dave, so it stays interactive regardless.
-      return mApp->mGameMode == GAMEMODE_UPSELL || mApp->mCrazyDaveState == 0;
-    }
+    const CursorType cursorType = mCursorObject[0]->mCursorType;
+    if (IsPlantInCursor(0) || cursorType == CURSOR_TYPE_SHOVEL
+        || (cursorType >= CURSOR_TYPE_WATERING_CAN && cursorType <= CURSOR_TYPE_TREE_FOOD))
+      return false;
   }
-  return false;
+  return mApp->mGameMode == GAMEMODE_UPSELL || mApp->mCrazyDaveState == 0;
 }
 
 // ==========================================================================

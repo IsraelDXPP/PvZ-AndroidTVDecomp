@@ -484,12 +484,12 @@ void LoadSetupEnv()
     aTable.mRoot = aRoot;
     aTable.mValues.clear();
 
-    FILE* aFile = p_fopen("setup.env", "r");
+    SDL_IOStream* aFile = p_fopen("setup.env", "rb");
     if (aFile == nullptr)
         return;
 
     std::string aLine;
-    int aChar = fgetc(aFile);
+    int aChar = p_fgetc(aFile);
     while (aChar != EOF)
     {
         if (aChar == '\n')
@@ -501,10 +501,10 @@ void LoadSetupEnv()
         {
             aLine.push_back((char)aChar);
         }
-        aChar = fgetc(aFile);
+        aChar = p_fgetc(aFile);
     }
     ApplySetupEnvLine(aLine);
-    fclose(aFile);
+    p_fclose(aFile);
 }
 
 } // namespace

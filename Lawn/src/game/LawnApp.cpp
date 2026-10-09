@@ -124,13 +124,12 @@ namespace TM { using ::LogComposer; }
 #include <set>
 
 #include "ReconHelpers.h"
+#include "Platform/SDLFile.h"
 #include "ImageLib.h"
 using Sexy::SexyStringToString;
 
 #include <cstdio>
 #include <cstring>
-#include <fstream>
-#include <sstream>
 
 // TODO(recon): gStepReady / gFastMo / gStep are real byte globals in the binary
 // (0x715B78, 0x715B7A, 0x715B79) that ReconData.h does not declare. Declared
@@ -656,37 +655,47 @@ Board * LawnApp::ShowHelpTextScreen(int theHelpIndex)
 // LawnApp::KillHelpTextScreen()
 // @002B34F8  162 bytes
 // ==========================================================================
-char * LawnApp::KillHelpTextScreen()
+void LawnApp::KillHelpTextScreen()
 {
-  if ( mHelpTextScreen != nullptr )
-  {
-    mWidgetManager->RemoveWidget(mHelpTextScreen);
-    SafeDeleteWidget(mHelpTextScreen);
-    mHelpTextScreen = nullptr;
-  }
+  if ( mHelpTextScreen == nullptr )
+    return;
+
+  mWidgetManager->RemoveWidget(mHelpTextScreen);
+  SafeDeleteWidget(mHelpTextScreen);
+  mHelpTextScreen = nullptr;
+
+  // Removing help clears focus. GotFocus rebuilds the chooser's own hints.
   if ( mSeedChooserScreen != nullptr )
   {
     mBoard->Pause(false);
-    return nullptr;
+    mWidgetManager->SetFocus(mSeedChooserScreen);
+    return;
+  }
+  if ( mZombieChooserScreen != nullptr )
+  {
+    mBoard->Pause(false);
+    mWidgetManager->SetFocus(mZombieChooserScreen);
+    return;
   }
   if ( mVSSetupMenu != nullptr )
   {
     mBoard->Pause(false);
     mWidgetManager->SetFocus(mVSSetupMenu);
-    return nullptr;
+    return;
   }
   if ( GetDialog(3) != nullptr )
   {
     mWidgetManager->SetFocus(GetDialog(3));
-    return nullptr;
+    return;
   }
   if ( mBoard != nullptr )
   {
     mBoard->Pause(false);
-    return nullptr;
+    mWidgetManager->SetFocus(mBoard);
+    return;
   }
-  GetDialog(60);
-  return nullptr;
+  if ( Sexy::Dialog* dialog = GetDialog(60) )
+    mWidgetManager->SetFocus(dialog);
 }
 
 // ==========================================================================
@@ -2504,10 +2513,8 @@ bool LawnApp::SrvDebugAddMoney(int theAmount)
 // @002B5AE4  780 bytes
 //
 // Truncates <app data>/CoinFile and writes the decimal count. Open mode is
-// out|trunc (MOVS #0x30). A failed open prints and the write still runs.
-// The count goes through a stringstream (mode 0x18, in|out) and is extracted
-// back out, then written unformatted. close() is explicit: filebuf::close
-// runs before the stringstream dies, and again from the ofstream destructor.
+// out|trunc (MOVS #0x30). The port writes the same decimal text through SDL,
+// preserving UTF-8 paths and reporting a failed write.
 // ==========================================================================
 void LawnApp::writeCoinNum(int theCoinNum)
 {
@@ -2516,16 +2523,9 @@ void LawnApp::writeCoinNum(int theCoinNum)
   MkDir(aPath);
   aPath += "/CoinFile";
 
-  std::ofstream aFile(aPath.c_str(), std::ios::out | std::ios::trunc);
-  if (!aFile)
-    puts("CoinFile open failed!");
-
-  std::string aText;
-  std::stringstream aStream;
-  aStream << theCoinNum;
-  aStream >> aText;
-  aFile.write(aText.c_str(), aText.size());
-  aFile.close();
+  const std::string aText = std::to_string(theCoinNum);
+  if (!Sexy::SDLFile::WriteOutputFile(aPath.c_str(), aText.data(), aText.size()))
+    puts("CoinFile write failed!");
 }
 
 // ==========================================================================
@@ -5079,8 +5079,8 @@ void LawnApp::DeleteSavedGame()
 // ==========================================================================
 bool LawnApp::CanShopLevel()
 {
-  // Versus uses only its selected decks; hide tools and reject shop input.
-  if ( mGameMode == GAMEMODE_MP_VS || mGameMode == GAMEMODE_MP_VS_DEBUG )
+  // Multiplayer uses its selected decks without consumable shop tools.
+  if ( IsCoopMode() || mGameMode == GAMEMODE_MP_VS || mGameMode == GAMEMODE_MP_VS_DEBUG )
     return false;
 
   if ( mGameMode != GAMEMODE_ADVENTURE )
@@ -5824,7 +5824,7 @@ void LawnApp::loadCoinNum()
   GetAppDataFolder(&aFolder);
   Sexy::String aPath = aFolder + "/CoinFile";
 
-  FILE* aFile = p_fopen(aPath.c_str(), "r");
+  SDL_IOStream* aFile = p_fopen(aPath.c_str(), "rb");
   if (aFile == nullptr)
   {
     puts("CoinFile open failed!");
@@ -5832,7 +5832,7 @@ void LawnApp::loadCoinNum()
   }
 
   char aLine[64] = {0};
-  if (fgets(aLine, (int)sizeof(aLine), aFile) != nullptr)
+  if (p_fgets(aLine, (int)sizeof(aLine), aFile) != nullptr)
   {
     int aCoins = atoi(aLine);
     LawnUser* aUser = LawnUser::getCurUser();

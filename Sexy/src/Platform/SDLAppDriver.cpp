@@ -697,7 +697,7 @@ int SDLAppDriver::ReadBufferFromFile(const Sexy::String& thePath,
     if (aName == nullptr || aName[0] == '\0')
         return 0;
 
-    FILE* aStream = p_fopen(aName, "rb");
+    SDL_IOStream* aStream = p_fopen(aName, "rb");
     if (aStream == nullptr)
         return 0;
 
@@ -705,7 +705,7 @@ int SDLAppDriver::ReadBufferFromFile(const Sexy::String& thePath,
     unsigned char aChunk[16384];
     for (;;)
     {
-        int aRead = (int)fread(aChunk, 1, sizeof(aChunk), aStream);
+        int aRead = (int)p_fread(aChunk, 1, sizeof(aChunk), aStream);
         if (aRead <= 0)
             break;
         aBytes.insert(aBytes.end(), aChunk, aChunk + aRead);

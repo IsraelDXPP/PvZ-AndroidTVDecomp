@@ -15,7 +15,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <ctime>
-#include <fstream>
+#include <sstream>
 #include <string>
 #include <vector>
 
@@ -563,11 +563,12 @@ int LogManager::appendLogToLocalFile(Sexy::String const& theLine)
     if (mLocalLogPath.empty())
         return 0;
 
-    std::ofstream aFile(mLocalLogPath.c_str(), std::ios::app | std::ios::binary);
-    if (!aFile)
+    SDL_IOStream* aFile = SDL_IOFromFile(mLocalLogPath.c_str(), "ab");
+    if (aFile == nullptr)
         return 0;
-    aFile << theLine.c_str();
-    return aFile.good() ? 1 : 0;
+    const bool aWritten = SDL_WriteIO(aFile, theLine.c_str(), theLine.size()) == theLine.size();
+    const bool aClosed = SDL_CloseIO(aFile);
+    return aWritten && aClosed ? 1 : 0;
 }
 
 // 4EF8F0. The binary writes the line to the metrics socket and, on failure,
@@ -624,13 +625,17 @@ int LogManager::readLogFromLocalFile()
     if (mLocalLogPath.empty())
         return 0;
 
-    std::ifstream aFile(mLocalLogPath.c_str(), std::ios::binary);
-    if (!aFile)
+    size_t aSize = 0;
+    char* aContents = static_cast<char*>(SDL_LoadFile(mLocalLogPath.c_str(), &aSize));
+    if (aContents == nullptr)
         return 0;
+    std::string aText(aContents, aSize);
+    SDL_free(aContents);
+    std::istringstream aInput(aText);
 
     std::string aLine;
     int aCount = 0;
-    while (std::getline(aFile, aLine))
+    while (std::getline(aInput, aLine))
     {
         aLine += '\n';
         mIncomingQueue.push_back(aLine);
@@ -638,11 +643,7 @@ int LogManager::readLogFromLocalFile()
     }
     // readLogFromLocalFile @0x4F30DE closes and removes the consumed spool.
     // Retaining it would append every historical entry again on the next read.
-    if (!aFile.bad())
-    {
-        aFile.close();
-        std::remove(mLocalLogPath.c_str());
-    }
+    SDL_RemovePath(mLocalLogPath.c_str());
     return aCount;
 }
 

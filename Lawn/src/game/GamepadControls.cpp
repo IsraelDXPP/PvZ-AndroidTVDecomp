@@ -137,6 +137,9 @@ int GamepadControls::OnKeyUp(Sexy::KeyCode theKey, unsigned int theFlags)
 // ==========================================================================
 void GamepadControls::GotoSelectingState(int theSeedIndex)
 {
+  if ( !mApp->CanShopLevel() )
+    return;
+
   if ( mGamepadState != MOVEMENT_STATE_SELECT_SEED )
   {
     GotoState(MOVEMENT_STATE_SELECT_SEED);
@@ -462,6 +465,9 @@ SeedBank * GamepadControls::GetSeedBank()
 // ==========================================================================
 int GamepadControls::PlantShopPacket()
 {
+  if ( !mApp->CanShopLevel() )
+    return 0;
+
   unsigned int aIndex = mSelectedShopSeedIndex;
   if ( aIndex > 6 )
     return 0;
@@ -1294,8 +1300,7 @@ void GamepadControls::otherPlayerDownSelectedSeed()
 // ==========================================================================
 void GamepadControls::DownSelectedSeed()
 {
-  // Nonzero byte at +0xF5: POP {R4,PC} leaves this in r0.
-  if ( mIsInShopSeedBank != 0 )
+  if ( !mApp->CanShopLevel() || mIsInShopSeedBank )
     return;
 
   // STRB #1 at +0xF5, then signed % 7 (magic 0x92492493) of +0xB4 into +0xF8.
@@ -1577,6 +1582,14 @@ int GamepadControls::ButtonDownFireCobcannonTest()
 // ==========================================================================
 bool GamepadControls::OnKeyDown(Sexy::KeyCode theKey, unsigned int theFlags)
 {
+  if (mIsInShopSeedBank && !mApp->CanShopLevel())
+  {
+    UpSelectedSeed();
+    mBoard->ClearCursor(mPlayerIndex);
+    GotoState(MOVEMENT_STATE_NORMAL);
+    return true;
+  }
+
   // Direct BL, not the vtable. A nonzero result branches to 0x1C1798, which is
   // MOVS R5,#1 and the epilogue — return true, not the base result.
   if ( BaseGamepadControls::OnKeyDown(theKey, theFlags) != 0 )
@@ -2096,6 +2109,9 @@ void GamepadControls::ReleaseButter()
 
 void GamepadControls::ActivateShopRecharge()
 {
+    if (!mApp->CanShopLevel())
+        return;
+
     if (mApp->judgeDoTransRecharge())
     {
         mApp->doTransRecharge();
@@ -2296,6 +2312,9 @@ bool GamepadControls::HandleVersusMoundUpgrade(int thePlantAccepted)
 
 bool GamepadControls::HandleNormalPlant(int thePlantAccepted)
 {
+    if (mIsInShopSeedBank && !mApp->CanShopLevel())
+        return false;
+
     if (thePlantAccepted == 0)
         return false;
     Sexy::Gamepad *aPad = mApp->mGamepads[mGamepadIndex];

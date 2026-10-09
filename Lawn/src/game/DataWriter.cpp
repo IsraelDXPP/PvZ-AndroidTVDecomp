@@ -5,6 +5,7 @@
 // see the tool's docstring for the complete, justified list.
 
 #include "DataWriter.h"
+#include "Platform/SDLFile.h"
 #include <string>
 #include <vector>
 #include <map>
@@ -37,7 +38,7 @@ void DataWriter::Close()
 {
   if ( mFile != nullptr )
   {
-    fclose(mFile);
+    SDL_CloseIO(mFile);
     mFile = nullptr;
   }
   delete[] mBuffer;
@@ -62,7 +63,7 @@ DataWriter::~DataWriter()
 bool DataWriter::OpenFile(Sexy::String const& theFileName)
 {
   Close();
-  mFile = fopen(theFileName.c_str(), "wb");
+  mFile = SDL_IOFromFile(theFileName.c_str(), "wb");
   return mFile != nullptr;
 }
 
@@ -89,12 +90,7 @@ bool DataWriter::WriteToFile(Sexy::String const& theFileName)
 {
   if (mBuffer == nullptr)
     return false;
-  FILE *aFile = fopen(theFileName.c_str(), "wb");
-  if (aFile == nullptr)
-    return false;
-  size_t aWritten = fwrite(mBuffer, 1u, mBufferPos, aFile);
-  fclose(aFile);
-  return aWritten == mBufferPos;
+  return Sexy::SDLFile::WriteOutputFile(theFileName.c_str(), mBuffer, mBufferPos);
 }
 
 // ==========================================================================
@@ -134,7 +130,7 @@ int DataWriter::WriteBytes(void const* theBytes, unsigned long theCount)
   }
   if (mFile == nullptr)
     return 0;
-  return (int)fwrite(theBytes, 1u, theCount, mFile);
+  return (int)SDL_WriteIO(mFile, theBytes, theCount);
 }
 
 // ==========================================================================

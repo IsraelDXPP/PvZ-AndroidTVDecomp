@@ -2542,10 +2542,10 @@ Sexy::String Sexy::ResourceManager::TryLocalizedResourcePath(Sexy::String const&
                                                             Sexy::String const& theLocale)
 {
     Sexy::String aLocalized = GetLocalizedResourcePath(thePath, theDir, theLocale);
-    FILE* aFile = fopen(aLocalized.c_str(), "rb");
+    SDL_IOStream* aFile = p_fopen(aLocalized.c_str(), "rb");
     if (aFile != nullptr)
     {
-        fclose(aFile);
+        p_fclose(aFile);
         return aLocalized;
     }
     return thePath;

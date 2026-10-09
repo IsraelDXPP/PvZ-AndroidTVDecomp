@@ -243,7 +243,8 @@ int Sexy::EncodingParser::GetUTF16BEChar(wchar_t* theChar, bool* theFirstChar)
 
 int Sexy::EncodingParser::OpenFile(Sexy::String const& thePath)
 {
-    FILE* aFile = p_fopen(thePath.c_str(), "r");
+    CloseFile();
+    SDL_IOStream* aFile = p_fopen(thePath.c_str(), "rb");
     mFile = aFile;
     if (aFile == nullptr)
         return 0;
@@ -254,23 +255,18 @@ int Sexy::EncodingParser::OpenFile(Sexy::String const& thePath)
         return 1;
     }
 
-    p_fseek(mFile, 0, SEEK_END);
-    const int aFileSize = (int)p_ftell(mFile);
-    p_fseek(mFile, 0, SEEK_SET);
-
-    char aBuffer[0x2000];
-    int aRead = 0;
-    if (aFileSize < 0x2000)
-        aRead = (int)p_fread(aBuffer, 1, aFileSize, mFile);
-    else
-        aRead = (int)p_fread(aBuffer, 1, 0x2000, mFile);
-
-    p_fseek(mFile, 0, SEEK_SET);
+    char aBuffer[0x2000]{};
+    const int aRead = static_cast<int>(p_fread(aBuffer, 1, sizeof(aBuffer), mFile));
+    if (p_fseek(mFile, 0, SEEK_SET) != 0)
+    {
+        CloseFile();
+        return 0;
+    }
     mGetCharFuncAdj = 0;
     mGetCharFunc = &EncodingParser::GetAsciiChar;
 
-    const bool aBigEndianBom = aBuffer[0] == (char)0xFE && aBuffer[1] == (char)0xFF;
-    const bool aLittleEndianBom = aBuffer[0] == (char)0xFF && aBuffer[1] == (char)0xFE;
+    const bool aBigEndianBom = aRead >= 2 && aBuffer[0] == (char)0xFE && aBuffer[1] == (char)0xFF;
+    const bool aLittleEndianBom = aRead >= 2 && aBuffer[0] == (char)0xFF && aBuffer[1] == (char)0xFE;
     if (aBigEndianBom || aLittleEndianBom)
     {
         mGetCharFunc = &EncodingParser::GetUTF16Char;
@@ -284,7 +280,7 @@ int Sexy::EncodingParser::OpenFile(Sexy::String const& thePath)
         return 1;
     }
 
-    if (aFileSize > 2)
+    if (aRead > 2)
     {
         if (aBuffer[0] == (char)0xEF && aBuffer[1] == (char)0xBB && aBuffer[2] == (char)0xBF)
         {
@@ -315,7 +311,7 @@ bool Sexy::EncodingParser::EndOfFile()
     if (!mBufferedText.empty())
         return false;
     if (mFile != nullptr)
-        return std::feof(mFile) != 0;
+        return p_feof(mFile) != 0;
     return true;
 }
 
@@ -331,7 +327,7 @@ int Sexy::EncodingParser::GetChar(wchar_t* theChar)
         return 0;
     }
 
-    if (mFile == nullptr || std::feof(mFile) != 0)
+    if (mFile == nullptr || p_feof(mFile) != 0)
         return 2;
 
     bool aFirstChar = false;

@@ -13,7 +13,7 @@
 // Member layout comes from the constructor at 0x192498, which writes exactly
 // five words, and from Close()/EnsureCapacity()/SetLong():
 //     +0x00 vptr      = &off_682978
-//     +0x04 mFile     is a FILE*   (fopen/fwrite/fclose in Close/WriteToFile)
+//     +0x04 mFile     is a file stream (SDL_IOStream* in this port)
 //     +0x08 mBuffer   is a uchar*  (operator new[] / operator delete[])
 //     +0x0C mBufferPos   byte count written so far (this+12)
 //     +0x10 mBufferSize  allocated capacity, doubled by EnsureCapacity (this+16)
@@ -25,7 +25,7 @@
 #include <vector>
 #include <map>
 #include <set>
-#include <cstdio>
+#include <SDL3/SDL_iostream.h>
 
 class DataWriter
 {
@@ -38,11 +38,7 @@ public:
     int OpenMemory(unsigned long theCapacity);
     bool WriteToFile(Sexy::String const &theFileName);
     void EnsureCapacity(unsigned long theNeeded);
-    // The decompiler typed these methods' RECEIVER as `FILE **this` (the writer
-    // holds a FILE*), and the transcription read that as the return type. Every
-    // call site treats the result as an int -- `DataSync::SyncBytes` returns it
-    // directly -- so that is the return type. The receiver is the implicit
-    // `this` of a member function, which is why it does not appear here.
+    // DataSync::SyncBytes reads this result as an int, not a file pointer.
     int WriteBytes(void const *theBytes, unsigned long theCount);
     int WriteLongLong(unsigned long long theValue);
     int WriteLong(unsigned long theValue);
@@ -59,10 +55,8 @@ public:
 
     // The constructor writes the vptr and these four words. The three unread
     // padding words that used to follow them are gone.
-    FILE *mFile;             // +0x04
+    SDL_IOStream* mFile;     // +0x04
     unsigned char *mBuffer;  // +0x08
     unsigned long mBufferPos;  // +0x0C
     unsigned long mBufferSize; // +0x10
 };
-
-// Layout check: vptr + four named words + three reserved words.

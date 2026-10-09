@@ -15,10 +15,10 @@
 //                  -- r0 is the destination, r1 the object); Fail @0x3B7D80
 //                  assigns its message to +0x08; OpenFile assigns the file name to
 //                  +0x04; everything the writer emits is appended to +0x18 and
-//                  fputs'd to the file by CloseFile. So +0x04 is mFileName,
+//                  written to the file by CloseFile. So +0x04 is mFileName,
 //                  +0x08 mErrorText, +0x18 mOutputText.
 //   +0x0C          a counter set to 1 by Init and incremented by WriteHeader (line number)
-//   +0x10          a FILE*: fopen's result in OpenFile, fputs/fclose'd in CloseFile
+//   +0x10          a file stream: opened by OpenFile, written/closed by CloseFile
 //   +0x14          a bool cleared by Init and set by Fail -- the failure flag
 //   +0x15          a bool the constructor clears and nothing else touches
 //   +0x16          a bool StartElement sets and StopElement clears; WriteAttribute
@@ -37,7 +37,7 @@
 #pragma once
 
 #include "ReconTypes.h"
-#include <cstdio>
+#include <SDL3/SDL_iostream.h>
 #include <string>
 #include <vector>
 #include <map>
@@ -90,11 +90,11 @@ public:
     Sexy::String mFileName;  // +0x04
     Sexy::String mErrorText; // +0x08
     int mLineNum;            // +0x0C, set to 1 by Init and incremented by WriteHeader
-    FILE *mFile;             // +0x10, the FILE* OpenFile/CloseFile work with
+    SDL_IOStream* mFile;     // +0x10, the stream OpenFile/CloseFile work with
     bool mHasFailed;         // cleared by Init and set by Fail
     bool mSpareFlag;         // cleared by Init; no reader in this tree
     bool mAttributesOpen;    // the attributes section is still open
-    bool mWritingToMemory;   // no FILE*, the output goes to mOutputText
+    bool mWritingToMemory;   // no stream, the output goes to mOutputText
     Sexy::String mOutputText; // +0x18, everything the writer emits is appended here
     char mBuffer[0x400];     // +0x1C .. +0x41B, memset to 0 by Init
     std::deque<Sexy::String> mElements;   // +0x41C .. +0x443, the open-element stack

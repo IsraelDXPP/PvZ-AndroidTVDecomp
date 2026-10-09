@@ -145,7 +145,7 @@ void AppendNode(std::vector<XmlEvent>& theEvents, pugi::xml_node theNode,
     theEvents.push_back(aEnd);
 }
 
-std::string ReadOpenStream(FILE* theFile)
+std::string ReadOpenStream(SDL_IOStream* theFile)
 {
     std::string aBytes;
     char aChunk[4096];

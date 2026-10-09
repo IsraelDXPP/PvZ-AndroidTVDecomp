@@ -20,6 +20,7 @@
 #include <cstddef>
 #include <cstdlib>
 #include <SDL3/SDL_stdinc.h>
+#include <SDL3/SDL_iostream.h>
 
 // ---------------------------------------------------------------------------
 // StrFormat(dest, format, ...) -- sprintf into a Sexy::String.
@@ -57,8 +58,13 @@ int logfe(const char* theFormat, ...);
 // ---------------------------------------------------------------------------
 int SMemW(char* theDest, const char* theSource, int theCount, int theLimit);
 
-// The file helpers. The stream is a FILE*, the same pointer fopen hands back.
-size_t p_fread(void* theBuffer, size_t theSize, size_t theCount, FILE* theStream);
+// Framework file helpers use SDL streams and UTF-8 paths on every platform.
+// Read/write counts remain in complete elements, as in the original stdio API.
+size_t p_fread(void* theBuffer, size_t theSize, size_t theCount, SDL_IOStream* theStream);
+size_t p_fwrite(const void* theBuffer, size_t theSize, size_t theCount, SDL_IOStream* theStream);
+int p_fgetc(SDL_IOStream* theStream);
+char* p_fgets(char* theBuffer, int theCapacity, SDL_IOStream* theStream);
+int p_feof(SDL_IOStream* theStream);
 
 // qmemcpy -- the compiler's inlined memcpy that IDA printed by name.
 inline void* qmemcpy(void* theDest, const void* theSource, size_t theCount)
@@ -215,10 +221,10 @@ Sexy::Image* SharedImageRefImage(const Sexy::SharedImageRef* theRef);
 Sexy::String* FindInStringVector(Sexy::String* theBegin, Sexy::String* theEnd, const Sexy::String* theValue);
 
 // The framework's own file helpers the bodies call.
-int   p_fseek(FILE* theStream, long theOffset, int theOrigin);
-FILE* p_fopen(const char* thePath, const char* theMode);
-int   p_fclose(FILE* theStream);
-long  p_ftell(FILE* theStream);
+int   p_fseek(SDL_IOStream* theStream, long theOffset, int theOrigin);
+SDL_IOStream* p_fopen(const char* thePath, const char* theMode);
+int   p_fclose(SDL_IOStream* theStream);
+long  p_ftell(SDL_IOStream* theStream);
 // _ZN4Sexy10GetFileDirERKSsb -- GetFileDir(dest, path, bool). The path is a
 // Sexy::String, so call sites pass a pointer to that object. The two trailing
 // parameters are the transcription's leftovers and stay defaulted so the

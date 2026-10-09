@@ -27,7 +27,7 @@
 #include "SexyTransform2D.h"
 #include "SharedImageRef.h"
 #include "Transform.h"
-#include <cstdio>
+#include <SDL3/SDL_iostream.h>
 #include <map>
 #include <vector>
 
@@ -362,8 +362,8 @@ public:
     int LoadEffect(Sexy::String const& thePath);
     int LoadState(Sexy::Buffer const& theBuffer, bool theCompact);
 
-    FILE * mReadFile;
-    FILE * mWriteFile;
+    SDL_IOStream* mReadFile;
+    SDL_IOStream* mWriteFile;
     unsigned int mChecksum;
     bool mWideBooleans;
     bool mLoadedFlag;

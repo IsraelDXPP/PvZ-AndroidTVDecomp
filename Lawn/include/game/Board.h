@@ -522,7 +522,7 @@ public:
     // no caller reads it.
     void TutorialArrowRemove();
     void TutorialArrowShow(int theX, int theY);
-    bool CanInteractWithBoardButtons();
+    bool CanInteractWithBoardButtons(bool theReplaceCursor = false);
     void ShowCoinBank();
     void Pause(bool thePause);
     void SetupBungeeDrop(BungeeDropGrid *theDrop);

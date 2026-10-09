@@ -2170,7 +2170,7 @@ static int TodStringListReadItems(const char* theText)
 // counts as one successful read, matching the .so's size<=0 path.
 static int TodStringListReadFile(const char* thePath)
 {
-    FILE* aFile = p_fopen(thePath, "r");
+    SDL_IOStream* aFile = p_fopen(thePath, "rb");
     if (aFile == nullptr)
         return 0;
 

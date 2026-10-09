@@ -677,7 +677,7 @@ static int DefMapReadFromCache(const char*& theCursor, const char* theEnd, const
 static int DefinitionReadCompiledFile(const Sexy::String& thePath, DefMap* theMap, void* theObject)
 {
     EnsureDefMaps();
-    FILE* aFile = p_fopen(thePath.c_str(), "rb");
+    SDL_IOStream* aFile = p_fopen(thePath.c_str(), "rb");
     if (aFile == nullptr)
         return 0;
     p_fseek(aFile, 0, SEEK_END);

@@ -68,8 +68,3 @@ inline bool PlatformLocalTime(const time_t* seconds, std::tm* result)
 }
 inline long PlatformRandomLong() { return static_cast<long>((static_cast<unsigned int>(std::rand()) << 15) ^ std::rand()); }
 int MSleep(int theMillis);
-#define j_fwrite fwrite
-#define j_fread fread
-#define j_fopen fopen
-#define j_fclose fclose
-#define j_fseek fseek
