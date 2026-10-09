@@ -2,6 +2,7 @@
 // File access stays in SDL so movies can use UTF-8 paths and Android assets.
 #define PLM_NO_STDIO
 #define PL_MPEG_IMPLEMENTATION
+#include <stddef.h>
 #include "third_party/pl_mpeg.h"
 
 #include "MpegVideo.h"

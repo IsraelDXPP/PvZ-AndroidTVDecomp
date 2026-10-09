@@ -586,8 +586,8 @@ internalJSONNode::internalJSONNode(Sexy::String const& theName)
 // token was consumed.
 static bool IsJSONNumberToken(const Sexy::String *theValue)
 {
-  const unsigned __int8 *aCursor = (const unsigned __int8 *)theValue->c_str();
-  const unsigned __int8 *i;
+  const std::uint8_t *aCursor = (const std::uint8_t *)theValue->c_str();
+  const std::uint8_t *i;
   unsigned int aChar;
   bool aSeenExp;
   bool aSeenDot;
@@ -633,7 +633,7 @@ static bool IsJSONNumberToken(const Sexy::String *theValue)
             if ( aNext != 'E' )
               return false;
           }
-          unsigned int aExponent = (unsigned __int8)(aCursor[2] - 43);
+          unsigned int aExponent = (std::uint8_t)(aCursor[2] - 43);
           if ( aExponent <= 0xE )
           {
             aSeenExp = true;
@@ -741,7 +741,7 @@ internalJSONNode::internalJSONNode(Sexy::String const& theName, Sexy::String con
 {
   const char *aValue;
   unsigned int aLength;
-  unsigned __int8 aLast;
+  std::uint8_t aLast;
   char aScratch[8];
 
   _type = 0;
@@ -773,7 +773,7 @@ internalJSONNode::internalJSONNode(Sexy::String const& theName, Sexy::String con
   StringAssign((Sexy::String*)&_string, &theValue);
   aValue = theValue.c_str();
   aLength = theValue.size();
-  aLast = (unsigned __int8)aValue[aLength - 1];
+  aLast = (std::uint8_t)aValue[aLength - 1];
   switch ( *aValue )
   {
     case '"':
@@ -950,22 +950,22 @@ bool internalJSONNode::AreEqualNoCase(char const* theLeft, char const* theRight)
   // The binary's function is static and takes two C strings; the header binds
   // the first one to the receiver, so theLeft is the first string and theRight the second.
   const char *aSecondEnd = theRight;
-  unsigned int aChar = (unsigned __int8)*theLeft;
+  unsigned int aChar = (std::uint8_t)*theLeft;
 
   if ( *theLeft != 0 )
   {
     const char *aSecond = theRight;
     do
     {
-      unsigned __int8 aOther = (unsigned __int8)*aSecond++;
+      std::uint8_t aOther = (std::uint8_t)*aSecond++;
       char aOtherChar = (char)aOther;
-      unsigned int aUpper = (unsigned __int8)(aOther - 'A');
+      unsigned int aUpper = (std::uint8_t)(aOther - 'A');
       aSecondEnd = aSecond;
       if ( aChar != aOther )
       {
-        int aLower = (unsigned __int8)(aOtherChar + 32);
-        unsigned int aLowerIdx = (unsigned __int8)(aOtherChar - 'a');
-        int aUpperIdx = (unsigned __int8)(aOtherChar - 32);
+        int aLower = (std::uint8_t)(aOtherChar + 32);
+        unsigned int aLowerIdx = (std::uint8_t)(aOtherChar - 'a');
+        int aUpperIdx = (std::uint8_t)(aOtherChar - 32);
         if ( aUpper <= 0x19 )
         {
           if ( aChar != aLower )
@@ -976,7 +976,7 @@ bool internalJSONNode::AreEqualNoCase(char const* theLeft, char const* theRight)
           return false;
         }
       }
-      aChar = (unsigned __int8)*++theLeft;
+      aChar = (std::uint8_t)*++theLeft;
     }
     while ( aChar != 0 );
   }
@@ -1016,7 +1016,7 @@ internalJSONNode::internalJSONNode(internalJSONNode const& theOther)
   refcount = 1;
   _comment = theOther._comment;
   CHILDREN = nullptr;
-  if ( (unsigned __int8)(_type - 4) <= 1u )
+  if ( (std::uint8_t)(_type - 4) <= 1u )
   {
     jsonChildren *aChildren = NewJsonChildren();
     CHILDREN = aChildren;
@@ -1057,7 +1057,7 @@ internalJSONNode * internalJSONNode::newInternal(char theType)
   // and the children array are left to set here.
   internalJSONNode *aNode = new internalJSONNode(Sexy::String());
   aNode->_type = (unsigned char)theType;
-  if ( (unsigned __int8)(aNode->_type - 4) <= 1u )
+  if ( (std::uint8_t)(aNode->_type - 4) <= 1u )
     aNode->CHILDREN = NewJsonChildren();
   return aNode;
 }
@@ -1461,7 +1461,7 @@ internalJSONNode * internalJSONNode::push_back(JSONNode const& theChild)
 {
   // The dump's return value is the child array inc() hands back, so the receiver
   // is returned here when the node is not an array or object.
-  if ( (unsigned __int8)(_type - 4) <= 1u )
+  if ( (std::uint8_t)(_type - 4) <= 1u )
   {
     jsonChildren *aChildren = CHILDREN;
     // newJSONNode() ignores its receiver and wraps the node it is handed, so the
@@ -1479,7 +1479,7 @@ internalJSONNode * internalJSONNode::push_back(JSONNode const& theChild)
 // ==========================================================================
 JSONNode ** internalJSONNode::push_front(JSONNode const& theChild)
 {
-  if ( (unsigned __int8)(_type - 4) <= 1u )
+  if ( (std::uint8_t)(_type - 4) <= 1u )
   {
     jsonChildren *aChildren = CHILDREN;
     JSONNode *aNewChild = const_cast<JSONNode &>(theChild).Share();
@@ -1495,7 +1495,7 @@ JSONNode ** internalJSONNode::push_front(JSONNode const& theChild)
 // ==========================================================================
 JSONNode * internalJSONNode::pop_back(unsigned int theIndex)
 {
-  if ( (unsigned __int8)(_type - 4) > 1u )
+  if ( (std::uint8_t)(_type - 4) > 1u )
     return 0;
   jsonChildren *aChildren = CHILDREN;
   if (theIndex >= aChildren->mChildren.size())
@@ -1511,7 +1511,7 @@ JSONNode * internalJSONNode::pop_back(unsigned int theIndex)
 // ==========================================================================
 JSONNode ** internalJSONNode::at(Sexy::String const& theName)
 {
-  if ( (unsigned __int8)(_type - 4) > 1u )
+  if ( (std::uint8_t)(_type - 4) > 1u )
     return nullptr;
   Fetch();
   jsonChildren *aChildren = CHILDREN;
@@ -1530,7 +1530,7 @@ JSONNode ** internalJSONNode::at(Sexy::String const& theName)
 // ==========================================================================
 JSONNode * internalJSONNode::pop_back(Sexy::String const& theName)
 {
-  if ( (unsigned __int8)(_type - 4) > 1u )
+  if ( (std::uint8_t)(_type - 4) > 1u )
     return nullptr;
   JSONNode **aSlot = at(theName);
   if ( aSlot == nullptr )
@@ -1548,7 +1548,7 @@ JSONNode * internalJSONNode::pop_back(Sexy::String const& theName)
 // ==========================================================================
 JSONNode ** internalJSONNode::at_nocase(Sexy::String const& theName)
 {
-  if ( (unsigned __int8)(_type - 4) > 1u )
+  if ( (std::uint8_t)(_type - 4) > 1u )
     return nullptr;
   Fetch();
   jsonChildren *aChildren = CHILDREN;
@@ -1567,7 +1567,7 @@ JSONNode ** internalJSONNode::at_nocase(Sexy::String const& theName)
 // ==========================================================================
 JSONNode * internalJSONNode::pop_back_nocase(Sexy::String const& theName)
 {
-  if ( (unsigned __int8)(_type - 4) > 1u )
+  if ( (std::uint8_t)(_type - 4) > 1u )
     return nullptr;
   JSONNode **aSlot = at_nocase(theName);
   if ( aSlot == nullptr )
@@ -1586,7 +1586,7 @@ JSONNode * internalJSONNode::pop_back_nocase(Sexy::String const& theName)
 void internalJSONNode::preparse()
 {
   Fetch();
-  if ( (unsigned __int8)(_type - 4) <= 1u )
+  if ( (std::uint8_t)(_type - 4) <= 1u )
   {
     jsonChildren *aChildren = CHILDREN;
     for (unsigned int aIndex = 0; aIndex < aChildren->mChildren.size(); ++aIndex)

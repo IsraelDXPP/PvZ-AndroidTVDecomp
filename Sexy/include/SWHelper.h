@@ -53,9 +53,9 @@ struct SWShapeVertex
     unsigned int mColor;
 };
 
-using DrawTriFunc = int (__fastcall *)(int, unsigned int *, unsigned int,
-                                       Sexy::SWHelper_SWTextureInfo const *,
-                                       Sexy::SWHelper_SWDiffuse &);
+using DrawTriFunc = int (*)(int, unsigned int *, unsigned int,
+                           Sexy::SWHelper_SWTextureInfo const *,
+                           Sexy::SWHelper_SWDiffuse &);
 extern DrawTriFunc gDrawTriFuncs[128];
 
 extern int gClipVertexCount;

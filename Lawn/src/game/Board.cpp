@@ -8649,7 +8649,7 @@ int Board::KeyUp(Sexy::KeyCode theKey)
   if ( (unsigned int)(theKey - 0x130) <= 1 )
     return 0;
 
-  unsigned int aModifiers = mEvent != nullptr ? mEvent->modifierMask : 0;
+  unsigned int aModifiers = mEvent != nullptr ? mEvent->modifierMask.mValue : 0;
   if ( mGamepadControls[0]->OnKeyUp(theKey, aModifiers) == 0
     && theKey == Sexy::KEYCODE_ESCAPE
     && (aModifiers & 0x80) == 0 )

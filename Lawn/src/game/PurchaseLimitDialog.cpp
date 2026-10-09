@@ -102,7 +102,7 @@ PurchaseLimitDialog::PurchaseLimitDialog(LawnApp * theApp, int thePurchaseId)
 // ==========================================================================
 bool PurchaseLimitDialog::isalnum(char theChar)
 {
-    return (unsigned __int8)(theChar - 48) <= 9u || (unsigned __int8)((theChar & 0xDF) - 65) <= 0x19u || theChar > 0xBF;
+    return (std::uint8_t)(theChar - 48) <= 9u || (std::uint8_t)((theChar & 0xDF) - 65) <= 0x19u || theChar > 0xBF;
 }
 
 // ==========================================================================

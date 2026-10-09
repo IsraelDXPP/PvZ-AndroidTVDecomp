@@ -60,6 +60,8 @@ bool BgfxRenderDevice::Init(int width, int height)
     if (!init.platformData.nwh)
         init.platformData.nwh = SDL_GetPointerProperty(properties, SDL_PROP_WINDOW_COCOA_WINDOW_POINTER, nullptr);
     if (!init.platformData.nwh)
+        init.platformData.nwh = SDL_GetPointerProperty(properties, SDL_PROP_WINDOW_ANDROID_WINDOW_POINTER, nullptr);
+    if (!init.platformData.nwh)
     {
         init.platformData.nwh = SDL_GetPointerProperty(properties, SDL_PROP_WINDOW_WAYLAND_SURFACE_POINTER, nullptr);
         if (init.platformData.nwh)

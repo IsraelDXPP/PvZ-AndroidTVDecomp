@@ -525,9 +525,8 @@ int gScrollbarColors[6][3] = {
     { 232, 232, 232 }, { 48, 48, 48 }, { 212, 212, 212 },
     { 0, 0, 0 }, { 132, 132, 132 }, { 255, 255, 255 }
 };
-int gZombieTintRed = 0;
-int gZombieTintGreen = 0;
-int gZombieTintBlue = 0;
+// The TV static initializer @0x12FA0C constructs this Color at 0x69E904.
+const Sexy::Color gZombieMindControlColor(128, 64, 192);
 
 int gCreditOutline[3] = { 0, 0, 0 };
 float gButtonPressOffset[8] = {

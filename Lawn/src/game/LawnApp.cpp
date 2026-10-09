@@ -2635,13 +2635,13 @@ Reanimation * LawnApp::ReanimationTryToGet(ReanimationID theReanimationId)
     return nullptr;
 
   ReanimationHolder *aHolder = mEffectSystem->mReanimationHolder;
-  if ( (unsigned int)(unsigned __int16)theReanimationId >= aHolder->mMaxSize )
+  if ( (unsigned int)(std::uint16_t)theReanimationId >= aHolder->mMaxSize )
     return nullptr;
 
   ReanimationSlot *aSlots = aHolder->mBlock;
-  if ( theReanimationId != aSlots[(unsigned __int16)theReanimationId].mID )
+  if ( theReanimationId != aSlots[(std::uint16_t)theReanimationId].mID )
     return nullptr;
-  return &aSlots[(unsigned __int16)theReanimationId].mItem;
+  return &aSlots[(std::uint16_t)theReanimationId].mItem;
 }
 
 // ==========================================================================
@@ -6676,7 +6676,7 @@ LawnApp::LawnApp()
   // the base's only in the two destructor slots -- so the base object is the
   // same size and is constructed directly here.
   mResourceManager = new Sexy::ResourceManager((Sexy::SexyAppBase *)this);
-  _putenv_s("SEXY_LENOVO_WORKAROUND", "0");
+  SDL_SetEnvironmentVariable(SDL_GetEnvironment(), "SEXY_LENOVO_WORKAROUND", "0", true);
   mLawnSessionTask = nullptr;
   MLogManager = nullptr;
   mLogComposer = nullptr;

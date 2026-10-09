@@ -115,9 +115,14 @@ static void ResolveAssetRoot(LaunchOptions& options)
 {
     if (options.assetRoot != "assets")
         return;
+#if defined(SDL_PLATFORM_ANDROID)
+    // SDL resolves relative file paths inside the APK's assets directory.
+    options.assetRoot = ".";
+#else
     std::string directory = ExecutableDirectory();
     if (!directory.empty())
         options.assetRoot = directory + "/assets";
+#endif
 }
 
 static bool PresentFrame(Sexy::SDLWindow& window, Sexy::BgfxRenderDevice& device,

@@ -56,7 +56,7 @@ static int gSingletonEmptyJSONString = 0;
 // which is libstdc++'s `std::string(first, last)`. The recon helper declared in
 // Sexy/ReconHelpers.h takes (result, data, length) instead, so the iterator pair
 // is reduced to a pointer and a length here. The return value is the data pointer
-// the dump keeps in its `_BYTE *` / `unsigned __int8 *` local.
+// the dump keeps in its `_BYTE *` / `std::uint8_t *` local.
 static const char *ReconStringFromRange(Sexy::String *theResult, const char *theFirst, const char *theLast)
 {
   return Sexy::StringHelpers::_S_construct(
@@ -230,7 +230,7 @@ static char *private_RemoveWhiteSpace(const Sexy::String &theSource, bool theDec
 
   while ( i < theLength )
   {
-    unsigned int aByte = (unsigned __int8)theText[i];
+    unsigned int aByte = (std::uint8_t)theText[i];
 
     // Space, tab, CR and LF are dropped.
     if ( aByte == 9 || aByte == 10 || aByte == 13 || aByte == 32 )
@@ -248,13 +248,13 @@ static char *private_RemoveWhiteSpace(const Sexy::String &theSource, bool theDec
       ++i;
       while ( i < theLength )
       {
-        unsigned int aQuoted = (unsigned __int8)theText[i++];
+        unsigned int aQuoted = (std::uint8_t)theText[i++];
         result[anOut++] = (char)aQuoted;
         if ( aQuoted == 92 )
         {
           if ( i >= theLength )
             break;
-          unsigned int aEscaped = (unsigned __int8)theText[i++];
+          unsigned int aEscaped = (std::uint8_t)theText[i++];
           if ( theDecoded && aEscaped == 34 )
           {
             aSawQuote = 1;
@@ -287,7 +287,7 @@ static char *private_RemoveWhiteSpace(const Sexy::String &theSource, bool theDec
       {
         if ( i + 1 >= theLength )
           break;                     // a lone '/' ends the scan
-        unsigned int aNext = (unsigned __int8)theText[i + 1];
+        unsigned int aNext = (std::uint8_t)theText[i + 1];
         if ( aNext == 42 )
         {
           // "/* ... */"
@@ -330,7 +330,7 @@ static char *private_RemoveWhiteSpace(const Sexy::String &theSource, bool theDec
     }
 
     // Anything outside printable ASCII ends the scan, as in the binary.
-    if ( (unsigned __int8)(aByte - 32) > 0x5E )
+    if ( (std::uint8_t)(aByte - 32) > 0x5E )
       break;
 
     result[anOut++] = (char)aByte;
@@ -704,7 +704,7 @@ JSONWorker * JSONWorker::toUTF8(unsigned char theByte, Sexy::String & theDest)
 // JSONWorker::UnfixString(Sexy::String const&,bool,Sexy::String &)
 // @0052B408  350 bytes
 // ==========================================================================
-unsigned __int8 ** JSONWorker::UnfixString(Sexy::String const& theText, bool theEscape, Sexy::String & theDest)
+std::uint8_t ** JSONWorker::UnfixString(Sexy::String const& theText, bool theEscape, Sexy::String & theDest)
 {
   // @0x52B408. With escaping off the destination is a copy of the source.
   // Otherwise each control character becomes its two-character escape and a

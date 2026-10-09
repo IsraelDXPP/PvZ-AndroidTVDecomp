@@ -51,6 +51,7 @@
 #include "SexyAppBase.h"
 #include "ReconData.h"
 #include "ReconHelpers.h"
+#include "AndroidShims.h"
 #include "PerfTimer.h"
 #include "MemoryImage.h"
 #include "TodParticleEmitter.h"
@@ -988,8 +989,9 @@ bool GetCircleRectOverlap(int theCenterX, int theCenterY, int theRadius, const S
 int GetCurrentDaysSince2000()
 {
     std::time_t aNow = std::time(nullptr);
-    std::tm aLocal;
-    localtime_s(&aLocal, &aNow);
+    std::tm aLocal{};
+    if (!PlatformLocalTime(&aNow, &aLocal))
+        return 0;
     int aSince1901 = aLocal.tm_year - 101;
     if (aSince1901 < 0)
         aSince1901 = aLocal.tm_year - 98;

@@ -817,7 +817,7 @@ void SexyStringToString(void* theDest, unsigned int theSource)
 }
 
 int SWTri_AddDrawTriFunc(int theFormat, int theTexMode, int theAlphaMode,
-                         int theModMode, int theGlobalMode, int theBlendMode, void* theFunc)
+                         int theModMode, int theGlobalMode, int theBlendMode, int (*theFunc)())
 {
     // The software rasteriser is not ported. This project renders through
     // OpenGL 3.3, so registering a batch reports failure. LawnApp::Init only

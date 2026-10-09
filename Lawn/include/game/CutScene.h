@@ -124,7 +124,7 @@ public:
     void AddUpsellZombie(ZombieType theZombieType, int thePosX, int theRow);
     bool ShouldRunUpsellBoard();
     void DrawIntro(Sexy::Graphics * theGraphics);
-    void DrawMPFade(Sexy::Graphics * theGraphics, SexyVector2 & thePos);
+    void DrawMPFade(Sexy::Graphics * theGraphics, const SexyVector2 & thePos);
     void DrawPlantsWonMP(Sexy::Graphics * theGraphics);
     void DrawZombiesWonMP(Sexy::Graphics * theGraphics);
     void DrawGameObjectsHook(BoardRenderItem *aList, int &aCount);

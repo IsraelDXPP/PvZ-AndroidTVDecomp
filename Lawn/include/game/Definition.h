@@ -5,7 +5,7 @@
 
 #include <cstddef>
 
-enum ReanimationType;
+enum ReanimationType : int;
 enum ParticleEffect : int;
 
 struct DefField

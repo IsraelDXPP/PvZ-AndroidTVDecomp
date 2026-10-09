@@ -464,7 +464,7 @@ int Sexy::XMLParser::OpenBinaryFile(Sexy::String const& theFileName)
 
         Sexy::String & aString = mStringList.back();
         aString.Assign("", 0);
-        mBuffer.ReadBytes((unsigned __int8 *)aString.data(), aStringSizes[i]);
+        mBuffer.ReadBytes((std::uint8_t *)aString.data(), aStringSizes[i]);
     }
 
     mElementCount = mBuffer.ReadInt32();

@@ -16,8 +16,11 @@ ipch/
 *.VC.db
 *.VC.VC.opendb
 
-# Build outputs. OutDir is build/<Platform>/<Configuration>/,
-# IntDir is build/obj/. An older layout also wrote under src/build/.
+# CMake presets build under build/<preset>/. Ignore legacy output paths too.
+CMakeUserPresets.json
+CMakeCache.txt
+CMakeFiles/
+cmake-build-*/
 build/
 src/build/
 [Bb]in/
@@ -59,13 +62,11 @@ Win32/
 *.dylib
 *.map
 
-# vcpkg manifest mode writes the installed tree next to vcpkg.json.
-# The manifest itself (vcpkg.json) stays tracked.
+# vcpkg dependencies are installed below vcpkg_installed/.
 vcpkg_installed/
 vcpkg-configuration.json
 
-# Game assets. README says this repo holds reconstructed code only.
-# The StageAssets target copies assets/ next to the executable.
+# Game assets are supplied separately and staged next to the executable.
 assets/
 **/assets/
 screenshots/

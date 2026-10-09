@@ -495,9 +495,8 @@ void Zombie::OverrideParticleScale(TodParticleSystem * theParticleSystem)
 // Zombie::OverrideParticleColor(TodParticleSystem *)
 // @001A8668  82 bytes
 // ==========================================================================
-// A mind-controlled zombie tints its particles white; a chilled or frozen one
-// tints them blue. The static the mind-controlled arm passes is 0xFFFFFFFF,
-// i.e. white.
+// A mind-controlled zombie tints its particles purple; a chilled or frozen one
+// tints them blue. The mind-controlled branch uses the Color at 0x69E904.
 void Zombie::OverrideParticleColor(TodParticleSystem * theParticleSystem)
 {
     if (theParticleSystem == nullptr)
@@ -507,8 +506,7 @@ void Zombie::OverrideParticleColor(TodParticleSystem * theParticleSystem)
     // the static constructor installs; a chilled or frozen one tints them blue.
     if (mMindControlled)
     {
-        Sexy::Color aColor(gZombieTintRed, gZombieTintGreen, gZombieTintBlue, 255);
-        theParticleSystem->OverrideColor(nullptr, aColor);
+        theParticleSystem->OverrideColor(nullptr, gZombieMindControlColor);
     }
     else
     {
@@ -3998,9 +3996,8 @@ int Zombie::DrawReanim(Sexy::Graphics * aGraphics, ZombieDrawPosition & aDrawPos
     {
         if (mMindControlled)
         {
-            // The mind-controlled tint is the three globals the static
-            // constructor fills in, plus the fade alpha.
-            aColorOverride = Sexy::Color(gZombieTintRed, gZombieTintGreen, gZombieTintBlue, aFadeAlpha);
+            aColorOverride = gZombieMindControlColor;
+            aColorOverride.mAlpha = aFadeAlpha;
             aExtraAdditiveColor = aColorOverride;
             aEnableExtraAdditiveDraw = true;
         }
@@ -4166,10 +4163,10 @@ void Zombie::DrawBungeeReanim(Sexy::Graphics * aGraphics, ZombieDrawPosition & a
     // through to the held plant. The graphics transform is saved around the draw.
     Zombie *aTarget = nullptr;
     if (mRelatedZombieID != ZOMBIEID_NULL
-        && (unsigned int)(unsigned __int16)mRelatedZombieID < mBoard->mZombies.mMaxSize)
+        && (unsigned int)(std::uint16_t)mRelatedZombieID < mBoard->mZombies.mMaxSize)
     {
         ZombieSlot *aSlots = mBoard->mZombies.mBlock;
-        ZombieSlot *aTargetSlot = aSlots + (unsigned __int16)mRelatedZombieID;
+        ZombieSlot *aTargetSlot = aSlots + (std::uint16_t)mRelatedZombieID;
         if (mRelatedZombieID == aTargetSlot->mID)
             aTarget = &aTargetSlot->mItem;
     }
@@ -4195,10 +4192,10 @@ void Zombie::DrawBungeeReanim(Sexy::Graphics * aGraphics, ZombieDrawPosition & a
         aGraphics->SetColorizeImages(aSavedColorize);
     }
     else if (mTargetPlantID != PLANTID_NULL
-             && (unsigned int)(unsigned __int16)mTargetPlantID < mBoard->mPlants.mMaxSize)
+             && (unsigned int)(std::uint16_t)mTargetPlantID < mBoard->mPlants.mMaxSize)
     {
         PlantSlot *aSlots = mBoard->mPlants.mBlock;
-        PlantSlot *aPlantSlot = aSlots + (unsigned __int16)mTargetPlantID;
+        PlantSlot *aPlantSlot = aSlots + (std::uint16_t)mTargetPlantID;
         if (mTargetPlantID == aPlantSlot->mID)
         {
             Plant *aPlant = &aPlantSlot->mItem;
@@ -8409,7 +8406,7 @@ void Zombie::BungeeDie()
 
     // The plant this bungee was carrying: if it is still alive, kill it.
     if (mTargetPlantID != 0
-        && (unsigned int)(unsigned __int16)mTargetPlantID < mBoard->mPlants.mMaxSize)
+        && (unsigned int)(std::uint16_t)mTargetPlantID < mBoard->mPlants.mMaxSize)
     {
         PlantSlot *aPlantSlot = mBoard->mPlants.mBlock
                               + (unsigned short)mTargetPlantID;

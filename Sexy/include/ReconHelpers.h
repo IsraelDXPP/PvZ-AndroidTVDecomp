@@ -372,7 +372,7 @@ void SexyStringToString(void* theDest, unsigned int theSource);
 // _ZN4Sexy20SWTri_AddDrawTriFuncE... @0x3ab6e4 (106 bytes) -- register a
 // software triangle batch with the renderer. LawnApp::Init primes it.
 int SWTri_AddDrawTriFunc(int theFormat, int theTexMode, int theAlphaMode,
-                         int theModMode, int theGlobalMode, int theBlendMode, void* theFunc);
+                         int theModMode, int theGlobalMode, int theBlendMode, int (*theFunc)());
 
 // _ZN4Sexy44DrawTriangle_8888_TEX1_TALPHA1_MOD0_GLOB0_BLEND1E... @0x369e2c
 // (5504 bytes) -- the 32-bit software rasteriser the batcher binds to. One

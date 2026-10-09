@@ -969,7 +969,7 @@ enum ReanimationID : int
 // ReanimationType is the binary's own enum. The values are the row indexes of
 // gLawnReanimationArray (TV table at 0x69958C, 178 rows). REANIM_NONE is the
 // "no reanimation" sentinel the plant and zombie definitions store.
-enum ReanimationType
+enum ReanimationType : int
 {
     REANIM_NONE = -1,
     REANIM_LOADBAR_SPROUT = 0,

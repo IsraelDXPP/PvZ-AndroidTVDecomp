@@ -1,6 +1,6 @@
 # LawnProjectTV
 
-把《植物大战僵尸》电视 / Android 版里的 `libGameMain.so` 还原成可在 Windows 上编译、运行的 C++ 工程。游戏逻辑对照原二进制还原，桌面平台层使用 SDL3 窗口、输入和音频，以及 bgfx 渲染。
+把《植物大战僵尸》电视 / Android 版里的 `libGameMain.so` 还原成使用 CMake 构建的 C++ 工程。游戏逻辑对照原二进制还原，平台层使用 SDL3 窗口、输入和音频，以及 bgfx 渲染。预设覆盖 Windows、macOS、Linux 和 Android 原生共享库。
 
 当前状态是**重建进行中**。工程可以编出 `LawnTV.exe` 并进入帧循环，但大量函数仍是对着反编译结果逐段誊写的，启动期的堆损坏和布局偏差还在查。不要把它当成能完整通关的客户端。
 
@@ -15,14 +15,15 @@
 | `Sexy/src/Platform` | SDL3 窗口、输入、手柄、音频、文件及 bgfx 渲染 |
 | `Sexy/include/Runtime` | ARM 反编译结果的运行库兼容实现和 `Sexy::String` |
 | `Lawn/src/main.cpp` | SDL3 应用回调入口和逐帧更新 |
+| `CMakeLists.txt`、`CMakePresets.json` | 跨平台构建及各平台 Debug / Release 预设 |
+| `cmake` | 依赖查找、资源复制和 Android vcpkg triplets |
 | `vcpkg.json` | 第三方库清单 |
 | `Tools` | [SCBP 着色器编译打包脚本与格式说明](Tools/scbp.md) |
 | `Shaders` | [游戏着色器源码及多平台 SCBP 包](Shaders/README.md) |
-| `Config/OriginalSpawns` | [统一关卡 XML：冒险周目、所有 TV 模式及生存阶段](Config/OriginalSpawns/README.md) |
 
 原 Android 构建从 JNI 进 `Native::BridgeApp`，由 `Sexy::AndroidAppDriver` 驱动。当前入口使用 SDL3 的 `SDL_MAIN_USE_CALLBACKS`：`SDL_AppInit` 构造 `LawnApp`，`SDL_AppIterate` 更新并绘制一帧，`SDL_AppEvent` 转换窗口和输入事件，`SDL_AppQuit` 停止加载线程并释放资源。平台入口和外层事件循环由 SDL 管理，无需另写 Windows / Android 的 main 或 JNI 入口；帧率通过 `SDL_HINT_MAIN_CALLBACK_RATE` 设置，保留 `SEXY_MAX_FPS` 和片头 30 FPS 的行为。
 
-同步的 `Dialog::WaitForResult` 仍保留模态等待事件泵，复用回调入口的事件转换逻辑。后续移植 Android 时仍需配置 SDL 的 Android 工程、打包资源和适配渲染窗口；同步对话框也可进一步改为异步流程。
+同步的 `Dialog::WaitForResult` 仍保留模态等待事件泵，复用回调入口的事件转换逻辑。Android 构建输出供 SDLActivity 加载的共享库，窗口通过 SDL 的 ANativeWindow 属性交给 bgfx；APK 工程和资源打包方式见下方构建说明。
 
 资源路径按 APK 里的 `files/` 来解析。把资源解到可执行文件旁边的 `assets/`（或 `assets/files/`）即可；程序会在发现 `files` 子目录时自动走进去。也可以用 `--assets` 指到别的目录。
 
@@ -40,23 +41,86 @@
 
 需要：
 
-- Visual Studio 2022 或更新（工程工具集是 `v145`，即 VS 2026；用 2022 时把工具集改成已安装的版本）
-- 带 manifest 模式的 [vcpkg](https://github.com/microsoft/vcpkg)，并集成进 MSBuild
-- **Win32（x86）**。类布局按 32 位 ARM 二进制的字段偏移还原，x64 配置虽然写在工程里，但对象大小对不上。
+- CMake 3.25 或更新、Ninja，以及支持 C++17 的编译器。
+- [vcpkg](https://github.com/microsoft/vcpkg)，设置 `VCPKG_ROOT` 环境变量指向包含 `vcpkg.exe`（或 `vcpkg`）及 `scripts` 的目录。
+- Windows 的游戏代码和 vcpkg 依赖统一使用 MSVC，需要 Visual Studio 的 C++ 开发工具和 Windows SDK；macOS 使用 Xcode Command Line Tools；Linux 使用 GCC 或 Clang。
+- Android 另需 NDK，设置 `ANDROID_NDK_HOME` 环境变量指向 NDK 目录。
 
-依赖见 `vcpkg.json`：SDL3、SDL3_net、bgfx（multithreaded、tools）、SDL3_image（PNG、JPEG）、GLM、zlib、minizip-ng、bzip2、libogg、libvorbis、libopenmpt、nlohmann-json、pugixml、stb。SDL3_image 优先解码图像，stb 补充其他格式；Vorbis/openmpt 解码后交给 SDL3 音频流，SDL3_net 负责日志接口的主机名解析。游戏字体使用原资源的位图字体，无需 FreeType。
+所有预设使用 `$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake`，不绑定本机绝对路径。配置时 vcpkg 按 `vcpkg.json` 自动安装对应平台的依赖到 `vcpkg_installed/cmake`。Android 将 `$env{ANDROID_NDK_HOME}/build/cmake/android.toolchain.cmake` 作为链式工具链，游戏和依赖使用相同 ABI、Android API 28 和 `c++_shared`。
 
-```text
-vcpkg install --triplet x86-windows
+依赖见 `vcpkg.json`：SDL3、SDL3_net、bgfx（multithreaded）、SDL3_image（PNG、JPEG）、GLM、zlib、minizip-ng、bzip2、libogg、libvorbis、libopenmpt、nlohmann-json、pugixml、stb。SDL3_image 优先解码图像，stb 补充其他格式；Vorbis/openmpt 解码后交给 SDL3 音频流。Linux 默认开启 `linux-audio` feature，提供 SDL 的 ALSA 音频输出。游戏字体使用原资源的位图字体，无需 FreeType。
+
+### 预设
+
+下列每个名称都带 `-debug` 和 `-release` 两种后缀，配置预设和构建预设同名。
+
+| 平台 | 预设名称前缀 | 产物 |
+| --- | --- | --- |
+| Windows x64 / x86 | `windows-x64` / `windows-x86` | `LawnTV.exe` |
+| macOS Apple Silicon / Intel | `macos-arm64` / `macos-x64` | `LawnTV` |
+| Linux x64 / arm64 | `linux-x64` / `linux-arm64` | `LawnTV` |
+| Android arm64-v8a | `android-arm64` | `libmain.so` |
+| Android armeabi-v7a | `android-armv7` | `libmain.so` |
+| Android x86_64 模拟器 | `android-x64` | `libmain.so` |
+
+桌面预设按宿主系统显示，Android 预设可在三个桌面系统交叉编译。Linux 预设用于对应架构的本机构建；arm64 Linux 交叉编译还需另行提供编译器和 sysroot。macOS 的架构与 vcpkg triplet 一致，两个架构分别构建。
+
+### 桌面构建
+
+在项目根目录执行。Windows 的命令行需要先打开匹配架构的 **Developer PowerShell / Native Tools Command Prompt**；Visual Studio 可以直接打开项目文件夹并选择 CMake 预设。
+
+```powershell
+# Windows；按自己的安装位置设置 VCPKG_ROOT。
+$env:VCPKG_ROOT = 'C:/vcpkg'
+cmake --preset windows-x64-debug
+cmake --build --preset windows-x64-debug --parallel
 ```
 
-用 Visual Studio 打开 `Lawn.slnx`，选 **Debug | x86** 或 **Release | x86**（项目平台为 Win32）生成。产物是仓库根下的：
-
-```text
-build\Win32\<Configuration>\LawnTV.exe
+```sh
+# macOS / Linux；按自己的安装位置设置 VCPKG_ROOT。
+export VCPKG_ROOT="$HOME/vcpkg"
+cmake --preset macos-arm64-release
+cmake --build --preset macos-arm64-release --parallel
+# Linux 对应使用 linux-x64-debug、linux-x64-release 等预设。
 ```
 
-vcpkg 的 MSBuild 集成自动复制所需 DLL，Lawn 项目自动把 `Shaders/*.scbp` 复制到 exe 旁边的 `assets/shaders`，并把统一的 `Config/OriginalSpawns/levels.xml` 复制到资源根的 `properties/levels.xml`（支持已有 `assets/files/`）。另外放上游戏资源目录；使用 `--assets` 时把着色器和统一关卡配置复制到所指定的资源根。关卡配置会按模式、冒险周目和生存阶段自动选择，构建会更新默认目录里的 XML。
+Linux 需要 SDL / bgfx 对应的窗口和音频开发库。Ubuntu / Debian 可先安装：
+
+```sh
+sudo apt install build-essential cmake ninja-build pkg-config autoconf automake libtool \
+  libx11-dev libxft-dev libxext-dev libwayland-dev libxkbcommon-dev \
+  libegl1-mesa-dev libgl1-mesa-dev libibus-1.0-dev
+```
+
+产物位于 `build/<预设名称>/bin/Debug/` 或 `build/<预设名称>/bin/Release/`。Windows 所需 DLL 由 vcpkg 的 app-local 部署复制到同目录。每次构建都会更新 `assets/shaders` 中的四个 SCBP 包，修改着色器包后无需重新编译 C++。
+
+游戏资源可自行放入产物旁的 `assets`，也可以配置时传入 `-DLAWN_ASSETS_DIR=<资源目录>`，构建自动复制该目录的内容。例如本项目的本地资源位置：
+
+```powershell
+cmake --preset windows-x64-debug -DLAWN_ASSETS_DIR='D:/CXXProjects/LawnProjectTV-Resources'
+cmake --build --preset windows-x64-debug --parallel
+```
+
+此选项只复制已有资源，不解包或重新打包。也可以运行时使用 `--assets` 指定资源根；此时需将 `Shaders/*.scbp` 放到该目录的 `shaders` 子目录。
+
+### Android 共享库
+
+```powershell
+$env:VCPKG_ROOT = 'C:/vcpkg'
+$env:ANDROID_NDK_HOME = 'C:/Android/Sdk/ndk/<已安装版本>'
+cmake --preset android-arm64-release
+cmake --build --preset android-arm64-release --parallel
+```
+
+macOS / Linux 使用相同命令，环境变量改用 `export` 设置。支持的 Android 最低版本是 API 28（Android 9），在三个 Android triplet 和预设中统一指定。
+
+`cmake/triplets/lawn-*-android.cmake` 将 SDL3 编为共享库，其余第三方库编为静态库并启用 PIC。构建输出目录会同时放置 `libmain.so`、`libSDL3.so` 和 NDK 的 `libc++_shared.so`，分别复制到 Android 工程的 `app/src/main/jniLibs/<ABI>/`。使用与 vcpkg SDL3 版本一致的 SDL Android Java 工程，以 SDLActivity 加载 `SDL3` 和 `main`；这里生成的是 SDL 应用库，APK 仍由 Android 工程构建。
+
+将产物 `assets/` 内的文件复制到 `app/src/main/assets/`，例如 `app/src/main/assets/main.pak`、`en_us.pak` 和 `shaders/`。Android 默认资源根为 `.`，SDL 从 APK assets 读取相对路径，存档仍由 `SDL_GetPrefPath` 写入应用数据目录。
+
+### 重新编译着色器工具
+
+普通构建使用仓库已生成的 SCBP 包。需要重新生成时，在配置命令追加 `-DVCPKG_MANIFEST_FEATURES=shader-tools`；该 feature 将 bgfx 工具构建为宿主机程序，Android 不会把 shaderc 编进目标库。生成步骤见 [Shaders/README.md](Shaders/README.md)。本机私有覆盖配置可写入不提交的 `CMakeUserPresets.json`。
 
 ## 渲染后端配置
 
@@ -66,7 +130,7 @@ vcpkg 的 MSBuild 集成自动复制所需 DLL，Lawn 项目自动把 `Shaders/*
 set SEXY_VIDEO_DRIVER=dx11
 ```
 
-可选 `auto`（默认）、`dx11`、`dx12`、`gl`、`vk`、`metal`，修改后重启。指定后端不可用或着色器包缺失会报告启动失败。Windows 已验证 DX11、DX12、GL、Vulkan；Metal 分段已打包。窗口连接通过 SDL 属性支持 Windows、Cocoa、X11 和 Wayland，Linux/macOS 尚未实机验证，游戏还原代码仍有独立的 32 位布局假设。配置示例见 [setup.env.example](setup.env.example)。
+可选 `auto`（默认）、`dx11`、`dx12`、`gl`、`vk`、`metal`，修改后重启。指定后端不可用或着色器包缺失会报告启动失败。Windows 已验证 DX11、DX12、GL、Vulkan；Metal 分段已打包。窗口连接通过 SDL 属性支持 Windows、Cocoa、X11、Wayland 和 Android，Linux/macOS/Android 尚未实机验证。配置示例见 [setup.env.example](setup.env.example)。
 
 显卡调试层与性能标记默认关闭，包括 C++ Debug 构建。需要检查 GPU 调用时，在 `setup.env` 设置 `SEXY_BGFX_DEBUG=1`；需要 GPU 性能标记时设置 `SEXY_BGFX_PROFILE=1`。这些选项会增加驱动和调试器的开销，修改后重启生效。
 
@@ -78,7 +142,7 @@ set SEXY_VIDEO_DRIVER=dx11
 
 手柄优先使用 SDL 自带映射；缺少映射的通用 HID 手柄也会枚举并生成基础映射，默认轴 0/1 为左摇杆、轴 2/3 为右摇杆，按钮 0/1/2/3 为 A/B/X/Y。不同设备的布局可以用资源根下的 `gamecontrollerdb.txt` 覆盖，或在 `setup.env` 中指定 `SDL_GAMECONTROLLERCONFIG_FILE`（资源根相对路径或绝对路径），也支持 `SDL_GAMECONTROLLERCONFIG` 映射字符串。连接日志会记录设备名、GUID 和使用的基础映射。已有映射的 Xbox 手柄保持 SDL 的映射，另一只手柄断开时保留仍连接设备的绑定。
 
-应用驱动使用普通 C++ 虚函数和具名字段，不再读取对象偏移或拼接 Win32 虚表。原账号/商店服务使用 `LocalGameCenter`；原 Java 通知和 RPC 服务保持已有的不可用行为。bgfx 获取系统窗口句柄的适配集中在 SDL 窗口属性接口，无直接 Win32 API 调用。现有 Visual Studio 工程中的 `Win32` 仍是 x86 构建配置名称。
+应用驱动使用普通 C++ 虚函数和具名字段，不再读取对象偏移或拼接 Win32 虚表。原账号/商店服务使用 `LocalGameCenter`；原 Java 通知和 RPC 服务保持已有的不可用行为。bgfx 获取系统窗口句柄的适配集中在 SDL 窗口属性接口，无直接 Win32 API 调用。
 
 ## 运行
 

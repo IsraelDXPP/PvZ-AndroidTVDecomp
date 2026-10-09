@@ -11,7 +11,7 @@
   "$comment-dependencies": {
     "sdl3": "Window creation, input, game controllers and audio device/stream output. Replaces GLFW and OpenAL Soft in the platform layer; existing codecs continue to decode audio to PCM.",
     "sdl3-net": "Portable hostname resolution and typed sockets for the existing logging interfaces.",
-    "bgfx": "Cross-platform rendering backend replacing direct OpenGL and glad. Enables multithreaded rendering and the shaderc, texturec and geometryc tools for the native Windows build.",
+    "bgfx": "Cross-platform renderer. Runtime builds use the multithreaded library; the shader-tools feature builds native tools separately for regenerating SCBP packages.",
     "glm": "Matrix/vector math for the transform pipeline (SexyMatrix3 / SexyTransform2D / SexyMatrix4).",
     "sdl3-image": "Primary image decoder producing CPU surfaces for upload to bgfx. PNG and JPEG features bring libpng and libjpeg-turbo as transitive dependencies.",
     "zlib": "Inflate for .pak archives and compressed resource streams.",
@@ -32,8 +32,7 @@
       "name": "bgfx",
       "default-features": false,
       "features": [
-        "multithreaded",
-        "tools"
+        "multithreaded"
       ]
     },
     "glm",
@@ -61,5 +60,37 @@
     "pugixml",
     "stb",
     "libopenmpt"
-  ]
+  ],
+  "default-features": [
+    {
+      "name": "linux-audio",
+      "platform": "linux"
+    }
+  ],
+  "features": {
+    "linux-audio": {
+      "description": "SDL ALSA audio output on Linux",
+      "dependencies": [
+        {
+          "name": "sdl3",
+          "features": [
+            "alsa"
+          ]
+        }
+      ]
+    },
+    "shader-tools": {
+      "description": "Native bgfx shaderc, texturec and geometryc tools for regenerating SCBP packages",
+      "dependencies": [
+        {
+          "name": "bgfx",
+          "host": true,
+          "default-features": false,
+          "features": [
+            "tools"
+          ]
+        }
+      ]
+    }
+  }
 }

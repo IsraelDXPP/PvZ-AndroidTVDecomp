@@ -1606,7 +1606,7 @@ static bool IsWideScreen(LawnApp *theApp)
 // CutScene::DrawMPFade(Sexy::Graphics *,Sexy::SexyVector2 &)
 // @00179588  484 bytes
 // ==========================================================================
-void CutScene::DrawMPFade(Sexy::Graphics * theGraphics, SexyVector2 & thePos)
+void CutScene::DrawMPFade(Sexy::Graphics * theGraphics, const SexyVector2 & thePos)
 {
   // The hole the fade opens around the winner, as a multiple of the transition
   // image's own size: it sits at 0.45 while the level runs, grows out of nothing

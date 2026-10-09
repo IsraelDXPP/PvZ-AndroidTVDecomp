@@ -15,6 +15,8 @@
 
 #include <vector>
 
+namespace Sexy { class Color; }
+
 class ReanimatorDefinition;
 class TodParticleDefinition;
 class TrailDefinition;
@@ -165,9 +167,8 @@ extern int gDialogButtonColors[6][3];
 // Dialog's seven colours at 0x69B784.
 extern int gDialogColors[7][3];
 
-extern int gZombieTintRed;
-extern int gZombieTintGreen;
-extern int gZombieTintBlue;
+// Mind-control tint at 0x69E904, initialized by the TV constructor @0x12FA0C.
+extern const Sexy::Color gZombieMindControlColor;
 
 // The outline colour CreditScreen draws next to Color::White, at 0x71D004.
 // All three words are zero in the binary.
