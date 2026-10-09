@@ -1,6 +1,7 @@
 #pragma once
 
 #include <SDL3/SDL.h>
+#include <atomic>
 #include <deque>
 #include "ReconTypes.h"
 
@@ -14,7 +15,8 @@ public:
     int mHeight = 0;
     bool mWindowed = true;
     bool mActive = true;
-    bool mClosed = false;
+    // SDL may dispatch mobile termination events from another thread.
+    std::atomic<bool> mClosed{false};
     bool mVSync = true;
     double mFrameTime = 0.0;
 
@@ -23,6 +25,9 @@ public:
     bool Create(const char* theTitle, int theWidth, int theHeight,
                 bool theWindowed = true, bool theVSync = true, bool theVisible = true);
     void Destroy();
+    void ProcessEvent(const SDL_Event& theEvent);
+    void UpdateFrame();
+    // Compatibility pump for synchronous modal waits; the main loop uses callbacks.
     bool ProcessEvents();
     void WaitForFrame(double theFrameStart, int theMaxFPS);
     void SetVSync(bool theVSync);

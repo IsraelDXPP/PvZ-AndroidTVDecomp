@@ -187,8 +187,8 @@ void AppDriver_DestroyWindow(SDLAppDriver* theSelf)
     if (!theSelf || !theSelf->mWindow)
         return;
 
-    // SDL itself stays initialised: it is torn down once, by ShutdownSDL(),
-    // after every window is gone.
+    // SDL stays initialized until the entry point has destroyed every window;
+    // SDL's callback runner then performs the final SDL_Quit.
     if (theSelf->mOwnsWindow)
     {
         theSelf->mWindow->Destroy();
@@ -759,8 +759,8 @@ int SDLAppDriver::TakeScreenshot(Sexy::MemoryImage* theImage)
 
 // [88] DoMainLoop()
 //
-// The frame loop lives in main.cpp, which owns the message pump; the driver
-// only reports that the loop is entered and left normally.
+// SDL schedules the frame and event callbacks in main.cpp; the driver only
+// reports that the loop is entered and left normally.
 int SDLAppDriver::DoMainLoop()
 {
     return 1;

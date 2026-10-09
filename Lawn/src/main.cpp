@@ -1,10 +1,14 @@
-// main.cpp -- SDL3 entry point.
+// main.cpp -- SDL3 callback entry point.
 //
-//   Lawn.exe [--assets <dir>] [--width N] [--height N]
+//   LawnTV.exe [--assets <dir>] [--width N] [--height N]
 //              [--frames N] [--screenshot <file>] [--headless]
 //
 // F12 writes the offscreen frame to screenshots/shot_NNNN.png.
 // --screenshot reads that same offscreen target, so it works with --headless.
+
+#define SDL_MAIN_USE_CALLBACKS 1
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_main.h>
 
 #include "LawnApp.h"
 #include "Platform/MpegVideo.h"
@@ -16,8 +20,8 @@
 #include "SexyAppBase.h"
 #include "SexyTypes.h"
 
-#include <SDL3/SDL.h>
-#include <SDL3/SDL_main.h>
+#include <atomic>
+#include <memory>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -36,8 +40,6 @@ static void LogLine(const char* format, ...)
     fputc('\n', stderr);
 }
 
-
-
 struct LaunchOptions
 {
     std::string assetRoot = "assets";
@@ -49,6 +51,17 @@ struct LaunchOptions
 #ifdef _DEBUG
     bool debugKeys = false;
 #endif
+};
+
+struct ApplicationState
+{
+    LaunchOptions options;
+    Sexy::SDLWindow window;
+    std::unique_ptr<LawnApp> app;
+    std::unique_ptr<Sexy::MemoryImage> capture;
+    int frameCount = 0;
+    int callbackRate = -1;
+    std::atomic<bool> success{true};
 };
 
 static bool TakeValue(const std::vector<std::string>& args, size_t& index, std::string& value)
@@ -136,93 +149,110 @@ static bool PresentFrame(Sexy::SDLWindow& window, Sexy::BgfxRenderDevice& device
     return success;
 }
 
-static int Run(const LaunchOptions& options)
+static void UpdateCallbackRate(ApplicationState& state)
 {
-    Sexy::SDLWindow window;
-    if (!window.Create("Plants vs. Zombies", options.width, options.height,
-                       true, true, !options.headless))
+    int maxFPS = MpegVideoIsPlaying() != 0 ? 30 : state.app->mMaxFPS;
+    if (maxFPS < 0)
+        maxFPS = 0;
+    if (state.callbackRate != maxFPS)
     {
-        LogLine("Lawn: failed to create the window");
-        return 1;
+        // SDL controls scheduling; callbacks do one frame and return without
+        // sleeping. A zero rate preserves SEXY_MAX_FPS=0 (uncapped).
+        std::string rate = std::to_string(maxFPS);
+        SDL_SetHint(SDL_HINT_MAIN_CALLBACK_RATE, rate.c_str());
+        state.callbackRate = maxFPS;
     }
-
-    LawnApp* app = new LawnApp();
-#ifdef _DEBUG
-    if (options.debugKeys)
-        app->HandleCmdLineParam("-tod", "");
-#endif
-    app->HardwareInit();
-    app->Startup();
-
-    Sexy::MemoryImage capture;
-
-    if (Sexy::BgfxRenderDevice::sCurrent == nullptr)
-    {
-        LogLine("Lawn: graphics startup failed; check SEXY_VIDEO_DRIVER and assets/shaders");
-        app->mCloseRequest = true;
-        app->WaitForLoadingThread();
-        app->Shutdown();
-        delete app;
-        return 1;
-    }
-    app->Start();
-    bool success = true;
-
-    int frames = 0;
-    while (!window.mClosed)
-    {
-        // SEXY_MAX_FPS is the frame cap SexyAppBase reads at construction.
-        // The default is 60; an explicit zero leaves the loop uncapped.
-        double frameStart = window.GetTime();
-
-        if (!window.ProcessEvents())
-            break;
-
-
-
-        // UpdateAppStep returns false when the app has shut down. The bool it
-        // writes means "a widget update ran", and the first call of a pair
-        // only drains input, so the frame takes both calls.
-        if (!app->UpdateAppStep(nullptr))
-            break;
-        if (!app->UpdateAppStep(nullptr))
-            break;
-
-        if (Sexy::BgfxRenderDevice::sCurrent != nullptr)
-            success = PresentFrame(window, *Sexy::BgfxRenderDevice::sCurrent, capture, options, frames) && success;
-
-
-
-        ++frames;
-        if (options.frames > 0 && frames >= options.frames)
-            break;
-
-        // The intro runs at the movie rate. Other screens use the optional
-        // SEXY_MAX_FPS cap and the window's vertical synchronization.
-        int aMaxFps = app->mMaxFPS;
-        if (MpegVideoIsPlaying() != 0)
-            aMaxFps = 30;
-        window.WaitForFrame(frameStart, aMaxFps);
-    }
-
-    LogLine("Lawn: exited after %d frame(s)", frames);
-    // Stop background loading before the graphics device is destroyed.
-    app->mCloseRequest = true;
-    app->WaitForLoadingThread();
-    MpegVideoClose();
-    app->Shutdown();
-    delete app;
-    return success ? 0 : 1;
 }
 
-int main(int argc, char** argv)
+SDL_AppResult SDLCALL SDL_AppInit(void** appstate, int argc, char** argv)
 {
-    LaunchOptions options = ParseCommandLine(argc, argv);
+    ApplicationState* application = new ApplicationState();
+    // SDL_AppQuit is also called when initialization fails. Transfer ownership
+    // before acquiring resources so every exit uses the same cleanup path.
+    *appstate = application;
+
+    application->options = ParseCommandLine(argc, argv);
+    LaunchOptions& options = application->options;
     ResolveAssetRoot(options);
     Sexy::SDLFile::SetAssetRoot(options.assetRoot);
     LogLine("Lawn: asset root = %s", Sexy::SDLFile::GetAssetRoot().c_str());
 
-    int result = Run(options);
-    Sexy::ShutdownSDL();
-    return result;
+    if (!application->window.Create("Plants vs. Zombies", options.width, options.height,
+                                    true, true, !options.headless))
+    {
+        LogLine("Lawn: failed to create the window: %s", SDL_GetError());
+        return SDL_APP_FAILURE;
+    }
+
+    application->app = std::make_unique<LawnApp>();
+    LawnApp& app = *application->app;
+#ifdef _DEBUG
+    if (options.debugKeys)
+        app.HandleCmdLineParam("-tod", "");
+#endif
+    app.HardwareInit();
+    app.Startup();
+
+    if (Sexy::BgfxRenderDevice::sCurrent == nullptr)
+    {
+        LogLine("Lawn: graphics startup failed; check SEXY_VIDEO_DRIVER and assets/shaders");
+        return SDL_APP_FAILURE;
+    }
+    application->capture = std::make_unique<Sexy::MemoryImage>();
+    app.Start();
+    UpdateCallbackRate(*application);
+    return SDL_APP_CONTINUE;
+}
+
+SDL_AppResult SDLCALL SDL_AppIterate(void* appstate)
+{
+    ApplicationState& state = *static_cast<ApplicationState*>(appstate);
+    if (state.window.mClosed)
+        return state.success ? SDL_APP_SUCCESS : SDL_APP_FAILURE;
+
+    // SDL has already delivered this iteration's events through SDL_AppEvent.
+    state.window.UpdateFrame();
+    // The first step drains game input; the second updates widgets and draws.
+    if (!state.app->UpdateAppStep(nullptr) || !state.app->UpdateAppStep(nullptr))
+        return state.success ? SDL_APP_SUCCESS : SDL_APP_FAILURE;
+
+    if (Sexy::BgfxRenderDevice::sCurrent != nullptr)
+        state.success = PresentFrame(state.window, *Sexy::BgfxRenderDevice::sCurrent,
+                                     *state.capture, state.options, state.frameCount) && state.success;
+
+    ++state.frameCount;
+    if (state.options.frames > 0 && state.frameCount >= state.options.frames)
+        return state.success ? SDL_APP_SUCCESS : SDL_APP_FAILURE;
+
+    UpdateCallbackRate(state);
+    return SDL_APP_CONTINUE;
+}
+
+SDL_AppResult SDLCALL SDL_AppEvent(void* appstate, SDL_Event* event)
+{
+    ApplicationState& state = *static_cast<ApplicationState*>(appstate);
+    state.window.ProcessEvent(*event);
+    if (state.window.mClosed)
+        return state.success ? SDL_APP_SUCCESS : SDL_APP_FAILURE;
+    return SDL_APP_CONTINUE;
+}
+
+void SDLCALL SDL_AppQuit(void* appstate, SDL_AppResult)
+{
+    std::unique_ptr<ApplicationState> state(static_cast<ApplicationState*>(appstate));
+    if (!state)
+        return;
+
+    LogLine("Lawn: exited after %d frame(s)", state->frameCount);
+    if (state->app)
+    {
+        // Loading and video must stop while the app and graphics still exist.
+        state->app->mCloseRequest = true;
+        state->app->WaitForLoadingThread();
+        MpegVideoClose();
+        state->capture.reset();
+        state->app->Shutdown();
+        state->app.reset();
+    }
+    // The state destroys the window last. SDL calls SDL_Quit after this returns.
 }

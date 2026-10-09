@@ -14,13 +14,15 @@
 | `Sexy` | PopCap SexyApp 框架的还原（控件、资源、渲染接口） |
 | `Sexy/src/Platform` | SDL3 窗口、输入、手柄、音频、文件及 bgfx 渲染 |
 | `Sexy/include/Runtime` | ARM 反编译结果的运行库兼容实现和 `Sexy::String` |
-| `Lawn/src/main.cpp` | SDL3 入口和帧循环 |
+| `Lawn/src/main.cpp` | SDL3 应用回调入口和逐帧更新 |
 | `vcpkg.json` | 第三方库清单 |
 | `Tools` | [SCBP 着色器编译打包脚本与格式说明](Tools/scbp.md) |
 | `Shaders` | [游戏着色器源码及多平台 SCBP 包](Shaders/README.md) |
 | `Config/OriginalSpawns` | [统一关卡 XML：冒险周目、所有 TV 模式及生存阶段](Config/OriginalSpawns/README.md) |
 
-原 Android 构建从 JNI 进 `Native::BridgeApp`，由 `Sexy::AndroidAppDriver` 驱动。当前由 SDL3 的 `main` 构造 `LawnApp` 并跑帧循环。
+原 Android 构建从 JNI 进 `Native::BridgeApp`，由 `Sexy::AndroidAppDriver` 驱动。当前入口使用 SDL3 的 `SDL_MAIN_USE_CALLBACKS`：`SDL_AppInit` 构造 `LawnApp`，`SDL_AppIterate` 更新并绘制一帧，`SDL_AppEvent` 转换窗口和输入事件，`SDL_AppQuit` 停止加载线程并释放资源。平台入口和外层事件循环由 SDL 管理，无需另写 Windows / Android 的 main 或 JNI 入口；帧率通过 `SDL_HINT_MAIN_CALLBACK_RATE` 设置，保留 `SEXY_MAX_FPS` 和片头 30 FPS 的行为。
+
+同步的 `Dialog::WaitForResult` 仍保留模态等待事件泵，复用回调入口的事件转换逻辑。后续移植 Android 时仍需配置 SDL 的 Android 工程、打包资源和适配渲染窗口；同步对话框也可进一步改为异步流程。
 
 资源路径按 APK 里的 `files/` 来解析。把资源解到可执行文件旁边的 `assets/`（或 `assets/files/`）即可；程序会在发现 `files` 子目录时自动走进去。也可以用 `--assets` 指到别的目录。
 

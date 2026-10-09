@@ -86,99 +86,118 @@ void SDLWindow::Destroy()
     if (mVideoInitialized) SDL_QuitSubSystem(SDL_INIT_VIDEO | SDL_INIT_EVENTS);
     mVideoInitialized = false;
 }
-bool SDLWindow::ProcessEvents()
+void SDLWindow::ProcessEvent(const SDL_Event& theEvent)
 {
-    if (!mWindow) return false;
-    SDL_Event event;
-    while (SDL_PollEvent(&event))
+    if (theEvent.type == SDL_EVENT_QUIT || theEvent.type == SDL_EVENT_TERMINATING)
     {
-        if (event.type == SDL_EVENT_QUIT) mClosed = true;
-        if (event.type >= SDL_EVENT_WINDOW_FIRST && event.type <= SDL_EVENT_WINDOW_LAST
-            && event.window.windowID == SDL_GetWindowID(mWindow))
-        {
-            if (event.type == SDL_EVENT_WINDOW_CLOSE_REQUESTED) mClosed = true;
-            if (event.type == SDL_EVENT_WINDOW_FOCUS_GAINED) mActive = true;
-            if (event.type == SDL_EVENT_WINDOW_MOUSE_LEAVE)
-            {
-                Event exitEvent = {};
-                exitEvent.modifiers = Event::MOUSE_EXIT;
-                mInputEvents.push_back(exitEvent);
-            }
-            if (event.type == SDL_EVENT_WINDOW_FOCUS_LOST)
-            {
-                mActive = false;
-                Event cancelEvent = {};
-                cancelEvent.modifiers = Event::MOUSE_CANCEL;
-                mInputEvents.push_back(cancelEvent);
-                mMouseButtons = 0;
-                SDL_CaptureMouse(false);
-            }
-        }
-        if (event.type == SDL_EVENT_MOUSE_MOTION && event.motion.windowID == SDL_GetWindowID(mWindow))
-            QueueMouseEvent(Event::MOUSE_MOVE, event.motion.x, event.motion.y);
-        if ((event.type == SDL_EVENT_MOUSE_BUTTON_DOWN || event.type == SDL_EVENT_MOUSE_BUTTON_UP)
-            && event.button.windowID == SDL_GetWindowID(mWindow)
-            && (event.button.button == SDL_BUTTON_LEFT || event.button.button == SDL_BUTTON_RIGHT || event.button.button == SDL_BUTTON_MIDDLE))
-        {
-            const int clickCount = event.button.button == SDL_BUTTON_RIGHT ? -1
-                : event.button.button == SDL_BUTTON_MIDDLE ? 3 : std::clamp(int(event.button.clicks), 1, 2);
-            if (event.button.down)
-                mMouseButtons |= SDL_BUTTON_MASK(event.button.button);
-            else
-                mMouseButtons &= ~SDL_BUTTON_MASK(event.button.button);
-            SDL_CaptureMouse(mMouseButtons != 0);
-            QueueMouseEvent(event.button.down ? Event::MOUSE_DOWN : Event::MOUSE_UP,
-                            event.button.x, event.button.y, clickCount);
-        }
-        if (event.type == SDL_EVENT_MOUSE_WHEEL && event.wheel.windowID == SDL_GetWindowID(mWindow))
-        {
-            Event wheel = {};
-            wheel.modifiers = Event::MOUSE_WHEEL;
-            const float direction = event.wheel.direction == SDL_MOUSEWHEEL_FLIPPED ? -1.0f : 1.0f;
-            wheel.eventCodeMask = int(event.wheel.x * direction * 100.0f);
-            wheel.matchEvent = int(event.wheel.y * direction * 100.0f);
-            mInputEvents.push_back(wheel);
-        }
-        if ((event.type == SDL_EVENT_KEY_DOWN || event.type == SDL_EVENT_KEY_UP)
-            && event.key.windowID == SDL_GetWindowID(mWindow))
-        {
-            int code = GameKeyFromScan(event.key.scancode);
-            if (code)
-            {
-                Event key = {};
-                key.modifiers = event.key.down ? 1 : 2;
-                key.eventCodeMask = code;
-                mInputEvents.push_back(key);
-            }
-        }
-#ifdef _DEBUG
-        if (event.type == SDL_EVENT_TEXT_INPUT && event.text.windowID == SDL_GetWindowID(mWindow))
-        {
-            const char* cursor = event.text.text;
-            while (*cursor)
-            {
-                unsigned char lead = static_cast<unsigned char>(*cursor++);
-                unsigned int codepoint = lead;
-                int continuation = 0;
-                if (lead >= 0xf0) { codepoint = lead & 7; continuation = 3; }
-                else if (lead >= 0xe0) { codepoint = lead & 15; continuation = 2; }
-                else if (lead >= 0xc0) { codepoint = lead & 31; continuation = 1; }
-                while (continuation-- > 0 && *cursor)
-                    codepoint = (codepoint << 6) | (static_cast<unsigned char>(*cursor++) & 63);
-                Event character = {};
-                character.modifiers = Event::CHARACTER_INPUT;
-                character.eventCodeMask = codepoint;
-                mInputEvents.push_back(character);
-            }
-        }
-#endif
+        mClosed = true;
+        return;
     }
+    if (!mWindow)
+        return;
+
+    SDL_WindowID windowID = SDL_GetWindowID(mWindow);
+    if (theEvent.type >= SDL_EVENT_WINDOW_FIRST && theEvent.type <= SDL_EVENT_WINDOW_LAST
+        && theEvent.window.windowID == windowID)
+    {
+        if (theEvent.type == SDL_EVENT_WINDOW_CLOSE_REQUESTED) mClosed = true;
+        if (theEvent.type == SDL_EVENT_WINDOW_FOCUS_GAINED) mActive = true;
+        if (theEvent.type == SDL_EVENT_WINDOW_MOUSE_LEAVE)
+        {
+            Event exitEvent = {};
+            exitEvent.modifiers = Event::MOUSE_EXIT;
+            mInputEvents.push_back(exitEvent);
+        }
+        if (theEvent.type == SDL_EVENT_WINDOW_FOCUS_LOST)
+        {
+            mActive = false;
+            Event cancelEvent = {};
+            cancelEvent.modifiers = Event::MOUSE_CANCEL;
+            mInputEvents.push_back(cancelEvent);
+            mMouseButtons = 0;
+            SDL_CaptureMouse(false);
+        }
+    }
+    if (theEvent.type == SDL_EVENT_MOUSE_MOTION && theEvent.motion.windowID == windowID)
+        QueueMouseEvent(Event::MOUSE_MOVE, theEvent.motion.x, theEvent.motion.y);
+    if ((theEvent.type == SDL_EVENT_MOUSE_BUTTON_DOWN || theEvent.type == SDL_EVENT_MOUSE_BUTTON_UP)
+        && theEvent.button.windowID == windowID
+        && (theEvent.button.button == SDL_BUTTON_LEFT || theEvent.button.button == SDL_BUTTON_RIGHT || theEvent.button.button == SDL_BUTTON_MIDDLE))
+    {
+        const int clickCount = theEvent.button.button == SDL_BUTTON_RIGHT ? -1
+            : theEvent.button.button == SDL_BUTTON_MIDDLE ? 3 : std::clamp(int(theEvent.button.clicks), 1, 2);
+        if (theEvent.button.down)
+            mMouseButtons |= SDL_BUTTON_MASK(theEvent.button.button);
+        else
+            mMouseButtons &= ~SDL_BUTTON_MASK(theEvent.button.button);
+        SDL_CaptureMouse(mMouseButtons != 0);
+        QueueMouseEvent(theEvent.button.down ? Event::MOUSE_DOWN : Event::MOUSE_UP,
+                        theEvent.button.x, theEvent.button.y, clickCount);
+    }
+    if (theEvent.type == SDL_EVENT_MOUSE_WHEEL && theEvent.wheel.windowID == windowID)
+    {
+        Event wheel = {};
+        wheel.modifiers = Event::MOUSE_WHEEL;
+        const float direction = theEvent.wheel.direction == SDL_MOUSEWHEEL_FLIPPED ? -1.0f : 1.0f;
+        wheel.eventCodeMask = int(theEvent.wheel.x * direction * 100.0f);
+        wheel.matchEvent = int(theEvent.wheel.y * direction * 100.0f);
+        mInputEvents.push_back(wheel);
+    }
+    if ((theEvent.type == SDL_EVENT_KEY_DOWN || theEvent.type == SDL_EVENT_KEY_UP)
+        && theEvent.key.windowID == windowID)
+    {
+        int code = GameKeyFromScan(theEvent.key.scancode);
+        if (code)
+        {
+            Event key = {};
+            key.modifiers = theEvent.key.down ? 1 : 2;
+            key.eventCodeMask = code;
+            mInputEvents.push_back(key);
+        }
+    }
+#ifdef _DEBUG
+    if (theEvent.type == SDL_EVENT_TEXT_INPUT && theEvent.text.windowID == windowID)
+    {
+        const char* cursor = theEvent.text.text;
+        while (*cursor)
+        {
+            unsigned char lead = static_cast<unsigned char>(*cursor++);
+            unsigned int codepoint = lead;
+            int continuation = 0;
+            if (lead >= 0xf0) { codepoint = lead & 7; continuation = 3; }
+            else if (lead >= 0xe0) { codepoint = lead & 15; continuation = 2; }
+            else if (lead >= 0xc0) { codepoint = lead & 31; continuation = 1; }
+            while (continuation-- > 0 && *cursor)
+                codepoint = (codepoint << 6) | (static_cast<unsigned char>(*cursor++) & 63);
+            Event character = {};
+            character.modifiers = Event::CHARACTER_INPUT;
+            character.eventCodeMask = codepoint;
+            mInputEvents.push_back(character);
+        }
+    }
+#endif
+}
+void SDLWindow::UpdateFrame()
+{
+    if (!mWindow)
+        return;
     int width = 0, height = 0;
     SDL_GetWindowSizeInPixels(mWindow, &width, &height);
     if (width > 0 && height > 0) { mWidth = width; mHeight = height; }
     double now = ClockSeconds();
     mFrameTime = std::clamp(now - mLastTime, 0.0, 0.25);
     mLastTime = now;
+}
+bool SDLWindow::ProcessEvents()
+{
+    if (!mWindow)
+        return false;
+    // Legacy WaitForResult blocks the outer SDL callback while a dialog is
+    // open. Keep its local pump until those waits become asynchronous.
+    SDL_Event event;
+    while (SDL_PollEvent(&event))
+        ProcessEvent(event);
+    UpdateFrame();
     return !mClosed;
 }
 void SDLWindow::QueueMouseEvent(int theKind, float theX, float theY, int theClickCount)
