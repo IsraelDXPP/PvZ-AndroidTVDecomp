@@ -25,6 +25,7 @@
 #pragma once
 
 #include "ReconTypes.h"
+#include "CreditsTiming.h"
 // The class has two bases, so both need their complete type.
 #include "ButtonListener.h"
 // Classes this one calls a method on: the call needs the
@@ -47,21 +48,6 @@
 // parameter, so it is declared rather than included: the include was half of the
 // LawnApp.h <-> CreditScreen.h cycle. Sexy\ReconTypes.h already carries it.
 class LawnApp;
-
-// One entry of the credits scroll table. `gCreditsTiming` (@0x697A2C) is a flat
-// table of these and GetTiming walks it with a stride of four floats -- the
-// element type is only visible through `v12 += 4` on a `float *` and through the
-// `[4 * index]` indexing at the two ends of the walk. The first word is the frame
-// time the entry begins at; the other three are the interpolation UpdateMovie
-// uses while the entry is the current one, which is why its two switches read
-// words [1] and [3] and its curve endpoints read word [2] as an int.
-struct CreditsTiming
-{
-    float mStartTime; // +0x00
-    int   mCurveA;    // +0x04
-    int   mEndY;      // +0x08
-    int   mCurveB;    // +0x0C
-};
 
 class CreditScreen : public Sexy::Widget, public Sexy::ButtonListener
 {
@@ -93,7 +79,7 @@ public:
     // Not vtable slots; the signatures are the ones the transcribed bodies define.
     CreditScreen(LawnApp *theApp, bool theFromMainMenu);
     int PreLoadCredits();
-    int GetTiming(CreditsTiming **theStart, CreditsTiming **theEnd, float *theFraction);
+    int GetTiming(const CreditsTiming **theStart, const CreditsTiming **theEnd, float *theFraction);
     Reanimation *PlayReanim(int thePhase);
     int DrawFogEffect(Sexy::Graphics *theGraphics, float theOffset);
     void DrawFinalCredits(Sexy::Graphics *theGraphics);

@@ -135,6 +135,7 @@
     <ClCompile Include="src\game\ConfirmBackToMainDialog.cpp" />
     <ClCompile Include="src\game\ContinueDialog.cpp" />
     <ClCompile Include="src\game\CreditScreen.cpp" />
+    <ClCompile Include="src\game\CreditsTiming.cpp" />
     <ClCompile Include="src\game\CreditsOverlay.cpp" />
     <ClCompile Include="src\game\CursorObject.cpp" />
     <ClCompile Include="src\game\CursorPreview.cpp" />
@@ -266,6 +267,7 @@
     <ClInclude Include="include\game\ConfirmBackToMainDialog.h" />
     <ClInclude Include="include\game\ContinueDialog.h" />
     <ClInclude Include="include\game\CreditScreen.h" />
+    <ClInclude Include="include\game\CreditsTiming.h" />
     <ClInclude Include="include\game\CreditsOverlay.h" />
     <ClInclude Include="include\game\CursorObject.h" />
     <ClInclude Include="include\game\CursorPreview.h" />

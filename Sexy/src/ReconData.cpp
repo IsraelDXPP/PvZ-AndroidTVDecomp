@@ -71,9 +71,6 @@ const int gArtChallengeWallnut[9 * 9] =
     -1, -1, -1, -1, -1, -1, -1, -1, -1,
 };
 
-// gCreditsTimingCount @0x697a1c -- the binary's initial value is 268.
-int gCreditsTimingCount = 268;
-
 // ---------------------------------------------------------------------------
 // Particle and trail tables still await restoration of their definitions.
 // ---------------------------------------------------------------------------

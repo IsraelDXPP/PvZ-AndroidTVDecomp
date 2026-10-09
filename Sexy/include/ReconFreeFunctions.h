@@ -1214,10 +1214,6 @@ extern int gTodStringFormatCount;
 // `gArtChallengeWallnut[9 * row + column]`.
 extern const int gArtChallengeWallnut[9 * 9];
 
-// gCreditsTimingCount @0x697a1c -- the credits scroller's line count
-// (initial value 268).
-extern int gCreditsTimingCount;
-
 // ---------------------------------------------------------------------------
 // The game's parameter tables and session helpers.
 //

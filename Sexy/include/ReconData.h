@@ -209,7 +209,6 @@ extern Sexy::SexyAppBase* gSexyAppBase;
 extern int gPerfRecordTop;
 extern int gStartCount;
 extern bool gDisableDebugKeys;
-extern int gCreditsTiming;
 extern int gXblaLast;
 extern int gUserVersion;
 extern int gUserVersionTilJune2010;

@@ -449,10 +449,12 @@ bool Reanimation::DrawTrack(Sexy::Graphics * g, int theTrackIndex, int theRender
     && *aTransform->mText != 0 )
   {
     aMatrix.LoadIdentity();
-    Sexy::Font *aFont = (Sexy::Font *)aTransform->mFont;
+    Sexy::Font *aFont = aTransform->mFont;
     Sexy::String aText;
     TodStringTranslate(&aText, aTransform->mText);
-    SexyMatrix3Translation(&aMatrix, (float)-aFont->StringWidth(aText), (float)aFont->mAscent);
+    // DrawTrack @0x1F9BF0 converts -width with one fractional bit, i.e. / 2.
+    // Text tracks are centered on their animation origin, like image tracks.
+    SexyMatrix3Translation(&aMatrix, -0.5f * aFont->StringWidth(aText), (float)aFont->mAscent);
   }
   else if ( mDefinition->mTracks[theTrackIndex].mTrackId == ReanimTrackId_fullscreen )
   {
@@ -538,7 +540,7 @@ bool Reanimation::DrawTrack(Sexy::Graphics * g, int theTrackIndex, int theRender
   }
   else
   {
-    Sexy::Font *aFont = (Sexy::Font *)aTransform->mFont;
+    Sexy::Font *aFont = aTransform->mFont;
     if ( aFont != nullptr && aTransform->mText != nullptr && *aTransform->mText != 0 )
     {
       Sexy::String aText(aTransform->mText);

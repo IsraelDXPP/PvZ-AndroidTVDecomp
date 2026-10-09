@@ -381,7 +381,6 @@ TestDialogRecord* gTestDialogCapacity = nullptr;
 
 float gMaskHelpFade = 0.0f;
 int gBossZombieList[64];   // TODO(recon): the declaration leaves the extent open; 64 is what the call sites need
-int gCreditsTiming;
 bool gDisableDebugKeys;
 double gDuration = 0.0;
 EffectSystem* gEffectSystem = nullptr;
