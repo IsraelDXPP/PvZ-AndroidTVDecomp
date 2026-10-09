@@ -714,7 +714,7 @@ public:
     int PickRowForNewZombie(ZombieType theZombieType);
     int GetSurvivalFlagsCompleted();
     int SurvivalSaveScore();
-    int PickZombieType(int theWaveIndex, int thePointCount, ZombiePicker *thePicker);
+    ZombieType PickZombieType(int thePointCount, int theWaveIndex, ZombiePicker *thePicker);
     void ZombiesWon(Zombie * theZombie);
     void DrawLevel(Sexy::Graphics * g);
     int IsFinalSurvivalStage();

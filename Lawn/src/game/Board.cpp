@@ -2334,11 +2334,8 @@ int Board::SetSukhbirMode(bool theEnable)
 // ==========================================================================
 Board * Board::AddSunMoney(int theAmount, int thePlayerIndex)
 {
-  // mSunMoney1 and mSunMoney2 sit next to each other, so the player index selects
-  // the purse to credit. Both are clamped at 9990.
-  int *aSunMoney = &mSunMoney1 + thePlayerIndex;
-  int aTotal = theAmount + *aSunMoney;
-  *aSunMoney = (aTotal > 9990) ? 9990 : aTotal;
+  int& aSunMoney = thePlayerIndex == 1 ? mSunMoney2 : mSunMoney1;
+  aSunMoney = std::min(aSunMoney + theAmount, 9990);
   return this;
 }
 
@@ -4633,17 +4630,14 @@ int Board::RemoveAllCoins()
 // ==========================================================================
 int Board::CountSunBeingCollected(int thePlayerIndex)
 {
-  // @0x1565D0. Byte 104 is mIsBeingCollected, word 27 is mPlayerIndex.
+  // @0x1565D0 reads the collection owner, not the gamepad chase target.
   int aTotal = 0;
   Coin *aCoin = nullptr;
   while ( IterateCoins(aCoin) != 0 )
   {
-    while ( aCoin->mIsBeingCollected && aCoin->IsSun() != 0 && aCoin->mPlayerIndex == thePlayerIndex )
-    {
+    if ( aCoin->mIsBeingCollected && aCoin->IsSun()
+         && aCoin->mCollectedByPlayerIndex == thePlayerIndex )
       aTotal += aCoin->GetSunValue();
-      if ( IterateCoins(aCoin) == 0 )
-        return aTotal;
-    }
   }
   return aTotal;
 }
@@ -4698,8 +4692,8 @@ bool Board::CanTakeSunMoney(int theAmount, int thePlayerIndex)
     || mApp->IsTwinSunbankMode() != 0
     || CountSunBeingCollected(thePlayerIndex) + mSunMoney1 < theAmount )
   {
-    int *aPurse = &mSunMoney1 + thePlayerIndex;
-    return theAmount <= CountSunBeingCollected(thePlayerIndex) + *aPurse;
+    const int aSunMoney = thePlayerIndex == 1 ? mSunMoney2 : mSunMoney1;
+    return theAmount <= CountSunBeingCollected(thePlayerIndex) + aSunMoney;
   }
   return true;
 }
@@ -7266,21 +7260,21 @@ int Board::SurvivalSaveScore()
 // Board::PickZombieType(int,int,ZombiePicker *)
 // @0015AF84  460 bytes
 // ==========================================================================
-int Board::PickZombieType(int theWaveIndex, int thePointCount, ZombiePicker *thePicker)
+ZombieType Board::PickZombieType(int thePointCount, int theWaveIndex, ZombiePicker *thePicker)
 {
   // @0x15AF84. Types 0..33. mZombieAllowed is walked from index 0 (the pointer
   // starts one byte before the array). The pick list is {type, weight} pairs.
   // Modes 35, 29 and 42 skip the weight/value gate and use the cost instead.
   TodWeightedArray aPicks[34];
   int aCount = 0;
-  int aWavePlusOne = thePointCount + 1;
+  int aWavePlusOne = theWaveIndex + 1;
   for ( int aType = 0; aType != 34; ++aType )
   {
     ZombieDefinition * aDef = GetZombieDefinition(aType);
     if ( !mZombieAllowed[aType] )
       continue;
     if ( aType == ZOMBIE_BUNGEE && mApp->IsSurvivalEndless(mApp->mGameMode) != 0
-      && IsFlagWave(thePointCount) == 0 )
+      && IsFlagWave(theWaveIndex) == 0 )
       continue;
 
     int aWeight = aDef->mZombieCost;
@@ -7293,11 +7287,11 @@ int Board::PickZombieType(int theWaveIndex, int thePointCount, ZombiePicker *the
       int aPickWeight = aDef->mPickWeight;
       if ( mApp->IsSurvivalEndless(aMode) != 0 )
       {
-        aPickWeight -= TodAnimateCurve(18, 50, GetSurvivalFlagsCompleted(), 0, 15, (TodCurves)1);
+        aPickWeight -= TodAnimateCurve(18, 50, GetSurvivalFlagsCompleted(), 0, 15, CURVE_LINEAR);
         if ( aPickWeight < 1 )
           aPickWeight = 1;
       }
-      if ( aPickWeight > aWavePlusOne || aDef->mZombieValue > theWaveIndex )
+      if ( aPickWeight > aWavePlusOne || aDef->mZombieValue > thePointCount )
         continue;
     }
 
@@ -7306,33 +7300,33 @@ int Board::PickZombieType(int theWaveIndex, int thePointCount, ZombiePicker *the
       int aFlags = GetSurvivalFlagsCompleted();
       if ( aType == ZOMBIE_GARGANTUAR || aType == ZOMBIE_ZAMBONI )
       {
-        int aLimit = TodAnimateCurve(10, 50, aFlags, 2, 50, (TodCurves)1);
+        int aLimit = TodAnimateCurve(10, 50, aFlags, 2, 50, CURVE_LINEAR);
         if ( aLimit <= thePicker->mZombieTypeCount[aType] )
           continue;
       }
       if ( aType == ZOMBIE_REDEYE_GARGANTUAR )
       {
-        if ( IsFlagWave(thePointCount) != 0 )
+        if ( IsFlagWave(theWaveIndex) != 0 )
         {
-          int aLimit = TodAnimateCurve(14, 100, aFlags, 1, 50, (TodCurves)1);
+          int aLimit = TodAnimateCurve(14, 100, aFlags, 1, 50, CURVE_LINEAR);
           if ( aLimit <= thePicker->mZombieTypeCount[ZOMBIE_REDEYE_GARGANTUAR] )
-            return aCount > 0 ? TodPickFromWeightedArray(aPicks, aCount) : ZOMBIE_INVALID;
+            return aCount > 0 ? static_cast<ZombieType>(TodPickFromWeightedArray(aPicks, aCount)) : ZOMBIE_INVALID;
         }
         else
         {
-          int aLimit = TodAnimateCurve(10, 110, aFlags, 1, 50, (TodCurves)1);
+          int aLimit = TodAnimateCurve(10, 110, aFlags, 1, 50, CURVE_LINEAR);
           if ( aLimit <= thePicker->mAllWavesZombieTypeCount[ZOMBIE_REDEYE_GARGANTUAR] )
-            return aCount > 0 ? TodPickFromWeightedArray(aPicks, aCount) : ZOMBIE_INVALID;
+            return aCount > 0 ? static_cast<ZombieType>(TodPickFromWeightedArray(aPicks, aCount)) : ZOMBIE_INVALID;
           aWeight = 1000;
         }
       }
       else if ( aType == ZOMBIE_NORMAL )
       {
-        aWeight = TodAnimateCurve(10, 50, aFlags, aDef->mZombieCost, aDef->mZombieCost / 10, (TodCurves)1);
+        aWeight = TodAnimateCurve(10, 50, aFlags, aDef->mZombieCost, aDef->mZombieCost / 10, CURVE_LINEAR);
       }
       else if ( aType == ZOMBIE_TRAFFIC_CONE )
       {
-        aWeight = TodAnimateCurve(10, 50, aFlags, aDef->mZombieCost, aDef->mZombieCost / 4, (TodCurves)1);
+        aWeight = TodAnimateCurve(10, 50, aFlags, aDef->mZombieCost, aDef->mZombieCost / 4, CURVE_LINEAR);
       }
     }
 
@@ -7340,7 +7334,7 @@ int Board::PickZombieType(int theWaveIndex, int thePointCount, ZombiePicker *the
     aPicks[aCount].mWeight = aWeight;
     ++aCount;
   }
-  return aCount > 0 ? TodPickFromWeightedArray(aPicks, aCount) : ZOMBIE_INVALID;
+  return aCount > 0 ? static_cast<ZombieType>(TodPickFromWeightedArray(aPicks, aCount)) : ZOMBIE_INVALID;
 }
 
 // ==========================================================================
@@ -11221,7 +11215,7 @@ int Board::PickZombieWaves()
       {
         while (picker.mZombiePoints > 0 && picker.mZombieCount < MAX_ZOMBIES_IN_WAVE)
         {
-          const ZombieType type = static_cast<ZombieType>(PickZombieType(picker.mZombiePoints, waveIndex, &picker));
+          const ZombieType type = PickZombieType(picker.mZombiePoints, waveIndex, &picker);
           if (type == ZOMBIE_INVALID) break;
           PutZombieInWave(type, waveIndex, &picker);
         }
@@ -11966,7 +11960,9 @@ Board::Board(LawnApp * theApp)
   const bool twoPlayerLayout = mApp->IsCoopMode()
       || mApp->mGameMode == GAMEMODE_MP_VS || mApp->mGameMode == GAMEMODE_MP_VS_DEBUG;
   const int menuX = twoPlayerLayout ? 880 : 705;
-  mBoardMenuButton->Resize(menuX, -3, 120, 80);
+  // DrawStoneButton @0x1A2A70 centers the English baseline in this height.
+  const int menuFaceHeight = IMAGE_BUTTON_LEFT->GetHeight();
+  mBoardMenuButton->Resize(menuX, -3, 120, menuFaceHeight);
   mBoardMenuButton->mParentWidget = this;
   mBoardMenuButton->mMousePreservesFocus = true;
   mBoardMenuButton->SetVisible(false);
@@ -11974,9 +11970,7 @@ Board::Board(LawnApp * theApp)
   AddWidget(mBoardMenuButton);
 
   // DrawStoneButton @0x1A2A70 uses the native stone image height (50 here).
-  // Stack the faces with a four-pixel gap rather than the 80-pixel input box.
-  const int menuFaceHeight = IMAGE_BUTTON_LEFT->GetHeight();
-  mBoardMenuButton->mMouseInsets.mBottom = std::max(0, mBoardMenuButton->mHeight - menuFaceHeight);
+  // Stack the faces with a four-pixel gap.
   mBoardStoreButton = MakeButton(BOARD_BUTTON_TOOLS, this, this, Sexy::String("[TOOLS_BUTTON]"));
   mBoardStoreButton->Resize(menuX, mBoardMenuButton->mY + menuFaceHeight + 4, 120, menuFaceHeight);
   mBoardStoreButton->mParentWidget = this;

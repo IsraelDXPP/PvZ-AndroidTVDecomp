@@ -345,7 +345,8 @@ static WebStringBitsInit gWebStringBitsInit;
 int gPaidStatusCode[4] = { 1, 0, -1, 2 };
 int gMatchTimerPulseSecond = -1;
 const int kFontFileMagic = 0xCCFFAA11;
-const int kFontFileVersion = 1;
+// Version 1 may cache zero layer heights from legacy font descriptors.
+const int kFontFileVersion = 2;
 int gControllerCookie = -1;
 int gAlmanacScrollTick = 0;
 int gHelpBarInstanceCount = 0;

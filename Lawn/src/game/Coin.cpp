@@ -1980,7 +1980,17 @@ void Coin::Update()
     // follows the two-player pickup rules so it is not assigned to player one.
     if ( aAutoCollect && mCoinAge >= mAutoCollectAge
          && (IsMoney() || IsDeath() || (IsSun() && !mApp->IsCoopMode())) )
+    {
       Collect(0);
+      // Automatic sun pickup follows the same first-level advice as input.
+      if ( IsSun() && mBoard != nullptr && mApp->IsFirstTimeAdventureMode()
+           && mBoard->mLevel == 1 )
+      {
+        Sexy::String aText;
+        TodStringTranslate(&aText, "[ADVICE_CLICKED_ON_SUN]");
+        mBoard->DisplayAdvice(aText, MESSAGE_STYLE_TUTORIAL_LEVEL1_STAY, ADVICE_ID_CLICKED_ON_SUN);
+      }
+    }
     else
       UpdateFall();
   }

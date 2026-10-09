@@ -1291,7 +1291,8 @@ void Sexy::ImageFont::DrawStringEx(Sexy::Graphics* theGraphics, int theX, int th
 
             double aGlyphScale = mScale;
             if (aFontLayer->mPointSize != 0)
-                aGlyphScale = mScale * (double)(mPointSize / aFontLayer->mPointSize);
+                // Keep positions and advances at the same ratio as the scaled atlas.
+                aGlyphScale = mScale * static_cast<double>(mPointSize) / aFontLayer->mPointSize;
 
             int aOffsetX = (int)(short)aCharData->mOffsetX;
             int aOffsetY = (int)(short)aCharData->mOffsetY;

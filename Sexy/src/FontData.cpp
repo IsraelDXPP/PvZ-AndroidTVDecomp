@@ -46,6 +46,19 @@ bool IsModLayerName(Sexy::String const& theName)
         && theName.compare(theName.length() - 5, 5, "__MOD") == 0;
 }
 
+void UpdateLayerHeight(Sexy::FontLayer& theLayer)
+{
+    // FontData::HandleCommand @0x31A5DA takes the greatest glyph bottom.
+    theLayer.mDefaultHeight = 0;
+    for (const auto& entry : theLayer.mCharDataMap)
+    {
+        const Sexy::CharData& glyph = entry.second;
+        const int bottom = static_cast<int>(glyph.mHeight) + static_cast<short>(glyph.mOffsetY);
+        if (bottom > theLayer.mDefaultHeight)
+            theLayer.mDefaultHeight = bottom;
+    }
+}
+
 void StoreDefine(std::map<Sexy::String, Sexy::DataElement*>& theMap,
                  Sexy::String const& theKey, Sexy::DataElement* theValue)
 {
@@ -648,6 +661,7 @@ bool Sexy::FontData::HandleCommand(Sexy::ListDataElement const& theParams)
             aGlyph->mOffsetX = (unsigned short)aPair[0];
             aGlyph->mOffsetY = (unsigned short)aPair[1];
         }
+        UpdateLayerHeight(*aLayer);
         return true;
     }
 
@@ -810,6 +824,7 @@ bool Sexy::FontData::HandleCommand(Sexy::ListDataElement const& theParams)
             aGlyph->mWidth = (unsigned short)aW;
             aGlyph->mHeight = (unsigned short)aH;
         }
+        UpdateLayerHeight(*aLayer);
         return true;
     }
 
