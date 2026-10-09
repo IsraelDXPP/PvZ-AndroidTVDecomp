@@ -76,6 +76,24 @@ bool Sexy::GLImage::Is3D()
     return IsCurrentTarget();
 }
 
+void Sexy::GLImage::PushTransform(const SexyMatrix3 &theTransform, bool theConcatenate)
+{
+    if (IsCurrentTarget())
+        BgfxRenderDevice::sCurrent->PushTransform(theTransform, theConcatenate);
+}
+
+void Sexy::GLImage::PopTransform()
+{
+    if (IsCurrentTarget())
+        BgfxRenderDevice::sCurrent->PopTransform();
+}
+
+void Sexy::GLImage::PopTransform(SexyMatrix3 &theTransform)
+{
+    if (IsCurrentTarget())
+        BgfxRenderDevice::sCurrent->PopTransform(theTransform);
+}
+
 void Sexy::GLImage::FillRect(const TRect<int> & theRect, const Color & theColor, int theDrawMode)
 {
     if (!IsCurrentTarget())

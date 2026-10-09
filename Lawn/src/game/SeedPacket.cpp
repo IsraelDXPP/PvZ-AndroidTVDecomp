@@ -262,6 +262,18 @@ void SeedPacket::UpdateSelected()
             && cursor->mSelectedIndex == mIndex;
     };
 
+    // UpdateSelected @0x172A40 identifies the bank owner before selecting its
+    // packet. Keep that ownership for separate VS/coop banks; the shared-bank
+    // selection below would otherwise mark the other player's index as well.
+    if (mApp->mGameMode == GAMEMODE_MP_VS || mApp->IsCoopMode())
+    {
+        GamepadControls* owner = GetPlayerIndex() ? pad1 : pad0;
+        mSelected = owner != nullptr && !owner->mIsInShopSeedBank && pointsAtPacket(owner);
+        mSelectedBy2P = mSelected && owner->mPlayerIndex == 1;
+        mSelectedByBothPlayer = false;
+        return;
+    }
+
     // Player 2's frame: the second pad pointing at this packet in the first
     // bank (solo only), or any packet in the second bank that pad is on.
     bool selectedBy2P = false;
@@ -279,14 +291,6 @@ void SeedPacket::UpdateSelected()
             selectedBy2P = true;
     }
     mSelectedBy2P = selectedBy2P;
-
-    if (mApp->mGameMode == GAMEMODE_MP_VS)
-    {
-        // Versus keeps one frame per player. Either pad can be player 1.
-        mSelectedBy2P =
-            (board->mSeedBank[0] == bank && pad0->mPlayerIndex == 1 && pointsAtPacket(pad0))
-            || (board->mSeedBank[1] == bank && pad1->mPlayerIndex == 1 && pointsAtPacket(pad1));
-    }
 
     bool selected = false;
     if (bank == board->mSeedBank[0] && pointsAtPacket(pad0))

@@ -243,7 +243,7 @@ Sexy::Image * SaveGameContext::SyncImage(Sexy::Image *&theImage)
 namespace {
 
 const int kSaveMagic = -17965395;
-const int kSaveVersion = 9;
+const int kSaveVersion = 10;
 const int kSavePointerSize = sizeof(void *);
 
 template<class T>

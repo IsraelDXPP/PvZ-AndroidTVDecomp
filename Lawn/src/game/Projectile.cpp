@@ -400,8 +400,10 @@ GridItem * Projectile::FindCollisionTargetGridItem()
         aBestItem = aGridItem;
     }
     else if (aGridItem->mGridItemType == GRIDITEM_MP_TARGET_ZOMBIE && aBestItem == nullptr
-             && aGridItem->mGridItemCounter > 0)
+             && aGridItem->mVSTargetZombieHealth > 0)
     {
+      // FindCollisionTargetGridItem @0x19333A checks target health (+0x118).
+      // Targets do not use the gravestone rise counter (+0x28).
       if (mRow != aGridItem->mGridY)
         continue;
 
@@ -409,7 +411,7 @@ GridItem * Projectile::FindCollisionTargetGridItem()
                    + mBoard->GridCellWidth(aGridItem->mGridX, aGridItem->mGridY) / 2;
       int aY = mBoard->GridToPixelY(aGridItem->mGridX, aGridItem->mGridY);
       Sexy::Image * aTargetImage = IMAGE_MP_TARGET;
-      Sexy::Rect aTargetRect(aCenterX, aY, aTargetImage->GetCelWidth(), aTargetImage->GetCelHeight());
+      Sexy::Rect aTargetRect(aCenterX, aY, aTargetImage->GetWidth(), aTargetImage->GetHeight());
       if (GetRectOverlap(aProjectileRect, aTargetRect) > 12)
         aBestItem = aGridItem;
     }

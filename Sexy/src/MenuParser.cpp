@@ -14,6 +14,7 @@
 #include "LabelWidget.h"
 #include "MenuWidget.h"
 #include "ReconData.h"
+#include "ResourceManager.h"
 #include "SexyAppBase.h"
 #include "SharedImageRef.h"
 #include "SingleDataElement.h"
@@ -23,19 +24,9 @@
 #include <cstring>
 #include <new>
 
-// Declared in the recon headers. Those headers are not included here: they
-// still spell the decompiler names this file is not allowed to mention.
+// String conversion helpers shared with the descriptor parser.
 Sexy::String SexyWStringFromString(Sexy::String const& theText);
 void StringToUpper(Sexy::String* theDest, const char* theSource);
-
-namespace Sexy {
-class Font;
-class ResourceManager
-{
-public:
-    Font* GetFont(Sexy::String const& theName);
-};
-}
 
 Sexy::MenuParser_ParseWidget::MenuParser_ParseWidget()
     : mWidget(nullptr),
@@ -339,7 +330,11 @@ bool Sexy::MenuParser::HandleCommand(Sexy::ListDataElement const& theParams)
         Sexy::String aName;
         if (!ReadText(this, theParams.mDataElements[1], &aName))
             return false;
-        SharedImageRef aImage = LoadSharedImage(aName);
+        // HandleCommand @0x2ABC00 resolves SetBackground through the manifest.
+        // Menu files pass resource IDs such as IMAGE_CHALLENGE_BACKGROUND.
+        if (gSexyAppBase == nullptr || gSexyAppBase->mResourceManager == nullptr)
+            return Fail(this, kMissingResource);
+        SharedImageRef aImage = gSexyAppBase->mResourceManager->GetImage(aName);
         if ((Image*)aImage == nullptr)
             return Fail(this, kMissingResource);
         if (mMenuWidget != nullptr)

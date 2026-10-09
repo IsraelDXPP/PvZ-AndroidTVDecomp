@@ -77,6 +77,7 @@ namespace TM { using ::LogComposer; }
 #include "ReanimationHolder.h"
 #include "ReanimationWidget.h"
 #include "ReanimatorCache.h"
+#include "ReconData.h"
 #include "ReconTypes.h"
 #include "ResourceManager.h"
 #include "SavingFileDialog.h"
@@ -244,7 +245,7 @@ void LawnApp::InitHook()
 // ==========================================================================
 int LawnApp::GetProfileVersion()
 {
-  return 19;
+  return gUserVersion;
 }
 
 // ==========================================================================
@@ -520,7 +521,10 @@ int LawnApp::IsIceDemo()
 // ==========================================================================
 void LawnApp::TransitionToHouseScreen()
 {
-  ShowHouseScreen();
+  if (mGameSelector != nullptr)
+    mGameSelector->ButtonDepress(MainMenu::HOUSE_BUTTON);
+  else
+    ShowHouseScreen();
 }
 
 // ==========================================================================
@@ -529,7 +533,7 @@ void LawnApp::TransitionToHouseScreen()
 // ==========================================================================
 void LawnApp::ShowLeaderboardScreen()
 {
-  ShowHouseScreen();
+  TransitionToHouseScreen();
 }
 
 // ==========================================================================
@@ -5075,6 +5079,10 @@ void LawnApp::DeleteSavedGame()
 // ==========================================================================
 bool LawnApp::CanShopLevel()
 {
+  // Versus uses only its selected decks; hide tools and reject shop input.
+  if ( mGameMode == GAMEMODE_MP_VS || mGameMode == GAMEMODE_MP_VS_DEBUG )
+    return false;
+
   if ( mGameMode != GAMEMODE_ADVENTURE )
   {
     // 17..50 are the challenge modes and 51 is the tree of wisdom; neither gets

@@ -2584,18 +2584,18 @@ void Board::UpdateSunSpawning()
     int aDrops = 1;
     if ( mChallenge->IsMPSuddenDeath() != 0 )
       aDrops = Challenge::gVSSuddenDeathMode == 1 ? 2 : 1;
-    // `stru_188` and `dword_12C` are the immediate ranges 0x188 and 0x12C.
-    // Versus drops a sun and a large sun, not the silver/gold the old
-    // transcription named.
+    // UpdateSunSpawning @0x153D46..0x153D74 drops sun on the plant side
+    // and type 30 (brain) on the zombie side, with ranges 400 and 300.
     for ( int aDropped = 0; aDropped < aDrops; ++aDropped )
     {
-      AddCoin(Rand(0x188) + 100, 60, COIN_SUN, (CoinMotion)0);
-      AddCoin(Rand(0x12C) + 500, 60, COIN_LARGESUN, (CoinMotion)0);
+      AddCoin(Rand(400) + 100, 60, COIN_SUN, COIN_MOTION_FROM_SKY);
+      AddCoin(Rand(300) + 500, 60, COIN_VS_ZOMBIE_BRAIN, COIN_MOTION_FROM_SKY);
     }
   }
   else
   {
-    AddCoin(Rand(0x218) + 100, 60, aCoinType, (CoinMotion)0);
+    // @0x153CEA loads 0x226, the 550-pixel range of the normal lawn.
+    AddCoin(Rand(550) + 100, 60, aCoinType, COIN_MOTION_FROM_SKY);
   }
 }
 
@@ -2838,7 +2838,7 @@ void Board::InitLawnMowers()
           if ( (unsigned int)(Challenge::gVSWinMode - 2) <= 1 )
             aPlace = aRow == 1 || aRow == 4;
           else if ( Challenge::gVSMowerCount == 0 )
-            aPlace = false;
+            aPlace = true;
           else if ( Challenge::gVSMowerCount == 2 )
             aPlace = (aRow & ~2) == 0 || aRow == 4;
           else if ( Challenge::gVSMowerCount == 3 )
@@ -2846,20 +2846,20 @@ void Board::InitLawnMowers()
           else if ( Challenge::gVSMowerCount == 1 )
             aPlace = (aRow & ~2) == 1;
           else
-            aPlace = false;
+            aPlace = true;
         }
         else if ( (unsigned int)(Challenge::gVSWinMode - 2) <= 1 )
           aPlace = (aRow & 1) != 0;
         else if ( Challenge::gVSMowerCount == 0 )
-          aPlace = false;
+          aPlace = true;
         else if ( Challenge::gVSMowerCount == 2 )
           aPlace = (aRow & ~2) == 0 || aRow == 4;
         else if ( Challenge::gVSMowerCount == 3 )
           aPlace = aRow <= 1 || (unsigned int)(aRow - 3) <= 1;
         else if ( Challenge::gVSMowerCount == 1 )
-          aPlace = (aRow & ~2) != 1;
+          aPlace = (aRow & ~2) == 1;
         else
-          aPlace = false;
+          aPlace = true;
       }
     }
     if ( !aPlace )
@@ -5615,8 +5615,7 @@ int Board::GetMPTargetCount()
 
     while ( IterateGridItems(aGridItem) )
     {
-        // GRIDITEM_MP_TARGET_ZOMBIE
-        if ( aGridItem->mGridItemType == GridItemType(14) )
+        if ( aGridItem->mGridItemType == GRIDITEM_MP_TARGET_ZOMBIE )
             ++aCount;
     }
     return aCount;
@@ -9650,9 +9649,9 @@ GridItem * Board::AddAGraveStone(int theGridX, int theGridY)
   // the immediate 50 into r0 and calls Sexy::Rand(int); the decompiler's
   // word_32 pointer is that immediate.
   GridItem *aGrave = mGridItems.DataArrayAlloc();
-  aGrave->mGridItemType = (GridItemType)1;
+  aGrave->mGridItemType = GRIDITEM_GRAVESTONE;
   aGrave->mGridItemCounter = -Rand(50);
-  aGrave->mRenderOrder = Board::MakeRenderOrder((RenderLayer)301000, theGridY, 3);
+  aGrave->mRenderOrder = Board::MakeRenderOrder(RENDER_LAYER_GRAVE_STONE, theGridY, 3);
   aGrave->mGridX = theGridX;
   aGrave->mGridY = theGridY;
   if ( mApp->mGameMode == GAMEMODE_MP_VS )
@@ -9660,8 +9659,9 @@ GridItem * Board::AddAGraveStone(int theGridX, int theGridY)
     aGrave->mIsVSGraveStone = true;
     int aX = GridToPixelX(theGridX, theGridY);
     int aY = GridToPixelY(theGridX, theGridY);
-    int aLayer = Board::MakeRenderOrder((RenderLayer)301000, theGridY, 0);
-    Reanimation *aReanim = mApp->AddReanimation((float)aX, (float)aY, aLayer, REANIM_SELECTOR_SCREEN);
+    int aLayer = Board::MakeRenderOrder(RENDER_LAYER_GRAVE_STONE, theGridY, 0);
+    // AddAGraveStone @0x15E9B8 loads animation type 177.
+    Reanimation *aReanim = mApp->AddReanimation((float)aX, (float)aY, aLayer, REANIM_VS_GRAVESTONE);
     aReanim->mIsAttachment = true;
     aReanim->SetTruncateDisappearingFrames(nullptr, false);
     aReanim->PlayReanim("anim_idle", REANIM_PLAY_ONCE_AND_HOLD, 0, 12.0f);
@@ -9804,21 +9804,18 @@ LawnApp * Board::PlaceRake()
 // ==========================================================================
 void Board::AddMPTarget(int theGridX, int theGridY)
 {
-  // @0x15EC88. Logs the cell, then places a type-14 grid item. The render
-  // order is layer 300000, except row 0 which uses layer 0. The reanimation
-  // (type 145) sits at x + 20/(5 - row) + 26, y - 54, plays once and holds at
-  // rate 0, and is an attachment. The string's refcount drop is the
-  // Sexy::String destructor. The only caller ignores the return.
+  // AddMPTarget @0x15ECBA..0x15ECDA uses the lawn layer except for row 0,
+  // which uses UI_BOTTOM (100000) so it appears behind the seed bank.
   Sexy::String aMessage;
   StrFormat(&aMessage, "Adding Target: (%d,%d)\n", theGridX, theGridY);
   OutputDebug(aMessage.c_str());
 
-  int aRenderOrder = MakeRenderOrder((RenderLayer)300000, theGridY, 1);
+  int aRenderOrder = MakeRenderOrder(RENDER_LAYER_LAWN, theGridY, 1);
   if ( theGridY == 0 )
-    aRenderOrder = MakeRenderOrder((RenderLayer)0, 0, 0);
+    aRenderOrder = MakeRenderOrder(RENDER_LAYER_UI_BOTTOM, 0, 0);
 
   GridItem *aTarget = mGridItems.DataArrayAlloc();
-  aTarget->mGridItemType = (GridItemType)14;
+  aTarget->mGridItemType = GRIDITEM_MP_TARGET_ZOMBIE;
   aTarget->mGridY = theGridY;
   aTarget->mRenderOrder = aRenderOrder;
   aTarget->mGridX = theGridX;
@@ -9829,7 +9826,7 @@ void Board::AddMPTarget(int theGridX, int theGridY)
       20.0f / (float)(5 - theGridY) + 26.0f + (float)aX,
       (float)aY - 54.0f, aRenderOrder, REANIM_ZOMBIE_TARGET);
   aReanim->SetAnimRate(0.0f);
-  aReanim->mLoopType = (ReanimLoopType)0;
+  aReanim->mLoopType = REANIM_LOOP;
   aReanim->mIsAttachment = true;
   aTarget->mGridItemReanimID = mApp->ReanimationGetID(aReanim);
 }

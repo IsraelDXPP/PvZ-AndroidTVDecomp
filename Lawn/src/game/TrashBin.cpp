@@ -34,17 +34,20 @@ void TrashBin::Draw(Sexy::Graphics * g)
                  mY + (mTrashPileType == PLANT_PILE ? 15 : 0));
   const int fullPieces = std::min(kMaxTrashPieces, int(mTrashHeight) / pieceHeight);
   const int partialHeight = int(mTrashHeight) % pieceHeight;
-  g->PushState();
-  g->ClipRect(0, mY - int(mTrashHeight), LawnApp::FULLSCREEN_RECT.mWidth,
-              int(mTrashHeight));
-  for (int piece = 0; piece < mPileNum; ++piece)
+  const auto drawPiece = [&](int piece)
   {
-    if (piece > fullPieces || mPileImage[piece] == nullptr)
-      continue;
+    if (piece >= mPileNum || mPileImage[piece] == nullptr)
+      return;
     g->DrawImageMirror(mPileImage[piece], mX,
         mY + partialHeight - pieceHeight * (piece + 1), mMirrorPile[piece]);
-  }
-  g->PopState();
+  };
+  // Reference TrashBin::Draw always draws the top piece, even at zero height.
+  // It covers the straight cut at the top of the can artwork. Clipping the
+  // pile to mTrashHeight removes that cap and exposes a horizontal seam.
+  if (fullPieces < kMaxTrashPieces)
+    drawPiece(fullPieces);
+  for (int piece = 0; piece < fullPieces; ++piece)
+    drawPiece(piece);
 }
 
 // ==========================================================================

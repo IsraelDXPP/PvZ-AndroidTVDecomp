@@ -28,7 +28,6 @@ public:
 
 private:
     void Close();
-    void ChooseHouse();
     LawnApp* mApp;
     bool mFromGame;
     GameButton* mBackButton;

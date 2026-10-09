@@ -6,7 +6,6 @@
 #include "LawnApp.h"
 #include "LawnDialog.h"
 #include "LawnPlayerInfo.h"
-#include "LeaderboardsWidget.h"
 #include "WidgetManager.h"
 #include <cmath>
 
@@ -98,12 +97,9 @@ void HouseChooserDialog::ButtonDepress(int theId)
             playerInfo->mGameStats.mHouseType = mSelectedHouseType;
             playerInfo->mGameStats.mHouseLevel = playerInfo->mPurchases[STORE_ITEM_BLUEPRINT_BLING + house]
                 + (mSelectedHouseType == BLUEPRINT_BLING ? 2 : -1);
-            app->WriteHouse(true);
         }
         mResult = theId;
         app->KillDialog(mId);
-        if (app->mLeaderboardScreen != nullptr)
-            app->mWidgetManager->SetFocus(app->mLeaderboardScreen);
         return;
     }
     LawnDialog::ButtonDepress(theId);

@@ -710,7 +710,7 @@ void CutScene::PlaceLawnItems()
         {
             bool aIsTargetRow;
             if (Challenge::gVSWinMode == 2)
-                aIsTargetRow = (aNumRows == 6) ? (aRow == 1 || aRow == 4) : (aRow == 1 || aRow == 5);
+                aIsTargetRow = (aNumRows == 6) ? (aRow == 1 || aRow == 4) : (aRow == 1 || aRow == 3);
             else if (Challenge::gVSWinMode == 3)
                 aIsTargetRow = (aNumRows == 6) ? (aRow != 1 && aRow != 4) : (aRow == 1 || aRow == 4);
             else
@@ -720,13 +720,14 @@ void CutScene::PlaceLawnItems()
                 mBoard->AddMPTarget(8, aRow);
         }
 
-        // LawnApp::mVsInitialPlantMode picks the pre-planted sun producer: the
-        // odd modes 1 and 5 (masking bit 1) use the sun-shroom.
-        SeedType aSunPlantType = ((mApp->mVsInitialPlantMode & 0xFFFFFFFD) == 1) ? SEED_SUNSHROOM : SEED_SUNFLOWER;
+        // PlaceLawnItems @0x177A36..0x177A80: modes 1 and 3 use sun-shrooms;
+        // a five-row lawn starts producers in rows 1 and 3 (zero-based).
+        SeedType aSunPlantType = (mApp->mVsInitialPlantMode == 1 || mApp->mVsInitialPlantMode == 3)
+            ? SEED_SUNSHROOM : SEED_SUNFLOWER;
 
         for (int aRow = 0; aRow < aNumRows; aRow++)
         {
-            bool aPlacePlant = (aNumRows == 5) ? (aRow == 1 || aRow == 5) : (aRow == 1 || aRow == 4);
+            bool aPlacePlant = (aNumRows == 5) ? (aRow == 1 || aRow == 3) : (aRow == 1 || aRow == 4);
             if (aPlacePlant)
             {
                 mBoard->AddAGraveStone(8, aRow);

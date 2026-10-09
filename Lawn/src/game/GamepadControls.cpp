@@ -2594,8 +2594,8 @@ int GamepadControls::PickupUsableSeedPacket(Coin * theCoin)
 // GamepadControls::GamepadControls(Board *,int,int)
 // @001C2E9C  468 bytes
 // ==========================================================================
-GamepadControls::GamepadControls(Board * theBoard, int thePlayerIndex1, int thePlayerIndex2)
-  : BaseGamepadControls(theBoard, thePlayerIndex1, thePlayerIndex2)
+GamepadControls::GamepadControls(Board *theBoard, int thePlayerIndex, int theGamepadIndex)
+  : BaseGamepadControls(theBoard, thePlayerIndex, theGamepadIndex)
 {
   // The base constructor has already run.
 
@@ -2611,10 +2611,9 @@ GamepadControls::GamepadControls(Board * theBoard, int thePlayerIndex1, int theP
   mPreviewingSeedType = SEED_NONE;
   GotoState(MOVEMENT_STATE_NORMAL);
 
-  // Where the cursor starts: the right-hand column for the second player, and
-  // otherwise the first column -- except in Adventure, where it starts one row
-  // further down.
-  if ( thePlayerIndex2 == 1 )
+  // TV 0x1C2E9C tests the player index, independently of the assigned pad.
+  // The second player starts in column 8 even before a controller has joined.
+  if (thePlayerIndex == 1)
   {
     if ( mApp->IsCoopMode() )
       mSelectedSeedIndex = 0;

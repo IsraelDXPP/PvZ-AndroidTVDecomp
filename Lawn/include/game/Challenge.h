@@ -95,8 +95,7 @@ public:
     // Statics the binary keeps in this class's own storage; the transcribed
     // bodies name them through the qualified spelling. They are public because
     // other classes read them directly -- `Challenge::gVSWinMode` in
-    // CutScene.cpp, for instance. Challenge.cpp defines the first four and
-    // Sexy\ReconStatics.cpp the last two.
+    // CutScene.cpp, for instance. Challenge.cpp defines their TV defaults.
     static int gVSResourceDropCount;
     static int gVSResourseDropMode;
     static int gVSWinMode;

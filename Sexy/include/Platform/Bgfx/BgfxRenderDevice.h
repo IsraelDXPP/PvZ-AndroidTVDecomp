@@ -41,6 +41,9 @@ public:
     void ClearClipRect();
     void SetTransform(const SexyMatrix3& theTransform);
     const SexyMatrix3& GetTransform() const { return mTransform; }
+    void PushTransform(const SexyMatrix3& theTransform, bool theConcatenate);
+    void PopTransform();
+    void PopTransform(SexyMatrix3& theTransform);
     void DrawImage(MemoryImage* theImage, const Rect& theDestRect, const Rect& theSrcRect,
                    const Color& theColor, DrawMode theMode, bool theMirror = false,
                    bool theFastStretch = true, bool theColorize = false);
@@ -79,6 +82,7 @@ private:
     std::vector<const MemoryImage*> mPendingTextureRemovals;
     MemoryImage* mDrawTarget = nullptr;
     SexyMatrix3 mTransform;
+    std::vector<SexyMatrix3> mTransformStack;
     Rect mClip;
     bool mClipped = false, mColorize = false;
     FilterEffect mFilterEffect = FILTER_EFFECT_NONE;

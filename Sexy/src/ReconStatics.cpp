@@ -1,13 +1,11 @@
 // ReconStatics.cpp -- the class-scope statics the link was missing.
 //
-// These fourteen symbols are not `extern` globals, so the generator that writes
+// These symbols are not `extern` globals, so the generator that writes
 // ReconGlobals.cpp cannot emit them: each one is a static data member and needs
 // an out-of-line definition with the class-qualified name. The declarations
 // live in the classes:
 //
 //   Board::PLANT_WIN_TIME                 game/Board.h:843
-//   Challenge::gVSSuddenDeathMode         game/Challenge.h:106
-//   Challenge::gVSZombieSpawnMode         game/Challenge.h:107
 //   DeckChooserButton::gDeckDefs          game/DeckChooserButton.h:118  (const array)
 //   LawnApp::MP_FLOWERPOT_TEST            game/LawnApp.h:373
 //   LawnApp::MP_GRAVESTONE_TARGETS_TEST   game/LawnApp.h:374
@@ -21,6 +19,8 @@
 // files now carry the definition with the real values out of the binary
 // (Game\MainMenu.cpp:35, Game\VSSetupMenu.cpp:43 and :49), so the zero-filled
 // copies here were both wrong and a duplicate symbol; they are gone.
+// Challenge.cpp likewise owns all VS settings, including the nonzero .data
+// defaults for sudden death, win mode, and resource count.
 //
 // Like the globals in ReconGlobals.cpp these are runtime-filled storage in the
 // TV build -- the binary keeps each one as a word in .bss and the game code
@@ -50,9 +50,6 @@
 // --- runtime-filled words: zero is what the binary's .bss holds ------------
 
 int Board::PLANT_WIN_TIME;
-
-int Challenge::gVSSuddenDeathMode;
-int Challenge::gVSZombieSpawnMode;
 
 unsigned char LawnApp::MP_FLOWERPOT_TEST;
 unsigned char LawnApp::MP_GRAVESTONE_TARGETS_TEST;

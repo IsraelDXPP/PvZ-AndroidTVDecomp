@@ -5,7 +5,6 @@
 #include "AchievementSystem.h"
 #include "GameButton.h"
 #include "Graphics.h"
-#include "HouseChooserDialog.h"
 #include "Image.h"
 #include "LawnApp.h"
 #include "WidgetManager.h"
@@ -102,7 +101,8 @@ LeaderboardsWidget::LeaderboardsWidget(LawnApp* theApp, bool theFromGame)
     }
     mBackButton = MakeButton(1000, this, this, "[CLOSE]");
     mBackButton->mMousePreservesFocus = true;
-    mBackButton->Resize(1040, 590, 120, 50);
+    // Leave room for the controller's BACK prompt below the mouse button.
+    mBackButton->Resize(1040, 540, 120, 50);
 }
 
 LeaderboardsWidget::~LeaderboardsWidget()
@@ -128,8 +128,8 @@ void LeaderboardsWidget::GotFocus()
     mApp->SetHouseReanim(mBackgrounds[0].get());
     mApp->ForceHideHelpBarWidget();
     HelpBarWidget& help = *mApp->mHelpBarWidget;
-    help.AddButton(GAMEPAD_BUTTON_A, "[CHOOSE_HOUSE]", HelpBarWidget::HELP_ALIGN_LEFT);
     help.AddButton(GAMEPAD_BUTTON_X, "[LOCAL_RECORDS]", HelpBarWidget::HELP_ALIGN_LEFT);
+    help.AddButton(GAMEPAD_BUTTON_B, "[BACK]", HelpBarWidget::HELP_ALIGN_RIGHT);
     mApp->ShowHelpBarWidget();
 }
 
@@ -180,15 +180,6 @@ void LeaderboardsWidget::Draw(Sexy::Graphics* theGraphics)
     title = namedTitle;
     TodDrawStringWrapped(theGraphics, title, Sexy::Rect(240, 70, 800, 70),
         FONT_HOUSEOFTERROR28, Sexy::Color::White, 2, false);
-}
-
-void LeaderboardsWidget::ChooseHouse()
-{
-    if (mApp->GetDialog(71) != nullptr)
-        return;
-    HouseChooserDialog* dialog = new HouseChooserDialog(mApp);
-    mApp->AddDialog(dialog);
-    mApp->mWidgetManager->SetFocus(dialog);
 }
 
 void LeaderboardsWidget::ShowRecords()
@@ -290,11 +281,6 @@ void LeaderboardsWidget::GameButtonDown(Sexy::GamepadButton theButton, int thePl
             mHighlightDecoration = false;
         else
             Close();
-        return;
-    }
-    if (theButton == GAMEPAD_BUTTON_A)
-    {
-        ChooseHouse();
         return;
     }
     if (theButton == GAMEPAD_BUTTON_X || theButton == GAMEPAD_BUTTON_Y)

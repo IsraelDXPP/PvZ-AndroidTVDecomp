@@ -1147,6 +1147,7 @@ void StoreScreen::PurchaseItem(StoreItem theItem)
         HouseType anOldHouseType = mApp->mPlayerInfo->mGameStats.mHouseType;
         HouseChooserDialog *aHouseDialog = new HouseChooserDialog(mApp);
         mApp->AddDialog(aHouseDialog);
+        mApp->mWidgetManager->SetFocus(aHouseDialog);
         mWaitForDialog = true;
         const int houseResult = aHouseDialog->WaitForResult(true);
         mWaitForDialog = false;
@@ -1154,6 +1155,7 @@ void StoreScreen::PurchaseItem(StoreItem theItem)
             mApp->mPlayerInfo->AddCoins(-anItemCost);
 
         mApp->WriteHouse(true);
+        mApp->mWidgetManager->SetFocus(this);
     }
     else if (theItem < STORE_ITEM_BLUEPRINT_BLING || theItem > STORE_ITEM_BLUEPRINT_CLOWN)
     {

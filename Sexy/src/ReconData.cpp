@@ -11,9 +11,9 @@
 #include "ReconTypes.h"
 #include "SexyString.h"
 
-// User-file versions from libGameMain.so .data @0x69649c / @0x6964a0.
-// Version 19 includes mail state; these constants are not set by the loader.
-int gUserVersion = 19;
+// TV version 19 includes mail state (.data @0x69649c / @0x6964a0).
+// Version 20 invalidates older reconstructed profiles; no migration is required.
+int gUserVersion = 20;
 int gUserVersionTilJune2010 = 18;
 
 // gIsPartnerBuild -- false for this build. The PC reference source gates the
@@ -296,7 +296,7 @@ ParticleParamRecord gLawnParticleArray[NUM_PARTICLE_EFFECTS] =
     { PARTICLE_TROPHY_DROP_DUST, "particles/TrophyDropDust.xml" },
 };
 TrailParamRecord gLawnTrailArray[1] = {{ 0, "particles/IceTrail.trail" }};
-// TV gLawnReanimationArray at 0x69958C. 178 rows, type then file then flags.
+// TV gLawnReanimationArray at 0x699588. 178 rows, type then file then flags.
 // Paths use the TV forward slash. The type word of each row is its own index.
 ReanimationParamRecord gLawnReanimationArray[(int)NUM_REANIMS] =
 {
@@ -477,7 +477,8 @@ ReanimationParamRecord gLawnReanimationArray[(int)NUM_REANIMS] =
     { REANIM_NIGHT_BUSHES3, "reanim/Night_bushes3.reanim", 1 },
     { REANIM_NIGHT_BUSHES4, "reanim/Night_bushes4.reanim", 1 },
     { REANIM_NIGHT_BUSHES5, "reanim/Night_bushes5.reanim", 1 },
-    { REANIM_SELECTOR_SCREEN, "reanim/SelectorScreen.reanim", 1 },
+    // TV animation record @0x699DD4: type 177 is the animated VS gravestone.
+    { REANIM_VS_GRAVESTONE, "reanim/VSgravestone.reanim", 1 },
 };
 
 TestDialogInfo    mTestInfos[64] = {};

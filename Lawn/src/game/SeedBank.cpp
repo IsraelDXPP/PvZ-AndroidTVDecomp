@@ -332,6 +332,9 @@ SeedBank::SeedBank(bool theIsZombie)
 
 void SeedBank::Draw(Sexy::Graphics *theGraphics)
 {
+    if (mBoard->mCutScene != nullptr && mBoard->mCutScene->IsBeforePreloading())
+        return;
+
     // No pad, and not both pads connected: a controller tip sits above the
     // bank while the player is choosing seeds. The shop itself is drawn later.
     bool aPadsOn = BothGamepadsOn(mApp);
@@ -385,9 +388,6 @@ void SeedBank::Draw(Sexy::Graphics *theGraphics)
         theGraphics->mTransX -= (float)aBoardX;
         theGraphics->mTransY -= (float)aBoardY;
     }
-
-    if (mBoard->mCutScene != nullptr && mBoard->mCutScene->IsBeforePreloading())
-        return;
 
     if (mApp->IsSlotMachineLevel())
     {
@@ -567,7 +567,7 @@ void SeedBank::Draw(Sexy::Graphics *theGraphics)
         theGraphics->mTransY += (float)aBoardY;
     }
     if (mApp->mGameMode == GAMEMODE_MP_VS)
-        theGraphics->PopState();
+        theGraphics->PopTransform();
 
     theGraphics->mTransX = aSavedTransX;
     theGraphics->mTransY = aSavedTransY;

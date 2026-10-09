@@ -207,7 +207,7 @@ void MainMenu::OnExit()
       return;
     case HOUSE_BUTTON:
         aApp->KillGameSelector();
-        mApp->ShowHouseScreen();
+        aApp->ShowHouseScreen();
         break;
     case RETURN_TO_ARCADE_BUTTON:
         if ( !aApp->IsFullVersion() )
@@ -1645,7 +1645,7 @@ int MainMenu::KeyChar(char theChar)
     switch ( theChar )
     {
       case 'h':
-        mApp->ShowHouseScreen();
+        mApp->TransitionToHouseScreen();
         break;
       case 'p':
         mApp->ShowHelpTextScreen(0);
@@ -1764,7 +1764,7 @@ void MainMenu::ButtonDepress(int theId)
   }
 
   if ( theId == MINI_GAMES_BUTTON || theId == SURVIVAL_BUTTON || theId == PUZZLE_BUTTON
-    || theId == VS_BUTTON || theId == VS_COOP_BUTTON )
+    || theId == VS_BUTTON || theId == VS_COOP_BUTTON || theId == HOUSE_BUTTON )
   {
     Exit();
     return;
@@ -1773,9 +1773,6 @@ void MainMenu::ButtonDepress(int theId)
   mPressedButtonId = -1;
   switch ( theId )
   {
-    case HOUSE_BUTTON:
-      mApp->ShowHouseScreen();
-      return;
     case ACHIEVEMENTS_BUTTON:
       mApp->ShowAchievementsScreen();
       return;

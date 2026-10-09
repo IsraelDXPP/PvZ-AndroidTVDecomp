@@ -90,17 +90,42 @@ void Sexy::Graphics::SetAsCurrentContext()
 
 void Sexy::Graphics::PushTransform(SexyMatrix3 const& theTransform, bool theConcatenate)
 {
-    (void)theTransform;
-    (void)theConcatenate;
+    // Graphics::PushTransform @0x307DD4 forwards to its destination device.
+    SetAsCurrentContext();
+    if (mGraphics3D != nullptr)
+        mGraphics3D->PushTransform(theTransform, theConcatenate);
+    else if (mDestImage != nullptr)
+    {
+        RenderDevice *device = mDestImage->AsMemoryImage();
+        if (device != nullptr)
+            device->PushTransform(theTransform, theConcatenate);
+    }
 }
 
 void Sexy::Graphics::PopTransform()
 {
+    SetAsCurrentContext();
+    if (mGraphics3D != nullptr)
+        mGraphics3D->PopTransform();
+    else if (mDestImage != nullptr)
+    {
+        RenderDevice *device = mDestImage->AsMemoryImage();
+        if (device != nullptr)
+            device->PopTransform();
+    }
 }
 
 void Sexy::Graphics::PopTransform(SexyMatrix3 & theTransform)
 {
-    (void)theTransform;
+    SetAsCurrentContext();
+    if (mGraphics3D != nullptr)
+        mGraphics3D->PopTransform(theTransform);
+    else if (mDestImage != nullptr)
+    {
+        RenderDevice *device = mDestImage->AsMemoryImage();
+        if (device != nullptr)
+            device->PopTransform(theTransform);
+    }
 }
 
 Sexy::Color const& Sexy::Graphics::DrawColor() const

@@ -1,9 +1,8 @@
 // Graphics is the draw context widgets hold: destination image, clip,
 // translation, scale, colour, font, and the blit and string helpers.
 //
-// The destination is an Image. Every paint goes through that image. The
-// virtual transform hooks stay empty so a 3D context can replace them
-// without changing the software path.
+// Every paint goes through the destination image; transform hooks forward to
+// that image's render device, or to the bound 3D device when one is available.
 
 #pragma once
 

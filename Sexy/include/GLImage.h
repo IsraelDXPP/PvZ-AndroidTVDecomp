@@ -20,6 +20,9 @@ public:
     virtual ~GLImage();
 
     virtual bool Is3D();
+    void PushTransform(const SexyMatrix3 &theTransform, bool theConcatenate) override;
+    void PopTransform() override;
+    void PopTransform(SexyMatrix3 &theTransform) override;
     virtual void FillRect(const TRect<int> & theRect, const Color & theColor, int theDrawMode);
     virtual void ClearRect(const TRect<int> & theRect);
     virtual void DrawLine(double theStartX, double theStartY, double theEndX, double theEndY,

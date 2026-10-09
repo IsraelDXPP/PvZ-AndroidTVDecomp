@@ -41,11 +41,14 @@
 #include <algorithm>
 #include <limits>
 
-// Definitions for the class statics declared in the header.
-int Challenge::gVSResourceDropCount = 0;
+// TV defaults from .data: resource count @0x696758, win mode @0x696754,
+// sudden-death mode @0x696750. The other VS settings start in .bss.
+int Challenge::gVSResourceDropCount = 4;
 int Challenge::gVSResourseDropMode = 0;
-int Challenge::gVSWinMode = 0;
+int Challenge::gVSWinMode = 1;
 int Challenge::gVSMowerCount = 0;
+int Challenge::gVSSuddenDeathMode = 1;
+int Challenge::gVSZombieSpawnMode = 0;
 
 // Board::GetTopPlantAt takes the binary's PlantPriority, which Sexy\ReconTypes.h
 // carries as the real `TopPlant` enum. Its values are the authoritative

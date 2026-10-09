@@ -47,7 +47,7 @@
 void VSResultsMenu::AddedToManager(Sexy::WidgetManager * theWidgetManager)
 {
   MenuWidget::AddedToManager(theWidgetManager);
-  ((LawnApp *)gLawnApp)->mMusic->MakeSureMusicIsPlaying(MUSIC_TUNE_CHOOSE_YOUR_SEEDS);
+  gLawnApp->mMusic->MakeSureMusicIsPlaying(MUSIC_TUNE_CHOOSE_YOUR_SEEDS);
 }
 
 // ==========================================================================
@@ -81,7 +81,7 @@ void VSResultsMenu::GotFocus()
   Sexy::Widget *aPlayAgain = FindWidget(VSResultsMenu_Play_Again);
   if ( mFocusedChildWidget == nullptr && aPlayAgain != nullptr )
     SetFocus(aPlayAgain, true);
-  ((LawnApp *)gLawnApp)->ForceHideHelpBarWidget();
+  gLawnApp->ForceHideHelpBarWidget();
 }
 
 // ==========================================================================
@@ -108,11 +108,11 @@ void VSResultsMenu::Update()
     {
       if ( msPlayerRecords[i][0] == -1 )
         continue;
-      TodParticleSystem *aSmoke = (TodParticleSystem *)((LawnApp *)gLawnApp)->AddTodParticle(
-          144.0f, 159.0f, 0, (ParticleEffect)107);
-      mSmokeParticleID = ((LawnApp *)gLawnApp)->ParticleGetID(aSmoke);
+      TodParticleSystem *aSmoke = gLawnApp->AddTodParticle(
+          144.0f, 159.0f, 0, PARTICLE_TROPHY_DROP_DUST);
+      mSmokeParticleID = gLawnApp->ParticleGetID(aSmoke);
     }
-    ((LawnApp *)gLawnApp)->PlaySample(SOUND_BIGTHUD, true);
+    gLawnApp->PlaySample(SOUND_BIGTHUD, true);
     mUpdateCounter = 24;
     aShake = true;
   }
@@ -137,10 +137,10 @@ void VSResultsMenu::Update()
     mY = Rand(3) - 1;
   }
 
-  TodParticleSystem *aSparkle = (TodParticleSystem *)((LawnApp *)gLawnApp)->ParticleTryToGet(mSparkleParticleID);
+  TodParticleSystem *aSparkle = gLawnApp->ParticleTryToGet(mSparkleParticleID);
   if ( aSparkle != nullptr )
     aSparkle->Update();
-  TodParticleSystem *aSmokeParticle = (TodParticleSystem *)((LawnApp *)gLawnApp)->ParticleTryToGet(mSmokeParticleID);
+  TodParticleSystem *aSmokeParticle = gLawnApp->ParticleTryToGet(mSmokeParticleID);
   if ( aSmokeParticle != nullptr )
     aSmokeParticle->Update();
 }
@@ -152,10 +152,10 @@ void VSResultsMenu::Update()
 void VSResultsMenu::OnExit()
 {
   if ( mResultsButtonId == VSResultsMenu_Play_Again )
-    ((LawnApp *)gLawnApp)->PreNewGame(GAMEMODE_MP_VS, false);
+    gLawnApp->PreNewGame(GAMEMODE_MP_VS, false);
   else if ( mResultsButtonId == VSResultsMenu_Quit_VS )
-    ((LawnApp *)gLawnApp)->ShowMainMenuScreen();
-  ((LawnApp *)gLawnApp)->KillVSResultsScreen();
+    gLawnApp->ShowMainMenuScreen();
+  gLawnApp->KillVSResultsScreen();
 }
 
 // ==========================================================================
@@ -255,23 +255,31 @@ void VSResultsMenu::DrawInfoBox(Sexy::Graphics * theGraphics, int thePlayerIndex
   if ( aInfoWidget == nullptr )
     return;
 
-  const int aSide = mSides[thePlayerIndex];
+  const WinSide aSide = mSides[thePlayerIndex];
+  if (aSide != WIN_SIDE_PLANT && aSide != WIN_SIDE_ZOMBIE)
+    return;
   const int aGamepadIndex = mPlayerIndices[aSide];
+
+  Sexy::Image *aTrophyBase = IMAGE_MP_TROPHY_BASE;
+  Sexy::Image *aPlantTrophy = IMAGE_MP_PLANT_TROPHY;
+  Sexy::Image *aZombieTrophy = IMAGE_MP_ZOMBIE_TROPHY;
+  if (aTrophyBase == nullptr || aPlantTrophy == nullptr || aZombieTrophy == nullptr)
+    return;
 
   theGraphics->PushState();
   theGraphics->Translate(aInfoWidget->mX, aInfoWidget->mY);
 
   int *aPlayerRecord = GetPlayerRecord(aGamepadIndex);
-  Sexy::String aPlayerName = ((LawnApp *)gLawnApp)->mPlayerInfo->GetName();
+  Sexy::String aPlayerName = gLawnApp->mPlayerInfo->GetName();
   Sexy::PlayerInfo *aProfile =
-      ((LawnApp *)gLawnApp)->mProfileMgr->GetProfile(aPlayerName, aGamepadIndex);
+      gLawnApp->mProfileMgr->GetProfile(aPlayerName, aGamepadIndex);
   if ( aPlayerRecord == nullptr || aProfile == nullptr )
+  {
+    theGraphics->PopState();
     return;
+  }
 
-  const bool aIsZombie = (aSide != 0);
-  Sexy::Image *aTrophyBase = IMAGE_MP_TROPHY_BASE;
-  Sexy::Image *aPlantTrophy = IMAGE_MP_PLANT_TROPHY;
-  Sexy::Image *aZombieTrophy = IMAGE_MP_ZOMBIE_TROPHY;
+  const bool aIsZombie = (aSide == WIN_SIDE_ZOMBIE);
   aInfoWidget->mImage = aIsZombie ? IMAGE_VS_INFO_BOX_ZOMBIES
                                   : IMAGE_VS_INFO_BOX_PLANTS;
   theGraphics->DrawImage(IMAGE_NO_GAMERPIC, 31, 52);
@@ -312,7 +320,7 @@ void VSResultsMenu::DrawInfoBox(Sexy::Graphics * theGraphics, int thePlayerIndex
 
   if ( aPlayerRecord[0] != -1 )
   {
-    TodParticleSystem *aSmoke = (TodParticleSystem *)((LawnApp *)gLawnApp)->ParticleTryToGet(mSmokeParticleID);
+    TodParticleSystem *aSmoke = gLawnApp->ParticleTryToGet(mSmokeParticleID);
     if ( aSmoke != nullptr )
       aSmoke->Draw(theGraphics);
 
@@ -324,7 +332,7 @@ void VSResultsMenu::DrawInfoBox(Sexy::Graphics * theGraphics, int thePlayerIndex
                   (int)(mTrophyPosX + 2.0f - (float)(aTopTrophy->mWidth / 2)),
                   (int)(mTrophyPosY - 46.0f));
 
-    TodParticleSystem *aSparkle = (TodParticleSystem *)((LawnApp *)gLawnApp)->ParticleTryToGet(mSparkleParticleID);
+    TodParticleSystem *aSparkle = gLawnApp->ParticleTryToGet(mSparkleParticleID);
     if ( aSparkle != nullptr )
     {
       aSparkle->SystemMove(mTrophyPosX, mTrophyPosY);
@@ -391,11 +399,11 @@ void VSResultsMenu::InitFromBoard(Board * theBoard)
 
   mPlayerIndices[0] = aControls0->mGamepadIndex;
   mPlayerIndices[1] = aControls1->mGamepadIndex;
-  mSides[0] = (WinSide)aControls0->mIsZombie;
-  mSides[1] = (WinSide)aControls1->mIsZombie;
+  mSides[0] = aControls0->mIsZombie ? WIN_SIDE_ZOMBIE : WIN_SIDE_PLANT;
+  mSides[1] = aControls1->mIsZombie ? WIN_SIDE_ZOMBIE : WIN_SIDE_PLANT;
 
   // Credit each gamepad's own record for the side it played.
-  const BoardResult aBoardResult = ((LawnApp *)gLawnApp)->mBoardResult;
+  const BoardResult aBoardResult = app->mBoardResult;
   for ( int aSlot = 0; aSlot < 2; ++aSlot )
   {
     int *aRecord = GetPlayerRecord(mPlayerIndices[aSlot]);
@@ -447,10 +455,14 @@ void VSResultsMenu::InitFromBoard(Board * theBoard)
   Sexy::ImageWidget *aZombieSideFront = dynamic_cast<Sexy::ImageWidget *>(FindWidget(VSResultsMenu_Zombie_Side_Front));
 
   const bool aPlantsWon = (aBoardResult == BOARDRESULT_VS_PLANT_WON);
-  aPlantSide->mAlpha = aPlantsWon ? 255 : 0;
-  aPlantSideFront->mAlpha = aPlantsWon ? 255 : 0;
-  aZombieSide->mAlpha = aPlantsWon ? 0 : 255;
-  aZombieSideFront->mAlpha = aPlantsWon ? 0 : 255;
+  if (aPlantSide != nullptr)
+    aPlantSide->mAlpha = aPlantsWon ? 255 : 0;
+  if (aPlantSideFront != nullptr)
+    aPlantSideFront->mAlpha = aPlantsWon ? 255 : 0;
+  if (aZombieSide != nullptr)
+    aZombieSide->mAlpha = aPlantsWon ? 0 : 255;
+  if (aZombieSideFront != nullptr)
+    aZombieSideFront->mAlpha = aPlantsWon ? 0 : 255;
 
   // The trophy hangs under the winner's info box: P1's when the first record
   // took the match, otherwise P2's when the second record exists at all.
@@ -464,12 +476,15 @@ void VSResultsMenu::InitFromBoard(Board * theBoard)
   {
     Sexy::ImageWidget *aWinnerBox = dynamic_cast<Sexy::ImageWidget *>(FindWidget(aWinnerBoxId));
     Sexy::Image *aTrophyBase = IMAGE_MP_TROPHY_BASE;
-    mTrophyPosX = (float)(aTrophyBase->mWidth / 2 + 94);
-    mTrophyPosY = (float)(LawnApp::FULLSCREEN_RECT.mY - aWinnerBox->mY - aTrophyBase->mHeight
-                          - (IMAGE_MP_PLANT_TROPHY)->mHeight);
-    TodParticleSystem *aSparkle = (TodParticleSystem *)((LawnApp *)gLawnApp)->AddTodParticle(
-        mTrophyPosX, mTrophyPosY, 0, (ParticleEffect)83);
-    mSparkleParticleID = ((LawnApp *)gLawnApp)->ParticleGetID(aSparkle);
+    if (aWinnerBox != nullptr && aTrophyBase != nullptr && IMAGE_MP_PLANT_TROPHY != nullptr)
+    {
+      mTrophyPosX = (float)(aTrophyBase->mWidth / 2 + 94);
+      mTrophyPosY = (float)(LawnApp::FULLSCREEN_RECT.mY - aWinnerBox->mY - aTrophyBase->mHeight
+                            - IMAGE_MP_PLANT_TROPHY->mHeight);
+      TodParticleSystem *aSparkle = app->AddTodParticle(
+          mTrophyPosX, mTrophyPosY, 0, PARTICLE_TROPHY_SPARKLE);
+      mSparkleParticleID = app->ParticleGetID(aSparkle);
+    }
   }
 
   OutputDebug("VS Results\n");
@@ -477,8 +492,10 @@ void VSResultsMenu::InitFromBoard(Board * theBoard)
   {
     const int aGamepadIndex = mPlayerIndices[i];
     int *aRecord = GetPlayerRecord(aGamepadIndex);
+    if (aRecord == nullptr)
+      continue;
     const char *aWinner = (aRecord[0] == -1) ? gEmptyCString : "[WINNER]";
-    const char *aSide = (mSides[i] != 0) ? "Zombies" : "Plants";
+    const char *aSide = (mSides[i] == WIN_SIDE_ZOMBIE) ? "Zombies" : "Plants";
     OutputDebug("P%d%s: Side(%s), Gamepad(%d), Record( %dPW, %dZW, %dST, %dG )\n",
                 i, aWinner, aSide, aGamepadIndex,
                 aRecord[1], aRecord[2], aRecord[3], aRecord[4]);

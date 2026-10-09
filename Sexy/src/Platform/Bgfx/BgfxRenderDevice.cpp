@@ -193,6 +193,7 @@ void BgfxRenderDevice::BeginFrame(const Color& clear)
     bgfx::setViewFrameBuffer(SceneView, mTarget);
     bgfx::touch(SceneView);
     mClipped = false; mColorize = false; mTransform.LoadIdentity(); mFrameOpen = true;
+    mTransformStack.clear();
     mFilterEffect = FILTER_EFFECT_NONE;
 }
 void BgfxRenderDevice::EndFrame() { FlushBatch(); }
@@ -234,6 +235,22 @@ void BgfxRenderDevice::SetFilterEffect(FilterEffect theEffect)
     mFilterEffect = theEffect;
 }
 void BgfxRenderDevice::SetTransform(const SexyMatrix3& transform) { FlushBatch(); mTransform = transform; }
+void BgfxRenderDevice::PushTransform(const SexyMatrix3& theTransform, bool theConcatenate)
+{
+    mTransformStack.push_back(mTransform);
+    SetTransform(theConcatenate ? mTransform * theTransform : theTransform);
+}
+void BgfxRenderDevice::PopTransform()
+{
+    if (mTransformStack.empty()) return;
+    SetTransform(mTransformStack.back());
+    mTransformStack.pop_back();
+}
+void BgfxRenderDevice::PopTransform(SexyMatrix3& theTransform)
+{
+    theTransform = mTransform;
+    PopTransform();
+}
 void BgfxRenderDevice::SetClipRect(const Rect& clip)
 {
     FlushBatch();
