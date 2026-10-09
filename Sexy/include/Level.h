@@ -180,6 +180,9 @@ public:
     bool mAdventureComplete;
     LevelSpawnRules mSpawnRules;
     LevelFlagRules mFlagRules;
+    // An explicit value overrides the profile for this level only:
+    // true skips the shop tutorial, false enables it; omission uses the profile.
+    bool mHasSkipShopSeedTutorial;
     bool mSkipShopSeedTutorial;
     std::vector<LevelWaveAction> mActions;
     LevelExtraSpawns mExtraSpawns;

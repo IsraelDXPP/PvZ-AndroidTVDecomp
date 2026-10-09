@@ -352,7 +352,6 @@ int gAlmanacScrollTick = 0;
 int gHelpBarInstanceCount = 0;
 int gEmptyWideStringData = 0;
 int gSeedChooserWarnTick = 0;
-int gShopSeedTutorialTick = 0;
 int gCheatCodeCursor1;
 std::vector<unsigned int> gCheatCodeKeys1;
 int gCheatCodeCursor2;

@@ -61,6 +61,8 @@ public:
     virtual void RemovedFromManager(Sexy::WidgetManager *theManager); // [30] 0x078
     virtual void Update();                                // [31] 0x07C
     virtual void Draw(Sexy::Graphics *theGraphics);               // [36] 0x090
+    // Desktop input advances the same dialogue as the TV confirm button.
+    void MouseDown(int theX, int theY, int theClickCount) override;
 
     LawnApp         *mApp;        // +0x100
     int              mHelpType;   // +0x104  an E_DAVEHELP
@@ -79,4 +81,3 @@ public:
     int DealClick(Sexy::KeyCode theKey);
     void DrawDave(Sexy::Graphics *theGraphics);
 };
-

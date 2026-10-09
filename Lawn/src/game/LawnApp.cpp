@@ -7694,8 +7694,6 @@ bool LawnApp::LoadLevelConfiguration(GameMode theMode, int theLevelId)
               mLevel.mConfigurationError.c_str());
     return false;
   }
-  if (mLevel.mSkipShopSeedTutorial && mPlayerInfo != nullptr)
-    mPlayerInfo->mPassedShopSeedTutorial = true;
   return true;
 }
 

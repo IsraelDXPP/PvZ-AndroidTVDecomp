@@ -119,6 +119,7 @@ DaveHelp::DaveHelp(LawnApp *theApp)
   // header declares private; the global word of the same name declared in
   // ReconData.h is the same address, so the rect at it is what the dump passes.
   Resize(LawnApp::FULLSCREEN_RECT);
+  mMousePreservesFocus = true;
   mContainer = nullptr;
   mCounter = 0;
   mIsSingle = false;
@@ -193,17 +194,30 @@ void DaveHelp::DaveLeave()
   mApp->CrazyDaveLeave();
 }
 
+void DaveHelp::MouseDown(int theX, int theY, int theClickCount)
+{
+  Sexy::Widget::MouseDown(theX, theY, theClickCount);
+  // Board::GameButtonDown @0x15DCC4 ignores confirmation during entry/exit.
+  if (theClickCount <= 0 || theClickCount == 3 || mCounter > 0
+      || mApp->mCrazyDaveState == CRAZY_DAVE_OFF
+      || mApp->mCrazyDaveState == CRAZY_DAVE_ENTERING
+      || mApp->mCrazyDaveState == CRAZY_DAVE_LEAVING)
+    return;
+  DealClick(Sexy::KEYCODE_RETURN);
+}
+
 // ==========================================================================
 // DaveHelp::DealClick(Sexy::KeyCode)
 // @001EC5A4  84 bytes
 // ==========================================================================
 int DaveHelp::DealClick(Sexy::KeyCode theKey)
 {
-  if (theKey == 13)
+  if (theKey == Sexy::KEYCODE_RETURN)
   {
     if ( mApp->AdvanceCrazyDaveText() == 0 )
     {
-      if ( (mApp->mCrazyDaveState & 0xFFFFFFFD) != 0 )
+      if (mApp->mCrazyDaveState != CRAZY_DAVE_OFF
+          && mApp->mCrazyDaveState != CRAZY_DAVE_LEAVING)
       {
         mApp->CrazyDaveLeave();
         if ( !mIsSingle )

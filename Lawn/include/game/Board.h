@@ -458,6 +458,8 @@ public:
     void *mShovelWidget = nullptr;                 // +0x5910  TODO(recon): ShovelRedirectWidget*, not reconstructed yet
     void *mReplayControlsWidget = nullptr;         // +0x5914  TODO(recon): ReplayControlsWidget*, not reconstructed yet
     bool mJacksonDanceMode = false;                // +0x5918
+    // Per-board tutorial timing, outside the saved board state.
+    int mShopSeedTutorialCounter = 0;
     // Transient desktop input, outside the saved board state.
     enum class MouseGesture { None, SeedBank, Tool, CobCannon, UsableSeed, Lawn, Challenge, HeavyWeapon };
     MouseGesture mMouseGesture = MouseGesture::None;
@@ -478,6 +480,7 @@ public:
     void ReleaseMouseControl(int thePlayerIndex);
     void UpdateMenuButton();
     void ToggleToolBar();
+    bool ShouldRunShopSeedTutorial();
     // 0x591C (the tail bool rounds the object up to a 4-byte boundary).
 
     // ------------------------------------------------------------------

@@ -84,7 +84,6 @@ extern int gHelpBarInstanceCount;
 // one zero int. An empty wide string points here.
 extern int gEmptyWideStringData;
 extern int gSeedChooserWarnTick;
-extern int gShopSeedTutorialTick;
 // The two cheat-code key sequences Board fills in its constructor, and the
 // cursors GameButtonUp advances. 0x69E48C / 0x69E490 and 0x69E49C / 0x69E4A0.
 extern int gCheatCodeCursor1;

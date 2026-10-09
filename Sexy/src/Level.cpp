@@ -212,7 +212,11 @@ void ReadLevelAttributes(const Sexy::XMLElement& theElement, Sexy::Level& theLev
     ReadInteger(theElement, "winCodeType", theLevel.mWinType, 0, 100);
     ReadInteger(theElement, "firstWaveDelay", theLevel.mFirstWaveDelay, 1, kMaximumDelay);
     ReadBoolean(theElement, "zombieVisible", theLevel.mZombiesVisible);
-    ReadBoolean(theElement, "skipShopSeedTutorial", theLevel.mSkipShopSeedTutorial);
+    if (theElement.HasAttribute("skipShopSeedTutorial"))
+    {
+        theLevel.mHasSkipShopSeedTutorial = true;
+        ReadBoolean(theElement, "skipShopSeedTutorial", theLevel.mSkipShopSeedTutorial);
+    }
     ReadBoolean(theElement, "allowYeti", theLevel.mAllowYeti);
     ReadInteger(theElement, "pointNumerator", theLevel.mPointNumerator, 0, 1000);
     ReadInteger(theElement, "pointDenominator", theLevel.mPointDenominator, 1, 1000);
@@ -649,6 +653,7 @@ int Sexy::Level::reset()
     mAdventureComplete = false;
     mSpawnRules = LevelSpawnRules::Legacy;
     mFlagRules = LevelFlagRules::Legacy;
+    mHasSkipShopSeedTutorial = false;
     mSkipShopSeedTutorial = false;
     mActions.clear();
     mExtraSpawns = LevelExtraSpawns();

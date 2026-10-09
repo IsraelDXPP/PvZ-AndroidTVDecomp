@@ -327,6 +327,12 @@ void Board::MouseDown(int theX, int theY, int theClickCount)
     Sexy::Widget::MouseDown(theX, theY, theClickCount);
     mMouseGesture = MouseGesture::None;
     mMouseExecuteOnRelease = false;
+    if (HasWidget(mApp->mDaveHelp))
+    {
+        mApp->mDaveHelp->MouseDown(theX - mApp->mDaveHelp->mX,
+            theY - mApp->mDaveHelp->mY, theClickCount);
+        return;
+    }
     if (theClickCount == 3 || mPaused || mBoardFadeOutCounter >= 0)
         return;
     if (theClickCount < 0)
@@ -349,12 +355,6 @@ void Board::MouseDown(int theX, int theY, int theClickCount)
     }
     if (mApp->mGameScene != SCENE_PLAYING && !mCutScene->IsInShovelTutorial())
         return;
-    if (HasWidget(mApp->mDaveHelp) && mApp->mCrazyDaveState != 0)
-    {
-        mApp->mDaveHelp->DealClick(Sexy::KEYCODE_RETURN);
-        return;
-    }
-
     mMouseDownX = theX;
     mMouseDownY = theY;
     if (!mMouseInputActive[mMousePlayerIndex])
@@ -2755,13 +2755,11 @@ void Board::DrawBackdrop(Sexy::Graphics * g)
     // R2 is StageIsNight's result. The callee at 0x18A094 is empty.
     mApp->mPoolEffect->PoolEffectDraw(g, StageIsNight() != 0);
   }
-  if ( mTutorialState == (TutorialState)2 )
+  if ( mTutorialState == TUTORIAL_LEVEL_1_PLANT_PEASHOOTER )
   {
-    // GetFlashingColor writes 16 bytes into the hidden return slot. The third
-    // immediate is 75, the colour period, not a game mode. The stub is declared
-    // with an ellipsis, so the extra argument is not written here.
+    // DrawBackdrop @0x154040 passes the original 75-tick flash period.
     Sexy::Color aFlash;
-    GetFlashingColor(&aFlash, mMainCounter);
+    GetFlashingColor(&aFlash, mMainCounter, 75);
     Sexy::Color aSavedColor = g->GetColor();
     int aColorize = g->GetColorizeImages();
     g->SetColorizeImages(true);
@@ -4267,35 +4265,35 @@ void Board::UpdateTutorial()
   if ( mTutorialTimer > 0 )
     --mTutorialTimer;
 
-  int aState = mTutorialState;
-  if ( aState == 1 && mTutorialTimer == 0 )
+  TutorialState aState = mTutorialState;
+  if ( aState == TUTORIAL_LEVEL_1_PICK_UP_PEASHOOTER && mTutorialTimer == 0 )
   {
-    DisplayAdvice(Sexy::String("[ADVICE_CLICK_PEASHOOTER]"), MESSAGE_STYLE_TUTORIAL_LEVEL1_STAY, (AdviceType)-1);
+    DisplayAdvice(Sexy::String("[ADVICE_CLICK_PEASHOOTER]"), MESSAGE_STYLE_TUTORIAL_LEVEL1_STAY, ADVICE_NONE);
     // Seed bank origin plus the first packet's origin. Both pairs are ints;
     // the binary converts them through float and truncates back.
     SeedBank *aBank = mSeedBank[0];
     TutorialArrowShow(
-      (int)(float)(aBank->mX + aBank->mSeedPackets[0].mX),
-      (int)(float)(aBank->mY + aBank->mSeedPackets[0].mY));
+      aBank->mX + aBank->mSeedPackets[0].mX,
+      aBank->mY + aBank->mSeedPackets[0].mY);
     aState = mTutorialState;
     mTutorialTimer = -1;
   }
 
   // States 5, 6 and 7 share the sunflower reminder.
-  if ( (unsigned int)(aState - 5) <= 2 )
+  if ( aState >= TUTORIAL_LEVEL_2_PICK_UP_SUNFLOWER && aState <= TUTORIAL_LEVEL_2_REFRESH_SUNFLOWER )
   {
     if ( mTutorialTimer != 0 )
     {
       // 750 frames into wave 0, with the timer still running.
       if ( mZombieCountDown == 750 && mCurrentWave == 0 )
       {
-        DisplayAdvice(Sexy::String("[ADVICE_PLANT_SUNFLOWER3]"), MESSAGE_STYLE_TUTORIAL_LEVEL2, (AdviceType)-1);
+        DisplayAdvice(Sexy::String("[ADVICE_PLANT_SUNFLOWER3]"), MESSAGE_STYLE_TUTORIAL_LEVEL2, ADVICE_NONE);
         aState = mTutorialState;
       }
     }
     else if ( mGamepadControls[0]->mSelectedSeedIndex == 1 )
     {
-      DisplayAdvice(Sexy::String("[ADVICE_PLANT_SUNFLOWER1]"), MESSAGE_STYLE_TUTORIAL_LEVEL2, (AdviceType)-1);
+      DisplayAdvice(Sexy::String("[ADVICE_PLANT_SUNFLOWER1]"), MESSAGE_STYLE_TUTORIAL_LEVEL2, ADVICE_NONE);
       aState = mTutorialState;
       mTutorialTimer = -1;
     }
@@ -4305,9 +4303,10 @@ void Board::UpdateTutorial()
     }
   }
 
-  if ( (unsigned int)(aState - 9) <= 2 && mTutorialTimer == 0 )
+  if ( aState >= TUTORIAL_MORESUN_PICK_UP_SUNFLOWER && aState <= TUTORIAL_MORESUN_REFRESH_SUNFLOWER
+       && mTutorialTimer == 0 )
   {
-    DisplayAdvice(Sexy::String("[ADVICE_PLANT_SUNFLOWER5]"), MESSAGE_STYLE_TUTORIAL_LATER, (AdviceType)61);
+    DisplayAdvice(Sexy::String("[ADVICE_PLANT_SUNFLOWER5]"), MESSAGE_STYLE_TUTORIAL_LATER, ADVICE_PLANT_SUNFLOWER5);
     mTutorialTimer = -1;
   }
 
@@ -4315,27 +4314,28 @@ void Board::UpdateTutorial()
   if ( mApp->IsFirstTimeAdventureMode() != 0 )
   {
     int aLevel = mLevel;
-    if ( (unsigned int)(aLevel - 3) <= 4 && aLevel != 5 && mTutorialState == 0 )
+    if ( aLevel >= 3 && aLevel <= 7 && aLevel != 5 && mTutorialState == TUTORIAL_OFF )
     {
       if ( mCurrentWave <= 4 || gShownMoreSunTutorial != 0 )
         return;
       // Packet 2 of bank 0 is at +0xBC. Seed type 1 is the sunflower.
-      if ( mSeedBank[0]->mSeedPackets[2].CanPickUp() != 0 && CountPlantByType((SeedType)1) <= 2 )
+      if ( mSeedBank[0]->mSeedPackets[2].CanPickUp() && CountPlantByType(SEED_SUNFLOWER) <= 2 )
       {
-        DisplayAdvice(Sexy::String("[ADVICE_PLANT_SUNFLOWER4]"), MESSAGE_STYLE_TUTORIAL_LATER_STAY, (AdviceType)-1);
+        DisplayAdvice(Sexy::String("[ADVICE_PLANT_SUNFLOWER4]"), MESSAGE_STYLE_TUTORIAL_LATER_STAY, ADVICE_NONE);
         gShownMoreSunTutorial = 1;
-        SetTutorialState((TutorialState)9);
+        SetTutorialState(TUTORIAL_MORESUN_PICK_UP_SUNFLOWER);
         mTutorialTimer = 500;
       }
     }
   }
 
-  // State 4, wave 4, shop-seed tutorial not yet passed. dword_69E470 is the
-  // unnamed frame counter at 0x69E470; 500 frames opens Dave's shop help.
-  if ( mTutorialState == 4
-    && mApp->mPlayerInfo->mPassedShopSeedTutorial == 0
+  // UpdateTutorial @0x155FA8 waits 500 ticks after the fourth wave, including
+  // the extra zombies added by PickZombieWaves for the shop-seed tutorial.
+  if ( mTutorialState == TUTORIAL_LEVEL_1_COMPLETED
+    && mApp->mGameScene == SCENE_PLAYING && !mLevelFinished && !HasLevelAwardDropped()
+    && ShouldRunShopSeedTutorial()
     && mCurrentWave == 4
-    && ++gShopSeedTutorialTick == 500 )
+    && mShopSeedTutorialCounter < 500 && ++mShopSeedTutorialCounter == 500 )
   {
     Pause(true);
     mGamepadControls[0]->GotoSelectingState(0);
@@ -4345,6 +4345,15 @@ void Board::UpdateTutorial()
     AddWidget(mApp->mMaskHelpWidget);
     mApp->mDaveHelp->DaveEnter(0, this, false);
   }
+}
+
+bool Board::ShouldRunShopSeedTutorial()
+{
+  if (mLevel != 1 || mNumWaves <= 0 || !mApp->IsFirstTimeAdventureMode())
+    return false;
+  if (IsLevelDataLoaded() && mApp->mLevel.mHasSkipShopSeedTutorial)
+    return !mApp->mLevel.mSkipShopSeedTutorial;
+  return !mApp->mPlayerInfo->mPassedShopSeedTutorial;
 }
 
 // ==========================================================================
@@ -9272,9 +9281,7 @@ void Board::StartHelp(int theHelpIndex)
   if ( HasWidget(mApp->mMaskHelpWidget) != 0 )
     RemoveWidget(mApp->mMaskHelpWidget);
   Pause(false);
-  if ( mLevel == 1
-    && mApp->mGameMode == GAMEMODE_ADVENTURE
-    && !mApp->mPlayerInfo->mPassedShopSeedTutorial )
+  if ( ShouldRunShopSeedTutorial() )
   {
     mGamepadControls[0]->FreeUseShopPacketAndBack();
   }
@@ -11170,8 +11177,8 @@ void Board::MouseDownWithTool(int theX, int theY, int theClickCount, CursorType 
 // ==========================================================================
 int Board::PickZombieWaves()
 {
-  // The original @0x161870 pipeline is declared as ordered XML actions.
-  // A missing configuration produces no waves; it never activates hidden extras.
+  // XML actions describe ordinary waves. The TV shop-seed tutorial appends
+  // its demonstration zombies after the fourth wave's ordinary selection.
   mNumWaves = 0;
   for (auto& wave : mZombiesInWave)
     std::fill(std::begin(wave), std::end(wave), ZOMBIE_INVALID);
@@ -11228,6 +11235,24 @@ int Board::PickZombieWaves()
           for (ZombieType type : action.mZombies)
             if (action.mType != LevelWaveActionType::Missing || picker.mZombieTypeCount[type] == 0)
               PutZombieInWave(type, waveIndex, &picker);
+      }
+    }
+    // PickZombieWaves @0x161C7E..0x161D7A: adventure level 1, wave index 3,
+    // with the shop tutorial pending. Add one of each type 0..24 that has a
+    // valid row, independently of the level's ordinary allowed-zombie list.
+    if (waveIndex == 3 && ShouldRunShopSeedTutorial())
+    {
+      for (int typeIndex = ZOMBIE_NORMAL; typeIndex <= ZOMBIE_IMP; ++typeIndex)
+      {
+        const ZombieType type = static_cast<ZombieType>(typeIndex);
+        for (int row = 0; row < MAX_GRID_SIZE_Y; ++row)
+        {
+          if (RowCanHaveZombieType(row, type))
+          {
+            PutZombieInWave(type, waveIndex, &picker);
+            break;
+          }
+        }
       }
     }
   }
@@ -11326,6 +11351,7 @@ int Board::InitSurvivalStage()
 int Board::InitLevel()
 {
   mBoardInitCounter = 0;
+  mShopSeedTutorialCounter = 0;
   mLevelStringMap.clear();
 
   GameMode aMode = mApp->mGameMode;
