@@ -46,7 +46,7 @@ void SetAppDataFolder(const Sexy::String& thePath);
 // binary writes its trace lines through. The return value is the character
 // count, which some call sites store.
 // ---------------------------------------------------------------------------
-int p_addResource(const char* thePath, const char* theKind, int theFlags);
+int p_addResource(const char* thePath, const char* theKind, int thePriority);
 
 int logfi(const char* theFormat, ...);
 int logfd(const char* theFormat, ...);

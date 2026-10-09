@@ -8,6 +8,7 @@
 
 #include "Graphics.h"
 #include "SDLFile.h"
+#include "ReconHelpers.h"
 #include "Bgfx/BgfxRenderDevice.h"
 
 #include <SDL3/SDL.h>
@@ -248,7 +249,7 @@ int MpegVideoOpen(const char* thePath)
     if (aFile.empty())
         return 1;
 
-    aPlayer.mMovieFile = SDL_IOFromFile(aFile.c_str(), "rb");
+    aPlayer.mMovieFile = p_fopen(aFile.c_str(), "rb");
     if (aPlayer.mMovieFile == nullptr)
         return 1;
     const Sint64 aSize = SDL_GetIOSize(aPlayer.mMovieFile);

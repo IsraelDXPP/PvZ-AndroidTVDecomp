@@ -16,6 +16,7 @@
 #include "Platform/Bgfx/BgfxRenderDevice.h"
 #include "Platform/Screenshot.h"
 #include "Platform/SDLFile.h"
+#include "PakLib/FileSystemManager.h"
 #include "MemoryImage.h"
 #include "SexyAppBase.h"
 #include "SexyTypes.h"
@@ -248,5 +249,6 @@ void SDLCALL SDL_AppQuit(void* appstate, SDL_AppResult)
         state->app->Shutdown();
         state->app.reset();
     }
+    PakLib::FileSystemManager::getManager()->release();
     // The state destroys the window last. SDL calls SDL_Quit after this returns.
 }

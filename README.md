@@ -26,6 +26,10 @@
 
 资源路径按 APK 里的 `files/` 来解析。把资源解到可执行文件旁边的 `assets/`（或 `assets/files/`）即可；程序会在发现 `files` 子目录时自动走进去。也可以用 `--assets` 指到别的目录。
 
+也可直接使用 `main.pak`，无需解包。默认只挂载一份 `main.pak`：先查找 exe 旁，再查找资源根；使用 `assets/files/` 时也查找外层 `assets/`。支持 TV 版的 ZIP 型包，以及 PC 版以 `0xBAC04AC0` 为标识、使用 XOR 编码的 PopCap 包。散文件优先。包内路径忽略 ASCII 大小写，兼容 `/`、`\` 和 UTF-8 路径。
+
+包内读取统一接入 `p_fopen`、`p_fread`、`p_fseek`、`p_ftell`、`p_fgetc`、`p_fgets`、`p_feof`、`p_fclose`，调用方无需判断文件来自磁盘还是资源包。ZIP 每个条目的 `compression_method` 指明压缩方式：`0` 为未压缩，`8` 为 Deflate，由 minizip-ng 调用 zlib 解压；不是按扩展名或文件大小猜测。原有 `p_addResource` 保留，优先级数值越小越先查找。写入模式只打开普通文件。TV 包和 PC 包的格式支持不代表两版资源可以互换，运行仍需本项目使用的 TV 资源。
+
 ## 构建
 
 需要：

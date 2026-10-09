@@ -9,6 +9,7 @@
 #include "ReconTypes.h"
 #include "SharedImageRef.h"
 #include "SDLFile.h"
+#include "PakLib/FileSystemManager.h"
 #include "MTRand.h"
 
 
@@ -226,10 +227,8 @@ int p_feof(SDL_IOStream* theStream)
 // ---------------------------------------------------------------------------
 SDL_IOStream* p_fopen(const char* thePath, const char* theMode)
 {
-    // The game asks for assets by their manifest path ("properties/resources.xml",
-    // "images/titlescreen"). Those files live under the asset root main.cpp
-    // installs, so a relative name is resolved there first. An absolute path, or
-    // a file that really does sit in the working directory, is opened as given.
+    // Read-only resources use the mounted file systems. Outputs retain their
+    // requested physical paths and can never write into a pack.
     if (thePath == nullptr || thePath[0] == '\0')
         return nullptr;
 
@@ -240,14 +239,7 @@ SDL_IOStream* p_fopen(const char* thePath, const char* theMode)
     // Only read-only resource opens search the asset root. Writable files
     // must remain at their requested save/log path.
     if (aMode.front() == 'r' && aMode.find('+') == std::string::npos)
-    {
-        std::string aResolved = Sexy::SDLFile::ResolvePath(thePath);
-        SDL_IOStream* aRooted = SDL_IOFromFile(aResolved.c_str(), aMode.c_str());
-        if (aRooted != nullptr)
-            return aRooted;
-        if (aResolved == thePath)
-            return nullptr;
-    }
+        return PakLib::FileSystemManager::getManager()->open(thePath);
 
     return SDL_IOFromFile(thePath, aMode.c_str());
 }

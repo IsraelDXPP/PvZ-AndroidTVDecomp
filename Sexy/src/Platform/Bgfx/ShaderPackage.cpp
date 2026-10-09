@@ -1,5 +1,6 @@
 #include "ShaderPackage.h"
 #include "SDLFile.h"
+#include "ReconHelpers.h"
 #include <SDL3/SDL.h>
 #include <filesystem>
 #include <cstring>
@@ -72,11 +73,15 @@ bgfx::ShaderHandle LoadShaderPackage(const std::string& name, ShaderStage stage)
     if (root.filename() == "files") root = root.parent_path();
     root /= "shaders";
     std::string path = (root / std::filesystem::u8path(name)).u8string();
-    SDL_PathInfo info{};
-    if (!SDL_GetPathInfo(path.c_str(), &info) || info.type != SDL_PATHTYPE_FILE || info.size < 16 || info.size > UINT32_MAX)
+    SDL_IOStream* stream = p_fopen(("shaders/" + name).c_str(), "rb");
+    if (!stream) stream = p_fopen(path.c_str(), "rb");
+    if (!stream)
     { SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Cannot open shader %s", path.c_str()); return BGFX_INVALID_HANDLE; }
+    const Sint64 fileSize = SDL_GetIOSize(stream);
+    if (fileSize < 16 || fileSize > UINT32_MAX)
+    { SDL_CloseIO(stream); SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Invalid shader size: %s", path.c_str()); return BGFX_INVALID_HANDLE; }
     size_t size = 0;
-    void* loaded = SDL_LoadFile(path.c_str(), &size);
+    void* loaded = SDL_LoadFile_IO(stream, &size, true);
     if (!loaded) return BGFX_INVALID_HANDLE;
     const unsigned char* bytes = static_cast<const unsigned char*>(loaded);
     std::vector<unsigned char> package(bytes, bytes + size);

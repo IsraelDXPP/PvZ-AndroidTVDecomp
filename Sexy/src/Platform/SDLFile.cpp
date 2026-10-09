@@ -1,4 +1,6 @@
 #include "SDLFile.h"
+#include "PakLib/FileSystemManager.h"
+#include "ReconHelpers.h"
 #include <SDL3/SDL.h>
 #include <filesystem>
 #include <limits>
@@ -12,6 +14,7 @@ void SDLFile::SetAssetRoot(const std::string& root)
     std::string files = (path / "files").u8string();
     if (SDL_GetPathInfo(files.c_str(), &info) && info.type == SDL_PATHTYPE_DIRECTORY) path /= "files";
     sAssetRoot = path.u8string();
+    PakLib::FileSystemManager::getManager()->setAssetRoot(sAssetRoot);
 }
 std::string SDLFile::GetAssetRoot() { return sAssetRoot; }
 std::string SDLFile::ResolvePath(const std::string& name)
@@ -22,21 +25,20 @@ std::string SDLFile::ResolvePath(const std::string& name)
 }
 bool SDLFile::FileExists(const std::string& name)
 {
-    SDL_PathInfo info{};
-    return SDL_GetPathInfo(ResolvePath(name).c_str(), &info) && info.type == SDL_PATHTYPE_FILE;
+    return PakLib::FileSystemManager::getManager()->fileExists(name);
 }
 long SDLFile::GetFileSize(const std::string& name)
 {
-    SDL_PathInfo info{};
-    if (!SDL_GetPathInfo(ResolvePath(name).c_str(), &info) || info.type != SDL_PATHTYPE_FILE
-        || info.size > static_cast<Uint64>(std::numeric_limits<long>::max())) return -1;
-    return static_cast<long>(info.size);
+    const Sint64 size = PakLib::FileSystemManager::getManager()->getFileSize(name);
+    return size >= 0 && size <= std::numeric_limits<long>::max() ? static_cast<long>(size) : -1;
 }
 bool SDLFile::ReadFile(const std::string& name, std::vector<unsigned char>& data)
 {
     data.clear();
     size_t size = 0;
-    void* loaded = SDL_LoadFile(ResolvePath(name).c_str(), &size);
+    SDL_IOStream* stream = p_fopen(name.c_str(), "rb");
+    if (!stream) return false;
+    void* loaded = SDL_LoadFile_IO(stream, &size, true);
     if (!loaded) return false;
     const unsigned char* bytes = static_cast<const unsigned char*>(loaded);
     data.assign(bytes, bytes + size);

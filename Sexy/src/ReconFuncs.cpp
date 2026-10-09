@@ -43,6 +43,7 @@
 #include "game/DriverFactory.h"
 #include "GameCenter.h"
 #include "Platform/SDLFile.h"
+#include "PakLib/FileSystemManager.h"
 #include "ShareManager.h"
 #include "BridgeApp.h"
 #include "NotificationManager.h"
@@ -352,8 +353,7 @@ std::exception* DestroyOutOfRange(std::exception* theException)
 // The framework free function, not SexyAppBase::FileExists.
 bool Sexy::FileExists(Sexy::String const& path)
 {
-    SDL_PathInfo info{};
-    return SDL_GetPathInfo(path.c_str(), &info) && info.type == SDL_PATHTYPE_FILE;
+    return Sexy::SDLFile::FileExists(path.c_str());
 }
 
 
@@ -587,11 +587,6 @@ int Sexy::Split(Sexy::String const& theText, Sexy::String const& theSeparator,
         aCursor = aHit + aSeparatorLength;
     }
     return (int)theOut.size();
-}
-
-int p_feof()
-{
-    return 0;
 }
 
 // MkDir lives in ReconHelpers.cpp.
@@ -1392,12 +1387,11 @@ int TodLogMessage(int theLevel, char const* theFormat, ...)
     return 0;
 }
 
-int p_addResource(char const* thePath, char const* theKind, int theFlags)
+int p_addResource(char const* thePath, char const* theKind, int thePriority)
 {
-    (void)thePath;
-    (void)theKind;
-    (void)theFlags;
-    return 0;
+    if (thePath == nullptr || theKind == nullptr)
+        return 0;
+    return PakLib::FileSystemManager::getManager()->addResource(thePath, theKind, thePriority) ? 1 : 0;
 }
 
 bool Sexy::Quantize8Bit(unsigned long const* thePixels, int theWidth, int theHeight,

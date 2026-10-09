@@ -226,6 +226,7 @@
     <ClCompile Include="src\Platform\CrashDiagnostics.cpp" />
     <ClCompile Include="src\Platform\SDLAppDriver.cpp" />
     <ClCompile Include="src\Platform\SDLFile.cpp" />
+    <ClCompile Include="src\PakLib\FileSystemManager.cpp" />
     <ClCompile Include="src\Platform\LocalGameCenter.cpp" />
     <ClCompile Include="src\Platform\SDLGamepad.cpp" />
   </ItemGroup>
@@ -319,6 +320,7 @@
     <ClInclude Include="include\Platform\CrashDiagnostics.h" />
     <ClInclude Include="include\Platform\SDLAppDriver.h" />
     <ClInclude Include="include\Platform\SDLFile.h" />
+    <ClInclude Include="include\PakLib\FileSystemManager.h" />
     <ClInclude Include="include\Platform\LocalGameCenter.h" />
     <ClInclude Include="include\Platform\SDLGamepad.h" />
     <ClInclude Include="include\PlayerInfo.h" />
