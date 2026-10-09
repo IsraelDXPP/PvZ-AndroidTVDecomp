@@ -2200,7 +2200,7 @@ void CutScene::StartLevelIntro()
 
     // Read once, ahead of the game-mode chain, because the final-boss branch of
     // that chain tests it.
-    const int aPrevBoardResult = mBoard->mPrevBoardResult;
+    const BoardResult aPrevBoardResult = mBoard->mPrevBoardResult;
 
     // Which Crazy Dave script this level uses. Every branch that finds one
     // schedules him; only the game-mode fallback at the end can leave the index

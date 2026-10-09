@@ -161,7 +161,7 @@ public:
     int CanInteractWithButtons();
     int UpdateSelection();
     int StorePreLoad();
-    int IsPageShown(StorePage thePage);
+    bool IsPageShown(StorePages thePage);
     static int GetItemCost(StoreItem theItem);
     int DrawItem(Sexy::Graphics *g, int theSlot, StoreItem theItem);
     bool CanAffordItem(StoreItem theItem);

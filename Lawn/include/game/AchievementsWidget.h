@@ -5,6 +5,7 @@
 
 class LawnApp;
 class GameButton;
+class MainMenu;
 
 class AchievementsWidget : public Sexy::Widget, public Sexy::ButtonListener
 {
@@ -24,7 +25,13 @@ public:
     void ButtonDepress(int theId) override;
 
 private:
+    enum class Transition { None, Entering, ReturningToTop, Leaving };
     void ScrollTo(int theY);
+    void ScrollByKey(int theAmount);
+    void UpdateTransition();
+    void BeginClose();
+    void FinishClose();
+    void RestoreMainMenu();
     LawnApp* mApp;
     GameButton* mBackButton;
     bool mFromGame;
@@ -33,4 +40,14 @@ private:
     int mDragStartY = 0;
     int mDragStartScroll = 0;
     float mScrollVelocity = 0.0f;
+    MainMenu* mReturnMenu = nullptr;
+    int mMenuStartY = 0;
+    bool mMenuWasDisabled = false;
+    int mMenuRemovedFlags = 0;
+    Transition mTransition = Transition::None;
+    int mTransitionCounter = 0;
+    int mReturnScrollY = 0;
+    int mKeyScrollCounter = 0;
+    int mKeyScrollStartY = 0;
+    int mKeyScrollTargetY = 0;
 };

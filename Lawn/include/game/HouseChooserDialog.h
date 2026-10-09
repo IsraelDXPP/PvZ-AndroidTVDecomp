@@ -27,5 +27,5 @@ public:
 
     HouseType mSelectedHouseType;
     float mGrowTime;
-    int mReserved;
+    HelpBarWidget* mHelpBarWidget = nullptr;
 };

@@ -416,7 +416,7 @@ public:
     bool mDanceMode;                     // +0x5885
     bool mDaisyMode;                     // +0x5886
     bool mSukhbirMode;                   // +0x5887
-    int mPrevBoardResult;                // +0x5888
+    BoardResult mPrevBoardResult;        // +0x5888
     int mTriggeredLawnMowers;            // +0x588C
     int mPlayTimeActiveLevel;            // +0x5890
     int mPlayTimeInactiveLevel;          // +0x5894

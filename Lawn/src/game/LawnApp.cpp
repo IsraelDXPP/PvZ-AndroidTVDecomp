@@ -576,7 +576,6 @@ void LawnApp::ShowAchievementsScreen(bool theFromGame)
     return;
   if (!theFromGame)
   {
-    KillGameSelector();
     KillNewOptionsDialog();
   }
   mAchievementsScreen = new AchievementsWidget(this, theFromGame);

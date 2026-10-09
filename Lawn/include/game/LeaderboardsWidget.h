@@ -22,6 +22,7 @@ public:
     void Draw(Sexy::Graphics* theGraphics) override;
     void MouseDown(int x, int y, int theClickCount) override;
     int KeyDown(Sexy::KeyCode theKey) override;
+    void GameButtonDown(Sexy::GamepadButton theButton, int thePlayerIndex, unsigned int theFlags);
     void ButtonDepress(int theId) override;
     void ShowRecords();
 
@@ -35,5 +36,6 @@ private:
     std::array<std::unique_ptr<Reanimation>, 12> mDecorations;
     std::unique_ptr<TrashBin> mPlantTrash;
     std::unique_ptr<TrashBin> mZombieTrash;
-    int mFocusedDecoration = -1;
+    int mFocusedDecoration = 0;
+    bool mHighlightDecoration = false;
 };

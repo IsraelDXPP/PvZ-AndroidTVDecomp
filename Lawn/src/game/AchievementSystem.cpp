@@ -23,6 +23,13 @@ const AchievementDefinition kAchievements[NUM_ACHIEVEMENT_TYPES] =
     {"ACHIEVEMENT_EXPLODONATOR", "achievement_explodonator", u8"爆破专家", u8"用一枚樱桃炸弹炸死 10 个僵尸。", REANIM_ACHIEVEMENT_EXPLODONATOR},
     {"ACHIEVEMENT_TREE", "achievement_tree", u8"智慧树", u8"将智慧树培养到 100 英尺。", REANIM_ACHIEVEMENT_SMARTY_BRANCHES}
 };
+
+void GrantSharedBoardAchievement(LawnApp* theApp, AchievementType theAchievement)
+{
+    theApp->GrantAchievement(theAchievement);
+    if (theApp->mSecondPlayerGamepadIndex != -1 && theApp->mPlayer2Info != nullptr)
+        theApp->GrantAchievement(theAchievement, theApp->mPlayer2Info);
+}
 }
 
 const AchievementDefinition& GetAchievementDefinition(AchievementType theAchievement)
@@ -99,21 +106,30 @@ void LawnApp::RefreshProfileAchievements()
         return;
     if (HasFinishedAdventure())
         GrantAchievement(ACHIEVEMENT_HOME_SECURITY, mPlayerInfo, false);
-    bool allPlants = true;
-    for (int item = STORE_ITEM_PLANT_GATLINGPEA; item <= STORE_ITEM_PLANT_IMITATER; ++item)
-        allPlants = allPlants && mPlayerInfo->mPurchases[item] > 0;
-    if (HasFinishedAdventure() && allPlants)
+    if (HasAllAchievementPlants())
         GrantAchievement(ACHIEVEMENT_MORTICULTURALIST, mPlayerInfo, false);
     if (mPlayerInfo->mUsedCoins >= 2500)
         GrantAchievement(ACHIEVEMENT_SHOP, mPlayerInfo, false);
     if (mPlayerInfo->mChallengeRecords[GAMEMODE_TREE_OF_WISDOM - GAMEMODE_SURVIVAL_NORMAL_STAGE_1] >= 100)
         GrantAchievement(ACHIEVEMENT_TREE, mPlayerInfo, false);
-    if (mPlayerInfo->mChallengeRecords[GAMEMODE_SURVIVAL_ENDLESS_STAGE_3 - GAMEMODE_SURVIVAL_NORMAL_STAGE_1] >= 40)
+    if (mPlayerInfo->mEndlessHighScore
+        || mPlayerInfo->mChallengeRecords[GAMEMODE_SURVIVAL_ENDLESS_STAGE_3 - GAMEMODE_SURVIVAL_NORMAL_STAGE_1] >= 40)
         GrantAchievement(ACHIEVEMENT_IMMORTAL, mPlayerInfo, false);
     if ((mPlayerInfo->mProgress[0] & 0xFF00) != 0)
         GrantAchievement(ACHIEVEMENT_GARG, mPlayerInfo, false);
     if (mPlayerInfo->mWinStreak >= 5)
         GrantAchievement(ACHIEVEMENT_VERSUS, mPlayerInfo, false);
+}
+
+bool LawnApp::HasAllAchievementPlants()
+{
+    if (mPlayerInfo == nullptr)
+        return false;
+    // The forty adventure seeds and all nine shop seeds, including Imitater.
+    for (int seed = SEED_PEASHOOTER; seed <= SEED_IMITATER; ++seed)
+        if (!HasSeedType(SeedType(seed), false))
+            return false;
+    return true;
 }
 
 void LawnApp::SetHouseReanim(Reanimation* theHouse)
@@ -137,6 +153,9 @@ void LawnApp::SetHouseReanim(Reanimation* theHouse)
 
 void Board::DoPlantingAchievementCheck(SeedType theSeedType)
 {
+    // Exclude garden/setup plants and challenges without ordinary planting.
+    if (mApp->mGameScene != SCENE_PLAYING || !mApp->IsSeedPlantingLevel())
+        return;
     if (theSeedType != SEED_CHOMPER && theSeedType != SEED_SUNFLOWER && theSeedType != SEED_WALLNUT)
         mNewWallNutAndSunFlowerAndChomperOnly = false;
     if (theSeedType == SEED_PEASHOOTER && !HasConveyorBeltSeedBank(false))
@@ -144,33 +163,39 @@ void Board::DoPlantingAchievementCheck(SeedType theSeedType)
         if (mNewPeaShooterCount < 10)
             ++mNewPeaShooterCount;
         if (mNewPeaShooterCount >= 10)
-            mApp->GrantAchievement(ACHIEVEMENT_SOILPLANTS);
+            GrantSharedBoardAchievement(mApp, ACHIEVEMENT_SOILPLANTS);
     }
 }
 
 void Board::CheckLevelAchievements()
 {
     if (mApp->IsAdventureMode() && mLevel == 50)
-        mApp->GrantAchievement(ACHIEVEMENT_HOME_SECURITY);
-    if (mApp->IsSurvivalMode() && mChallenge->mSurvivalStage >= 19)
+        GrantSharedBoardAchievement(mApp, ACHIEVEMENT_HOME_SECURITY);
+    // Native SurvivalSaveScore @0x15AF08 requires solo pool endless and forty flags.
+    if (mApp->mGameMode == GAMEMODE_SURVIVAL_ENDLESS_STAGE_3 && !mApp->IsCoopMode()
+        && GetNumWavesPerSurvivalStage() * (mChallenge->mSurvivalStage + 1) / GetNumWavesPerFlag() >= 40)
+    {
+        mApp->mPlayerInfo->mEndlessHighScore = true;
         mApp->GrantAchievement(ACHIEVEMENT_IMMORTAL);
+    }
     if (mApp->mGameMode == GAMEMODE_TWO_PLAYER_COOP_BOWLING)
-        mApp->GrantAchievement(ACHIEVEMENT_COOP);
-    if (!mApp->IsSurvivalMode())
+        GrantSharedBoardAchievement(mApp, ACHIEVEMENT_COOP);
+    if (!mApp->IsSurvivalMode() && mApp->mGameMode != GAMEMODE_MP_VS)
     {
         int lawnRows = 0;
         for (PlantRowType row : mPlantRow)
             lawnRows += row != PLANTROW_DIRT ? 1 : 0;
         if (lawnRows > 0 && mTriggeredLawnMowers == lawnRows)
-            mApp->GrantAchievement(ACHIEVEMENT_CLOSESHAVE);
-        if (mNewWallNutAndSunFlowerAndChomperOnly && !HasConveyorBeltSeedBank(false))
+            GrantSharedBoardAchievement(mApp, ACHIEVEMENT_CLOSESHAVE);
+        if (mNewWallNutAndSunFlowerAndChomperOnly && mApp->IsSeedPlantingLevel()
+            && !HasConveyorBeltSeedBank(false))
         {
             for (int packet = 0; packet < mSeedBank[0]->mNumPackets; ++packet)
             {
                 const SeedType type = mSeedBank[0]->mSeedPackets[packet].mPacketType;
                 if (type == SEED_CHOMPER || type == SEED_SUNFLOWER || type == SEED_WALLNUT)
                 {
-                    mApp->GrantAchievement(ACHIEVEMENT_CHOMP);
+                    GrantSharedBoardAchievement(mApp, ACHIEVEMENT_CHOMP);
                     break;
                 }
             }

@@ -101,6 +101,7 @@ LeaderboardsWidget::LeaderboardsWidget(LawnApp* theApp, bool theFromGame)
         animation.Update();
     }
     mBackButton = MakeButton(1000, this, this, "[CLOSE]");
+    mBackButton->mMousePreservesFocus = true;
     mBackButton->Resize(1040, 590, 120, 50);
 }
 
@@ -128,7 +129,7 @@ void LeaderboardsWidget::GotFocus()
     mApp->ForceHideHelpBarWidget();
     HelpBarWidget& help = *mApp->mHelpBarWidget;
     help.AddButton(GAMEPAD_BUTTON_A, "[CHOOSE_HOUSE]", HelpBarWidget::HELP_ALIGN_LEFT);
-    help.AddButton(GAMEPAD_BUTTON_X, "[LEADERBOARDS]", HelpBarWidget::HELP_ALIGN_LEFT);
+    help.AddButton(GAMEPAD_BUTTON_X, "[LOCAL_RECORDS]", HelpBarWidget::HELP_ALIGN_LEFT);
     mApp->ShowHelpBarWidget();
 }
 
@@ -154,7 +155,7 @@ void LeaderboardsWidget::Draw(Sexy::Graphics* theGraphics)
         if (!mApp->mPlayerInfo->mAchievements[kDecorationAchievements[decoration]])
             continue;
         mDecorations[decoration]->Draw(theGraphics);
-        if (decoration != mFocusedDecoration)
+        if (!mHighlightDecoration || decoration != mFocusedDecoration)
             continue;
         const int iconX = int(kDecorationPositions[decoration].mX) + 20;
         const int iconY = int(kDecorationPositions[decoration].mY) - 200;
@@ -194,11 +195,12 @@ void LeaderboardsWidget::ShowRecords()
 {
     GameStats& stats = mApp->mPlayerInfo->mGameStats;
     Sexy::String text;
-    StrFormat(&text, u8"击败僵尸：%d\n损失植物：%d\n现有金币：%d\n商店消费：%d\n智慧树高度：%d\n生存无尽旗帜：%d\n对战连胜：%d",
+    const Sexy::String format = TodStringTranslate("[LOCAL_RECORDS_BODY]");
+    StrFormat(&text, format.c_str(),
         stats.GetMiscStat(STAT_ZOMBIES_KILLED), stats.GetMiscStat(STAT_PLANTS_KILLED),
         mApp->mPlayerInfo->mCoins * 10, mApp->mPlayerInfo->mUsedCoins * 10,
         stats.GetMiscStat(STAT_TREE_HEIGHT), stats.GetMiscStat(STAT_ENDLESS_FLAGS), mApp->mPlayerInfo->mWinStreak);
-    mApp->LawnMessageBox(51, "[LEADERBOARDS]", text.c_str(), "[DIALOG_BUTTON_OK]", "", 3);
+    mApp->LawnMessageBox(51, "[LOCAL_RECORDS]", text.c_str(), "[DIALOG_BUTTON_OK]", "", 3);
     mApp->mWidgetManager->SetFocus(this);
 }
 
@@ -212,7 +214,8 @@ void LeaderboardsWidget::MouseDown(int x, int y, int theClickCount)
         if (mApp->mPlayerInfo->mAchievements[kDecorationAchievements[decoration]]
             && (kDecorationRects[decoration][0].Contains(x, y) || kDecorationRects[decoration][1].Contains(x, y)))
         {
-            mFocusedDecoration = mFocusedDecoration == decoration ? -1 : decoration;
+            mHighlightDecoration = !mHighlightDecoration || mFocusedDecoration != decoration;
+            mFocusedDecoration = decoration;
             return;
         }
     }
@@ -245,57 +248,74 @@ int LeaderboardsWidget::KeyDown(Sexy::KeyCode theKey)
     unsigned int flags = 0;
     if (mEvent != nullptr && mApp->MapToButtonEvent(mEvent, button, player, flags))
     {
-        switch (button)
-        {
-        case GAMEPAD_BUTTON_A: theKey = Sexy::KEYCODE_RETURN; break;
-        case GAMEPAD_BUTTON_B: theKey = Sexy::KEYCODE_ESCAPE; break;
-        case GAMEPAD_BUTTON_X: theKey = Sexy::KEYCODE_GAMEPAD_X; break;
-        case GAMEPAD_BUTTON_Y: theKey = Sexy::KEYCODE_GAMEPAD_Y; break;
-        case GAMEPAD_BUTTON_UP:
-        case GAMEPAD_BUTTON_DPAD_UP: theKey = Sexy::KEYCODE_UP; break;
-        case GAMEPAD_BUTTON_DOWN:
-        case GAMEPAD_BUTTON_DPAD_DOWN: theKey = Sexy::KEYCODE_DOWN; break;
-        case GAMEPAD_BUTTON_LEFT:
-        case GAMEPAD_BUTTON_DPAD_LEFT: theKey = Sexy::KEYCODE_LEFT; break;
-        case GAMEPAD_BUTTON_RIGHT:
-        case GAMEPAD_BUTTON_DPAD_RIGHT: theKey = Sexy::KEYCODE_RIGHT; break;
-        default: break;
-        }
+        GameButtonDown(Sexy::GamepadButton(button), player, flags);
+        return 1;
     }
-    if (theKey == Sexy::KEYCODE_ESCAPE || theKey == Sexy::KEYCODE_GAMEPAD_B)
+    switch (theKey)
     {
-        if (mFocusedDecoration >= 0)
-            mFocusedDecoration = -1;
+    case Sexy::KEYCODE_ESCAPE:
+    case Sexy::KEYCODE_GAMEPAD_B: GameButtonDown(GAMEPAD_BUTTON_B, 0, 0); return 1;
+    case Sexy::KEYCODE_RETURN:
+    case Sexy::KEYCODE_SPACE:
+    case Sexy::KEYCODE_GAMEPAD_A: GameButtonDown(GAMEPAD_BUTTON_A, 0, 0); return 1;
+    case Sexy::KEYCODE_GAMEPAD_X: GameButtonDown(GAMEPAD_BUTTON_X, 0, 0); return 1;
+    case Sexy::KEYCODE_GAMEPAD_Y: GameButtonDown(GAMEPAD_BUTTON_Y, 0, 0); return 1;
+    case Sexy::KEYCODE_UP:
+    case Sexy::KEYCODE_GAMEPAD_UP:
+    case Sexy::KEYCODE_GAMEPAD_DPAD_UP: GameButtonDown(GAMEPAD_BUTTON_UP, 0, 0); return 1;
+    case Sexy::KEYCODE_DOWN:
+    case Sexy::KEYCODE_GAMEPAD_DOWN:
+    case Sexy::KEYCODE_GAMEPAD_DPAD_DOWN: GameButtonDown(GAMEPAD_BUTTON_DOWN, 0, 0); return 1;
+    case Sexy::KEYCODE_LEFT:
+    case Sexy::KEYCODE_GAMEPAD_LEFT:
+    case Sexy::KEYCODE_GAMEPAD_DPAD_LEFT: GameButtonDown(GAMEPAD_BUTTON_LEFT, 0, 0); return 1;
+    case Sexy::KEYCODE_RIGHT:
+    case Sexy::KEYCODE_GAMEPAD_RIGHT:
+    case Sexy::KEYCODE_GAMEPAD_DPAD_RIGHT: GameButtonDown(GAMEPAD_BUTTON_RIGHT, 0, 0); return 1;
+    default: return Sexy::Widget::KeyDown(theKey);
+    }
+}
+
+void LeaderboardsWidget::GameButtonDown(Sexy::GamepadButton theButton, int thePlayerIndex, unsigned int theFlags)
+{
+    const bool previous = theButton == GAMEPAD_BUTTON_UP || theButton == GAMEPAD_BUTTON_LEFT
+        || theButton == GAMEPAD_BUTTON_DPAD_UP || theButton == GAMEPAD_BUTTON_DPAD_LEFT;
+    const bool next = theButton == GAMEPAD_BUTTON_DOWN || theButton == GAMEPAD_BUTTON_RIGHT
+        || theButton == GAMEPAD_BUTTON_DPAD_DOWN || theButton == GAMEPAD_BUTTON_DPAD_RIGHT;
+    if ((theFlags & 1) != 0 && !previous && !next)
+        return;
+    if (theButton == GAMEPAD_BUTTON_B)
+    {
+        if (mHighlightDecoration)
+            mHighlightDecoration = false;
         else
             Close();
-        return 1;
+        return;
     }
-    if (theKey == Sexy::KEYCODE_RETURN || theKey == Sexy::KEYCODE_SPACE || theKey == Sexy::KEYCODE_GAMEPAD_A)
+    if (theButton == GAMEPAD_BUTTON_A)
     {
         ChooseHouse();
-        return 1;
+        return;
     }
-    if (theKey == Sexy::KEYCODE_GAMEPAD_X || theKey == Sexy::KEYCODE_GAMEPAD_Y)
+    if (theButton == GAMEPAD_BUTTON_X || theButton == GAMEPAD_BUTTON_Y)
     {
         ShowRecords();
-        return 1;
+        return;
     }
-    const bool previous = theKey == Sexy::KEYCODE_UP || theKey == Sexy::KEYCODE_LEFT;
-    if (previous || theKey == Sexy::KEYCODE_DOWN || theKey == Sexy::KEYCODE_RIGHT)
+    if (previous || next)
     {
-        int decoration = mFocusedDecoration >= 0 ? mFocusedDecoration : 0;
+        int decoration = mFocusedDecoration;
         for (int count = 0; count < 12; ++count)
         {
             decoration = (decoration + (previous ? 1 : 11)) % 12;
             if (mApp->mPlayerInfo->mAchievements[kDecorationAchievements[decoration]])
             {
                 mFocusedDecoration = decoration;
+                mHighlightDecoration = true;
                 break;
             }
         }
-        return 1;
     }
-    return Sexy::Widget::KeyDown(theKey);
 }
 
 void LeaderboardsWidget::ButtonDepress(int theId)

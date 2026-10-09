@@ -20,6 +20,7 @@
 #include "game/Board.h"
 #include "GamepadControls.h"
 #include "HouseChooserDialog.h"
+#include "LeaderboardsWidget.h"
 #include "HelpTextScreen.h"
 #include "CreditScreen.h"
 #include "SeedChooserScreen.h"
@@ -161,6 +162,11 @@ void HelpBarWidget::MouseUp(int x, int y, int theClickCount)
     if (HouseChooserDialog* chooser = dynamic_cast<HouseChooserDialog*>(target))
     {
         chooser->GameButtonDown(button, 0, 0);
+        return;
+    }
+    if (LeaderboardsWidget* house = dynamic_cast<LeaderboardsWidget*>(target))
+    {
+        house->GameButtonDown(button, 0, 0);
         return;
     }
     if (VSSetupMenu* menu = dynamic_cast<VSSetupMenu*>(target))

@@ -117,13 +117,14 @@ Sexy::String GameStats::GetStatName(GameStats_MiscStat theStat)
 {
   switch (theStat)
   {
-    case 0: return Sexy::String("[ZOMBIES KILLED]");
-    case 1: return Sexy::String("[PLANTS_KILLED]");
-    case 2: return Sexy::String("[MONEY]");
-    case 4: return Sexy::String("[TREE_HEIGHT]");
-    case 5: return Sexy::String("[ENDLESS_FLAGS]");
-    case 6: return Sexy::String("[MOWED_ZOMBIES]");
-    case 7: return Sexy::String("[STINKY_CHOCOLATES]");
+    case STAT_ZOMBIES_KILLED: return Sexy::String("[ZOMBIES_KILLED]");
+    case STAT_PLANTS_KILLED: return Sexy::String("[PLANTS_KILLED]");
+    case STAT_MONEY: return Sexy::String("[MONEY]");
+    case STAT_MONEY_SPENT: return Sexy::String("[MONEY_SPENT]");
+    case STAT_TREE_HEIGHT: return Sexy::String("[TREE_HEIGHT]");
+    case STAT_ENDLESS_FLAGS: return Sexy::String("[ENDLESS_FLAGS]");
+    case STAT_MOWED_ZOMBIES: return Sexy::String("[MOWED_ZOMBIES]");
+    case STAT_STINKY_CHOCOLATES: return Sexy::String("[STINKY_CHOCOLATES]");
     default: return Sexy::String();
   }
 }

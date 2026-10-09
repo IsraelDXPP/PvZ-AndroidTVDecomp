@@ -3,6 +3,7 @@
 #include "AchievementsWidget.h"
 #include "AchievementSystem.h"
 #include "LawnApp.h"
+#include "MainMenu.h"
 #include "GameButton.h"
 #include "Graphics.h"
 #include "Image.h"
@@ -13,6 +14,14 @@
 
 namespace {
 constexpr int kHoleLength = 136;
+constexpr int kMenuSlideFrames = 100;
+constexpr int kReturnToTopFrames = 50;
+constexpr int kKeyboardScrollFrames = 20;
+constexpr int kKeyboardScrollDistance = 192;
+constexpr int kMenuSlideDistance = 720;
+// Reference MAIN_MENU_HEIGHT: overlap the two backgrounds by two pixels.
+constexpr int kMenuJoinOffset = kMenuSlideDistance - 2;
+constexpr int kMouseInputFlag = 16;
 const char* HoleImageName(int thePanel)
 {
     switch (thePanel)
@@ -40,6 +49,23 @@ AchievementsWidget::AchievementsWidget(LawnApp* theApp, bool theFromGame)
     mBackButton = MakeButton(1000, this, this, "[CLOSE]");
     // Reference MainMenu's achievements close button, after the 720px slide.
     mBackButton->Resize(1000, 564, 170, 50);
+    mBackButton->mMousePreservesFocus = true;
+    if (!mFromGame && mApp->mGameSelector != nullptr)
+    {
+        mReturnMenu = mApp->mGameSelector;
+        mMenuStartY = mReturnMenu->mY;
+        mMenuWasDisabled = mReturnMenu->mDisabled;
+        mMenuRemovedFlags = mReturnMenu->mWidgetFlagsMod.mRemoveFlags;
+        mReturnMenu->mWidgetFlagsMod.mRemoveFlags |= kMouseInputFlag;
+        mReturnMenu->SetDisabled(true);
+        mTransition = Transition::Entering;
+        mTransitionCounter = kMenuSlideFrames;
+        // Keep the viewport covered after moving the page two pixels above its edge.
+        Resize(mReturnMenu->mX, mMenuStartY + kMenuJoinOffset, mWidth,
+               mHeight + kMenuSlideDistance - kMenuJoinOffset);
+        mBackButton->Move(mBackButton->mX, mBackButton->mY + kMenuSlideDistance - kMenuJoinOffset);
+        mBackButton->SetVisible(false);
+    }
 }
 
 AchievementsWidget::~AchievementsWidget()
@@ -55,6 +81,7 @@ void AchievementsWidget::AddedToManager(Sexy::WidgetManager* theManager)
 
 void AchievementsWidget::RemovedFromManager(Sexy::WidgetManager* theManager)
 {
+    RestoreMainMenu();
     RemoveWidget(mBackButton);
     Sexy::Widget::RemovedFromManager(theManager);
 }
@@ -77,6 +104,18 @@ void AchievementsWidget::ScrollTo(int theY)
 void AchievementsWidget::Update()
 {
     Sexy::Widget::Update();
+    if (mTransition != Transition::None)
+    {
+        UpdateTransition();
+        return;
+    }
+    if (mKeyScrollCounter > 0)
+    {
+        --mKeyScrollCounter;
+        ScrollTo(TodAnimateCurve(kKeyboardScrollFrames, 0, mKeyScrollCounter,
+                                mKeyScrollStartY, mKeyScrollTargetY, CURVE_LINEAR));
+        return;
+    }
     if (!mDragging && std::fabs(mScrollVelocity) > 0.5f)
     {
         const int previous = mScrollY;
@@ -85,6 +124,61 @@ void AchievementsWidget::Update()
         if (previous == mScrollY)
             mScrollVelocity = 0.0f;
     }
+}
+
+// MainMenu.cpp in the supplied console port slides 720px over 100 frames.
+// A scrolled page spends the first 50 return frames moving back to its top.
+void AchievementsWidget::UpdateTransition()
+{
+    --mTransitionCounter;
+    if (mTransition == Transition::ReturningToTop)
+    {
+        ScrollTo(TodAnimateCurve(kReturnToTopFrames, 0, mTransitionCounter,
+                                mReturnScrollY, 0, CURVE_EASE_IN_OUT));
+        if (mTransitionCounter == 0)
+        {
+            mTransition = Transition::Leaving;
+            mTransitionCounter = kMenuSlideFrames;
+        }
+        return;
+    }
+    const bool entering = mTransition == Transition::Entering;
+    const int slide = TodAnimateCurve(kMenuSlideFrames, 0, mTransitionCounter,
+        entering ? 0 : kMenuSlideDistance, entering ? kMenuSlideDistance : 0, CURVE_EASE_IN_OUT);
+    if (mReturnMenu != nullptr && mApp->mGameSelector == mReturnMenu)
+        mReturnMenu->Move(mReturnMenu->mX, mMenuStartY - slide);
+    Move(mX, mMenuStartY + kMenuJoinOffset - slide);
+    MarkDirty();
+    if (mTransitionCounter != 0)
+        return;
+    if (entering)
+    {
+        mTransition = Transition::None;
+        mBackButton->SetVisible(true);
+    }
+    else
+        FinishClose();
+}
+
+void AchievementsWidget::RestoreMainMenu()
+{
+    if (mReturnMenu == nullptr || mApp->mGameSelector != mReturnMenu)
+        return;
+    mReturnMenu->Move(mReturnMenu->mX, mMenuStartY);
+    mReturnMenu->mWidgetFlagsMod.mRemoveFlags = mMenuRemovedFlags;
+    mReturnMenu->SetDisabled(mMenuWasDisabled);
+}
+
+void AchievementsWidget::ScrollByKey(int theAmount)
+{
+    if (mKeyScrollCounter != 0)
+        return;
+    mScrollVelocity = 0.0f;
+    mKeyScrollStartY = mScrollY;
+    ScrollTo(mScrollY + theAmount);
+    mKeyScrollTargetY = mScrollY;
+    mScrollY = mKeyScrollStartY;
+    mKeyScrollCounter = kKeyboardScrollFrames;
 }
 
 void AchievementsWidget::Draw(Sexy::Graphics* theGraphics)
@@ -142,8 +236,9 @@ void AchievementsWidget::Draw(Sexy::Graphics* theGraphics)
 
 void AchievementsWidget::MouseDown(int x, int y, int theClickCount)
 {
-    if (theClickCount <= 0 || theClickCount == 3)
+    if (mTransition != Transition::None || theClickCount <= 0 || theClickCount == 3)
         return;
+    mKeyScrollCounter = 0;
     mDragging = true;
     mDragStartY = y;
     mDragStartScroll = mScrollY;
@@ -166,12 +261,17 @@ void AchievementsWidget::MouseUp(int x, int y, int theClickCount)
 
 void AchievementsWidget::MouseWheel(int theDelta)
 {
+    if (mTransition != Transition::None)
+        return;
+    mKeyScrollCounter = 0;
     mScrollVelocity = 0.0f;
     ScrollTo(mScrollY - theDelta * 100);
 }
 
 int AchievementsWidget::KeyDown(Sexy::KeyCode theKey)
 {
+    if (mTransition != Transition::None)
+        return 1;
     int button = GAMEPAD_BUTTON_NONE;
     int player = 0;
     unsigned int flags = 0;
@@ -179,7 +279,11 @@ int AchievementsWidget::KeyDown(Sexy::KeyCode theKey)
     {
         switch (button)
         {
-        case GAMEPAD_BUTTON_B: theKey = Sexy::KEYCODE_ESCAPE; break;
+        case GAMEPAD_BUTTON_B:
+            if ((flags & 1) != 0)
+                return 1;
+            theKey = Sexy::KEYCODE_ESCAPE;
+            break;
         case GAMEPAD_BUTTON_UP:
         case GAMEPAD_BUTTON_DPAD_UP: theKey = Sexy::KEYCODE_UP; break;
         case GAMEPAD_BUTTON_DOWN:
@@ -195,12 +299,20 @@ int AchievementsWidget::KeyDown(Sexy::KeyCode theKey)
     {
     case Sexy::KEYCODE_ESCAPE:
     case Sexy::KEYCODE_GAMEPAD_B: ButtonDepress(1000); return 1;
-    case Sexy::KEYCODE_UP: ScrollTo(mScrollY - 100); return 1;
-    case Sexy::KEYCODE_DOWN: ScrollTo(mScrollY + 100); return 1;
-    case Sexy::KEYCODE_PRIOR: ScrollTo(mScrollY - mHeight); return 1;
-    case Sexy::KEYCODE_NEXT: ScrollTo(mScrollY + mHeight); return 1;
-    case Sexy::KEYCODE_HOME: ScrollTo(0); return 1;
-    case Sexy::KEYCODE_END: ScrollTo(100000); return 1;
+    case Sexy::KEYCODE_UP:
+    case Sexy::KEYCODE_GAMEPAD_UP:
+    case Sexy::KEYCODE_GAMEPAD_DPAD_UP: ScrollByKey(-kKeyboardScrollDistance); return 1;
+    case Sexy::KEYCODE_DOWN:
+    case Sexy::KEYCODE_GAMEPAD_DOWN:
+    case Sexy::KEYCODE_GAMEPAD_DPAD_DOWN: ScrollByKey(kKeyboardScrollDistance); return 1;
+    case Sexy::KEYCODE_PRIOR:
+    case Sexy::KEYCODE_GAMEPAD_LEFT:
+    case Sexy::KEYCODE_GAMEPAD_DPAD_LEFT: ScrollByKey(-mHeight); return 1;
+    case Sexy::KEYCODE_NEXT:
+    case Sexy::KEYCODE_GAMEPAD_RIGHT:
+    case Sexy::KEYCODE_GAMEPAD_DPAD_RIGHT: ScrollByKey(mHeight); return 1;
+    case Sexy::KEYCODE_HOME: mKeyScrollCounter = 0; ScrollTo(0); return 1;
+    case Sexy::KEYCODE_END: mKeyScrollCounter = 0; ScrollTo(100000); return 1;
     default: return Sexy::Widget::KeyDown(theKey);
     }
 }
@@ -209,8 +321,32 @@ void AchievementsWidget::ButtonDepress(int theId)
 {
     if (theId != 1000)
         return;
+    BeginClose();
+}
+
+void AchievementsWidget::BeginClose()
+{
+    if (mTransition != Transition::None)
+        return;
+    mDragging = false;
+    mScrollVelocity = 0.0f;
+    mKeyScrollCounter = 0;
+    if (mReturnMenu != nullptr && mApp->mGameSelector == mReturnMenu)
+    {
+        mBackButton->SetVisible(false);
+        mReturnScrollY = mScrollY;
+        mTransition = mScrollY > 0 ? Transition::ReturningToTop : Transition::Leaving;
+        mTransitionCounter = mScrollY > 0 ? kReturnToTopFrames : kMenuSlideFrames;
+        return;
+    }
+    FinishClose();
+}
+
+void AchievementsWidget::FinishClose()
+{
     LawnApp* app = mApp;
     const bool fromGame = mFromGame;
+    MainMenu* returnMenu = app->mGameSelector == mReturnMenu ? mReturnMenu : nullptr;
     app->KillAchievementsScreen();
     if (fromGame)
     {
@@ -222,6 +358,11 @@ void AchievementsWidget::ButtonDepress(int theId)
             app->mWidgetManager->SetFocus(app->mBoard);
             app->mBoard->RebuildHelpBar();
         }
+    }
+    else if (returnMenu != nullptr)
+    {
+        app->mWidgetManager->SetFocus(returnMenu);
+        returnMenu->SetFocus(returnMenu->FindWidget(MainMenu::ACHIEVEMENTS_BUTTON), true);
     }
     else
         app->ShowMainMenuScreen();

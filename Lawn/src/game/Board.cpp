@@ -7243,7 +7243,10 @@ int Board::SurvivalSaveScore()
   int aIndex = mApp->GetCurrentChallengeIndex();
   if ( aFlags > 39 && mApp->IsCoopMode() == 0
     && mApp->mGameMode == GAMEMODE_SURVIVAL_ENDLESS_STAGE_3 )
+  {
     mApp->mPlayerInfo->mEndlessHighScore = true;
+    mApp->GrantAchievement(ACHIEVEMENT_IMMORTAL);
+  }
 
   if ( aFlags <= mApp->mPlayerInfo->mChallengeRecords[aIndex] )
     return 0;
@@ -10744,7 +10747,7 @@ Plant * Board::AddPlant(int theGridX, int theGridY, SeedType theSeedType, SeedTy
   if ( theFromSave )
     DoPlantingEffects(theGridX, theGridY, aPlant);
   mChallenge->PlantAdded(aPlant);
-  DoPlantingAchievementCheck(theSeedType == SEED_IMITATER ? theImitaterType : theSeedType);
+  DoPlantingAchievementCheck(theSeedType);
 
   int aSunCount = CountPlantByType(SEED_SUNFLOWER) + CountPlantByType(SEED_SUNSHROOM);
   if ( aSunCount > mMaxSunPlants )
@@ -11333,7 +11336,7 @@ int Board::InitLevel()
   mLevelStringMap.clear();
 
   GameMode aMode = mApp->mGameMode;
-  int aBoardResult = mApp->mBoardResult;
+  BoardResult aBoardResult = mApp->mBoardResult;
   mMainCounter = 0;
   mEnableGraveStones = false;
   mSodPosition = 0;
@@ -11622,6 +11625,10 @@ int Board::InitLevel()
     mFogBlownCountDown = 200;
   }
   mChallenge->InitLevel();
+  // Reference Board::InitLevel resets these for each level and survival round.
+  mNewWallNutAndSunFlowerAndChomperOnly = !(mApp->IsScaryPotterLevel() || mApp->IsIZombieLevel()
+    || mApp->IsWhackAZombieLevel() || HasConveyorBeltSeedBank(false) || mApp->IsChallengeWithoutSeedBank());
+  mNewPeaShooterCount = 0;
   mTangleKelpTree.clear();
   mFlowerPotTree.clear();
   mPumpkinTree.clear();

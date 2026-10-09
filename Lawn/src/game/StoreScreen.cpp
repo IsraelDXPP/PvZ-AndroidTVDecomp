@@ -623,36 +623,23 @@ int StoreScreen::StorePreLoad()
 // StoreScreen::IsPageShown(StorePage)
 // @0018E368  88 bytes
 // ==========================================================================
-// A trial build shows the first page only. Past that the seed page needs level
-// 42 and the first Zen page level 45, which is what the profile's own level
-// (mPlayerInfo->mLevel) is compared against; the second Zen page and the house
-// page never open on their own.
-int StoreScreen::IsPageShown(StorePage thePage)
+// Native unlock levels @0x18E368, with the reference port's house page enabled
+// after adventure. NUM_STORE_PAGES is the original sentinel, not a shelf page.
+bool StoreScreen::IsPageShown(StorePages thePage)
 {
+    if (thePage == NUM_STORE_PAGES || thePage < STORE_PAGE_SLOT_UPGRADES || thePage > STORE_PAGE_HOUSE)
+        return false;
     if (mApp->IsTrialStageLocked() != 0)
         return thePage == STORE_PAGE_SLOT_UPGRADES;
-
-    int result = mApp->HasFinishedAdventure();
-    if (result != 0)
-        return result;
-
-    if (thePage == STORE_PAGE_PLANT_UPGRADES)
+    const bool finishedAdventure = mApp->HasFinishedAdventure();
+    switch (thePage)
     {
-        if (mApp->mPlayerInfo->mLevel > 41)
-            return thePage != STORE_PAGE_HOUSE;
-        return result;
+    case STORE_PAGE_PLANT_UPGRADES: return finishedAdventure || mApp->mPlayerInfo->mLevel >= 42;
+    case STORE_PAGE_ZEN1: return finishedAdventure || mApp->mPlayerInfo->mLevel >= 45;
+    case STORE_PAGE_ZEN2:
+    case STORE_PAGE_HOUSE: return finishedAdventure;
+    default: return true;
     }
-
-    if (thePage == STORE_PAGE_ZEN1)
-    {
-        if (mApp->mPlayerInfo->mLevel <= 44)
-            return result;
-    }
-    else if (thePage == STORE_PAGE_ZEN2)
-    {
-        return result;
-    }
-    return thePage != STORE_PAGE_HOUSE;
 }
 // ==========================================================================
 // StoreScreen::GetItemCost(StoreItem)
@@ -1049,8 +1036,9 @@ void StoreScreen::PurchaseItem(StoreItem theItem)
         return;
 
     int anItemCost = GetItemCost(theItem);
-    mApp->mPlayerInfo->AddCoins(-anItemCost);
-    mApp->mPlayerInfo->mGameStats.ChangeMiscStat(STAT_MONEY_SPENT, anItemCost);
+    if (theItem != STORE_ITEM_BLUEPRINT_CHANGE)
+        mApp->mPlayerInfo->AddCoins(-anItemCost);
+    // AddCoins records the accumulated spending and checks the 25000-coin achievement.
 
     // TV's special purchases jump directly to the shared save/refresh path.
     // Keep them in this chain so a generic one-time purchase cannot overwrite them.
@@ -1155,18 +1143,15 @@ void StoreScreen::PurchaseItem(StoreItem theItem)
     }
     else if (theItem == STORE_ITEM_BLUEPRINT_CHANGE)
     {
-        // The house: HouseChooserDialog decides, and the money comes back
-        // if it was not bought.
+        // Charge a house switch only after the chooser confirms a different house.
         HouseType anOldHouseType = mApp->mPlayerInfo->mGameStats.mHouseType;
         HouseChooserDialog *aHouseDialog = new HouseChooserDialog(mApp);
         mApp->AddDialog(aHouseDialog);
-        mApp->mWidgetManager->AddWidget(aHouseDialog);
-
-        if (aHouseDialog->WaitForResult(true) == 0)
-            mApp->mPlayerInfo->AddCoins(GetItemCost(STORE_ITEM_BLUEPRINT_CHANGE));
-
-        if (mApp->mPlayerInfo->mGameStats.mHouseType == anOldHouseType)
-            mApp->mPlayerInfo->AddCoins(GetItemCost(STORE_ITEM_BLUEPRINT_CHANGE));
+        mWaitForDialog = true;
+        const int houseResult = aHouseDialog->WaitForResult(true);
+        mWaitForDialog = false;
+        if (houseResult == 1000 && mApp->mPlayerInfo->mGameStats.mHouseType != anOldHouseType)
+            mApp->mPlayerInfo->AddCoins(-anItemCost);
 
         mApp->WriteHouse(true);
     }
@@ -1193,10 +1178,7 @@ void StoreScreen::PurchaseItem(StoreItem theItem)
 
     if (mApp->mSeedChooserScreen != nullptr)
         mApp->mSeedChooserScreen->UpdateAfterPurchase();
-    bool allPlants = mApp->HasFinishedAdventure();
-    for (int item = STORE_ITEM_PLANT_GATLINGPEA; item <= STORE_ITEM_PLANT_IMITATER; ++item)
-        allPlants = allPlants && mApp->mPlayerInfo->mPurchases[item] > 0;
-    if (allPlants)
+    if (mApp->HasAllAchievementPlants())
         mApp->GrantAchievement(ACHIEVEMENT_MORTICULTURALIST);
     mApp->TryToSaveProfile();
 }
@@ -1237,11 +1219,13 @@ void StoreScreen::ButtonDepress(int theId)
         do
         {
             int aPage = (int)mPage - 1;
+            if (aPage == NUM_STORE_PAGES)
+                --aPage;
             if (aPage < 0)
-                aPage = NUM_STORE_PAGES - 1;
+                aPage = STORE_PAGE_HOUSE;
             mPage = (StorePages)aPage;
         }
-        while (IsPageShown((StorePage)mPage) == 0);
+        while (!IsPageShown(mPage));
         break;
 
     case 102:
@@ -1254,11 +1238,13 @@ void StoreScreen::ButtonDepress(int theId)
         do
         {
             int aPage = (int)mPage + 1;
-            if (aPage >= NUM_STORE_PAGES)
+            if (aPage == NUM_STORE_PAGES)
+                ++aPage;
+            if (aPage > STORE_PAGE_HOUSE)
                 aPage = 0;
             mPage = (StorePages)aPage;
         }
-        while (IsPageShown((StorePage)mPage) == 0);
+        while (!IsPageShown(mPage));
         break;
 
     default:
@@ -1659,17 +1645,22 @@ void StoreScreen::Draw(Sexy::Graphics *g)
 
     // The page counter, which only appears when more than one page is open.
     int aPageCount = 0;
-    for (int i = 0; i < NUM_STORE_PAGES; ++i)
+    int currentPage = 0;
+    for (int i = STORE_PAGE_SLOT_UPGRADES; i <= STORE_PAGE_HOUSE; ++i)
     {
-        if (IsPageShown((StorePage)i) != 0)
+        if (IsPageShown(StorePages(i)))
+        {
             ++aPageCount;
+            if (i <= mPage)
+                ++currentPage;
+        }
     }
 
     if (aPageCount > 1)
     {
         Sexy::String aPageFormat("[STORE_PAGE]");
         Sexy::String aPageText;
-        TodReplaceNumberString(&aPageText, &aPageFormat, "{PAGE}", mPage + 1);
+        TodReplaceNumberString(&aPageText, &aPageFormat, "{PAGE}", currentPage);
 
         Sexy::String aPagesText;
         TodReplaceNumberString(&aPagesText, &aPageText, "{NUM_PAGES}", aPageCount);

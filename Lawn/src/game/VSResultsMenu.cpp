@@ -418,7 +418,12 @@ void VSResultsMenu::InitFromBoard(Board * theBoard)
       aRecord[0] = -1;
       aRecord[3] = 0;
     }
-    LawnPlayerInfo* profile = aSlot == 0 ? app->mPlayerInfo : app->mPlayer2Info;
+    // Side swapping changes control slots; the profile follows its gamepad ID.
+    LawnPlayerInfo* profile = app->mPlayerInfo;
+    if (profile == nullptr || profile->GetId() != mPlayerIndices[aSlot])
+      profile = app->mPlayer2Info;
+    if (profile != nullptr && profile->GetId() != mPlayerIndices[aSlot])
+      profile = nullptr;
     if (profile != nullptr)
     {
       profile->mWinStreak = aRecord[3];

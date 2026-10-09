@@ -1,4 +1,5 @@
 #include "HouseChooserDialog.h"
+#include "GameButton.h"
 #include "Graphics.h"
 #include "HelpBarWidget.h"
 #include "Image.h"
@@ -25,6 +26,8 @@ void HouseChooserDialog::MouseDown(int x, int y, int theClickCount)
 {
     if (theClickCount <= 0 || theClickCount == 3)
         return;
+    if (IMAGE_STORE_BLUEPRINT_CLOWN == nullptr)
+        return;
     for (int house = BLUEPRINT_BLING; house <= BLUEPRINT_CLOWN; ++house)
     {
         if (!Sexy::Rect(75 + 90 * house, 125, IMAGE_STORE_BLUEPRINT_CLOWN->mWidth,
@@ -45,10 +48,12 @@ void HouseChooserDialog::MouseDown(int x, int y, int theClickCount)
 
 void HouseChooserDialog::GotFocus()
 {
-    mApp->mHelpBarWidget->ClearButtons(0);
-    mApp->mHelpBarWidget->AddButton(GAMEPAD_BUTTON_B, Sexy::String("[CHOOSE_HOUSE_CANCEL]"), HelpBarWidget::HELP_ALIGN_NONE);
-    mApp->mHelpBarWidget->AddButton(GAMEPAD_BUTTON_A, Sexy::String("[CHOOSE_HOUSE_CONFIRM]"), HelpBarWidget::HELP_ALIGN_NONE);
-    mApp->mHelpBarWidget->AddButton(GAMEPAD_BUTTON_LEFT, Sexy::String("[CHOOSE_HOUSE]"), HelpBarWidget::HELP_ALIGN_NONE);
+    Sexy::Widget::GotFocus();
+    mApp->ForceHideHelpBarWidget();
+    mHelpBarWidget = mApp->mHelpBarWidget;
+    mHelpBarWidget->AddButton(GAMEPAD_BUTTON_A, "[CHOOSE_HOUSE_CONFIRM]", HelpBarWidget::HELP_ALIGN_LEFT);
+    mHelpBarWidget->AddButton(GAMEPAD_BUTTON_B, "[CHOOSE_HOUSE_CANCEL]", HelpBarWidget::HELP_ALIGN_RIGHT);
+    mHelpBarWidget->AddButton(GAMEPAD_BUTTON_LEFT, "[CHOOSE_HOUSE]", HelpBarWidget::HELP_ALIGN_LEFT);
     mApp->ShowHelpBarWidget();
 }
 
@@ -67,9 +72,14 @@ int HouseChooserDialog::KeyDown(Sexy::KeyCode theKey)
     case Sexy::KEYCODE_ESCAPE:
     case Sexy::KEYCODE_GAMEPAD_B: GameButtonDown(GAMEPAD_BUTTON_B, 0, 0); return 1;
     case Sexy::KEYCODE_RETURN:
+    case Sexy::KEYCODE_SPACE:
     case Sexy::KEYCODE_GAMEPAD_A: GameButtonDown(GAMEPAD_BUTTON_A, 0, 0); return 1;
-    case Sexy::KEYCODE_LEFT: GameButtonDown(GAMEPAD_BUTTON_LEFT, 0, 0); return 1;
-    case Sexy::KEYCODE_RIGHT: GameButtonDown(GAMEPAD_BUTTON_RIGHT, 0, 0); return 1;
+    case Sexy::KEYCODE_LEFT:
+    case Sexy::KEYCODE_GAMEPAD_LEFT:
+    case Sexy::KEYCODE_GAMEPAD_DPAD_LEFT: GameButtonDown(GAMEPAD_BUTTON_LEFT, 0, 0); return 1;
+    case Sexy::KEYCODE_RIGHT:
+    case Sexy::KEYCODE_GAMEPAD_RIGHT:
+    case Sexy::KEYCODE_GAMEPAD_DPAD_RIGHT: GameButtonDown(GAMEPAD_BUTTON_RIGHT, 0, 0); return 1;
     default: return LawnDialog::KeyDown(theKey);
     }
 }
@@ -79,9 +89,19 @@ void HouseChooserDialog::ButtonDepress(int theId)
     if (theId == 1000 || theId == 1001)
     {
         LawnApp* app = mApp;
-        app->KillDialog(mId);
         if (theId == 1000)
+        {
+            if (!IsHouseAvaliable(mSelectedHouseType))
+                return;
+            LawnPlayerInfo* playerInfo = app->mPlayerInfo;
+            const int house = mSelectedHouseType;
+            playerInfo->mGameStats.mHouseType = mSelectedHouseType;
+            playerInfo->mGameStats.mHouseLevel = playerInfo->mPurchases[STORE_ITEM_BLUEPRINT_BLING + house]
+                + (mSelectedHouseType == BLUEPRINT_BLING ? 2 : -1);
             app->WriteHouse(true);
+        }
+        mResult = theId;
+        app->KillDialog(mId);
         if (app->mLeaderboardScreen != nullptr)
             app->mWidgetManager->SetFocus(app->mLeaderboardScreen);
         return;
@@ -97,24 +117,24 @@ void HouseChooserDialog::GameButtonDown(Sexy::GamepadButton theButton, int thePl
     if ((theFlags & 1) != 0)
         return;
 
-    if (theButton == GAMEPAD_BUTTON_LEFT || theButton == GAMEPAD_BUTTON_RIGHT)
+    const bool previous = theButton == GAMEPAD_BUTTON_LEFT || theButton == GAMEPAD_BUTTON_DPAD_LEFT;
+    if (previous || theButton == GAMEPAD_BUTTON_RIGHT || theButton == GAMEPAD_BUTTON_DPAD_RIGHT)
     {
         int house = mSelectedHouseType;
         mGrowTime = 0.0f;
-        do
-            house = (house + (theButton == GAMEPAD_BUTTON_LEFT ? 4 : 1)) % 5;
-        while (!IsHouseAvaliable(HouseType(house)));
+        for (int step = 0; step < 5; ++step)
+        {
+            house = (house + (previous ? 4 : 1)) % 5;
+            if (IsHouseAvaliable(HouseType(house)))
+                break;
+        }
         mSelectedHouseType = HouseType(house);
+        mApp->PlaySample(SOUND_BLEEP, true);
         return;
     }
 
     if (theButton == GAMEPAD_BUTTON_A)
     {
-        int house = mSelectedHouseType;
-        LawnPlayerInfo* playerInfo = mApp->mPlayerInfo;
-        int delta = (house != 0) ? -1 : 2;
-        playerInfo->mGameStats.mHouseType = mSelectedHouseType;
-        playerInfo->mGameStats.mHouseLevel = playerInfo->mPurchases[STORE_ITEM_BLUEPRINT_BLING + house] + delta;
         ButtonDepress(1000);
         return;
     }
@@ -150,6 +170,7 @@ void HouseChooserDialog::Draw(Sexy::Graphics* g)
                 float scale = TodAnimateCurveFloatTime(0, 0.2f, mGrowTime, 1.0f, 1.1f, 1);
                 g->SetScale(scale, scale, (float)(posX + 33), 159.0f);
             }
+            g->SetColorizeImages(false);
             g->DrawImage(image, posX, 125);
             if (selected)
             {
@@ -159,6 +180,7 @@ void HouseChooserDialog::Draw(Sexy::Graphics* g)
                 g->SetColorizeImages(true);
                 g->DrawImage(image, posX, 125);
                 g->SetColor(Sexy::Color::White);
+                g->SetColorizeImages(false);
             }
         }
 
@@ -191,11 +213,15 @@ void HouseChooserDialog::Resize(int theX, int theY, int theWidth, int theHeight)
 }
 
 HouseChooserDialog::HouseChooserDialog(LawnApp* theApp)
-    : LawnDialog(theApp, nullptr, 71, true, Sexy::String("[CHOOSE_HOUSE]"), Sexy::String(), Sexy::String(), 0)
+    : LawnDialog(theApp, nullptr, 71, true, Sexy::String("[CHOOSE_HOUSE]"), Sexy::String(), Sexy::String(), 2)
 {
     TodLoadResources(Sexy::String("DelayLoad_Store"));
     mGrowTime = 0.0f;
     mSelectedHouseType = mApp->mPlayerInfo->mGameStats.mHouseType;
+    if (!IsHouseAvaliable(mSelectedHouseType))
+        mSelectedHouseType = BLUEPRINT_BLING;
+    mLawnYesButton->mLabel = TodStringTranslate("[CHOOSE_HOUSE_CONFIRM]");
+    mLawnNoButton->mLabel = TodStringTranslate("[CHOOSE_HOUSE_CANCEL]");
     Resize(100, 100, 600, 355);
 }
 

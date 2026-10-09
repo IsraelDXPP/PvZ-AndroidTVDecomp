@@ -798,6 +798,7 @@ public:
     void KillAchievementsScreen();
     bool GrantAchievement(AchievementType theAchievement, LawnPlayerInfo* thePlayer = nullptr, bool theShow = true);
     void RefreshProfileAchievements();
+    bool HasAllAchievementPlants();
     void SetHouseReanim(Reanimation* theHouse);
     Sexy::Image* GetConsoleImage(const char* theName);
     void KillTitleScreen();

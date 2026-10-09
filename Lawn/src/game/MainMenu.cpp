@@ -1581,6 +1581,8 @@ int MainMenu::KeyChar(char theChar)
         mApp->mPlayerInfo->mChallengeRecords[i - 2] = 20;
     }
     mApp->mPlayerInfo->mLevel = 1;
+    for (bool& achievement : mApp->mPlayerInfo->mAchievements)
+      achievement = true;
     mApp->TryToSaveProfile();
     SyncProfile(true);
     Sexy::String aSavedGameName;
@@ -2186,6 +2188,10 @@ void MainMenu::DrawOverlay(Sexy::Graphics *theGraphics)
       aMainMenuReanim->GetCurrentTransform(aTrackIndex, &aTransform);
       aTransform.mTransX = (mCameraOffsetX + aTransform.mTransX) + (float)aButtonOffsetX;
       aTransform.mTransY = (mCameraOffsetY + aTransform.mTransY) + aButtonOffsetY;
+      // Reference DrawOverlay adds mY + 60 during the achievements slide.
+      // Matrix text draws in screen coordinates, independently of Graphics' translation.
+      if (mApp->mAchievementsScreen != nullptr)
+        aTransform.mTransY += float(mY - LawnApp::FULLSCREEN_RECT.mY);
       aTransform.mSkewX = -4.0f;
       aTransform.mSkewY = -4.0f;
       aTransform.mScaleX = aAdventureButton->mAppliedScaleX * 0.5f;
