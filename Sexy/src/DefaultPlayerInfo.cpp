@@ -86,6 +86,16 @@ void Sexy::DefaultPlayerInfo::LoadDetails()
 
         DataSync theSync(theReader);
         SyncDetails(theSync, theSlot);
+        if (theSync.mVersionMismatch)
+        {
+            // Preserve the profile identity, reset every detail slot, and replace
+            // the files together instead of mixing old garden/statistics data in.
+            Reset();
+            DeleteUserFiles();
+            if (!SaveDetails())
+                OutputDebug("Failed to replace incompatible profile %d-%d\n", mProfileId, GetId());
+            return;
+        }
     }
 }
 

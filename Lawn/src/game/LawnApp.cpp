@@ -964,6 +964,17 @@ int LawnApp::StartPlaying()
   KillVSSetupScreen();
   mBoard->StartLevel();
   mGameScene = SCENE_PLAYING;
+  if (!mSaveGameToReplace.empty())
+  {
+    if (mBoard->NeedSaveGame())
+    {
+      if (!mBoard->SaveGame(mSaveGameToReplace))
+        logfe("Failed to replace incompatible save: %s", mSaveGameToReplace.c_str());
+    }
+    else
+      EraseFile(mSaveGameToReplace);
+    mSaveGameToReplace.clear();
+  }
   mBoard->RebuildHelpBar();
   mHelpIndex = 0;
   return 0;
@@ -1090,6 +1101,7 @@ int LawnApp::MakeNewBoard()
 // ==========================================================================
 int LawnApp::NewGame()
 {
+  mSaveGameToReplace.clear();
   mFirstTimeGameSelector = false;
   MakeNewBoard();
   mBoard->InitLevel();
@@ -1448,14 +1460,12 @@ void LawnApp::FinishCreateUserDialog(bool theYes)
 // ==========================================================================
 int LawnApp::DoCheatDialog()
 {
-#ifdef _DEBUG
   if (!mDebugKeysEnabled || gDisableDebugKeys)
     return 0;
   KillDialog(36);
   CheatDialog *aDialog = new CheatDialog(this);
   CenterDialog(aDialog, aDialog->mWidth, aDialog->mHeight);
   AddDialogWithId(36, aDialog);
-#endif
   return 0;
 }
 
@@ -7239,7 +7249,7 @@ void LawnApp::ButtonDepress(int theId)
 // LawnApp::FinishLoadGame()
 // @002C14A8  170 bytes
 // ==========================================================================
-int LawnApp::FinishLoadGame()
+bool LawnApp::FinishLoadGame()
 {
   // The save is applied to a fresh board. When it loads, the board finishes the
   // restore and the save is released. When it does not, a new game starts and
@@ -7247,19 +7257,26 @@ int LawnApp::FinishLoadGame()
   // the last dialog.
   PostEnterLevel();
   MakeNewBoard();
-  int aLoaded = LawnLoadGame(mBoard, mSaveGame);
+  const bool loaded = LawnLoadGame(mBoard, mSaveGame);
+  const bool replaceSave = mSaveGame->mVersionMismatch;
   delete mSaveGame;
   mSaveGame = nullptr;
 
-  if ( aLoaded != 0 )
+  if (loaded)
   {
     mBoard->PostLoadGame();
-    return aLoaded;
+    return true;
   }
 
   NewGame();
+  if (replaceSave)
+  {
+    // The intro and seed chooser must finish before a resumable board is saved.
+    GetSavedGameName(&mSaveGameToReplace, mGameMode,
+                    mPlayerInfo->GetProfileId(), mPlayerInfo->GetId());
+  }
   if ( GetDialogCount() == 0 )
-    return 0;
+    return false;
 
   mBoard->Pause(true);
   Sexy::Dialog* aLastDialog = nullptr;
@@ -7267,7 +7284,7 @@ int LawnApp::FinishLoadGame()
     aLastDialog = aEntry.second;
   if ( aLastDialog != nullptr )
     mWidgetManager->SetFocus(aLastDialog);
-  return 0;
+  return false;
 }
 
 // ==========================================================================
@@ -7389,15 +7406,13 @@ void LawnApp::Start()
 // ==========================================================================
 void LawnApp::HandleCmdLineParam(Sexy::String const& theParamName, Sexy::String const& theParamValue)
 {
-#ifdef _DEBUG
-  // "-tod" turns the developer keys on unless the build forbids them.
+  // Developer shortcuts are enabled explicitly in both Debug and Release.
   if ( theParamName == "-tod" && !gDisableDebugKeys )
   {
     mTodCheatKeys = true;
     mDebugKeysEnabled = true;
     return;
   }
-#endif
   SexyCommonApp::HandleCmdLineParam(theParamName, theParamValue);
 }
 // LawnApp::UpdateFrames()
@@ -7470,8 +7485,8 @@ void LawnApp::UpdateFrames()
   {
     KillDialogById(68);
     mNeedLoadGame = false;
-    FinishLoadGame();
-    if ( GetDialog(63) == nullptr && GetDialog(65) == nullptr )
+    const bool loaded = FinishLoadGame();
+    if (loaded && GetDialog(63) == nullptr && GetDialog(65) == nullptr)
     {
       mFirstTimeGameSelector = false;
       DoContinueDialog();

@@ -1549,7 +1549,6 @@ void MainMenu::AddedToManager(Sexy::WidgetManager *theWidgetManager)
 // ==========================================================================
 int MainMenu::KeyChar(char theChar)
 {
-#ifdef _DEBUG
   Sexy::String aTemp;
   if ( mCreateUserDialogOpened )
     return 1;
@@ -1667,9 +1666,6 @@ int MainMenu::KeyChar(char theChar)
         break;
     }
   }
-#else
-  (void)theChar;
-#endif
   return 1;
 }
 

@@ -604,10 +604,10 @@ bool LawnSaveGame(Board *theBoard, const Sexy::String &theFileName)
     return saved;
 }
 
-int LawnLoadGame(Board *theBoard, SaveGameContext *theContext)
+bool LawnLoadGame(Board *theBoard, SaveGameContext *theContext)
 {
     if (theBoard->mApp->IsFullVersion() == 0)
-        return 1;
+        return true;
 
     struct SaveHeader
     {
@@ -615,17 +615,35 @@ int LawnLoadGame(Board *theBoard, SaveGameContext *theContext)
         unsigned int mVersion;
         int mPointerSize;
     };
+    theContext->mVersionMismatch = false;
     SaveHeader aHeader = {};
-    theContext->SyncBytes(&aHeader, sizeof(aHeader));
-    if (theContext->mReadError || aHeader.mMagic != kSaveMagic || aHeader.mVersion > kSaveVersion)
+    // The serialized header has a byte count followed by its fields. Older
+    // formats can omit the pointer-size field; inspect only their magic/version.
+    constexpr int currentHeaderSize = sizeof(SaveHeader);
+    constexpr int minimumHeaderSize = 2 * sizeof(int);
+    int headerSize = 0;
+    theContext->SyncInt(headerSize);
+    if (theContext->mReadError || headerSize < minimumHeaderSize || headerSize > theContext->ByteLeftToRead())
     {
         gLawnApp->HandleCorruptedGameFile();
-        return 0;
+        return false;
     }
-    if (aHeader.mVersion != kSaveVersion || aHeader.mPointerSize != kSavePointerSize)
+    theContext->SyncInt(aHeader.mMagic);
+    theContext->SyncUint(aHeader.mVersion);
+    if (theContext->mReadError || aHeader.mMagic != kSaveMagic)
     {
-        gLawnApp->HandleOldGameFile();
-        return 0;
+        gLawnApp->HandleCorruptedGameFile();
+        return false;
+    }
+    if (headerSize == currentHeaderSize)
+        theContext->SyncInt(aHeader.mPointerSize);
+    if (headerSize != currentHeaderSize || aHeader.mVersion != kSaveVersion
+        || aHeader.mPointerSize != kSavePointerSize)
+    {
+        OutputDebug("Replacing incompatible level save (version %u, pointer size %d)\n",
+                    aHeader.mVersion, aHeader.mPointerSize);
+        theContext->mVersionMismatch = true;
+        return false;
     }
 
     SyncBoard(theContext, theBoard);
@@ -645,9 +663,9 @@ int LawnLoadGame(Board *theBoard, SaveGameContext *theContext)
     if (theContext->mReadError)
     {
         gLawnApp->HandleCorruptedGameFile();
-        return 0;
+        return false;
     }
     FixBoardAfterLoad(theBoard);
     theBoard->mApp->mGameScene = SCENE_PLAYING;
-    return 1;
+    return true;
 }

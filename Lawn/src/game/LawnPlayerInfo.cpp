@@ -23,11 +23,11 @@ void LawnPlayerInfo::DeleteUserFiles()
     // i.e. the inherited GetProfileId and GetId. GetSavedGameName hands its
     // Sexy::String back through the sret register, so the destination comes
     // first, as in the other variadic framework calls.
-    for ( int i = 0; i != 92; ++i )
+    for (int mode = GAMEMODE_ADVENTURE; mode < NUM_GAME_MODES; ++mode)
     {
         Sexy::String aSavedGameName;
-        GetSavedGameName(&aSavedGameName, (GameMode)i, GetProfileId(), GetId());
-        ((SexyAppBase *)gSexyAppBase)->EraseFile(aSavedGameName);
+        GetSavedGameName(&aSavedGameName, GameMode(mode), GetProfileId(), GetId());
+        gSexyAppBase->EraseFile(aSavedGameName);
     }
 }
 
@@ -158,8 +158,12 @@ int LawnPlayerInfo::SyncGameData(DataSync &theSync)
     int aVersion = gUserVersion;
     theSync.SyncLong(aVersion);
     theSync.mVersion = aVersion;
-    if (aVersion != (int)gUserVersion)
-        OutputDebug("Profile version (%d) doesn't match game version (%d)\n", aVersion, (int)gUserVersion);
+    if (theSync.mReader != nullptr && aVersion != gUserVersion)
+    {
+        OutputDebug("Replacing profile version %d with current version %d\n", aVersion, gUserVersion);
+        theSync.mVersionMismatch = true;
+        return 0;
+    }
 
     theSync.SyncLong(mLevel);
     theSync.SyncLong(mCoins);

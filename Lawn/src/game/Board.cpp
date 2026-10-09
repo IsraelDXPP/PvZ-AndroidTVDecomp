@@ -12995,7 +12995,6 @@ void Board::dumpLevelConfiguration()
 // ==========================================================================
 int Board::KeyChar(char theChar)
 {
-#ifdef _DEBUG
     // Explicit developer mode also accepts keyboard shortcuts while a pad is connected.
     if (!mApp->mDebugKeysEnabled
         || gDisableDebugKeys
@@ -13623,8 +13622,5 @@ int Board::KeyChar(char theChar)
     default:
         break;
     }
-#else
-    (void)theChar;
-#endif
     return 1;
 }

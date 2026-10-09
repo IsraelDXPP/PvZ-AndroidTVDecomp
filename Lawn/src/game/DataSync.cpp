@@ -577,6 +577,8 @@ int DataSync::Reset()
 {
     mReader = nullptr;
     mWriter = nullptr;
+    mVersion = 0;
+    mVersionMismatch = false;
     return ResetPointerTable();
 }
 

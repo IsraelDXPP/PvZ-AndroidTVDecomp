@@ -1513,10 +1513,8 @@ namespace Sexy {
         static constexpr int MOUSE_WHEEL = 512;
         static constexpr int MOUSE_EXIT = 1024;
         static constexpr int MOUSE_CANCEL = 2048;
-#ifdef _DEBUG
-        // Windows text input shares the platform event queue with key presses.
+        // SDL text input shares the platform event queue with key presses.
         static constexpr int CHARACTER_INPUT = 256;
-#endif
         int             modifiers;      // +0x00
         TMLongCard      modifierMask;   // +0x04
         // The input driver's slot. Callers compare and shift it as an integer

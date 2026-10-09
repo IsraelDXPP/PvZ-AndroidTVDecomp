@@ -773,7 +773,7 @@ public:
     void FinishRestartConfirmDialog();
     void CheckForGameEnd();
     void FastLoad(GameMode theGameMode);
-    int FinishLoadGame();
+    bool FinishLoadGame();
     // True when the PNG writer accepted the image.
     bool WriteImage(Sexy::String const &thePath, Sexy::Image *theImage);
     int HardwareInit();
@@ -970,6 +970,7 @@ public:
     // Constructor stores false. Nothing reads it.
     bool mProfileSaveFailed;                // +0xABC (byte 2748)
     SaveGameContext *mSaveGame;             // +0xAC0 (688)
+    Sexy::String mSaveGameToReplace;        // Rewrite an incompatible level once the fresh level starts.
     // TODO(recon): SessionTaskType is an enum in the authoritative tree, same
     // situation as mSaveGameOperation above.
     int mSessionTaskType;                   // +0xAC4 (689)

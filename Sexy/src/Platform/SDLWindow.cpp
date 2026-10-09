@@ -70,9 +70,7 @@ bool SDLWindow::Create(const char* theTitle, int theWidth, int theHeight,
     mVSync = theVSync;
     mClosed = false;
     sActiveWindow = this;
-#ifdef _DEBUG
     SDL_StartTextInput(mWindow);
-#endif
     ResetTimer();
     return true;
 }
@@ -155,7 +153,6 @@ void SDLWindow::ProcessEvent(const SDL_Event& theEvent)
             mInputEvents.push_back(key);
         }
     }
-#ifdef _DEBUG
     if (theEvent.type == SDL_EVENT_TEXT_INPUT && theEvent.text.windowID == windowID)
     {
         const char* cursor = theEvent.text.text;
@@ -175,7 +172,6 @@ void SDLWindow::ProcessEvent(const SDL_Event& theEvent)
             mInputEvents.push_back(character);
         }
     }
-#endif
 }
 void SDLWindow::UpdateFrame()
 {

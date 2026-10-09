@@ -104,6 +104,7 @@ public:
     DataReader *mReader;      // +0x04, PC: DataReader* mReader
     DataWriter *mWriter;      // +0x08, PC: DataWriter* mWriter
     int mVersion;             // +0x0C, PC: int mVersion
+    bool mVersionMismatch = false; // Stop loading before an incompatible payload is read.
     // Save files refer to registered pointers through fixed-width integer IDs.
     std::map<void *, int> mPointerToIntMap;
     std::map<int, void *> mIntToPointerMap;

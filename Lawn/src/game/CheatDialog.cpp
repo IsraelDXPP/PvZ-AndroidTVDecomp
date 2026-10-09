@@ -108,7 +108,8 @@ CheatDialog::CheatDialog(LawnApp *theApp)
 // ==========================================================================
 int CheatDialog::ApplyCheat()
 {
-#ifdef _DEBUG
+    if (!mApp->mDebugKeysEnabled || gDisableDebugKeys)
+        return 0;
     const char *aText = mEditWidget->mString.c_str();
     int aLevel;
     if ( sscanf(aText, "c%d", &aLevel) == 1 || sscanf(aText, "C%d", &aLevel) == 1 )
@@ -162,9 +163,6 @@ int CheatDialog::ApplyCheat()
         mApp->mPlayerInfo->SetFlag(PLAYER_FLAG_ADVENTURE_COMPLETE, true);
     mApp->TryToSaveProfile();
     return 1;
-#else
-    return 0;
-#endif
 }
 
 // ==========================================================================

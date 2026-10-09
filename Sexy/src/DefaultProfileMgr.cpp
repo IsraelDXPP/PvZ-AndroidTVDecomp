@@ -160,7 +160,13 @@ void Sexy::DefaultProfileMgr::SyncState(DataSync& theSync)
     theSync.SyncLong(profileVersion);
     theSync.mVersion = profileVersion;
     if (profileVersion != GetProfileVersion())
+    {
+        OutputDebug("Replacing profile index version %d with current version %d\n",
+                    profileVersion, GetProfileVersion());
+        theSync.mVersionMismatch = true;
+        Clear();
         return;
+    }
 
     if (reader != nullptr)
     {
@@ -333,6 +339,11 @@ Sexy::PlayerInfo* Sexy::DefaultProfileMgr::AddProfile(Sexy::String const& theNam
         profile->mUseSeq = useSeq;
         AddRefProfile(profile);
         list.mProfiles[slot] = profile;
+        // Allocated IDs may refer to orphaned files after an incompatible index
+        // was reset. A new profile must start with its own current-version data.
+        profile->DeleteUserFiles();
+        if (!profile->SaveDetails())
+            OutputDebug("Failed to initialize profile %d-%d\n", profileId, slot);
     }
 
     DeleteOldProfiles();
@@ -392,6 +403,8 @@ void Sexy::DefaultProfileMgr::Load()
 
     DataSync sync(reader);
     SyncState(sync);
+    if (sync.mVersionMismatch)
+        Save();
 }
 
 void Sexy::DefaultProfileMgr::Save()

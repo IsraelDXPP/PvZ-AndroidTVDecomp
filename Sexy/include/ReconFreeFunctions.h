@@ -370,7 +370,7 @@ bool IsFullOfAttachments(const int& theId);
 bool IsIdentityMatrix(const Sexy::SexyMatrix3& theMatrix);
 class Board;
 class SaveGameContext;
-int LawnLoadGame(Board *theBoard, SaveGameContext *theContext);
+bool LawnLoadGame(Board *theBoard, SaveGameContext *theContext);
 bool LawnSaveGame(Board *theBoard, const Sexy::String &theFileName);
 bool LineSegmentIntersects(const Sexy::TPoint<float>& theStart, const Sexy::TPoint<float>& theEnd, const Sexy::TPoint<float>& theOtherStart, const Sexy::TPoint<float>& theOtherEnd, float* theFraction, Sexy::TPoint<float>* theHit);
 struct MD5Context

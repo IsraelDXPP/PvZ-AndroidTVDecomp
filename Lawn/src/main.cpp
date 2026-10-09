@@ -1,7 +1,7 @@
 // main.cpp -- SDL3 callback entry point.
 //
 //   LawnTV.exe [--assets <dir>] [--width N] [--height N]
-//              [--frames N] [--screenshot <file>] [--headless]
+//              [--frames N] [--screenshot <file>] [--headless] [-tod]
 //
 // F12 writes the offscreen frame to screenshots/shot_NNNN.png.
 // --screenshot reads that same offscreen target, so it works with --headless.
@@ -48,9 +48,7 @@ struct LaunchOptions
     int height = 720;
     int frames = 0;
     bool headless = false;
-#ifdef _DEBUG
     bool debugKeys = false;
-#endif
 };
 
 struct ApplicationState
@@ -98,10 +96,8 @@ static LaunchOptions ParseCommandLine(int argc, char** argv)
         }
         else if (arg == "--headless" || arg == "--test-pattern")
             options.headless = true;
-#ifdef _DEBUG
-        else if (arg == "-tod")
+        else if (arg == "-tod" || arg == "--debug-keys")
             options.debugKeys = true;
-#endif
     }
     return options;
 }
@@ -186,10 +182,8 @@ SDL_AppResult SDLCALL SDL_AppInit(void** appstate, int argc, char** argv)
 
     application->app = std::make_unique<LawnApp>();
     LawnApp& app = *application->app;
-#ifdef _DEBUG
     if (options.debugKeys)
         app.HandleCmdLineParam("-tod", "");
-#endif
     app.HardwareInit();
     app.Startup();
 

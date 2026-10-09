@@ -33,6 +33,7 @@ public:
     // flags below carry names derived from their use rather than from a symbol.
     bool mReadError = false;  // +0x1C  set when a read found fewer bytes than it needed
     bool mReading = false;    // +0x1D  non-zero selects the read path, zero the write path
+    bool mVersionMismatch = false; // Recreate the level without reading an incompatible payload.
 
     int ByteLeftToRead();
     unsigned int SyncInt(int &theValue);
