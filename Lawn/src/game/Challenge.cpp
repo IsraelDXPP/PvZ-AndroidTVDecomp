@@ -145,9 +145,7 @@ int Challenge::LoadBeghouledBoardState(BeghouledBoardState *theState)
 // ==========================================================================
 int Challenge::BeghouledTwistValidMove(int theGridX, int theGridY, BeghouledBoardState *theState)
 {
-  if ( theGridX == -1 || theGridY == -1 )
-    return 0;
-  if ( theGridX > 6 || theGridY > 3 )
+  if ( theGridX < 0 || theGridX > 6 || theGridY < 0 || theGridY > 3 )
     return 0;
 
   // A twist is only offered when all four squares of the 2x2 block hold a plant.
@@ -204,9 +202,10 @@ int Challenge::BeghouledDragCancel()
 // Challenge::BeghouledGetPlantAt(theGridX,theGridY,theState)
 // @0017DEA8  28 bytes
 // ==========================================================================
-int Challenge::BeghouledGetPlantAt(int theGridX, int theGridY, BeghouledBoardState *theState)
+SeedType Challenge::BeghouledGetPlantAt(int theGridX, int theGridY, BeghouledBoardState *theState)
 {
-  if ( theGridX > 8 || theGridY > 5 )
+  // TV 0x17DEA8 uses unsigned bounds checks, which also reject negative cells.
+  if ( theGridX < 0 || theGridX > 8 || theGridY < 0 || theGridY > 5 )
     return SEED_NONE;
   return theState->mSeedType[theGridX][theGridY];
 }
@@ -215,14 +214,14 @@ int Challenge::BeghouledGetPlantAt(int theGridX, int theGridY, BeghouledBoardSta
 // Challenge::BeghouledRemoveHorizontalMatch(theGridX,theGridY,theState)
 // @0017DEC4  58 bytes
 // ==========================================================================
-int Challenge::BeghouledRemoveHorizontalMatch(int theGridX, int theGridY, BeghouledBoardState *theState)
+SeedType Challenge::BeghouledRemoveHorizontalMatch(int theGridX, int theGridY, BeghouledBoardState *theState)
 {
-  int aMatchSeed = BeghouledGetPlantAt(theGridX, theGridY, theState);
+  SeedType aMatchSeed = BeghouledGetPlantAt(theGridX, theGridY, theState);
   int aCol = theGridX;
-  int aNextSeed;
+  SeedType aNextSeed;
   do
   {
-    Plant *aPlant = mBoard->GetTopPlantAt(aCol++, theGridY, TOPPLANT_ONLY_NORMAL_POSITION);
+    Plant *aPlant = mBoard->GetTopPlantAt(aCol++, theGridY, TOPPLANT_BUNGEE_ORDER);
     if ( aPlant != nullptr )
       aPlant->Die();
     aNextSeed = BeghouledGetPlantAt(aCol, theGridY, theState);
@@ -235,14 +234,14 @@ int Challenge::BeghouledRemoveHorizontalMatch(int theGridX, int theGridY, Beghou
 // Challenge::BeghouledRemoveVerticalMatch(theGridX,theGridY,theState)
 // @0017DF00  58 bytes
 // ==========================================================================
-int Challenge::BeghouledRemoveVerticalMatch(int theGridX, int theGridY, BeghouledBoardState *theState)
+SeedType Challenge::BeghouledRemoveVerticalMatch(int theGridX, int theGridY, BeghouledBoardState *theState)
 {
-  int aMatchSeed = BeghouledGetPlantAt(theGridX, theGridY, theState);
+  SeedType aMatchSeed = BeghouledGetPlantAt(theGridX, theGridY, theState);
   int aRow = theGridY;
-  int aNextSeed;
+  SeedType aNextSeed;
   do
   {
-    Plant *aPlant = mBoard->GetTopPlantAt(theGridX, aRow++, TOPPLANT_ONLY_NORMAL_POSITION);
+    Plant *aPlant = mBoard->GetTopPlantAt(theGridX, aRow++, TOPPLANT_BUNGEE_ORDER);
     if ( aPlant != nullptr )
       aPlant->Die();
     aNextSeed = BeghouledGetPlantAt(theGridX, aRow, theState);
@@ -257,8 +256,8 @@ int Challenge::BeghouledRemoveVerticalMatch(int theGridX, int theGridY, Beghoule
 // ==========================================================================
 int Challenge::BeghouledHorizontalMatchLength(int theGridX, int theGridY, BeghouledBoardState *theState)
 {
-  int aSeed = BeghouledGetPlantAt(theGridX, theGridY, theState);
-  if ( aSeed == -1 || aSeed == BeghouledGetPlantAt(theGridX - 1, theGridY, theState) )
+  SeedType aSeed = BeghouledGetPlantAt(theGridX, theGridY, theState);
+  if ( aSeed == SEED_NONE || aSeed == BeghouledGetPlantAt(theGridX - 1, theGridY, theState) )
     return 0;
 
   int aLength = 1;
@@ -273,8 +272,8 @@ int Challenge::BeghouledHorizontalMatchLength(int theGridX, int theGridY, Beghou
 // ==========================================================================
 int Challenge::BeghouledVerticalMatchLength(int theGridX, int theGridY, BeghouledBoardState *theState)
 {
-  int aSeed = BeghouledGetPlantAt(theGridX, theGridY, theState);
-  if ( aSeed == -1 || aSeed == BeghouledGetPlantAt(theGridX, theGridY - 1, theState) )
+  SeedType aSeed = BeghouledGetPlantAt(theGridX, theGridY, theState);
+  if ( aSeed == SEED_NONE || aSeed == BeghouledGetPlantAt(theGridX, theGridY - 1, theState) )
     return 0;
 
   int aLength = 1;
@@ -340,7 +339,8 @@ int Challenge::BeghouledTwistMoveCausesMatch(int theGridX, int theGridY, Beghoul
 // ==========================================================================
 int Challenge::BeghouledIsValidMove(int theFromX, int theFromY, int theToX, int theToY, BeghouledBoardState *theState)
 {
-  if ( theFromX > 8 || theToX > 8 || theFromY > 5 || theToY > 5 )
+  if ( theFromX < 0 || theFromX > 8 || theToX < 0 || theToX > 8
+    || theFromY < 0 || theFromY > 5 || theToY < 0 || theToY > 5 )
     return 0;
   // Neither square may be one the player already ate through.
   if ( mBeghouledEated[theFromX][theFromY] || mBeghouledEated[theToX][theToY] )
@@ -3277,18 +3277,19 @@ Challenge * Challenge::BeghouledUpdateCraters()
 // ==========================================================================
 Challenge * Challenge::BeghouledClearCrater(int theCount)
 {
-  mBoard->ClearAdvice(AdviceType(22));
-  mBoard->ClearAdvice(AdviceType(23));
+  mBoard->ClearAdvice(ADVICE_BEGHOULED_USE_CRATER_1);
+  mBoard->ClearAdvice(ADVICE_BEGHOULED_USE_CRATER_2);
 
-  // Clear theCount craters, walking rows 1..8 (row 0 is never a crater), and refresh
+  // TV 0x182288 starts at column 0 and checks all five rows of every column.
+  // Clear theCount craters and refresh
   // the button once the last one is gone.
-  for ( int aRow = 1; aRow < 9; ++aRow )
+  for ( int aCol = 0; aCol < 9; ++aCol )
   {
-    for ( int aCol = 0; aCol < 5; ++aCol )
+    for ( int aRow = 0; aRow < 5; ++aRow )
     {
-      if ( mBeghouledEated[aRow][aCol] )
+      if ( mBeghouledEated[aCol][aRow] )
       {
-        mBeghouledEated[aRow][aCol] = false;
+        mBeghouledEated[aCol][aRow] = false;
         if ( --theCount == 0 )
           return BeghouledUpdateCraters();
       }
@@ -3311,16 +3312,15 @@ void Challenge::ZombieAtePlant(Zombie * theZombie, Plant * thePlant)
 
   mBeghouledEated[thePlant->mPlantCol][thePlant->mRow] = true;
 
-  // Ate a peashooter head: the repeater upgrade becomes available and the first
-  // packet is turned into the crater button.
-  if ( theZombie->mZombieType == ZOMBIE_PEA_HEAD )
+  // TV 0x1822E6 appends the crater button to a four-packet upgrade bank.
+  SeedBank *aSeedBank = mBoard->mSeedBank[0];
+  if ( aSeedBank->mNumPackets == 4 )
   {
-    SeedBank *aSeedBank = mBoard->mSeedBank[0];
-    aSeedBank->mSeedPackets[0].SetPacketType(SEED_BEGHOULED_BUTTON_CRATER, SEED_NONE);
-    mChallengeState = STATECHALLENGE_SCARY_POTTER_MALLETING;
+    aSeedBank->mSeedPackets[4].SetPacketType(SEED_BEGHOULED_BUTTON_CRATER, SEED_NONE);
+    aSeedBank->mNumPackets = 5;
     Sexy::String aAdvice;
     TodStringTranslate(&aAdvice, "[ADVICE_BEGHOULED_USE_CRATER_1]");
-    mBoard->DisplayAdvice(aAdvice, MESSAGE_STYLE_HINT_FAST, AdviceType(22));
+    mBoard->DisplayAdvice(aAdvice, MESSAGE_STYLE_HINT_FAST, ADVICE_BEGHOULED_USE_CRATER_1);
   }
 
   BeghouledCheckStuckState();
@@ -3406,18 +3406,20 @@ int Challenge::BeghouledPacketClicked(SeedPacket * thePacket)
     }
 
     case SEED_BEGHOULED_BUTTON_SHUFFLE:
-      // Shuffling is only allowed while the board is idle (state 2 or 3).
-      if ( (unsigned int)(mChallengeState - STATECHALLENGE_NORMAL) > 1 )
+      // Moving and falling plants must finish before another shuffle starts.
+      if (mChallengeState == STATECHALLENGE_BEGHOULED_MOVING
+        || mChallengeState == STATECHALLENGE_BEGHOULED_FALLING)
         return 0;
       BeghouledShuffle();
       return mBoard->TakeSunMoney(aCost, 0);
 
     case SEED_BEGHOULED_BUTTON_CRATER:
-      if ( BeghouledCanClearCrater() != 0 &&
-           (unsigned int)(mChallengeState - STATECHALLENGE_NORMAL) > 1 )
+      if ( BeghouledCanClearCrater() != 0
+        && mChallengeState != STATECHALLENGE_BEGHOULED_MOVING
+        && mChallengeState != STATECHALLENGE_BEGHOULED_FALLING )
       {
         BeghouledClearCrater(1);
-        BeghouledStartFalling(STATECHALLENGE_NORMAL);
+        BeghouledStartFalling(STATECHALLENGE_BEGHOULED_FALLING);
         return mBoard->TakeSunMoney(aCost, 0);
       }
       return 0;
@@ -3454,65 +3456,63 @@ void Challenge::BeghouledScore(int theGridX, int theGridY, int theNumPlants, boo
       aY += theNumPlants == 4 ? 120.0f : 160.0f;
   }
 
-  // One point per match, and every point is worth a coin once the board is
-  // actually being played (state 0 means the level has not started yet).
+  // TV 0x182518 awards one point per matched run. The first match opens the
+  // upgrade bank, and later matches in the same move earn additional sun.
   ++mChallengeScore;
   SeedBank *aSeedBank = mBoard->mSeedBank[0];
   if ( aSeedBank->mNumPackets != 0 )
   {
-    // Past the start the upgrades stop being offered; before it they are, and
-    // the crater button joins them once the board can be cleared.
     if ( !mBoard->mAdvice->IsBeingDisplayed() )
     {
-      if ( mChallengeScore > 69 )
-      {
-        Sexy::String aAdvice;
-        TodStringTranslate(&aAdvice, "[ADVICE_BEGHOULED_ALMOST_THERE]");
-        mBoard->DisplayAdvice(aAdvice, MESSAGE_STYLE_HINT_FAST, AdviceType(48));
-      }
+      Sexy::String aFormat("[ADVICE_BEGHOULED_MATCH_3]");
+      Sexy::String aAdvice;
+      TodReplaceNumberString(&aAdvice, &aFormat, "{SCORE}", 75);
+      mBoard->DisplayAdvice(aAdvice, MESSAGE_STYLE_HINT_FAST, ADVICE_BEGHOULED_MATCH_3);
     }
-    if ( mChallengeScore > 74 )
+    if ( mChallengeScore > 69 )
     {
-      mChallengeScore = 75;
-      SpawnLevelAward(theGridX, theGridY);
-      mBoard->ClearAdvice(AdviceType(-1));
-      return;
+      mBoard->DisplayAdvice("[ADVICE_BEGHOULED_ALMOST_THERE]",
+        MESSAGE_STYLE_HINT_FAST, ADVICE_ALMOST_THERE);
     }
   }
   else
   {
-    // The first match opens the shop: the three upgrades and the shuffle button
-    // replace the starting packets, and the board moves to state 4.
+    // ARM packet addresses are 0x48 + index * 0x74: four consecutive packets.
     aSeedBank->mSeedPackets[0].SetPacketType(SEED_REPEATER, SEED_NONE);
-    aSeedBank->mSeedPackets[2].SetPacketType(SEED_FUMESHROOM, SEED_NONE);
-    aSeedBank->mSeedPackets[4].SetPacketType(SEED_TALLNUT, SEED_NONE);
-    aSeedBank->mSeedPackets[6].SetPacketType(SEED_BEGHOULED_BUTTON_SHUFFLE, SEED_NONE);
+    aSeedBank->mSeedPackets[1].SetPacketType(SEED_FUMESHROOM, SEED_NONE);
+    aSeedBank->mSeedPackets[2].SetPacketType(SEED_TALLNUT, SEED_NONE);
+    aSeedBank->mSeedPackets[3].SetPacketType(SEED_BEGHOULED_BUTTON_SHUFFLE, SEED_NONE);
     aSeedBank->mNumPackets = 4;
     Sexy::String aAdvice;
     TodStringTranslate(&aAdvice, "[ADVICE_BEGHOULED_SAVE_SUN]");
-    mBoard->DisplayAdvice(aAdvice, MESSAGE_STYLE_HINT_FAST, AdviceType(21));
+    mBoard->DisplayAdvice(aAdvice, MESSAGE_STYLE_HINT_FAST, ADVICE_BEGHOULED_SAVE_SUN);
 
     if ( BeghouledCanClearCrater() != 0 )
     {
-      aSeedBank->mSeedPackets[8].SetPacketType(SEED_BEGHOULED_BUTTON_CRATER, SEED_NONE);
+      aSeedBank->mSeedPackets[4].SetPacketType(SEED_BEGHOULED_BUTTON_CRATER, SEED_NONE);
       aSeedBank->mNumPackets = 5;
     }
   }
 
-  // The coin burst is between one and five coins long, longer the bigger the
-  // match, and it grows with the challenge's own grid position.
-  int aCoinCount = mChallengeGridX + theNumPlants - 2;
-  if ( theNumPlants > 4 )
-    aCoinCount += 2;
-  if ( aCoinCount <= 1 )
-    aCoinCount = 1;
-  else if ( aCoinCount >= 5 )
-    aCoinCount = 5;
+  if ( mChallengeScore >= 75 )
+  {
+    mChallengeScore = 75;
+    SpawnLevelAward(theGridX, theGridY);
+    mBoard->ClearAdvice(ADVICE_NONE);
+  }
+  else
+  {
+    int aCoinCount = mBeghouledMatchesThisMove + theNumPlants - 2;
+    if ( theNumPlants > 4 )
+      aCoinCount += 2;
+    aCoinCount = std::clamp(aCoinCount, 1, 5);
 
-  for ( int aCoin = 0; aCoin < aCoinCount; ++aCoin )
-    mBoard->AddCoin((int)(aX + (float)aCoin * 20.0f - 10.0f), (int)aY, COIN_SUN, CoinMotion(3));
+    for ( int aCoin = 0; aCoin < aCoinCount; ++aCoin )
+      mBoard->AddCoin((int)(aX + (float)aCoin * 20.0f - 10.0f), (int)aY,
+        COIN_SUN, COIN_MOTION_FROM_PRESENT);
+  }
 
-  ++mChallengeGridY;
+  ++mBeghouledMatchesThisMove;
 }
 
 // ==========================================================================
@@ -3521,13 +3521,12 @@ void Challenge::BeghouledScore(int theGridX, int theGridY, int theNumPlants, boo
 // ==========================================================================
 void Challenge::BeghouledRemoveMatches(BeghouledBoardState *theState)
 {
-  // Every square is tested for a horizontal match first, then a vertical one,
-  // and each match is removed and scored before the walk moves on. The loop
-  // restarts the same square after a match, because removing one can leave
-  // another behind it.
+  // TV 0x18287C tests both axes against the same board snapshot, then advances
+  // once. Keeping the snapshot lets a crossing horizontal/vertical match score
+  // both axes without repeatedly scoring the vertical match.
   for ( int aRow = 0; aRow != 5; ++aRow )
   {
-    for ( int aCol = 0; aCol != 8; )
+    for ( int aCol = 0; aCol != 8; ++aCol )
     {
       int aMatched = BeghouledHorizontalMatchLength(aCol, aRow, theState);
       if ( aMatched > 2 )
@@ -3542,10 +3541,6 @@ void Challenge::BeghouledRemoveMatches(BeghouledBoardState *theState)
         BeghouledRemoveVerticalMatch(aCol, aRow, theState);
         BeghouledScore(aCol, aRow, aVertical, false);
       }
-      else
-      {
-        ++aCol;
-      }
     }
   }
 }
@@ -3558,7 +3553,7 @@ void Challenge::UpdateBeghouled()
 {
   // The board's progress meter animates with the score, and the cursor itself is
   // the gamepad cursor when one is in use.
-  mBoard->mProgressMeterWidth = TodAnimateCurve(0, 75, mChallengeScore, 0, COERCE_FLOAT(150), 1);
+  mBoard->mProgressMeterWidth = TodAnimateCurve(0, 75, mChallengeScore, 0, 150, CURVE_LINEAR);
 
   GamepadControls *aControls = mBoard->mGamepadControls[0];
   float aCursorX = aControls->mCursorPositionX;
@@ -3611,7 +3606,7 @@ void Challenge::UpdateBeghouled()
     {
       Sexy::String aAdvice;
       TodStringTranslate(&aAdvice, "[ADVICE_BEGHOULED_USE_CRATER_2]");
-      mBoard->DisplayAdvice(aAdvice, MESSAGE_STYLE_HINT_FAST, AdviceType(23));
+      mBoard->DisplayAdvice(aAdvice, MESSAGE_STYLE_HINT_FAST, ADVICE_BEGHOULED_USE_CRATER_2);
     }
   }
 

@@ -736,7 +736,7 @@ public:
     // member returning the rect by value
     // (_ZN5Board16GetZenButtonRectE14GameObjectType @0x15c500).
     Sexy::Rect GetZenButtonRect(GameObjectType theObjectType);
-    int DrawZenWheelBarrowButton(Sexy::Graphics * g, int thePlayerIndex);
+    int DrawZenWheelBarrowButton(Sexy::Graphics * g, int theOffsetY);
     int MouseHitTest(int theX, int theY, HitResult *theHitResult, int thePlayerIndex);
     Plant * ToolHitTest(int theX, int theY);
     Plant * HighlightPlantsForMouse(int theX, int theY);

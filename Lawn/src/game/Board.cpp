@@ -8000,7 +8000,7 @@ Sexy::Rect Board::GetZenButtonRect(GameObjectType theObjectType)
 // Board::DrawZenWheelBarrowButton(Sexy::Graphics *,int)
 // @0015C56C  384 bytes
 // ==========================================================================
-int Board::DrawZenWheelBarrowButton(Sexy::Graphics * g, int thePlayerIndex)
+int Board::DrawZenWheelBarrowButton(Sexy::Graphics * g, int theOffsetY)
 {
   // Only the button origin is read. The image is drawn at 3/4 of its size,
   // truncated toward zero the same way VCVT.S32.F32 does.
@@ -8009,37 +8009,39 @@ int Board::DrawZenWheelBarrowButton(Sexy::Graphics * g, int thePlayerIndex)
   int aDrawWidth = (int)((float)aImage->mWidth * 0.75f);
   int aDrawHeight = (int)((float)aImage->mHeight * 0.75f);
   PottedPlant *aPlant = mApp->mZenGarden->GetPottedPlantInWheelbarrow();
-  // Cursor type 5 is the shovel: the barrow is drawn empty, three pixels above
-  // the button, and the function returns whatever DrawImage left in r0.
-  if ( aPlant == nullptr || mCursorObject[0]->mCursorType == 5 )
-    g->DrawImage(aImage, aButtonRect.mX + 3, aButtonRect.mY - 3 + thePlayerIndex, aDrawWidth, aDrawHeight);
-  return 0;
+  // @0x15C5C2..0x15C5CE takes the empty branch only when the barrow has no
+  // plant or the plant is currently carried by the wheelbarrow cursor.
+  if (aPlant == nullptr || mCursorObject[0]->mCursorType == CURSOR_TYPE_PLANT_FROM_WHEEL_BARROW)
+  {
+    g->DrawImage(aImage, aButtonRect.mX + 3, aButtonRect.mY - 3 + theOffsetY, aDrawWidth, aDrawHeight);
+    return 0;
+  }
 
   // Challenge state 8 lifts the barrow; every other state drops it four pixels.
   int aY = aButtonRect.mY;
-  if ( mChallenge->mChallengeState == 8 )
+  if ( mChallenge->mChallengeState == STATECHALLENGE_ZEN_FADING )
     aY -= 3;
   else
     aY += 4;
-  g->DrawImage(aImage, aButtonRect.mX + 3, aY + thePlayerIndex, aDrawWidth, aDrawHeight);
+  g->DrawImage(aImage, aButtonRect.mX + 3, aY + theOffsetY, aDrawWidth, aDrawHeight);
 
   // Byte +2 >> 6 is mPlantAge (bits 22..23 of the leading bitfield word).
   // DrawPottedPlant returns void, so the word left in r0 is not a result.
-  int aAge = aPlant->mPlantAge;
-  if ( aAge == 1 )
+  PottedPlantAge aAge = aPlant->mPlantAge;
+  if ( aAge == PLANTAGE_SMALL )
   {
     mApp->mZenGarden->DrawPottedPlant(
-      g, (float)(aButtonRect.mX + 23), (float)(aButtonRect.mY - 8 + thePlayerIndex), aPlant, 0.6f, true);
+      g, (float)(aButtonRect.mX + 23), (float)(aButtonRect.mY - 8 + theOffsetY), aPlant, 0.6f, true);
     return 0;
   }
-  if ( aAge == 2 )
+  if ( aAge == PLANTAGE_MEDIUM )
   {
     mApp->mZenGarden->DrawPottedPlant(
-      g, (float)(aButtonRect.mX + 28), (float)(aButtonRect.mY + 2 + thePlayerIndex), aPlant, 0.5f, true);
+      g, (float)(aButtonRect.mX + 28), (float)(aButtonRect.mY + 2 + theOffsetY), aPlant, 0.5f, true);
     return 0;
   }
   mApp->mZenGarden->DrawPottedPlant(
-    g, (float)(aButtonRect.mX + 34), (float)(aButtonRect.mY + 12 + thePlayerIndex), aPlant, 0.4f, true);
+    g, (float)(aButtonRect.mX + 34), (float)(aButtonRect.mY + 12 + theOffsetY), aPlant, 0.4f, true);
   return 0;
 }
 

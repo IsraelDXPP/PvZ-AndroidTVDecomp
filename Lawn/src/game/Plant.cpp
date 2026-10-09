@@ -1882,7 +1882,7 @@ int Plant::DrawSeedType(Sexy::Graphics * g, SeedType theSeedType, SeedType theIm
 // ==========================================================================
 int Plant::GetCost(SeedType theSeedType, SeedType theImitaterType)
 {
-  GameMode aGameMode = ((LawnApp *)gLawnApp)->mGameMode;
+  GameMode aGameMode = gLawnApp->mGameMode;
   bool aBeghouled = aGameMode == GAMEMODE_CHALLENGE_BEGHOULED
     || aGameMode == GAMEMODE_CHALLENGE_BEGHOULED_TWIST;
   if (aBeghouled)
@@ -1917,7 +1917,7 @@ int Plant::GetCost(SeedType theSeedType, SeedType theImitaterType)
       return 100;
   }
 
-  if ((unsigned)(((LawnApp *)gSexyAppBase)->mGameMode - GAMEMODE_MP_VS_DEBUG) <= 1)
+  if (aGameMode == GAMEMODE_MP_VS_DEBUG || aGameMode == GAMEMODE_MP_VS)
   {
     switch (theSeedType)
     {
@@ -1989,6 +1989,8 @@ int Plant::GetCost(SeedType theSeedType, SeedType theImitaterType)
       case SEED_ZOMBIE_TRASHCAN:
         return 50;
       case SEED_ZOMBIE_TRAFFIC_CONE:
+      case SEED_ZOMBIE_POLEVAULTER:
+        // Plant::GetCost @0x16BEF0 maps both seeds to @0x16C0B2 (75 sun).
         return 75;
       case SEED_ZOMBIE_PAIL:
       case SEED_ZOMBIE_DIGGER:

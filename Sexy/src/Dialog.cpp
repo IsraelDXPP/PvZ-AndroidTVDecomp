@@ -63,7 +63,9 @@ int Sexy::Dialog::WaitForResult(bool autoKill)
 
     int aResult = mResult;
     if (autoKill)
-        theApp->KillDialog(mId);
+        // TV 0x301CDC calls the virtual by-id close slot, which lets LawnApp
+        // restore board focus and unpause after a profile-saving dialog.
+        theApp->KillDialogById(mId);
 
     --theApp->mUpdateDepth;
     return aResult;

@@ -186,9 +186,9 @@ public:
     int BeghouledTwistSquareFromMouse(int theX, int theY, int & theGridX, int & theGridY);
     int BeghouledDragStart(int theX, int theY);
     int BeghouledDragCancel();
-    int BeghouledGetPlantAt(int theGridX, int theGridY, BeghouledBoardState *theState);
-    int BeghouledRemoveHorizontalMatch(int theGridX, int theGridY, BeghouledBoardState *theState);
-    int BeghouledRemoveVerticalMatch(int theGridX, int theGridY, BeghouledBoardState *theState);
+    SeedType BeghouledGetPlantAt(int theGridX, int theGridY, BeghouledBoardState *theState);
+    SeedType BeghouledRemoveHorizontalMatch(int theGridX, int theGridY, BeghouledBoardState *theState);
+    SeedType BeghouledRemoveVerticalMatch(int theGridX, int theGridY, BeghouledBoardState *theState);
     int BeghouledHorizontalMatchLength(int theGridX, int theGridY, BeghouledBoardState *theState);
     int BeghouledVerticalMatchLength(int theGridX, int theGridY, BeghouledBoardState *theState);
     int BeghouledBoardHasMatch(BeghouledBoardState *theState);

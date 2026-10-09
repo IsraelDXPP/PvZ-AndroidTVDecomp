@@ -1291,6 +1291,15 @@ int MainMenu::SyncButtons()
   FindWidget(MAIL_BUTTON);
   Sexy::Widget *aAchievementsButton = FindWidget(ACHIEVEMENTS_BUTTON);
   aAchievementsButton->SetDisabled(false);
+  // MenuWidget::Exit @0x2AF2C8 disables every child during the iris animation.
+  // Achievements are available locally, so retain the trophy while input is
+  // disabled instead of replacing it with the unavailable-service flower.
+  GameButton* achievements = dynamic_cast<GameButton*>(aAchievementsButton);
+  if (achievements != nullptr)
+  {
+    achievements->mDisabledImage = achievements->mButtonImage;
+    achievements->mDisabledRect = achievements->mNormalRect;
+  }
   Sexy::Widget *aUnlockButton = FindWidget(UNLOCK_BUTTON);
   aUnlockButton->SetDisabled(true);
   aHouseButton->SetVisible(true);
