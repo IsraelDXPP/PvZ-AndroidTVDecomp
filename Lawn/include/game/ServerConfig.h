@@ -1,5 +1,4 @@
-// ServerConfig is two static helpers. The TV binary has no instance data:
-// getDomainURL returns the shop URL by value, and encryption stays off.
+// The local SDL shop has no publisher server URL or data encryption.
 
 #pragma once
 

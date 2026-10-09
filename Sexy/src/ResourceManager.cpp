@@ -452,6 +452,16 @@ Sexy::ResourceManager::ResourceManager(Sexy::SexyAppBase* theApp)
     , mLocaleSuffix()
     , mResLocaleSuffix()
 {
+    const char* aLocale = Sexy::setLocale(nullptr, nullptr);
+    if (aLocale != nullptr && std::strlen(aLocale) == 5)
+    {
+        std::string aCode = aLocale;
+        aCode.erase(2, 1);
+        for (char& aLetter : aCode)
+            if (aLetter >= 'a' && aLetter <= 'z')
+                aLetter -= 'a' - 'A';
+        mLocaleCode = LocaleFromText(aCode.c_str());
+    }
 }
 
 Sexy::ResourceManager::~ResourceManager()

@@ -14,7 +14,11 @@ void SDLFile::SetAssetRoot(const std::string& root)
     std::string files = (path / "files").u8string();
     if (SDL_GetPathInfo(files.c_str(), &info) && info.type == SDL_PATHTYPE_DIRECTORY) path /= "files";
     sAssetRoot = path.u8string();
-    PakLib::FileSystemManager::getManager()->setAssetRoot(sAssetRoot);
+    // Read the external settings before opening packs, so language selection
+    // cannot recurse through p_fopen or depend on the selected language pack.
+    const char* language = Sexy::GetEnv("LAWN_LANGUAGE");
+    const char* locale = Sexy::setLocale(nullptr, language != nullptr && language[0] != '\0' ? language : "en_us");
+    PakLib::FileSystemManager::getManager()->setAssetRoot(sAssetRoot, locale);
 }
 std::string SDLFile::GetAssetRoot() { return sAssetRoot; }
 std::string SDLFile::ResolvePath(const std::string& name)

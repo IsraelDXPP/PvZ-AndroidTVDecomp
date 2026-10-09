@@ -441,6 +441,9 @@ const ImageSlot kImageSlots[] =
     { "IMAGE_STORE_SPEECHBUBBLE2", &IMAGE_STORE_SPEECHBUBBLE2, 112 },
     { "IMAGE_STORE_TREEOFWISDOMICON", &IMAGE_STORE_TREEOFWISDOMICON, 201 },
     { "IMAGE_STORE_ZENGARDENICON", &IMAGE_STORE_ZENGARDENICON, 202 },
+    // The restored squirrel image is manifest-managed, without an original
+    // numeric resource ID in the TV save format.
+    { "IMAGE_SQUIRREL", &IMAGE_SQUIRREL, -1 },
     { "IMAGE_SUNBANK", &IMAGE_SUNBANK, 224 },
     { "IMAGE_SUNFLOWER_TROPHY", &IMAGE_SUNFLOWER_TROPHY, 150 },
     { "IMAGE_SURVIVAL_THUMBNAILS", &IMAGE_SURVIVAL_THUMBNAILS, 451 },
@@ -765,6 +768,8 @@ namespace Sexy {
 Image* GetImageById(int theId)
 {
     // @0x1E4EB8: IDs address the live resource slots, not a cached image array.
+    if (theId < 0)
+        return nullptr;
     for (const ImageSlot& image : kImageSlots)
     {
         if (image.mResourceId == theId)
@@ -781,7 +786,7 @@ int GetIdByImage(Image* theImage)
         return resourceId;
     for (const ImageSlot& image : kImageSlots)
     {
-        if (*image.mSlot == theImage && image.mResourceId < resourceId)
+        if (*image.mSlot == theImage && image.mResourceId >= 0 && image.mResourceId < resourceId)
             resourceId = image.mResourceId;
     }
     return resourceId;

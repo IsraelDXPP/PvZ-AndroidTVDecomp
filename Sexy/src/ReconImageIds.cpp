@@ -411,6 +411,7 @@ Sexy::Image * IMAGE_STORE_SPEECHBUBBLE = nullptr;
 Sexy::Image * IMAGE_STORE_SPEECHBUBBLE2 = nullptr;
 Sexy::Image * IMAGE_STORE_TREEOFWISDOMICON = nullptr;
 Sexy::Image * IMAGE_STORE_ZENGARDENICON = nullptr;
+Sexy::Image * IMAGE_SQUIRREL = nullptr;
 Sexy::Image * IMAGE_SUNBANK = nullptr;
 Sexy::Image * IMAGE_SUNFLOWER_TROPHY = nullptr;
 Sexy::Image * IMAGE_SURVIVAL_THUMBNAILS = nullptr;

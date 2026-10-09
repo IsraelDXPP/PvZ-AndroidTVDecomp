@@ -26,7 +26,11 @@
 
 资源路径按 APK 里的 `files/` 来解析。把资源解到可执行文件旁边的 `assets/`（或 `assets/files/`）即可；程序会在发现 `files` 子目录时自动走进去。也可以用 `--assets` 指到别的目录。
 
-也可直接使用 `main.pak`，无需解包。默认只挂载一份 `main.pak`：先查找 exe 旁，再查找资源根；使用 `assets/files/` 时也查找外层 `assets/`。支持 TV 版的 ZIP 型包，以及 PC 版以 `0xBAC04AC0` 为标识、使用 XOR 编码的 PopCap 包。散文件优先。包内路径忽略 ASCII 大小写，兼容 `/`、`\` 和 UTF-8 路径。
+本地 SDL 版本使用离线商店和存档，不配置原发行商的商店 RPC 地址，不启动统计日志线程，也不生成 `trans_log`。原资源根的 `manifest.xml`、`metrics.xml`、`updateclient.ini`、`updateService.xml` 和 `version` 不再承担功能，可从资源中移除；`setup.env` 用于本地渲染、调试等配置。游戏资源清单 `properties/resources.xml` 仍用于加载图片、声音等资源。
+
+也可直接使用 `assets/main.pak`，无需解包。即使散文件资源根选中 `assets/files/`，包仍从外层 `assets/main.pak` 加载。使用 `--assets` 时，包放在所指定资源目录的同一位置。支持 TV 版的 ZIP 型包，以及 PC 版以 `0xBAC04AC0` 为标识、使用 XOR 编码的 PopCap 包。包内路径忽略 ASCII 大小写，兼容 `/`、`\` 和 UTF-8 路径。
+
+在外部 `setup.env` 中设置 `set LAWN_LANGUAGE=zh_cn` 可选中文，未配置或留空时默认 `en_us`，修改后重启生效。程序只额外挂载所选语言的 `assets/<语言>.pak`，例如 `assets/zh_cn.pak` 或 `assets/en_us.pak`；语言包中的目录与主包一致，如 `data/`、`images/`、`properties/`，用于补充该语言的字体、图片和字符串。查找顺序是散文件（优先级 0）、语言包（5）、`main.pak`（10），语言包不存在时继续读取已有资源。游戏内部语言名规范化为 `zh_CN`、`en_US`，不依赖系统安装相应 locale。`setup.env` 始终从外部文件读取；使用 `assets/files/` 时也接受外层 `assets/setup.env`。文本统一使用 `properties/LawnStrings.txt`，旧渠道覆盖表 `LawnOEMStrings.txt` 不再读取，可从资源中删除。
 
 包内读取统一接入 `p_fopen`、`p_fread`、`p_fseek`、`p_ftell`、`p_fgetc`、`p_fgets`、`p_feof`、`p_fclose`，调用方无需判断文件来自磁盘还是资源包。ZIP 每个条目的 `compression_method` 指明压缩方式：`0` 为未压缩，`8` 为 Deflate，由 minizip-ng 调用 zlib 解压；不是按扩展名或文件大小猜测。原有 `p_addResource` 保留，优先级数值越小越先查找。写入模式只打开普通文件。TV 包和 PC 包的格式支持不代表两版资源可以互换，运行仍需本项目使用的 TV 资源。
 

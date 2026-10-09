@@ -452,11 +452,7 @@ int LawnApp::getLevelForPost()
 // ==========================================================================
 void LawnApp::PostEnterLevel()
 {
-  // R0 is the result buffer, R1 is this. composeLevelEnterLog's receiver is
-  // mLogComposer at +0xB00; sendLog's receiver is the log manager at +0xB04.
-  Sexy::String aRemoteName = getCurrentRemoteName();
-  MLogManager->sendLog(mLogComposer->composeLevelEnterLog(aRemoteName, getLevelForPost()));
-  printf("****level enter %d\n", getLevelForPost());
+  // Publisher telemetry is disabled in the local SDL port.
 }
 
 // ==========================================================================
@@ -465,10 +461,6 @@ void LawnApp::PostEnterLevel()
 // ==========================================================================
 void LawnApp::PostLeaveLevel()
 {
-  // composeLevelLeaveLog's receiver is mLogComposer; the dump's r0 was the
-  // result buffer it fills and r1 the real this.
-  MLogManager->sendLog(mLogComposer->composeLevelLeaveLog(getLevelForPost()));
-  printf("****level leave %d\n", getLevelForPost());
 }
 
 // ==========================================================================
@@ -477,8 +469,6 @@ void LawnApp::PostLeaveLevel()
 // ==========================================================================
 void LawnApp::PostLevelSuccess()
 {
-  MLogManager->sendLog(mLogComposer->composeLevelSucceedLog(getLevelForPost()));
-  printf("****level success %d\n", getLevelForPost());
 }
 
 // ==========================================================================
@@ -487,8 +477,6 @@ void LawnApp::PostLevelSuccess()
 // ==========================================================================
 void LawnApp::PostLevelFailed()
 {
-  MLogManager->sendLog(mLogComposer->composeLevelFailedLog(getLevelForPost()));
-  printf("****level failed %d\n", getLevelForPost());
 }
 
 // ==========================================================================
@@ -5314,20 +5302,13 @@ void LawnApp::PrepareTitleLoad()
   while (PullTitleGroup(this, "LoaderBar", 0, 64))
     ;
 
-  Sexy::String aLocaleDir("locale/");
+  Sexy::String aLocaleDir = Sexy::String("locale/") + GetLocale();
   {
     Sexy::String aPath = aLocaleDir;
-    aPath.Append("/properties/LawnStrings.txt", 27);
+    aPath += "/properties/LawnStrings.txt";
     if (TodStringListLoad(aPath.c_str()) == 0)
       TodStringListLoad("properties/LawnStrings.txt");
   }
-  {
-    Sexy::String aPath = aLocaleDir;
-    aPath.Append("/properties/LawnOEMStrings.txt", 30);
-    if (TodStringListLoad(aPath.c_str()) == 0)
-      TodStringListLoad("properties/LawnOEMStrings.txt");
-  }
-
   {
     Sexy::String aLayout("properties/Layout.xml");
     fprintf(stderr, "title load: Layout.xml\n");
@@ -5626,47 +5607,8 @@ void LawnApp::Init()
   mSessionStartSeconds = Sexy::GetTickCount() / 0x3E8;
   TodAssertInitForApp((void (*)())BetaSubmitFunc);
   mPendingRechargeAmount = 0;
-  // platform, vendor, product, gamename, gameversion, in that order.
-  Sexy::SexyCommonApp::GameInfoRecord aGameInfo = getGameInfo();
-  mGameInfoStrings[0] = aGameInfo.mPlatform;
-  mGameInfoStrings[1] = aGameInfo.mVendor;
-  mGameInfoStrings[2] = aGameInfo.mProduct;
-  mGameInfoStrings[3] = aGameInfo.mGameName;
-  mGameInfoStrings[4] = aGameInfo.mGameVersion;
-  DrRpcEngine* aRpcEngine = static_cast<DrRpcEngine *>(DrRpcEngine::getRpcEngine());
-  // The RPC engine is Android-only, so on Windows getRpcEngine returns null and
-  // calling through it writes to address 0 + 516.
-  //
-  // DrRpcEngine::getRpcEngine ends with
-  //
-  //     if ( theInitResult <= 0 ) return nullptr;
-  //     else                      return &unk_69F9D0;
-  //
-  // where theInitResult comes from DrCurlEngine::init. That init goes through
-  // curl_global_init and the Android RPC backend, so it fails here, the result
-  // becomes -1, and the singleton accessor returns null. The original runs on Android and
-  // can assume a live engine; this port cannot.
-  //
-  // The fault it caused, traced end to end:
-  //
-  //     InitFault: instr=Lawn.exe+0x2EAAAA   info[1] = 0x00000204
-  //     -> String::Release, this = 0x204
-  //
-  // because setDefaultUrl assigns the String at byte 516 of the engine, and 516
-  // is 0x204 -- a legal offset from a null base. Nothing was corrupted; the base
-  // was simply never there.
-  //
-  // Skipping the configuration is the equivalent behaviour on a platform with no
-  // RPC engine: there is nothing to configure.
-  Sexy::String aDomainURL = ServerConfig::GetDomainURL();
-  if ( aRpcEngine != nullptr )
-    aRpcEngine->setDefaultUrl(aDomainURL);
-  DrRpcEngine* aConfiguredEngine = static_cast<DrRpcEngine *>(DrRpcEngine::getRpcEngine());
-  if ( aConfiguredEngine != nullptr )
-    aConfiguredEngine->setDataEncryption(ServerConfig::IsEncryptionEnabled());
-  // TEMPORARY TRACE: the RPC fault is fixed and Init now stops somewhere between
-  // here and LoadResourceManifest, so mark each step. The suspects are the
-  // server-session and login calls, which have no backend on this platform.
+  // Shop prices and profile data are handled by the local session. No
+  // publisher manifest or remote RPC endpoint is needed to initialize it.
   if ( mSession.Init() == 0 )
     DoExit(-1);
   mSessionTaskType = 1;
@@ -5939,7 +5881,7 @@ void LawnApp::setPayItemsRes(bool theSucceeded, char const* /*theOrder*/, int th
   if ( !theSucceeded )
     return;
 
-  // Credit the coins the chosen tier grants and record the cash that bought them.
+  // Credit the coins the chosen tier grants.
   LawnUser* aUser = LawnUser::getCurUser();
   int aBalance = atoi(aUser->mCoinText.c_str());
   int aGranted = 0;
@@ -5952,7 +5894,6 @@ void LawnApp::setPayItemsRes(bool theSucceeded, char const* /*theOrder*/, int th
   char aText[32];
   sprintf(aText, "%d", aBalance + aGranted);
   aUser->mCoinText = Sexy::String(aText);
-  MLogManager->sendLog(mLogComposer->composeRechargeByRMBLog(aPrice, 0));
   printf("****buy money %d\n", aPrice);
 
   // Ad type 7 confirms the new balance with the provider.
@@ -6367,11 +6308,9 @@ bool LawnApp::GotoBuyTool(E_SHOP_PACKET thePacket)
   }
 
   int aLevel = getLevelForPost();
-  MLogManager->sendLog(mLogComposer->composePayByRMBLog((int)thePacket, aLevel, 1));
   char aPriceText[32];
   sprintf(aPriceText, "%d", aPrice);
   logfi("price is%s\n", aPriceText);
-  MLogManager->sendLog(mLogComposer->composeConsumeLog((int)thePacket, aLevel, 1));
   printf("****use Tool %d in level %d\n", (int)thePacket, aLevel);
   return true;
 }
@@ -6519,7 +6458,6 @@ void LawnApp::UpdateSessionState()
     else
     {
       logfi("Recharge succeed!***********\n");
-      MLogManager->sendLog(mLogComposer->composeRechargeByRMBLog(mPendingRechargeAmount, 0));
       KillDialogById(82);
       OnSessionTaskSucceed();
     }
@@ -6738,7 +6676,6 @@ LawnApp::LawnApp()
   // the base's only in the two destructor slots -- so the base object is the
   // same size and is constructed directly here.
   mResourceManager = new Sexy::ResourceManager((Sexy::SexyAppBase *)this);
-  SetLocale(Sexy::String("zh_CN"), Sexy::String("UTF-8"));
   _putenv_s("SEXY_LENOVO_WORKAROUND", "0");
   mLawnSessionTask = nullptr;
   MLogManager = nullptr;
@@ -7307,8 +7244,6 @@ void LawnApp::Shutdown()
     SrvLogoutFromServer();
     mSession.Shutdown();
   }
-  delete MLogManager;
-  MLogManager = nullptr;
   SexyAppBase::Shutdown();
 }
 // LawnApp::WriteToRegistry()
@@ -7717,38 +7652,8 @@ int LawnApp::HardwareInit()
       LoadAtlasMap(aPath);
     }
   }
-  // The metrics server and the local data folder are logged, then handed to the
-  // network log manager. loc_2EC954 is basic_string::assign(const char*, size).
-  Sexy::String aServer;
-  aServer.assign("www.transmension.com", 20);
-  Sexy::String aLocalPath;
-  GetAppDataFolder(&aLocalPath);
-  logfi("localpath: %s server: %s\n", aLocalPath.c_str(), aServer.c_str());
-  MLogManager = new TM::LogManager(aServer, aLocalPath);
-  mLogComposer = new LogComposer();
-  mLogComposer->mAccount = GetUserName();
-  Sexy::Buffer* aBuffer = new Sexy::Buffer();
-  Sexy::String aMetricsPath("metrics.xml");
-  if ( ReadBufferFromFile(aMetricsPath, aBuffer, false) != 0 )
-  {
-    // A staged metrics file is the document itself. The binary's buffer holds
-    // a length-prefixed string of that document; ReadString is that case.
-    Sexy::String aMetrics;
-    if (!aBuffer->mData.empty() && aBuffer->mData[0] == '<')
-    {
-      aMetrics = Sexy::String(static_cast<const char *>(static_cast<const void *>(&aBuffer->mData[0])),
-                              static_cast<unsigned>(aBuffer->mData.size()));
-    }
-    else
-    {
-      aMetrics = aBuffer->ReadString();
-    }
-    mLogComposer->initComposer(aMetrics);
-  }
-  delete aBuffer;
-  // composeLoginLog returns its Sexy::String by value, and sendLog consumes it.
-  MLogManager->sendLog(mLogComposer->composeLoginLog());
-  mLaunchTime = Sexy::GetTickCount();
+  // Publisher metrics are disabled; startup creates no transport thread or
+  // trans_log spool and does not load a metrics configuration.
   return 0;
 }
 
@@ -7796,10 +7701,6 @@ bool LawnApp::LoadLevelConfiguration(GameMode theMode, int theLevelId)
 
 void LawnApp::StartAuth()
 {
-  // composeAuthStartLog returns its Sexy::String by value, so the dump's r0 was
-  // its own result buffer and r1 the real receiver: exactly one String argument.
-  Sexy::String aKey("4ADS-5PK4-UUF9");
-  MLogManager->sendLog(mLogComposer->composeAuthStartLog(aKey));
   SexyAppBase::StartAuth();
 }
 
@@ -7809,20 +7710,6 @@ void LawnApp::StartAuth()
 // ==========================================================================
 void LawnApp::AuthFinished(bool theSuccess)
 {
-  // Both compose* calls return a Sexy::String by value: the dump's r0 was their
-  // own result buffer, r1 the real receiver, and the key is their only argument.
-  Sexy::String aLog;
-  if ( theSuccess )
-  {
-    Sexy::String aKey("4ADS-5PK4-UUF9");
-    aLog = mLogComposer->composeAuthSucceedLog(aKey);
-  }
-  else
-  {
-    Sexy::String aKey("4ADS-5PK4-UUF9");
-    aLog = mLogComposer->composeAuthFailedLog(aKey);
-  }
-  MLogManager->sendLog(aLog);
   SexyAppBase::AuthFinished(theSuccess);
 }
 

@@ -1129,6 +1129,7 @@ extern Sexy::Image * IMAGE_STORE_SPEECHBUBBLE;
 extern Sexy::Image * IMAGE_STORE_SPEECHBUBBLE2;
 extern Sexy::Image * IMAGE_STORE_TREEOFWISDOMICON;
 extern Sexy::Image * IMAGE_STORE_ZENGARDENICON;
+extern Sexy::Image * IMAGE_SQUIRREL;
 extern Sexy::Image * IMAGE_SUNBANK;
 extern Sexy::Image * IMAGE_SUNFLOWER_TROPHY;
 extern Sexy::Image * IMAGE_SURVIVAL_THUMBNAILS;

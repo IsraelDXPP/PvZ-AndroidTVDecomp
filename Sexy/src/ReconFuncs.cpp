@@ -20,6 +20,7 @@
 #include <cctype>
 #include <vector>
 #include <map>
+#include <filesystem>
 
 #ifndef NOMINMAX
 #define NOMINMAX
@@ -366,8 +367,8 @@ unsigned int Sexy::TickCountDiff(unsigned int theEarlier, unsigned int theLater)
 int Sexy::GetTickCount() { return static_cast<int>(SDL_GetTicks()); }
 
 
-// Sexy::GetEnv @0x2FB880. The first call loads setup.env from the asset root
-// through p_fopen. A name listed there wins; anything else falls through to
+// Sexy::GetEnv @0x2FB880. The first call loads external setup.env settings
+// with SDL's UTF-8 file API. A listed name wins; anything else falls through to
 // the process environment. The table is read once and kept for the process.
 namespace {
 
@@ -484,7 +485,16 @@ void LoadSetupEnv()
     aTable.mRoot = aRoot;
     aTable.mValues.clear();
 
-    SDL_IOStream* aFile = p_fopen("setup.env", "rb");
+    // Settings bootstrap archive mounting. Keep them outside the packs and
+    // accept assets/setup.env when loose resources use assets/files/.
+    const auto aRootPath = std::filesystem::u8path(aRoot);
+    const std::string aSettings = (aRootPath / "setup.env").u8string();
+    SDL_IOStream* aFile = SDL_IOFromFile(aSettings.c_str(), "rb");
+    if (aFile == nullptr && aRootPath.filename() == "files")
+    {
+        const std::string aParentSettings = (aRootPath.parent_path() / "setup.env").u8string();
+        aFile = SDL_IOFromFile(aParentSettings.c_str(), "rb");
+    }
     if (aFile == nullptr)
         return;
 
@@ -1267,8 +1277,7 @@ int SexySetLocale(void* theLocale, char const* theEncoding)
 
 int Sexy::setLocale(char const* theLocale)
 {
-    (void)theLocale;
-    return 0;
+    return Sexy::setLocale(nullptr, theLocale) != nullptr ? 1 : 0;
 }
 
 int Sexy::SexyUtf8Validate(void* theState, char const* theText, int theLength)

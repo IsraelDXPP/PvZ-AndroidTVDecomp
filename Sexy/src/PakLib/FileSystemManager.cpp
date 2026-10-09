@@ -477,7 +477,7 @@ FileSystemManager* FileSystemManager::getManager()
     return &aManager;
 }
 
-void FileSystemManager::setAssetRoot(const std::string& theDirectory)
+void FileSystemManager::setAssetRoot(const std::string& theDirectory, const std::string& theLanguage)
 {
     const std::string aRoot = FullPath(theDirectory);
     {
@@ -487,24 +487,30 @@ void FileSystemManager::setAssetRoot(const std::string& theDirectory)
     }
     addResource(aRoot, "native", 0);
 
-    // Load one default archive, always named main.pak. Prefer the executable
-    // directory, then the configured resource root; no directory scanning.
-    std::vector<std::string> aMainPaths;
-    if (const char* aBase = SDL_GetBasePath())
-        aMainPaths.push_back(std::string(aBase) + "main.pak");
-    const auto aRootPath = std::filesystem::u8path(aRoot);
-    aMainPaths.push_back((aRootPath / "main.pak").u8string());
-    if (FoldPath(aRootPath.filename().u8string()) == "files")
-        aMainPaths.push_back((aRootPath.parent_path() / "main.pak").u8string());
-    for (const std::string& aMain : aMainPaths)
-    {
-        SDL_PathInfo aInfo{};
-        if (!SDL_GetPathInfo(aMain.c_str(), &aInfo) || aInfo.type != SDL_PATHTYPE_FILE)
-            continue;
-        if (!addResource(aMain, "auto", 10))
-            SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Cannot mount %s: %s", aMain.c_str(), SDL_GetError());
-        break;
-    }
+    // The archive belongs to assets/main.pak, even when loose APK resources
+    // have selected assets/files as their logical resource root.
+    auto aPackageDirectory = std::filesystem::u8path(aRoot);
+    if (FoldPath(aPackageDirectory.filename().u8string()) == "files")
+        aPackageDirectory = aPackageDirectory.parent_path();
+    const std::string aMain = (aPackageDirectory / "main.pak").u8string();
+    SDL_PathInfo aInfo{};
+    if (SDL_GetPathInfo(aMain.c_str(), &aInfo) && aInfo.type == SDL_PATHTYPE_FILE
+        && !addResource(aMain, "auto", 10))
+        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Cannot mount %s: %s", aMain.c_str(), SDL_GetError());
+
+    // Mount only the selected language's supplementary assets. A language
+    // package may be absent while resources are being prepared.
+    std::string aLanguage = FoldPath(theLanguage);
+    std::replace(aLanguage.begin(), aLanguage.end(), '-', '_');
+    if (aLanguage.size() != 5 || aLanguage[2] != '_')
+        return;
+    for (size_t aIndex : {size_t(0), size_t(1), size_t(3), size_t(4)})
+        if (aLanguage[aIndex] < 'a' || aLanguage[aIndex] > 'z')
+            return;
+    const std::string aLanguagePak = (aPackageDirectory / (aLanguage + ".pak")).u8string();
+    if (SDL_GetPathInfo(aLanguagePak.c_str(), &aInfo) && aInfo.type == SDL_PATHTYPE_FILE
+        && !addResource(aLanguagePak, "auto", 5))
+        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Cannot mount %s: %s", aLanguagePak.c_str(), SDL_GetError());
 }
 
 bool FileSystemManager::addResource(const std::string& theLocation, const std::string& theKind, int thePriority)

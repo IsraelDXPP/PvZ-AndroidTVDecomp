@@ -619,11 +619,8 @@ void GridItem::DrawSquirrel(Sexy::Graphics *theGraphics)
     default:
       break;
   }
-  if (mSquirrelImage.mImage == nullptr)
-    mSquirrelImage = mApp->GetSharedImage(Sexy::String("addonFiles/images/squirrel"),
-                                        Sexy::String(), nullptr, true, false);
-  if (mSquirrelImage.mImage != nullptr)
-    theGraphics->DrawImage(mSquirrelImage.mImage, aPosX, aPosY);
+  if (IMAGE_SQUIRREL != nullptr)
+    theGraphics->DrawImage(IMAGE_SQUIRREL, aPosX, aPosY);
 }
 
 // ==========================================================================

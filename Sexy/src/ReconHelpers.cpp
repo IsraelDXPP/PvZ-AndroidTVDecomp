@@ -13,9 +13,6 @@
 #include "MTRand.h"
 
 
-// std::setlocale / LC_ALL, for the setLocale helper at the bottom of the file.
-#include <clocale>
-
 // ---------------------------------------------------------------------------
 // SortedKern::Compare -- the kerning table's ordering.
 //
@@ -776,10 +773,38 @@ void RemoveTrailingSlash(Sexy::String* theDest, const void* theSource)
 
 const char* setLocale(void* theCategory, const char* theName)
 {
-    // Install a locale by name. Call sites pass a null category and either a
-    // null name (query) or the language string.
+    // Game resource locales must remain available even when the operating
+    // system has no matching C locale installed. Preserve xx_YY for the
+    // original game checks; archive filenames use its lowercase spelling.
     (void)theCategory;
-    return std::setlocale(LC_ALL, theName);
+    static std::string aLocale = "en_US";
+    if (theName == nullptr)
+        return aLocale.c_str();
+
+    std::string aRequested = theName;
+    bool aValid = aRequested.size() == 5 && (aRequested[2] == '_' || aRequested[2] == '-');
+    if (aValid)
+    {
+        for (size_t aIndex : {size_t(0), size_t(1), size_t(3), size_t(4)})
+        {
+            char& aLetter = aRequested[aIndex];
+            if (aLetter >= 'A' && aLetter <= 'Z')
+                aLetter += 'a' - 'A';
+            if (aLetter < 'a' || aLetter > 'z')
+                aValid = false;
+        }
+    }
+    if (!aValid)
+    {
+        aLocale = "en_US";
+        SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION, "Invalid game language '%s'; using en_us", theName);
+        return aLocale.c_str();
+    }
+    aRequested[2] = '_';
+    aRequested[3] -= 'a' - 'A';
+    aRequested[4] -= 'a' - 'A';
+    aLocale = aRequested;
+    return aLocale.c_str();
 }
 
 void SexyStringToString(void* theDest, unsigned int theSource)

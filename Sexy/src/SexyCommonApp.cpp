@@ -7,8 +7,6 @@
 #include "ReconData.h"
 #include "ReconFreeFunctions.h"
 #include "ReconHelpers.h"
-#include "XMLElement.h"
-#include "XMLParser.h"
 
 #include <cstdio>
 #include <string>
@@ -565,54 +563,8 @@ Sexy::String Sexy::SexyCommonApp::getCurrentRemoteName()
 
 Sexy::SexyCommonApp::GameInfoRecord Sexy::SexyCommonApp::getGameInfo()
 {
-    GameInfoRecord aInfo;
-    Buffer aBuffer;
-    if (ReadBufferFromFile(Sexy::String("manifest.xml"), &aBuffer, false) == 0)
-        return aInfo;
-
-    Sexy::String aXml = aBuffer.ReadString();
-    if (!aBuffer.mData.empty() && aBuffer.mData[0] == '<')
-        aXml = Sexy::String((const char*)&aBuffer.mData[0], (unsigned int)aBuffer.mData.size());
-
-    XMLParser aParser;
-    aParser.SetStringSource(aXml);
-    if (aParser.HasFailed() != 0)
-        return aInfo;
-
-    const char* aTags[5] = { "platform", "vendor", "product", "gamename", "gameversion" };
-    Sexy::String* aFields[5] = {
-        &aInfo.mPlatform, &aInfo.mVendor, &aInfo.mProduct, &aInfo.mGameName, &aInfo.mGameVersion
-    };
-    Sexy::String* aPending = nullptr;
-    for (;;)
-    {
-        XMLElement aElement;
-        if (aParser.NextElement(&aElement) == 0)
-            break;
-        if (aElement.mType == 1)
-        {
-            aPending = nullptr;
-            for (int aIndex = 0; aIndex < 5; ++aIndex)
-            {
-                if (aElement.mInstruction == aTags[aIndex])
-                {
-                    aPending = aFields[aIndex];
-                    break;
-                }
-            }
-        }
-        else if (aElement.mType == 3 && aPending != nullptr)
-        {
-            if (!aElement.mText.empty())
-                *aPending = aElement.mText;
-            aPending = nullptr;
-        }
-        else if (aElement.mType == 2)
-        {
-            aPending = nullptr;
-        }
-    }
-    return aInfo;
+    // Publisher/channel metadata is not used by the local SDL application.
+    return GameInfoRecord{};
 }
 
 void Sexy::SexyCommonApp::CreateTrialDialog()
