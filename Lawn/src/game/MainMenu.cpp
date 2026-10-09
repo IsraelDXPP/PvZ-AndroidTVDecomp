@@ -127,9 +127,7 @@ void MainMenu::Enter()
 {
   Sexy::MenuWidget::Enter();
 
-  // The two console-only entries are disabled here; only a build that actually
-  // implements them re-enables them afterwards.
-  FindWidget(ACHIEVEMENTS_BUTTON)->SetDisabled(true);
+  FindWidget(ACHIEVEMENTS_BUTTON)->SetDisabled(false);
   FindWidget(UNLOCK_BUTTON)->SetDisabled(true);
 
   Reanimation *aMainMenuReanim = mApp->ReanimationTryToGet(mBackdropReanimID);
@@ -504,7 +502,7 @@ void MainMenu::GotFocus()
 
   MakeSureMusicIsPlaying(mApp, MusicTune(7));
   mCrowTalking = true;
-  mApp->ReanimationTryToGet(mHouseReanimID);
+  mApp->SetHouseReanim(mApp->ReanimationTryToGet(mHouseReanimID));
 
   if ( mApp->mHelpBarWidget != nullptr )
   {
@@ -834,6 +832,20 @@ void MainMenu::Draw(Sexy::Graphics *theGraphics)
   }
 
   aMainMenuReanim->DrawRenderGroup(theGraphics, 1);
+  // Reference MainMenu::Draw places the selectable house on the original
+  // House track. Draw @0x19A9FC retains the scene's layer order and camera.
+  Reanimation* house = mApp->ReanimationTryToGet(mHouseReanimID);
+  const int houseTrack = aMainMenuReanim->FindTrackIndex("House");
+  if (house != nullptr && houseTrack >= 0)
+  {
+    ReanimatorTransform transform;
+    SexyTransform2D matrix;
+    aMainMenuReanim->GetCurrentTransform(houseTrack, &transform);
+    aMainMenuReanim->MatrixFromTransform(transform, matrix);
+    matrix.Translate(mCameraOffsetX + 237.0f, mCameraOffsetY + 60.0f);
+    house->mOverlayMatrix = matrix;
+    house->DrawRenderGroup(theGraphics, 0);
+  }
   aMainMenuReanim->DrawRenderGroup(theGraphics, 0);
 
   if ( mMenuScene == MENUSCENE_EXTRA )
@@ -1019,6 +1031,9 @@ void MainMenu::Update()
   }
 
   mApp->mEffectSystem->Update();
+  Reanimation* houseAnimation = mApp->ReanimationTryToGet(mHouseReanimID);
+  if (houseAnimation != nullptr)
+    houseAnimation->Update();
 
   Reanimation *aButterflyReanim = mApp->ReanimationTryToGet(mButterflyReanimID);
   if ( aButterflyReanim != nullptr )
@@ -1275,10 +1290,11 @@ int MainMenu::SyncButtons()
   Sexy::Widget *aAdventureButton = FindWidget(ADVENTURE_BUTTON);
   FindWidget(MAIL_BUTTON);
   Sexy::Widget *aAchievementsButton = FindWidget(ACHIEVEMENTS_BUTTON);
-  aAchievementsButton->SetDisabled(true);
+  aAchievementsButton->SetDisabled(false);
   Sexy::Widget *aUnlockButton = FindWidget(UNLOCK_BUTTON);
   aUnlockButton->SetDisabled(true);
-  aHouseButton->SetVisible(false);
+  aHouseButton->SetVisible(true);
+  aHouseButton->SetDisabled(false);
 
   // A fresh profile sees the "start adventure" sign instead of the level list,
   // and the two share a focus link either way.
@@ -1481,6 +1497,28 @@ void MainMenu::AddedToManager(Sexy::WidgetManager *theWidgetManager)
   }
 
   MenuWidget::AddedToManager(theWidgetManager);
+  Reanimation* house = mApp->AddReanimation(0.0f, 0.0f, 0, REANIM_HOUSE);
+  if (house != nullptr)
+  {
+    mHouseReanimID = mApp->ReanimationGetID(house);
+    mApp->SetHouseReanim(house);
+    house->Update();
+  }
+  if (aMainMenuReanim != nullptr)
+  {
+    Sexy::Image* leaderboardSign = mApp->GetConsoleImage("leaderboards");
+    if (leaderboardSign != nullptr)
+      aMainMenuReanim->SetImageDefinition("leaderboards", leaderboardSign);
+    const char* const tracks[] = {"Hood1", "Hood2", "Hood3", "Hood4", "ground color copy"};
+    const char* const images[] = {"hood1_house", "hood2_house", "hood3_house", "hood4_house", "house_hill_house"};
+    for (int imageIndex = 0; imageIndex < 5; ++imageIndex)
+    {
+      Sexy::Image* image = mApp->GetConsoleImage(images[imageIndex]);
+      if (image != nullptr && aMainMenuReanim->FindTrackIndex(tracks[imageIndex]) >= 0)
+        aMainMenuReanim->SetImageOverride(tracks[imageIndex], image);
+    }
+    aMainMenuReanim->AssignRenderGroupToTrack("House", -1);
+  }
   SyncProfile(false);
 
   // Every entry of the menu carries the same render order. The list repeats
@@ -1737,6 +1775,12 @@ void MainMenu::ButtonDepress(int theId)
   mPressedButtonId = -1;
   switch ( theId )
   {
+    case HOUSE_BUTTON:
+      mApp->ShowHouseScreen();
+      return;
+    case ACHIEVEMENTS_BUTTON:
+      mApp->ShowAchievementsScreen();
+      return;
     case START_ADVENTURE_BUTTON:
     case ADVENTURE_BUTTON:
       StartAdventureMode();

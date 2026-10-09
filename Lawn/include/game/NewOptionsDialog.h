@@ -89,7 +89,7 @@ public:
     enum
     {
         NewOptionsDialog_House = 0,
-        NewOptionsDialog_Useless = 1,
+        NewOptionsDialog_Achievements = 1,
         NewOptionsDialog_HelpDialog = 2,
         NewOptionsDialog_Almanac = 3,
         NewOptionsDialog_MainMenu = 4,

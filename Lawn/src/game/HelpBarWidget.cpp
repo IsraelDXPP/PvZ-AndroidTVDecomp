@@ -21,6 +21,7 @@
 #include "GamepadControls.h"
 #include "HouseChooserDialog.h"
 #include "HelpTextScreen.h"
+#include "CreditScreen.h"
 #include "SeedChooserScreen.h"
 #include "VSSetupMenu.h"
 #include <string>
@@ -121,6 +122,11 @@ void HelpBarWidget::MouseUp(int x, int y, int theClickCount)
     Sexy::Widget* target = mWidgetManager->mFocusWidget;
     if (target == nullptr || target == this)
         return;
+    if (CreditScreen* credits = dynamic_cast<CreditScreen*>(target))
+    {
+        credits->GameButtonDown(button, 0, 0);
+        return;
+    }
     if (Board* board = dynamic_cast<Board*>(target))
     {
         if (button == GAMEPAD_BUTTON_Y && board->mApp->CanShopLevel())
@@ -197,6 +203,10 @@ void HelpBarWidget::MouseUp(int x, int y, int theClickCount)
     case GAMEPAD_BUTTON_DPAD_LEFT: key = Sexy::KEYCODE_LEFT; break;
     case GAMEPAD_BUTTON_RIGHT:
     case GAMEPAD_BUTTON_DPAD_RIGHT: key = Sexy::KEYCODE_RIGHT; break;
+    case GAMEPAD_BUTTON_UP:
+    case GAMEPAD_BUTTON_DPAD_UP: key = Sexy::KEYCODE_UP; break;
+    case GAMEPAD_BUTTON_DOWN:
+    case GAMEPAD_BUTTON_DPAD_DOWN: key = Sexy::KEYCODE_DOWN; break;
     default: return;
     }
     target->KeyDown(key);

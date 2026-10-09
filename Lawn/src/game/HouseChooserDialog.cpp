@@ -5,6 +5,7 @@
 #include "LawnApp.h"
 #include "LawnDialog.h"
 #include "LawnPlayerInfo.h"
+#include "LeaderboardsWidget.h"
 #include "WidgetManager.h"
 #include <cmath>
 
@@ -51,6 +52,43 @@ void HouseChooserDialog::GotFocus()
     mApp->ShowHelpBarWidget();
 }
 
+int HouseChooserDialog::KeyDown(Sexy::KeyCode theKey)
+{
+    int button = GAMEPAD_BUTTON_NONE;
+    int player = 0;
+    unsigned int flags = 0;
+    if (mEvent != nullptr && mApp->MapToButtonEvent(mEvent, button, player, flags))
+    {
+        GameButtonDown(Sexy::GamepadButton(button), player, flags);
+        return 1;
+    }
+    switch (theKey)
+    {
+    case Sexy::KEYCODE_ESCAPE:
+    case Sexy::KEYCODE_GAMEPAD_B: GameButtonDown(GAMEPAD_BUTTON_B, 0, 0); return 1;
+    case Sexy::KEYCODE_RETURN:
+    case Sexy::KEYCODE_GAMEPAD_A: GameButtonDown(GAMEPAD_BUTTON_A, 0, 0); return 1;
+    case Sexy::KEYCODE_LEFT: GameButtonDown(GAMEPAD_BUTTON_LEFT, 0, 0); return 1;
+    case Sexy::KEYCODE_RIGHT: GameButtonDown(GAMEPAD_BUTTON_RIGHT, 0, 0); return 1;
+    default: return LawnDialog::KeyDown(theKey);
+    }
+}
+
+void HouseChooserDialog::ButtonDepress(int theId)
+{
+    if (theId == 1000 || theId == 1001)
+    {
+        LawnApp* app = mApp;
+        app->KillDialog(mId);
+        if (theId == 1000)
+            app->WriteHouse(true);
+        if (app->mLeaderboardScreen != nullptr)
+            app->mWidgetManager->SetFocus(app->mLeaderboardScreen);
+        return;
+    }
+    LawnDialog::ButtonDepress(theId);
+}
+
 // A house is selectable only when the player owns it. Ownership is the purchase
 // slot BLUEPRINT_BLING + house; LEFT reads that table from the other end.
 void HouseChooserDialog::GameButtonDown(Sexy::GamepadButton theButton, int thePlayerIndex, unsigned int theFlags)
@@ -59,41 +97,14 @@ void HouseChooserDialog::GameButtonDown(Sexy::GamepadButton theButton, int thePl
     if ((theFlags & 1) != 0)
         return;
 
-    if (theButton == GAMEPAD_BUTTON_LEFT)
-    {
-        int house = mSelectedHouseType;
-        mGrowTime = 0.0f;
-        for (;;)
-        {
-            bool wasBling = (house == BLUEPRINT_SCARY);
-            --house;
-            int purchase;
-            if (house >= 0)
-            {
-                if (wasBling)
-                    break;
-                purchase = house + 31;
-            }
-            else
-            {
-                house = BLUEPRINT_CLOWN;
-                purchase = 35;
-            }
-            if (mApp->mPlayerInfo->mPurchases[purchase] != 0)
-                break;
-        }
-        mSelectedHouseType = (HouseType)house;
-        return;
-    }
-
-    if (theButton == GAMEPAD_BUTTON_RIGHT)
+    if (theButton == GAMEPAD_BUTTON_LEFT || theButton == GAMEPAD_BUTTON_RIGHT)
     {
         int house = mSelectedHouseType;
         mGrowTime = 0.0f;
         do
-            house = (house + 1) % 5;
-        while (house != 0 && mApp->mPlayerInfo->mPurchases[house + 31] == 0);
-        mSelectedHouseType = (HouseType)house;
+            house = (house + (theButton == GAMEPAD_BUTTON_LEFT ? 4 : 1)) % 5;
+        while (!IsHouseAvaliable(HouseType(house)));
+        mSelectedHouseType = HouseType(house);
         return;
     }
 
@@ -103,7 +114,7 @@ void HouseChooserDialog::GameButtonDown(Sexy::GamepadButton theButton, int thePl
         LawnPlayerInfo* playerInfo = mApp->mPlayerInfo;
         int delta = (house != 0) ? -1 : 2;
         playerInfo->mGameStats.mHouseType = mSelectedHouseType;
-        playerInfo->mGameStats.mHouseLevel = playerInfo->mPurchases[house + 31] + delta;
+        playerInfo->mGameStats.mHouseLevel = playerInfo->mPurchases[STORE_ITEM_BLUEPRINT_BLING + house] + delta;
         ButtonDepress(1000);
         return;
     }
@@ -114,7 +125,7 @@ void HouseChooserDialog::GameButtonDown(Sexy::GamepadButton theButton, int thePl
 
 void HouseChooserDialog::Draw(Sexy::Graphics* g)
 {
-    static Sexy::Image* const kBlueprintImages[5] =
+    Sexy::Image* const blueprintImages[5] =
     {
         IMAGE_STORE_BLUEPRINT_BLING,
         IMAGE_STORE_BLUEPRINT_SCARY,
@@ -130,7 +141,7 @@ void HouseChooserDialog::Draw(Sexy::Graphics* g)
     for (int house = 0; house != 5; ++house)
     {
         bool selected = (mSelectedHouseType == house);
-        Sexy::Image* image = kBlueprintImages[house];
+        Sexy::Image* image = blueprintImages[house];
 
         if (image != nullptr)
         {
@@ -151,7 +162,7 @@ void HouseChooserDialog::Draw(Sexy::Graphics* g)
             }
         }
 
-        if (mApp->mPlayerInfo->mPurchases[house + 31] == 0 && house != 0)
+        if (!IsHouseAvaliable(HouseType(house)))
         {
             Sexy::Rect rect(posX, 125, 67, 68);
             TodDrawStringWrapped(g, TodStringTranslate("[NOT_AVAILABLE]"), rect,
@@ -182,6 +193,7 @@ void HouseChooserDialog::Resize(int theX, int theY, int theWidth, int theHeight)
 HouseChooserDialog::HouseChooserDialog(LawnApp* theApp)
     : LawnDialog(theApp, nullptr, 71, true, Sexy::String("[CHOOSE_HOUSE]"), Sexy::String(), Sexy::String(), 0)
 {
+    TodLoadResources(Sexy::String("DelayLoad_Store"));
     mGrowTime = 0.0f;
     mSelectedHouseType = mApp->mPlayerInfo->mGameStats.mHouseType;
     Resize(100, 100, 600, 355);

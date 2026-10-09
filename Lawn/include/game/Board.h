@@ -390,7 +390,7 @@ public:
     DebugTextMode mDebugTextMode;        // +0x5718
     bool mLevelComplete;                 // +0x571C
     bool mNewWallNutAndSunFlowerAndChomperOnly; // +0x571D
-    char mNewPeaShooterCount;            // +0x571E
+    unsigned char mNewPeaShooterCount;   // peashooters planted this level, capped at ten
     int mBoardFadeOutCounter;            // +0x5720
     int mNextSurvivalStageCounter;       // +0x5724 (Board.cpp:2479)
     int mScoreNextMowerCounter;          // +0x5728
@@ -745,6 +745,8 @@ public:
     GamepadControls * GetGamepadControlsByPlayerIndex(int thePlayerIndex);
     void RefreshSeedPacketFromCursor(int thePlayerIndex);
     void FadeOutLevel();
+    void DoPlantingAchievementCheck(SeedType theSeedType);
+    void CheckLevelAchievements();
     GamepadControls * GetGamepadControlsByGamepadIndex(int theGamepadIndex);
     void TryToExit();
     int FinishExit();

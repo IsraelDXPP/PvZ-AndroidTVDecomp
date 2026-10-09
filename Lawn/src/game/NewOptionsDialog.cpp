@@ -104,13 +104,10 @@ NewOptionsDialog::NewOptionsDialog(LawnApp *theApp, bool theFromMenu, unsigned i
   mMainMenuButton = MakeButton(4, this, this, "[MAIN_MENU_BUTTON]");
   mAchievementsButton = MakeButton(1, this, this, "[ACHIEVEMENTS]");
   mLeaderboardsButton = MakeButton(0, this, this, "[LEADERBOARDS]");
-  // Widget slot 42 is SetVisible and slot 48 is SetDisabled; the binary hides
-  // both buttons and disables them (the achievements and leaderboards screens
-  // are not part of this build).
-  mAchievementsButton->SetVisible(false);
-  mAchievementsButton->SetDisabled(true);
-  mLeaderboardsButton->SetVisible(false);
-  mLeaderboardsButton->SetDisabled(true);
+  mAchievementsButton->SetVisible(true);
+  mAchievementsButton->SetDisabled(false);
+  mLeaderboardsButton->SetVisible(true);
+  mLeaderboardsButton->SetDisabled(false);
   mDropP2Button = MakeButton(7, this, this, "[DROP_P2]");
   mUnlockButton = MakeButton(8, this, this, "[UNLOCK_FULL_VERSION]");
   mBackToGameButton = MakeButton(1000, this, this, "[BACK_TO_GAME]");
@@ -376,11 +373,13 @@ void NewOptionsDialog::ButtonDepress(int theId)
   switch (theId)
   {
     case NewOptionsDialog_House:
-      if (!mFromMenu)
-      {
+      if (mFromMenu)
+        mApp->ShowHouseScreen();
+      else
         mApp->ShowHouseScreenFromGame();
-        mWidgetManager->PutInfront(this, mApp->mBoard);
-      }
+      return;
+    case NewOptionsDialog_Achievements:
+      mApp->ShowAchievementsScreen(!mFromMenu);
       return;
     case NewOptionsDialog_HelpDialog:
       mApp->DoHelpDialog(1);

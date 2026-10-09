@@ -8712,6 +8712,8 @@ void Board::RefreshSeedPacketFromCursor(int thePlayerIndex)
 // ==========================================================================
 void Board::FadeOutLevel()
 {
+  if (mApp->mGameScene == SCENE_PLAYING)
+    CheckLevelAchievements();
   mApp->ForceHideHelpBarWidget();
 
   // The level only fades out from the playing scene; anywhere else this is just
@@ -10742,6 +10744,7 @@ Plant * Board::AddPlant(int theGridX, int theGridY, SeedType theSeedType, SeedTy
   if ( theFromSave )
     DoPlantingEffects(theGridX, theGridY, aPlant);
   mChallenge->PlantAdded(aPlant);
+  DoPlantingAchievementCheck(theSeedType == SEED_IMITATER ? theImitaterType : theSeedType);
 
   int aSunCount = CountPlantByType(SEED_SUNFLOWER) + CountPlantByType(SEED_SUNSHROOM);
   if ( aSunCount > mMaxSunPlants )
@@ -11882,6 +11885,8 @@ Board::Board(LawnApp * theApp)
   mPlayTimeActiveLevel = 0;
   mPlayTimeInactiveLevel = 0;
   mMaxSunPlants = 0;
+  mNewWallNutAndSunFlowerAndChomperOnly = true;
+  mNewPeaShooterCount = 0;
   mStartDrawTime = 0;
   mIntervalDrawTime = 0;
   mIntervalDrawCountStart = 0;

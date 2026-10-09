@@ -7793,6 +7793,11 @@ void Zombie::DieNoLoot()
   if ( (mZombieType == ZOMBIE_GARGANTUAR || mZombieType == ZOMBIE_REDEYE_GARGANTUAR)
     && mFromWave >= 0 && !mApp->IsIZombieLevel() )
   {
+    LawnPlayerInfo* achievementOwner = mApp->mPlayerInfo;
+    if (mApp->mGameMode == GAMEMODE_MP_VS && mBoard->mGamepadControls[0]->mIsZombie)
+      achievementOwner = mApp->mPlayer2Info;
+    if (achievementOwner != nullptr)
+      mApp->GrantAchievement(ACHIEVEMENT_GARG, achievementOwner);
     if ( mApp->mGameMode == GAMEMODE_MP_VS )
     {
       int aId = mApp->mPlayerInfo->GetId();
@@ -7804,7 +7809,7 @@ void Zombie::DieNoLoot()
     else
     {
       mApp->mPlayerInfo->mProgress[0] = (mApp->mPlayerInfo->mProgress[0] & ~0xFF00) | 0x0100;
-      if ( mApp->mSecondPlayerGamepadIndex != -1 )
+      if ( mApp->mSecondPlayerGamepadIndex != -1 && mApp->mPlayer2Info != nullptr )
         mApp->mPlayer2Info->mProgress[0] = (mApp->mPlayer2Info->mProgress[0] & ~0xFF00) | 0x0100;
     }
   }

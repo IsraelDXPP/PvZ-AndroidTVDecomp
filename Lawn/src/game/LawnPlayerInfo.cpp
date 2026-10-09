@@ -43,12 +43,43 @@ void LawnPlayerInfo::Reset()
     for ( int i = 0; i != 100; ++i )
         mChallengeRecords[i] = 0;
 
-    // The 320 bytes from mPurchases on are the original `int mPurchases[80]`
-    // array; this header splits its tail into the named VS and zombatar flags,
-    // so the span is cleared through its first element, as the binary does.
-    int *aPurchases = mPurchases;
-    for ( int i = 0; i != 80; ++i )
-        aPurchases[i] = 0;
+    for (int& purchase : mPurchases)
+        purchase = 0;
+    for (bool& achievement : mAchievements)
+        achievement = false;
+    mVSRoomPort = 0;
+    mVSExtraPacketMode = false;
+    mVSExtendedSeedsMode = false;
+    mVSBanMode = false;
+    mVSBalancePatchMode = false;
+    mVSResultsSendPlayerName = false;
+    mVSResultsAutoSaveReplay = false;
+    mHostAllowSpectate = false;
+    memset(mRecentServerAddr, 0, sizeof(mRecentServerAddr));
+    mRenamed = false;
+    mVSPlantAIMode = false;
+    mVSZombieAIMode = false;
+    mVSAIEnhancementMode = false;
+    mVSAIDraftDisabledMode = false;
+    mVSAITemplateDeckDisabledMode = false;
+    mVSTimedDraftMode = false;
+    memset(mPurchasePad, 0, sizeof(mPurchasePad));
+    mHapticFeedbackEnabled = false;
+    mZombatarEnabled = false;
+    mZombatarHat = 0;
+    mZombatarHatColor = 0;
+    mZombatarHair = 0;
+    mZombatarHairColor = 0;
+    mZombatarFacialHair = 0;
+    mZombatarFacialHairColor = 0;
+    mZombatarAccessory = 0;
+    mZombatarAccessoryColor = 0;
+    mZombatarEyeWear = 0;
+    mZombatarEyeWearColor = 0;
+    mZombatarTidBit = 0;
+    mZombatarTidBitColor = 0;
+    mIs3DAcceleratedClosed = false;
+    mUsedCoins = 0;
     mZenWords[0] = 0;
     mZenWords[1] = 0;
     mLastStinkyChocolateTime = 0;
@@ -64,7 +95,8 @@ void LawnPlayerInfo::Reset()
     // The dump clears the two finished-adventure words as one eight-byte store.
     mProgress[2] = 0;
     mProgress[3] = 0;
-    for ( int i = 0; i != 6; ++i )
+    mProgress[1] = 0;
+    for ( int i = 0; i != 7; ++i )
         mHelpTextSeen[i] = false;
     // The dump clears the first progress word and, as one four-byte store,
     // the two flag bytes plus the two bools that follow them.
@@ -135,9 +167,45 @@ int LawnPlayerInfo::SyncGameData(DataSync &theSync)
     for (int i = 0; i != 100; ++i)
         theSync.SyncLong(mChallengeRecords[i]);
 
-    // The 320 bytes from mPurchases on, exactly as Reset clears them.
-    for (int i = 0; i != 80; ++i)
-        theSync.SyncLong(mPurchases[i]);
+    // Serialize purchases, achievements and preferences through their own types.
+    for (int& purchase : mPurchases)
+        theSync.SyncLong(purchase);
+    for (bool& achievement : mAchievements)
+        theSync.SyncBool(achievement);
+    theSync.SyncShort(mVSRoomPort);
+    theSync.SyncBool(mVSExtraPacketMode);
+    theSync.SyncBool(mVSExtendedSeedsMode);
+    theSync.SyncBool(mVSBanMode);
+    theSync.SyncBool(mVSBalancePatchMode);
+    theSync.SyncBool(mVSResultsSendPlayerName);
+    theSync.SyncBool(mVSResultsAutoSaveReplay);
+    theSync.SyncBool(mHostAllowSpectate);
+    theSync.SyncBytes(mRecentServerAddr, sizeof(mRecentServerAddr));
+    theSync.SyncBool(mRenamed);
+    theSync.SyncBool(mVSPlantAIMode);
+    theSync.SyncBool(mVSZombieAIMode);
+    theSync.SyncBool(mVSAIEnhancementMode);
+    theSync.SyncBool(mVSAIDraftDisabledMode);
+    theSync.SyncBool(mVSAITemplateDeckDisabledMode);
+    theSync.SyncBool(mVSTimedDraftMode);
+    for (bool& preference : mPurchasePad)
+        theSync.SyncBool(preference);
+    theSync.SyncBool(mHapticFeedbackEnabled);
+    theSync.SyncBool(mZombatarEnabled);
+    theSync.SyncByte(mZombatarHat);
+    theSync.SyncByte(mZombatarHatColor);
+    theSync.SyncByte(mZombatarHair);
+    theSync.SyncByte(mZombatarHairColor);
+    theSync.SyncByte(mZombatarFacialHair);
+    theSync.SyncByte(mZombatarFacialHairColor);
+    theSync.SyncByte(mZombatarAccessory);
+    theSync.SyncByte(mZombatarAccessoryColor);
+    theSync.SyncByte(mZombatarEyeWear);
+    theSync.SyncByte(mZombatarEyeWearColor);
+    theSync.SyncByte(mZombatarTidBit);
+    theSync.SyncByte(mZombatarTidBitColor);
+    theSync.SyncBool(mIs3DAcceleratedClosed);
+    theSync.SyncLong(mUsedCoins);
 
     theSync.SyncLong(mZenWords[0]);
     theSync.SyncLong(mZenWords[1]);
@@ -179,6 +247,8 @@ int LawnPlayerInfo::SyncGameStats(DataSync &theSync)
     // The whole stats block, then the finished-adventure bitset.
     theSync.SyncBytes(&mGameStats, sizeof(mGameStats));
     theSync.SyncBytes(&mProgress[2], 8);
+    theSync.SyncLong(mWinStreak);
+    theSync.SyncLong(mProgress[0]);
     return 1;
 }
 
@@ -210,6 +280,13 @@ int LawnPlayerInfo::AddCoins(int theAmount)
     if (aTotal < 0)
         aTotal = 0;
     mCoins = aTotal;
+    if (theAmount < 0)
+    {
+        mUsedCoins -= theAmount;
+        mGameStats.SetMiscStat(STAT_MONEY_SPENT, mUsedCoins);
+        if (mUsedCoins >= 2500)
+            gLawnApp->GrantAchievement(ACHIEVEMENT_SHOP, this);
+    }
     return mCoins;
 }
 
@@ -222,8 +299,11 @@ int LawnPlayerInfo::UpdateHouseData()
     // The dump reads words 23 and 60 of the record, i.e. the challenge records
     // at index 12 and index 49.
     mGameStats.SetMiscStat(STAT_MONEY, mCoins);
-    mGameStats.SetMiscStat(STAT_TREE_HEIGHT, mChallengeRecords[49]);
-    mGameStats.SetMiscStat(STAT_ENDLESS_FLAGS, mChallengeRecords[12]);
+    mGameStats.SetMiscStat(STAT_MONEY_SPENT, mUsedCoins);
+    mGameStats.SetMiscStat(STAT_TREE_HEIGHT,
+        mChallengeRecords[GAMEMODE_TREE_OF_WISDOM - GAMEMODE_SURVIVAL_NORMAL_STAGE_1]);
+    mGameStats.SetMiscStat(STAT_ENDLESS_FLAGS,
+        mChallengeRecords[GAMEMODE_SURVIVAL_ENDLESS_STAGE_3 - GAMEMODE_SURVIVAL_NORMAL_STAGE_1]);
     return 0;
 }
 

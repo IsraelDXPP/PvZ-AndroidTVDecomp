@@ -385,6 +385,7 @@ void VSResultsMenu::DrawOverlay(Sexy::Graphics * theGraphics)
 // ==========================================================================
 void VSResultsMenu::InitFromBoard(Board * theBoard)
 {
+  LawnApp* app = theBoard->mApp;
   GamepadControls *aControls0 = theBoard->mGamepadControls[0];
   GamepadControls *aControls1 = theBoard->mGamepadControls[1];
 
@@ -417,6 +418,20 @@ void VSResultsMenu::InitFromBoard(Board * theBoard)
       aRecord[0] = -1;
       aRecord[3] = 0;
     }
+    LawnPlayerInfo* profile = aSlot == 0 ? app->mPlayerInfo : app->mPlayer2Info;
+    if (profile != nullptr)
+    {
+      profile->mWinStreak = aRecord[3];
+      if (aRecord[3] >= 5)
+        app->GrantAchievement(ACHIEVEMENT_VERSUS, profile);
+    }
+  }
+  if (!app->mSkipProfileSaving)
+  {
+    if (app->mPlayerInfo != nullptr)
+      app->mPlayerInfo->SaveDetails();
+    if (app->mPlayer2Info != nullptr)
+      app->mPlayer2Info->SaveDetails();
   }
 
   // The side that won lights up: the plant panels when the plants took the

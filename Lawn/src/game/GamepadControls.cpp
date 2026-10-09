@@ -741,6 +741,11 @@ void GamepadControls::Draw(Sexy::Graphics * g)
     return;
 
   CursorObject *aCursor = mBoard->mCursorObject[mPlayerIndex];
+  // Mouse input has no persistent gamepad target while its hand is empty.
+  if (mBoard->mMouseInputActive[mPlayerIndex]
+      && aCursor->mCursorType == CURSOR_TYPE_NORMAL
+      && !mIsCobCannonSelected)
+    return;
   if ( aCursor->mCursorType == CURSOR_TYPE_HAMMER
       || (mBoard->mMouseInputActive[mPlayerIndex] && aCursor->mCursorType == CURSOR_TYPE_SHOVEL) )
   {
@@ -819,6 +824,9 @@ void GamepadControls::Draw(Sexy::Graphics * g)
   }
   g->mTransX -= (float)aPixelX;
   g->mTransY -= (float)aPixelY;
+  // The mouse keeps the held plant preview, without a gamepad arrow or label.
+  if (mBoard->mMouseInputActive[mPlayerIndex])
+    return;
   // Both results are discarded. The calls are still made.
   mBoard->GridToPixelX(aGridX, aGridY);
   mBoard->GridToPixelY(aGridX, aGridY);

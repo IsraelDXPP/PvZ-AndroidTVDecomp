@@ -155,6 +155,7 @@ public:
     Sexy::Image * GetImageOverride(char const *theTrackName);
     void SetImageOverride(char *theTrackName, Sexy::Image *theImage);
     void SetImageOverride(char const *theTrackName, Sexy::Image *theImage);
+    void SetImageDefinition(char const *theTrackName, Sexy::Image *theImage);
     void SetTruncateDisappearingFrames(char const *theTrackName, bool theTruncateDisappearingFrames);
     void SetPosition(float theX, float theY);
     void ReanimationInitialize(float theX, float theY, ReanimatorDefinition *theDefinition);

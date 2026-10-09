@@ -194,7 +194,6 @@ void CreditScreen::GameButtonDown(Sexy::GamepadButton theButton, int thePlayerIn
   {
     mApp->KillCreditScreen();
     mApp->ShowCreditScreen(false);
-    mApp->HideHelpBarWidget();
   }
 }
 
@@ -263,6 +262,10 @@ CreditScreen::CreditScreen(LawnApp * theApp, bool isFromMainMenu)
       break;
     gXblaLast = anIndex;
   }
+  // Each screen owns its hints. Discard both sets after closing the old page.
+  mApp->ForceHideHelpBarWidget();
+  mApp->mHelpBarWidget->AddButton(GAMEPAD_BUTTON_B, Sexy::String("[BACK]"), HelpBarWidget::HELP_ALIGN_RIGHT);
+  mApp->ShowHelpBarWidget();
 }
 // ==========================================================================
 // CreditScreen::PreLoadCredits(void)
@@ -670,8 +673,8 @@ int CreditScreen::UpdateMovie()
     aHelp->mDrawShade = false;
     aHelp->ClearButtons(0);
     if (!mIsFromMainMenu || mApp->HasFinishedAdventure())
-      aHelp->AddButton((Sexy::GamepadButton)8, Sexy::String("[CREDITS_REPLAY_BUTTON]"), (HelpBarWidget::HelpAlign)-1);
-    aHelp->AddButton((Sexy::GamepadButton)7, Sexy::String("[BACK]"), (HelpBarWidget::HelpAlign)1);
+      aHelp->AddButton(GAMEPAD_BUTTON_X, Sexy::String("[CREDITS_REPLAY_BUTTON]"), HelpBarWidget::HELP_ALIGN_LEFT);
+    aHelp->AddButton(GAMEPAD_BUTTON_B, Sexy::String("[BACK]"), HelpBarWidget::HELP_ALIGN_RIGHT);
     return mApp->ShowHelpBarWidget();
   }
 
@@ -1111,7 +1114,6 @@ int CreditScreen::KeyDown(Sexy::KeyCode theKey)
   {
     mApp->KillCreditScreen();
     mApp->ShowCreditScreen(false);
-    mApp->HideHelpBarWidget();
   }
   return 1;
 }

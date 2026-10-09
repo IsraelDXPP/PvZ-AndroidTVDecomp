@@ -1193,6 +1193,11 @@ void StoreScreen::PurchaseItem(StoreItem theItem)
 
     if (mApp->mSeedChooserScreen != nullptr)
         mApp->mSeedChooserScreen->UpdateAfterPurchase();
+    bool allPlants = mApp->HasFinishedAdventure();
+    for (int item = STORE_ITEM_PLANT_GATLINGPEA; item <= STORE_ITEM_PLANT_IMITATER; ++item)
+        allPlants = allPlants && mApp->mPlayerInfo->mPurchases[item] > 0;
+    if (allPlants)
+        mApp->GrantAchievement(ACHIEVEMENT_MORTICULTURALIST);
     mApp->TryToSaveProfile();
 }
 // ==========================================================================

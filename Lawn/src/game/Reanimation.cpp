@@ -1243,6 +1243,21 @@ void Reanimation::SetImageOverride(char const* theTrackName, Sexy::Image * theIm
   mTrackInstances[aTrackIndex].mImageOverride = theImage;
 }
 
+// Adapted from PvZ TV Touch's Reanimation::SetImageDefinition (GPL-3.0-or-later).
+// Unlike an instance override, this supplies images to initially empty tracks.
+void Reanimation::SetImageDefinition(char const* theTrackName, Sexy::Image* theImage)
+{
+  if (mDefinition == nullptr)
+    return;
+  const int trackIndex = FindTrackIndex(theTrackName);
+  if (trackIndex < 0)
+    return;
+  ReanimatorTrack& track = mDefinition->mTracks[trackIndex];
+  for (int frame = 0; frame < track.mTransformCount; ++frame)
+    track.mTransforms[frame].mImage = theImage;
+  mFrameTimeReady = false;
+}
+
 // ==========================================================================
 // Reanimation::SetTruncateDisappearingFrames(char const*,bool)
 // @001FACE8  54 bytes

@@ -246,6 +246,10 @@
 #include "VSResultsMenu.h"
 #include "VSSetupMenu.h"
 #include "WaitForLeaderboardsDialog.h"
+#include "AchievementSystem.h"
+#include "SharedImageRef.h"
+#include <map>
+#include <string>
 #include "WaitForRemoteFileDialog.h"
 #include "Widget.h"
 #include "XMLParser.h"
@@ -289,6 +293,8 @@ class EffectSystem;
 class HelpBarWidget;
 class HelpTextScreen;
 class LawnPlayerInfo;
+class LeaderboardsWidget;
+class AchievementsWidget;
 class Mailbox;
 class MainMenu;
 class MaskHelpWidget;
@@ -788,6 +794,12 @@ public:
     void ShowHouseScreen();
     void KillHouseScreenFromGame();
     void ShowHouseScreenFromGame();
+    void ShowAchievementsScreen(bool theFromGame = false);
+    void KillAchievementsScreen();
+    bool GrantAchievement(AchievementType theAchievement, LawnPlayerInfo* thePlayer = nullptr, bool theShow = true);
+    void RefreshProfileAchievements();
+    void SetHouseReanim(Reanimation* theHouse);
+    Sexy::Image* GetConsoleImage(const char* theName);
     void KillTitleScreen();
     int KillMainMenu();
     int KillGameSelector();
@@ -840,8 +852,7 @@ public:
     // Two modal counters. Board::DrawOverlay skips its overlay while either is set.
     int mModalCount[2];                     // +0x8AC .. +0x8B3 (555~556)
     HelpTextScreen *mHelpTextScreen;        // +0x8B4 (557)
-    // Cleared with the neighbouring screen pointers. Nothing reads it.
-    int mLeaderboardScreen;                 // +0x8B8 (558)
+    LeaderboardsWidget* mLeaderboardScreen; // house, trophies and local records
     VSSetupMenu *mVSSetupMenu;              // +0x8BC (559)
     VSResultsMenu *mVSResultsMenu;          // +0x8C0 (560)
     SeedChooserScreen *mSeedChooserScreen;  // +0x8C4 (561)
@@ -871,7 +882,7 @@ public:
     EffectSystem *mEffectSystem;            // +0x924 (585)
     ReanimatorCache *mReanimatorCache;      // +0x928 (586)
     LawnPlayerInfo *mPlayerInfo;            // +0x92C (587)
-    Sexy::DefaultPlayerInfo *mPlayer2Info;  // +0x930 (588), never initialised but tested
+    LawnPlayerInfo *mPlayer2Info;          // second player's game profile
     // LevelStats* at +0x934. StartLevel resets it; the old int* was the dump's
     // untyped word.
     LevelStats *mLastLevelStats;            // +0x934 (589)
@@ -986,6 +997,8 @@ public:
     MaskHelpWidget *mMaskHelpWidget;        // +0xB10 (708)
     QueryCoinState mQueryCoinState;         // +0xB14 .. +0xB23 (709~712)
     bool mCanDoBuyMoneyDialog;              // +0xB24 (byte 2852)
+    AchievementsWidget* mAchievementsScreen = nullptr;
+    std::map<std::string, Sexy::SharedImageRef> mConsoleImages;
     // size 0xB28
 };
 

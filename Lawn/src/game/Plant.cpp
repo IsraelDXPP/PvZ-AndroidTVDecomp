@@ -3094,14 +3094,13 @@ int Plant::DoSpecial()
       mApp->PlayFoley(FOLEY_JUICY);
       if (mBoard->KillAllZombiesInRadius(mRow, aCenterX, aCenterY, 115, 1, true, aDamageFlags) > 9)
       {
-        // Achievement 0 is the cherry-bomb chain. Player 0 and the unset
-        // player (-1) write the first profile; player 1 writes the second.
+        // Credit the owner of the cherry bomb, including the mouse player.
         if ((unsigned int)(mPlayerIndex + 1) <= 1)
-          mApp->mPlayerInfo->mAchievements[0] = true;
+          mApp->GrantAchievement(ACHIEVEMENT_EXPLODONATOR);
         else if (mPlayerIndex == 1
           && mApp->mSecondPlayerGamepadIndex != -1
           && mApp->mPlayer2Info != nullptr)
-          mApp->mPlayer2Info->mAchievements[0] = true;
+          mApp->GrantAchievement(ACHIEVEMENT_EXPLODONATOR, mApp->mPlayer2Info);
       }
       mApp->AddTodParticle(
           (float)aCenterX, (float)aCenterY, RenderLayer::RENDER_LAYER_UI_TOP, (ParticleEffect)4);

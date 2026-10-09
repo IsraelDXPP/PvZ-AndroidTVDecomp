@@ -387,6 +387,14 @@
     <ResourceCompile Include="Lawn.rc" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\game\AchievementSystem.cpp" />
+    <ClCompile Include="src\game\AchievementsWidget.cpp" />
+    <ClCompile Include="src\game\LeaderboardsWidget.cpp" />
+    <ClInclude Include="include\game\AchievementSystem.h" />
+    <ClInclude Include="include\game\AchievementsWidget.h" />
+    <ClInclude Include="include\game\LeaderboardsWidget.h" />
+  </ItemGroup>
+  <ItemGroup>
     <Image Include="..\main_ico.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

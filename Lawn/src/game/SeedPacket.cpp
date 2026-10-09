@@ -251,12 +251,22 @@ void SeedPacket::UpdateSelected()
     SeedBank *bank = mSeedBank;
     GamepadControls *pad1 = board->mGamepadControls[1];
     GamepadControls *pad0 = board->mGamepadControls[0];
+    const auto pointsAtPacket = [this, board](GamepadControls* controls)
+    {
+        if (controls == nullptr || controls->mSelectedSeedIndex != mIndex)
+            return false;
+        if (!board->mMouseInputActive[controls->mPlayerIndex])
+            return true;
+        const CursorObject* cursor = board->mCursorObject[controls->mPlayerIndex];
+        return cursor->mCursorType == CURSOR_TYPE_PLANT_FROM_BANK
+            && cursor->mSelectedIndex == mIndex;
+    };
 
     // Player 2's frame: the second pad pointing at this packet in the first
     // bank (solo only), or any packet in the second bank that pad is on.
     bool selectedBy2P = false;
     if (bank == board->mSeedBank[0]
-        && pad1->mSelectedSeedIndex == mIndex
+        && pointsAtPacket(pad1)
         && pad1->mGamepadIndex != -1
         && !pad1->mIsZombie
         && !mApp->IsCoopMode())
@@ -265,7 +275,7 @@ void SeedPacket::UpdateSelected()
     if (bank == board->mSeedBank[1] && pad1 != nullptr)
     {
         bool pad1Counts = pad1->mIsZombie || mApp->IsCoopMode();
-        if (pad1Counts && pad1->mSelectedSeedIndex == mIndex)
+        if (pad1Counts && pointsAtPacket(pad1))
             selectedBy2P = true;
     }
     mSelectedBy2P = selectedBy2P;
@@ -274,21 +284,21 @@ void SeedPacket::UpdateSelected()
     {
         // Versus keeps one frame per player. Either pad can be player 1.
         mSelectedBy2P =
-            (board->mSeedBank[0] == bank && pad0->mPlayerIndex == 1 && pad0->mSelectedSeedIndex == mIndex)
-            || (board->mSeedBank[1] == bank && pad1->mPlayerIndex == 1 && pad1->mSelectedSeedIndex == mIndex);
+            (board->mSeedBank[0] == bank && pad0->mPlayerIndex == 1 && pointsAtPacket(pad0))
+            || (board->mSeedBank[1] == bank && pad1->mPlayerIndex == 1 && pointsAtPacket(pad1));
     }
 
     bool selected = false;
-    if (bank == board->mSeedBank[0] && pad0->mSelectedSeedIndex == mIndex)
+    if (bank == board->mSeedBank[0] && pointsAtPacket(pad0))
         selected = true;
-    else if (board->mSeedBank[1] == bank && pad1->mSelectedSeedIndex == mIndex)
+    else if (board->mSeedBank[1] == bank && pointsAtPacket(pad1))
         selected = true;
     else
         selected = mSelectedBy2P;
     mSelected = selected;
 
     bool bothPlayers = false;
-    if (pad1->mGamepadIndex != -1 && pad0->mSelectedSeedIndex == pad1->mSelectedSeedIndex)
+    if (pad1->mGamepadIndex != -1 && pointsAtPacket(pad0) && pointsAtPacket(pad1))
     {
         if (mApp->IsCoopMode())
             bothPlayers = false;
@@ -305,12 +315,12 @@ void SeedPacket::UpdateSelected()
         return;
     }
 
-    mSelected = pad0->mSelectedSeedIndex == mIndex;
+    mSelected = pointsAtPacket(pad0);
     if (!mSelected && mApp->IsTwoPlayerGame())
     {
         GamepadControls *other = board->mGamepadControls[1];
         if (other != nullptr && !other->mIsInShopSeedBank)
-            mSelected = other->mSelectedSeedIndex == mIndex;
+            mSelected = pointsAtPacket(other);
     }
 }
 

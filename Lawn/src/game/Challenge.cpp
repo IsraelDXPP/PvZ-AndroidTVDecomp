@@ -5323,6 +5323,8 @@ void Challenge::TreeOfWisdomGrow()
   int aIndex = mApp->GetCurrentChallengeIndex();
   int aSize = mApp->mPlayerInfo->mChallengeRecords[aIndex] + 1;
   mApp->mPlayerInfo->mChallengeRecords[aIndex] = aSize;
+  if (aSize >= 100)
+    mApp->GrantAchievement(ACHIEVEMENT_TREE);
 
   int aAnim = aSize;
   if ( aSize <= 1 )

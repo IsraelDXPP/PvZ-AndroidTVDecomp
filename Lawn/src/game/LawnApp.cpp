@@ -31,6 +31,8 @@ namespace TM { using ::LogComposer; }
 #include "ConfirmBackToMainDialog.h"
 #include "ContinueDialog.h"
 #include "CreditScreen.h"
+#include "AchievementsWidget.h"
+#include "LeaderboardsWidget.h"
 #include "CutScene.h"
 #include "DaveHelp.h"
 #include "DefaultProfileMgr.h"
@@ -518,7 +520,7 @@ int LawnApp::IsIceDemo()
 // ==========================================================================
 void LawnApp::TransitionToHouseScreen()
 {
-  ;
+  ShowHouseScreen();
 }
 
 // ==========================================================================
@@ -527,7 +529,7 @@ void LawnApp::TransitionToHouseScreen()
 // ==========================================================================
 void LawnApp::ShowLeaderboardScreen()
 {
-  ;
+  ShowHouseScreen();
 }
 
 // ==========================================================================
@@ -536,7 +538,14 @@ void LawnApp::ShowLeaderboardScreen()
 // ==========================================================================
 void LawnApp::ShowHouseScreen()
 {
-  ;
+  if (mPlayerInfo == nullptr || mLeaderboardScreen != nullptr)
+    return;
+  KillGameSelector();
+  ForceHideHelpBarWidget();
+  KillNewOptionsDialog();
+  mLeaderboardScreen = new LeaderboardsWidget(this, false);
+  mWidgetManager->AddWidget(mLeaderboardScreen);
+  mWidgetManager->SetFocus(mLeaderboardScreen);
 }
 
 // ==========================================================================
@@ -545,7 +554,7 @@ void LawnApp::ShowHouseScreen()
 // ==========================================================================
 void LawnApp::KillHouseScreenFromGame()
 {
-  ;
+  KillLeaderboardScreen();
 }
 
 // ==========================================================================
@@ -554,7 +563,35 @@ void LawnApp::KillHouseScreenFromGame()
 // ==========================================================================
 void LawnApp::ShowHouseScreenFromGame()
 {
-  ;
+  if (mPlayerInfo == nullptr || mLeaderboardScreen != nullptr)
+    return;
+  mLeaderboardScreen = new LeaderboardsWidget(this, true);
+  mWidgetManager->AddWidget(mLeaderboardScreen);
+  mWidgetManager->SetFocus(mLeaderboardScreen);
+}
+
+void LawnApp::ShowAchievementsScreen(bool theFromGame)
+{
+  if (mPlayerInfo == nullptr || mAchievementsScreen != nullptr)
+    return;
+  if (!theFromGame)
+  {
+    KillGameSelector();
+    KillNewOptionsDialog();
+  }
+  mAchievementsScreen = new AchievementsWidget(this, theFromGame);
+  mWidgetManager->AddWidget(mAchievementsScreen);
+  mWidgetManager->SetFocus(mAchievementsScreen);
+}
+
+void LawnApp::KillAchievementsScreen()
+{
+  if (mAchievementsScreen == nullptr)
+    return;
+  mWidgetManager->RemoveWidget(mAchievementsScreen);
+  SafeDeleteWidget(mAchievementsScreen);
+  mAchievementsScreen = nullptr;
+  ForceHideHelpBarWidget();
 }
 
 // ==========================================================================
@@ -670,7 +707,12 @@ Board * LawnApp::TryHelpTextScreen(int theHelpIndex)
 // ==========================================================================
 void LawnApp::KillLeaderboardScreen()
 {
-  ;
+  if (mLeaderboardScreen == nullptr)
+    return;
+  mWidgetManager->RemoveWidget(mLeaderboardScreen);
+  SafeDeleteWidget(mLeaderboardScreen);
+  mLeaderboardScreen = nullptr;
+  ForceHideHelpBarWidget();
 }
 
 // ==========================================================================
@@ -679,7 +721,7 @@ void LawnApp::KillLeaderboardScreen()
 // ==========================================================================
 void LawnApp::KillHouseScreen()
 {
-  ;
+  KillLeaderboardScreen();
 }
 
 // ==========================================================================
@@ -740,6 +782,7 @@ int LawnApp::KillCreditScreen()
     mWidgetManager->RemoveWidget(mCreditScreen);
     SafeDeleteWidget(mCreditScreen);
     mCreditScreen = nullptr;
+    ForceHideHelpBarWidget();
   }
   return 0;
 }
@@ -1641,6 +1684,7 @@ EffectSystem * LawnApp::KillAll()
   KillMainMenu();
   KillLeaderboardScreen();
   KillHouseScreen();
+  KillAchievementsScreen();
   KillHelpTextScreen();
   if ( mEffectSystem != nullptr )
   {
@@ -3808,7 +3852,13 @@ void LawnApp::WriteLeaderboards()
 // ==========================================================================
 void LawnApp::WriteHouse(bool theForce)
 {
-  ;
+  if (mPlayerInfo == nullptr)
+    return;
+  mPlayerInfo->UpdateHouseData();
+  if (mGameSelector != nullptr)
+    SetHouseReanim(ReanimationTryToGet(mGameSelector->mHouseReanimID));
+  if (theForce)
+    TryToSaveProfile();
 }
 
 // ==========================================================================
@@ -4305,8 +4355,9 @@ int LawnApp::SetSecondPlayer(int theGamepadIndex)
   // is written at +0xA7C, the board is told, and the profile manager's
   // GetProfile (vtable +0x1C) looks the record up. LoadDetails is vtable +0x24.
   Sexy::String aName = mPlayerInfo->GetName();
-  mPlayer2Info = static_cast<Sexy::DefaultPlayerInfo *>(mProfileMgr->GetProfile(aName, theGamepadIndex));
-  mPlayer2Info->LoadDetails();
+  mPlayer2Info = dynamic_cast<LawnPlayerInfo *>(mProfileMgr->GetProfile(aName, theGamepadIndex));
+  if (mPlayer2Info != nullptr)
+    mPlayer2Info->LoadDetails();
   return 0;
 }
 // ==========================================================================
@@ -4376,8 +4427,7 @@ void LawnApp::OnProfileSaveError(Sexy::PlayerInfo * theProfile)
     }
   }
 
-  // mPlayer2Info is a DefaultPlayerInfo *, which is a PlayerInfo *. The
-  // binary compares the two pointers directly (CMP R5, [this+0x930]).
+  // The binary compares the two profile pointers directly.
   if ( mSecondPlayerGamepadIndex != -1 && mPlayer2Info != nullptr
     && theProfile == mPlayer2Info )
   {
@@ -6540,7 +6590,7 @@ LawnApp::LawnApp()
   mSaveGameOperation = 0;
   mModalCount[0] = 0;
   mBoard = nullptr;
-  mLeaderboardScreen = 0;
+  mLeaderboardScreen = nullptr;
   mChallengeScreen = nullptr;
   mSeedChooserScreen = nullptr;
   mZombieChooserScreen = nullptr;

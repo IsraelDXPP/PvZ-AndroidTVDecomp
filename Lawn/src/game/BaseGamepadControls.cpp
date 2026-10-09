@@ -609,6 +609,10 @@ void BaseGamepadControls::DrawFrame(Sexy::Graphics *theGraphics, int thePhase)
     return;
 
   CursorObject *aCursor = mBoard->mCursorObject[mPlayerIndex];
+  // DrawFrame @0x1BE9EC also runs independently of GamepadControls::Draw.
+  // An idle mouse has no selected tool or plant, so neither half is drawn.
+  if (mBoard->mMouseInputActive[mPlayerIndex] && aCursor->mCursorType == CURSOR_TYPE_NORMAL)
+    return;
   if (aCursor->mCursorType == CURSOR_TYPE_HAMMER && aCursor->BeginDraw(theGraphics))
   {
     aCursor->Draw(theGraphics);
