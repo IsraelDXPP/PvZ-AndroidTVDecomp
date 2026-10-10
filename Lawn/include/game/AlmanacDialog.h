@@ -122,20 +122,20 @@ public:
 
     // ---- the LawnDialog/Dialog slots this class overrides, in binary order ----
     virtual ~AlmanacDialog(); // [  0]
-    virtual void AddedToManager(Sexy::WidgetManager *theWidgetManager); // [ 29]
-    virtual void RemovedFromManager(Sexy::WidgetManager *theWidgetManager); // [ 30]
-    virtual void Update(); // [ 31]
-    virtual void Draw(Sexy::Graphics *g); // [ 36]
-    virtual void GotFocus(); // [ 61]
-    virtual int KeyChar(char theChar); // [ 67]
-    virtual int KeyDown(Sexy::KeyCode theKey); // [ 71]
-    virtual void MouseDown(int x, int y, int theClickCount); // [ 76]
-    virtual void MouseUp(int x, int y, int theClickCount); // [ 79]
+    virtual void AddedToManager(Sexy::WidgetManager *theWidgetManager) override; // [ 29]
+    virtual void RemovedFromManager(Sexy::WidgetManager *theWidgetManager) override; // [ 30]
+    virtual void Update() override; // [ 31]
+    virtual void Draw(Sexy::Graphics *g) override; // [ 36]
+    virtual void GotFocus() override; // [ 61]
+    virtual int KeyChar(char theChar) override; // [ 67]
+    virtual int KeyDown(Sexy::KeyCode theKey) override; // [ 71]
+    virtual void MouseDown(int x, int y, int theClickCount) override; // [ 76]
+    virtual void MouseUp(int x, int y, int theClickCount) override; // [ 79]
     void MouseDrag(int x, int y) override;
-    virtual void MouseWheel(int theDelta); // [ 82]
-    virtual void AxisMoved(const Sexy::Event &theEvent); // [104]
-    virtual void ButtonPress(int theId); // [128]
-    virtual void ButtonDepress(int theId); // [129]
+    virtual void MouseWheel(int theDelta) override; // [ 82]
+    virtual void AxisMoved(const Sexy::Event &theEvent) override; // [104]
+    virtual void ButtonPress(int theId) override; // [128]
+    virtual void ButtonDepress(int theId) override; // [129]
 
     // ---- slot 133: new in AlmanacDialog ----
     virtual void GameButtonDown(Sexy::GamepadButton theButton, int thePlayerIndex, unsigned int theFlags); // [133]

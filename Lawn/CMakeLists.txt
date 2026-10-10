@@ -137,7 +137,9 @@ set(lawn_module_sources
 if(ANDROID)
     add_library(LawnTV SHARED ${lawn_module_sources})
     set_target_properties(LawnTV PROPERTIES OUTPUT_NAME main)
-    target_link_options(LawnTV PRIVATE "-Wl,--no-undefined")
+    # Windows Ninja can shorten clang++.exe to an 8.3 path without "++".
+    # Select the C++ driver explicitly so the NDK links libc++ and its ABI runtime.
+    target_link_options(LawnTV PRIVATE "--driver-mode=g++" "-Wl,--no-undefined")
 else()
     add_executable(LawnTV ${lawn_module_sources})
 endif()

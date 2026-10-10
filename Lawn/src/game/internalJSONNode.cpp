@@ -981,8 +981,7 @@ void internalJSONNode::deleteInternal(internalJSONNode *theNode)
     // freed is the receiver, and the declared parameter is dead. Every transcribed
     // call site agrees -- the receiver is the node, the argument is scratch.
     (void)theNode;
-    if (this != nullptr)
-        delete this;
+    delete this;
 }
 
 // ==========================================================================

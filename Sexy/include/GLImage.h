@@ -21,35 +21,35 @@ public:
     GLImage();
     virtual ~GLImage();
 
-    virtual bool Is3D();
+    virtual bool Is3D() override;
     void PushTransform(const SexyMatrix3 &theTransform, bool theConcatenate) override;
     void PopTransform() override;
     void PopTransform(SexyMatrix3 &theTransform) override;
-    virtual void FillRect(const TRect<int> &theRect, const Color &theColor, int theDrawMode);
-    virtual void ClearRect(const TRect<int> &theRect);
-    virtual void DrawLine(
-        double theStartX, double theStartY, double theEndX, double theEndY, const Color &theColor, int theDrawMode);
-    virtual void DrawLineAA(
-        double theStartX, double theStartY, double theEndX, double theEndY, const Color &theColor, int theDrawMode);
+    virtual void FillRect(const TRect<int> &theRect, const Color &theColor, int theDrawMode) override;
+    virtual void ClearRect(const TRect<int> &theRect) override;
+    virtual void DrawLine(double theStartX, double theStartY, double theEndX, double theEndY, const Color &theColor,
+        int theDrawMode) override;
+    virtual void DrawLineAA(double theStartX, double theStartY, double theEndX, double theEndY, const Color &theColor,
+        int theDrawMode) override;
     virtual void Blt(Image *theSource, int theX, int theY, const TRect<int> &theSourceRect, const Color &theColor,
-        int theDrawMode, bool theColorize = false);
+        int theDrawMode, bool theColorize = false) override;
     virtual void BltF(Image *theSource, float theX, float theY, const TRect<int> &theSourceRect,
-        const TRect<int> &theClipRect, const Color &theColor, int theDrawMode);
+        const TRect<int> &theClipRect, const Color &theColor, int theDrawMode) override;
     virtual void BltRotated(Image *theSource, float theX, float theY, const TRect<int> &theSourceRect,
         const TRect<int> &theClipRect, const Color &theColor, int theDrawMode, double theRotate, float theRotateCenterX,
-        float theRotateCenterY);
+        float theRotateCenterY) override;
     virtual void StretchBlt(Image *theSource, const TRect<int> &theDestRect, const TRect<int> &theSrcRect,
-        const TRect<int> &theClipRect, const Color &theColor, int theDrawMode, bool theFastStretch);
+        const TRect<int> &theClipRect, const Color &theColor, int theDrawMode, bool theFastStretch) override;
     virtual void BltMatrix(Image *theSource, float theX, float theY, const SexyMatrix3 &theMatrix,
         const TRect<int> &theSourceRect, const Color &theColor, int theDrawMode, const TRect<int> &theClipRect,
-        bool theLinearBlend, bool theMirror);
+        bool theLinearBlend, bool theMirror) override;
     virtual void BltTrianglesTex(Image *theSource, const SexyVertex2D (*theTriangles)[3], int theTriangleCount,
         const TRect<int> &theClipRect, const Color &theColor, int theDrawMode, float theTx, float theTy,
-        bool theLinearBlend);
-    virtual void BltMirror(
-        Image *theSource, int theX, int theY, const TRect<int> &theSourceRect, const Color &theColor, int theDrawMode);
+        bool theLinearBlend) override;
+    virtual void BltMirror(Image *theSource, int theX, int theY, const TRect<int> &theSourceRect, const Color &theColor,
+        int theDrawMode) override;
     virtual void StretchBltMirror(Image *theSource, const TRect<int> &theDestRect, const TRect<int> &theSrcRect,
-        const TRect<int> &theClipRect, const Color &theColor, int theDrawMode, bool theFastStretch);
+        const TRect<int> &theClipRect, const Color &theColor, int theDrawMode, bool theFastStretch) override;
 
     // True only while this image is the device's current draw target. That is
     // the same question GLImage asks the display before it emits a primitive.

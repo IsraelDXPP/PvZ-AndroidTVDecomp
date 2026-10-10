@@ -36,23 +36,23 @@ class ButtonWidget : public SelectableWidget
 public:
     virtual ~ButtonWidget();
 
-    virtual void Update();
-    virtual void Draw(Sexy::Graphics *g);
-    virtual void SetDisabled(bool isDisabled);
-    virtual int KeyDown(Sexy::KeyCode theKey);
-    virtual int KeyUp(Sexy::KeyCode theKey);
-    virtual void MouseEnter();
-    virtual void MouseLeave();
-    virtual void MouseMove(int x, int y);
-    virtual void MouseDown(int x, int y, int theClickCount);
-    virtual void MouseDown(int x, int y, int theBtnNum, int theClickCount);
-    virtual void MouseUp(int x, int y);
-    virtual void MouseUp(int x, int y, int theClickCount);
-    virtual void MouseUp(int x, int y, int theBtnNum, int theClickCount);
-    virtual void TouchEnter();
-    virtual void TouchLeave();
-    virtual void TouchDown(int theId, int x, int y);
-    virtual void TouchUp(int theId, int x, int y);
+    virtual void Update() override;
+    virtual void Draw(Sexy::Graphics *g) override;
+    virtual void SetDisabled(bool isDisabled) override;
+    virtual int KeyDown(Sexy::KeyCode theKey) override;
+    virtual int KeyUp(Sexy::KeyCode theKey) override;
+    virtual void MouseEnter() override;
+    virtual void MouseLeave() override;
+    virtual void MouseMove(int x, int y) override;
+    virtual void MouseDown(int x, int y, int theClickCount) override;
+    virtual void MouseDown(int x, int y, int theBtnNum, int theClickCount) override;
+    virtual void MouseUp(int x, int y) override;
+    virtual void MouseUp(int x, int y, int theClickCount) override;
+    virtual void MouseUp(int x, int y, int theBtnNum, int theClickCount) override;
+    virtual void TouchEnter() override;
+    virtual void TouchLeave() override;
+    virtual void TouchDown(int theId, int x, int y) override;
+    virtual void TouchUp(int theId, int x, int y) override;
 
     virtual void DrawButtonImage(Sexy::Graphics *g, Sexy::Image *image, const TRect<int> &rect, int x, int y);
     virtual void SetFont(Sexy::Font *theFont);

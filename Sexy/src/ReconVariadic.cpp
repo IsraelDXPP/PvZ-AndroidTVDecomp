@@ -38,6 +38,7 @@
 // their old declaration site in Sexy/ReconFreeFunctions.h.
 
 #include "SexyTypes.h"
+#include "GameCenter.h"
 #include "EditWidget.h"
 #include "Graphics.h"
 #include "ReconExterns.h"
@@ -2910,7 +2911,7 @@ int __imp__ZN6Native10GameCenter6logoutEv(...)
     return 0;
 }
 // TODO(recon)
-int __imp__ZN6Native10GameCenter8Listener7onEventEPS0_iiRKSs(...)
+int ForwardNativeGameCenterEvent(Native::GameCenter *, int, int, Sexy::String const &)
 {
     return 0;
 }
@@ -2933,40 +2934,56 @@ int DrCurlEngine::init(...)
 {
     return 0;
 }
-// TODO(recon)
-int DrCurlRequest::getField(...)
+// DrCurlRequest @0x1F2A34..0x1F3098 uses an ordered string map. Lookup
+// returns an empty string for a missing key, including on a const request.
+Sexy::String DrCurlRequest::getField(Sexy::String const &theKey) const
 {
-    return 0;
+    const auto field = mFields.find(theKey);
+    return field != mFields.end() ? field->second : Sexy::String();
 }
-// TODO(recon)
-int DrCurlRequest::getPostFields(...)
+Sexy::String DrCurlRequest::getPostFields() const
 {
-    return 0;
+    Sexy::String fields;
+    for (const auto &field : mFields)
+    {
+        if (!fields.empty())
+            fields += "&";
+        fields += field.first + "=" + field.second;
+    }
+    return fields;
 }
-// TODO(recon)
-int DrCurlRequest::getSortedFields(...)
+Sexy::String DrCurlRequest::getSortedFields() const
 {
-    return 0;
+    Sexy::String fields;
+    for (const auto &field : mFields)
+    {
+        if (!fields.empty())
+            fields += "||";
+        fields += field.first + "=" + field.second;
+    }
+    return fields;
 }
-// TODO(recon)
-int DrCurlRequest::getUrl(...)
+Sexy::String DrCurlRequest::getUrl() const
 {
-    return 0;
+    return mUrl;
 }
-// TODO(recon)
-int DrCurlRequest::setField(...)
+void DrCurlRequest::setField(Sexy::String const &theKey, Sexy::String const &theValue)
 {
-    return 0;
+    mFields[theKey] = theValue;
 }
-// TODO(recon)
-int DrDataEncoder::decode(...)
+// @0x1F46A0..0x1F46C8: this build stores the key, but encode and decode
+// simply return copies of their input text.
+DrDataEncoder::DrDataEncoder(Sexy::String const &theKey) :
+    mKey(theKey)
 {
-    return 0;
 }
-// TODO(recon)
-int DrDataEncoder::encode(...)
+Sexy::String DrDataEncoder::decode(Sexy::String const &theText)
 {
-    return 0;
+    return theText;
+}
+Sexy::String DrDataEncoder::encode(Sexy::String const &theText)
+{
+    return theText;
 }
 // TODO(recon)
 int LawnSerialNumber::GetNewOne(...)

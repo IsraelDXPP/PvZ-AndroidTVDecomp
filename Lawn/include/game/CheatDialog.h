@@ -25,11 +25,11 @@ class CheatDialog : public LawnDialog, public Sexy::EditListener
 public:
     virtual ~CheatDialog();
 
-    virtual void AddedToManager(Sexy::WidgetManager *theWidgetManager);
-    virtual void RemovedFromManager(Sexy::WidgetManager *theWidgetManager);
-    virtual void Draw(Sexy::Graphics *theGraphics);
-    virtual void Resize(int theX, int theY, int theWidth, int theHeight);
-    virtual void GotFocus();
+    virtual void AddedToManager(Sexy::WidgetManager *theWidgetManager) override;
+    virtual void RemovedFromManager(Sexy::WidgetManager *theWidgetManager) override;
+    virtual void Draw(Sexy::Graphics *theGraphics) override;
+    virtual void Resize(int theX, int theY, int theWidth, int theHeight) override;
+    virtual void GotFocus() override;
 
     void EditWidgetText(int theId, const Sexy::String &theText) override;
     int AllowChar(int theId, char theChar) override;

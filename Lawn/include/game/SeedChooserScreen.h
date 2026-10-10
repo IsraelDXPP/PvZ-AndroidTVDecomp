@@ -195,23 +195,23 @@ public:
     // KeyDown/KeyUp keep `void` even though the hook header spells them `bool`:
     // the base `Sexy::Widget::KeyDown(KeyCode)` is void in the authoritative
     // vtable, so a bool override would not compile.
-    virtual void AddedToManager(Sexy::WidgetManager *theManager);
-    virtual void RemovedFromManager(Sexy::WidgetManager *theManager);
-    virtual void Update();
-    virtual void Draw(Sexy::Graphics *g);
-    virtual void DrawOverlay(Sexy::Graphics *g);
-    virtual void GotFocus();
-    virtual int KeyChar(char theChar);
-    virtual int KeyDown(Sexy::KeyCode theKey);
-    virtual int KeyUp(Sexy::KeyCode theKey);
-    virtual void MouseDown(int x, int y, int theClickCount);
-    virtual void MouseUp(int x, int y, int theClickCount);
+    virtual void AddedToManager(Sexy::WidgetManager *theManager) override;
+    virtual void RemovedFromManager(Sexy::WidgetManager *theManager) override;
+    virtual void Update() override;
+    virtual void Draw(Sexy::Graphics *g) override;
+    virtual void DrawOverlay(Sexy::Graphics *g) override;
+    virtual void GotFocus() override;
+    virtual int KeyChar(char theChar) override;
+    virtual int KeyDown(Sexy::KeyCode theKey) override;
+    virtual int KeyUp(Sexy::KeyCode theKey) override;
+    virtual void MouseDown(int x, int y, int theClickCount) override;
+    virtual void MouseUp(int x, int y, int theClickCount) override;
     void MouseMove(int x, int y) override;
     void MouseDrag(int x, int y) override;
     Sexy::Rect GetInsetRect() override;
     // ButtonListener overrides, then this class's own new virtuals.
-    virtual void ButtonPress(int theId);
-    virtual void ButtonDepress(int theId);
+    virtual void ButtonPress(int theId) override;
+    virtual void ButtonDepress(int theId) override;
     virtual int OnKeyDown(Sexy::KeyCode theKey, unsigned int theFlags);
     virtual int OnKeyUp(Sexy::KeyCode theKey, unsigned int theFlags);
     virtual int GameAxisMove(int theAxis, int theButton, int thePlayerIndex);

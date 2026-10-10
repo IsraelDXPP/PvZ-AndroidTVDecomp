@@ -1574,7 +1574,7 @@ void Projectile::Draw(Sexy::Graphics *theGraphics)
         int aCelWidth = aImage->GetCelWidth();
         int aCelHeight = aImage->GetCelHeight();
         TRect<int> aSrcRect(mFrame * aCelWidth, aProjectileDef->mImageRow * aCelHeight, aCelWidth, aCelHeight);
-        if (fabsf(mRotation) < 0.000001 && fabsf(aScale - 1.0) < 0.000001)
+        if (fabsf(mRotation) < 0.000001 && fabsf(aScale - 1.0f) < 0.000001)
         {
             // Upright and unscaled: no transform needed, so the frame can be blitted
             // with the mirror flag alone.

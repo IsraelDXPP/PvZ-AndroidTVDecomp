@@ -35,6 +35,8 @@ if(WIN32)
 endif()
 
 if(ANDROID)
+    # bgfx's static target uses Android window and GLES/EGL entry points.
+    target_link_libraries(LawnTVDependencies INTERFACE android EGL GLESv2)
     get_target_property(lawn_sdl_type SDL3::SDL3 TYPE)
     if(NOT lawn_sdl_type STREQUAL "SHARED_LIBRARY")
         message(FATAL_ERROR

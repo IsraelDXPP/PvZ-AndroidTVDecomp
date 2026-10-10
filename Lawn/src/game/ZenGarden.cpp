@@ -2922,7 +2922,7 @@ void ZenGarden::DrawPottedPlant(
 
     // A pot facing left is drawn mirrored, and shifted right to compensate.
     float aOffsetX = 0.0f;
-    if (thePottedPlant->mFacing == FACING_LEFT)
+    if (thePottedPlant->mFacing == PottedPlant::FACING_LEFT)
     {
         aGraphics.mScaleX = -theScale;
         aOffsetX = theScale * 80.0f;

@@ -49,11 +49,11 @@ public:
     virtual ~ZenGardenControls(); // [16] 0x040
 
     // ---- replacements for GamepadControls' slots ----
-    virtual void OnButtonDown(int theButton, int thePlayerIndex, unsigned int theFlags); // [ 0] 0x000
-    virtual bool OnKeyDown(Sexy::KeyCode theKey, unsigned int theFlags); // [ 3] 0x00C
-    virtual int Update(float theDeltaTime); // [ 5] 0x014
-    virtual void OnButtonUp(int theButton, int thePlayerIndex, unsigned int theFlags);
-    virtual void OnGameAxisMove(int theAxis, int theValue, int thePlayerIndex);
+    virtual void OnButtonDown(int theButton, int thePlayerIndex, unsigned int theFlags) override; // [ 0] 0x000
+    virtual bool OnKeyDown(Sexy::KeyCode theKey, unsigned int theFlags) override; // [ 3] 0x00C
+    virtual int Update(float theDeltaTime) override; // [ 5] 0x014
+    virtual void OnButtonUp(int theButton, int thePlayerIndex, unsigned int theFlags) override;
+    virtual void OnGameAxisMove(int theAxis, int theValue, int thePlayerIndex) override;
     void Draw(Sexy::Graphics *theGraphics) override;
 
     ZenGardenControls(Board *theBoard, int thePlayerIndex1, int thePlayerIndex2);

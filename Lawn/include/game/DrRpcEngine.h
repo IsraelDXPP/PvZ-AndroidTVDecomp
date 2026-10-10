@@ -186,9 +186,7 @@ public:
     DrRpcResOfAllItems call_QueryAllItems(Sexy::String const &theToken);
 
     Sexy::String mDefaultUrl; // +0x204
-    DrDataEncoder mDataEncoder; // +0x208 -- one Sexy::String (the key) in the binary;
-    //           this tree's DrDataEncoder stub is empty,
-    //           see the TODO above
+    DrDataEncoder mDataEncoder; // +0x208 -- stores the encoder key as a Sexy::String.
     bool mDataEncryption; // +0x20C
     Sexy::String mOemTarget; // +0x210
 

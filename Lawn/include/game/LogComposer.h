@@ -33,9 +33,8 @@
 // (LawnApp + 0xB00), r2 from getLevelForPost() and r0 from a stack string, and
 // on the callee's own body, which constructs the result at r0 and returns it.
 //
-// NOTE: the bodies spell the class `TM::LogComposer`; Game\LogComposer.cpp
-// establishes `namespace TM { using ::LogComposer; }` before including this
-// header, so the two spellings name the same class.
+// The binary declares the class in namespace TM. The global alias below
+// keeps existing callers using the same type.
 
 #ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_LOGCOMPOSER_H
 #define LAWNPROJECTTV_LAWN_INCLUDE_GAME_LOGCOMPOSER_H
@@ -45,6 +44,9 @@
 #include <vector>
 #include <map>
 #include <set>
+
+namespace TM
+{
 
 class LogComposer
 {
@@ -92,5 +94,9 @@ public:
     void initComposer(Sexy::String const &theXml);
     LogComposer();
 };
+
+}
+
+using TM::LogComposer;
 
 #endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_LOGCOMPOSER_H

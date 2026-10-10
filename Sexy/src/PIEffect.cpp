@@ -555,7 +555,7 @@ size_t Sexy::PIEffect::WriteEmitterType(Sexy::PIEmitter *theEmitter)
         WriteBool(def->mLockSpin);
         WriteValue(&def->mSpinY);
         WriteValue(&def->mSpinVarY);
-        WriteValue(&def->mExtraCurve);
+        WriteValue(&def->mSizeYOverLife);
         WriteInt(def->mAngleSpread);
         WriteInt(def->mAngleSpreadRange);
         WriteBool(def->mSampleColor);
@@ -1321,7 +1321,7 @@ int Sexy::PIEffect::ReadEmitterType(Sexy::PIEmitter *theEmitter)
         type->mLockSpin = ReadFileBool(this);
         ReadValue(&type->mSpinY);
         ReadValue(&type->mSpinVarY);
-        ReadValue(&type->mExtraCurve);
+        ReadValue(&type->mSizeYOverLife);
         type->mAngleSpread = ReadFileInt(this);
         type->mAngleSpreadRange = ReadFileInt(this);
         type->mSampleColor = ReadFileBool(this);
@@ -1812,6 +1812,8 @@ Sexy::TPoint<float> Sexy::PIEffect::GetGeomPos(
     return pos;
 }
 
+// @0x3D1908: the Y-size curves at +0x6B0 and +0x738 belong to the named
+// fields loaded after the 23 primary curves, rather than to mValues.
 int Sexy::PIEffect::CalcParticleTransform(Sexy::PILayer *theLayer, Sexy::PIEmitterInstance *theInstance,
     Sexy::PIEmitter *theEmitter, Sexy::PIParticleDef *theDef, PIParticleGroup *theGroup, PIParticle *theParticle)
 {
@@ -1870,14 +1872,14 @@ int Sexy::PIEffect::CalcParticleTransform(Sexy::PILayer *theLayer, Sexy::PIEmitt
                 ? CurveAtTime(EmitterCurve(theEmitter, 11), mTime, 0.0f)
                 : (placed != nullptr ? CurveAtTime(&placed->mValues[17], mTime, 0.0f) : 1.0f);
             theParticle->mSpinScaleY =
-                (CurveAtTime(&type->mValues[25], mTime, 0.0f) + theParticle->mVarSpin2) * emitterScaleY;
+                (CurveAtTime(&type->mSpinY, mTime, 0.0f) + theParticle->mVarSpin2) * emitterScaleY;
         }
         if (theParticle != nullptr)
         {
             scaleX = CurveAtTime(&type->mValues[16], life, 0.0f) * theParticle->mSpinScaleX;
             if (scaleX < 0.1f)
                 scaleX = 0.1f;
-            scaleY = CurveAtTime(&type->mValues[27], life, 0.0f) * theParticle->mSpinScaleY;
+            scaleY = CurveAtTime(&type->mSizeYOverLife, life, 0.0f) * theParticle->mSpinScaleY;
             if (scaleY < 0.1f)
                 scaleY = 0.1f;
         }

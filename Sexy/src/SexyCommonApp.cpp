@@ -308,7 +308,7 @@ Sexy::SexyCommonApp::SexyCommonApp() :
     if (mAuthManager != nullptr)
         delete mAuthManager;
     mAuthManager = new CommonAuthManager(this);
-    mGameCenter = static_cast<IGameCenter *>(IGameCenter::Create(this));
+    mGameCenter = IGameCenter::Create(this);
     mShareManager = static_cast<IShareManager *>(IShareManager::Create(this));
     mNotificationManager = static_cast<INotificationManager *>(INotificationManager::Create(this));
     mPlatformIntegration = new PlatformIntegration(this);

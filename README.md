@@ -46,7 +46,7 @@
 - Windows 的游戏代码和 vcpkg 依赖统一使用 MSVC，需要 Visual Studio 的 C++ 开发工具和 Windows SDK；macOS 使用 Xcode Command Line Tools；Linux 使用 GCC 或 Clang。
 - Android 另需 NDK，设置 `ANDROID_NDK_HOME` 环境变量指向 NDK 目录。
 
-所有预设使用 `$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake`，不绑定本机绝对路径。配置时 vcpkg 按 `vcpkg.json` 自动安装对应平台的依赖到 `vcpkg_installed/cmake`。Android 将 `$env{ANDROID_NDK_HOME}/build/cmake/android.toolchain.cmake` 作为链式工具链，游戏和依赖使用相同 ABI、Android API 28 和 `c++_shared`。
+所有预设使用 `$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake`，不绑定本机绝对路径。配置时 vcpkg 按 `vcpkg.json` 自动安装对应平台的依赖到 `vcpkg_installed/<预设名称>`，各预设独立安装，切换平台不会移除另一平台的依赖。已有构建目录需要执行 `cmake --fresh --preset <预设名称>` 以清除旧的依赖路径缓存；vcpkg 会复用可用的二进制缓存。Android 将 `$env{ANDROID_NDK_HOME}/build/cmake/android.toolchain.cmake` 作为链式工具链，游戏和依赖使用相同 ABI、Android API 28 和 `c++_shared`。
 
 依赖见 `vcpkg.json`：SDL3、SDL3_net、bgfx（multithreaded）、SDL3_image（PNG、JPEG）、GLM、zlib、minizip-ng、bzip2、libogg、libvorbis、libopenmpt、nlohmann-json、pugixml、stb。SDL3_image 优先解码图像，stb 补充其他格式；Vorbis/openmpt 解码后交给 SDL3 音频流。Linux 默认开启 `linux-audio` feature，提供 SDL 的 ALSA 音频输出。游戏字体使用原资源的位图字体，无需 FreeType。
 

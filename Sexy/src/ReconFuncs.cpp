@@ -1495,7 +1495,7 @@ int j_AGShowMoreGame()
     return 0;
 }
 
-void *Sexy::IGameCenter::Create(Sexy::SexyCommonApp *theApp)
+Sexy::IGameCenter *Sexy::IGameCenter::Create(Sexy::SexyCommonApp *theApp)
 {
     (void)theApp;
     return new Sexy::LocalGameCenter();

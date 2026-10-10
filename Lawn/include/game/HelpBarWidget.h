@@ -63,13 +63,13 @@ public:
     virtual ~HelpBarWidget();
 
     // slot 29
-    virtual void AddedToManager(Sexy::WidgetManager *theWidgetManager);
+    virtual void AddedToManager(Sexy::WidgetManager *theWidgetManager) override;
     // slot 30
-    virtual void RemovedFromManager(Sexy::WidgetManager *theWidgetManager);
+    virtual void RemovedFromManager(Sexy::WidgetManager *theWidgetManager) override;
     // slot 31
-    virtual void Update();
+    virtual void Update() override;
     // slot 36
-    virtual void Draw(Sexy::Graphics *theGraphics);
+    virtual void Draw(Sexy::Graphics *theGraphics) override;
     bool IsPointVisible(int x, int y) override;
     void MouseDown(int x, int y, int theClickCount) override;
     void MouseUp(int x, int y, int theClickCount) override;

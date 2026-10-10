@@ -4,23 +4,6 @@
 // Bodies are the IDA decompilation with syntactic changes only;
 // see the tool's docstring for the complete, justified list.
 
-// The binary's mangled name is TM::LogComposer, but the header declares the
-// class at global scope (see LogComposer.h). The qualified definition
-// `TM::LogComposer::method` needs TM::LogComposer to name that same class, so
-// alias it in rather than respelling the out-of-line definitions.
-//
-// The alias has to be established *before* the header is included: the header
-// pulls in ReconTypes.h, which forward-declares `TM::LogComposer`, and a
-// using-declaration that arrives after that declaration is a redeclaration
-// (C2874) instead of an alias. Declaring the class and aliasing it here first
-// makes the later forward declaration name the same entity, which it already
-// does -- one class, two spellings.
-class LogComposer;
-namespace TM
-{
-using ::LogComposer;
-}
-
 #include "LogComposer.h"
 #include "XMLElement.h"
 #include "XMLParser.h"
@@ -30,8 +13,9 @@ using ::LogComposer;
 #include <set>
 #include <sstream>
 #include <cstring>
-#include <sys/timeb.h>
-#include <time.h>
+#include <chrono>
+#include <cstdio>
+#include <ctime>
 
 // Each numeric field of a log record is formatted through a std::ostringstream
 // in the binary (OStreamWriteNum is operator<< and StreamExtractString is str()); this is the
@@ -78,21 +62,21 @@ Sexy::String TM::LogComposer::composeLog(std::vector<Sexy::String> const &theFie
 // ==========================================================================
 Sexy::String TM::LogComposer::getClientTime()
 {
-    struct timeb aTimeBuf;
-    char aText[260];
-    struct tm *aTime;
-
-    ftime(&aTimeBuf);
-    aTime = localtime(&aTimeBuf.time);
-    sprintf(aText,
+    const std::time_t currentTime = std::time(nullptr);
+    const std::tm *calendar = std::localtime(&currentTime);
+    if (calendar == nullptr)
+        return Sexy::String();
+    char text[260];
+    std::snprintf(text,
+        sizeof(text),
         "%.4d-%.2d-%.2d %.2d:%.2d:%.2d",
-        aTime->tm_year + 1900,
-        aTime->tm_mon + 1,
-        aTime->tm_mday,
-        aTime->tm_hour,
-        aTime->tm_min,
-        aTime->tm_sec);
-    return aText;
+        calendar->tm_year + 1900,
+        calendar->tm_mon + 1,
+        calendar->tm_mday,
+        calendar->tm_hour,
+        calendar->tm_min,
+        calendar->tm_sec);
+    return text;
 }
 
 // ==========================================================================
@@ -101,22 +85,26 @@ Sexy::String TM::LogComposer::getClientTime()
 // ==========================================================================
 Sexy::String TM::LogComposer::generateSerialNum()
 {
-    struct timeb aTimeBuf;
-    char aText[256];
-    struct tm *aTime;
-
-    ftime(&aTimeBuf);
-    aTime = localtime(&aTimeBuf.time);
-    sprintf(aText,
+    const auto now = std::chrono::system_clock::now().time_since_epoch();
+    const auto seconds = std::chrono::duration_cast<std::chrono::seconds>(now);
+    const std::time_t currentTime = static_cast<std::time_t>(seconds.count());
+    const std::tm *calendar = std::localtime(&currentTime);
+    if (calendar == nullptr)
+        return Sexy::String();
+    const int milliseconds =
+        static_cast<int>(std::chrono::duration_cast<std::chrono::milliseconds>(now - seconds).count());
+    char text[256];
+    std::snprintf(text,
+        sizeof(text),
         "%.4d%.2d%.2d%.2d%.2d%.2d%.3d",
-        aTime->tm_year + 1900,
-        aTime->tm_mon + 1,
-        aTime->tm_mday,
-        aTime->tm_hour,
-        aTime->tm_min,
-        aTime->tm_sec,
-        aTimeBuf.millitm);
-    return aText;
+        calendar->tm_year + 1900,
+        calendar->tm_mon + 1,
+        calendar->tm_mday,
+        calendar->tm_hour,
+        calendar->tm_min,
+        calendar->tm_sec,
+        milliseconds);
+    return text;
 }
 
 // ==========================================================================

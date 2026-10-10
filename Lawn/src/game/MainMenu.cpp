@@ -579,7 +579,7 @@ bool MainMenu::FinishedTransition(char const *theTrackName)
 // MainMenu::OnScene(MainMenu::MenuScene)
 // @0019A364  388 bytes
 // ==========================================================================
-Reanimation *MainMenu::OnScene(MainMenu_MenuScene theScene)
+Reanimation *MainMenu::OnScene(MenuScene theScene)
 {
     if (mApp->mHelpBarWidget != nullptr)
     {
@@ -1030,7 +1030,7 @@ void MainMenu::Update()
                     default:
                         break;
                 }
-                OnScene((MainMenu_MenuScene)mMenuScene);
+                OnScene(static_cast<MenuScene>(mMenuScene));
             }
         }
 

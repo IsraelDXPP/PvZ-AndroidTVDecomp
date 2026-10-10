@@ -89,17 +89,17 @@ public:
     // Every one of these is a real override of a BaseGamepadControls virtual
     // (or, for EndDraw, of GameObject's); the return types are the authoritative
     // ones from PvZ\Lawn\GamepadControls.h:34-53.
-    virtual void OnButtonDown(int theButton, int thePlayerIndex, unsigned int theFlags); // [ 0] 0x000
-    virtual void OnButtonUp(int theButton, int thePlayerIndex, unsigned int theFlags); // [ 1] 0x004
-    virtual void OnGameAxisMove(int theAxis, int theValue, int thePlayerIndex); // [ 2] 0x008
-    virtual bool OnKeyDown(Sexy::KeyCode theKey, unsigned int theFlags); // [ 3] 0x00C
-    virtual int OnKeyUp(Sexy::KeyCode theKey, unsigned int theFlags); // [ 4] 0x010
-    virtual int Update(float theDeltaTime); // [ 5] 0x014
+    virtual void OnButtonDown(int theButton, int thePlayerIndex, unsigned int theFlags) override; // [ 0] 0x000
+    virtual void OnButtonUp(int theButton, int thePlayerIndex, unsigned int theFlags) override; // [ 1] 0x004
+    virtual void OnGameAxisMove(int theAxis, int theValue, int thePlayerIndex) override; // [ 2] 0x008
+    virtual bool OnKeyDown(Sexy::KeyCode theKey, unsigned int theFlags) override; // [ 3] 0x00C
+    virtual int OnKeyUp(Sexy::KeyCode theKey, unsigned int theFlags) override; // [ 4] 0x010
+    virtual int Update(float theDeltaTime) override; // [ 5] 0x014
     bool BeginDraw(Sexy::Graphics *theGraphics) override; // [ 6] 0x018
     void Draw(Sexy::Graphics *theGraphics) override; // [ 7] 0x01C
     void EndDraw(Sexy::Graphics *theGraphics) override; // [ 8] 0x020
-    virtual void MakeParentGraphicsFrame(); // [ 9] 0x024
-    virtual int UpdateStates(float theDeltaTime); // [12] 0x030
+    virtual void MakeParentGraphicsFrame() override; // [ 9] 0x024
+    virtual int UpdateStates(float theDeltaTime) override; // [12] 0x030
     virtual ~GamepadControls(); // [16] 0x040
 
     // ---- methods the binary has but the authoritative header does not list ----

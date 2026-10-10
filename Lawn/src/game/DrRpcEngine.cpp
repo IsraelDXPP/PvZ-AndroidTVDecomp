@@ -128,12 +128,12 @@ static long long internalJSONNode_QWORD(int theWord)
 // ==========================================================================
 DrRpcRes DrRpcEngine::gFailedResult;
 
-DrRpcEngine::DrRpcEngine()
+DrRpcEngine::DrRpcEngine() :
+    mDataEncoder(Sexy::String("97ac4289fcfc1bbea07bccc16f5fa35f"))
 {
     // The DrCurlEngine base and the DrDataEncoder member are built by the
     // compiler now, so the vptr store and the placement-new the dump shows are
     // gone.
-    // TODO(recon): the dump passes the key "97ac4289fcfc1bbea07bccc16f5fa35f" to DrDataEncoder's constructor, but ReconFreeFunctions.h still carries that class as a stub with no constructor taking it, so the key is dropped here.
     mDefaultUrl = "http://192.168.1.9/MobileGameServer/server/index.php";
     mOemTarget = "";
     mDataEncryption = false;
@@ -211,12 +211,12 @@ void DrRpcEngine::setDataEncryption(bool theEnabled)
 Sexy::String DrRpcEngine::escapeUrl(Sexy::String const &theUrl)
 {
     // curl_escape returns a malloc'd buffer that curl_free releases.
-    const char *aEscaped = (const char *)curl_escape(theUrl.c_str());
+    char *aEscaped = curl_escape(theUrl.c_str());
     Sexy::String aResult;
     if (aEscaped != nullptr)
     {
-        StringCtor((Sexy::String *)&aResult, aEscaped);
-        curl_free((void *)aEscaped);
+        aResult = aEscaped;
+        curl_free(aEscaped);
     }
     return aResult;
 }
@@ -229,12 +229,12 @@ Sexy::String DrRpcEngine::escapeUrl(Sexy::String const &theUrl)
 // is the string rep's length word at data - 12.
 Sexy::String DrRpcEngine::unescapeUrl(Sexy::String const &theUrl)
 {
-    const char *aUnescaped = (const char *)curl_unescape(theUrl.c_str(), (int)theUrl.size());
+    char *aUnescaped = curl_unescape(theUrl.c_str(), static_cast<int>(theUrl.size()));
     Sexy::String aResult;
     if (aUnescaped != nullptr)
     {
-        StringCtor((Sexy::String *)&aResult, aUnescaped);
-        curl_free((void *)aUnescaped);
+        aResult = aUnescaped;
+        curl_free(aUnescaped);
     }
     return aResult;
 }
@@ -346,12 +346,7 @@ bool DrRpcEngine::decodeResponseString(Sexy::String &theBody)
 {
     if (mDataEncryption)
     {
-        // decode(const String&) returns the plaintext by value (sret in r0,
-        // encoder at this+0x208 in r1). The stub is still static, so those two
-        // are explicit. ~String releases the temporary.
-        Sexy::String aDecoded;
-        DrDataEncoder::decode(&aDecoded, &mDataEncoder, theBody);
-        theBody = aDecoded;
+        theBody = mDataEncoder.decode(theBody);
     }
     return !theBody.empty();
 }
@@ -374,12 +369,8 @@ Sexy::String DrRpcEngine::encodeRequesArgs(DrCurlRequest const &theRequest)
 
     if (mDataEncryption)
     {
-        // getSortedFields returns by value (sret). The stub is still static,
-        // so the destination and the request are explicit. Released before the log.
         {
-            Sexy::String aSorted;
-            DrCurlRequest::getSortedFields(&aSorted, &theRequest);
-            aResult = aSorted;
+            aResult = theRequest.getSortedFields();
         }
 
         // operator<<(char const*) then operator<<(string const&) of the result
@@ -389,29 +380,23 @@ Sexy::String DrRpcEngine::encodeRequesArgs(DrCurlRequest const &theRequest)
         const char *aEndl = nullptr;
         logStream(aLog, aEndl);
 
-        // encode(const String&) is sret; the encoder is this+0x208. The stub
-        // is static, so both are explicit. Released before the action text.
         {
             Sexy::String aSigPrefix("sig=");
-            Sexy::String aEncoded;
-            DrDataEncoder::encode(&aEncoded, &mDataEncoder, aResult);
+            Sexy::String aEncoded = mDataEncoder.encode(aResult);
             aResult = aSigPrefix + aEncoded;
         }
 
         {
             Sexy::String aActionEq("action=");
             Sexy::String aActionKey("action");
-            Sexy::String aField;
-            DrCurlRequest::getField(&aField, &theRequest, aActionKey);
+            Sexy::String aField = theRequest.getField(aActionKey);
             // operator+(string, "&") is the copy plus append("&", 1).
             aResult = aActionEq + aField + "&" + aResult;
         }
     }
     else
     {
-        Sexy::String aPost;
-        DrCurlRequest::getPostFields(&aPost, &theRequest);
-        aResult = aPost;
+        aResult = theRequest.getPostFields();
     }
     return aResult;
 }
@@ -439,8 +424,7 @@ DrRpcRes DrRpcEngine::perform(DrCurlRequest const &theRequest)
         aResponse = Sexy::String();
         int aTransport;
         {
-            Sexy::String aUrl;
-            DrCurlRequest::getUrl(&aUrl, &theRequest);
+            Sexy::String aUrl = theRequest.getUrl();
             Sexy::String aArgs = encodeRequesArgs(theRequest);
             // Static in this tree: live strings, method 0 (HTTP_METHOD_GET).
             // The binary passes the engine in r0; the stub has no receiver.
@@ -506,32 +490,6 @@ DrRpcRes DrRpcEngine::perform(DrCurlRequest const &theRequest)
     return aResult;
 }
 
-// std::_Rb_tree<string, pair<const string, string>, ...>::_M_erase @0x1C4E60.
-// The port Sexy::RbTree::_M_erase only walks; this instantiation releases the
-// value, then the key, then deletes the node. `theTree` is the stateless
-// allocator the binary forwards and never reads.
-extern "C" void _ZNSt8_Rb_treeISsSt4pairIKSsSsESt10_Select1stIS2_ESt4lessISsESaIS2_EE8_M_eraseEPSt13_Rb_tree_nodeIS2_E(
-    void *theTree, Sexy::RbTree::NodeBase *theNode)
-{
-    struct FieldNode : Sexy::RbTree::NodeBase
-    {
-        Sexy::String mKey;
-        Sexy::String mValue;
-    };
-
-    while (theNode != nullptr)
-    {
-        FieldNode *aNode = static_cast<FieldNode *>(theNode);
-        _ZNSt8_Rb_treeISsSt4pairIKSsSsESt10_Select1stIS2_ESt4lessISsESaIS2_EE8_M_eraseEPSt13_Rb_tree_nodeIS2_E(
-            theTree, aNode->mRight);
-        FieldNode *aLeft = static_cast<FieldNode *>(aNode->mLeft);
-        aNode->mValue.~String();
-        aNode->mKey.~String();
-        ::operator delete(aNode);
-        theNode = aLeft;
-    }
-}
-
 // ==========================================================================
 // DrRpcEngine::call_Logout(Sexy::String const&)
 // @001EEE14  624 bytes
@@ -543,37 +501,23 @@ extern "C" void _ZNSt8_Rb_treeISsSt4pairIKSsSsESt10_Select1stIS2_ESt4lessISsESaI
 // the inlined DrRpcResCommon::error() static.
 DrRpcResCommon DrRpcEngine::call_Logout(Sexy::String const &theToken)
 {
-    // URL at +0, map at +4 (comparator, header, count). 28 bytes, the span
-    // setField and _M_erase index.
-    struct LogoutRequest
-    {
-        Sexy::String mUrl;
-        Sexy::RbTree::MapStorage mFields;
-    };
-
+    // The original request contains a URL and an ordered string map.
     DrRpcResCommon aResult;
     {
-        LogoutRequest aRequest;
+        DrCurlRequest aRequest;
         aRequest.mUrl = mDefaultUrl;
-        aRequest.mFields.mComparator = 0;
-        aRequest.mFields.mHeader.mColor = 0;
-        aRequest.mFields.mHeader.mParent = nullptr;
-        aRequest.mFields.mHeader.mLeft = &aRequest.mFields.mHeader;
-        aRequest.mFields.mHeader.mRight = &aRequest.mFields.mHeader;
-        aRequest.mFields.mCount = 0;
 
         // Keys die before perform, in reverse construction order.
         {
             Sexy::String aAction("action");
             Sexy::String aActionId("A1001");
-            DrCurlRequest::setField(&aRequest, &aAction, &aActionId);
+            aRequest.setField(aAction, aActionId);
             Sexy::String aUidKey("iUid");
-            DrCurlRequest::setField(&aRequest, &aUidKey, &theToken);
+            aRequest.setField(aUidKey, theToken);
         }
 
         {
-            const DrCurlRequest *aCurl = static_cast<const DrCurlRequest *>(static_cast<const void *>(&aRequest));
-            DrRpcRes aPerformed = perform(*aCurl);
+            DrRpcRes aPerformed = perform(aRequest);
             // CBZ on the low byte. A non-zero byte stores the status word.
             if (static_cast<unsigned char>(aPerformed.mRet) != 0)
             {
@@ -595,8 +539,6 @@ DrRpcResCommon DrRpcEngine::call_Logout(Sexy::String const &theToken)
                     aPerformed.mList->deleteInternal(nullptr);
             }
         }
-        _ZNSt8_Rb_treeISsSt4pairIKSsSsESt10_Select1stIS2_ESt4lessISsESaIS2_EE8_M_eraseEPSt13_Rb_tree_nodeIS2_E(
-            &aRequest.mFields, aRequest.mFields.mHeader.mParent);
     }
     return aResult;
 }
@@ -610,33 +552,20 @@ DrRpcResCommon DrRpcEngine::call_Logout(Sexy::String const &theToken)
 DrRpcResWithText DrRpcEngine::call_QueryCoin(Sexy::String const &theToken)
 {
     // Same request shape as call_Logout: the default URL plus a string map.
-    struct QueryRequest
-    {
-        Sexy::String mUrl;
-        Sexy::RbTree::MapStorage mFields;
-    };
-
     DrRpcResWithText aResult;
     {
-        QueryRequest aRequest;
+        DrCurlRequest aRequest;
         aRequest.mUrl = mDefaultUrl;
-        aRequest.mFields.mComparator = 0;
-        aRequest.mFields.mHeader.mColor = 0;
-        aRequest.mFields.mHeader.mParent = nullptr;
-        aRequest.mFields.mHeader.mLeft = &aRequest.mFields.mHeader;
-        aRequest.mFields.mHeader.mRight = &aRequest.mFields.mHeader;
-        aRequest.mFields.mCount = 0;
 
         {
             Sexy::String aAction("action");
             Sexy::String aActionId("A1008");
-            DrCurlRequest::setField(&aRequest, &aAction, &aActionId);
+            aRequest.setField(aAction, aActionId);
             Sexy::String aUidKey("iUid");
-            DrCurlRequest::setField(&aRequest, &aUidKey, &theToken);
+            aRequest.setField(aUidKey, theToken);
         }
 
-        const DrCurlRequest *aCurl = static_cast<const DrCurlRequest *>(static_cast<const void *>(&aRequest));
-        DrRpcRes aPerformed = perform(*aCurl);
+        DrRpcRes aPerformed = perform(aRequest);
         if (aPerformed.mRet != 0)
         {
             // mText is the coin total. A missing list leaves it 0.
@@ -673,8 +602,6 @@ DrRpcResWithText DrRpcEngine::call_QueryCoin(Sexy::String const &theToken)
             if (--aPerformed.mList->refcount == 0)
                 aPerformed.mList->deleteInternal(nullptr);
         }
-        _ZNSt8_Rb_treeISsSt4pairIKSsSsESt10_Select1stIS2_ESt4lessISsESaIS2_EE8_M_eraseEPSt13_Rb_tree_nodeIS2_E(
-            &aRequest.mFields, aRequest.mFields.mHeader.mParent);
     }
     return aResult;
 }
@@ -687,38 +614,25 @@ DrRpcResWithText DrRpcEngine::call_QueryCoin(Sexy::String const &theToken)
 // and r3 the key. Its third word mText carries the "sValue" number.
 DrRpcResWithText DrRpcEngine::call_GetKeyValue(Sexy::String const &theToken, Sexy::String const &theKey)
 {
-    struct KeyRequest
-    {
-        Sexy::String mUrl;
-        Sexy::RbTree::MapStorage mFields;
-    };
-
     DrRpcResWithText aResult;
     {
-        KeyRequest aRequest;
+        DrCurlRequest aRequest;
         aRequest.mUrl = mDefaultUrl;
-        aRequest.mFields.mComparator = 0;
-        aRequest.mFields.mHeader.mColor = 0;
-        aRequest.mFields.mHeader.mParent = nullptr;
-        aRequest.mFields.mHeader.mLeft = &aRequest.mFields.mHeader;
-        aRequest.mFields.mHeader.mRight = &aRequest.mFields.mHeader;
-        aRequest.mFields.mCount = 0;
 
         {
             Sexy::String aAction("action");
             Sexy::String aActionId("A1028");
-            DrCurlRequest::setField(&aRequest, &aAction, &aActionId);
+            aRequest.setField(aAction, aActionId);
             Sexy::String aUidKey("iUid");
-            DrCurlRequest::setField(&aRequest, &aUidKey, &theToken);
+            aRequest.setField(aUidKey, theToken);
             // The server stores every saved value under a "pvz" prefix.
             Sexy::String aKeyName("sKey");
             Sexy::String aPrefixed("pvz");
             aPrefixed += theKey;
-            DrCurlRequest::setField(&aRequest, &aKeyName, &aPrefixed);
+            aRequest.setField(aKeyName, aPrefixed);
         }
 
-        const DrCurlRequest *aCurl = static_cast<const DrCurlRequest *>(static_cast<const void *>(&aRequest));
-        DrRpcRes aPerformed = perform(*aCurl);
+        DrRpcRes aPerformed = perform(aRequest);
         if (aPerformed.mRet != 0)
         {
             aResult.mText = 0;
@@ -754,8 +668,6 @@ DrRpcResWithText DrRpcEngine::call_GetKeyValue(Sexy::String const &theToken, Sex
             if (--aPerformed.mList->refcount == 0)
                 aPerformed.mList->deleteInternal(nullptr);
         }
-        _ZNSt8_Rb_treeISsSt4pairIKSsSsESt10_Select1stIS2_ESt4lessISsESaIS2_EE8_M_eraseEPSt13_Rb_tree_nodeIS2_E(
-            &aRequest.mFields, aRequest.mFields.mHeader.mParent);
     }
     return aResult;
 }
@@ -768,40 +680,27 @@ DrRpcResWithText DrRpcEngine::call_GetKeyValue(Sexy::String const &theToken, Sex
 // r3 the amount. Its two words are mRet and mRetMsg.
 DrRpcResCommon DrRpcEngine::call_Recharge(Sexy::String const &theToken, int theAmount)
 {
-    struct RechargeRequest
-    {
-        Sexy::String mUrl;
-        Sexy::RbTree::MapStorage mFields;
-    };
-
     DrRpcResCommon aResult;
     {
-        RechargeRequest aRequest;
+        DrCurlRequest aRequest;
         aRequest.mUrl = mDefaultUrl;
-        aRequest.mFields.mComparator = 0;
-        aRequest.mFields.mHeader.mColor = 0;
-        aRequest.mFields.mHeader.mParent = nullptr;
-        aRequest.mFields.mHeader.mLeft = &aRequest.mFields.mHeader;
-        aRequest.mFields.mHeader.mRight = &aRequest.mFields.mHeader;
-        aRequest.mFields.mCount = 0;
 
         {
             Sexy::String aAction("action");
             Sexy::String aActionId("A1006");
-            DrCurlRequest::setField(&aRequest, &aAction, &aActionId);
+            aRequest.setField(aAction, aActionId);
             Sexy::String aUidKey("iUid");
-            DrCurlRequest::setField(&aRequest, &aUidKey, &theToken);
+            aRequest.setField(aUidKey, theToken);
             Sexy::String aAmountKey("iAmount");
             Sexy::String aAmountText(std::to_string(theAmount).c_str());
-            DrCurlRequest::setField(&aRequest, &aAmountKey, &aAmountText);
+            aRequest.setField(aAmountKey, aAmountText);
             Sexy::String aSerialKey("sSerialNum");
             Sexy::String aSerial;
             LawnSerialNumber::GetNewOne(&aSerial);
-            DrCurlRequest::setField(&aRequest, &aSerialKey, &aSerial);
+            aRequest.setField(aSerialKey, aSerial);
         }
 
-        const DrCurlRequest *aCurl = static_cast<const DrCurlRequest *>(static_cast<const void *>(&aRequest));
-        DrRpcRes aPerformed = perform(*aCurl);
+        DrRpcRes aPerformed = perform(aRequest);
         if (aPerformed.mRet != 0)
         {
             if (aPerformed.mStatus == 0 && aPerformed.mList != nullptr &&
@@ -820,8 +719,6 @@ DrRpcResCommon DrRpcEngine::call_Recharge(Sexy::String const &theToken, int theA
             if (--aPerformed.mList->refcount == 0)
                 aPerformed.mList->deleteInternal(nullptr);
         }
-        _ZNSt8_Rb_treeISsSt4pairIKSsSsESt10_Select1stIS2_ESt4lessISsESaIS2_EE8_M_eraseEPSt13_Rb_tree_nodeIS2_E(
-            &aRequest.mFields, aRequest.mFields.mHeader.mParent);
     }
     return aResult;
 }
@@ -835,40 +732,27 @@ DrRpcResCommon DrRpcEngine::call_Recharge(Sexy::String const &theToken, int theA
 // is reported as a failed call.
 DrRpcResCommon DrRpcEngine::call_SetKeyValue(Sexy::String const &theToken, Sexy::String const &theKey, int theValue)
 {
-    struct SetKeyRequest
-    {
-        Sexy::String mUrl;
-        Sexy::RbTree::MapStorage mFields;
-    };
-
     DrRpcResCommon aResult;
     {
-        SetKeyRequest aRequest;
+        DrCurlRequest aRequest;
         aRequest.mUrl = mDefaultUrl;
-        aRequest.mFields.mComparator = 0;
-        aRequest.mFields.mHeader.mColor = 0;
-        aRequest.mFields.mHeader.mParent = nullptr;
-        aRequest.mFields.mHeader.mLeft = &aRequest.mFields.mHeader;
-        aRequest.mFields.mHeader.mRight = &aRequest.mFields.mHeader;
-        aRequest.mFields.mCount = 0;
 
         {
             Sexy::String aAction("action");
             Sexy::String aActionId("A1029");
-            DrCurlRequest::setField(&aRequest, &aAction, &aActionId);
+            aRequest.setField(aAction, aActionId);
             Sexy::String aUidKey("iUid");
-            DrCurlRequest::setField(&aRequest, &aUidKey, &theToken);
+            aRequest.setField(aUidKey, theToken);
             Sexy::String aKeyName("sKey");
             Sexy::String aPrefixed("pvz");
             aPrefixed += theKey;
-            DrCurlRequest::setField(&aRequest, &aKeyName, &aPrefixed);
+            aRequest.setField(aKeyName, aPrefixed);
             Sexy::String aValueKey("sValue");
             Sexy::String aValueText(std::to_string(theValue).c_str());
-            DrCurlRequest::setField(&aRequest, &aValueKey, &aValueText);
+            aRequest.setField(aValueKey, aValueText);
         }
 
-        const DrCurlRequest *aCurl = static_cast<const DrCurlRequest *>(static_cast<const void *>(&aRequest));
-        DrRpcRes aPerformed = perform(*aCurl);
+        DrRpcRes aPerformed = perform(aRequest);
         if (aPerformed.mRet == 0)
         {
             aResult.mRet = kRpcFailed;
@@ -890,8 +774,6 @@ DrRpcResCommon DrRpcEngine::call_SetKeyValue(Sexy::String const &theToken, Sexy:
             if (--aPerformed.mList->refcount == 0)
                 aPerformed.mList->deleteInternal(nullptr);
         }
-        _ZNSt8_Rb_treeISsSt4pairIKSsSsESt10_Select1stIS2_ESt4lessISsESaIS2_EE8_M_eraseEPSt13_Rb_tree_nodeIS2_E(
-            &aRequest.mFields, aRequest.mFields.mHeader.mParent);
     }
     return aResult;
 }
@@ -903,40 +785,27 @@ DrRpcResCommon DrRpcEngine::call_SetKeyValue(Sexy::String const &theToken, Sexy:
 // Returns a DrRpcResWithString BY VALUE. mText carries the "iCoin" text.
 DrRpcResWithString DrRpcEngine::call_DebugAddMoney(Sexy::String const &theToken, int theAmount)
 {
-    struct AddMoneyRequest
-    {
-        Sexy::String mUrl;
-        Sexy::RbTree::MapStorage mFields;
-    };
-
     DrRpcResWithString aResult;
     {
-        AddMoneyRequest aRequest;
+        DrCurlRequest aRequest;
         aRequest.mUrl = mDefaultUrl;
-        aRequest.mFields.mComparator = 0;
-        aRequest.mFields.mHeader.mColor = 0;
-        aRequest.mFields.mHeader.mParent = nullptr;
-        aRequest.mFields.mHeader.mLeft = &aRequest.mFields.mHeader;
-        aRequest.mFields.mHeader.mRight = &aRequest.mFields.mHeader;
-        aRequest.mFields.mCount = 0;
 
         {
             Sexy::String aAction("action");
             Sexy::String aActionId("A1007");
-            DrCurlRequest::setField(&aRequest, &aAction, &aActionId);
+            aRequest.setField(aAction, aActionId);
             Sexy::String aUidKey("iUid");
-            DrCurlRequest::setField(&aRequest, &aUidKey, &theToken);
+            aRequest.setField(aUidKey, theToken);
             Sexy::String aAmountKey("iAmount");
             Sexy::String aAmountText(std::to_string(theAmount).c_str());
-            DrCurlRequest::setField(&aRequest, &aAmountKey, &aAmountText);
+            aRequest.setField(aAmountKey, aAmountText);
             Sexy::String aSerialKey("sSerialNum");
             Sexy::String aSerial;
             LawnSerialNumber::GetNewOne(&aSerial);
-            DrCurlRequest::setField(&aRequest, &aSerialKey, &aSerial);
+            aRequest.setField(aSerialKey, aSerial);
         }
 
-        const DrCurlRequest *aCurl = static_cast<const DrCurlRequest *>(static_cast<const void *>(&aRequest));
-        DrRpcRes aPerformed = perform(*aCurl);
+        DrRpcRes aPerformed = perform(aRequest);
         if (aPerformed.mRet != 0)
         {
             aResult.mText = Sexy::String();
@@ -972,8 +841,6 @@ DrRpcResWithString DrRpcEngine::call_DebugAddMoney(Sexy::String const &theToken,
             if (--aPerformed.mList->refcount == 0)
                 aPerformed.mList->deleteInternal(nullptr);
         }
-        _ZNSt8_Rb_treeISsSt4pairIKSsSsESt10_Select1stIS2_ESt4lessISsESaIS2_EE8_M_eraseEPSt13_Rb_tree_nodeIS2_E(
-            &aRequest.mFields, aRequest.mFields.mHeader.mParent);
     }
     return aResult;
 }
@@ -986,43 +853,30 @@ DrRpcResWithString DrRpcEngine::call_DebugAddMoney(Sexy::String const &theToken,
 // the count is always 1. mText stays empty: this action only confirms the use.
 DrRpcResWithString DrRpcEngine::call_UseTool(Sexy::String const &theToken, int theTool)
 {
-    struct UseToolRequest
-    {
-        Sexy::String mUrl;
-        Sexy::RbTree::MapStorage mFields;
-    };
-
     DrRpcResWithString aResult;
     {
-        UseToolRequest aRequest;
+        DrCurlRequest aRequest;
         aRequest.mUrl = mDefaultUrl;
-        aRequest.mFields.mComparator = 0;
-        aRequest.mFields.mHeader.mColor = 0;
-        aRequest.mFields.mHeader.mParent = nullptr;
-        aRequest.mFields.mHeader.mLeft = &aRequest.mFields.mHeader;
-        aRequest.mFields.mHeader.mRight = &aRequest.mFields.mHeader;
-        aRequest.mFields.mCount = 0;
 
         {
             Sexy::String aAction("action");
             Sexy::String aActionId("A1009");
-            DrCurlRequest::setField(&aRequest, &aAction, &aActionId);
+            aRequest.setField(aAction, aActionId);
             Sexy::String aUidKey("iUid");
-            DrCurlRequest::setField(&aRequest, &aUidKey, &theToken);
+            aRequest.setField(aUidKey, theToken);
             Sexy::String aToolKey("iToolId");
             Sexy::String aToolText(std::to_string(theTool + 1000).c_str());
-            DrCurlRequest::setField(&aRequest, &aToolKey, &aToolText);
+            aRequest.setField(aToolKey, aToolText);
             Sexy::String aCountKey("iToolCount");
             Sexy::String aCountText("1");
-            DrCurlRequest::setField(&aRequest, &aCountKey, &aCountText);
+            aRequest.setField(aCountKey, aCountText);
             Sexy::String aSerialKey("sSerialNum");
             Sexy::String aSerial;
             LawnSerialNumber::GetNewOne(&aSerial);
-            DrCurlRequest::setField(&aRequest, &aSerialKey, &aSerial);
+            aRequest.setField(aSerialKey, aSerial);
         }
 
-        const DrCurlRequest *aCurl = static_cast<const DrCurlRequest *>(static_cast<const void *>(&aRequest));
-        DrRpcRes aPerformed = perform(*aCurl);
+        DrRpcRes aPerformed = perform(aRequest);
         if (aPerformed.mRet != 0)
         {
             if (aPerformed.mStatus == 0 && aPerformed.mList != nullptr &&
@@ -1043,8 +897,6 @@ DrRpcResWithString DrRpcEngine::call_UseTool(Sexy::String const &theToken, int t
             if (--aPerformed.mList->refcount == 0)
                 aPerformed.mList->deleteInternal(nullptr);
         }
-        _ZNSt8_Rb_treeISsSt4pairIKSsSsESt10_Select1stIS2_ESt4lessISsESaIS2_EE8_M_eraseEPSt13_Rb_tree_nodeIS2_E(
-            &aRequest.mFields, aRequest.mFields.mHeader.mParent);
     }
     return aResult;
 }
@@ -1059,38 +911,25 @@ DrRpcResWithString DrRpcEngine::call_UseTool(Sexy::String const &theToken, int t
 DrRpcResOfLoggin DrRpcEngine::call_Loggin(
     Sexy::String const &theAccount, Sexy::String const &thePassword, Sexy::String const &theExtra)
 {
-    struct LoginRequest
-    {
-        Sexy::String mUrl;
-        Sexy::RbTree::MapStorage mFields;
-    };
-
     DrRpcResOfLoggin aResult;
     {
-        LoginRequest aRequest;
+        DrCurlRequest aRequest;
         aRequest.mUrl = mDefaultUrl;
-        aRequest.mFields.mComparator = 0;
-        aRequest.mFields.mHeader.mColor = 0;
-        aRequest.mFields.mHeader.mParent = nullptr;
-        aRequest.mFields.mHeader.mLeft = &aRequest.mFields.mHeader;
-        aRequest.mFields.mHeader.mRight = &aRequest.mFields.mHeader;
-        aRequest.mFields.mCount = 0;
 
         {
             Sexy::String aAction("action");
             Sexy::String aActionId("A1000");
-            DrCurlRequest::setField(&aRequest, &aAction, &aActionId);
+            aRequest.setField(aAction, aActionId);
             Sexy::String aUserKey("strUsername");
-            DrCurlRequest::setField(&aRequest, &aUserKey, &theAccount);
+            aRequest.setField(aUserKey, theAccount);
             Sexy::String aOemKey("sOemTarget");
-            DrCurlRequest::setField(&aRequest, &aOemKey, &thePassword);
+            aRequest.setField(aOemKey, thePassword);
             Sexy::String aNameKey("spUserName");
-            DrCurlRequest::setField(&aRequest, &aNameKey, &theExtra);
+            aRequest.setField(aNameKey, theExtra);
         }
         mOemTarget = thePassword;
 
-        const DrCurlRequest *aCurl = static_cast<const DrCurlRequest *>(static_cast<const void *>(&aRequest));
-        DrRpcRes aPerformed = perform(*aCurl);
+        DrRpcRes aPerformed = perform(aRequest);
         if (aPerformed.mRet != 0)
         {
             aResult.mText1 = Sexy::String();
@@ -1144,8 +983,6 @@ DrRpcResOfLoggin DrRpcEngine::call_Loggin(
             if (--aPerformed.mList->refcount == 0)
                 aPerformed.mList->deleteInternal(nullptr);
         }
-        _ZNSt8_Rb_treeISsSt4pairIKSsSsESt10_Select1stIS2_ESt4lessISsESaIS2_EE8_M_eraseEPSt13_Rb_tree_nodeIS2_E(
-            &aRequest.mFields, aRequest.mFields.mHeader.mParent);
     }
     return aResult;
 }
@@ -1158,33 +995,20 @@ DrRpcResOfLoggin DrRpcEngine::call_Loggin(
 // entry becomes one SCoinItem { value, getcoin }.
 DrRpcResOfCoinList DrRpcEngine::call_QueryCoinList()
 {
-    struct CoinListRequest
-    {
-        Sexy::String mUrl;
-        Sexy::RbTree::MapStorage mFields;
-    };
-
     DrRpcResOfCoinList aResult;
     {
-        CoinListRequest aRequest;
+        DrCurlRequest aRequest;
         aRequest.mUrl = mDefaultUrl;
-        aRequest.mFields.mComparator = 0;
-        aRequest.mFields.mHeader.mColor = 0;
-        aRequest.mFields.mHeader.mParent = nullptr;
-        aRequest.mFields.mHeader.mLeft = &aRequest.mFields.mHeader;
-        aRequest.mFields.mHeader.mRight = &aRequest.mFields.mHeader;
-        aRequest.mFields.mCount = 0;
 
         {
             Sexy::String aAction("action");
             Sexy::String aActionId("A1013");
-            DrCurlRequest::setField(&aRequest, &aAction, &aActionId);
+            aRequest.setField(aAction, aActionId);
             Sexy::String aOemKey("sOemTarget");
-            DrCurlRequest::setField(&aRequest, &aOemKey, &mOemTarget);
+            aRequest.setField(aOemKey, mOemTarget);
         }
 
-        const DrCurlRequest *aCurl = static_cast<const DrCurlRequest *>(static_cast<const void *>(&aRequest));
-        DrRpcRes aPerformed = perform(*aCurl);
+        DrRpcRes aPerformed = perform(aRequest);
         aResult.mList.clear();
         if (aPerformed.mRet != 0)
         {
@@ -1254,8 +1078,6 @@ DrRpcResOfCoinList DrRpcEngine::call_QueryCoinList()
             if (--aPerformed.mList->refcount == 0)
                 aPerformed.mList->deleteInternal(nullptr);
         }
-        _ZNSt8_Rb_treeISsSt4pairIKSsSsESt10_Select1stIS2_ESt4lessISsESaIS2_EE8_M_eraseEPSt13_Rb_tree_nodeIS2_E(
-            &aRequest.mFields, aRequest.mFields.mHeader.mParent);
     }
     return aResult;
 }
@@ -1425,31 +1247,23 @@ static void EraseItemMap(Sexy::RbTree::NodeBase *theNode)
 // stores the iPrice text.
 DrRpcResOfAllItems DrRpcEngine::call_QueryAllItems(Sexy::String const &theToken)
 {
-    struct ItemRequest
-    {
-        Sexy::String mUrl;
-        Sexy::RbTree::MapStorage mFields;
-    };
-
     DrRpcResOfAllItems aResult;
     {
-        ItemRequest aRequest;
+        DrCurlRequest aRequest;
         aRequest.mUrl = mDefaultUrl;
-        InitItemMap(&aRequest.mFields);
 
         {
             Sexy::String aAction("action");
             Sexy::String aActionId("A1012");
-            DrCurlRequest::setField(&aRequest, &aAction, &aActionId);
+            aRequest.setField(aAction, aActionId);
             Sexy::String aUidKey("iUid");
-            DrCurlRequest::setField(&aRequest, &aUidKey, &theToken);
+            aRequest.setField(aUidKey, theToken);
         }
 
         Sexy::RbTree::MapStorage aPrices;
         InitItemMap(&aPrices);
 
-        const DrCurlRequest *aCurl = static_cast<const DrCurlRequest *>(static_cast<const void *>(&aRequest));
-        DrRpcRes aPerformed = perform(*aCurl);
+        DrRpcRes aPerformed = perform(aRequest);
         if (aPerformed.mRet != 0)
         {
             if (aPerformed.mStatus == 0 && aPerformed.mList != nullptr &&
@@ -1518,8 +1332,6 @@ DrRpcResOfAllItems DrRpcEngine::call_QueryAllItems(Sexy::String const &theToken)
             if (--aPerformed.mList->refcount == 0)
                 aPerformed.mList->deleteInternal(nullptr);
         }
-        _ZNSt8_Rb_treeISsSt4pairIKSsSsESt10_Select1stIS2_ESt4lessISsESaIS2_EE8_M_eraseEPSt13_Rb_tree_nodeIS2_E(
-            &aRequest.mFields, aRequest.mFields.mHeader.mParent);
     }
     return aResult;
 }

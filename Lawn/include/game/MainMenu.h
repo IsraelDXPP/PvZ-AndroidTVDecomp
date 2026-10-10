@@ -89,10 +89,7 @@ public:
 
     // MENUSCENE_MORE_WAYS = 0, MENUSCENE_MAIN = 1, MENUSCENE_EXTRA = 2. The
     // authoritative header (PvZ\Lawn\Widget\MainMenu.h:59) declares these as a
-    // nested enum; the transcribed bodies spelled them through the global
-    // one-int shim MainMenu_MenuScene, which carries no enumerators. The enum
-    // below gives the three values their names back, and `MenuScene` is the
-    // spelling the bodies and this header both use for the type.
+    // nested enum, shared by the scene callbacks and comparisons below.
     enum MenuScene
     {
         MENUSCENE_MORE_WAYS = 0,
@@ -140,7 +137,7 @@ public:
     // Not vtable slots; the signatures are the ones the transcribed bodies define.
     MainMenu(LawnApp *theApp);
     bool FinishedTransition(char const *theTrackName);
-    Reanimation *OnScene(MainMenu_MenuScene theScene);
+    Reanimation *OnScene(MenuScene theScene);
     bool InTransition();
     float UpdateCameraPosition();
     // The binary returns whatever the last call produced (the object itself on

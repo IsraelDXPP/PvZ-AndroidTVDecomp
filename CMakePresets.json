@@ -13,7 +13,7 @@
             "binaryDir": "${sourceDir}/build/${presetName}",
             "cacheVariables": {
                 "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
-                "VCPKG_INSTALLED_DIR": "${sourceDir}/vcpkg_installed/cmake",
+                "VCPKG_INSTALLED_DIR": "${sourceDir}/vcpkg_installed/${presetName}",
                 "VCPKG_OVERLAY_TRIPLETS": "${sourceDir}/cmake/triplets"
             }
         },

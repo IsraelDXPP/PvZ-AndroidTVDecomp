@@ -9,12 +9,12 @@
 #include "GameCenter.h"
 #include "ShareManager.h"
 
-int __imp__ZN6Native10GameCenter8Listener7onEventEPS0_iiRKSs(...);
+int ForwardNativeGameCenterEvent(Native::GameCenter *theSender, int theCode, int theExtra, Sexy::String const &theText);
 
 int Native::GameCenter::Listener::onEvent(
     Native::GameCenter *theSender, int theCode, int theExtra, Sexy::String const &theText)
 {
-    return __imp__ZN6Native10GameCenter8Listener7onEventEPS0_iiRKSs(theSender, theCode, theExtra, theText);
+    return ForwardNativeGameCenterEvent(theSender, theCode, theExtra, theText);
 }
 
 void Sexy::IGameCenter::Listener::onLogin() {}

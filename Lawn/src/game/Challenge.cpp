@@ -60,13 +60,6 @@ int Challenge::gVSZombieSpawnMode = 0;
 // here. Values from the authoritative PvZ\Lawn\Common\ConstEnums.h:939/941;
 // PlantPriority is a one-int surrogate struct with an `int` constructor, so a
 // plain constant converts at the call site.
-enum
-{
-    // 5 is not an "only" priority. Board::GetTopPlantAt groups it with 2 and 3:
-    // flying, then normal, then pumpkin, then the plant underneath (0x155428).
-};
-;
-
 // RenderLayer and ParticleEffect are one-int surrogate structs too. The layer is
 // the value Board::MakeRenderOrder adds to a row/depth (Board.cpp:7927); the
 // numbers are the authoritative ConstEnums.h ordering, and every one of them was

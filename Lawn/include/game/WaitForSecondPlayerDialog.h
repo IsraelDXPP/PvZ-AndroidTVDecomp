@@ -46,7 +46,7 @@ class WaitForSecondPlayerDialog : public LawnDialog
 {
 public:
     virtual ~WaitForSecondPlayerDialog(); // [  0],[1] 0x000/0x004
-    virtual int KeyDown(Sexy::KeyCode theKey);
+    virtual int KeyDown(Sexy::KeyCode theKey) override;
     void MouseDown(int x, int y, int theClickCount) override;
     virtual void GameButtonDown(Sexy::GamepadButton theButton, int theGamepadIndex, unsigned int theFlags);
 

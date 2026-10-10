@@ -22,7 +22,6 @@ namespace Sexy
 {
 
 class MemoryImage;
-struct SexyMatrix3;
 class SexyAppBase;
 
 // RenderDevice is the second base of MemoryImage. The slot order is the

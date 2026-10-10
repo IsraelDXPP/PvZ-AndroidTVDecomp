@@ -49,7 +49,8 @@ public:
 class IGameCenter
 {
 public:
-    static void *Create(SexyCommonApp *theApp);
+    static IGameCenter *Create(SexyCommonApp *theApp);
+    virtual ~IGameCenter() = default;
 
     virtual void Update() = 0;
     virtual void Pause() = 0;

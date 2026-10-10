@@ -13,11 +13,11 @@ class HouseChooserDialog : public LawnDialog
 public:
     virtual ~HouseChooserDialog();
 
-    virtual void RemovedFromManager(Sexy::WidgetManager *theWidgetManager);
-    virtual void Update();
-    virtual void Draw(Sexy::Graphics *g);
-    virtual void Resize(int theX, int theY, int theWidth, int theHeight);
-    virtual void GotFocus();
+    virtual void RemovedFromManager(Sexy::WidgetManager *theWidgetManager) override;
+    virtual void Update() override;
+    virtual void Draw(Sexy::Graphics *g) override;
+    virtual void Resize(int theX, int theY, int theWidth, int theHeight) override;
+    virtual void GotFocus() override;
     int KeyDown(Sexy::KeyCode theKey) override;
     void ButtonDepress(int theId) override;
     void MouseDown(int x, int y, int theClickCount) override;

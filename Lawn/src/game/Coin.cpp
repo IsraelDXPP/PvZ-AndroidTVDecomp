@@ -1291,6 +1291,8 @@ void Coin::CoinInitialize(int theX, int theY, CoinType theCoinType, CoinMotion t
             mHeight = (IMAGE_SEEDS)->GetCelHeight();
             mRenderOrder = Board::MakeRenderOrder(RenderLayer(800000), 0, 0);
             break;
+        default:
+            break;
     }
 
     // Every plain sprite case shares one tail: the cel size of the image it chose

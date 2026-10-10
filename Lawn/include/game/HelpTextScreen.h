@@ -14,13 +14,13 @@ class HelpTextScreen : public LawnMenuWidget
 public:
     virtual ~HelpTextScreen();
 
-    virtual void AddedToManager(Sexy::WidgetManager *theWidgetManager);
-    virtual void RemovedFromManager(Sexy::WidgetManager *theWidgetManager);
-    virtual void Update();
-    virtual void Draw(Sexy::Graphics *g);
-    virtual void DrawAll(Sexy::ModalFlags *theFlags, Sexy::Graphics *g);
-    virtual void GotFocus();
-    virtual int KeyDown(Sexy::KeyCode theKey);
+    virtual void AddedToManager(Sexy::WidgetManager *theWidgetManager) override;
+    virtual void RemovedFromManager(Sexy::WidgetManager *theWidgetManager) override;
+    virtual void Update() override;
+    virtual void Draw(Sexy::Graphics *g) override;
+    virtual void DrawAll(Sexy::ModalFlags *theFlags, Sexy::Graphics *g) override;
+    virtual void GotFocus() override;
+    virtual int KeyDown(Sexy::KeyCode theKey) override;
     void MouseDown(int x, int y, int theClickCount) override;
 
     HelpTextScreen(LawnApp *theApp, int thePage);

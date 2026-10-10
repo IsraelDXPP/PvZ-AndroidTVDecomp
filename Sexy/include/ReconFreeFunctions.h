@@ -15,6 +15,7 @@
 
 #include <cstdarg>
 #include <cstring>
+#include <map>
 
 // TM::Thread, which the bodies call by its qualified name.
 #include "Thread.h"
@@ -104,11 +105,14 @@ public:
         HTTP_METHOD_POST = 1
     };
 
-    static int getField(...);
-    static int getPostFields(...);
-    static int getSortedFields(...);
-    static int getUrl(...);
-    static int setField(...);
+    Sexy::String getField(Sexy::String const &theKey) const;
+    Sexy::String getPostFields() const;
+    Sexy::String getSortedFields() const;
+    Sexy::String getUrl() const;
+    void setField(Sexy::String const &theKey, Sexy::String const &theValue);
+
+    Sexy::String mUrl;
+    std::map<Sexy::String, Sexy::String> mFields;
 };
 
 class DrCurlEngine
@@ -124,8 +128,12 @@ public:
 class DrDataEncoder
 {
 public:
-    static int decode(...);
-    static int encode(...);
+    DrDataEncoder() = default;
+    explicit DrDataEncoder(Sexy::String const &theKey);
+    Sexy::String decode(Sexy::String const &theText);
+    Sexy::String encode(Sexy::String const &theText);
+
+    Sexy::String mKey;
 };
 
 class LawnSerialNumber

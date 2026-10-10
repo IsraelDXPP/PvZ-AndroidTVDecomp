@@ -262,7 +262,7 @@ int MailScreen::KeyDown(Sexy::KeyCode theKey)
             mLeftHintAnimValue = 4.0f;
             return 1;
         case Sexy::KEYCODE_RETURN:
-        case KEYCODE_A:
+        case Sexy::KEYCODE_A:
         case Sexy::KEYCODE_GAMEPAD_A:
             if (mPage == MAIL_PAGE_INBOX && count > 0)
             {
@@ -276,7 +276,7 @@ int MailScreen::KeyDown(Sexy::KeyCode theKey)
             if (count > 0)
                 mApp->mMailBox->GetMessageByIndex(mCurrentMessageIndex, true);
             return 1;
-        case KEYCODE_X:
+        case Sexy::KEYCODE_X:
         case Sexy::KEYCODE_GAMEPAD_X:
             mPage = mPage == MAIL_PAGE_READ ? MAIL_PAGE_INBOX : MAIL_PAGE_READ;
             mCurrentListPos = 0;
@@ -284,7 +284,7 @@ int MailScreen::KeyDown(Sexy::KeyCode theKey)
             UpdateHelpButtons();
             return 1;
         case Sexy::KEYCODE_ESCAPE:
-        case KEYCODE_B:
+        case Sexy::KEYCODE_B:
         case Sexy::KEYCODE_GAMEPAD_B:
         case Sexy::KEYCODE_GAMEPAD_SELECT:
             mApp->TryToSaveProfile();

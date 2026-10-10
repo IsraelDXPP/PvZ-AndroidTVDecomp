@@ -502,7 +502,7 @@ void Board::MouseDown(int theX, int theY, int theClickCount)
     if (!IsPlantInCursor(mMousePlayerIndex) && !mGamepadControls[mMousePlayerIndex]->mIsCobCannonSelected &&
         mCursorObject[mMousePlayerIndex]->mCursorType != CURSOR_TYPE_SHOVEL && !mMouseButterSelected)
     {
-        if ((mApp->mGameMode == GAMEMODE_MP_VS))
+        if (mApp->mGameMode == GAMEMODE_MP_VS)
             mMousePlayerIndex = PixelToGridX(theX, theY) > 5 ? 1 : 0;
         else if (mApp->IsCoopMode())
             mMousePlayerIndex = theX > 400 ? 1 : 0;
@@ -6794,11 +6794,8 @@ void Board::DrawDebugText(Sexy::Graphics *g)
             aDebugText += aLine;
             break;
 
-        // The binary's switch has a sixth case, "GRID DEBUG", that the authoritative
-        // header never named -- its DebugTextMode stops at Collision -- while the 'z'
-        // key handler cycles `mDebugTextMode % 6`, so the case is reachable. It is
-        // spelled by its value rather than given an invented enumerator.
-        case 5:
+        // The TV build adds GRID DEBUG as the sixth mode; the 'z' key cycles all six.
+        case DEBUG_TEXT_GRID:
             StrFormat(&aLine, "GRID DEBUG\n");
             aDebugText += aLine;
             break;

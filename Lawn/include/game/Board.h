@@ -271,24 +271,24 @@ public:
     // TODO(recon): the transcribed bodies were written against `int`/`_DWORD*`
     // returns for several of these, so Game\Board.cpp must be retyped in the
     // same pass.
-    virtual void RemovedFromManager(Sexy::WidgetManager *theManager); // [ 30] 0x078
-    virtual void Update(); // [ 31] 0x07C
-    virtual void Draw(Sexy::Graphics *g); // [ 36] 0x090
-    virtual void Move(int theX, int theY); // [ 52] 0x0D0
-    virtual void DrawOverlay(Sexy::Graphics *g); // [ 54] 0x0D8
-    virtual void GotFocus(); // [ 61] 0x0F4
-    virtual int KeyChar(char theChar); // [ 67] 0x10C
-    virtual int KeyDown(Sexy::KeyCode theKey); // [ 71] 0x11C
-    virtual int KeyUp(Sexy::KeyCode theKey); // [ 72] 0x120
-    virtual void MouseMove(int theX, int theY); // [ 75] 0x12C
-    virtual void MouseDown(int theX, int theY, int theClickCount); // [ 76] 0x130
-    virtual void MouseUp(int theX, int theY, int theClickCount); // [ 79] 0x13C
-    virtual void MouseDrag(int theX, int theY); // [ 81] 0x144
+    virtual void RemovedFromManager(Sexy::WidgetManager *theManager) override; // [ 30] 0x078
+    virtual void Update() override; // [ 31] 0x07C
+    virtual void Draw(Sexy::Graphics *g) override; // [ 36] 0x090
+    virtual void Move(int theX, int theY) override; // [ 52] 0x0D0
+    virtual void DrawOverlay(Sexy::Graphics *g) override; // [ 54] 0x0D8
+    virtual void GotFocus() override; // [ 61] 0x0F4
+    virtual int KeyChar(char theChar) override; // [ 67] 0x10C
+    virtual int KeyDown(Sexy::KeyCode theKey) override; // [ 71] 0x11C
+    virtual int KeyUp(Sexy::KeyCode theKey) override; // [ 72] 0x120
+    virtual void MouseMove(int theX, int theY) override; // [ 75] 0x12C
+    virtual void MouseDown(int theX, int theY, int theClickCount) override; // [ 76] 0x130
+    virtual void MouseUp(int theX, int theY, int theClickCount) override; // [ 79] 0x13C
+    virtual void MouseDrag(int theX, int theY) override; // [ 81] 0x144
     // Slots [122]/[123]/[124] are the Sexy::ButtonListener overrides. The
     // binary's order is MouseEnter, MouseLeave, Press -- keep it.
-    virtual void ButtonMouseEnter(int theId); // [122] 0x1E8
-    virtual void ButtonMouseLeave(int theId); // [123] 0x1EC
-    virtual void ButtonPress(int theId); // [124] 0x1F0
+    virtual void ButtonMouseEnter(int theId) override; // [122] 0x1E8
+    virtual void ButtonMouseLeave(int theId) override; // [123] 0x1EC
+    virtual void ButtonPress(int theId) override; // [124] 0x1F0
     // Desktop menu button adapted from the TV touch extension.
     void ButtonDepress(int theId) override;
     enum BoardButtons

@@ -267,7 +267,7 @@ VSSetupMenu::VSSetupMenu() :
     mBackdropReanimID = REANIMATIONID_NULL;
     mCameraOffsetX = 0.0f;
     mCameraOffsetY = 0.0f;
-    mState = (VSSetupMenu_VSSetupState)-1;
+    mState = VS_SETUP_STATE_NONE;
     mQuickPlay = false;
     mApp = (LawnApp *)gSexyAppBase;
     // Player one's pad index is the profile slot the active player info carries.
@@ -276,7 +276,7 @@ VSSetupMenu::VSSetupMenu() :
     mSides[0] = VS_SIDE_NONE;
     mSides[1] = VS_SIDE_NONE;
     mSeedPickTurn = VS_SIDE_NONE;
-    mState = (VSSetupMenu_VSSetupState)-1;
+    mState = VS_SETUP_STATE_NONE;
     mSetupMode = (VSSetupMode)-1;
     mSideLocked[0] = false;
     mSideLocked[1] = false;
@@ -356,7 +356,7 @@ int VSSetupMenu::EndZombieChooser()
 // VSSetupMenu::OnStateExit(VSSetupMenu::VSSetupState,VSSetupMenu::VSSetupState)
 // @00195430  86 bytes
 // ==========================================================================
-int VSSetupMenu::OnStateExit(VSSetupMenu_VSSetupState theState, VSSetupMenu_VSSetupState theNext)
+int VSSetupMenu::OnStateExit(VSSetupState theState, VSSetupState theNext)
 {
     if (theState == VS_SETUP_STATE_CUSTOM_BATTLE)
     {
@@ -397,7 +397,7 @@ int VSSetupMenu::SetSecondPlayerIndex(int theIndex)
 // VSSetupMenu::OnStateEnter(VSSetupMenu::VSSetupState,VSSetupMenu::VSSetupState)
 // @001954B0  354 bytes
 // ==========================================================================
-int VSSetupMenu::OnStateEnter(VSSetupMenu_VSSetupState theState, VSSetupMenu_VSSetupState thePrevious)
+int VSSetupMenu::OnStateEnter(VSSetupState theState, VSSetupState thePrevious)
 {
     int result = 0;
     switch (theState)
@@ -480,16 +480,16 @@ int VSSetupMenu::OnStateEnter(VSSetupMenu_VSSetupState theState, VSSetupMenu_VSS
 // VSSetupMenu::GoToState(VSSetupMenu::VSSetupState)
 // @00195630  42 bytes
 // ==========================================================================
-int VSSetupMenu::GoToState(int theState)
+int VSSetupMenu::GoToState(VSSetupState theState)
 {
-    if (mState == (VSSetupMenu_VSSetupState)theState)
+    if (mState == theState)
         return 0;
 
     // Exit sees the old state first. Enter sees the new state first.
-    VSSetupMenu_VSSetupState aPrevious = mState;
-    OnStateExit(aPrevious, (VSSetupMenu_VSSetupState)theState);
-    mState = (VSSetupMenu_VSSetupState)theState;
-    return OnStateEnter((VSSetupMenu_VSSetupState)theState, aPrevious);
+    VSSetupState aPrevious = mState;
+    OnStateExit(aPrevious, theState);
+    mState = theState;
+    return OnStateEnter(theState, aPrevious);
 }
 
 // ==========================================================================
@@ -499,8 +499,8 @@ int VSSetupMenu::GoToState(int theState)
 void VSSetupMenu::Update()
 {
     MenuWidget::Update();
-    if (mState == (VSSetupMenu_VSSetupState)-1)
-        GoToState(0);
+    if (mState == VS_SETUP_STATE_NONE)
+        GoToState(VS_SETUP_STATE_CONTROLLERS);
 
     // The two controller markers fade out once that player has locked a side,
     // and slide a quarter of the way toward the strip that side owns.

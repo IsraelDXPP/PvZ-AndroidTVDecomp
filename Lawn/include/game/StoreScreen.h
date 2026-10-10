@@ -82,20 +82,20 @@ class StoreScreen : public Sexy::Dialog
 {
 public:
     virtual ~StoreScreen();
-    virtual void AddedToManager(Sexy::WidgetManager *theWidgetManager); // slot 29
-    virtual void RemovedFromManager(Sexy::WidgetManager *theWidgetManager); // slot 30
-    virtual void Update(); // slot 31
-    virtual void Draw(Sexy::Graphics *g); // slot 36
-    virtual void DrawOverlay(Sexy::Graphics *g); // slot 54
-    virtual void GotFocus(); // slot 61
-    virtual int KeyChar(char theChar); // slot 67
-    virtual int KeyDown(Sexy::KeyCode theKey); // slot 71
-    virtual void MouseDown(int x, int y, int theClickCount); // slot 76
+    virtual void AddedToManager(Sexy::WidgetManager *theWidgetManager) override; // slot 29
+    virtual void RemovedFromManager(Sexy::WidgetManager *theWidgetManager) override; // slot 30
+    virtual void Update() override; // slot 31
+    virtual void Draw(Sexy::Graphics *g) override; // slot 36
+    virtual void DrawOverlay(Sexy::Graphics *g) override; // slot 54
+    virtual void GotFocus() override; // slot 61
+    virtual int KeyChar(char theChar) override; // slot 67
+    virtual int KeyDown(Sexy::KeyCode theKey) override; // slot 71
+    virtual void MouseDown(int x, int y, int theClickCount) override; // slot 76
     void MouseUp(int x, int y, int theClickCount) override;
     int mMousePressedButton = -1;
     Sexy::Rect mMousePressedRect;
-    virtual void ButtonPress(int theId); // slot 128
-    virtual void ButtonDepress(int theId); // slot 129
+    virtual void ButtonPress(int theId) override; // slot 128
+    virtual void ButtonDepress(int theId) override; // slot 129
 
     // +0x2E0 .. +0x3CB (the first 0x2E0 bytes are Sexy::Dialog).
     LawnApp *mApp; // +0x2E0

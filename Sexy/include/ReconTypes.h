@@ -799,14 +799,6 @@ enum GridItemType : int
     GRIDITEM_MP_TARGET_ZOMBIE = 14
 };
 
-// MainMenu_MenuScene -- an enum in the binary. The transcription could not classify the
-// demangled type and emitted a one-int struct; the call sites pass plain
-// integers, so it needs the conversions an enum has. Size and layout are
-// unchanged (one int), and `.mValue` still names the value.
-enum MainMenu_MenuScene : int
-{
-};
-
 // MusicTune -- an enum in the binary. The transcription could not classify the
 // demangled type and emitted a one-int struct; the call sites pass plain
 // integers, so it needs the conversions an enum has. Size and layout are
@@ -1310,14 +1302,6 @@ enum StoreScreen_ItemDir : int
 {
 };
 
-// VSSetupMenu_VSSetupState -- an enum in the binary. The transcription could not classify the
-// demangled type and emitted a one-int struct; the call sites pass plain
-// integers, so it needs the conversions an enum has. Size and layout are
-// unchanged (one int), and `.mValue` still names the value.
-enum VSSetupMenu_VSSetupState : int
-{
-};
-
 // The framework value types, under the global spelling the binary
 // also uses. `TRect` in a signature and `Sexy::TRect` in a body name
 // the same type.
@@ -1491,7 +1475,6 @@ using ::GameStats_MiscStat;
 using ::GridItemState;
 using ::GridItemType;
 
-using ::MainMenu_MenuScene;
 using ::MusicTune;
 using ::ParticleEffect;
 using ::ParticleSystemID;
@@ -1504,8 +1487,6 @@ using ::RenderLayer;
 using ::SeedChooserScreen_SeedDir;
 using ::StoreItem;
 using ::StoreScreen_ItemDir;
-
-using ::VSSetupMenu_VSSetupState;
 
 using ::SexyVector2;
 using ::SexyVector3;
@@ -3052,6 +3033,9 @@ enum KeyCode
     KEYCODE_X_BUTTON = 0x32,
     KEYCODE_X2_BUTTON = 0x33,
     KEYCODE_ASCIIEND = 0x5A,
+    KEYCODE_A = 0x41,
+    KEYCODE_B = 0x42,
+    KEYCODE_X = 0x58,
     KEYCODE_LWIN = 0x5B,
     KEYCODE_RWIN = 0x5C,
     KEYCODE_APPS = 0x5D,
@@ -3471,6 +3455,7 @@ enum DebugTextMode
     DEBUG_TEXT_MUSIC = 2,
     DEBUG_TEXT_MEMORY = 3,
     DEBUG_TEXT_COLLISION = 4,
+    DEBUG_TEXT_GRID = 5,
 };
 
 // ---------------------------------------------------------------------------

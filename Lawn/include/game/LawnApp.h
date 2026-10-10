@@ -404,8 +404,8 @@ public:
     // overrides `SexyAppBase::PlaySample(int)`.
     // 175..179 override the two listener bases.
     // -----------------------------------------------------------------------
-    virtual void GamepadConnected(); // [168]
-    virtual void GamepadDisconnected(); // [169]
+    virtual void GamepadConnected() override; // [168]
+    virtual void GamepadDisconnected() override; // [169]
     virtual void LoadingCompleted(); // [170]
     virtual void PlaySample(int theSoundId, bool theLoop); // [171]
     virtual void DrawPost(); // [172]
@@ -416,12 +416,12 @@ public:
     virtual void ShowResourceError(bool theExit); // [174]
     // Overrides of Sexy::ProfileEventListener, the interface declared above --
     // its slots [0]..[3] in that order.
-    virtual int GetProfileVersion(); // [175]
-    virtual LawnPlayerInfo *CreatePlayerInfo(); // [176]
-    virtual void NotifyProfileChanged(Sexy::PlayerInfo *theProfile); // [177]
-    virtual void OnProfileSaveError(Sexy::PlayerInfo *theProfile); // [178]
+    virtual int GetProfileVersion() override; // [175]
+    virtual LawnPlayerInfo *CreatePlayerInfo() override; // [176]
+    virtual void NotifyProfileChanged(Sexy::PlayerInfo *theProfile) override; // [177]
+    virtual void OnProfileSaveError(Sexy::PlayerInfo *theProfile) override; // [178]
     // Overrides Sexy::IGameCenter::Listener::onPay (Listener.h, slot [9]).
-    virtual void onPay(int theResult); // [179]
+    virtual void onPay(int theResult) override; // [179]
 
     // -----------------------------------------------------------------------
     // Overrides of the base chain, ordered as in the binary's table. Every return
@@ -435,58 +435,59 @@ public:
     // They are left for phase 2 because fixing them means renaming the .cpp
     // definitions and their call sites, not just a return type.
     // -----------------------------------------------------------------------
-    virtual void ButtonPress(int theId); // [  2]
-    virtual void ButtonDepress(int theId); // [  4]  void in ButtonListener.h:44
-    virtual void EnforceCursor(); // [ 11]
-    virtual void UpdateFrames(); // [ 13]
-    virtual void LoadingThreadCompleted(); // [ 18]
-    virtual void InitHook(); // [ 25]
-    virtual void LoadingThreadProc(); // [ 28]
-    virtual void WriteToRegistry(); // [ 29]
-    virtual void ReadFromRegistry(); // [ 30]
+    virtual void ButtonPress(int theId) override; // [  2]
+    virtual void ButtonDepress(int theId) override; // [  4]  void in ButtonListener.h:44
+    virtual void EnforceCursor() override; // [ 11]
+    virtual void UpdateFrames() override; // [ 13]
+    virtual void LoadingThreadCompleted() override; // [ 18]
+    virtual void InitHook() override; // [ 25]
+    virtual void LoadingThreadProc() override; // [ 28]
+    virtual void WriteToRegistry() override; // [ 29]
+    virtual void ReadFromRegistry() override; // [ 30]
     virtual LawnDialog *NewDialog(int theDialogId, bool theModal, Sexy::String const &theHeader,
-        Sexy::String const &theLines, Sexy::String const &theFooter, int theButtonMode); // [ 31]
-    virtual void PreDisplayHook(); // [ 32]
-    virtual void SafeDeleteWidget(Sexy::Widget *theWidget); // [ 47]
-    virtual void URLOpenFailed(Sexy::String const &theURL); // [ 48]
+        Sexy::String const &theLines, Sexy::String const &theFooter, int theButtonMode) override; // [ 31]
+    virtual void PreDisplayHook() override; // [ 32]
+    virtual void SafeDeleteWidget(Sexy::Widget *theWidget) override; // [ 47]
+    virtual void URLOpenFailed(Sexy::String const &theURL) override; // [ 48]
     // The base takes the URL (`void URLOpenSucceeded(const Sexy::String &)`,
     // SexyAppBase.h:326) and the binary's own symbol is
     // `_ZN7LawnApp16URLOpenSucceededERKSs`, so this is an override.
-    virtual void URLOpenSucceeded(Sexy::String const &theURL); // [ 49]
-    virtual bool OpenURL(Sexy::String const &theURL, bool theShutdownOnOpen); // [ 50]
-    virtual void Shutdown(); // [ 57]
-    virtual void HandleCmdLineParam(Sexy::String const &theParamName, Sexy::String const &theParamValue); // [ 65]
+    virtual void URLOpenSucceeded(Sexy::String const &theURL) override; // [ 49]
+    virtual bool OpenURL(Sexy::String const &theURL, bool theShutdownOnOpen) override; // [ 50]
+    virtual void Shutdown() override; // [ 57]
+    virtual void HandleCmdLineParam(
+        Sexy::String const &theParamName, Sexy::String const &theParamValue) override; // [ 65]
     int GetFrameCounter() override
     {
         return mAppCounter;
     }
-    virtual void Start(); // [ 69]
-    virtual void Init(); // [ 71]
-    virtual bool ChangeDirHook(char const *theIntendedPath); // [ 75]
+    virtual void Start() override; // [ 69]
+    virtual void Init() override; // [ 71]
+    virtual bool ChangeDirHook(char const *theIntendedPath) override; // [ 75]
     // TODO(recon): the base's three-argument slot is
     // `SwitchScreenModeFull(bool windowed, bool use3D, bool force)`
     // (SexyAppBase.h) and byte 0x190 of the binary's table belongs to LawnApp, so
     // this is that function. The name now matches the base, which makes it a real
     // override instead of a hidden `SwitchScreenMode` overload.
-    virtual void SwitchScreenModeFull(bool theWindowed, bool theUse3D, bool theForce); // [101]
+    virtual void SwitchScreenModeFull(bool theWindowed, bool theUse3D, bool theForce) override; // [101]
     virtual LawnDialog *DoDialog(int theDialogId, bool theModal, Sexy::String const &theHeader,
-        Sexy::String const &theLines, Sexy::String const &theFooter, int theButtonMode); // [103]
+        Sexy::String const &theLines, Sexy::String const &theFooter, int theButtonMode) override; // [103]
     // TV LawnApp::KillDialog(int) overrides the base's by-id close slot.
     // This port names that slot KillDialogById; keep KillDialog as a forwarder.
     bool KillDialogById(int theDialogId) override;
     bool KillDialog(int theDialogId);
-    virtual void ModalOpen(); // [108]
-    virtual void ModalClose(); // [109]
-    virtual void GotFocus(); // [112]
-    virtual void LostFocus(); // [113]
-    virtual void CloseRequestAsync(); // [120]
-    virtual void PreDrawScreen(); // [123]
-    virtual bool DrawDirtyStuff(); // [124]
-    virtual bool UpdateAppStep(bool *theUpdated); // [128]
-    virtual bool UpdateApp(); // [129]
-    virtual bool ProcessMessage(Sexy::Event &theEvent); // [132]
-    virtual void AuthFinished(bool theSuccess); // [144]
-    virtual void StartAuth(); // [145]
+    virtual void ModalOpen() override; // [108]
+    virtual void ModalClose() override; // [109]
+    virtual void GotFocus() override; // [112]
+    virtual void LostFocus() override; // [113]
+    virtual void CloseRequestAsync() override; // [120]
+    virtual void PreDrawScreen() override; // [123]
+    virtual bool DrawDirtyStuff() override; // [124]
+    virtual bool UpdateAppStep(bool *theUpdated) override; // [128]
+    virtual bool UpdateApp() override; // [129]
+    virtual bool ProcessMessage(Sexy::Event &theEvent) override; // [132]
+    virtual void AuthFinished(bool theSuccess) override; // [144]
+    virtual void StartAuth() override; // [145]
     // GamepadConnected/GamepadDisconnected/LoadingCompleted/PlaySample(int,bool)
     // /DrawPost/OnButtonDown/ShowResourceError/GetProfileVersion/
     // CreatePlayerInfo/NotifyProfileChanged/OnProfileSaveError/onPay are declared

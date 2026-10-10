@@ -9,16 +9,6 @@
 // The `// @ADDRESS  N bytes` banners are the binary's own function addresses and
 // sizes; they are kept.
 
-// The binary's mangled name is TM::LogComposer, but LogComposer.h declares the
-// class at global scope. Alias it in (same pattern as LogComposer.cpp) before
-// any header forward-declares TM::LogComposer, so the qualified member calls in
-// this file name the same class.
-class LogComposer;
-namespace TM
-{
-using ::LogComposer;
-}
-
 #include "LawnApp.h"
 #include "NativeDisplay.h"
 #include "AlmanacDialog.h"

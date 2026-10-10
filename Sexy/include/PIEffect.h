@@ -208,7 +208,7 @@ struct PIParticleType
     Sexy::PIValue mSpread;
     Sexy::PIValue mSpinY;
     Sexy::PIValue mSpinVarY;
-    Sexy::PIValue mExtraCurve;
+    Sexy::PIValue mSizeYOverLife;
     float mPivotX;
     float mPivotY;
     bool mLockSpin;

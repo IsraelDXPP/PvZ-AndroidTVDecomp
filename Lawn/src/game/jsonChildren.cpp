@@ -4,6 +4,9 @@
 void jsonChildren::deleteAll()
 {
     for (JSONNode *aChild : mChildren)
-        aChild->Release();
+    {
+        if (aChild != nullptr)
+            aChild->Release();
+    }
     mChildren.clear();
 }

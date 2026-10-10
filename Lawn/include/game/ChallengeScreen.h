@@ -80,15 +80,15 @@ public:
     };
 
     virtual ~ChallengeScreen();
-    virtual void AddedToManager(Sexy::WidgetManager *theWidgetManager); // slot 29
-    virtual void RemovedFromManager(Sexy::WidgetManager *theWidgetManager); // slot 30
-    virtual void Update(); // slot 31
-    virtual void Draw(Sexy::Graphics *theGraphics); // slot 36
-    virtual void GotFocus(); // slot 61
-    virtual int KeyChar(char theChar); // slot 67
-    virtual int KeyDown(Sexy::KeyCode theKey); // slot 71
-    virtual void ButtonPress(int theId); // ButtonListener slot 2
-    virtual void ButtonDepress(int theId); // ButtonListener slot 4
+    virtual void AddedToManager(Sexy::WidgetManager *theWidgetManager) override; // slot 29
+    virtual void RemovedFromManager(Sexy::WidgetManager *theWidgetManager) override; // slot 30
+    virtual void Update() override; // slot 31
+    virtual void Draw(Sexy::Graphics *theGraphics) override; // slot 36
+    virtual void GotFocus() override; // slot 61
+    virtual int KeyChar(char theChar) override; // slot 67
+    virtual int KeyDown(Sexy::KeyCode theKey) override; // slot 71
+    virtual void ButtonPress(int theId) override; // ButtonListener slot 2
+    virtual void ButtonDepress(int theId) override; // ButtonListener slot 4
 
     // +0x104 .. +0x5F7 (the first 0x100 bytes are Sexy::Widget, and the
     // ButtonListener subobject is the word at +0x100; this class's own members

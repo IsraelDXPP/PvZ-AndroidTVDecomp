@@ -64,14 +64,14 @@ public:
     virtual ~TreeOfWisdomControls();
 
     // Overrides of base slots, in the binary's slot order.
-    virtual void OnButtonDown(int theButton, int thePlayerIndex, unsigned int theFlags); // [ 0]
-    virtual void OnGameAxisMove(int theAxis, int theValue, int thePlayerIndex); // [ 2]
-    virtual bool OnKeyDown(Sexy::KeyCode theKey, unsigned int theFlags); // [ 3]
-    virtual int Update(float theFrac); // [ 5]
+    virtual void OnButtonDown(int theButton, int thePlayerIndex, unsigned int theFlags) override; // [ 0]
+    virtual void OnGameAxisMove(int theAxis, int theValue, int thePlayerIndex) override; // [ 2]
+    virtual bool OnKeyDown(Sexy::KeyCode theKey, unsigned int theFlags) override; // [ 3]
+    virtual int Update(float theFrac) override; // [ 5]
     bool BeginDraw(Sexy::Graphics *theGraphics) override; // [ 6]
-    virtual void MakeParentGraphicsFrame(); // [ 9]
+    virtual void MakeParentGraphicsFrame() override; // [ 9]
 
-    virtual void OnButtonUp(int theButton, int thePlayerIndex, unsigned int theFlags); // [ 1]
+    virtual void OnButtonUp(int theButton, int thePlayerIndex, unsigned int theFlags) override; // [ 1]
     void Draw(Sexy::Graphics *theGraphics) override; // [ 7]
     void EndDraw(Sexy::Graphics *theGraphics) override; // [ 8]
 

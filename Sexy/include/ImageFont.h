@@ -33,20 +33,20 @@ class ImageFont : public Font
 {
 public:
     virtual ~ImageFont();
-    virtual int StringWidth(Sexy::String const &theString);
+    virtual int StringWidth(Sexy::String const &theString) override;
     virtual int StringWidth(Sexy::WString const &theString);
-    virtual int CharWidth(int theChar);
-    virtual int CharWidthKern(int theChar, int thePrevChar);
+    virtual int CharWidth(int theChar) override;
+    virtual int CharWidthKern(int theChar, int thePrevChar) override;
     virtual void DrawString(Sexy::Graphics *theGraphics, int theX, int theY, Sexy::String const &theString,
-        Color const &theColor, TRect<int> const &theClipRect);
+        Color const &theColor, TRect<int> const &theClipRect) override;
     virtual void DrawString(Sexy::Graphics *theGraphics, int theX, int theY, Sexy::WString const &theString,
         Color const &theColor, TRect<int> const &theClipRect);
     void StringToGlyphs(std::wstring const &theString, std::vector<Glyph> &theGlyphs) override;
     virtual void DrawGlyphs(Sexy::Graphics *theGraphics, int theX, int theY, std::vector<Glyph> &theGlyphs,
-        unsigned int theStart, unsigned int theCount, Color const &theColor, TRect<int> const &theClipRect);
+        unsigned int theStart, unsigned int theCount, Color const &theColor, TRect<int> const &theClipRect) override;
     void GlyphExtentsList(std::list<const Glyph *> const &theGlyphsList, TextExtents &theExtents) override;
-    virtual bool IsComposited();
-    virtual Sexy::ImageFont *Duplicate();
+    virtual bool IsComposited() override;
+    virtual Sexy::ImageFont *Duplicate() override;
     virtual void GenerateActiveFontLayers();
     virtual void DrawStringEx(Sexy::Graphics *theGraphics, int theX, int theY, Sexy::String const &theString,
         Color const &theColor, TRect<int> const *theClipRect, std::list<TRect<int>> *theDrawnAreas, int *theWidth);

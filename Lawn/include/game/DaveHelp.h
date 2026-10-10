@@ -59,9 +59,9 @@ class DaveHelp : public Sexy::Widget
 {
 public:
     virtual ~DaveHelp(); // [ 0],[1] 0x000/0x004
-    virtual void RemovedFromManager(Sexy::WidgetManager *theManager); // [30] 0x078
-    virtual void Update(); // [31] 0x07C
-    virtual void Draw(Sexy::Graphics *theGraphics); // [36] 0x090
+    virtual void RemovedFromManager(Sexy::WidgetManager *theManager) override; // [30] 0x078
+    virtual void Update() override; // [31] 0x07C
+    virtual void Draw(Sexy::Graphics *theGraphics) override; // [36] 0x090
     // Desktop input advances the same dialogue as the TV confirm button.
     void MouseDown(int theX, int theY, int theClickCount) override;
 

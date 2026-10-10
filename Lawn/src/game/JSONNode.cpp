@@ -227,8 +227,6 @@ JSONNode *JSONNode::Steal()
 
 void JSONNode::Release()
 {
-    if (this == nullptr)
-        return;
     ReleaseNode(mInternal);
     mInternal = nullptr;
     delete this;
