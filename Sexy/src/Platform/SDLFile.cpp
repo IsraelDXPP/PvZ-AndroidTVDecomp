@@ -8,6 +8,7 @@
 namespace Sexy
 {
 std::string SDLFile::sAssetRoot = "assets";
+bool SDLFile::sAssetRootConfigured = false;
 void SDLFile::SetAssetRoot(const std::string &root)
 {
     auto path = std::filesystem::u8path(root).lexically_normal();
@@ -16,6 +17,7 @@ void SDLFile::SetAssetRoot(const std::string &root)
     if (SDL_GetPathInfo(files.c_str(), &info) && info.type == SDL_PATHTYPE_DIRECTORY)
         path /= "files";
     sAssetRoot = path.u8string();
+    sAssetRootConfigured = true;
     // Read the external settings before opening packs, so language selection
     // cannot recurse through p_fopen or depend on the selected language pack.
     const char *language = Sexy::GetEnv("LAWN_LANGUAGE");
@@ -25,6 +27,10 @@ void SDLFile::SetAssetRoot(const std::string &root)
 std::string SDLFile::GetAssetRoot()
 {
     return sAssetRoot;
+}
+bool SDLFile::IsAssetRootConfigured()
+{
+    return sAssetRootConfigured;
 }
 std::string SDLFile::ResolvePath(const std::string &name)
 {

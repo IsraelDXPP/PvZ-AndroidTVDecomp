@@ -85,6 +85,19 @@ bool SDLWindow::Create(
     if (theWidth <= 0 || theHeight <= 0 || !SDL_InitSubSystem(SDL_INIT_VIDEO | SDL_INIT_EVENTS))
         return false;
     mVideoInitialized = true;
+    // Keep the requested game canvas independent of the native surface. The
+    // presentation pass scales this canvas when the fullscreen/window grows.
+    mRenderWidth = theWidth;
+    mRenderHeight = theHeight;
+#if defined(SDL_PLATFORM_ANDROID)
+    theWindowed = false;
+    const SDL_DisplayMode *displayMode = SDL_GetCurrentDisplayMode(SDL_GetPrimaryDisplay());
+    if (displayMode != nullptr)
+    {
+        theWidth = displayMode->w;
+        theHeight = displayMode->h;
+    }
+#endif
     SDL_WindowFlags flags = SDL_WINDOW_RESIZABLE;
     if (!theVisible)
         flags |= SDL_WINDOW_HIDDEN;
@@ -100,12 +113,20 @@ bool SDLWindow::Create(
     }
     mWidth = theWidth;
     mHeight = theHeight;
+#if !defined(SDL_PLATFORM_ANDROID)
     SDL_GetWindowSizeInPixels(mWindow, &mWidth, &mHeight);
+    mRenderWidth = mWidth;
+    mRenderHeight = mHeight;
+#endif
+    // Android hides system bars asynchronously. Keep the display resolution
+    // for the initial presentation surface instead of the previous inset size.
     mWindowed = theWindowed;
     mVSync = theVSync;
     mClosed = false;
     sActiveWindow = this;
+#if !defined(SDL_PLATFORM_ANDROID)
     SDL_StartTextInput(mWindow);
+#endif
     ResetTimer();
     return true;
 }
@@ -118,6 +139,7 @@ void SDLWindow::Destroy()
     mWindow = nullptr;
     mInputEvents.clear();
     mMouseButtons = 0;
+    mMousePositionKnown = false;
     if (mVideoInitialized)
         SDL_QuitSubSystem(SDL_INIT_VIDEO | SDL_INIT_EVENTS);
     mVideoInitialized = false;
@@ -142,6 +164,7 @@ void SDLWindow::ProcessEvent(const SDL_Event &theEvent)
             mActive = true;
         if (theEvent.type == SDL_EVENT_WINDOW_MOUSE_LEAVE)
         {
+            mMousePositionKnown = false;
             Event exitEvent = {};
             exitEvent.modifiers = Event::MOUSE_EXIT;
             mInputEvents.push_back(exitEvent);
@@ -149,6 +172,7 @@ void SDLWindow::ProcessEvent(const SDL_Event &theEvent)
         if (theEvent.type == SDL_EVENT_WINDOW_FOCUS_LOST)
         {
             mActive = false;
+            mMousePositionKnown = false;
             Event cancelEvent = {};
             cancelEvent.modifiers = Event::MOUSE_CANCEL;
             mInputEvents.push_back(cancelEvent);
@@ -156,8 +180,6 @@ void SDLWindow::ProcessEvent(const SDL_Event &theEvent)
             SDL_CaptureMouse(false);
         }
     }
-    if (theEvent.type == SDL_EVENT_MOUSE_MOTION && theEvent.motion.windowID == windowID)
-        QueueMouseEvent(Event::MOUSE_MOVE, theEvent.motion.x, theEvent.motion.y);
     if ((theEvent.type == SDL_EVENT_MOUSE_BUTTON_DOWN || theEvent.type == SDL_EVENT_MOUSE_BUTTON_UP) &&
         theEvent.button.windowID == windowID &&
         (theEvent.button.button == SDL_BUTTON_LEFT || theEvent.button.button == SDL_BUTTON_RIGHT ||
@@ -232,6 +254,19 @@ void SDLWindow::UpdateFrame()
 {
     if (!mWindow)
         return;
+    // Sample SDL's current pointer state once per frame. Movement events can
+    // arrive in bursts; their old positions must not drive the planting cursor.
+    if (mActive && SDL_GetMouseFocus() == mWindow)
+    {
+        float mouseX = 0.0f;
+        float mouseY = 0.0f;
+        SDL_GetMouseState(&mouseX, &mouseY);
+        if (!mMousePositionKnown || mouseX != mLastMouseX || mouseY != mLastMouseY)
+            QueueMouseEvent(Event::MOUSE_MOVE, mouseX, mouseY);
+        mLastMouseX = mouseX;
+        mLastMouseY = mouseY;
+        mMousePositionKnown = true;
+    }
     int width = 0, height = 0;
     SDL_GetWindowSizeInPixels(mWindow, &width, &height);
     if (width > 0 && height > 0)

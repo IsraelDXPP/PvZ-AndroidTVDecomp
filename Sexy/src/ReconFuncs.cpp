@@ -536,6 +536,12 @@ char const *Sexy::GetEnv(char const *theName)
     if (theName == nullptr || theName[0] == '\0')
         return nullptr;
 
+    // Shared-library constructors run before SDL's Android JNI setup. Until
+    // the entry point configures assets, neither file IO nor SDL_getenv (which
+    // reads Android manifest metadata) can safely call into Java.
+    if (!Sexy::SDLFile::IsAssetRootConfigured())
+        return std::getenv(theName);
+
     LoadSetupEnv();
     std::map<std::string, std::string>::iterator aFound = SetupEnv().mValues.find(theName);
     if (aFound != SetupEnv().mValues.end())

@@ -66,6 +66,9 @@ struct SDLAppDriver : Sexy::IAppDriver
     bool WriteBytesToFile(const Sexy::String &theFileName, const void *theData, unsigned long theLength) override;
     int ShouldPauseUpdates() override;
     int RehupFocus() override;
+    int ShowKeyboard(int theMode, const Sexy::String &theTitle, const Sexy::String &theDescription,
+        const Sexy::String &theDefault) override;
+    int HideKeyboard() override;
     int GetMemoryInfo(void *theMemoryInfo) override;
     int TakeScreenshot(Sexy::MemoryImage *theImage) override;
     int DoMainLoop() override;
@@ -126,8 +129,8 @@ bool AppDriver_EnsureWindow(SDLAppDriver *theSelf)
     {
         theSelf->mWindow = active;
         theSelf->mOwnsWindow = false;
-        theSelf->mWidth = active->mWidth;
-        theSelf->mHeight = active->mHeight;
+        theSelf->mWidth = active->mRenderWidth;
+        theSelf->mHeight = active->mRenderHeight;
         return true;
     }
 
@@ -732,6 +735,21 @@ int SDLAppDriver::ShouldPauseUpdates()
 int SDLAppDriver::RehupFocus()
 {
     return 1;
+}
+
+int SDLAppDriver::ShowKeyboard(int theMode, const Sexy::String &theTitle, const Sexy::String &theDescription,
+    const Sexy::String &theDefault)
+{
+    (void)theMode;
+    (void)theTitle;
+    (void)theDescription;
+    (void)theDefault;
+    return mWindow != nullptr && SDL_StartTextInput(mWindow->mWindow);
+}
+
+int SDLAppDriver::HideKeyboard()
+{
+    return mWindow == nullptr || SDL_StopTextInput(mWindow->mWindow);
 }
 
 // [86] GetMemoryInfo(MemoryInfo&)

@@ -44,11 +44,27 @@ std::string EntryKey(const std::string &thePath)
     return aKey;
 }
 
-std::string FullPath(const std::string &thePath)
+std::string ResourcePath(const std::string &thePath)
 {
+#if defined(SDL_PLATFORM_ANDROID)
+    // Relative paths address APK assets through SDL. Making them absolute
+    // would turn them into filesystem paths and bypass the asset manager.
+    return std::filesystem::u8path(ForwardSlashes(thePath)).lexically_normal().generic_u8string();
+#else
     std::error_code aError;
     auto aPath = std::filesystem::absolute(std::filesystem::u8path(ForwardSlashes(thePath)), aError);
     return aError ? ForwardSlashes(thePath) : aPath.lexically_normal().generic_u8string();
+#endif
+}
+
+Sint64 NativeFileSize(const std::string &thePath)
+{
+    SDL_IOStream *aFile = SDL_IOFromFile(thePath.c_str(), "rb");
+    if (aFile == nullptr)
+        return -1;
+    const Sint64 aSize = SDL_GetIOSize(aFile);
+    SDL_CloseIO(aFile);
+    return aSize;
 }
 
 std::string FoldPath(std::string thePath)
@@ -132,11 +148,7 @@ public:
     }
     Sint64 getFileSize(const std::string &thePath) override
     {
-        SDL_PathInfo aInfo{};
-        if (!SDL_GetPathInfo(resolve(thePath).c_str(), &aInfo) || aInfo.type != SDL_PATHTYPE_FILE ||
-            aInfo.size > static_cast<Uint64>(std::numeric_limits<Sint64>::max()))
-            return -1;
-        return static_cast<Sint64>(aInfo.size);
+        return NativeFileSize(resolve(thePath));
     }
 };
 
@@ -144,6 +156,48 @@ class ArchiveFileSystem : public FileSystem
 {
 protected:
     std::map<std::string, ArchiveEntry> mEntries;
+    std::shared_ptr<const FileBytes> mArchiveBytes;
+
+    bool prepareArchive()
+    {
+#if defined(SDL_PLATFORM_ANDROID)
+        if (FoldPath(std::filesystem::u8path(mLocation).filename().u8string()) != "main.pak")
+            return true;
+        std::unique_ptr<SDL_IOStream, decltype(&SDL_CloseIO)> aFile(
+            SDL_IOFromFile(mLocation.c_str(), "rb"), SDL_CloseIO);
+        if (!aFile)
+            return false;
+        const Sint64 aSize = SDL_GetIOSize(aFile.get());
+        if (aSize <= 0 || static_cast<Uint64>(aSize) > std::numeric_limits<size_t>::max())
+            return SDL_SetError("Invalid archive size: %s", mLocation.c_str());
+        std::shared_ptr<FileBytes> aBytes;
+        try
+        {
+            aBytes = std::make_shared<FileBytes>(static_cast<size_t>(aSize));
+        }
+        catch (const std::bad_alloc &)
+        {
+            return SDL_SetError("Not enough memory for archive: %s", mLocation.c_str());
+        }
+        size_t aPosition = 0;
+        while (aPosition < aBytes->size())
+        {
+            const size_t aRead = SDL_ReadIO(aFile.get(), aBytes->data() + aPosition,
+                std::min<size_t>(aBytes->size() - aPosition, 1024 * 1024));
+            if (aRead == 0)
+                return SDL_SetError("Cannot preload archive: %s", mLocation.c_str());
+            aPosition += aRead;
+        }
+        mArchiveBytes = std::move(aBytes);
+        SDL_Log("Preloaded %s into memory (%lld bytes)", mLocation.c_str(), static_cast<long long>(aSize));
+#endif
+        return true;
+    }
+
+    SDL_IOStream *openArchive() const
+    {
+        return mArchiveBytes ? OpenMemoryFile(mArchiveBytes) : SDL_IOFromFile(mLocation.c_str(), "rb");
+    }
 
     ArchiveEntry *find(const std::string &thePath)
     {
@@ -274,7 +328,9 @@ public:
     }
     bool initialize()
     {
-        mArchive.mFile = SDL_IOFromFile(mLocation.c_str(), "rb");
+        if (!prepareArchive())
+            return false;
+        mArchive.mFile = openArchive();
         if (mArchive.mFile == nullptr)
             return false;
         mZip = mz_zip_create();
@@ -447,7 +503,9 @@ public:
     }
     bool initialize()
     {
-        SDL_IOStream *aFile = SDL_IOFromFile(mLocation.c_str(), "rb");
+        if (!prepareArchive())
+            return false;
+        SDL_IOStream *aFile = openArchive();
         if (aFile == nullptr)
             return false;
         const Sint64 aFileSize = SDL_GetIOSize(aFile);
@@ -505,7 +563,7 @@ public:
         ArchiveEntry *aEntry = find(thePath);
         if (aEntry == nullptr)
             return nullptr;
-        SDL_IOStream *aFile = SDL_IOFromFile(mLocation.c_str(), "rb");
+        SDL_IOStream *aFile = openArchive();
         if (aFile == nullptr)
             return nullptr;
         if (SDL_SeekIO(aFile, aEntry->mOffset, SDL_IO_SEEK_SET) < 0)
@@ -546,14 +604,14 @@ struct FileSystemManager::ResourceLocations
         const auto aPath = std::filesystem::u8path(ForwardSlashes(thePath)).lexically_normal();
         // ResolvePath can return a relative path already prefixed by a
         // relative --assets root. Recognize it before adding the root again.
-        const std::string aAbsolute = FullPath(thePath);
+        const std::string aResolved = ResourcePath(thePath);
         std::string aRoot = mAssetRoot;
         if (aRoot.empty())
             return aPath.has_root_path() ? std::string{} : aPath.generic_u8string();
         if (aRoot.back() != '/')
             aRoot += '/';
-        if (FoldPath(aAbsolute).compare(0, aRoot.size(), FoldPath(aRoot)) == 0)
-            return aAbsolute.substr(aRoot.size());
+        if (FoldPath(aResolved).compare(0, aRoot.size(), FoldPath(aRoot)) == 0)
+            return aResolved.substr(aRoot.size());
         return aPath.has_root_path() ? std::string{} : aPath.generic_u8string();
     }
 };
@@ -561,7 +619,10 @@ struct FileSystemManager::ResourceLocations
 FileSystemManager::FileSystemManager() :
     mLocations(std::make_unique<ResourceLocations>())
 {
-    setAssetRoot("assets");
+    // Mount archives only after the entry point selects the actual asset root
+    // and language, so Android does not preload main.pak twice at startup.
+    mLocations->mAssetRoot = ResourcePath("assets");
+    addResource(mLocations->mAssetRoot, "native", 0);
 }
 FileSystemManager::~FileSystemManager() = default;
 FileSystemManager *FileSystemManager::getManager()
@@ -572,7 +633,7 @@ FileSystemManager *FileSystemManager::getManager()
 
 void FileSystemManager::setAssetRoot(const std::string &theDirectory, const std::string &theLanguage)
 {
-    const std::string aRoot = FullPath(theDirectory);
+    const std::string aRoot = ResourcePath(theDirectory);
     {
         std::lock_guard<std::mutex> aLock(mLocations->mMutex);
         mLocations->mFileSystems.clear();
@@ -586,8 +647,7 @@ void FileSystemManager::setAssetRoot(const std::string &theDirectory, const std:
     if (FoldPath(aPackageDirectory.filename().u8string()) == "files")
         aPackageDirectory = aPackageDirectory.parent_path();
     const std::string aMain = (aPackageDirectory / "main.pak").u8string();
-    SDL_PathInfo aInfo{};
-    if (SDL_GetPathInfo(aMain.c_str(), &aInfo) && aInfo.type == SDL_PATHTYPE_FILE && !addResource(aMain, "auto", 10))
+    if (NativeFileSize(aMain) >= 0 && !addResource(aMain, "auto", 10))
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Cannot mount %s: %s", aMain.c_str(), SDL_GetError());
 
     // Mount only the selected language's supplementary assets. A language
@@ -600,8 +660,7 @@ void FileSystemManager::setAssetRoot(const std::string &theDirectory, const std:
         if (aLanguage[aIndex] < 'a' || aLanguage[aIndex] > 'z')
             return;
     const std::string aLanguagePak = (aPackageDirectory / (aLanguage + ".pak")).u8string();
-    if (SDL_GetPathInfo(aLanguagePak.c_str(), &aInfo) && aInfo.type == SDL_PATHTYPE_FILE &&
-        !addResource(aLanguagePak, "auto", 5))
+    if (NativeFileSize(aLanguagePak) >= 0 && !addResource(aLanguagePak, "auto", 5))
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Cannot mount %s: %s", aLanguagePak.c_str(), SDL_GetError());
 }
 
@@ -610,7 +669,7 @@ bool FileSystemManager::addResource(const std::string &theLocation, const std::s
     if (theLocation.empty())
         return SDL_SetError("Resource location is empty");
     const size_t aSeparator = theLocation.find("::");
-    const std::string aPath = FullPath(theLocation.substr(0, aSeparator));
+    const std::string aPath = ResourcePath(theLocation.substr(0, aSeparator));
     std::string aPrefix;
     if (aSeparator != std::string::npos)
     {
@@ -705,11 +764,7 @@ Sint64 FileSystemManager::getFileSize(const std::string &thePath)
             if (aSize >= 0)
                 return aSize;
         }
-    SDL_PathInfo aInfo{};
-    if (SDL_GetPathInfo(ForwardSlashes(thePath).c_str(), &aInfo) && aInfo.type == SDL_PATHTYPE_FILE &&
-        aInfo.size <= static_cast<Uint64>(std::numeric_limits<Sint64>::max()))
-        return static_cast<Sint64>(aInfo.size);
-    return -1;
+    return NativeFileSize(ForwardSlashes(thePath));
 }
 
 bool FileSystemManager::fileExists(const std::string &thePath)

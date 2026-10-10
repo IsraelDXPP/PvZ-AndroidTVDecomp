@@ -18,6 +18,7 @@ public:
     // Root directory holding the extracted APK assets (files/, levels/, paks/).
     static void SetAssetRoot(const std::string &theRoot);
     static std::string GetAssetRoot();
+    static bool IsAssetRootConfigured();
 
     // Resolve a logical asset path (e.g. "files/images/foo.png") against the
     // asset root. Returns the path unchanged if it is already absolute.
@@ -36,6 +37,7 @@ public:
 
 private:
     static std::string sAssetRoot;
+    static bool sAssetRootConfigured;
 };
 
 } // namespace Sexy

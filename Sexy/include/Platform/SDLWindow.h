@@ -15,6 +15,8 @@ public:
     SDL_Window *mWindow = nullptr;
     int mWidth = 0;
     int mHeight = 0;
+    int mRenderWidth = 0;
+    int mRenderHeight = 0;
     bool mWindowed = true;
     bool mActive = true;
     // SDL may dispatch mobile termination events from another thread.
@@ -56,6 +58,9 @@ private:
     double mLastTime = 0.0;
     std::deque<Event> mInputEvents;
     unsigned int mMouseButtons = 0;
+    float mLastMouseX = 0.0f;
+    float mLastMouseY = 0.0f;
+    bool mMousePositionKnown = false;
     void QueueMouseEvent(int theKind, float theX, float theY, int theClickCount = 0);
 };
 

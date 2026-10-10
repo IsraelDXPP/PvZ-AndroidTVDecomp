@@ -698,6 +698,9 @@ void Board::SetMouseCursor(int theX, int theY, int thePlayerIndex)
         controls->mGamepadState = BaseGamepadControls::MOVEMENT_STATE_NORMAL;
     mPrevMouseX = theX;
     mPrevMouseY = theY;
+    // CursorPreview::Update @0x146B68 only refreshes cell/placement state.
+    // Mouse motion must reach it even when no simulation tick runs this frame.
+    mCursorPreview[thePlayerIndex]->Update();
 }
 
 void Board::CancelMouseSelection(int thePlayerIndex)
