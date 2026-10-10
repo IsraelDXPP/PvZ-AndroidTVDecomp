@@ -1,0 +1,86 @@
+import java.util.Properties
+
+plugins {
+    alias(libs.plugins.android.application)
+}
+
+val repositoryDirectory = rootProject.projectDir.parentFile
+val localSettings = Properties().apply {
+    rootProject.file("local.properties").takeIf { it.isFile }?.inputStream()?.use { load(it) }
+}
+val signingSettings = Properties().apply {
+    rootProject.file("keystore.properties").takeIf { it.isFile }?.inputStream()?.use { load(it) }
+}
+val supportedAbis = setOf("arm64-v8a", "armeabi-v7a", "x86_64", "x86")
+val selectedAbis = providers.gradleProperty("lawnAbis").orElse("arm64-v8a").get()
+    .split(',').map { it.trim() }.filter { it.isNotEmpty() }.distinct()
+require(selectedAbis.isNotEmpty() && selectedAbis.all { it in supportedAbis }) {
+    "lawnAbis must contain Android ABIs: ${supportedAbis.joinToString()}"
+}
+
+android {
+    namespace = "com.example.plantsvszombies"
+    compileSdk = 36
+    ndkVersion = providers.gradleProperty("lawnNdkVersion").orElse("27.2.12479018").get()
+    providers.environmentVariable("ANDROID_NDK_HOME").orNull?.takeIf { it.isNotBlank() }?.let {
+        ndkPath = it
+    }
+
+    defaultConfig {
+        applicationId = "com.example.plantsvszombies"
+        minSdk = 28
+        targetSdk = 36
+        versionCode = 1
+        versionName = "1.0"
+        ndk {
+            abiFilters += selectedAbis
+        }
+        externalNativeBuild {
+            cmake {
+                arguments += listOf("-DANDROID_STL=c++_shared", "-DANDROID_PLATFORM=android-28")
+                targets += "LawnTV"
+            }
+        }
+    }
+
+    if (signingSettings.stringPropertyNames().containsAll(
+        listOf("storeFile", "storePassword", "keyAlias", "keyPassword"))) {
+        signingConfigs {
+            create("release") {
+                storeFile = rootProject.file(signingSettings.getProperty("storeFile"))
+                storePassword = signingSettings.getProperty("storePassword")
+                keyAlias = signingSettings.getProperty("keyAlias")
+                keyPassword = signingSettings.getProperty("keyPassword")
+            }
+        }
+    }
+    buildTypes {
+        release {
+            isMinifyEnabled = false
+            signingConfig = signingConfigs.findByName("release")
+        }
+    }
+    externalNativeBuild {
+        cmake {
+            path = repositoryDirectory.resolve("CMakeLists.txt")
+            version = providers.gradleProperty("lawnCmakeVersion")
+                .orElse(localSettings.getProperty("cmake.version", "3.31.6")).get()
+        }
+    }
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+    buildFeatures {
+        aidl = false
+        buildConfig = false
+        shaders = false
+    }
+    androidResources {
+        noCompress += ""
+    }
+}
+
+kotlin {
+    jvmToolchain(17)
+}

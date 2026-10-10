@@ -1,0 +1,23 @@
+# Local SDK/CMake paths, IDE state, Gradle and native build outputs.
+local.properties
+.idea/
+*.iml
+.gradle/
+.kotlin/
+.cxx/
+.externalNativeBuild/
+**/build/
+captures/
+
+# Private release signing settings and keys.
+keystore.properties
+*.jks
+*.keystore
+
+# Game assets and generated binaries are supplied/built locally.
+**/assets/
+**/jniLibs/
+*.so
+*.apk
+*.aab
+*.apks

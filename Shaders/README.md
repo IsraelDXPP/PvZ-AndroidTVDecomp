@@ -15,7 +15,7 @@
 
 全部文件使用 SCBP v1，`target_flags = 0x0000001F`。每个包有 DX、Metal、OpenGL、OpenGLES、Vulkan 五个二进制分段，覆盖这些平台的 bgfx 渲染后端。DX11/12 共用 `s_5_0` 分段。协议定义见 [Tools/scbp.md](../Tools/scbp.md)。
 
-源码和已生成 `.scbp` 保存在本目录。bgfx 后端从 `<assets>/shaders` 读取这些包，CMake 的 `LawnTVAssets` 目标在每次构建时自动复制到产物旁的 `assets/shaders`。使用 `--assets` 指定其他资源目录时，也需复制四个包到该目录的 `shaders` 子目录；若资源在 `assets/files`，着色器仍在 `assets/shaders`。
+源码和已生成 `.scbp` 保存在本目录。bgfx 后端从 `<assets>/shaders` 读取这些包。构建不生成或复制 shader，需要时自行将四个包放入资源目录的 `shaders` 子目录；若资源在 `assets/files`，着色器仍在 `assets/shaders`。
 
 在游戏资源根的 `setup.env` 设置 `SEXY_VIDEO_DRIVER=auto|dx11|dx12|gl|vk|metal`，启动时按实际 renderer 从包中选择对应分段。指定后端失败或包缺失会报告初始化错误。
 

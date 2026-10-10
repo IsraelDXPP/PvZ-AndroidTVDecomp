@@ -66,11 +66,12 @@ Win32/
 vcpkg_installed/
 vcpkg-configuration.json
 
-# Game assets are supplied separately and staged next to the executable.
+# Game assets are supplied separately by the user.
 assets/
 **/assets/
 screenshots/
 *.apk
+*.aab
 *.pak
 *.obb
 *.compiled
@@ -87,6 +88,16 @@ screenshots/
 
 # Editor / OS noise
 .idea/
+*.iml
+.gradle/
+.kotlin/
+.cxx/
+.externalNativeBuild/
+local.properties
+keystore.properties
+*.jks
+*.keystore
+captures/
 .vscode/
 *.swp
 *~

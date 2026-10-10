@@ -16,7 +16,8 @@
 | `Sexy/include/Runtime` | ARM 反编译结果的运行库兼容实现和 `Sexy::String` |
 | `Lawn/src/main.cpp` | SDL3 应用回调入口和逐帧更新 |
 | `CMakeLists.txt`、`CMakePresets.json` | 跨平台构建及各平台 Debug / Release 预设 |
-| `cmake` | 依赖查找、资源复制和 Android vcpkg triplets |
+| `cmake` | 依赖查找和 Android vcpkg triplets |
+| `android` | SDLActivity 启动工程，Gradle 自动构建 C++ 和打包 APK |
 | `vcpkg.json` | 第三方库清单 |
 | `Tools` | [SCBP 着色器编译打包脚本与格式说明](Tools/scbp.md) |
 | `Shaders` | [游戏着色器源码及多平台 SCBP 包](Shaders/README.md) |
@@ -92,16 +93,7 @@ sudo apt install build-essential cmake ninja-build pkg-config autoconf automake 
   libegl1-mesa-dev libgl1-mesa-dev libibus-1.0-dev
 ```
 
-产物位于 `build/<预设名称>/bin/Debug/` 或 `build/<预设名称>/bin/Release/`。Windows 所需 DLL 由 vcpkg 的 app-local 部署复制到同目录。每次构建都会更新 `assets/shaders` 中的四个 SCBP 包，修改着色器包后无需重新编译 C++。
-
-游戏资源可自行放入产物旁的 `assets`，也可以配置时传入 `-DLAWN_ASSETS_DIR=<资源目录>`，构建自动复制该目录的内容。例如本项目的本地资源位置：
-
-```powershell
-cmake --preset windows-x64-debug -DLAWN_ASSETS_DIR='D:/CXXProjects/LawnProjectTV-Resources'
-cmake --build --preset windows-x64-debug --parallel
-```
-
-此选项只复制已有资源，不解包或重新打包。也可以运行时使用 `--assets` 指定资源根；此时需将 `Shaders/*.scbp` 放到该目录的 `shaders` 子目录。
+产物位于 `build/<预设名称>/bin/Debug/` 或 `build/<预设名称>/bin/Release/`。Windows 所需 DLL 由 vcpkg 的 app-local 部署复制到同目录。构建只编译程序，不生成或复制 assets、资源包和 shader。游戏资源自行放入产物旁的 `assets`；也可运行时用 `--assets` 指定资源根。资源存在与否不影响编译。
 
 ### Android 共享库
 
@@ -112,11 +104,25 @@ cmake --preset android-arm64-release
 cmake --build --preset android-arm64-release --parallel
 ```
 
-macOS / Linux 使用相同命令，环境变量改用 `export` 设置。支持的 Android 最低版本是 API 28（Android 9），在三个 Android triplet 和预设中统一指定。
+macOS / Linux 使用相同命令，环境变量改用 `export` 设置。支持的 Android 最低版本是 API 28（Android 9），在 Android triplet 和预设中统一指定。
 
-`cmake/triplets/lawn-*-android.cmake` 将 SDL3 编为共享库，其余第三方库编为静态库并启用 PIC。构建输出目录会同时放置 `libmain.so`、`libSDL3.so` 和 NDK 的 `libc++_shared.so`，分别复制到 Android 工程的 `app/src/main/jniLibs/<ABI>/`。使用与 vcpkg SDL3 版本一致的 SDL Android Java 工程，以 SDLActivity 加载 `SDL3` 和 `main`；这里生成的是 SDL 应用库，APK 仍由 Android 工程构建。
+`cmake/triplets/lawn-*-android.cmake` 将 SDL3 编为共享库，其余第三方库编为静态库并启用 PIC。独立 CMake 构建仍输出 `libmain.so`、`libSDL3.so` 和 NDK 的 `libc++_shared.so`。
 
-将产物 `assets/` 内的文件复制到 `app/src/main/assets/`，例如 `app/src/main/assets/main.pak`、`en_us.pak` 和 `shaders/`。Android 默认资源根为 `.`，SDL 从 APK assets 读取相对路径，存档仍由 `SDL_GetPrefPath` 写入应用数据目录。
+### Android APK
+
+完整启动工程已整合到 [android](android/README.md)。在 Android Studio 中打开该目录，或直接执行：
+
+```powershell
+$env:VCPKG_ROOT = 'C:/vcpkg'
+cd android
+.\gradlew.bat :app:assembleDebug
+# 按 ABI 自动构建对应的 native 库。
+.\gradlew.bat :app:assembleRelease '-PlawnAbis=arm64-v8a,x86_64'
+```
+
+Gradle 的 `externalNativeBuild` 直接调用仓库根 `CMakeLists.txt`，依赖通过 `VCPKG_ROOT` 安装；ABI 自动选择对应 triplet，各 ABI 使用独立的依赖安装目录。so 自动构建和打包，无需复制到 `jniLibs`。Gradle/CMake 产物、APK、本地资源和签名文件均被 Git 忽略。
+
+资源自行放到 `android/app/src/main/assets/assets/`，Gradle 不从其他目录复制资源，也不生成或复制 shader。已有资源按标准 assets 规则以 `noCompress` 打包，缺少资源仍可编译。首次启动将 APK 中的资源安装到私有数据目录，成功后写入 `assets.lock`；`main.pak` 载入内存后读取。存档仍由 `SDL_GetPrefPath` 写入应用数据目录。
 
 ### 重新编译着色器工具
 

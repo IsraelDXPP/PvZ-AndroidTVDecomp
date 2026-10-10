@@ -1,5 +1,9 @@
 cmake_minimum_required(VERSION 3.25)
 
+if(DEFINED ANDROID_ABI)
+    include(cmake/AndroidVcpkg.cmake)
+endif()
+
 # Presets and plain cmake -S/-B builds both read the user's vcpkg installation.
 if(NOT CMAKE_TOOLCHAIN_FILE)
     if("$ENV{VCPKG_ROOT}" STREQUAL "")
@@ -35,11 +39,6 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
     set(CMAKE_BUILD_TYPE Debug CACHE STRING "Build configuration" FORCE)
 endif()
 
-set(LAWN_ASSETS_DIR "" CACHE PATH "Optional game resource directory to copy beside the program")
-if(LAWN_ASSETS_DIR AND NOT IS_DIRECTORY "${LAWN_ASSETS_DIR}")
-    message(FATAL_ERROR "LAWN_ASSETS_DIR does not exist: ${LAWN_ASSETS_DIR}")
-endif()
-
 include(cmake/Dependencies.cmake)
 
 add_library(LawnTVBuildOptions INTERFACE)
@@ -71,14 +70,3 @@ endif()
 add_subdirectory(Sexy)
 add_subdirectory(TodLib)
 add_subdirectory(Lawn)
-
-add_custom_target(LawnTVAssets ALL
-    COMMAND "${CMAKE_COMMAND}"
-        "-DASSET_SOURCE=${LAWN_ASSETS_DIR}"
-        "-DSHADER_SOURCE=${PROJECT_SOURCE_DIR}/Shaders"
-        "-DASSET_DESTINATION=$<TARGET_FILE_DIR:LawnTV>/assets"
-        -P "${PROJECT_SOURCE_DIR}/cmake/StageAssets.cmake"
-    COMMENT "Staging game assets and SCBP shader packages"
-    VERBATIM
-)
-add_dependencies(LawnTV LawnTVAssets)
