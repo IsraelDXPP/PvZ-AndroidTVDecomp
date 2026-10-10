@@ -6657,36 +6657,36 @@ int Zombie::TakeHelmDamage(int theDamage, unsigned int theDamageFlags)
 // Zombie::EffectedByDamage(unsigned int)
 // @001B0294  306 bytes
 // ==========================================================================
-int Zombie::EffectedByDamage(unsigned int theDamageRangeFlags)
+bool Zombie::EffectedByDamage(unsigned int theDamageRangeFlags)
 {
     // Bit 0x20 is DAMAGES_DYING; anything else cannot touch a dying zombie.
     if ((theDamageRangeFlags & 0x20) == 0 && IsDeadOrDying() != 0)
-        return 0;
+        return false;
 
     // Bit 0x80 is DAMAGES_ONLY_MINDCONTROLLED: that damage only reaches a
     // mind-controlled zombie, and ordinary damage never reaches one.
     if ((theDamageRangeFlags & 0x80) != 0)
     {
         if (!mMindControlled)
-            return 0;
+            return false;
     }
     else if (mMindControlled)
     {
-        return 0;
+        return false;
     }
 
     if (mZombieType == ZOMBIE_BUNGEE)
     {
         // A bungee can only be hit while it hangs at the bottom or grabs.
         if (mZombiePhase != PHASE_BUNGEE_AT_BOTTOM && mZombiePhase != PHASE_BUNGEE_GRABBING)
-            return 0;
-        if (mZombieHeight == 9) // HEIGHT_GETTING_BUNGEE_DROPPED
-            return 0;
+            return false;
+        if (mZombieHeight == HEIGHT_GETTING_BUNGEE_DROPPED)
+            return false;
     }
     else
     {
-        if (mZombieHeight == 9) // HEIGHT_GETTING_BUNGEE_DROPPED
-            return 0;
+        if (mZombieHeight == HEIGHT_GETTING_BUNGEE_DROPPED)
+            return false;
 
         if (mZombieType == ZOMBIE_BOSS)
         {
@@ -6694,12 +6694,12 @@ int Zombie::EffectedByDamage(unsigned int theDamageRangeFlags)
             // the boss can only be hit while its head is out, phases 87..89.
             mApp->ReanimationGet(mBodyReanimID);
             if ((unsigned int)(mZombiePhase - PHASE_BOSS_HEAD_IDLE_BEFORE_SPIT) > 2)
-                return 0;
+                return false;
         }
 
         // Only the front zombie of a bobsled team can be hit.
         if (mZombieType == ZOMBIE_BOBSLED && GetBobsledPosition() > 0)
-            return 0;
+            return false;
     }
 
     // Anything airborne, mid-vault or mid-rise takes only damage flagged as
@@ -6713,26 +6713,21 @@ int Zombie::EffectedByDamage(unsigned int theDamageRangeFlags)
         return (theDamageRangeFlags & 0x10) != 0;
     }
 
-    // A bobsled team's leader ignores the off-board test below.
-    if (mZombieType != ZOMBIE_BOBSLED)
-    {
-        // Everything past the right edge of the wide board is out of play.
-        if (GetZombieRect().mX > 800)
-            return 0;
+    // The sled leader skips only the right-edge check. Sliding and boarding
+    // leaders still take ordinary ground damage, just like walking zombies.
+    if (mZombieType != ZOMBIE_BOBSLED && GetZombieRect().mX > 800)
+        return false;
 
-        bool aSubmerged = (mZombieType == ZOMBIE_SNORKEL && mInPool && !mIsEating);
-        if ((theDamageRangeFlags & 4) != 0 && aSubmerged) // DAMAGES_SUBMERGED
-            return 1;
-        if ((theDamageRangeFlags & 0x40) != 0 && mZombiePhase == PHASE_DIGGER_TUNNELING)
-            return 1; // DAMAGES_UNDERGROUND
-        if ((theDamageRangeFlags & 2) != 0 && IsFlying())
-            return 1; // DAMAGES_FLYING
+    const bool aSubmerged = mZombieType == ZOMBIE_SNORKEL && mInPool && !mIsEating;
+    if ((theDamageRangeFlags & 4) != 0 && aSubmerged) // DAMAGES_SUBMERGED
+        return true;
+    if ((theDamageRangeFlags & 0x40) != 0 && mZombiePhase == PHASE_DIGGER_TUNNELING)
+        return true; // DAMAGES_UNDERGROUND
+    if ((theDamageRangeFlags & 2) != 0 && IsFlying())
+        return true; // DAMAGES_FLYING
 
-        return (theDamageRangeFlags & 1) != 0 // DAMAGES_GROUND
-            && !IsFlying() && !aSubmerged && mZombiePhase != PHASE_DIGGER_TUNNELING;
-    }
-
-    return (theDamageRangeFlags & 0x10) != 0;
+    return (theDamageRangeFlags & 1) != 0 // DAMAGES_GROUND
+        && !IsFlying() && !aSubmerged && mZombiePhase != PHASE_DIGGER_TUNNELING;
 }
 // ==========================================================================
 // Zombie::UpdateZombiePogo(void)
@@ -8215,9 +8210,9 @@ void Zombie::BobsledDie()
     if (!aLeader->mDead)
         aLeader->DieNoLoot();
 
-    for (int i = 0; i < 4; i++)
+    for (int aFollowerIndex = 0; aFollowerIndex < 3; ++aFollowerIndex)
     {
-        Zombie *aFollower = mBoard->ZombieGet(mFollowerZombieID[i]);
+        Zombie *aFollower = mBoard->ZombieGet(aLeader->mFollowerZombieID[aFollowerIndex]);
         if (!aFollower->mDead)
             aFollower->DieNoLoot();
     }
@@ -9376,8 +9371,6 @@ float Zombie::UpdateZombieBobsled()
 
     if (mPosX + 10.0f < (float)mBoard->mIceMinX[mRow] && GetBobsledPosition() == 0)
         TakeDamage(6, 8U);
-    return mPosY;
-
     return mPosY;
 }
 // ==========================================================================

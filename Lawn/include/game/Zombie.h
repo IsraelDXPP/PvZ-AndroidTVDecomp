@@ -376,7 +376,7 @@ public:
     Reanimation *ApplyChill(bool theIsIceTrap);
     void CheckForPool();
     int TakeHelmDamage(int theDamage, unsigned int theDamageFlags);
-    int EffectedByDamage(unsigned int theDamageFlags);
+    bool EffectedByDamage(unsigned int theDamageFlags);
     int UpdateZombiePogo();
     void UpdateLadder();
     Zombie *FindZombieTarget();

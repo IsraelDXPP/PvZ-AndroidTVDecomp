@@ -117,6 +117,31 @@ float StickAxis(Sint16 theValue)
     return (float)theValue * kStickScale;
 }
 
+#if defined(SDL_PLATFORM_ANDROID)
+bool AndroidTriggerButtonDown(SDL_Joystick *theJoystick, SDL_GamepadAxis theAxis)
+{
+    // SDL Android maps KEYCODE_BUTTON_L2/R2 to these raw button slots.
+    const int aTriggerButton = theAxis == SDL_GAMEPAD_AXIS_LEFT_TRIGGER ? 15 : 16;
+    return SDL_GetNumJoystickButtons(theJoystick) > aTriggerButton
+        && SDL_GetJoystickButton(theJoystick, aTriggerButton);
+}
+#endif
+
+bool TriggerDown(SDL_Gamepad *theGamepad, SDL_GamepadAxis theAxis)
+{
+    if (SDL_GetGamepadAxis(theGamepad, theAxis) > 3855)
+        return true;
+#if defined(SDL_PLATFORM_ANDROID)
+    SDL_Joystick *aJoystick = SDL_GetGamepadJoystick(theGamepad);
+    // SDL's Android InputDevice backend reserves raw buttons 15/16 for
+    // KEYCODE_BUTTON_L2/R2. Its generated mapping covers only trigger axes.
+    // HIDAPI devices have their own path and button layout; keep their mapping.
+    if (SDL_GetJoystickPath(aJoystick) == nullptr && !SDL_IsJoystickVirtual(SDL_GetJoystickID(aJoystick)))
+        return AndroidTriggerButtonDown(aJoystick, theAxis);
+#endif
+    return false;
+}
+
 void LogGamepadState(SDL_Gamepad *theGamepad, int theDevice, const char *theReason)
 {
     SDL_Joystick *aJoystick = SDL_GetGamepadJoystick(theGamepad);
@@ -434,8 +459,8 @@ void SDLGamepadInterface::PollGamepads()
             if (down != ((pad.mButtons & (1u << button)) != 0))
                 PushButton(pad.mUserIndex, kButtons[button].mCode, down);
         }
-        bool leftTrigger = SDL_GetGamepadAxis(pad.mGamepad, SDL_GAMEPAD_AXIS_LEFT_TRIGGER) > 3855;
-        bool rightTrigger = SDL_GetGamepadAxis(pad.mGamepad, SDL_GAMEPAD_AXIS_RIGHT_TRIGGER) > 3855;
+        bool leftTrigger = TriggerDown(pad.mGamepad, SDL_GAMEPAD_AXIS_LEFT_TRIGGER);
+        bool rightTrigger = TriggerDown(pad.mGamepad, SDL_GAMEPAD_AXIS_RIGHT_TRIGGER);
         if (leftTrigger != pad.mTriggerLeft)
             PushButton(pad.mUserIndex, KEYCODE_GAMEPAD_TL2, leftTrigger);
         if (rightTrigger != pad.mTriggerRight)
