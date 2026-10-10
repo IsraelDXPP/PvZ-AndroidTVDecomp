@@ -22,8 +22,8 @@
 namespace Sexy
 {
 
-bool Quantize8Bit(const unsigned long *theSrcBits, int theWidth, int theHeight, unsigned char *theDestIndices,
-    unsigned long *theDestTable, unsigned int *theUnused);
+bool Quantize8Bit(const std::uint32_t *theSrcBits, int theWidth, int theHeight, unsigned char *theDestIndices,
+    std::uint32_t *theDestTable, unsigned int *theUnused);
 
 }
 
@@ -536,7 +536,7 @@ void Sexy::MemoryImage::TakeBits(unsigned int *theBits, int theWidth, int theHei
     mColorIndices = nullptr;
     delete[] mColorTable;
     mColorTable = nullptr;
-    if (mBits != nullptr && mBits != (unsigned long *)theBits)
+    if (mBits != nullptr && mBits != theBits)
         delete[] mBits;
 
     mWidth = theWidth;
@@ -548,13 +548,13 @@ void Sexy::MemoryImage::TakeBits(unsigned int *theBits, int theWidth, int theHei
     unsigned int *aBits = theBits;
     if (theBits != nullptr)
     {
-        mBits = (unsigned long *)theBits;
+        mBits = theBits;
     }
     else
     {
         int aCount = theHeight * theWidth;
         aBits = new unsigned int[(size_t)aCount + 1];
-        mBits = (unsigned long *)aBits;
+        mBits = aBits;
         std::memset(aBits, 0, (size_t)aCount * 4);
     }
 
@@ -567,7 +567,7 @@ void Sexy::MemoryImage::TakeBits(unsigned int *theBits, int theWidth, int theHei
 
 void Sexy::MemoryImage::SetBits(unsigned int *theBits, int theWidth, int theHeight, bool theOwnsBits)
 {
-    if (mBits == (unsigned long *)theBits && mWidth == theWidth && mHeight == theHeight)
+    if (mBits == theBits && mWidth == theWidth && mHeight == theHeight)
         return;
 
     delete[] mColorIndices;
@@ -579,13 +579,13 @@ void Sexy::MemoryImage::SetBits(unsigned int *theBits, int theWidth, int theHeig
     unsigned int *aBits;
     if (mWidth == theWidth && mHeight == theHeight && mBits != nullptr)
     {
-        aBits = (unsigned int *)mBits;
+        aBits = mBits;
     }
     else
     {
         delete[] mBits;
         aBits = new unsigned int[(size_t)aPixelCount + 1];
-        mBits = (unsigned long *)aBits;
+        mBits = aBits;
         mWidth = theWidth;
         mHeight = theHeight;
         mPitch = theWidth;
@@ -773,7 +773,7 @@ void Sexy::MemoryImage::TakePixels(
     mFormat = theFormat;
 
     if (theFormat == PIXEL_FORMAT_A8R8G8B8)
-        mBits = (unsigned long *)thePixels;
+        mBits = static_cast<std::uint32_t *>(thePixels);
     else
         mPixels = (unsigned int *)thePixels;
 
@@ -883,10 +883,10 @@ void Sexy::MemoryImage::CommitBits()
     {
         for (int aRow = 0; aRow < mHeight && !(mHasTrans && mHasAlpha); ++aRow)
         {
-            unsigned long *aPixel = mBits + mPitch * aRow;
+            const std::uint32_t *aPixel = mBits + mPitch * aRow;
             for (int aCol = 0; aCol < mWidth; ++aCol)
             {
-                unsigned long aAlpha = *aPixel++ >> 24;
+                std::uint32_t aAlpha = *aPixel++ >> 24;
                 if (aAlpha == 0)
                     mHasTrans = true;
                 else if (aAlpha != 255)
@@ -963,7 +963,7 @@ void Sexy::MemoryImage::Palletize()
     std::memset(aTable, 0, 256 * sizeof(unsigned int));
 
     unsigned int aUnused = 0;
-    bool aPalettized = Sexy::Quantize8Bit(mBits, mWidth, mHeight, aIndices, (unsigned long *)aTable, &aUnused);
+    bool aPalettized = Sexy::Quantize8Bit(mBits, mWidth, mHeight, aIndices, aTable, &aUnused);
     if (aPalettized)
     {
         mColorIndices = aIndices;
@@ -1057,7 +1057,7 @@ unsigned int *Sexy::MemoryImage::GetBits()
     }
 
     if (mBits != nullptr)
-        return (unsigned int *)mBits;
+        return mBits;
 
     PixelFormat aOldFormat = mFormat;
     int aOldStride = mStride;
@@ -1066,7 +1066,7 @@ unsigned int *Sexy::MemoryImage::GetBits()
         aPixelCount = 0;
 
     unsigned int *aBits = new unsigned int[(size_t)aPixelCount + 1];
-    mBits = (unsigned long *)aBits;
+    mBits = aBits;
     aBits[aPixelCount] = kMemoryCheckId;
     mFormat = PIXEL_FORMAT_A8R8G8B8;
     mPitch = mWidth;
@@ -1083,7 +1083,7 @@ unsigned int *Sexy::MemoryImage::GetBits()
         mColorTable = nullptr;
         delete[] mNativeAlphaData;
         mNativeAlphaData = nullptr;
-        return (unsigned int *)mBits;
+        return mBits;
     }
 
     if (mPixels != nullptr)
@@ -1094,7 +1094,7 @@ unsigned int *Sexy::MemoryImage::GetBits()
 
         delete[] mPixels;
         mPixels = nullptr;
-        return (unsigned int *)mBits;
+        return mBits;
     }
 
     bool aRecovered = false;
@@ -1111,7 +1111,7 @@ unsigned int *Sexy::MemoryImage::GetBits()
     }
     if (!aRecovered)
         std::memset(aBits, 0, (size_t)aPixelCount * 4);
-    return (unsigned int *)mBits;
+    return mBits;
 }
 
 void Sexy::MemoryImage::Init()
@@ -2175,7 +2175,7 @@ Sexy::MemoryImage::MemoryImage(const Sexy::MemoryImage &theOther) :
     {
         int aCount = mHeight * mWidth;
         unsigned int *aBits = new unsigned int[(size_t)aCount + 1];
-        mBits = (unsigned long *)aBits;
+        mBits = aBits;
         mPitch = mWidth;
         mStride = 4 * mWidth;
 
@@ -2184,7 +2184,7 @@ Sexy::MemoryImage::MemoryImage(const Sexy::MemoryImage &theOther) :
         if (aSourceBits != nullptr)
         {
             for (int aRow = 0; aRow < mHeight; ++aRow)
-                std::memcpy((char *)mBits + 4 * mPitch * aRow, aSourceBits + aSourcePitch * aRow, (size_t)mWidth * 4);
+                std::memcpy(mBits + mPitch * aRow, aSourceBits + aSourcePitch * aRow, (size_t)mWidth * sizeof(*mBits));
         }
         aBits[aCount] = kMemoryCheckId;
     }
@@ -2289,7 +2289,7 @@ void Sexy::MemoryImage::Detach(bool theCopyBits)
 
         int aCount = mHeight * mWidth;
         unsigned int *aBits = new unsigned int[(size_t)aCount + 1];
-        mBits = (unsigned long *)aBits;
+        mBits = aBits;
         mPitch = mWidth;
         mStride = 4 * mWidth;
 
@@ -2301,7 +2301,7 @@ void Sexy::MemoryImage::Detach(bool theCopyBits)
             int aSrcStride = 4 * aParentPitch;
             for (int aRow = 0; aRow < mHeight; ++aRow)
             {
-                std::memcpy((char *)mBits + 4 * mPitch * aRow, aSrc, (size_t)mWidth * 4);
+                std::memcpy(mBits + mPitch * aRow, aSrc, (size_t)mWidth * sizeof(*mBits));
                 aSrc += aSrcStride;
             }
         }

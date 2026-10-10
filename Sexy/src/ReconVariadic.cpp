@@ -935,7 +935,7 @@ int FindBuddyImageSize(Sexy::MemoryImage *theImage, Sexy::TRect<int> *theRect)
     int aMaxX = 0;
     int aMinY = aHeight;
     int aMaxY = 0;
-    unsigned long *aBits = theImage->mBits;
+    const std::uint32_t *aBits = theImage->mBits;
     for (int x = 0; x < aWidth; ++x)
     {
         for (int y = 0; y < aHeight; ++y)

@@ -133,8 +133,8 @@ MemoryImage *MakeBuddyCanvas(int theWidth, int theHeight)
     aCanvas->mWidth = theWidth;
     aCanvas->mHeight = theHeight;
     unsigned int aPixels = (unsigned int)theWidth * (unsigned int)theHeight;
-    unsigned long *aBits = new unsigned long[aPixels + 1];
-    memset(aBits, 0, aPixels * sizeof(unsigned long));
+    std::uint32_t *aBits = new std::uint32_t[aPixels + 1];
+    memset(aBits, 0, aPixels * sizeof(*aBits));
     aBits[aPixels] = kMemoryImageCheck;
     aCanvas->mBits = aBits;
     aCanvas->mPurgeBits = true;
@@ -146,7 +146,7 @@ void ClearCanvas(MemoryImage *theCanvas)
 {
     unsigned int aPixels = (unsigned int)theCanvas->mWidth * (unsigned int)theCanvas->mHeight;
     if (theCanvas->mBits != nullptr)
-        memset(theCanvas->mBits, 0, aPixels * sizeof(unsigned long));
+        memset(theCanvas->mBits, 0, aPixels * sizeof(*theCanvas->mBits));
 }
 
 // ImageLib::Image stores the same pixel words as unsigned int. The two
@@ -157,7 +157,7 @@ struct BuddyPng : ImageLib::Image
     {
         mWidth = theCanvas->mWidth;
         mHeight = theCanvas->mHeight;
-        mBits = static_cast<unsigned int *>(static_cast<void *>(theCanvas->mBits));
+        mBits = theCanvas->mBits;
     }
     ~BuddyPng()
     {

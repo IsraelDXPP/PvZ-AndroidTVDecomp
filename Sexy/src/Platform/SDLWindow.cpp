@@ -82,6 +82,9 @@ bool SDLWindow::Create(
     const char *theTitle, int theWidth, int theHeight, bool theWindowed, bool theVSync, bool theVisible)
 {
     Destroy();
+#if defined(SDL_PLATFORM_ANDROID)
+    SDL_SetHint(SDL_HINT_ORIENTATIONS, "LandscapeLeft LandscapeRight");
+#endif
     if (theWidth <= 0 || theHeight <= 0 || !SDL_InitSubSystem(SDL_INIT_VIDEO | SDL_INIT_EVENTS))
         return false;
     mVideoInitialized = true;
@@ -90,7 +93,7 @@ bool SDLWindow::Create(
     mRenderWidth = theWidth;
     mRenderHeight = theHeight;
 #if defined(SDL_PLATFORM_ANDROID)
-    theWindowed = false;
+    theWindowed = true;
     const SDL_DisplayMode *displayMode = SDL_GetCurrentDisplayMode(SDL_GetPrimaryDisplay());
     if (displayMode != nullptr)
     {
@@ -99,6 +102,9 @@ bool SDLWindow::Create(
     }
 #endif
     SDL_WindowFlags flags = SDL_WINDOW_RESIZABLE;
+#if defined(SDL_PLATFORM_ANDROID)
+    flags |= SDL_WINDOW_BORDERLESS;
+#endif
     if (!theVisible)
         flags |= SDL_WINDOW_HIDDEN;
     if (!theWindowed)
@@ -113,13 +119,11 @@ bool SDLWindow::Create(
     }
     mWidth = theWidth;
     mHeight = theHeight;
-#if !defined(SDL_PLATFORM_ANDROID)
     SDL_GetWindowSizeInPixels(mWindow, &mWidth, &mHeight);
+#if !defined(SDL_PLATFORM_ANDROID)
     mRenderWidth = mWidth;
     mRenderHeight = mHeight;
 #endif
-    // Android hides system bars asynchronously. Keep the display resolution
-    // for the initial presentation surface instead of the previous inset size.
     mWindowed = theWindowed;
     mVSync = theVSync;
     mClosed = false;
@@ -297,16 +301,25 @@ void SDLWindow::QueueMouseEvent(int theKind, float theX, float theY, int theClic
     SDL_GetWindowSize(mWindow, &width, &height);
     if (width <= 0 || height <= 0)
         return;
+    double renderX = 0.0;
+    double renderY = 0.0;
+    if (!MapWindowPoint(theX, theY, width, height, renderX, renderY))
+    {
+        // InputManager clamps pointer coordinates to the stage, so black-bar
+        // clicks must be rejected before they can become clicks on its edge.
+        if (theKind == Event::MOUSE_DOWN)
+            return;
+        Event outside = {};
+        outside.modifiers = theKind == Event::MOUSE_UP ? Event::MOUSE_CANCEL : Event::MOUSE_EXIT;
+        mInputEvents.push_back(outside);
+        return;
+    }
     Event pointer = {};
-    pointer.modifiers = theKind == Event::MOUSE_UP && (theX < 0 || theX >= width || theY < 0 || theY >= height)
-        ? Event::MOUSE_CANCEL
-        : theKind;
-    pointer.modifierMask = 1 | 32; // Absolute coordinates scaled by InputManager to the render surface.
-    pointer.eventCodeMask = int(theX);
-    pointer.matchEvent = int(theY);
+    pointer.modifiers = theKind;
+    pointer.modifierMask = 1; // Absolute coordinates already mapped to the render surface.
+    pointer.eventCodeMask = int(renderX);
+    pointer.matchEvent = int(renderY);
     pointer.standard = theClickCount;
-    pointer.mScaleDivisorX = width;
-    pointer.mScaleDivisorY = height;
     mInputEvents.push_back(pointer);
 }
 bool SDLWindow::PopInputEvent(Event &theEvent)
@@ -333,14 +346,36 @@ bool SDLWindow::IsMouseButtonDown(int theButton) const
                                             : SDL_BUTTON_MIDDLE;
     return (SDL_GetMouseState(nullptr, nullptr) & SDL_BUTTON_MASK(button)) != 0;
 }
+FRect SDLWindow::GetPresentationRect(int theWidth, int theHeight) const
+{
+    if (theWidth <= 0 || theHeight <= 0 || mRenderWidth <= 0 || mRenderHeight <= 0)
+        return FRect();
+    const double scale = std::min(double(theWidth) / mRenderWidth, double(theHeight) / mRenderHeight);
+    const double width = mRenderWidth * scale;
+    const double height = mRenderHeight * scale;
+    return FRect((theWidth - width) / 2.0, (theHeight - height) / 2.0, width, height);
+}
+bool SDLWindow::MapWindowPoint(float theX, float theY, int theWidth, int theHeight,
+    double &theRenderX, double &theRenderY) const
+{
+    const FRect viewport = GetPresentationRect(theWidth, theHeight);
+    if (viewport.mWidth <= 0.0 || viewport.mHeight <= 0.0)
+    {
+        theRenderX = 0.0;
+        theRenderY = 0.0;
+        return false;
+    }
+    theRenderX = (theX - viewport.mX) * mRenderWidth / viewport.mWidth;
+    theRenderY = (theY - viewport.mY) * mRenderHeight / viewport.mHeight;
+    return viewport.Contains(double(theX), double(theY));
+}
 void SDLWindow::GetCursorPos(double &theX, double &theY) const
 {
     float x = 0, y = 0;
     SDL_GetMouseState(&x, &y);
     int width = 0, height = 0;
     SDL_GetWindowSize(mWindow, &width, &height);
-    theX = width > 0 ? x * mWidth / width : x;
-    theY = height > 0 ? y * mHeight / height : y;
+    MapWindowPoint(x, y, width, height, theX, theY);
 }
 void SDLWindow::WaitForFrame(double theFrameStart, int theMaxFPS)
 {

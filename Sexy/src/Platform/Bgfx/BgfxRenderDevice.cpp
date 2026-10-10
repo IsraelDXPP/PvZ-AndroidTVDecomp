@@ -309,14 +309,21 @@ void BgfxRenderDevice::Present()
         bgfx::reset(mWindowWidth, mWindowHeight, mWindowVSync ? BGFX_RESET_VSYNC : BGFX_RESET_NONE);
     }
     bgfx::setViewRect(PresentView, 0, 0, uint16_t(mWindowWidth), uint16_t(mWindowHeight));
+    bgfx::setViewClear(PresentView, BGFX_CLEAR_COLOR, 0x000000ff);
+    bgfx::touch(PresentView);
+    const FRect viewport = window->GetPresentationRect(mWindowWidth, mWindowHeight);
+    const float left = float(viewport.mX);
+    const float topEdge = float(viewport.mY);
+    const float right = float(viewport.mX + viewport.mWidth);
+    const float bottomEdge = float(viewport.mY + viewport.mHeight);
     bool flip = bgfx::getCaps()->originBottomLeft;
     float top = flip ? 1.0f : 0.0f, bottom = flip ? 0.0f : 1.0f;
-    BgfxVertex quad[] = {{0, 0, 0, top, 0xffffffff},
-        {float(mWindowWidth), 0, 1, top, 0xffffffff},
-        {float(mWindowWidth), float(mWindowHeight), 1, bottom, 0xffffffff},
-        {0, 0, 0, top, 0xffffffff},
-        {float(mWindowWidth), float(mWindowHeight), 1, bottom, 0xffffffff},
-        {0, float(mWindowHeight), 0, bottom, 0xffffffff}};
+    BgfxVertex quad[] = {{left, topEdge, 0, top, 0xffffffff},
+        {right, topEdge, 1, top, 0xffffffff},
+        {right, bottomEdge, 1, bottom, 0xffffffff},
+        {left, topEdge, 0, top, 0xffffffff},
+        {right, bottomEdge, 1, bottom, 0xffffffff},
+        {left, bottomEdge, 0, bottom, 0xffffffff}};
     SexyMatrix3 identity;
     identity.LoadIdentity();
     Submit(PresentView,
@@ -736,7 +743,7 @@ bool BgfxRenderDevice::ReadPixels(MemoryImage &target)
         frame = bgfx::frame();
     target.Create(mWidth, mHeight);
     if (!target.mBits)
-        target.mBits = new unsigned long[size_t(mWidth) * mHeight];
+        target.mBits = new std::uint32_t[size_t(mWidth) * mHeight];
     bool flip = bgfx::getCaps()->originBottomLeft;
     for (int row = 0; row < mHeight; ++row)
         for (int column = 0; column < mWidth; ++column)

@@ -191,6 +191,7 @@ LONG WINAPI ReportWindowsException(EXCEPTION_POINTERS *theException)
 }
 #endif
 
+#if !defined(SDL_PLATFORM_ANDROID)
 void ReportSignal(int theSignal)
 {
     if (!gReporting.test_and_set())
@@ -210,6 +211,7 @@ void ReportSignal(int theSignal)
     std::raise(theSignal);
     std::_Exit(128 + theSignal);
 }
+#endif
 
 void ReportTerminate()
 {
@@ -244,12 +246,16 @@ void Sexy::InstallCrashDiagnostics()
     SetUnhandledExceptionFilter(ReportWindowsException);
 #endif
     std::set_terminate(ReportTerminate);
+#if !defined(SDL_PLATFORM_ANDROID)
+    // Android's debuggerd handler records the faulting thread and tombstone.
+    // Replacing it with SIG_DFL and re-raising only produces exit code 139.
     std::signal(SIGABRT, ReportSignal);
     std::signal(SIGSEGV, ReportSignal);
     std::signal(SIGILL, ReportSignal);
     std::signal(SIGFPE, ReportSignal);
 #ifdef SIGBUS
     std::signal(SIGBUS, ReportSignal);
+#endif
 #endif
     WriteReport("session_start", 0);
 }

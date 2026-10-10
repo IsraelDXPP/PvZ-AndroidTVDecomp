@@ -2,6 +2,12 @@
 
 本目录是 SDLActivity 启动工程，与桌面程序共用仓库根目录的 CMake 和全部 C++ 源码。Gradle 会构建选定 ABI 的 `libmain.so`，并自动打包 SDL3 与 `libc++_shared.so`，不需要维护 `jniLibs` 中的预编译库。
 
+安卓创建普通无边框 SDL 窗口，不设置 `SDL_WINDOW_FULLSCREEN`，窗口尺寸以实际 Android surface 为准。游戏画布为 1280×720，保持 16:9 等比缩放并居中；宽屏左右均分黑边，较窄的屏幕使用上下黑边。触摸和鼠标坐标映射到同一显示区域，黑边不接受游戏点击。
+
+Activity 启动和重新获得焦点时启用 SDL 的沉浸式系统界面：隐藏状态栏和导航栏，边缘滑动临时显示后自动收起。此设置不改变 native SDL 窗口的全屏标志。
+
+游戏只允许左右两个横屏方向，不进入竖屏；横屏方向切换遵循系统旋转锁定设置。Manifest 与 SDL 窗口使用相同的方向限制。
+
 ## 配置
 
 需要 JDK 17、Android SDK 36、NDK r27c 和 CMake 3.25 以上。设置 `VCPKG_ROOT` 指向 vcpkg。NDK 默认由 Android SDK 管理，版本为 `27.2.12479018`；设置 `ANDROID_NDK_HOME` 时使用该路径。SDK 中的 CMake 默认使用 `3.31.6`，自带 Ninja。

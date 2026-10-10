@@ -265,8 +265,8 @@ unsigned int *Sexy::DeviceImage::GetBits()
         return MemoryImage::GetBits();
     if (mLockCount == 0 || mSurfaceFormat != 2)
     {
-        mBits = (unsigned long *)mSurface->GetBits(this);
-        mFormat = (PixelFormat)2;
+        mBits = mSurface->GetBits(this);
+        mFormat = PIXEL_FORMAT_A8R8G8B8;
         return MemoryImage::GetBits();
     }
     return mSurfaceBits;

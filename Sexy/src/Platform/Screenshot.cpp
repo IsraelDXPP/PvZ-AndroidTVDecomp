@@ -140,7 +140,7 @@ bool Screenshot::Save(MemoryImage *theImage, const std::string &thePath)
     for (int y = 0; y < h; ++y)
     {
         raw.push_back(0);
-        const unsigned long *row = theImage->mBits + (size_t)y * w;
+        const std::uint32_t *row = theImage->mBits + (size_t)y * w;
         for (int x = 0; x < w; ++x)
         {
             unsigned p = row[x];

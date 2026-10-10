@@ -18,6 +18,7 @@
 #include <cwchar>
 #include <cmath>
 #include <cctype>
+#include <cstdint>
 #include <vector>
 #include <map>
 #include <filesystem>
@@ -75,8 +76,8 @@ int StringToDouble(Sexy::String theText, double *theDest);
 int SexyStringToString(Sexy::String *theDest, Sexy::String const *theSource);
 int GetNextUTF8CharFromStream(void *theStream, char const **theCursor, int theLimit, wchar_t *theChar);
 int GetFileDate(Sexy::String const &thePath);
-bool Quantize8Bit(unsigned long const *thePixels, int theWidth, int theHeight, unsigned char *theIndices,
-    unsigned long *thePalette, unsigned int *theCount);
+bool Quantize8Bit(std::uint32_t const *thePixels, int theWidth, int theHeight, unsigned char *theIndices,
+    std::uint32_t *thePalette, unsigned int *theCount);
 
 int setLocale(char const *theLocale);
 int SexyUtf8Validate(void *theState, char const *theText, int theLength);
@@ -1410,8 +1411,8 @@ int p_addResource(char const *thePath, char const *theKind, int thePriority)
     return PakLib::FileSystemManager::getManager()->addResource(thePath, theKind, thePriority) ? 1 : 0;
 }
 
-bool Sexy::Quantize8Bit(unsigned long const *thePixels, int theWidth, int theHeight, unsigned char *theIndices,
-    unsigned long *thePalette, unsigned int *theCount)
+bool Sexy::Quantize8Bit(std::uint32_t const *thePixels, int theWidth, int theHeight, unsigned char *theIndices,
+    std::uint32_t *thePalette, unsigned int *theCount)
 {
     (void)thePixels;
     (void)theWidth;

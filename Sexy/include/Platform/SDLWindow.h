@@ -50,6 +50,9 @@ public:
     bool IsKeyDown(int theKeyCode) const;
     bool PopInputEvent(Event &theEvent);
     bool IsMouseButtonDown(int theButton) const;
+    FRect GetPresentationRect(int theWidth, int theHeight) const;
+    bool MapWindowPoint(float theX, float theY, int theWidth, int theHeight,
+        double &theRenderX, double &theRenderY) const;
     void GetCursorPos(double &theX, double &theY) const;
 
 private:

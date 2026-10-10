@@ -13,6 +13,7 @@
 #include "PixelUtil.h"
 #include "SWHelper.h"
 #include <cstddef>
+#include <cstdint>
 #include <string>
 #include <vector>
 #include <map>
@@ -88,7 +89,7 @@ public:
 
     LawnApp *mApp;
     unsigned int *mPixels;
-    unsigned long *mBits;
+    std::uint32_t *mBits;
     int mBitsChangedCount;
     void *mD3DData;
     unsigned int mD3DFlags;

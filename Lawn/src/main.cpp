@@ -13,6 +13,7 @@
 #include "LawnApp.h"
 #include "Platform/MpegVideo.h"
 #include "Platform/SDLWindow.h"
+#include "Platform/CrashDiagnostics.h"
 #include "Platform/Bgfx/BgfxRenderDevice.h"
 #include "Platform/Screenshot.h"
 #include "Platform/SDLFile.h"
@@ -37,8 +38,12 @@ static void LogLine(const char *format, ...)
     std::vsnprintf(buffer, sizeof(buffer), format, args);
     va_end(args);
 
+#if defined(SDL_PLATFORM_ANDROID)
+    SDL_Log("%s", buffer);
+#else
     fputs(buffer, stderr);
     fputc('\n', stderr);
+#endif
 }
 
 struct LaunchOptions
@@ -179,17 +184,25 @@ SDL_AppResult SDLCALL SDL_AppInit(void **appstate, int argc, char **argv)
     Sexy::SDLFile::SetAssetRoot(options.assetRoot);
     LogLine("Lawn: asset root = %s", Sexy::SDLFile::GetAssetRoot().c_str());
 
+    Sexy::SetCrashPhase("window_create");
+    LogLine("Lawn: creating window");
     if (!application->window.Create("Plants vs. Zombies", options.width, options.height, true, true, !options.headless))
     {
         LogLine("Lawn: failed to create the window: %s", SDL_GetError());
         return SDL_APP_FAILURE;
     }
 
+    Sexy::SetCrashPhase("app_create");
+    LogLine("Lawn: creating application");
     application->app = std::make_unique<LawnApp>();
     LawnApp &app = *application->app;
     if (options.debugKeys)
         app.HandleCmdLineParam("-tod", "");
+    Sexy::SetCrashPhase("hardware_init");
+    LogLine("Lawn: initializing hardware");
     app.HardwareInit();
+    Sexy::SetCrashPhase("graphics_init");
+    LogLine("Lawn: initializing graphics");
     app.Startup();
 
     if (Sexy::BgfxRenderDevice::sCurrent == nullptr)
@@ -198,6 +211,8 @@ SDL_AppResult SDLCALL SDL_AppInit(void **appstate, int argc, char **argv)
         return SDL_APP_FAILURE;
     }
     application->capture = std::make_unique<Sexy::MemoryImage>();
+    Sexy::SetCrashPhase("game_init");
+    LogLine("Lawn: starting game");
     app.Start();
     UpdateCallbackRate(*application);
     return SDL_APP_CONTINUE;
