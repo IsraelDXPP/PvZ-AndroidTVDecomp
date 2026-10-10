@@ -1,7 +1,8 @@
 // Definition tables describe native fields and the fixed TV file layout separately.
 // Empty field names terminate a table.
 
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_DEFINITION_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_DEFINITION_H
 
 #include <cstddef>
 
@@ -11,20 +12,19 @@ enum ParticleEffect : int;
 struct DefField
 {
     const char *mName;
-    size_t      mOffset;
-    int         mType;
-    void       *mExtra;
-    int         mFileOffset;
+    size_t mOffset;
+    int mType;
+    void *mExtra;
+    int mFileOffset;
 };
 
 struct DefMap
 {
     const DefField *mFields;
-    size_t          mSize;
-    int             mFileSize;
-    void           *mConstructor;
+    size_t mSize;
+    int mFileSize;
+    void *mConstructor;
 };
-
 
 class ReanimatorDefinition;
 
@@ -69,3 +69,5 @@ struct ReanimationParamRecord
 
 extern ReanimationParamRecord *gReanimationParamArray;
 extern int gReanimationParamArraySize;
+
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_DEFINITION_H

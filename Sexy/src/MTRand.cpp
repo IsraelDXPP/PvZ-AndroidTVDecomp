@@ -4,13 +4,13 @@
 #include <cstring>
 
 // MT19937 twist constant. Index 1 is the matrix A used when the low bit is set.
-static const unsigned int kTwistMatrix[2] = { 0x00000000u, 0x9908B0DFu };
+static const unsigned int kTwistMatrix[2] = {0x00000000u, 0x9908B0DFu};
 
 static const int kTwistM = 397;
 static const unsigned int kUpperMask = 0x80000000u;
 static const unsigned int kLowerMask = 0x7FFFFFFFu;
 
-Sexy::MTRand* Sexy::MTRand::SetRandAllowed(bool theAllowed)
+Sexy::MTRand *Sexy::MTRand::SetRandAllowed(bool theAllowed)
 {
     if (mRandAllowed == theAllowed)
         return this;
@@ -23,7 +23,7 @@ Sexy::MTRand* Sexy::MTRand::SetRandAllowed(bool theAllowed)
     return this;
 }
 
-Sexy::MTRand* Sexy::MTRand::SRand(unsigned long theSeed)
+Sexy::MTRand *Sexy::MTRand::SRand(unsigned long theSeed)
 {
     unsigned long aSeed = theSeed;
     if (aSeed == 0)
@@ -51,7 +51,7 @@ Sexy::MTRand::MTRand()
     SRand(0x1105u);
 }
 
-Sexy::MTRand* Sexy::MTRand::SRand(Sexy::String const& theBlob)
+Sexy::MTRand *Sexy::MTRand::SRand(Sexy::String const &theBlob)
 {
     if (theBlob.size() == sizeof(unsigned long) * MTRAND_N)
     {
@@ -61,7 +61,7 @@ Sexy::MTRand* Sexy::MTRand::SRand(Sexy::String const& theBlob)
     return SRand(0x1105u);
 }
 
-Sexy::MTRand::MTRand(Sexy::String const& theBlob)
+Sexy::MTRand::MTRand(Sexy::String const &theBlob)
 {
     mRandAllowed = false;
     SRand(theBlob);
@@ -74,18 +74,15 @@ unsigned int Sexy::MTRand::NextNoAssert()
     {
         for (int aIndex = 0; aIndex < MTRAND_N - kTwistM; ++aIndex)
         {
-            const unsigned int aMixed =
-                (mt[aIndex] & kUpperMask) | (mt[aIndex + 1] & kLowerMask);
+            const unsigned int aMixed = (mt[aIndex] & kUpperMask) | (mt[aIndex + 1] & kLowerMask);
             mt[aIndex] = mt[aIndex + kTwistM] ^ (aMixed >> 1) ^ kTwistMatrix[aMixed & 1];
         }
         for (int aIndex = MTRAND_N - kTwistM; aIndex < MTRAND_N - 1; ++aIndex)
         {
-            const unsigned int aMixed =
-                (mt[aIndex] & kUpperMask) | (mt[aIndex + 1] & kLowerMask);
+            const unsigned int aMixed = (mt[aIndex] & kUpperMask) | (mt[aIndex + 1] & kLowerMask);
             mt[aIndex] = mt[aIndex + (kTwistM - MTRAND_N)] ^ (aMixed >> 1) ^ kTwistMatrix[aMixed & 1];
         }
-        const unsigned int aWrapped =
-            (mt[MTRAND_N - 1] & kUpperMask) | (mt[0] & kLowerMask);
+        const unsigned int aWrapped = (mt[MTRAND_N - 1] & kUpperMask) | (mt[0] & kLowerMask);
         mt[MTRAND_N - 1] = mt[kTwistM - 1] ^ (aWrapped >> 1) ^ kTwistMatrix[aWrapped & 1];
         mti = 0;
     }
@@ -133,7 +130,7 @@ float Sexy::MTRand::Next(float theRange)
     return NextNoAssert(theRange);
 }
 
-Sexy::MTRand* Sexy::MTRand::Serialize()
+Sexy::MTRand *Sexy::MTRand::Serialize()
 {
     return this;
 }

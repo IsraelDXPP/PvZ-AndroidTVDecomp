@@ -24,24 +24,23 @@ static int gGuardVar_1 = 0;
 // EditWidget, Graphics, LogManager, PopAnim, ResourceManager and XMLParser.
 static void LawnUserDtorThunk(LawnUser *theObject)
 {
-  theObject->~LawnUser();
+    theObject->~LawnUser();
 }
-
 
 // ==========================================================================
 // LawnUser::getCurUser(void)
 // @002BB9B8  148 bytes
 // ==========================================================================
-LawnUser* LawnUser::getCurUser()
+LawnUser *LawnUser::getCurUser()
 {
-  static LawnUser gCurrentUser;
-  static bool gReady = false;
-  if ( gReady )
-    return &gCurrentUser;
+    static LawnUser gCurrentUser;
+    static bool gReady = false;
+    if (gReady)
+        return &gCurrentUser;
 
-  gCurrentUser.mToken = Sexy::String("007");
-  gCurrentUser.mChannel = Sexy::String("shax");
-  gCurrentUser.mCoinText = Sexy::String("0");
-  gReady = true;
-  return &gCurrentUser;
+    gCurrentUser.mToken = Sexy::String("007");
+    gCurrentUser.mChannel = Sexy::String("shax");
+    gCurrentUser.mCoinText = Sexy::String("0");
+    gReady = true;
+    return &gCurrentUser;
 }

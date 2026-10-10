@@ -1,18 +1,17 @@
 #include "ProfileMgr.h"
 #include "ProfileEventListener.h"
 
-namespace Sexy {
+namespace Sexy
+{
 
-ProfileMgr::ProfileMgr(Sexy::ProfileEventListener* listener)
-    : mListener(listener)
+ProfileMgr::ProfileMgr(Sexy::ProfileEventListener *listener) :
+    mListener(listener)
 {
 }
 
-ProfileMgr::~ProfileMgr()
-{
-}
+ProfileMgr::~ProfileMgr() {}
 
-ProfileEventListener* ProfileMgr::GetListener()
+ProfileEventListener *ProfileMgr::GetListener()
 {
     return mListener;
 }
@@ -24,15 +23,13 @@ int ProfileMgr::GetProfileVersion()
     return mListener->GetProfileVersion();
 }
 
-PlayerInfo* ProfileMgr::CreatePlayerInfo()
+PlayerInfo *ProfileMgr::CreatePlayerInfo()
 {
     if (mListener == nullptr)
         return nullptr;
     return mListener->CreatePlayerInfo();
 }
 
-void ProfileMgr::Update()
-{
-}
+void ProfileMgr::Update() {}
 
 } // namespace Sexy

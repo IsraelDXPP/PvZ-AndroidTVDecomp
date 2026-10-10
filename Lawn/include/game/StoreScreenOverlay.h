@@ -21,7 +21,8 @@
 // Size 0x108, from the binary's allocation sites (the transcriber recorded that
 // figure directly rather than the "largest this-relative offset" fallback).
 
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_STORESCREENOVERLAY_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_STORESCREENOVERLAY_H
 
 #include "ReconTypes.h"
 // Classes this one calls a method on: the call needs the
@@ -39,10 +40,12 @@ public:
     // virtual slot 54 (0xD8 = DrawOverlay) on it (StoreScreenOverlay.cpp:11).
     // TODO(recon): the authoritative project never named this member.
     Sexy::Widget *mStoreScreen; // +0x100
-    int mOverlayWord;           // +0x104  unread tail word of the 0x108 allocation
+    int mOverlayWord; // +0x104  unread tail word of the 0x108 allocation
     // 0x108
 };
 
 // sizeof(StoreScreenOverlay) can only be asserted once Sexy::Widget carries its
 // real 0x100-byte layout; it is still opaque storage of 0x7A0 bytes here.
 // TODO(recon): enable `static_assert(sizeof(StoreScreenOverlay) == 0x108, ...)`.
+
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_STORESCREENOVERLAY_H

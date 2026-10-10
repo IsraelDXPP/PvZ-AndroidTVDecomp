@@ -10,7 +10,8 @@
 // New slots: SetButtonFont, SetHeaderFont, SetLinesFont, GetPreferredHeight,
 // IsModal, WaitForResult, and the three ButtonListener overrides.
 
-#pragma once
+#ifndef LAWNPROJECTTV_SEXY_INCLUDE_DIALOG_H
+#define LAWNPROJECTTV_SEXY_INCLUDE_DIALOG_H
 
 #include "ReconTypes.h"
 #include "ButtonListener.h"
@@ -22,17 +23,18 @@
 #include "Widget.h"
 #include "WidgetContainer.h"
 
-namespace Sexy {
+namespace Sexy
+{
 
 class DialogButton;
 
 class Dialog : public Widget, public ButtonListener
 {
 public:
-    DialogListener* mDialogListener;
-    Image* mComponentImage;
-    DialogButton* mYesButton;
-    DialogButton* mNoButton;
+    DialogListener *mDialogListener;
+    Image *mComponentImage;
+    DialogButton *mYesButton;
+    DialogButton *mNoButton;
     int mNumButtons;
     Sexy::String mDialogHeader;
     Sexy::String mDialogFooter;
@@ -41,8 +43,8 @@ public:
     Sexy::String mCachedLines;
     TextLayout mTextLayout;
     int mButtonMode;
-    Font* mHeaderFont;
-    Font* mLinesFont;
+    Font *mHeaderFont;
+    Font *mLinesFont;
     int mTextAlign;
     int mLineSpacingOffset;
     int mButtonHeight;
@@ -59,12 +61,12 @@ public:
     int mButtonSidePadding;
 
     virtual ~Dialog();
-    virtual void AddedToManager(WidgetManager* theWidgetManager);
-    virtual void RemovedFromManager(WidgetManager* theWidgetManager);
+    virtual void AddedToManager(WidgetManager *theWidgetManager);
+    virtual void RemovedFromManager(WidgetManager *theWidgetManager);
     virtual void Update();
-    virtual void Draw(Sexy::Graphics* g);
+    virtual void Draw(Sexy::Graphics *g);
     virtual void OrderInManagerChanged();
-    virtual void SetColor(int theIdx, const Color& theColor);
+    virtual void SetColor(int theIdx, const Color &theColor);
     virtual void Resize(int theX, int theY, int theWidth, int theHeight);
     virtual int KeyDown(Sexy::KeyCode theKey);
     virtual int KeyUp(Sexy::KeyCode theKey);
@@ -75,9 +77,9 @@ public:
     virtual void MouseUp(int x, int y, int theBtnNum, int theClickCount);
     virtual void MouseDrag(int x, int y);
 
-    virtual void SetButtonFont(Font* theFont);
-    virtual void SetHeaderFont(Font* theFont);
-    virtual void SetLinesFont(Font* theFont);
+    virtual void SetButtonFont(Font *theFont);
+    virtual void SetHeaderFont(Font *theFont);
+    virtual void SetLinesFont(Font *theFont);
     virtual int GetPreferredHeight(int theWidth);
     virtual bool IsModal();
     virtual int WaitForResult(bool autoKill);
@@ -87,11 +89,13 @@ public:
 
     void EnsureFonts();
     int GetPreferredHeight();
-    Dialog(Image* theComponentImage, Image* theDialogImage, int theId, bool isModal,
-           const Sexy::String& theDialogHeader, const Sexy::String& theDialogLines,
-           const Sexy::String& theDialogFooter, int theButtonMode);
+    Dialog(Image *theComponentImage, Image *theDialogImage, int theId, bool isModal,
+        const Sexy::String &theDialogHeader, const Sexy::String &theDialogLines, const Sexy::String &theDialogFooter,
+        int theButtonMode);
 };
 
 } // namespace Sexy
 
 using Sexy::Dialog;
+
+#endif // LAWNPROJECTTV_SEXY_INCLUDE_DIALOG_H

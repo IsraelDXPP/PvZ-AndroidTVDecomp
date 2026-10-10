@@ -15,7 +15,8 @@
 // 16-byte message buffer on x86, or vptr + padding), so this class adds no data
 // member of its own -- the transcribed eight-byte opaque block was a guess.
 
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_DATAREADEREXCEPTION_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_DATAREADEREXCEPTION_H
 
 #include "ReconTypes.h"
 #include <exception>
@@ -25,3 +26,5 @@ class DataReaderException : public std::exception
 public:
     virtual ~DataReaderException();
 };
+
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_DATAREADEREXCEPTION_H

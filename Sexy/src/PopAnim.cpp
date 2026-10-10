@@ -12,15 +12,17 @@
 #include <cstdlib>
 #include <cstring>
 
-namespace Sexy {
+namespace Sexy
+{
 
-namespace {
+namespace
+{
 
-const float kFixedScale = 0.000015259f;     // 1/65536
+const float kFixedScale = 0.000015259f; // 1/65536
 const float kImageMatrixScale = 7.6293945e-7f;
 const float kShortScale = 0.05f;
 const float kAngleScale = 0.001f;
-const int kPamMagic = -1158669996;          // 0xBAF01954
+const int kPamMagic = -1158669996; // 0xBAF01954
 const int kPoolSlots = 128;
 
 int ChannelMix(int theFrom, int theTo, unsigned int theBlend)
@@ -46,42 +48,41 @@ Color MixPacked(int theFrom, int theTo, float theFraction)
     return aColor;
 }
 
-Color LerpColor(Color const& theFrom, Color const& theTo, float theBlend)
+Color LerpColor(Color const &theFrom, Color const &theTo, float theBlend)
 {
     float aKeep = 1.0f - theBlend;
-    return Color(
-        (int)(theTo.mRed * theBlend + 0.5f + aKeep * (float)theFrom.mRed),
+    return Color((int)(theTo.mRed * theBlend + 0.5f + aKeep * (float)theFrom.mRed),
         (int)(theTo.mGreen * theBlend + 0.5f + aKeep * (float)theFrom.mGreen),
         (int)(theTo.mBlue * theBlend + 0.5f + aKeep * (float)theFrom.mBlue),
         (int)(theTo.mAlpha * theBlend + 0.5f + aKeep * (float)theFrom.mAlpha));
 }
 
-String Lowered(String const& theText)
+String Lowered(String const &theText)
 {
     String aLower;
     Lower(&aLower, &theText);
     return aLower;
 }
 
-String Trimmed(String const& theText)
+String Trimmed(String const &theText)
 {
     String aTrimmed;
     Trim(&aTrimmed, &theText);
     return aTrimmed;
 }
 
-String ExtensionOf(String const& thePath)
+String ExtensionOf(String const &thePath)
 {
-    const char* aDot = strrchr(thePath.c_str(), '.');
+    const char *aDot = strrchr(thePath.c_str(), '.');
     if (aDot == nullptr)
         return String();
     String aTail = thePath.substr((unsigned int)(aDot - thePath.c_str()));
     return Lowered(aTail);
 }
 
-int FindChar(String const& theText, char theChar, unsigned int theFrom)
+int FindChar(String const &theText, char theChar, unsigned int theFrom)
 {
-    const char* aChars = theText.c_str();
+    const char *aChars = theText.c_str();
     unsigned int aLength = theText.size();
     for (unsigned int aIndex = theFrom; aIndex < aLength; ++aIndex)
     {
@@ -91,18 +92,18 @@ int FindChar(String const& theText, char theChar, unsigned int theFrom)
     return -1;
 }
 
-int FindText(String const& theText, char const* theNeedle)
+int FindText(String const &theText, char const *theNeedle)
 {
-    const char* aFound = strstr(theText.c_str(), theNeedle);
+    const char *aFound = strstr(theText.c_str(), theNeedle);
     if (aFound == nullptr)
         return -1;
     return (int)(aFound - theText.c_str());
 }
 
-String StripSpaces(String const& theText)
+String StripSpaces(String const &theText)
 {
     String aClean;
-    const char* aChars = theText.c_str();
+    const char *aChars = theText.c_str();
     for (unsigned int aIndex = 0; aIndex < theText.size(); ++aIndex)
     {
         if (aChars[aIndex] != ' ')
@@ -111,7 +112,7 @@ String StripSpaces(String const& theText)
     return aClean;
 }
 
-int ReadCount(Buffer* theBuffer)
+int ReadCount(Buffer *theBuffer)
 {
     int aCount = theBuffer->ReadByte();
     if (aCount == 255)
@@ -125,7 +126,7 @@ struct CommandToken
     bool mMore;
 };
 
-CommandToken NextToken(String& theArgs)
+CommandToken NextToken(String &theArgs)
 {
     CommandToken aToken;
     int aComma = FindChar(theArgs, ',', 0);
@@ -137,7 +138,7 @@ CommandToken NextToken(String& theArgs)
     return aToken;
 }
 
-float PoseDistance(SexyMatrix3 const& theFrom, SexyMatrix3 const& theTo)
+float PoseDistance(SexyMatrix3 const &theFrom, SexyMatrix3 const &theTo)
 {
     SexyVector2 aOrigin(0.0f, 0.0f);
     SexyVector2 aStart = theFrom * aOrigin;
@@ -147,28 +148,28 @@ float PoseDistance(SexyMatrix3 const& theFrom, SexyMatrix3 const& theTo)
     return sqrtf(aDeltaX * aDeltaX + aDeltaY * aDeltaY);
 }
 
-PAObjectPos* PoseAt(PAFrame* theFrame, int theIndex, int theObjectId)
+PAObjectPos *PoseAt(PAFrame *theFrame, int theIndex, int theObjectId)
 {
     if (theFrame == nullptr || theFrame->mObjects.empty())
         return nullptr;
     if (theIndex < (int)theFrame->mObjects.size())
     {
-        PAObjectPos* aDirect = theFrame->mObjects[theIndex];
+        PAObjectPos *aDirect = theFrame->mObjects[theIndex];
         if (aDirect != nullptr && aDirect->mDef != nullptr && aDirect->mDef->mIndex == theObjectId)
             return aDirect;
     }
     for (size_t aScan = 0; aScan < theFrame->mObjects.size(); ++aScan)
     {
-        PAObjectPos* aCandidate = theFrame->mObjects[aScan];
+        PAObjectPos *aCandidate = theFrame->mObjects[aScan];
         if (aCandidate != nullptr && aCandidate->mDef != nullptr && aCandidate->mDef->mIndex == theObjectId)
             return aCandidate;
     }
     return nullptr;
 }
 
-Image* ImageOf(SharedImageRef const& theRef)
+Image *ImageOf(SharedImageRef const &theRef)
 {
-    return theRef.operator Sexy::Image*();
+    return theRef.operator Sexy::Image *();
 }
 
 } // namespace
@@ -177,55 +178,55 @@ Image* ImageOf(SharedImageRef const& theRef)
 // Element types
 // ---------------------------------------------------------------------------
 
-PAImage::PAImage()
-    : mWidth(-1)
-    , mHeight(-1)
-    , mNumCols(1)
-    , mNumRows(1)
-    , mDrawMode(0)
-    , mTransX(0.0f)
-    , mTransY(0.0f)
+PAImage::PAImage() :
+    mWidth(-1),
+    mHeight(-1),
+    mNumCols(1),
+    mNumRows(1),
+    mDrawMode(0),
+    mTransX(0.0f),
+    mTransY(0.0f)
 {
     mTransform.LoadIdentity();
 }
 
-PAObjectDef::PAObjectDef()
-    : mName(nullptr)
-    , mIndex(0)
-    , mIsSprite(false)
-    , mAdditive(false)
-    , mImageIndex(0)
-    , mAdvanceCount(0)
-    , mRateScale(1.0f)
-    , mUseSrcRect(false)
-    , mSrcRect(0, 0, 0, 0)
-    , mNestedDef(nullptr)
+PAObjectDef::PAObjectDef() :
+    mName(nullptr),
+    mIndex(0),
+    mIsSprite(false),
+    mAdditive(false),
+    mImageIndex(0),
+    mAdvanceCount(0),
+    mRateScale(1.0f),
+    mUseSrcRect(false),
+    mSrcRect(0, 0, 0, 0),
+    mNestedDef(nullptr)
 {
 }
 
-PAObjectPos::PAObjectPos()
-    : mPackedColor(-1)
-    , mInterpolate(false)
-    , mDef(nullptr)
+PAObjectPos::PAObjectPos() :
+    mPackedColor(-1),
+    mInterpolate(false),
+    mDef(nullptr)
 {
     mMatrix.LoadIdentity();
 }
 
-PAFrame::PAFrame()
-    : mHold(false)
+PAFrame::PAFrame() :
+    mHold(false)
 {
 }
 
-PASpriteDef::PASpriteDef()
-    : mName(nullptr)
-    , mFirstFrame(0)
-    , mLastFrame(0)
-    , mPingPong(false)
-    , mRate(1.0f)
+PASpriteDef::PASpriteDef() :
+    mName(nullptr),
+    mFirstFrame(0),
+    mLastFrame(0),
+    mPingPong(false),
+    mRate(1.0f)
 {
 }
 
-int PASpriteDef::GetLabelFrame(String const& theName) const
+int PASpriteDef::GetLabelFrame(String const &theName) const
 {
     String aUpper;
     StringToUpper(&aUpper, theName.c_str());
@@ -235,34 +236,34 @@ int PASpriteDef::GetLabelFrame(String const& theName) const
     return aFound->second;
 }
 
-PAParticleEffect::PAParticleEffect()
-    : mBaseRes(nullptr)
-    , mEffect(nullptr)
-    , mUpdateStamp(0)
-    , mDrawAdditive(false)
-    , mFollowSprite(false)
-    , mActive(false)
-    , mOffsetX(0.0)
-    , mOffsetY(0.0)
+PAParticleEffect::PAParticleEffect() :
+    mBaseRes(nullptr),
+    mEffect(nullptr),
+    mUpdateStamp(0),
+    mDrawAdditive(false),
+    mFollowSprite(false),
+    mActive(false),
+    mOffsetX(0.0),
+    mOffsetY(0.0)
 {
 }
 
-PAParticleEffect::PAParticleEffect(PAParticleEffect const& theOther)
-    : mBaseRes(theOther.mBaseRes)
-    , mEffect(theOther.mEffect)
-    , mName(theOther.mName)
-    , mUpdateStamp(theOther.mUpdateStamp)
-    , mDrawAdditive(theOther.mDrawAdditive)
-    , mFollowSprite(theOther.mFollowSprite)
-    , mActive(theOther.mActive)
-    , mOffsetX(theOther.mOffsetX)
-    , mOffsetY(theOther.mOffsetY)
+PAParticleEffect::PAParticleEffect(PAParticleEffect const &theOther) :
+    mBaseRes(theOther.mBaseRes),
+    mEffect(theOther.mEffect),
+    mName(theOther.mName),
+    mUpdateStamp(theOther.mUpdateStamp),
+    mDrawAdditive(theOther.mDrawAdditive),
+    mFollowSprite(theOther.mFollowSprite),
+    mActive(theOther.mActive),
+    mOffsetX(theOther.mOffsetX),
+    mOffsetY(theOther.mOffsetY)
 {
     if (mBaseRes != nullptr)
         ++mBaseRes->mRefCount;
 }
 
-PAParticleEffect& PAParticleEffect::operator=(PAParticleEffect const& theOther)
+PAParticleEffect &PAParticleEffect::operator=(PAParticleEffect const &theOther)
 {
     if (this == &theOther)
         return *this;
@@ -297,37 +298,37 @@ PAParticleEffect::~PAParticleEffect()
     }
 }
 
-PAObjectInst::PAObjectInst()
-    : mName(nullptr)
-    , mInst(nullptr)
-    , mPrevRed(0)
-    , mPrevGreen(0)
-    , mPrevBlue(0)
-    , mPrevAlpha(255)
-    , mBlending(false)
-    , mColor(Color::White)
-    , mQueryDraw(true)
-    , mUseDrawHelper(true)
-    , mQueryDrawn(true)
+PAObjectInst::PAObjectInst() :
+    mName(nullptr),
+    mInst(nullptr),
+    mPrevRed(0),
+    mPrevGreen(0),
+    mPrevBlue(0),
+    mPrevAlpha(255),
+    mBlending(false),
+    mColor(Color::White),
+    mQueryDraw(true),
+    mUseDrawHelper(true),
+    mQueryDrawn(true)
 {
 }
 
-int PAObjectInst::GetObjectInst(String const& theName)
+int PAObjectInst::GetObjectInst(String const &theName)
 {
     if (mInst != nullptr)
         return mInst->GetObjectInst(theName);
     return 0;
 }
 
-PASpriteInst::PASpriteInst()
-    : mParent(nullptr)
-    , mHoldFrames(0)
-    , mFrameTime(0.0f)
-    , mLoopCount(0)
-    , mFrameAdvanced(true)
-    , mLastStamp(-1)
-    , mColor(Color(0, 0, 0, 255))
-    , mDef(nullptr)
+PASpriteInst::PASpriteInst() :
+    mParent(nullptr),
+    mHoldFrames(0),
+    mFrameTime(0.0f),
+    mLoopCount(0),
+    mFrameAdvanced(true),
+    mLastStamp(-1),
+    mColor(Color(0, 0, 0, 255)),
+    mDef(nullptr)
 {
 }
 
@@ -339,11 +340,11 @@ PASpriteInst::~PASpriteInst()
         delete mObjects[aIndex].mInst;
 }
 
-int PASpriteInst::GetObjectInst(String const& theName)
+int PASpriteInst::GetObjectInst(String const &theName)
 {
     for (size_t aIndex = 0; aIndex < mObjects.size(); ++aIndex)
     {
-        const char* aName = mObjects[aIndex].mName;
+        const char *aName = mObjects[aIndex].mName;
         if (aName != nullptr && strcasecmp(aName, theName.c_str()) == 0)
             return (int)aIndex;
         if (mObjects[aIndex].mInst != nullptr)
@@ -356,13 +357,13 @@ int PASpriteInst::GetObjectInst(String const& theName)
     return 0;
 }
 
-PASpriteTable::PASpriteTable()
-    : mTransformBlock(nullptr)
-    , mTransformSlot(0)
-    , mDataBlock(nullptr)
-    , mDataSlot(0)
-    , mMainDef(nullptr)
-    , mRefCount(0)
+PASpriteTable::PASpriteTable() :
+    mTransformBlock(nullptr),
+    mTransformSlot(0),
+    mDataBlock(nullptr),
+    mDataSlot(0),
+    mMainDef(nullptr),
+    mRefCount(0)
 {
 }
 
@@ -375,7 +376,7 @@ PASpriteTable::~PASpriteTable()
     delete mMainDef;
 }
 
-PAObjectPos* PASpriteTable::AllocTransform()
+PAObjectPos *PASpriteTable::AllocTransform()
 {
     if (mTransformBlock == nullptr || mTransformSlot >= kPoolSlots)
     {
@@ -386,7 +387,7 @@ PAObjectPos* PASpriteTable::AllocTransform()
     return &mTransformBlock[mTransformSlot++];
 }
 
-PAObjectDef* PASpriteTable::AllocData()
+PAObjectDef *PASpriteTable::AllocData()
 {
     if (mDataBlock == nullptr || mDataSlot >= kPoolSlots)
     {
@@ -397,28 +398,49 @@ PAObjectDef* PASpriteTable::AllocData()
     return &mDataBlock[mDataSlot++];
 }
 
-const char* PASpriteTable::Intern(String const& theName)
+const char *PASpriteTable::Intern(String const &theName)
 {
     mNames.push_back(theName);
     return mNames.back().c_str();
 }
 
-void PopAnimListener::PlaySample(String const&, int, double, double) {}
-PIEffect* PopAnimListener::GetParticleEffect(String const&) { return nullptr; }
-bool PopAnimListener::ShouldDrawObject(int, Graphics*, PASpriteInst*, PAObjectInst*, PATransform*, Color const&) { return true; }
-bool PopAnimListener::DidDrawObject(int, Graphics*, PASpriteInst*, PAObjectInst*, PATransform*, Color const&) { return true; }
-int PopAnimListener::DrawObjectHelper(int, PASpriteInst*, PAObjectInst*, float*, Image*, Graphics*, float) { return 0; }
-bool PopAnimListener::OnSpriteInstFrameEnd(int) { return false; }
-bool PopAnimListener::OnSpriteInstLoop(int, int) { return false; }
+void PopAnimListener::PlaySample(String const &, int, double, double) {}
+PIEffect *PopAnimListener::GetParticleEffect(String const &)
+{
+    return nullptr;
+}
+bool PopAnimListener::ShouldDrawObject(int, Graphics *, PASpriteInst *, PAObjectInst *, PATransform *, Color const &)
+{
+    return true;
+}
+bool PopAnimListener::DidDrawObject(int, Graphics *, PASpriteInst *, PAObjectInst *, PATransform *, Color const &)
+{
+    return true;
+}
+int PopAnimListener::DrawObjectHelper(int, PASpriteInst *, PAObjectInst *, float *, Image *, Graphics *, float)
+{
+    return 0;
+}
+bool PopAnimListener::OnSpriteInstFrameEnd(int)
+{
+    return false;
+}
+bool PopAnimListener::OnSpriteInstLoop(int, int)
+{
+    return false;
+}
 void PopAnimListener::UnusedSlot() {}
-bool PopAnimListener::OnCommand(int, PASpriteInst*, String const&, String const&) { return false; }
+bool PopAnimListener::OnCommand(int, PASpriteInst *, String const &, String const &)
+{
+    return false;
+}
 
 PATransform::PATransform()
 {
     mMatrix.LoadIdentity();
 }
 
-PATransform& PATransform::TransformSrc(PATransform const& theSource, float const* theValues)
+PATransform &PATransform::TransformSrc(PATransform const &theSource, float const *theValues)
 {
     SexyMatrix3 aIncoming;
     aIncoming.LoadIdentity();
@@ -435,10 +457,10 @@ PATransform& PATransform::TransformSrc(PATransform const& theSource, float const
     return *this;
 }
 
-PATransform& PATransform::InterpolateTo(PATransform const& theFrom, float const* theTo, float theFraction)
+PATransform &PATransform::InterpolateTo(PATransform const &theFrom, float const *theTo, float theFraction)
 {
     float aKeep = 1.0f - theFraction;
-    float const* aFrom = theFrom.mMatrix.m;
+    float const *aFrom = theFrom.mMatrix.m;
     for (int aIndex = 0; aIndex < 9; ++aIndex)
     {
         float aTarget = theTo != nullptr ? theTo[aIndex] : 0.0f;
@@ -454,17 +476,17 @@ PATransform& PATransform::InterpolateTo(PATransform const& theFrom, float const*
 class PopAnimModParser : public DescParser
 {
 public:
-    PopAnim* mAnim;
+    PopAnim *mAnim;
     int mStage;
 
-    explicit PopAnimModParser(PopAnim* theAnim)
-        : mAnim(theAnim)
-        , mStage(1)
+    explicit PopAnimModParser(PopAnim *theAnim) :
+        mAnim(theAnim),
+        mStage(1)
     {
         mCmdSep = CMDSEP_NO_INDENT;
     }
 
-    bool Error(String const& theError) override
+    bool Error(String const &theError) override
     {
         String aMessage = mError;
         aMessage += theError;
@@ -478,13 +500,13 @@ public:
         return false;
     }
 
-    int SetParamHelper(PASpriteDef* theDef, String const& theName, int* theIndex, String const& theValue)
+    int SetParamHelper(PASpriteDef *theDef, String const &theName, int *theIndex, String const &theValue)
     {
         if (theDef == nullptr || theIndex == nullptr || *theIndex == 0)
             return 0;
         for (size_t aFrame = 0; aFrame < theDef->mFrames.size(); ++aFrame)
         {
-            std::vector<PACommand>& aCommands = theDef->mFrames[aFrame].mCommands;
+            std::vector<PACommand> &aCommands = theDef->mFrames[aFrame].mCommands;
             for (size_t aCommand = 0; aCommand < aCommands.size(); ++aCommand)
             {
                 if (strcasecmp(aCommands[aCommand].mName.c_str(), theName.c_str()) != 0)
@@ -499,11 +521,11 @@ public:
         return 0;
     }
 
-    bool HandleCommand(ListDataElement const& theParams) override
+    bool HandleCommand(ListDataElement const &theParams) override
     {
         if (theParams.mDataElements.empty())
             return Error(String("Unknown Command"));
-        DataElement* aHead = theParams.mDataElements[0];
+        DataElement *aHead = theParams.mDataElements[0];
         String aCommand;
         if (DataToString(aHead, &aCommand) == 0)
             return Error(String("Unknown Command"));
@@ -531,8 +553,8 @@ public:
                 return Error(String("Invalid Number of Parameters"));
             String aFrom;
             String aTo;
-            if (DataToString(theParams.mDataElements[1], &aFrom) == 0
-                || DataToString(theParams.mDataElements[2], &aTo) == 0)
+            if (DataToString(theParams.mDataElements[1], &aFrom) == 0 ||
+                DataToString(theParams.mDataElements[2], &aTo) == 0)
                 return Error(String("Invalid Paramater Type"));
             mAnim->Load_AddRemap(aFrom, aTo);
             return true;
@@ -566,9 +588,9 @@ public:
             }
             else
             {
-                if (DataToInt(theParams.mDataElements[2], &aRed) == 0
-                    || DataToInt(theParams.mDataElements[3], &aGreen) == 0
-                    || DataToInt(theParams.mDataElements[4], &aBlue) == 0)
+                if (DataToInt(theParams.mDataElements[2], &aRed) == 0 ||
+                    DataToInt(theParams.mDataElements[3], &aGreen) == 0 ||
+                    DataToInt(theParams.mDataElements[4], &aBlue) == 0)
                     return Error(String("Invalid Paramater Type"));
                 if (aCount == 6 && DataToInt(theParams.mDataElements[5], &aAlpha) == 0)
                     return Error(String("Invalid Paramater Type"));
@@ -576,13 +598,13 @@ public:
             bool aFound = false;
             for (size_t aIndex = 0; aIndex < mAnim->mImages.size(); ++aIndex)
             {
-                PAImage& aImage = mAnim->mImages[aIndex];
+                PAImage &aImage = mAnim->mImages[aIndex];
                 if (strcasecmp(aImage.mName.c_str(), aImageName.c_str()) != 0)
                     continue;
                 aFound = true;
                 for (size_t aRef = 0; aRef < aImage.mRefs.size(); ++aRef)
                 {
-                    Image* aLoaded = ImageOf(aImage.mRefs[aRef]);
+                    Image *aLoaded = ImageOf(aImage.mRefs[aRef]);
                     if (aLoaded == nullptr || gSexyAppBase == nullptr)
                         continue;
                     if (aIsHue)
@@ -603,8 +625,8 @@ public:
                 return Error(String("Invalid Number of Parameters"));
             String aName;
             String aValue;
-            if (DataToString(theParams.mDataElements[1], &aName) == 0
-                || DataToString(theParams.mDataElements[2], &aValue) == 0)
+            if (DataToString(theParams.mDataElements[1], &aName) == 0 ||
+                DataToString(theParams.mDataElements[2], &aValue) == 0)
                 return Error(String("Invalid Paramater Type"));
             int aIndex = 0;
             int aBracket = FindChar(aName, '[', 0);
@@ -631,28 +653,26 @@ public:
 // Load
 // ---------------------------------------------------------------------------
 
-void PopAnim::Load_PostImageLoadHook(PAImage*)
-{
-}
+void PopAnim::Load_PostImageLoadHook(PAImage *) {}
 
-int PopAnim::Load_SetModPamFile(String const& theFile)
+int PopAnim::Load_SetModPamFile(String const &theFile)
 {
     mModPamFile = theFile;
     return 1;
 }
 
-int PopAnim::Fail(String const& theMessage)
+int PopAnim::Fail(String const &theMessage)
 {
     mErrorString = theMessage;
     return 0;
 }
 
-void PopAnim::Load_AddRemap(String const& theFrom, String const& theTo)
+void PopAnim::Load_AddRemap(String const &theFrom, String const &theTo)
 {
     mRemaps.push_back(std::make_pair(theFrom, theTo));
 }
 
-int PopAnim::LoadFile(String const& theFile, bool theMirrored)
+int PopAnim::LoadFile(String const &theFile, bool theMirrored)
 {
     Load_Init();
     mDrawMirrored = theMirrored;
@@ -685,7 +705,7 @@ int PopAnim::Load_Init()
     return Clear();
 }
 
-SharedImageRef PopAnim::Load_GetImageHook(String const& theDir, String const& theName, String const& theFile)
+SharedImageRef PopAnim::Load_GetImageHook(String const &theDir, String const &theName, String const &theFile)
 {
     if (theFile.empty())
     {
@@ -701,7 +721,7 @@ SharedImageRef PopAnim::Load_GetImageHook(String const& theDir, String const& th
     for (size_t aIndex = 0; aIndex < mSearchPaths.size(); ++aIndex)
     {
         String aPath;
-        GetPathFrom(&aPath, &mSearchPaths[aIndex], const_cast<String*>(&theDir));
+        GetPathFrom(&aPath, &mSearchPaths[aIndex], const_cast<String *>(&theDir));
         if (!aPath.empty())
         {
             char aLast = aPath.c_str()[aPath.size() - 1];
@@ -712,7 +732,7 @@ SharedImageRef PopAnim::Load_GetImageHook(String const& theDir, String const& th
         String aVariant = mDrawMirrored ? String("MIRRORED") : String();
         mImageIsNew = false;
         SharedImageRef aImage = gSexyAppBase->GetSharedImage(aPath, aVariant, &mImageIsNew, true, false);
-        if (aImage.operator Sexy::Image*() != nullptr)
+        if (aImage.operator Sexy::Image *() != nullptr)
         {
             aImage.operator->()->Palletize();
             return aImage;
@@ -723,26 +743,26 @@ SharedImageRef PopAnim::Load_GetImageHook(String const& theDir, String const& th
     return SharedImageRef();
 }
 
-int PopAnim::Load_GetImage(PAImage* theImage, String const& theDir, String const& theName, String const& theFile)
+int PopAnim::Load_GetImage(PAImage *theImage, String const &theDir, String const &theName, String const &theFile)
 {
     SharedImageRef aRef = Load_GetImageHook(theDir, theName, theFile);
-    Image* aLoaded = ImageOf(aRef);
+    Image *aLoaded = ImageOf(aRef);
     if (aLoaded == nullptr)
         return 0;
     aLoaded->mNumCols = theImage->mNumCols;
     aLoaded->mNumRows = theImage->mNumRows;
     if (theImage->mRefs.empty() && theImage->mWidth != -1 && theImage->mHeight != -1)
     {
-        theImage->mTransX += ((float)theImage->mWidth * mScaleY - (float)aLoaded->mWidth)
-            / (float)(aLoaded->mNumCols + 1);
-        theImage->mTransY += ((float)theImage->mHeight * mScaleY - (float)aLoaded->mHeight)
-            / (float)(aLoaded->mNumRows + 1);
+        theImage->mTransX +=
+            ((float)theImage->mWidth * mScaleY - (float)aLoaded->mWidth) / (float)(aLoaded->mNumCols + 1);
+        theImage->mTransY +=
+            ((float)theImage->mHeight * mScaleY - (float)aLoaded->mHeight) / (float)(aLoaded->mNumRows + 1);
     }
     theImage->mRefs.push_back(aRef);
     return 1;
 }
 
-int PopAnim::Load_LoadMod(String const& theFile)
+int PopAnim::Load_LoadMod(String const &theFile)
 {
     PopAnimModParser aParser(this);
     aParser.mError = String("PopAnim Mod File Error in ");
@@ -767,20 +787,20 @@ int PopAnim::Load_LoadMod(String const& theFile)
     return aParser.LoadDescriptor(theFile) ? 1 : 0;
 }
 
-const String& PopAnim::Remap(String const& theName)
+const String &PopAnim::Remap(String const &theName)
 {
     static String sRemapped;
     if (mRemaps.empty())
         return theName;
-    for (std::list<std::pair<String, String> >::iterator aIt = mRemaps.begin(); aIt != mRemaps.end(); ++aIt)
+    for (std::list<std::pair<String, String>>::iterator aIt = mRemaps.begin(); aIt != mRemaps.end(); ++aIt)
     {
-        String const& aKey = aIt->first;
-        String const& aValue = aIt->second;
+        String const &aKey = aIt->first;
+        String const &aValue = aIt->second;
         unsigned int aKeyLen = aKey.size();
         if (aKeyLen == 0)
             continue;
-        const char* aKeyChars = aKey.c_str();
-        const char* aInput = theName.c_str();
+        const char *aKeyChars = aKey.c_str();
+        const char *aInput = theName.c_str();
         unsigned int aInputLen = theName.size();
         if (aKeyChars[0] == '*')
         {
@@ -791,8 +811,7 @@ const String& PopAnim::Remap(String const& theName)
             }
             if (aKeyChars[aKeyLen - 1] != '*')
             {
-                if (aKeyLen - 1 <= aInputLen
-                    && strcasecmp(aKeyChars + 1, aInput + (aInputLen + 1 - aKeyLen)) == 0)
+                if (aKeyLen - 1 <= aInputLen && strcasecmp(aKeyChars + 1, aInput + (aInputLen + 1 - aKeyLen)) == 0)
                 {
                     unsigned int aTail = aInputLen + 1 - aKeyLen;
                     sRemapped = *SpliceRemapPattern(&theName, aTail, aInputLen, &aValue);
@@ -819,8 +838,7 @@ const String& PopAnim::Remap(String const& theName)
                 if (aFound < 0)
                     continue;
             }
-            sRemapped = *SpliceRemapPattern(&theName, (unsigned int)aFound,
-                                            (unsigned int)(aNeedle + aFound), &aValue);
+            sRemapped = *SpliceRemapPattern(&theName, (unsigned int)aFound, (unsigned int)(aNeedle + aFound), &aValue);
             return sRemapped;
         }
         if (aKeyChars[aKeyLen - 1] == '*')
@@ -849,7 +867,7 @@ const String& PopAnim::Remap(String const& theName)
     return theName;
 }
 
-int PopAnim::LoadSpriteDef(Buffer* theBuffer, PASpriteDef* theDef)
+int PopAnim::LoadSpriteDef(Buffer *theBuffer, PASpriteDef *theDef)
 {
     if (mSpriteDef == nullptr || theDef == nullptr)
         return 0;
@@ -887,10 +905,10 @@ int PopAnim::LoadSpriteDef(Buffer* theBuffer, PASpriteDef* theDef)
         return 1;
     theDef->mFrames.resize(aFrameCount == 0 ? 1u : (size_t)aFrameCount);
 
-    std::map<int, PAObjectPos*> aLive;
+    std::map<int, PAObjectPos *> aLive;
     for (int aFrameIndex = 0; aFrameIndex < aFrameCount; ++aFrameIndex)
     {
-        PAFrame& aFrame = theDef->mFrames[(size_t)aFrameIndex];
+        PAFrame &aFrame = theDef->mFrames[(size_t)aFrameIndex];
         int aFlags = theBuffer->ReadByte();
 
         if ((aFlags & 1) != 0)
@@ -910,8 +928,8 @@ int PopAnim::LoadSpriteDef(Buffer* theBuffer, PASpriteDef* theDef)
             int aDefCount = ReadCount(theBuffer);
             for (int aDefIndex = 0; aDefIndex < aDefCount; ++aDefIndex)
             {
-                PAObjectPos* aPos = mSpriteDef->AllocTransform();
-                PAObjectDef* aData = mSpriteDef->AllocData();
+                PAObjectPos *aPos = mSpriteDef->AllocTransform();
+                PAObjectDef *aData = mSpriteDef->AllocData();
                 aPos->mDef = aData;
                 unsigned int aPacked = (unsigned short)theBuffer->ReadShort();
                 aData->mIndex = (int)(aPacked & 0x7FF);
@@ -930,7 +948,7 @@ int PopAnim::LoadSpriteDef(Buffer* theBuffer, PASpriteDef* theDef)
 
                 if (aData->mIndex >= (int)theDef->mObjects.size())
                     theDef->mObjects.resize((size_t)aData->mIndex + 1);
-                PAObjectDef& aRecord = theDef->mObjects[(size_t)aData->mIndex];
+                PAObjectDef &aRecord = theDef->mObjects[(size_t)aData->mIndex];
                 aRecord.mName = aData->mName;
                 aRecord.mIndex = aData->mIndex;
                 aRecord.mIsSprite = aData->mIsSprite;
@@ -952,10 +970,10 @@ int PopAnim::LoadSpriteDef(Buffer* theBuffer, PASpriteDef* theDef)
                 int aKey = (int)(aPacked & 0x3FF);
                 if (aKey == 1023)
                     aKey = theBuffer->ReadLong();
-                std::map<int, PAObjectPos*>::iterator aFound = aLive.find(aKey);
+                std::map<int, PAObjectPos *>::iterator aFound = aLive.find(aKey);
                 if (aFound == aLive.end() || aFound->second == nullptr)
                     continue;
-                PAObjectPos* aPos = mSpriteDef->AllocTransform();
+                PAObjectPos *aPos = mSpriteDef->AllocTransform();
                 *aPos = *aFound->second;
                 aFound->second = aPos;
                 aPos->mMatrix.LoadIdentity();
@@ -1037,12 +1055,12 @@ int PopAnim::LoadSpriteDef(Buffer* theBuffer, PASpriteDef* theDef)
         }
 
         aFrame.mObjects.clear();
-        for (std::map<int, PAObjectPos*>::iterator aIt = aLive.begin(); aIt != aLive.end(); ++aIt)
+        for (std::map<int, PAObjectPos *>::iterator aIt = aLive.begin(); aIt != aLive.end(); ++aIt)
         {
-            PAObjectPos* aPos = aIt->second;
+            PAObjectPos *aPos = aIt->second;
             if (aPos != nullptr && aPos->mDef != nullptr && aPos->mDef->mIndex != 0)
             {
-                PAObjectDef* aCopy = mSpriteDef->AllocData();
+                PAObjectDef *aCopy = mSpriteDef->AllocData();
                 *aCopy = *aPos->mDef;
                 aCopy->mAdvanceCount = 0;
                 aPos->mDef = aCopy;
@@ -1056,21 +1074,20 @@ int PopAnim::LoadSpriteDef(Buffer* theBuffer, PASpriteDef* theDef)
         int aSpan = (int)theDef->mFrames.size();
         for (int aFrameIndex = 0; aFrameIndex < aSpan; ++aFrameIndex)
         {
-            PAFrame& aFrame = theDef->mFrames[(size_t)aFrameIndex];
+            PAFrame &aFrame = theDef->mFrames[(size_t)aFrameIndex];
             if ((int)aFrame.mObjects.size() <= 1)
                 continue;
-            int aOffsets[3] = { theDef->mLastFrame - 1, 1, 2 };
+            int aOffsets[3] = {theDef->mLastFrame - 1, 1, 2};
             for (int aObj = 0; aObj < (int)aFrame.mObjects.size(); ++aObj)
             {
-                PAObjectPos* aPos = aFrame.mObjects[(size_t)aObj];
+                PAObjectPos *aPos = aFrame.mObjects[(size_t)aObj];
                 if (aPos == nullptr || aPos->mDef == nullptr)
                     continue;
-                PAObjectPos* aSamples[3] = { nullptr, nullptr, nullptr };
+                PAObjectPos *aSamples[3] = {nullptr, nullptr, nullptr};
                 for (int aSample = 0; aSample < 3; ++aSample)
                 {
-                    PAFrame* aOther = aFrame.mHold
-                        ? &aFrame
-                        : &theDef->mFrames[(size_t)((aOffsets[aSample] + aFrameIndex) % aSpan)];
+                    PAFrame *aOther =
+                        aFrame.mHold ? &aFrame : &theDef->mFrames[(size_t)((aOffsets[aSample] + aFrameIndex) % aSpan)];
                     aSamples[aSample] = PoseAt(aOther, aObj, aPos->mDef->mIndex);
                 }
                 if (aSamples[1] == nullptr || aSamples[0] == nullptr || aSamples[2] == nullptr)
@@ -1098,7 +1115,7 @@ int PopAnim::LoadSpriteDef(Buffer* theBuffer, PASpriteDef* theDef)
     return 1;
 }
 
-int PopAnim::Load_LoadPam(String const& theFile)
+int PopAnim::Load_LoadPam(String const &theFile)
 {
     mPamFileName = theFile;
     if (mSpriteDef != nullptr)
@@ -1131,7 +1148,7 @@ int PopAnim::Load_LoadPam(String const& theFile)
     mImages.resize((size_t)aImageCount);
     for (int aIndex = 0; aIndex < aImageCount; ++aIndex)
     {
-        PAImage& aImage = mImages[(size_t)aIndex];
+        PAImage &aImage = mImages[(size_t)aIndex];
         aImage.mDrawMode = 0;
         String aName = Remap(aFile.ReadString());
         String aVariant;
@@ -1159,8 +1176,8 @@ int PopAnim::Load_LoadPam(String const& theFile)
         int aBracketEnd = FindChar(aName, ']', 0);
         if (aBracket >= 0 && aBracketEnd > aBracket)
         {
-            String aInside = Lowered(aName.substr((unsigned int)(aBracket + 1),
-                                                  (unsigned int)(aBracketEnd - aBracket - 1)));
+            String aInside =
+                Lowered(aName.substr((unsigned int)(aBracket + 1), (unsigned int)(aBracketEnd - aBracket - 1)));
             String aJoined = aName.substr(0, (unsigned int)aBracket) + aName.substr((unsigned int)(aBracketEnd + 1));
             aName = Trimmed(aJoined);
             int aComma = FindChar(aInside, ',', 0);
@@ -1209,9 +1226,8 @@ int PopAnim::Load_LoadPam(String const& theFile)
             while (aPos < aName.size())
             {
                 int aComma = FindChar(aName, ',', aPos);
-                String aToken = aComma < 0
-                    ? aName.substr(aPos)
-                    : aName.substr(aPos, (unsigned int)(aComma - (int)aPos));
+                String aToken =
+                    aComma < 0 ? aName.substr(aPos) : aName.substr(aPos, (unsigned int)(aComma - (int)aPos));
                 Load_GetImage(&aImage, aDir, aToken, aToken);
                 if (aComma < 0)
                     break;
@@ -1224,12 +1240,12 @@ int PopAnim::Load_LoadPam(String const& theFile)
             SharedImageRef aRef = gSexyAppBase->GetSharedImage(String("!whitepixel"), String(), &aIsNew, true, false);
             if (aIsNew)
             {
-                MemoryImage* aPixel = aRef.operator Sexy::MemoryImage*();
+                MemoryImage *aPixel = aRef.operator Sexy::MemoryImage *();
                 if (aPixel != nullptr)
                 {
                     aPixel->Create(1, 1);
                     aPixel->SetImageMode(false, false);
-                    unsigned int* aBits = aPixel->GetBits();
+                    unsigned int *aBits = aPixel->GetBits();
                     if (aBits != nullptr)
                         aBits[0] = (unsigned int)-1;
                     aPixel->BitsChanged();
@@ -1270,8 +1286,7 @@ int PopAnim::Load_LoadPam(String const& theFile)
     return 1;
 }
 
-
-int PopAnim::ResetAnimHelper(PASpriteInst* theSprite)
+int PopAnim::ResetAnimHelper(PASpriteInst *theSprite)
 {
     if (theSprite == nullptr)
         return 0;
@@ -1302,8 +1317,7 @@ int PopAnim::GetToFirstFrame()
         return 0;
     bool aWasActive = mActive;
     bool aWasDisabled = mParticlesDisabled;
-    while (mSpriteInst->mDef != nullptr
-           && mSpriteInst->mFrameTime < (float)mSpriteInst->mDef->mFrames.size())
+    while (mSpriteInst->mDef != nullptr && mSpriteInst->mFrameTime < (float)mSpriteInst->mDef->mFrames.size())
     {
         mActive = true;
         mParticlesDisabled = false;
@@ -1316,7 +1330,7 @@ int PopAnim::GetToFirstFrame()
     return 0;
 }
 
-int PopAnim::InitSpriteInst(PASpriteInst* theSprite, PASpriteDef* theDef)
+int PopAnim::InitSpriteInst(PASpriteInst *theSprite, PASpriteDef *theDef)
 {
     if (theSprite == nullptr || theDef == nullptr)
         return 0;
@@ -1332,11 +1346,11 @@ int PopAnim::InitSpriteInst(PASpriteInst* theSprite, PASpriteDef* theDef)
     theSprite->mObjects.resize(theDef->mObjects.size());
     for (size_t aIndex = 0; aIndex < theDef->mObjects.size(); ++aIndex)
     {
-        PAObjectInst& aObject = theSprite->mObjects[aIndex];
+        PAObjectInst &aObject = theSprite->mObjects[aIndex];
         aObject.mColor = Color::White;
         aObject.mName = theDef->mObjects[aIndex].mName;
         aObject.mBlending = false;
-        PASpriteDef* aNested = theDef->mObjects[aIndex].mNestedDef;
+        PASpriteDef *aNested = theDef->mObjects[aIndex].mNestedDef;
         if (aNested != nullptr)
         {
             aObject.mInst = new PASpriteInst();
@@ -1349,7 +1363,7 @@ int PopAnim::InitSpriteInst(PASpriteInst* theSprite, PASpriteDef* theDef)
     return 0;
 }
 
-int PopAnim::SetupSpriteInst(String const& theName)
+int PopAnim::SetupSpriteInst(String const &theName)
 {
     if (mSpriteInst == nullptr)
         return 0;
@@ -1365,10 +1379,10 @@ int PopAnim::SetupSpriteInst(String const& theName)
     if (mSpriteDef->mNestedDefs.empty())
         return 0;
     String aName = theName.empty() ? String("main") : theName;
-    PASpriteDef* aChosen = &mSpriteDef->mNestedDefs[0];
+    PASpriteDef *aChosen = &mSpriteDef->mNestedDefs[0];
     for (size_t aIndex = 0; aIndex < mSpriteDef->mNestedDefs.size(); ++aIndex)
     {
-        const char* aDefName = mSpriteDef->mNestedDefs[aIndex].mName;
+        const char *aDefName = mSpriteDef->mNestedDefs[aIndex].mName;
         if (aDefName != nullptr && strcasecmp(aDefName, aName.c_str()) == 0)
             aChosen = &mSpriteDef->mNestedDefs[aIndex];
     }
@@ -1385,14 +1399,14 @@ int PopAnim::SetupSpriteInst(String const& theName)
     return 1;
 }
 
-int PopAnim::GetLabelFrame(String const& theName)
+int PopAnim::GetLabelFrame(String const &theName)
 {
     if (mSpriteDef == nullptr || mSpriteDef->mMainDef == nullptr)
         return -1;
     return mSpriteDef->mMainDef->GetLabelFrame(theName);
 }
 
-const char** PopAnim::FindSpriteDef(char const* theName)
+const char **PopAnim::FindSpriteDef(char const *theName)
 {
     if (mSpriteDef == nullptr || theName == nullptr)
         return nullptr;
@@ -1404,7 +1418,7 @@ const char** PopAnim::FindSpriteDef(char const* theName)
     return nullptr;
 }
 
-int PopAnim::GetObjectInst(String const& theName)
+int PopAnim::GetObjectInst(String const &theName)
 {
     SetupSpriteInst(String());
     if (mSpriteInst == nullptr)
@@ -1452,21 +1466,21 @@ int PopAnim::Clear()
     return 0;
 }
 
-int PopAnim::SetColor(Color const& theColor)
+int PopAnim::SetColor(Color const &theColor)
 {
     mColor = theColor;
     MarkDirty();
     return 0;
 }
 
-int PopAnim::IncSpriteInstFrame(PASpriteInst* theSprite, PAObjectPos* thePose, float theStep)
+int PopAnim::IncSpriteInstFrame(PASpriteInst *theSprite, PAObjectPos *thePose, float theStep)
 {
     if (theSprite == nullptr || theSprite->mDef == nullptr || theSprite->mDef->mFrames.empty())
         return 0;
     int aOldFrame = (int)theSprite->mFrameTime;
     if (aOldFrame < 0 || aOldFrame >= (int)theSprite->mDef->mFrames.size())
         return 0;
-    PAFrame& aFrame = theSprite->mDef->mFrames[(size_t)aOldFrame];
+    PAFrame &aFrame = theSprite->mDef->mFrames[(size_t)aOldFrame];
     if (aFrame.mHold)
         return 0;
 
@@ -1475,8 +1489,8 @@ int PopAnim::IncSpriteInstFrame(PASpriteInst* theSprite, PAObjectPos* thePose, f
         aRateScale = thePose->mDef->mRateScale;
     if (aRateScale == 0.0f)
         aRateScale = 1.0f;
-    float aFrameTime = theSprite->mFrameTime
-        + theSprite->mDef->mRate * 0.001f * (float)gSexyAppBase->mFrameTime * theStep / aRateScale;
+    float aFrameTime = theSprite->mFrameTime +
+        theSprite->mDef->mRate * 0.001f * (float)gSexyAppBase->mFrameTime * theStep / aRateScale;
     theSprite->mFrameTime = aFrameTime;
 
     int aNewFrame = (int)aFrameTime;
@@ -1513,8 +1527,8 @@ int PopAnim::IncSpriteInstFrame(PASpriteInst* theSprite, PAObjectPos* thePose, f
         int aFrameCount = (int)theSprite->mDef->mFrames.size();
         if (aNewFrame >= aFrameCount)
         {
-            if (mSpriteInst != nullptr && mSpriteInst->mObjects.size() > 1
-                && theSprite == mSpriteInst->mObjects[1].mInst)
+            if (mSpriteInst != nullptr && mSpriteInst->mObjects.size() > 1 &&
+                theSprite == mSpriteInst->mObjects[1].mInst)
             {
                 if (!mLoopNotified && mListener != nullptr)
                     mListener->OnSpriteInstLoop(mId, 0);
@@ -1540,7 +1554,7 @@ int PopAnim::IncSpriteInstFrame(PASpriteInst* theSprite, PAObjectPos* thePose, f
     }
     for (size_t aIndex = 0; aIndex < aFrame.mObjects.size(); ++aIndex)
     {
-        PAObjectPos* aPos = aFrame.mObjects[aIndex];
+        PAObjectPos *aPos = aFrame.mObjects[aIndex];
         if (aPos == nullptr || aPos->mDef == nullptr || !aPos->mDef->mIsSprite)
             continue;
         int aObject = aPos->mDef->mIndex;
@@ -1551,20 +1565,20 @@ int PopAnim::IncSpriteInstFrame(PASpriteInst* theSprite, PAObjectPos* thePose, f
     return 0;
 }
 
-int* PopAnim::FrameHit(PASpriteInst* theSprite, PAFrame* theFrame, PAObjectPos* thePose)
+int *PopAnim::FrameHit(PASpriteInst *theSprite, PAFrame *theFrame, PAObjectPos *thePose)
 {
     if (theSprite == nullptr || theFrame == nullptr)
         return nullptr;
     theSprite->mFrameAdvanced = false;
     for (size_t aIndex = 0; aIndex < theFrame->mObjects.size(); ++aIndex)
     {
-        PAObjectPos* aPos = theFrame->mObjects[aIndex];
+        PAObjectPos *aPos = theFrame->mObjects[aIndex];
         if (aPos == nullptr || aPos->mDef == nullptr || !aPos->mDef->mIsSprite)
             continue;
         int aObject = aPos->mDef->mIndex;
         if (aObject < 0 || aObject >= (int)theSprite->mObjects.size())
             continue;
-        PASpriteInst* aNested = theSprite->mObjects[(size_t)aObject].mInst;
+        PASpriteInst *aNested = theSprite->mObjects[(size_t)aObject].mInst;
         if (aNested == nullptr || theSprite->mDef == nullptr || theSprite->mDef->mRate == 0.0f)
             continue;
         if (aPos->mDef->mAdvanceCount <= 0)
@@ -1578,7 +1592,7 @@ int* PopAnim::FrameHit(PASpriteInst* theSprite, PAFrame* theFrame, PAObjectPos* 
 
     for (size_t aIndex = 0; aIndex < theFrame->mCommands.size(); ++aIndex)
     {
-        PACommand const& aCommand = theFrame->mCommands[aIndex];
+        PACommand const &aCommand = theFrame->mCommands[aIndex];
         if (mListener != nullptr && mListener->OnCommand(mId, theSprite, aCommand.mName, aCommand.mArgs))
             continue;
         String aLower = Lowered(aCommand.mName);
@@ -1674,15 +1688,15 @@ int* PopAnim::FrameHit(PASpriteInst* theSprite, PAFrame* theFrame, PAObjectPos* 
             if (aEntry.mEffect == nullptr && gSexyAppBase != nullptr && gSexyAppBase->mResourceManager != nullptr)
             {
                 ResourceRef aLooked = gSexyAppBase->mResourceManager->GetResourceRefFromPath(aNamePath + ".ppf");
-                if (aLooked.operator Sexy::PIEffect*() == nullptr)
+                if (aLooked.operator Sexy::PIEffect *() == nullptr)
                     aLooked = gSexyAppBase->mResourceManager->GetResourceRefFromPath(aParentPath + ".ppf");
-                if (aLooked.operator Sexy::PIEffect*() == nullptr)
+                if (aLooked.operator Sexy::PIEffect *() == nullptr)
                 {
                     String aUpper;
                     StringToUpper(&aUpper, aEffectName.c_str());
                     aLooked = gSexyAppBase->mResourceManager->GetResourceRef(4, String("PIEFFECT_") + aUpper);
                 }
-                PIEffect* aFound = aLooked.operator Sexy::PIEffect*();
+                PIEffect *aFound = aLooked.operator Sexy::PIEffect *();
                 if (aFound != nullptr)
                 {
                     aEntry.mEffect = aFound->Duplicate();
@@ -1734,12 +1748,12 @@ int* PopAnim::FrameHit(PASpriteInst* theSprite, PAFrame* theFrame, PAObjectPos* 
                 aEntry.mEffect->mRand.SRand(mRandom.Next());
             }
             aEntry.mEffect->mNeedsSeed = false;
-            if (thePose != nullptr && thePose->mDef != nullptr
-                && theSprite->mDef != nullptr && theSprite->mDef->mRate != 0.0f)
+            if (thePose != nullptr && thePose->mDef != nullptr && theSprite->mDef != nullptr &&
+                theSprite->mDef->mRate != 0.0f)
             {
                 float aScale = thePose->mDef->mRateScale == 0.0f ? 1.0f : thePose->mDef->mRateScale;
-                int aWarm = (int)((float)thePose->mDef->mAdvanceCount
-                                  / (theSprite->mDef->mRate * aScale) * 100.0f + 0.5f);
+                int aWarm =
+                    (int)((float)thePose->mDef->mAdvanceCount / (theSprite->mDef->mRate * aScale) * 100.0f + 0.5f);
                 for (int aWarmStep = 0; aWarmStep < aWarm; ++aWarmStep)
                     aEntry.mEffect->Update();
             }
@@ -1790,38 +1804,38 @@ int* PopAnim::FrameHit(PASpriteInst* theSprite, PAFrame* theFrame, PAObjectPos* 
     return nullptr;
 }
 
-int* PopAnim::DoFramesHit(PASpriteInst* theSprite, PAObjectPos* thePose)
+int *PopAnim::DoFramesHit(PASpriteInst *theSprite, PAObjectPos *thePose)
 {
     if (theSprite == nullptr || theSprite->mDef == nullptr || theSprite->mDef->mFrames.empty())
         return nullptr;
     int aFrame = (int)theSprite->mFrameTime;
     if (aFrame < 0 || aFrame >= (int)theSprite->mDef->mFrames.size())
         return nullptr;
-    PAFrame& aFrameRef = theSprite->mDef->mFrames[(size_t)aFrame];
-    int* aResult = FrameHit(theSprite, &aFrameRef, thePose);
+    PAFrame &aFrameRef = theSprite->mDef->mFrames[(size_t)aFrame];
+    int *aResult = FrameHit(theSprite, &aFrameRef, thePose);
     for (size_t aIndex = 0; aIndex < aFrameRef.mObjects.size(); ++aIndex)
     {
-        PAObjectPos* aPos = aFrameRef.mObjects[aIndex];
+        PAObjectPos *aPos = aFrameRef.mObjects[aIndex];
         if (aPos == nullptr || aPos->mDef == nullptr || !aPos->mDef->mIsSprite)
             continue;
         int aObject = aPos->mDef->mIndex;
         if (aObject < 0 || aObject >= (int)theSprite->mObjects.size())
             continue;
-        PASpriteInst* aNested = theSprite->mObjects[(size_t)aObject].mInst;
+        PASpriteInst *aNested = theSprite->mObjects[(size_t)aObject].mInst;
         if (aNested != nullptr)
             aResult = DoFramesHit(aNested, nullptr);
     }
     return aResult;
 }
 
-void PopAnim::PrepSpriteInstFrame(PASpriteInst* theSprite, PAObjectPos* thePose)
+void PopAnim::PrepSpriteInstFrame(PASpriteInst *theSprite, PAObjectPos *thePose)
 {
     if (theSprite == nullptr || theSprite->mDef == nullptr || theSprite->mDef->mFrames.empty())
         return;
     int aFrameIndex = (int)theSprite->mFrameTime;
     if (aFrameIndex < 0 || aFrameIndex >= (int)theSprite->mDef->mFrames.size())
         return;
-    PAFrame& aFrame = theSprite->mDef->mFrames[(size_t)aFrameIndex];
+    PAFrame &aFrame = theSprite->mDef->mFrames[(size_t)aFrameIndex];
     if (theSprite->mFrameAdvanced)
         FrameHit(theSprite, &aFrame, thePose);
     if (aFrame.mHold)
@@ -1837,13 +1851,13 @@ void PopAnim::PrepSpriteInstFrame(PASpriteInst* theSprite, PAObjectPos* thePose)
     int aStamp = aFrameIndex + theSprite->mLoopCount * (int)theSprite->mDef->mFrames.size();
     for (size_t aIndex = 0; aIndex < aFrame.mObjects.size(); ++aIndex)
     {
-        PAObjectPos* aPos = aFrame.mObjects[aIndex];
+        PAObjectPos *aPos = aFrame.mObjects[aIndex];
         if (aPos == nullptr || aPos->mDef == nullptr || !aPos->mDef->mIsSprite)
             continue;
         int aObject = aPos->mDef->mIndex;
         if (aObject < 0 || aObject >= (int)theSprite->mObjects.size())
             continue;
-        PASpriteInst* aNested = theSprite->mObjects[(size_t)aObject].mInst;
+        PASpriteInst *aNested = theSprite->mObjects[(size_t)aObject].mInst;
         if (aNested == nullptr)
             continue;
         if (aNested->mLastStamp != aStamp - 1 && aNested->mLastStamp != aStamp)
@@ -1937,7 +1951,7 @@ int PopAnim::Play(int theFrame, bool theReset)
     return 1;
 }
 
-int PopAnim::Play(String const& theName, bool theReset)
+int PopAnim::Play(String const &theName, bool theReset)
 {
     mActive = false;
     if (mSpriteDef == nullptr)
@@ -1958,7 +1972,7 @@ int PopAnim::Play(String const& theName, bool theReset)
     return Play(mSpriteInst->mDef->mFirstFrame, theReset);
 }
 
-int PopAnim::BlendTo(String const& theName, int theDuration, int theDelay)
+int PopAnim::BlendTo(String const &theName, int theDuration, int theDelay)
 {
     int aResult = SetupSpriteInst(String());
     if (aResult == 0 || mSpriteInst == nullptr || mSpriteInst->mDef == nullptr)
@@ -1979,16 +1993,16 @@ int PopAnim::BlendTo(String const& theName, int theDuration, int theDelay)
     int aFrame = (int)mSpriteInst->mFrameTime;
     if (aFrame >= 0 && aFrame < (int)mSpriteInst->mDef->mFrames.size())
     {
-        PAFrame& aFrameRef = mSpriteInst->mDef->mFrames[(size_t)aFrame];
+        PAFrame &aFrameRef = mSpriteInst->mDef->mFrames[(size_t)aFrame];
         for (size_t aIndex = 0; aIndex < aFrameRef.mObjects.size(); ++aIndex)
         {
-            PAObjectPos* aPos = aFrameRef.mObjects[aIndex];
+            PAObjectPos *aPos = aFrameRef.mObjects[aIndex];
             if (aPos == nullptr || aPos->mDef == nullptr)
                 continue;
             int aObject = aPos->mDef->mIndex;
             if (aObject < 0 || aObject >= (int)mSpriteInst->mObjects.size())
                 continue;
-            PAObjectInst& aInst = mSpriteInst->mObjects[(size_t)aObject];
+            PAObjectInst &aInst = mSpriteInst->mObjects[(size_t)aObject];
             if (aInst.mName == nullptr || aInst.mName[0] == 0)
                 continue;
             BlendSrc aSrc;
@@ -2003,7 +2017,7 @@ int PopAnim::BlendTo(String const& theName, int theDuration, int theDelay)
             }
             if (aInst.mInst != nullptr)
                 aSrc.mParticles.swap(aInst.mInst->mParticles);
-            const char* aKey = aPos->mDef->mName != nullptr ? aPos->mDef->mName : "";
+            const char *aKey = aPos->mDef->mName != nullptr ? aPos->mDef->mName : "";
             aSources.insert(std::make_pair(String(aKey), aSrc));
         }
     }
@@ -2034,7 +2048,7 @@ int PopAnim::BlendTo(String const& theName, int theDuration, int theDelay)
 
     for (size_t aIndex = 0; aIndex < mSpriteInst->mObjects.size(); ++aIndex)
     {
-        PAObjectInst& aObject = mSpriteInst->mObjects[aIndex];
+        PAObjectInst &aObject = mSpriteInst->mObjects[aIndex];
         if (aObject.mName == nullptr || aObject.mName[0] == 0)
             continue;
         std::multimap<String, BlendSrc>::iterator aFound = aSources.find(String(aObject.mName));
@@ -2085,24 +2099,24 @@ void PopAnim::Update()
     }
 }
 
-int PopAnim::CalcObjectPos(PASpriteInst* theSprite, int theIndex, bool theNoInterp,
-                           PATransform* theTransform, Color* theColor)
+int PopAnim::CalcObjectPos(
+    PASpriteInst *theSprite, int theIndex, bool theNoInterp, PATransform *theTransform, Color *theColor)
 {
     if (theSprite == nullptr || theSprite->mDef == nullptr || theTransform == nullptr || theColor == nullptr)
         return 0;
     int aFrameIndex = (int)theSprite->mFrameTime;
     if (aFrameIndex < 0 || aFrameIndex >= (int)theSprite->mDef->mFrames.size())
         return 0;
-    PAFrame& aFrame = theSprite->mDef->mFrames[(size_t)aFrameIndex];
+    PAFrame &aFrame = theSprite->mDef->mFrames[(size_t)aFrameIndex];
     if (theIndex < 0 || theIndex >= (int)aFrame.mObjects.size() || aFrame.mObjects[(size_t)theIndex] == nullptr)
         return 0;
-    PAObjectPos* aPos = aFrame.mObjects[(size_t)theIndex];
+    PAObjectPos *aPos = aFrame.mObjects[(size_t)theIndex];
     if (aPos->mDef == nullptr)
         return 0;
     int aObject = aPos->mDef->mIndex;
     if (aObject < 0 || aObject >= (int)theSprite->mObjects.size())
         return 0;
-    PAObjectInst& aInst = theSprite->mObjects[(size_t)aObject];
+    PAObjectInst &aInst = theSprite->mObjects[(size_t)aObject];
 
     PATransform aPose;
     Color aColor;
@@ -2123,7 +2137,7 @@ int PopAnim::CalcObjectPos(PASpriteInst* theSprite, int theIndex, bool theNoInte
             int aCount = (int)theSprite->mDef->mFrames.size();
             aNextIndex = aCount == 0 ? 0 : (aFrameIndex + 1) % aCount;
         }
-        PAObjectPos* aNext = nullptr;
+        PAObjectPos *aNext = nullptr;
         if (aNextIndex >= 0 && aNextIndex < (int)theSprite->mDef->mFrames.size())
             aNext = PoseAt(&theSprite->mDef->mFrames[(size_t)aNextIndex], theIndex, aPos->mDef->mIndex);
         float aFrac = theSprite->mFrameTime - (float)aFrameIndex;
@@ -2134,7 +2148,7 @@ int PopAnim::CalcObjectPos(PASpriteInst* theSprite, int theIndex, bool theNoInte
         }
         else if (aPos == aNext || !aPos->mInterpolate)
         {
-            PAObjectPos* aChosen = (aPos != aNext && aFrac >= 0.5f) ? aNext : aPos;
+            PAObjectPos *aChosen = (aPos != aNext && aFrac >= 0.5f) ? aNext : aPos;
             aPose.mMatrix = aChosen->mMatrix;
             Color::FromInt(&aColor, aChosen->mPackedColor);
         }
@@ -2163,8 +2177,7 @@ int PopAnim::CalcObjectPos(PASpriteInst* theSprite, int theIndex, bool theNoInte
     return aColor.mRed;
 }
 
-int PopAnim::UpdateTransforms(PASpriteInst* theSprite, PATransform* theParent,
-                              Color const& theColor, bool theNoInterp)
+int PopAnim::UpdateTransforms(PASpriteInst *theSprite, PATransform *theParent, Color const &theColor, bool theNoInterp)
 {
     if (theSprite == nullptr || theSprite->mDef == nullptr)
         return 0;
@@ -2177,11 +2190,11 @@ int PopAnim::UpdateTransforms(PASpriteInst* theSprite, PATransform* theParent,
     int aFrameIndex = (int)theSprite->mFrameTime;
     if (aFrameIndex < 0 || aFrameIndex >= (int)theSprite->mDef->mFrames.size())
         return 0;
-    PAFrame& aFrame = theSprite->mDef->mFrames[(size_t)aFrameIndex];
+    PAFrame &aFrame = theSprite->mDef->mFrames[(size_t)aFrameIndex];
     bool aSnap = theNoInterp || theSprite->mHoldFrames > 0 || aFrame.mHold;
     for (size_t aIndex = 0; aIndex < aFrame.mObjects.size(); ++aIndex)
     {
-        PAObjectPos* aPos = aFrame.mObjects[aIndex];
+        PAObjectPos *aPos = aFrame.mObjects[aIndex];
         if (aPos == nullptr || aPos->mDef == nullptr || !aPos->mDef->mIsSprite)
             continue;
         PATransform aObject;
@@ -2196,14 +2209,14 @@ int PopAnim::UpdateTransforms(PASpriteInst* theSprite, PATransform* theParent,
     }
     for (size_t aIndex = 0; aIndex < theSprite->mParticles.size(); ++aIndex)
     {
-        PAParticleEffect& aEntry = theSprite->mParticles[aIndex];
+        PAParticleEffect &aEntry = theSprite->mParticles[aIndex];
         if (!aEntry.mFollowSprite || aEntry.mEffect == nullptr)
             continue;
         SexyTransform2D aEffect;
         if (aEntry.mActive)
         {
-            aEffect.Translate((float)aEntry.mEffect->mParticleScale * 0.5f,
-                              (float)aEntry.mEffect->mTimelineStart * 0.5f);
+            aEffect.Translate(
+                (float)aEntry.mEffect->mParticleScale * 0.5f, (float)aEntry.mEffect->mTimelineStart * 0.5f);
             aEffect = theSprite->mTransform * aEffect;
         }
         else
@@ -2217,15 +2230,15 @@ int PopAnim::UpdateTransforms(PASpriteInst* theSprite, PATransform* theParent,
     return 0;
 }
 
-float PopAnim::DrawParticleEffects(Graphics* theGraphics, PASpriteInst* theSprite,
-                                   PATransform* theParent, Color const& theColor, bool theAdditive)
+float PopAnim::DrawParticleEffects(
+    Graphics *theGraphics, PASpriteInst *theSprite, PATransform *theParent, Color const &theColor, bool theAdditive)
 {
     float aResult = 0.0f;
     if (theSprite == nullptr)
         return aResult;
     for (size_t aIndex = 0; aIndex < theSprite->mParticles.size(); ++aIndex)
     {
-        PAParticleEffect& aEntry = theSprite->mParticles[aIndex];
+        PAParticleEffect &aEntry = theSprite->mParticles[aIndex];
         if (aEntry.mEffect == nullptr)
             continue;
         if (aEntry.mActive)
@@ -2238,8 +2251,8 @@ float PopAnim::DrawParticleEffects(Graphics* theGraphics, PASpriteInst* theSprit
             else if (theParent != nullptr)
             {
                 SexyTransform2D aLocal;
-                aLocal.Translate((float)aEntry.mEffect->mParticleScale * 0.5f,
-                                 (float)aEntry.mEffect->mTimelineStart * 0.5f);
+                aLocal.Translate(
+                    (float)aEntry.mEffect->mParticleScale * 0.5f, (float)aEntry.mEffect->mTimelineStart * 0.5f);
                 aEntry.mEffect->mTransform = theParent->mMatrix * aLocal;
             }
             aEntry.mEffect->mColor = theColor;
@@ -2250,10 +2263,11 @@ float PopAnim::DrawParticleEffects(Graphics* theGraphics, PASpriteInst* theSprit
     return aResult;
 }
 
-namespace {
+namespace
+{
 
-void DrawImagePose(Graphics* theGraphics, PopAnim* theAnim, Image* theImage,
-                   SexyMatrix3& theMatrix, TRect<int> const& theSrc, bool theMirrored)
+void DrawImagePose(Graphics *theGraphics, PopAnim *theAnim, Image *theImage, SexyMatrix3 &theMatrix,
+    TRect<int> const &theSrc, bool theMirrored)
 {
     if (theGraphics == nullptr || theImage == nullptr || theAnim == nullptr)
         return;
@@ -2275,19 +2289,19 @@ void DrawImagePose(Graphics* theGraphics, PopAnim* theAnim, Image* theImage,
 
     bool aAxis = theMirrored
         ? (theMatrix.m00 == 1.0f && theMatrix.m01 == 0.0f && theMatrix.m10 == 0.0f && theMatrix.m11 == 1.0f)
-        : (fabsf(theMatrix.m00 - 1.0f) <= 0.001f && fabsf(theMatrix.m01) <= 0.001f
-           && fabsf(theMatrix.m10) <= 0.001f && fabsf(theMatrix.m11 - 1.0f) <= 0.001f);
+        : (fabsf(theMatrix.m00 - 1.0f) <= 0.001f && fabsf(theMatrix.m01) <= 0.001f && fabsf(theMatrix.m10) <= 0.001f &&
+              fabsf(theMatrix.m11 - 1.0f) <= 0.001f);
     if (aAxis)
     {
         if (theMirrored)
         {
-            float aX = ((float)(theAnim->mAnimWidth - theSrc.mWidth) * 0.5f - theMatrix.m02)
-                - (float)(theSrc.mWidth - theAnim->mAnimWidth) * 0.5f;
+            float aX = ((float)(theAnim->mAnimWidth - theSrc.mWidth) * 0.5f - theMatrix.m02) -
+                (float)(theSrc.mWidth - theAnim->mAnimWidth) * 0.5f;
             theGraphics->DrawImageF(theImage, aX, theMatrix.m12, theSrc);
             return;
         }
-        if (fabsf(theMatrix.m02 - (float)(int)theMatrix.m02) > 0.001f
-            || fabsf(theMatrix.m12 - (float)(int)theMatrix.m12) > 0.001f)
+        if (fabsf(theMatrix.m02 - (float)(int)theMatrix.m02) > 0.001f ||
+            fabsf(theMatrix.m12 - (float)(int)theMatrix.m12) > 0.001f)
         {
             if (theAnim->mDebugDraw)
                 theGraphics->SetColor(Color(128, 0, 255));
@@ -2301,10 +2315,8 @@ void DrawImagePose(Graphics* theGraphics, PopAnim* theAnim, Image* theImage,
         }
         return;
     }
-    bool aPureRotate = theAnim->mPamVersion != 1
-        && theMatrix.m00 == theMatrix.m11
-        && theMatrix.m01 == -theMatrix.m10
-        && fabsf(theMatrix.m00 * theMatrix.m00 + theMatrix.m01 * theMatrix.m01 - 1.0f) < 0.01f;
+    bool aPureRotate = theAnim->mPamVersion != 1 && theMatrix.m00 == theMatrix.m11 && theMatrix.m01 == -theMatrix.m10 &&
+        fabsf(theMatrix.m00 * theMatrix.m00 + theMatrix.m01 * theMatrix.m01 - 1.0f) < 0.01f;
     if (!aPureRotate)
     {
         SexyMatrix3 aPivot;
@@ -2335,8 +2347,8 @@ void DrawImagePose(Graphics* theGraphics, PopAnim* theAnim, Image* theImage,
     float aY;
     if (theMirrored)
     {
-        float aBase = ((float)(theAnim->mAnimWidth - theSrc.mWidth) * 0.5f - theMatrix.m02)
-            - (float)(theSrc.mWidth - theAnim->mAnimWidth) * 0.5f;
+        float aBase = ((float)(theAnim->mAnimWidth - theSrc.mWidth) * 0.5f - theMatrix.m02) -
+            (float)(theSrc.mWidth - theAnim->mAnimWidth) * 0.5f;
         aX = (aBase + aHalfW + aSin * aHalfH) - aCos * aHalfW;
         aY = (theMatrix.m12 - aHalfH + aSin * aHalfW) + aCos * aHalfH;
     }
@@ -2352,8 +2364,8 @@ void DrawImagePose(Graphics* theGraphics, PopAnim* theAnim, Image* theImage,
 
 } // namespace
 
-int PopAnim::DrawSprite(Graphics* theGraphics, PASpriteInst* theSprite, PATransform* theParent,
-                        Color const& theColor, bool theAdditive, bool theNoInterp)
+int PopAnim::DrawSprite(Graphics *theGraphics, PASpriteInst *theSprite, PATransform *theParent, Color const &theColor,
+    bool theAdditive, bool theNoInterp)
 {
     if (theSprite == nullptr || theSprite->mDef == nullptr || theGraphics == nullptr)
         return 0;
@@ -2366,20 +2378,20 @@ int PopAnim::DrawSprite(Graphics* theGraphics, PASpriteInst* theSprite, PATransf
         theGraphics->SetDrawMode(0);
         return 0;
     }
-    PAFrame& aFrame = theSprite->mDef->mFrames[(size_t)aFrameIndex];
+    PAFrame &aFrame = theSprite->mDef->mFrames[(size_t)aFrameIndex];
     bool aSnap = theNoInterp || theSprite->mHoldFrames > 0 || aFrame.mHold;
     for (size_t aIndex = 0; aIndex < aFrame.mObjects.size(); ++aIndex)
     {
-        PAObjectPos* aPos = aFrame.mObjects[aIndex];
+        PAObjectPos *aPos = aFrame.mObjects[aIndex];
         if (aPos == nullptr || aPos->mDef == nullptr)
             continue;
         int aObjectIndex = aPos->mDef->mIndex;
         if (aObjectIndex < 0 || aObjectIndex >= (int)theSprite->mObjects.size())
             continue;
-        PAObjectInst& aObject = theSprite->mObjects[(size_t)aObjectIndex];
+        PAObjectInst &aObject = theSprite->mObjects[(size_t)aObjectIndex];
         if (mListener != nullptr && aObject.mQueryDraw)
         {
-            PATransform* aQuery = theParent;
+            PATransform *aQuery = theParent;
             aObject.mQueryDraw = mListener->ShouldDrawObject(mId, theGraphics, theSprite, &aObject, aQuery, theColor);
         }
 
@@ -2426,8 +2438,7 @@ int PopAnim::DrawSprite(Graphics* theGraphics, PASpriteInst* theSprite, PATransf
             aPose.mMatrix = mTransform * aPose.mMatrix;
         }
 
-        Color aTint(
-            aObject.mColor.mRed * theColor.mRed * aPoseColor.mRed / 65025,
+        Color aTint(aObject.mColor.mRed * theColor.mRed * aPoseColor.mRed / 65025,
             aObject.mColor.mGreen * theColor.mGreen * aPoseColor.mGreen / 65025,
             aObject.mColor.mBlue * theColor.mBlue * aPoseColor.mBlue / 65025,
             aObject.mColor.mAlpha * theColor.mAlpha * aPoseColor.mAlpha / 65025);
@@ -2441,7 +2452,7 @@ int PopAnim::DrawSprite(Graphics* theGraphics, PASpriteInst* theSprite, PATransf
         }
         else if (aPos->mDef->mImageIndex >= 0 && aPos->mDef->mImageIndex < (int)mImages.size())
         {
-            PAImage& aImage = mImages[(size_t)aPos->mDef->mImageIndex];
+            PAImage &aImage = mImages[(size_t)aPos->mDef->mImageIndex];
             PATransform aImagePose;
             aImagePose.TransformSrc(aPose, aImage.mTransform.m);
             theGraphics->SetColorizeImages(true);
@@ -2449,15 +2460,15 @@ int PopAnim::DrawSprite(Graphics* theGraphics, PASpriteInst* theSprite, PATransf
             theGraphics->SetDrawMode((theAdditive || aPos->mDef->mAdditive) ? 1 : aImage.mDrawMode);
             if (!aImage.mRefs.empty())
             {
-                Image* aLoaded = ImageOf(aImage.mRefs[0]);
+                Image *aLoaded = ImageOf(aImage.mRefs[0]);
                 TRect<int> aSrc = aLoaded != nullptr ? aLoaded->GetCelRect(0) : TRect<int>();
                 if (aPos->mDef->mUseSrcRect)
                     aSrc = aPos->mDef->mSrcRect;
                 int aHelper = 0;
                 if (mListener != nullptr && aObject.mUseDrawHelper)
                 {
-                    aHelper = mListener->DrawObjectHelper(mId, theSprite, &aObject, aImagePose.mMatrix.m,
-                                                          aLoaded, theGraphics, 0.0f);
+                    aHelper = mListener->DrawObjectHelper(
+                        mId, theSprite, &aObject, aImagePose.mMatrix.m, aLoaded, theGraphics, 0.0f);
                     if (aHelper == 0)
                         aObject.mUseDrawHelper = false;
                 }
@@ -2478,8 +2489,8 @@ int PopAnim::DrawSprite(Graphics* theGraphics, PASpriteInst* theSprite, PATransf
     return 0;
 }
 
-int PopAnim::DrawSpriteMirrored(Graphics* theGraphics, PASpriteInst* theSprite, PATransform* theParent,
-                                Color const& theColor, bool theAdditive, bool theNoInterp)
+int PopAnim::DrawSpriteMirrored(Graphics *theGraphics, PASpriteInst *theSprite, PATransform *theParent,
+    Color const &theColor, bool theAdditive, bool theNoInterp)
 {
     if (theSprite == nullptr || theSprite->mDef == nullptr || theGraphics == nullptr)
         return 0;
@@ -2492,17 +2503,17 @@ int PopAnim::DrawSpriteMirrored(Graphics* theGraphics, PASpriteInst* theSprite, 
         theGraphics->SetDrawMode(0);
         return 0;
     }
-    PAFrame& aFrame = theSprite->mDef->mFrames[(size_t)aFrameIndex];
+    PAFrame &aFrame = theSprite->mDef->mFrames[(size_t)aFrameIndex];
     bool aSnap = theNoInterp || theSprite->mHoldFrames > 0 || aFrame.mHold;
     for (size_t aIndex = 0; aIndex < aFrame.mObjects.size(); ++aIndex)
     {
-        PAObjectPos* aPos = aFrame.mObjects[aIndex];
+        PAObjectPos *aPos = aFrame.mObjects[aIndex];
         if (aPos == nullptr || aPos->mDef == nullptr)
             continue;
         int aObjectIndex = aPos->mDef->mIndex;
         if (aObjectIndex < 0 || aObjectIndex >= (int)theSprite->mObjects.size())
             continue;
-        PAObjectInst& aObject = theSprite->mObjects[(size_t)aObjectIndex];
+        PAObjectInst &aObject = theSprite->mObjects[(size_t)aObjectIndex];
         PATransform aPose;
         Color aPoseColor;
         if (aPos->mDef->mIsSprite && aObject.mInst != nullptr)
@@ -2523,8 +2534,7 @@ int PopAnim::DrawSpriteMirrored(Graphics* theGraphics, PASpriteInst* theSprite, 
             aScale.mMatrix.m11 = mScaleX;
             aPose.TransformSrc(aScale, aPose.mMatrix.m);
         }
-        Color aTint(
-            theColor.mRed * aPoseColor.mRed / 255,
+        Color aTint(theColor.mRed * aPoseColor.mRed / 255,
             theColor.mGreen * aPoseColor.mGreen / 255,
             theColor.mBlue * aPoseColor.mBlue / 255,
             theColor.mAlpha * aPoseColor.mAlpha / 255);
@@ -2538,7 +2548,7 @@ int PopAnim::DrawSpriteMirrored(Graphics* theGraphics, PASpriteInst* theSprite, 
         }
         if (aPos->mDef->mImageIndex < 0 || aPos->mDef->mImageIndex >= (int)mImages.size())
             continue;
-        PAImage& aImage = mImages[(size_t)aPos->mDef->mImageIndex];
+        PAImage &aImage = mImages[(size_t)aPos->mDef->mImageIndex];
         PATransform aImagePose;
         aImagePose.TransformSrc(aPose, aImage.mTransform.m);
         theGraphics->SetColorizeImages(true);
@@ -2546,7 +2556,7 @@ int PopAnim::DrawSpriteMirrored(Graphics* theGraphics, PASpriteInst* theSprite, 
         theGraphics->SetDrawMode((theAdditive || aPos->mDef->mAdditive) ? 1 : aImage.mDrawMode);
         if (aImage.mRefs.empty())
             continue;
-        Image* aLoaded = ImageOf(aImage.mRefs[0]);
+        Image *aLoaded = ImageOf(aImage.mRefs[0]);
         TRect<int> aSrc = aLoaded != nullptr ? aLoaded->GetCelRect(0) : TRect<int>();
         if (aPos->mDef->mUseSrcRect)
             aSrc = aPos->mDef->mSrcRect;
@@ -2558,7 +2568,7 @@ int PopAnim::DrawSpriteMirrored(Graphics* theGraphics, PASpriteInst* theSprite, 
     return 0;
 }
 
-void PopAnim::Draw(Graphics* theGraphics)
+void PopAnim::Draw(Graphics *theGraphics)
 {
     if (!mPamLoaded || theGraphics == nullptr)
         return;
@@ -2575,13 +2585,13 @@ void PopAnim::Draw(Graphics* theGraphics)
         DrawSprite(theGraphics, mSpriteInst, nullptr, mColor, mAdditive, false);
 }
 
-int PopAnim::UpdateParticles(PASpriteInst* theSprite, PAObjectPos* thePose)
+int PopAnim::UpdateParticles(PASpriteInst *theSprite, PAObjectPos *thePose)
 {
     if (theSprite == nullptr)
         return 0;
     for (int aIndex = 0; aIndex < (int)theSprite->mParticles.size(); ++aIndex)
     {
-        PAParticleEffect& aEntry = theSprite->mParticles[(size_t)aIndex];
+        PAParticleEffect &aEntry = theSprite->mParticles[(size_t)aIndex];
         if (aEntry.mEffect == nullptr)
             continue;
         SexyVector2 aOffset(0.0f, 0.0f);
@@ -2614,11 +2624,11 @@ int PopAnim::UpdateParticles(PASpriteInst* theSprite, PAObjectPos* thePose)
         int aFrame = (int)theSprite->mFrameTime;
         if (aFrame >= 0 && aFrame < (int)theSprite->mDef->mFrames.size())
         {
-            PAFrame& aFrameRef = theSprite->mDef->mFrames[(size_t)aFrame];
+            PAFrame &aFrameRef = theSprite->mDef->mFrames[(size_t)aFrame];
             aResult = (int)aFrameRef.mObjects.size();
             for (size_t aIndex = 0; aIndex < aFrameRef.mObjects.size(); ++aIndex)
             {
-                PAObjectPos* aPos = aFrameRef.mObjects[aIndex];
+                PAObjectPos *aPos = aFrameRef.mObjects[aIndex];
                 if (aPos == nullptr || aPos->mDef == nullptr || !aPos->mDef->mIsSprite)
                     continue;
                 int aObject = aPos->mDef->mIndex;
@@ -2631,13 +2641,13 @@ int PopAnim::UpdateParticles(PASpriteInst* theSprite, PAObjectPos* thePose)
     return aResult;
 }
 
-PopAnim* PopAnim::CleanParticles(PASpriteInst* theSprite, bool theAll)
+PopAnim *PopAnim::CleanParticles(PASpriteInst *theSprite, bool theAll)
 {
     if (theSprite == nullptr)
         return this;
     for (int aIndex = 0; aIndex < (int)theSprite->mParticles.size(); ++aIndex)
     {
-        PAParticleEffect& aEntry = theSprite->mParticles[(size_t)aIndex];
+        PAParticleEffect &aEntry = theSprite->mParticles[(size_t)aIndex];
         if (aEntry.mUpdateStamp != mUpdateCnt || theAll)
         {
             delete aEntry.mEffect;
@@ -2654,7 +2664,7 @@ PopAnim* PopAnim::CleanParticles(PASpriteInst* theSprite, bool theAll)
     return this;
 }
 
-int PopAnim::HasParticles(PASpriteInst* theSprite) const
+int PopAnim::HasParticles(PASpriteInst *theSprite) const
 {
     if (theSprite == nullptr)
         return 0;
@@ -2675,7 +2685,7 @@ int PopAnim::IsActive() const
     return HasParticles(mSpriteInst);
 }
 
-PopAnim* PopAnim::SaveStateSpriteInst(Buffer& theBuffer, PASpriteInst* theSprite)
+PopAnim *PopAnim::SaveStateSpriteInst(Buffer &theBuffer, PASpriteInst *theSprite)
 {
     if (theSprite == nullptr)
         return this;
@@ -2685,7 +2695,7 @@ PopAnim* PopAnim::SaveStateSpriteInst(Buffer& theBuffer, PASpriteInst* theSprite
     theBuffer.WriteShort((short)theSprite->mParticles.size());
     for (size_t aIndex = 0; aIndex < theSprite->mParticles.size(); ++aIndex)
     {
-        PAParticleEffect& aEntry = theSprite->mParticles[aIndex];
+        PAParticleEffect &aEntry = theSprite->mParticles[aIndex];
         if (aEntry.mEffect != nullptr)
             aEntry.mEffect->SaveState(theBuffer, false);
         theBuffer.WriteString(aEntry.mName);
@@ -2703,7 +2713,7 @@ PopAnim* PopAnim::SaveStateSpriteInst(Buffer& theBuffer, PASpriteInst* theSprite
     return this;
 }
 
-int PopAnim::SaveState(Buffer& theBuffer)
+int PopAnim::SaveState(Buffer &theBuffer)
 {
     int aAligned = (theBuffer.mWriteBitPos + 7) & ~7;
     theBuffer.mWriteBitPos = aAligned;
@@ -2722,8 +2732,8 @@ int PopAnim::SaveState(Buffer& theBuffer)
         theBuffer.WriteBoolean(mParticlesDisabled);
         theBuffer.WriteBoolean(mLoopNotified);
         SetupSpriteInst(String());
-        const char* aDefName = (mSpriteInst != nullptr && mSpriteInst->mDef != nullptr)
-            ? mSpriteInst->mDef->mName : nullptr;
+        const char *aDefName =
+            (mSpriteInst != nullptr && mSpriteInst->mDef != nullptr) ? mSpriteInst->mDef->mName : nullptr;
         theBuffer.WriteString(String(aDefName != nullptr ? aDefName : ""));
         SaveStateSpriteInst(theBuffer, mSpriteInst);
         theBuffer.WriteBoolean(mSaveRandomState);
@@ -2743,7 +2753,7 @@ int PopAnim::SaveState(Buffer& theBuffer)
     return 1;
 }
 
-void PopAnim::LoadStateSpriteInst(Buffer const& theBuffer, PASpriteInst* theSprite)
+void PopAnim::LoadStateSpriteInst(Buffer const &theBuffer, PASpriteInst *theSprite)
 {
     if (theSprite == nullptr)
         return;
@@ -2773,7 +2783,7 @@ void PopAnim::LoadStateSpriteInst(Buffer const& theBuffer, PASpriteInst* theSpri
     }
 }
 
-int PopAnim::LoadState(Buffer const& theBuffer)
+int PopAnim::LoadState(Buffer const &theBuffer)
 {
     theBuffer.mReadBitPos = (theBuffer.mReadBitPos + 7) & ~7;
     int aSize = theBuffer.ReadLong();
@@ -2819,37 +2829,37 @@ int PopAnim::LoadState(Buffer const& theBuffer)
     return 1;
 }
 
-PopAnim::PopAnim(int theId, PopAnimListener* theListener)
-    : mId(theId)
-    , mListener(theListener)
-    , mPamVersion(0)
-    , mScaleX(1.0f)
-    , mScaleY(1.0f)
-    , mPamLoaded(false)
-    , mPamCursor(0)
-    , mMotion(0)
-    , mOriginX(0)
-    , mOriginY(0)
-    , mAnimWidth(0)
-    , mAnimHeight(0)
-    , mSpriteInst(nullptr)
-    , mSpriteDef(nullptr)
-    , mBlendDuration(0.0f)
-    , mBlendTime(0.0f)
-    , mDelay(0.0f)
-    , mSaveRandomState(false)
-    , mOffsetX(0.0f)
-    , mOffsetY(0.0f)
-    , mColor(Color::White)
-    , mAdditive(false)
-    , mTransformsDirty(true)
-    , mActive(false)
-    , mDrawMirrored(false)
-    , mInterpolatePoses(true)
-    , mImageIsNew(false)
-    , mParticlesDisabled(false)
-    , mDebugDraw(false)
-    , mLoopNotified(false)
+PopAnim::PopAnim(int theId, PopAnimListener *theListener) :
+    mId(theId),
+    mListener(theListener),
+    mPamVersion(0),
+    mScaleX(1.0f),
+    mScaleY(1.0f),
+    mPamLoaded(false),
+    mPamCursor(0),
+    mMotion(0),
+    mOriginX(0),
+    mOriginY(0),
+    mAnimWidth(0),
+    mAnimHeight(0),
+    mSpriteInst(nullptr),
+    mSpriteDef(nullptr),
+    mBlendDuration(0.0f),
+    mBlendTime(0.0f),
+    mDelay(0.0f),
+    mSaveRandomState(false),
+    mOffsetX(0.0f),
+    mOffsetY(0.0f),
+    mColor(Color::White),
+    mAdditive(false),
+    mTransformsDirty(true),
+    mActive(false),
+    mDrawMirrored(false),
+    mInterpolatePoses(true),
+    mImageIsNew(false),
+    mParticlesDisabled(false),
+    mDebugDraw(false),
+    mLoopNotified(false)
 {
     mClip = false;
     Clear();
@@ -2860,48 +2870,48 @@ PopAnim::PopAnim(int theId, PopAnimListener* theListener)
     mSearchPaths.push_back(String());
 }
 
-PopAnim::PopAnim(PopAnim const& theOther)
-    : Widget(theOther)
-    , mId(theOther.mId)
-    , mListener(theOther.mListener)
-    , mSearchPaths(theOther.mSearchPaths)
-    , mPamVersion(theOther.mPamVersion)
-    , mPamBuffer(theOther.mPamBuffer)
-    , mScaleX(theOther.mScaleX)
-    , mScaleY(theOther.mScaleY)
-    , mPamLoaded(theOther.mPamLoaded)
-    , mPamCursor(theOther.mPamCursor)
-    , mModPamFile(theOther.mModPamFile)
-    , mPamFileName(theOther.mPamFileName)
-    , mRemaps(theOther.mRemaps)
-    , mMotion(theOther.mMotion)
-    , mOriginX(theOther.mOriginX)
-    , mOriginY(theOther.mOriginY)
-    , mAnimWidth(theOther.mAnimWidth)
-    , mAnimHeight(theOther.mAnimHeight)
-    , mErrorString(theOther.mErrorString)
-    , mAnimName(theOther.mAnimName)
-    , mImages(theOther.mImages)
-    , mSpriteInst(nullptr)
-    , mSpriteDef(theOther.mSpriteDef)
-    , mBlendDuration(theOther.mBlendDuration)
-    , mBlendTime(theOther.mBlendTime)
-    , mDelay(theOther.mDelay)
-    , mRandom(theOther.mRandom)
-    , mSaveRandomState(theOther.mSaveRandomState)
-    , mOffsetX(theOther.mOffsetX)
-    , mOffsetY(theOther.mOffsetY)
-    , mTransform(theOther.mTransform)
-    , mColor(theOther.mColor)
-    , mAdditive(theOther.mAdditive)
-    , mTransformsDirty(theOther.mTransformsDirty)
-    , mActive(theOther.mActive)
-    , mDrawMirrored(theOther.mDrawMirrored)
-    , mInterpolatePoses(theOther.mInterpolatePoses)
-    , mImageIsNew(theOther.mImageIsNew)
-    , mParticlesDisabled(theOther.mParticlesDisabled)
-    , mDebugDraw(theOther.mDebugDraw)
-    , mLoopNotified(theOther.mLoopNotified)
+PopAnim::PopAnim(PopAnim const &theOther) :
+    Widget(theOther),
+    mId(theOther.mId),
+    mListener(theOther.mListener),
+    mSearchPaths(theOther.mSearchPaths),
+    mPamVersion(theOther.mPamVersion),
+    mPamBuffer(theOther.mPamBuffer),
+    mScaleX(theOther.mScaleX),
+    mScaleY(theOther.mScaleY),
+    mPamLoaded(theOther.mPamLoaded),
+    mPamCursor(theOther.mPamCursor),
+    mModPamFile(theOther.mModPamFile),
+    mPamFileName(theOther.mPamFileName),
+    mRemaps(theOther.mRemaps),
+    mMotion(theOther.mMotion),
+    mOriginX(theOther.mOriginX),
+    mOriginY(theOther.mOriginY),
+    mAnimWidth(theOther.mAnimWidth),
+    mAnimHeight(theOther.mAnimHeight),
+    mErrorString(theOther.mErrorString),
+    mAnimName(theOther.mAnimName),
+    mImages(theOther.mImages),
+    mSpriteInst(nullptr),
+    mSpriteDef(theOther.mSpriteDef),
+    mBlendDuration(theOther.mBlendDuration),
+    mBlendTime(theOther.mBlendTime),
+    mDelay(theOther.mDelay),
+    mRandom(theOther.mRandom),
+    mSaveRandomState(theOther.mSaveRandomState),
+    mOffsetX(theOther.mOffsetX),
+    mOffsetY(theOther.mOffsetY),
+    mTransform(theOther.mTransform),
+    mColor(theOther.mColor),
+    mAdditive(theOther.mAdditive),
+    mTransformsDirty(theOther.mTransformsDirty),
+    mActive(theOther.mActive),
+    mDrawMirrored(theOther.mDrawMirrored),
+    mInterpolatePoses(theOther.mInterpolatePoses),
+    mImageIsNew(theOther.mImageIsNew),
+    mParticlesDisabled(theOther.mParticlesDisabled),
+    mDebugDraw(theOther.mDebugDraw),
+    mLoopNotified(theOther.mLoopNotified)
 {
     gSexyAppBase->mCritSect.Lock();
     gSexyAppBase->mPopAnims.insert(this);
@@ -2911,7 +2921,7 @@ PopAnim::PopAnim(PopAnim const& theOther)
         ++mSpriteDef->mRefCount;
 }
 
-PopAnim* PopAnim::Duplicate()
+PopAnim *PopAnim::Duplicate()
 {
     return new PopAnim(*this);
 }
@@ -2925,4 +2935,3 @@ PopAnim::~PopAnim()
 }
 
 } // namespace Sexy
-

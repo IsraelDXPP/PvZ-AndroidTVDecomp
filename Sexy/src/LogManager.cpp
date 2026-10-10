@@ -19,7 +19,6 @@
 #include <string>
 #include <vector>
 
-
 #include <SDL3/SDL.h>
 #include <SDL3_net/SDL_net.h>
 
@@ -30,35 +29,34 @@
 // createListener builds one of five listeners from the endpoint the
 // SEXY_LOG variable names.
 // ---------------------------------------------------------------------------
-namespace Sexy {
+namespace Sexy
+{
 
 class LogListener
 {
 public:
     virtual ~LogListener();
-    virtual int formatMessage(int theLevel, Sexy::String const& theTag,
-                              Sexy::String const& theMessage);
-    virtual int log(int theLevel, Sexy::String const& theTag,
-                    Sexy::String const& theMessage);
+    virtual int formatMessage(int theLevel, Sexy::String const &theTag, Sexy::String const &theMessage);
+    virtual int log(int theLevel, Sexy::String const &theTag, Sexy::String const &theMessage);
 
     // -1 means "use the manager's default format". Every listener createListener
     // builds stores that here.
     int mFormat;
 
-    LogListener() : mFormat(-1) {}
+    LogListener() :
+        mFormat(-1)
+    {
+    }
 };
 
-LogListener::~LogListener()
-{
-}
+LogListener::~LogListener() {}
 
 // 40D064. The line is the manager's name, then whichever of the tag, the
 // pid and the timestamp the format bits ask for, then the message. The bits
 // are read off the body: 0x1 the tag, 0x2 the timestamp, 0x4 the pid.
-int LogListener::formatMessage(int theLevel, Sexy::String const& theTag,
-                               Sexy::String const& theMessage)
+int LogListener::formatMessage(int theLevel, Sexy::String const &theTag, Sexy::String const &theMessage)
 {
-    LogManager* aManager = (LogManager*)LogManager::getInstance();
+    LogManager *aManager = (LogManager *)LogManager::getInstance();
 
     int aFormat = mFormat;
     if (aFormat == -1)
@@ -82,9 +80,12 @@ int LogListener::formatMessage(int theLevel, Sexy::String const& theTag,
 
     if ((aFormat & 2) != 0)
     {
-        unsigned aTicks = SDL_GetTicks();
+        const auto aTicks = SDL_GetTicks();
         Sexy::String aTime;
-        StrFormat(&aTime, " %u.%03u", aTicks / 1000, aTicks % 1000);
+        StrFormat(&aTime,
+            " %llu.%03llu",
+            static_cast<unsigned long long>(aTicks / 1000),
+            static_cast<unsigned long long>(aTicks % 1000));
         aResult += aTime;
     }
 
@@ -95,8 +96,7 @@ int LogListener::formatMessage(int theLevel, Sexy::String const& theTag,
 
 // The base's slot 3 is __cxa_pure_virtual. Nothing calls it: every listener
 // the manager builds overrides it.
-int LogListener::log(int theLevel, Sexy::String const& theTag,
-                     Sexy::String const& theMessage)
+int LogListener::log(int theLevel, Sexy::String const &theTag, Sexy::String const &theMessage)
 {
     (void)theLevel;
     (void)theTag;
@@ -122,19 +122,19 @@ class SilentLogListener : public LogListener
 class FileLogListener : public LogListener
 {
 public:
-    explicit FileLogListener(Sexy::String const& thePath);
+    explicit FileLogListener(Sexy::String const &thePath);
 };
 
 class TcpLogListener : public LogListener
 {
 public:
-    explicit TcpLogListener(Sexy::String const& theEndpoint);
+    explicit TcpLogListener(Sexy::String const &theEndpoint);
 };
 
 class SimpleUdpLogListener : public LogListener
 {
 public:
-    explicit SimpleUdpLogListener(Sexy::String const& theEndpoint);
+    explicit SimpleUdpLogListener(Sexy::String const &theEndpoint);
 };
 
 // A listener that fans one line out to several. The binary keeps its children
@@ -144,23 +144,20 @@ class FanOutLogListener : public LogListener
 {
 public:
     FanOutLogListener();
-    int addListener(LogListener* theListener);
+    int addListener(LogListener *theListener);
     int hasListener();
 
-    std::list<LogListener*> mListeners;
+    std::list<LogListener *> mListeners;
 };
 
-FanOutLogListener::FanOutLogListener()
-{
-}
+FanOutLogListener::FanOutLogListener() {}
 
 // 3C7250. A listener already present, or a null one, is ignored.
-int FanOutLogListener::addListener(LogListener* theListener)
+int FanOutLogListener::addListener(LogListener *theListener)
 {
     if (theListener == nullptr)
         return 0;
-    for (std::list<LogListener*>::iterator aIt = mListeners.begin();
-         aIt != mListeners.end(); ++aIt)
+    for (std::list<LogListener *>::iterator aIt = mListeners.begin(); aIt != mListeners.end(); ++aIt)
     {
         if (*aIt == theListener)
             return 0;
@@ -180,22 +177,23 @@ int FanOutLogListener::hasListener()
 // ---------------------------------------------------------------------------
 // Sexy::LogManager
 // ---------------------------------------------------------------------------
-namespace Sexy {
+namespace Sexy
+{
 
 LogManager LogManager::msLogManager;
 
 // 3C38CC. The singleton is the object itself, so the address of it is the
 // instance.
-void* LogManager::getInstance()
+void *LogManager::getInstance()
 {
     return &msLogManager;
 }
 
 // 3C38E0. The endpoint selects the listener. A scheme prefix wins over the
 // bare word, and anything unrecognised yields nothing.
-LogListener* LogManager::createListener(Sexy::String const& theSpec)
+LogListener *LogManager::createListener(Sexy::String const &theSpec)
 {
-    const char* aSpec = theSpec.c_str();
+    const char *aSpec = theSpec.c_str();
 
     if (std::strncmp(aSpec, "udp://", 6) == 0 || std::strcmp(aSpec, "udp") == 0)
         return new SimpleUdpLogListener(theSpec);
@@ -211,7 +209,7 @@ LogListener* LogManager::createListener(Sexy::String const& theSpec)
 }
 
 // 3C3A8C.
-int LogManager::setListener(LogListener* theListener)
+int LogManager::setListener(LogListener *theListener)
 {
     mListener = theListener;
     return 1;
@@ -227,14 +225,14 @@ int LogManager::resetListener()
 // 3C3AC0. Reinstalls the listener the SEXY_LOG variable named.
 int LogManager::resetToPlatformListener()
 {
-    const char* aSpec = Sexy::GetEnv("SEXY_LOG");
+    const char *aSpec = Sexy::GetEnv("SEXY_LOG");
     Sexy::String aName(aSpec != nullptr ? aSpec : "default");
 
     if (mListenerRoot == nullptr)
         mListenerRoot = new FanOutLogListener();
 
-    LogListener* aListener = createListener(aName);
-    ((FanOutLogListener*)mListenerRoot)->addListener(aListener);
+    LogListener *aListener = createListener(aName);
+    ((FanOutLogListener *)mListenerRoot)->addListener(aListener);
     mListener = mListenerRoot;
     return 1;
 }
@@ -271,7 +269,7 @@ Sexy::String LogManager::getDefaultTag()
 }
 
 // 3C3C34.
-void LogManager::setDefaultTag(Sexy::String const& theTag)
+void LogManager::setDefaultTag(Sexy::String const &theTag)
 {
     mDefaultTag = theTag;
 }
@@ -283,7 +281,7 @@ Sexy::String LogManager::getName()
 }
 
 // 3C3C4C.
-void LogManager::setName(Sexy::String const& theName)
+void LogManager::setName(Sexy::String const &theName)
 {
     mName = theName;
 }
@@ -304,7 +302,7 @@ int LogManager::setDefaultFormat(int theFormat)
 // 3C3C6C. The per-tag table wins when the tag is in it; otherwise the
 // manager's own level stands. The binary walks its _Rb_tree for this, which
 // is what std::map::find does.
-int LogManager::getVerboseLevel(Sexy::String const& theTag)
+int LogManager::getVerboseLevel(Sexy::String const &theTag)
 {
     std::map<std::string, int>::iterator aFound = mLevelByTag.find(theTag.c_str());
     if (aFound == mLevelByTag.end())
@@ -325,26 +323,24 @@ void LogManager::setupDefaultListener()
     if (mListenerRoot == nullptr)
         mListenerRoot = new FanOutLogListener();
 
-    const char* aSpec = mListenerSpec.c_str();
-    const char* aCursor = aSpec;
+    const char *aSpec = mListenerSpec.c_str();
+    const char *aCursor = aSpec;
     for (;;)
     {
-        const char* aSeparator = std::strchr(aCursor, ';');
-        size_t aLength = (aSeparator != nullptr)
-            ? (size_t)(aSeparator - aCursor)
-            : std::strlen(aCursor);
+        const char *aSeparator = std::strchr(aCursor, ';');
+        size_t aLength = (aSeparator != nullptr) ? (size_t)(aSeparator - aCursor) : std::strlen(aCursor);
         if (aLength != 0)
         {
             Sexy::String aEntry(aCursor, (unsigned)aLength);
-            ((FanOutLogListener*)mListenerRoot)->addListener(createListener(aEntry));
+            ((FanOutLogListener *)mListenerRoot)->addListener(createListener(aEntry));
         }
         if (aSeparator == nullptr)
             break;
         aCursor = aSeparator + 1;
     }
 
-    if (((FanOutLogListener*)mListenerRoot)->hasListener() == 0)
-        ((FanOutLogListener*)mListenerRoot)->addListener(createListener(Sexy::String("default")));
+    if (((FanOutLogListener *)mListenerRoot)->hasListener() == 0)
+        ((FanOutLogListener *)mListenerRoot)->addListener(createListener(Sexy::String("default")));
 
     if (mListener == nullptr)
         mListener = mListenerRoot;
@@ -354,14 +350,13 @@ void LogManager::setupDefaultListener()
 
 // 3C4060. An empty tag is replaced by the manager's default before the
 // listener sees the line.
-int LogManager::log(int theLevel, Sexy::String const& theTag,
-                    Sexy::String const& theMessage)
+int LogManager::log(int theLevel, Sexy::String const &theTag, Sexy::String const &theMessage)
 {
     setupDefaultListener();
     if (mListener == nullptr)
         return 0;
 
-    const Sexy::String& aTag = theTag.empty() ? mDefaultTag : theTag;
+    const Sexy::String &aTag = theTag.empty() ? mDefaultTag : theTag;
     return mListener->log(theLevel, aTag, theMessage);
 }
 
@@ -385,30 +380,28 @@ int LogManager::close()
 
 // 3C4554. Reads SEXY_LOG and SEXY_LOG_LEVEL, then installs the defaults the
 // tail of the binary's constructor writes.
-LogManager::LogManager()
-    : mListener(nullptr),
-      mListenerRoot(nullptr),
-      mListenerNesting(0),
-      mVerboseLevel(1),
-      mDefaultFormat(7)
+LogManager::LogManager() :
+    mListener(nullptr),
+    mListenerRoot(nullptr),
+    mListenerNesting(0),
+    mVerboseLevel(1),
+    mDefaultFormat(7)
 {
-    const char* aLog = Sexy::GetEnv("SEXY_LOG");
+    const char *aLog = Sexy::GetEnv("SEXY_LOG");
     if (aLog != nullptr)
         mListenerSpec.assign(aLog);
 
-    const char* aLevel = Sexy::GetEnv("SEXY_LOG_LEVEL");
+    const char *aLevel = Sexy::GetEnv("SEXY_LOG_LEVEL");
     if (aLevel != nullptr && aLevel[0] != '\0')
     {
         // "tag:level" pairs override the default; a bare number replaces it.
-        const char* aCursor = aLevel;
+        const char *aCursor = aLevel;
         for (;;)
         {
-            const char* aSpace = std::strchr(aCursor, ' ');
-            size_t aLength = (aSpace != nullptr)
-                ? (size_t)(aSpace - aCursor)
-                : std::strlen(aCursor);
+            const char *aSpace = std::strchr(aCursor, ' ');
+            size_t aLength = (aSpace != nullptr) ? (size_t)(aSpace - aCursor) : std::strlen(aCursor);
 
-            const char* aColon = (const char*)std::memchr(aCursor, ':', aLength);
+            const char *aColon = (const char *)std::memchr(aCursor, ':', aLength);
             if (aColon != nullptr)
             {
                 std::string aTag(aCursor, aColon - aCursor);
@@ -449,9 +442,11 @@ LogManager::LogManager()
 // server is not: this port has no such server, and the binary's own fallback
 // for a failed send is the local file.
 // ---------------------------------------------------------------------------
-namespace TM {
+namespace TM
+{
 
-namespace {
+namespace
+{
 
 // Milliseconds since the epoch, which is what gettimeofday gives the binary.
 int NowMillis()
@@ -472,25 +467,27 @@ int LogManager::initialize()
 
 // The entry Thread::Create calls. The binary's threadSendProc is a member, so
 // the trampoline recovers the receiver from the argument.
-void LogManager::SendThreadMain(void* theSelf)
+void LogManager::SendThreadMain(void *theSelf)
 {
-    LogManager* aSelf = (LogManager*)theSelf;
+    LogManager *aSelf = (LogManager *)theSelf;
     aSelf->threadSendProc(theSelf);
 }
 
 // 4EF0D8. Resolves the host the caller named. An unresolvable name leaves
 // the result empty, which is what the binary's gethostbyname failure does.
-Sexy::String LogManager::getServerIp(Sexy::String const& host)
+Sexy::String LogManager::getServerIp(Sexy::String const &host)
 {
     Sexy::String result;
-    if (!NET_Init()) return result;
-    NET_Address* address = NET_ResolveHostname(host.c_str());
+    if (!NET_Init())
+        return result;
+    NET_Address *address = NET_ResolveHostname(host.c_str());
     if (address)
     {
         if (NET_WaitUntilResolved(address, 5000) == 1)
         {
-            const char* name = NET_GetAddressString(address);
-            if (name) result = name;
+            const char *name = NET_GetAddressString(address);
+            if (name)
+                result = name;
         }
         NET_UnrefAddress(address);
     }
@@ -498,16 +495,15 @@ Sexy::String LogManager::getServerIp(Sexy::String const& host)
     return result;
 }
 
-
 // 4EF120.
-void LogManager::setServerAddr(Sexy::String const& theAddress)
+void LogManager::setServerAddr(Sexy::String const &theAddress)
 {
     mServerAddr = theAddress;
 }
 
 // 4EF130. A non-empty directory replaces the local one, and the file path
 // becomes that directory plus "/trans_log".
-void LogManager::setLocalLogPath(Sexy::String const& theDirectory)
+void LogManager::setLocalLogPath(Sexy::String const &theDirectory)
 {
     if (theDirectory.empty())
         return;
@@ -520,15 +516,19 @@ void LogManager::setLocalLogPath(Sexy::String const& theDirectory)
 }
 
 // 4EF1EC. Closes the socket the caller holds and clears it.
-int LogManager::myClose(NET_StreamSocket*& socket)
-{ if (socket) NET_DestroyStreamSocket(socket); socket = nullptr; return 1; }
-
+int LogManager::myClose(NET_StreamSocket *&socket)
+{
+    if (socket)
+        NET_DestroyStreamSocket(socket);
+    socket = nullptr;
+    return 1;
+}
 
 // 4EF2A8.
-LogManager::LogManager(Sexy::String const& theServer, Sexy::String theDirectory)
-    : mSocket(nullptr),
-      mLastSendTime(0),
-      mStopRequested(false)
+LogManager::LogManager(Sexy::String const &theServer, Sexy::String theDirectory) :
+    mSocket(nullptr),
+    mLastSendTime(0),
+    mStopRequested(false)
 {
     mLocalLogPath.assign("trans_log", 9);
     setLocalLogPath(theDirectory);
@@ -543,7 +543,7 @@ LogManager::~LogManager()
 
 // 4EF3F0. The line is stamped, logged locally and queued for the send
 // thread. The binary's stringstream preamble is the fixed text below.
-int LogManager::sendLog(Sexy::String const& theLine)
+int LogManager::sendLog(Sexy::String const &theLine)
 {
     SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION, "push message to vector");
 
@@ -558,12 +558,12 @@ int LogManager::sendLog(Sexy::String const& theLine)
 }
 
 // 4EF5C0. One line, appended to the local spool.
-int LogManager::appendLogToLocalFile(Sexy::String const& theLine)
+int LogManager::appendLogToLocalFile(Sexy::String const &theLine)
 {
     if (mLocalLogPath.empty())
         return 0;
 
-    SDL_IOStream* aFile = SDL_IOFromFile(mLocalLogPath.c_str(), "ab");
+    SDL_IOStream *aFile = SDL_IOFromFile(mLocalLogPath.c_str(), "ab");
     if (aFile == nullptr)
         return 0;
     const bool aWritten = SDL_WriteIO(aFile, theLine.c_str(), theLine.size()) == theLine.size();
@@ -574,7 +574,7 @@ int LogManager::appendLogToLocalFile(Sexy::String const& theLine)
 // 4EF8F0. The binary writes the line to the metrics socket and, on failure,
 // to the local spool. This port has no metrics server, so the line takes the
 // failure path.
-void LogManager::sendLogToServer(Sexy::String const& theLine)
+void LogManager::sendLogToServer(Sexy::String const &theLine)
 {
     appendLogToLocalFile(theLine);
 }
@@ -587,11 +587,10 @@ int LogManager::connectToServer()
 }
 
 // 4F0A80. Writes every queued line to the local spool.
-int LogManager::batchAppendLogToLocalFile(std::list<std::string> const& theLines)
+int LogManager::batchAppendLogToLocalFile(std::list<std::string> const &theLines)
 {
     int aWritten = 0;
-    for (std::list<std::string>::const_iterator aIt = theLines.begin();
-         aIt != theLines.end(); ++aIt)
+    for (std::list<std::string>::const_iterator aIt = theLines.begin(); aIt != theLines.end(); ++aIt)
     {
         Sexy::String aLine(aIt->c_str());
         if (appendLogToLocalFile(aLine) != 0)
@@ -626,7 +625,7 @@ int LogManager::readLogFromLocalFile()
         return 0;
 
     size_t aSize = 0;
-    char* aContents = static_cast<char*>(SDL_LoadFile(mLocalLogPath.c_str(), &aSize));
+    char *aContents = static_cast<char *>(SDL_LoadFile(mLocalLogPath.c_str(), &aSize));
     if (aContents == nullptr)
         return 0;
     std::string aText(aContents, aSize);
@@ -685,7 +684,7 @@ int LogManager::threadSendMsg()
 }
 
 // 4F44A0. The send thread's body: drain until asked to stop.
-int LogManager::threadSendProc(void* theArg)
+int LogManager::threadSendProc(void *theArg)
 {
     (void)theArg;
     // The desktop transport uses the local-file fallback. Leave historical

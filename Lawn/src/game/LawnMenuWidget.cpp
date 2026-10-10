@@ -18,20 +18,20 @@ int LawnMenuWidget::CreateMenuParser()
     // `LDR R3,[R0,#0x48] ; LDR R3,[R3,#4] ; BLX R3`, which is the secondary
     // vtable's deleting-destructor slot, its thunk subtracting the same 0x48.
     // `delete` on the LawnMenuParser pointer emits the identical call.
-    if ( mMenuParser != nullptr )
+    if (mMenuParser != nullptr)
     {
-        if ( --mMenuParser->mRefCount <= 0 )
+        if (--mMenuParser->mRefCount <= 0)
             delete mMenuParser;
         mMenuParser = nullptr;
     }
 
-    LawnMenuParser* aParser = new LawnMenuParser(this);
+    LawnMenuParser *aParser = new LawnMenuParser(this);
     // 0x169168 re-reads mMenuParser here, but the release above has already
     // cleared it, so the old handle is always null and only the adopt branch
     // below can actually run.
-    if ( mMenuParser != aParser )
+    if (mMenuParser != aParser)
     {
-        if ( aParser != nullptr )
+        if (aParser != nullptr)
             ++aParser->mRefCount;
         mMenuParser = aParser;
     }
@@ -45,16 +45,16 @@ int LawnMenuWidget::CreateMenuParser()
 // ==========================================================================
 LawnMenuWidget::~LawnMenuWidget()
 {
-  // The dump opens with two vptr stores (this and +0x100, the ButtonListener
-  // base MenuWidget carries) and closes with a third that restores Widget's
-  // table; the compiler emits all three, so none is written here.
-  //
-  // The one thing this class does beyond its base is hand back the reanimation
-  // it started for the menu's backdrop. The binary reads +0x118, clears it and
-  // passes it to LawnApp::RemoveReanimation.
-  ((LawnApp *)gLawnApp)->RemoveReanimation(mBackdropReanimID);
-  mBackdropReanimID = REANIMATIONID_NULL;
-  // The trailing indirect calls are MenuWidget's own teardown -- the parser's
-  // reference-counted release and the mSourceFileName rep -- and C++ runs the
-  // base destructor for them.
+    // The dump opens with two vptr stores (this and +0x100, the ButtonListener
+    // base MenuWidget carries) and closes with a third that restores Widget's
+    // table; the compiler emits all three, so none is written here.
+    //
+    // The one thing this class does beyond its base is hand back the reanimation
+    // it started for the menu's backdrop. The binary reads +0x118, clears it and
+    // passes it to LawnApp::RemoveReanimation.
+    ((LawnApp *)gLawnApp)->RemoveReanimation(mBackdropReanimID);
+    mBackdropReanimID = REANIMATIONID_NULL;
+    // The trailing indirect calls are MenuWidget's own teardown -- the parser's
+    // reference-counted release and the mSourceFileName rep -- and C++ runs the
+    // base destructor for them.
 }

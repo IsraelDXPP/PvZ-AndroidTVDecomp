@@ -8,12 +8,12 @@
 #include "Widget.h"
 #include "WidgetManager.h"
 
-void HelpTextScreen::AddedToManager(Sexy::WidgetManager* theWidgetManager)
+void HelpTextScreen::AddedToManager(Sexy::WidgetManager *theWidgetManager)
 {
     // Loading a menu can change focus; the shared bar must already be usable.
     mHelpBarWidget = mApp->mHelpBarWidget;
     MenuWidget::AddedToManager(theWidgetManager);
-    for (Sexy::Widget* child : mWidgetVector)
+    for (Sexy::Widget *child : mWidgetVector)
         child->mMouseVisible = false;
     // The second page scrolls by 2560 pixels (constructor @0x189C98).
     // Keep both pages inside the mouse hit area after the menu is loaded.
@@ -28,14 +28,12 @@ void HelpTextScreen::MouseDown(int x, int y, int theClickCount)
     GameButtonDown(screenX < mApp->mWidth / 2 ? GAMEPAD_BUTTON_LEFT : GAMEPAD_BUTTON_RIGHT, 0, 0);
 }
 
-void HelpTextScreen::DrawAll(Sexy::ModalFlags* theFlags, Sexy::Graphics* g)
+void HelpTextScreen::DrawAll(Sexy::ModalFlags *theFlags, Sexy::Graphics *g)
 {
     MenuWidget::DrawAll(theFlags, g);
 }
 
-HelpTextScreen::~HelpTextScreen()
-{
-}
+HelpTextScreen::~HelpTextScreen() {}
 
 void HelpTextScreen::Update()
 {
@@ -58,7 +56,7 @@ void HelpTextScreen::Update()
     MarkDirty();
 }
 
-void HelpTextScreen::Draw(Sexy::Graphics* g)
+void HelpTextScreen::Draw(Sexy::Graphics *g)
 {
     gLawnApp->DrawDialogFade(g);
 }
@@ -92,7 +90,7 @@ int HelpTextScreen::KeyDown(Sexy::KeyCode theKey)
     return Widget::KeyDown(theKey);
 }
 
-void HelpTextScreen::RemovedFromManager(Sexy::WidgetManager* theWidgetManager)
+void HelpTextScreen::RemovedFromManager(Sexy::WidgetManager *theWidgetManager)
 {
     MenuWidget::RemovedFromManager(theWidgetManager);
     RemoveAllWidgets(true, true, NULL);
@@ -114,8 +112,8 @@ void HelpTextScreen::GotFocus()
     mApp->ShowHelpBarWidget();
 }
 
-HelpTextScreen::HelpTextScreen(LawnApp* theApp, int thePage)
-    : LawnMenuWidget(Sexy::String("menu/HelpMenu.menu.txt"))
+HelpTextScreen::HelpTextScreen(LawnApp *theApp, int thePage) :
+    LawnMenuWidget(Sexy::String("menu/HelpMenu.menu.txt"))
 {
     mBackdropReanimID = REANIMATIONID_NULL;
     mCameraOffsetX = 0.0f;

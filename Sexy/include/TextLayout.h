@@ -5,7 +5,8 @@
 // also use the three words after that colour cache. mLines is the line vector
 // callers already walk through its three-pointer layout.
 
-#pragma once
+#ifndef LAWNPROJECTTV_SEXY_INCLUDE_TEXTLAYOUT_H
+#define LAWNPROJECTTV_SEXY_INCLUDE_TEXTLAYOUT_H
 
 #include "ReconTypes.h"
 #include "Font.h"
@@ -16,7 +17,8 @@
 #include <map>
 #include <set>
 
-namespace Sexy {
+namespace Sexy
+{
 
 // One colour run on a laid-out line. mGlyphs is what Font::DrawGlyphs draws.
 struct TextRun
@@ -42,28 +44,28 @@ struct TextLine
 class TextLayout
 {
 public:
-    bool         mDirty;              // +0x000
-    int          mCachePolicy;        // +0x004
-    Sexy::Font  *mFont;               // +0x008
-    Sexy::String mString;             // +0x00C
+    bool mDirty; // +0x000
+    int mCachePolicy; // +0x004
+    Sexy::Font *mFont; // +0x008
+    Sexy::String mString; // +0x00C
     std::vector<Sexy::TextLine> mLines;
-    int          mNumGlyphs;          // +0x01C
-    TRect<int>   mRect;               // +0x020
-    int          mWidth;              // +0x030
-    int          mHeight;             // +0x034
-    int          mLineSpacing;        // +0x038
-    int          mJustification;      // +0x03C
-    bool         mSingleLine;         // +0x040
-    bool         mWrap;               // +0x041
-    bool         mWrapInSpace;        // +0x042
-    bool         mDrawStringUnicode;  // +0x043
-    Sexy::MemoryImage mCacheImage;    // +0x044
-    Sexy::Color  mCacheBuiltColor;    // +0x12C
-    bool         mCacheImageValid;    // +0x13C
-    Sexy::Color  mLastDrawColor;      // +0x140
-    int          mCacheImageColorizeCount;   // +0x150
-    bool         mCacheImageColorizeEnabled; // +0x154
-    int          mCacheImageColorizeLimit;   // +0x158
+    int mNumGlyphs; // +0x01C
+    TRect<int> mRect; // +0x020
+    int mWidth; // +0x030
+    int mHeight; // +0x034
+    int mLineSpacing; // +0x038
+    int mJustification; // +0x03C
+    bool mSingleLine; // +0x040
+    bool mWrap; // +0x041
+    bool mWrapInSpace; // +0x042
+    bool mDrawStringUnicode; // +0x043
+    Sexy::MemoryImage mCacheImage; // +0x044
+    Sexy::Color mCacheBuiltColor; // +0x12C
+    bool mCacheImageValid; // +0x13C
+    Sexy::Color mLastDrawColor; // +0x140
+    int mCacheImageColorizeCount; // +0x150
+    bool mCacheImageColorizeEnabled; // +0x154
+    int mCacheImageColorizeLimit; // +0x158
 
     void Init();
     void SetText(Sexy::String const &theString, bool theDrawStringUnicode);
@@ -76,12 +78,10 @@ public:
     void SetHeight(int theHeight);
     void SetCachePolicy(int theCachePolicy);
     int GetCachePolicy() const;
-    int FastDrawLine(Sexy::Graphics *theGraphics, Sexy::TextLine &theLine, int theX, int theY,
-                     Color const &theColor, int theAlign, TRect<int> const &theClipRect,
-                     TRect<int> const &theFullRect);
-    int DrawLine(Sexy::Graphics *theGraphics, Sexy::TextLine &theLine, unsigned int theStart,
-                 unsigned int theCount, int theX, int theY, Color const &theColor, int theAlign,
-                 TRect<int> const &theClipRect);
+    int FastDrawLine(Sexy::Graphics *theGraphics, Sexy::TextLine &theLine, int theX, int theY, Color const &theColor,
+        int theAlign, TRect<int> const &theClipRect, TRect<int> const &theFullRect);
+    int DrawLine(Sexy::Graphics *theGraphics, Sexy::TextLine &theLine, unsigned int theStart, unsigned int theCount,
+        int theX, int theY, Color const &theColor, int theAlign, TRect<int> const &theClipRect);
     void SetLineSpacing(int theLineSpacing);
     int GetLineSpacing() const;
     void SetJustification(int theJustification);
@@ -95,22 +95,20 @@ public:
     void UpdateCache(Color const &theColor, bool theForce);
     void BuildLines();
     int BuildLine(Sexy::String theString, int theStart, int theLength, bool theDrawStringUnicode,
-                  Sexy::TextLine &theLine, bool &theHasColor, Color &theColor);
+        Sexy::TextLine &theLine, bool &theHasColor, Color &theColor);
     TextLayout();
-    TextLayout(Sexy::String const &theString, Sexy::Font *theFont, bool theDrawStringUnicode,
-               bool theSingleLine);
+    TextLayout(Sexy::String const &theString, Sexy::Font *theFont, bool theDrawStringUnicode, bool theSingleLine);
     ~TextLayout();
     void Update();
     int GetNumGlyphs();
     int GetWidth();
     int GetHeight();
     void Draw(Sexy::Graphics *theGraphics, int theX, int theY, Color const &theColor);
-    int DrawGlyphs(Sexy::Graphics *theGraphics, unsigned int theStart, unsigned int theCount,
-                   int theX, int theY, Color const &theColor);
-    void DrawLines(Sexy::Graphics *theGraphics, unsigned int theStart, unsigned int theCount,
-                   int theX, int theY, Color const &theColor);
-    void DrawLine(Sexy::Graphics *theGraphics, unsigned int theStart, int theX, int theY,
-                  Color const &theColor);
+    int DrawGlyphs(Sexy::Graphics *theGraphics, unsigned int theStart, unsigned int theCount, int theX, int theY,
+        Color const &theColor);
+    void DrawLines(Sexy::Graphics *theGraphics, unsigned int theStart, unsigned int theCount, int theX, int theY,
+        Color const &theColor);
+    void DrawLine(Sexy::Graphics *theGraphics, unsigned int theStart, int theX, int theY, Color const &theColor);
     std::vector<Sexy::TextLine> &GetLines();
     Sexy::TextLine *GetLine(unsigned int theIndex);
     TPoint<int> GetLineExtents(unsigned int theLine);
@@ -122,3 +120,5 @@ private:
 } // namespace Sexy
 
 using Sexy::TextLayout;
+
+#endif // LAWNPROJECTTV_SEXY_INCLUDE_TEXTLAYOUT_H

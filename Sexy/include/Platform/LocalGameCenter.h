@@ -7,16 +7,18 @@
 // payment went through. There is no daily cap and no anti-addiction gate.
 // FEATURE_EXIT stays off so SdkExit still uses the game's own quit dialog.
 //
-#pragma once
+#ifndef LAWNPROJECTTV_SEXY_INCLUDE_PLATFORM_LOCALGAMECENTER_H
+#define LAWNPROJECTTV_SEXY_INCLUDE_PLATFORM_LOCALGAMECENTER_H
 
 #include "Listener.h"
 
-namespace Sexy {
+namespace Sexy
+{
 
 // The one account this port signs in. LawnApp::GetUserName reads the same
 // id through PlatformIntegration, so the buy dialog and the centre agree.
-const char* FixedGameCenterUserId();
-const char* FixedGameCenterUserName();
+const char *FixedGameCenterUserId();
+const char *FixedGameCenterUserName();
 
 class LocalGameCenter : public IGameCenter
 {
@@ -28,21 +30,21 @@ public:
     virtual void Pause();
     virtual void Resume();
     virtual bool HasFeature(Feature theFeature);
-    virtual void Show(Sexy::String const& thePage);
-    virtual int Purchase(Payment const& thePayment);
+    virtual void Show(Sexy::String const &thePage);
+    virtual int Purchase(Payment const &thePayment);
     virtual int GetProducts();
     virtual int QueryProducts();
     virtual Sexy::String getUserName();
     virtual void Init();
-    virtual int SetListener(Listener* theListener);
+    virtual int SetListener(Listener *theListener);
 
     // +0x04 is the name the base constructor seeds and this one replaces.
     Sexy::String mName;
     // +0x08: SetListener's store. LawnApp::Init hands over its own listener.
-    Listener* mListener;
+    Listener *mListener;
     // +0x0C: the platform callback the constructor allocates and never calls
     // from this side of the bridge.
-    void* mPlatformCallback;
+    void *mPlatformCallback;
     // +0x10, +0x14: the two strings the constructor seeds empty.
     Sexy::String mUserId;
     Sexy::String mSessionId;
@@ -52,8 +54,10 @@ public:
     bool mPurchasing;
     // +0x1C, +0x20: the constructor's empty list head, both links pointing at
     // the head itself.
-    void* mPendingHead;
-    void* mPendingTail;
+    void *mPendingHead;
+    void *mPendingTail;
 };
 
 } // namespace Sexy
+
+#endif // LAWNPROJECTTV_SEXY_INCLUDE_PLATFORM_LOCALGAMECENTER_H

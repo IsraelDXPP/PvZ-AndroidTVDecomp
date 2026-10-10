@@ -52,8 +52,8 @@ long PlatformRandomLong();
 // ==========================================================================
 DaveHelp::~DaveHelp()
 {
-  // The ARM stores the DaveHelp vtable and then tail-calls ~Widget; with a real
-  // base the compiler emits both, so the body is empty.
+    // The ARM stores the DaveHelp vtable and then tail-calls ~Widget; with a real
+    // base the compiler emits both, so the body is empty.
 }
 
 // ==========================================================================
@@ -62,50 +62,59 @@ DaveHelp::~DaveHelp()
 // ==========================================================================
 void DaveHelp::Update()
 {
-  if ( mCounter > 0 )
-  {
-    --mCounter;
-    if ( mCounter == 0 )
+    if (mCounter > 0)
     {
-      mApp->CrazyDaveEnter();
-      if ( mIsSingle )
-      {
-        switch ( mSingleType )
+        --mCounter;
+        if (mCounter == 0)
         {
-          case 0:  mApp->CrazyDaveTalkIndex(7001); break;
-          case 1:  mApp->CrazyDaveTalkIndex(7101); break;
-          case 2:  mApp->CrazyDaveTalkIndex(5701); break;
-          case 3:  mApp->CrazyDaveTalkIndex(7201); break;
-          default: break;
+            mApp->CrazyDaveEnter();
+            if (mIsSingle)
+            {
+                switch (mSingleType)
+                {
+                    case 0:
+                        mApp->CrazyDaveTalkIndex(7001);
+                        break;
+                    case 1:
+                        mApp->CrazyDaveTalkIndex(7101);
+                        break;
+                    case 2:
+                        mApp->CrazyDaveTalkIndex(5701);
+                        break;
+                    case 3:
+                        mApp->CrazyDaveTalkIndex(7201);
+                        break;
+                    default:
+                        break;
+                }
+            }
+            else if (mHelpType != 0)
+            {
+                if (mHelpType == 1)
+                    mApp->CrazyDaveTalkIndex(4101);
+            }
+            else
+            {
+                mApp->CrazyDaveTalkIndex(4001);
+            }
         }
-      }
-      else if ( mHelpType != 0 )
-      {
-        if ( mHelpType == 1 )
-          mApp->CrazyDaveTalkIndex(4101);
-      }
-      else
-      {
-        mApp->CrazyDaveTalkIndex(4001);
-      }
     }
-  }
 
-  mApp->UpdateCrazyDave();
+    mApp->UpdateCrazyDave();
 
-  if ( mCounter == 0 && mApp->mCrazyDaveState == CRAZY_DAVE_OFF )
-  {
-    Sexy::WidgetContainer *aContainer = mContainer;
-    mVisible = false;
-    if ( aContainer != nullptr )
+    if (mCounter == 0 && mApp->mCrazyDaveState == CRAZY_DAVE_OFF)
     {
-      mDrawActive = true;
-      aContainer->RemoveWidget(this);
-      mContainer = nullptr;
+        Sexy::WidgetContainer *aContainer = mContainer;
+        mVisible = false;
+        if (aContainer != nullptr)
+        {
+            mDrawActive = true;
+            aContainer->RemoveWidget(this);
+            mContainer = nullptr;
+        }
     }
-  }
 
-  Sexy::WidgetContainer::Update();
+    Sexy::WidgetContainer::Update();
 }
 
 // ==========================================================================
@@ -114,17 +123,17 @@ void DaveHelp::Update()
 // ==========================================================================
 DaveHelp::DaveHelp(LawnApp *theApp)
 {
-  mApp = theApp;
-  // TODO(recon): the dumped spelling is LawnApp::FULLSCREEN_RECT, which the
-  // header declares private; the global word of the same name declared in
-  // ReconData.h is the same address, so the rect at it is what the dump passes.
-  Resize(LawnApp::FULLSCREEN_RECT);
-  mMousePreservesFocus = true;
-  mContainer = nullptr;
-  mCounter = 0;
-  mIsSingle = false;
-  mHelpType = -1;
-  mSingleType = -1;
+    mApp = theApp;
+    // TODO(recon): the dumped spelling is LawnApp::FULLSCREEN_RECT, which the
+    // header declares private; the global word of the same name declared in
+    // ReconData.h is the same address, so the rect at it is what the dump passes.
+    Resize(LawnApp::FULLSCREEN_RECT);
+    mMousePreservesFocus = true;
+    mContainer = nullptr;
+    mCounter = 0;
+    mIsSingle = false;
+    mHelpType = -1;
+    mSingleType = -1;
 }
 
 // ==========================================================================
@@ -133,25 +142,25 @@ DaveHelp::DaveHelp(LawnApp *theApp)
 // ==========================================================================
 int DaveHelp::DaveEnter(int theHelpType, Sexy::WidgetContainer *theContainer, bool theDrawActive)
 {
-  mHelpType = theHelpType;
-  if (theHelpType >= 0)
-  {
-    mIsSingle = false;
-    mVisible = true;
-    if (theHelpType == 0)
-      mCounter = 10;
-    else if (theHelpType == 1)
-      mCounter = 200;
-    else
-      mCounter = 1;
+    mHelpType = theHelpType;
+    if (theHelpType >= 0)
+    {
+        mIsSingle = false;
+        mVisible = true;
+        if (theHelpType == 0)
+            mCounter = 10;
+        else if (theHelpType == 1)
+            mCounter = 200;
+        else
+            mCounter = 1;
 
-    mContainer = theContainer;
-    if (!theContainer->HasWidget(this))
-      theContainer->AddWidget(this);
-    BringToFront(this);
-    mDrawActive = theDrawActive;
-  }
-  return 0;
+        mContainer = theContainer;
+        if (!theContainer->HasWidget(this))
+            theContainer->AddWidget(this);
+        BringToFront(this);
+        mDrawActive = theDrawActive;
+    }
+    return 0;
 }
 
 // ==========================================================================
@@ -160,29 +169,29 @@ int DaveHelp::DaveEnter(int theHelpType, Sexy::WidgetContainer *theContainer, bo
 // ==========================================================================
 int DaveHelp::DaveSingleEnter(E_DAVESINGLEHELP theSingleType, Sexy::WidgetContainer *theContainer, bool theDrawActive)
 {
-  mSingleType = theSingleType;
-  mIsSingle = true;
-  mVisible = true;
-  switch (theSingleType)
-  {
-    case 0:
-      mCounter = 150;
-      break;
-    case 1:
-    case 2:
-    case 3:
-      mCounter = 100;
-      break;
-    default:
-      mCounter = 1;
-      break;
-  }
+    mSingleType = theSingleType;
+    mIsSingle = true;
+    mVisible = true;
+    switch (theSingleType)
+    {
+        case 0:
+            mCounter = 150;
+            break;
+        case 1:
+        case 2:
+        case 3:
+            mCounter = 100;
+            break;
+        default:
+            mCounter = 1;
+            break;
+    }
 
-  mContainer = theContainer;
-  theContainer->AddWidget(this);
-  BringToFront(this);
-  mDrawActive = theDrawActive;
-  return 0;
+    mContainer = theContainer;
+    theContainer->AddWidget(this);
+    BringToFront(this);
+    mDrawActive = theDrawActive;
+    return 0;
 }
 
 // ==========================================================================
@@ -191,19 +200,17 @@ int DaveHelp::DaveSingleEnter(E_DAVESINGLEHELP theSingleType, Sexy::WidgetContai
 // ==========================================================================
 void DaveHelp::DaveLeave()
 {
-  mApp->CrazyDaveLeave();
+    mApp->CrazyDaveLeave();
 }
 
 void DaveHelp::MouseDown(int theX, int theY, int theClickCount)
 {
-  Sexy::Widget::MouseDown(theX, theY, theClickCount);
-  // Board::GameButtonDown @0x15DCC4 ignores confirmation during entry/exit.
-  if (theClickCount <= 0 || theClickCount == 3 || mCounter > 0
-      || mApp->mCrazyDaveState == CRAZY_DAVE_OFF
-      || mApp->mCrazyDaveState == CRAZY_DAVE_ENTERING
-      || mApp->mCrazyDaveState == CRAZY_DAVE_LEAVING)
-    return;
-  DealClick(Sexy::KEYCODE_RETURN);
+    Sexy::Widget::MouseDown(theX, theY, theClickCount);
+    // Board::GameButtonDown @0x15DCC4 ignores confirmation during entry/exit.
+    if (theClickCount <= 0 || theClickCount == 3 || mCounter > 0 || mApp->mCrazyDaveState == CRAZY_DAVE_OFF ||
+        mApp->mCrazyDaveState == CRAZY_DAVE_ENTERING || mApp->mCrazyDaveState == CRAZY_DAVE_LEAVING)
+        return;
+    DealClick(Sexy::KEYCODE_RETURN);
 }
 
 // ==========================================================================
@@ -212,27 +219,26 @@ void DaveHelp::MouseDown(int theX, int theY, int theClickCount)
 // ==========================================================================
 int DaveHelp::DealClick(Sexy::KeyCode theKey)
 {
-  if (theKey == Sexy::KEYCODE_RETURN)
-  {
-    if ( mApp->AdvanceCrazyDaveText() == 0 )
+    if (theKey == Sexy::KEYCODE_RETURN)
     {
-      if (mApp->mCrazyDaveState != CRAZY_DAVE_OFF
-          && mApp->mCrazyDaveState != CRAZY_DAVE_LEAVING)
-      {
-        mApp->CrazyDaveLeave();
-        if ( !mIsSingle )
+        if (mApp->AdvanceCrazyDaveText() == 0)
         {
-          mApp->StartHelp(mHelpType);
-          // mHelpType == 1 is the "passed the shop seed tutorial" hint, so the
-          // profile records it. ARM: `LDR R2,[R4,#0x100] / LDR R2,[R2,#0x92C] /
-          // STRB.W R3,[R2,#0x732]` -- mApp->mPlayerInfo->mPassedShopSeedTutorial.
-          if ( mHelpType == 1 )
-            mApp->mPlayerInfo->mPassedShopSeedTutorial = true;
+            if (mApp->mCrazyDaveState != CRAZY_DAVE_OFF && mApp->mCrazyDaveState != CRAZY_DAVE_LEAVING)
+            {
+                mApp->CrazyDaveLeave();
+                if (!mIsSingle)
+                {
+                    mApp->StartHelp(mHelpType);
+                    // mHelpType == 1 is the "passed the shop seed tutorial" hint, so the
+                    // profile records it. ARM: `LDR R2,[R4,#0x100] / LDR R2,[R2,#0x92C] /
+                    // STRB.W R3,[R2,#0x732]` -- mApp->mPlayerInfo->mPassedShopSeedTutorial.
+                    if (mHelpType == 1)
+                        mApp->mPlayerInfo->mPassedShopSeedTutorial = true;
+                }
+            }
         }
-      }
     }
-  }
-  return 0;
+    return 0;
 }
 
 // ==========================================================================
@@ -241,80 +247,72 @@ int DaveHelp::DealClick(Sexy::KeyCode theKey)
 // ==========================================================================
 void DaveHelp::DrawDave(Sexy::Graphics *theGraphics)
 {
-  Reanimation *aReanim = mApp->ReanimationTryToGet(mApp->mCrazyDaveReanimID);
-  if (aReanim == nullptr)
-    return;
+    Reanimation *aReanim = mApp->ReanimationTryToGet(mApp->mCrazyDaveReanimID);
+    if (aReanim == nullptr)
+        return;
 
-  if (!mApp->mCrazyDaveMessageText->empty())
-  {
-  theGraphics->DrawImage(IMAGE_STORE_SPEECHBUBBLE2, 329, 298);
-
-  Sexy::String aMessage(*mApp->mCrazyDaveMessageText);
-  TRect<int> aTextRect;
-  aTextRect.mX = 354;
-  aTextRect.mY = 304;
-  aTextRect.mWidth = 233;
-  aTextRect.mHeight = 144;
-
-  if ( StringFind(&aMessage, "{SHAKE}", 0, 7) != (unsigned int)-1 )
-  {
-    Sexy::String aEmpty(gEmptyCString);
-    Sexy::String aReplaced;
-    TodReplaceString(&aReplaced, &aMessage, "{SHAKE}", &aEmpty);
-    aMessage = aReplaced;
-    aTextRect.mX += PlatformRandomLong() % 2;
-    aTextRect.mY += PlatformRandomLong() % 2;
-  }
-
-  // ARM at 0x1ec6f8: `CMP R3,#0x48 / BEQ loc_1EC754`, and loc_1EC754 is the
-  // `MOV.W R11,#0` that makes the click prompt below skip. So the prompt is
-  // shown only when the game mode is NOT 72 AND the "{NO_CLICK}" tag is absent;
-  // either condition clears it.
-  bool aShowClickToContinue = false;
-  if ( mApp->mGameMode != GAMEMODE_UPSELL )
-  {
-    if ( StringFind(&aMessage, "{NO_CLICK}", 0, 10) == (unsigned int)-1 )
+    if (!mApp->mCrazyDaveMessageText->empty())
     {
-      aShowClickToContinue = true;
+        theGraphics->DrawImage(IMAGE_STORE_SPEECHBUBBLE2, 329, 298);
+
+        Sexy::String aMessage(*mApp->mCrazyDaveMessageText);
+        TRect<int> aTextRect;
+        aTextRect.mX = 354;
+        aTextRect.mY = 304;
+        aTextRect.mWidth = 233;
+        aTextRect.mHeight = 144;
+
+        if (StringFind(&aMessage, "{SHAKE}", 0, 7) != (unsigned int)-1)
+        {
+            Sexy::String aEmpty(gEmptyCString);
+            Sexy::String aReplaced;
+            TodReplaceString(&aReplaced, &aMessage, "{SHAKE}", &aEmpty);
+            aMessage = aReplaced;
+            aTextRect.mX += PlatformRandomLong() % 2;
+            aTextRect.mY += PlatformRandomLong() % 2;
+        }
+
+        // ARM at 0x1ec6f8: `CMP R3,#0x48 / BEQ loc_1EC754`, and loc_1EC754 is the
+        // `MOV.W R11,#0` that makes the click prompt below skip. So the prompt is
+        // shown only when the game mode is NOT 72 AND the "{NO_CLICK}" tag is absent;
+        // either condition clears it.
+        bool aShowClickToContinue = false;
+        if (mApp->mGameMode != GAMEMODE_UPSELL)
+        {
+            if (StringFind(&aMessage, "{NO_CLICK}", 0, 10) == (unsigned int)-1)
+            {
+                aShowClickToContinue = true;
+            }
+            else
+            {
+                Sexy::String aEmpty(gEmptyCString);
+                Sexy::String aReplaced;
+                TodReplaceString(&aReplaced, &aMessage, "{NO_CLICK}", &aEmpty);
+                aMessage = aReplaced;
+            }
+        }
+
+        TodDrawStringWrapped(theGraphics, aMessage, aTextRect, FONT_BRIANNETOD16, Sexy::Color::Black, 5, 0);
+
+        // ARM at 0x1ec782: R10 starts as FONT_DWARVENTODCRAFT12, and 0x1ec7ae
+        // `CMP.W R12,#0 / BNE` replaces it with FONT_BRIANNETOD16 only when
+        // StringEqualCStr(GetLocale(), "zh_CN") returned zero -- and that helper returns
+        // zero exactly when the locale string EQUALS "zh_CN". So zh_CN gets
+        // BrianneTod16 and every other locale gets DwarvenTodCraft12.
+        Sexy::Font *aFont = FONT_DWARVENTODCRAFT12;
+        if (mApp->GetLocale().compare("zh_CN") == 0)
+            aFont = FONT_BRIANNETOD16;
+
+        if (aShowClickToContinue)
+        {
+            Sexy::String aContinueText("[CLICK_TO_CONTINUE]");
+            TodDrawString(theGraphics, aContinueText, 468, 438, aFont, Sexy::Color::Black, 2);
+        }
     }
-    else
-    {
-      Sexy::String aEmpty(gEmptyCString);
-      Sexy::String aReplaced;
-      TodReplaceString(&aReplaced, &aMessage, "{NO_CLICK}", &aEmpty);
-      aMessage = aReplaced;
-    }
-  }
 
-  TodDrawStringWrapped(theGraphics, aMessage, aTextRect, FONT_BRIANNETOD16, Sexy::Color::Black, 5, 0);
-
-  // ARM at 0x1ec782: R10 starts as FONT_DWARVENTODCRAFT12, and 0x1ec7ae
-  // `CMP.W R12,#0 / BNE` replaces it with FONT_BRIANNETOD16 only when
-  // StringEqualCStr(GetLocale(), "zh_CN") returned zero -- and that helper returns
-  // zero exactly when the locale string EQUALS "zh_CN". So zh_CN gets
-  // BrianneTod16 and every other locale gets DwarvenTodCraft12.
-  Sexy::Font *aFont = FONT_DWARVENTODCRAFT12;
-  if ( mApp->GetLocale().compare("zh_CN") == 0 )
-    aFont = FONT_BRIANNETOD16;
-
-  if ( aShowClickToContinue )
-  {
-    Sexy::String aContinueText("[CLICK_TO_CONTINUE]");
-    TodDrawString(
-      theGraphics,
-      aContinueText,
-      468,
-      438,
-      aFont,
-      Sexy::Color::Black,
-      2);
-  }
-
-  }
-
-  aReanim->OverrideScale(0.8, 0.8);
-  aReanim->SetPosition(100.0, 240.0);
-  aReanim->Draw(theGraphics);
+    aReanim->OverrideScale(0.8, 0.8);
+    aReanim->SetPosition(100.0, 240.0);
+    aReanim->Draw(theGraphics);
 }
 
 // ==========================================================================
@@ -323,8 +321,8 @@ void DaveHelp::DrawDave(Sexy::Graphics *theGraphics)
 // ==========================================================================
 void DaveHelp::RemovedFromManager(Sexy::WidgetManager *theManager)
 {
-  Sexy::WidgetContainer::RemovedFromManager(theManager);
-  DaveLeave();
+    Sexy::WidgetContainer::RemovedFromManager(theManager);
+    DaveLeave();
 }
 
 // ==========================================================================
@@ -333,12 +331,12 @@ void DaveHelp::RemovedFromManager(Sexy::WidgetManager *theManager)
 // ==========================================================================
 void DaveHelp::Draw(Sexy::Graphics *theGraphics)
 {
-  if (mApp->mCrazyDaveState != CRAZY_DAVE_LEAVING && mDrawActive)
-  {
-    theGraphics->SetColor(Sexy::Color(0, 0, 0, 178));
-    theGraphics->FillRect(0, 0, mWidth, mHeight);
-  }
+    if (mApp->mCrazyDaveState != CRAZY_DAVE_LEAVING && mDrawActive)
+    {
+        theGraphics->SetColor(Sexy::Color(0, 0, 0, 178));
+        theGraphics->FillRect(0, 0, mWidth, mHeight);
+    }
 
-  Sexy::Graphics aDaveGraphics(*theGraphics);
-  DrawDave(&aDaveGraphics);
+    Sexy::Graphics aDaveGraphics(*theGraphics);
+    DrawDave(&aDaveGraphics);
 }

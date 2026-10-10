@@ -29,7 +29,8 @@
 // implementations, which is why the authoritative header does not declare them.
 // MSVC x86 gives a virtual destructor ONE slot where Itanium gives two (D1+D0).
 
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_CONFIRMBACKTOMAINDIALOG_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_CONFIRMBACKTOMAINDIALOG_H
 
 #include "ReconTypes.h"
 // These includes exist because the transcribed bodies call methods on complete
@@ -66,8 +67,10 @@ public:
     virtual void ButtonDepress(int theId);
 
     // LawnDialog occupies +0x00..+0x2FB.
-    GameButton *mRestartButton;   // +0x2FC
+    GameButton *mRestartButton; // +0x2FC
     // Size 0x300.
 
     explicit ConfirmBackToMainDialog(bool theLeaveGame);
 };
+
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_CONFIRMBACKTOMAINDIALOG_H

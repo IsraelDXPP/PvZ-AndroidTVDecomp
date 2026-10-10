@@ -30,7 +30,8 @@
 // `SimpleMessageStyle` is MessageStyle (ReconTypes.h); the one call site passes
 // the literal 7 (SessionWaitingDialog.cpp:72).
 
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_SIMPLEMESSAGEWIDGET_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_SIMPLEMESSAGEWIDGET_H
 
 #include "ReconTypes.h"
 #include "Font.h"
@@ -49,13 +50,14 @@ public:
     explicit SimpleMessageWidget(LawnApp *theApp);
     ~SimpleMessageWidget();
 
-    void SetLabel(const Sexy::String& theLabel, SimpleMessageStyle theStyle);
+    void SetLabel(const Sexy::String &theLabel, SimpleMessageStyle theStyle);
     void ClearLabel();
     void ClearReanim();
 
     void Update();
     void Draw(Sexy::Graphics *theGraphics);
-    void DrawReanimatedText(Sexy::Graphics *theGraphics, Sexy::Font *theFont, const Sexy::Color& theColor, float thePosX);
+    void DrawReanimatedText(
+        Sexy::Graphics *theGraphics, Sexy::Font *theFont, const Sexy::Color &theColor, float thePosX);
     Sexy::Font *GetFont();
     void LayoutReanimText();
     int IsBeingDisplayed();
@@ -69,3 +71,4 @@ public:
     MessageStyle mMessageStyleNext;
 };
 
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_SIMPLEMESSAGEWIDGET_H

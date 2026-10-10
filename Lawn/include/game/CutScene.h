@@ -10,7 +10,8 @@
 // heuristic, which had folded in offsets that belong to other objects (the dump
 // passes several sret buffers through `result + N`, e.g. `result + 0xa74`).
 
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_CUTSCENE_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_CUTSCENE_H
 
 #include "ReconTypes.h"
 // Classes this one calls a method on: the call needs the
@@ -51,32 +52,32 @@ class LawnApp;
 class CutScene
 {
 public:
-    LawnApp *mApp;                           // +0x00
-    Board *mBoard;                           // +0x04 (CutScene.cpp reads this + 4)
-    int mCutsceneTime;                       // +0x08
-    int mSodTime;                            // +0x0C
-    int mGraveStoneTime;                     // +0x10
-    int mReadySetPlantTime;                  // +0x14
-    int mFogTime;                            // +0x18
-    int mBossTime;                           // +0x1C
-    int mCrazyDaveTime;                      // +0x20
-    int mLawnMowerTime;                      // +0x24
-    int mCrazyDaveDialogStart;               // +0x28
-    bool mSeedChoosing;                      // +0x2C (byte 44 in the authoritative table)
-    ReanimationID mZombiesWonReanimID;       // +0x30
-    bool mPreloaded;                         // +0x34 (byte 52)
-    bool mPlacedZombies;                     // +0x35 (byte 53)
-    bool mPlacedLawnItems;                   // +0x36 (byte 54)
-    int mCrazyDaveCountDown;                 // +0x38 (upsell countdown)
-    int mCrazyDaveLastTalkIndex;             // +0x3C (upsell line index)
-    bool mUpsellHideBoard;                   // +0x40 (byte 64)
+    LawnApp *mApp; // +0x00
+    Board *mBoard; // +0x04 (CutScene.cpp reads this + 4)
+    int mCutsceneTime; // +0x08
+    int mSodTime; // +0x0C
+    int mGraveStoneTime; // +0x10
+    int mReadySetPlantTime; // +0x14
+    int mFogTime; // +0x18
+    int mBossTime; // +0x1C
+    int mCrazyDaveTime; // +0x20
+    int mLawnMowerTime; // +0x24
+    int mCrazyDaveDialogStart; // +0x28
+    bool mSeedChoosing; // +0x2C (byte 44 in the authoritative table)
+    ReanimationID mZombiesWonReanimID; // +0x30
+    bool mPreloaded; // +0x34 (byte 52)
+    bool mPlacedZombies; // +0x35 (byte 53)
+    bool mPlacedLawnItems; // +0x36 (byte 54)
+    int mCrazyDaveCountDown; // +0x38 (upsell countdown)
+    int mCrazyDaveLastTalkIndex; // +0x3C (upsell line index)
+    bool mUpsellHideBoard; // +0x40 (byte 64)
     ChallengeScreen *mUpsellChallengeScreen; // +0x44
-    bool mPreUpdatingBoard;                  // +0x48 (byte 72)
-    ReanimationID mPlantsWonReanimID;        // +0x4C (byte 76)
-    Zombie *mZombieWonZombie;                // +0x50 (byte 80)
-    int mMPZombieWonPosition;                // +0x54 (byte 84)
-    float mMPWonPosX;                        // +0x58 (byte 88)
-    float mMPWonPosY;                        // +0x5C (byte 92)
+    bool mPreUpdatingBoard; // +0x48 (byte 72)
+    ReanimationID mPlantsWonReanimID; // +0x4C (byte 76)
+    Zombie *mZombieWonZombie; // +0x50 (byte 80)
+    int mMPZombieWonPosition; // +0x54 (byte 84)
+    float mMPWonPosX; // +0x58 (byte 88)
+    float mMPWonPosY; // +0x5C (byte 92)
     std::set<Sexy::String> mLoadedResources;
 
     CutScene();
@@ -104,8 +105,8 @@ public:
     void ShowShovel();
     bool IsInShovelTutorial();
     void StartZombiesWon();
-    void StartZombiesWonMP(Zombie * theZombie);
-    void StartPlantsWon(Reanimation * theReanim);
+    void StartZombiesWonMP(Zombie *theZombie);
+    void StartPlantsWon(Reanimation *theReanim);
     bool ShowZombieWalking();
     void UpdateZombiesWon();
     void UpdateZombiesWonMP();
@@ -123,13 +124,13 @@ public:
     int ParseTalkTimeFromMessage();
     void AddUpsellZombie(ZombieType theZombieType, int thePosX, int theRow);
     bool ShouldRunUpsellBoard();
-    void DrawIntro(Sexy::Graphics * theGraphics);
-    void DrawMPFade(Sexy::Graphics * theGraphics, const SexyVector2 & thePos);
-    void DrawPlantsWonMP(Sexy::Graphics * theGraphics);
-    void DrawZombiesWonMP(Sexy::Graphics * theGraphics);
+    void DrawIntro(Sexy::Graphics *theGraphics);
+    void DrawMPFade(Sexy::Graphics *theGraphics, const SexyVector2 &thePos);
+    void DrawPlantsWonMP(Sexy::Graphics *theGraphics);
+    void DrawZombiesWonMP(Sexy::Graphics *theGraphics);
     void DrawGameObjectsHook(BoardRenderItem *aList, int &aCount);
     ~CutScene();
-    int LoadResources(Sexy::String const& theGroup);
+    int LoadResources(Sexy::String const &theGroup);
     int PreloadResources();
     int CancelIntro();
     int MouseDown(int theX, int theY);
@@ -145,5 +146,7 @@ public:
     void LoadUpsellBoardRoof();
     void UpdateUpsell();
     void Update();
-    void DrawUpsell(Sexy::Graphics * theGraphics);
+    void DrawUpsell(Sexy::Graphics *theGraphics);
 };
+
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_CUTSCENE_H

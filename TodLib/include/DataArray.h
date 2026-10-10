@@ -1,5 +1,5 @@
-#ifndef __DATAARRAY_H__
-#define __DATAARRAY_H__
+#ifndef LAWNPROJECTTV_TODLIB_INCLUDE_DATAARRAY_H
+#define LAWNPROJECTTV_TODLIB_INCLUDE_DATAARRAY_H
 
 #include <cstddef>
 
@@ -31,8 +31,8 @@ struct AttachmentSlot;
 struct DataArrayIdNode
 {
     unsigned int mValue;
-    DataArrayIdNode* mNext;
-    DataArrayIdNode* mPrev;
+    DataArrayIdNode *mNext;
+    DataArrayIdNode *mPrev;
 };
 
 // One array of T. Slot is the record named above. The method bodies are not
@@ -44,8 +44,7 @@ struct DataArrayIdNode
 // DataArrayAlloc then constructs the one slot it hands out a second time.
 // operator delete also does not match a new[] cookie, so DataArrayDispose
 // destroys the live items and releases the block with operator delete[].
-template <typename T, typename Slot>
-class DataArray
+template <typename T, typename Slot> class DataArray
 {
 public:
     Slot *mBlock;

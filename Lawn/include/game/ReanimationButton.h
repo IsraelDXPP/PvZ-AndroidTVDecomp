@@ -19,7 +19,8 @@
 //   [ 31] 0x19d740  Update                   override
 //   [ 36] 0x19d750  Draw                     override
 
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_REANIMATIONBUTTON_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_REANIMATIONBUTTON_H
 
 #include "ReconTypes.h"
 // Classes this one calls a method on: the call needs the
@@ -39,23 +40,24 @@ class ReanimationButton : public Sexy::ButtonWidget
 {
 public:
     // ---- own members, +0x330.. (reconstructor at ReanimationButton.cpp:57) ----
-    LawnApp * mApp;                  // +0x330  the ctor stores gSexyAppBase
-    float mScaleX;                   // +0x334  initialised to 1.0f
+    LawnApp *mApp; // +0x330  the ctor stores gSexyAppBase
+    float mScaleX; // +0x334  initialised to 1.0f
     float mScaleY;
     ReanimationType mReanimationType;
     ReanimationID mReanimationID;
     // size 0x348
 
-    virtual ~ReanimationButton();                                 // [  0]
-    virtual void AddedToManager(Sexy::WidgetManager * theWidgetManager); // [ 29]
-    virtual void Update();                                        // [ 31]
+    virtual ~ReanimationButton(); // [  0]
+    virtual void AddedToManager(Sexy::WidgetManager *theWidgetManager); // [ 29]
+    virtual void Update(); // [ 31]
     virtual void Draw(Sexy::Graphics *theGraphics);
 
     // _ZN17ReanimationButtonC1Ei15ReanimationTypePN4Sexy14ButtonListenerEPNS1_6WidgetE
     // -- four parameters. The transcription's extra leading `Sexy::ButtonWidget *`
     // was the decompiler printing its own `this` register as a first argument.
-    ReanimationButton(int theId, ReanimationType theReanimationType,
-                      Sexy::ButtonListener * theListener, Sexy::Widget * theParent);
+    ReanimationButton(
+        int theId, ReanimationType theReanimationType, Sexy::ButtonListener *theListener, Sexy::Widget *theParent);
     void SetScale(float theScaleX, float theScaleY);
 };
 
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_REANIMATIONBUTTON_H

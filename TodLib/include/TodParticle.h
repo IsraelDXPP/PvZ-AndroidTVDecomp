@@ -1,4 +1,5 @@
-#pragma once
+#ifndef LAWNPROJECTTV_TODLIB_INCLUDE_TODPARTICLE_H
+#define LAWNPROJECTTV_TODLIB_INCLUDE_TODPARTICLE_H
 
 #include "SyncObject.h"
 
@@ -46,7 +47,7 @@ public:
         float mFieldInterp[4][2];
     };
 
-    TodParticleEmitter* mParticleEmitter;
+    TodParticleEmitter *mParticleEmitter;
     SyncState mSyncState;
 
     TodParticle();
@@ -58,3 +59,5 @@ struct ParticleSlot
     TodParticle mItem;
     unsigned int mID;
 };
+
+#endif // LAWNPROJECTTV_TODLIB_INCLUDE_TODPARTICLE_H

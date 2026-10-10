@@ -11,7 +11,8 @@
 // The transcribed bodies only ever touch +0x00, so +0x04 keeps its slot and is
 // documented as unknown rather than invented.
 
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_LEVELSTATS_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_LEVELSTATS_H
 
 #include "ReconTypes.h"
 
@@ -27,3 +28,5 @@ public:
 };
 
 // Layout check: two four-byte words.
+
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_LEVELSTATS_H

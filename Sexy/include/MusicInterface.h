@@ -39,7 +39,8 @@
 // `Music2::MusicLoadCreditsSong` loads "sounds/ZombiesOnYourLawn.ogg" as id 13,
 // which are MUSIC_TUNE_DAY_GRASSWALK and MUSIC_TUNE_CREDITS_ZOMBIES_ON_YOUR_LAWN.
 
-#pragma once
+#ifndef LAWNPROJECTTV_SEXY_INCLUDE_MUSICINTERFACE_H
+#define LAWNPROJECTTV_SEXY_INCLUDE_MUSICINTERFACE_H
 
 #include "ReconTypes.h"
 
@@ -51,30 +52,32 @@ class MusicInterface
 public:
     virtual ~MusicInterface();
 
-    virtual bool IsLoaded(int theSongId);                                   // [ 2] +0x08
-    virtual bool LoadMusic(int theSongId, Sexy::String const& theFileName); // [ 3] +0x0C
-    virtual void PlayMusic(int theSongId, int theOffset, bool noLoop);      // [ 4] +0x10
-    virtual void StopMusic(int theSongId);                                  // [ 5] +0x14
-    virtual void PauseMusic(int theSongId);                                 // [ 6]
-    virtual void ResumeMusic(int theSongId);                                // [ 7]
-    virtual void StopAllMusic();                                            // [ 8]
-    virtual void UnloadMusic(int theSongId);                                // [ 9]
-    virtual void UnloadAllMusic();                                          // [10]
-    virtual void PauseAllMusic();                                           // [11]
-    virtual void ResumeAllMusic();                                          // [12]
+    virtual bool IsLoaded(int theSongId); // [ 2] +0x08
+    virtual bool LoadMusic(int theSongId, Sexy::String const &theFileName); // [ 3] +0x0C
+    virtual void PlayMusic(int theSongId, int theOffset, bool noLoop); // [ 4] +0x10
+    virtual void StopMusic(int theSongId); // [ 5] +0x14
+    virtual void PauseMusic(int theSongId); // [ 6]
+    virtual void ResumeMusic(int theSongId); // [ 7]
+    virtual void StopAllMusic(); // [ 8]
+    virtual void UnloadMusic(int theSongId); // [ 9]
+    virtual void UnloadAllMusic(); // [10]
+    virtual void PauseAllMusic(); // [11]
+    virtual void ResumeAllMusic(); // [12]
     virtual void FadeIn(int theSongId, int theOffset, double theVolume, bool noLoop); // [13]
-    virtual void FadeOut(int theSongId, bool noLoop, double theVolume);     // [14]
-    virtual void FadeOutAll(bool noLoop, double theVolume);                 // [15]
-    virtual void SetSongVolume(int theSongId, double theVolume);            // [16] +0x40
-    virtual void SetSongMaxVolume(int theSongId, double theVolume);         // [17]
-    virtual bool IsPlaying(int theSongId);                                  // [18]
+    virtual void FadeOut(int theSongId, bool noLoop, double theVolume); // [14]
+    virtual void FadeOutAll(bool noLoop, double theVolume); // [15]
+    virtual void SetSongVolume(int theSongId, double theVolume); // [16] +0x40
+    virtual void SetSongMaxVolume(int theSongId, double theVolume); // [17]
+    virtual bool IsPlaying(int theSongId); // [18]
     virtual void SetChannelVolume(int theSongId, int theChannel, float theVolume); // [19] +0x4C
-    virtual int GetOrder(int theSongId);                                    // [20] +0x50
-    virtual int GetTempo(int theSongId);                                    // [21]
-    virtual void SetTempo(int theSongId, int theTempo);                     // [22]
-    virtual void SetVolume(double theVolume);                               // [23]
-    virtual void SetMusicAmplify(int theSongId, double theVolume);          // [24]
-    virtual void Update();                                                  // [25]
+    virtual int GetOrder(int theSongId); // [20] +0x50
+    virtual int GetTempo(int theSongId); // [21]
+    virtual void SetTempo(int theSongId, int theTempo); // [22]
+    virtual void SetVolume(double theVolume); // [23]
+    virtual void SetMusicAmplify(int theSongId, double theVolume); // [24]
+    virtual void Update(); // [25]
 };
 
 } // namespace Sexy
+
+#endif // LAWNPROJECTTV_SEXY_INCLUDE_MUSICINTERFACE_H

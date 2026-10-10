@@ -21,8 +21,10 @@
 #include <cstring>
 #include <new>
 
-namespace Sexy {
-namespace RbTree {
+namespace Sexy
+{
+namespace RbTree
+{
 
 // The tree object starts with a comparator word, then the header node.
 struct TreeObject
@@ -38,7 +40,7 @@ struct IntNode : NodeBase
 
 struct PointerNode : NodeBase
 {
-    void* mKey;
+    void *mKey;
 };
 
 struct PairNode : NodeBase
@@ -47,21 +49,20 @@ struct PairNode : NodeBase
     Sexy::String mValue;
 };
 
-template <class T>
-T* AsNode(void* theAddress)
+template <class T> T *AsNode(void *theAddress)
 {
-    return static_cast<T*>(theAddress);
+    return static_cast<T *>(theAddress);
 }
 
 // libstdc++: _S_minimum / _S_maximum
-NodeBase* _M_minimum(NodeBase* theNode)
+NodeBase *_M_minimum(NodeBase *theNode)
 {
     while (theNode->mLeft != nullptr)
         theNode = theNode->mLeft;
     return theNode;
 }
 
-NodeBase* _M_maximum(NodeBase* theNode)
+NodeBase *_M_maximum(NodeBase *theNode)
 {
     while (theNode->mRight != nullptr)
         theNode = theNode->mRight;
@@ -71,12 +72,12 @@ NodeBase* _M_maximum(NodeBase* theNode)
 // libstdc++: _Rb_tree_increment. The header node is the parent of the root,
 // and the root's parent points back at the header, which is how the walk
 // detects the end of the tree.
-NodeBase* _M_increment(NodeBase* theNode)
+NodeBase *_M_increment(NodeBase *theNode)
 {
     if (theNode->mRight != nullptr)
         return _M_minimum(theNode->mRight);
 
-    NodeBase* aParent = theNode->mParent;
+    NodeBase *aParent = theNode->mParent;
     while (theNode == aParent->mRight)
     {
         theNode = aParent;
@@ -87,7 +88,7 @@ NodeBase* _M_increment(NodeBase* theNode)
     return theNode;
 }
 
-NodeBase* _M_decrement(NodeBase* theNode)
+NodeBase *_M_decrement(NodeBase *theNode)
 {
     if (theNode->mColor == 0 && theNode->mParent->mParent == theNode)
         return theNode->mRight;
@@ -95,7 +96,7 @@ NodeBase* _M_decrement(NodeBase* theNode)
     if (theNode->mLeft != nullptr)
         return _M_maximum(theNode->mLeft);
 
-    NodeBase* aParent = theNode->mParent;
+    NodeBase *aParent = theNode->mParent;
     while (theNode == aParent->mLeft)
     {
         theNode = aParent;
@@ -105,9 +106,9 @@ NodeBase* _M_decrement(NodeBase* theNode)
 }
 
 // libstdc++: _Rb_tree_rotate_left / _Rb_tree_rotate_right
-void _Rb_tree_rotate_left(NodeBase* theNode, NodeBase*& theRoot)
+void _Rb_tree_rotate_left(NodeBase *theNode, NodeBase *&theRoot)
 {
-    NodeBase* aRight = theNode->mRight;
+    NodeBase *aRight = theNode->mRight;
     if (aRight == nullptr)
         return;
     theNode->mRight = aRight->mLeft;
@@ -129,9 +130,9 @@ void _Rb_tree_rotate_left(NodeBase* theNode, NodeBase*& theRoot)
     (void)theRoot;
 }
 
-void _Rb_tree_rotate_right(NodeBase* theNode, NodeBase*& theRoot)
+void _Rb_tree_rotate_right(NodeBase *theNode, NodeBase *&theRoot)
 {
-    NodeBase* aLeft = theNode->mLeft;
+    NodeBase *aLeft = theNode->mLeft;
     if (aLeft == nullptr)
         return;
     theNode->mLeft = aLeft->mRight;
@@ -155,13 +156,12 @@ void _Rb_tree_rotate_right(NodeBase* theNode, NodeBase*& theRoot)
 
 // libstdc++: _Rb_tree_insert_and_rebalance. This is the whole of the
 // red-black insertion fixup, including the three symmetric cases.
-void _Rb_tree_insert_and_rebalance(bool theInsertLeft, NodeBase* theNode,
-                                   NodeBase* theParent, NodeBase& theHeader)
+void _Rb_tree_insert_and_rebalance(bool theInsertLeft, NodeBase *theNode, NodeBase *theParent, NodeBase &theHeader)
 {
     // The header's parent is the root. The first node is that root, and its
     // own parent is the header. A later rotation writes the new root back
     // through the same pointer.
-    NodeBase*& aRoot = theHeader.mParent;
+    NodeBase *&aRoot = theHeader.mParent;
     bool aFirst = (theParent == &theHeader);
     if (aFirst)
         aRoot = theNode;
@@ -169,7 +169,7 @@ void _Rb_tree_insert_and_rebalance(bool theInsertLeft, NodeBase* theNode,
     theNode->mParent = theParent;
     theNode->mLeft = nullptr;
     theNode->mRight = nullptr;
-    theNode->mColor = 0;                       // new nodes are red
+    theNode->mColor = 0; // new nodes are red
 
     if (theInsertLeft)
     {
@@ -189,12 +189,12 @@ void _Rb_tree_insert_and_rebalance(bool theInsertLeft, NodeBase* theNode,
     // Rebalance.
     while (theNode != theHeader.mParent && theNode->mParent->mColor == 0)
     {
-        NodeBase* aParent = theNode->mParent;
-        NodeBase* aGrand = aParent->mParent;
+        NodeBase *aParent = theNode->mParent;
+        NodeBase *aGrand = aParent->mParent;
 
         if (aParent == aGrand->mLeft)
         {
-            NodeBase* aUncle = aGrand->mRight;
+            NodeBase *aUncle = aGrand->mRight;
             if (aUncle != nullptr && aUncle->mColor == 0)
             {
                 aParent->mColor = 1;
@@ -217,7 +217,7 @@ void _Rb_tree_insert_and_rebalance(bool theInsertLeft, NodeBase* theNode,
         }
         else
         {
-            NodeBase* aUncle = aGrand->mLeft;
+            NodeBase *aUncle = aGrand->mLeft;
             if (aUncle != nullptr && aUncle->mColor == 0)
             {
                 aParent->mColor = 1;
@@ -245,14 +245,14 @@ void _Rb_tree_insert_and_rebalance(bool theInsertLeft, NodeBase* theNode,
 }
 
 // libstdc++: _Rb_tree_rebalance_for_erase, the four-case delete fixup.
-NodeBase* _Rb_tree_rebalance_for_erase(NodeBase* theNode, NodeBase& theHeader)
+NodeBase *_Rb_tree_rebalance_for_erase(NodeBase *theNode, NodeBase &theHeader)
 {
-    NodeBase* aRoot = &theHeader;
-    NodeBase* aLeft = theNode->mLeft;
-    NodeBase* aRight = theNode->mRight;
-    NodeBase* aParent = theNode->mParent;
-    NodeBase* aChild = nullptr;
-    NodeBase* aFix = nullptr;
+    NodeBase *aRoot = &theHeader;
+    NodeBase *aLeft = theNode->mLeft;
+    NodeBase *aRight = theNode->mRight;
+    NodeBase *aParent = theNode->mParent;
+    NodeBase *aChild = nullptr;
+    NodeBase *aFix = nullptr;
 
     if (aLeft == nullptr)
         aChild = aRight;
@@ -261,7 +261,7 @@ NodeBase* _Rb_tree_rebalance_for_erase(NodeBase* theNode, NodeBase& theHeader)
     else
     {
         // Two children: splice in the successor.
-        NodeBase* aSucc = aRight;
+        NodeBase *aSucc = aRight;
         while (aSucc->mLeft != nullptr)
             aSucc = aSucc->mLeft;
 
@@ -310,7 +310,7 @@ NodeBase* _Rb_tree_rebalance_for_erase(NodeBase* theNode, NodeBase& theHeader)
     {
         if (aChild == aParent->mLeft)
         {
-            NodeBase* aSib = aParent->mRight;
+            NodeBase *aSib = aParent->mRight;
             if (aSib->mColor == 0)
             {
                 aSib->mColor = 1;
@@ -345,7 +345,7 @@ NodeBase* _Rb_tree_rebalance_for_erase(NodeBase* theNode, NodeBase& theHeader)
         }
         else
         {
-            NodeBase* aSib = aParent->mLeft;
+            NodeBase *aSib = aParent->mLeft;
             if (aSib->mColor == 0)
             {
                 aSib->mColor = 1;
@@ -386,24 +386,24 @@ NodeBase* _Rb_tree_rebalance_for_erase(NodeBase* theNode, NodeBase& theHeader)
 }
 
 // libstdc++: _Rb_tree<_Key,...>::_M_erase, the destructor's recursion.
-void _M_erase(NodeBase* theNode)
+void _M_erase(NodeBase *theNode)
 {
     while (theNode != nullptr)
     {
         _M_erase(theNode->mRight);
-        NodeBase* aLeft = theNode->mLeft;
+        NodeBase *aLeft = theNode->mLeft;
         // The node's own storage is freed by the tree that owns it; the
         // transcribed callers do that themselves, so only the walk is here.
         theNode = aLeft;
     }
 }
 
-void _M_erase_aux(NodeBase* theFirst, NodeBase* theLast)
+void _M_erase_aux(NodeBase *theFirst, NodeBase *theLast)
 {
-    NodeBase* aNode = theFirst;
+    NodeBase *aNode = theFirst;
     while (aNode != theLast)
     {
-        NodeBase* aNext = _M_increment(aNode);
+        NodeBase *aNext = _M_increment(aNode);
         aNode = aNext;
     }
 }
@@ -421,16 +421,16 @@ void _M_erase_aux(NodeBase* theFirst, NodeBase* theLast)
 // rep before the character pointer (Runtime\SexyString.h, StringRep).
 // The key is the first field after the node base for both set and map nodes.
 // ---------------------------------------------------------------------------
-static const Sexy::String& NodeKey(const NodeBase* theNode)
+static const Sexy::String &NodeKey(const NodeBase *theNode)
 {
-    const void* aAddress = theNode;
-    return static_cast<const PairNode*>(aAddress)->mKey;
+    const void *aAddress = theNode;
+    return static_cast<const PairNode *>(aAddress)->mKey;
 }
 
 // A String's data pointer has to address committed memory. Transcribed nodes
 // carry pointers that never were, and dereferencing one is the fault the
 // resource walk kept dying on.
-static int CompareStringKeys(const Sexy::String& theLeft, const Sexy::String& theRight)
+static int CompareStringKeys(const Sexy::String &theLeft, const Sexy::String &theRight)
 {
     // A node planted by a transcribed body can hold a null data pointer. That
     // is an empty string. Anything else is a real rep and is read directly;
@@ -457,7 +457,7 @@ static int CompareStringKeys(const Sexy::String& theLeft, const Sexy::String& th
 // into it. Every entry point below takes that tree object, which is what the
 // transcribed call sites already pass: the address of Sexy::Level's mWaves[0],
 // the 24-byte block behind SexyAppBase's dialog map, and so on.
-static NodeBase* HeaderOf(void* theTree)
+static NodeBase *HeaderOf(void *theTree)
 {
     return &AsNode<TreeObject>(theTree)->mHeader;
 }
@@ -473,18 +473,18 @@ static NodeBase* HeaderOf(void* theTree)
 // node, when no node's key compares equal, which is what the callers that
 // compare against `&mTree->mHeader` expect. `key` points at the key to look
 // for, a Sexy::String for this string-keyed instantiation.
-NodeBase* find(MapStorage* theTree, const Sexy::String* theKey)
+NodeBase *find(MapStorage *theTree, const Sexy::String *theKey)
 {
-    void* aTree = theTree;
-    return find(static_cast<NodeBase*>(aTree), theKey);
+    void *aTree = theTree;
+    return find(static_cast<NodeBase *>(aTree), theKey);
 }
 
-NodeBase* find(NodeBase* theTree, const Sexy::String* theKey)
+NodeBase *find(NodeBase *theTree, const Sexy::String *theKey)
 {
-    NodeBase* aHeader = HeaderOf(theTree);
-    const Sexy::String& aKey = *theKey;
+    NodeBase *aHeader = HeaderOf(theTree);
+    const Sexy::String &aKey = *theKey;
 
-    NodeBase* aNode = _M_lower_bound(aHeader->mParent, theKey);
+    NodeBase *aNode = _M_lower_bound(aHeader->mParent, theKey);
     int aCompare = (aNode == nullptr) ? -1 : CompareStringKeys(aKey, NodeKey(aNode));
     if (aNode == nullptr || aCompare < 0)
         return aHeader;
@@ -495,7 +495,7 @@ NodeBase* find(NodeBase* theTree, const Sexy::String* theKey)
 // object they already have, so the node pointers they pass are the tree's own
 // links; these return the position and let the caller link it, which is what
 // the decompiled code does with the result.
-NodeBase* _M_get_insert_unique_pos(const void* /*theKey*/, NodeBase** thePos)
+NodeBase *_M_get_insert_unique_pos(const void * /*theKey*/, NodeBase **thePos)
 {
     if (thePos)
         *thePos = nullptr;
@@ -517,13 +517,13 @@ NodeBase* _M_get_insert_unique_pos(const void* /*theKey*/, NodeBase** thePos)
 // theTree is the tree object (see find); theValue points at the value to store,
 // a Sexy::String for this instantiation. The result is the node that holds the
 // key: the new one, or the existing one it collided with.
-NodeBase* _M_insert_unique(MapStorage* theTree, const Sexy::String* theValue)
+NodeBase *_M_insert_unique(MapStorage *theTree, const Sexy::String *theValue)
 {
-    void* aTree = theTree;
-    return _M_insert_unique(static_cast<NodeBase*>(aTree), theValue);
+    void *aTree = theTree;
+    return _M_insert_unique(static_cast<NodeBase *>(aTree), theValue);
 }
 
-NodeBase* _M_insert_unique(NodeBase* theTree, const Sexy::String* theValue)
+NodeBase *_M_insert_unique(NodeBase *theTree, const Sexy::String *theValue)
 {
     return _M_insert_unique(theTree, theValue, sizeof(Sexy::String));
 }
@@ -531,16 +531,16 @@ NodeBase* _M_insert_unique(NodeBase* theTree, const Sexy::String* theValue)
 // The map instantiations. The descent, the collision test and the rebalance are
 // the same; only the node's size differs, because a map node stores the whole
 // pair<const String, T> and not just the key.
-NodeBase* _M_insert_unique(NodeBase* theTree, const void* theValue, size_t theValueSize)
+NodeBase *_M_insert_unique(NodeBase *theTree, const void *theValue, size_t theValueSize)
 {
-    void* aTreeAddress = theTree;
-    MapStorage* aTree = static_cast<MapStorage*>(aTreeAddress);
-    NodeBase* aHeader = &aTree->mHeader;
-    const Sexy::String* aKeyPointer = static_cast<const Sexy::String*>(theValue);
-    const Sexy::String& aKey = *aKeyPointer;
+    void *aTreeAddress = theTree;
+    MapStorage *aTree = static_cast<MapStorage *>(aTreeAddress);
+    NodeBase *aHeader = &aTree->mHeader;
+    const Sexy::String *aKeyPointer = static_cast<const Sexy::String *>(theValue);
+    const Sexy::String &aKey = *aKeyPointer;
 
-    NodeBase* aParent = aHeader;
-    NodeBase* aNode = aHeader->mParent;
+    NodeBase *aParent = aHeader;
+    NodeBase *aNode = aHeader->mParent;
     bool aWentLeft = true;
     while (aNode != nullptr)
     {
@@ -552,7 +552,7 @@ NodeBase* _M_insert_unique(NodeBase* theTree, const void* theValue, size_t theVa
     // The neighbour to test for an existing key. The descent stopped below the
     // leftmost node when the key is smaller than every key in the tree, and
     // then there is no neighbour to test.
-    NodeBase* aNeighbour = aParent;
+    NodeBase *aNeighbour = aParent;
     if (aWentLeft)
     {
         if (aParent == aHeader->mLeft)
@@ -566,19 +566,33 @@ NodeBase* _M_insert_unique(NodeBase* theTree, const void* theValue, size_t theVa
 
     // The side the new node hangs on: the header parent means an empty tree,
     // otherwise the key is left of the parent exactly when it compares smaller.
-    bool aInsertLeft = (aParent == aHeader) ||
-                       (CompareStringKeys(aKey, NodeKey(aParent)) < 0);
+    bool aInsertLeft = (aParent == aHeader) || (CompareStringKeys(aKey, NodeKey(aParent)) < 0);
 
-    NodeBase* aNewNode = _M_create_node_sized(theValue, theValueSize);
+    NodeBase *aNewNode = _M_create_node_sized(theValue, theValueSize);
     _Rb_tree_insert_and_rebalance(aInsertLeft, aNewNode, aParent, *aHeader);
     ++aTree->mCount;
     return aNewNode;
 }
-NodeBase* _M_insert_unique_(NodeBase* thePos, const void* /*theValue*/) { return thePos; }
-NodeBase* _M_insert_unique_(MapStorage* /*theTree*/, NodeBase* thePos, const void* /*theValue*/) { return thePos; }
-NodeBase* _M_insert_(NodeBase* thePos, const void* /*theValue*/) { return thePos; }
-NodeBase* _M_get_insert_equal_pos(const void* /*theKey*/) { return nullptr; }
-NodeBase* _M_insert_equal(const void* /*theValue*/) { return nullptr; }
+NodeBase *_M_insert_unique_(NodeBase *thePos, const void * /*theValue*/)
+{
+    return thePos;
+}
+NodeBase *_M_insert_unique_(MapStorage * /*theTree*/, NodeBase *thePos, const void * /*theValue*/)
+{
+    return thePos;
+}
+NodeBase *_M_insert_(NodeBase *thePos, const void * /*theValue*/)
+{
+    return thePos;
+}
+NodeBase *_M_get_insert_equal_pos(const void * /*theKey*/)
+{
+    return nullptr;
+}
+NodeBase *_M_insert_equal(const void * /*theValue*/)
+{
+    return nullptr;
+}
 
 // libstdc++: _Rb_tree<MemoryImage *,...>::find -- the std::less<T *>
 // instantiation, whose ordering is the pointer comparison itself. The node's
@@ -589,11 +603,11 @@ NodeBase* _M_insert_equal(const void* /*theValue*/) { return nullptr; }
 // instantiation IDA names
 // `_ZNSt8_Rb_treeIPN4Sexy11MemoryImageES2_St9_IdentityIS2_ESt4lessIS2_ESaIS2_EE4findERKS2_`
 // (@0x328800), not the Sexy::String one.
-NodeBase* find(NodeBase* theTree, void* const* theKey)
+NodeBase *find(NodeBase *theTree, void *const *theKey)
 {
-    NodeBase* aHeader = HeaderOf(theTree);
-    NodeBase* aNode = aHeader->mParent;
-    NodeBase* aResult = aHeader;
+    NodeBase *aHeader = HeaderOf(theTree);
+    NodeBase *aNode = aHeader->mParent;
+    NodeBase *aResult = aHeader;
 
     // Same two steps as the string-keyed walk: the lower-bound descent on the
     // pointer ordering, then the equality test the descent cannot make.
@@ -623,11 +637,11 @@ NodeBase* find(NodeBase* theTree, void* const* theKey)
 //
 // The key sits immediately past the node base, which
 // is the same offset NodeKey uses for the string-keyed family.
-NodeBase* find(NodeBase* theTree, const int* theKey)
+NodeBase *find(NodeBase *theTree, const int *theKey)
 {
-    NodeBase* aHeader = HeaderOf(theTree);
-    NodeBase* aNode = aHeader->mParent;
-    NodeBase* aResult = aHeader;
+    NodeBase *aHeader = HeaderOf(theTree);
+    NodeBase *aNode = aHeader->mParent;
+    NodeBase *aResult = aHeader;
     const int aKey = *theKey;
 
     while (aNode != nullptr)
@@ -646,11 +660,11 @@ NodeBase* find(NodeBase* theTree, const int* theKey)
     return aResult;
 }
 
-NodeBase* find(MapStorage* theTree, const int* theKey)
+NodeBase *find(MapStorage *theTree, const int *theKey)
 {
-    NodeBase* aHeader = &theTree->mHeader;
-    NodeBase* aNode = aHeader->mParent;
-    NodeBase* aResult = aHeader;
+    NodeBase *aHeader = &theTree->mHeader;
+    NodeBase *aNode = aHeader->mParent;
+    NodeBase *aResult = aHeader;
     const int aKey = *theKey;
 
     while (aNode != nullptr)
@@ -671,13 +685,13 @@ NodeBase* find(MapStorage* theTree, const int* theKey)
 
 // The pointer-keyed insert, the counterpart of the string-keyed one below. The
 // value is the pointer itself, so the node's payload is a single word.
-NodeBase* _M_insert_unique(NodeBase* theTree, void* const* theValue)
+NodeBase *_M_insert_unique(NodeBase *theTree, void *const *theValue)
 {
-    void* aTreeAddress = theTree;
-    MapStorage* aTree = static_cast<MapStorage*>(aTreeAddress);
-    NodeBase* aHeader = &aTree->mHeader;
-    NodeBase* aParent = aHeader;
-    NodeBase* aNode = aHeader->mParent;
+    void *aTreeAddress = theTree;
+    MapStorage *aTree = static_cast<MapStorage *>(aTreeAddress);
+    NodeBase *aHeader = &aTree->mHeader;
+    NodeBase *aParent = aHeader;
+    NodeBase *aNode = aHeader->mParent;
     bool aLeft = true;
 
     while (aNode != nullptr)
@@ -687,12 +701,12 @@ NodeBase* _M_insert_unique(NodeBase* theTree, void* const* theValue)
         aNode = aLeft ? aNode->mLeft : aNode->mRight;
     }
 
-    NodeBase* aNeighbour = aParent;
+    NodeBase *aNeighbour = aParent;
     if (aLeft)
     {
         if (aParent == aHeader->mLeft)
         {
-            NodeBase* aNewNode = new PointerNode();
+            NodeBase *aNewNode = new PointerNode();
             AsNode<PointerNode>(aNewNode)->mKey = *theValue;
             _Rb_tree_insert_and_rebalance(true, aNewNode, aParent, *aHeader);
             ++aTree->mCount;
@@ -702,7 +716,7 @@ NodeBase* _M_insert_unique(NodeBase* theTree, void* const* theValue)
     }
     if (*theValue < AsNode<PointerNode>(aNeighbour)->mKey)
     {
-        NodeBase* aNewNode = new PointerNode();
+        NodeBase *aNewNode = new PointerNode();
         AsNode<PointerNode>(aNewNode)->mKey = *theValue;
         _Rb_tree_insert_and_rebalance(aLeft, aNewNode, aParent, *aHeader);
         ++aTree->mCount;
@@ -716,10 +730,10 @@ NodeBase* _M_insert_unique(NodeBase* theTree, void* const* theValue)
 // key that is not smaller, right past one that is. The result is the first
 // node whose key is not smaller than theKey, or nullptr when every key in the
 // subtree is smaller -- find's end() case.
-NodeBase* _M_lower_bound(NodeBase* theNode, const Sexy::String* theKey)
+NodeBase *_M_lower_bound(NodeBase *theNode, const Sexy::String *theKey)
 {
-    const Sexy::String& aKey = *theKey;
-    NodeBase* aResult = nullptr;
+    const Sexy::String &aKey = *theKey;
+    NodeBase *aResult = nullptr;
 
     while (theNode != nullptr)
     {
@@ -735,44 +749,44 @@ NodeBase* _M_lower_bound(NodeBase* theNode, const Sexy::String* theKey)
     return aResult;
 }
 
-NodeBase* _M_upper_bound(NodeBase* theNode, const void* /*theKey*/)
+NodeBase *_M_upper_bound(NodeBase *theNode, const void * /*theKey*/)
 {
     return theNode;
 }
 
-NodeBase* _M_begin(NodeBase* theHeader)
+NodeBase *_M_begin(NodeBase *theHeader)
 {
     return theHeader->mParent;
 }
 
-NodeBase* _M_end(NodeBase* theHeader)
+NodeBase *_M_end(NodeBase *theHeader)
 {
     return theHeader;
 }
 
-NodeBase* _M_leftmost(NodeBase* theNode)
+NodeBase *_M_leftmost(NodeBase *theNode)
 {
     return _M_minimum(theNode);
 }
 
-NodeBase* _M_rightmost(NodeBase* theNode)
+NodeBase *_M_rightmost(NodeBase *theNode)
 {
     return _M_maximum(theNode);
 }
 
-void _M_destroy_node(NodeBase* theNode)
+void _M_destroy_node(NodeBase *theNode)
 {
     if (theNode == nullptr)
         return;
     // The stored value begins after the four link words. The callers of this
     // tree store a key and a value, both Strings, so both are destroyed. The
     // block itself is released by the caller.
-    void* aAddress = theNode;
-    PairNode* aPair = static_cast<PairNode*>(aAddress);
+    void *aAddress = theNode;
+    PairNode *aPair = static_cast<PairNode *>(aAddress);
     aPair->mValue.~String();
     aPair->mKey.~String();
 }
-void _M_put_node(NodeBase* theNode)
+void _M_put_node(NodeBase *theNode)
 {
     ::operator delete(theNode);
 }
@@ -785,10 +799,13 @@ struct StringNode : NodeBase
 {
     Sexy::String mKey;
 
-    explicit StringNode(const Sexy::String& theKey) : mKey(theKey) {}
+    explicit StringNode(const Sexy::String &theKey) :
+        mKey(theKey)
+    {
+    }
 };
 
-NodeBase* _M_create_node(const Sexy::String* theValue)
+NodeBase *_M_create_node(const Sexy::String *theValue)
 {
     return new StringNode(*theValue);
 }
@@ -802,30 +819,28 @@ NodeBase* _M_create_node(const Sexy::String* theValue)
 // node is 20 bytes, but DefaultProfileMgr's map node is 52, and reading the
 // mapped half at node+20 of a 20-byte block returned whatever the allocator had
 // left there.
-NodeBase* _M_create_node_sized(const void* theValue, size_t theValueSize)
+NodeBase *_M_create_node_sized(const void *theValue, size_t theValueSize)
 {
-    char* aBlock = static_cast<char*>(::operator new(sizeof(NodeBase) + theValueSize));
+    char *aBlock = static_cast<char *>(::operator new(sizeof(NodeBase) + theValueSize));
     memset(aBlock, 0, sizeof(NodeBase) + theValueSize);
 
     // The value is a run of words. Each word that is a String is
     // copy-constructed, so the node owns its own characters. A word that is
     // not a String (an int, a pointer) is kept as the zero the block was
     // cleared to; the caller writes it after the insert.
-    const char* aSource = static_cast<const char*>(theValue);
-    for (size_t aOffset = 0; aOffset + sizeof(Sexy::String) <= theValueSize;
-         aOffset += sizeof(Sexy::String))
+    const char *aSource = static_cast<const char *>(theValue);
+    for (size_t aOffset = 0; aOffset + sizeof(Sexy::String) <= theValueSize; aOffset += sizeof(Sexy::String))
     {
-        void* aWordAddress = const_cast<char*>(aSource + aOffset);
-        const Sexy::String* aWord = static_cast<const Sexy::String*>(aWordAddress);
-        const char* aData = aWord->mData;
-        bool aIsString = aData == gEmptyStringData
-            || !Sexy::String::IsNotARealBuffer(aData);
+        void *aWordAddress = const_cast<char *>(aSource + aOffset);
+        const Sexy::String *aWord = static_cast<const Sexy::String *>(aWordAddress);
+        const char *aData = aWord->mData;
+        bool aIsString = aData == gEmptyStringData || !Sexy::String::IsNotARealBuffer(aData);
         if (!aIsString)
             continue;
         new (aBlock + sizeof(NodeBase) + aOffset) Sexy::String(*aWord);
     }
-    void* aNodeAddress = aBlock;
-    return static_cast<NodeBase*>(aNodeAddress);
+    void *aNodeAddress = aBlock;
+    return static_cast<NodeBase *>(aNodeAddress);
 }
 
 } // namespace RbTree

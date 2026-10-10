@@ -8,7 +8,7 @@
 
 #include "Widget.h"
 
-int Sexy::SelectableWidget::SetSelectColor(Color const& theColor)
+int Sexy::SelectableWidget::SetSelectColor(Color const &theColor)
 {
     mSelectColor = theColor;
     return mSelectColor.mRed;
@@ -29,9 +29,7 @@ Sexy::Color Sexy::SelectableWidget::GetSelectColor()
     return aColor;
 }
 
-Sexy::SelectableWidget::~SelectableWidget()
-{
-}
+Sexy::SelectableWidget::~SelectableWidget() {}
 
 Sexy::SelectableWidget::SelectableWidget()
 {

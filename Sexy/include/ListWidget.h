@@ -3,7 +3,8 @@
 // Virtual order matches the binary so overrides still bind. Do not reorder
 // the declarations.
 
-#pragma once
+#ifndef LAWNPROJECTTV_SEXY_INCLUDE_LISTWIDGET_H
+#define LAWNPROJECTTV_SEXY_INCLUDE_LISTWIDGET_H
 
 #include "Font.h"
 #include "Graphics.h"
@@ -11,7 +12,8 @@
 #include "Widget.h"
 #include <vector>
 
-namespace Sexy {
+namespace Sexy
+{
 
 class ListListener;
 class ScrollbarWidget;
@@ -81,3 +83,5 @@ public:
 } // namespace Sexy
 
 using Sexy::ListWidget;
+
+#endif // LAWNPROJECTTV_SEXY_INCLUDE_LISTWIDGET_H

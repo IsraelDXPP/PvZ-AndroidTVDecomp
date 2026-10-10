@@ -7,24 +7,66 @@
 #include "SeedBank.h"
 #include <algorithm>
 
-namespace {
-const AchievementDefinition kAchievements[NUM_ACHIEVEMENT_TYPES] =
+namespace
 {
-    {"ACHIEVEMENT_HOME_SECURITY", "achievement_homeLawnsecurity", u8"家庭安保", u8"完成冒险模式。", REANIM_ACHIEVEMENT_HOME_LAWN_SECURITY},
-    {"ACHIEVEMENT_MORTICULTURALIST", "achievement_morticulturalist", u8"植物学家", u8"收集全部 49 种植物，包括模仿者。", REANIM_ACHIEVEMENT_MOM},
-    {"ACHIEVEMENT_IMMORTAL", "achievement_immortal", u8"生生不息", u8"在生存无尽模式中完成 40 面旗帜。", REANIM_ACHIEVEMENT_ALIVE_AND_PLANTING},
-    {"ACHIEVEMENT_SOILPLANTS", "achievement_soilplants", u8"僵尸入侵", u8"在一个普通关卡中种植 10 株豌豆射手。", REANIM_ACHIEVEMENT_SOIL_YOUR_PLANTS},
-    {"ACHIEVEMENT_CLOSESHAVE", "achievement_closeshave", u8"千钧一发", u8"在所有草坪除草机都被使用后赢得关卡。", REANIM_ACHIEVEMENT_CLOSE_SHAVE},
-    {"ACHIEVEMENT_CHOMP", "achievement_chomp", u8"咔嚓咔嚓", u8"只使用向日葵、坚果墙和大嘴花赢得普通关卡。", REANIM_ACHIEVEMENT_NOM_NOM_NOM},
-    {"ACHIEVEMENT_VERSUS", "achievement_versusz", u8"对战高手", u8"在对战模式中连续赢得 5 场比赛。", REANIM_ACHIEVEMENT_VERSUS},
-    {"ACHIEVEMENT_GARG", "achievement_garg", u8"泰坦陨落", u8"击败一个巨人僵尸。", REANIM_ACHIEVEMENT_CRASH_OF_THE_TITAN},
+const AchievementDefinition kAchievements[NUM_ACHIEVEMENT_TYPES] = {{"ACHIEVEMENT_HOME_SECURITY",
+                                                                        "achievement_homeLawnsecurity",
+                                                                        u8"家庭安保",
+                                                                        u8"完成冒险模式。",
+                                                                        REANIM_ACHIEVEMENT_HOME_LAWN_SECURITY},
+    {"ACHIEVEMENT_MORTICULTURALIST",
+        "achievement_morticulturalist",
+        u8"植物学家",
+        u8"收集全部 49 种植物，包括模仿者。",
+        REANIM_ACHIEVEMENT_MOM},
+    {"ACHIEVEMENT_IMMORTAL",
+        "achievement_immortal",
+        u8"生生不息",
+        u8"在生存无尽模式中完成 40 面旗帜。",
+        REANIM_ACHIEVEMENT_ALIVE_AND_PLANTING},
+    {"ACHIEVEMENT_SOILPLANTS",
+        "achievement_soilplants",
+        u8"僵尸入侵",
+        u8"在一个普通关卡中种植 10 株豌豆射手。",
+        REANIM_ACHIEVEMENT_SOIL_YOUR_PLANTS},
+    {"ACHIEVEMENT_CLOSESHAVE",
+        "achievement_closeshave",
+        u8"千钧一发",
+        u8"在所有草坪除草机都被使用后赢得关卡。",
+        REANIM_ACHIEVEMENT_CLOSE_SHAVE},
+    {"ACHIEVEMENT_CHOMP",
+        "achievement_chomp",
+        u8"咔嚓咔嚓",
+        u8"只使用向日葵、坚果墙和大嘴花赢得普通关卡。",
+        REANIM_ACHIEVEMENT_NOM_NOM_NOM},
+    {"ACHIEVEMENT_VERSUS",
+        "achievement_versusz",
+        u8"对战高手",
+        u8"在对战模式中连续赢得 5 场比赛。",
+        REANIM_ACHIEVEMENT_VERSUS},
+    {"ACHIEVEMENT_GARG",
+        "achievement_garg",
+        u8"泰坦陨落",
+        u8"击败一个巨人僵尸。",
+        REANIM_ACHIEVEMENT_CRASH_OF_THE_TITAN},
     {"ACHIEVEMENT_COOP", "achievement_coop", u8"友谊长存", u8"完成双人合作坚果保龄球。", REANIM_ACHIEVEMENT_ZFFS_4_EVR},
-    {"ACHIEVEMENT_SHOP", "achievement_shop", u8"购物愉快", u8"在疯狂戴夫的商店消费至少 25000 金币。已消费：{coin}", REANIM_ACHIEVEMENT_CRAZY},
-    {"ACHIEVEMENT_EXPLODONATOR", "achievement_explodonator", u8"爆破专家", u8"用一枚樱桃炸弹炸死 10 个僵尸。", REANIM_ACHIEVEMENT_EXPLODONATOR},
-    {"ACHIEVEMENT_TREE", "achievement_tree", u8"智慧树", u8"将智慧树培养到 100 英尺。", REANIM_ACHIEVEMENT_SMARTY_BRANCHES}
-};
+    {"ACHIEVEMENT_SHOP",
+        "achievement_shop",
+        u8"购物愉快",
+        u8"在疯狂戴夫的商店消费至少 25000 金币。已消费：{coin}",
+        REANIM_ACHIEVEMENT_CRAZY},
+    {"ACHIEVEMENT_EXPLODONATOR",
+        "achievement_explodonator",
+        u8"爆破专家",
+        u8"用一枚樱桃炸弹炸死 10 个僵尸。",
+        REANIM_ACHIEVEMENT_EXPLODONATOR},
+    {"ACHIEVEMENT_TREE",
+        "achievement_tree",
+        u8"智慧树",
+        u8"将智慧树培养到 100 英尺。",
+        REANIM_ACHIEVEMENT_SMARTY_BRANCHES}};
 
-void GrantSharedBoardAchievement(LawnApp* theApp, AchievementType theAchievement)
+void GrantSharedBoardAchievement(LawnApp *theApp, AchievementType theAchievement)
 {
     theApp->GrantAchievement(theAchievement);
     if (theApp->mSecondPlayerGamepadIndex != -1 && theApp->mPlayer2Info != nullptr)
@@ -32,20 +74,20 @@ void GrantSharedBoardAchievement(LawnApp* theApp, AchievementType theAchievement
 }
 }
 
-const AchievementDefinition& GetAchievementDefinition(AchievementType theAchievement)
+const AchievementDefinition &GetAchievementDefinition(AchievementType theAchievement)
 {
     return kAchievements[theAchievement];
 }
 
 Sexy::String GetAchievementTitle(AchievementType theAchievement)
 {
-    const AchievementDefinition& definition = GetAchievementDefinition(theAchievement);
+    const AchievementDefinition &definition = GetAchievementDefinition(theAchievement);
     return gLawnApp->GetString(definition.mStringKey, definition.mDefaultTitle);
 }
 
 Sexy::String GetAchievementDescription(AchievementType theAchievement)
 {
-    const AchievementDefinition& definition = GetAchievementDefinition(theAchievement);
+    const AchievementDefinition &definition = GetAchievementDefinition(theAchievement);
     Sexy::String key(definition.mStringKey);
     key += "_TEXT";
     Sexy::String description = gLawnApp->GetString(key, definition.mDefaultDescription);
@@ -58,12 +100,12 @@ Sexy::String GetAchievementDescription(AchievementType theAchievement)
     return description;
 }
 
-Sexy::Image* GetAchievementIcon(AchievementType theAchievement)
+Sexy::Image *GetAchievementIcon(AchievementType theAchievement)
 {
     return gLawnApp->GetConsoleImage(GetAchievementDefinition(theAchievement).mIconName);
 }
 
-Sexy::Image* LawnApp::GetConsoleImage(const char* theName)
+Sexy::Image *LawnApp::GetConsoleImage(const char *theName)
 {
     auto found = mConsoleImages.find(theName);
     if (found != mConsoleImages.end())
@@ -75,12 +117,12 @@ Sexy::Image* LawnApp::GetConsoleImage(const char* theName)
     return image;
 }
 
-bool LawnApp::GrantAchievement(AchievementType theAchievement, LawnPlayerInfo* thePlayer, bool theShow)
+bool LawnApp::GrantAchievement(AchievementType theAchievement, LawnPlayerInfo *thePlayer, bool theShow)
 {
     if (thePlayer == nullptr)
         thePlayer = mPlayerInfo;
-    if (thePlayer == nullptr || theAchievement < ACHIEVEMENT_HOME_SECURITY
-        || theAchievement >= NUM_ACHIEVEMENT_TYPES || thePlayer->mAchievements[theAchievement])
+    if (thePlayer == nullptr || theAchievement < ACHIEVEMENT_HOME_SECURITY || theAchievement >= NUM_ACHIEVEMENT_TYPES ||
+        thePlayer->mAchievements[theAchievement])
         return false;
     thePlayer->mAchievements[theAchievement] = true;
     if (theShow)
@@ -112,8 +154,8 @@ void LawnApp::RefreshProfileAchievements()
         GrantAchievement(ACHIEVEMENT_SHOP, mPlayerInfo, false);
     if (mPlayerInfo->mChallengeRecords[GAMEMODE_TREE_OF_WISDOM - GAMEMODE_SURVIVAL_NORMAL_STAGE_1] >= 100)
         GrantAchievement(ACHIEVEMENT_TREE, mPlayerInfo, false);
-    if (mPlayerInfo->mEndlessHighScore
-        || mPlayerInfo->mChallengeRecords[GAMEMODE_SURVIVAL_ENDLESS_STAGE_3 - GAMEMODE_SURVIVAL_NORMAL_STAGE_1] >= 40)
+    if (mPlayerInfo->mEndlessHighScore ||
+        mPlayerInfo->mChallengeRecords[GAMEMODE_SURVIVAL_ENDLESS_STAGE_3 - GAMEMODE_SURVIVAL_NORMAL_STAGE_1] >= 40)
         GrantAchievement(ACHIEVEMENT_IMMORTAL, mPlayerInfo, false);
     if ((mPlayerInfo->mProgress[0] & 0xFF00) != 0)
         GrantAchievement(ACHIEVEMENT_GARG, mPlayerInfo, false);
@@ -132,13 +174,13 @@ bool LawnApp::HasAllAchievementPlants()
     return true;
 }
 
-void LawnApp::SetHouseReanim(Reanimation* theHouse)
+void LawnApp::SetHouseReanim(Reanimation *theHouse)
 {
     if (theHouse == nullptr || mPlayerInfo == nullptr)
         return;
-    static const char* const stages[] = {"anim_house_1_1", "anim_house_1_1", "anim_house_1_2",
-                                         "anim_house_1_3", "anim_house_1_4", "anim_house_1_5"};
-    static const char* const prefixes[] = {"house_1", "house_2", "house_3", "house_4", "house_5"};
+    static const char *const stages[] = {
+        "anim_house_1_1", "anim_house_1_1", "anim_house_1_2", "anim_house_1_3", "anim_house_1_4", "anim_house_1_5"};
+    static const char *const prefixes[] = {"house_1", "house_2", "house_3", "house_4", "house_5"};
     HouseType type = mPlayerInfo->mGameStats.mHouseType;
     if (type < BLUEPRINT_BLING || type > BLUEPRINT_CLOWN)
         type = BLUEPRINT_BLING;
@@ -172,8 +214,8 @@ void Board::CheckLevelAchievements()
     if (mApp->IsAdventureMode() && mLevel == 50)
         GrantSharedBoardAchievement(mApp, ACHIEVEMENT_HOME_SECURITY);
     // Native SurvivalSaveScore @0x15AF08 requires solo pool endless and forty flags.
-    if (mApp->mGameMode == GAMEMODE_SURVIVAL_ENDLESS_STAGE_3 && !mApp->IsCoopMode()
-        && GetNumWavesPerSurvivalStage() * (mChallenge->mSurvivalStage + 1) / GetNumWavesPerFlag() >= 40)
+    if (mApp->mGameMode == GAMEMODE_SURVIVAL_ENDLESS_STAGE_3 && !mApp->IsCoopMode() &&
+        GetNumWavesPerSurvivalStage() * (mChallenge->mSurvivalStage + 1) / GetNumWavesPerFlag() >= 40)
     {
         mApp->mPlayerInfo->mEndlessHighScore = true;
         mApp->GrantAchievement(ACHIEVEMENT_IMMORTAL);
@@ -187,8 +229,7 @@ void Board::CheckLevelAchievements()
             lawnRows += row != PLANTROW_DIRT ? 1 : 0;
         if (lawnRows > 0 && mTriggeredLawnMowers == lawnRows)
             GrantSharedBoardAchievement(mApp, ACHIEVEMENT_CLOSESHAVE);
-        if (mNewWallNutAndSunFlowerAndChomperOnly && mApp->IsSeedPlantingLevel()
-            && !HasConveyorBeltSeedBank(false))
+        if (mNewWallNutAndSunFlowerAndChomperOnly && mApp->IsSeedPlantingLevel() && !HasConveyorBeltSeedBank(false))
         {
             for (int packet = 0; packet < mSeedBank[0]->mNumPackets; ++packet)
             {

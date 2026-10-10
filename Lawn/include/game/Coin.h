@@ -25,7 +25,8 @@
 // raw `(char*)this + N` accesses of _recon/ida/Coin.cpp, which the bodies in
 // Coin.cpp used to spell out one by one.
 
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_COIN_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_COIN_H
 
 #include "ReconTypes.h"
 // These headers are included because the bodies in Coin.cpp need the complete
@@ -59,22 +60,22 @@ public:
     virtual ~Coin();
 
     // ---- derived members, +0x34..+0xC7 -------------------------------------
-    float mPosX;                   // +0x34
-    float mPosY;                   // +0x38
-    float mPrevPosX;               // +0x3C
-    float mPrevPosY;               // +0x40
-    float mVelX;                   // +0x44
-    float mVelY;                   // +0x48
-    float mScale;                  // +0x4C
-    bool  mDead;                   // +0x50
-    int   mFadeCount;              // +0x54
-    float mCollectX;               // +0x58
-    float mCollectY;               // +0x5C
-    int   mGroundY;                // +0x60
-    int   mCoinAge;                // +0x64
-    bool  mIsBeingCollected;       // +0x68
-    int   mCollectedByPlayerIndex; // +0x6C
-    int   mDisappearCounter;       // +0x70
+    float mPosX; // +0x34
+    float mPosY; // +0x38
+    float mPrevPosX; // +0x3C
+    float mPrevPosY; // +0x40
+    float mVelX; // +0x44
+    float mVelY; // +0x48
+    float mScale; // +0x4C
+    bool mDead; // +0x50
+    int mFadeCount; // +0x54
+    float mCollectX; // +0x58
+    float mCollectY; // +0x5C
+    int mGroundY; // +0x60
+    int mCoinAge; // +0x64
+    bool mIsBeingCollected; // +0x68
+    int mCollectedByPlayerIndex; // +0x6C
+    int mDisappearCounter; // +0x70
     // This tree's ReconTypes.h only has `typedef int CoinType`, so the field is
     // a plain int here rather than the authority header's enum. The constants
     // Coin.cpp compares it against are, from PvZ\Lawn\Common\ConstEnums.h:186 --
@@ -93,36 +94,36 @@ public:
     //     31 COIN_VS_PLANT_TROPHY  32 COIN_VS_ZOMBIE_TROPHY
     //     33 COIN_MINISUN  34 COIN_SMALL_VS_ZOMBIE_BRAIN
     //     35 COIN_LARGE_VS_ZOMBIE_BRAIN
-    CoinType mType;                // +0x74
+    CoinType mType; // +0x74
     // CoinMotion is a one-int proxy in ReconTypes.h, not an enum, so the
     // motion constants stay numeric too (PvZ\Lawn\Common\ConstEnums.h:174:
     // 0 FROM_SKY, 1 FROM_SKY_SLOW, 2 FROM_PLANT, 3 COIN, 4 LAWNMOWER_COIN,
     // 5 FROM_PRESENT, 6 FROM_BOSS, 7 FROM_NEAR_CURSOR, 8 FROM_FROM_VS_WON,
     // 9 FROM_GRAVE_STONE).
-    CoinMotion mCoinMotion;        // +0x78
+    CoinMotion mCoinMotion; // +0x78
     // The authority header types this `AttachmentID[3]`; this tree has no
     // AttachmentID, and every use is a word-sized handle that is only stored,
     // compared against 0 or passed to the Attachment* helpers, so a word is
     // enough. Same choice as Zombie.h's mAttachmentID.
-    int mAttachmentID[3];          // +0x7C, +0x80, +0x84
-    float mCollectionDistance;     // +0x88
-    SeedType mUsableSeedType;      // +0x8C
-    PottedPlant mPottedPlantSpec;  // +0x90..+0xA3 (0x14 bytes)
-    bool  mNeedsBouncyArrow;       // +0xA4
-    bool  mHasBouncyArrow;         // +0xA5
-    bool  mHitGround;              // +0xA6
-    int   mTimesDropped;           // +0xA8
-    int   mPlayerIndex;            // +0xAC
+    int mAttachmentID[3]; // +0x7C, +0x80, +0x84
+    float mCollectionDistance; // +0x88
+    SeedType mUsableSeedType; // +0x8C
+    PottedPlant mPottedPlantSpec; // +0x90..+0xA3 (0x14 bytes)
+    bool mNeedsBouncyArrow; // +0xA4
+    bool mHasBouncyArrow; // +0xA5
+    bool mHitGround; // +0xA6
+    int mTimesDropped; // +0xA8
+    int mPlayerIndex; // +0xAC
     // Speed of a coin flying toward the gamepad cursor (COIN_MOTION_FROM_NEAR_CURSOR).
-    float mCursorChaseSpeed;       // +0xB0
+    float mCursorChaseSpeed; // +0xB0
     // Either half of a coop double sun is currently highlighted by a cursor.
-    bool  mDoubleSunGlowing;       // +0xB4
-    int   mCustomSunValue;         // +0xB8
-    bool  mAutoCollect;            // +0xBC
-    int   mAutoCollectAge;         // +0xC0
+    bool mDoubleSunGlowing; // +0xB4
+    int mCustomSunValue; // +0xB8
+    bool mAutoCollect; // +0xBC
+    int mAutoCollectAge; // +0xC0
     // Per-half highlight of the coop double sun (attachment 0, then attachment 1).
-    bool  mDoubleSunHighlight0;    // +0xC4
-    bool  mDoubleSunHighlight1;    // +0xC5
+    bool mDoubleSunHighlight0; // +0xC4
+    bool mDoubleSunHighlight1; // +0xC5
 
     bool IsMoney();
     bool IsSun();
@@ -180,3 +181,4 @@ struct CoinSlot
     unsigned int mID;
 };
 
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_COIN_H

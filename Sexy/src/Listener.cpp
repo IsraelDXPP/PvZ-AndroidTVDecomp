@@ -11,9 +11,10 @@
 
 int __imp__ZN6Native10GameCenter8Listener7onEventEPS0_iiRKSs(...);
 
-int Native::GameCenter::Listener::onEvent(Native::GameCenter *theSender, int theCode, int theExtra, Sexy::String const &theText)
+int Native::GameCenter::Listener::onEvent(
+    Native::GameCenter *theSender, int theCode, int theExtra, Sexy::String const &theText)
 {
-  return __imp__ZN6Native10GameCenter8Listener7onEventEPS0_iiRKSs(theSender, theCode, theExtra, theText);
+    return __imp__ZN6Native10GameCenter8Listener7onEventEPS0_iiRKSs(theSender, theCode, theExtra, theText);
 }
 
 void Sexy::IGameCenter::Listener::onLogin() {}
@@ -34,54 +35,54 @@ void Sexy::IGameCenter::Listener::onQueryInvitableFriends() {}
 
 void Sexy::IGameCenter::Listener::onInviteFriend(int theResult)
 {
-  (void)theResult;
+    (void)theResult;
 }
 
 void Sexy::IGameCenter::Listener::onPay(int theResult)
 {
-  (void)theResult;
+    (void)theResult;
 }
 
 void Sexy::IGameCenter::Listener::onPay(int theResult, Sexy::String const &theOrderId)
 {
-  (void)theOrderId;
-  onPay(theResult);
+    (void)theOrderId;
+    onPay(theResult);
 }
 
 void Sexy::IGameCenter::Listener::onMessage() {}
 
 void Native::GameCenter::Listener::onPay(Native::GameCenter *theSender, int theResult)
 {
-  (void)theSender;
-  (void)theResult;
+    (void)theSender;
+    (void)theResult;
 }
 
 void Native::GameCenter::Listener::onPayInfo(Native::GameCenter *theSender, int theResult, Sexy::String const &theInfo)
 {
-  (void)theSender;
-  (void)theResult;
-  (void)theInfo;
+    (void)theSender;
+    (void)theResult;
+    (void)theInfo;
 }
 
 void Native::GameCenter::Listener::onInitFinished(Native::GameCenter *theSender)
 {
-  (void)theSender;
+    (void)theSender;
 }
 
 void Native::ShareManager::Listener::onComplete(Native::ShareManager *theSender, int theResult)
 {
-  (void)theSender;
-  (void)theResult;
+    (void)theSender;
+    (void)theResult;
 }
 
 void Native::ShareManager::Listener::onCancel(Native::ShareManager *theSender, int theResult)
 {
-  (void)theSender;
-  (void)theResult;
+    (void)theSender;
+    (void)theResult;
 }
 
 void Native::ShareManager::Listener::onError(Native::ShareManager *theSender, int theResult)
 {
-  (void)theSender;
-  (void)theResult;
+    (void)theSender;
+    (void)theResult;
 }

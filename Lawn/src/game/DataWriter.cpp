@@ -22,12 +22,12 @@ static const unsigned long kDataWriterMinCapacity = 32;
 // ==========================================================================
 DataWriter::DataWriter()
 {
-  // The vptr store the transcription carried is what the compiler emits for the
-  // virtual destructor this class declares.
-  mFile = nullptr;
-  mBuffer = nullptr;
-  mBufferPos = 0;
-  mBufferSize = 0;
+    // The vptr store the transcription carried is what the compiler emits for the
+    // virtual destructor this class declares.
+    mFile = nullptr;
+    mBuffer = nullptr;
+    mBufferPos = 0;
+    mBufferSize = 0;
 }
 
 // ==========================================================================
@@ -36,15 +36,15 @@ DataWriter::DataWriter()
 // ==========================================================================
 void DataWriter::Close()
 {
-  if ( mFile != nullptr )
-  {
-    SDL_CloseIO(mFile);
-    mFile = nullptr;
-  }
-  delete[] mBuffer;
-  mBuffer = nullptr;
-  mBufferPos = 0;
-  mBufferSize = 0;
+    if (mFile != nullptr)
+    {
+        SDL_CloseIO(mFile);
+        mFile = nullptr;
+    }
+    delete[] mBuffer;
+    mBuffer = nullptr;
+    mBufferPos = 0;
+    mBufferSize = 0;
 }
 
 // ==========================================================================
@@ -53,18 +53,18 @@ void DataWriter::Close()
 // ==========================================================================
 DataWriter::~DataWriter()
 {
-  Close();
+    Close();
 }
 
 // ==========================================================================
 // DataWriter::OpenFile(Sexy::String const&)
 // @00192518  30 bytes
 // ==========================================================================
-bool DataWriter::OpenFile(Sexy::String const& theFileName)
+bool DataWriter::OpenFile(Sexy::String const &theFileName)
 {
-  Close();
-  mFile = SDL_IOFromFile(theFileName.c_str(), "wb");
-  return mFile != nullptr;
+    Close();
+    mFile = SDL_IOFromFile(theFileName.c_str(), "wb");
+    return mFile != nullptr;
 }
 
 // ==========================================================================
@@ -73,24 +73,24 @@ bool DataWriter::OpenFile(Sexy::String const& theFileName)
 // ==========================================================================
 int DataWriter::OpenMemory(unsigned long theCapacity)
 {
-  unsigned long aCapacity = theCapacity;
-  if (aCapacity < kDataWriterMinCapacity)
-    aCapacity = kDataWriterMinCapacity;
-  Close();
-  mBuffer = new unsigned char[aCapacity];
-  mBufferSize = aCapacity;
-  return mBuffer != nullptr;
+    unsigned long aCapacity = theCapacity;
+    if (aCapacity < kDataWriterMinCapacity)
+        aCapacity = kDataWriterMinCapacity;
+    Close();
+    mBuffer = new unsigned char[aCapacity];
+    mBufferSize = aCapacity;
+    return mBuffer != nullptr;
 }
 
 // ==========================================================================
 // DataWriter::WriteToFile(Sexy::String const&)
 // @00192558  56 bytes
 // ==========================================================================
-bool DataWriter::WriteToFile(Sexy::String const& theFileName)
+bool DataWriter::WriteToFile(Sexy::String const &theFileName)
 {
-  if (mBuffer == nullptr)
-    return false;
-  return Sexy::SDLFile::WriteOutputFile(theFileName.c_str(), mBuffer, mBufferPos);
+    if (mBuffer == nullptr)
+        return false;
+    return Sexy::SDLFile::WriteOutputFile(theFileName.c_str(), mBuffer, mBufferPos);
 }
 
 // ==========================================================================
@@ -99,38 +99,38 @@ bool DataWriter::WriteToFile(Sexy::String const& theFileName)
 // ==========================================================================
 void DataWriter::EnsureCapacity(unsigned long theNeeded)
 {
-  unsigned long aCapacity = mBufferSize;
-  if (aCapacity >= theNeeded)
-    return;
+    unsigned long aCapacity = mBufferSize;
+    if (aCapacity >= theNeeded)
+        return;
 
-  do
-    aCapacity *= 2;
-  while (aCapacity < theNeeded);
+    do
+        aCapacity *= 2;
+    while (aCapacity < theNeeded);
 
-  unsigned char *aGrown = new unsigned char[aCapacity];
-  if (mBuffer != nullptr && mBufferPos != 0)
-    memcpy(aGrown, mBuffer, mBufferPos);
-  delete[] mBuffer;
-  mBuffer = aGrown;
-  mBufferSize = aCapacity;
+    unsigned char *aGrown = new unsigned char[aCapacity];
+    if (mBuffer != nullptr && mBufferPos != 0)
+        memcpy(aGrown, mBuffer, mBufferPos);
+    delete[] mBuffer;
+    mBuffer = aGrown;
+    mBufferSize = aCapacity;
 }
 
 // ==========================================================================
 // DataWriter::WriteBytes(void const*,unsigned long)
 // @001925C0  60 bytes
 // ==========================================================================
-int DataWriter::WriteBytes(void const* theBytes, unsigned long theCount)
+int DataWriter::WriteBytes(void const *theBytes, unsigned long theCount)
 {
-  if (mBuffer != nullptr)
-  {
-    EnsureCapacity(mBufferPos + theCount);
-    memcpy(mBuffer + mBufferPos, theBytes, theCount);
-    mBufferPos += theCount;
-    return 0;
-  }
-  if (mFile == nullptr)
-    return 0;
-  return (int)SDL_WriteIO(mFile, theBytes, theCount);
+    if (mBuffer != nullptr)
+    {
+        EnsureCapacity(mBufferPos + theCount);
+        memcpy(mBuffer + mBufferPos, theBytes, theCount);
+        mBufferPos += theCount;
+        return 0;
+    }
+    if (mFile == nullptr)
+        return 0;
+    return (int)SDL_WriteIO(mFile, theBytes, theCount);
 }
 
 // ==========================================================================
@@ -139,7 +139,7 @@ int DataWriter::WriteBytes(void const* theBytes, unsigned long theCount)
 // ==========================================================================
 int DataWriter::WriteLongLong(unsigned long long theValue)
 {
-  return WriteBytes(&theValue, 8u);
+    return WriteBytes(&theValue, 8u);
 }
 
 // ==========================================================================
@@ -148,7 +148,7 @@ int DataWriter::WriteLongLong(unsigned long long theValue)
 // ==========================================================================
 int DataWriter::WriteLong(unsigned long theValue)
 {
-  return WriteBytes(&theValue, 4u);
+    return WriteBytes(&theValue, 4u);
 }
 
 // ==========================================================================
@@ -157,7 +157,7 @@ int DataWriter::WriteLong(unsigned long theValue)
 // ==========================================================================
 int DataWriter::WriteShort(unsigned short theValue)
 {
-  return WriteBytes(&theValue, 2u);
+    return WriteBytes(&theValue, 2u);
 }
 
 // ==========================================================================
@@ -166,7 +166,7 @@ int DataWriter::WriteShort(unsigned short theValue)
 // ==========================================================================
 int DataWriter::WriteByte(unsigned char theValue)
 {
-  return WriteBytes(&theValue, 1u);
+    return WriteBytes(&theValue, 1u);
 }
 
 // ==========================================================================
@@ -175,7 +175,7 @@ int DataWriter::WriteByte(unsigned char theValue)
 // ==========================================================================
 int DataWriter::WriteBool(bool theValue)
 {
-  return WriteByte(theValue ? 1 : 0);
+    return WriteByte(theValue ? 1 : 0);
 }
 
 // ==========================================================================
@@ -184,7 +184,7 @@ int DataWriter::WriteBool(bool theValue)
 // ==========================================================================
 int DataWriter::WriteFloat(float theValue)
 {
-  return WriteBytes(&theValue, 4u);
+    return WriteBytes(&theValue, 4u);
 }
 
 // ==========================================================================
@@ -193,7 +193,7 @@ int DataWriter::WriteFloat(float theValue)
 // ==========================================================================
 int DataWriter::WriteDouble(double theValue)
 {
-  return WriteBytes(&theValue, 8u);
+    return WriteBytes(&theValue, 8u);
 }
 
 // ==========================================================================
@@ -202,9 +202,9 @@ int DataWriter::WriteDouble(double theValue)
 // ==========================================================================
 int DataWriter::WriteString(Sexy::String const &theValue)
 {
-  unsigned short aLength = (unsigned short)theValue.size();
-  WriteShort(aLength);
-  return WriteBytes(theValue.c_str(), aLength);
+    unsigned short aLength = (unsigned short)theValue.size();
+    WriteShort(aLength);
+    return WriteBytes(theValue.c_str(), aLength);
 }
 
 // ==========================================================================
@@ -213,10 +213,10 @@ int DataWriter::WriteString(Sexy::String const &theValue)
 // ==========================================================================
 unsigned int DataWriter::SetLongLong(unsigned long long theValue, unsigned long theOffset)
 {
-  if (mBuffer == nullptr || mBufferSize < theOffset + 8)
-    return 0;
-  memcpy(mBuffer + theOffset, &theValue, 8);
-  return (unsigned int)theValue;
+    if (mBuffer == nullptr || mBufferSize < theOffset + 8)
+        return 0;
+    memcpy(mBuffer + theOffset, &theValue, 8);
+    return (unsigned int)theValue;
 }
 
 // ==========================================================================
@@ -225,10 +225,10 @@ unsigned int DataWriter::SetLongLong(unsigned long long theValue, unsigned long 
 // ==========================================================================
 unsigned int DataWriter::SetLong(unsigned long theValue, unsigned long theOffset)
 {
-  if (mBuffer == nullptr || mBufferSize < theOffset + 4)
-    return 0;
-  memcpy(mBuffer + theOffset, &theValue, 4);
-  return theValue;
+    if (mBuffer == nullptr || mBufferSize < theOffset + 4)
+        return 0;
+    memcpy(mBuffer + theOffset, &theValue, 4);
+    return theValue;
 }
 
 // ==========================================================================
@@ -237,9 +237,9 @@ unsigned int DataWriter::SetLong(unsigned long theValue, unsigned long theOffset
 // ==========================================================================
 unsigned int DataWriter::SetShort(unsigned short theValue, unsigned long theOffset)
 {
-  if (mBuffer != nullptr && mBufferSize >= theOffset + 2)
-    memcpy(mBuffer + theOffset, &theValue, 2);
-  return 0;
+    if (mBuffer != nullptr && mBufferSize >= theOffset + 2)
+        memcpy(mBuffer + theOffset, &theValue, 2);
+    return 0;
 }
 
 // ==========================================================================
@@ -248,7 +248,7 @@ unsigned int DataWriter::SetShort(unsigned short theValue, unsigned long theOffs
 // ==========================================================================
 int DataWriter::SetByte(unsigned char theValue, unsigned long theOffset)
 {
-  if (mBuffer != nullptr && mBufferSize >= theOffset + 1)
-    mBuffer[theOffset] = theValue;
-  return 0;
+    if (mBuffer != nullptr && mBufferSize >= theOffset + 1)
+        mBuffer[theOffset] = theValue;
+    return 0;
 }

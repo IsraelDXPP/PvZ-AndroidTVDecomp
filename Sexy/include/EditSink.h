@@ -5,11 +5,13 @@
 // MSVC gives the destructor one slot where the binary gives it two, so only
 // the order is copied.
 
-#pragma once
+#ifndef LAWNPROJECTTV_SEXY_INCLUDE_EDITSINK_H
+#define LAWNPROJECTTV_SEXY_INCLUDE_EDITSINK_H
 
 #include "ReconTypes.h"
 
-namespace Sexy {
+namespace Sexy
+{
 
 class EditController;
 
@@ -27,14 +29,16 @@ public:
     virtual void UnknownPureVirtual9();
     virtual void UnknownPureVirtual10(int theFirst, int theSecond);
     virtual void SetEditMark(int theStart, int theEnd);
-    virtual int SetEditState(Sexy::EditState const& theState);
-    virtual void KeyboardWasShown(Sexy::TRect<int> const& theRect);
+    virtual int SetEditState(Sexy::EditState const &theState);
+    virtual void KeyboardWasShown(Sexy::TRect<int> const &theRect);
     virtual void KeyboardWillBeHidden();
     virtual int EditFinished();
     virtual void EditCancelled();
     virtual void ShowKeyboard();
     virtual void HideKeyboard();
-    virtual EditController* GetEditController();
+    virtual EditController *GetEditController();
 };
 
 } // namespace Sexy
+
+#endif // LAWNPROJECTTV_SEXY_INCLUDE_EDITSINK_H

@@ -8,26 +8,26 @@
 #include "MemoryImage.h"
 #include "SexyAppBase.h"
 
-Sexy::SharedImageRef::SharedImageRef(const SharedImageRef& theOther)
-    : mSharedImage(theOther.mSharedImage)
-    , mImage(theOther.mImage)
-    , mOwnsImage(false)
+Sexy::SharedImageRef::SharedImageRef(const SharedImageRef &theOther) :
+    mSharedImage(theOther.mSharedImage),
+    mImage(theOther.mImage),
+    mOwnsImage(false)
 {
     if (mSharedImage != nullptr)
         ++RefCountOf(mSharedImage);
 }
 
-Sexy::SharedImageRef::SharedImageRef()
-    : mSharedImage(nullptr)
-    , mImage(nullptr)
-    , mOwnsImage(false)
+Sexy::SharedImageRef::SharedImageRef() :
+    mSharedImage(nullptr),
+    mImage(nullptr),
+    mOwnsImage(false)
 {
 }
 
-Sexy::SharedImageRef::SharedImageRef(Sexy::SharedImage* theSharedImage)
-    : mSharedImage(theSharedImage)
-    , mImage(theSharedImage != nullptr ? theSharedImage->mImage : nullptr)
-    , mOwnsImage(false)
+Sexy::SharedImageRef::SharedImageRef(Sexy::SharedImage *theSharedImage) :
+    mSharedImage(theSharedImage),
+    mImage(theSharedImage != nullptr ? theSharedImage->mImage : nullptr),
+    mOwnsImage(false)
 {
     if (theSharedImage != nullptr)
         ++RefCountOf(theSharedImage);
@@ -38,7 +38,7 @@ void Sexy::SharedImageRef::Release()
     if (mOwnsImage && mImage != nullptr)
         delete mImage;
 
-    SharedImage* shared = mSharedImage;
+    SharedImage *shared = mSharedImage;
     mImage = nullptr;
     mOwnsImage = false;
     mSharedImage = nullptr;
@@ -52,7 +52,7 @@ Sexy::SharedImageRef::~SharedImageRef()
     Release();
 }
 
-SharedImageRef& SharedImageRef::operator=(const SharedImageRef& theOther)
+SharedImageRef &SharedImageRef::operator=(const SharedImageRef &theOther)
 {
     if (this == &theOther)
         return *this;
@@ -68,7 +68,7 @@ SharedImageRef& SharedImageRef::operator=(const SharedImageRef& theOther)
     return *this;
 }
 
-SharedImageRef& SharedImageRef::operator=(Sexy::SharedImage* theSharedImage)
+SharedImageRef &SharedImageRef::operator=(Sexy::SharedImage *theSharedImage)
 {
     SharedImageRef copy(theSharedImage);
     Release();
@@ -81,27 +81,27 @@ SharedImageRef& SharedImageRef::operator=(Sexy::SharedImage* theSharedImage)
     return *this;
 }
 
-Sexy::Image* SharedImageRef::operator->() const
+Sexy::Image *SharedImageRef::operator->() const
 {
     return mImage;
 }
 
-Sexy::Image& SharedImageRef::operator*() const
+Sexy::Image &SharedImageRef::operator*() const
 {
     return *mImage;
 }
 
-SharedImageRef::operator Sexy::Image*() const
+SharedImageRef::operator Sexy::Image *() const
 {
     return mImage;
 }
 
-SharedImageRef::operator Sexy::MemoryImage*() const
+SharedImageRef::operator Sexy::MemoryImage *() const
 {
-    return static_cast<Sexy::MemoryImage*>(mImage);
+    return static_cast<Sexy::MemoryImage *>(mImage);
 }
 
-SharedImageRef::operator Sexy::DeviceImage*() const
+SharedImageRef::operator Sexy::DeviceImage *() const
 {
-    return static_cast<Sexy::DeviceImage*>(mImage);
+    return static_cast<Sexy::DeviceImage *>(mImage);
 }

@@ -32,9 +32,7 @@
 // The binary stores this class's vtable and the Dialog sub-object's vtable and
 // then calls the LawnDialog base destructor; the compiler emits all three for a
 // real class chain, so the body is empty.
-UnlockDialog::~UnlockDialog()
-{
-}
+UnlockDialog::~UnlockDialog() {}
 
 // ==========================================================================
 // UnlockDialog::GotFocus()
@@ -82,37 +80,36 @@ void UnlockDialog::ButtonDepress(int theId)
     // opened the shop page, and the rest only runs in that case.
     switch (mUnlockedItemId)
     {
-    case 1:
-        if (mApp->GotoBuyTool(E_SHOP_PACKET(7)) == 0)
+        case 1:
+            if (mApp->GotoBuyTool(E_SHOP_PACKET(7)) == 0)
+                return;
+            break;
+        case 2:
+            if (mApp->GotoBuyTool(E_SHOP_PACKET(8)) == 0)
+                return;
+            break;
+        case 3:
+            if (mApp->GotoBuyTool(E_SHOP_PACKET(10)) == 0)
+                return;
+            break;
+        default:
             return;
-        break;
-    case 2:
-        if (mApp->GotoBuyTool(E_SHOP_PACKET(8)) == 0)
-            return;
-        break;
-    case 3:
-        if (mApp->GotoBuyTool(E_SHOP_PACKET(10)) == 0)
-            return;
-        break;
-    default:
-        return;
     }
 
-    mApp->LawnMessageBox(51, "[MODE_UNLOCK]", "[MODEGAME_UNLOCK_MESSAGE]", "[DIALOG_BUTTON_OK]",
-                         gEmptyCString, 3);
+    mApp->LawnMessageBox(51, "[MODE_UNLOCK]", "[MODEGAME_UNLOCK_MESSAGE]", "[DIALOG_BUTTON_OK]", gEmptyCString, 3);
     mWidgetManager->SetFocus(this);
 
     switch (mUnlockedItemId)
     {
-    case 1:
-        mApp->mPlayerInfo->SetFlag(16, 1);
-        mApp->mGameSelector->SyncProfile(true);
-        break;
-    case 2:
-        mApp->mPlayerInfo->SetFlag(32, 1);
-        mApp->mGameSelector->SyncProfile(true);
-        break;
-    case 3:
+        case 1:
+            mApp->mPlayerInfo->SetFlag(16, 1);
+            mApp->mGameSelector->SyncProfile(true);
+            break;
+        case 2:
+            mApp->mPlayerInfo->SetFlag(32, 1);
+            mApp->mGameSelector->SyncProfile(true);
+            break;
+        case 3:
         {
             // Unlock the next survival challenge button: re-enable it and give it
             // the finger highlight (+0x76 is Widget::mDisabled, +0x98 is
@@ -128,8 +125,8 @@ void UnlockDialog::ButtonDepress(int theId)
             aChallengeScreen->SaveSurvivalCount();
         }
         break;
-    default:
-        break;
+        default:
+            break;
     }
 
     mApp->KillDialog(18);
@@ -147,9 +144,9 @@ void UnlockDialog::ButtonDepress(int theId)
 // `mDialogLines` doubles as the format string, exactly as the binary does it
 // (`LDR.W R1,[R4,#0x120]` before the StrFormat call, then the result is assigned
 // back to it).
-UnlockDialog::UnlockDialog(int theLevel, int theItemId)
-    : LawnDialog((LawnApp *)gLawnApp, nullptr, 18, 1, Sexy::String("[MODE_LOCKED]"),
-                 Sexy::String("[UNLOCK_MODE_MSG]"), Sexy::String(gEmptyCString), 1)
+UnlockDialog::UnlockDialog(int theLevel, int theItemId) :
+    LawnDialog((LawnApp *)gLawnApp, nullptr, 18, 1, Sexy::String("[MODE_LOCKED]"), Sexy::String("[UNLOCK_MODE_MSG]"),
+        Sexy::String(gEmptyCString), 1)
 {
     // mDialogLines doubles as the format string, exactly as the binary does it
     // (`LDR.W R1,[R4,#0x120]` before the StrFormat call, then the result is

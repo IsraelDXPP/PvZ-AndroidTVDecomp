@@ -1,6 +1,7 @@
 // The profile map the app saves and loads. Each name owns eight profile slots.
 
-#pragma once
+#ifndef LAWNPROJECTTV_SEXY_INCLUDE_DEFAULTPROFILEMGR_H
+#define LAWNPROJECTTV_SEXY_INCLUDE_DEFAULTPROFILEMGR_H
 
 #include "ReconTypes.h"
 #include "Buffer.h"
@@ -13,14 +14,15 @@
 #include <list>
 #include <map>
 
-namespace Sexy {
+namespace Sexy
+{
 
 class PlayerInfo;
 
 class DefaultProfileMgr_DefaultPlayerList
 {
 public:
-    Sexy::PlayerInfo* mProfiles[8];
+    Sexy::PlayerInfo *mProfiles[8];
 
     DefaultProfileMgr_DefaultPlayerList()
     {
@@ -38,13 +40,13 @@ public:
     virtual void Load();
     virtual void Save();
     virtual int GetNumProfiles();
-    virtual Sexy::PlayerInfo* GetProfile(Sexy::String const& theName, int theUseSeq);
-    virtual Sexy::PlayerInfo* GetProfile(Sexy::String const& theName);
-    virtual Sexy::PlayerInfo* AddProfile(Sexy::String const& theName);
-    virtual Sexy::PlayerInfo* GetAnyProfile();
-    virtual int DeleteProfile(Sexy::String const& theName);
-    virtual int RenameProfile(Sexy::String const& theOldName, Sexy::String const& theNewName);
-    virtual std::list<Sexy::PlayerInfo*> GetProfileList();
+    virtual Sexy::PlayerInfo *GetProfile(Sexy::String const &theName, int theUseSeq);
+    virtual Sexy::PlayerInfo *GetProfile(Sexy::String const &theName);
+    virtual Sexy::PlayerInfo *AddProfile(Sexy::String const &theName);
+    virtual Sexy::PlayerInfo *GetAnyProfile();
+    virtual int DeleteProfile(Sexy::String const &theName);
+    virtual int RenameProfile(Sexy::String const &theOldName, Sexy::String const &theNewName);
+    virtual std::list<Sexy::PlayerInfo *> GetProfileList();
 
     typedef Sexy::DefaultProfileMgr_DefaultPlayerList DefaultPlayerList;
 
@@ -53,13 +55,15 @@ public:
     int mNextProfileId;
     int mNextProfileUseSeq;
 
-    int SetUseSeq(DefaultPlayerList& theList, unsigned int theUseSeq);
-    DefaultProfileMgr(Sexy::ProfileEventListener* theListener);
-    void SyncState(DataSync& theSync);
+    int SetUseSeq(DefaultPlayerList &theList, unsigned int theUseSeq);
+    DefaultProfileMgr(Sexy::ProfileEventListener *theListener);
+    void SyncState(DataSync &theSync);
     int DeleteOldestProfile();
-    DefaultProfileMgr* DeleteOldProfiles();
+    DefaultProfileMgr *DeleteOldProfiles();
 };
 
 } // namespace Sexy
 
 using Sexy::DefaultProfileMgr;
+
+#endif // LAWNPROJECTTV_SEXY_INCLUDE_DEFAULTPROFILEMGR_H

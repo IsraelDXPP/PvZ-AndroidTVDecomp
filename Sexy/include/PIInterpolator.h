@@ -2,12 +2,14 @@
 // the span between the first and last key time and blends the two colours that
 // bracket it. GetKeyframeNum and GetKeyframeTime wrap the index.
 
-#pragma once
+#ifndef LAWNPROJECTTV_SEXY_INCLUDE_PIINTERPOLATOR_H
+#define LAWNPROJECTTV_SEXY_INCLUDE_PIINTERPOLATOR_H
 
 #include "ReconTypes.h"
 #include <vector>
 
-namespace Sexy {
+namespace Sexy
+{
 
 class PIInterpolator
 {
@@ -22,3 +24,5 @@ public:
 } // namespace Sexy
 
 using Sexy::PIInterpolator;
+
+#endif // LAWNPROJECTTV_SEXY_INCLUDE_PIINTERPOLATOR_H

@@ -29,7 +29,8 @@
 // The base has not been refactored yet, so the absolute offsets above only hold
 // once LawnDialog's own size is right.
 
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_REVIVALGAMEDIALOG_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_REVIVALGAMEDIALOG_H
 
 #include "ReconTypes.h"
 // The transcribed bodies call methods on these, so the includes stay.
@@ -47,7 +48,7 @@ public:
     // --- this class's own vtable entries, in table order -------------------
     virtual void AddedToManager(Sexy::WidgetManager *theManager);
     virtual void RemovedFromManager(Sexy::WidgetManager *theManager);
-    virtual void GotFocus();                                   // [61]
+    virtual void GotFocus(); // [61]
 
     // --- members -----------------------------------------------------------
     // +0x120 is Dialog::mDialogLines; the dialog adds nothing before the base's
@@ -62,3 +63,5 @@ public:
     virtual void MouseDrag(int theX, int theY);
     virtual void ButtonDepress(int theId);
 };
+
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_REVIVALGAMEDIALOG_H

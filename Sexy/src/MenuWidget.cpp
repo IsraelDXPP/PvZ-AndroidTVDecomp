@@ -26,16 +26,16 @@
 // ==========================================================================
 Sexy::MenuWidget::~MenuWidget()
 {
-  // The two vptr stores, the mSourceFileName release and the Widget destructor
-  // are the compiler's. The parser is reference counted, so its release is
-  // explicit -- the dump decrements +0x4C and, when the count reaches zero,
-  // deletes it through the parser's vtable.
-  Sexy::MenuParser *aParser = mMenuParser;
-  if ( aParser != NULL )
-  {
-    if ( --aParser->mRefCount <= 0 )
-      delete aParser;
-  }
+    // The two vptr stores, the mSourceFileName release and the Widget destructor
+    // are the compiler's. The parser is reference counted, so its release is
+    // explicit -- the dump decrements +0x4C and, when the count reaches zero,
+    // deletes it through the parser's vtable.
+    Sexy::MenuParser *aParser = mMenuParser;
+    if (aParser != NULL)
+    {
+        if (--aParser->mRefCount <= 0)
+            delete aParser;
+    }
 }
 
 // ==========================================================================
@@ -44,7 +44,7 @@ Sexy::MenuWidget::~MenuWidget()
 // ==========================================================================
 bool Sexy::MenuWidget::RetainWidgetsOnExit()
 {
-  return false;
+    return false;
 }
 
 // ==========================================================================
@@ -53,7 +53,7 @@ bool Sexy::MenuWidget::RetainWidgetsOnExit()
 // ==========================================================================
 void Sexy::MenuWidget::OnExit()
 {
-  // An empty override in the binary too: it is the hook subclasses use.
+    // An empty override in the binary too: it is the hook subclasses use.
 }
 
 // ==========================================================================
@@ -62,28 +62,28 @@ void Sexy::MenuWidget::OnExit()
 // ==========================================================================
 bool Sexy::MenuWidget::UpdateExit()
 {
-  // The widget list is circular and its header node is mWidgets' own first
-  // link, so the walk ends when the node pointer comes back to that address.
-  // The exit is finished as soon as no child still has an animator running.
-  const void *aHeader = &mWidgets.mNext;
+    // The widget list is circular and its header node is mWidgets' own first
+    // link, so the walk ends when the node pointer comes back to that address.
+    // The exit is finished as soon as no child still has an animator running.
+    const void *aHeader = &mWidgets.mNext;
 
-  for ( WidgetListLink *aNode = mWidgets.mNext; aNode != aHeader; aNode = aNode->mNext )
-  {
-    if ( static_cast<WidgetListNode *>(aNode)->mWidget->GetAnimator() != NULL )
-      return false;
-  }
+    for (WidgetListLink *aNode = mWidgets.mNext; aNode != aHeader; aNode = aNode->mNext)
+    {
+        if (static_cast<WidgetListNode *>(aNode)->mWidget->GetAnimator() != NULL)
+            return false;
+    }
 
-  return true;
+    return true;
 }
 
 // ==========================================================================
 // Sexy::MenuWidget::Draw(Sexy::Graphics *)
 // @002AF1C8  60 bytes
 // ==========================================================================
-void Sexy::MenuWidget::Draw(Sexy::Graphics * theGraphics)
+void Sexy::MenuWidget::Draw(Sexy::Graphics *theGraphics)
 {
-  if ( mImage != NULL )
-    theGraphics->DrawImage(mImage, mWidth / 2 - mImage->mWidth / 2, mHeight / 2 - mImage->mHeight / 2);
+    if (mImage != NULL)
+        theGraphics->DrawImage(mImage, mWidth / 2 - mImage->mWidth / 2, mHeight / 2 - mImage->mHeight / 2);
 }
 
 // ==========================================================================
@@ -92,59 +92,59 @@ void Sexy::MenuWidget::Draw(Sexy::Graphics * theGraphics)
 // ==========================================================================
 void Sexy::MenuWidget::Enter()
 {
-  // Vtable byte 8 of a WidgetAnimator is its slot [2], Init. The menu itself
-  // takes the entry animator (state 1), or the idle one (state 0), or none.
-  WidgetAnimator *aAnimator = GetAnimatorForState(Sexy::WidgetAnimationState(1));
-  if ( aAnimator != NULL )
-  {
-    aAnimator->Init(Sexy::WidgetAnimationState(1));
-    SetAnimator(aAnimator);
-  }
-  else
-  {
-    WidgetAnimator *aIdleAnimator = GetAnimatorForState(Sexy::WidgetAnimationState(0));
-    if ( aIdleAnimator != NULL )
+    // Vtable byte 8 of a WidgetAnimator is its slot [2], Init. The menu itself
+    // takes the entry animator (state 1), or the idle one (state 0), or none.
+    WidgetAnimator *aAnimator = GetAnimatorForState(Sexy::WidgetAnimationState(1));
+    if (aAnimator != NULL)
     {
-      aIdleAnimator->Init(Sexy::WidgetAnimationState(0));
-      SetAnimator(aIdleAnimator);
+        aAnimator->Init(Sexy::WidgetAnimationState(1));
+        SetAnimator(aAnimator);
     }
     else
     {
-      SetAnimator(NULL);
+        WidgetAnimator *aIdleAnimator = GetAnimatorForState(Sexy::WidgetAnimationState(0));
+        if (aIdleAnimator != NULL)
+        {
+            aIdleAnimator->Init(Sexy::WidgetAnimationState(0));
+            SetAnimator(aIdleAnimator);
+        }
+        else
+        {
+            SetAnimator(NULL);
+        }
     }
-  }
 
-  // Every child is enabled and gets the same treatment.
-  const void *aHeader = &mWidgets.mNext;
-  for ( WidgetListLink *aNode = mWidgets.mNext; aNode != aHeader; aNode = aNode->mNext )
-  {
-    Widget *aWidget = static_cast<WidgetListNode *>(aNode)->mWidget;
-    aWidget->SetDisabled(false);
-
-    WidgetAnimator *aChildAnimator = aWidget->GetAnimatorForState(Sexy::WidgetAnimationState(1));
-    if ( aChildAnimator != NULL )
+    // Every child is enabled and gets the same treatment.
+    const void *aHeader = &mWidgets.mNext;
+    for (WidgetListLink *aNode = mWidgets.mNext; aNode != aHeader; aNode = aNode->mNext)
     {
-      aChildAnimator->Init(Sexy::WidgetAnimationState(1));
-      aWidget->SetAnimator(aChildAnimator);
-    }
-    else
-    {
-      WidgetAnimator *aIdle = aWidget->GetAnimatorForState(Sexy::WidgetAnimationState(0));
-      if ( aIdle == NULL )
-      {
-        aWidget->SetAnimator(NULL);
-      }
-      else
-      {
-        // The dump asks for the idle animator a second time and installs that
-        // second answer; a plain getter, so the two are the same object.
-        aIdle->Init(Sexy::WidgetAnimationState(0));
-        aWidget->SetAnimator(aWidget->GetAnimatorForState(Sexy::WidgetAnimationState(0)));
-      }
-    }
-  }
+        Widget *aWidget = static_cast<WidgetListNode *>(aNode)->mWidget;
+        aWidget->SetDisabled(false);
 
-  mExitFinished = false;
+        WidgetAnimator *aChildAnimator = aWidget->GetAnimatorForState(Sexy::WidgetAnimationState(1));
+        if (aChildAnimator != NULL)
+        {
+            aChildAnimator->Init(Sexy::WidgetAnimationState(1));
+            aWidget->SetAnimator(aChildAnimator);
+        }
+        else
+        {
+            WidgetAnimator *aIdle = aWidget->GetAnimatorForState(Sexy::WidgetAnimationState(0));
+            if (aIdle == NULL)
+            {
+                aWidget->SetAnimator(NULL);
+            }
+            else
+            {
+                // The dump asks for the idle animator a second time and installs that
+                // second answer; a plain getter, so the two are the same object.
+                aIdle->Init(Sexy::WidgetAnimationState(0));
+                aWidget->SetAnimator(aWidget->GetAnimatorForState(Sexy::WidgetAnimationState(0)));
+            }
+        }
+    }
+
+    mExitFinished = false;
 }
 
 // ==========================================================================
@@ -153,36 +153,36 @@ void Sexy::MenuWidget::Enter()
 // ==========================================================================
 void Sexy::MenuWidget::Exit()
 {
-  if ( mIsFading )
-    return;
+    if (mIsFading)
+        return;
 
-  // The exit animator is state 2, and it is installed without being Init'ed
-  // first -- unlike Enter's, which is.
-  WidgetAnimator *aAnimator = GetAnimatorForState(Sexy::WidgetAnimationState(2));
-  if ( aAnimator != NULL )
-    SetAnimator(aAnimator);
-  else
-    SetAnimator(NULL);
-
-  const void *aHeader = &mWidgets.mNext;
-  for ( WidgetListLink *aNode = mWidgets.mNext; aNode != aHeader; aNode = aNode->mNext )
-  {
-    Widget *aWidget = static_cast<WidgetListNode *>(aNode)->mWidget;
-    aWidget->SetDisabled(true);
-
-    WidgetAnimator *aChildAnimator = aWidget->GetAnimatorForState(Sexy::WidgetAnimationState(2));
-    if ( aChildAnimator != NULL )
-    {
-      aChildAnimator->Init(Sexy::WidgetAnimationState(2));
-      aWidget->SetAnimator(aChildAnimator);
-    }
+    // The exit animator is state 2, and it is installed without being Init'ed
+    // first -- unlike Enter's, which is.
+    WidgetAnimator *aAnimator = GetAnimatorForState(Sexy::WidgetAnimationState(2));
+    if (aAnimator != NULL)
+        SetAnimator(aAnimator);
     else
-    {
-      aWidget->SetAnimator(NULL);
-    }
-  }
+        SetAnimator(NULL);
 
-  mIsFading = true;
+    const void *aHeader = &mWidgets.mNext;
+    for (WidgetListLink *aNode = mWidgets.mNext; aNode != aHeader; aNode = aNode->mNext)
+    {
+        Widget *aWidget = static_cast<WidgetListNode *>(aNode)->mWidget;
+        aWidget->SetDisabled(true);
+
+        WidgetAnimator *aChildAnimator = aWidget->GetAnimatorForState(Sexy::WidgetAnimationState(2));
+        if (aChildAnimator != NULL)
+        {
+            aChildAnimator->Init(Sexy::WidgetAnimationState(2));
+            aWidget->SetAnimator(aChildAnimator);
+        }
+        else
+        {
+            aWidget->SetAnimator(NULL);
+        }
+    }
+
+    mIsFading = true;
 }
 
 // ==========================================================================
@@ -191,36 +191,36 @@ void Sexy::MenuWidget::Exit()
 // ==========================================================================
 int Sexy::MenuWidget::CreateMenuParser()
 {
-  // Drop the parser this widget already holds; the count is the parser's own
-  // and reaching zero frees it.
-  if ( mMenuParser != NULL )
-  {
-    if ( --mMenuParser->mRefCount <= 0 )
-      delete mMenuParser;
-
-    mMenuParser = NULL;
-  }
-
-  Sexy::MenuParser *aParser = new MenuParser(this);
-  if ( aParser != mMenuParser )
-  {
-    if ( mMenuParser != NULL )
+    // Drop the parser this widget already holds; the count is the parser's own
+    // and reaching zero frees it.
+    if (mMenuParser != NULL)
     {
-      if ( --mMenuParser->mRefCount <= 0 )
-        delete mMenuParser;
+        if (--mMenuParser->mRefCount <= 0)
+            delete mMenuParser;
+
+        mMenuParser = NULL;
     }
 
-    // The widget takes its own reference on the new parser.
-    if ( aParser != NULL )
-      ++aParser->mRefCount;
+    Sexy::MenuParser *aParser = new MenuParser(this);
+    if (aParser != mMenuParser)
+    {
+        if (mMenuParser != NULL)
+        {
+            if (--mMenuParser->mRefCount <= 0)
+                delete mMenuParser;
+        }
 
-    mMenuParser = aParser;
-  }
+        // The widget takes its own reference on the new parser.
+        if (aParser != NULL)
+            ++aParser->mRefCount;
 
-  // The dump hands back the pointer it read before the new parser was adopted,
-  // which the release above has already cleared. LoadMenuFile, the only caller,
-  // discards it.
-  return 0;
+        mMenuParser = aParser;
+    }
+
+    // The dump hands back the pointer it read before the new parser was adopted,
+    // which the release above has already cleared. LoadMenuFile, the only caller,
+    // discards it.
+    return 0;
 }
 
 // ==========================================================================
@@ -229,23 +229,23 @@ int Sexy::MenuWidget::CreateMenuParser()
 // ==========================================================================
 Sexy::MenuWidget::MenuWidget()
 {
-  // Widget's constructor, the two vptr stores (the primary table and the
-  // ButtonListener sub-object's at +0x100) and mSourceFileName's construction
-  // are the compiler's.
-  mMenuParser = NULL;
-  mImage = NULL;
-  mWidgetManager = NULL;
-  mInitialFocusId = -1;
+    // Widget's constructor, the two vptr stores (the primary table and the
+    // ButtonListener sub-object's at +0x100) and mSourceFileName's construction
+    // are the compiler's.
+    mMenuParser = NULL;
+    mImage = NULL;
+    mWidgetManager = NULL;
+    mInitialFocusId = -1;
 
-  // The widget covers the whole screen to begin with.
-  Resize(((SexyAppBase *)gSexyAppBase)->mScreenBounds);
+    // The widget covers the whole screen to begin with.
+    Resize(((SexyAppBase *)gSexyAppBase)->mScreenBounds);
 
-  // The dump seeds the member with the shared empty rep and then assigns the
-  // empty C string at 0x57D7EA over it; both produce the empty string.
-  mSourceFileName = "";
+    // The dump seeds the member with the shared empty rep and then assigns the
+    // empty C string at 0x57D7EA over it; both produce the empty string.
+    mSourceFileName = "";
 
-  mIsFading = false;
-  mExitFinished = false;
+    mIsFading = false;
+    mExitFinished = false;
 }
 
 // ==========================================================================
@@ -254,17 +254,17 @@ Sexy::MenuWidget::MenuWidget()
 // ==========================================================================
 Sexy::MenuWidget::MenuWidget(Sexy::String theFileName)
 {
-  mMenuParser = NULL;
-  mImage = NULL;
-  mWidgetManager = NULL;
-  mInitialFocusId = -1;
+    mMenuParser = NULL;
+    mImage = NULL;
+    mWidgetManager = NULL;
+    mInitialFocusId = -1;
 
-  Resize(((SexyAppBase *)gSexyAppBase)->mScreenBounds);
+    Resize(((SexyAppBase *)gSexyAppBase)->mScreenBounds);
 
-  mSourceFileName = theFileName;
+    mSourceFileName = theFileName;
 
-  mIsFading = false;
-  mExitFinished = false;
+    mIsFading = false;
+    mExitFinished = false;
 }
 
 // ==========================================================================
@@ -273,22 +273,22 @@ Sexy::MenuWidget::MenuWidget(Sexy::String theFileName)
 // ==========================================================================
 int Sexy::MenuWidget::LoadMenuFile(Sexy::String theFileName)
 {
-  // Vtable byte 44 is WidgetContainer's slot [11], RemoveAllWidgets: the old
-  // menu's widgets are deleted, recursively, before the new file is parsed.
-  RemoveAllWidgets(true, true, NULL);
+    // Vtable byte 44 is WidgetContainer's slot [11], RemoveAllWidgets: the old
+    // menu's widgets are deleted, recursively, before the new file is parsed.
+    RemoveAllWidgets(true, true, NULL);
 
-  mSourceFileName = theFileName;
+    mSourceFileName = theFileName;
 
-  Sexy::MenuParser *aParser = mMenuParser;
-  if ( aParser == NULL )
-  {
-    // Vtable byte 508 is this class's own slot [127], CreateMenuParser.
-    CreateMenuParser();
-    aParser = mMenuParser;
-  }
+    Sexy::MenuParser *aParser = mMenuParser;
+    if (aParser == NULL)
+    {
+        // Vtable byte 508 is this class's own slot [127], CreateMenuParser.
+        CreateMenuParser();
+        aParser = mMenuParser;
+    }
 
-  // Vtable byte 52 is DescParser::LoadDescriptor, slot [13].
-  return aParser->LoadDescriptor(mSourceFileName);
+    // Vtable byte 52 is DescParser::LoadDescriptor, slot [13].
+    return aParser->LoadDescriptor(mSourceFileName);
 }
 
 // ==========================================================================
@@ -297,70 +297,70 @@ int Sexy::MenuWidget::LoadMenuFile(Sexy::String theFileName)
 // ==========================================================================
 void Sexy::MenuWidget::Update()
 {
-  Widget::Update();
+    Widget::Update();
 
-  if ( !mIsFading || mExitFinished )
-    return;
+    if (!mIsFading || mExitFinished)
+        return;
 
-  // Vtable bytes 488, 500 and 504 are this class's own slots [122] UpdateExit,
-  // [125] RetainWidgetsOnExit and [126] OnExit.
-  if ( !UpdateExit() )
-    return;
+    // Vtable bytes 488, 500 and 504 are this class's own slots [122] UpdateExit,
+    // [125] RetainWidgetsOnExit and [126] OnExit.
+    if (!UpdateExit())
+        return;
 
-  if ( !RetainWidgetsOnExit() )
-  {
-    mWidgetManager->RemoveWidget(this);
-    ((SexyAppBase *)gSexyAppBase)->SwitchScreenMode();
-  }
+    if (!RetainWidgetsOnExit())
+    {
+        mWidgetManager->RemoveWidget(this);
+        ((SexyAppBase *)gSexyAppBase)->SwitchScreenMode();
+    }
 
-  mExitFinished = true;
-  OnExit();
+    mExitFinished = true;
+    OnExit();
 }
 
 // ==========================================================================
 // Sexy::MenuWidget::DrawAll(Sexy::ModalFlags *,Sexy::Graphics *)
 // @002AF5F0  52 bytes
 // ==========================================================================
-void Sexy::MenuWidget::DrawAll(Sexy::ModalFlags * theFlags, Sexy::Graphics * theGraphics)
+void Sexy::MenuWidget::DrawAll(Sexy::ModalFlags *theFlags, Sexy::Graphics *theGraphics)
 {
-  const void *aHeader = &mWidgets.mNext;
-  for ( WidgetListLink *aNode = mWidgets.mNext; aNode != aHeader; aNode = aNode->mNext )
-    static_cast<WidgetListNode *>(aNode)->mWidget->DrawPre(theGraphics);
+    const void *aHeader = &mWidgets.mNext;
+    for (WidgetListLink *aNode = mWidgets.mNext; aNode != aHeader; aNode = aNode->mNext)
+        static_cast<WidgetListNode *>(aNode)->mWidget->DrawPre(theGraphics);
 
-  WidgetContainer::DrawAll(theFlags, theGraphics);
+    WidgetContainer::DrawAll(theFlags, theGraphics);
 }
 
 // ==========================================================================
 // Sexy::MenuWidget::AddedToManager(Sexy::WidgetManager *)
 // @002AF624  138 bytes
 // ==========================================================================
-void Sexy::MenuWidget::AddedToManager(Sexy::WidgetManager * theManager)
+void Sexy::MenuWidget::AddedToManager(Sexy::WidgetManager *theManager)
 {
-  mWidgetManager = theManager;
+    mWidgetManager = theManager;
 
-  if ( !mSourceFileName.empty() )
-  {
-    // The dump copy-constructs the name before handing it over, so a failure
-    // below still reports the original.
-    String aFileName(mSourceFileName);
-    if ( !LoadMenuFile(aFileName) )
-      OutputDebug("Error in menu file '%s'\n", mSourceFileName.c_str());
-  }
+    if (!mSourceFileName.empty())
+    {
+        // The dump copy-constructs the name before handing it over, so a failure
+        // below still reports the original.
+        String aFileName(mSourceFileName);
+        if (!LoadMenuFile(aFileName))
+            OutputDebug("Error in menu file '%s'\n", mSourceFileName.c_str());
+    }
 
-  WidgetContainer::AddedToManager(theManager);
+    WidgetContainer::AddedToManager(theManager);
 
-  // Vtable byte 492 is this class's own slot [123], Enter.
-  Enter();
+    // Vtable byte 492 is this class's own slot [123], Enter.
+    Enter();
 }
 
 // ==========================================================================
 // Sexy::MenuWidget::RemovedFromManager(Sexy::WidgetManager *)
 // @002AF6C8  26 bytes
 // ==========================================================================
-void Sexy::MenuWidget::RemovedFromManager(Sexy::WidgetManager * theManager)
+void Sexy::MenuWidget::RemovedFromManager(Sexy::WidgetManager *theManager)
 {
-  WidgetContainer::RemovedFromManager(theManager);
-  RemoveAllWidgets(true, true, theManager);
+    WidgetContainer::RemovedFromManager(theManager);
+    RemoveAllWidgets(true, true, theManager);
 }
 
 // ==========================================================================
@@ -369,14 +369,14 @@ void Sexy::MenuWidget::RemovedFromManager(Sexy::WidgetManager * theManager)
 // ==========================================================================
 void Sexy::MenuWidget::GotFocus()
 {
-  Widget::GotFocus();
+    Widget::GotFocus();
 }
 
 // ==========================================================================
 // Sexy::MenuWidget::AddWidget(Sexy::Widget *)
 // @002AF6E8  4 bytes
 // ==========================================================================
-void Sexy::MenuWidget::AddWidget(Sexy::Widget * theWidget)
+void Sexy::MenuWidget::AddWidget(Sexy::Widget *theWidget)
 {
-  WidgetContainer::AddWidget(theWidget);
+    WidgetContainer::AddWidget(theWidget);
 }

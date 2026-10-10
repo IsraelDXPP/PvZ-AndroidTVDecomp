@@ -23,8 +23,8 @@ namespace
 struct OggMemoryStream
 {
     const unsigned char *mData;
-    size_t               mSize;
-    size_t               mPos;
+    size_t mSize;
+    size_t mPos;
 };
 
 size_t OggRead(void *theDest, size_t theSize, size_t theCount, void *theSource)
@@ -49,10 +49,17 @@ int OggSeek(void *theSource, ogg_int64_t theOffset, int theWhence)
     ogg_int64_t aTarget = 0;
     switch (theWhence)
     {
-    case SEEK_SET: aTarget = theOffset; break;
-    case SEEK_CUR: aTarget = (ogg_int64_t)aStream->mPos + theOffset; break;
-    case SEEK_END: aTarget = (ogg_int64_t)aStream->mSize + theOffset; break;
-    default: return -1;
+        case SEEK_SET:
+            aTarget = theOffset;
+            break;
+        case SEEK_CUR:
+            aTarget = (ogg_int64_t)aStream->mPos + theOffset;
+            break;
+        case SEEK_END:
+            aTarget = (ogg_int64_t)aStream->mSize + theOffset;
+            break;
+        default:
+            return -1;
     }
     if (aTarget < 0 || aTarget > (ogg_int64_t)aStream->mSize)
         return -1;
@@ -81,41 +88,52 @@ ov_callbacks OggCallbacks()
     return aCallbacks;
 }
 
-SDL_AudioStream* CreateStream(SDL_AudioDeviceID device, int rate)
+SDL_AudioStream *CreateStream(SDL_AudioDeviceID device, int rate)
 {
     SDL_AudioSpec input{SDL_AUDIO_F32, 2, rate};
     SDL_AudioSpec output{};
-    if (!device || !SDL_GetAudioDeviceFormat(device, &output, nullptr)) return nullptr;
-    SDL_AudioStream* stream = SDL_CreateAudioStream(&input, &output);
+    if (!device || !SDL_GetAudioDeviceFormat(device, &output, nullptr))
+        return nullptr;
+    SDL_AudioStream *stream = SDL_CreateAudioStream(&input, &output);
     if (stream && !SDL_BindAudioStream(device, stream))
-    { SDL_DestroyAudioStream(stream); return nullptr; }
+    {
+        SDL_DestroyAudioStream(stream);
+        return nullptr;
+    }
     return stream;
 }
 
-bool StreamEmpty(SDL_AudioStream* stream)
+bool StreamEmpty(SDL_AudioStream *stream)
 {
     return !stream || (SDL_GetAudioStreamQueued(stream) == 0 && SDL_GetAudioStreamAvailable(stream) == 0);
 }
 
-bool QueuePcm(SDL_AudioStream* stream, const SDLSoundBuffer& buffer, size_t& cursor,
-              bool loop, double pan)
+bool QueuePcm(SDL_AudioStream *stream, const SDLSoundBuffer &buffer, size_t &cursor, bool loop, double pan)
 {
     size_t totalFrames = buffer.mSamples.size() / buffer.mChannels;
-    if (!totalFrames || (!loop && cursor >= totalFrames)) return false;
+    if (!totalFrames || (!loop && cursor >= totalFrames))
+        return false;
     std::vector<float> samples;
     samples.reserve(8192);
     float left = float(1.0 - std::max(0.0, pan));
     float right = float(1.0 + std::min(0.0, pan));
     for (size_t frame = 0; frame < 4096; ++frame)
     {
-        if (cursor == totalFrames) { if (!loop) break; cursor = 0; }
+        if (cursor == totalFrames)
+        {
+            if (!loop)
+                break;
+            cursor = 0;
+        }
         size_t offset = cursor * buffer.mChannels;
         samples.push_back(buffer.mSamples[offset] / 32768.0f * left);
         samples.push_back(buffer.mSamples[offset + (buffer.mChannels == 2 ? 1 : 0)] / 32768.0f * right);
         ++cursor;
     }
-    if (!SDL_PutAudioStreamData(stream, samples.data(), int(samples.size() * sizeof(float)))) return false;
-    if (!loop && cursor == totalFrames) SDL_FlushAudioStream(stream);
+    if (!SDL_PutAudioStreamData(stream, samples.data(), int(samples.size() * sizeof(float))))
+        return false;
+    if (!loop && cursor == totalFrames)
+        SDL_FlushAudioStream(stream);
     return true;
 }
 
@@ -128,7 +146,7 @@ float ToGain(double theVolume)
     return float(theVolume);
 }
 
-bool ExtensionMatches(const std::string& theExt, const char* theName)
+bool ExtensionMatches(const std::string &theExt, const char *theName)
 {
     if (theExt.empty())
         return true;
@@ -137,7 +155,7 @@ bool ExtensionMatches(const std::string& theExt, const char* theName)
 
 }
 
-bool LoadAudioBytes(const String& thePath, std::vector<unsigned char>& theBytes, std::string& theExt)
+bool LoadAudioBytes(const String &thePath, std::vector<unsigned char> &theBytes, std::string &theExt)
 {
     std::string aPath = thePath.c_str() != nullptr ? thePath.c_str() : "";
     if (aPath.empty())
@@ -158,7 +176,7 @@ bool LoadAudioBytes(const String& thePath, std::vector<unsigned char>& theBytes,
         aBase = aPath.substr(0, (size_t)aDot);
     }
 
-    const char* aExtensions[] = { ".ogg", ".wav", ".xm", ".it", ".s3m", ".mod", ".mo3" };
+    const char *aExtensions[] = {".ogg", ".wav", ".xm", ".it", ".s3m", ".mod", ".mo3"};
     const int aExtensionCount = (int)(sizeof(aExtensions) / sizeof(aExtensions[0]));
     for (int aKind = 0; aKind < aExtensionCount; ++aKind)
     {
@@ -178,25 +196,24 @@ bool LoadAudioBytes(const String& thePath, std::vector<unsigned char>& theBytes,
 namespace
 {
 
-unsigned short ReadLe16(const unsigned char* theBytes)
+unsigned short ReadLe16(const unsigned char *theBytes)
 {
     return (unsigned short)(theBytes[0] | (theBytes[1] << 8));
 }
 
-unsigned int ReadLe32(const unsigned char* theBytes)
+unsigned int ReadLe32(const unsigned char *theBytes)
 {
-    return (unsigned int)theBytes[0]
-        | ((unsigned int)theBytes[1] << 8)
-        | ((unsigned int)theBytes[2] << 16)
-        | ((unsigned int)theBytes[3] << 24);
+    return (unsigned int)theBytes[0] | ((unsigned int)theBytes[1] << 8) | ((unsigned int)theBytes[2] << 16) |
+        ((unsigned int)theBytes[3] << 24);
 }
 
-SDLSoundBuffer* UploadPcm(int channels, const unsigned char* pcm,
-                        unsigned int bytes, int rate, double length)
+SDLSoundBuffer *UploadPcm(int channels, const unsigned char *pcm, unsigned int bytes, int rate, double length)
 {
-    if (!pcm || !bytes || rate <= 0 || (channels != 1 && channels != 2) || bytes % (2 * channels)) return nullptr;
-    auto* result = new SDLSoundBuffer;
-    result->mChannels = channels; result->mRate = rate;
+    if (!pcm || !bytes || rate <= 0 || (channels != 1 && channels != 2) || bytes % (2 * channels))
+        return nullptr;
+    auto *result = new SDLSoundBuffer;
+    result->mChannels = channels;
+    result->mRate = rate;
     result->mLengthSeconds = length > 0 ? length : double(bytes / (2 * channels)) / rate;
     result->mSamples.resize(bytes / 2);
     for (size_t index = 0; index < result->mSamples.size(); ++index)
@@ -204,9 +221,9 @@ SDLSoundBuffer* UploadPcm(int channels, const unsigned char* pcm,
     return result;
 }
 
-SDLSoundBuffer* DecodeWav(const void* theData, unsigned int theSize)
+SDLSoundBuffer *DecodeWav(const void *theData, unsigned int theSize)
 {
-    const unsigned char* aBytes = (const unsigned char*)theData;
+    const unsigned char *aBytes = (const unsigned char *)theData;
     if (aBytes == nullptr || theSize < 12)
         return nullptr;
     if (std::memcmp(aBytes, "RIFF", 4) != 0 || std::memcmp(aBytes + 8, "WAVE", 4) != 0)
@@ -215,7 +232,7 @@ SDLSoundBuffer* DecodeWav(const void* theData, unsigned int theSize)
     int aChannels = 0;
     int aRate = 0;
     int aBits = 0;
-    const unsigned char* aPcm = nullptr;
+    const unsigned char *aPcm = nullptr;
     unsigned int aPcmBytes = 0;
 
     unsigned int aPos = 12;
@@ -224,7 +241,7 @@ SDLSoundBuffer* DecodeWav(const void* theData, unsigned int theSize)
         unsigned int aChunkSize = ReadLe32(aBytes + aPos + 4);
         if (aPos + 8 + aChunkSize > theSize)
             break;
-        const unsigned char* aChunk = aBytes + aPos + 8;
+        const unsigned char *aChunk = aBytes + aPos + 8;
         if (std::memcmp(aBytes + aPos, "fmt ", 4) == 0 && aChunkSize >= 16)
         {
             unsigned short aFormat = ReadLe16(aChunk);
@@ -252,7 +269,7 @@ SDLSoundBuffer* DecodeWav(const void* theData, unsigned int theSize)
         return nullptr;
 
     std::vector<unsigned char> aWide;
-    const unsigned char* aUpload = aPcm;
+    const unsigned char *aUpload = aPcm;
     unsigned int aUploadBytes = aPcmBytes;
     if (aBits == 8)
     {
@@ -271,7 +288,7 @@ SDLSoundBuffer* DecodeWav(const void* theData, unsigned int theSize)
     return UploadPcm(aChannels, aUpload, aUploadBytes, aRate, aLength);
 }
 
-SDLSoundBuffer* OpenAudioFile(const String& theFileName)
+SDLSoundBuffer *OpenAudioFile(const String &theFileName)
 {
     std::vector<unsigned char> aBytes;
     std::string aExt;
@@ -281,7 +298,7 @@ SDLSoundBuffer* OpenAudioFile(const String& theFileName)
         return nullptr;
     }
 
-    SDLSoundBuffer* aDecoded = nullptr;
+    SDLSoundBuffer *aDecoded = nullptr;
     if (SDL_strcasecmp(aExt.c_str(), ".wav") == 0)
         aDecoded = DecodeWav(aBytes.data(), (unsigned int)aBytes.size());
     else
@@ -293,23 +310,39 @@ SDLSoundBuffer* OpenAudioFile(const String& theFileName)
 
 }
 
-Sexy::SoundManager::~SoundManager()
+Sexy::SoundManager::~SoundManager() {}
+
+SDLSoundBuffer::SDLSoundBuffer() :
+    mLengthSeconds(0.0),
+    mBaseVolume(1.0),
+    mBasePan(0)
 {
 }
-
-SDLSoundBuffer::SDLSoundBuffer()
-    : mLengthSeconds(0.0), mBaseVolume(1.0), mBasePan(0) {}
 
 SDLSoundBuffer::~SDLSoundBuffer() = default;
 
-SDLSoundInstance::SDLSoundInstance(SDLSoundManager* manager, const std::shared_ptr<SDLSoundBuffer>& buffer)
-    : mManager(manager), mStream(nullptr), mBuffer(buffer), mPlaying(false), mReleased(false),
-      mAutoRelease(false), mBaseVolume(1.0), mVolume(1.0), mBasePan(0), mPan(0), mBaseRate(1.0)
+SDLSoundInstance::SDLSoundInstance(SDLSoundManager *manager, const std::shared_ptr<SDLSoundBuffer> &buffer) :
+    mManager(manager),
+    mStream(nullptr),
+    mBuffer(buffer),
+    mPlaying(false),
+    mReleased(false),
+    mAutoRelease(false),
+    mBaseVolume(1.0),
+    mVolume(1.0),
+    mBasePan(0),
+    mPan(0),
+    mBaseRate(1.0)
 {
-    if (manager && buffer) mStream = CreateStream(manager->mDevice, buffer->mRate);
+    if (manager && buffer)
+        mStream = CreateStream(manager->mDevice, buffer->mRate);
 }
 
-SDLSoundInstance::~SDLSoundInstance() { if (mStream) SDL_DestroyAudioStream(mStream); }
+SDLSoundInstance::~SDLSoundInstance()
+{
+    if (mStream)
+        SDL_DestroyAudioStream(mStream);
+}
 
 void SDLSoundInstance::Release()
 {
@@ -363,23 +396,37 @@ void SDLSoundInstance::SetPan(int thePan)
 
 void SDLSoundInstance::Play(bool loop, bool autoRelease)
 {
-    if (!mStream || mReleased) return;
+    if (!mStream || mReleased)
+        return;
     SDL_ClearAudioStream(mStream);
-    mCursor = 0; mLoop = loop; mAutoRelease = autoRelease; mPlaying = true;
-    ApplyState(); IsPlaying();
+    mCursor = 0;
+    mLoop = loop;
+    mAutoRelease = autoRelease;
+    mPlaying = true;
+    ApplyState();
+    IsPlaying();
 }
 
-void SDLSoundInstance::Stop() { if (mStream) SDL_ClearAudioStream(mStream); mPlaying = false; }
+void SDLSoundInstance::Stop()
+{
+    if (mStream)
+        SDL_ClearAudioStream(mStream);
+    mPlaying = false;
+}
 
 bool SDLSoundInstance::IsPlaying()
 {
-    if (!mStream || !mPlaying) return false;
+    if (!mStream || !mPlaying)
+        return false;
     // AudiereSoundInstance::SetPan/SetBasePan @0x441648/0x441664 scale
     // every integer by 0.0001; RehupPan adds the two offsets before clamping.
     const double aPan = std::clamp((double(mBasePan) + double(mPan)) * 0.0001, -1.0, 1.0);
     while (SDL_GetAudioStreamQueued(mStream) < 8192 * int(sizeof(float)) &&
-           QueuePcm(mStream, *mBuffer, mCursor, mLoop, aPan)) {}
-    if (!mLoop && mCursor >= mBuffer->mSamples.size() / mBuffer->mChannels && StreamEmpty(mStream)) mPlaying = false;
+        QueuePcm(mStream, *mBuffer, mCursor, mLoop, aPan))
+    {
+    }
+    if (!mLoop && mCursor >= mBuffer->mSamples.size() / mBuffer->mChannels && StreamEmpty(mStream))
+        mPlaying = false;
     return mPlaying;
 }
 
@@ -390,16 +437,21 @@ bool SDLSoundInstance::IsReleased()
 
 void SDLSoundInstance::ApplyState()
 {
-    if (!mStream) return;
+    if (!mStream)
+        return;
     double gain = mVolume * mBaseVolume;
-    if (mManager) gain *= mManager->mVolume * mManager->mMasterVolume;
+    if (mManager)
+        gain *= mManager->mVolume * mManager->mMasterVolume;
     SDL_SetAudioStreamGain(mStream, ToGain(gain));
     SDL_SetAudioStreamFrequencyRatio(mStream, float(std::clamp(mBaseRate * mPitchRatio, 0.5, 2.0)));
 }
 
-SDLSoundManager::SDLSoundManager()
-    : mDevice(0), mInitialized(false),
-      mVolume(1.0), mMasterVolume(1.0), mMusicInterface(nullptr)
+SDLSoundManager::SDLSoundManager() :
+    mDevice(0),
+    mInitialized(false),
+    mVolume(1.0),
+    mMasterVolume(1.0),
+    mMusicInterface(nullptr)
 {
 }
 
@@ -413,10 +465,17 @@ SDLSoundManager::~SDLSoundManager()
 
 bool SDLSoundManager::Init()
 {
-    if (mInitialized) return true;
-    if (!SDL_InitSubSystem(SDL_INIT_AUDIO)) return false;
+    if (mInitialized)
+        return true;
+    if (!SDL_InitSubSystem(SDL_INIT_AUDIO))
+        return false;
     mDevice = SDL_OpenAudioDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, nullptr);
-    if (!mDevice) { TOD_WARN("SDL audio unavailable: %s", SDL_GetError()); SDL_QuitSubSystem(SDL_INIT_AUDIO); return false; }
+    if (!mDevice)
+    {
+        TOD_WARN("SDL audio unavailable: %s", SDL_GetError());
+        SDL_QuitSubSystem(SDL_INIT_AUDIO);
+        return false;
+    }
     SDL_ResumeAudioDevice(mDevice);
     mInitialized = true;
     mMusicInterface = new SDLMusicInterface(this);
@@ -426,8 +485,13 @@ bool SDLSoundManager::Init()
 void SDLSoundManager::Shutdown()
 {
     ReleaseSounds();
-    if (mDevice) { SDL_CloseAudioDevice(mDevice); SDL_QuitSubSystem(SDL_INIT_AUDIO); }
-    mDevice = 0; mInitialized = false;
+    if (mDevice)
+    {
+        SDL_CloseAudioDevice(mDevice);
+        SDL_QuitSubSystem(SDL_INIT_AUDIO);
+    }
+    mDevice = 0;
+    mInitialized = false;
 }
 
 SDLSoundBuffer *SDLSoundManager::DecodeOgg(const void *theData, unsigned int theSize)
@@ -485,7 +549,7 @@ SDLSoundBuffer *SDLSoundManager::DecodeOgg(const void *theData, unsigned int the
     if (aPCM.empty())
         return nullptr;
 
-    return UploadPcm(aChannels, (const unsigned char*)&aPCM[0], (unsigned int)aPCM.size(), aRate, aLength);
+    return UploadPcm(aChannels, (const unsigned char *)&aPCM[0], (unsigned int)aPCM.size(), aRate, aLength);
 }
 
 bool SDLSoundManager::Initialized()
@@ -493,7 +557,7 @@ bool SDLSoundManager::Initialized()
     return mInitialized;
 }
 
-bool SDLSoundManager::LoadSound(unsigned int theSoundId, const String & theFileName)
+bool SDLSoundManager::LoadSound(unsigned int theSoundId, const String &theFileName)
 {
     if (!mInitialized)
         return false;
@@ -508,7 +572,7 @@ bool SDLSoundManager::LoadSound(unsigned int theSoundId, const String & theFileN
     return true;
 }
 
-int SDLSoundManager::LoadSound(const String & theFileName)
+int SDLSoundManager::LoadSound(const String &theFileName)
 {
     int anId = GetFreeSoundId();
     if (anId < 0)
@@ -599,10 +663,7 @@ void SDLSoundManager::ReleaseSounds()
     mBuffers.clear();
 }
 
-void SDLSoundManager::ReleaseChannels()
-{
-
-}
+void SDLSoundManager::ReleaseChannels() {}
 
 double SDLSoundManager::GetMasterVolume()
 {
@@ -612,16 +673,13 @@ double SDLSoundManager::GetMasterVolume()
 void SDLSoundManager::SetMasterVolume(double theVolume)
 {
     mMasterVolume = theVolume;
-    for (SDLSoundInstance* anInstance : mInstances)
+    for (SDLSoundInstance *anInstance : mInstances)
         anInstance->ApplyState();
 }
 
-void SDLSoundManager::Flush()
-{
+void SDLSoundManager::Flush() {}
 
-}
-
-void SDLSoundManager::SetCooperativeWindow(void * theWindow, bool theActive)
+void SDLSoundManager::SetCooperativeWindow(void *theWindow, bool theActive)
 {
 
     (void)theWindow;
@@ -658,7 +716,7 @@ int SDLSoundManager::GetNumSounds()
 void SDLSoundManager::Update()
 {
 
-    for (size_t i = 0; i < mInstances.size(); )
+    for (size_t i = 0; i < mInstances.size();)
     {
         mInstances[i]->IsPlaying();
         if (mInstances[i]->IsReleased())
@@ -704,8 +762,9 @@ void ClearSong(SDLMusicInterface::Song &theSong)
 
 }
 
-SDLMusicInterface::SDLMusicInterface(SDLSoundManager *theManager)
-    : mManager(theManager), mVolume(1.0)
+SDLMusicInterface::SDLMusicInterface(SDLSoundManager *theManager) :
+    mManager(theManager),
+    mVolume(1.0)
 {
 }
 
@@ -714,40 +773,55 @@ SDLMusicInterface::~SDLMusicInterface()
     UnloadAllMusic();
 }
 
-void SDLMusicInterface::ReleaseModule(Song& song)
+void SDLMusicInterface::ReleaseModule(Song &song)
 {
-    if (song.mModule) openmpt_module_ext_destroy(song.mModule);
-    song.mModule = nullptr; song.mModuleBase = nullptr;
+    if (song.mModule)
+        openmpt_module_ext_destroy(song.mModule);
+    song.mModule = nullptr;
+    song.mModuleBase = nullptr;
     song.mChannelGain.clear();
 }
 
-bool SDLMusicInterface::QueueModuleSlice(Song& song)
+bool SDLMusicInterface::QueueModuleSlice(Song &song)
 {
     std::vector<float> frames(size_t(kModuleSliceFrames) * 2);
     size_t rendered = openmpt_module_read_interleaved_float_stereo(
         song.mModuleBase, song.mStreamRate, kModuleSliceFrames, frames.data());
-    if (!rendered) { SDL_FlushAudioStream(song.mStream); return false; }
+    if (!rendered)
+    {
+        SDL_FlushAudioStream(song.mStream);
+        return false;
+    }
     return SDL_PutAudioStreamData(song.mStream, frames.data(), int(rendered * 2 * sizeof(float)));
 }
 
-void SDLMusicInterface::RefillModule(Song& song)
+void SDLMusicInterface::RefillModule(Song &song)
 {
-    if (!song.mStream || !song.mPlaying || song.mPaused) return;
-    while (!song.mFinished && SDL_GetAudioStreamQueued(song.mStream) < kModuleSliceFrames * kModuleQueueDepth * 2 * int(sizeof(float)))
+    if (!song.mStream || !song.mPlaying || song.mPaused)
+        return;
+    while (!song.mFinished &&
+        SDL_GetAudioStreamQueued(song.mStream) < kModuleSliceFrames * kModuleQueueDepth * 2 * int(sizeof(float)))
     {
-        bool queued = song.mModuleBase ? QueueModuleSlice(song) : QueuePcm(song.mStream, *song.mBuffer, song.mCursor, song.mLoop, 0);
-        if (!queued) song.mFinished = true;
+        bool queued = song.mModuleBase ? QueueModuleSlice(song)
+                                       : QueuePcm(song.mStream, *song.mBuffer, song.mCursor, song.mLoop, 0);
+        if (!queued)
+            song.mFinished = true;
     }
-    if (song.mFinished && StreamEmpty(song.mStream)) song.mPlaying = false;
+    if (song.mFinished && StreamEmpty(song.mStream))
+        song.mPlaying = false;
 }
 
-void SDLMusicInterface::EnsureStream(Song& song)
+void SDLMusicInterface::EnsureStream(Song &song)
 {
-    if (!song.mStream) song.mStream = CreateStream(mManager->mDevice, song.mBuffer ? song.mBuffer->mRate : song.mStreamRate);
+    if (!song.mStream)
+        song.mStream = CreateStream(mManager->mDevice, song.mBuffer ? song.mBuffer->mRate : song.mStreamRate);
 }
 
-void SDLMusicInterface::ApplySongGain(Song& song)
-{ if (song.mStream) SDL_SetAudioStreamGain(song.mStream, ToGain(song.mVolume * song.mAmplify * mVolume)); }
+void SDLMusicInterface::ApplySongGain(Song &song)
+{
+    if (song.mStream)
+        SDL_SetAudioStreamGain(song.mStream, ToGain(song.mVolume * song.mAmplify * mVolume));
+}
 
 bool SDLMusicInterface::IsLoaded(int theSongId)
 {
@@ -755,7 +829,7 @@ bool SDLMusicInterface::IsLoaded(int theSongId)
     return it != mSongs.end() && it->second.mLoaded;
 }
 
-bool SDLMusicInterface::LoadMusic(int theSongId, Sexy::String const & theFileName)
+bool SDLMusicInterface::LoadMusic(int theSongId, Sexy::String const &theFileName)
 {
 
     if (mManager == nullptr || !mManager->Initialized())
@@ -770,27 +844,24 @@ bool SDLMusicInterface::LoadMusic(int theSongId, Sexy::String const & theFileNam
     }
 
     Song &aSong = mSongs[theSongId];
-    if (aSong.mStream) SDL_DestroyAudioStream(aSong.mStream);
+    if (aSong.mStream)
+        SDL_DestroyAudioStream(aSong.mStream);
     ReleaseModule(aSong);
     delete aSong.mBuffer;
     aSong.mBuffer = nullptr;
     ClearSong(aSong);
 
-    bool aIsModule = SDL_strcasecmp(aExt.c_str(), ".xm") == 0
-        || SDL_strcasecmp(aExt.c_str(), ".it") == 0
-        || SDL_strcasecmp(aExt.c_str(), ".s3m") == 0
-        || SDL_strcasecmp(aExt.c_str(), ".mod") == 0
-        || SDL_strcasecmp(aExt.c_str(), ".mo3") == 0;
+    bool aIsModule = SDL_strcasecmp(aExt.c_str(), ".xm") == 0 || SDL_strcasecmp(aExt.c_str(), ".it") == 0 ||
+        SDL_strcasecmp(aExt.c_str(), ".s3m") == 0 || SDL_strcasecmp(aExt.c_str(), ".mod") == 0 ||
+        SDL_strcasecmp(aExt.c_str(), ".mo3") == 0;
     if (aIsModule)
     {
         int aError = OPENMPT_ERROR_OK;
         aSong.mModule = openmpt_module_ext_create_from_memory(
-            aBytes.data(), aBytes.size(), nullptr, nullptr, nullptr, nullptr,
-            &aError, nullptr, nullptr);
+            aBytes.data(), aBytes.size(), nullptr, nullptr, nullptr, nullptr, &aError, nullptr, nullptr);
         if (aSong.mModule == nullptr)
         {
-            TOD_WARN("SDLMusicInterface: cannot load module '%s' (%d)",
-                     theFileName.c_str(), aError);
+            TOD_WARN("SDLMusicInterface: cannot load module '%s' (%d)", theFileName.c_str(), aError);
             return false;
         }
         aSong.mModuleBase = openmpt_module_ext_get_module(aSong.mModule);
@@ -825,50 +896,68 @@ bool SDLMusicInterface::LoadMusic(int theSongId, Sexy::String const & theFileNam
 void SDLMusicInterface::PlayMusic(int id, int offset, bool noLoop)
 {
     auto found = mSongs.find(id);
-    if (found == mSongs.end() || !found->second.mLoaded) return;
-    Song& song = found->second;
-    EnsureStream(song); if (!song.mStream) return;
+    if (found == mSongs.end() || !found->second.mLoaded)
+        return;
+    Song &song = found->second;
+    EnsureStream(song);
+    if (!song.mStream)
+        return;
     SDL_ClearAudioStream(song.mStream);
     // SDL streams are linked into their device's binding list. Play can be
     // called again on a running song; bind only after Pause has unbound it.
     if (SDL_GetAudioStreamDevice(song.mStream) == 0 && !SDL_BindAudioStream(mManager->mDevice, song.mStream))
         return;
-    song.mLoop = !noLoop; song.mFadeRate = 0; song.mFinished = false;
-    song.mPlaying = true; song.mPaused = false;
+    song.mLoop = !noLoop;
+    song.mFadeRate = 0;
+    song.mFinished = false;
+    song.mPlaying = true;
+    song.mPaused = false;
     if (song.mModuleBase)
     {
         openmpt_module_set_repeat_count(song.mModuleBase, song.mLoop ? -1 : 0);
-        if (offset >= 0) openmpt_module_set_position_order_row(song.mModuleBase, offset, 0);
+        if (offset >= 0)
+            openmpt_module_set_position_order_row(song.mModuleBase, offset, 0);
     }
     else if (song.mBuffer)
     {
-        if (offset >= 0) song.mCursor = std::min(song.mBuffer->mSamples.size() / song.mBuffer->mChannels,
-            size_t(double(offset) * song.mBuffer->mRate / 1000));
+        if (offset >= 0)
+            song.mCursor = std::min(song.mBuffer->mSamples.size() / song.mBuffer->mChannels,
+                size_t(double(offset) * song.mBuffer->mRate / 1000));
     }
-    ApplySongGain(song); RefillModule(song);
+    ApplySongGain(song);
+    RefillModule(song);
 }
 
 void SDLMusicInterface::StopMusic(int id)
 {
-    auto found = mSongs.find(id); if (found == mSongs.end()) return;
-    Song& song = found->second;
-    if (song.mStream) SDL_ClearAudioStream(song.mStream);
-    song.mPlaying = false; song.mPaused = false; song.mFadeRate = 0;
+    auto found = mSongs.find(id);
+    if (found == mSongs.end())
+        return;
+    Song &song = found->second;
+    if (song.mStream)
+        SDL_ClearAudioStream(song.mStream);
+    song.mPlaying = false;
+    song.mPaused = false;
+    song.mFadeRate = 0;
 }
 
 void SDLMusicInterface::PauseMusic(int id)
 {
     auto found = mSongs.find(id);
-    if (found == mSongs.end() || !found->second.mStream || !found->second.mPlaying) return;
-    SDL_UnbindAudioStream(found->second.mStream); found->second.mPaused = true;
+    if (found == mSongs.end() || !found->second.mStream || !found->second.mPlaying)
+        return;
+    SDL_UnbindAudioStream(found->second.mStream);
+    found->second.mPaused = true;
 }
 
 void SDLMusicInterface::ResumeMusic(int id)
 {
     auto found = mSongs.find(id);
-    if (found == mSongs.end() || !found->second.mStream || !found->second.mPaused) return;
+    if (found == mSongs.end() || !found->second.mStream || !found->second.mPaused)
+        return;
     if (SDL_GetAudioStreamDevice(found->second.mStream) == 0 &&
-        !SDL_BindAudioStream(mManager->mDevice, found->second.mStream)) return;
+        !SDL_BindAudioStream(mManager->mDevice, found->second.mStream))
+        return;
     found->second.mPaused = false;
 }
 
@@ -880,12 +969,21 @@ void SDLMusicInterface::StopAllMusic()
 
 void SDLMusicInterface::UnloadMusic(int id)
 {
-    auto found = mSongs.find(id); if (found == mSongs.end()) return;
-    if (found->second.mStream) SDL_DestroyAudioStream(found->second.mStream);
-    ReleaseModule(found->second); delete found->second.mBuffer; mSongs.erase(found);
+    auto found = mSongs.find(id);
+    if (found == mSongs.end())
+        return;
+    if (found->second.mStream)
+        SDL_DestroyAudioStream(found->second.mStream);
+    ReleaseModule(found->second);
+    delete found->second.mBuffer;
+    mSongs.erase(found);
 }
 
-void SDLMusicInterface::UnloadAllMusic() { while (!mSongs.empty()) UnloadMusic(mSongs.begin()->first); }
+void SDLMusicInterface::UnloadAllMusic()
+{
+    while (!mSongs.empty())
+        UnloadMusic(mSongs.begin()->first);
+}
 
 void SDLMusicInterface::PauseAllMusic()
 {
@@ -932,7 +1030,14 @@ void SDLMusicInterface::FadeOutAll(bool noLoop, double theVolume)
 }
 
 void SDLMusicInterface::SetSongVolume(int id, double volume)
-{ auto found = mSongs.find(id); if (found != mSongs.end()) { found->second.mVolume = volume; ApplySongGain(found->second); } }
+{
+    auto found = mSongs.find(id);
+    if (found != mSongs.end())
+    {
+        found->second.mVolume = volume;
+        ApplySongGain(found->second);
+    }
+}
 
 void SDLMusicInterface::SetSongMaxVolume(int theSongId, double theVolume)
 {
@@ -943,7 +1048,10 @@ void SDLMusicInterface::SetSongMaxVolume(int theSongId, double theVolume)
 }
 
 bool SDLMusicInterface::IsPlaying(int id)
-{ auto found = mSongs.find(id); return found != mSongs.end() && found->second.mPlaying && !found->second.mPaused; }
+{
+    auto found = mSongs.find(id);
+    return found != mSongs.end() && found->second.mPlaying && !found->second.mPaused;
+}
 
 void SDLMusicInterface::SetChannelVolume(int theSongId, int theChannel, float theVolume)
 {
@@ -960,9 +1068,9 @@ void SDLMusicInterface::SetChannelVolume(int theSongId, int theChannel, float th
     aSong.mChannelGain[(size_t)theChannel] = theVolume;
     openmpt_module_ext_interface_interactive aInteractive;
     std::memset(&aInteractive, 0, sizeof(aInteractive));
-    if (openmpt_module_ext_get_interface(aSong.mModule, LIBOPENMPT_EXT_C_INTERFACE_INTERACTIVE,
-                                         &aInteractive, sizeof(aInteractive)) == 0
-        || aInteractive.set_channel_mute_status == nullptr)
+    if (openmpt_module_ext_get_interface(
+            aSong.mModule, LIBOPENMPT_EXT_C_INTERFACE_INTERACTIVE, &aInteractive, sizeof(aInteractive)) == 0 ||
+        aInteractive.set_channel_mute_status == nullptr)
         return;
     aInteractive.set_channel_mute_status(aSong.mModule, theChannel, theVolume <= 0.0f ? 1 : 0);
 }
@@ -998,10 +1106,21 @@ void SDLMusicInterface::SetTempo(int theSongId, int theTempo)
 }
 
 void SDLMusicInterface::SetVolume(double volume)
-{ mVolume = volume; for (auto& entry : mSongs) ApplySongGain(entry.second); }
+{
+    mVolume = volume;
+    for (auto &entry : mSongs)
+        ApplySongGain(entry.second);
+}
 
 void SDLMusicInterface::SetMusicAmplify(int id, double volume)
-{ auto found = mSongs.find(id); if (found != mSongs.end()) { found->second.mAmplify = volume; ApplySongGain(found->second); } }
+{
+    auto found = mSongs.find(id);
+    if (found != mSongs.end())
+    {
+        found->second.mAmplify = volume;
+        ApplySongGain(found->second);
+    }
+}
 
 void SDLMusicInterface::Update()
 {

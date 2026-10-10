@@ -9,14 +9,14 @@ void Sexy::PILayer::SetVisible(bool visible)
     mVisible = visible;
 }
 
-PILayerEmitter * Sexy::PILayer::GetEmitter(int theIndex)
+PILayerEmitter *Sexy::PILayer::GetEmitter(int theIndex)
 {
     if (theIndex < 0 || theIndex >= (int)mEmitters.size())
         return nullptr;
     return &mEmitters[theIndex];
 }
 
-PILayerEmitter * Sexy::PILayer::GetEmitter(Sexy::String const& theName)
+PILayerEmitter *Sexy::PILayer::GetEmitter(Sexy::String const &theName)
 {
     if (mEmitters.empty())
         return nullptr;
@@ -31,8 +31,8 @@ PILayerEmitter * Sexy::PILayer::GetEmitter(Sexy::String const& theName)
     return nullptr;
 }
 
-Sexy::PILayer::PILayer()
-    : mVisible(true)
+Sexy::PILayer::PILayer() :
+    mVisible(true)
 {
     mColor = Sexy::Color::White;
     mTransform.LoadIdentity();

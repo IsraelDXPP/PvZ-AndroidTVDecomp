@@ -2,11 +2,13 @@
 //
 // The vtable holds SliderVal and nothing else, so there is no virtual destructor.
 
-#pragma once
+#ifndef LAWNPROJECTTV_SEXY_INCLUDE_SLIDERLISTENER_H
+#define LAWNPROJECTTV_SEXY_INCLUDE_SLIDERLISTENER_H
 
 #include "ReconTypes.h"
 
-namespace Sexy {
+namespace Sexy
+{
 
 class SliderListener
 {
@@ -17,3 +19,5 @@ public:
 } // namespace Sexy
 
 using Sexy::SliderListener;
+
+#endif // LAWNPROJECTTV_SEXY_INCLUDE_SLIDERLISTENER_H

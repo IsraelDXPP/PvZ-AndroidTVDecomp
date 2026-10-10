@@ -12,9 +12,9 @@
 // ==========================================================================
 HelpTextImageWidget::~HelpTextImageWidget()
 {
-  // The binary's body is the vtable store, ~SharedImageRef(mImage) and
-  // ~Widget(); the first is the compiler's job and the other two are exactly
-  // what an implicit destructor does, so nothing is left to write.
+    // The binary's body is the vtable store, ~SharedImageRef(mImage) and
+    // ~Widget(); the first is the compiler's job and the other two are exactly
+    // what an implicit destructor does, so nothing is left to write.
 }
 
 // ==========================================================================
@@ -23,7 +23,7 @@ HelpTextImageWidget::~HelpTextImageWidget()
 // ==========================================================================
 void HelpTextImageWidget::Draw(Sexy::Graphics *theGraphics)
 {
-  theGraphics->DrawImage(mImage, mX, mY, mWidth, mHeight);
+    theGraphics->DrawImage(mImage, mX, mY, mWidth, mHeight);
 }
 
 // ==========================================================================
@@ -32,7 +32,7 @@ void HelpTextImageWidget::Draw(Sexy::Graphics *theGraphics)
 // ==========================================================================
 HelpTextImageWidget::HelpTextImageWidget()
 {
-  // mImage is the only own member and default-constructs itself; the binary's
-  // explicit call is that construction, and its remaining store clears mClip.
-  mClip = false;
+    // mImage is the only own member and default-constructs itself; the binary's
+    // explicit call is that construction, and its remaining store clears mClip.
+    mClip = false;
 }

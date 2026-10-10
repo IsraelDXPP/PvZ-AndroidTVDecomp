@@ -7,7 +7,8 @@
 #include <cmath>
 #include <cstring>
 
-namespace {
+namespace
+{
 
 float gBezierPointResult[2];
 
@@ -36,7 +37,7 @@ float CubicAccel(float theStart, float theControlA, float theControlB, float the
     return aMid + aEnd * theU;
 }
 
-float PointDistance(const Sexy::TPoint<float>& theA, const Sexy::TPoint<float>& theB)
+float PointDistance(const Sexy::TPoint<float> &theA, const Sexy::TPoint<float> &theB)
 {
     const float aDx = theB.mX - theA.mX;
     const float aDy = theB.mY - theA.mY;
@@ -47,11 +48,11 @@ struct CurveSpan
 {
     int mIndex;
     float mLocal;
-    const float* mTime;
+    const float *mTime;
     float mTimeEnd;
 };
 
-CurveSpan FindSpan(const float* theTimes, int theCount, float theTime)
+CurveSpan FindSpan(const float *theTimes, int theCount, float theTime)
 {
     CurveSpan aSpan;
     aSpan.mIndex = 0;
@@ -73,7 +74,7 @@ CurveSpan FindSpan(const float* theTimes, int theCount, float theTime)
 
     const int aLastSegment = theCount - 2;
     int aIndex = 0;
-    const float* aCursor = theTimes + 2;
+    const float *aCursor = theTimes + 2;
     while (aIndex < aLastSegment)
     {
         ++aIndex;
@@ -92,7 +93,7 @@ CurveSpan FindSpan(const float* theTimes, int theCount, float theTime)
     return aSpan;
 }
 
-void CopyPoint(float* theDest, const float* thePoints, int thePointIndex)
+void CopyPoint(float *theDest, const float *thePoints, int thePointIndex)
 {
     theDest[0] = thePoints[2 * thePointIndex];
     theDest[1] = thePoints[2 * thePointIndex + 1];
@@ -130,7 +131,7 @@ void Sexy::Bezier::Clean()
     mTotalLength = 0.0f;
 }
 
-Sexy::Bezier& Sexy::Bezier::operator=(Sexy::Bezier const& theOther)
+Sexy::Bezier &Sexy::Bezier::operator=(Sexy::Bezier const &theOther)
 {
     if (this == &theOther)
         return *this;
@@ -160,7 +161,7 @@ Sexy::Bezier& Sexy::Bezier::operator=(Sexy::Bezier const& theOther)
     return *this;
 }
 
-Sexy::Bezier::Bezier(Sexy::Bezier const& theOther)
+Sexy::Bezier::Bezier(Sexy::Bezier const &theOther)
 {
     mTimes = nullptr;
     mSegmentLengths = nullptr;
@@ -172,9 +173,9 @@ Sexy::Bezier::Bezier(Sexy::Bezier const& theOther)
     *this = theOther;
 }
 
-float* Sexy::Bezier::Evaluate(float theTime)
+float *Sexy::Bezier::Evaluate(float theTime)
 {
-    float* aResult = gBezierPointResult;
+    float *aResult = gBezierPointResult;
     if (mPointCount <= 1)
     {
         aResult[0] = 0.0f;
@@ -195,17 +196,17 @@ float* Sexy::Bezier::Evaluate(float theTime)
     const CurveSpan aSpan = FindSpan(mTimes, mPointCount, theTime);
     const float aDenom = aSpan.mTimeEnd - *aSpan.mTime;
     const float aU = (aDenom != 0.0f) ? (theTime - *aSpan.mTime) / aDenom : 0.0f;
-    const float* aStart = mPoints + 2 * aSpan.mIndex;
-    const float* aEnd = aStart + 2;
-    const float* aControls = mDerivativePoints + 4 * aSpan.mIndex;
+    const float *aStart = mPoints + 2 * aSpan.mIndex;
+    const float *aEnd = aStart + 2;
+    const float *aControls = mDerivativePoints + 4 * aSpan.mIndex;
     aResult[0] = CubicAt(aStart[0], aControls[0], aControls[2], aEnd[0], aU);
     aResult[1] = CubicAt(aStart[1], aControls[1], aControls[3], aEnd[1], aU);
     return aResult;
 }
 
-float* Sexy::Bezier::Velocity(float theTime, int theClampToEnd)
+float *Sexy::Bezier::Velocity(float theTime, int theClampToEnd)
 {
-    float* aResult = gBezierPointResult;
+    float *aResult = gBezierPointResult;
     if (mPointCount <= 1 || theTime <= mTimes[0] || theTime >= mTimes[mPointCount - 1])
     {
         if (theClampToEnd != 0 && mPointCount > 1)
@@ -222,17 +223,17 @@ float* Sexy::Bezier::Velocity(float theTime, int theClampToEnd)
     const CurveSpan aSpan = FindSpan(mTimes, mPointCount, theTime);
     const float aDenom = aSpan.mTimeEnd - *aSpan.mTime;
     const float aU = (aDenom != 0.0f) ? (theTime - *aSpan.mTime) / aDenom : 0.0f;
-    const float* aStart = mPoints + 2 * aSpan.mIndex;
-    const float* aEnd = aStart + 2;
-    const float* aControls = mDerivativePoints + 4 * aSpan.mIndex;
+    const float *aStart = mPoints + 2 * aSpan.mIndex;
+    const float *aEnd = aStart + 2;
+    const float *aControls = mDerivativePoints + 4 * aSpan.mIndex;
     aResult[0] = CubicSpeed(aStart[0], aControls[0], aControls[2], aEnd[0], aU);
     aResult[1] = CubicSpeed(aStart[1], aControls[1], aControls[3], aEnd[1], aU);
     return aResult;
 }
 
-float* Sexy::Bezier::Acceleration(float theTime)
+float *Sexy::Bezier::Acceleration(float theTime)
 {
-    float* aResult = gBezierPointResult;
+    float *aResult = gBezierPointResult;
     if (mPointCount <= 1)
     {
         aResult[0] = 0.0f;
@@ -253,21 +254,20 @@ float* Sexy::Bezier::Acceleration(float theTime)
     const CurveSpan aSpan = FindSpan(mTimes, mPointCount, theTime);
     const float aDenom = aSpan.mTimeEnd - *aSpan.mTime;
     const float aU = (aDenom != 0.0f) ? (theTime - *aSpan.mTime) / aDenom : 0.0f;
-    const float* aStart = mPoints + 2 * aSpan.mIndex;
-    const float* aEnd = aStart + 2;
-    const float* aControls = mDerivativePoints + 4 * aSpan.mIndex;
+    const float *aStart = mPoints + 2 * aSpan.mIndex;
+    const float *aEnd = aStart + 2;
+    const float *aControls = mDerivativePoints + 4 * aSpan.mIndex;
     aResult[0] = CubicAccel(aStart[0], aControls[0], aControls[2], aEnd[0], aU);
     aResult[1] = CubicAccel(aStart[1], aControls[1], aControls[3], aEnd[1], aU);
     return aResult;
 }
 
-float Sexy::Bezier::SubdivideLength(TPoint<float> const& theStart, TPoint<float> const& theControlA,
-                                    TPoint<float> const& theControlB, TPoint<float> const& theEnd)
+float Sexy::Bezier::SubdivideLength(TPoint<float> const &theStart, TPoint<float> const &theControlA,
+    TPoint<float> const &theControlB, TPoint<float> const &theEnd)
 {
     const float aChord = PointDistance(theStart, theEnd);
-    const float aPolyline = PointDistance(theStart, theControlA)
-                          + PointDistance(theControlA, theControlB)
-                          + PointDistance(theControlB, theEnd);
+    const float aPolyline = PointDistance(theStart, theControlA) + PointDistance(theControlA, theControlB) +
+        PointDistance(theControlB, theEnd);
     const float aError = aChord - aPolyline;
     if (aError * aError < 0.001f)
         return (aPolyline + aChord) * 0.5f;
@@ -278,8 +278,7 @@ float Sexy::Bezier::SubdivideLength(TPoint<float> const& theStart, TPoint<float>
     const TPoint<float> aLeftB = (aLeftA + aMidControl) * 0.5f;
     const TPoint<float> aRightB = (aMidControl + aRightC) * 0.5f;
     const TPoint<float> aMid = (aLeftB + aRightB) * 0.5f;
-    return SubdivideLength(theStart, aLeftA, aLeftB, aMid)
-         + SubdivideLength(aMid, aRightB, aRightC, theEnd);
+    return SubdivideLength(theStart, aLeftA, aLeftB, aMid) + SubdivideLength(aMid, aRightB, aRightC, theEnd);
 }
 
 float Sexy::Bezier::SegmentArcLength(int theSegment, float theStart, float theEnd)
@@ -289,8 +288,8 @@ float Sexy::Bezier::SegmentArcLength(int theSegment, float theStart, float theEn
     return MeasureCurvePiece(this, theSegment, theStart, theEnd);
 }
 
-int Sexy::Bezier::Init(TPoint<float> const* thePoints, TPoint<float> const* theControls,
-                       float const* theTimes, int theCount)
+int Sexy::Bezier::Init(
+    TPoint<float> const *thePoints, TPoint<float> const *theControls, float const *theTimes, int theCount)
 {
     if (mPointCount != 0)
         return 0;
@@ -325,7 +324,7 @@ int Sexy::Bezier::Init(TPoint<float> const* thePoints, TPoint<float> const* theC
     return 1;
 }
 
-int Sexy::Bezier::Init(TPoint<float> const* thePoints, float const* theTimes, int theCount)
+int Sexy::Bezier::Init(TPoint<float> const *thePoints, float const *theTimes, int theCount)
 {
     if (mPointCount != 0)
         return 0;

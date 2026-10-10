@@ -15,13 +15,15 @@
 // shorter than those numbers -- the same note Image.h and NativeDisplay.h carry.
 // This class is only ever called through, never constructed here.
 
-#pragma once
+#ifndef LAWNPROJECTTV_SEXY_INCLUDE_IINPUTDRIVER_H
+#define LAWNPROJECTTV_SEXY_INCLUDE_IINPUTDRIVER_H
 
 #include "ReconTypes.h"
 #include "SexyString.h"
 #include <vector>
 
-namespace Sexy {
+namespace Sexy
+{
 
 class InputManager;
 class InputDriver;
@@ -43,7 +45,7 @@ enum Axis : int
 // value; the rest of the record is the driver's own.
 struct InputAxisInfo
 {
-    int   mCode;
+    int mCode;
     float mValue;
 };
 
@@ -65,45 +67,45 @@ struct DriverAxisSample
 struct InputInfo
 {
     String mName;
-    int    mHasPointer;
-    int    mHasKeys;
-    int    mHasTouch;
-    int    mHasMultiTouch;
-    int    mHasJoystick;
-    int    mDeviceIndex;
+    int mHasPointer;
+    int mHasKeys;
+    int mHasTouch;
+    int mHasMultiTouch;
+    int mHasJoystick;
+    int mDeviceIndex;
 };
 
 class IInputDriver
 {
 public:
-    virtual ~IInputDriver();                                                      //   0
+    virtual ~IInputDriver(); //   0
 
     // The binary branches on r0 after this slot (InputManager::Add @0x3B7C58).
-    virtual int Init() = 0;                                                       //   8
-    virtual void Cleanup() = 0;                                                   //  12
-    virtual void WillStop() = 0;                                                  //  16
-    virtual bool HasEvent() = 0;                                                  //  20
-    virtual bool GetEvent(Event & theEvent) = 0;                                  //  24
-    virtual int Connect() = 0;                                                    //  28
-    virtual int Reconnect() = 0;                                                  //  32
+    virtual int Init() = 0; //   8
+    virtual void Cleanup() = 0; //  12
+    virtual void WillStop() = 0; //  16
+    virtual bool HasEvent() = 0; //  20
+    virtual bool GetEvent(Event &theEvent) = 0; //  24
+    virtual int Connect() = 0; //  28
+    virtual int Reconnect() = 0; //  32
     // InputManager::Update @0x3B7B08 returns whatever this slot leaves in r0.
-    virtual int Update() = 0;                                                     //  36
-    virtual int GetNumDevices() = 0;                                              //  40
-    virtual bool GetInfo(InputInfo & theInfo, int theDevice) = 0;                 //  44
-    virtual bool IsGrabbed() = 0;                                                 //  48
-    virtual void Grab(bool theGrab) = 0;                                          //  52
-    virtual bool GetProperty(const String & theName, void * theValue) = 0;        //  56
-    virtual bool IsEnabled() = 0;                                                 //  60
-    virtual void Enable(bool theEnable) = 0;                                      //  64
-    virtual int GetNumAxes(int theDevice) = 0;                                    //  68
-    virtual bool GetAxisInfo(Axis theAxis, InputAxisInfo & theInfo,
-                             int theDevice) = 0;                                  //  72
-    virtual bool GetAxisInfo(std::vector<InputAxisInfo> & theInfos,
-                             int theDevice) = 0;                                  //  76
+    virtual int Update() = 0; //  36
+    virtual int GetNumDevices() = 0; //  40
+    virtual bool GetInfo(InputInfo &theInfo, int theDevice) = 0; //  44
+    virtual bool IsGrabbed() = 0; //  48
+    virtual void Grab(bool theGrab) = 0; //  52
+    virtual bool GetProperty(const String &theName, void *theValue) = 0; //  56
+    virtual bool IsEnabled() = 0; //  60
+    virtual void Enable(bool theEnable) = 0; //  64
+    virtual int GetNumAxes(int theDevice) = 0; //  68
+    virtual bool GetAxisInfo(Axis theAxis, InputAxisInfo &theInfo,
+        int theDevice) = 0; //  72
+    virtual bool GetAxisInfo(std::vector<InputAxisInfo> &theInfos,
+        int theDevice) = 0; //  76
 
     // The almanac scroll re-reads the held stick. The default is a centred
     // stick so a driver with no axes stops the scroll.
-    virtual void GetAxisSample(int theDevice, DriverAxisSample & theSample, int theUnused)
+    virtual void GetAxisSample(int theDevice, DriverAxisSample &theSample, int theUnused)
     {
         (void)theDevice;
         (void)theUnused;
@@ -113,15 +115,17 @@ public:
 
     // InputManager::Add @0x3B7C48 writes these two words into the driver object.
     // They sit after the vptr; the rest of the object is the concrete driver's.
-    int mSlot;                                                                    // +0x08
-    int mPad0C;                                                                   // +0x0C
-    InputDriver *mOwner;                                                          // +0x10
+    int mSlot; // +0x08
+    int mPad0C; // +0x0C
+    InputDriver *mOwner; // +0x10
 };
 
 } // namespace Sexy
 
 // The global spellings, which the transcribed bodies use.
-using Sexy::IInputDriver;
-using Sexy::InputInfo;
-using Sexy::InputAxisInfo;
 using Sexy::Axis;
+using Sexy::IInputDriver;
+using Sexy::InputAxisInfo;
+using Sexy::InputInfo;
+
+#endif // LAWNPROJECTTV_SEXY_INCLUDE_IINPUTDRIVER_H

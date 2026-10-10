@@ -12,13 +12,14 @@
 
 #include <cstdio>
 
-namespace {
+namespace
+{
 
 // The three packs BuyMoney names pvz50 / pvz100 / pvz200. The granted counts
 // are LawnApp::setItemToCoinItems' mGetCoin column.
-const int kPackCoins[3] = { 5, 10, 20 };
+const int kPackCoins[3] = {5, 10, 20};
 
-int CoinsForProduct(const Sexy::String& theProductId)
+int CoinsForProduct(const Sexy::String &theProductId)
 {
     if (theProductId == "pvz50")
         return kPackCoins[0];
@@ -47,7 +48,7 @@ void CreditCoins(int theCoins)
     if (theCoins <= 0)
         return;
 
-    LawnUser* aUser = LawnUser::getCurUser();
+    LawnUser *aUser = LawnUser::getCurUser();
     if (aUser == nullptr)
         return;
 
@@ -60,45 +61,37 @@ void CreditCoins(int theCoins)
 
 } // namespace
 
-const char* Sexy::FixedGameCenterUserId()
+const char *Sexy::FixedGameCenterUserId()
 {
     return "LawnPlayer";
 }
 
-const char* Sexy::FixedGameCenterUserName()
+const char *Sexy::FixedGameCenterUserName()
 {
     return "LawnPlayer";
 }
 
-Sexy::LocalGameCenter::LocalGameCenter()
-    : mName(FixedGameCenterUserName()),
-      mListener(nullptr),
-      mPlatformCallback(nullptr),
-      mUserId(FixedGameCenterUserId()),
-      mSessionId("local"),
-      mLoggedIn(true),
-      mQuerying(false),
-      mPurchasing(false)
+Sexy::LocalGameCenter::LocalGameCenter() :
+    mName(FixedGameCenterUserName()),
+    mListener(nullptr),
+    mPlatformCallback(nullptr),
+    mUserId(FixedGameCenterUserId()),
+    mSessionId("local"),
+    mLoggedIn(true),
+    mQuerying(false),
+    mPurchasing(false)
 {
     mPendingHead = &mPendingHead;
     mPendingTail = &mPendingHead;
 }
 
-Sexy::LocalGameCenter::~LocalGameCenter()
-{
-}
+Sexy::LocalGameCenter::~LocalGameCenter() {}
 
-void Sexy::LocalGameCenter::Update()
-{
-}
+void Sexy::LocalGameCenter::Update() {}
 
-void Sexy::LocalGameCenter::Pause()
-{
-}
+void Sexy::LocalGameCenter::Pause() {}
 
-void Sexy::LocalGameCenter::Resume()
-{
-}
+void Sexy::LocalGameCenter::Resume() {}
 
 // Purchase is local and unlimited. Exit stays with the game's quit dialog.
 bool Sexy::LocalGameCenter::HasFeature(Feature theFeature)
@@ -108,13 +101,11 @@ bool Sexy::LocalGameCenter::HasFeature(Feature theFeature)
     return theFeature == FEATURE_PURCHASE;
 }
 
-void Sexy::LocalGameCenter::Show(Sexy::String const&)
-{
-}
+void Sexy::LocalGameCenter::Show(Sexy::String const &) {}
 
 // Every pack succeeds. Coins land on the current user before the listener
 // hears about it, so BuyMoney's later balance poll sees the new amount.
-int Sexy::LocalGameCenter::Purchase(Payment const& thePayment)
+int Sexy::LocalGameCenter::Purchase(Payment const &thePayment)
 {
     CreditCoins(CoinsForProduct(thePayment.mProductId));
     if (mListener != nullptr)
@@ -145,14 +136,14 @@ Sexy::String Sexy::LocalGameCenter::getUserName()
 void Sexy::LocalGameCenter::Init()
 {
     mLoggedIn = true;
-    LawnUser* aUser = LawnUser::getCurUser();
+    LawnUser *aUser = LawnUser::getCurUser();
     if (aUser != nullptr)
         aUser->mAccount = mUserId;
     if (mListener != nullptr)
         mListener->onLogin();
 }
 
-int Sexy::LocalGameCenter::SetListener(Listener* theListener)
+int Sexy::LocalGameCenter::SetListener(Listener *theListener)
 {
     mListener = theListener;
     if (mListener != nullptr && mLoggedIn)

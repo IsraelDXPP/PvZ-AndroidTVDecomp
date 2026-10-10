@@ -9,7 +9,8 @@
 // implementation forwards to the platform's equivalent, because that is what
 // the binary was linked against.
 
-#pragma once
+#ifndef LAWNPROJECTTV_SEXY_INCLUDE_RECONHELPERS_H
+#define LAWNPROJECTTV_SEXY_INCLUDE_RECONHELPERS_H
 
 #include "SexyTypes.h"
 #include "CoreTypes.h"
@@ -26,17 +27,17 @@
 // StrFormat(dest, format, ...) -- sprintf into a Sexy::String.
 // Returns the number of characters written.
 // ---------------------------------------------------------------------------
-int StrFormat(Sexy::String* theDest, const char* theFormat, ...);
+int StrFormat(Sexy::String *theDest, const char *theFormat, ...);
 
 // StringToInt(dest, text) -- parse an integer and also store the source text.
-int StringToInt(Sexy::String* theDest, const char* theText);
+int StringToInt(Sexy::String *theDest, const char *theText);
 
 // GetAppDataFolder(dest) -- the app's writable directory, as a string.
-int GetAppDataFolder(Sexy::String* theDest);
+int GetAppDataFolder(Sexy::String *theDest);
 
 namespace Sexy
 {
-void SetAppDataFolder(const Sexy::String& thePath);
+void SetAppDataFolder(const Sexy::String &thePath);
 }
 
 // ---------------------------------------------------------------------------
@@ -46,28 +47,28 @@ void SetAppDataFolder(const Sexy::String& thePath);
 // binary writes its trace lines through. The return value is the character
 // count, which some call sites store.
 // ---------------------------------------------------------------------------
-int p_addResource(const char* thePath, const char* theKind, int thePriority);
+int p_addResource(const char *thePath, const char *theKind, int thePriority);
 
-int logfi(const char* theFormat, ...);
-int logfd(const char* theFormat, ...);
-int logfe(const char* theFormat, ...);
+int logfi(const char *theFormat, ...);
+int logfd(const char *theFormat, ...);
+int logfe(const char *theFormat, ...);
 
 // ---------------------------------------------------------------------------
 // SMemW(dest, source, count, limit) -- copy a C string into a byte buffer.
 // theCount is the element size and theLimit is the destination capacity.
 // ---------------------------------------------------------------------------
-int SMemW(char* theDest, const char* theSource, int theCount, int theLimit);
+int SMemW(char *theDest, const char *theSource, int theCount, int theLimit);
 
 // Framework file helpers use SDL streams and UTF-8 paths on every platform.
 // Read/write counts remain in complete elements, as in the original stdio API.
-size_t p_fread(void* theBuffer, size_t theSize, size_t theCount, SDL_IOStream* theStream);
-size_t p_fwrite(const void* theBuffer, size_t theSize, size_t theCount, SDL_IOStream* theStream);
-int p_fgetc(SDL_IOStream* theStream);
-char* p_fgets(char* theBuffer, int theCapacity, SDL_IOStream* theStream);
-int p_feof(SDL_IOStream* theStream);
+size_t p_fread(void *theBuffer, size_t theSize, size_t theCount, SDL_IOStream *theStream);
+size_t p_fwrite(const void *theBuffer, size_t theSize, size_t theCount, SDL_IOStream *theStream);
+int p_fgetc(SDL_IOStream *theStream);
+char *p_fgets(char *theBuffer, int theCapacity, SDL_IOStream *theStream);
+int p_feof(SDL_IOStream *theStream);
 
 // qmemcpy -- the compiler's inlined memcpy that IDA printed by name.
-inline void* qmemcpy(void* theDest, const void* theSource, size_t theCount)
+inline void *qmemcpy(void *theDest, const void *theSource, size_t theCount)
 {
     return memcpy(theDest, theSource, theCount);
 }
@@ -97,9 +98,10 @@ inline void* qmemcpy(void* theDest, const void* theSource, size_t theCount)
 // zero-argument form is the generator's own draw; the int and float forms
 // scale it into [0, theRange). The double overload exists only so a bare
 // `Rand(1.7)` resolves instead of being ambiguous between int and float.
-namespace Sexy {
+namespace Sexy
+{
 int Rand();
-int Rand(void* theObject, int theRange);
+int Rand(void *theObject, int theRange);
 int Rand(int theRange);
 float Rand(float theRange);
 float Rand(double theRange);
@@ -111,11 +113,11 @@ using Sexy::Rand;
 // _ZN4Sexy5UpperERKSs @0x2fb5ac -- the uppercase counterpart of Lower above,
 // same sret shape (r0 = the caller's result buffer). ResourceManager.cpp calls
 // it by this name and no header declared it.
-int Upper(Sexy::String* theDest, const Sexy::String* theSource);
+int Upper(Sexy::String *theDest, const Sexy::String *theSource);
 
 // Trim -- the third sibling of Upper/Lower, same sret shape. PIEffect.cpp is
 // its only caller in this tree and had to declare it file-locally.
-int Trim(Sexy::String* theDest, const Sexy::String* theSource);
+int Trim(Sexy::String *theDest, const Sexy::String *theSource);
 
 // _ZN4Sexy13CommaSeperateEi @0x2fbe2c -- "1,234,567" formatting, called from
 // LawnApp::GetMoneyString and SexyAppBase's memory dump. Returns a string BY
@@ -126,15 +128,14 @@ Sexy::String CommaSeperate(int theValue);
 // the framework's locale accessors. The bodies call them by these names and the
 // tree declared neither. The Windows platform layer maps them onto the CRT
 // locale, which is the same contract.
-const char* SexyGetLocaleEncoding();
-int         SexySetLocaleEncoding(const char* theEncoding);
+const char *SexyGetLocaleEncoding();
+int SexySetLocaleEncoding(const char *theEncoding);
 
 // abs32 -- IDA's 32-bit absolute-value builtin. Challenge.cpp and Board.cpp
 // both hit it; without a definition the parser reads `abs32(x)` as an unknown
 // function. The template keeps the operand's own type, so it works for both the
 // signed and unsigned forms the dumps use.
-template <class T>
-inline T abs32(T theValue)
+template <class T> inline T abs32(T theValue)
 {
     return theValue < (T)0 ? (T)-theValue : theValue;
 }
@@ -146,29 +147,29 @@ inline T abs32(T theValue)
 // form and the platform's ANSI form. Each is a real function in the binary; the
 // bodies call them by these names.
 // ---------------------------------------------------------------------------
-void  StringToWString(Sexy::String* theDest, const char* theSource);
-void  StringToWStringFast(Sexy::String* theDest, const char* theSource);
-void  StringToSexyString(Sexy::String* theDest, const char* theSource);
-void  WStringToString(Sexy::String* theDest, const wchar_t* theSource);
+void StringToWString(Sexy::String *theDest, const char *theSource);
+void StringToWStringFast(Sexy::String *theDest, const char *theSource);
+void StringToSexyString(Sexy::String *theDest, const char *theSource);
+void WStringToString(Sexy::String *theDest, const wchar_t *theSource);
 // Sexy::WStringToStringFast @0x2fa3ec (140 bytes) -- same conversion as
 // WStringToString, taking the caller's already-widened buffer.
-void  WStringToStringFast(Sexy::String* theDest, const wchar_t* theSource);
-void  WStringFrom(Sexy::String* theDest, const wchar_t* theSource);
-int   StringToInt(const char* theText);
+void WStringToStringFast(Sexy::String *theDest, const wchar_t *theSource);
+void WStringFrom(Sexy::String *theDest, const wchar_t *theSource);
+int StringToInt(const char *theText);
 
 // _ZN4Sexy14StringToDoubleE... -- two symbols, @0x2faa90 (228 bytes) and
 // @0x2fd358 (102 bytes). PopAnim.cpp calls it with the text and the destination.
 // Both parameters stay `void*` because the call sites pass a
 // Sexy::String* and either a double* or an int* depending on the overload.
-int   StringToDouble(void* theText, void* theDest);
-void  StringToLower(Sexy::String* theDest, const char* theSource);
-void  StringToUpper(Sexy::String* theDest, const char* theSource);
-void  XMLEncodeString(Sexy::String* theDest, const char* theSource);
-void  XMLDecodeString(Sexy::String* theDest, const char* theSource);
+int StringToDouble(void *theText, void *theDest);
+void StringToLower(Sexy::String *theDest, const char *theSource);
+void StringToUpper(Sexy::String *theDest, const char *theSource);
+void XMLEncodeString(Sexy::String *theDest, const char *theSource);
+void XMLDecodeString(Sexy::String *theDest, const char *theSource);
 // Copy theCount bytes from the definition-cache cursor and advance it.
 // theLimit is unused; it stays so older three-argument calls still match.
-int   SMemR(unsigned char** theCursor, void* theDest, int theCount, int theLimit = 0);
-int   SMemWStr(char* theDest, const char* theSource, int theLimit);
+int SMemR(unsigned char **theCursor, void *theDest, int theCount, int theLimit = 0);
+int SMemWStr(char *theDest, const char *theSource, int theLimit);
 
 // The two-argument string-member forms. ImageFont.cpp calls SMemRStr seven times
 // and SMemWStr twice and had to define them file-locally because only the
@@ -177,26 +178,26 @@ int   SMemWStr(char* theDest, const char* theSource, int theLimit);
 //   _ZN4Sexy9SMemWStrE...              -- write a string member
 // Both copy the source string into the destination slot; the destination is a
 // `Sexy::String*` in this tree's spelling.
-int   SMemRStr(Sexy::String* theDest, const Sexy::String* theSource);
-int   SMemWStr(Sexy::String* theDest, const Sexy::String* theSource);
+int SMemRStr(Sexy::String *theDest, const Sexy::String *theSource);
+int SMemWStr(Sexy::String *theDest, const Sexy::String *theSource);
 
 // The remaining conversions and string utilities the bodies call by name.
 // `Sexy::ToString` and `Sexy::SexyWStringToString` both copy a string through
 // a destination slot; `GetPathFrom` splits a path; `logtfe` is the framework's
 // formatted trace in the "file, line" style.
-void  ToString(Sexy::String* theDest, const Sexy::String* theSource);
-void  SexyWStringToString(Sexy::String* theDest, const Sexy::String* theSource);
-void  ToWString(Sexy::String* theDest, const Sexy::String* theSource);
-void  ToSexyString(Sexy::String* theDest, const Sexy::String* theSource);
-void  GetPathFrom(Sexy::String* theOut, Sexy::String* theFirst, Sexy::String* theSecond);
-int   logtfe(const Sexy::String& theFormat, const char* theFile, ...);
+void ToString(Sexy::String *theDest, const Sexy::String *theSource);
+void SexyWStringToString(Sexy::String *theDest, const Sexy::String *theSource);
+void ToWString(Sexy::String *theDest, const Sexy::String *theSource);
+void ToSexyString(Sexy::String *theDest, const Sexy::String *theSource);
+void GetPathFrom(Sexy::String *theOut, Sexy::String *theFirst, Sexy::String *theSecond);
+int logtfe(const Sexy::String &theFormat, const char *theFile, ...);
 // Notepad-style directory creation, which the resource loader calls.
-int   MkDir(const char* thePath);
-int   MkDir(const Sexy::String& thePath);
-int   MkDir(const Sexy::String* thePath);
+int MkDir(const char *thePath);
+int MkDir(const Sexy::String &thePath);
+int MkDir(const Sexy::String *thePath);
 // The string-to-int conversion the binary exports: the text arrives by value
 // and the parsed number is written through the pointer.
-int   StringToInt(Sexy::String theText, int* theDest);
+int StringToInt(Sexy::String theText, int *theDest);
 
 // ---------------------------------------------------------------------------
 // The SharedImageRef helpers.
@@ -209,54 +210,55 @@ int   StringToInt(Sexy::String theText, int* theDest);
 // SharedImageRef is only forward-declared here. Including its header would
 // close a cycle, so the definitions in ReconHelpers.cpp include that header.
 // ---------------------------------------------------------------------------
-namespace Sexy {
+namespace Sexy
+{
 class SharedImageRef;
 class Image;
 } // namespace Sexy
 
-int   SharedImageRefAssign(Sexy::SharedImageRef* theDest, const Sexy::SharedImageRef* theSource);
-Sexy::Image* SharedImageRefImage(const Sexy::SharedImageRef* theRef);
+int SharedImageRefAssign(Sexy::SharedImageRef *theDest, const Sexy::SharedImageRef *theSource);
+Sexy::Image *SharedImageRefImage(const Sexy::SharedImageRef *theRef);
 
 // Find a string in a half-open range. Returns theEnd when the value is absent.
-Sexy::String* FindInStringVector(Sexy::String* theBegin, Sexy::String* theEnd, const Sexy::String* theValue);
+Sexy::String *FindInStringVector(Sexy::String *theBegin, Sexy::String *theEnd, const Sexy::String *theValue);
 
 // The framework's own file helpers the bodies call.
-int   p_fseek(SDL_IOStream* theStream, long theOffset, int theOrigin);
-SDL_IOStream* p_fopen(const char* thePath, const char* theMode);
-int   p_fclose(SDL_IOStream* theStream);
-long  p_ftell(SDL_IOStream* theStream);
+int p_fseek(SDL_IOStream *theStream, long theOffset, int theOrigin);
+SDL_IOStream *p_fopen(const char *thePath, const char *theMode);
+int p_fclose(SDL_IOStream *theStream);
+long p_ftell(SDL_IOStream *theStream);
 // _ZN4Sexy10GetFileDirERKSsb -- GetFileDir(dest, path, bool). The path is a
 // Sexy::String, so call sites pass a pointer to that object. The two trailing
 // parameters are the transcription's leftovers and stay defaulted so the
 // existing four-argument call sites keep compiling.
-int   GetFileDir(Sexy::String* theDest, const void* thePath,
-                 int theUnused = 0, int theAlsoUnused = 0);
+int GetFileDir(Sexy::String *theDest, const void *thePath, int theUnused = 0, int theAlsoUnused = 0);
 
 // Two more Sexy:: helpers ResourceManager.cpp calls and no header declared.
 // Both are sret-shaped (a destination string plus the source):
 //   Sexy::logtfd / Sexy::RemoveTrailingSlash
 // logtfd is the "file, line" formatted trace the resource loader emits while
 // resolving a path; RemoveTrailingSlash trims '/' and '\\' off the end.
-int   logtfd(const char* theFormat, ...);
-void  RemoveTrailingSlash(Sexy::String* thePath);
+int logtfd(const char *theFormat, ...);
+void RemoveTrailingSlash(Sexy::String *thePath);
 // _ZN4Sexy5LowerERKSs @0x2fb638 and _ZN4Sexy11GetFileNameERKSsb @0x2faee8.
 // Both RETURN A STRING BY VALUE (sret in r0), which is why the bodies write
 // `Lower(&dest, &src)` and `GetFileName(&dest, &name, theFlag)`. Several files
 // (PopAnim, ResourceManager, RenderEffectDefinition, Mailbox) call them and no
 // header declared them.
-int   Lower(Sexy::String* theDest, const Sexy::String* theSource);
-int   GetFileName(Sexy::String* theDest, const Sexy::String* theName, int theFlag);
+int Lower(Sexy::String *theDest, const Sexy::String *theSource);
+int GetFileName(Sexy::String *theDest, const Sexy::String *theName, int theFlag);
 // Checked memcpy: reports a length that would run past the destination.
-void* ReconMemcpyChecked(void* theDest, const void* theSource, unsigned int theCount, void* theCaller);
+void *ReconMemcpyChecked(void *theDest, const void *theSource, unsigned int theCount, void *theCaller);
 
 // Sexy::GetEnvOption @0x2fb9f4 (_ZN4Sexy12GetEnvOptionEPKcb).
 // Missing or unrecognized values return theDefault as 0 or 1. The recognized
 // spellings are "1"/"yes"/"true"/"True" and "0"/"no"/"false"/"False".
-namespace Sexy {
-int GetEnvOption(const char* theName, bool theDefault);
+namespace Sexy
+{
+int GetEnvOption(const char *theName, bool theDefault);
 }
-const char* GetNameString(int theId);
-void  BuildLine(Sexy::String* theDest, const char* theSource, int theWidth);
+const char *GetNameString(int theId);
+void BuildLine(Sexy::String *theDest, const char *theSource, int theWidth);
 
 // ---------------------------------------------------------------------------
 // Case-insensitive comparisons use SDL's portable implementations.
@@ -274,29 +276,27 @@ void  BuildLine(Sexy::String* theDest, const char* theSource, int theWidth);
 // prints the calls to them verbatim; each is provided with the semantics the
 // original has. Implementations are in CxxRuntime.cpp.
 // ---------------------------------------------------------------------------
-extern "C" int   CxaGuardAcquire(int* theGuard);
-extern "C" void  CxaGuardRelease(int* theGuard);
-extern "C" void* CxaAllocateException(size_t theSize);
-extern "C" void  CxaFreeException(void* theException);
+extern "C" int CxaGuardAcquire(int *theGuard);
+extern "C" void CxaGuardRelease(int *theGuard);
+extern "C" void *CxaAllocateException(size_t theSize);
+extern "C" void CxaFreeException(void *theException);
 // The third argument is the destructor the binary registers. Callers pass a
 // thunk that already takes the object pointer, so the parameter is a template
 // rather than `void (*)(void *)`. This port does not invoke it: the throw
 // terminates, the same as CxxRuntime.cpp used to do.
-template <class T>
-inline void CxaThrow(void* theException, void* /*theTypeInfo*/,
-                     void (* /*theDestructor*/)(T*))
+template <class T> inline void CxaThrow(void *theException, void * /*theTypeInfo*/, void (* /*theDestructor*/)(T *))
 {
-    const char* aWhat = "unhandled C++ exception from libGameMain";
+    const char *aWhat = "unhandled C++ exception from libGameMain";
     if (theException != nullptr)
     {
-        void** aVtable = *static_cast<void ***>(theException);
+        void **aVtable = *static_cast<void ***>(theException);
         if (aVtable != nullptr && aVtable[1] != nullptr)
         {
-            typedef const char* (*WhatFn)(void*);
+            typedef const char *(*WhatFn)(void *);
             WhatFn aWhatFn = nullptr;
-            void* aEntry = aVtable[1];
+            void *aEntry = aVtable[1];
             std::memcpy(&aWhatFn, &aEntry, sizeof(aWhatFn));
-            const char* aMsg = aWhatFn(theException);
+            const char *aMsg = aWhatFn(theException);
             if (aMsg != nullptr)
                 aWhat = aMsg;
         }
@@ -305,10 +305,11 @@ inline void CxaThrow(void* theException, void* /*theTypeInfo*/,
     fflush(stderr);
     abort();
 }
-extern "C" void* CxaBeginCatch(void* theException);
-extern "C" void  CxaEndCatch();
+extern "C" void *CxaBeginCatch(void *theException);
+extern "C" void CxaEndCatch();
 
-namespace Sexy {
+namespace Sexy
+{
 
 // The bodies sometimes spell these framework helpers with a `Sexy::` prefix,
 // because that is the namespace they really live in in the binary (the mangled
@@ -317,18 +318,18 @@ namespace Sexy {
 // resolve to the same function instead of two declarations that never meet.
 using ::StrFormat;
 
-namespace StringHelpers {
+namespace StringHelpers
+{
 
-void    _M_leak_hard(String* theString);
-void    _M_leak_hard(String** theString);
-void    _M_mutate(String* theString, unsigned int thePos,
-                  unsigned int theLen1, unsigned int theLen2);
-int     _M_is_leaked(const String* theString);
-int     _M_is_shared(const String* theString);
-void    _M_set_leaked(String* theString);
-void    _M_set_sharable(String* theString);
-String* _S_construct(String* theResult, const char* theData, unsigned int theLength);
-String* _S_create(String* theResult, unsigned int theLength);
+void _M_leak_hard(String *theString);
+void _M_leak_hard(String **theString);
+void _M_mutate(String *theString, unsigned int thePos, unsigned int theLen1, unsigned int theLen2);
+int _M_is_leaked(const String *theString);
+int _M_is_shared(const String *theString);
+void _M_set_leaked(String *theString);
+void _M_set_sharable(String *theString);
+String *_S_construct(String *theResult, const char *theData, unsigned int theLength);
+String *_S_create(String *theResult, unsigned int theLength);
 
 } // namespace StringHelpers
 
@@ -347,7 +348,6 @@ String* _S_create(String* theResult, unsigned int theLength);
 // ---------------------------------------------------------------------------
 #include "Thread.h"
 
-
 // ---------------------------------------------------------------------------
 // Late additions reported by the file agents. Each of these was a symbol the
 // bodies call by name that no header declared, so individual .cpp files had to
@@ -358,21 +358,22 @@ String* _S_create(String* theResult, unsigned int theLength);
 // `Sexy::Upper`, which did not resolve. Naming it here fixes both spellings.
 using ::Upper;
 
-namespace Sexy {
+namespace Sexy
+{
 
 // _ZN4Sexy9setLocaleEPvPKc @0x3bc0a0 (18 bytes) -- install a locale by name.
-const char* setLocale(void* theCategory, const char* theName);
+const char *setLocale(void *theCategory, const char *theName);
 
 // _ZN4Sexy19SexyStringToStringE... @0x2fa87c (12 bytes) -- the narrow-string
 // copy. The dumps pass the source as a raw word (usually a map lookup's
 // result), so it stays `unsigned int` here and callers holding a Sexy::String*
 // cast it.
-void SexyStringToString(void* theDest, unsigned int theSource);
+void SexyStringToString(void *theDest, unsigned int theSource);
 
 // _ZN4Sexy20SWTri_AddDrawTriFuncE... @0x3ab6e4 (106 bytes) -- register a
 // software triangle batch with the renderer. LawnApp::Init primes it.
-int SWTri_AddDrawTriFunc(int theFormat, int theTexMode, int theAlphaMode,
-                         int theModMode, int theGlobalMode, int theBlendMode, int (*theFunc)());
+int SWTri_AddDrawTriFunc(int theFormat, int theTexMode, int theAlphaMode, int theModMode, int theGlobalMode,
+    int theBlendMode, int (*theFunc)());
 
 // _ZN4Sexy44DrawTriangle_8888_TEX1_TALPHA1_MOD0_GLOB0_BLEND1E... @0x369e2c
 // (5504 bytes) -- the 32-bit software rasteriser the batcher binds to. One
@@ -387,22 +388,21 @@ extern int gResourceManagerInfo;
 // RemoveTrailingSlash(dest, src) -- the two-argument form the resource loader
 // uses (the one-argument version further up writes in place). Declared here so
 // ResourceManager's local copy can go away.
-void RemoveTrailingSlash(Sexy::String* theDest, const void* theSource);
+void RemoveTrailingSlash(Sexy::String *theDest, const void *theSource);
 
 // _ZN4Sexy10DividePolyE... @0x40f4f8 (726 bytes) -- the polygon splitter the
 // particle engine's geometry path calls. PIEffect.cpp is its only caller in
 // this tree and had to declare it file-locally.
 // The call site passes the polygon, a source word, a scratch buffer, a
 // vertex cap, and the output record.
-int DividePoly(void* thePolygon, void* theSource, void* theScratch, int theMaxPoints, void* theOut);
+int DividePoly(void *thePolygon, void *theSource, void *theScratch, int theMaxPoints, void *theOut);
 
 // std::map<K,V>::operator[] spelled the static way in the dumps
 // (`std::map<K,V>::operator[](mapObj, key)`). Several files carried their own
 // helper for it; this is the shared one.
-template <class K, class V>
-inline V& MapAt(void* theMap, const K& theKey)
+template <class K, class V> inline V &MapAt(void *theMap, const K &theKey)
 {
-    return (*static_cast<std::map<K, V>*>(theMap))[theKey];
+    return (*static_cast<std::map<K, V> *>(theMap))[theKey];
 }
 
 // Three more Sexy:: helpers SexyAppBase.cpp calls and no header declared:
@@ -417,15 +417,15 @@ inline V& MapAt(void* theMap, const K& theKey)
 //   i.e. it RETURNS A STRING BY VALUE (r0 = the caller's result buffer, which
 //   is also the receiver here). The earlier `const char* GetResourcesFolder(void)`
 //   guess was wrong and every call site passes one argument.
-int GetResourcesFolder(Sexy::String* theDest);
+int GetResourcesFolder(Sexy::String *theDest);
 //   _ZN4Sexy15GetEnvIntOptionE... @0x2fba90 (22 bytes) -- read an environment
 //   variable as a decimal integer, falling back to theDefault when absent.
-int GetEnvIntOption(const char* theName, int theDefault);
+int GetEnvIntOption(const char *theName, int theDefault);
 //   _ZN4Sexy9DebugInitEii @0x3b9bdc -- TWO parameters, not one.
 int DebugInit(int theMode, int theFlags);
 //   _ZN4Sexy24SWTri_AddAllDrawTriFuncsE... @0x3ab754 (1286 bytes) -- fills the
 //   software-rasteriser function table. One argument.
-int SWTri_AddAllDrawTriFuncs(void* theTable);
+int SWTri_AddAllDrawTriFuncs(void *theTable);
 
 // Sexy::Ratio -- a CLASS in the binary, not a function:
 //   _ZN4Sexy5RatioC2Ev   @0x409c94  -> Ratio(void), sets the first word to 1
@@ -446,3 +446,5 @@ public:
 // point would be a use before definition.
 
 } // namespace Sexy
+
+#endif // LAWNPROJECTTV_SEXY_INCLUDE_RECONHELPERS_H

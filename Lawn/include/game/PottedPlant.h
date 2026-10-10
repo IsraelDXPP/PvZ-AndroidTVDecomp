@@ -17,7 +17,8 @@
 // bitfield word packs everything up to mFeedingsPerGrow, then four ints hold
 // the timestamps.
 
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_POTTEDPLANT_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_POTTEDPLANT_H
 
 #include "ReconTypes.h"
 
@@ -31,25 +32,27 @@ public:
     };
 
     // The leading bitfield word, +0x00..+0x03.
-    SeedType       mSeedType : 7;      // bits 0..6
-    FacingDirection mFacing : 1;       // bit 7
-    GardenType     mWhichZenGarden : 2; // bits 8..9
-    unsigned int   mY : 2;             // bits 10..11, rows 0..3
-    unsigned int   mDrawVariation : 4; // bits 12..15 (DrawVariation, 4 bits)
-    unsigned int   mX : 3;             // bits 16..18, columns 0..7
-    PottedPlantNeed mPlantNeed : 3;    // bits 19..21
-    PottedPlantAge mPlantAge : 2;      // bits 22..23
-    unsigned int   mTimesFed : 3;      // bits 24..26
-    unsigned int   mFeedingsPerGrow : 3; // bits 27..29
-    unsigned int   : 2;                // bits 30..31
+    SeedType mSeedType : 7; // bits 0..6
+    FacingDirection mFacing : 1; // bit 7
+    GardenType mWhichZenGarden : 2; // bits 8..9
+    unsigned int mY : 2; // bits 10..11, rows 0..3
+    unsigned int mDrawVariation : 4; // bits 12..15 (DrawVariation, 4 bits)
+    unsigned int mX : 3; // bits 16..18, columns 0..7
+    PottedPlantNeed mPlantNeed : 3; // bits 19..21
+    PottedPlantAge mPlantAge : 2; // bits 22..23
+    unsigned int mTimesFed : 3; // bits 24..26
+    unsigned int mFeedingsPerGrow : 3; // bits 27..29
+    unsigned int : 2; // bits 30..31
 
-    int mLastWateredTime;         // +0x04
-    int mLastNeedFulfilledTime;   // +0x08
-    int mLastFertilizedTime;      // +0x0C
-    int mLastChocolateTime;       // +0x10
+    int mLastWateredTime; // +0x04
+    int mLastNeedFulfilledTime; // +0x08
+    int mLastFertilizedTime; // +0x0C
+    int mLastChocolateTime; // +0x10
     // size 0x14
 
     void InitializePottedPlant(SeedType theSeedType);
 };
 
 // Layout check: one bitfield word plus four ints.
+
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_POTTEDPLANT_H

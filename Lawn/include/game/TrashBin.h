@@ -17,7 +17,8 @@
 // The authoritative header also lists `_constructor`/`_destructor` hooks, which
 // are the hook project's wrappers, not additional vtable slots.
 
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_TRASHBIN_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_TRASHBIN_H
 
 #include "ReconTypes.h"
 // Classes this one calls a method on: the call needs the
@@ -47,18 +48,19 @@ public:
     // 4 bytes lower than the ordinal table predicts), so the byte offsets below
     // follow the bodies.
     TrashPileType mTrashPileType; // +0x100
-    float mTrashHeight;           // +0x104
-    Sexy::Image * mPileImage[10]; // +0x108 .. +0x12F
-    bool mMirrorPile[10];         // +0x130 .. +0x139
-    int mRandomPileWeight[6];     // +0x13C .. +0x153
-    int mPileNum;                 // +0x154
+    float mTrashHeight; // +0x104
+    Sexy::Image *mPileImage[10]; // +0x108 .. +0x12F
+    bool mMirrorPile[10]; // +0x130 .. +0x139
+    int mRandomPileWeight[6]; // +0x13C .. +0x153
+    int mPileNum; // +0x154
     // size 0x158
 
-    virtual ~TrashBin();                                  // [  0]
-    virtual void Draw(Sexy::Graphics * g);                // [ 36]
+    virtual ~TrashBin(); // [  0]
+    virtual void Draw(Sexy::Graphics *g); // [ 36]
 
     TrashBin(TrashPileType theTrashPileType, float theHeight);
-    Sexy::Image * GetZombieTrashPiece(int theLevel);
-    Sexy::Image * GetPlantTrashPiece(int theLevel);
+    Sexy::Image *GetZombieTrashPiece(int theLevel);
+    Sexy::Image *GetPlantTrashPiece(int theLevel);
 };
 
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_TRASHBIN_H

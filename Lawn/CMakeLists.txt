@@ -159,7 +159,7 @@ endif()
 if(ANDROID)
     find_file(lawn_cxx_shared libc++_shared.so
         PATHS "${CMAKE_SYSROOT}/usr/lib/${CMAKE_LIBRARY_ARCHITECTURE}"
-              "${CMAKE_SYSROOT}/usr/lib/${ANDROID_TOOLCHAIN_NAME}"
+            "${CMAKE_SYSROOT}/usr/lib/${ANDROID_TOOLCHAIN_NAME}"
         NO_DEFAULT_PATH REQUIRED
     )
     add_custom_command(TARGET LawnTV POST_BUILD

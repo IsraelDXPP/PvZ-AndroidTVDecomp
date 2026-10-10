@@ -3,13 +3,15 @@
 // just wrote. mLastValueY follows mLastValueX, and mLastVelocityY follows
 // mLastVelocityX, so the returned pointer is a two-float result.
 
-#pragma once
+#ifndef LAWNPROJECTTV_SEXY_INCLUDE_PIVALUE2D_H
+#define LAWNPROJECTTV_SEXY_INCLUDE_PIVALUE2D_H
 
 #include "Bezier.h"
 
 #include <vector>
 
-namespace Sexy {
+namespace Sexy
+{
 
 struct PIKeyframe2D
 {
@@ -31,13 +33,15 @@ public:
     float mLastVelocityY = 0.0f;
 
     PIValue2D() = default;
-    PIValue2D(const PIValue2D& other);
+    PIValue2D(const PIValue2D &other);
 
-    float* GetValueAt(float theTime);
-    float* GetVelocityAt(float theTime);
+    float *GetValueAt(float theTime);
+    float *GetVelocityAt(float theTime);
 };
 
 } // namespace Sexy
 
 using Sexy::PIKeyframe2D;
 using Sexy::PIValue2D;
+
+#endif // LAWNPROJECTTV_SEXY_INCLUDE_PIVALUE2D_H

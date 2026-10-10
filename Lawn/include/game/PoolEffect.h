@@ -1,4 +1,5 @@
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_POOLEFFECT_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_POOLEFFECT_H
 
 #include "ReconTypes.h"
 #include "TodHesitationBracket.h"
@@ -21,3 +22,5 @@ public:
     void PoolEffectUpdate();
     void PoolEffectDraw(Sexy::Graphics *g, bool theIsNight);
 };
+
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_POOLEFFECT_H

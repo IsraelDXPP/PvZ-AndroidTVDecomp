@@ -19,8 +19,8 @@
 // ==========================================================================
 void GameObject::EndDraw(Sexy::Graphics *theGraphics)
 {
-  theGraphics->mTransX -= (float)mX;
-  theGraphics->mTransY -= (float)mY;
+    theGraphics->mTransX -= (float)mX;
+    theGraphics->mTransY -= (float)mY;
 }
 
 // ==========================================================================
@@ -29,8 +29,8 @@ void GameObject::EndDraw(Sexy::Graphics *theGraphics)
 // ==========================================================================
 void GameObject::MakeParentGraphicsFrame(Sexy::Graphics *theGraphics)
 {
-  theGraphics->mTransX -= (float)mX;
-  theGraphics->mTransY -= (float)mY;
+    theGraphics->mTransX -= (float)mX;
+    theGraphics->mTransY -= (float)mY;
 }
 
 // ==========================================================================
@@ -39,12 +39,12 @@ void GameObject::MakeParentGraphicsFrame(Sexy::Graphics *theGraphics)
 // ==========================================================================
 bool GameObject::BeginDraw(Sexy::Graphics *theGraphics)
 {
-  if (!mVisible)
-    return false;
+    if (!mVisible)
+        return false;
 
-  theGraphics->mTransX += (float)mX;
-  theGraphics->mTransY += (float)mY;
-  return true;
+    theGraphics->mTransX += (float)mX;
+    theGraphics->mTransY += (float)mY;
+    return true;
 }
 
 // ==========================================================================
@@ -53,22 +53,22 @@ bool GameObject::BeginDraw(Sexy::Graphics *theGraphics)
 // ==========================================================================
 GameObject::GameObject()
 {
-  // The object registers its own state area mX..mRenderOrder (+0x18..+0x33,
-  // 28 bytes) as one sync block, then zero-fills exactly that range. The
-  // vector's three-pointer initialisation is libstdcxx::vector's own default
-  // constructor, so it is not repeated here.
-  SyncBlockInfo aBlock = MakeSyncBlock(mX, mRenderOrder);
-  mSyncBlocks.push_back(aBlock);
-  memset(aBlock.mData, 0, aBlock.mSize);
+    // The object registers its own state area mX..mRenderOrder (+0x18..+0x33,
+    // 28 bytes) as one sync block, then zero-fills exactly that range. The
+    // vector's three-pointer initialisation is libstdcxx::vector's own default
+    // constructor, so it is not repeated here.
+    SyncBlockInfo aBlock = MakeSyncBlock(mX, mRenderOrder);
+    mSyncBlocks.push_back(aBlock);
+    memset(aBlock.mData, 0, aBlock.mSize);
 
-  // mRenderOrder's value is 400000 == RenderLayer::RENDER_LAYER_TOP. The dump
-  // renders it as the address of the string "...HAND_DAMAGE2E", because that
-  // literal happens to sit at 0x61A66 and the immediate is 0x00061A80.
-  mRenderOrder = 400000;
+    // mRenderOrder's value is 400000 == RenderLayer::RENDER_LAYER_TOP. The dump
+    // renders it as the address of the string "...HAND_DAMAGE2E", because that
+    // literal happens to sit at 0x61A66 and the immediate is 0x00061A80.
+    mRenderOrder = 400000;
 
-  mRow = -1;
-  mVisible = true;
+    mRow = -1;
+    mVisible = true;
 
-  mApp = (LawnApp *)gSexyAppBase;
-  mBoard = mApp->mBoard;
+    mApp = (LawnApp *)gSexyAppBase;
+    mBoard = mApp->mBoard;
 }

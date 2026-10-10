@@ -9,15 +9,13 @@
 #include "WidgetManager.h"
 #include <cmath>
 
-HouseChooserDialog::~HouseChooserDialog()
-{
-}
+HouseChooserDialog::~HouseChooserDialog() {}
 
 bool HouseChooserDialog::IsHouseAvaliable(HouseType houseType)
 {
-    return houseType == BLUEPRINT_BLING
-        || (houseType >= BLUEPRINT_SCARY && houseType <= BLUEPRINT_CLOWN
-            && gLawnApp->mPlayerInfo->mPurchases[STORE_ITEM_BLUEPRINT_BLING + int(houseType)] > 0);
+    return houseType == BLUEPRINT_BLING ||
+        (houseType >= BLUEPRINT_SCARY && houseType <= BLUEPRINT_CLOWN &&
+            gLawnApp->mPlayerInfo->mPurchases[STORE_ITEM_BLUEPRINT_BLING + int(houseType)] > 0);
 }
 
 // Touch selection adapted from PvZ TV Touch Team; original layout @0x192990.
@@ -29,9 +27,9 @@ void HouseChooserDialog::MouseDown(int x, int y, int theClickCount)
         return;
     for (int house = BLUEPRINT_BLING; house <= BLUEPRINT_CLOWN; ++house)
     {
-        if (!Sexy::Rect(75 + 90 * house, 125, IMAGE_STORE_BLUEPRINT_CLOWN->mWidth,
-                        IMAGE_STORE_BLUEPRINT_CLOWN->mHeight).Contains(x, y)
-            || !IsHouseAvaliable(HouseType(house)))
+        if (!Sexy::Rect(75 + 90 * house, 125, IMAGE_STORE_BLUEPRINT_CLOWN->mWidth, IMAGE_STORE_BLUEPRINT_CLOWN->mHeight)
+                .Contains(x, y) ||
+            !IsHouseAvaliable(HouseType(house)))
             continue;
         if (mSelectedHouseType == house)
             GameButtonDown(GAMEPAD_BUTTON_A, 0, 0);
@@ -68,18 +66,27 @@ int HouseChooserDialog::KeyDown(Sexy::KeyCode theKey)
     }
     switch (theKey)
     {
-    case Sexy::KEYCODE_ESCAPE:
-    case Sexy::KEYCODE_GAMEPAD_B: GameButtonDown(GAMEPAD_BUTTON_B, 0, 0); return 1;
-    case Sexy::KEYCODE_RETURN:
-    case Sexy::KEYCODE_SPACE:
-    case Sexy::KEYCODE_GAMEPAD_A: GameButtonDown(GAMEPAD_BUTTON_A, 0, 0); return 1;
-    case Sexy::KEYCODE_LEFT:
-    case Sexy::KEYCODE_GAMEPAD_LEFT:
-    case Sexy::KEYCODE_GAMEPAD_DPAD_LEFT: GameButtonDown(GAMEPAD_BUTTON_LEFT, 0, 0); return 1;
-    case Sexy::KEYCODE_RIGHT:
-    case Sexy::KEYCODE_GAMEPAD_RIGHT:
-    case Sexy::KEYCODE_GAMEPAD_DPAD_RIGHT: GameButtonDown(GAMEPAD_BUTTON_RIGHT, 0, 0); return 1;
-    default: return LawnDialog::KeyDown(theKey);
+        case Sexy::KEYCODE_ESCAPE:
+        case Sexy::KEYCODE_GAMEPAD_B:
+            GameButtonDown(GAMEPAD_BUTTON_B, 0, 0);
+            return 1;
+        case Sexy::KEYCODE_RETURN:
+        case Sexy::KEYCODE_SPACE:
+        case Sexy::KEYCODE_GAMEPAD_A:
+            GameButtonDown(GAMEPAD_BUTTON_A, 0, 0);
+            return 1;
+        case Sexy::KEYCODE_LEFT:
+        case Sexy::KEYCODE_GAMEPAD_LEFT:
+        case Sexy::KEYCODE_GAMEPAD_DPAD_LEFT:
+            GameButtonDown(GAMEPAD_BUTTON_LEFT, 0, 0);
+            return 1;
+        case Sexy::KEYCODE_RIGHT:
+        case Sexy::KEYCODE_GAMEPAD_RIGHT:
+        case Sexy::KEYCODE_GAMEPAD_DPAD_RIGHT:
+            GameButtonDown(GAMEPAD_BUTTON_RIGHT, 0, 0);
+            return 1;
+        default:
+            return LawnDialog::KeyDown(theKey);
     }
 }
 
@@ -87,16 +94,16 @@ void HouseChooserDialog::ButtonDepress(int theId)
 {
     if (theId == 1000 || theId == 1001)
     {
-        LawnApp* app = mApp;
+        LawnApp *app = mApp;
         if (theId == 1000)
         {
             if (!IsHouseAvaliable(mSelectedHouseType))
                 return;
-            LawnPlayerInfo* playerInfo = app->mPlayerInfo;
+            LawnPlayerInfo *playerInfo = app->mPlayerInfo;
             const int house = mSelectedHouseType;
             playerInfo->mGameStats.mHouseType = mSelectedHouseType;
-            playerInfo->mGameStats.mHouseLevel = playerInfo->mPurchases[STORE_ITEM_BLUEPRINT_BLING + house]
-                + (mSelectedHouseType == BLUEPRINT_BLING ? 2 : -1);
+            playerInfo->mGameStats.mHouseLevel = playerInfo->mPurchases[STORE_ITEM_BLUEPRINT_BLING + house] +
+                (mSelectedHouseType == BLUEPRINT_BLING ? 2 : -1);
         }
         mResult = theId;
         app->KillDialog(mId);
@@ -139,10 +146,9 @@ void HouseChooserDialog::GameButtonDown(Sexy::GamepadButton theButton, int thePl
         ButtonDepress(1001);
 }
 
-void HouseChooserDialog::Draw(Sexy::Graphics* g)
+void HouseChooserDialog::Draw(Sexy::Graphics *g)
 {
-    Sexy::Image* const blueprintImages[5] =
-    {
+    Sexy::Image *const blueprintImages[5] = {
         IMAGE_STORE_BLUEPRINT_BLING,
         IMAGE_STORE_BLUEPRINT_SCARY,
         IMAGE_STORE_BLUEPRINT_TRAILER,
@@ -157,7 +163,7 @@ void HouseChooserDialog::Draw(Sexy::Graphics* g)
     for (int house = 0; house != 5; ++house)
     {
         bool selected = (mSelectedHouseType == house);
-        Sexy::Image* image = blueprintImages[house];
+        Sexy::Image *image = blueprintImages[house];
 
         if (image != nullptr)
         {
@@ -183,8 +189,8 @@ void HouseChooserDialog::Draw(Sexy::Graphics* g)
         if (!IsHouseAvaliable(HouseType(house)))
         {
             Sexy::Rect rect(posX, 125, 67, 68);
-            TodDrawStringWrapped(g, TodStringTranslate("[NOT_AVAILABLE]"), rect,
-                                 FONT_HOUSEOFTERROR16, Sexy::Color::White, 5, 0);
+            TodDrawStringWrapped(
+                g, TodStringTranslate("[NOT_AVAILABLE]"), rect, FONT_HOUSEOFTERROR16, Sexy::Color::White, 5, 0);
         }
 
         if (selected)
@@ -208,8 +214,8 @@ void HouseChooserDialog::Resize(int theX, int theY, int theWidth, int theHeight)
     LawnDialog::Resize(theX, theY, theWidth, theHeight);
 }
 
-HouseChooserDialog::HouseChooserDialog(LawnApp* theApp)
-    : LawnDialog(theApp, nullptr, 71, true, Sexy::String("[CHOOSE_HOUSE]"), Sexy::String(), Sexy::String(), 2)
+HouseChooserDialog::HouseChooserDialog(LawnApp *theApp) :
+    LawnDialog(theApp, nullptr, 71, true, Sexy::String("[CHOOSE_HOUSE]"), Sexy::String(), Sexy::String(), 2)
 {
     TodLoadResources(Sexy::String("DelayLoad_Store"));
     mGrowTime = 0.0f;
@@ -221,7 +227,7 @@ HouseChooserDialog::HouseChooserDialog(LawnApp* theApp)
     Resize(100, 100, 600, 355);
 }
 
-void HouseChooserDialog::RemovedFromManager(Sexy::WidgetManager* theWidgetManager)
+void HouseChooserDialog::RemovedFromManager(Sexy::WidgetManager *theWidgetManager)
 {
     LawnDialog::RemovedFromManager(theWidgetManager);
     mApp->HideHelpBarWidget();

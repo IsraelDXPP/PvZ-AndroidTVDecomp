@@ -12,70 +12,68 @@
 
 int Sexy::Image::MakeTag(char theA, char theB, char theC, char theD)
 {
-    return (int)(unsigned char)theC
-        | ((int)(unsigned char)theB << 8)
-        | ((int)(unsigned char)theA << 16)
-        | ((int)(unsigned char)theD << 24);
+    return (int)(unsigned char)theC | ((int)(unsigned char)theB << 8) | ((int)(unsigned char)theA << 16) |
+        ((int)(unsigned char)theD << 24);
 }
 
-Sexy::Image::Image()
-    : mCreateFlags(0),
-      mPixelsLive(0),
-      mAboutToSample(false),
-      mSpareWidth(0),
-      mSpareHeight(0),
-      mFileName(),
-      mFileVariant(),
-      mFileAttributes(),
-      mWidth(0),
-      mHeight(0),
-      mPitch(0),
-      mStride(0),
-      mFormat(Sexy::PIXEL_FORMAT_NONE),
-      mPixelFormatHint(Sexy::PIXEL_FORMAT_NONE),
-      mNumRows(1),
-      mNumCols(1),
-      mAnimInfo(nullptr),
-      mAttachedParent(nullptr),
-      mSubRectX(0),
-      mSubRectY(0),
-      mSubRectRight(0),
-      mSubRectBottom(0),
-      mAttachedPad(0),
-      mHorizonWrapMode(0),
-      mVertWrapMode(0),
-      mTag(0)
+Sexy::Image::Image() :
+    mCreateFlags(0),
+    mPixelsLive(0),
+    mAboutToSample(false),
+    mSpareWidth(0),
+    mSpareHeight(0),
+    mFileName(),
+    mFileVariant(),
+    mFileAttributes(),
+    mWidth(0),
+    mHeight(0),
+    mPitch(0),
+    mStride(0),
+    mFormat(Sexy::PIXEL_FORMAT_NONE),
+    mPixelFormatHint(Sexy::PIXEL_FORMAT_NONE),
+    mNumRows(1),
+    mNumCols(1),
+    mAnimInfo(nullptr),
+    mAttachedParent(nullptr),
+    mSubRectX(0),
+    mSubRectY(0),
+    mSubRectRight(0),
+    mSubRectBottom(0),
+    mAttachedPad(0),
+    mHorizonWrapMode(0),
+    mVertWrapMode(0),
+    mTag(0)
 {
     mTag = MakeTag('m', 'g', 0, 0);
 }
 
-Sexy::Image::Image(Sexy::Image const& theOther)
-    : mCreateFlags(theOther.mCreateFlags),
-      mPixelsLive(0),
-      mAboutToSample(false),
-      mSpareWidth(0),
-      mSpareHeight(0),
-      mFileName(theOther.mFileName),
-      mFileVariant(theOther.mFileVariant),
-      mFileAttributes(theOther.mFileAttributes),
-      mWidth(theOther.mWidth),
-      mHeight(theOther.mHeight),
-      mPitch(theOther.mPitch),
-      mStride(theOther.mStride),
-      mFormat(theOther.mFormat),
-      mPixelFormatHint(theOther.mPixelFormatHint),
-      mNumRows(theOther.mNumRows),
-      mNumCols(theOther.mNumCols),
-      mAnimInfo(nullptr),
-      mAttachedParent(theOther.mAttachedParent),
-      mSubRectX(theOther.mSubRectX),
-      mSubRectY(theOther.mSubRectY),
-      mSubRectRight(theOther.mSubRectRight),
-      mSubRectBottom(theOther.mSubRectBottom),
-      mAttachedPad(theOther.mAttachedPad),
-      mHorizonWrapMode(theOther.mHorizonWrapMode),
-      mVertWrapMode(theOther.mVertWrapMode),
-      mTag(theOther.mTag)
+Sexy::Image::Image(Sexy::Image const &theOther) :
+    mCreateFlags(theOther.mCreateFlags),
+    mPixelsLive(0),
+    mAboutToSample(false),
+    mSpareWidth(0),
+    mSpareHeight(0),
+    mFileName(theOther.mFileName),
+    mFileVariant(theOther.mFileVariant),
+    mFileAttributes(theOther.mFileAttributes),
+    mWidth(theOther.mWidth),
+    mHeight(theOther.mHeight),
+    mPitch(theOther.mPitch),
+    mStride(theOther.mStride),
+    mFormat(theOther.mFormat),
+    mPixelFormatHint(theOther.mPixelFormatHint),
+    mNumRows(theOther.mNumRows),
+    mNumCols(theOther.mNumCols),
+    mAnimInfo(nullptr),
+    mAttachedParent(theOther.mAttachedParent),
+    mSubRectX(theOther.mSubRectX),
+    mSubRectY(theOther.mSubRectY),
+    mSubRectRight(theOther.mSubRectRight),
+    mSubRectBottom(theOther.mSubRectBottom),
+    mAttachedPad(theOther.mAttachedPad),
+    mHorizonWrapMode(theOther.mHorizonWrapMode),
+    mVertWrapMode(theOther.mVertWrapMode),
+    mTag(theOther.mTag)
 {
     if (theOther.mAnimInfo != nullptr)
         mAnimInfo = new AnimInfo(*theOther.mAnimInfo);
@@ -87,12 +85,12 @@ Sexy::Image::~Image()
     delete mAnimInfo;
 }
 
-Sexy::MemoryImage* Sexy::Image::AsMemoryImage()
+Sexy::MemoryImage *Sexy::Image::AsMemoryImage()
 {
     return nullptr;
 }
 
-Sexy::DeviceImage* Sexy::Image::AsDeviceImage()
+Sexy::DeviceImage *Sexy::Image::AsDeviceImage()
 {
     return nullptr;
 }
@@ -132,63 +130,47 @@ void Sexy::Image::SetPixelFormatHint(PixelFormat theFormat)
     mPixelFormatHint = theFormat;
 }
 
-void Sexy::Image::Finalize()
-{
-}
+void Sexy::Image::Finalize() {}
 
-void Sexy::Image::SetBits(unsigned int*, int, int, bool)
-{
-}
+void Sexy::Image::SetBits(unsigned int *, int, int, bool) {}
 
-unsigned int* Sexy::Image::GetBits()
+unsigned int *Sexy::Image::GetBits()
 {
     return nullptr;
 }
 
 unsigned int Sexy::Image::GetPixel(int theX, int theY)
 {
-    unsigned int* bits = GetBits();
+    unsigned int *bits = GetBits();
     if (bits == nullptr)
         return 0;
     return bits[theX + mWidth * theY];
 }
 
-unsigned int* Sexy::Image::GetPixels()
+unsigned int *Sexy::Image::GetPixels()
 {
     return nullptr;
 }
 
-void Sexy::Image::PolyFill3D(const TPoint<int>*, int, const TRect<int>*, const Color&, int, int, int, bool)
-{
-}
+void Sexy::Image::PolyFill3D(const TPoint<int> *, int, const TRect<int> *, const Color &, int, int, int, bool) {}
 
-void Sexy::Image::FillRect(const TRect<int>&, const Color&, int)
-{
-}
+void Sexy::Image::FillRect(const TRect<int> &, const Color &, int) {}
 
-void Sexy::Image::DrawRect(const TRect<int>& theRect, const Color& theColor, int theDrawMode)
+void Sexy::Image::DrawRect(const TRect<int> &theRect, const Color &theColor, int theDrawMode)
 {
     FillRect(TRect<int>(theRect.mX, theRect.mY, theRect.mWidth + 1, 1), theColor, theDrawMode);
-    FillRect(TRect<int>(theRect.mX, theRect.mY + theRect.mHeight, theRect.mWidth + 1, 1),
-             theColor, theDrawMode);
+    FillRect(TRect<int>(theRect.mX, theRect.mY + theRect.mHeight, theRect.mWidth + 1, 1), theColor, theDrawMode);
     FillRect(TRect<int>(theRect.mX, theRect.mY + 1, 1, theRect.mHeight - 1), theColor, theDrawMode);
-    FillRect(TRect<int>(theRect.mX + theRect.mWidth, theRect.mY + 1, 1, theRect.mHeight - 1),
-             theColor, theDrawMode);
+    FillRect(TRect<int>(theRect.mX + theRect.mWidth, theRect.mY + 1, 1, theRect.mHeight - 1), theColor, theDrawMode);
 }
 
-void Sexy::Image::ClearRect(const TRect<int>&)
-{
-}
+void Sexy::Image::ClearRect(const TRect<int> &) {}
 
-void Sexy::Image::DrawLine(double, double, double, double, const Color&, int)
-{
-}
+void Sexy::Image::DrawLine(double, double, double, double, const Color &, int) {}
 
-void Sexy::Image::DrawLineAA(double, double, double, double, const Color&, int)
-{
-}
+void Sexy::Image::DrawLineAA(double, double, double, double, const Color &, int) {}
 
-void Sexy::Image::FillScanLines(int* theSpans, int theSpanCount, const Color& theColor, int theDrawMode)
+void Sexy::Image::FillScanLines(int *theSpans, int theSpanCount, const Color &theColor, int theDrawMode)
 {
     for (int index = 0; index < theSpanCount; ++index)
     {
@@ -200,62 +182,53 @@ void Sexy::Image::FillScanLines(int* theSpans, int theSpanCount, const Color& th
     }
 }
 
-void Sexy::Image::FillScanLinesWithCoverage(int*, int, const Color&, int, const unsigned char*, int, int, int, int)
+void Sexy::Image::FillScanLinesWithCoverage(int *, int, const Color &, int, const unsigned char *, int, int, int, int)
 {
 }
 
-void Sexy::Image::Blt(Image*, int, int, const TRect<int>&, const Color&, int, bool)
+void Sexy::Image::Blt(Image *, int, int, const TRect<int> &, const Color &, int, bool) {}
+
+void Sexy::Image::BltF(Image *, float, float, const TRect<int> &, const TRect<int> &, const Color &, int) {}
+
+void Sexy::Image::BltRotated(
+    Image *, float, float, const TRect<int> &, const TRect<int> &, const Color &, int, double, float, float)
 {
 }
 
-void Sexy::Image::BltF(Image*, float, float, const TRect<int>&, const TRect<int>&, const Color&, int)
+void Sexy::Image::StretchBlt(
+    Image *, const TRect<int> &, const TRect<int> &, const TRect<int> &, const Color &, int, bool)
 {
 }
 
-void Sexy::Image::BltRotated(Image*, float, float, const TRect<int>&, const TRect<int>&, const Color&, int, double, float, float)
+void Sexy::Image::BltMatrix(
+    Image *, float, float, const SexyMatrix3 &, const TRect<int> &, const Color &, int, const TRect<int> &, bool, bool)
 {
 }
 
-void Sexy::Image::StretchBlt(Image*, const TRect<int>&, const TRect<int>&, const TRect<int>&, const Color&, int, bool)
+void Sexy::Image::BltTrianglesTex(
+    Image *, const SexyVertex2D (*)[3], int, const TRect<int> &, const Color &, int, float, float, bool)
 {
 }
 
-void Sexy::Image::BltMatrix(Image*, float, float, const SexyMatrix3&, const TRect<int>&, const Color&, int, const TRect<int>&, bool, bool)
+void Sexy::Image::BltMirror(Image *, int, int, const TRect<int> &, const Color &, int) {}
+
+void Sexy::Image::StretchBltMirror(
+    Image *, const TRect<int> &, const TRect<int> &, const TRect<int> &, const Color &, int, bool)
 {
 }
 
-void Sexy::Image::BltTrianglesTex(Image*, const SexyVertex2D (*)[3], int, const TRect<int>&, const Color&, int, float, float, bool)
-{
-}
+void Sexy::Image::Palletize() {}
 
-void Sexy::Image::BltMirror(Image*, int, int, const TRect<int>&, const Color&, int)
-{
-}
-
-void Sexy::Image::StretchBltMirror(Image*, const TRect<int>&, const TRect<int>&, const TRect<int>&, const Color&, int, bool)
-{
-}
-
-void Sexy::Image::Palletize()
-{
-}
-
-void Sexy::Image::Flip(unsigned int)
-{
-}
+void Sexy::Image::Flip(unsigned int) {}
 
 bool Sexy::Image::HasTransform()
 {
     return false;
 }
 
-void Sexy::Image::PushTransform(const SexyMatrix3&, bool)
-{
-}
+void Sexy::Image::PushTransform(const SexyMatrix3 &, bool) {}
 
-void Sexy::Image::PopTransform()
-{
-}
+void Sexy::Image::PopTransform() {}
 
 void Sexy::Image::SetWrapMode(int theWrapModeX, int theWrapModeY)
 {
@@ -307,12 +280,12 @@ TRect<int> Sexy::Image::GetCelRect(int theCol, int theRow)
     return rect;
 }
 
-void* Sexy::Image::CreateRenderData()
+void *Sexy::Image::CreateRenderData()
 {
-    unsigned int* bits = GetBits();
+    unsigned int *bits = GetBits();
     if (bits == nullptr || gSexyAppBase == nullptr || gSexyAppBase->mDDInterface == nullptr)
         return bits;
-    Sexy::RenderDevice3D* device = gSexyAppBase->mDDInterface->GetRenderDevice3D();
+    Sexy::RenderDevice3D *device = gSexyAppBase->mDDInterface->GetRenderDevice3D();
     if (device == nullptr)
         return bits;
     return device->CreateImageRenderData(AsMemoryImage());
@@ -348,7 +321,7 @@ TRect<int> Sexy::Image::GetAnimCelRect(int theTick)
     return rect;
 }
 
-void Sexy::Image::CopyAttributes(Sexy::Image* theSource)
+void Sexy::Image::CopyAttributes(Sexy::Image *theSource)
 {
     if (theSource == nullptr)
         return;
@@ -360,7 +333,7 @@ void Sexy::Image::CopyAttributes(Sexy::Image* theSource)
         mAnimInfo = new AnimInfo(*theSource->mAnimInfo);
 }
 
-Sexy::Graphics* Sexy::Image::GetGraphics()
+Sexy::Graphics *Sexy::Image::GetGraphics()
 {
     return new Sexy::Graphics(this);
 }

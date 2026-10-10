@@ -3,7 +3,9 @@
 set(lawn_msvc_launcher "cmd.exe;/d;/c;${PROJECT_SOURCE_DIR}/cmake/MsvcUtf8.cmd")
 set(lawn_include_probe_dir "${CMAKE_BINARY_DIR}/CMakeFiles/LawnTVIncludeProbe")
 file(MAKE_DIRECTORY "${lawn_include_probe_dir}")
-file(WRITE "${lawn_include_probe_dir}/LawnTVHeaderProbe.h" "#pragma once\n")
+file(WRITE "${lawn_include_probe_dir}/LawnTVHeaderProbe.h"
+    "#ifndef LAWNPROJECTTV_INCLUDE_PROBE_H\n#define LAWNPROJECTTV_INCLUDE_PROBE_H\n#endif\n"
+)
 file(WRITE "${lawn_include_probe_dir}/probe.cpp" "#include \"${lawn_include_probe_dir}/LawnTVHeaderProbe.h\"\n")
 execute_process(
     COMMAND ${lawn_msvc_launcher} "${CMAKE_CXX_COMPILER}" /nologo /showIncludes /c /Foprobe.obj probe.cpp

@@ -18,7 +18,8 @@
 // adding the overrides would retarget those slots. Update/Draw/Die are not virtual
 // in the binary.
 
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_CURSOROBJECT_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_CURSOROBJECT_H
 
 #include "ReconTypes.h"
 // These includes exist because the transcribed bodies call methods on complete
@@ -51,19 +52,21 @@ public:
 
     // Derived member area +0x34..+0x5B (40 bytes); the constructor registers the
     // whole block as one sync block.
-    int mSelectedIndex;            // +0x34
-    SeedType mType;                // +0x38
-    SeedType mImitaterType;        // +0x3C
-    CursorType mCursorType;        // +0x40
+    int mSelectedIndex; // +0x34
+    SeedType mType; // +0x38
+    SeedType mImitaterType; // +0x3C
+    CursorType mCursorType; // +0x40
     // TODO(recon): the authoritative header types this as `CoinID`, but this tree has
     // no CoinID type yet (PvZ\Lawn\Common\ConstEnums.h:1787 only declares
     // `enum CoinID { COINID_NULL };`). Kept as int until that enum is added.
-    int mCoinID;                   // +0x44
-    PlantID mGlovePlantID;         // +0x48 (the .cpp reads it as 16-bit; see case 3 in Draw)
-    PlantID mDuplicatorPlantID;    // +0x4C
-    PlantID mCobCannonPlantID;     // +0x50
-    int mHammerDownCounter;        // +0x54 (unused by both .cpp files, placeholder only)
+    int mCoinID; // +0x44
+    PlantID mGlovePlantID; // +0x48 (the .cpp reads it as 16-bit; see case 3 in Draw)
+    PlantID mDuplicatorPlantID; // +0x4C
+    PlantID mCobCannonPlantID; // +0x50
+    int mHammerDownCounter; // +0x54 (unused by both .cpp files, placeholder only)
     ReanimationID mReanimCursorID; // +0x58
 };
 
 // Layout check: 0x34 (GameObject) + 10 four-byte members.
+
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_CURSOROBJECT_H

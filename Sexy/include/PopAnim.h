@@ -8,7 +8,8 @@
 // A mod build overrides the load hooks, so Draw reaches DrawSprite through the
 // virtual rather than a direct call.
 
-#pragma once
+#ifndef LAWNPROJECTTV_SEXY_INCLUDE_POPANIM_H
+#define LAWNPROJECTTV_SEXY_INCLUDE_POPANIM_H
 
 #include "Buffer.h"
 #include "DescParser.h"
@@ -30,7 +31,8 @@
 #include <utility>
 #include <vector>
 
-namespace Sexy {
+namespace Sexy
+{
 
 class PopAnim;
 class PopAnimListener;
@@ -59,7 +61,7 @@ public:
 class PAObjectDef
 {
 public:
-    const char* mName;
+    const char *mName;
     int mIndex;
     bool mIsSprite;
     bool mAdditive;
@@ -68,7 +70,7 @@ public:
     float mRateScale;
     bool mUseSrcRect;
     TRect<int> mSrcRect;
-    PASpriteDef* mNestedDef;
+    PASpriteDef *mNestedDef;
 
     PAObjectDef();
 };
@@ -80,7 +82,7 @@ public:
     SexyMatrix3 mMatrix;
     int mPackedColor;
     bool mInterpolate;
-    PAObjectDef* mDef;
+    PAObjectDef *mDef;
 
     PAObjectPos();
 };
@@ -97,7 +99,7 @@ public:
 class PAFrame
 {
 public:
-    std::vector<PAObjectPos*> mObjects;
+    std::vector<PAObjectPos *> mObjects;
     bool mHold;
     std::vector<PACommand> mCommands;
 
@@ -108,7 +110,7 @@ public:
 class PASpriteDef
 {
 public:
-    const char* mName;
+    const char *mName;
     std::vector<PAFrame> mFrames;
     std::map<String, int> mLabels;
     int mFirstFrame;
@@ -118,15 +120,15 @@ public:
     float mRate;
 
     PASpriteDef();
-    int GetLabelFrame(String const& theName) const;
+    int GetLabelFrame(String const &theName) const;
 };
 
 // A particle spawned by an addparticleeffect command.
 class PAParticleEffect
 {
 public:
-    ResourceManager_BaseRes* mBaseRes;
-    PIEffect* mEffect;
+    ResourceManager_BaseRes *mBaseRes;
+    PIEffect *mEffect;
     String mName;
     int mUpdateStamp;
     bool mDrawAdditive;
@@ -136,8 +138,8 @@ public:
     double mOffsetY;
 
     PAParticleEffect();
-    PAParticleEffect(PAParticleEffect const& theOther);
-    PAParticleEffect& operator=(PAParticleEffect const& theOther);
+    PAParticleEffect(PAParticleEffect const &theOther);
+    PAParticleEffect &operator=(PAParticleEffect const &theOther);
     ~PAParticleEffect();
 };
 
@@ -145,8 +147,8 @@ public:
 class PAObjectInst
 {
 public:
-    const char* mName;
-    PASpriteInst* mInst;
+    const char *mName;
+    PASpriteInst *mInst;
     SexyTransform2D mPrevTransform;
     int mPrevRed;
     int mPrevGreen;
@@ -160,14 +162,14 @@ public:
     bool mQueryDrawn;
 
     PAObjectInst();
-    int GetObjectInst(String const& theName);
+    int GetObjectInst(String const &theName);
 };
 
 // A live sprite: the def it plays, the frame clock, and its objects.
 class PASpriteInst
 {
 public:
-    PASpriteInst* mParent;
+    PASpriteInst *mParent;
     int mHoldFrames;
     float mFrameTime;
     int mLoopCount;
@@ -177,24 +179,24 @@ public:
     Color mColor;
     std::vector<PAObjectInst> mObjects;
     std::vector<PAParticleEffect> mParticles;
-    PASpriteDef* mDef;
+    PASpriteDef *mDef;
 
     PASpriteInst();
     ~PASpriteInst();
-    int GetObjectInst(String const& theName);
+    int GetObjectInst(String const &theName);
 };
 
 // The shared table a loaded pam owns: pose pools, nested defs, and the main def.
 class PASpriteTable
 {
 public:
-    std::vector<PAObjectPos*> mTransformBlocks;
-    PAObjectPos* mTransformBlock;
+    std::vector<PAObjectPos *> mTransformBlocks;
+    PAObjectPos *mTransformBlock;
     int mTransformSlot;
-    std::vector<PAObjectDef*> mDataBlocks;
-    PAObjectDef* mDataBlock;
+    std::vector<PAObjectDef *> mDataBlocks;
+    PAObjectDef *mDataBlock;
     int mDataSlot;
-    PASpriteDef* mMainDef;
+    PASpriteDef *mMainDef;
     std::vector<PASpriteDef> mNestedDefs;
     std::list<String> mNames;
     int mRefCount;
@@ -202,9 +204,9 @@ public:
     PASpriteTable();
     ~PASpriteTable();
 
-    PAObjectPos* AllocTransform();
-    PAObjectDef* AllocData();
-    const char* Intern(String const& theName);
+    PAObjectPos *AllocTransform();
+    PAObjectDef *AllocData();
+    const char *Intern(String const &theName);
 };
 
 // The receiver a PopAnim reports playback to. The interface lives outside the
@@ -212,24 +214,18 @@ public:
 class PopAnimListener
 {
 public:
-    virtual void PlaySample(String const& theSample, int thePan,
-                            double theVolume, double theSteps);
-    virtual PIEffect* GetParticleEffect(String const& theName);
-    virtual bool ShouldDrawObject(int theId, Graphics* theGraphics,
-                                  PASpriteInst* theSprite, PAObjectInst* theObject,
-                                  PATransform* theTransform, Color const& theColor);
-    virtual bool DidDrawObject(int theId, Graphics* theGraphics,
-                               PASpriteInst* theSprite, PAObjectInst* theObject,
-                               PATransform* theTransform, Color const& theColor);
-    virtual int DrawObjectHelper(int theId, PASpriteInst* theSprite,
-                                 PAObjectInst* theObject, float* theTransform,
-                                 Image* theImage, Graphics* theGraphics,
-                                 float theScale);
+    virtual void PlaySample(String const &theSample, int thePan, double theVolume, double theSteps);
+    virtual PIEffect *GetParticleEffect(String const &theName);
+    virtual bool ShouldDrawObject(int theId, Graphics *theGraphics, PASpriteInst *theSprite, PAObjectInst *theObject,
+        PATransform *theTransform, Color const &theColor);
+    virtual bool DidDrawObject(int theId, Graphics *theGraphics, PASpriteInst *theSprite, PAObjectInst *theObject,
+        PATransform *theTransform, Color const &theColor);
+    virtual int DrawObjectHelper(int theId, PASpriteInst *theSprite, PAObjectInst *theObject, float *theTransform,
+        Image *theImage, Graphics *theGraphics, float theScale);
     virtual bool OnSpriteInstFrameEnd(int theId);
     virtual bool OnSpriteInstLoop(int theId, int theFrame);
     virtual void UnusedSlot();
-    virtual bool OnCommand(int theId, PASpriteInst* theSprite,
-                           String const& theName, String const& theArgs);
+    virtual bool OnCommand(int theId, PASpriteInst *theSprite, String const &theName, String const &theArgs);
 };
 
 // A 3x3 pose plus the identity constructor the loader and the draw path share.
@@ -239,8 +235,8 @@ public:
     SexyMatrix3 mMatrix;
 
     PATransform();
-    PATransform& TransformSrc(PATransform const& theSource, float const* theValues);
-    PATransform& InterpolateTo(PATransform const& theFrom, float const* theTo, float theFraction);
+    PATransform &TransformSrc(PATransform const &theSource, float const *theValues);
+    PATransform &InterpolateTo(PATransform const &theFrom, float const *theTo, float theFraction);
 };
 
 class PopAnim : public Widget
@@ -249,27 +245,23 @@ public:
     virtual ~PopAnim();
     virtual void Update();
     virtual void UpdateF(float theFrac);
-    virtual void Draw(Graphics* theGraphics);
+    virtual void Draw(Graphics *theGraphics);
 
-    virtual int DrawSprite(Graphics* theGraphics, PASpriteInst* theSprite,
-                           PATransform* theParent, Color const& theColor,
-                           bool theAdditive, bool theNoInterp);
-    virtual int DrawSpriteMirrored(Graphics* theGraphics, PASpriteInst* theSprite,
-                                   PATransform* theParent, Color const& theColor,
-                                   bool theAdditive, bool theNoInterp);
+    virtual int DrawSprite(Graphics *theGraphics, PASpriteInst *theSprite, PATransform *theParent,
+        Color const &theColor, bool theAdditive, bool theNoInterp);
+    virtual int DrawSpriteMirrored(Graphics *theGraphics, PASpriteInst *theSprite, PATransform *theParent,
+        Color const &theColor, bool theAdditive, bool theNoInterp);
     virtual int Load_Init();
-    virtual int Load_SetModPamFile(String const& theFile);
-    virtual void Load_AddRemap(String const& theFrom, String const& theTo);
-    virtual int Load_LoadPam(String const& theFile);
-    virtual int Load_LoadMod(String const& theFile);
-    virtual SharedImageRef Load_GetImageHook(String const& theDir, String const& theName,
-                                             String const& theFile);
-    virtual int Load_GetImage(PAImage* theImage, String const& theDir,
-                              String const& theName, String const& theFile);
-    virtual void Load_PostImageLoadHook(PAImage* theImage);
+    virtual int Load_SetModPamFile(String const &theFile);
+    virtual void Load_AddRemap(String const &theFrom, String const &theTo);
+    virtual int Load_LoadPam(String const &theFile);
+    virtual int Load_LoadMod(String const &theFile);
+    virtual SharedImageRef Load_GetImageHook(String const &theDir, String const &theName, String const &theFile);
+    virtual int Load_GetImage(PAImage *theImage, String const &theDir, String const &theName, String const &theFile);
+    virtual void Load_PostImageLoadHook(PAImage *theImage);
 
     int mId;
-    PopAnimListener* mListener;
+    PopAnimListener *mListener;
     std::vector<String> mSearchPaths;
     int mPamVersion;
     Buffer mPamBuffer;
@@ -279,7 +271,7 @@ public:
     int mPamCursor;
     String mModPamFile;
     String mPamFileName;
-    std::list<std::pair<String, String> > mRemaps;
+    std::list<std::pair<String, String>> mRemaps;
     int mMotion;
     int mOriginX;
     int mOriginY;
@@ -288,8 +280,8 @@ public:
     String mErrorString;
     String mAnimName;
     std::vector<PAImage> mImages;
-    PASpriteInst* mSpriteInst;
-    PASpriteTable* mSpriteDef;
+    PASpriteInst *mSpriteInst;
+    PASpriteTable *mSpriteDef;
     float mBlendDuration;
     float mBlendTime;
     float mDelay;
@@ -309,47 +301,48 @@ public:
     bool mDebugDraw;
     bool mLoopNotified;
 
-    int Fail(String const& theMessage);
-    int LoadFile(String const& theFile, bool theMirrored);
-    int ResetAnimHelper(PASpriteInst* theSprite);
-    float DrawParticleEffects(Graphics* theGraphics, PASpriteInst* theSprite,
-                              PATransform* theParent, Color const& theColor, bool theAdditive);
+    int Fail(String const &theMessage);
+    int LoadFile(String const &theFile, bool theMirrored);
+    int ResetAnimHelper(PASpriteInst *theSprite);
+    float DrawParticleEffects(Graphics *theGraphics, PASpriteInst *theSprite, PATransform *theParent,
+        Color const &theColor, bool theAdditive);
     int GetToFirstFrame();
-    PopAnim* SaveStateSpriteInst(Buffer& theBuffer, PASpriteInst* theSprite);
-    int SetColor(Color const& theColor);
-    int CalcObjectPos(PASpriteInst* theSprite, int theIndex, bool theNoInterp,
-                      PATransform* theTransform, Color* theColor);
-    int UpdateTransforms(PASpriteInst* theSprite, PATransform* theParent,
-                         Color const& theColor, bool theNoInterp);
-    int HasParticles(PASpriteInst* theSprite) const;
+    PopAnim *SaveStateSpriteInst(Buffer &theBuffer, PASpriteInst *theSprite);
+    int SetColor(Color const &theColor);
+    int CalcObjectPos(
+        PASpriteInst *theSprite, int theIndex, bool theNoInterp, PATransform *theTransform, Color *theColor);
+    int UpdateTransforms(PASpriteInst *theSprite, PATransform *theParent, Color const &theColor, bool theNoInterp);
+    int HasParticles(PASpriteInst *theSprite) const;
     int IsActive() const;
-    int IncSpriteInstFrame(PASpriteInst* theSprite, PAObjectPos* thePose, float theStep);
-    int GetLabelFrame(String const& theName);
-    const char** FindSpriteDef(char const* theName);
-    const String& Remap(String const& theName);
-    int UpdateParticles(PASpriteInst* theSprite, PAObjectPos* thePose);
-    PopAnim* CleanParticles(PASpriteInst* theSprite, bool theAll);
+    int IncSpriteInstFrame(PASpriteInst *theSprite, PAObjectPos *thePose, float theStep);
+    int GetLabelFrame(String const &theName);
+    const char **FindSpriteDef(char const *theName);
+    const String &Remap(String const &theName);
+    int UpdateParticles(PASpriteInst *theSprite, PAObjectPos *thePose);
+    PopAnim *CleanParticles(PASpriteInst *theSprite, bool theAll);
     int ResetAnim();
     int Clear();
-    int InitSpriteInst(PASpriteInst* theSprite, PASpriteDef* theDef);
-    int SetupSpriteInst(String const& theName);
-    int SaveState(Buffer& theBuffer);
-    int GetObjectInst(String const& theName);
-    int* FrameHit(PASpriteInst* theSprite, PAFrame* theFrame, PAObjectPos* thePose);
-    int* DoFramesHit(PASpriteInst* theSprite, PAObjectPos* thePose);
+    int InitSpriteInst(PASpriteInst *theSprite, PASpriteDef *theDef);
+    int SetupSpriteInst(String const &theName);
+    int SaveState(Buffer &theBuffer);
+    int GetObjectInst(String const &theName);
+    int *FrameHit(PASpriteInst *theSprite, PAFrame *theFrame, PAObjectPos *thePose);
+    int *DoFramesHit(PASpriteInst *theSprite, PAObjectPos *thePose);
     int Play(int theFrame, bool theReset);
-    int Play(String const& theName, bool theReset);
-    int BlendTo(String const& theName, int theDuration, int theDelay);
-    void PrepSpriteInstFrame(PASpriteInst* theSprite, PAObjectPos* thePose);
+    int Play(String const &theName, bool theReset);
+    int BlendTo(String const &theName, int theDuration, int theDelay);
+    void PrepSpriteInstFrame(PASpriteInst *theSprite, PAObjectPos *thePose);
     void AnimUpdate(float theStep);
-    void LoadStateSpriteInst(Buffer const& theBuffer, PASpriteInst* theSprite);
-    int LoadState(Buffer const& theBuffer);
-    int LoadSpriteDef(Buffer* theBuffer, PASpriteDef* theDef);
-    PopAnim(int theId, PopAnimListener* theListener);
-    PopAnim(PopAnim const& theOther);
-    PopAnim* Duplicate();
+    void LoadStateSpriteInst(Buffer const &theBuffer, PASpriteInst *theSprite);
+    int LoadState(Buffer const &theBuffer);
+    int LoadSpriteDef(Buffer *theBuffer, PASpriteDef *theDef);
+    PopAnim(int theId, PopAnimListener *theListener);
+    PopAnim(PopAnim const &theOther);
+    PopAnim *Duplicate();
 };
 
 } // namespace Sexy
 
 using Sexy::PopAnim;
+
+#endif // LAWNPROJECTTV_SEXY_INCLUDE_POPANIM_H

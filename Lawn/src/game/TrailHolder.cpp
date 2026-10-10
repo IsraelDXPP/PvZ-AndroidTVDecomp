@@ -30,13 +30,13 @@ TrailHolder::~TrailHolder()
 
 // theRenderOrder is the TV allocator's first argument. The body never stores
 // it, so the trail's mRenderOrder stays at the constructor's 0.
-Trail* TrailHolder::AllocTrailFromDef(int /*theRenderOrder*/, TrailDefinition* theDefinition)
+Trail *TrailHolder::AllocTrailFromDef(int /*theRenderOrder*/, TrailDefinition *theDefinition)
 {
 
     if (mTrails.mSize == mTrails.mMaxSize)
         return nullptr;
 
-    Trail* aTrail = mTrails.DataArrayAlloc();
+    Trail *aTrail = mTrails.DataArrayAlloc();
     aTrail->mTrailHolder = this;
     aTrail->mDefinition = theDefinition;
 
@@ -45,7 +45,7 @@ Trail* TrailHolder::AllocTrailFromDef(int /*theRenderOrder*/, TrailDefinition* t
     return aTrail;
 }
 
-Trail* TrailHolder::AllocTrail(int theRenderOrder, TrailType theTrailType)
+Trail *TrailHolder::AllocTrail(int theRenderOrder, TrailType theTrailType)
 {
     return AllocTrailFromDef(theRenderOrder, gTrailDefArray + theTrailType);
 }

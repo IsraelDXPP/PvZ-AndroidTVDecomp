@@ -1,4 +1,5 @@
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_SLIDEINOUTWIDGETANIMATOR_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_SLIDEINOUTWIDGETANIMATOR_H
 
 #include "ReconTypes.h"
 #include "WidgetAnimator.h"
@@ -29,3 +30,5 @@ public:
     float mToX;
     float mToY;
 };
+
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_SLIDEINOUTWIDGETANIMATOR_H

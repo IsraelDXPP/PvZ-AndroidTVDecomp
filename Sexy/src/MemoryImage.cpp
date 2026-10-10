@@ -19,15 +19,16 @@
 #include <cmath>
 #include <algorithm>
 
-namespace Sexy {
+namespace Sexy
+{
 
-bool Quantize8Bit(const unsigned long * theSrcBits, int theWidth, int theHeight,
-                  unsigned char * theDestIndices, unsigned long * theDestTable,
-                  unsigned int * theUnused);
+bool Quantize8Bit(const unsigned long *theSrcBits, int theWidth, int theHeight, unsigned char *theDestIndices,
+    unsigned long *theDestTable, unsigned int *theUnused);
 
 }
 
-namespace {
+namespace
+{
 
 const int kDrawNormal = 0;
 const int kDrawAdditive = 1;
@@ -36,21 +37,21 @@ int FormatBytesPerPixel(Sexy::PixelFormat theFormat)
 {
     switch ((int)theFormat)
     {
-    case 1: // LUT8
-        return 1;
-    case 3: // A4R4G4B4
-    case 4: // A1R5G5B5
-    case 5: // R5G6R5
-    case 7: // R4G4B4A4
-    case 8: // R5G5B5A1
-    case 10: // L8A8
-        return 2;
-    case 2: // A8R8G8B8
-    case 6: // A8B8G8R8
-    case 9: // X8R8G8B8
-        return 4;
-    default:
-        return 0;
+        case 1: // LUT8
+            return 1;
+        case 3: // A4R4G4B4
+        case 4: // A1R5G5B5
+        case 5: // R5G6R5
+        case 7: // R4G4B4A4
+        case 8: // R5G5B5A1
+        case 10: // L8A8
+            return 2;
+        case 2: // A8R8G8B8
+        case 6: // A8B8G8R8
+        case 9: // X8R8G8B8
+            return 4;
+        default:
+            return 0;
     }
 }
 
@@ -58,17 +59,17 @@ bool FormatHasAlpha(Sexy::PixelFormat theFormat)
 {
     switch ((int)theFormat)
     {
-    case 1: // LUT8
-    case 2: // A8R8G8B8
-    case 3: // A4R4G4B4
-    case 4: // A1R5G5B5
-    case 6: // A8B8G8R8
-    case 7: // R4G4B4A4
-    case 8: // R5G5B5A1
-    case 10: // L8A8
-        return true;
-    default:
-        return false;
+        case 1: // LUT8
+        case 2: // A8R8G8B8
+        case 3: // A4R4G4B4
+        case 4: // A1R5G5B5
+        case 6: // A8B8G8R8
+        case 7: // R4G4B4A4
+        case 8: // R5G5B5A1
+        case 10: // L8A8
+            return true;
+        default:
+            return false;
     }
 }
 
@@ -76,57 +77,54 @@ unsigned int UnpackPackedPixel(Sexy::PixelFormat theFormat, unsigned int thePack
 {
     switch ((int)theFormat)
     {
-    case 3: // A4R4G4B4
-    case 7: // R4G4B4A4
-    {
-        int aBlue = (thePacked & 0xF) * 17;
-        int aGreen = ((thePacked >> 4) & 0xF) * 17;
-        int aRed = ((thePacked >> 8) & 0xF) * 17;
-        int aAlpha = ((thePacked >> 12) & 0xF) * 17;
-        if ((int)theFormat == 7)
+        case 3: // A4R4G4B4
+        case 7: // R4G4B4A4
         {
-            aAlpha = (thePacked & 0xF) * 17;
-            aBlue = ((thePacked >> 4) & 0xF) * 17;
-            aGreen = ((thePacked >> 8) & 0xF) * 17;
-            aRed = ((thePacked >> 12) & 0xF) * 17;
+            int aBlue = (thePacked & 0xF) * 17;
+            int aGreen = ((thePacked >> 4) & 0xF) * 17;
+            int aRed = ((thePacked >> 8) & 0xF) * 17;
+            int aAlpha = ((thePacked >> 12) & 0xF) * 17;
+            if ((int)theFormat == 7)
+            {
+                aAlpha = (thePacked & 0xF) * 17;
+                aBlue = ((thePacked >> 4) & 0xF) * 17;
+                aGreen = ((thePacked >> 8) & 0xF) * 17;
+                aRed = ((thePacked >> 12) & 0xF) * 17;
+            }
+            return ((unsigned int)aAlpha << 24) | ((unsigned int)aRed << 16) | ((unsigned int)aGreen << 8) |
+                (unsigned int)aBlue;
         }
-        return ((unsigned int)aAlpha << 24) | ((unsigned int)aRed << 16)
-             | ((unsigned int)aGreen << 8) | (unsigned int)aBlue;
-    }
-    case 4: // A1R5G5B5
-    {
-        int aBlue = ((thePacked & 0x1F) * 255) / 31;
-        int aGreen = (((thePacked >> 5) & 0x1F) * 255) / 31;
-        int aRed = (((thePacked >> 10) & 0x1F) * 255) / 31;
-        int aAlpha = (thePacked & 0x8000) ? 255 : 0;
-        return ((unsigned int)aAlpha << 24) | ((unsigned int)aRed << 16)
-             | ((unsigned int)aGreen << 8) | (unsigned int)aBlue;
-    }
-    case 8: // R5G5B5A1
-    {
-        int aAlpha = (thePacked & 1) ? 255 : 0;
-        int aBlue = (((thePacked >> 1) & 0x1F) * 255) / 31;
-        int aGreen = (((thePacked >> 6) & 0x1F) * 255) / 31;
-        int aRed = (((thePacked >> 11) & 0x1F) * 255) / 31;
-        return ((unsigned int)aAlpha << 24) | ((unsigned int)aRed << 16)
-             | ((unsigned int)aGreen << 8) | (unsigned int)aBlue;
-    }
-    case 5: // R5G6R5
-    {
-        int aBlue = ((thePacked & 0x1F) * 255) / 31;
-        int aGreen = (((thePacked >> 5) & 0x3F) * 255) / 63;
-        int aRed = (((thePacked >> 11) & 0x1F) * 255) / 31;
-        return 0xFF000000u | ((unsigned int)aRed << 16)
-             | ((unsigned int)aGreen << 8) | (unsigned int)aBlue;
-    }
-    case 9: // X8R8G8B8
-        return (thePacked & 0x00FFFFFFu) | 0xFF000000u;
-    case 6: // A8B8G8R8
-        return ((thePacked & 0xFF00FF00u))
-             | ((thePacked & 0x00FF0000u) >> 16)
-             | ((thePacked & 0x000000FFu) << 16);
-    default:
-        return thePacked;
+        case 4: // A1R5G5B5
+        {
+            int aBlue = ((thePacked & 0x1F) * 255) / 31;
+            int aGreen = (((thePacked >> 5) & 0x1F) * 255) / 31;
+            int aRed = (((thePacked >> 10) & 0x1F) * 255) / 31;
+            int aAlpha = (thePacked & 0x8000) ? 255 : 0;
+            return ((unsigned int)aAlpha << 24) | ((unsigned int)aRed << 16) | ((unsigned int)aGreen << 8) |
+                (unsigned int)aBlue;
+        }
+        case 8: // R5G5B5A1
+        {
+            int aAlpha = (thePacked & 1) ? 255 : 0;
+            int aBlue = (((thePacked >> 1) & 0x1F) * 255) / 31;
+            int aGreen = (((thePacked >> 6) & 0x1F) * 255) / 31;
+            int aRed = (((thePacked >> 11) & 0x1F) * 255) / 31;
+            return ((unsigned int)aAlpha << 24) | ((unsigned int)aRed << 16) | ((unsigned int)aGreen << 8) |
+                (unsigned int)aBlue;
+        }
+        case 5: // R5G6R5
+        {
+            int aBlue = ((thePacked & 0x1F) * 255) / 31;
+            int aGreen = (((thePacked >> 5) & 0x3F) * 255) / 63;
+            int aRed = (((thePacked >> 11) & 0x1F) * 255) / 31;
+            return 0xFF000000u | ((unsigned int)aRed << 16) | ((unsigned int)aGreen << 8) | (unsigned int)aBlue;
+        }
+        case 9: // X8R8G8B8
+            return (thePacked & 0x00FFFFFFu) | 0xFF000000u;
+        case 6: // A8B8G8R8
+            return ((thePacked & 0xFF00FF00u)) | ((thePacked & 0x00FF0000u) >> 16) | ((thePacked & 0x000000FFu) << 16);
+        default:
+            return thePacked;
     }
 }
 
@@ -142,20 +140,20 @@ int ScaleComponent(int theComponent, int theAlpha)
 
 unsigned int ScaleColor(int theRed, int theGreen, int theBlue, int theAlpha)
 {
-    return ((unsigned int)ScaleComponent(theRed, theAlpha) << 16)
-         | ((unsigned int)ScaleComponent(theGreen, theAlpha) << 8)
-         | (unsigned int)ScaleComponent(theBlue, theAlpha)
-         | 0xFF000000u;
+    return ((unsigned int)ScaleComponent(theRed, theAlpha) << 16) |
+        ((unsigned int)ScaleComponent(theGreen, theAlpha) << 8) | (unsigned int)ScaleComponent(theBlue, theAlpha) |
+        0xFF000000u;
 }
 
-unsigned int SourceColor(const Sexy::Color & theColor)
+unsigned int SourceColor(const Sexy::Color &theColor)
 {
     if (theColor.mAlpha == 255)
         return ScaleColor(theColor.mRed, theColor.mGreen, theColor.mBlue, 255);
 
     return ScaleColor(PremultiplyComponent(theColor.mRed, theColor.mAlpha),
-                      PremultiplyComponent(theColor.mGreen, theColor.mAlpha),
-                      PremultiplyComponent(theColor.mBlue, theColor.mAlpha), 255);
+        PremultiplyComponent(theColor.mGreen, theColor.mAlpha),
+        PremultiplyComponent(theColor.mBlue, theColor.mAlpha),
+        255);
 }
 
 unsigned int BlendPixel(unsigned int theDest, unsigned int theSrc, int theAlpha)
@@ -164,10 +162,9 @@ unsigned int BlendPixel(unsigned int theDest, unsigned int theSrc, int theAlpha)
         return theSrc;
 
     int aInvAlpha = 256 - theAlpha;
-    return ((unsigned int)ScaleComponent((int)(theDest >> 16) & 0xFF, aInvAlpha) << 16)
-         + ((unsigned int)ScaleComponent((int)(theDest >> 8) & 0xFF, aInvAlpha) << 8)
-         + theSrc
-         + (unsigned int)ScaleComponent((int)theDest & 0xFF, aInvAlpha);
+    return ((unsigned int)ScaleComponent((int)(theDest >> 16) & 0xFF, aInvAlpha) << 16) +
+        ((unsigned int)ScaleComponent((int)(theDest >> 8) & 0xFF, aInvAlpha) << 8) + theSrc +
+        (unsigned int)ScaleComponent((int)theDest & 0xFF, aInvAlpha);
 }
 
 unsigned int BlendOver(unsigned int theDest, unsigned int theSrc, int theSrcAlpha)
@@ -183,17 +180,16 @@ unsigned int BlendOver(unsigned int theDest, unsigned int theSrc, int theSrcAlph
         return theDest;
     int aWeight = 255 * theSrcAlpha / aNewAlpha;
     int aInv = 256 - aWeight;
-    unsigned int aBlue = (((theDest & 0xFFu) * (unsigned int)aInv) >> 8)
-                       + (((theSrc & 0xFFu) * (unsigned int)aWeight) >> 8);
-    unsigned int aGreen = (((theDest & 0xFF00u) * (unsigned int)aInv) >> 8)
-                        + (((theSrc & 0xFF00u) * (unsigned int)aWeight) >> 8);
-    unsigned int aRed = (((theDest & 0xFF0000u) * (unsigned int)aInv) >> 8)
-                      + (((theSrc & 0xFF0000u) * (unsigned int)aWeight) >> 8);
-    return (aBlue & 0xFFu) | (aGreen & 0xFF00u) | (aRed & 0xFF0000u)
-         | ((unsigned int)aNewAlpha << 24);
+    unsigned int aBlue =
+        (((theDest & 0xFFu) * (unsigned int)aInv) >> 8) + (((theSrc & 0xFFu) * (unsigned int)aWeight) >> 8);
+    unsigned int aGreen =
+        (((theDest & 0xFF00u) * (unsigned int)aInv) >> 8) + (((theSrc & 0xFF00u) * (unsigned int)aWeight) >> 8);
+    unsigned int aRed =
+        (((theDest & 0xFF0000u) * (unsigned int)aInv) >> 8) + (((theSrc & 0xFF0000u) * (unsigned int)aWeight) >> 8);
+    return (aBlue & 0xFFu) | (aGreen & 0xFF00u) | (aRed & 0xFF0000u) | ((unsigned int)aNewAlpha << 24);
 }
 
-unsigned int ColorizeSource(unsigned int theSrc, const Sexy::Color & theColor)
+unsigned int ColorizeSource(unsigned int theSrc, const Sexy::Color &theColor)
 {
     if (theColor == Sexy::Color::White)
         return theSrc;
@@ -204,12 +200,12 @@ unsigned int ColorizeSource(unsigned int theSrc, const Sexy::Color & theColor)
     return (aAlpha << 24) | (aRed << 16) | (aGreen << 8) | aBlue;
 }
 
-unsigned int AdditivePixel(const unsigned char * theTable, unsigned int theDest, unsigned int theAdd)
+unsigned int AdditivePixel(const unsigned char *theTable, unsigned int theDest, unsigned int theAdd)
 {
-    return (theDest & 0xFF000000u)
-         | ((unsigned int)theTable[((theDest >> 16) & 0xFF) + ((theAdd >> 16) & 0xFF)] << 16)
-         | ((unsigned int)theTable[((theDest >> 8) & 0xFF) + ((theAdd >> 8) & 0xFF)] << 8)
-         | (unsigned int)theTable[(theDest & 0xFF) + (theAdd & 0xFF)];
+    return (theDest & 0xFF000000u) |
+        ((unsigned int)theTable[((theDest >> 16) & 0xFF) + ((theAdd >> 16) & 0xFF)] << 16) |
+        ((unsigned int)theTable[((theDest >> 8) & 0xFF) + ((theAdd >> 8) & 0xFF)] << 8) |
+        (unsigned int)theTable[(theDest & 0xFF) + (theAdd & 0xFF)];
 }
 
 unsigned int PremultiplyAdd(unsigned int theSrc, bool theHasAlpha)
@@ -217,12 +213,9 @@ unsigned int PremultiplyAdd(unsigned int theSrc, bool theHasAlpha)
     if (!theHasAlpha)
         return theSrc & 0x00FFFFFFu;
     unsigned int aAlpha = theSrc >> 24;
-    return (((aAlpha * ((theSrc >> 16) & 0xFF)) >> 8) << 16)
-         | (((aAlpha * ((theSrc >> 8) & 0xFF)) >> 8) << 8)
-         | ((aAlpha * (theSrc & 0xFF)) >> 8);
+    return (((aAlpha * ((theSrc >> 16) & 0xFF)) >> 8) << 16) | (((aAlpha * ((theSrc >> 8) & 0xFF)) >> 8) << 8) |
+        ((aAlpha * (theSrc & 0xFF)) >> 8);
 }
-
-
 
 int ClipSpan(int theValue, int theLimit)
 {
@@ -235,12 +228,12 @@ int ClipSpan(int theValue, int theLimit)
 
 } // namespace
 
-Sexy::MemoryImage * Sexy::MemoryImage::AsMemoryImage()
+Sexy::MemoryImage *Sexy::MemoryImage::AsMemoryImage()
 {
     return this;
 }
 
-int * Sexy::MemoryImage::Get3D()
+int *Sexy::MemoryImage::Get3D()
 {
     return nullptr;
 }
@@ -250,19 +243,19 @@ bool Sexy::MemoryImage::CanFillPoly()
     return false;
 }
 
-bool Sexy::MemoryImage::CreateContext(Sexy::Image * theImage, const int & theContext)
+bool Sexy::MemoryImage::CreateContext(Sexy::Image *theImage, const int &theContext)
 {
     (void)theImage;
     (void)theContext;
     return true;
 }
 
-void Sexy::MemoryImage::DeleteContext(const int & theContext)
+void Sexy::MemoryImage::DeleteContext(const int &theContext)
 {
     (void)theContext;
 }
 
-void Sexy::MemoryImage::SetCurrentContext(const int & theContext)
+void Sexy::MemoryImage::SetCurrentContext(const int &theContext)
 {
     (void)theContext;
 }
@@ -272,13 +265,9 @@ int Sexy::MemoryImage::GetCurrentContext() const
     return 1;
 }
 
-void Sexy::MemoryImage::PushState()
-{
-}
+void Sexy::MemoryImage::PushState() {}
 
-void Sexy::MemoryImage::PopState()
-{
-}
+void Sexy::MemoryImage::PopState() {}
 
 void Sexy::MemoryImage::SetImageMode(bool theHasTrans, bool theHasAlpha)
 {
@@ -292,19 +281,19 @@ void Sexy::MemoryImage::SetVolatile(bool theIsVolatile)
     mIsVolatile = theIsVolatile;
 }
 
-void * Sexy::MemoryImage::GetNativeAlphaData(int * theDisplay)
+void *Sexy::MemoryImage::GetNativeAlphaData(int *theDisplay)
 {
     (void)theDisplay;
     if (mNativeAlphaData != nullptr)
         return mNativeAlphaData;
 
     CommitBits();
-    unsigned int * aBits = GetBits();
+    unsigned int *aBits = GetBits();
     if (aBits == nullptr || mWidth <= 0 || mHeight <= 0)
         return nullptr;
 
     int aCount = mWidth * mHeight;
-    unsigned int * aNative = new unsigned int[(size_t)aCount];
+    unsigned int *aNative = new unsigned int[(size_t)aCount];
     for (int i = 0; i < aCount; ++i)
     {
         unsigned int aPixel = aBits[i];
@@ -312,14 +301,13 @@ void * Sexy::MemoryImage::GetNativeAlphaData(int * theDisplay)
         unsigned int aRed = ((aPixel & 0xFF0000u) * (unsigned int)(aAlpha + 1)) >> 8;
         unsigned int aGreen = ((aPixel & 0x00FF00u) * (unsigned int)(aAlpha + 1)) >> 8;
         unsigned int aBlue = ((aPixel & 0x0000FFu) * (unsigned int)(aAlpha + 1)) >> 8;
-        aNative[i] = (aRed & 0xFF0000u) | (aGreen & 0x00FF00u) | (aBlue & 0x0000FFu)
-                   | ((unsigned int)aAlpha << 24);
+        aNative[i] = (aRed & 0xFF0000u) | (aGreen & 0x00FF00u) | (aBlue & 0x0000FFu) | ((unsigned int)aAlpha << 24);
     }
     mNativeAlphaData = aNative;
     return mNativeAlphaData;
 }
 
-unsigned char * Sexy::MemoryImage::GetRLAlphaData()
+unsigned char *Sexy::MemoryImage::GetRLAlphaData()
 {
     CommitBits();
     if (mRLAlphaData != nullptr)
@@ -327,7 +315,7 @@ unsigned char * Sexy::MemoryImage::GetRLAlphaData()
     if (mWidth <= 0 || mHeight <= 0)
         return nullptr;
 
-    unsigned char * aRuns = new unsigned char[(size_t)mWidth * (size_t)mHeight];
+    unsigned char *aRuns = new unsigned char[(size_t)mWidth * (size_t)mHeight];
     mRLAlphaData = aRuns;
     if (mWidth == 1)
     {
@@ -335,8 +323,8 @@ unsigned char * Sexy::MemoryImage::GetRLAlphaData()
         return mRLAlphaData;
     }
 
-    unsigned int * aBits = GetBits();
-    unsigned char * aWrite = aRuns;
+    unsigned int *aBits = GetBits();
+    unsigned char *aWrite = aRuns;
     for (int aRow = 0; aRow < mHeight; ++aRow)
     {
         int aRead = 1;
@@ -370,7 +358,7 @@ unsigned char * Sexy::MemoryImage::GetRLAlphaData()
     return mRLAlphaData;
 }
 
-unsigned char * Sexy::MemoryImage::GetRLAdditiveData(int * theDisplay)
+unsigned char *Sexy::MemoryImage::GetRLAdditiveData(int *theDisplay)
 {
     (void)theDisplay;
     if (mRLAdditiveData != nullptr)
@@ -378,8 +366,8 @@ unsigned char * Sexy::MemoryImage::GetRLAdditiveData(int * theDisplay)
     if (mWidth <= 0 || mHeight <= 0)
         return nullptr;
 
-    unsigned int * aNative = (unsigned int *)GetNativeAlphaData(theDisplay);
-    unsigned char * aRuns = new unsigned char[(size_t)mWidth * (size_t)mHeight];
+    unsigned int *aNative = (unsigned int *)GetNativeAlphaData(theDisplay);
+    unsigned char *aRuns = new unsigned char[(size_t)mWidth * (size_t)mHeight];
     mRLAdditiveData = aRuns;
     if (mWidth == 1)
     {
@@ -387,7 +375,7 @@ unsigned char * Sexy::MemoryImage::GetRLAdditiveData(int * theDisplay)
         return mRLAdditiveData;
     }
 
-    unsigned char * aWrite = aRuns;
+    unsigned char *aWrite = aRuns;
     for (int aRow = 0; aRow < mHeight; ++aRow)
     {
         int aRead = 1;
@@ -438,54 +426,52 @@ void Sexy::MemoryImage::Clear()
     ClearRect(aRect);
 }
 
-void Sexy::MemoryImage::BltF(Sexy::Image * theSource, float theX, float theY, const TRect<int> & theSourceRect,
-                             const TRect<int> & theClipRect, const Color & theColor, int theDrawMode)
+void Sexy::MemoryImage::BltF(Sexy::Image *theSource, float theX, float theY, const TRect<int> &theSourceRect,
+    const TRect<int> &theClipRect, const Color &theColor, int theDrawMode)
 {
     if (theSource != nullptr)
         theSource->mAboutToSample = true;
     BltRotated(theSource, theX, theY, theSourceRect, theClipRect, theColor, theDrawMode, 0, 0, 0);
 }
 
-void Sexy::MemoryImage::BltTriangles(Sexy::Image * theSource, const SexyVertex2D (*theTriangles)[3],
-                                     int theTriangleCount, const Color & theColor, int theDrawMode,
-                                     float theTx, float theTy, bool theBlend, const TRect<int> * theClipRect)
+void Sexy::MemoryImage::BltTriangles(Sexy::Image *theSource, const SexyVertex2D (*theTriangles)[3],
+    int theTriangleCount, const Color &theColor, int theDrawMode, float theTx, float theTy, bool theBlend,
+    const TRect<int> *theClipRect)
 {
     TRect<int> aClipRect(0, 0, mWidth, mHeight);
     if (theClipRect != nullptr)
         aClipRect = *theClipRect;
 
-    BltTrianglesTex(theSource, theTriangles, theTriangleCount, aClipRect, theColor, theDrawMode,
-                    theTx, theTy, theBlend);
+    BltTrianglesTex(
+        theSource, theTriangles, theTriangleCount, aClipRect, theColor, theDrawMode, theTx, theTy, theBlend);
 }
 
-void Sexy::MemoryImage::NormalStretchBltMirror(Sexy::Image * theSource, const TRect<int> & theDestRect,
-                                               const TRect<int> & theSrcRect, const TRect<int> & theClipRect,
-                                               const Color & theColor, bool theFastStretch)
+void Sexy::MemoryImage::NormalStretchBltMirror(Sexy::Image *theSource, const TRect<int> &theDestRect,
+    const TRect<int> &theSrcRect, const TRect<int> &theClipRect, const Color &theColor, bool theFastStretch)
 {
     StretchBltMirror(theSource, theDestRect, theSrcRect, theClipRect, theColor, kDrawNormal, theFastStretch);
 }
 
-void Sexy::MemoryImage::AdditiveStretchBltMirror(Sexy::Image * theSource, const TRect<int> & theDestRect,
-                                                 const TRect<int> & theSrcRect, const TRect<int> & theClipRect,
-                                                 const Color & theColor, bool theFastStretch)
+void Sexy::MemoryImage::AdditiveStretchBltMirror(Sexy::Image *theSource, const TRect<int> &theDestRect,
+    const TRect<int> &theSrcRect, const TRect<int> &theClipRect, const Color &theColor, bool theFastStretch)
 {
     StretchBltMirror(theSource, theDestRect, theSrcRect, theClipRect, theColor, kDrawAdditive, theFastStretch);
 }
 
-void Sexy::MemoryImage::FillPoly(const TPoint<int> * thePoints, int thePointCount, const TRect<int> * theClipRect,
-                                 const Color & theColor, int theDrawMode, int theTx, int theTy)
+void Sexy::MemoryImage::FillPoly(const TPoint<int> *thePoints, int thePointCount, const TRect<int> *theClipRect,
+    const Color &theColor, int theDrawMode, int theTx, int theTy)
 {
     PolyFill3D(thePoints, thePointCount, theClipRect, theColor, theDrawMode, theTx, theTy, false);
 }
 
-unsigned int * Sexy::MemoryImage::GetPallete()
+unsigned int *Sexy::MemoryImage::GetPallete()
 {
     return mColorTable;
 }
 
-void Sexy::MemoryImage::ClearRect(const TRect<int> & theRect)
+void Sexy::MemoryImage::ClearRect(const TRect<int> &theRect)
 {
-    unsigned int * aBits = GetBits();
+    unsigned int *aBits = GetBits();
     if (aBits == nullptr)
         return;
 
@@ -544,7 +530,7 @@ void Sexy::MemoryImage::DeleteNativeData()
     mRLAdditiveData = nullptr;
 }
 
-void Sexy::MemoryImage::TakeBits(unsigned int * theBits, int theWidth, int theHeight, bool theCommitBits)
+void Sexy::MemoryImage::TakeBits(unsigned int *theBits, int theWidth, int theHeight, bool theCommitBits)
 {
     delete[] mColorIndices;
     mColorIndices = nullptr;
@@ -559,7 +545,7 @@ void Sexy::MemoryImage::TakeBits(unsigned int * theBits, int theWidth, int theHe
     mStride = 4 * theWidth;
     mFormat = PIXEL_FORMAT_A8R8G8B8;
 
-    unsigned int * aBits = theBits;
+    unsigned int *aBits = theBits;
     if (theBits != nullptr)
     {
         mBits = (unsigned long *)theBits;
@@ -579,7 +565,7 @@ void Sexy::MemoryImage::TakeBits(unsigned int * theBits, int theWidth, int theHe
         CommitBits();
 }
 
-void Sexy::MemoryImage::SetBits(unsigned int * theBits, int theWidth, int theHeight, bool theOwnsBits)
+void Sexy::MemoryImage::SetBits(unsigned int *theBits, int theWidth, int theHeight, bool theOwnsBits)
 {
     if (mBits == (unsigned long *)theBits && mWidth == theWidth && mHeight == theHeight)
         return;
@@ -590,7 +576,7 @@ void Sexy::MemoryImage::SetBits(unsigned int * theBits, int theWidth, int theHei
     mColorTable = nullptr;
 
     int aPixelCount = theHeight * theWidth;
-    unsigned int * aBits;
+    unsigned int *aBits;
     if (mWidth == theWidth && mHeight == theHeight && mBits != nullptr)
     {
         aBits = (unsigned int *)mBits;
@@ -674,7 +660,7 @@ void Sexy::MemoryImage::DetachSubImages(bool theCopyBits)
             mSubImagesLock.Unlock();
             return;
         }
-        MemoryImage * aSubImage = *mSubImages.begin();
+        MemoryImage *aSubImage = *mSubImages.begin();
         mSubImagesLock.Unlock();
         if (aSubImage == nullptr)
             return;
@@ -682,10 +668,10 @@ void Sexy::MemoryImage::DetachSubImages(bool theCopyBits)
     }
 }
 
-void Sexy::MemoryImage::FillRect(const TRect<int> & theRect, const Color & theColor, int theDrawMode)
+void Sexy::MemoryImage::FillRect(const TRect<int> &theRect, const Color &theColor, int theDrawMode)
 {
     (void)theDrawMode;
-    unsigned int * aBits = GetBits();
+    unsigned int *aBits = GetBits();
     if (aBits == nullptr)
         return;
 
@@ -698,7 +684,7 @@ void Sexy::MemoryImage::FillRect(const TRect<int> & theRect, const Color & theCo
 
     for (int aRow = aTop; aRow < aBottom; ++aRow)
     {
-        unsigned int * aDest = aBits + aLeft + mWidth * aRow;
+        unsigned int *aDest = aBits + aLeft + mWidth * aRow;
         int aCount = aRight - aLeft;
         if (aAlpha == 255)
         {
@@ -718,15 +704,13 @@ void Sexy::MemoryImage::FillRect(const TRect<int> & theRect, const Color & theCo
     BitsChanged();
 }
 
-void Sexy::MemoryImage::FillScanLinesWithCoverageRenderDevice(Sexy::RenderDevice::Span * theSpans, int theSpanCount,
-                                                              const Color & theColor, int theDrawMode,
-                                                              const unsigned char * theCoverage, int theCoverageX,
-                                                              int theCoverageY, int theCoverageWidth,
-                                                              int theCoverageHeight)
+void Sexy::MemoryImage::FillScanLinesWithCoverageRenderDevice(Sexy::RenderDevice::Span *theSpans, int theSpanCount,
+    const Color &theColor, int theDrawMode, const unsigned char *theCoverage, int theCoverageX, int theCoverageY,
+    int theCoverageWidth, int theCoverageHeight)
 {
     (void)theDrawMode;
     (void)theCoverageHeight;
-    unsigned int * aBits = GetBits();
+    unsigned int *aBits = GetBits();
     if (aBits == nullptr || theSpans == nullptr)
         return;
 
@@ -741,8 +725,8 @@ void Sexy::MemoryImage::FillScanLinesWithCoverageRenderDevice(Sexy::RenderDevice
         int aSpanLength = theSpans[aSpan].mCount;
         if (aSpanY < 0 || aSpanY >= mHeight)
             continue;
-        unsigned int * aDest = aBits + aSpanX + aSpanY * aPitch;
-        const unsigned char * aCoverage = nullptr;
+        unsigned int *aDest = aBits + aSpanX + aSpanY * aPitch;
+        const unsigned char *aCoverage = nullptr;
         if (theCoverage != nullptr)
             aCoverage = theCoverage + (aSpanX - theCoverageX) + theCoverageWidth * (aSpanY - theCoverageY);
 
@@ -770,8 +754,8 @@ void Sexy::MemoryImage::Delete3DBuffers()
         mApp->Remove3DData(this);
 }
 
-void Sexy::MemoryImage::TakePixels(Sexy::PixelFormat theFormat, void * thePixels, int theWidth, int theHeight,
-                                   bool theCommitBits)
+void Sexy::MemoryImage::TakePixels(
+    Sexy::PixelFormat theFormat, void *thePixels, int theWidth, int theHeight, bool theCommitBits)
 {
     delete[] mColorIndices;
     mColorIndices = nullptr;
@@ -798,11 +782,11 @@ void Sexy::MemoryImage::TakePixels(Sexy::PixelFormat theFormat, void * thePixels
         CommitBits();
 }
 
-unsigned int * Sexy::MemoryImage::GetPixels()
+unsigned int *Sexy::MemoryImage::GetPixels()
 {
     if (mParent != nullptr)
     {
-        unsigned int * aPixels = mParent->GetPixels();
+        unsigned int *aPixels = mParent->GetPixels();
         if (aPixels == nullptr)
             return nullptr;
         int aBytePerPixel = FormatBytesPerPixel(mParent->GetPixelFormat());
@@ -826,8 +810,8 @@ void Sexy::MemoryImage::Finalize()
 
     CommitBits();
 
-    if ((int)mPixelFormatHint <= PIXEL_FORMAT_A8R8G8B8 || mPixelFormatHint == PIXEL_FORMAT_R5G5B5A1
-        || mPixelFormatHint == PIXEL_FORMAT_A8B8G8R8)
+    if ((int)mPixelFormatHint <= PIXEL_FORMAT_A8R8G8B8 || mPixelFormatHint == PIXEL_FORMAT_R5G5B5A1 ||
+        mPixelFormatHint == PIXEL_FORMAT_A8B8G8R8)
         return;
 
     int aBytePerPixel = FormatBytesPerPixel(mPixelFormatHint);
@@ -850,7 +834,7 @@ void Sexy::MemoryImage::Finalize()
 }
 
 void Sexy::MemoryImage::DrawLineEx(double theStartX, double theStartY, double theEndX, double theEndY,
-                                   const Color & theColor, int theDrawMode, bool theAntiAlias)
+    const Color &theColor, int theDrawMode, bool theAntiAlias)
 {
     if (theAntiAlias)
         DrawLineAA(theStartX, theStartY, theEndX, theEndY, theColor, theDrawMode);
@@ -866,9 +850,9 @@ void Sexy::MemoryImage::ReInit()
         PurgeBits();
 }
 
-void Sexy::MemoryImage::BltStretched(Sexy::Image * theSource, const TRect<int> & theDestRect,
-                                     const TRect<int> & theSrcRect, const TRect<int> & theClipRect,
-                                     const Color & theColor, int theDrawMode, bool theFastStretch, bool theMirror)
+void Sexy::MemoryImage::BltStretched(Sexy::Image *theSource, const TRect<int> &theDestRect,
+    const TRect<int> &theSrcRect, const TRect<int> &theClipRect, const Color &theColor, int theDrawMode,
+    bool theFastStretch, bool theMirror)
 {
     if (theMirror)
         StretchBltMirror(theSource, theDestRect, theSrcRect, theClipRect, theColor, theDrawMode, theFastStretch);
@@ -899,7 +883,7 @@ void Sexy::MemoryImage::CommitBits()
     {
         for (int aRow = 0; aRow < mHeight && !(mHasTrans && mHasAlpha); ++aRow)
         {
-            unsigned long * aPixel = mBits + mPitch * aRow;
+            unsigned long *aPixel = mBits + mPitch * aRow;
             for (int aCol = 0; aCol < mWidth; ++aCol)
             {
                 unsigned long aAlpha = *aPixel++ >> 24;
@@ -974,13 +958,12 @@ void Sexy::MemoryImage::Palletize()
         return;
 
     int aCount = mHeight * mWidth;
-    unsigned char * aIndices = new unsigned char[(size_t)aCount];
-    unsigned int * aTable = new unsigned int[256];
+    unsigned char *aIndices = new unsigned char[(size_t)aCount];
+    unsigned int *aTable = new unsigned int[256];
     std::memset(aTable, 0, 256 * sizeof(unsigned int));
 
     unsigned int aUnused = 0;
-    bool aPalettized = Sexy::Quantize8Bit(mBits, mWidth, mHeight, aIndices,
-                                          (unsigned long *)aTable, &aUnused);
+    bool aPalettized = Sexy::Quantize8Bit(mBits, mWidth, mHeight, aIndices, (unsigned long *)aTable, &aUnused);
     if (aPalettized)
     {
         mColorIndices = aIndices;
@@ -1010,7 +993,7 @@ unsigned int Sexy::MemoryImage::GetPixel(int theX, int theY)
     if (mColorTable != nullptr && mColorIndices != nullptr)
         return mColorTable[mColorIndices[mWidth * theY + theX]];
 
-    unsigned int * aPixels = GetPixels();
+    unsigned int *aPixels = GetPixels();
     if (aPixels == nullptr)
         return 0;
     PixelFormat aFormat = GetPixelFormat();
@@ -1019,7 +1002,7 @@ unsigned int Sexy::MemoryImage::GetPixel(int theX, int theY)
         return aPixels[theX + aPitch * theY];
 
     int aBytes = FormatBytesPerPixel(aFormat);
-    const unsigned char * aBytesPtr = (const unsigned char *)aPixels + aBytes * (theX + aPitch * theY);
+    const unsigned char *aBytesPtr = (const unsigned char *)aPixels + aBytes * (theX + aPitch * theY);
     unsigned int aPacked = 0;
     for (int i = 0; i < aBytes && i < 4; ++i)
         aPacked |= (unsigned int)aBytesPtr[i] << (8 * i);
@@ -1035,7 +1018,7 @@ void Sexy::MemoryImage::PurgeBits()
 
     if (mApp != nullptr)
     {
-        Sexy::NativeDisplay * aDisplay = mApp->mPlatformDriverOrQueue;
+        Sexy::NativeDisplay *aDisplay = mApp->mPlatformDriverOrQueue;
         if (aDisplay != nullptr && aDisplay->mRetainSoftwareBits)
         {
             if (!mApp->mSafeReload)
@@ -1063,11 +1046,11 @@ void Sexy::MemoryImage::PurgeBits()
     mColorTable = nullptr;
 }
 
-unsigned int * Sexy::MemoryImage::GetBits()
+unsigned int *Sexy::MemoryImage::GetBits()
 {
     if (mParent != nullptr)
     {
-        unsigned int * aParentBits = mParent->GetBits();
+        unsigned int *aParentBits = mParent->GetBits();
         if (aParentBits != nullptr)
             aParentBits += mParentX + mParentY * mParent->GetPitch();
         return aParentBits;
@@ -1082,7 +1065,7 @@ unsigned int * Sexy::MemoryImage::GetBits()
     if (aPixelCount < 0)
         aPixelCount = 0;
 
-    unsigned int * aBits = new unsigned int[(size_t)aPixelCount + 1];
+    unsigned int *aBits = new unsigned int[(size_t)aPixelCount + 1];
     mBits = (unsigned long *)aBits;
     aBits[aPixelCount] = kMemoryCheckId;
     mFormat = PIXEL_FORMAT_A8R8G8B8;
@@ -1117,7 +1100,7 @@ unsigned int * Sexy::MemoryImage::GetBits()
     bool aRecovered = false;
     if (mPixelsLive != 0 && mApp != nullptr)
     {
-        Sexy::NativeDisplay * aDisplay = mApp->mPlatformDriverOrQueue;
+        Sexy::NativeDisplay *aDisplay = mApp->mPlatformDriverOrQueue;
         if (aDisplay != nullptr && aDisplay->RecoverBits(this))
             aRecovered = true;
     }
@@ -1160,15 +1143,15 @@ void Sexy::MemoryImage::Init()
         mApp->AddMemoryImage(this);
 }
 
-void Sexy::MemoryImage::NormalDrawLine(double theStartX, double theStartY, double theEndX, double theEndY,
-                                       const Color & theColor)
+void Sexy::MemoryImage::NormalDrawLine(
+    double theStartX, double theStartY, double theEndX, double theEndY, const Color &theColor)
 {
     double aMinX = theStartX <= theEndX ? theStartX : theEndX;
     double aMinY = theStartY <= theEndY ? theStartY : theEndY;
     double aMaxX = theStartX >= theEndX ? theStartX : theEndX;
     double aMaxY = theStartY >= theEndY ? theStartY : theEndY;
 
-    unsigned int * aBits = GetBits();
+    unsigned int *aBits = GetBits();
     if (aBits == nullptr)
         return;
 
@@ -1205,10 +1188,9 @@ void Sexy::MemoryImage::NormalDrawLine(double theStartX, double theStartY, doubl
         int aIndex = aX + (int)aStartY * aPitch;
         int aRow = (int)(aStartY + 1.0);
         double aY = (double)aRow;
-        unsigned int * aPixel = aBits + aIndex + aPitch;
+        unsigned int *aPixel = aBits + aIndex + aPitch;
         int aTwiceDeltaX = (int)(aDeltaX + aDeltaX);
-        int aError = (int)((double)aTwiceDeltaX * (aStartX - (double)aX))
-                   + (int)((aDeltaX + aDeltaX) - aDeltaY);
+        int aError = (int)((double)aTwiceDeltaX * (aStartX - (double)aX)) + (int)((aDeltaX + aDeltaX) - aDeltaY);
         int aErrorStep = (int)((aDeltaX - aDeltaY) + (aDeltaX - aDeltaY));
 
         if ((int)aStartY >= 0 && (int)aStartY < mHeight && aX >= 0 && aX < mWidth)
@@ -1236,8 +1218,7 @@ void Sexy::MemoryImage::NormalDrawLine(double theStartX, double theStartY, doubl
                 if (aRow - 1 >= 0 && aRow - 1 < mHeight && aX >= 0 && aX < mWidth)
                     *aPixel = BlendPixel(*aPixel, aSource, aAlpha);
                 aPixel += aPitch;
-            }
-            while (aEndY >= (double)aRow);
+            } while (aEndY >= (double)aRow);
         }
     }
     else
@@ -1265,12 +1246,11 @@ void Sexy::MemoryImage::NormalDrawLine(double theStartX, double theStartY, doubl
         int aIntStartX = (int)aStartX;
         int aIndex = aIntStartX + aY * aPitch;
         int aTwiceDeltaY = (int)(aDeltaY + aDeltaY);
-        unsigned int * aPixel = aBits + aIndex + 1;
+        unsigned int *aPixel = aBits + aIndex + 1;
         int aCol = (int)(aStartX + 1.0);
         double aX = (double)aCol;
         double aFraction = aAlpha == 255 ? aStartY - (double)aY : aStartX - (double)aIntStartX;
-        int aError = (int)((double)aTwiceDeltaY * aFraction)
-                   + (int)((aDeltaY + aDeltaY) - aDeltaX);
+        int aError = (int)((double)aTwiceDeltaY * aFraction) + (int)((aDeltaY + aDeltaY) - aDeltaX);
         int aErrorStep = (int)((aDeltaY - aDeltaX) + (aDeltaY - aDeltaX));
 
         if (aY >= 0 && aY < mHeight && aIntStartX >= 0 && aIntStartX < mWidth)
@@ -1281,7 +1261,7 @@ void Sexy::MemoryImage::NormalDrawLine(double theStartX, double theStartY, doubl
             do
             {
                 ++aCol;
-                unsigned int * aNext = aPixel + aRowStep;
+                unsigned int *aNext = aPixel + aRowStep;
                 if (aError > 0)
                 {
                     aY += aYStep;
@@ -1300,20 +1280,19 @@ void Sexy::MemoryImage::NormalDrawLine(double theStartX, double theStartY, doubl
                 int aDrawX = aCol - 1;
                 if (aY >= 0 && aY < mHeight && aDrawX >= 0 && aDrawX < mWidth)
                     *aNext = BlendPixel(*aNext, aSource, aAlpha);
-            }
-            while (aEndX >= (double)aCol);
+            } while (aEndX >= (double)aCol);
         }
     }
 }
 
-void Sexy::MemoryImage::AdditiveDrawLine(double theStartX, double theStartY, double theEndX, double theEndY,
-                                         const Color & theColor)
+void Sexy::MemoryImage::AdditiveDrawLine(
+    double theStartX, double theStartY, double theEndX, double theEndY, const Color &theColor)
 {
-    unsigned int * aBits = GetBits();
+    unsigned int *aBits = GetBits();
     if (aBits == nullptr || mApp == nullptr)
         return;
 
-    const unsigned char * aTable = mApp->mAdd8BitMaxTable;
+    const unsigned char *aTable = mApp->mAdd8BitMaxTable;
     int aAddRed = theColor.mRed * theColor.mAlpha / 255;
     int aAddGreen = theColor.mGreen * theColor.mAlpha / 255;
     int aAddBlue = theColor.mBlue * theColor.mAlpha / 255;
@@ -1333,9 +1312,7 @@ void Sexy::MemoryImage::AdditiveDrawLine(double theStartX, double theStartY, dou
     double aDeltaY = theEndY - theStartY;
 
     auto aStore = [aTable, aAdd](unsigned int theDest) -> unsigned int
-    {
-        return AdditivePixel(aTable, theDest, aAdd) | 0xFF000000u;
-    };
+    { return AdditivePixel(aTable, theDest, aAdd) | 0xFF000000u; };
 
     if (std::fabs(aDeltaY) >= std::fabs(aDeltaX))
     {
@@ -1354,7 +1331,7 @@ void Sexy::MemoryImage::AdditiveDrawLine(double theStartX, double theStartY, dou
         int aX = (int)aStartX;
         int aIndex = aX + mWidth * (int)aStartY;
         int aRow = (int)(aStartY + 1.0);
-        unsigned int * aPixel = aBits + aIndex + aPitch;
+        unsigned int *aPixel = aBits + aIndex + aPitch;
         int aTwiceDeltaX = (int)(aDeltaX + aDeltaX);
         int aError = (int)((aDeltaX + aDeltaX) - aDeltaY);
         int aErrorStep = (int)((aDeltaX - aDeltaY) + (aDeltaX - aDeltaY));
@@ -1369,7 +1346,8 @@ void Sexy::MemoryImage::AdditiveDrawLine(double theStartX, double theStartY, dou
                 aX += aXStep;
                 aError += aErrorStep;
                 aPixel += aXStep;
-                if ((double)aX < aMinX || aMinY > (double)(aRow - 1) || (double)aX > aMaxX || aMaxY < (double)(aRow - 1))
+                if ((double)aX < aMinX || aMinY > (double)(aRow - 1) || (double)aX > aMaxX ||
+                    aMaxY < (double)(aRow - 1))
                     return;
             }
             else
@@ -1402,7 +1380,7 @@ void Sexy::MemoryImage::AdditiveDrawLine(double theStartX, double theStartY, dou
         int aY = (int)aStartY;
         int aX = (int)aStartX;
         int aIndex = aX + aY * aPitch;
-        unsigned int * aPixel = aBits + aIndex + 1;
+        unsigned int *aPixel = aBits + aIndex + 1;
         int aCol = aX + 1;
         int aTwiceDeltaY = (int)(aDeltaY + aDeltaY);
         int aError = (int)((aDeltaY + aDeltaY) - aDeltaX);
@@ -1413,12 +1391,13 @@ void Sexy::MemoryImage::AdditiveDrawLine(double theStartX, double theStartY, dou
         while (aEndX >= (double)aCol)
         {
             ++aCol;
-            unsigned int * aNext = aPixel + aRowStep;
+            unsigned int *aNext = aPixel + aRowStep;
             if (aError > 0)
             {
                 aY += aYStep;
                 aError += aErrorStep;
-                if (aMinX > (double)(aCol - 1) || (double)aY < aMinY || aMaxX < (double)(aCol - 1) || (double)aY > aMaxY)
+                if (aMinX > (double)(aCol - 1) || (double)aY < aMinY || aMaxX < (double)(aCol - 1) ||
+                    (double)aY > aMaxY)
                     return;
             }
             else
@@ -1433,8 +1412,8 @@ void Sexy::MemoryImage::AdditiveDrawLine(double theStartX, double theStartY, dou
     }
 }
 
-void Sexy::MemoryImage::DrawLine(double theStartX, double theStartY, double theEndX, double theEndY,
-                                 const Color & theColor, int theDrawMode)
+void Sexy::MemoryImage::DrawLine(
+    double theStartX, double theStartY, double theEndX, double theEndY, const Color &theColor, int theDrawMode)
 {
     if (theStartY == theEndY)
     {
@@ -1462,10 +1441,10 @@ void Sexy::MemoryImage::DrawLine(double theStartX, double theStartY, double theE
     BitsChanged();
 }
 
-void Sexy::MemoryImage::NormalDrawLineAA(double theStartX, double theStartY, double theEndX, double theEndY,
-                                         const Color & theColor)
+void Sexy::MemoryImage::NormalDrawLineAA(
+    double theStartX, double theStartY, double theEndX, double theEndY, const Color &theColor)
 {
-    unsigned int * aBits = GetBits();
+    unsigned int *aBits = GetBits();
     if (aBits == nullptr)
         return;
 
@@ -1502,20 +1481,20 @@ void Sexy::MemoryImage::NormalDrawLineAA(double theStartX, double theStartY, dou
             continue;
         if (aLeft >= 0 && aLeft < mWidth)
         {
-            unsigned int * aPixel = aBits + aLeft + aY * aPitch;
+            unsigned int *aPixel = aBits + aLeft + aY * aPitch;
             *aPixel = BlendOver(*aPixel, aPacked, theColor.mAlpha * (255 - aFrac) / 255);
         }
         if (aLeft + 1 >= 0 && aLeft + 1 < mWidth)
         {
-            unsigned int * aPixel = aBits + aLeft + 1 + aY * aPitch;
+            unsigned int *aPixel = aBits + aLeft + 1 + aY * aPitch;
             *aPixel = BlendOver(*aPixel, aPacked, theColor.mAlpha * aFrac / 255);
         }
     }
     BitsChanged();
 }
 
-void Sexy::MemoryImage::AdditiveDrawLineAA(double theStartX, double theStartY, double theEndX, double theEndY,
-                                           const Color & theColor)
+void Sexy::MemoryImage::AdditiveDrawLineAA(
+    double theStartX, double theStartY, double theEndX, double theEndY, const Color &theColor)
 {
     (void)theStartX;
     (void)theStartY;
@@ -1524,8 +1503,8 @@ void Sexy::MemoryImage::AdditiveDrawLineAA(double theStartX, double theStartY, d
     (void)theColor;
 }
 
-void Sexy::MemoryImage::DrawLineAA(double theStartX, double theStartY, double theEndX, double theEndY,
-                                   const Color & theColor, int theDrawMode)
+void Sexy::MemoryImage::DrawLineAA(
+    double theStartX, double theStartY, double theEndX, double theEndY, const Color &theColor, int theDrawMode)
 {
     if (theStartY == theEndY)
     {
@@ -1553,15 +1532,16 @@ void Sexy::MemoryImage::DrawLineAA(double theStartX, double theStartY, double th
     BitsChanged();
 }
 
-namespace {
+namespace
+{
 
-unsigned int SampleSource(Sexy::MemoryImage * theSource, int theX, int theY)
+unsigned int SampleSource(Sexy::MemoryImage *theSource, int theX, int theY)
 {
     if (theSource == nullptr || theX < 0 || theY < 0 || theX >= theSource->mWidth || theY >= theSource->mHeight)
         return 0;
     if (theSource->mColorTable != nullptr && theSource->mColorIndices != nullptr)
         return theSource->mColorTable[theSource->mColorIndices[theY * theSource->GetPitch() + theX]];
-    unsigned int * aBits = theSource->GetBits();
+    unsigned int *aBits = theSource->GetBits();
     if (aBits == nullptr)
         return 0;
     return aBits[theY * theSource->GetPitch() + theX];
@@ -1569,17 +1549,17 @@ unsigned int SampleSource(Sexy::MemoryImage * theSource, int theX, int theY)
 
 } // namespace
 
-void Sexy::MemoryImage::AdditiveBlt(Sexy::Image * theSource, int theX, int theY,
-                                    const TRect<int> & theSourceRect, const Color & theColor)
+void Sexy::MemoryImage::AdditiveBlt(
+    Sexy::Image *theSource, int theX, int theY, const TRect<int> &theSourceRect, const Color &theColor)
 {
     if (theSource != nullptr)
         theSource->mAboutToSample = true;
-    MemoryImage * aSrc = dynamic_cast<MemoryImage *>(theSource);
+    MemoryImage *aSrc = dynamic_cast<MemoryImage *>(theSource);
     if (aSrc == nullptr || mApp == nullptr)
         return;
 
-    const unsigned char * aTable = mApp->mAdd8BitMaxTable;
-    unsigned int * aDestBits = GetBits();
+    const unsigned char *aTable = mApp->mAdd8BitMaxTable;
+    unsigned int *aDestBits = GetBits();
     if (aDestBits == nullptr)
         return;
     int aDestPitch = GetPitch();
@@ -1599,24 +1579,24 @@ void Sexy::MemoryImage::AdditiveBlt(Sexy::Image * theSource, int theX, int theY,
             if (!aWhite)
                 aSrcPixel = ColorizeSource(aSrcPixel, theColor);
             unsigned int aAdd = PremultiplyAdd(aSrcPixel, aSrc->mHasAlpha);
-            unsigned int * aDest = aDestBits + aDestX + aDestY * aDestPitch;
+            unsigned int *aDest = aDestBits + aDestX + aDestY * aDestPitch;
             *aDest = AdditivePixel(aTable, *aDest, aAdd);
         }
     }
     BitsChanged();
 }
 
-void Sexy::MemoryImage::AdditiveBltMirror(Sexy::Image * theSource, int theX, int theY,
-                                          const TRect<int> & theSourceRect, const Color & theColor)
+void Sexy::MemoryImage::AdditiveBltMirror(
+    Sexy::Image *theSource, int theX, int theY, const TRect<int> &theSourceRect, const Color &theColor)
 {
     if (theSource != nullptr)
         theSource->mAboutToSample = true;
-    MemoryImage * aSrc = dynamic_cast<MemoryImage *>(theSource);
+    MemoryImage *aSrc = dynamic_cast<MemoryImage *>(theSource);
     if (aSrc == nullptr || mApp == nullptr)
         return;
 
-    const unsigned char * aTable = mApp->mAdd8BitMaxTable;
-    unsigned int * aDestBits = GetBits();
+    const unsigned char *aTable = mApp->mAdd8BitMaxTable;
+    unsigned int *aDestBits = GetBits();
     if (aDestBits == nullptr)
         return;
     int aDestPitch = GetPitch();
@@ -1637,23 +1617,23 @@ void Sexy::MemoryImage::AdditiveBltMirror(Sexy::Image * theSource, int theX, int
             if (!aWhite)
                 aSrcPixel = ColorizeSource(aSrcPixel, theColor);
             unsigned int aAdd = PremultiplyAdd(aSrcPixel, aSrc->mHasAlpha);
-            unsigned int * aDest = aDestBits + aDestX + aDestY * aDestPitch;
+            unsigned int *aDest = aDestBits + aDestX + aDestY * aDestPitch;
             *aDest = AdditivePixel(aTable, *aDest, aAdd);
         }
     }
     BitsChanged();
 }
 
-void Sexy::MemoryImage::NormalBlt(Sexy::Image * theSource, int theX, int theY,
-                                  const TRect<int> & theSourceRect, const Color & theColor)
+void Sexy::MemoryImage::NormalBlt(
+    Sexy::Image *theSource, int theX, int theY, const TRect<int> &theSourceRect, const Color &theColor)
 {
     if (theSource != nullptr)
         theSource->mAboutToSample = true;
-    MemoryImage * aSrc = dynamic_cast<MemoryImage *>(theSource);
+    MemoryImage *aSrc = dynamic_cast<MemoryImage *>(theSource);
     if (aSrc == nullptr)
         return;
 
-    unsigned int * aDestBits = GetBits();
+    unsigned int *aDestBits = GetBits();
     if (aDestBits == nullptr)
         return;
     int aDestPitch = GetPitch();
@@ -1671,7 +1651,7 @@ void Sexy::MemoryImage::NormalBlt(Sexy::Image * theSource, int theX, int theY,
                 continue;
             unsigned int aSrcPixel = SampleSource(aSrc, theSourceRect.mX + aCol, theSourceRect.mY + aRow);
             aSrcPixel = ColorizeSource(aSrcPixel, theColor);
-            unsigned int * aDest = aDestBits + aDestX + aDestY * aDestPitch;
+            unsigned int *aDest = aDestBits + aDestX + aDestY * aDestPitch;
             if (aOpaqueCopy)
                 *aDest = aSrcPixel | 0xFF000000u;
             else
@@ -1681,8 +1661,8 @@ void Sexy::MemoryImage::NormalBlt(Sexy::Image * theSource, int theX, int theY,
     BitsChanged();
 }
 
-void Sexy::MemoryImage::Blt(Image * theSource, int theX, int theY, const TRect<int> & theSourceRect,
-                            const Color & theColor, int theDrawMode, bool theColorize)
+void Sexy::MemoryImage::Blt(Image *theSource, int theX, int theY, const TRect<int> &theSourceRect,
+    const Color &theColor, int theDrawMode, bool theColorize)
 {
     (void)theColorize;
     if (theSource != nullptr)
@@ -1693,16 +1673,16 @@ void Sexy::MemoryImage::Blt(Image * theSource, int theX, int theY, const TRect<i
         AdditiveBlt(theSource, theX, theY, theSourceRect, theColor);
 }
 
-void Sexy::MemoryImage::NormalBltMirror(Sexy::Image * theSource, int theX, int theY,
-                                        const TRect<int> & theSourceRect, const Color & theColor)
+void Sexy::MemoryImage::NormalBltMirror(
+    Sexy::Image *theSource, int theX, int theY, const TRect<int> &theSourceRect, const Color &theColor)
 {
     if (theSource != nullptr)
         theSource->mAboutToSample = true;
-    MemoryImage * aSrc = dynamic_cast<MemoryImage *>(theSource);
+    MemoryImage *aSrc = dynamic_cast<MemoryImage *>(theSource);
     if (aSrc == nullptr)
         return;
 
-    unsigned int * aDestBits = GetBits();
+    unsigned int *aDestBits = GetBits();
     if (aDestBits == nullptr)
         return;
     int aDestPitch = GetPitch();
@@ -1720,15 +1700,15 @@ void Sexy::MemoryImage::NormalBltMirror(Sexy::Image * theSource, int theX, int t
                 continue;
             unsigned int aSrcPixel = SampleSource(aSrc, theSourceRect.mX + aCol, theSourceRect.mY + aRow);
             aSrcPixel = ColorizeSource(aSrcPixel, theColor);
-            unsigned int * aDest = aDestBits + aDestX + aDestY * aDestPitch;
+            unsigned int *aDest = aDestBits + aDestX + aDestY * aDestPitch;
             *aDest = BlendOver(*aDest, aSrcPixel, (int)(aSrcPixel >> 24));
         }
     }
     BitsChanged();
 }
 
-void Sexy::MemoryImage::BltMirror(Image * theSource, int theX, int theY, const TRect<int> & theSourceRect,
-                                  const Color & theColor, int theDrawMode)
+void Sexy::MemoryImage::BltMirror(
+    Image *theSource, int theX, int theY, const TRect<int> &theSourceRect, const Color &theColor, int theDrawMode)
 {
     if (theSource != nullptr)
         theSource->mAboutToSample = true;
@@ -1738,15 +1718,14 @@ void Sexy::MemoryImage::BltMirror(Image * theSource, int theX, int theY, const T
         AdditiveBltMirror(theSource, theX, theY, theSourceRect, theColor);
 }
 
-bool Sexy::MemoryImage::BltRotatedClipHelper(float & theX, float & theY, const TRect<int> & theSourceRect,
-                                             const TRect<int> & theClipRect, double theRotate,
-                                             TRect<float> & theRotatedRect, float theRotateCenterX,
-                                             float theRotateCenterY)
+bool Sexy::MemoryImage::BltRotatedClipHelper(float &theX, float &theY, const TRect<int> &theSourceRect,
+    const TRect<int> &theClipRect, double theRotate, TRect<float> &theRotatedRect, float theRotateCenterX,
+    float theRotateCenterY)
 {
     float aCos = std::cos((float)theRotate);
     float aSin = std::sin((float)theRotate);
-    float aCornerX[4] = { 0, (float)theSourceRect.mWidth, (float)theSourceRect.mWidth, 0 };
-    float aCornerY[4] = { 0, 0, (float)theSourceRect.mHeight, (float)theSourceRect.mHeight };
+    float aCornerX[4] = {0, (float)theSourceRect.mWidth, (float)theSourceRect.mWidth, 0};
+    float aCornerY[4] = {0, 0, (float)theSourceRect.mHeight, (float)theSourceRect.mHeight};
     float aMinX = 10000000.0f;
     float aMaxX = -10000000.0f;
     float aMinY = 10000000.0f;
@@ -1768,8 +1747,8 @@ bool Sexy::MemoryImage::BltRotatedClipHelper(float & theX, float & theY, const T
             aMaxY = aCornerY[i];
     }
 
-    TRect<float> aClip((float)theClipRect.mX, (float)theClipRect.mY,
-                       (float)theClipRect.mWidth, (float)theClipRect.mHeight);
+    TRect<float> aClip(
+        (float)theClipRect.mX, (float)theClipRect.mY, (float)theClipRect.mWidth, (float)theClipRect.mHeight);
     TRect<float> aBounds(aMinX, aMinY, aMaxX - aMinX, aMaxY - aMinY);
     TRect<float> aDest = aBounds.Intersection(aClip);
     if (aDest.mWidth <= 0.0f || aDest.mHeight <= 0.0f)
@@ -1779,22 +1758,23 @@ bool Sexy::MemoryImage::BltRotatedClipHelper(float & theX, float & theY, const T
     return true;
 }
 
-void Sexy::MemoryImage::BltRotated(Sexy::Image * theSource, float theX, float theY, const TRect<int> & theSourceRect,
-                                   const TRect<int> & theClipRect, const Color & theColor, int theDrawMode,
-                                   double theRotate, float theRotateCenterX, float theRotateCenterY)
+void Sexy::MemoryImage::BltRotated(Sexy::Image *theSource, float theX, float theY, const TRect<int> &theSourceRect,
+    const TRect<int> &theClipRect, const Color &theColor, int theDrawMode, double theRotate, float theRotateCenterX,
+    float theRotateCenterY)
 {
     if (theSource != nullptr)
         theSource->mAboutToSample = true;
     TRect<float> aDestRect;
     float aX = theX;
     float aY = theY;
-    if (!BltRotatedClipHelper(aX, aY, theSourceRect, theClipRect, theRotate, aDestRect, theRotateCenterX, theRotateCenterY))
+    if (!BltRotatedClipHelper(
+            aX, aY, theSourceRect, theClipRect, theRotate, aDestRect, theRotateCenterX, theRotateCenterY))
         return;
 
-    MemoryImage * aSrc = dynamic_cast<MemoryImage *>(theSource);
+    MemoryImage *aSrc = dynamic_cast<MemoryImage *>(theSource);
     if (aSrc == nullptr)
         return;
-    unsigned int * aDestBits = GetBits();
+    unsigned int *aDestBits = GetBits();
     if (aDestBits == nullptr)
         return;
 
@@ -1806,7 +1786,7 @@ void Sexy::MemoryImage::BltRotated(Sexy::Image * theSource, float theX, float th
     int aRight = aLeft + (int)aDestRect.mWidth;
     int aBottom = aTop + (int)aDestRect.mHeight;
     bool aAdditive = theDrawMode == kDrawAdditive;
-    const unsigned char * aTable = (aAdditive && mApp != nullptr) ? mApp->mAdd8BitMaxTable : nullptr;
+    const unsigned char *aTable = (aAdditive && mApp != nullptr) ? mApp->mAdd8BitMaxTable : nullptr;
 
     for (int aRow = aTop; aRow < aBottom; ++aRow)
     {
@@ -1826,7 +1806,7 @@ void Sexy::MemoryImage::BltRotated(Sexy::Image * theSource, float theX, float th
                 continue;
             unsigned int aSrcPixel = SampleSource(aSrc, aSrcX, aSrcY);
             aSrcPixel = ColorizeSource(aSrcPixel, theColor);
-            unsigned int * aDest = aDestBits + aCol + aRow * aDestPitch;
+            unsigned int *aDest = aDestBits + aCol + aRow * aDestPitch;
             if (aAdditive && aTable != nullptr)
                 *aDest = AdditivePixel(aTable, *aDest, PremultiplyAdd(aSrcPixel, aSrc->mHasAlpha));
             else
@@ -1836,9 +1816,8 @@ void Sexy::MemoryImage::BltRotated(Sexy::Image * theSource, float theX, float th
     BitsChanged();
 }
 
-bool Sexy::MemoryImage::StretchBltClipHelper(const TRect<int> & theDestRect, const TRect<int> & theSrcRect,
-                                             const TRect<int> & theClipRect, TRect<float> & theStretchedRect,
-                                             TRect<int> & theClippedDestRect)
+bool Sexy::MemoryImage::StretchBltClipHelper(const TRect<int> &theDestRect, const TRect<int> &theSrcRect,
+    const TRect<int> &theClipRect, TRect<float> &theStretchedRect, TRect<int> &theClippedDestRect)
 {
     theClippedDestRect = theDestRect.Intersection(theClipRect);
     if (theDestRect.mWidth == 0 || theDestRect.mHeight == 0)
@@ -1854,9 +1833,8 @@ bool Sexy::MemoryImage::StretchBltClipHelper(const TRect<int> & theDestRect, con
     return theStretchedRect.mWidth > 0.0f && theStretchedRect.mHeight > 0.0f;
 }
 
-bool Sexy::MemoryImage::StretchBltMirrorClipHelper(const TRect<int> & theDestRect, const TRect<int> & theSrcRect,
-                                                   const TRect<int> & theClipRect, TRect<float> & theStretchedRect,
-                                                   TRect<int> & theClippedDestRect)
+bool Sexy::MemoryImage::StretchBltMirrorClipHelper(const TRect<int> &theDestRect, const TRect<int> &theSrcRect,
+    const TRect<int> &theClipRect, TRect<float> &theStretchedRect, TRect<int> &theClippedDestRect)
 {
     theClippedDestRect = theDestRect.Intersection(theClipRect);
     if (theDestRect.mWidth == 0 || theDestRect.mHeight == 0)
@@ -1867,24 +1845,22 @@ bool Sexy::MemoryImage::StretchBltMirrorClipHelper(const TRect<int> & theDestRec
     int aTotalClip = theDestRect.mWidth - theClippedDestRect.mWidth;
     int aLeftClip = theClippedDestRect.mX - theDestRect.mX;
     int aRightClip = aTotalClip - aLeftClip;
-    theStretchedRect = TRect<float>(
-        (float)((double)theSrcRect.mX + (double)aRightClip * aXFactor),
+    theStretchedRect = TRect<float>((float)((double)theSrcRect.mX + (double)aRightClip * aXFactor),
         (float)((double)theSrcRect.mY + (double)(theClippedDestRect.mY - theDestRect.mY) * aYFactor),
         (float)((double)theSrcRect.mWidth + (double)(theClippedDestRect.mWidth - theDestRect.mWidth) * aXFactor),
         (float)((double)theSrcRect.mHeight + (double)(theClippedDestRect.mHeight - theDestRect.mHeight) * aYFactor));
     return theStretchedRect.mWidth > 0.0f && theStretchedRect.mHeight > 0.0f;
 }
 
-void Sexy::MemoryImage::SlowStretchBlt(Sexy::Image * theSource, const TRect<int> & theDestRect,
-                                       const TRect<float> & theSrcRect, const Color & theColor,
-                                       int theDrawMode, bool theMirror)
+void Sexy::MemoryImage::SlowStretchBlt(Sexy::Image *theSource, const TRect<int> &theDestRect,
+    const TRect<float> &theSrcRect, const Color &theColor, int theDrawMode, bool theMirror)
 {
     if (theSource != nullptr)
         theSource->mAboutToSample = true;
-    MemoryImage * aSrc = dynamic_cast<MemoryImage *>(theSource);
+    MemoryImage *aSrc = dynamic_cast<MemoryImage *>(theSource);
     if (aSrc == nullptr || theDestRect.mWidth <= 0 || theDestRect.mHeight <= 0)
         return;
-    unsigned int * aDestBits = GetBits();
+    unsigned int *aDestBits = GetBits();
     if (aDestBits == nullptr)
         return;
 
@@ -1892,7 +1868,7 @@ void Sexy::MemoryImage::SlowStretchBlt(Sexy::Image * theSource, const TRect<int>
     float aStepX = theSrcRect.mWidth / (float)theDestRect.mWidth;
     float aStepY = theSrcRect.mHeight / (float)theDestRect.mHeight;
     bool aAdditive = theDrawMode == kDrawAdditive;
-    const unsigned char * aTable = (aAdditive && mApp != nullptr) ? mApp->mAdd8BitMaxTable : nullptr;
+    const unsigned char *aTable = (aAdditive && mApp != nullptr) ? mApp->mAdd8BitMaxTable : nullptr;
 
     for (int aRow = 0; aRow < theDestRect.mHeight; ++aRow)
     {
@@ -1902,14 +1878,13 @@ void Sexy::MemoryImage::SlowStretchBlt(Sexy::Image * theSource, const TRect<int>
         float aSrcY = theSrcRect.mY + aStepY * ((float)aRow + 0.5f);
         for (int aCol = 0; aCol < theDestRect.mWidth; ++aCol)
         {
-            int aDestX = theMirror ? theDestRect.mX + theDestRect.mWidth - 1 - aCol
-                                   : theDestRect.mX + aCol;
+            int aDestX = theMirror ? theDestRect.mX + theDestRect.mWidth - 1 - aCol : theDestRect.mX + aCol;
             if (aDestX < 0 || aDestX >= mWidth)
                 continue;
             float aSrcX = theSrcRect.mX + aStepX * ((float)aCol + 0.5f);
             unsigned int aSrcPixel = SampleSource(aSrc, (int)aSrcX, (int)aSrcY);
             aSrcPixel = ColorizeSource(aSrcPixel, theColor);
-            unsigned int * aDest = aDestBits + aDestX + aDestY * aDestPitch;
+            unsigned int *aDest = aDestBits + aDestX + aDestY * aDestPitch;
             if (aAdditive && aTable != nullptr)
                 *aDest = AdditivePixel(aTable, *aDest, PremultiplyAdd(aSrcPixel, aSrc->mHasAlpha));
             else
@@ -1919,17 +1894,16 @@ void Sexy::MemoryImage::SlowStretchBlt(Sexy::Image * theSource, const TRect<int>
     BitsChanged();
 }
 
-void Sexy::MemoryImage::FastStretchBlt(Sexy::Image * theSource, const TRect<int> & theDestRect,
-                                       const TRect<float> & theSrcRect, const Color & theColor,
-                                       int theDrawMode, bool theMirror)
+void Sexy::MemoryImage::FastStretchBlt(Sexy::Image *theSource, const TRect<int> &theDestRect,
+    const TRect<float> &theSrcRect, const Color &theColor, int theDrawMode, bool theMirror)
 {
     if (theSource != nullptr)
         theSource->mAboutToSample = true;
-    MemoryImage * aSrc = dynamic_cast<MemoryImage *>(theSource);
+    MemoryImage *aSrc = dynamic_cast<MemoryImage *>(theSource);
     if (aSrc == nullptr || theDestRect.mWidth <= 0 || theDestRect.mHeight <= 0)
         return;
-    unsigned int * aDestBits = GetBits();
-    unsigned int * aSrcBits = aSrc->GetBits();
+    unsigned int *aDestBits = GetBits();
+    unsigned int *aSrcBits = aSrc->GetBits();
     if (aDestBits == nullptr || aSrcBits == nullptr)
         return;
 
@@ -1939,7 +1913,7 @@ void Sexy::MemoryImage::FastStretchBlt(Sexy::Image * theSource, const TRect<int>
     double aAddY = (double)theSrcRect.mHeight / (double)theDestRect.mHeight;
     double aSrcY = theSrcRect.mY;
     bool aAdditive = theDrawMode == kDrawAdditive;
-    const unsigned char * aTable = (aAdditive && mApp != nullptr) ? mApp->mAdd8BitMaxTable : nullptr;
+    const unsigned char *aTable = (aAdditive && mApp != nullptr) ? mApp->mAdd8BitMaxTable : nullptr;
 
     for (int aRow = 0; aRow < theDestRect.mHeight; ++aRow)
     {
@@ -1951,15 +1925,13 @@ void Sexy::MemoryImage::FastStretchBlt(Sexy::Image * theSource, const TRect<int>
             {
                 int aSampleX = (int)aSrcX;
                 int aSampleY = (int)aSrcY;
-                int aDestX = theMirror ? theDestRect.mX + theDestRect.mWidth - 1 - aCol
-                                       : theDestRect.mX + aCol;
-                if (aDestX >= 0 && aDestX < mWidth
-                    && aSampleX >= 0 && aSampleY >= 0
-                    && aSampleX < aSrc->mWidth && aSampleY < aSrc->mHeight)
+                int aDestX = theMirror ? theDestRect.mX + theDestRect.mWidth - 1 - aCol : theDestRect.mX + aCol;
+                if (aDestX >= 0 && aDestX < mWidth && aSampleX >= 0 && aSampleY >= 0 && aSampleX < aSrc->mWidth &&
+                    aSampleY < aSrc->mHeight)
                 {
                     unsigned int aSrcPixel = aSrcBits[aSampleX + aSampleY * aSrcPitch];
                     aSrcPixel = ColorizeSource(aSrcPixel, theColor);
-                    unsigned int * aDest = aDestBits + aDestX + aDestY * aDestPitch;
+                    unsigned int *aDest = aDestBits + aDestX + aDestY * aDestPitch;
                     if (aAdditive && aTable != nullptr)
                         *aDest = AdditivePixel(aTable, *aDest, PremultiplyAdd(aSrcPixel, true));
                     else
@@ -1973,9 +1945,8 @@ void Sexy::MemoryImage::FastStretchBlt(Sexy::Image * theSource, const TRect<int>
     BitsChanged();
 }
 
-void Sexy::MemoryImage::StretchBlt(Sexy::Image * theSource, const TRect<int> & theDestRect,
-                                   const TRect<int> & theSrcRect, const TRect<int> & theClipRect,
-                                   const Color & theColor, int theDrawMode, bool theFastStretch)
+void Sexy::MemoryImage::StretchBlt(Sexy::Image *theSource, const TRect<int> &theDestRect, const TRect<int> &theSrcRect,
+    const TRect<int> &theClipRect, const Color &theColor, int theDrawMode, bool theFastStretch)
 {
     if (theSource != nullptr)
         theSource->mAboutToSample = true;
@@ -1984,16 +1955,16 @@ void Sexy::MemoryImage::StretchBlt(Sexy::Image * theSource, const TRect<int> & t
     if (!StretchBltClipHelper(theDestRect, theSrcRect, theClipRect, aSrcOut, aDestOut))
         return;
 
-    if (theFastStretch && theSource != nullptr && theSource->GetPixelFormat() == PIXEL_FORMAT_A8R8G8B8
-        && theColor == Color::White)
+    if (theFastStretch && theSource != nullptr && theSource->GetPixelFormat() == PIXEL_FORMAT_A8R8G8B8 &&
+        theColor == Color::White)
         FastStretchBlt(theSource, aDestOut, aSrcOut, theColor, theDrawMode, false);
     else
         SlowStretchBlt(theSource, aDestOut, aSrcOut, theColor, theDrawMode, false);
 }
 
-void Sexy::MemoryImage::StretchBltMirror(Sexy::Image * theSource, const TRect<int> & theDestRect,
-                                         const TRect<int> & theSrcRect, const TRect<int> & theClipRect,
-                                         const Color & theColor, int theDrawMode, bool theFastStretch)
+void Sexy::MemoryImage::StretchBltMirror(Sexy::Image *theSource, const TRect<int> &theDestRect,
+    const TRect<int> &theSrcRect, const TRect<int> &theClipRect, const Color &theColor, int theDrawMode,
+    bool theFastStretch)
 {
     if (theSource != nullptr)
         theSource->mAboutToSample = true;
@@ -2008,13 +1979,12 @@ void Sexy::MemoryImage::StretchBltMirror(Sexy::Image * theSource, const TRect<in
         SlowStretchBlt(theSource, aDestOut, aSrcOut, theColor, theDrawMode, true);
 }
 
-void Sexy::MemoryImage::BltMatrixHelper(Sexy::Image * theSource, float theX, float theY,
-                                        const SexyMatrix3 & theMatrix, const TRect<int> & theSourceRect,
-                                        const Color & theColor, int theDrawMode, const TRect<int> & theClipRect,
-                                        void * theBits, int theStride, int theBlendMode, bool theMirror)
+void Sexy::MemoryImage::BltMatrixHelper(Sexy::Image *theSource, float theX, float theY, const SexyMatrix3 &theMatrix,
+    const TRect<int> &theSourceRect, const Color &theColor, int theDrawMode, const TRect<int> &theClipRect,
+    void *theBits, int theStride, int theBlendMode, bool theMirror)
 {
     (void)theMirror;
-    MemoryImage * aSrc = dynamic_cast<MemoryImage *>(theSource);
+    MemoryImage *aSrc = dynamic_cast<MemoryImage *>(theSource);
     if (aSrc == nullptr)
         return;
 
@@ -2031,12 +2001,10 @@ void Sexy::MemoryImage::BltMatrixHelper(Sexy::Image * theSource, float theX, flo
 
     // MemoryImage::BltMatrixHelper @0x327c64 writes the corners in this order:
     // (+half, -half), (-half, -half), (+half, +half), (-half, +half).
-    SWShapeVertex aCorners[4] = {
-        { aHalfW, -aHalfH, aU1, aV0, 0xFFFFFFFFu },
-        { -aHalfW, -aHalfH, aU0, aV0, 0xFFFFFFFFu },
-        { aHalfW, aHalfH, aU1, aV1, 0xFFFFFFFFu },
-        { -aHalfW, aHalfH, aU0, aV1, 0xFFFFFFFFu }
-    };
+    SWShapeVertex aCorners[4] = {{aHalfW, -aHalfH, aU1, aV0, 0xFFFFFFFFu},
+        {-aHalfW, -aHalfH, aU0, aV0, 0xFFFFFFFFu},
+        {aHalfW, aHalfH, aU1, aV1, 0xFFFFFFFFu},
+        {-aHalfW, aHalfH, aU0, aV1, 0xFFFFFFFFu}};
     for (int i = 0; i < 4; ++i)
     {
         // Homogeneous row (x, y, 1). TV's matrix*vector reads translation from
@@ -2048,32 +2016,40 @@ void Sexy::MemoryImage::BltMatrixHelper(Sexy::Image * theSource, float theX, flo
     }
 
     SWHelper aHelper;
-    aHelper.SWDrawShape(aCorners, 4, aSrc, theColor, theDrawMode, theClipRect,
-                        theBits, theStride, theBlendMode, false, false);
+    aHelper.SWDrawShape(
+        aCorners, 4, aSrc, theColor, theDrawMode, theClipRect, theBits, theStride, theBlendMode, false, false);
 }
 
-void Sexy::MemoryImage::BltMatrix(Sexy::Image * theSource, float theX, float theY, const SexyMatrix3 & theMatrix,
-                                  const TRect<int> & theSourceRect, const Color & theColor, int theDrawMode,
-                                  const TRect<int> & theClipRect, bool theLinearBlend, bool theMirror)
+void Sexy::MemoryImage::BltMatrix(Sexy::Image *theSource, float theX, float theY, const SexyMatrix3 &theMatrix,
+    const TRect<int> &theSourceRect, const Color &theColor, int theDrawMode, const TRect<int> &theClipRect,
+    bool theLinearBlend, bool theMirror)
 {
     if (theSource != nullptr)
         theSource->mAboutToSample = true;
-    void * aBits = GetBits();
+    void *aBits = GetBits();
     int aStride = GetStride();
     int aBlendMode = (mForcedMode || mHasAlpha || mHasTrans) ? 0x8888 : 0x888;
-    BltMatrixHelper(theSource, theX, theY, theMatrix, theSourceRect, theColor, theDrawMode,
-                    theClipRect, aBits, aStride, aBlendMode, theMirror);
+    BltMatrixHelper(theSource,
+        theX,
+        theY,
+        theMatrix,
+        theSourceRect,
+        theColor,
+        theDrawMode,
+        theClipRect,
+        aBits,
+        aStride,
+        aBlendMode,
+        theMirror);
     (void)theLinearBlend;
     BitsChanged();
 }
 
-void Sexy::MemoryImage::BltTrianglesTexHelper(Sexy::Image * theSource, const SexyVertex2D (*theTriangles)[3],
-                                              int theTriangleCount, const TRect<int> & theClipRect,
-                                              const Color & theColor, int theDrawMode, void * theBits,
-                                              int theStride, int theBlendMode, float theTx, float theTy,
-                                              bool theAdditive)
+void Sexy::MemoryImage::BltTrianglesTexHelper(Sexy::Image *theSource, const SexyVertex2D (*theTriangles)[3],
+    int theTriangleCount, const TRect<int> &theClipRect, const Color &theColor, int theDrawMode, void *theBits,
+    int theStride, int theBlendMode, float theTx, float theTy, bool theAdditive)
 {
-    MemoryImage * aSrc = dynamic_cast<MemoryImage *>(theSource);
+    MemoryImage *aSrc = dynamic_cast<MemoryImage *>(theSource);
     if (theTriangleCount <= 0 || theTriangles == nullptr)
         return;
 
@@ -2084,7 +2060,7 @@ void Sexy::MemoryImage::BltTrianglesTexHelper(Sexy::Image * theSource, const Sex
         bool aColored = false;
         for (int aCorner = 0; aCorner < 3; ++aCorner)
         {
-            const SexyVertex2D & aIn = theTriangles[aTri][aCorner];
+            const SexyVertex2D &aIn = theTriangles[aTri][aCorner];
             aVerts[aCorner].mX = aIn.mX + theTx;
             aVerts[aCorner].mY = aIn.mY + theTy;
             aVerts[aCorner].mU = aIn.mU;
@@ -2093,23 +2069,40 @@ void Sexy::MemoryImage::BltTrianglesTexHelper(Sexy::Image * theSource, const Sex
             if (aIn.mColor != 0)
                 aColored = true;
         }
-        aHelper.SWDrawShape(aVerts, 3, aSrc, theColor, theDrawMode, theClipRect,
-                            theBits, theStride, theBlendMode, theAdditive, aColored);
+        aHelper.SWDrawShape(aVerts,
+            3,
+            aSrc,
+            theColor,
+            theDrawMode,
+            theClipRect,
+            theBits,
+            theStride,
+            theBlendMode,
+            theAdditive,
+            aColored);
     }
 }
 
-void Sexy::MemoryImage::BltTrianglesTex(Image * theSource, const SexyVertex2D (*theTriangles)[3],
-                                        int theTriangleCount, const TRect<int> & theClipRect,
-                                        const Color & theColor, int theDrawMode, float theTx,
-                                        float theTy, bool theBlend)
+void Sexy::MemoryImage::BltTrianglesTex(Image *theSource, const SexyVertex2D (*theTriangles)[3], int theTriangleCount,
+    const TRect<int> &theClipRect, const Color &theColor, int theDrawMode, float theTx, float theTy, bool theBlend)
 {
     if (theSource != nullptr)
         theSource->mAboutToSample = true;
-    void * aBits = GetBits();
+    void *aBits = GetBits();
     int aStride = GetStride();
     int aBlendMode = (mForcedMode || mHasAlpha || mHasTrans) ? 0x8888 : 0x888;
-    BltTrianglesTexHelper(theSource, theTriangles, theTriangleCount, theClipRect, theColor,
-                          theDrawMode, aBits, aStride, aBlendMode, theTx, theTy, theBlend);
+    BltTrianglesTexHelper(theSource,
+        theTriangles,
+        theTriangleCount,
+        theClipRect,
+        theColor,
+        theDrawMode,
+        aBits,
+        aStride,
+        aBlendMode,
+        theTx,
+        theTy,
+        theBlend);
     BitsChanged();
 }
 
@@ -2117,25 +2110,25 @@ Sexy::MemoryImage::MemoryImage()
 {
     mParentX = 0;
     mParentY = 0;
-    mTag = ((int)(unsigned char)'m' << 24) | ((int)(unsigned char)'e' << 16)
-         | ((int)(unsigned char)'m' << 8) | (int)(unsigned char)'i';
+    mTag = ((int)(unsigned char)'m' << 24) | ((int)(unsigned char)'e' << 16) | ((int)(unsigned char)'m' << 8) |
+        (int)(unsigned char)'i';
     mApp = (LawnApp *)gSexyAppBase;
     Init();
 }
 
-Sexy::MemoryImage::MemoryImage(Sexy::SexyAppBase * theApp)
+Sexy::MemoryImage::MemoryImage(Sexy::SexyAppBase *theApp)
 {
     mParentX = 0;
     mParentY = 0;
-    mTag = ((int)(unsigned char)'m' << 24) | ((int)(unsigned char)'e' << 16)
-         | ((int)(unsigned char)'m' << 8) | (int)(unsigned char)'i';
+    mTag = ((int)(unsigned char)'m' << 24) | ((int)(unsigned char)'e' << 16) | ((int)(unsigned char)'m' << 8) |
+        (int)(unsigned char)'i';
     mApp = (LawnApp *)theApp;
     Init();
 }
 
-Sexy::MemoryImage * Sexy::MemoryImage::CreateSubImage(int theX, int theY, int theWidth, int theHeight)
+Sexy::MemoryImage *Sexy::MemoryImage::CreateSubImage(int theX, int theY, int theWidth, int theHeight)
 {
-    MemoryImage * aParent = mParent;
+    MemoryImage *aParent = mParent;
     int aX = theX;
     int aY = theY;
     if (aParent != nullptr)
@@ -2148,15 +2141,15 @@ Sexy::MemoryImage * Sexy::MemoryImage::CreateSubImage(int theX, int theY, int th
         aParent = this;
     }
 
-    MemoryImage * aSubImage = new MemoryImage((SexyAppBase *)mApp);
+    MemoryImage *aSubImage = new MemoryImage((SexyAppBase *)mApp);
     aParent->Attach(aSubImage, aX, aY, theWidth, theHeight);
     return aSubImage;
 }
 
-Sexy::MemoryImage::MemoryImage(const Sexy::MemoryImage & theOther)
-    : Image(theOther)
+Sexy::MemoryImage::MemoryImage(const Sexy::MemoryImage &theOther) :
+    Image(theOther)
 {
-    MemoryImage * aSource = const_cast<MemoryImage *>(&theOther);
+    MemoryImage *aSource = const_cast<MemoryImage *>(&theOther);
 
     mApp = aSource->mApp;
     mBitsChangedCount = aSource->mBitsChangedCount;
@@ -2176,23 +2169,22 @@ Sexy::MemoryImage::MemoryImage(const Sexy::MemoryImage & theOther)
     mFileName = aSource->mFileName;
 
     bool aMaterialised = false;
-    if (aSource->mBits != nullptr
-        || (aSource->mColorTable == nullptr && (aSource->GetBits(), aMaterialised = true, aSource->mBits != nullptr))
-        || (aSource->mParent != nullptr && aSource->mParent->mBits != nullptr))
+    if (aSource->mBits != nullptr ||
+        (aSource->mColorTable == nullptr && (aSource->GetBits(), aMaterialised = true, aSource->mBits != nullptr)) ||
+        (aSource->mParent != nullptr && aSource->mParent->mBits != nullptr))
     {
         int aCount = mHeight * mWidth;
-        unsigned int * aBits = new unsigned int[(size_t)aCount + 1];
+        unsigned int *aBits = new unsigned int[(size_t)aCount + 1];
         mBits = (unsigned long *)aBits;
         mPitch = mWidth;
         mStride = 4 * mWidth;
 
-        unsigned int * aSourceBits = aSource->GetBits();
+        unsigned int *aSourceBits = aSource->GetBits();
         int aSourcePitch = aSource->GetPitch();
         if (aSourceBits != nullptr)
         {
             for (int aRow = 0; aRow < mHeight; ++aRow)
-                std::memcpy((char *)mBits + 4 * mPitch * aRow,
-                            aSourceBits + aSourcePitch * aRow, (size_t)mWidth * 4);
+                std::memcpy((char *)mBits + 4 * mPitch * aRow, aSourceBits + aSourcePitch * aRow, (size_t)mWidth * 4);
         }
         aBits[aCount] = kMemoryCheckId;
     }
@@ -2242,8 +2234,8 @@ Sexy::MemoryImage::MemoryImage(const Sexy::MemoryImage & theOther)
         else
         {
             mNativeAlphaData = new unsigned int[(size_t)mHeight * (size_t)mWidth];
-            std::memcpy(mNativeAlphaData, aSource->mNativeAlphaData,
-                        (size_t)mHeight * (size_t)mWidth * sizeof(unsigned int));
+            std::memcpy(
+                mNativeAlphaData, aSource->mNativeAlphaData, (size_t)mHeight * (size_t)mWidth * sizeof(unsigned int));
         }
     }
     else
@@ -2275,7 +2267,7 @@ Sexy::MemoryImage::MemoryImage(const Sexy::MemoryImage & theOther)
         mApp->AddMemoryImage(this);
 }
 
-void Sexy::MemoryImage::RemoveSubImage(Sexy::MemoryImage * theSubImage)
+void Sexy::MemoryImage::RemoveSubImage(Sexy::MemoryImage *theSubImage)
 {
     mSubImagesLock.Lock();
     mSubImages.erase(theSubImage);
@@ -2296,16 +2288,16 @@ void Sexy::MemoryImage::Detach(bool theCopyBits)
         mColorIndices = nullptr;
 
         int aCount = mHeight * mWidth;
-        unsigned int * aBits = new unsigned int[(size_t)aCount + 1];
+        unsigned int *aBits = new unsigned int[(size_t)aCount + 1];
         mBits = (unsigned long *)aBits;
         mPitch = mWidth;
         mStride = 4 * mWidth;
 
-        unsigned int * aParentBits = mParent->GetBits();
+        unsigned int *aParentBits = mParent->GetBits();
         int aParentPitch = mParent->GetPitch();
         if (aParentBits != nullptr)
         {
-            const char * aSrc = (const char *)(aParentBits + mParentX + mParentY * aParentPitch);
+            const char *aSrc = (const char *)(aParentBits + mParentX + mParentY * aParentPitch);
             int aSrcStride = 4 * aParentPitch;
             for (int aRow = 0; aRow < mHeight; ++aRow)
             {
@@ -2322,7 +2314,7 @@ void Sexy::MemoryImage::Detach(bool theCopyBits)
     mParentY = 0;
 }
 
-void Sexy::MemoryImage::AddSubImage(Sexy::MemoryImage * theSubImage)
+void Sexy::MemoryImage::AddSubImage(Sexy::MemoryImage *theSubImage)
 {
     if (theSubImage == nullptr)
         return;
@@ -2331,7 +2323,7 @@ void Sexy::MemoryImage::AddSubImage(Sexy::MemoryImage * theSubImage)
     mSubImagesLock.Unlock();
 }
 
-void Sexy::MemoryImage::Attach(Sexy::MemoryImage * theSubImage, int theX, int theY, int theWidth, int theHeight)
+void Sexy::MemoryImage::Attach(Sexy::MemoryImage *theSubImage, int theX, int theY, int theWidth, int theHeight)
 {
     if (theSubImage == nullptr)
         return;

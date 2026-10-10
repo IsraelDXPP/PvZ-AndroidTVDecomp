@@ -10,7 +10,8 @@
 
 #include <cmath>
 
-namespace {
+namespace
+{
 
 const int kAxisCount = 6;
 const int kButtonCount = 20;
@@ -74,9 +75,7 @@ float RampStickComponent(int theRawX, int theRawY, bool theUseX)
 
 } // namespace
 
-Sexy::Gamepad::~Gamepad()
-{
-}
+Sexy::Gamepad::~Gamepad() {}
 
 bool Sexy::Gamepad::IsConnected()
 {
@@ -147,9 +146,7 @@ void Sexy::Gamepad::AddRumbleEffect(float theLow, float theHigh, float theDurati
     mRumbleDurationHigh = theDuration;
 }
 
-void Sexy::Gamepad::Reset()
-{
-}
+void Sexy::Gamepad::Reset() {}
 
 float Sexy::Gamepad::GetAxisYPositionRamped()
 {
@@ -172,45 +169,68 @@ int Sexy::Gamepad::MapFromkeyCode(Sexy::KeyCode theKey)
 {
     switch (theKey)
     {
-    case KEYCODE_GAMEPAD_A: return GAMEPAD_BUTTON_A;
-    case KEYCODE_GAMEPAD_B: return GAMEPAD_BUTTON_B;
-    case KEYCODE_GAMEPAD_C: return GAMEPAD_BUTTON_START;
-    case KEYCODE_GAMEPAD_X: return GAMEPAD_BUTTON_X;
-    case KEYCODE_GAMEPAD_Y: return GAMEPAD_BUTTON_Y;
-    case KEYCODE_GAMEPAD_Z: return GAMEPAD_BUTTON_SELECT;
-    case KEYCODE_GAMEPAD_TL: return GAMEPAD_BUTTON_TL;
-    case KEYCODE_GAMEPAD_TR: return GAMEPAD_BUTTON_TR;
-    case KEYCODE_GAMEPAD_TL2: return GAMEPAD_BUTTON_TL2;
-    case KEYCODE_GAMEPAD_TR2: return GAMEPAD_BUTTON_TR2;
-    case KEYCODE_GAMEPAD_SELECT: return GAMEPAD_BUTTON_SELECT;
-    case KEYCODE_GAMEPAD_START: return GAMEPAD_BUTTON_START;
-    case KEYCODE_GAMEPAD_THUMBL: return GAMEPAD_BUTTON_THUMBL;
-    case KEYCODE_GAMEPAD_THUMBR: return GAMEPAD_BUTTON_THUMBR;
-    case KEYCODE_GAMEPAD_LEFT: return GAMEPAD_BUTTON_LEFT;
-    case KEYCODE_GAMEPAD_UP: return GAMEPAD_BUTTON_UP;
-    case KEYCODE_GAMEPAD_RIGHT: return GAMEPAD_BUTTON_RIGHT;
-    case KEYCODE_GAMEPAD_DOWN: return GAMEPAD_BUTTON_DOWN;
-    case KEYCODE_GAMEPAD_DPAD_LEFT: return GAMEPAD_BUTTON_DPAD_LEFT;
-    case KEYCODE_GAMEPAD_DPAD_UP: return GAMEPAD_BUTTON_DPAD_UP;
-    case KEYCODE_GAMEPAD_DPAD_RIGHT: return GAMEPAD_BUTTON_DPAD_RIGHT;
-    case KEYCODE_GAMEPAD_DPAD_DOWN: return GAMEPAD_BUTTON_DPAD_DOWN;
-    default: return -1;
+        case KEYCODE_GAMEPAD_A:
+            return GAMEPAD_BUTTON_A;
+        case KEYCODE_GAMEPAD_B:
+            return GAMEPAD_BUTTON_B;
+        case KEYCODE_GAMEPAD_C:
+            return GAMEPAD_BUTTON_START;
+        case KEYCODE_GAMEPAD_X:
+            return GAMEPAD_BUTTON_X;
+        case KEYCODE_GAMEPAD_Y:
+            return GAMEPAD_BUTTON_Y;
+        case KEYCODE_GAMEPAD_Z:
+            return GAMEPAD_BUTTON_SELECT;
+        case KEYCODE_GAMEPAD_TL:
+            return GAMEPAD_BUTTON_TL;
+        case KEYCODE_GAMEPAD_TR:
+            return GAMEPAD_BUTTON_TR;
+        case KEYCODE_GAMEPAD_TL2:
+            return GAMEPAD_BUTTON_TL2;
+        case KEYCODE_GAMEPAD_TR2:
+            return GAMEPAD_BUTTON_TR2;
+        case KEYCODE_GAMEPAD_SELECT:
+            return GAMEPAD_BUTTON_SELECT;
+        case KEYCODE_GAMEPAD_START:
+            return GAMEPAD_BUTTON_START;
+        case KEYCODE_GAMEPAD_THUMBL:
+            return GAMEPAD_BUTTON_THUMBL;
+        case KEYCODE_GAMEPAD_THUMBR:
+            return GAMEPAD_BUTTON_THUMBR;
+        case KEYCODE_GAMEPAD_LEFT:
+            return GAMEPAD_BUTTON_LEFT;
+        case KEYCODE_GAMEPAD_UP:
+            return GAMEPAD_BUTTON_UP;
+        case KEYCODE_GAMEPAD_RIGHT:
+            return GAMEPAD_BUTTON_RIGHT;
+        case KEYCODE_GAMEPAD_DOWN:
+            return GAMEPAD_BUTTON_DOWN;
+        case KEYCODE_GAMEPAD_DPAD_LEFT:
+            return GAMEPAD_BUTTON_DPAD_LEFT;
+        case KEYCODE_GAMEPAD_DPAD_UP:
+            return GAMEPAD_BUTTON_DPAD_UP;
+        case KEYCODE_GAMEPAD_DPAD_RIGHT:
+            return GAMEPAD_BUTTON_DPAD_RIGHT;
+        case KEYCODE_GAMEPAD_DPAD_DOWN:
+            return GAMEPAD_BUTTON_DPAD_DOWN;
+        default:
+            return -1;
     }
 }
 
-Sexy::Gamepad::Gamepad(Sexy::SexyAppBase *theApp, int theIndex)
-    : mApp(theApp)
-    , mGamepadIndex(theIndex)
-    , mDeviceId(0)
-    , mListener(nullptr)
-    , mIsConnected(false)
-    , mStatus(STATUS_DISCONNECTED)
-    , mStatusChangeTick(0)
-    , mActiveCount(0)
-    , mRumbleLow(0.0f)
-    , mRumbleHigh(0.0f)
-    , mRumbleDurationLow(0.0f)
-    , mRumbleDurationHigh(0.0f)
+Sexy::Gamepad::Gamepad(Sexy::SexyAppBase *theApp, int theIndex) :
+    mApp(theApp),
+    mGamepadIndex(theIndex),
+    mDeviceId(0),
+    mListener(nullptr),
+    mIsConnected(false),
+    mStatus(STATUS_DISCONNECTED),
+    mStatusChangeTick(0),
+    mActiveCount(0),
+    mRumbleLow(0.0f),
+    mRumbleHigh(0.0f),
+    mRumbleDurationLow(0.0f),
+    mRumbleDurationHigh(0.0f)
 {
     for (int i = 0; i < kAxisCount; ++i)
     {
@@ -260,8 +280,12 @@ void Sexy::Gamepad::SetStatus(Status theStatus)
 
     if (aChanged)
     {
-        Sexy::logtfi(kGamepadLogTag, "%d: status %d -> %d actives: %d",
-                     mGamepadIndex, (int)mStatus, (int)theStatus, mActiveCount);
+        Sexy::logtfi(kGamepadLogTag,
+            "%d: status %d -> %d actives: %d",
+            mGamepadIndex,
+            (int)mStatus,
+            (int)theStatus,
+            mActiveCount);
     }
     mStatus = theStatus;
 }

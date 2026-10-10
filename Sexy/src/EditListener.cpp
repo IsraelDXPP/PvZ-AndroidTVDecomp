@@ -3,7 +3,7 @@
 
 #include "EditListener.h"
 
-void Sexy::EditListener::EditWidgetText(int theId, Sexy::String const& theText)
+void Sexy::EditListener::EditWidgetText(int theId, Sexy::String const &theText)
 {
     (void)theId;
     (void)theText;
@@ -30,27 +30,27 @@ int Sexy::EditListener::AllowChar(int theId, int theChar)
     return 1;
 }
 
-int Sexy::EditListener::AllowText(int theId, Sexy::String const& theText)
+int Sexy::EditListener::AllowText(int theId, Sexy::String const &theText)
 {
     (void)theId;
     (void)theText;
     return 1;
 }
 
-void Sexy::EditListener::EditWidgetText(int theId, std::wstring const& theText)
+void Sexy::EditListener::EditWidgetText(int theId, std::wstring const &theText)
 {
     (void)theId;
     (void)theText;
 }
 
-int Sexy::EditListener::AllowText(int theId, std::wstring const& theText)
+int Sexy::EditListener::AllowText(int theId, std::wstring const &theText)
 {
     (void)theId;
     (void)theText;
     return 1;
 }
 
-void Sexy::EditListener::TextChanged(int theId, Sexy::String const& theText)
+void Sexy::EditListener::TextChanged(int theId, Sexy::String const &theText)
 {
     (void)theId;
     (void)theText;

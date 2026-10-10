@@ -28,7 +28,8 @@
 //   [  3] 0x1b7af0  GameObject::EndDraw
 //   [  4] 0x1b7b1c  GameObject::MakeParentGraphicsFrame
 
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_ZOMBIE_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_ZOMBIE_H
 
 #include "ReconTypes.h"
 // Classes this one calls a method on: the call needs the
@@ -83,99 +84,99 @@ public:
     // _M_end_of_storage/+0x0C).
 
     // ---- members of Zombie itself (+0x34..+0x183, 0x150 bytes) -------------
-    ZombieType mZombieType;                           // +0x34 (13)
-    ZombiePhase mZombiePhase;                         // +0x38 (14)
-    float mPosX;                                      // +0x3C (15)
-    float mPosY;                                      // +0x40 (16)
-    float mVelX;                                      // +0x44 (17)
-    int mAnimCounter;                                 // +0x48 (18)
-    int mGroanCounter;                                // +0x4C (19)
-    int mAnimTicksPerFrame;                           // +0x50 (20)
-    int mAnimFrames;                                  // +0x54 (21)
-    int mFrame;                                       // +0x58 (22)
-    int mPrevFrame;                                   // +0x5C (23)
-    bool mVariant;                                    // +0x60 (//96)
-    bool mIsEating;                                   // +0x61 (//97)
-    int mJustGotShotCounter;                          // +0x64 (25)
-    int mShieldJustGotShotCounter;                    // +0x68 (26)
-    int mShieldRecoilCounter;                         // +0x6C (27)
-    int mZombieAge;                                   // +0x70 (28)
+    ZombieType mZombieType; // +0x34 (13)
+    ZombiePhase mZombiePhase; // +0x38 (14)
+    float mPosX; // +0x3C (15)
+    float mPosY; // +0x40 (16)
+    float mVelX; // +0x44 (17)
+    int mAnimCounter; // +0x48 (18)
+    int mGroanCounter; // +0x4C (19)
+    int mAnimTicksPerFrame; // +0x50 (20)
+    int mAnimFrames; // +0x54 (21)
+    int mFrame; // +0x58 (22)
+    int mPrevFrame; // +0x5C (23)
+    bool mVariant; // +0x60 (//96)
+    bool mIsEating; // +0x61 (//97)
+    int mJustGotShotCounter; // +0x64 (25)
+    int mShieldJustGotShotCounter; // +0x68 (26)
+    int mShieldRecoilCounter; // +0x6C (27)
+    int mZombieAge; // +0x70 (28)
     // TODO(recon): the authoritative header types this as `ZombieHeight`, but this
     // tree's ReconTypes.h has no such enum (PvZ\Lawn\Common\ConstEnums.h does, yet
     // that header's enums clash with ReconTypes.h, so it cannot be included).
     // int for now; that matches every `_DWORD` read and write in the .cpp.
-    int mZombieHeight;                                // +0x74 (29)
-    int mPhaseCounter;                                // +0x78 (30)
-    int mFromWave;                                    // +0x7C (31)
-    bool mDroppedLoot;                                // +0x80 (//128)
-    int mZombieFade;                                  // +0x84 (33)
-    bool mFlatTires;                                  // +0x88 (//136)
-    int mUseLadderCol;                                // +0x8C (35)
-    int mTargetCol;                                   // +0x90 (36)
-    float mAltitude;                                  // +0x94 (37)
-    bool mHitUmbrella;                                // +0x98 (//152)
-    Sexy::Rect mZombieRect;                           // +0x9C (39 ~ 42)
-    Sexy::Rect mZombieAttackRect;                     // +0xAC (43 ~ 46)
-    int mChilledCounter;                              // +0xBC (47)
-    int mButteredCounter;                             // +0xC0 (48)
-    int mIceTrapCounter;                              // +0xC4 (49)
-    bool mMindControlled;                             // +0xC8 (//200)
-    bool mBlowingAway;                                // +0xC9 (//201)
-    bool mHasHead;                                    // +0xCA (//202)
-    bool mHasArm;                                     // +0xCB (//203)
-    bool mHasObject;                                  // +0xCC (//204)
-    bool mInPool;                                     // +0xCD (//205)
-    bool mOnHighGround;                               // +0xCE (//206)
-    bool mYuckyFace;                                  // +0xCF (//207)
-    int mYuckyFaceCounter;                            // +0xD0 (52)
+    int mZombieHeight; // +0x74 (29)
+    int mPhaseCounter; // +0x78 (30)
+    int mFromWave; // +0x7C (31)
+    bool mDroppedLoot; // +0x80 (//128)
+    int mZombieFade; // +0x84 (33)
+    bool mFlatTires; // +0x88 (//136)
+    int mUseLadderCol; // +0x8C (35)
+    int mTargetCol; // +0x90 (36)
+    float mAltitude; // +0x94 (37)
+    bool mHitUmbrella; // +0x98 (//152)
+    Sexy::Rect mZombieRect; // +0x9C (39 ~ 42)
+    Sexy::Rect mZombieAttackRect; // +0xAC (43 ~ 46)
+    int mChilledCounter; // +0xBC (47)
+    int mButteredCounter; // +0xC0 (48)
+    int mIceTrapCounter; // +0xC4 (49)
+    bool mMindControlled; // +0xC8 (//200)
+    bool mBlowingAway; // +0xC9 (//201)
+    bool mHasHead; // +0xCA (//202)
+    bool mHasArm; // +0xCB (//203)
+    bool mHasObject; // +0xCC (//204)
+    bool mInPool; // +0xCD (//205)
+    bool mOnHighGround; // +0xCE (//206)
+    bool mYuckyFace; // +0xCF (//207)
+    int mYuckyFaceCounter; // +0xD0 (52)
     // TODO(recon): the authoritative header types this as `HelmType`; this tree's
     // ReconTypes.h defines no such enum, so int is used instead.
-    int mHelmType;                                    // +0xD4 (53)
-    int mBodyHealth;                                  // +0xD8 (54)
-    int mBodyMaxHealth;                               // +0xDC (55)
-    int mHelmHealth;                                  // +0xE0 (56)
-    int mHelmMaxHealth;                               // +0xE4 (57)
-    ShieldType mShieldType;                           // +0xE8 (58)
-    int mShieldHealth;                                // +0xEC (59)
-    int mShieldMaxHealth;                             // +0xF0 (60)
-    int mFlyingHealth;                                // +0xF4 (61)
-    int mFlyingMaxHealth;                             // +0xF8 (62)
-    bool mDead;                                       // +0xFC (//252)
-    short mSunBeanDamageRemainder;                    // +0xFD  damage not yet converted to sun
-    ZombieID mRelatedZombieID;                        // +0x100 (64)
-    ZombieID mFollowerZombieID[4];                    // +0x104 (65 ~ 68) MAX_ZOMBIE_FOLLOWERS
-    bool mPlayingSong;                                // +0x114 (//276)
-    int mParticleOffsetX;                             // +0x118 (70)
-    int mParticleOffsetY;                             // +0x11C (71)
+    int mHelmType; // +0xD4 (53)
+    int mBodyHealth; // +0xD8 (54)
+    int mBodyMaxHealth; // +0xDC (55)
+    int mHelmHealth; // +0xE0 (56)
+    int mHelmMaxHealth; // +0xE4 (57)
+    ShieldType mShieldType; // +0xE8 (58)
+    int mShieldHealth; // +0xEC (59)
+    int mShieldMaxHealth; // +0xF0 (60)
+    int mFlyingHealth; // +0xF4 (61)
+    int mFlyingMaxHealth; // +0xF8 (62)
+    bool mDead; // +0xFC (//252)
+    short mSunBeanDamageRemainder; // +0xFD  damage not yet converted to sun
+    ZombieID mRelatedZombieID; // +0x100 (64)
+    ZombieID mFollowerZombieID[4]; // +0x104 (65 ~ 68) MAX_ZOMBIE_FOLLOWERS
+    bool mPlayingSong; // +0x114 (//276)
+    int mParticleOffsetX; // +0x118 (70)
+    int mParticleOffsetY; // +0x11C (71)
     // TODO(recon): the authoritative header types this as `AttachmentID`; this tree's
     // ReconTypes.h has no such enum, so int. Only `&mAttachmentID` is ever taken.
-    int mAttachmentID;                                // +0x120 (72)
-    int mSummonCounter;                               // +0x124 (73)
-    ReanimationID mBodyReanimID;                      // +0x128 (74)
-    float mScaleZombie;                               // +0x12C (75)
-    float mVelZ;                                      // +0x130 (76)
-    float mOriginalAnimRate;                          // +0x134 (77)
-    PlantID mTargetPlantID;                           // +0x138 (78)
-    int mBossMode;                                    // +0x13C (79)
-    int mTargetRow;                                   // +0x140 (80)
-    int mBossBungeeCounter;                           // +0x144 (81)
-    int mBossStompCounter;                            // +0x148 (82)
-    int mBossHeadCounter;                             // +0x14C (83)
-    ReanimationID mBossFireBallReanimID;              // +0x150 (84)
-    ReanimationID mSpecialHeadReanimID;               // +0x154 (85)
-    int mFireballRow;                                 // +0x158 (86)
-    bool mIsFireBall;                                 // +0x15C (//348)
-    ReanimationID mMoweredReanimID;                   // +0x160 (88)
-    int mLastPortalX;                                 // +0x164 (89)
-    bool mBloated;                                    // +0x168 (//360)
-    int mZombieInitWord;                              // +0x16C (91) ZombieInitialize clears it
-    bool mWalnutDeath;                                // +0x170 (92)
+    int mAttachmentID; // +0x120 (72)
+    int mSummonCounter; // +0x124 (73)
+    ReanimationID mBodyReanimID; // +0x128 (74)
+    float mScaleZombie; // +0x12C (75)
+    float mVelZ; // +0x130 (76)
+    float mOriginalAnimRate; // +0x134 (77)
+    PlantID mTargetPlantID; // +0x138 (78)
+    int mBossMode; // +0x13C (79)
+    int mTargetRow; // +0x140 (80)
+    int mBossBungeeCounter; // +0x144 (81)
+    int mBossStompCounter; // +0x148 (82)
+    int mBossHeadCounter; // +0x14C (83)
+    ReanimationID mBossFireBallReanimID; // +0x150 (84)
+    ReanimationID mSpecialHeadReanimID; // +0x154 (85)
+    int mFireballRow; // +0x158 (86)
+    bool mIsFireBall; // +0x15C (//348)
+    ReanimationID mMoweredReanimID; // +0x160 (88)
+    int mLastPortalX; // +0x164 (89)
+    bool mBloated; // +0x168 (//360)
+    int mZombieInitWord; // +0x16C (91) ZombieInitialize clears it
+    bool mWalnutDeath; // +0x170 (92)
     // Words 93..96 are not four loose ints: UpdateZombieRect (0x1AA3EC) copies
     // mZombieRect (words 39..42) into them, GetZombieRect hands exactly these four
     // words back by value, and IsWalkingBackwards mirrors word 93 with
     // `4*93 = mX - 4*93 - 4*95`. That is a `Sexy::Rect`, and it still ends the
     // object at +0x184 exactly as before.
-    Sexy::Rect mCachedZombieRect;                     // +0x174 (93 ~ 96)
+    Sexy::Rect mCachedZombieRect; // +0x174 (93 ~ 96)
     // size 0x184 (97 integers)
 
     // Both of these are STATIC. The disassembly is what proves it: the first
@@ -187,13 +188,13 @@ public:
     // static-ness -- but the ARMs' register use does; PreloadZombieResources below
     // is static for the same reason. Call sites written as `z->SetupX(...)` still
     // compile unchanged.
-    static void SetupDoorArms(Reanimation * theReanim, bool theVisible);
-    static void SetupReanimLayers(Reanimation * theReanim, ZombieType theType);
+    static void SetupDoorArms(Reanimation *theReanim, bool theVisible);
+    static void SetupReanimLayers(Reanimation *theReanim, ZombieType theType);
     int ReanimIgnoreClipRect(char const *theTrackName, bool theIgnore);
     int ReanimReenableClipping();
     bool IsBouncingPogo();
     void ZombieCatapultFire(Plant *thePlant);
-    Plant * FindCatapultTarget();
+    Plant *FindCatapultTarget();
     int IsTanglekelpTarget();
     void UpdateZombiePeaHead();
     void UpdateZombieGatlingHead();
@@ -203,7 +204,7 @@ public:
     void OverrideParticleColor(TodParticleSystem *theParticleSystem);
     void UpdateZamboni();
     bool IsOnBoard();
-    GridItem * UpdateClimbingLadder();
+    GridItem *UpdateClimbingLadder();
     void DoRevivalDialog(int theDialogId);
     void DoBuySunMoneyDialog(int theDialogId);
     bool HasYuckyFaceImage();
@@ -230,7 +231,8 @@ public:
     bool ZombieNotWalking();
     int GetDancerFrame();
     int GetDancerPhase();
-    int DrawZombiePart(Sexy::Graphics *g, Sexy::Image *theImage, int theFrame, int theRow, ZombieDrawPosition &theDrawPos);
+    int DrawZombiePart(
+        Sexy::Graphics *g, Sexy::Image *theImage, int theFrame, int theRow, ZombieDrawPosition &theDrawPos);
     int IsMovingAtChilledSpeed();
     void ApplyAnimRate(float theAnimRate);
     void SetAnimRate(float theAnimRate);
@@ -260,18 +262,18 @@ public:
     // mSyncBlocks. Every call site must now take the rect by value.
     Sexy::Rect GetZombieRect();
     float ZombieTargetLeadX(float theTime);
-    Plant * IsStandingOnSpikeweed();
+    Plant *IsStandingOnSpikeweed();
     bool TrySpawnLevelAward();
     void DropLoot();
     // 0x1AA9D4. Same sret story as GetZombieRect: the rect is returned by value,
     // built from mZombieAttackRect (words 43..46) and then adjusted.
     Sexy::Rect GetZombieAttackRect();
-    Plant * FindPlantTarget(ZombieAttackType theAttackType);
+    Plant *FindPlantTarget(ZombieAttackType theAttackType);
     void AnimateChewEffect();
-    GridItem * CheckSquish(ZombieAttackType theAttackType);
+    GridItem *CheckSquish(ZombieAttackType theAttackType);
     void CheckForZombieStep();
     void AddAttachedParticle(int thePosX, int thePosY, ParticleEffect theEffect);
-    Reanimation * AddAttachedReanim(int thePosX, int thePosY, ReanimationType theReanimType);
+    Reanimation *AddAttachedReanim(int thePosX, int thePosY, ReanimationType theReanimType);
     int IsTangleKelpTarget();
     void BalloonPropellerHatSpin(bool theSpin);
     void ReanimShowPrefix(char const *theTrackPrefix, int theRenderGroup);
@@ -282,7 +284,7 @@ public:
     void DoDaisies();
     bool HasShadow();
     int SetupDrawZombieWon(Sexy::Graphics *g);
-    Reanimation * GetTrackPosition(char const *theTrackName, float &thePosX, float &thePosY);
+    Reanimation *GetTrackPosition(char const *theTrackName, float &thePosX, float &thePosY);
     void DropFlag();
     int DrawButter(Sexy::Graphics *g, ZombieDrawPosition &theDrawPos);
     void DrawBungeeCord(Sexy::Graphics *g, int theCordEndX, int theCordEndY);
@@ -308,9 +310,10 @@ public:
     // callers that used to cast the leftover register to Reanimation* never
     // read that pointer.
     void UpdateAnimSpeed();
-    Reanimation * PickRandomSpeed();
-    Reanimation * PlayZombieReanim(char const *theTrackName, ReanimLoopType theLoopType, int theBlendTime, float theAnimRate);
-    Reanimation * BungeeDropZombie(Zombie *theZombie, int theGridX, int theGridY);
+    Reanimation *PickRandomSpeed();
+    Reanimation *PlayZombieReanim(
+        char const *theTrackName, ReanimLoopType theLoopType, int theBlendTime, float theAnimRate);
+    Reanimation *BungeeDropZombie(Zombie *theZombie, int theGridX, int theGridY);
     // 0x1AD500. Early outs leave this in r0; the shoot and walk paths return
     // PlayZombieReanim's r0. The only caller ignores it.
     void UpdateZombieCatapult();
@@ -318,20 +321,20 @@ public:
     void UpdateZombieBackupDancer();
     // 0x1AD770. Mixed r0. The only caller ignores it.
     void UpdateZombieDancer();
-    Zombie * StartEating();
+    Zombie *StartEating();
     // 0x1AF298 `_ZN6Zombie8EatPlantEP5Plant`. It was missing from this header
     // entirely, which made the .cpp definition a C2039 and turned every `this`
     // in its body into collateral C2355. Returns void: the dump's trailing value
     // is the leftover r0 of the last call.
     void EatPlant(Plant *thePlant);
-    Reanimation * StartWalkAnim(int theBlendTime);
+    Reanimation *StartWalkAnim(int theBlendTime);
     // 0x1ADAEC. Mixed r0. The only caller ignores it.
     void UpdateZombieNewspaper();
     void UpdateZombiePool();
     void RiseFromGrave(int theGridX, int theGridY);
     void BobsledCrash();
     // 0x1ADF08. Every path returns this.
-    Zombie * DropHelm(unsigned int theDamageFlags);
+    Zombie *DropHelm(unsigned int theDamageFlags);
     void PogoBreak(unsigned int theDamageFlags);
     void LoadReanim(ReanimationType theReanimType);
     float UpdateZombieImp();
@@ -348,7 +351,7 @@ public:
     // The shared tail of the three dolphin-jump arms of the above.
     void UpdateDolphinJumpLanding();
     // 0x1AEDD4. Returns this. The last path tail-calls UpdateAnimSpeed.
-    Zombie * StopEating();
+    Zombie *StopEating();
     void UpdateYuckyFace();
     int DragUnder();
     void DropShield(unsigned int theDamageFlags);
@@ -366,22 +369,22 @@ public:
     // Real polymorphism: the compiler writes the vptr (slots 0/1 = destructor,
     // overriding GameObject's virtual destructor).
     virtual ~Zombie();
-    Reanimation * ConvertToNormalZombie();
+    Reanimation *ConvertToNormalZombie();
     int CanBeChilled();
     bool CanBeFrozen();
     void ApplyButter();
-    Reanimation * ApplyChill(bool theIsIceTrap);
+    Reanimation *ApplyChill(bool theIsIceTrap);
     void CheckForPool();
     int TakeHelmDamage(int theDamage, unsigned int theDamageFlags);
     int EffectedByDamage(unsigned int theDamageFlags);
     int UpdateZombiePogo();
     void UpdateLadder();
-    Zombie * FindZombieTarget();
+    Zombie *FindZombieTarget();
     // 0x1B0734. r0 is this or TodAnimateCurve's int. Both callers ignore it.
     void UpdateZombieChimney();
     // 0x1B0778. r0 is whatever the last call left. The only caller ignores it.
     void WalkIntoHouse();
-    Reanimation * BossPlayIdle();
+    Reanimation *BossPlayIdle();
     // 0x1B090C. The last call is DrawRenderGroup, and Board ignores the result.
     void DrawBossFireBall(Sexy::Graphics *g, ZombieDrawPosition &theDrawPos);
     int DrawBossBackArm(Sexy::Graphics *g, ZombieDrawPosition &theDrawPos);
@@ -389,7 +392,7 @@ public:
     // 0x1B0A68. PlaySample is void; the only caller ignores r0.
     void BossRVLanding();
     void BossSpawnAttack();
-    Zombie * BossSpawnContact();
+    Zombie *BossSpawnContact();
     int BossCanStompRow(int theRow);
     void BossStompAttack();
     void BossStompContact();
@@ -411,11 +414,11 @@ public:
     int LandFlyer(unsigned int theDamageFlags);
     void UpdateZombieFlyer();
     int TakeFlyingDamage(int theDamage, unsigned int theDamageFlags);
-    Reanimation * ZamboniDeath(unsigned int theDamageFlags);
-    Reanimation * CatapultDeath(unsigned int theDamageFlags);
+    Reanimation *ZamboniDeath(unsigned int theDamageFlags);
+    Reanimation *CatapultDeath(unsigned int theDamageFlags);
     void UpdateBurn();
     void UpdateMowered();
-    Reanimation * BossBungeeLeave();
+    Reanimation *BossBungeeLeave();
     void MowDown();
     float UpdateZombiePosition();
     void PickBungeeZombieTarget(int theTargetCol);
@@ -432,7 +435,7 @@ public:
     void UpdateDamageStates(unsigned int theDamageFlags);
     void AnimateChewSound();
     // 0x1B2CEC. Returns this.
-    Zombie * Animate();
+    Zombie *Animate();
     int BossStartDeath();
     void BossSetupReanim();
     void DrawBossPart(Sexy::Graphics *g, BossPart thePart);
@@ -448,9 +451,9 @@ public:
     int UpdateZombieSquashHead();
     float UpdateZombieBobsled();
     void UpdateZombiquarium();
-    Zombie * EatZombie(Zombie *theZombie);
+    Zombie *EatZombie(Zombie *theZombie);
     void CheckIfPreyCaught();
-    Reanimation * HitIceTrap();
+    Reanimation *HitIceTrap();
     void ApplyBurn();
     int BobsledBurn();
     // 0x1B45EC. The idle paths return this. The paths that start a walk, a
@@ -465,12 +468,13 @@ public:
     // 0x1B5140 `_ZN6Zombie15SetupWaterTrackEPKc` -- the parameter is a track
     // name, not an int; the transcription's `int theDrawPos` was a mangled-name slip.
     void SetupWaterTrack(char const *theTrackName);
-    Reanimation * LoadPlainZombieReanim();
+    Reanimation *LoadPlainZombieReanim();
     // 0x1B5230 `_ZN6Zombie16ZombieInitializeEi10ZombieTypebPS_ib`. It was missing
     // from this header entirely, which made the .cpp definition a C2039 and turned
     // every `this` in its 700-line body into collateral C2355. Returns void; the
     // transcribed `float` is the leftover r0 of the last store.
-    void ZombieInitialize(int theRow, ZombieType theZombieType, bool theVariant, Zombie *theParentZombie, int theFromWave, bool theIsVisible);
+    void ZombieInitialize(int theRow, ZombieType theZombieType, bool theVariant, Zombie *theParentZombie,
+        int theFromWave, bool theIsVisible);
     // The shared tail of ZombieInitialize: aquarium swim, Little Trouble scaling,
     // health caps, render order, appear sound, and the rare bloated normal.
     void FinishInitialize(ZombieType theType, int theFromWave, int theRenderLayer, int theRenderOffset);
@@ -493,3 +497,5 @@ struct ZombieSlot
 };
 
 // Layout anchor: any deviation in member type or order shows up here, not at runtime.
+
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_ZOMBIE_H

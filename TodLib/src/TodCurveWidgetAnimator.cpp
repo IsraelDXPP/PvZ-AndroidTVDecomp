@@ -21,8 +21,8 @@
 // ==========================================================================
 bool TodCurveWidgetAnimator::IsCompleted()
 {
-  // A negative duration loops and never reports complete.
-  return mDuration >= 0 && mDuration < mUpdateCounter;
+    // A negative duration loops and never reports complete.
+    return mDuration >= 0 && mDuration < mUpdateCounter;
 }
 
 // ==========================================================================
@@ -31,8 +31,8 @@ bool TodCurveWidgetAnimator::IsCompleted()
 // ==========================================================================
 TodCurveWidgetAnimator::~TodCurveWidgetAnimator()
 {
-  // The binary's body only re-points the vptr at the base sub-object's table;
-  // with real inheritance the compiler emits that itself.
+    // The binary's body only re-points the vptr at the base sub-object's table;
+    // with real inheritance the compiler emits that itself.
 }
 
 // ==========================================================================
@@ -41,95 +41,96 @@ TodCurveWidgetAnimator::~TodCurveWidgetAnimator()
 // ==========================================================================
 void TodCurveWidgetAnimator::Update()
 {
-  if ( IsCompleted() )
-    return;
+    if (IsCompleted())
+        return;
 
-  // First tick: remember where the widget started, for the fade-in blend below.
-  if ( !mHasStart )
-  {
-    mHasStart = true;
-    mStartX = (float)mWidget->mX;
-    mStartY = (float)mWidget->mY;
-  }
-
-  int aBlendTicks = mBlendTicks;
-  int aElapsed = mUpdateCounter;
-
-  // While the first blend-in frames elapse, blend from the widget's original
-  // position into the curve's position.
-  int aBlending;
-  float aBlendFraction;
-  if ( aBlendTicks <= 0 )
-  {
-    aBlending = 0;
-    aBlendFraction = 0.0f;
-  }
-  else if ( aBlendTicks > aElapsed )
-  {
-    aBlending = 1;
-    aBlendFraction = 1.0f - (float)(aBlendTicks - aElapsed) / (float)aBlendTicks;
-    if ( aBlendFraction < 0.0f )
-      aBlendFraction = 0.0f;
-    if ( aBlendFraction > 1.0f )
-      aBlendFraction = 1.0f;
-  }
-  else
-  {
-    aBlendFraction = 0.0f;
-    aBlending = 0;
-  }
-
-  int aDuration = mDuration;
-  int aNextElapsed = aElapsed + 1;
-  mUpdateCounter = aNextElapsed;
-  int aCurve = mCurve;
-  float aFromX = mFromX;
-
-  int aPosX;
-  int aPosY;
-  if ( aDuration < 0 )
-  {
-    // A negative budget loops. Both counters rewind when the loop closes.
-    int aLoopLength = -aDuration;
-    aPosX = (int)TodAnimateCurveFloat(0, -aDuration, aNextElapsed, aFromX, mToX, aCurve);
-    aPosY = (int)TodAnimateCurveFloat(0, aLoopLength, mUpdateCounter, mFromY, mToY, aCurve);
-    if ( aLoopLength == mUpdateCounter )
+    // First tick: remember where the widget started, for the fade-in blend below.
+    if (!mHasStart)
     {
-      mBlendTicks = 0;
-      mUpdateCounter = 0;
+        mHasStart = true;
+        mStartX = (float)mWidget->mX;
+        mStartY = (float)mWidget->mY;
     }
-  }
-  else
-  {
-    aPosX = (int)TodAnimateCurveFloat(0, aDuration, aNextElapsed, aFromX, mToX, aCurve);
-    aPosY = (int)TodAnimateCurveFloat(0, mDuration, mUpdateCounter, mFromY, mToY, aCurve);
-  }
 
-  if ( aBlending != 0 )
-  {
-    aPosX = (int)(mStartX + ((float)aPosX - mStartX) * aBlendFraction);
-    aPosY = (int)(mStartY + ((float)aPosY - mStartY) * aBlendFraction);
-  }
+    int aBlendTicks = mBlendTicks;
+    int aElapsed = mUpdateCounter;
 
-  mWidget->Move(aPosX, aPosY);
+    // While the first blend-in frames elapse, blend from the widget's original
+    // position into the curve's position.
+    int aBlending;
+    float aBlendFraction;
+    if (aBlendTicks <= 0)
+    {
+        aBlending = 0;
+        aBlendFraction = 0.0f;
+    }
+    else if (aBlendTicks > aElapsed)
+    {
+        aBlending = 1;
+        aBlendFraction = 1.0f - (float)(aBlendTicks - aElapsed) / (float)aBlendTicks;
+        if (aBlendFraction < 0.0f)
+            aBlendFraction = 0.0f;
+        if (aBlendFraction > 1.0f)
+            aBlendFraction = 1.0f;
+    }
+    else
+    {
+        aBlendFraction = 0.0f;
+        aBlending = 0;
+    }
+
+    int aDuration = mDuration;
+    int aNextElapsed = aElapsed + 1;
+    mUpdateCounter = aNextElapsed;
+    int aCurve = mCurve;
+    float aFromX = mFromX;
+
+    int aPosX;
+    int aPosY;
+    if (aDuration < 0)
+    {
+        // A negative budget loops. Both counters rewind when the loop closes.
+        int aLoopLength = -aDuration;
+        aPosX = (int)TodAnimateCurveFloat(0, -aDuration, aNextElapsed, aFromX, mToX, aCurve);
+        aPosY = (int)TodAnimateCurveFloat(0, aLoopLength, mUpdateCounter, mFromY, mToY, aCurve);
+        if (aLoopLength == mUpdateCounter)
+        {
+            mBlendTicks = 0;
+            mUpdateCounter = 0;
+        }
+    }
+    else
+    {
+        aPosX = (int)TodAnimateCurveFloat(0, aDuration, aNextElapsed, aFromX, mToX, aCurve);
+        aPosY = (int)TodAnimateCurveFloat(0, mDuration, mUpdateCounter, mFromY, mToY, aCurve);
+    }
+
+    if (aBlending != 0)
+    {
+        aPosX = (int)(mStartX + ((float)aPosX - mStartX) * aBlendFraction);
+        aPosY = (int)(mStartY + ((float)aPosY - mStartY) * aBlendFraction);
+    }
+
+    mWidget->Move(aPosX, aPosY);
 }
 
 // ==========================================================================
 // TodCurveWidgetAnimator::TodCurveWidgetAnimator(Sexy::Widget *,TodCurves,Sexy::SexyVector2 &,Sexy::SexyVector2 &,int)
 // @001B8FFC  92 bytes
 // ==========================================================================
-TodCurveWidgetAnimator::TodCurveWidgetAnimator(Sexy::Widget *theWidget, TodCurves theCurve, SexyVector2 &theFrom, SexyVector2 &theTo, int theDuration)
+TodCurveWidgetAnimator::TodCurveWidgetAnimator(
+    Sexy::Widget *theWidget, TodCurves theCurve, SexyVector2 &theFrom, SexyVector2 &theTo, int theDuration)
 {
-  mWidget = theWidget;
-  mRefCount = 0;
-  mUpdateCounter = 0;
-  mCurve = theCurve;
-  mDuration = theDuration;
-  mHasStart = false;
-  mStartX = 0.0f;
-  mStartY = 0.0f;
-  mFromX = theFrom.mX;
-  mFromY = theFrom.mY;
-  mToX = theTo.mX;
-  mToY = theTo.mY;
+    mWidget = theWidget;
+    mRefCount = 0;
+    mUpdateCounter = 0;
+    mCurve = theCurve;
+    mDuration = theDuration;
+    mHasStart = false;
+    mStartX = 0.0f;
+    mStartY = 0.0f;
+    mFromX = theFrom.mX;
+    mFromY = theFrom.mY;
+    mToX = theTo.mX;
+    mToY = theTo.mY;
 }

@@ -4,7 +4,8 @@
 // the declarations. EditSink methods that this class overrides stay in the
 // base's slot order.
 
-#pragma once
+#ifndef LAWNPROJECTTV_SEXY_INCLUDE_EDITWIDGET_H
+#define LAWNPROJECTTV_SEXY_INCLUDE_EDITWIDGET_H
 
 #include "EditSink.h"
 #include "Font.h"
@@ -14,9 +15,10 @@
 #include "WidgetContainer.h"
 #include <vector>
 
-namespace Sexy {
+namespace Sexy
+{
 
-class EditOption;
+struct EditOption;
 class EditSink;
 
 // The platform keyboard the widget registers with. AndroidAppDriver implements
@@ -25,14 +27,26 @@ class EditSource
 {
 public:
     virtual ~EditSource() {}
-    virtual int GetEditText() { return 0; }
-    virtual int RegisterEditSink(Sexy::EditSink *) { return 0; }
-    virtual int UnregisterEditSink(Sexy::EditSink *) { return 0; }
+    virtual int GetEditText()
+    {
+        return 0;
+    }
+    virtual int RegisterEditSink(Sexy::EditSink *)
+    {
+        return 0;
+    }
+    virtual int UnregisterEditSink(Sexy::EditSink *)
+    {
+        return 0;
+    }
     virtual void SetEditOption(Sexy::EditSink *, Sexy::EditOption const &) {}
     virtual void UpdateEditArea(Sexy::EditSink *) {}
     virtual void ShowEditBox(Sexy::EditSink *) {}
     virtual void HideEditBox(Sexy::EditSink *) {}
-    virtual Sexy::EditSink *GetCurrentEditSink() { return nullptr; }
+    virtual Sexy::EditSink *GetCurrentEditSink()
+    {
+        return nullptr;
+    }
 };
 
 // Four hooks the on-screen editor calls back into. The base does nothing.
@@ -202,3 +216,5 @@ public:
 } // namespace Sexy
 
 using Sexy::EditWidget;
+
+#endif // LAWNPROJECTTV_SEXY_INCLUDE_EDITWIDGET_H

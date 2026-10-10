@@ -4,7 +4,8 @@
 // The grab offsets are the point inside the thumb the pointer landed on.
 // TouchCancel reports the value and then forwards to Widget.
 
-#pragma once
+#ifndef LAWNPROJECTTV_SEXY_INCLUDE_SLIDER_H
+#define LAWNPROJECTTV_SEXY_INCLUDE_SLIDER_H
 
 #include "ReconTypes.h"
 #include "Graphics.h"
@@ -13,7 +14,8 @@
 #include "Widget.h"
 #include <vector>
 
-namespace Sexy {
+namespace Sexy
+{
 
 class Slider : public SelectableWidget
 {
@@ -51,3 +53,5 @@ public:
 } // namespace Sexy
 
 using Sexy::Slider;
+
+#endif // LAWNPROJECTTV_SEXY_INCLUDE_SLIDER_H

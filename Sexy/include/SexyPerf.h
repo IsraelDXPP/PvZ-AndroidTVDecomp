@@ -4,20 +4,22 @@
 // why StartTiming and StopTiming take only a name. GetResults returns the
 // report string by value.
 
-#pragma once
+#ifndef LAWNPROJECTTV_SEXY_INCLUDE_SEXYPERF_H
+#define LAWNPROJECTTV_SEXY_INCLUDE_SEXYPERF_H
 
 #include "ReconTypes.h"
 #include "SexyString.h"
 
-namespace Sexy {
+namespace Sexy
+{
 
 class SexyPerf
 {
     static int StopTimingFlag;
 
 public:
-    static void StartTiming(const char* theName);
-    static void StopTiming(const char* theName);
+    static void StartTiming(const char *theName);
+    static void StopTiming(const char *theName);
 
     int IsPerfOn();
     int EndPerf();
@@ -28,3 +30,5 @@ public:
 } // namespace Sexy
 
 using Sexy::SexyPerf;
+
+#endif // LAWNPROJECTTV_SEXY_INCLUDE_SEXYPERF_H

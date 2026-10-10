@@ -32,11 +32,13 @@
 // getActivity / getView / getPackageName, which live in libnative_code and have
 // no thunk in libGameMain.
 
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_NATIVEAPP_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_NATIVEAPP_H
 
 #include "ReconTypes.h"
 
-namespace Native {
+namespace Native
+{
 
 class NativeApp
 {
@@ -49,3 +51,5 @@ public:
 } // namespace Native
 
 // Layout check: no state, so the class is one byte as every empty class is.
+
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_NATIVEAPP_H

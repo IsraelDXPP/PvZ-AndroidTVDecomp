@@ -5,11 +5,13 @@
 // the same bytes as 16-bit halves, so each word is a union of the word and
 // the two halves those bodies name.
 
-#pragma once
+#ifndef LAWNPROJECTTV_SEXY_INCLUDE_CHARDATA_H
+#define LAWNPROJECTTV_SEXY_INCLUDE_CHARDATA_H
 
 #include "ReconTypes.h"
 
-namespace Sexy {
+namespace Sexy
+{
 
 class CharData
 {
@@ -17,37 +19,65 @@ public:
     union
     {
         int mPackedOrigin;
-        struct { unsigned short mX; unsigned short mY; };
+        struct
+        {
+            unsigned short mX;
+            unsigned short mY;
+        };
     };
     union
     {
         int mPackedSize;
-        struct { unsigned short mWidth; unsigned short mHeight; };
+        struct
+        {
+            unsigned short mWidth;
+            unsigned short mHeight;
+        };
     };
     union
     {
         int mPackedOffset;
-        struct { unsigned short mOffsetX; unsigned short mOffsetY; };
+        struct
+        {
+            unsigned short mOffsetX;
+            unsigned short mOffsetY;
+        };
     };
     union
     {
         int mPackedKern;
-        struct { unsigned short mKernIndex; unsigned short mKernCount; };
+        struct
+        {
+            unsigned short mKernIndex;
+            unsigned short mKernCount;
+        };
     };
     union
     {
         int mPackedAdvance;
-        struct { unsigned short mAdvance; unsigned short mPageHeight; };
+        struct
+        {
+            unsigned short mAdvance;
+            unsigned short mPageHeight;
+        };
     };
     union
     {
         int mPackedBase;
-        struct { unsigned short mBaseOrder; unsigned short mBaseOrderExtra; };
+        struct
+        {
+            unsigned short mBaseOrder;
+            unsigned short mBaseOrderExtra;
+        };
     };
     union
     {
         int mPackedOrder;
-        struct { unsigned short mCharOrder; unsigned short mCharOrderExtra; };
+        struct
+        {
+            unsigned short mCharOrder;
+            unsigned short mCharOrderExtra;
+        };
     };
     int mTrailingWord;
 
@@ -55,3 +85,5 @@ public:
 };
 
 } // namespace Sexy
+
+#endif // LAWNPROJECTTV_SEXY_INCLUDE_CHARDATA_H

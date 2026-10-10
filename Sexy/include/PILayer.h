@@ -1,11 +1,13 @@
 // PILayer is a named list of particle emitters plus a colour and a transform.
 
-#pragma once
+#ifndef LAWNPROJECTTV_SEXY_INCLUDE_PILAYER_H
+#define LAWNPROJECTTV_SEXY_INCLUDE_PILAYER_H
 
 #include "ReconTypes.h"
 #include <vector>
 
-namespace Sexy {
+namespace Sexy
+{
 
 struct PILayerEmitter
 {
@@ -21,8 +23,8 @@ public:
     Sexy::SexyMatrix3 mTransform;
 
     void SetVisible(bool visible);
-    PILayerEmitter * GetEmitter(int theIndex);
-    PILayerEmitter * GetEmitter(Sexy::String const& theName);
+    PILayerEmitter *GetEmitter(int theIndex);
+    PILayerEmitter *GetEmitter(Sexy::String const &theName);
     PILayer();
 };
 
@@ -30,3 +32,5 @@ public:
 
 using Sexy::PILayer;
 using Sexy::PILayerEmitter;
+
+#endif // LAWNPROJECTTV_SEXY_INCLUDE_PILAYER_H

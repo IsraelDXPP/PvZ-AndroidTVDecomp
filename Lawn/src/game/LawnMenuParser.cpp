@@ -38,12 +38,12 @@
 // LawnMenuParser::CreateParseWidget(void)
 // @001490F8  44 bytes
 // ==========================================================================
-Sexy::MenuParser_ParseWidget* LawnMenuParser::CreateParseWidget()
+Sexy::MenuParser_ParseWidget *LawnMenuParser::CreateParseWidget()
 {
-  // The binary allocates 0x28 bytes and clears nine words behind the vptr.
-  // LawnParseWidget extends MenuParser_ParseWidget, whose constructor clears
-  // those slots and the reference count.
-  return new LawnParseWidget();
+    // The binary allocates 0x28 bytes and clears nine words behind the vptr.
+    // LawnParseWidget extends MenuParser_ParseWidget, whose constructor clears
+    // those slots and the reference count.
+    return new LawnParseWidget();
 }
 
 // ==========================================================================
@@ -52,19 +52,19 @@ Sexy::MenuParser_ParseWidget* LawnMenuParser::CreateParseWidget()
 // ==========================================================================
 LawnMenuParser::~LawnMenuParser()
 {
-  // The binary's body is the vptr store plus MenuParser's destructor. The
-  // compiler emits both.
+    // The binary's body is the vptr store plus MenuParser's destructor. The
+    // compiler emits both.
 }
 
 // ==========================================================================
 // LawnMenuParser::LawnMenuParser(Sexy::MenuWidget *)
 // @00149190  34 bytes
 // ==========================================================================
-LawnMenuParser::LawnMenuParser(Sexy::MenuWidget *theMenu)
-    : MenuParser(theMenu)
+LawnMenuParser::LawnMenuParser(Sexy::MenuWidget *theMenu) :
+    MenuParser(theMenu)
 {
-  // +0x64 keeps LawnMenuParser's own copy of the same MenuWidget.
-  mLawnMenuWidget = (LawnMenuWidget *)theMenu;
+    // +0x64 keeps LawnMenuParser's own copy of the same MenuWidget.
+    mLawnMenuWidget = (LawnMenuWidget *)theMenu;
 }
 
 // ==========================================================================
@@ -73,366 +73,366 @@ LawnMenuParser::LawnMenuParser(Sexy::MenuWidget *theMenu)
 // ==========================================================================
 int LawnMenuParser::DataToVector2(Sexy::DataElement *theElement, float *theOut)
 {
-  // A vector is a two-element list of numbers: +0x04 is DataElement's list flag
-  // and +0x08 its child vector.
-  Sexy::ListDataElement *aList = (Sexy::ListDataElement *)theElement;
-  if ( !aList->mElementKind )
-    return 0;
-  if ( aList->mDataElements.size() != 2 )
-    return 0;
-  double aX;
-  double aY;
-  if ( !DataToDouble(aList->mDataElements[0], &aX) )
-    return 0;
-  if ( !DataToDouble(aList->mDataElements[1], &aY) )
-    return 0;
-  theOut[0] = (float)aX;
-  theOut[1] = (float)aY;
-  return 1;
+    // A vector is a two-element list of numbers: +0x04 is DataElement's list flag
+    // and +0x08 its child vector.
+    Sexy::ListDataElement *aList = (Sexy::ListDataElement *)theElement;
+    if (!aList->mElementKind)
+        return 0;
+    if (aList->mDataElements.size() != 2)
+        return 0;
+    double aX;
+    double aY;
+    if (!DataToDouble(aList->mDataElements[0], &aX))
+        return 0;
+    if (!DataToDouble(aList->mDataElements[1], &aY))
+        return 0;
+    theOut[0] = (float)aX;
+    theOut[1] = (float)aY;
+    return 1;
 }
 
 // ==========================================================================
 // LawnMenuParser::CreateWidget(Sexy::String,int,Sexy::MenuParser::ParseWidget *)
 // @00149218  1016 bytes
 // ==========================================================================
-Sexy::Widget * LawnMenuParser::CreateWidget(Sexy::String theType, int theId, Sexy::MenuParser_ParseWidget *theParse)
+Sexy::Widget *LawnMenuParser::CreateWidget(Sexy::String theType, int theId, Sexy::MenuParser_ParseWidget *theParse)
 {
-  // The type name selects the widget. Word 2 is the widget the parser hands
-  // back, word 5 the button, word 8 the help image and word 9 the help text.
-  if ( theType == "MainMenuButtonWidget" || theType == "LawnButtonWidget" )
-  {
-    GameButton *aButton = new GameButton(theId, mMenuWidget);
-    theParse->mButtonWidget = aButton;
-    aButton->SetColor(1, Sexy::Color(255, 255, 255, 255));
-    theParse->mWidget = aButton;
-    return aButton;
-  }
-  if ( theType == "StoneButtonWidget" )
-  {
-    GameButton *aButton = (GameButton *)MakeButton(theId, (Sexy::ButtonListener *)mMenuWidget,
-                                                   (Sexy::Widget *)mMenuWidget, Sexy::String(""));
-    theParse->mButtonWidget = aButton;
-    aButton->SetColor(1, Sexy::Color(255, 255, 255, 255));
-    theParse->mWidget = aButton;
-    return aButton;
-  }
-  if ( theType == "HelpTextWidget" )
-  {
-    HelpTextWidget *aWidget = new HelpTextWidget();
-    theParse->mHelpText = aWidget;
-    theParse->mWidget = aWidget;
-    return aWidget;
-  }
-  if ( theType == "HelpImageWidget" )
-  {
-    HelpTextImageWidget *aWidget = new HelpTextImageWidget();
-    theParse->mHelpImage = aWidget;
-    theParse->mWidget = aWidget;
-    return aWidget;
-  }
-  if ( theType == "HelpBarWidget" )
-  {
-    HelpBarWidget *aWidget = new HelpBarWidget();
-    theParse->mHelpBar = aWidget;
-    theParse->mWidget = aWidget;
-    return aWidget;
-  }
-  // ButtonWidget, LabelWidget and ImageWidget are the base parser's types.
-  return MenuParser::CreateWidget(theType, theId, theParse);
+    // The type name selects the widget. Word 2 is the widget the parser hands
+    // back, word 5 the button, word 8 the help image and word 9 the help text.
+    if (theType == "MainMenuButtonWidget" || theType == "LawnButtonWidget")
+    {
+        GameButton *aButton = new GameButton(theId, mMenuWidget);
+        theParse->mButtonWidget = aButton;
+        aButton->SetColor(1, Sexy::Color(255, 255, 255, 255));
+        theParse->mWidget = aButton;
+        return aButton;
+    }
+    if (theType == "StoneButtonWidget")
+    {
+        GameButton *aButton = (GameButton *)MakeButton(
+            theId, (Sexy::ButtonListener *)mMenuWidget, (Sexy::Widget *)mMenuWidget, Sexy::String(""));
+        theParse->mButtonWidget = aButton;
+        aButton->SetColor(1, Sexy::Color(255, 255, 255, 255));
+        theParse->mWidget = aButton;
+        return aButton;
+    }
+    if (theType == "HelpTextWidget")
+    {
+        HelpTextWidget *aWidget = new HelpTextWidget();
+        theParse->mHelpText = aWidget;
+        theParse->mWidget = aWidget;
+        return aWidget;
+    }
+    if (theType == "HelpImageWidget")
+    {
+        HelpTextImageWidget *aWidget = new HelpTextImageWidget();
+        theParse->mHelpImage = aWidget;
+        theParse->mWidget = aWidget;
+        return aWidget;
+    }
+    if (theType == "HelpBarWidget")
+    {
+        HelpBarWidget *aWidget = new HelpBarWidget();
+        theParse->mHelpBar = aWidget;
+        theParse->mWidget = aWidget;
+        return aWidget;
+    }
+    // ButtonWidget, LabelWidget and ImageWidget are the base parser's types.
+    return MenuParser::CreateWidget(theType, theId, theParse);
 }
 
 // ==========================================================================
 // LawnMenuParser::CreateWidgetAnimator(Sexy::String,Sexy::ListDataElement const&,Sexy::MenuParser::ParseWidget *)
 // @0014962C  1236 bytes
 // ==========================================================================
-Sexy::WidgetAnimator * LawnMenuParser::CreateWidgetAnimator(Sexy::String theType, Sexy::ListDataElement const& theParams,
-                                             Sexy::MenuParser_ParseWidget *theParse)
+Sexy::WidgetAnimator *LawnMenuParser::CreateWidgetAnimator(
+    Sexy::String theType, Sexy::ListDataElement const &theParams, Sexy::MenuParser_ParseWidget *theParse)
 {
-  const char *aName = theType.c_str();
-  Sexy::Widget *aWidget = theParse->mWidget;
+    const char *aName = theType.c_str();
+    Sexy::Widget *aWidget = theParse->mWidget;
 
-  if (strcasecmp(aName, "TodCurveWidgetAnimator") == 0)
-  {
-    if (theParams.mDataElements.size() != 4)
+    if (strcasecmp(aName, "TodCurveWidgetAnimator") == 0)
     {
-      OutputDebug("Invalid number of params for TodCurveWidgetAnimator.\n");
-      return nullptr;
+        if (theParams.mDataElements.size() != 4)
+        {
+            OutputDebug("Invalid number of params for TodCurveWidgetAnimator.\n");
+            return nullptr;
+        }
+        int aCurve = 0;
+        if (DataToInt(theParams.mDataElements[0], &aCurve) == 0 || (unsigned int)aCurve > 0xD)
+        {
+            OutputDebug("Invalid curve type for TodCurveWidgetAnimator.\n");
+            return nullptr;
+        }
+        SexyVector2 aFrom;
+        SexyVector2 aTo;
+        if (DataToVector2(theParams.mDataElements[1], (float *)&aFrom) == 0 ||
+            DataToVector2(theParams.mDataElements[2], (float *)&aTo) == 0)
+        {
+            OutputDebug("Invalid vector definition for TodCurveWidgetAnimator.\n");
+            return nullptr;
+        }
+        int aTime = 0;
+        if (DataToInt(theParams.mDataElements[3], &aTime) == 0)
+        {
+            OutputDebug("Invalid time value for TodCurveWidgetAnimator.\n");
+            return nullptr;
+        }
+        return new TodCurveWidgetAnimator(aWidget, (TodCurves)aCurve, aFrom, aTo, aTime);
     }
-    int aCurve = 0;
-    if (DataToInt(theParams.mDataElements[0], &aCurve) == 0 || (unsigned int)aCurve > 0xD)
-    {
-      OutputDebug("Invalid curve type for TodCurveWidgetAnimator.\n");
-      return nullptr;
-    }
-    SexyVector2 aFrom;
-    SexyVector2 aTo;
-    if (DataToVector2(theParams.mDataElements[1], (float *)&aFrom) == 0
-        || DataToVector2(theParams.mDataElements[2], (float *)&aTo) == 0)
-    {
-      OutputDebug("Invalid vector definition for TodCurveWidgetAnimator.\n");
-      return nullptr;
-    }
-    int aTime = 0;
-    if (DataToInt(theParams.mDataElements[3], &aTime) == 0)
-    {
-      OutputDebug("Invalid time value for TodCurveWidgetAnimator.\n");
-      return nullptr;
-    }
-    return new TodCurveWidgetAnimator(aWidget, (TodCurves)aCurve, aFrom, aTo, aTime);
-  }
 
-  if (strcasecmp(aName, "ReanimTrackWidgetAnimator") == 0)
-  {
-    unsigned int aCount = theParams.mDataElements.size();
-    if (aCount < 1 || aCount > 4)
+    if (strcasecmp(aName, "ReanimTrackWidgetAnimator") == 0)
     {
-      OutputDebug("Invalid number of params for TodCurveWidgetAnimator.\n");
-      return nullptr;
+        const std::size_t aCount = theParams.mDataElements.size();
+        if (aCount < 1 || aCount > 4)
+        {
+            OutputDebug("Invalid number of params for TodCurveWidgetAnimator.\n");
+            return nullptr;
+        }
+        Sexy::String aTrack1;
+        if (DataToString(theParams.mDataElements[0], &aTrack1) == 0)
+        {
+            OutputDebug("Invalid track name for ReanimTrackWidgetAnimator.\n");
+            return nullptr;
+        }
+        Sexy::String aTrack2;
+        Sexy::String aTrack3;
+        SexyVector2 aOffset;
+        if (aCount >= 2 && DataToString(theParams.mDataElements[1], &aTrack2) == 0)
+        {
+            OutputDebug("Invalid track2 name for ReanimTrackWidgetAnimator.\n");
+            return nullptr;
+        }
+        if (aCount >= 3 && DataToString(theParams.mDataElements[2], &aTrack3) == 0)
+        {
+            OutputDebug("Invalid track3 name for ReanimTrackWidgetAnimator.\n");
+            return nullptr;
+        }
+        if (aCount >= 4 && DataToVector2(theParams.mDataElements[3], (float *)&aOffset) == 0)
+        {
+            OutputDebug("Invalid vector definition for TodCurveWidgetAnimator.\n");
+            return nullptr;
+        }
+        Sexy::String aName1;
+        Sexy::String aName2;
+        Sexy::String aName3;
+        SexyWStringToString(&aName1, &aTrack1);
+        SexyWStringToString(&aName2, &aTrack2);
+        SexyWStringToString(&aName3, &aTrack3);
+        ReanimTrackWidgetAnimator *aAnimator =
+            new ReanimTrackWidgetAnimator(aWidget, mLawnMenuWidget, aName1, aName2, aName3);
+        aAnimator->mOffsetX = aOffset.mX;
+        aAnimator->mOffsetY = aOffset.mY;
+        return aAnimator;
     }
-    Sexy::String aTrack1;
-    if (DataToString(theParams.mDataElements[0], &aTrack1) == 0)
-    {
-      OutputDebug("Invalid track name for ReanimTrackWidgetAnimator.\n");
-      return nullptr;
-    }
-    Sexy::String aTrack2;
-    Sexy::String aTrack3;
-    SexyVector2 aOffset;
-    if (aCount >= 2 && DataToString(theParams.mDataElements[1], &aTrack2) == 0)
-    {
-      OutputDebug("Invalid track2 name for ReanimTrackWidgetAnimator.\n");
-      return nullptr;
-    }
-    if (aCount >= 3 && DataToString(theParams.mDataElements[2], &aTrack3) == 0)
-    {
-      OutputDebug("Invalid track3 name for ReanimTrackWidgetAnimator.\n");
-      return nullptr;
-    }
-    if (aCount >= 4 && DataToVector2(theParams.mDataElements[3], (float *)&aOffset) == 0)
-    {
-      OutputDebug("Invalid vector definition for TodCurveWidgetAnimator.\n");
-      return nullptr;
-    }
-    Sexy::String aName1;
-    Sexy::String aName2;
-    Sexy::String aName3;
-    SexyWStringToString(&aName1, &aTrack1);
-    SexyWStringToString(&aName2, &aTrack2);
-    SexyWStringToString(&aName3, &aTrack3);
-    ReanimTrackWidgetAnimator *aAnimator = new ReanimTrackWidgetAnimator(
-        aWidget, mLawnMenuWidget, aName1, aName2, aName3);
-    aAnimator->mOffsetX = aOffset.mX;
-    aAnimator->mOffsetY = aOffset.mY;
-    return aAnimator;
-  }
 
-  if (strcasecmp(aName, "SlideInOutWidgetAnimator") != 0)
-    return nullptr;
+    if (strcasecmp(aName, "SlideInOutWidgetAnimator") != 0)
+        return nullptr;
 
-  unsigned int aCount = theParams.mDataElements.size();
-  if (aCount < 1 || aCount > 2)
-  {
-    OutputDebug("Invalid number of params for SlideInOutWidgetAnimator.\n");
-    return nullptr;
-  }
-  int aSlideDir = 0;
-  if (DataToInt(theParams.mDataElements[0], &aSlideDir) == 0 || (unsigned int)aSlideDir > 3)
-  {
-    OutputDebug("Invalid slide dir for SlideInOutWidgetAnimator.\n");
-    return nullptr;
-  }
-  int aDuration = 0;
-  if (aCount == 2 && DataToInt(theParams.mDataElements[1], &aDuration) == 0)
-    aDuration = 0;
-  return new SlideInOutWidgetAnimator(aWidget, aSlideDir, aDuration);
+    const std::size_t aCount = theParams.mDataElements.size();
+    if (aCount < 1 || aCount > 2)
+    {
+        OutputDebug("Invalid number of params for SlideInOutWidgetAnimator.\n");
+        return nullptr;
+    }
+    int aSlideDir = 0;
+    if (DataToInt(theParams.mDataElements[0], &aSlideDir) == 0 || (unsigned int)aSlideDir > 3)
+    {
+        OutputDebug("Invalid slide dir for SlideInOutWidgetAnimator.\n");
+        return nullptr;
+    }
+    int aDuration = 0;
+    if (aCount == 2 && DataToInt(theParams.mDataElements[1], &aDuration) == 0)
+        aDuration = 0;
+    return new SlideInOutWidgetAnimator(aWidget, aSlideDir, aDuration);
 }
 
 // ==========================================================================
 // LawnMenuParser::HandleCommand(Sexy::ListDataElement const&)
 // @00149B78  6292 bytes
 // ==========================================================================
-namespace {
+namespace
+{
 
 bool SameName(const Sexy::String &theName, const char *theSpelling)
 {
-  return strcasecmp(theName.c_str(), theSpelling) == 0;
+    return strcasecmp(theName.c_str(), theSpelling) == 0;
 }
 
 bool Report(LawnMenuParser *theParser, const char *theMessage)
 {
-  theParser->Error(Sexy::String(theMessage), Sexy::String());
-  return false;
+    theParser->Error(Sexy::String(theMessage), Sexy::String());
+    return false;
 }
 
 int HelpButtonId(const Sexy::String &theName)
 {
-  Sexy::String aUpper;
-  StringToUpper(&aUpper, theName.c_str());
-  if (SameName(aUpper, "A"))
-    return 6;
-  if (SameName(aUpper, "B"))
-    return 7;
-  if (SameName(aUpper, "X"))
-    return 8;
-  if (SameName(aUpper, "Y"))
-    return 9;
-  if (SameName(aUpper, "LT"))
-    return 12;
-  if (SameName(aUpper, "RT"))
-    return 13;
-  if (SameName(aUpper, "LB"))
-    return 10;
-  if (SameName(aUpper, "RB"))
-    return 11;
-  if (SameName(aUpper, "LS"))
-    return 14;
-  if (SameName(aUpper, "RS"))
-    return 15;
-  if (SameName(aUpper, "BACK"))
-    return 4;
-  if (SameName(aUpper, "START"))
-    return 5;
-  return -1;
+    Sexy::String aUpper;
+    StringToUpper(&aUpper, theName.c_str());
+    if (SameName(aUpper, "A"))
+        return 6;
+    if (SameName(aUpper, "B"))
+        return 7;
+    if (SameName(aUpper, "X"))
+        return 8;
+    if (SameName(aUpper, "Y"))
+        return 9;
+    if (SameName(aUpper, "LT"))
+        return 12;
+    if (SameName(aUpper, "RT"))
+        return 13;
+    if (SameName(aUpper, "LB"))
+        return 10;
+    if (SameName(aUpper, "RB"))
+        return 11;
+    if (SameName(aUpper, "LS"))
+        return 14;
+    if (SameName(aUpper, "RS"))
+        return 15;
+    if (SameName(aUpper, "BACK"))
+        return 4;
+    if (SameName(aUpper, "START"))
+        return 5;
+    return -1;
 }
 
 } // namespace
 
-bool LawnMenuParser::HandleCommand(Sexy::ListDataElement const& theParams)
+bool LawnMenuParser::HandleCommand(Sexy::ListDataElement const &theParams)
 {
-  if (theParams.mDataElements.empty())
-    return Report(this, "Invalid Number of Parameters");
+    if (theParams.mDataElements.empty())
+        return Report(this, "Invalid Number of Parameters");
 
-  Sexy::String aCommand;
-  if (theParams.mDataElements[0]->mElementKind == 0)
-    SexyWStringToString(&aCommand, &((const Sexy::SingleDataElement *)theParams.mDataElements[0])->mData);
-  const int aCount = (int)theParams.mDataElements.size();
-  Sexy::MenuParser_ParseWidget *aParse = mParseWidget;
+    Sexy::String aCommand;
+    if (theParams.mDataElements[0]->mElementKind == 0)
+        SexyWStringToString(&aCommand, &((const Sexy::SingleDataElement *)theParams.mDataElements[0])->mData);
+    const int aCount = (int)theParams.mDataElements.size();
+    Sexy::MenuParser_ParseWidget *aParse = mParseWidget;
 
-  if (SameName(aCommand, "SetHelpImage"))
-  {
-    if (aCount != 2)
-      return Report(this, "Invalid Number of Parameters");
-    if (aParse == nullptr || aParse->mHelpImage == nullptr)
-      return Report(this, "Invalid Paramater Type");
+    if (SameName(aCommand, "SetHelpImage"))
+    {
+        if (aCount != 2)
+            return Report(this, "Invalid Number of Parameters");
+        if (aParse == nullptr || aParse->mHelpImage == nullptr)
+            return Report(this, "Invalid Paramater Type");
 
-    Sexy::String aPath;
-    if (DataToString(theParams.mDataElements[1], &aPath) == 0)
-      return Report(this, "Invalid Paramater Type");
+        Sexy::String aPath;
+        if (DataToString(theParams.mDataElements[1], &aPath) == 0)
+            return Report(this, "Invalid Paramater Type");
 
-    Sexy::SharedImageRef aImage = gSexyAppBase->GetSharedImage(aPath, Sexy::String(), nullptr, true, false);
-    if (aImage.operator Sexy::Image *() == nullptr)
-      return true;
+        Sexy::SharedImageRef aImage = gSexyAppBase->GetSharedImage(aPath, Sexy::String(), nullptr, true, false);
+        if (aImage.operator Sexy::Image *() == nullptr)
+            return true;
 
-    aParse->mHelpImage->mImage = aImage;
-    Sexy::Image *aLoaded = aImage.operator->();
-    aParse->mHelpImage->mWidth = aLoaded->mWidth;
-    aParse->mHelpImage->mHeight = aLoaded->mHeight;
-    return true;
-  }
+        aParse->mHelpImage->mImage = aImage;
+        Sexy::Image *aLoaded = aImage.operator->();
+        aParse->mHelpImage->mWidth = aLoaded->mWidth;
+        aParse->mHelpImage->mHeight = aLoaded->mHeight;
+        return true;
+    }
 
-  if (SameName(aCommand, "SetHelpFont"))
-  {
-    if (aCount != 2)
-      return Report(this, "Invalid Number of Parameters");
-    if (aParse == nullptr || aParse->mHelpText == nullptr)
-      return Report(this, "Invalid Paramater Type");
+    if (SameName(aCommand, "SetHelpFont"))
+    {
+        if (aCount != 2)
+            return Report(this, "Invalid Number of Parameters");
+        if (aParse == nullptr || aParse->mHelpText == nullptr)
+            return Report(this, "Invalid Paramater Type");
 
-    Sexy::String aFontName;
-    if (DataToString(theParams.mDataElements[1], &aFontName) == 0)
-      return Report(this, "Invalid Paramater Type");
+        Sexy::String aFontName;
+        if (DataToString(theParams.mDataElements[1], &aFontName) == 0)
+            return Report(this, "Invalid Paramater Type");
 
-    Sexy::Font *aFont = gSexyAppBase->mResourceManager->GetFont(aFontName);
-    if (aFont == nullptr)
-      return Report(this, "No resource with that name");
-    aParse->mHelpText->mFont = aFont;
-    return true;
-  }
+        Sexy::Font *aFont = gSexyAppBase->mResourceManager->GetFont(aFontName);
+        if (aFont == nullptr)
+            return Report(this, "No resource with that name");
+        aParse->mHelpText->mFont = aFont;
+        return true;
+    }
 
-  if (SameName(aCommand, "SetText"))
-  {
-    if (aCount != 2)
-      return Report(this, "Invalid Number of Parameters");
-    if (aParse == nullptr || aParse->mHelpText == nullptr)
-      return Report(this, "Invalid Paramater Type");
+    if (SameName(aCommand, "SetText"))
+    {
+        if (aCount != 2)
+            return Report(this, "Invalid Number of Parameters");
+        if (aParse == nullptr || aParse->mHelpText == nullptr)
+            return Report(this, "Invalid Paramater Type");
 
-    Sexy::String aLabel;
-    if (DataToString(theParams.mDataElements[1], &aLabel) == 0)
-      return Report(this, "Invalid Paramater Type");
-    aParse->mHelpText->mText = TodStringTranslate(aLabel);
-    return true;
-  }
+        Sexy::String aLabel;
+        if (DataToString(theParams.mDataElements[1], &aLabel) == 0)
+            return Report(this, "Invalid Paramater Type");
+        aParse->mHelpText->mText = TodStringTranslate(aLabel);
+        return true;
+    }
 
-  if (SameName(aCommand, "SetHelpColor"))
-  {
-    if (aCount != 5)
-      return Report(this, "Invalid Number of Parameters");
-    if (aParse == nullptr || aParse->mHelpText == nullptr)
-      return Report(this, "Missing parse widget");
+    if (SameName(aCommand, "SetHelpColor"))
+    {
+        if (aCount != 5)
+            return Report(this, "Invalid Number of Parameters");
+        if (aParse == nullptr || aParse->mHelpText == nullptr)
+            return Report(this, "Missing parse widget");
 
-    int aRed = 0;
-    int aGreen = 0;
-    int aBlue = 0;
-    int aAlpha = 255;
-    DataToInt(theParams.mDataElements[1], &aRed);
-    DataToInt(theParams.mDataElements[2], &aGreen);
-    DataToInt(theParams.mDataElements[3], &aBlue);
-    DataToInt(theParams.mDataElements[4], &aAlpha);
-    aParse->mHelpText->SetColor(0, Sexy::Color(aRed, aGreen, aBlue, aAlpha));
-    return true;
-  }
+        int aRed = 0;
+        int aGreen = 0;
+        int aBlue = 0;
+        int aAlpha = 255;
+        DataToInt(theParams.mDataElements[1], &aRed);
+        DataToInt(theParams.mDataElements[2], &aGreen);
+        DataToInt(theParams.mDataElements[3], &aBlue);
+        DataToInt(theParams.mDataElements[4], &aAlpha);
+        aParse->mHelpText->SetColor(0, Sexy::Color(aRed, aGreen, aBlue, aAlpha));
+        return true;
+    }
 
-  if (SameName(aCommand, "SetJustification"))
-  {
-    if (aCount != 2)
-      return Report(this, "Invalid Number of Parameters");
-    if (aParse == nullptr || aParse->mHelpText == nullptr)
-      return Report(this, "Invalid Paramater Type");
+    if (SameName(aCommand, "SetJustification"))
+    {
+        if (aCount != 2)
+            return Report(this, "Invalid Number of Parameters");
+        if (aParse == nullptr || aParse->mHelpText == nullptr)
+            return Report(this, "Invalid Paramater Type");
 
-    Sexy::String aJustify;
-    if (DataToString(theParams.mDataElements[1], &aJustify) == 0)
-      return Report(this, "Invalid Paramater Type");
+        Sexy::String aJustify;
+        if (DataToString(theParams.mDataElements[1], &aJustify) == 0)
+            return Report(this, "Invalid Paramater Type");
 
-    int aValue = 0;
-    if (SameName(aJustify, "right"))
-      aValue = 1;
-    else if (SameName(aJustify, "center"))
-      aValue = 2;
-    aParse->mHelpText->mJustification = aValue;
-    return true;
-  }
+        int aValue = 0;
+        if (SameName(aJustify, "right"))
+            aValue = 1;
+        else if (SameName(aJustify, "center"))
+            aValue = 2;
+        aParse->mHelpText->mJustification = aValue;
+        return true;
+    }
 
-  if (SameName(aCommand, "AddHelpButton"))
-  {
-    if (aCount != 3)
-      return Report(this, "Invalid Number of Parameters");
-    if (aParse == nullptr || aParse->mWidget == nullptr)
-      return Report(this, "Missing parse widget");
-    if (aParse->mHelpBar == nullptr)
-      return Report(this, "Incorrect widget type in parse widget");
+    if (SameName(aCommand, "AddHelpButton"))
+    {
+        if (aCount != 3)
+            return Report(this, "Invalid Number of Parameters");
+        if (aParse == nullptr || aParse->mWidget == nullptr)
+            return Report(this, "Missing parse widget");
+        if (aParse->mHelpBar == nullptr)
+            return Report(this, "Incorrect widget type in parse widget");
 
-    Sexy::DataElement *aNameElement = theParams.mDataElements[1];
-    Sexy::DataElement *aLabelElement = theParams.mDataElements[2];
-    if (aNameElement->mElementKind != 0 || aLabelElement->mElementKind != 0)
-      return Report(this, "Invalid Paramater Type");
+        Sexy::DataElement *aNameElement = theParams.mDataElements[1];
+        Sexy::DataElement *aLabelElement = theParams.mDataElements[2];
+        if (aNameElement->mElementKind != 0 || aLabelElement->mElementKind != 0)
+            return Report(this, "Invalid Paramater Type");
 
-    Sexy::String aButtonName;
-    if (DataToString(aNameElement, &aButtonName) == 0)
-      return Report(this, "Invalid Paramater Type");
+        Sexy::String aButtonName;
+        if (DataToString(aNameElement, &aButtonName) == 0)
+            return Report(this, "Invalid Paramater Type");
 
-    int aButton = HelpButtonId(aButtonName);
-    if (aButton < 0)
-      return Report(this, "Invalid Paramater Type");
+        int aButton = HelpButtonId(aButtonName);
+        if (aButton < 0)
+            return Report(this, "Invalid Paramater Type");
 
-    Sexy::String aLabel;
-    if (DataToString(aLabelElement, &aLabel) == 0)
-      return Report(this, "Invalid Paramater Type");
-    aParse->mHelpBar->AddButton((Sexy::GamepadButton)aButton, aLabel, HelpBarWidget::HELP_ALIGN_NONE);
-    return true;
-  }
+        Sexy::String aLabel;
+        if (DataToString(aLabelElement, &aLabel) == 0)
+            return Report(this, "Invalid Paramater Type");
+        aParse->mHelpBar->AddButton((Sexy::GamepadButton)aButton, aLabel, HelpBarWidget::HELP_ALIGN_NONE);
+        return true;
+    }
 
-  // Anything this parser does not name is a base menu command. Calling the
-  // base on this object writes the focus links and the current widget into
-  // the members LoadDescriptor and CloseFile already hold.
-  return MenuParser::HandleCommand(theParams);
+    // Anything this parser does not name is a base menu command. Calling the
+    // base on this object writes the focus links and the current widget into
+    // the members LoadDescriptor and CloseFile already hold.
+    return MenuParser::HandleCommand(theParams);
 }
-

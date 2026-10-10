@@ -9,28 +9,26 @@
 #include "Font.h"
 #include "Image.h"
 
-
 // ==========================================================================
 // ReanimatorTransform::ReanimatorTransform(float,float,float,float,float,float,float,float,Sexy::Image *,Sexy::Image *,Sexy::Font *,char *)
 // @001F927C  72 bytes
 // ==========================================================================
 ReanimatorTransform::ReanimatorTransform(float theTransX, float theTransY, float theSkewX, float theSkewY,
-                                       float theScaleX, float theScaleY, float theFrame, float theAlpha,
-                                       Sexy::Image *theImage, Sexy::Image *theImage2, Sexy::Font *theFont,
-                                       const char *theText)
+    float theScaleX, float theScaleY, float theFrame, float theAlpha, Sexy::Image *theImage, Sexy::Image *theImage2,
+    Sexy::Font *theFont, const char *theText)
 {
-  mTransX = theTransX;
-  mTransY = theTransY;
-  mSkewX = theSkewX;
-  mSkewY = theSkewY;
-  mScaleX = theScaleX;
-  mScaleY = theScaleY;
-  mFrame = theFrame;
-  mAlpha = theAlpha;
-  mImage = theImage;
-  mImage2 = theImage2;
-  mFont = theFont;
-  mText = theText;
+    mTransX = theTransX;
+    mTransY = theTransY;
+    mSkewX = theSkewX;
+    mSkewY = theSkewY;
+    mScaleX = theScaleX;
+    mScaleY = theScaleY;
+    mFrame = theFrame;
+    mAlpha = theAlpha;
+    mImage = theImage;
+    mImage2 = theImage2;
+    mFont = theFont;
+    mText = theText;
 }
 
 // ==========================================================================
@@ -39,18 +37,18 @@ ReanimatorTransform::ReanimatorTransform(float theTransX, float theTransY, float
 // ==========================================================================
 ReanimatorTransform::ReanimatorTransform()
 {
-  // The twelve words at 0x69FF1C are all zero. The constructor copies them
-  // over the whole record.
-  mTransX = 0.0f;
-  mTransY = 0.0f;
-  mSkewX = 0.0f;
-  mSkewY = 0.0f;
-  mScaleX = 0.0f;
-  mScaleY = 0.0f;
-  mFrame = 0.0f;
-  mAlpha = 0.0f;
-  mImage = nullptr;
-  mImage2 = nullptr;
-  mFont = nullptr;
-  mText = nullptr;
+    // The twelve words at 0x69FF1C are all zero. The constructor copies them
+    // over the whole record.
+    mTransX = 0.0f;
+    mTransY = 0.0f;
+    mSkewX = 0.0f;
+    mSkewY = 0.0f;
+    mScaleX = 0.0f;
+    mScaleY = 0.0f;
+    mFrame = 0.0f;
+    mAlpha = 0.0f;
+    mImage = nullptr;
+    mImage2 = nullptr;
+    mFont = nullptr;
+    mText = nullptr;
 }

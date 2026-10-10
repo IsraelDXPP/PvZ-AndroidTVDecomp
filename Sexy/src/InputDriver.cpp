@@ -5,14 +5,12 @@
 #include "InputDriver.h"
 #include "IInputDriver.h"
 
-Sexy::InputDriver::InputDriver(Sexy::String theName, int thePriority)
-    : Driver(theName, thePriority)
+Sexy::InputDriver::InputDriver(Sexy::String theName, int thePriority) :
+    Driver(theName, thePriority)
 {
 }
 
-Sexy::InputDriver::~InputDriver()
-{
-}
+Sexy::InputDriver::~InputDriver() {}
 
 int Sexy::InputDriver::OnStart(Sexy::SexyAppBase *, Sexy::InputManager *)
 {
@@ -24,6 +22,4 @@ int Sexy::InputDriver::OnStop()
     return 0;
 }
 
-Sexy::IInputDriver::~IInputDriver()
-{
-}
+Sexy::IInputDriver::~IInputDriver() {}

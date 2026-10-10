@@ -1,4 +1,5 @@
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_NEWLAWNBUTTON_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_NEWLAWNBUTTON_H
 
 #include "ReconTypes.h"
 #include "ButtonWidget.h"
@@ -27,3 +28,5 @@ public:
     bool mUsePolygonShape;
     Sexy::Point mPolygonShape[4];
 };
+
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_NEWLAWNBUTTON_H

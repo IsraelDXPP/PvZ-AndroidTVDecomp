@@ -23,7 +23,8 @@
 // means the real size is far smaller. The object size will settle once that
 // header is rebuilt (it belongs to another group).
 
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_SAVINGFILEDIALOG_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_SAVINGFILEDIALOG_H
 
 #include "ReconTypes.h"
 // These includes exist because the transcribed bodies call methods on complete
@@ -43,3 +44,5 @@ public:
     int GetStatus();
     SavingFileDialog(LawnApp *theApp, bool theModal, Sexy::String theMessage);
 };
+
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_SAVINGFILEDIALOG_H

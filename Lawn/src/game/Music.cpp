@@ -21,21 +21,11 @@
 // class that calls it, and every call is a virtual slot; the header carries the
 // slot table taken from _ZTVN4Sexy14MusicInterfaceE @0x68D640.
 
-// TodAnimateCurveFloat is declared as the C-style variadic
-// `int TodAnimateCurveFloat(...)` in Sexy\ReconFreeFunctions.h, so the float
-// bounds travel as their bit patterns and the answer comes back in r0 as one.
-// Every call in this file ramps linearly between 1.0f and 0.0f, so one wrapper
-// covers them all.
+// Volume ramps use the float curve result directly.
 static float AnimateVolumeRamp(int theStartTime, int theCurrentTime, bool theRising)
 {
-    const int kOneBits = 0x3F800000; // 1.0f
-    int aResult = TodAnimateCurveFloat(theStartTime, 0, theCurrentTime,
-                                       theRising ? 0 : kOneBits,
-                                       theRising ? kOneBits : 0,
-                                       CURVE_LINEAR);
-    float aVolume;
-    std::memcpy(&aVolume, &aResult, sizeof(aVolume));
-    return aVolume;
+    return TodAnimateCurveFloat(
+        theStartTime, 0, theCurrentTime, theRising ? 0.0f : 1.0f, theRising ? 1.0f : 0.0f, CURVE_LINEAR);
 }
 
 // ==========================================================================
@@ -44,10 +34,10 @@ static float AnimateVolumeRamp(int theStartTime, int theCurrentTime, bool theRis
 // ==========================================================================
 Music::~Music()
 {
-  // Music owns no heap object of its own: the only pointer the binary releases
-  // here is SyncObject's own mSyncBlocks vector, which the base destructor
-  // already handles. The dump's vptr store and its `operator delete` on
-  // `*((void**)this + 1)` are the base's work, not Music's.
+    // Music owns no heap object of its own: the only pointer the binary releases
+    // here is SyncObject's own mSyncBlocks vector, which the base destructor
+    // already handles. The dump's vptr store and its `operator delete` on
+    // `*((void**)this + 1)` are the base's work, not Music's.
 }
 
 // ==========================================================================
@@ -70,93 +60,93 @@ void Music::SetupMusicFileForTune(MusicFile theMusicFile, MusicTune theMusicTune
 
     switch (theMusicTune)
     {
-    case 1: // MUSIC_TUNE_DAY_GRASSWALK
-        if (theMusicFile == 1) // MUSIC_FILE_MAIN_MUSIC
-        {
-            theFirstChannel = 0;
-            theLastChannel = 23;
-            theChannelMapIsKnown = true;
-        }
-        else if (theMusicFile == 4) // MUSIC_FILE_HIHATS
-        {
-            theFirstChannel = 27;
-            theLastChannel = 27;
-            theChannelMapIsKnown = true;
-        }
-        else if (theMusicFile == 2) // MUSIC_FILE_DRUMS
-        {
-            theFirstChannel = 24;
-            theLastChannel = 26;
-            theChannelMapIsKnown = true;
-        }
-        break;
+        case 1: // MUSIC_TUNE_DAY_GRASSWALK
+            if (theMusicFile == 1) // MUSIC_FILE_MAIN_MUSIC
+            {
+                theFirstChannel = 0;
+                theLastChannel = 23;
+                theChannelMapIsKnown = true;
+            }
+            else if (theMusicFile == 4) // MUSIC_FILE_HIHATS
+            {
+                theFirstChannel = 27;
+                theLastChannel = 27;
+                theChannelMapIsKnown = true;
+            }
+            else if (theMusicFile == 2) // MUSIC_FILE_DRUMS
+            {
+                theFirstChannel = 24;
+                theLastChannel = 26;
+                theChannelMapIsKnown = true;
+            }
+            break;
 
-    case 3: // MUSIC_TUNE_POOL_WATERYGRAVES
-        if (theMusicFile == 1)
-        {
-            theFirstChannel = 0;
-            theLastChannel = 17;
-            theChannelMapIsKnown = true;
-        }
-        else if (theMusicFile == 4)
-        {
-            theFirstChannel = 18;
-            theLastChannel = 24;
-            theExtraChannel = 29;
-            theChannelMapIsKnown = true;
-        }
-        else if (theMusicFile == 2)
-        {
-            theFirstChannel = 18;
-            theLastChannel = 28;
-            theChannelMapIsKnown = true;
-        }
-        break;
+        case 3: // MUSIC_TUNE_POOL_WATERYGRAVES
+            if (theMusicFile == 1)
+            {
+                theFirstChannel = 0;
+                theLastChannel = 17;
+                theChannelMapIsKnown = true;
+            }
+            else if (theMusicFile == 4)
+            {
+                theFirstChannel = 18;
+                theLastChannel = 24;
+                theExtraChannel = 29;
+                theChannelMapIsKnown = true;
+            }
+            else if (theMusicFile == 2)
+            {
+                theFirstChannel = 18;
+                theLastChannel = 28;
+                theChannelMapIsKnown = true;
+            }
+            break;
 
-    case 4: // MUSIC_TUNE_FOG_RIGORMORMIST
-        if (theMusicFile == 1)
-        {
-            theFirstChannel = 0;
-            theLastChannel = 15;
-            theChannelMapIsKnown = true;
-        }
-        else if (theMusicFile == 4)
-        {
-            theFirstChannel = 23;
-            theLastChannel = 23;
-            theChannelMapIsKnown = true;
-        }
-        else if (theMusicFile == 2)
-        {
-            theFirstChannel = 16;
-            theLastChannel = 22;
-            theChannelMapIsKnown = true;
-        }
-        break;
+        case 4: // MUSIC_TUNE_FOG_RIGORMORMIST
+            if (theMusicFile == 1)
+            {
+                theFirstChannel = 0;
+                theLastChannel = 15;
+                theChannelMapIsKnown = true;
+            }
+            else if (theMusicFile == 4)
+            {
+                theFirstChannel = 23;
+                theLastChannel = 23;
+                theChannelMapIsKnown = true;
+            }
+            else if (theMusicFile == 2)
+            {
+                theFirstChannel = 16;
+                theLastChannel = 22;
+                theChannelMapIsKnown = true;
+            }
+            break;
 
-    case 5: // MUSIC_TUNE_ROOF_GRAZETHEROOF
-        if (theMusicFile == 1)
-        {
-            theFirstChannel = 0;
-            theLastChannel = 17;
-            theChannelMapIsKnown = true;
-        }
-        else if (theMusicFile == 4)
-        {
-            theFirstChannel = 21;
-            theLastChannel = 21;
-            theChannelMapIsKnown = true;
-        }
-        else if (theMusicFile == 2)
-        {
-            theFirstChannel = 18;
-            theLastChannel = 20;
-            theChannelMapIsKnown = true;
-        }
-        break;
+        case 5: // MUSIC_TUNE_ROOF_GRAZETHEROOF
+            if (theMusicFile == 1)
+            {
+                theFirstChannel = 0;
+                theLastChannel = 17;
+                theChannelMapIsKnown = true;
+            }
+            else if (theMusicFile == 4)
+            {
+                theFirstChannel = 21;
+                theLastChannel = 21;
+                theChannelMapIsKnown = true;
+            }
+            else if (theMusicFile == 2)
+            {
+                theFirstChannel = 18;
+                theLastChannel = 20;
+                theChannelMapIsKnown = true;
+            }
+            break;
 
-    default:
-        break;
+        default:
+            break;
     }
 
     if (theChannelMapIsKnown)
@@ -186,7 +176,7 @@ void Music::SetupMusicFileForTune(MusicFile theMusicFile, MusicTune theMusicTune
 // @001B7E00  26 bytes
 // ==========================================================================
 // A song the interface cannot load disables music for the rest of the session.
-void Music::LoadSong(MusicFile theMusicFile, Sexy::String const& theFileName)
+void Music::LoadSong(MusicFile theMusicFile, Sexy::String const &theFileName)
 {
     if (!mMusicInterface->LoadMusic(theMusicFile, theFileName))
         mMusicDisabled = true;
@@ -209,7 +199,7 @@ void Music::StopAllMusic()
 {
     if (mMusicInterface != nullptr)
     {
-        if (mCurMusicFileMain != -1)    // MUSIC_FILE_NONE
+        if (mCurMusicFileMain != -1) // MUSIC_FILE_NONE
             mMusicInterface->StopMusic(mCurMusicFileMain);
         if (mCurMusicFileDrums != -1)
             mMusicInterface->StopMusic(mCurMusicFileDrums);
@@ -221,7 +211,7 @@ void Music::StopAllMusic()
     // to none.
     const MusicTune aPreviousTune = mCurMusicTune;
     mNormalVolume = 0.0f;
-    mCurMusicTune = MUSIC_TUNE_NONE;     // MUSIC_TUNE_NONE
+    mCurMusicTune = MUSIC_TUNE_NONE; // MUSIC_TUNE_NONE
     mCurMusicFileMain = -1; // MUSIC_FILE_NONE
     mLastMusicTune = aPreviousTune;
     mCurMusicFileDrums = -1;
@@ -245,7 +235,7 @@ void Music::PlayFromOffset(MusicFile theMusicFile, int theOffset, double theVolu
     // The credits song is the only one that loops; the volume is set later, by
     // MusicUpdate.
     mMusicInterface->PlayMusic(theMusicFile, theOffset,
-                               theMusicFile == 5); // MUSIC_FILE_CREDITS_ZOMBIES_ON_YOUR_LAWN
+        theMusicFile == 5); // MUSIC_FILE_CREDITS_ZOMBIES_ON_YOUR_LAWN
 }
 
 // ==========================================================================
@@ -373,99 +363,98 @@ void Music::UpdateMusicBurst()
 
     switch (mMusicBurstState)
     {
-    case MUSIC_BURST_OFF:
-        // Ten zombies on screen -- or an explicit override -- start the burst.
-        if (mApp->mBoard->CountZombiesOnScreen() >= 10 || mBurstOverride == 1)
-            StartBurst();
-        aMainTrackVolume = 0.0f;
-        aDrumsJumpOrder = 1.0f;
-        break;
+        case MUSIC_BURST_OFF:
+            // Ten zombies on screen -- or an explicit override -- start the burst.
+            if (mApp->mBoard->CountZombiesOnScreen() >= 10 || mBurstOverride == 1)
+                StartBurst();
+            aMainTrackVolume = 0.0f;
+            aDrumsJumpOrder = 1.0f;
+            break;
 
-    case MUSIC_BURST_STARTING:
-        if (isNightMoonGrains)
-        {
-            if (theDrumsState == MUSIC_DRUMS_OFF)
+        case MUSIC_BURST_STARTING:
+            if (isNightMoonGrains)
             {
-                // Queue the drums and let the main track settle for a moment.
-                mMusicDrumsState = MUSIC_DRUMS_ON_QUEUED;
-                mBurstStateCounter = 400;
-                mQueuedDrumTrackPackedOrder = theMusicOrder;
-                theDrumsState = MUSIC_DRUMS_ON_QUEUED;
-                aDrumsJumpOrder = 1.0f;
-            }
-            else if (theDrumsState == MUSIC_DRUMS_ON_QUEUED)
-            {
-                mBurstStateCounter = 400;
-                aDrumsJumpOrder = 1.0f;
+                if (theDrumsState == MUSIC_DRUMS_OFF)
+                {
+                    // Queue the drums and let the main track settle for a moment.
+                    mMusicDrumsState = MUSIC_DRUMS_ON_QUEUED;
+                    mBurstStateCounter = 400;
+                    mQueuedDrumTrackPackedOrder = theMusicOrder;
+                    theDrumsState = MUSIC_DRUMS_ON_QUEUED;
+                    aDrumsJumpOrder = 1.0f;
+                }
+                else if (theDrumsState == MUSIC_DRUMS_ON_QUEUED)
+                {
+                    mBurstStateCounter = 400;
+                    aDrumsJumpOrder = 1.0f;
+                }
+                else
+                {
+                    // The drums are already in: ramp the jump order down and hand
+                    // over to the "on" state when it reaches zero.
+                    aDrumsJumpOrder = AnimateVolumeRamp(400, mBurstStateCounter, false);
+                    if (mBurstStateCounter == 0)
+                    {
+                        mMusicBurstState = MUSIC_BURST_ON;
+                        mBurstStateCounter = 800;
+                    }
+                }
             }
             else
             {
-                // The drums are already in: ramp the jump order down and hand
-                // over to the "on" state when it reaches zero.
-                aDrumsJumpOrder = AnimateVolumeRamp(400, mBurstStateCounter, false);
-                if (mBurstStateCounter == 0)
+                // A level tune opens with the hihats fading in.
+                aDrumsJumpOrder = 1.0f;
+                aMainTrackVolume = AnimateVolumeRamp(400, mBurstStateCounter, true);
+                if (mBurstStateCounter == 100)
+                {
+                    mMusicDrumsState = MUSIC_DRUMS_ON_QUEUED;
+                    mQueuedDrumTrackPackedOrder = theMusicOrder;
+                    theDrumsState = MUSIC_DRUMS_ON_QUEUED;
+                }
+                else if (mBurstStateCounter == 0)
                 {
                     mMusicBurstState = MUSIC_BURST_ON;
                     mBurstStateCounter = 800;
                 }
             }
-        }
-        else
-        {
-            // A level tune opens with the hihats fading in.
-            aDrumsJumpOrder = 1.0f;
-            aMainTrackVolume = AnimateVolumeRamp(400, mBurstStateCounter, true);
-            if (mBurstStateCounter == 100)
-            {
-                mMusicDrumsState = MUSIC_DRUMS_ON_QUEUED;
-                mQueuedDrumTrackPackedOrder = theMusicOrder;
-                theDrumsState = MUSIC_DRUMS_ON_QUEUED;
-            }
-            else if (mBurstStateCounter == 0)
-            {
-                mMusicBurstState = MUSIC_BURST_ON;
-                mBurstStateCounter = 800;
-            }
-        }
-        break;
-
-    case MUSIC_BURST_ON:
-        aMainTrackVolume = 1.0f;
-        // The night tune keeps the main track going and drops the jump order,
-        // which is what makes its drums fall back to the main track's own.
-        aDrumsJumpOrder = isNightMoonGrains ? 0.0f : 1.0f;
-        if (mBurstStateCounter != 0
-            || ((mApp->mBoard->CountZombiesOnScreen() > 3 || mBurstOverride != -1)
-                && mBurstOverride != 2))
             break;
 
-        // Fewer than four zombies and no override: wind the burst down.
-        if (isNightMoonGrains)
-        {
-            mMusicBurstState = MUSIC_BURST_FINISHING;
-            mMusicDrumsState = MUSIC_DRUMS_FADING;
-            theDrumsState = MUSIC_DRUMS_FADING;
-            mBurstStateCounter = 1100;
-            mDrumsStateCounter = 800;
-        }
-        else
-        {
-            mMusicBurstState = MUSIC_BURST_FINISHING;
-            mMusicDrumsState = MUSIC_DRUMS_OFF_QUEUED;
-            theDrumsState = MUSIC_DRUMS_OFF_QUEUED;
-            mQueuedDrumTrackPackedOrder = theMusicOrder;
-            mBurstStateCounter = 800;
-        }
-        break;
+        case MUSIC_BURST_ON:
+            aMainTrackVolume = 1.0f;
+            // The night tune keeps the main track going and drops the jump order,
+            // which is what makes its drums fall back to the main track's own.
+            aDrumsJumpOrder = isNightMoonGrains ? 0.0f : 1.0f;
+            if (mBurstStateCounter != 0 ||
+                ((mApp->mBoard->CountZombiesOnScreen() > 3 || mBurstOverride != -1) && mBurstOverride != 2))
+                break;
 
-    case MUSIC_BURST_FINISHING:
-        if (isNightMoonGrains)
-            aDrumsJumpOrder = AnimateVolumeRamp(400, mBurstStateCounter, true);
-        else
-            aMainTrackVolume = AnimateVolumeRamp(800, mBurstStateCounter, false);
-        if (mBurstStateCounter == 0 && mMusicDrumsState == MUSIC_DRUMS_OFF)
-            mMusicBurstState = MUSIC_BURST_OFF;
-        break;
+            // Fewer than four zombies and no override: wind the burst down.
+            if (isNightMoonGrains)
+            {
+                mMusicBurstState = MUSIC_BURST_FINISHING;
+                mMusicDrumsState = MUSIC_DRUMS_FADING;
+                theDrumsState = MUSIC_DRUMS_FADING;
+                mBurstStateCounter = 1100;
+                mDrumsStateCounter = 800;
+            }
+            else
+            {
+                mMusicBurstState = MUSIC_BURST_FINISHING;
+                mMusicDrumsState = MUSIC_DRUMS_OFF_QUEUED;
+                theDrumsState = MUSIC_DRUMS_OFF_QUEUED;
+                mQueuedDrumTrackPackedOrder = theMusicOrder;
+                mBurstStateCounter = 800;
+            }
+            break;
+
+        case MUSIC_BURST_FINISHING:
+            if (isNightMoonGrains)
+                aDrumsJumpOrder = AnimateVolumeRamp(400, mBurstStateCounter, true);
+            else
+                aMainTrackVolume = AnimateVolumeRamp(800, mBurstStateCounter, false);
+            if (mBurstStateCounter == 0 && mMusicDrumsState == MUSIC_DRUMS_OFF)
+                mMusicBurstState = MUSIC_BURST_OFF;
+            break;
     }
 
     // The order value the interface reports is packed: it counts the position
@@ -492,47 +481,46 @@ void Music::UpdateMusicBurst()
 
     switch (theDrumsState)
     {
-    case MUSIC_DRUMS_ON_QUEUED:
-        // The drums come in once the main track reaches the order that was
-        // queued for them; the night tune then jumps them to the odd order.
-        if (theMainOrderIndex == theQueuedOrderIndex)
-        {
-            aFadeTrackVolume = 0.0f;
-        }
-        else
-        {
-            mMusicDrumsState = MUSIC_DRUMS_ON;
+        case MUSIC_DRUMS_ON_QUEUED:
+            // The drums come in once the main track reaches the order that was
+            // queued for them; the night tune then jumps them to the odd order.
+            if (theMainOrderIndex == theQueuedOrderIndex)
+            {
+                aFadeTrackVolume = 0.0f;
+            }
+            else
+            {
+                mMusicDrumsState = MUSIC_DRUMS_ON;
+                aFadeTrackVolume = 1.0f;
+                if (isNightMoonGrains)
+                    aPackedOrderMain = theMainOrderIndex & 1;
+            }
+            break;
+
+        case MUSIC_DRUMS_ON:
             aFadeTrackVolume = 1.0f;
-            if (isNightMoonGrains)
-                aPackedOrderMain = theMainOrderIndex & 1;
-        }
-        break;
+            break;
 
-    case MUSIC_DRUMS_ON:
-        aFadeTrackVolume = 1.0f;
-        break;
+        case MUSIC_DRUMS_OFF_QUEUED:
+            aFadeTrackVolume = 1.0f;
+            // A level tune fades the drums out over 50 ticks; the night tune leaves
+            // them in step with the main track instead.
+            if (theMainOrderIndex != theQueuedOrderIndex && !isNightMoonGrains)
+            {
+                mMusicDrumsState = MUSIC_DRUMS_FADING;
+                mDrumsStateCounter = 50;
+            }
+            break;
 
-    case MUSIC_DRUMS_OFF_QUEUED:
-        aFadeTrackVolume = 1.0f;
-        // A level tune fades the drums out over 50 ticks; the night tune leaves
-        // them in step with the main track instead.
-        if (theMainOrderIndex != theQueuedOrderIndex && !isNightMoonGrains)
-        {
-            mMusicDrumsState = MUSIC_DRUMS_FADING;
-            mDrumsStateCounter = 50;
-        }
-        break;
+        case MUSIC_DRUMS_FADING:
+            aFadeTrackVolume = AnimateVolumeRamp(isNightMoonGrains ? 800 : 50, mDrumsStateCounter, false);
+            if (mDrumsStateCounter == 0)
+                mMusicDrumsState = MUSIC_DRUMS_OFF;
+            break;
 
-    case MUSIC_DRUMS_FADING:
-        aFadeTrackVolume = AnimateVolumeRamp(isNightMoonGrains ? 800 : 50,
-                                             mDrumsStateCounter, false);
-        if (mDrumsStateCounter == 0)
-            mMusicDrumsState = MUSIC_DRUMS_OFF;
-        break;
-
-    default: // MUSIC_DRUMS_OFF
-        aFadeTrackVolume = 0.0f;
-        break;
+        default: // MUSIC_DRUMS_OFF
+            aFadeTrackVolume = 0.0f;
+            break;
     }
 
     if (isNightMoonGrains)
@@ -598,8 +586,7 @@ void Music::StartGameMusic(bool theStartPaused)
         mCurMusicTune = MUSIC_TUNE_NONE; // MUSIC_TUNE_NONE
 
     // The Zen garden and the tree of wisdom share a tune.
-    if (mApp->mGameMode == GAMEMODE_CHALLENGE_ZEN_GARDEN
-        || mApp->mGameMode == GAMEMODE_TREE_OF_WISDOM)
+    if (mApp->mGameMode == GAMEMODE_CHALLENGE_ZEN_GARDEN || mApp->mGameMode == GAMEMODE_TREE_OF_WISDOM)
         return MakeSureMusicIsPlaying(MUSIC_TUNE_ZEN_GARDEN); // MUSIC_TUNE_ZEN_GARDEN
 
     if (mApp->IsFinalBossLevel())
@@ -640,7 +627,7 @@ void Music::StartGameMusic(bool theStartPaused)
         return MakeSureMusicIsPlaying(MUSIC_TUNE_POOL_WATERYGRAVES); // MUSIC_TUNE_POOL_WATERYGRAVES
     if (aBoard->StageHasRoof())
         return MakeSureMusicIsPlaying(MUSIC_TUNE_ROOF_GRAZETHEROOF); // MUSIC_TUNE_ROOF_GRAZETHEROOF
-    return MakeSureMusicIsPlaying(MUSIC_TUNE_DAY_GRASSWALK);     // MUSIC_TUNE_DAY_GRASSWALK
+    return MakeSureMusicIsPlaying(MUSIC_TUNE_DAY_GRASSWALK); // MUSIC_TUNE_DAY_GRASSWALK
 }
 
 // ==========================================================================
@@ -698,7 +685,7 @@ void Music::PlayMusic(MusicTune theMusicTune, int theOffset, int theDrumsOffset)
 
     mLastMusicTune = theMusicTune;
     mCurMusicTune = theMusicTune;
-    mCurMusicFileMain = -1;  // MUSIC_FILE_NONE
+    mCurMusicFileMain = -1; // MUSIC_FILE_NONE
     mCurMusicFileDrums = -1;
     mCurMusicFileHihats = -1;
 
@@ -708,65 +695,93 @@ void Music::PlayMusic(MusicTune theMusicTune, int theOffset, int theDrumsOffset)
     {
         switch (theMusicTune)
         {
-        case 1:  theOffset = 0;                     break; // MUSIC_TUNE_DAY_GRASSWALK
-        case 2:  theDrumsOffset = 0; theOffset = 48; break; // MUSIC_TUNE_NIGHT_MOONGRAINS
-        case 3:  theOffset = 94;                    break; // MUSIC_TUNE_POOL_WATERYGRAVES
-        case 4:  theOffset = 125;                   break; // MUSIC_TUNE_FOG_RIGORMORMIST
-        case 5:  theOffset = 184;                   break; // MUSIC_TUNE_ROOF_GRAZETHEROOF
-        case 6:  theOffset = 122;                   break; // MUSIC_TUNE_CHOOSE_YOUR_SEEDS
-        case 7:  theOffset = 152;                   break; // MUSIC_TUNE_TITLE_CRAZY_DAVE_MAIN_THEME
-        case 8:  theOffset = 221;                   break; // MUSIC_TUNE_ZEN_GARDEN
-        case 9:  theOffset = 177;                   break; // MUSIC_TUNE_PUZZLE_CEREBRAWL
-        case 10: theOffset = 166;                   break; // MUSIC_TUNE_MINIGAME_LOONBOON
-        case 11: theOffset = 212;                   break; // MUSIC_TUNE_CONVEYER
-        case 12: theOffset = 158;                   break; // MUSIC_TUNE_FINAL_BOSS_BRAINIAC_MANIAC
-        case 13: theOffset = 0;                     break; // MUSIC_TUNE_CREDITS_ZOMBIES_ON_YOUR_LAWN
-        default: break;
+            case 1:
+                theOffset = 0;
+                break; // MUSIC_TUNE_DAY_GRASSWALK
+            case 2:
+                theDrumsOffset = 0;
+                theOffset = 48;
+                break; // MUSIC_TUNE_NIGHT_MOONGRAINS
+            case 3:
+                theOffset = 94;
+                break; // MUSIC_TUNE_POOL_WATERYGRAVES
+            case 4:
+                theOffset = 125;
+                break; // MUSIC_TUNE_FOG_RIGORMORMIST
+            case 5:
+                theOffset = 184;
+                break; // MUSIC_TUNE_ROOF_GRAZETHEROOF
+            case 6:
+                theOffset = 122;
+                break; // MUSIC_TUNE_CHOOSE_YOUR_SEEDS
+            case 7:
+                theOffset = 152;
+                break; // MUSIC_TUNE_TITLE_CRAZY_DAVE_MAIN_THEME
+            case 8:
+                theOffset = 221;
+                break; // MUSIC_TUNE_ZEN_GARDEN
+            case 9:
+                theOffset = 177;
+                break; // MUSIC_TUNE_PUZZLE_CEREBRAWL
+            case 10:
+                theOffset = 166;
+                break; // MUSIC_TUNE_MINIGAME_LOONBOON
+            case 11:
+                theOffset = 212;
+                break; // MUSIC_TUNE_CONVEYER
+            case 12:
+                theOffset = 158;
+                break; // MUSIC_TUNE_FINAL_BOSS_BRAINIAC_MANIAC
+            case 13:
+                theOffset = 0;
+                break; // MUSIC_TUNE_CREDITS_ZOMBIES_ON_YOUR_LAWN
+            default:
+                break;
         }
     }
 
     switch (theMusicTune)
     {
-    case 1: // MUSIC_TUNE_DAY_GRASSWALK
-    case 3: // MUSIC_TUNE_POOL_WATERYGRAVES
-    case 4: // MUSIC_TUNE_FOG_RIGORMORMIST
-    case 5: // MUSIC_TUNE_ROOF_GRAZETHEROOF
-        // The five level tunes play the main track with both extra layers; only
-        // the main track is audible until the burst mixes the others in.
-        mCurMusicFileMain = 1;   // MUSIC_FILE_MAIN_MUSIC
-        mCurMusicFileDrums = 2;  // MUSIC_FILE_DRUMS
-        mCurMusicFileHihats = 4; // MUSIC_FILE_HIHATS
-        PlayFromOffset(mCurMusicFileMain, theOffset, 1.0);
-        PlayFromOffset(mCurMusicFileDrums, theOffset, 0.0);
-        PlayFromOffset(mCurMusicFileHihats, theOffset, 0.0);
-        break;
+        case 1: // MUSIC_TUNE_DAY_GRASSWALK
+        case 3: // MUSIC_TUNE_POOL_WATERYGRAVES
+        case 4: // MUSIC_TUNE_FOG_RIGORMORMIST
+        case 5: // MUSIC_TUNE_ROOF_GRAZETHEROOF
+            // The five level tunes play the main track with both extra layers; only
+            // the main track is audible until the burst mixes the others in.
+            mCurMusicFileMain = 1; // MUSIC_FILE_MAIN_MUSIC
+            mCurMusicFileDrums = 2; // MUSIC_FILE_DRUMS
+            mCurMusicFileHihats = 4; // MUSIC_FILE_HIHATS
+            PlayFromOffset(mCurMusicFileMain, theOffset, 1.0);
+            PlayFromOffset(mCurMusicFileDrums, theOffset, 0.0);
+            PlayFromOffset(mCurMusicFileHihats, theOffset, 0.0);
+            break;
 
-    case 2: // MUSIC_TUNE_NIGHT_MOONGRAINS
-        mCurMusicFileMain = 1;
-        mCurMusicFileDrums = 3; // MUSIC_FILE_DRUMS_NIGHTMOONGRAINS
-        PlayFromOffset(mCurMusicFileMain, theOffset, 1.0);
-        PlayFromOffset(mCurMusicFileDrums, theDrumsOffset, 0.0);
-        break;
+        case 2: // MUSIC_TUNE_NIGHT_MOONGRAINS
+            mCurMusicFileMain = 1;
+            mCurMusicFileDrums = 3; // MUSIC_FILE_DRUMS_NIGHTMOONGRAINS
+            PlayFromOffset(mCurMusicFileMain, theOffset, 1.0);
+            PlayFromOffset(mCurMusicFileDrums, theDrumsOffset, 0.0);
+            break;
 
-    case 6:  // MUSIC_TUNE_CHOOSE_YOUR_SEEDS
-    case 7:  // MUSIC_TUNE_TITLE_CRAZY_DAVE_MAIN_THEME
-    case 8:  // MUSIC_TUNE_ZEN_GARDEN
-    case 9:  // MUSIC_TUNE_PUZZLE_CEREBRAWL
-    case 10: // MUSIC_TUNE_MINIGAME_LOONBOON
-    case 11: // MUSIC_TUNE_CONVEYER
-    case 12: // MUSIC_TUNE_FINAL_BOSS_BRAINIAC_MANIAC
-        // The menu and puzzle tunes have the main track only.
-        mCurMusicFileMain = 1;
-        PlayFromOffset(mCurMusicFileMain, theOffset, 1.0);
-        break;
+        case 6: // MUSIC_TUNE_CHOOSE_YOUR_SEEDS
+        case 7: // MUSIC_TUNE_TITLE_CRAZY_DAVE_MAIN_THEME
+        case 8: // MUSIC_TUNE_ZEN_GARDEN
+        case 9: // MUSIC_TUNE_PUZZLE_CEREBRAWL
+        case 10: // MUSIC_TUNE_MINIGAME_LOONBOON
+        case 11: // MUSIC_TUNE_CONVEYER
+        case 12: // MUSIC_TUNE_FINAL_BOSS_BRAINIAC_MANIAC
+            // The menu and puzzle tunes have the main track only.
+            mCurMusicFileMain = 1;
+            PlayFromOffset(mCurMusicFileMain, theOffset, 1.0);
+            break;
 
-    case 13: // MUSIC_TUNE_CREDITS_ZOMBIES_ON_YOUR_LAWN
-        mCurMusicFileMain = 5; // MUSIC_FILE_CREDITS_ZOMBIES_ON_YOUR_LAWN
-        PlayFromOffset(mCurMusicFileMain, theOffset, 1.0);
-        break;
+        case 13: // MUSIC_TUNE_CREDITS_ZOMBIES_ON_YOUR_LAWN
+            mCurMusicFileMain = 5; // MUSIC_FILE_CREDITS_ZOMBIES_ON_YOUR_LAWN
+            PlayFromOffset(mCurMusicFileMain, theOffset, 1.0);
+            break;
 
-    default:
-        return;
+        default:
+            return;
     }
 
     return;
@@ -808,7 +823,7 @@ Music::Music()
     mApp = (LawnApp *)gSexyAppBase;
     mMusicInterface = mApp->mMusicInterface;
 
-    mLastMusicTune = MUSIC_TUNE_NONE;    // MUSIC_TUNE_NONE
+    mLastMusicTune = MUSIC_TUNE_NONE; // MUSIC_TUNE_NONE
     mCurMusicTune = MUSIC_TUNE_NONE;
     mCurMusicFileMain = -1; // MUSIC_FILE_NONE
     mCurMusicFileDrums = -1;

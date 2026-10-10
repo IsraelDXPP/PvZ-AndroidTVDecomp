@@ -9,7 +9,8 @@
 #include "TodParticleDefinition.h"
 #include <cstring>
 
-namespace {
+namespace
+{
 
 using EmitterListNode = DataArrayIdNode;
 
@@ -36,11 +37,11 @@ unsigned int EmitterSlotId(TodParticleHolder *theHolder, TodParticleEmitter *the
     return 0;
 }
 
-void FreeListNodes(EmitterListNode* theHead, TodAllocator *theAllocator)
+void FreeListNodes(EmitterListNode *theHead, TodAllocator *theAllocator)
 {
-    for (EmitterListNode* aNode = theHead; aNode != nullptr; )
+    for (EmitterListNode *aNode = theHead; aNode != nullptr;)
     {
-        EmitterListNode* aNext = aNode->mNext;
+        EmitterListNode *aNext = aNode->mNext;
         TodAllocatorWriteLink(aNode, theAllocator->mFreeList);
         --theAllocator->mTotalItems;
         theAllocator->mFreeList = aNode;
@@ -71,8 +72,7 @@ void AppendEmitter(TodParticleSystem::EmitterIdList *theList, unsigned int theIn
 
 bool EmitterNameMatches(const char *theName, TodEmitterDefinition *theDefinition)
 {
-    return theName == nullptr || (theDefinition->mName != nullptr
-        && strcasecmp(theName, theDefinition->mName) == 0);
+    return theName == nullptr || (theDefinition->mName != nullptr && strcasecmp(theName, theDefinition->mName) == 0);
 }
 
 } // namespace
@@ -89,8 +89,7 @@ void TodParticleSystem::ParticleSystemDie()
             TodParticleEmitter *anEmitter = EmitterAt(mParticleHolder, anIndex);
             anEmitter->DeleteAll();
             mParticleHolder->mEmitters.DataArrayFree(anEmitter);
-        }
-        while (aNode != nullptr);
+        } while (aNode != nullptr);
 
         FreeListNodes(mEmitterList.mHead, mEmitterList.mpAllocator);
     }
@@ -103,8 +102,8 @@ void TodParticleSystem::ParticleSystemDie()
 
 void TodParticleSystem::Draw(Sexy::Graphics *theGraphics)
 {
-    for (EmitterListNode *aNode = static_cast<EmitterListNode *>(mEmitterList.mHead);
-         aNode != nullptr; aNode = aNode->mNext)
+    for (EmitterListNode *aNode = static_cast<EmitterListNode *>(mEmitterList.mHead); aNode != nullptr;
+        aNode = aNode->mNext)
     {
         EmitterAt(mParticleHolder, aNode->mValue)->Draw(theGraphics);
     }
@@ -112,8 +111,8 @@ void TodParticleSystem::Draw(Sexy::Graphics *theGraphics)
 
 void TodParticleSystem::SystemMove(float theX, float theY)
 {
-    for (EmitterListNode *aNode = static_cast<EmitterListNode *>(mEmitterList.mHead);
-         aNode != nullptr; aNode = aNode->mNext)
+    for (EmitterListNode *aNode = static_cast<EmitterListNode *>(mEmitterList.mHead); aNode != nullptr;
+        aNode = aNode->mNext)
     {
         EmitterAt(mParticleHolder, aNode->mValue)->SystemMove(theX, theY);
     }
@@ -121,8 +120,8 @@ void TodParticleSystem::SystemMove(float theX, float theY)
 
 void TodParticleSystem::OverrideColor(const char *theEmitterName, const Sexy::Color &theColor)
 {
-    for (EmitterListNode *aNode = static_cast<EmitterListNode *>(mEmitterList.mHead);
-         aNode != nullptr; aNode = aNode->mNext)
+    for (EmitterListNode *aNode = static_cast<EmitterListNode *>(mEmitterList.mHead); aNode != nullptr;
+        aNode = aNode->mNext)
     {
         TodParticleEmitter *anEmitter = EmitterAt(mParticleHolder, aNode->mValue);
         if (EmitterNameMatches(theEmitterName, anEmitter->mEmitterDef))
@@ -132,8 +131,8 @@ void TodParticleSystem::OverrideColor(const char *theEmitterName, const Sexy::Co
 
 void TodParticleSystem::OverrideExtraAdditiveDraw(const char *theEmitterName, bool theEnableExtraAdditiveDraw)
 {
-    for (EmitterListNode *aNode = static_cast<EmitterListNode *>(mEmitterList.mHead);
-         aNode != nullptr; aNode = aNode->mNext)
+    for (EmitterListNode *aNode = static_cast<EmitterListNode *>(mEmitterList.mHead); aNode != nullptr;
+        aNode = aNode->mNext)
     {
         TodParticleEmitter *anEmitter = EmitterAt(mParticleHolder, aNode->mValue);
         if (EmitterNameMatches(theEmitterName, anEmitter->mEmitterDef))
@@ -143,8 +142,8 @@ void TodParticleSystem::OverrideExtraAdditiveDraw(const char *theEmitterName, bo
 
 void TodParticleSystem::OverrideImage(const char *theEmitterName, Sexy::Image *theImage)
 {
-    for (EmitterListNode *aNode = static_cast<EmitterListNode *>(mEmitterList.mHead);
-         aNode != nullptr; aNode = aNode->mNext)
+    for (EmitterListNode *aNode = static_cast<EmitterListNode *>(mEmitterList.mHead); aNode != nullptr;
+        aNode = aNode->mNext)
     {
         TodParticleEmitter *anEmitter = EmitterAt(mParticleHolder, aNode->mValue);
         if (EmitterNameMatches(theEmitterName, anEmitter->mEmitterDef))
@@ -154,8 +153,8 @@ void TodParticleSystem::OverrideImage(const char *theEmitterName, Sexy::Image *t
 
 void TodParticleSystem::OverrideFrame(const char *theEmitterName, int theFrame)
 {
-    for (EmitterListNode *aNode = static_cast<EmitterListNode *>(mEmitterList.mHead);
-         aNode != nullptr; aNode = aNode->mNext)
+    for (EmitterListNode *aNode = static_cast<EmitterListNode *>(mEmitterList.mHead); aNode != nullptr;
+        aNode = aNode->mNext)
     {
         TodParticleEmitter *anEmitter = EmitterAt(mParticleHolder, aNode->mValue);
         if (EmitterNameMatches(theEmitterName, anEmitter->mEmitterDef))
@@ -165,8 +164,8 @@ void TodParticleSystem::OverrideFrame(const char *theEmitterName, int theFrame)
 
 void TodParticleSystem::OverrideScale(const char *theEmitterName, float theScale)
 {
-    for (EmitterListNode *aNode = static_cast<EmitterListNode *>(mEmitterList.mHead);
-         aNode != nullptr; aNode = aNode->mNext)
+    for (EmitterListNode *aNode = static_cast<EmitterListNode *>(mEmitterList.mHead); aNode != nullptr;
+        aNode = aNode->mNext)
     {
         TodParticleEmitter *anEmitter = EmitterAt(mParticleHolder, aNode->mValue);
         if (EmitterNameMatches(theEmitterName, anEmitter->mEmitterDef))
@@ -178,8 +177,8 @@ TodParticleEmitter *TodParticleSystem::FindEmitterByName(const char *theEmitterN
 {
     if (theEmitterName == nullptr)
         return nullptr;
-    for (EmitterListNode *aNode = static_cast<EmitterListNode *>(mEmitterList.mHead);
-         aNode != nullptr; aNode = aNode->mNext)
+    for (EmitterListNode *aNode = static_cast<EmitterListNode *>(mEmitterList.mHead); aNode != nullptr;
+        aNode = aNode->mNext)
     {
         TodParticleEmitter *anEmitter = EmitterAt(mParticleHolder, aNode->mValue);
         if (EmitterNameMatches(theEmitterName, anEmitter->mEmitterDef))
@@ -194,7 +193,7 @@ TodEmitterDefinition *TodParticleSystem::FindEmitterDefByName(const char *theEmi
         return nullptr;
     for (int anIndex = 0; anIndex < mParticleDef->mEmitterDefCount; ++anIndex)
     {
-        TodEmitterDefinition* aDefinition = &mParticleDef->mEmitterDefs[anIndex];
+        TodEmitterDefinition *aDefinition = &mParticleDef->mEmitterDefs[anIndex];
         if (EmitterNameMatches(theEmitterName, aDefinition))
             return aDefinition;
     }
@@ -223,8 +222,7 @@ TodParticleSystem::TodParticleSystem()
 }
 
 void TodParticleSystem::TodParticleInitializeFromDef(
-    float theX, float theY, int theRenderOrder,
-    TodParticleDefinition *theDefinition, ParticleEffect theEffectType)
+    float theX, float theY, int theRenderOrder, TodParticleDefinition *theDefinition, ParticleEffect theEffectType)
 {
     mRenderOrder = theRenderOrder;
     mEffectType = theEffectType;
@@ -255,7 +253,7 @@ void TodParticleSystem::Update()
         return;
 
     bool aKeepAlive = false;
-    for (EmitterListNode *aNode = mEmitterList.mHead; aNode != nullptr; )
+    for (EmitterListNode *aNode = mEmitterList.mHead; aNode != nullptr;)
     {
         TodParticleEmitter *anEmitter = EmitterAt(mParticleHolder, aNode->mValue);
         aNode = aNode->mNext;
@@ -281,14 +279,13 @@ void TodParticleSystem::CrossFade(const char *theEmitterName)
     if (aDefinition == nullptr || !FloatTrackIsSet(&aDefinition->mCrossFadeDuration))
         return;
 
-    if ((unsigned int)mEmitterList.mSize + mParticleHolder->mEmitters.mSize
-        > mParticleHolder->mEmitters.mMaxSize)
+    if ((unsigned int)mEmitterList.mSize + mParticleHolder->mEmitters.mSize > mParticleHolder->mEmitters.mMaxSize)
     {
         ParticleSystemDie();
         return;
     }
 
-    for (EmitterListNode *aNode = mEmitterList.mHead; aNode != nullptr; )
+    for (EmitterListNode *aNode = mEmitterList.mHead; aNode != nullptr;)
     {
         TodParticleEmitter *anEmitter = EmitterAt(mParticleHolder, aNode->mValue);
         aNode = aNode->mNext;
@@ -297,9 +294,7 @@ void TodParticleSystem::CrossFade(const char *theEmitterName)
 
         TodParticleEmitter *aNewEmitter = AllocParticleEmitter(mParticleHolder);
         aNewEmitter->TodEmitterInitialize(
-            anEmitter->mSyncState.mSystemCenter.mX,
-            anEmitter->mSyncState.mSystemCenter.mY,
-            this, aDefinition);
+            anEmitter->mSyncState.mSystemCenter.mX, anEmitter->mSyncState.mSystemCenter.mY, this, aDefinition);
         AppendEmitter(&mEmitterList, EmitterSlotId(mParticleHolder, aNewEmitter));
         anEmitter->CrossFadeEmitter(aNewEmitter);
     }

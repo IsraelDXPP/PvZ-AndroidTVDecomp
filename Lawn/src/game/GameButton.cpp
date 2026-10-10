@@ -12,7 +12,7 @@
 #include "Widget.h"
 #include <cmath>
 
-void GameButton::SetFont(Sexy::Font* theFont)
+void GameButton::SetFont(Sexy::Font *theFont)
 {
     delete mFont;
     mFont = theFont->Duplicate();
@@ -104,14 +104,13 @@ void GameButton::Update()
 
 int GameButton::KeyDown(Sexy::KeyCode theKey)
 {
-    Sexy::Widget* aTopLevel = GetTopLevel();
+    Sexy::Widget *aTopLevel = GetTopLevel();
     if (aTopLevel->mEvent != nullptr)
-        mGamepadIndex = mApp->GetGamepadIndex(aTopLevel->mEvent->lateModifiers,
-                                            aTopLevel->mEvent->eventType);
+        mGamepadIndex = mApp->GetGamepadIndex(aTopLevel->mEvent->lateModifiers, aTopLevel->mEvent->eventType);
     return Sexy::ButtonWidget::KeyDown(theKey);
 }
 
-void GameButton::SetLabel(const Sexy::String& theLabel)
+void GameButton::SetLabel(const Sexy::String &theLabel)
 {
     Sexy::String translated;
     TodStringTranslate(&translated, theLabel);
@@ -121,7 +120,8 @@ void GameButton::SetLabel(const Sexy::String& theLabel)
     mLabel = translated;
 }
 
-void GameButton::DrawButtonImage(Sexy::Graphics* theGraphics, Sexy::Image* theImage, const TRect<int>& theRect, int theX, int theY)
+void GameButton::DrawButtonImage(
+    Sexy::Graphics *theGraphics, Sexy::Image *theImage, const TRect<int> &theRect, int theX, int theY)
 {
     bool inverted = mInverted;
     bool highlighted = false;
@@ -164,8 +164,8 @@ void GameButton::DrawButtonImage(Sexy::Graphics* theGraphics, Sexy::Image* theIm
     theGraphics->DrawImageF(theImage, (float)theX, (float)theY);
 }
 
-GameButton::GameButton(int theId, Sexy::ButtonListener* theListener)
-    : Sexy::DialogButton(nullptr, theId, theListener)
+GameButton::GameButton(int theId, Sexy::ButtonListener *theListener) :
+    Sexy::DialogButton(nullptr, theId, theListener)
 {
     mWidgetId = theId;
     mClip = false;
@@ -204,10 +204,8 @@ GameButton::GameButton(int theId, Sexy::ButtonListener* theListener)
 
     for (int colorIndex = 0; colorIndex < 6; ++colorIndex)
     {
-        mColors[colorIndex] = Color(
-            gGameButtonColors[colorIndex][0],
-            gGameButtonColors[colorIndex][1],
-            gGameButtonColors[colorIndex][2]);
+        mColors[colorIndex] =
+            Color(gGameButtonColors[colorIndex][0], gGameButtonColors[colorIndex][1], gGameButtonColors[colorIndex][2]);
     }
 
     mScaleX = 1.0f;
@@ -223,12 +221,12 @@ GameButton::GameButton(int theId, Sexy::ButtonListener* theListener)
     mGamepadIndex = -1;
 }
 
-bool GameButton::HaveButtonImage(Sexy::Image* theImage, const TRect<int>& theRect)
+bool GameButton::HaveButtonImage(Sexy::Image *theImage, const TRect<int> &theRect)
 {
     return theImage != nullptr || theRect.mWidth != 0;
 }
 
-void GameButton::Draw(Sexy::Graphics* theGraphics)
+void GameButton::Draw(Sexy::Graphics *theGraphics)
 {
     mApp = gLawnApp;
     if (mBtnNoDraw)
@@ -273,7 +271,7 @@ void GameButton::Draw(Sexy::Graphics* theGraphics)
         return;
     }
 
-    Sexy::Font* font = mFont;
+    Sexy::Font *font = mFont;
     int labelX = mTextOffsetX;
     int labelY = mTextOffsetY;
     if (font != nullptr)

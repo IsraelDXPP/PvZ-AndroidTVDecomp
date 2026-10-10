@@ -6,26 +6,30 @@
 //
 // Each narrow slot has a wide overload next to it. UserDialog is one consumer.
 
-#pragma once
+#ifndef LAWNPROJECTTV_SEXY_INCLUDE_EDITLISTENER_H
+#define LAWNPROJECTTV_SEXY_INCLUDE_EDITLISTENER_H
 
 #include "ReconTypes.h"
 #include <string>
 
-namespace Sexy {
+namespace Sexy
+{
 
 class EditListener
 {
 public:
-    virtual void EditWidgetText(int theId, Sexy::String const& theText);
-    virtual void EditWidgetText(int theId, std::wstring const& theText);
+    virtual void EditWidgetText(int theId, Sexy::String const &theText);
+    virtual void EditWidgetText(int theId, std::wstring const &theText);
     virtual int AllowKey(int theId, Sexy::KeyCode theKey);
     virtual int AllowChar(int theId, char theChar);
     virtual int AllowChar(int theId, int theChar);
-    virtual int AllowText(int theId, Sexy::String const& theText);
-    virtual int AllowText(int theId, std::wstring const& theText);
-    virtual void TextChanged(int theId, Sexy::String const& theText);
+    virtual int AllowText(int theId, Sexy::String const &theText);
+    virtual int AllowText(int theId, std::wstring const &theText);
+    virtual void TextChanged(int theId, Sexy::String const &theText);
 };
 
 } // namespace Sexy
 
 using Sexy::EditListener;
+
+#endif // LAWNPROJECTTV_SEXY_INCLUDE_EDITLISTENER_H

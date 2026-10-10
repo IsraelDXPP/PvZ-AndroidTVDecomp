@@ -17,8 +17,8 @@
 //
 // The layout is ELF32, which is what the target is: 16 bytes per symbol.
 
-#ifndef __ELFSHIMS_H__
-#define __ELFSHIMS_H__
+#ifndef LAWNPROJECTTV_SEXY_INCLUDE_RUNTIME_ELFSHIMS_H
+#define LAWNPROJECTTV_SEXY_INCLUDE_RUNTIME_ELFSHIMS_H
 
 #include "SexyTypes.h"
 
@@ -34,52 +34,51 @@
 // ---------------------------------------------------------------------------
 struct Elf32_Sym
 {
-    std::uint32_t  st_name;
-    std::uint32_t  st_value;
-    std::uint32_t  st_size;
-    _BYTE   st_info;
-    _BYTE   st_other;
-    _WORD   st_shndx;
+    std::uint32_t st_name;
+    std::uint32_t st_value;
+    std::uint32_t st_size;
+    _BYTE st_info;
+    _BYTE st_other;
+    _WORD st_shndx;
 };
-
 
 // The header, for the code that reads the table's location out of it.
 struct Elf32_Ehdr
 {
-    _BYTE   e_ident[16];
-    _WORD   e_type;
-    _WORD   e_machine;
-    std::uint32_t  e_version;
-    std::uint32_t  e_entry;
-    std::uint32_t  e_phoff;
-    std::uint32_t  e_shoff;
-    std::uint32_t  e_flags;
-    _WORD   e_ehsize;
-    _WORD   e_phentsize;
-    _WORD   e_phnum;
-    _WORD   e_shentsize;
-    _WORD   e_shnum;
-    _WORD   e_shstrndx;
+    _BYTE e_ident[16];
+    _WORD e_type;
+    _WORD e_machine;
+    std::uint32_t e_version;
+    std::uint32_t e_entry;
+    std::uint32_t e_phoff;
+    std::uint32_t e_shoff;
+    std::uint32_t e_flags;
+    _WORD e_ehsize;
+    _WORD e_phentsize;
+    _WORD e_phnum;
+    _WORD e_shentsize;
+    _WORD e_shnum;
+    _WORD e_shstrndx;
 };
 
 struct Elf32_Shdr
 {
-    std::uint32_t  sh_name;
-    std::uint32_t  sh_type;
-    std::uint32_t  sh_flags;
-    std::uint32_t  sh_addr;
-    std::uint32_t  sh_offset;
-    std::uint32_t  sh_size;
-    std::uint32_t  sh_link;
-    std::uint32_t  sh_info;
-    std::uint32_t  sh_addralign;
-    std::uint32_t  sh_entsize;
+    std::uint32_t sh_name;
+    std::uint32_t sh_type;
+    std::uint32_t sh_flags;
+    std::uint32_t sh_addr;
+    std::uint32_t sh_offset;
+    std::uint32_t sh_size;
+    std::uint32_t sh_link;
+    std::uint32_t sh_info;
+    std::uint32_t sh_addralign;
+    std::uint32_t sh_entsize;
 };
 
 struct Elf32_Dyn
 {
-    std::uint32_t  d_tag;
-    std::uint32_t  d_un;
+    std::uint32_t d_tag;
+    std::uint32_t d_un;
 };
 
 // ---------------------------------------------------------------------------
@@ -91,18 +90,23 @@ struct Elf32_Dyn
 // ---------------------------------------------------------------------------
 struct Elf32_SymbolList
 {
-    const Elf32_Sym*  mSymbols;
-    unsigned int      mCount;
-    const char*       mStringTable;
+    const Elf32_Sym *mSymbols;
+    unsigned int mCount;
+    const char *mStringTable;
 
-    Elf32_SymbolList() : mSymbols(0), mCount(0), mStringTable(0) {}
+    Elf32_SymbolList() :
+        mSymbols(0),
+        mCount(0),
+        mStringTable(0)
+    {
+    }
 };
 
 // The empty list the code walks when no table is present.
-inline const Elf32_SymbolList& ElfSymbols()
+inline const Elf32_SymbolList &ElfSymbols()
 {
     static Elf32_SymbolList sEmpty;
     return sEmpty;
 }
 
-#endif // __ELFSHIMS_H__
+#endif // LAWNPROJECTTV_SEXY_INCLUDE_RUNTIME_ELFSHIMS_H

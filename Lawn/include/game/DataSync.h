@@ -9,7 +9,8 @@
 // same order; the offsets are the raw `this`-relative ones DataSync.cpp uses.
 // Pointer indices are stored in ordinary maps using native pointer keys.
 
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_DATASYNC_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_DATASYNC_H
 
 #include "ReconTypes.h"
 #include "DataReader.h"
@@ -101,9 +102,9 @@ public:
     // -----------------------------------------------------------------------
     // Members. Offsets are absolute byte offsets from the start of the object.
     // -----------------------------------------------------------------------
-    DataReader *mReader;      // +0x04, PC: DataReader* mReader
-    DataWriter *mWriter;      // +0x08, PC: DataWriter* mWriter
-    int mVersion;             // +0x0C, PC: int mVersion
+    DataReader *mReader; // +0x04, PC: DataReader* mReader
+    DataWriter *mWriter; // +0x08, PC: DataWriter* mWriter
+    int mVersion; // +0x0C, PC: int mVersion
     bool mVersionMismatch = false; // Stop loading before an incompatible payload is read.
     // Save files refer to registered pointers through fixed-width integer IDs.
     std::map<void *, int> mPointerToIntMap;
@@ -114,3 +115,5 @@ public:
     std::vector<void **> mPointerSyncList;
     int mCurPointerIndex;
 };
+
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_DATASYNC_H

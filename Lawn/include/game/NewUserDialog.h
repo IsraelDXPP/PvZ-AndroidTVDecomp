@@ -29,7 +29,8 @@
 // (The authoritative header also lists EditWidgetText/AllowChar; those live in the
 // EditListener vtable at +0x2FC, not in the primary one.)
 
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_NEWUSERDIALOG_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_NEWUSERDIALOG_H
 
 #include "ReconTypes.h"
 // Classes this one calls a method on: the call needs the
@@ -54,31 +55,31 @@ class NewUserDialog : public LawnDialog, public Sexy::EditListener
 {
 public:
     // ---- own members, +0x300.. (the EditListener sub-object owns +0x2FC) ----
-    LawnApp * mApp;                    // +0x300
-    Sexy::EditWidget * mEditWidget;    // +0x304
+    LawnApp *mApp; // +0x300
+    Sexy::EditWidget *mEditWidget; // +0x304
     // size 0x308
     // TODO(recon): no body in this tree reads +0x308 or beyond; the old
     // `mObject[0x3A0]` had no evidence behind it.
 
     // ---- the LawnDialog/Dialog slots this class overrides, in binary order ----
-    virtual ~NewUserDialog();                                                  // [  0]
-    virtual void AddedToManager(Sexy::WidgetManager * theWidgetManager);       // [ 29]
-    virtual void RemovedFromManager(Sexy::WidgetManager * theWidgetManager);   // [ 30]
-    virtual void Draw(Sexy::Graphics * g);                                    // [ 36]
-    virtual void Resize(int theX, int theY, int theWidth, int theHeight);     // [ 50]
-    virtual void GotFocus();                                                  // [ 61]
+    virtual ~NewUserDialog(); // [  0]
+    virtual void AddedToManager(Sexy::WidgetManager *theWidgetManager); // [ 29]
+    virtual void RemovedFromManager(Sexy::WidgetManager *theWidgetManager); // [ 30]
+    virtual void Draw(Sexy::Graphics *g); // [ 36]
+    virtual void Resize(int theX, int theY, int theWidth, int theHeight); // [ 50]
+    virtual void GotFocus(); // [ 61]
 
     // ---- slot 125: new in NewUserDialog ----
-    virtual int GetPreferredHeight(int theWidth);                             // [125]
+    virtual int GetPreferredHeight(int theWidth); // [125]
 
     // ---- the EditListener slots this class overrides (secondary vtable) ----
     // Sexy\EditListener.h numbers the narrow EditWidgetText at slot 0 and
     // AllowChar(int, char) at slot 3, which is exactly where the binary has
     // them, so both are real overrides and their return types are the base's.
-    virtual void EditWidgetText(int theId, const Sexy::String & theText);
+    virtual void EditWidgetText(int theId, const Sexy::String &theText);
     virtual int AllowChar(int theId, char theChar);
 
-    NewUserDialog(LawnApp * theApp, bool isRename);
+    NewUserDialog(LawnApp *theApp, bool isRename);
 
     // GetName returns the trimmed edit text BY VALUE. The ARM at 0x14B774 takes
     // its receiver in r1 and writes the result through r0, i.e. it is an sret
@@ -86,6 +87,7 @@ public:
     // buffer mistaken for the return type. Same shape as
     // PurchaseLimitDialog::GetName (Game\PurchaseLimitDialog.cpp:132).
     Sexy::String GetName();
-    int SetName(const Sexy::String & theName);
+    int SetName(const Sexy::String &theName);
 };
 
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_NEWUSERDIALOG_H

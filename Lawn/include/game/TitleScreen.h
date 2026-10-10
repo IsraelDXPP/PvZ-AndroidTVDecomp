@@ -40,7 +40,8 @@
 // declaration order below keeps ButtonPress first so the intended sequence is
 // still readable.
 
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_TITLESCREEN_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_TITLESCREEN_H
 
 #include "ReconTypes.h"
 // These includes exist because the transcribed bodies call methods on complete
@@ -66,10 +67,11 @@ class TitleScreen : public Sexy::Widget, public Sexy::ButtonListener
 {
 public:
     // The authoritative header declares this enum inside the class.
-    enum TitleState {
+    enum TitleState
+    {
         WaitingForFirstDraw = 0,
         PopcapLogo_OR_IntroVideo = 1,
-        ESRBLogo = 2,   // unused in the shipped game
+        ESRBLogo = 2, // unused in the shipped game
         GuideLogo = 3,
         Loading = 4,
     };
@@ -93,34 +95,34 @@ public:
     virtual void GameButtonDown(Sexy::GamepadButton theButton, int thePlayerIndex, unsigned int theModifierFlag);
 
     // Widget occupies +0x00..+0xFF; ButtonListener's vptr +0x100..+0x103.
-    Sexy::Image *mPopcapLogo;      // +0x104
-    Sexy::Image *mGuide;           // +0x108
-    StartButton *mStartButton;     // +0x10C
-    float mCurBarWidth;            // +0x110
-    float mTotalBarWidth;          // +0x114
-    float mBarVel;                 // +0x118
-    float mBarStartProgress;       // +0x11C
-    bool mRegisterClicked;         // +0x120  TODO(recon): not read or written by this .so
-    bool mLoadingThreadComplete;   // +0x121
+    Sexy::Image *mPopcapLogo; // +0x104
+    Sexy::Image *mGuide; // +0x108
+    StartButton *mStartButton; // +0x10C
+    float mCurBarWidth; // +0x110
+    float mTotalBarWidth; // +0x114
+    float mBarVel; // +0x118
+    float mBarStartProgress; // +0x11C
+    bool mRegisterClicked; // +0x120  TODO(recon): not read or written by this .so
+    bool mLoadingThreadComplete; // +0x121
     // +0x122 ~ +0x123 padding
-    int mTitleAge;                 // +0x124
-    bool mNeedRegister;            // +0x128
-    bool mNeedToInit;              // +0x129
-    bool mNeedShowRegisterBox;     // +0x12A  TODO(recon): not read or written by this .so
+    int mTitleAge; // +0x124
+    bool mNeedRegister; // +0x128
+    bool mNeedToInit; // +0x129
+    bool mNeedShowRegisterBox; // +0x12A  TODO(recon): not read or written by this .so
     // +0x12B padding
-    float mPrevLoadingPercent;     // +0x12C
-    TitleState mTitleState;        // +0x130
-    int mTitleStateCounter;        // +0x134
-    int mTitleStateDuration;       // +0x138
-    int mIntroVideoAge;            // +0x13C
-    bool mVideoCompleted;          // +0x140
-    bool mLoaderScreenIsLoaded;    // +0x141
-    bool mMusicInitFinished;       // +0x142
-    bool mIsPlayingIntroVideo;     // +0x143
-    unsigned int mOverlayAlpha;    // +0x144
-    bool mNeedPlayLogo;            // +0x14C
+    float mPrevLoadingPercent; // +0x12C
+    TitleState mTitleState; // +0x130
+    int mTitleStateCounter; // +0x134
+    int mTitleStateDuration; // +0x138
+    int mIntroVideoAge; // +0x13C
+    bool mVideoCompleted; // +0x140
+    bool mLoaderScreenIsLoaded; // +0x141
+    bool mMusicInitFinished; // +0x142
+    bool mIsPlayingIntroVideo; // +0x143
+    unsigned int mOverlayAlpha; // +0x144
+    bool mNeedPlayLogo; // +0x14C
     // +0x14D ~ +0x14F padding
-    LawnApp *mApp;                 // +0x150
+    LawnApp *mApp; // +0x150
     // Size 0x154 (85 ints).
 
     TitleScreen(LawnApp *theApp);
@@ -131,3 +133,5 @@ public:
     void SwitchState(int theState, int theDuration);
     void BeginProfileLoad();
 };
+
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_TITLESCREEN_H

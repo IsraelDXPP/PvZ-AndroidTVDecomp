@@ -12,15 +12,12 @@ int Sexy::PIInterpolator::GetValueAt(float time)
     if (count == 1)
         return mKeyframes[0].mField0;
 
-    float mapped = mKeyframes[0].mField1
-        + time * (mKeyframes[count - 1].mField1
-                  - mKeyframes[0].mField1);
+    float mapped = mKeyframes[0].mField1 + time * (mKeyframes[count - 1].mField1 - mKeyframes[0].mField1);
 
     int pair = count - 1;
     for (int key = 1; key < count; ++key)
     {
-        if (mapped >= mKeyframes[key - 1].mField1
-            && mapped <= mKeyframes[key].mField1)
+        if (mapped >= mKeyframes[key - 1].mField1 && mapped <= mKeyframes[key].mField1)
         {
             pair = key;
             break;

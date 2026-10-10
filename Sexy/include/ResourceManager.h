@@ -12,7 +12,8 @@
 // which left PopAnim inheriting an incomplete Widget. ResourceManager.cpp
 // includes PopAnim.h itself.
 
-#pragma once
+#ifndef LAWNPROJECTTV_SEXY_INCLUDE_RESOURCEMANAGER_H
+#define LAWNPROJECTTV_SEXY_INCLUDE_RESOURCEMANAGER_H
 
 #include "ReconTypes.h"
 #include "AnimInfo.h"
@@ -33,7 +34,8 @@
 #include <set>
 #include <vector>
 
-namespace Sexy {
+namespace Sexy
+{
 
 class Font;
 class GenericResFile;
@@ -42,7 +44,7 @@ class MemoryImage;
 
 struct StringLessNoCase
 {
-    bool operator()(Sexy::String const& theLeft, Sexy::String const& theRight) const;
+    bool operator()(Sexy::String const &theLeft, Sexy::String const &theRight) const;
 };
 
 class ResourceManager
@@ -58,8 +60,8 @@ public:
     using GenericResFileRes = ResourceManager_GenericResFileRes;
     using ImageRes = ResourceManager_ImageRes;
 
-    using ResMap = std::map<Sexy::String, BaseRes*>;
-    using ResList = std::vector<BaseRes*>;
+    using ResMap = std::map<Sexy::String, BaseRes *>;
+    using ResList = std::vector<BaseRes *>;
     using ResGroupMap = std::map<Sexy::String, ResList, StringLessNoCase>;
     using AttrMap = std::map<Sexy::String, Sexy::String>;
 
@@ -82,7 +84,7 @@ public:
     std::set<Sexy::String, StringLessNoCase> mLoadedGroups;
     ResMap mResMaps[7];
     ResMap mResMapByPath;
-    std::map<void*, BaseRes*> mGlobalPtrMap;
+    std::map<void *, BaseRes *> mGlobalPtrMap;
 
     Sexy::String mResFilePath;
     Sexy::String mResGenDir;
@@ -140,7 +142,7 @@ public:
     bool ParseResources();
 
     void DeleteMap(ResMap &theMap);
-    void DeleteResources(ResMap &theMap, Sexy::String const& theGroup);
+    void DeleteResources(ResMap &theMap, Sexy::String const &theGroup);
 
     bool DoLoadImage(ImageRes *theRes);
     bool DoLoadFont(FontRes *theRes);
@@ -153,38 +155,36 @@ public:
 
     bool LoadNextResource();
     void ResourceLoadedHook(BaseRes *theRes);
-    void PrepareLoadResources(Sexy::String const& theGroup);
-    bool StartLoadResources(Sexy::String const& theGroup, bool theFromComposite);
-    bool LoadResources(Sexy::String const& theGroup);
+    void PrepareLoadResources(Sexy::String const &theGroup);
+    bool StartLoadResources(Sexy::String const &theGroup, bool theFromComposite);
+    bool LoadResources(Sexy::String const &theGroup);
 
-    Sexy::SharedImageRef GetImageThrow(Sexy::String const& theId, int theScale, bool theRequired);
-    Sexy::SharedImageRef GetImageThrow(Sexy::String const& theId, bool theRequired);
-    int GetSoundThrow(Sexy::String const& theId);
-    Sexy::Font *GetFontThrow(Sexy::String const& theId, int theScale);
-    Sexy::PopAnim *GetPopAnimThrow(Sexy::String const& theId);
-    Sexy::PIEffect *GetPIEffectThrow(Sexy::String const& theId);
-    Sexy::RenderEffectDefinition *GetRenderEffectThrow(Sexy::String const& theId);
-    Sexy::GenericResFile *GetGenericResFileThrow(Sexy::String const& theId);
-    void DeleteResources(Sexy::String const& theGroup);
+    Sexy::SharedImageRef GetImageThrow(Sexy::String const &theId, int theScale, bool theRequired);
+    Sexy::SharedImageRef GetImageThrow(Sexy::String const &theId, bool theRequired);
+    int GetSoundThrow(Sexy::String const &theId);
+    Sexy::Font *GetFontThrow(Sexy::String const &theId, int theScale);
+    Sexy::PopAnim *GetPopAnimThrow(Sexy::String const &theId);
+    Sexy::PIEffect *GetPIEffectThrow(Sexy::String const &theId);
+    Sexy::RenderEffectDefinition *GetRenderEffectThrow(Sexy::String const &theId);
+    Sexy::GenericResFile *GetGenericResFileThrow(Sexy::String const &theId);
+    void DeleteResources(Sexy::String const &theGroup);
 
-    bool IsGroupLoaded(Sexy::String const& theGroup);
-    void DeleteExtraImageBuffers(Sexy::String const& theGroup);
+    bool IsGroupLoaded(Sexy::String const &theGroup);
+    void DeleteExtraImageBuffers(Sexy::String const &theGroup);
     Sexy::String GetErrorText();
     bool HadError();
-    bool InitResourceGen(Sexy::String const& theDir, Sexy::String const& theName,
-                         Sexy::String const& thePrefix, int theResId, int theLocale,
-                         Sexy::String const& theSuffix);
+    bool InitResourceGen(Sexy::String const &theDir, Sexy::String const &theName, Sexy::String const &thePrefix,
+        int theResId, int theLocale, Sexy::String const &theSuffix);
     void ReapplyConfigs();
     Sexy::String GetLocaleFolder(bool theTrailingSlash);
-    int GetLocSetForLocaleName(Sexy::String const& theName);
+    int GetLocSetForLocaleName(Sexy::String const &theName);
     void DumpCurResGroup(Sexy::String &theDest);
 
-    int GetNumImages(Sexy::String const& theGroup, bool theFilterRes, bool theFilterLocale);
-    int GetNumSounds(Sexy::String const& theGroup, bool theFilterRes, bool theFilterLocale);
-    int GetNumFonts(Sexy::String const& theGroup, bool theFilterRes, bool theFilterLocale);
-    int GetNumResources(Sexy::String const& theGroup, bool theFilterRes, bool theFilterLocale);
-    int GetNumResources(Sexy::String const& theGroup, ResMap &theMap,
-                        bool theFilterRes, bool theFilterLocale);
+    int GetNumImages(Sexy::String const &theGroup, bool theFilterRes, bool theFilterLocale);
+    int GetNumSounds(Sexy::String const &theGroup, bool theFilterRes, bool theFilterLocale);
+    int GetNumFonts(Sexy::String const &theGroup, bool theFilterRes, bool theFilterLocale);
+    int GetNumResources(Sexy::String const &theGroup, bool theFilterRes, bool theFilterLocale);
+    int GetNumResources(Sexy::String const &theGroup, ResMap &theMap, bool theFilterRes, bool theFilterLocale);
 
     void SetAllowMissingProgramImages(bool theAllow);
     void Deref(BaseRes *theRes);
@@ -199,83 +199,80 @@ public:
     void GetRenderEffectRef(Sexy::RenderEffectDefinition *&theSlot);
     void GetGenericResFileRef(Sexy::GenericResFile *&theSlot);
 
-    float GetLoadResourcesListProgress(char const** theGroups);
-    void PrepareLoadResourcesList(char const** theGroups);
+    float GetLoadResourcesListProgress(char const **theGroups);
+    void PrepareLoadResourcesList(char const **theGroups);
 
-    bool Fail(Sexy::String const& theText);
+    bool Fail(Sexy::String const &theText);
 
-    Sexy::String GetLocalizedResourcePath(Sexy::String const& thePath,
-                                          Sexy::String const& theDir,
-                                          Sexy::String const& theLocale);
-    Sexy::String TryLocalizedResourcePath(Sexy::String const& thePath,
-                                          Sexy::String const& theDir,
-                                          Sexy::String const& theLocale);
-    Sexy::Image *LoadLocalizedImage(Sexy::String const& thePath, bool theAlpha,
-                                    Sexy::String const& theLocale);
+    Sexy::String GetLocalizedResourcePath(
+        Sexy::String const &thePath, Sexy::String const &theDir, Sexy::String const &theLocale);
+    Sexy::String TryLocalizedResourcePath(
+        Sexy::String const &thePath, Sexy::String const &theDir, Sexy::String const &theLocale);
+    Sexy::Image *LoadLocalizedImage(Sexy::String const &thePath, bool theAlpha, Sexy::String const &theLocale);
     bool LoadAlphaGridImage(ImageRes *theRes, Sexy::MemoryImage *theImage);
     bool LoadAlphaImage(ImageRes *theRes, Sexy::MemoryImage *theImage);
 
-    BaseRes *GetBaseRes(int theType, Sexy::String const& theId);
-    void DeleteImage(Sexy::String const& theId);
-    Sexy::SharedImageRef LoadImage(Sexy::String const& theId);
-    int const* GetImageOffset(Sexy::String const& theId);
-    Sexy::Font *LoadFont(Sexy::String const& theId);
-    int LoadSound(Sexy::String const& theId);
-    Sexy::PopAnim *LoadPopAnim(Sexy::String const& theId);
-    Sexy::PIEffect *LoadPIEffect(Sexy::String const& theId);
-    Sexy::RenderEffectDefinition *LoadRenderEffect(Sexy::String const& theId);
-    Sexy::GenericResFile *LoadGenericResFile(Sexy::String const& theId);
+    BaseRes *GetBaseRes(int theType, Sexy::String const &theId);
+    void DeleteImage(Sexy::String const &theId);
+    Sexy::SharedImageRef LoadImage(Sexy::String const &theId);
+    int const *GetImageOffset(Sexy::String const &theId);
+    Sexy::Font *LoadFont(Sexy::String const &theId);
+    int LoadSound(Sexy::String const &theId);
+    Sexy::PopAnim *LoadPopAnim(Sexy::String const &theId);
+    Sexy::PIEffect *LoadPIEffect(Sexy::String const &theId);
+    Sexy::RenderEffectDefinition *LoadRenderEffect(Sexy::String const &theId);
+    Sexy::GenericResFile *LoadGenericResFile(Sexy::String const &theId);
 
-    Sexy::SharedImageRef GetImage(Sexy::String const& theId);
-    int GetSound(Sexy::String const& theId);
-    Sexy::Font *GetFont(Sexy::String const& theId);
-    bool IsResourceLoaded(Sexy::String const& theId);
-    Sexy::PopAnim *GetPopAnim(Sexy::String const& theId);
-    Sexy::PIEffect *GetPIEffect(Sexy::String const& theId);
-    Sexy::RenderEffectDefinition *GetRenderEffect(Sexy::String const& theId);
-    Sexy::GenericResFile *GetGenericResFile(Sexy::String const& theId);
+    Sexy::SharedImageRef GetImage(Sexy::String const &theId);
+    int GetSound(Sexy::String const &theId);
+    Sexy::Font *GetFont(Sexy::String const &theId);
+    bool IsResourceLoaded(Sexy::String const &theId);
+    Sexy::PopAnim *GetPopAnim(Sexy::String const &theId);
+    Sexy::PIEffect *GetPIEffect(Sexy::String const &theId);
+    Sexy::RenderEffectDefinition *GetRenderEffect(Sexy::String const &theId);
+    Sexy::GenericResFile *GetGenericResFile(Sexy::String const &theId);
 
-    Sexy::ResourceRef GetResourceRef(int theType, Sexy::String const& theId);
-    Sexy::ResourceRef GetImageRef(Sexy::String const& theId);
-    Sexy::ResourceRef GetSoundRef(Sexy::String const& theId);
-    Sexy::ResourceRef GetFontRef(Sexy::String const& theId);
-    Sexy::ResourceRef GetPopAnimRef(Sexy::String const& theId);
-    Sexy::ResourceRef GetPIEffectRef(Sexy::String const& theId);
-    Sexy::ResourceRef GetRenderEffectRef(Sexy::String const& theId);
-    Sexy::ResourceRef GetGenericResFileRef(Sexy::String const& theId);
+    Sexy::ResourceRef GetResourceRef(int theType, Sexy::String const &theId);
+    Sexy::ResourceRef GetImageRef(Sexy::String const &theId);
+    Sexy::ResourceRef GetSoundRef(Sexy::String const &theId);
+    Sexy::ResourceRef GetFontRef(Sexy::String const &theId);
+    Sexy::ResourceRef GetPopAnimRef(Sexy::String const &theId);
+    Sexy::ResourceRef GetPIEffectRef(Sexy::String const &theId);
+    Sexy::ResourceRef GetRenderEffectRef(Sexy::String const &theId);
+    Sexy::ResourceRef GetGenericResFileRef(Sexy::String const &theId);
 
-    bool ReplaceImage(Sexy::String const& theId, Sexy::Image *theImage);
-    bool ReplaceSound(Sexy::String const& theId, int theSoundId);
-    bool DeleteSound(Sexy::String const& theId);
-    bool ReplaceFont(Sexy::String const& theId, Sexy::Font *theFont);
-    bool DeleteFont(Sexy::String const& theId);
-    bool ReplacePopAnim(Sexy::String const& theId, Sexy::PopAnim *theAnim);
-    bool DeletePopAnim(Sexy::String const& theId);
-    bool ReplacePIEffect(Sexy::String const& theId, Sexy::PIEffect *theEffect);
-    bool DeletePIEffect(Sexy::String const& theId);
-    bool ReplaceRenderEffect(Sexy::String const& theId, Sexy::RenderEffectDefinition *theEffect);
-    bool DeleteRenderEffect(Sexy::String const& theId);
-    bool ReplaceGenericResFile(Sexy::String const& theId, Sexy::GenericResFile *theFile);
-    bool DeleteGenericResFile(Sexy::String const& theId);
+    bool ReplaceImage(Sexy::String const &theId, Sexy::Image *theImage);
+    bool ReplaceSound(Sexy::String const &theId, int theSoundId);
+    bool DeleteSound(Sexy::String const &theId);
+    bool ReplaceFont(Sexy::String const &theId, Sexy::Font *theFont);
+    bool DeleteFont(Sexy::String const &theId);
+    bool ReplacePopAnim(Sexy::String const &theId, Sexy::PopAnim *theAnim);
+    bool DeletePopAnim(Sexy::String const &theId);
+    bool ReplacePIEffect(Sexy::String const &theId, Sexy::PIEffect *theEffect);
+    bool DeletePIEffect(Sexy::String const &theId);
+    bool ReplaceRenderEffect(Sexy::String const &theId, Sexy::RenderEffectDefinition *theEffect);
+    bool DeleteRenderEffect(Sexy::String const &theId);
+    bool ReplaceGenericResFile(Sexy::String const &theId, Sexy::GenericResFile *theFile);
+    bool DeleteGenericResFile(Sexy::String const &theId);
 
-    AttrMap const& GetImageAttributes(Sexy::String const& theId);
-    Sexy::String GetIdByPath(Sexy::String const& thePath);
-    Sexy::String GetIdByPath(Sexy::String const& thePath, int theType);
-    Sexy::String GetImageIdByPath(Sexy::String const& thePath);
-    Sexy::String GetSoundIdByPath(Sexy::String const& thePath);
-    Sexy::String GetFontIdByPath(Sexy::String const& thePath);
-    Sexy::ResourceRef GetResourceRefFromPath(Sexy::String const& thePath);
+    AttrMap const &GetImageAttributes(Sexy::String const &theId);
+    Sexy::String GetIdByPath(Sexy::String const &thePath);
+    Sexy::String GetIdByPath(Sexy::String const &thePath, int theType);
+    Sexy::String GetImageIdByPath(Sexy::String const &thePath);
+    Sexy::String GetSoundIdByPath(Sexy::String const &thePath);
+    Sexy::String GetFontIdByPath(Sexy::String const &thePath);
+    Sexy::ResourceRef GetResourceRefFromPath(Sexy::String const &thePath);
 
     bool DoParseResources();
-    void *RegisterGlobalPtr(Sexy::String const& theId, void *theSlot);
-    bool ParseResourcesFile(Sexy::String const& theFileName);
-    bool ReparseResourcesFile(Sexy::String const& theFileName);
+    void *RegisterGlobalPtr(Sexy::String const &theId, void *theSlot);
+    bool ParseResourcesFile(Sexy::String const &theFileName);
+    bool ReparseResourcesFile(Sexy::String const &theFileName);
 
 private:
     void EnsureSuffixes();
     void Publish(BaseRes *theRes, void *theValue);
     void Hold(BaseRes *theRes);
-    ResList &GroupList(Sexy::String const& theName);
+    ResList &GroupList(Sexy::String const &theName);
     bool AcceptFont(FontRes *theRes, Sexy::Font *theFont);
     void ApplyImageFlags(ImageRes *theRes);
 };
@@ -283,3 +280,5 @@ private:
 } // namespace Sexy
 
 using Sexy::ResourceManager;
+
+#endif // LAWNPROJECTTV_SEXY_INCLUDE_RESOURCEMANAGER_H

@@ -1,12 +1,14 @@
 // GraphicsState is the plain drawing state Graphics embeds and copies.
 // There is no vtable. CopyStateFrom copies every field a later draw reads.
 
-#pragma once
+#ifndef LAWNPROJECTTV_SEXY_INCLUDE_GRAPHICSSTATE_H
+#define LAWNPROJECTTV_SEXY_INCLUDE_GRAPHICSSTATE_H
 
 #include "ReconTypes.h"
 #include <vector>
 
-namespace Sexy {
+namespace Sexy
+{
 
 class GraphicsState
 {
@@ -36,9 +38,11 @@ public:
     // PushState / PopState also push and pop the destination device's state.
     bool mTrackDeviceState;
 
-    void CopyStateFrom(Sexy::GraphicsState const* theSource);
+    void CopyStateFrom(Sexy::GraphicsState const *theSource);
 };
 
 } // namespace Sexy
 
 using Sexy::GraphicsState;
+
+#endif // LAWNPROJECTTV_SEXY_INCLUDE_GRAPHICSSTATE_H

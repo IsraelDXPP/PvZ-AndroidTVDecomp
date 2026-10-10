@@ -23,11 +23,13 @@
 // NOTE: nothing in this tree derives from Listener yet, so the declarations below
 // are all that is needed; the bodies belong with the platform layer.
 
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_GAMECENTER_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_GAMECENTER_H
 
 #include "ReconTypes.h"
 
-namespace Native {
+namespace Native
+{
 
 class GameCenter
 {
@@ -40,15 +42,15 @@ public:
     class Listener
     {
     public:
-        virtual int onEvent(GameCenter *theSender, int theEvent, int theCode, Sexy::String const& theText);
+        virtual int onEvent(GameCenter *theSender, int theEvent, int theCode, Sexy::String const &theText);
         virtual void onPay(GameCenter *theSender, int theCode);
-        virtual void onPayInfo(GameCenter *theSender, int theCode, Sexy::String const& theText);
-        virtual void onInitFinished(GameCenter * theSender);
+        virtual void onPayInfo(GameCenter *theSender, int theCode, Sexy::String const &theText);
+        virtual void onInitFinished(GameCenter *theSender);
     };
 
     // ---- members, absolute offsets ----
-    void * mNativeHandle;    // +0x00  TODO(recon): unproven, see the size note
-    Listener * mListener;    // +0x04  setListener's parameter
+    void *mNativeHandle; // +0x00  TODO(recon): unproven, see the size note
+    Listener *mListener; // +0x04  setListener's parameter
 
     // setListener(Native::GameCenter::Listener*) -- the inventory records the
     // parameter; the transcription had dropped it.
@@ -81,13 +83,15 @@ public:
     int getSessionId();
     int show();
     int hide();
-    int recharge(Native::GameCenter_RechargeArgs const& theArgs);
-    int purchase(Native::GameCenter_Payment const& thePayment);
+    int recharge(Native::GameCenter_RechargeArgs const &theArgs);
+    int purchase(Native::GameCenter_Payment const &thePayment);
     int inviteFriend();
-    int sendMessage(Native::GameCenter_Message const& theMessage);
-    int reportScore(Native::GameCenter_Score const& theScore);
+    int sendMessage(Native::GameCenter_Message const &theMessage);
+    int reportScore(Native::GameCenter_Score const &theScore);
     int getFriends();
     int getInvitableFriends();
 };
 
 } // namespace Native
+
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_GAMECENTER_H

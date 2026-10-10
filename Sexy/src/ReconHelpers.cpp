@@ -12,7 +12,6 @@
 #include "PakLib/FileSystemManager.h"
 #include "MTRand.h"
 
-
 // ---------------------------------------------------------------------------
 // SortedKern::Compare -- the kerning table's ordering.
 //
@@ -21,10 +20,10 @@
 // to qsort, so it takes two void pointers and returns the sign of the
 // difference.
 // ---------------------------------------------------------------------------
-int SortedKern::Compare(const void* a, const void* b)
+int SortedKern::Compare(const void *a, const void *b)
 {
-    const SortedKern* aFirst = static_cast<const SortedKern*>(a);
-    const SortedKern* aSecond = static_cast<const SortedKern*>(b);
+    const SortedKern *aFirst = static_cast<const SortedKern *>(a);
+    const SortedKern *aSecond = static_cast<const SortedKern *>(b);
 
     if (aFirst->mChar != aSecond->mChar)
         return (aFirst->mChar < aSecond->mChar) ? -1 : 1;
@@ -51,7 +50,7 @@ int SortedKern::Compare(const void* a, const void* b)
 // a stack buffer first and then assigning is the same observable result and
 // keeps the allocation inside Sexy::String where it belongs.
 // ---------------------------------------------------------------------------
-int StrFormat(Sexy::String* theDest, const char* theFormat, ...)
+int StrFormat(Sexy::String *theDest, const char *theFormat, ...)
 {
     if (theDest == nullptr)
         return 0;
@@ -75,7 +74,7 @@ int StrFormat(Sexy::String* theDest, const char* theFormat, ...)
 // ---------------------------------------------------------------------------
 // StringToInt -- parse an integer and keep the source text on the string.
 // ---------------------------------------------------------------------------
-int StringToInt(Sexy::String* theDest, const char* theText)
+int StringToInt(Sexy::String *theDest, const char *theText)
 {
     int aValue = (theText != nullptr) ? atoi(theText) : 0;
     if (theDest != nullptr)
@@ -89,14 +88,14 @@ int StringToInt(Sexy::String* theDest, const char* theText)
 // SDL_GetPrefPath selects the host save directory. Callers append names directly,
 // so the folder must include its trailing separator.
 // ---------------------------------------------------------------------------
-int GetAppDataFolder(Sexy::String* destination)
+int GetAppDataFolder(Sexy::String *destination)
 {
-    char* folder = SDL_GetPrefPath("PopCap Games", "PlantsVsZombies");
-    if (destination) *destination = folder ? folder : "./";
+    char *folder = SDL_GetPrefPath("PopCap Games", "PlantsVsZombies");
+    if (destination)
+        *destination = folder ? folder : "./";
     SDL_free(folder);
     return 0;
 }
-
 
 // ---------------------------------------------------------------------------
 // logfi / logfd -- the framework's trace channels.
@@ -104,7 +103,7 @@ int GetAppDataFolder(Sexy::String* destination)
 // The binary writes these to the Android log. On Windows they go to stdout,
 // which is where the PC build's trace output goes as well.
 // ---------------------------------------------------------------------------
-static int TodVLog(const char* theFormat, va_list theArgs)
+static int TodVLog(const char *theFormat, va_list theArgs)
 {
     int aCount = vfprintf(stdout, theFormat, theArgs);
     fputc('\n', stdout);
@@ -112,7 +111,7 @@ static int TodVLog(const char* theFormat, va_list theArgs)
     return aCount;
 }
 
-int logfi(const char* theFormat, ...)
+int logfi(const char *theFormat, ...)
 {
     va_list aArgs;
     va_start(aArgs, theFormat);
@@ -121,7 +120,7 @@ int logfi(const char* theFormat, ...)
     return aCount;
 }
 
-int logfd(const char* theFormat, ...)
+int logfd(const char *theFormat, ...)
 {
     va_list aArgs;
     va_start(aArgs, theFormat);
@@ -130,7 +129,7 @@ int logfd(const char* theFormat, ...)
     return aCount;
 }
 
-int logfe(const char* theFormat, ...)
+int logfe(const char *theFormat, ...)
 {
     va_list aArgs;
     va_start(aArgs, theFormat);
@@ -147,7 +146,7 @@ int logfe(const char* theFormat, ...)
 // with `theCount` the element size. The observable effect is "store the
 // source string into the destination slot".
 // ---------------------------------------------------------------------------
-int SMemW(char* theDest, const char* theSource, int theCount, int theLimit)
+int SMemW(char *theDest, const char *theSource, int theCount, int theLimit)
 {
     (void)theCount;
     if (theDest == nullptr || theSource == nullptr)
@@ -168,34 +167,34 @@ int SMemW(char* theDest, const char* theSource, int theCount, int theLimit)
 // ---------------------------------------------------------------------------
 // SDL_SeekIO does not clear SDL_GetIOStatus. Keep the framework's EOF flag
 // on the stream so a successful seek clears it, as the original fseek did.
-static constexpr const char* kFrameworkFileEof = "Sexy.file.eof";
+static constexpr const char *kFrameworkFileEof = "Sexy.file.eof";
 
-size_t p_fread(void* theBuffer, size_t theSize, size_t theCount, SDL_IOStream* theStream)
+size_t p_fread(void *theBuffer, size_t theSize, size_t theCount, SDL_IOStream *theStream)
 {
-    if (theStream == nullptr || theSize == 0 || theCount == 0
-        || theCount > std::numeric_limits<size_t>::max() / theSize)
+    if (theStream == nullptr || theSize == 0 || theCount == 0 ||
+        theCount > std::numeric_limits<size_t>::max() / theSize)
         return 0;
     const size_t aRead = SDL_ReadIO(theStream, theBuffer, theSize * theCount);
-    SDL_SetBooleanProperty(SDL_GetIOProperties(theStream), kFrameworkFileEof,
-                           SDL_GetIOStatus(theStream) == SDL_IO_STATUS_EOF);
+    SDL_SetBooleanProperty(
+        SDL_GetIOProperties(theStream), kFrameworkFileEof, SDL_GetIOStatus(theStream) == SDL_IO_STATUS_EOF);
     return aRead / theSize;
 }
 
-size_t p_fwrite(const void* theBuffer, size_t theSize, size_t theCount, SDL_IOStream* theStream)
+size_t p_fwrite(const void *theBuffer, size_t theSize, size_t theCount, SDL_IOStream *theStream)
 {
-    if (theStream == nullptr || theSize == 0 || theCount == 0
-        || theCount > std::numeric_limits<size_t>::max() / theSize)
+    if (theStream == nullptr || theSize == 0 || theCount == 0 ||
+        theCount > std::numeric_limits<size_t>::max() / theSize)
         return 0;
     return SDL_WriteIO(theStream, theBuffer, theSize * theCount) / theSize;
 }
 
-int p_fgetc(SDL_IOStream* theStream)
+int p_fgetc(SDL_IOStream *theStream)
 {
     unsigned char aByte = 0;
     return p_fread(&aByte, 1, 1, theStream) == 1 ? aByte : EOF;
 }
 
-char* p_fgets(char* theBuffer, int theCapacity, SDL_IOStream* theStream)
+char *p_fgets(char *theBuffer, int theCapacity, SDL_IOStream *theStream)
 {
     if (theBuffer == nullptr || theCapacity < 2 || theStream == nullptr)
         return nullptr;
@@ -213,16 +212,15 @@ char* p_fgets(char* theBuffer, int theCapacity, SDL_IOStream* theStream)
     return aLength > 0 ? theBuffer : nullptr;
 }
 
-int p_feof(SDL_IOStream* theStream)
+int p_feof(SDL_IOStream *theStream)
 {
-    return theStream != nullptr
-        && SDL_GetBooleanProperty(SDL_GetIOProperties(theStream), kFrameworkFileEof, false);
+    return theStream != nullptr && SDL_GetBooleanProperty(SDL_GetIOProperties(theStream), kFrameworkFileEof, false);
 }
 
 // ---------------------------------------------------------------------------
 // The remaining framework file helpers.
 // ---------------------------------------------------------------------------
-SDL_IOStream* p_fopen(const char* thePath, const char* theMode)
+SDL_IOStream *p_fopen(const char *thePath, const char *theMode)
 {
     // Read-only resources use the mounted file systems. Outputs retain their
     // requested physical paths and can never write into a pack.
@@ -241,22 +239,29 @@ SDL_IOStream* p_fopen(const char* thePath, const char* theMode)
     return SDL_IOFromFile(thePath, aMode.c_str());
 }
 
-int p_fclose(SDL_IOStream* theStream)
+int p_fclose(SDL_IOStream *theStream)
 {
     return theStream == nullptr || SDL_CloseIO(theStream) ? 0 : EOF;
 }
 
-int p_fseek(SDL_IOStream* theStream, long theOffset, int theOrigin)
+int p_fseek(SDL_IOStream *theStream, long theOffset, int theOrigin)
 {
     if (theStream == nullptr)
         return -1;
     SDL_IOWhence aWhence;
     switch (theOrigin)
     {
-    case SEEK_SET: aWhence = SDL_IO_SEEK_SET; break;
-    case SEEK_CUR: aWhence = SDL_IO_SEEK_CUR; break;
-    case SEEK_END: aWhence = SDL_IO_SEEK_END; break;
-    default: return -1;
+        case SEEK_SET:
+            aWhence = SDL_IO_SEEK_SET;
+            break;
+        case SEEK_CUR:
+            aWhence = SDL_IO_SEEK_CUR;
+            break;
+        case SEEK_END:
+            aWhence = SDL_IO_SEEK_END;
+            break;
+        default:
+            return -1;
     }
     if (SDL_SeekIO(theStream, theOffset, aWhence) < 0)
         return -1;
@@ -264,7 +269,7 @@ int p_fseek(SDL_IOStream* theStream, long theOffset, int theOrigin)
     return 0;
 }
 
-long p_ftell(SDL_IOStream* theStream)
+long p_ftell(SDL_IOStream *theStream)
 {
     if (theStream == nullptr)
         return -1L;
@@ -275,13 +280,13 @@ long p_ftell(SDL_IOStream* theStream)
 }
 
 // GetFileDir writes the directory part of thePath into theDest.
-static int GetFileDir(Sexy::String* theDest, const char* thePath, int, int)
+static int GetFileDir(Sexy::String *theDest, const char *thePath, int, int)
 {
     if (theDest == nullptr || thePath == nullptr)
         return 0;
 
-    const char* aSlash = strrchr(thePath, '\\');
-    const char* aFwd = strrchr(thePath, '/');
+    const char *aSlash = strrchr(thePath, '\\');
+    const char *aFwd = strrchr(thePath, '/');
     if (aFwd != nullptr && (aSlash == nullptr || aFwd > aSlash))
         aSlash = aFwd;
 
@@ -310,18 +315,19 @@ static int GetFileDir(Sexy::String* theDest, const char* thePath, int, int)
 // several screens, and re-parsing resources.xml each time would be both slow and
 // wrong.
 //
-namespace {
+namespace
+{
 
 struct LoadedGroup
 {
     char mName[128];
-    int  mCount;
+    int mCount;
 };
 
 LoadedGroup gLoadedGroups[64];
 int gLoadedGroupCount = 0;
 
-int FindLoadedGroup(const char* theName)
+int FindLoadedGroup(const char *theName)
 {
     for (int i = 0; i < gLoadedGroupCount; ++i)
     {
@@ -333,9 +339,9 @@ int FindLoadedGroup(const char* theName)
 
 } // namespace
 
-int TodLoadResources(const Sexy::String& theGroup)
+int TodLoadResources(const Sexy::String &theGroup)
 {
-    const char* aName = theGroup.c_str();
+    const char *aName = theGroup.c_str();
     if (aName == nullptr)
         return 0;
 
@@ -350,11 +356,10 @@ int TodLoadResources(const Sexy::String& theGroup)
     if (anIndex < 0)
     {
         if (gLoadedGroupCount >= (int)(sizeof(gLoadedGroups) / sizeof(gLoadedGroups[0])))
-            return 0;                       // table full: treat as already asked
+            return 0; // table full: treat as already asked
 
         anIndex = gLoadedGroupCount++;
-        strncpy(gLoadedGroups[anIndex].mName, aName,
-                sizeof(gLoadedGroups[anIndex].mName) - 1);
+        strncpy(gLoadedGroups[anIndex].mName, aName, sizeof(gLoadedGroups[anIndex].mName) - 1);
         gLoadedGroups[anIndex].mName[sizeof(gLoadedGroups[anIndex].mName) - 1] = '\0';
         gLoadedGroups[anIndex].mCount = 0;
 
@@ -377,8 +382,7 @@ int TodLoadResources(const Sexy::String& theGroup)
         // ResourceManager.cpp:3837), ResourceManager::HadError (:422), and
         // LawnApp::LoadGroup (LawnApp.cpp:2382), which is the override that
         // parses resources.xml and is reached through the load.
-        Sexy::ResourceManager* aManager =
-            gSexyAppBase != nullptr ? gSexyAppBase->mResourceManager : nullptr;
+        Sexy::ResourceManager *aManager = gSexyAppBase != nullptr ? gSexyAppBase->mResourceManager : nullptr;
 
         if (aManager != nullptr && !aManager->IsGroupLoaded(theGroup))
         {
@@ -406,8 +410,10 @@ int TodLoadResources(const Sexy::String& theGroup)
                 // field sits there yet, so the increment stays a word store.
             }
             fprintf(stderr,
-                    "TodLoadResources: '%s' pulled %d resource(s); HadError=%d\n",
-                    aName, aPulled, aManager->HadError());
+                "TodLoadResources: '%s' pulled %d resource(s); HadError=%d\n",
+                aName,
+                aPulled,
+                aManager->HadError());
             fflush(stderr);
 
             // Publish whatever decoded. A later miss, such as a reanim still
@@ -432,9 +438,9 @@ int TodLoadResources(const Sexy::String& theGroup)
     return 1;
 }
 
-void TodDeleteResources(const Sexy::String& theGroup)
+void TodDeleteResources(const Sexy::String &theGroup)
 {
-    const char* aName = theGroup.c_str();
+    const char *aName = theGroup.c_str();
     if (aName == nullptr)
         return;
     int anIndex = FindLoadedGroup(aName);
@@ -450,33 +456,34 @@ void TodDeleteResources(const Sexy::String& theGroup)
 }
 
 // Legacy copy entry point; callers supply typed storage and a valid length.
-void* ReconMemcpyChecked(void* destination, const void* source, unsigned int count, void*)
+void *ReconMemcpyChecked(void *destination, const void *source, unsigned int count, void *)
 {
-    if (!count || !destination || !source) return destination;
+    if (!count || !destination || !source)
+        return destination;
     return std::memcpy(destination, source, count);
 }
 
-
 // Sexy::GetEnv is defined in ReconFuncs.cpp. It reads setup.env first, then
 // the process environment.
-namespace Sexy {
-char const* GetEnv(char const* theName);
+namespace Sexy
+{
+char const *GetEnv(char const *theName);
 }
 
 // Sexy::GetEnvOption @0x2fb9f4 (_ZN4Sexy12GetEnvOptionEPKcb).
 // R1 is the bool default. A missing variable, or a value outside the eight
 // literals below, returns that default. "1"/"yes"/"true"/"True" return 1;
 // "0"/"no"/"false"/"False" return 0.
-int Sexy::GetEnvOption(const char* theName, bool theDefault)
+int Sexy::GetEnvOption(const char *theName, bool theDefault)
 {
-    const char* aValue = GetEnv(theName);
+    const char *aValue = GetEnv(theName);
     if (aValue == nullptr)
         return theDefault ? 1 : 0;
-    if (strcmp(aValue, "1") == 0 || strcmp(aValue, "yes") == 0
-        || strcmp(aValue, "true") == 0 || strcmp(aValue, "True") == 0)
+    if (strcmp(aValue, "1") == 0 || strcmp(aValue, "yes") == 0 || strcmp(aValue, "true") == 0 ||
+        strcmp(aValue, "True") == 0)
         return 1;
-    if (strcmp(aValue, "0") == 0 || strcmp(aValue, "no") == 0
-        || strcmp(aValue, "false") == 0 || strcmp(aValue, "False") == 0)
+    if (strcmp(aValue, "0") == 0 || strcmp(aValue, "no") == 0 || strcmp(aValue, "false") == 0 ||
+        strcmp(aValue, "False") == 0)
         return 0;
     return theDefault ? 1 : 0;
 }
@@ -497,7 +504,7 @@ int MSleep(int theMillis)
 // ---------------------------------------------------------------------------
 namespace
 {
-Sexy::MTRand& SharedRandom()
+Sexy::MTRand &SharedRandom()
 {
     static Sexy::MTRand random;
     return random;
@@ -511,7 +518,7 @@ int Sexy::Rand()
     return static_cast<int>(SharedRandom().Next());
 }
 
-int Sexy::Rand(void* /*theObject*/, int theRange)
+int Sexy::Rand(void * /*theObject*/, int theRange)
 {
     if (theRange <= 0)
         return 0;
@@ -541,7 +548,7 @@ float Sexy::Rand(double theRange)
 
 // Trim -- the third sibling of Upper/Lower: copy the source into the
 // destination with leading and trailing whitespace removed.
-int Trim(Sexy::String* theDest, const Sexy::String* theSource)
+int Trim(Sexy::String *theDest, const Sexy::String *theSource)
 {
     if (theDest == nullptr)
         return 0;
@@ -550,22 +557,22 @@ int Trim(Sexy::String* theDest, const Sexy::String* theSource)
         theDest->clear();
         return 0;
     }
-    const char* aData = theSource->c_str();
+    const char *aData = theSource->c_str();
     unsigned int aLength = theSource->size();
     unsigned int aStart = 0;
-    while (aStart < aLength && (aData[aStart] == ' ' || aData[aStart] == '\t' ||
-                                aData[aStart] == '\r' || aData[aStart] == '\n'))
+    while (aStart < aLength &&
+        (aData[aStart] == ' ' || aData[aStart] == '\t' || aData[aStart] == '\r' || aData[aStart] == '\n'))
         ++aStart;
     unsigned int aEnd = aLength;
-    while (aEnd > aStart && (aData[aEnd - 1] == ' ' || aData[aEnd - 1] == '\t' ||
-                             aData[aEnd - 1] == '\r' || aData[aEnd - 1] == '\n'))
+    while (aEnd > aStart &&
+        (aData[aEnd - 1] == ' ' || aData[aEnd - 1] == '\t' || aData[aEnd - 1] == '\r' || aData[aEnd - 1] == '\n'))
         --aEnd;
     theDest->Assign(aData + aStart, aEnd - aStart);
     return (int)(aEnd - aStart);
 }
 
 // _ZN4Sexy5UpperERKSs @0x2fb5ac -- the uppercase counterpart of Lower.
-int Upper(Sexy::String* theDest, const Sexy::String* theSource)
+int Upper(Sexy::String *theDest, const Sexy::String *theSource)
 {
     if (theDest == nullptr)
         return 0;
@@ -574,10 +581,10 @@ int Upper(Sexy::String* theDest, const Sexy::String* theSource)
         theDest->clear();
         return 0;
     }
-    const char* aSource = theSource->c_str();
+    const char *aSource = theSource->c_str();
     unsigned int aLength = theSource->size();
     theDest->Assign(aSource, aLength);
-    char* aData = theDest->data();
+    char *aData = theDest->data();
     for (unsigned int i = 0; i < aLength; ++i)
     {
         if (aData[i] >= 'a' && aData[i] <= 'z')
@@ -593,14 +600,12 @@ Sexy::String CommaSeperate(int theValue)
     int aLength = 0;
 
     // Magnitude first, so INT_MIN does not overflow on negation.
-    unsigned int aMagnitude = (theValue < 0) ? (unsigned int)(-(theValue + 1)) + 1u
-                                             : (unsigned int)theValue;
+    unsigned int aMagnitude = (theValue < 0) ? (unsigned int)(-(theValue + 1)) + 1u : (unsigned int)theValue;
     do
     {
         aDigits[aLength++] = (char)('0' + (aMagnitude % 10u));
         aMagnitude /= 10u;
-    }
-    while (aMagnitude != 0u);
+    } while (aMagnitude != 0u);
 
     char aOut[40];
     int aOutLength = 0;
@@ -633,12 +638,12 @@ Sexy::String CommaSeperate(int theValue)
 // ---------------------------------------------------------------------------
 static char gLocaleEncoding[64] = "UTF-8";
 
-const char* SexyGetLocaleEncoding()
+const char *SexyGetLocaleEncoding()
 {
     return gLocaleEncoding;
 }
 
-int SexySetLocaleEncoding(const char* theEncoding)
+int SexySetLocaleEncoding(const char *theEncoding)
 {
     if (theEncoding == nullptr)
         return 0;
@@ -659,7 +664,7 @@ int SexySetLocaleEncoding(const char* theEncoding)
 // declared in their three-argument form, so ImageFont.cpp carried its own
 // two-argument copies. The two-argument symbols are the real ones.
 // ---------------------------------------------------------------------------
-int SMemRStr(Sexy::String* theDest, const Sexy::String* theSource)
+int SMemRStr(Sexy::String *theDest, const Sexy::String *theSource)
 {
     if (theDest == nullptr || theSource == nullptr)
         return 0;
@@ -667,7 +672,7 @@ int SMemRStr(Sexy::String* theDest, const Sexy::String* theSource)
     return 1;
 }
 
-int SMemWStr(Sexy::String* theDest, const Sexy::String* theSource)
+int SMemWStr(Sexy::String *theDest, const Sexy::String *theSource)
 {
     if (theDest == nullptr || theSource == nullptr)
         return 0;
@@ -675,7 +680,7 @@ int SMemWStr(Sexy::String* theDest, const Sexy::String* theSource)
     return 1;
 }
 
-int SMemWStr(char* theDest, const char* theSource, int theLimit)
+int SMemWStr(char *theDest, const char *theSource, int theLimit)
 {
     return SMemW(theDest, theSource, 1, theLimit);
 }
@@ -685,7 +690,8 @@ int SMemWStr(char* theDest, const char* theSource, int theLimit)
 // carried file-local copies of these, which would have left the symbols
 // undefined at link time; the definitions live here now.
 // ---------------------------------------------------------------------------
-namespace Sexy {
+namespace Sexy
+{
 
 int gResourceManagerInfo = 0;
 
@@ -693,7 +699,7 @@ int gResourceManagerInfo = 0;
 // resource-root string into the caller's buffer and returns it, so this is the
 // sret form. The earlier `const char* (void)` spelling was a guess and did not
 // match a single call site.
-int GetResourcesFolder(Sexy::String* theDest)
+int GetResourcesFolder(Sexy::String *theDest)
 {
     // This project roots the resource tree at the executable's directory; the
     // platform layer will install the real path there at startup.
@@ -704,11 +710,11 @@ int GetResourcesFolder(Sexy::String* theDest)
     return 1;
 }
 
-int GetEnvIntOption(const char* theName, int theDefault)
+int GetEnvIntOption(const char *theName, int theDefault)
 {
     // GetEnvIntOption @0x2fba90 preserves the integer in r1 and returns it
     // when GetEnv is null; otherwise it tail-calls atoi.
-    const char* value = theName != nullptr ? Sexy::GetEnv(theName) : nullptr;
+    const char *value = theName != nullptr ? Sexy::GetEnv(theName) : nullptr;
     return value != nullptr ? atoi(value) : theDefault;
 }
 
@@ -724,7 +730,7 @@ int DebugInit(int theMode, int theFlags)
 
 // _ZN4Sexy24SWTri_AddAllDrawTriFuncsE... @0x3ab754 -- fills the software
 // rasteriser's function table with the per-format DrawTriangle entry points.
-int SWTri_AddAllDrawTriFuncs(void* theTable)
+int SWTri_AddAllDrawTriFuncs(void *theTable)
 {
     // The software renderer is not ported. This project renders through
     // OpenGL 3.3, so the table is left alone and the call reports success.
@@ -737,18 +743,20 @@ int SWTri_AddAllDrawTriFuncs(void* theTable)
 // in the 228-byte overload and an int in the 102-byte one, so this writes the
 // double form and lets the int overload alias it, which is what the call sites
 // in PopAnim do (they read the low word).
-int StringToDouble(void* theText, void* theDest)
+int StringToDouble(void *theText, void *theDest)
 {
     if (theText == nullptr || theDest == nullptr)
         return 0;
-    const Sexy::String* aText = static_cast<const Sexy::String*>(theText);
-    double* aNumber = static_cast<double*>(theDest);
+    const Sexy::String *aText = static_cast<const Sexy::String *>(theText);
+    double *aNumber = static_cast<double *>(theDest);
     *aNumber = strtod(aText->c_str(), nullptr);
     return 1;
 }
 
 // Sexy::Ratio -- see the header.
-Ratio::Ratio()    : mNumerator(1), mDenominator(0)
+Ratio::Ratio() :
+    mNumerator(1),
+    mDenominator(0)
 {
 }
 
@@ -759,19 +767,19 @@ int Ratio::Set(int theNumerator, int theDenominator)
     return 0;
 }
 
-void RemoveTrailingSlash(Sexy::String* theDest, const void* theSource)
+void RemoveTrailingSlash(Sexy::String *theDest, const void *theSource)
 {
     if (theDest == nullptr || theSource == nullptr)
         return;
-    const Sexy::String* aSource = static_cast<const Sexy::String*>(theSource);
+    const Sexy::String *aSource = static_cast<const Sexy::String *>(theSource);
     unsigned int aLength = aSource->size();
-    const char* aData = aSource->c_str();
+    const char *aData = aSource->c_str();
     while (aLength > 0 && (aData[aLength - 1] == '/' || aData[aLength - 1] == '\\'))
         --aLength;
     theDest->Assign(aData, aLength);
 }
 
-const char* setLocale(void* theCategory, const char* theName)
+const char *setLocale(void *theCategory, const char *theName)
 {
     // Game resource locales must remain available even when the operating
     // system has no matching C locale installed. Preserve xx_YY for the
@@ -787,7 +795,7 @@ const char* setLocale(void* theCategory, const char* theName)
     {
         for (size_t aIndex : {size_t(0), size_t(1), size_t(3), size_t(4)})
         {
-            char& aLetter = aRequested[aIndex];
+            char &aLetter = aRequested[aIndex];
             if (aLetter >= 'A' && aLetter <= 'Z')
                 aLetter += 'a' - 'A';
             if (aLetter < 'a' || aLetter > 'z')
@@ -807,17 +815,17 @@ const char* setLocale(void* theCategory, const char* theName)
     return aLocale.c_str();
 }
 
-void SexyStringToString(void* theDest, unsigned int theSource)
+void SexyStringToString(void *theDest, unsigned int theSource)
 {
     if (theDest == nullptr || theSource == 0)
         return;
-    const Sexy::String* aSource = nullptr;
+    const Sexy::String *aSource = nullptr;
     std::memcpy(&aSource, &theSource, sizeof(aSource));
-    static_cast<Sexy::String*>(theDest)->Assign(aSource->c_str(), aSource->size());
+    static_cast<Sexy::String *>(theDest)->Assign(aSource->c_str(), aSource->size());
 }
 
-int SWTri_AddDrawTriFunc(int theFormat, int theTexMode, int theAlphaMode,
-                         int theModMode, int theGlobalMode, int theBlendMode, int (*theFunc)())
+int SWTri_AddDrawTriFunc(int theFormat, int theTexMode, int theAlphaMode, int theModMode, int theGlobalMode,
+    int theBlendMode, int (*theFunc)())
 {
     // The software rasteriser is not ported. This project renders through
     // OpenGL 3.3, so registering a batch reports failure. LawnApp::Init only
@@ -843,7 +851,7 @@ int DrawTriangle_8888_TEX1_TALPHA1_MOD0_GLOB0_BLEND1()
 
 // PopAnim calls the global overload declared in ReconHelpers.h. The body above
 // is Sexy::StringToDouble; this is the symbol the call sites link.
-int StringToDouble(void* theText, void* theDest)
+int StringToDouble(void *theText, void *theDest)
 {
     return Sexy::StringToDouble(theText, theDest);
 }
@@ -863,7 +871,7 @@ int StringToDouble(void* theText, void* theDest)
 // mangled to `?SharedImageRefAssign@Sexy@@...` while the linker wanted
 // `?SharedImageRefAssign@@...`, which is a link error and not a compile error.
 // ---------------------------------------------------------------------------
-int SharedImageRefAssign(Sexy::SharedImageRef* theDest, const Sexy::SharedImageRef* theSource)
+int SharedImageRefAssign(Sexy::SharedImageRef *theDest, const Sexy::SharedImageRef *theSource)
 {
     if (theSource == nullptr || theDest == nullptr)
         return 0;
@@ -871,7 +879,7 @@ int SharedImageRefAssign(Sexy::SharedImageRef* theDest, const Sexy::SharedImageR
     return 1;
 }
 
-Sexy::Image* SharedImageRefImage(const Sexy::SharedImageRef* theRef)
+Sexy::Image *SharedImageRefImage(const Sexy::SharedImageRef *theRef)
 {
     if (theRef == nullptr)
         return nullptr;
@@ -881,11 +889,11 @@ Sexy::Image* SharedImageRefImage(const Sexy::SharedImageRef* theRef)
 // `std::find` over a `std::vector<Sexy::String>`. The binary's helper is
 // `_ZSt6__findIN9__gnu_cxx17__normal_iteratorIPSbIi...` @0x312180 and walks the
 // range comparing with `operator==`, answering the end position when absent.
-Sexy::String* FindInStringVector(Sexy::String* theBegin, Sexy::String* theEnd, const Sexy::String* theValue)
+Sexy::String *FindInStringVector(Sexy::String *theBegin, Sexy::String *theEnd, const Sexy::String *theValue)
 {
     if (theValue == nullptr)
         return theEnd;
-    for (Sexy::String* aPos = theBegin; aPos != theEnd; ++aPos)
+    for (Sexy::String *aPos = theBegin; aPos != theEnd; ++aPos)
     {
         if (*aPos == *theValue)
             return aPos;
@@ -893,30 +901,31 @@ Sexy::String* FindInStringVector(Sexy::String* theBegin, Sexy::String* theEnd, c
     return theEnd;
 }
 
-int MkDir(const char* thePath)
+int MkDir(const char *thePath)
 {
     if (thePath == nullptr || thePath[0] == 0)
         return 0;
     return Sexy::SDLFile::MakeDirs(thePath) ? 1 : 0;
 }
 
-int MkDir(const Sexy::String& thePath)
+int MkDir(const Sexy::String &thePath)
 {
     return MkDir(thePath.c_str());
 }
 
-int MkDir(const Sexy::String* thePath)
+int MkDir(const Sexy::String *thePath)
 {
     if (thePath == nullptr)
         return 0;
     return MkDir(thePath->c_str());
 }
 
-namespace Sexy {
-namespace RbTree {
+namespace Sexy
+{
+namespace RbTree
+{
 
-NodeBase* equal_range(NodeBase* theNode, const void* theKey,
-                      NodeBase** theFirst, NodeBase** theSecond)
+NodeBase *equal_range(NodeBase *theNode, const void *theKey, NodeBase **theFirst, NodeBase **theSecond)
 {
     // The RbTree layer in this project is a stub (see RbTree.cpp): find() below
     // ignores the key, so the range collapses to the single node it returns.
@@ -925,8 +934,8 @@ NodeBase* equal_range(NodeBase* theNode, const void* theKey,
     // this spelling takes has to name the instantiation it belongs to. This
     // container family is the string-keyed one (std::set/map on Sexy::String,
     // StringLessNoCase), which is the ordering find() implements.
-    const Sexy::String* aKey = static_cast<const Sexy::String*>(theKey);
-    NodeBase* aFound = find(theNode, aKey);
+    const Sexy::String *aKey = static_cast<const Sexy::String *>(theKey);
+    NodeBase *aFound = find(theNode, aKey);
     if (theFirst != nullptr)
         *theFirst = aFound;
     if (theSecond != nullptr)

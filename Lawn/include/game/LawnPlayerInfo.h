@@ -28,7 +28,8 @@
 // MSVC x86 gives a virtual destructor one slot where Itanium and ARM give it two,
 // so the absolute slot numbers run one lower here; only the order is copied.
 
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_LAWNPLAYERINFO_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_LAWNPLAYERINFO_H
 
 #include "ReconTypes.h"
 // Classes this one calls a method on: the call needs the
@@ -55,9 +56,9 @@ public:
     // Return types follow the vtable in the authoritative header, which types all
     // three as void; LawnPlayerInfo.cpp still defines Reset as `void *` and
     // SyncDetails as `int`, so those two bodies need the phase-2 rewrite.
-    virtual void Reset();                                  // slot 5
-    virtual void SyncDetails(DataSync &theSync, int theVersion);       // slot 7
-    virtual void DeleteUserFiles();                        // slot 8
+    virtual void Reset(); // slot 5
+    virtual void SyncDetails(DataSync &theSync, int theVersion); // slot 7
+    virtual void DeleteUserFiles(); // slot 8
 
     // No members of its own: the 0x810 bytes are the Sexy::PlayerInfo layout,
     // supplied by Sexy::DefaultPlayerInfo.
@@ -76,3 +77,5 @@ public:
     int ResetChallengeRecord(GameMode theMode);
     LawnPlayerInfo(Sexy::ProfileMgr *theProfileMgr);
 };
+
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_LAWNPLAYERINFO_H

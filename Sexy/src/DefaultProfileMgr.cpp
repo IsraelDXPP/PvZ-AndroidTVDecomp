@@ -11,16 +11,17 @@
 
 #include <cstring>
 
-namespace {
+namespace
+{
 
-void AddRefProfile(Sexy::PlayerInfo* theProfile)
+void AddRefProfile(Sexy::PlayerInfo *theProfile)
 {
     if (theProfile == nullptr)
         return;
     ++theProfile->mRefCount;
 }
 
-void ReleaseProfile(Sexy::PlayerInfo* theProfile)
+void ReleaseProfile(Sexy::PlayerInfo *theProfile)
 {
     if (theProfile == nullptr)
         return;
@@ -29,7 +30,7 @@ void ReleaseProfile(Sexy::PlayerInfo* theProfile)
         delete theProfile;
 }
 
-void ReleaseList(Sexy::DefaultProfileMgr::DefaultPlayerList& theList)
+void ReleaseList(Sexy::DefaultProfileMgr::DefaultPlayerList &theList)
 {
     for (int slot = 0; slot < 8; ++slot)
     {
@@ -38,7 +39,7 @@ void ReleaseList(Sexy::DefaultProfileMgr::DefaultPlayerList& theList)
     }
 }
 
-bool SameNameIgnoreCase(const Sexy::String& theLeft, const Sexy::String& theRight)
+bool SameNameIgnoreCase(const Sexy::String &theLeft, const Sexy::String &theRight)
 {
     return strcasecmp(theLeft.c_str(), theRight.c_str()) == 0;
 }
@@ -50,12 +51,12 @@ int Sexy::DefaultProfileMgr::GetNumProfiles()
     return mNumProfiles;
 }
 
-Sexy::PlayerInfo* Sexy::DefaultProfileMgr::GetAnyProfile()
+Sexy::PlayerInfo *Sexy::DefaultProfileMgr::GetAnyProfile()
 {
     if (mProfiles.empty())
         return nullptr;
 
-    Sexy::PlayerInfo* profile = mProfiles.begin()->second.mProfiles[0];
+    Sexy::PlayerInfo *profile = mProfiles.begin()->second.mProfiles[0];
     if (profile == nullptr)
         return nullptr;
 
@@ -66,23 +67,23 @@ Sexy::PlayerInfo* Sexy::DefaultProfileMgr::GetAnyProfile()
     return profile;
 }
 
-std::list<Sexy::PlayerInfo*> Sexy::DefaultProfileMgr::GetProfileList()
+std::list<Sexy::PlayerInfo *> Sexy::DefaultProfileMgr::GetProfileList()
 {
-    std::list<Sexy::PlayerInfo*> result;
-    for (auto& entry : mProfiles)
+    std::list<Sexy::PlayerInfo *> result;
+    for (auto &entry : mProfiles)
     {
-        Sexy::PlayerInfo* profile = entry.second.mProfiles[0];
+        Sexy::PlayerInfo *profile = entry.second.mProfiles[0];
         if (profile != nullptr)
             result.push_back(profile);
     }
     return result;
 }
 
-int Sexy::DefaultProfileMgr::SetUseSeq(DefaultPlayerList& theList, unsigned int theUseSeq)
+int Sexy::DefaultProfileMgr::SetUseSeq(DefaultPlayerList &theList, unsigned int theUseSeq)
 {
     for (int slot = 0; slot < 8; ++slot)
     {
-        Sexy::PlayerInfo* profile = theList.mProfiles[slot];
+        Sexy::PlayerInfo *profile = theList.mProfiles[slot];
         if (profile != nullptr)
             profile->mUseSeq = (int)theUseSeq;
     }
@@ -96,7 +97,7 @@ Sexy::DefaultProfileMgr::~DefaultProfileMgr()
 
 int Sexy::DefaultProfileMgr::Clear()
 {
-    for (auto& entry : mProfiles)
+    for (auto &entry : mProfiles)
         ReleaseList(entry.second);
     mProfiles.clear();
     mNextProfileUseSeq = 1;
@@ -105,17 +106,17 @@ int Sexy::DefaultProfileMgr::Clear()
     return 0;
 }
 
-Sexy::DefaultProfileMgr::DefaultProfileMgr(Sexy::ProfileEventListener* theListener)
-    : Sexy::ProfileMgr(theListener)
-    , mProfiles()
-    , mNumProfiles(0)
-    , mNextProfileId(0)
-    , mNextProfileUseSeq(1)
+Sexy::DefaultProfileMgr::DefaultProfileMgr(Sexy::ProfileEventListener *theListener) :
+    Sexy::ProfileMgr(theListener),
+    mProfiles(),
+    mNumProfiles(0),
+    mNextProfileId(0),
+    mNextProfileUseSeq(1)
 {
     Clear();
 }
 
-Sexy::PlayerInfo* Sexy::DefaultProfileMgr::GetProfile(Sexy::String const& theName, int theSlot)
+Sexy::PlayerInfo *Sexy::DefaultProfileMgr::GetProfile(Sexy::String const &theName, int theSlot)
 {
     auto found = mProfiles.find(theName);
     if (found == mProfiles.end())
@@ -123,7 +124,7 @@ Sexy::PlayerInfo* Sexy::DefaultProfileMgr::GetProfile(Sexy::String const& theNam
     if (theSlot < 0 || theSlot >= 8)
         return nullptr;
 
-    Sexy::PlayerInfo* profile = found->second.mProfiles[theSlot];
+    Sexy::PlayerInfo *profile = found->second.mProfiles[theSlot];
     if (profile == nullptr || profile->GetId() != theSlot)
         return nullptr;
 
@@ -134,13 +135,13 @@ Sexy::PlayerInfo* Sexy::DefaultProfileMgr::GetProfile(Sexy::String const& theNam
     return profile;
 }
 
-Sexy::PlayerInfo* Sexy::DefaultProfileMgr::GetProfile(Sexy::String const& theName)
+Sexy::PlayerInfo *Sexy::DefaultProfileMgr::GetProfile(Sexy::String const &theName)
 {
     auto found = mProfiles.find(theName);
     if (found == mProfiles.end())
         return nullptr;
 
-    Sexy::PlayerInfo* profile = found->second.mProfiles[0];
+    Sexy::PlayerInfo *profile = found->second.mProfiles[0];
     if (profile == nullptr)
         return nullptr;
 
@@ -151,18 +152,18 @@ Sexy::PlayerInfo* Sexy::DefaultProfileMgr::GetProfile(Sexy::String const& theNam
     return profile;
 }
 
-void Sexy::DefaultProfileMgr::SyncState(DataSync& theSync)
+void Sexy::DefaultProfileMgr::SyncState(DataSync &theSync)
 {
-    DataReader* reader = theSync.mReader;
-    DataWriter* writer = theSync.mWriter;
+    DataReader *reader = theSync.mReader;
+    DataWriter *writer = theSync.mWriter;
 
     int profileVersion = GetProfileVersion();
     theSync.SyncLong(profileVersion);
     theSync.mVersion = profileVersion;
     if (profileVersion != GetProfileVersion())
     {
-        OutputDebug("Replacing profile index version %d with current version %d\n",
-                    profileVersion, GetProfileVersion());
+        OutputDebug(
+            "Replacing profile index version %d with current version %d\n", profileVersion, GetProfileVersion());
         theSync.mVersionMismatch = true;
         Clear();
         return;
@@ -170,7 +171,7 @@ void Sexy::DefaultProfileMgr::SyncState(DataSync& theSync)
 
     if (reader != nullptr)
     {
-        for (auto& entry : mProfiles)
+        for (auto &entry : mProfiles)
             ReleaseList(entry.second);
         mProfiles.clear();
         mNumProfiles = 0;
@@ -192,7 +193,7 @@ void Sexy::DefaultProfileMgr::SyncState(DataSync& theSync)
 
             for (int slot = 0; slot < playerCount && slot < 8; ++slot)
             {
-                Sexy::PlayerInfo* profile = CreatePlayerInfo();
+                Sexy::PlayerInfo *profile = CreatePlayerInfo();
                 profile->SyncSummary(theSync);
 
                 if (nextUseSeq < profile->mUseSeq)
@@ -207,7 +208,7 @@ void Sexy::DefaultProfileMgr::SyncState(DataSync& theSync)
                     continue;
                 }
 
-                Sexy::PlayerInfo* previous = list.mProfiles[id];
+                Sexy::PlayerInfo *previous = list.mProfiles[id];
                 if (profile != previous)
                 {
                     ReleaseProfile(previous);
@@ -226,7 +227,7 @@ void Sexy::DefaultProfileMgr::SyncState(DataSync& theSync)
             DefaultPlayerList stored;
             for (int slot = 0; slot < 8; ++slot)
             {
-                Sexy::PlayerInfo* profile = list.mProfiles[slot];
+                Sexy::PlayerInfo *profile = list.mProfiles[slot];
                 if (profile != nullptr)
                     AddRefProfile(profile);
                 stored.mProfiles[slot] = profile;
@@ -251,19 +252,19 @@ void Sexy::DefaultProfileMgr::SyncState(DataSync& theSync)
     }
 
     writer->WriteShort((unsigned short)mNumProfiles);
-    for (auto& entry : mProfiles)
+    for (auto &entry : mProfiles)
     {
         writer->WriteShort(8);
         for (int slot = 0; slot < 8; ++slot)
         {
-            Sexy::PlayerInfo* profile = entry.second.mProfiles[slot];
+            Sexy::PlayerInfo *profile = entry.second.mProfiles[slot];
             if (profile != nullptr)
                 profile->SyncSummary(theSync);
         }
     }
 }
 
-int Sexy::DefaultProfileMgr::DeleteProfile(Sexy::String const& theName)
+int Sexy::DefaultProfileMgr::DeleteProfile(Sexy::String const &theName)
 {
     auto found = mProfiles.find(theName);
     if (found == mProfiles.end())
@@ -271,7 +272,7 @@ int Sexy::DefaultProfileMgr::DeleteProfile(Sexy::String const& theName)
 
     for (int slot = 0; slot < 8; ++slot)
     {
-        Sexy::PlayerInfo* profile = found->second.mProfiles[slot];
+        Sexy::PlayerInfo *profile = found->second.mProfiles[slot];
         if (profile != nullptr)
             profile->DeleteUserFiles();
     }
@@ -290,15 +291,15 @@ int Sexy::DefaultProfileMgr::DeleteOldestProfile()
     auto oldest = mProfiles.begin();
     for (auto cursor = mProfiles.begin(); cursor != mProfiles.end(); ++cursor)
     {
-        Sexy::PlayerInfo* current = cursor->second.mProfiles[0];
-        Sexy::PlayerInfo* best = oldest->second.mProfiles[0];
+        Sexy::PlayerInfo *current = cursor->second.mProfiles[0];
+        Sexy::PlayerInfo *best = oldest->second.mProfiles[0];
         if (current != nullptr && best != nullptr && current->mUseSeq < best->mUseSeq)
             oldest = cursor;
     }
 
     for (int slot = 0; slot < 8; ++slot)
     {
-        Sexy::PlayerInfo* profile = oldest->second.mProfiles[slot];
+        Sexy::PlayerInfo *profile = oldest->second.mProfiles[slot];
         if (profile != nullptr)
             profile->DeleteUserFiles();
     }
@@ -309,14 +310,14 @@ int Sexy::DefaultProfileMgr::DeleteOldestProfile()
     return 0;
 }
 
-Sexy::DefaultProfileMgr* Sexy::DefaultProfileMgr::DeleteOldProfiles()
+Sexy::DefaultProfileMgr *Sexy::DefaultProfileMgr::DeleteOldProfiles()
 {
     while (mNumProfiles > 200)
         DeleteOldestProfile();
     return this;
 }
 
-Sexy::PlayerInfo* Sexy::DefaultProfileMgr::AddProfile(Sexy::String const& theName)
+Sexy::PlayerInfo *Sexy::DefaultProfileMgr::AddProfile(Sexy::String const &theName)
 {
     DefaultPlayerList empty;
     auto inserted = mProfiles.emplace(theName, empty);
@@ -329,10 +330,10 @@ Sexy::PlayerInfo* Sexy::DefaultProfileMgr::AddProfile(Sexy::String const& theNam
     ++mNextProfileUseSeq;
     ++mNextProfileId;
 
-    DefaultPlayerList& list = inserted.first->second;
+    DefaultPlayerList &list = inserted.first->second;
     for (int slot = 0; slot < 8; ++slot)
     {
-        Sexy::PlayerInfo* profile = CreatePlayerInfo();
+        Sexy::PlayerInfo *profile = CreatePlayerInfo();
         profile->mName = theName;
         profile->mId = slot;
         profile->mProfileId = profileId;
@@ -350,7 +351,7 @@ Sexy::PlayerInfo* Sexy::DefaultProfileMgr::AddProfile(Sexy::String const& theNam
     return list.mProfiles[0];
 }
 
-int Sexy::DefaultProfileMgr::RenameProfile(Sexy::String const& theOldName, Sexy::String const& theNewName)
+int Sexy::DefaultProfileMgr::RenameProfile(Sexy::String const &theOldName, Sexy::String const &theNewName)
 {
     auto found = mProfiles.find(theOldName);
     if (found == mProfiles.end())
@@ -360,7 +361,7 @@ int Sexy::DefaultProfileMgr::RenameProfile(Sexy::String const& theOldName, Sexy:
     {
         for (int slot = 0; slot < 8; ++slot)
         {
-            Sexy::PlayerInfo* profile = found->second.mProfiles[slot];
+            Sexy::PlayerInfo *profile = found->second.mProfiles[slot];
             if (profile != nullptr)
                 profile->mName = theNewName;
         }
@@ -377,10 +378,10 @@ int Sexy::DefaultProfileMgr::RenameProfile(Sexy::String const& theOldName, Sexy:
 
     mProfiles.erase(found);
 
-    DefaultPlayerList& renamed = mProfiles[theNewName];
+    DefaultPlayerList &renamed = mProfiles[theNewName];
     for (int slot = 0; slot < 8; ++slot)
     {
-        Sexy::PlayerInfo* profile = renamed.mProfiles[slot];
+        Sexy::PlayerInfo *profile = renamed.mProfiles[slot];
         if (profile != nullptr)
             profile->mName = theNewName;
     }
@@ -398,7 +399,7 @@ void Sexy::DefaultProfileMgr::Load()
         return;
 
     DataReader reader;
-    const unsigned char* bits = buffer.mData.empty() ? nullptr : &buffer.mData[0];
+    const unsigned char *bits = buffer.mData.empty() ? nullptr : &buffer.mData[0];
     reader.OpenMemory(bits, (unsigned long)((buffer.mDataBitSize + 7) / 8), false);
 
     DataSync sync(reader);

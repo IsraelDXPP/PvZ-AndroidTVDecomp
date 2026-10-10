@@ -1,11 +1,13 @@
 // Buffer is a bit cursor over a byte vector. The destructor is the only virtual.
 
-#pragma once
+#ifndef LAWNPROJECTTV_SEXY_INCLUDE_BUFFER_H
+#define LAWNPROJECTTV_SEXY_INCLUDE_BUFFER_H
 
 #include "ReconTypes.h"
 #include <cstring>
 
-namespace Sexy {
+namespace Sexy
+{
 
 class SexyTransform2D;
 
@@ -36,7 +38,7 @@ public:
     Buffer();
 
     void Seek(SeekMode theMode, unsigned int theOffset) const;
-    Buffer* Clear();
+    Buffer *Clear();
     static int GetBitsRequired(int theNum, bool theSigned);
 
     unsigned char ReadByte() const;
@@ -55,40 +57,40 @@ public:
     TPoint<float> ReadFPoint() const;
     Sexy::String ReadString() const;
     Sexy::String ReadLine() const;
-    void ReadBytes(unsigned char* theDest, int theCount) const;
+    void ReadBytes(unsigned char *theDest, int theCount) const;
     Sexy::String ReadSexyString() const;
     unsigned int GetCRC32(unsigned int theSeed) const;
     std::wstring UTF8ToWideString() const;
     std::wstring ReadUTF8String() const;
 
     void WriteNumBits(int theValue, int theBitCount);
-    void FromWebString(const Sexy::String& theString);
+    void FromWebString(const Sexy::String &theString);
     void WriteByte(unsigned char theByte);
     void WriteBoolean(bool theValue);
     void WriteShort(short theValue);
     void WriteLong(long theValue);
     void WriteFloat(float theValue);
-    void WriteTransform2D(const SexyTransform2D& theMatrix);
+    void WriteTransform2D(const SexyTransform2D &theMatrix);
     void WriteDouble(double theValue);
     void WriteFPoint(TPoint<float> thePoint);
     void WriteInt8(signed char theValue);
     void WriteInt16(short theValue);
     void WriteInt32(int theValue);
     void WriteInt64(long long theValue);
-    void WriteString(const Sexy::String& theString);
-    void WriteUTF8String(const std::wstring& theString);
-    void WriteBuffer(const std::vector<unsigned char>& theBytes);
-    void WriteBuffer(const Buffer& theBuffer);
-    void ReadBuffer(std::vector<unsigned char>* theBytes) const;
-    void ReadBuffer(Buffer* theBuffer) const;
+    void WriteString(const Sexy::String &theString);
+    void WriteUTF8String(const std::wstring &theString);
+    void WriteBuffer(const std::vector<unsigned char> &theBytes);
+    void WriteBuffer(const Buffer &theBuffer);
+    void ReadBuffer(std::vector<unsigned char> *theBytes) const;
+    void ReadBuffer(Buffer *theBuffer) const;
     void Resize(unsigned int theByteCount);
-    void WriteBytes(const unsigned char* theSrc, int theCount);
-    void WriteSexyString(const Sexy::String& theString);
-    void WriteLine(const Sexy::String& theString);
-    void SetData(const std::vector<unsigned char>& theBytes);
-    void SetData(const unsigned char* theSrc, int theCount);
+    void WriteBytes(const unsigned char *theSrc, int theCount);
+    void WriteSexyString(const Sexy::String &theString);
+    void WriteLine(const Sexy::String &theString);
+    void SetData(const std::vector<unsigned char> &theBytes);
+    void SetData(const unsigned char *theSrc, int theCount);
 
-    const unsigned char* GetDataPtr() const;
+    const unsigned char *GetDataPtr() const;
     int GetDataLen() const;
     int GetDataLenBits() const;
     bool AtEnd() const;
@@ -119,3 +121,5 @@ inline double DoubleBits(long long theBits)
     std::memcpy(&aValue, &theBits, sizeof(aValue));
     return aValue;
 }
+
+#endif // LAWNPROJECTTV_SEXY_INCLUDE_BUFFER_H

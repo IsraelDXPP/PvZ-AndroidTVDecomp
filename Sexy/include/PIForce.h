@@ -3,14 +3,16 @@
 // and mAngle are the six curves the reader fills, in that order. mArrowOrigin
 // is the point debug draw adds to the rotated arrow tip.
 
-#pragma once
+#ifndef LAWNPROJECTTV_SEXY_INCLUDE_PIFORCE_H
+#define LAWNPROJECTTV_SEXY_INCLUDE_PIFORCE_H
 
 #include "ReconTypes.h"
 #include "Bezier.h"
 #include "PIValue.h"
 #include "PIValue2D.h"
 
-namespace Sexy {
+namespace Sexy
+{
 
 class PIForce
 {
@@ -28,14 +30,25 @@ public:
     int mArrowOriginX;
     int mArrowOriginY;
 
-    PIForce()
-        : mName(), mEnabled(false), mValue2D(), mStrength(), mDirection(), mActive(),
-          mSpin(), mExtra(), mAngle(), mArrowOriginX(0), mArrowOriginY(0)
+    PIForce() :
+        mName(),
+        mEnabled(false),
+        mValue2D(),
+        mStrength(),
+        mDirection(),
+        mActive(),
+        mSpin(),
+        mExtra(),
+        mAngle(),
+        mArrowOriginX(0),
+        mArrowOriginY(0)
     {
     }
-    PIForce(Sexy::PIForce const& other);
+    PIForce(Sexy::PIForce const &other);
 };
 
 } // namespace Sexy
 
 using Sexy::PIForce;
+
+#endif // LAWNPROJECTTV_SEXY_INCLUDE_PIFORCE_H

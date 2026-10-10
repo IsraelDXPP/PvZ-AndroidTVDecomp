@@ -6,11 +6,13 @@
 // The three trailing words keep the object the size the double's alignment
 // already forces. Nothing reads them.
 
-#pragma once
+#ifndef LAWNPROJECTTV_SEXY_INCLUDE_PERFTIMER_H
+#define LAWNPROJECTTV_SEXY_INCLUDE_PERFTIMER_H
 
 #include "AndroidShims.h"
 
-namespace Sexy {
+namespace Sexy
+{
 
 class PerfTimer
 {
@@ -26,10 +28,12 @@ public:
     PerfTimer();
     int64_t CalcDuration();
     int Start();
-    PerfTimer * Stop();
+    PerfTimer *Stop();
     double GetDuration();
 };
 
 } // namespace Sexy
 
 using Sexy::PerfTimer;
+
+#endif // LAWNPROJECTTV_SEXY_INCLUDE_PERFTIMER_H

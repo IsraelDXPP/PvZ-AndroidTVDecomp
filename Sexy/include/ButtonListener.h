@@ -5,11 +5,13 @@
 // slots; MSVC keeps one, and the methods below follow in the binary's order.
 // ButtonPress has two overloads; the second is the click-count form.
 
-#pragma once
+#ifndef LAWNPROJECTTV_SEXY_INCLUDE_BUTTONLISTENER_H
+#define LAWNPROJECTTV_SEXY_INCLUDE_BUTTONLISTENER_H
 
 #include "ReconTypes.h"
 
-namespace Sexy {
+namespace Sexy
+{
 
 class ButtonListener
 {
@@ -28,3 +30,5 @@ public:
 } // namespace Sexy
 
 using Sexy::ButtonListener;
+
+#endif // LAWNPROJECTTV_SEXY_INCLUDE_BUTTONLISTENER_H

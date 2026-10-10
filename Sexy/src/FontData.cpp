@@ -25,11 +25,12 @@
 #include <sstream>
 #include <vector>
 
-namespace {
+namespace
+{
 
 // A quoted glyph is one code point. UTF-8 stores that point in several
 // bytes, and length() counts bytes, so a CJK glyph is not length 1.
-int QuotedCodePoint(Sexy::String const& theText)
+int QuotedCodePoint(Sexy::String const &theText)
 {
     if (theText.empty())
         return 0;
@@ -40,27 +41,26 @@ int QuotedCodePoint(Sexy::String const& theText)
     return aCode;
 }
 
-bool IsModLayerName(Sexy::String const& theName)
+bool IsModLayerName(Sexy::String const &theName)
 {
-    return theName.length() > 5
-        && theName.compare(theName.length() - 5, 5, "__MOD") == 0;
+    return theName.length() > 5 && theName.compare(theName.length() - 5, 5, "__MOD") == 0;
 }
 
-void UpdateLayerHeight(Sexy::FontLayer& theLayer)
+void UpdateLayerHeight(Sexy::FontLayer &theLayer)
 {
     // FontData::HandleCommand @0x31A5DA takes the greatest glyph bottom.
     theLayer.mDefaultHeight = 0;
-    for (const auto& entry : theLayer.mCharDataMap)
+    for (const auto &entry : theLayer.mCharDataMap)
     {
-        const Sexy::CharData& glyph = entry.second;
+        const Sexy::CharData &glyph = entry.second;
         const int bottom = static_cast<int>(glyph.mHeight) + static_cast<short>(glyph.mOffsetY);
         if (bottom > theLayer.mDefaultHeight)
             theLayer.mDefaultHeight = bottom;
     }
 }
 
-void StoreDefine(std::map<Sexy::String, Sexy::DataElement*>& theMap,
-                 Sexy::String const& theKey, Sexy::DataElement* theValue)
+void StoreDefine(
+    std::map<Sexy::String, Sexy::DataElement *> &theMap, Sexy::String const &theKey, Sexy::DataElement *theValue)
 {
     auto previous = theMap.find(theKey);
     if (previous != theMap.end())
@@ -72,22 +72,20 @@ void StoreDefine(std::map<Sexy::String, Sexy::DataElement*>& theMap,
     theMap.emplace(theKey, theValue);
 }
 
-Sexy::FontLayer* StoreIntField(Sexy::FontData* theFont, Sexy::ListDataElement const& theParams,
-                               int& theField)
+Sexy::FontLayer *StoreIntField(Sexy::FontData *theFont, Sexy::ListDataElement const &theParams, int &theField)
 {
     if (theParams.mDataElements.size() != 3)
     {
         theFont->ReportError("Invalid Number of Parameters");
         return nullptr;
     }
-    Sexy::FontLayer* aLayer = nullptr;
+    Sexy::FontLayer *aLayer = nullptr;
     if (theFont->DataToLayer(theParams.mDataElements[1], &aLayer) == 0)
     {
         theFont->ReportError("Invalid Paramater Type");
         return nullptr;
     }
-    Sexy::SingleDataElement* aValueElement =
-        static_cast<Sexy::SingleDataElement*>(theParams.mDataElements[2]);
+    Sexy::SingleDataElement *aValueElement = static_cast<Sexy::SingleDataElement *>(theParams.mDataElements[2]);
     if (aValueElement->mElementKind != 0)
     {
         theFont->ReportError("Invalid Paramater Type");
@@ -106,11 +104,11 @@ Sexy::FontLayer* StoreIntField(Sexy::FontData* theFont, Sexy::ListDataElement co
 
 } // namespace
 
-Sexy::FontData::FontData()
-    : mIsListFont(false)
-    , mRefCount(0)
-    , mApp(nullptr)
-    , mDefaultPointSize(0)
+Sexy::FontData::FontData() :
+    mIsListFont(false),
+    mRefCount(0),
+    mApp(nullptr),
+    mDefaultPointSize(0)
 {
 }
 
@@ -120,20 +118,20 @@ int Sexy::FontData::Ref()
     return mRefCount;
 }
 
-Sexy::FontData* Sexy::FontData::DeRef()
+Sexy::FontData *Sexy::FontData::DeRef()
 {
     if (--mRefCount == 0)
         delete this;
     return this;
 }
 
-int Sexy::FontData::DataToLayer(Sexy::DataElement* theElement, Sexy::FontLayer** theLayer)
+int Sexy::FontData::DataToLayer(Sexy::DataElement *theElement, Sexy::FontLayer **theLayer)
 {
     *theLayer = nullptr;
     if (theElement->mElementKind != 0)
         return 0;
 
-    SingleDataElement* aSingle = static_cast<SingleDataElement*>(theElement);
+    SingleDataElement *aSingle = static_cast<SingleDataElement *>(theElement);
     Sexy::String aName;
     StringToUpper(&aName, aSingle->mData.c_str());
 
@@ -149,19 +147,19 @@ int Sexy::FontData::DataToLayer(Sexy::DataElement* theElement, Sexy::FontLayer**
     return 0;
 }
 
-int Sexy::FontData::GetColorFromDataElement(Sexy::DataElement* theElement, Color& theColor)
+int Sexy::FontData::GetColorFromDataElement(Sexy::DataElement *theElement, Color &theColor)
 {
     if (theElement->mElementKind != 0)
     {
         std::vector<double> aValues;
         if (DataToDoubleVector(theElement, &aValues) == 0 || aValues.size() != 4)
             return 0;
-        theColor = Color((int)(aValues[0] * 255.0), (int)(aValues[1] * 255.0),
-                         (int)(aValues[2] * 255.0), (int)(aValues[3] * 255.0));
+        theColor = Color(
+            (int)(aValues[0] * 255.0), (int)(aValues[1] * 255.0), (int)(aValues[2] * 255.0), (int)(aValues[3] * 255.0));
         return 1;
     }
 
-    SingleDataElement* aSingle = static_cast<SingleDataElement*>(theElement);
+    SingleDataElement *aSingle = static_cast<SingleDataElement *>(theElement);
     Sexy::String aText(aSingle->mData);
     int aValue = 0;
     int aResult = StringToInt(aText, &aValue);
@@ -171,7 +169,7 @@ int Sexy::FontData::GetColorFromDataElement(Sexy::DataElement* theElement, Color
     return aResult;
 }
 
-bool Sexy::FontData::Error(const Sexy::String& theError)
+bool Sexy::FontData::Error(const Sexy::String &theError)
 {
     if (mApp == nullptr)
         return false;
@@ -191,7 +189,7 @@ bool Sexy::FontData::Error(const Sexy::String& theError)
     return false;
 }
 
-int Sexy::FontData::Load(Sexy::SexyAppBase* theApp, Sexy::String const& theFileName)
+int Sexy::FontData::Load(Sexy::SexyAppBase *theApp, Sexy::String const &theFileName)
 {
     if (mIsListFont)
         return 0;
@@ -205,13 +203,13 @@ int Sexy::FontData::Load(Sexy::SexyAppBase* theApp, Sexy::String const& theFileN
     return 1;
 }
 
-int Sexy::FontData::LoadLegacy(Sexy::Image* theImage, Sexy::String const& theFileName)
+int Sexy::FontData::LoadLegacy(Sexy::Image *theImage, Sexy::String const &theFileName)
 {
     if (mIsListFont)
         return 0;
 
     FontLayer aTemplate(this);
-    FontLayer* aLayer = AddLayer(aTemplate);
+    FontLayer *aLayer = AddLayer(aTemplate);
     if (aLayer == nullptr)
         return 0;
     RegisterLayer(aLayer->mLayerName, aLayer);
@@ -222,11 +220,11 @@ int Sexy::FontData::LoadLegacy(Sexy::Image* theImage, Sexy::String const& theFil
     aLayer->mDefaultHeight = aImageHeight;
     aLayer->mAscent = aImageHeight;
 
-    SDL_IOStream* aFile = p_fopen(theFileName.c_str(), "rb");
+    SDL_IOStream *aFile = p_fopen(theFileName.c_str(), "rb");
     if (aFile == nullptr)
         return 0;
     size_t aSize = 0;
-    char* aContents = static_cast<char*>(SDL_LoadFile_IO(aFile, &aSize, true));
+    char *aContents = static_cast<char *>(SDL_LoadFile_IO(aFile, &aSize, true));
     if (aContents == nullptr)
         return 0;
     std::string aText(aContents, aSize);
@@ -237,7 +235,7 @@ int Sexy::FontData::LoadLegacy(Sexy::Image* theImage, Sexy::String const& theFil
     int aHeight = 0;
     if (!(aInput >> aHeight >> aLayer->mHeight))
         return 0;
-    CharData* aSpace = aLayer->GetCharData(32);
+    CharData *aSpace = aLayer->GetCharData(32);
     aSpace->mAdvance = (unsigned short)aHeight;
 
     int aBaseline = 0;
@@ -245,7 +243,7 @@ int Sexy::FontData::LoadLegacy(Sexy::Image* theImage, Sexy::String const& theFil
     int aCharWidth = 0;
     while (aInput >> aChar >> aCharWidth)
     {
-        CharData* aGlyph = aLayer->GetCharData(static_cast<unsigned char>(aChar));
+        CharData *aGlyph = aLayer->GetCharData(static_cast<unsigned char>(aChar));
         aGlyph->mX = (unsigned short)aBaseline;
         aGlyph->mHeight = (unsigned short)aImageHeight;
         aGlyph->mY = 0;
@@ -273,33 +271,31 @@ int Sexy::FontData::LoadLegacy(Sexy::Image* theImage, Sexy::String const& theFil
     return 1;
 }
 
-Sexy::FontData::~FontData()
-{
-}
+Sexy::FontData::~FontData() {}
 
-bool Sexy::FontData::ReportError(const char* theMessage)
+bool Sexy::FontData::ReportError(const char *theMessage)
 {
     Sexy::String aMessage = theMessage;
     Error(aMessage);
     return false;
 }
 
-Sexy::FontLayer* Sexy::FontData::AddLayer(Sexy::FontLayer const& theLayer)
+Sexy::FontLayer *Sexy::FontData::AddLayer(Sexy::FontLayer const &theLayer)
 {
     mLayerList.push_back(theLayer);
     return &mLayerList.back();
 }
 
-void Sexy::FontData::RegisterLayer(Sexy::String const& theName, Sexy::FontLayer* theLayer)
+void Sexy::FontData::RegisterLayer(Sexy::String const &theName, Sexy::FontLayer *theLayer)
 {
     if (mLayerMap.find(theName) != mLayerMap.end())
         ReportError("Layer Already Exists");
     mLayerMap[theName] = theLayer;
 }
 
-bool Sexy::FontData::HandleCommand(Sexy::ListDataElement const& theParams)
+bool Sexy::FontData::HandleCommand(Sexy::ListDataElement const &theParams)
 {
-    SingleDataElement* aNameElement = static_cast<SingleDataElement*>(theParams.mDataElements[0]);
+    SingleDataElement *aNameElement = static_cast<SingleDataElement *>(theParams.mDataElements[0]);
     Sexy::String aCommandName;
     ToString(&aCommandName, &aNameElement->mData);
     Sexy::String aCommand;
@@ -312,24 +308,24 @@ bool Sexy::FontData::HandleCommand(Sexy::ListDataElement const& theParams)
 
         std::vector<int> aRects;
         std::vector<int> aCounts;
-        DataElement* aFirst = theParams.mDataElements[1];
+        DataElement *aFirst = theParams.mDataElements[1];
         if (aFirst->mElementKind != 0)
             return ReportError("Invalid Paramater Type");
-        if (DataToIntVector(theParams.mDataElements[2], &aRects) == 0 || aRects.size() != 4
-            || DataToIntVector(theParams.mDataElements[3], &aCounts) == 0)
+        if (DataToIntVector(theParams.mDataElements[2], &aRects) == 0 || aRects.size() != 4 ||
+            DataToIntVector(theParams.mDataElements[3], &aCounts) == 0)
             return ReportError("Invalid Paramater Type");
         if (aCounts.empty())
             return false;
 
-        SingleDataElement* aName = static_cast<SingleDataElement*>(theParams.mDataElements[1]);
+        SingleDataElement *aName = static_cast<SingleDataElement *>(theParams.mDataElements[1]);
         Sexy::String aKey;
         StringToUpper(&aKey, aName->mData.c_str());
 
-        ListDataElement* aOuter = new ListDataElement();
+        ListDataElement *aOuter = new ListDataElement();
         int aOffset = 0;
         for (unsigned int i = 0; i < aCounts.size(); ++i)
         {
-            ListDataElement* aRow = new ListDataElement();
+            ListDataElement *aRow = new ListDataElement();
             aOuter->mDataElements.push_back(aRow);
 
             int aFields[4];
@@ -343,7 +339,7 @@ bool Sexy::FontData::HandleCommand(Sexy::ListDataElement const& theParams)
                 sprintf(aBuffer, "%d", aFields[aField]);
                 Sexy::String aWide;
                 StringToWString(&aWide, aBuffer);
-                SingleDataElement* aElement = new SingleDataElement();
+                SingleDataElement *aElement = new SingleDataElement();
                 aElement->mData = aWide;
                 aRow->mDataElements.push_back(aElement);
             }
@@ -358,10 +354,10 @@ bool Sexy::FontData::HandleCommand(Sexy::ListDataElement const& theParams)
     {
         if (theParams.mDataElements.size() != 2)
             return ReportError("Invalid Number of Parameters");
-        DataElement* aParam = theParams.mDataElements[1];
+        DataElement *aParam = theParams.mDataElements[1];
         if (aParam->mElementKind != 0)
             return ReportError("Invalid Paramater Type");
-        SingleDataElement* aSingle = static_cast<SingleDataElement*>(aParam);
+        SingleDataElement *aSingle = static_cast<SingleDataElement *>(aParam);
         Sexy::String aText(aSingle->mData);
         int aValue = 0;
         if (StringToInt(aText, &aValue) == 0)
@@ -377,8 +373,8 @@ bool Sexy::FontData::HandleCommand(Sexy::ListDataElement const& theParams)
 
         std::vector<Sexy::String> aKeys;
         std::vector<Sexy::String> aValues;
-        if (DataToStringVector(theParams.mDataElements[1], &aKeys) == 0
-            || DataToStringVector(theParams.mDataElements[2], &aValues) == 0)
+        if (DataToStringVector(theParams.mDataElements[1], &aKeys) == 0 ||
+            DataToStringVector(theParams.mDataElements[2], &aValues) == 0)
             return ReportError("Invalid Paramater Type");
         if (aKeys.size() != aValues.size())
             return ReportError("List Size Mismatch");
@@ -404,14 +400,14 @@ bool Sexy::FontData::HandleCommand(Sexy::ListDataElement const& theParams)
     {
         if (theParams.mDataElements.size() != 2)
             return ReportError("Invalid Number of Parameters");
-        SingleDataElement* aName = static_cast<SingleDataElement*>(theParams.mDataElements[1]);
+        SingleDataElement *aName = static_cast<SingleDataElement *>(theParams.mDataElements[1]);
         if (aName->mElementKind != 0)
             return ReportError("Invalid Paramater Type");
         Sexy::String aKey;
         StringToUpper(&aKey, aName->mData.c_str());
 
         FontLayer aLayer(this);
-        FontLayer* aStored = AddLayer(aLayer);
+        FontLayer *aStored = AddLayer(aLayer);
         SexyWStringToString(&aStored->mLayerName, &aKey);
         RegisterLayer(aKey, aStored);
         return true;
@@ -423,15 +419,15 @@ bool Sexy::FontData::HandleCommand(Sexy::ListDataElement const& theParams)
             return ReportError("Invalid Number of Parameters");
         if (theParams.mDataElements[1]->mElementKind != 0)
             return ReportError("Invalid Paramater Type");
-        FontLayer* aSource = nullptr;
+        FontLayer *aSource = nullptr;
         if (DataToLayer(theParams.mDataElements[2], &aSource) == 0)
             return ReportError("Invalid Paramater Type");
 
-        SingleDataElement* aName = static_cast<SingleDataElement*>(theParams.mDataElements[1]);
+        SingleDataElement *aName = static_cast<SingleDataElement *>(theParams.mDataElements[1]);
         Sexy::String aKey;
         StringToUpper(&aKey, aName->mData.c_str());
         FontLayer aCopy(*aSource);
-        FontLayer* aStored = AddLayer(aCopy);
+        FontLayer *aStored = AddLayer(aCopy);
         SexyWStringToString(&aStored->mLayerName, &aKey);
         RegisterLayer(aKey, aStored);
         return true;
@@ -441,16 +437,15 @@ bool Sexy::FontData::HandleCommand(Sexy::ListDataElement const& theParams)
     {
         if (theParams.mDataElements.size() != 3)
             return ReportError("Invalid Number of Parameters");
-        FontLayer* aLayer = nullptr;
+        FontLayer *aLayer = nullptr;
         if (DataToLayer(theParams.mDataElements[1], &aLayer) == 0)
             return ReportError("Invalid Paramater Type");
         std::vector<Sexy::String> aTags;
         if (DataToStringVector(theParams.mDataElements[2], &aTags) == 0)
             return ReportError("Invalid Paramater Type");
 
-        std::vector<Sexy::String>& aDest = aCommand == "layerrequiretags"
-            ? aLayer->mRequiredTags
-            : aLayer->mExcludedTags;
+        std::vector<Sexy::String> &aDest =
+            aCommand == "layerrequiretags" ? aLayer->mRequiredTags : aLayer->mExcludedTags;
         for (unsigned int i = 0; i < aTags.size(); ++i)
         {
             Sexy::String aTag;
@@ -464,11 +459,11 @@ bool Sexy::FontData::HandleCommand(Sexy::ListDataElement const& theParams)
     {
         if (theParams.mDataElements.size() != 4)
             return ReportError("Invalid Number of Parameters");
-        FontLayer* aLayer = nullptr;
+        FontLayer *aLayer = nullptr;
         if (DataToLayer(theParams.mDataElements[1], &aLayer) == 0)
             return ReportError("Invalid Paramater Type");
-        SingleDataElement* aMin = static_cast<SingleDataElement*>(theParams.mDataElements[2]);
-        SingleDataElement* aMax = static_cast<SingleDataElement*>(theParams.mDataElements[3]);
+        SingleDataElement *aMin = static_cast<SingleDataElement *>(theParams.mDataElements[2]);
+        SingleDataElement *aMax = static_cast<SingleDataElement *>(theParams.mDataElements[3]);
         if (aMin->mElementKind != 0 || aMax->mElementKind != 0)
             return ReportError("Invalid Paramater Type");
         Sexy::String aMinText(aMin->mData);
@@ -482,18 +477,16 @@ bool Sexy::FontData::HandleCommand(Sexy::ListDataElement const& theParams)
         return true;
     }
 
-    if (aCommand == "layersetpointsize" || aCommand == "layersetheight"
-        || aCommand == "layersetspacing" || aCommand == "layersetascent"
-        || aCommand == "layersetascentpadding" || aCommand == "layersetlinespacingoffset"
-        || aCommand == "layersetbaseorder" || aCommand == "layersetdrawmode")
+    if (aCommand == "layersetpointsize" || aCommand == "layersetheight" || aCommand == "layersetspacing" ||
+        aCommand == "layersetascent" || aCommand == "layersetascentpadding" ||
+        aCommand == "layersetlinespacingoffset" || aCommand == "layersetbaseorder" || aCommand == "layersetdrawmode")
     {
         if (theParams.mDataElements.size() != 3)
             return ReportError("Invalid Number of Parameters");
-        FontLayer* aLayer = nullptr;
+        FontLayer *aLayer = nullptr;
         if (DataToLayer(theParams.mDataElements[1], &aLayer) == 0)
             return ReportError("Invalid Paramater Type");
-        SingleDataElement* aValueElement =
-            static_cast<SingleDataElement*>(theParams.mDataElements[2]);
+        SingleDataElement *aValueElement = static_cast<SingleDataElement *>(theParams.mDataElements[2]);
         if (aValueElement->mElementKind != 0)
             return ReportError("Invalid Paramater Type");
         Sexy::String aText(aValueElement->mData);
@@ -528,7 +521,7 @@ bool Sexy::FontData::HandleCommand(Sexy::ListDataElement const& theParams)
     {
         if (theParams.mDataElements.size() != 3)
             return ReportError("Invalid Number of Parameters");
-        FontLayer* aLayer = nullptr;
+        FontLayer *aLayer = nullptr;
         if (DataToLayer(theParams.mDataElements[1], &aLayer) == 0)
             return ReportError("Invalid Paramater Type");
         std::vector<int> aValues;
@@ -543,13 +536,13 @@ bool Sexy::FontData::HandleCommand(Sexy::ListDataElement const& theParams)
     {
         if (theParams.mDataElements.size() != 4)
             return ReportError("Invalid Number of Parameters");
-        FontLayer* aLayer = nullptr;
+        FontLayer *aLayer = nullptr;
         if (DataToLayer(theParams.mDataElements[1], &aLayer) == 0)
             return ReportError("Invalid Paramater Type");
         std::vector<Sexy::String> aChars;
         std::vector<int> aWidths;
-        if (DataToStringVector(theParams.mDataElements[2], &aChars) == 0
-            || DataToIntVector(theParams.mDataElements[3], &aWidths) == 0)
+        if (DataToStringVector(theParams.mDataElements[2], &aChars) == 0 ||
+            DataToIntVector(theParams.mDataElements[3], &aWidths) == 0)
             return ReportError("Invalid Paramater Type");
         if (aChars.size() != aWidths.size())
             return ReportError("List Size Mismatch");
@@ -558,7 +551,7 @@ bool Sexy::FontData::HandleCommand(Sexy::ListDataElement const& theParams)
             int aChar = QuotedCodePoint(aChars[i]);
             if (aChar == 0)
                 return ReportError("Invalid Paramater Type");
-            CharData* aGlyph = aLayer->SetCharData(aChar);
+            CharData *aGlyph = aLayer->SetCharData(aChar);
             aGlyph->mAdvance = (unsigned short)aWidths[i];
         }
         return true;
@@ -568,7 +561,7 @@ bool Sexy::FontData::HandleCommand(Sexy::ListDataElement const& theParams)
     {
         if (theParams.mDataElements.size() < 3)
             return ReportError("Invalid Number of Parameters");
-        FontLayer* aLayer = nullptr;
+        FontLayer *aLayer = nullptr;
         if (DataToLayer(theParams.mDataElements[1], &aLayer) == 0)
             return ReportError("Invalid Paramater Type");
         Sexy::String aImageName;
@@ -581,8 +574,8 @@ bool Sexy::FontData::HandleCommand(Sexy::ListDataElement const& theParams)
         Sexy::String aPath = aDir + aImageName;
 
         SharedImageRef aImage;
-        SexyAppBase* anApp = gSexyAppBase;
-        ResourceManager* aRes = anApp != nullptr ? anApp->mResourceManager : nullptr;
+        SexyAppBase *anApp = gSexyAppBase;
+        ResourceManager *aRes = anApp != nullptr ? anApp->mResourceManager : nullptr;
         if (aRes != nullptr && mImageGroup.empty())
         {
             Sexy::String aId = aRes->GetIdByPath(aPath);
@@ -611,7 +604,7 @@ bool Sexy::FontData::HandleCommand(Sexy::ListDataElement const& theParams)
     {
         if (theParams.mDataElements.size() != 3)
             return ReportError("Invalid Number of Parameters");
-        FontLayer* aLayer = nullptr;
+        FontLayer *aLayer = nullptr;
         if (DataToLayer(theParams.mDataElements[1], &aLayer) == 0)
             return ReportError("Invalid Paramater Type");
         Sexy::String aFormat;
@@ -627,10 +620,10 @@ bool Sexy::FontData::HandleCommand(Sexy::ListDataElement const& theParams)
     {
         if (theParams.mDataElements.size() != 3)
             return ReportError("Invalid Number of Parameters");
-        FontLayer* aLayer = nullptr;
+        FontLayer *aLayer = nullptr;
         if (DataToLayer(theParams.mDataElements[1], &aLayer) == 0)
             return ReportError("Invalid Paramater Type");
-        Color& aTarget = aCommand == "layersetcolormult" ? aLayer->mColorMult : aLayer->mColorAdd;
+        Color &aTarget = aCommand == "layersetcolormult" ? aLayer->mColorMult : aLayer->mColorAdd;
         if (GetColorFromDataElement(theParams.mDataElements[2], aTarget) == 0)
             return ReportError("Invalid Paramater Type");
         return true;
@@ -642,10 +635,10 @@ bool Sexy::FontData::HandleCommand(Sexy::ListDataElement const& theParams)
             return ReportError("Invalid Number of Parameters");
         std::vector<Sexy::String> aChars;
         ListDataElement aOffsets;
-        FontLayer* aLayer = nullptr;
-        if (DataToLayer(theParams.mDataElements[1], &aLayer) == 0
-            || DataToStringVector(theParams.mDataElements[2], &aChars) == 0
-            || DataToList(theParams.mDataElements[3], &aOffsets) == 0)
+        FontLayer *aLayer = nullptr;
+        if (DataToLayer(theParams.mDataElements[1], &aLayer) == 0 ||
+            DataToStringVector(theParams.mDataElements[2], &aChars) == 0 ||
+            DataToList(theParams.mDataElements[3], &aOffsets) == 0)
             return ReportError("Invalid Paramater Type");
         if (aChars.size() != aOffsets.mDataElements.size())
             return ReportError("List Size Mismatch");
@@ -653,11 +646,9 @@ bool Sexy::FontData::HandleCommand(Sexy::ListDataElement const& theParams)
         {
             std::vector<int> aPair;
             int aChar = QuotedCodePoint(aChars[i]);
-            if (aChar == 0
-                || DataToIntVector(aOffsets.mDataElements[i], &aPair) == 0
-                || aPair.size() != 2)
+            if (aChar == 0 || DataToIntVector(aOffsets.mDataElements[i], &aPair) == 0 || aPair.size() != 2)
                 return ReportError("Invalid Paramater Type");
-            CharData* aGlyph = aLayer->GetCharData(aChar);
+            CharData *aGlyph = aLayer->GetCharData(aChar);
             aGlyph->mOffsetX = (unsigned short)aPair[0];
             aGlyph->mOffsetY = (unsigned short)aPair[1];
         }
@@ -671,10 +662,10 @@ bool Sexy::FontData::HandleCommand(Sexy::ListDataElement const& theParams)
             return ReportError("Invalid Number of Parameters");
         std::vector<Sexy::String> aPairs;
         std::vector<int> aAmounts;
-        FontLayer* aLayer = nullptr;
-        if (DataToLayer(theParams.mDataElements[1], &aLayer) == 0
-            || DataToStringVector(theParams.mDataElements[2], &aPairs) == 0
-            || DataToIntVector(theParams.mDataElements[3], &aAmounts) == 0)
+        FontLayer *aLayer = nullptr;
+        if (DataToLayer(theParams.mDataElements[1], &aLayer) == 0 ||
+            DataToStringVector(theParams.mDataElements[2], &aPairs) == 0 ||
+            DataToIntVector(theParams.mDataElements[3], &aAmounts) == 0)
             return ReportError("Invalid Paramater Type");
         if (aPairs.size() != aAmounts.size())
             return ReportError("List Size Mismatch");
@@ -701,7 +692,7 @@ bool Sexy::FontData::HandleCommand(Sexy::ListDataElement const& theParams)
         {
             aLayer->mKerningValues[j].mSecondChar = aKerns[j].mSecond;
             aLayer->mKerningValues[j].mAmount = aKerns[j].mAmount;
-            CharData* aGlyph = aLayer->GetCharData(aKerns[j].mChar);
+            CharData *aGlyph = aLayer->GetCharData(aKerns[j].mChar);
             if (aGlyph->mKernCount == 0)
                 aGlyph->mKernIndex = (unsigned short)j;
             aGlyph->mKernCount = (unsigned short)(aGlyph->mKernCount + 1);
@@ -715,10 +706,10 @@ bool Sexy::FontData::HandleCommand(Sexy::ListDataElement const& theParams)
             return ReportError("Invalid Number of Parameters");
         std::vector<Sexy::String> aChars;
         std::vector<int> aOrders;
-        FontLayer* aLayer = nullptr;
-        if (DataToLayer(theParams.mDataElements[1], &aLayer) == 0
-            || DataToStringVector(theParams.mDataElements[2], &aChars) == 0
-            || DataToIntVector(theParams.mDataElements[3], &aOrders) == 0)
+        FontLayer *aLayer = nullptr;
+        if (DataToLayer(theParams.mDataElements[1], &aLayer) == 0 ||
+            DataToStringVector(theParams.mDataElements[2], &aChars) == 0 ||
+            DataToIntVector(theParams.mDataElements[3], &aOrders) == 0)
             return ReportError("Invalid Paramater Type");
         if (aChars.size() != aOrders.size())
             return ReportError("List Size Mismatch");
@@ -727,7 +718,7 @@ bool Sexy::FontData::HandleCommand(Sexy::ListDataElement const& theParams)
             int aChar = QuotedCodePoint(aChars[i]);
             if (aChar == 0)
                 return ReportError("Invalid Paramater Type");
-            CharData* aGlyph = aLayer->GetCharData(aChar);
+            CharData *aGlyph = aLayer->GetCharData(aChar);
             aGlyph->mCharOrder = (unsigned short)aOrders[i];
         }
         return true;
@@ -739,10 +730,10 @@ bool Sexy::FontData::HandleCommand(Sexy::ListDataElement const& theParams)
             return ReportError("Invalid Number of Parameters");
         std::vector<Sexy::String> aKeys;
         std::vector<Sexy::String> aValues;
-        FontLayer* aLayer = nullptr;
-        if (DataToLayer(theParams.mDataElements[1], &aLayer) == 0
-            || DataToStringVector(theParams.mDataElements[2], &aKeys) == 0
-            || DataToStringVector(theParams.mDataElements[3], &aValues) == 0)
+        FontLayer *aLayer = nullptr;
+        if (DataToLayer(theParams.mDataElements[1], &aLayer) == 0 ||
+            DataToStringVector(theParams.mDataElements[2], &aKeys) == 0 ||
+            DataToStringVector(theParams.mDataElements[3], &aValues) == 0)
             return ReportError("Invalid Paramater Type");
         if (aKeys.size() != aValues.size())
             return ReportError("List Size Mismatch");
@@ -755,7 +746,7 @@ bool Sexy::FontData::HandleCommand(Sexy::ListDataElement const& theParams)
     {
         if (theParams.mDataElements.size() != 3)
             return ReportError("Invalid Number of Parameters");
-        FontLayer* aLayer = nullptr;
+        FontLayer *aLayer = nullptr;
         if (DataToLayer(theParams.mDataElements[1], &aLayer) == 0)
             return ReportError("Invalid Paramater Type");
         int aValue = 0;
@@ -771,10 +762,10 @@ bool Sexy::FontData::HandleCommand(Sexy::ListDataElement const& theParams)
             return ReportError("Invalid Number of Parameters");
         std::vector<Sexy::String> aChars;
         ListDataElement aRects;
-        FontLayer* aLayer = nullptr;
-        if (DataToLayer(theParams.mDataElements[1], &aLayer) == 0
-            || DataToStringVector(theParams.mDataElements[2], &aChars) == 0
-            || DataToList(theParams.mDataElements[3], &aRects) == 0)
+        FontLayer *aLayer = nullptr;
+        if (DataToLayer(theParams.mDataElements[1], &aLayer) == 0 ||
+            DataToStringVector(theParams.mDataElements[2], &aChars) == 0 ||
+            DataToList(theParams.mDataElements[3], &aRects) == 0)
             return ReportError("Invalid Paramater Type");
         if (aChars.size() != aRects.mDataElements.size())
             return ReportError("List Size Mismatch");
@@ -787,9 +778,7 @@ bool Sexy::FontData::HandleCommand(Sexy::ListDataElement const& theParams)
         {
             std::vector<int> aRect;
             int aChar = QuotedCodePoint(aChars[i]);
-            if (aChar == 0
-                || DataToIntVector(aRects.mDataElements[i], &aRect) == 0
-                || aRect.size() != 4)
+            if (aChar == 0 || DataToIntVector(aRects.mDataElements[i], &aRect) == 0 || aRect.size() != 4)
                 return ReportError("Invalid Paramater Type");
             short aX = (short)aRect[0];
             short aY = (short)aRect[1];
@@ -818,7 +807,7 @@ bool Sexy::FontData::HandleCommand(Sexy::ListDataElement const& theParams)
                 aW = (short)(aRight - aX);
                 aH = (short)(aBottom - aY);
             }
-            CharData* aGlyph = aLayer->GetCharData(aChar);
+            CharData *aGlyph = aLayer->GetCharData(aChar);
             aGlyph->mX = (unsigned short)aX;
             aGlyph->mY = (unsigned short)aY;
             aGlyph->mWidth = (unsigned short)aW;
@@ -837,18 +826,18 @@ bool Sexy::FontData::HandleCommand(Sexy::ListDataElement const& theParams)
         if (theParams.mDataElements[1]->mElementKind != 0)
             return ReportError("Invalid Paramater Type");
 
-        SingleDataElement* aName = static_cast<SingleDataElement*>(theParams.mDataElements[1]);
+        SingleDataElement *aName = static_cast<SingleDataElement *>(theParams.mDataElements[1]);
         Sexy::String aKey;
         StringToUpper(&aKey, aName->mData.c_str());
         if (IsImmediate(aKey) != 0)
             return ReportError("Invalid Paramater Type");
 
-        DataElement* aValueElement = theParams.mDataElements[2];
-        DataElement* aStored = nullptr;
+        DataElement *aValueElement = theParams.mDataElements[2];
+        DataElement *aStored = nullptr;
         if (aValueElement->mElementKind != 0)
         {
-            ListDataElement* aValues = new ListDataElement();
-            if (GetValues(static_cast<ListDataElement*>(aValueElement), aValues) == 0)
+            ListDataElement *aValues = new ListDataElement();
+            if (GetValues(static_cast<ListDataElement *>(aValueElement), aValues) == 0)
             {
                 delete aValues;
                 return false;
@@ -857,8 +846,8 @@ bool Sexy::FontData::HandleCommand(Sexy::ListDataElement const& theParams)
         }
         else
         {
-            SingleDataElement* aSingle = static_cast<SingleDataElement*>(aValueElement);
-            DataElement* aResolved = Dereference(aSingle->mData);
+            SingleDataElement *aSingle = static_cast<SingleDataElement *>(aValueElement);
+            DataElement *aResolved = Dereference(aSingle->mData);
             aStored = (aResolved != nullptr) ? aResolved->Duplicate() : aValueElement->Duplicate();
         }
         StoreDefine(mDefineMap, aKey, aStored);
@@ -868,11 +857,11 @@ bool Sexy::FontData::HandleCommand(Sexy::ListDataElement const& theParams)
     if (theParams.mDataElements.size() < 2)
         return false;
 
-    SingleDataElement* aParam = static_cast<SingleDataElement*>(theParams.mDataElements[1]);
+    SingleDataElement *aParam = static_cast<SingleDataElement *>(theParams.mDataElements[1]);
     if (aParam->mElementKind != 0)
     {
-        ListDataElement* aValues = new ListDataElement();
-        if (GetValues(static_cast<ListDataElement*>(theParams.mDataElements[1]), aValues) == 0)
+        ListDataElement *aValues = new ListDataElement();
+        if (GetValues(static_cast<ListDataElement *>(theParams.mDataElements[1]), aValues) == 0)
         {
             delete aValues;
             return false;
@@ -886,7 +875,7 @@ bool Sexy::FontData::HandleCommand(Sexy::ListDataElement const& theParams)
     if (IsImmediate(aKey) != 0)
         return false;
 
-    DataElement* aValue = Dereference(aParam->mData);
+    DataElement *aValue = Dereference(aParam->mData);
     if (aValue == nullptr)
         aValue = aParam->Duplicate();
     else

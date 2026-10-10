@@ -19,14 +19,16 @@
 // `Sexy\DriverFactory.h` now declares the base, so the chain is spelled out
 // below; the seven raw words this header used to carry were the base's fields.
 
-#pragma once
+#ifndef LAWNPROJECTTV_SEXY_INCLUDE_INPUTDRIVERFACTORY_H
+#define LAWNPROJECTTV_SEXY_INCLUDE_INPUTDRIVERFACTORY_H
 
 #include "ReconTypes.h"
 // Classes this one calls a method on: the call needs the
 // complete type, so they are included rather than declared.
 #include "DriverFactory.h"
 
-namespace Sexy {
+namespace Sexy
+{
 
 class InputDriverFactory : public DriverFactory
 {
@@ -35,7 +37,7 @@ public:
     ~InputDriverFactory();
     // STATIC in the binary: the mangled name carries no receiver and the body
     // never reads one -- it allocates the singleton on first use and returns it.
-    static InputDriverFactory* GetInputDriverFactory();
+    static InputDriverFactory *GetInputDriverFactory();
     void Load();
 };
 
@@ -43,3 +45,5 @@ public:
 
 // The global spelling, which the transcribed bodies use.
 using Sexy::InputDriverFactory;
+
+#endif // LAWNPROJECTTV_SEXY_INCLUDE_INPUTDRIVERFACTORY_H

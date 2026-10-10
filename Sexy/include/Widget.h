@@ -8,14 +8,16 @@
 // Virtual order matches the binary so overrides in src/Game still bind.
 // WidgetContainer owns slots before these. Do not reorder the declarations.
 
-#pragma once
+#ifndef LAWNPROJECTTV_SEXY_INCLUDE_WIDGET_H
+#define LAWNPROJECTTV_SEXY_INCLUDE_WIDGET_H
 
 #include "Graphics.h"
 #include "SharedImageRef.h"
 #include "WidgetContainer.h"
 #include <vector>
 
-namespace Sexy {
+namespace Sexy
+{
 
 // One finger. ConvertTouchEvents builds one of these from one Event.
 // Phase is 0 down, 1 moved, 3 up, 4 cancelled.
@@ -110,19 +112,15 @@ public:
     virtual bool IsPointVisible(int x, int y);
     virtual bool IsOnScreen();
     virtual TRect<int> WriteCenteredLine(Sexy::Graphics *g, int y, const Sexy::String &text);
-    virtual TRect<int> WriteCenteredLine(Sexy::Graphics *g, int y, const Sexy::String &text,
-                                   Color color1, Color color2, const TPoint<int> &offset);
-    virtual void WriteString(Sexy::Graphics *g, const Sexy::String &text, int x, int y,
-                             int width, int justification, bool drawString, int offset,
-                             int length);
-    virtual void WriteWordWrapped(Sexy::Graphics *g, const TRect<int> &rect,
-                                  const Sexy::String &text, int lineSpacing,
-                                  int justification);
-    virtual int GetWordWrappedHeight(Sexy::Graphics *g, int width, const Sexy::String &text,
-                                     int lineSpacing);
+    virtual TRect<int> WriteCenteredLine(
+        Sexy::Graphics *g, int y, const Sexy::String &text, Color color1, Color color2, const TPoint<int> &offset);
+    virtual void WriteString(Sexy::Graphics *g, const Sexy::String &text, int x, int y, int width, int justification,
+        bool drawString, int offset, int length);
+    virtual void WriteWordWrapped(
+        Sexy::Graphics *g, const TRect<int> &rect, const Sexy::String &text, int lineSpacing, int justification);
+    virtual int GetWordWrappedHeight(Sexy::Graphics *g, int width, const Sexy::String &text, int lineSpacing);
     virtual int GetNumDigits(int number);
-    virtual void WriteNumberFromStrip(Sexy::Graphics *g, int number, int x, int y,
-                                      Sexy::Image *image, int digitWidth);
+    virtual void WriteNumberFromStrip(Sexy::Graphics *g, int number, int x, int y, Sexy::Image *image, int digitWidth);
     virtual bool Contains(int x, int y);
     virtual TRect<int> GetInsetRect();
     virtual Widget *FindFocusableWidget(int direction, Widget *relativeWidget);
@@ -147,7 +145,8 @@ public:
     Sexy::WidgetAnimator *GetAnimator();
     Sexy::WidgetAnimator *SetAnimatorForState(Sexy::WidgetAnimationState theState, Sexy::WidgetAnimator *theAnimator);
     Sexy::WidgetAnimator *GetAnimatorForState(Sexy::WidgetAnimationState theState);
-    int Layout(int theLayoutFlags, Sexy::Widget *theRelativeWidget, int theLeftPad, int theTopPad, int theWidthPad, int theHeightPad);
+    int Layout(int theLayoutFlags, Sexy::Widget *theRelativeWidget, int theLeftPad, int theTopPad, int theWidthPad,
+        int theHeightPad);
     void RemovedSharedImages();
 
     // Copied into mAddToManager by the constructor.
@@ -192,3 +191,5 @@ public:
 } // namespace Sexy
 
 using Sexy::Widget;
+
+#endif // LAWNPROJECTTV_SEXY_INCLUDE_WIDGET_H

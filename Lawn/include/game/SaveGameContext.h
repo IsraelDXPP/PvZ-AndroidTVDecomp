@@ -17,7 +17,8 @@
 // The transcribed class body, an opaque 0x28-byte block, covered both classes at
 // once.
 
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_SAVEGAMECONTEXT_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_SAVEGAMECONTEXT_H
 
 #include "ReconTypes.h"
 // The base must be complete, and the definitions below are method parameters.
@@ -31,8 +32,8 @@ class SaveGameContext : public Sexy::Buffer
 public:
     // TODO(recon): the authoritative tree has no header for this class, so the two
     // flags below carry names derived from their use rather than from a symbol.
-    bool mReadError = false;  // +0x1C  set when a read found fewer bytes than it needed
-    bool mReading = false;    // +0x1D  non-zero selects the read path, zero the write path
+    bool mReadError = false; // +0x1C  set when a read found fewer bytes than it needed
+    bool mReading = false; // +0x1D  non-zero selects the read path, zero the write path
     bool mVersionMismatch = false; // Recreate the level without reading an incompatible payload.
 
     int ByteLeftToRead();
@@ -42,5 +43,7 @@ public:
     int SyncReanimationDef(ReanimatorDefinition *&theDef);
     unsigned int SyncParticleDef(TodParticleDefinition *&theDef);
     unsigned int SyncTrailDef(TrailDefinition *&theDef);
-    Sexy::Image * SyncImage(Sexy::Image *&theImage);
+    Sexy::Image *SyncImage(Sexy::Image *&theImage);
 };
+
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_SAVEGAMECONTEXT_H

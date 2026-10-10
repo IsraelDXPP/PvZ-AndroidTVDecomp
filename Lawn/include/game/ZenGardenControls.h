@@ -19,7 +19,8 @@
 // destructor are the ones declared as overrides here.
 // Draw overrides the Graphics* callback in GamepadControls.
 
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_ZENGARDENCONTROLS_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_ZENGARDENCONTROLS_H
 
 #include "ReconTypes.h"
 // Classes this one calls a method on: the call needs the
@@ -45,15 +46,17 @@ public:
     GameObjectType mSelectedTool; // +0x108, tool restored after its animation
     // size 0x10C
 
-    virtual ~ZenGardenControls();                                        // [16] 0x040
+    virtual ~ZenGardenControls(); // [16] 0x040
 
     // ---- replacements for GamepadControls' slots ----
     virtual void OnButtonDown(int theButton, int thePlayerIndex, unsigned int theFlags); // [ 0] 0x000
-    virtual bool OnKeyDown(Sexy::KeyCode theKey, unsigned int theFlags);                 // [ 3] 0x00C
-    virtual int Update(float theDeltaTime);                                              // [ 5] 0x014
+    virtual bool OnKeyDown(Sexy::KeyCode theKey, unsigned int theFlags); // [ 3] 0x00C
+    virtual int Update(float theDeltaTime); // [ 5] 0x014
     virtual void OnButtonUp(int theButton, int thePlayerIndex, unsigned int theFlags);
     virtual void OnGameAxisMove(int theAxis, int theValue, int thePlayerIndex);
     void Draw(Sexy::Graphics *theGraphics) override;
 
-    ZenGardenControls(Board * theBoard, int thePlayerIndex1, int thePlayerIndex2);
+    ZenGardenControls(Board *theBoard, int thePlayerIndex1, int thePlayerIndex2);
 };
+
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_ZENGARDENCONTROLS_H

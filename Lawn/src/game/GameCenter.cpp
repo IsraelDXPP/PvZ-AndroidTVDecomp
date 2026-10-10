@@ -60,13 +60,13 @@ int __imp__ZN6Native10GameCenter12inviteFriendERKNS0_6FriendERKSs(...);
 // parameters the mangled names give them, which forwards a reference to an
 // incomplete type fine.
 int __imp__ZN6Native10GameCenter8rechargeERKNS0_12RechargeArgsE(
-    Native::GameCenter * theObject, Native::GameCenter_RechargeArgs const& theArgs);
+    Native::GameCenter *theObject, Native::GameCenter_RechargeArgs const &theArgs);
 int __imp__ZN6Native10GameCenter8purchaseERKNS0_7PaymentE(
-    Native::GameCenter * theObject, Native::GameCenter_Payment const& thePayment);
+    Native::GameCenter *theObject, Native::GameCenter_Payment const &thePayment);
 int __imp__ZN6Native10GameCenter11sendMessageERKNS0_7MessageE(
-    Native::GameCenter * theObject, Native::GameCenter_Message const& theMessage);
+    Native::GameCenter *theObject, Native::GameCenter_Message const &theMessage);
 int __imp__ZN6Native10GameCenter11reportScoreERKNS0_5ScoreE(
-    Native::GameCenter * theObject, Native::GameCenter_Score const& theScore);
+    Native::GameCenter *theObject, Native::GameCenter_Score const &theScore);
 int __imp__ZN6Native10GameCenter10getFriendsEv(...);
 int __imp__ZN6Native10GameCenter19getInvitableFriendsEv(...);
 // ==========================================================================
@@ -75,7 +75,7 @@ int __imp__ZN6Native10GameCenter19getInvitableFriendsEv(...);
 // ==========================================================================
 int Native::GameCenter::setListener(Listener *theListener)
 {
-  return __imp__ZN6Native10GameCenter11setListenerEPNS0_8ListenerE(theListener);
+    return __imp__ZN6Native10GameCenter11setListenerEPNS0_8ListenerE(theListener);
 }
 
 // ==========================================================================
@@ -84,7 +84,7 @@ int Native::GameCenter::setListener(Listener *theListener)
 // ==========================================================================
 int Native::GameCenter::create()
 {
-  return __imp__ZN6Native10GameCenter6createEv(this);
+    return __imp__ZN6Native10GameCenter6createEv(this);
 }
 
 // ==========================================================================
@@ -93,7 +93,7 @@ int Native::GameCenter::create()
 // ==========================================================================
 int Native::GameCenter::getFeatures()
 {
-  return __imp__ZN6Native10GameCenter11getFeaturesEv(this);
+    return __imp__ZN6Native10GameCenter11getFeaturesEv(this);
 }
 
 // ==========================================================================
@@ -102,7 +102,7 @@ int Native::GameCenter::getFeatures()
 // ==========================================================================
 int Native::GameCenter::getName()
 {
-  return __imp__ZNK6Native10GameCenter7getNameEv(this);
+    return __imp__ZNK6Native10GameCenter7getNameEv(this);
 }
 
 // ==========================================================================
@@ -111,7 +111,7 @@ int Native::GameCenter::getName()
 // ==========================================================================
 int Native::GameCenter::getUserTag()
 {
-  return __imp__ZN6Native10GameCenter10getUserTagEv(this);
+    return __imp__ZN6Native10GameCenter10getUserTagEv(this);
 }
 
 // ==========================================================================
@@ -120,7 +120,7 @@ int Native::GameCenter::getUserTag()
 // ==========================================================================
 int Native::GameCenter::generateOrderId()
 {
-  return __imp__ZN6Native10GameCenter15generateOrderIdEv(this);
+    return __imp__ZN6Native10GameCenter15generateOrderIdEv(this);
 }
 
 // ==========================================================================
@@ -129,7 +129,7 @@ int Native::GameCenter::generateOrderId()
 // ==========================================================================
 int Native::GameCenter::getCurrency()
 {
-  return __imp__ZN6Native10GameCenter11getCurrencyEv(this);
+    return __imp__ZN6Native10GameCenter11getCurrencyEv(this);
 }
 
 // ==========================================================================
@@ -138,7 +138,7 @@ int Native::GameCenter::getCurrency()
 // ==========================================================================
 int Native::GameCenter::canMakePurchase()
 {
-  return __imp__ZN6Native10GameCenter15canMakePurchaseEv(this);
+    return __imp__ZN6Native10GameCenter15canMakePurchaseEv(this);
 }
 
 // ==========================================================================
@@ -147,7 +147,7 @@ int Native::GameCenter::canMakePurchase()
 // ==========================================================================
 int Native::GameCenter::queryProducts()
 {
-  return __imp__ZN6Native10GameCenter13queryProductsEv(this);
+    return __imp__ZN6Native10GameCenter13queryProductsEv(this);
 }
 
 // ==========================================================================
@@ -156,7 +156,7 @@ int Native::GameCenter::queryProducts()
 // ==========================================================================
 int Native::GameCenter::isQueryingProducts()
 {
-  return __imp__ZN6Native10GameCenter18isQueryingProductsEv(this);
+    return __imp__ZN6Native10GameCenter18isQueryingProductsEv(this);
 }
 
 // ==========================================================================
@@ -165,7 +165,7 @@ int Native::GameCenter::isQueryingProducts()
 // ==========================================================================
 int Native::GameCenter::getPurchaseFeatures()
 {
-  return __imp__ZN6Native10GameCenter19getPurchaseFeaturesEv(this);
+    return __imp__ZN6Native10GameCenter19getPurchaseFeaturesEv(this);
 }
 
 // ==========================================================================
@@ -174,7 +174,7 @@ int Native::GameCenter::getPurchaseFeatures()
 // ==========================================================================
 int Native::GameCenter::getAntiAddictionState()
 {
-  return __imp__ZN6Native10GameCenter21getAntiAddictionStateEv(this);
+    return __imp__ZN6Native10GameCenter21getAntiAddictionStateEv(this);
 }
 
 // ==========================================================================
@@ -183,7 +183,7 @@ int Native::GameCenter::getAntiAddictionState()
 // ==========================================================================
 int Native::GameCenter::queryAntiAddiction()
 {
-  return __imp__ZN6Native10GameCenter18queryAntiAddictionEv(this);
+    return __imp__ZN6Native10GameCenter18queryAntiAddictionEv(this);
 }
 
 // ==========================================================================
@@ -192,7 +192,7 @@ int Native::GameCenter::queryAntiAddiction()
 // ==========================================================================
 int Native::GameCenter::setProperty()
 {
-  return __imp__ZN6Native10GameCenter11setPropertyERKSsS2_();
+    return __imp__ZN6Native10GameCenter11setPropertyERKSsS2_();
 }
 
 // ==========================================================================
@@ -201,7 +201,7 @@ int Native::GameCenter::setProperty()
 // ==========================================================================
 int Native::GameCenter::getProperty()
 {
-  return __imp__ZN6Native10GameCenter11getPropertyERKSs();
+    return __imp__ZN6Native10GameCenter11getPropertyERKSs();
 }
 
 // ==========================================================================
@@ -210,7 +210,7 @@ int Native::GameCenter::getProperty()
 // ==========================================================================
 int Native::GameCenter::hasProperty()
 {
-  return __imp__ZN6Native10GameCenter11hasPropertyERKSs();
+    return __imp__ZN6Native10GameCenter11hasPropertyERKSs();
 }
 
 // ==========================================================================
@@ -219,7 +219,7 @@ int Native::GameCenter::hasProperty()
 // ==========================================================================
 int Native::GameCenter::queryFriends()
 {
-  return __imp__ZN6Native10GameCenter12queryFriendsEv(this);
+    return __imp__ZN6Native10GameCenter12queryFriendsEv(this);
 }
 
 // ==========================================================================
@@ -228,7 +228,7 @@ int Native::GameCenter::queryFriends()
 // ==========================================================================
 int Native::GameCenter::queryInvitableFriends()
 {
-  return __imp__ZN6Native10GameCenter21queryInvitableFriendsEv(this);
+    return __imp__ZN6Native10GameCenter21queryInvitableFriendsEv(this);
 }
 
 // ==========================================================================
@@ -237,7 +237,7 @@ int Native::GameCenter::queryInvitableFriends()
 // ==========================================================================
 int Native::GameCenter::addFriends()
 {
-  return __imp__ZN6Native10GameCenter10addFriendsEv(this);
+    return __imp__ZN6Native10GameCenter10addFriendsEv(this);
 }
 
 // ==========================================================================
@@ -246,7 +246,7 @@ int Native::GameCenter::addFriends()
 // ==========================================================================
 int Native::GameCenter::isLoggedIn()
 {
-  return __imp__ZN6Native10GameCenter10isLoggedInEv(this);
+    return __imp__ZN6Native10GameCenter10isLoggedInEv(this);
 }
 
 // ==========================================================================
@@ -255,7 +255,7 @@ int Native::GameCenter::isLoggedIn()
 // ==========================================================================
 int Native::GameCenter::getLoginState()
 {
-  return __imp__ZN6Native10GameCenter13getLoginStateEv(this);
+    return __imp__ZN6Native10GameCenter13getLoginStateEv(this);
 }
 
 // ==========================================================================
@@ -264,7 +264,7 @@ int Native::GameCenter::getLoginState()
 // ==========================================================================
 int Native::GameCenter::login(int theMode)
 {
-  return __imp__ZN6Native10GameCenter5loginEi(this, theMode);
+    return __imp__ZN6Native10GameCenter5loginEi(this, theMode);
 }
 
 // ==========================================================================
@@ -273,7 +273,7 @@ int Native::GameCenter::login(int theMode)
 // ==========================================================================
 int Native::GameCenter::logout()
 {
-  return __imp__ZN6Native10GameCenter6logoutEv(this);
+    return __imp__ZN6Native10GameCenter6logoutEv(this);
 }
 
 // ==========================================================================
@@ -282,7 +282,7 @@ int Native::GameCenter::logout()
 // ==========================================================================
 int Native::GameCenter::switchAccount()
 {
-  return __imp__ZN6Native10GameCenter13switchAccountEv(this);
+    return __imp__ZN6Native10GameCenter13switchAccountEv(this);
 }
 
 // ==========================================================================
@@ -291,7 +291,7 @@ int Native::GameCenter::switchAccount()
 // ==========================================================================
 int Native::GameCenter::getUserId()
 {
-  return __imp__ZN6Native10GameCenter9getUserIdEv(this);
+    return __imp__ZN6Native10GameCenter9getUserIdEv(this);
 }
 
 // ==========================================================================
@@ -300,7 +300,7 @@ int Native::GameCenter::getUserId()
 // ==========================================================================
 int Native::GameCenter::getUserName()
 {
-  return __imp__ZN6Native10GameCenter11getUserNameEv(this);
+    return __imp__ZN6Native10GameCenter11getUserNameEv(this);
 }
 
 // ==========================================================================
@@ -309,7 +309,7 @@ int Native::GameCenter::getUserName()
 // ==========================================================================
 int Native::GameCenter::getSessionId()
 {
-  return __imp__ZN6Native10GameCenter12getSessionIdEv(this);
+    return __imp__ZN6Native10GameCenter12getSessionIdEv(this);
 }
 
 // ==========================================================================
@@ -318,7 +318,7 @@ int Native::GameCenter::getSessionId()
 // ==========================================================================
 int Native::GameCenter::show()
 {
-  return __imp__ZN6Native10GameCenter4showERKSs();
+    return __imp__ZN6Native10GameCenter4showERKSs();
 }
 
 // ==========================================================================
@@ -327,25 +327,25 @@ int Native::GameCenter::show()
 // ==========================================================================
 int Native::GameCenter::hide()
 {
-  return __imp__ZN6Native10GameCenter4hideERKSs();
+    return __imp__ZN6Native10GameCenter4hideERKSs();
 }
 
 // ==========================================================================
 // Native::GameCenter::recharge(Native::GameCenter::RechargeArgs const&)
 // @0012EA54  12 bytes
 // ==========================================================================
-int Native::GameCenter::recharge(Native::GameCenter_RechargeArgs const& theArgs)
+int Native::GameCenter::recharge(Native::GameCenter_RechargeArgs const &theArgs)
 {
-  return __imp__ZN6Native10GameCenter8rechargeERKNS0_12RechargeArgsE(this, theArgs);
+    return __imp__ZN6Native10GameCenter8rechargeERKNS0_12RechargeArgsE(this, theArgs);
 }
 
 // ==========================================================================
 // Native::GameCenter::purchase(Native::GameCenter::Payment const&)
 // @0012EA60  12 bytes
 // ==========================================================================
-int Native::GameCenter::purchase(Native::GameCenter_Payment const& thePayment)
+int Native::GameCenter::purchase(Native::GameCenter_Payment const &thePayment)
 {
-  return __imp__ZN6Native10GameCenter8purchaseERKNS0_7PaymentE(this, thePayment);
+    return __imp__ZN6Native10GameCenter8purchaseERKNS0_7PaymentE(this, thePayment);
 }
 
 // ==========================================================================
@@ -354,25 +354,25 @@ int Native::GameCenter::purchase(Native::GameCenter_Payment const& thePayment)
 // ==========================================================================
 int Native::GameCenter::inviteFriend()
 {
-  return __imp__ZN6Native10GameCenter12inviteFriendERKNS0_6FriendERKSs();
+    return __imp__ZN6Native10GameCenter12inviteFriendERKNS0_6FriendERKSs();
 }
 
 // ==========================================================================
 // Native::GameCenter::sendMessage(Native::GameCenter::Message const&)
 // @0012EA78  12 bytes
 // ==========================================================================
-int Native::GameCenter::sendMessage(Native::GameCenter_Message const& theMessage)
+int Native::GameCenter::sendMessage(Native::GameCenter_Message const &theMessage)
 {
-  return __imp__ZN6Native10GameCenter11sendMessageERKNS0_7MessageE(this, theMessage);
+    return __imp__ZN6Native10GameCenter11sendMessageERKNS0_7MessageE(this, theMessage);
 }
 
 // ==========================================================================
 // Native::GameCenter::reportScore(Native::GameCenter::Score const&)
 // @0012EA84  12 bytes
 // ==========================================================================
-int Native::GameCenter::reportScore(Native::GameCenter_Score const& theScore)
+int Native::GameCenter::reportScore(Native::GameCenter_Score const &theScore)
 {
-  return __imp__ZN6Native10GameCenter11reportScoreERKNS0_5ScoreE(this, theScore);
+    return __imp__ZN6Native10GameCenter11reportScoreERKNS0_5ScoreE(this, theScore);
 }
 
 // ==========================================================================
@@ -381,7 +381,7 @@ int Native::GameCenter::reportScore(Native::GameCenter_Score const& theScore)
 // ==========================================================================
 int Native::GameCenter::getFriends()
 {
-  return __imp__ZN6Native10GameCenter10getFriendsEv(this);
+    return __imp__ZN6Native10GameCenter10getFriendsEv(this);
 }
 
 // ==========================================================================
@@ -390,5 +390,5 @@ int Native::GameCenter::getFriends()
 // ==========================================================================
 int Native::GameCenter::getInvitableFriends()
 {
-  return __imp__ZN6Native10GameCenter19getInvitableFriendsEv(this);
+    return __imp__ZN6Native10GameCenter19getInvitableFriendsEv(this);
 }

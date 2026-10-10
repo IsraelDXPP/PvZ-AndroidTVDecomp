@@ -11,9 +11,7 @@
 // ==========================================================================
 // The binary's body is the 14-byte vptr store alone, so with `virtual` declared
 // on the header the body is empty and the compiler emits the store itself.
-Sexy::RefCount::~RefCount()
-{
-}
+Sexy::RefCount::~RefCount() {}
 
 // ==========================================================================
 // Sexy::RefCount::Release()

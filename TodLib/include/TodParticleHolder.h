@@ -1,4 +1,5 @@
-#pragma once
+#ifndef LAWNPROJECTTV_TODLIB_INCLUDE_TODPARTICLEHOLDER_H
+#define LAWNPROJECTTV_TODLIB_INCLUDE_TODPARTICLEHOLDER_H
 
 #include "ReconTypes.h"
 #include "TodAllocator.h"
@@ -27,9 +28,10 @@ public:
     void DisposeHolder();
     ~TodParticleHolder();
 
-    TodParticleSystem *AllocParticleSystemFromDef(
-        float theX, float theY, int theRenderOrder,
+    TodParticleSystem *AllocParticleSystemFromDef(float theX, float theY, int theRenderOrder,
         TodParticleDefinition *theDefinition, ParticleEffect theParticleEffect);
     TodParticleSystem *AllocParticleSystem(
         float theX, float theY, int theRenderOrder, ParticleEffect theParticleEffect);
 };
+
+#endif // LAWNPROJECTTV_TODLIB_INCLUDE_TODPARTICLEHOLDER_H

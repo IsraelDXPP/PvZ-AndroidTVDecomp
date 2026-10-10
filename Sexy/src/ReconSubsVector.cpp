@@ -35,8 +35,8 @@ enum
 
 struct ListLink
 {
-    ListLink* mNext;
-    ListLink* mPrev;
+    ListLink *mNext;
+    ListLink *mPrev;
 };
 
 struct IosFields
@@ -47,38 +47,38 @@ struct IosFields
     int mException;
     int mState;
     int mMiddle[22];
-    void* mTie;
+    void *mTie;
     unsigned char mFill;
     unsigned char mFillInit;
     unsigned char mFillPad[2];
-    void* mStreambuf;
-    void* mCtype;
-    void* mNumPut;
-    void* mNumGet;
+    void *mStreambuf;
+    void *mCtype;
+    void *mNumPut;
+    void *mNumGet;
 };
 
 struct BufferFields
 {
-    void* mStreambufVptr;
-    unsigned char* mGetBegin;
-    unsigned char* mGet;
-    unsigned char* mGetEnd;
-    void* mPutBegin;
-    unsigned char* mPut;
-    unsigned char* mPutEnd;
+    void *mStreambufVptr;
+    unsigned char *mGetBegin;
+    unsigned char *mGet;
+    unsigned char *mGetEnd;
+    void *mPutBegin;
+    unsigned char *mPut;
+    unsigned char *mPutEnd;
 };
 
-IosFields* AsIos(void* theIos)
+IosFields *AsIos(void *theIos)
 {
-    return (IosFields*)theIos;
+    return (IosFields *)theIos;
 }
 
-BufferFields* AsBuffer(void* theBuffer)
+BufferFields *AsBuffer(void *theBuffer)
 {
-    return (BufferFields*)theBuffer;
+    return (BufferFields *)theBuffer;
 }
 
-IosFields* StreamIos(void* theStream)
+IosFields *StreamIos(void *theStream)
 {
     if (theStream == nullptr)
         return nullptr;
@@ -87,8 +87,8 @@ IosFields* StreamIos(void* theStream)
 
 bool IsCtypeSpace(int theChar)
 {
-    return theChar == ' ' || theChar == '\t' || theChar == '\n' ||
-           theChar == '\v' || theChar == '\f' || theChar == '\r';
+    return theChar == ' ' || theChar == '\t' || theChar == '\n' || theChar == '\v' || theChar == '\f' ||
+        theChar == '\r';
 }
 
 bool UncaughtException()
@@ -96,21 +96,21 @@ bool UncaughtException()
     return std::uncaught_exceptions() > 0;
 }
 
-typedef int (*BufferIntFn)(void* theBuffer);
-typedef int (*BufferCharFn)(void* theBuffer, int theChar);
-typedef int (*BufferRangeFn)(void* theBuffer, const char* theData, int theCount);
+typedef int (*BufferIntFn)(void *theBuffer);
+typedef int (*BufferCharFn)(void *theBuffer, int theChar);
+typedef int (*BufferRangeFn)(void *theBuffer, const char *theData, int theCount);
 
-void* SlotFn(void* theObject, int theSlot)
+void *SlotFn(void *theObject, int theSlot)
 {
     if (theObject == nullptr)
         return nullptr;
-    void** aVtable = *(void***)theObject;
+    void **aVtable = *(void ***)theObject;
     if (aVtable == nullptr)
         return nullptr;
     return aVtable[theSlot];
 }
 
-int StreamUnderflow(void* theBuffer)
+int StreamUnderflow(void *theBuffer)
 {
     BufferIntFn aFn = (BufferIntFn)SlotFn(theBuffer, 8);
     if (aFn == nullptr)
@@ -118,7 +118,7 @@ int StreamUnderflow(void* theBuffer)
     return aFn(theBuffer);
 }
 
-int StreamUflow(void* theBuffer)
+int StreamUflow(void *theBuffer)
 {
     BufferIntFn aFn = (BufferIntFn)SlotFn(theBuffer, 9);
     if (aFn == nullptr)
@@ -126,9 +126,9 @@ int StreamUflow(void* theBuffer)
     return aFn(theBuffer);
 }
 
-int StreamSbumpc(void* theBuffer)
+int StreamSbumpc(void *theBuffer)
 {
-    BufferFields* aBuffer = AsBuffer(theBuffer);
+    BufferFields *aBuffer = AsBuffer(theBuffer);
     if (aBuffer == nullptr)
         return -1;
     if (aBuffer->mGet != nullptr && aBuffer->mGet < aBuffer->mGetEnd)
@@ -140,9 +140,9 @@ int StreamSbumpc(void* theBuffer)
     return StreamUflow(theBuffer);
 }
 
-int StreamSgetc(void* theBuffer)
+int StreamSgetc(void *theBuffer)
 {
-    BufferFields* aBuffer = AsBuffer(theBuffer);
+    BufferFields *aBuffer = AsBuffer(theBuffer);
     if (aBuffer == nullptr)
         return -1;
     if (aBuffer->mGet != nullptr && aBuffer->mGet < aBuffer->mGetEnd)
@@ -150,9 +150,9 @@ int StreamSgetc(void* theBuffer)
     return StreamUnderflow(theBuffer);
 }
 
-int StreamSputc(void* theBuffer, unsigned char theChar)
+int StreamSputc(void *theBuffer, unsigned char theChar)
 {
-    BufferFields* aBuffer = AsBuffer(theBuffer);
+    BufferFields *aBuffer = AsBuffer(theBuffer);
     if (aBuffer == nullptr)
         return -1;
     if (aBuffer->mPut != nullptr && aBuffer->mPut < aBuffer->mPutEnd)
@@ -167,7 +167,7 @@ int StreamSputc(void* theBuffer, unsigned char theChar)
     return aOverflow(theBuffer, theChar);
 }
 
-bool OutputSentry(IosFields* theIos)
+bool OutputSentry(IosFields *theIos)
 {
     if (theIos == nullptr)
         return false;
@@ -183,7 +183,7 @@ bool OutputSentry(IosFields* theIos)
     return true;
 }
 
-bool InputSentry(IosFields* theIos, bool theSkipWs)
+bool InputSentry(IosFields *theIos, bool theSkipWs)
 {
     if (theIos == nullptr || theIos->mState != 0)
         return false;
@@ -210,7 +210,7 @@ bool InputSentry(IosFields* theIos, bool theSkipWs)
     }
 }
 
-void OutputEpilogue(IosFields* theIos)
+void OutputEpilogue(IosFields *theIos)
 {
     if (theIos == nullptr)
         return;
@@ -226,13 +226,13 @@ void OutputEpilogue(IosFields* theIos)
         IosSetState(theIos, (unsigned int)theIos->mState | kBadbit);
 }
 
-char StreamFill(IosFields* theIos)
+char StreamFill(IosFields *theIos)
 {
     if (theIos->mFillInit != 0)
         return (char)theIos->mFill;
 
     char aFill = ' ';
-    unsigned char* aFacet = (unsigned char*)theIos->mCtype;
+    unsigned char *aFacet = (unsigned char *)theIos->mCtype;
     if (aFacet != nullptr)
     {
         if (aFacet[28] != 0)
@@ -242,7 +242,7 @@ char StreamFill(IosFields* theIos)
         else
         {
             InitCtypeWiden(aFacet);
-            typedef int (*WidenFn)(void*, int);
+            typedef int (*WidenFn)(void *, int);
             WidenFn aWiden = (WidenFn)SlotFn(aFacet, 6);
             if (aWiden != nullptr)
                 aFill = (char)aWiden(aFacet, ' ');
@@ -253,7 +253,7 @@ char StreamFill(IosFields* theIos)
     return aFill;
 }
 
-void StreamFillN(IosFields* theIos, void* theBuffer, char theChar, int theCount)
+void StreamFillN(IosFields *theIos, void *theBuffer, char theChar, int theCount)
 {
     if (theBuffer == nullptr)
     {
@@ -270,7 +270,7 @@ void StreamFillN(IosFields* theIos, void* theBuffer, char theChar, int theCount)
     }
 }
 
-void StreamPutN(IosFields* theIos, void* theBuffer, const char* theData, int theCount)
+void StreamPutN(IosFields *theIos, void *theBuffer, const char *theData, int theCount)
 {
     if (theBuffer == nullptr)
     {
@@ -282,13 +282,12 @@ void StreamPutN(IosFields* theIos, void* theBuffer, const char* theData, int the
         IosSetState(theIos, (unsigned int)theIos->mState | kBadbit);
 }
 
-void* ExtractString(void* theStream, Sexy::String* theString,
-                    bool theSkipWs, bool theHasDelim, int theDelim)
+void *ExtractString(void *theStream, Sexy::String *theString, bool theSkipWs, bool theHasDelim, int theDelim)
 {
     if (theStream == nullptr || theString == nullptr)
         return theStream;
 
-    IosFields* aIos = StreamIos(theStream);
+    IosFields *aIos = StreamIos(theStream);
     if (aIos == nullptr)
         return theStream;
 
@@ -300,7 +299,7 @@ void* ExtractString(void* theStream, Sexy::String* theString,
             aMax = 1073741820;
 
         theString->clear();
-        void* aBuffer = aIos->mStreambuf;
+        void *aBuffer = aIos->mStreambuf;
         int aCount = 0;
         bool aDone = false;
         while (!aDone && aCount < aMax)
@@ -339,8 +338,8 @@ void* ExtractString(void* theStream, Sexy::String* theString,
 
 struct ExitEntry
 {
-    void (*mFunc)(void*);
-    void* mArg;
+    void (*mFunc)(void *);
+    void *mArg;
 };
 
 const int kMaxExitEntries = 512;
@@ -357,23 +356,23 @@ void RunExitEntries()
     }
 }
 
-NodeBase* TreeIncrement(NodeBase* theNode)
+NodeBase *TreeIncrement(NodeBase *theNode)
 {
     if (theNode->mRight != nullptr)
     {
-        NodeBase* aRight = theNode->mRight;
+        NodeBase *aRight = theNode->mRight;
         while (aRight->mLeft != nullptr)
             aRight = aRight->mLeft;
         return aRight;
     }
 
-    NodeBase* aUp = theNode->mParent;
+    NodeBase *aUp = theNode->mParent;
     if (theNode != aUp->mRight)
         return theNode->mParent;
 
     for (;;)
     {
-        NodeBase* aGrand = aUp->mParent;
+        NodeBase *aGrand = aUp->mParent;
         if (aGrand->mRight != aUp)
         {
             if (aGrand == aUp->mRight)
@@ -384,21 +383,21 @@ NodeBase* TreeIncrement(NodeBase* theNode)
     }
 }
 
-NodeBase* Leftmost(NodeBase* theNode)
+NodeBase *Leftmost(NodeBase *theNode)
 {
     while (theNode != nullptr && theNode->mLeft != nullptr)
         theNode = theNode->mLeft;
     return theNode;
 }
 
-NodeBase* Rightmost(NodeBase* theNode)
+NodeBase *Rightmost(NodeBase *theNode)
 {
     while (theNode != nullptr && theNode->mRight != nullptr)
         theNode = theNode->mRight;
     return theNode;
 }
 
-void RelinkChild(NodeBase* theHeader, NodeBase* theNode, NodeBase* theChild)
+void RelinkChild(NodeBase *theHeader, NodeBase *theNode, NodeBase *theChild)
 {
     if (theHeader->mParent == theNode)
         theHeader->mParent = theChild;
@@ -408,7 +407,7 @@ void RelinkChild(NodeBase* theHeader, NodeBase* theNode, NodeBase* theChild)
         theNode->mParent->mRight = theChild;
 }
 
-void FixLeftmost(NodeBase* theHeader, NodeBase* theNode, NodeBase* theChild)
+void FixLeftmost(NodeBase *theHeader, NodeBase *theNode, NodeBase *theChild)
 {
     if (theHeader->mLeft != theNode)
         return;
@@ -418,7 +417,7 @@ void FixLeftmost(NodeBase* theHeader, NodeBase* theNode, NodeBase* theChild)
         theHeader->mLeft = theNode->mParent;
 }
 
-void FixRightmost(NodeBase* theHeader, NodeBase* theNode, NodeBase* theChild)
+void FixRightmost(NodeBase *theHeader, NodeBase *theNode, NodeBase *theChild)
 {
     if (theHeader->mRight != theNode)
         return;
@@ -436,10 +435,10 @@ struct CharRep
     char mChars[1];
 };
 
-char* CloneRep(const char* theOldRep, int theExtra)
+char *CloneRep(const char *theOldRep, int theExtra)
 {
-    void* aOldStorage = (void*)theOldRep;
-    CharRep* aOld = static_cast<CharRep*>(aOldStorage);
+    void *aOldStorage = (void *)theOldRep;
+    CharRep *aOld = static_cast<CharRep *>(aOldStorage);
     if (aOld == nullptr)
         return nullptr;
 
@@ -451,16 +450,16 @@ char* CloneRep(const char* theOldRep, int theExtra)
     Sexy::String aClone(aOld->mChars, aLength);
     if (aWant > aClone.capacity())
         aClone.reserve(aWant);
-    char* aData = aClone.data();
+    char *aData = aClone.data();
     aClone.mData = Sexy::gEmptyStringData;
     return aData;
 }
 
 } // namespace
 
-void* IosSetState(void* theStream, int theState)
+void *IosSetState(void *theStream, int theState)
 {
-    IosFields* aIos = AsIos(theStream);
+    IosFields *aIos = AsIos(theStream);
     if (aIos == nullptr)
         return theStream;
 
@@ -473,10 +472,10 @@ void* IosSetState(void* theStream, int theState)
     return theStream;
 }
 
-void* ListHook(void* theNode, void* thePos)
+void *ListHook(void *theNode, void *thePos)
 {
-    ListLink* aNode = (ListLink*)theNode;
-    ListLink* aPos = (ListLink*)thePos;
+    ListLink *aNode = (ListLink *)theNode;
+    ListLink *aPos = (ListLink *)thePos;
     if (aNode == nullptr || aPos == nullptr)
         return theNode;
 
@@ -488,9 +487,9 @@ void* ListHook(void* theNode, void* thePos)
     return theNode;
 }
 
-void* ListUnhook(void* theNode)
+void *ListUnhook(void *theNode)
 {
-    ListLink* aNode = (ListLink*)theNode;
+    ListLink *aNode = (ListLink *)theNode;
     if (aNode == nullptr)
         return theNode;
 
@@ -501,7 +500,7 @@ void* ListUnhook(void* theNode)
     return theNode;
 }
 
-int RegisterAtExit(void* theArg, void (*theFunc)(void*), void* theDso)
+int RegisterAtExit(void *theArg, void (*theFunc)(void *), void *theDso)
 {
     (void)theDso;
     if (theFunc == nullptr)
@@ -521,61 +520,61 @@ int RegisterAtExit(void* theArg, void (*theFunc)(void*), void* theDso)
     return 0;
 }
 
-char* CloneBufferStringRep(const char* theRep, int theExtra)
+char *CloneBufferStringRep(const char *theRep, int theExtra)
 {
     return CloneRep(theRep, theExtra);
 }
 
-char* CloneImageStringRep(const char* theRep, int theExtra)
+char *CloneImageStringRep(const char *theRep, int theExtra)
 {
     return CloneRep(theRep, theExtra);
 }
 
-char* CloneWideStringRep(const char* theRep, int theExtra)
+char *CloneWideStringRep(const char *theRep, int theExtra)
 {
     return CloneRep(theRep, theExtra);
 }
 
-void ReleaseClonedStringRep(unsigned int* theRep)
+void ReleaseClonedStringRep(unsigned int *theRep)
 {
-    void* aStorage = theRep;
-    CharRep* aRep = static_cast<CharRep*>(aStorage);
-    if (aRep == nullptr || aRep == (CharRep*)&Sexy::gEmptyStringRep || aRep->mRefCount < 0)
+    void *aStorage = theRep;
+    CharRep *aRep = static_cast<CharRep *>(aStorage);
+    if (aRep == nullptr || aRep == (CharRep *)&Sexy::gEmptyStringRep || aRep->mRefCount < 0)
         return;
 
     Sexy::String aOwned(aRep->mChars);
     aOwned.clear();
 }
 
-void* RbTreeNext(void* theNode)
+void *RbTreeNext(void *theNode)
 {
     if (theNode == nullptr)
         return theNode;
-    return TreeIncrement((NodeBase*)theNode);
+    return TreeIncrement((NodeBase *)theNode);
 }
 
-void* RbTreeNextConst(void* theNode)
+void *RbTreeNextConst(void *theNode)
 {
     return RbTreeNext(theNode);
 }
 
-void* RbTreePrev(void* theNode)
+void *RbTreePrev(void *theNode)
 {
     if (theNode == nullptr)
         return theNode;
-    return Sexy::RbTree::_M_decrement((NodeBase*)theNode);
+    return Sexy::RbTree::_M_decrement((NodeBase *)theNode);
 }
 
-void* RbTreePrevConst(void* theNode)
+void *RbTreePrevConst(void *theNode)
 {
     return RbTreePrev(theNode);
 }
 
-int RbTreeInsert(int theInsertLeft, void* theNode, void* theParent, void* theHeader)
+int RbTreeInsert(int theInsertLeft, void *theNode, void *theParent, void *theHeader)
 {
-    NodeBase* aNode = (NodeBase*)theNode;
-    NodeBase* aParent = (NodeBase*)theParent;
-    NodeBase* aHeader = (NodeBase*)theHeader;
+    NodeBase *aNode = (NodeBase *)theNode;
+    NodeBase *aParent = (NodeBase *)theParent;
+    NodeBase *aHeader = (NodeBase *)theHeader;
     if (aNode == nullptr || aParent == nullptr || aHeader == nullptr)
         return theInsertLeft;
 
@@ -583,15 +582,15 @@ int RbTreeInsert(int theInsertLeft, void* theNode, void* theParent, void* theHea
     return theInsertLeft;
 }
 
-void* RbTreeErase(void* theNode, void* theHeader)
+void *RbTreeErase(void *theNode, void *theHeader)
 {
-    NodeBase* aNode = (NodeBase*)theNode;
-    NodeBase* aHeader = (NodeBase*)theHeader;
+    NodeBase *aNode = (NodeBase *)theNode;
+    NodeBase *aHeader = (NodeBase *)theHeader;
     if (aNode == nullptr || aHeader == nullptr)
         return theNode;
 
-    NodeBase* aChild = nullptr;
-    NodeBase* aParent = nullptr;
+    NodeBase *aChild = nullptr;
+    NodeBase *aParent = nullptr;
     int aRemovedColor = aNode->mColor;
 
     if (aNode->mLeft == nullptr || aNode->mRight == nullptr)
@@ -606,7 +605,7 @@ void* RbTreeErase(void* theNode, void* theHeader)
     }
     else
     {
-        NodeBase* aSuccessor = aNode->mRight;
+        NodeBase *aSuccessor = aNode->mRight;
         while (aSuccessor->mLeft != nullptr)
             aSuccessor = aSuccessor->mLeft;
 
@@ -636,11 +635,11 @@ void* RbTreeErase(void* theNode, void* theHeader)
     if (aRemovedColor != kTreeBlack)
         return theNode;
 
-    NodeBase*& aRoot = aHeader->mParent;
+    NodeBase *&aRoot = aHeader->mParent;
     while (aChild != aRoot && (aChild == nullptr || aChild->mColor == kTreeBlack))
     {
         bool aOnLeft = (aChild == aParent->mLeft);
-        NodeBase* aSibling = aOnLeft ? aParent->mRight : aParent->mLeft;
+        NodeBase *aSibling = aOnLeft ? aParent->mRight : aParent->mLeft;
         if (aSibling == nullptr)
             break;
 
@@ -657,8 +656,8 @@ void* RbTreeErase(void* theNode, void* theHeader)
         if (aSibling == nullptr)
             break;
 
-        NodeBase* aNear = aOnLeft ? aSibling->mLeft : aSibling->mRight;
-        NodeBase* aFar = aOnLeft ? aSibling->mRight : aSibling->mLeft;
+        NodeBase *aNear = aOnLeft ? aSibling->mLeft : aSibling->mRight;
+        NodeBase *aFar = aOnLeft ? aSibling->mRight : aSibling->mLeft;
         bool aNearBlack = (aNear == nullptr || aNear->mColor == kTreeBlack);
         bool aFarBlack = (aFar == nullptr || aFar->mColor == kTreeBlack);
         if (aNearBlack && aFarBlack)
@@ -700,9 +699,9 @@ void* RbTreeErase(void* theNode, void* theHeader)
     return theNode;
 }
 
-int InitCtypeWiden(void* theFacet)
+int InitCtypeWiden(void *theFacet)
 {
-    unsigned char* aFacet = (unsigned char*)theFacet;
+    unsigned char *aFacet = (unsigned char *)theFacet;
     if (aFacet == nullptr)
         return 0;
 
@@ -710,7 +709,7 @@ int InitCtypeWiden(void* theFacet)
     for (int i = 0; i != 256; ++i)
         aTable[i] = (unsigned char)i;
 
-    typedef void (*WidenRangeFn)(void*, unsigned char*, unsigned char*, unsigned char*);
+    typedef void (*WidenRangeFn)(void *, unsigned char *, unsigned char *, unsigned char *);
     WidenRangeFn aWiden = (WidenRangeFn)SlotFn(aFacet, 7);
     if (aWiden != nullptr)
         aWiden(aFacet, aTable, aTable + 256, aFacet + 29);
@@ -738,27 +737,26 @@ void *FileBufFinish(void *theFileBuf)
     do
     {
         aResult = fclose(aBuffer->mFile);
-    }
-    while (aResult != 0 && errno == EINTR);
+    } while (aResult != 0 && errno == EINTR);
     aBuffer->mFile = nullptr;
     aBuffer->mIsOpen = false;
     return theFileBuf;
 }
 
-void* DestroyLocale(void* theLocale)
+void *DestroyLocale(void *theLocale)
 {
-    void** aLocale = (void**)theLocale;
+    void **aLocale = (void **)theLocale;
     if (aLocale == nullptr || aLocale[0] == nullptr)
         return theLocale;
 
-    delete (char*)aLocale[0];
+    delete (char *)aLocale[0];
     aLocale[0] = nullptr;
     return theLocale;
 }
 
-void* IosInit(void* theStream, void* theStreambuf)
+void *IosInit(void *theStream, void *theStreambuf)
 {
-    IosFields* aIos = AsIos(theStream);
+    IosFields *aIos = AsIos(theStream);
     if (aIos == nullptr)
         return theStream;
 
@@ -774,9 +772,9 @@ void* IosInit(void* theStream, void* theStreambuf)
     return theStream;
 }
 
-void* OStreamFlush(void* theStream)
+void *OStreamFlush(void *theStream)
 {
-    IosFields* aIos = StreamIos(theStream);
+    IosFields *aIos = StreamIos(theStream);
     if (aIos == nullptr)
         return theStream;
 
@@ -786,9 +784,9 @@ void* OStreamFlush(void* theStream)
     return theStream;
 }
 
-void* OStreamPut(void* theStream, char theFill)
+void *OStreamPut(void *theStream, char theFill)
 {
-    IosFields* aIos = StreamIos(theStream);
+    IosFields *aIos = StreamIos(theStream);
     if (aIos == nullptr)
         return theStream;
 
@@ -801,9 +799,9 @@ void* OStreamPut(void* theStream, char theFill)
     return theStream;
 }
 
-void* OStreamWrite(void* theStream, const char *theValue, int theBase)
+void *OStreamWrite(void *theStream, const char *theValue, int theBase)
 {
-    IosFields* aIos = StreamIos(theStream);
+    IosFields *aIos = StreamIos(theStream);
     if (aIos == nullptr)
         return theStream;
 
@@ -813,9 +811,9 @@ void* OStreamWrite(void* theStream, const char *theValue, int theBase)
     return theStream;
 }
 
-int* OStreamInsert(int* theStream, const char *theValue, int theBase)
+int *OStreamInsert(int *theStream, const char *theValue, int theBase)
 {
-    IosFields* aIos = StreamIos(theStream);
+    IosFields *aIos = StreamIos(theStream);
     if (aIos == nullptr)
         return theStream;
 
@@ -826,7 +824,7 @@ int* OStreamInsert(int* theStream, const char *theValue, int theBase)
     }
 
     int aCount = theBase;
-    const char* aText = theValue;
+    const char *aText = theValue;
     if (aIos->mWidth <= aCount)
     {
         StreamPutN(aIos, aIos->mStreambuf, aText, aCount);
@@ -849,14 +847,14 @@ int* OStreamInsert(int* theStream, const char *theValue, int theBase)
     return theStream;
 }
 
-void* OStreamWriteNum(void* theStream, int theValue)
+void *OStreamWriteNum(void *theStream, int theValue)
 {
     return OStreamWriteInt(theStream, theValue);
 }
 
-void* OStreamWriteInt(void* theStream, int theValue)
+void *OStreamWriteInt(void *theStream, int theValue)
 {
-    IosFields* aIos = StreamIos(theStream);
+    IosFields *aIos = StreamIos(theStream);
     if (aIos == nullptr)
         return theStream;
 
@@ -873,12 +871,12 @@ void* OStreamWriteInt(void* theStream, int theValue)
     return theStream;
 }
 
-void* StreamExtractString(void* theStream, Sexy::String* theString)
+void *StreamExtractString(void *theStream, Sexy::String *theString)
 {
     return ExtractString(theStream, theString, true, false, 0);
 }
 
-void* StreamGetLine(void* theStream, Sexy::String* theString, int theDelimiter)
+void *StreamGetLine(void *theStream, Sexy::String *theString, int theDelimiter)
 {
     return ExtractString(theStream, theString, false, true, theDelimiter);
 }

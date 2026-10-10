@@ -18,20 +18,22 @@
 //   mHorizonWrapMode, mVertWrapMode
 //   mTag               the four-character tag MakeTag packs
 
-#pragma once
+#ifndef LAWNPROJECTTV_SEXY_INCLUDE_IMAGE_H
+#define LAWNPROJECTTV_SEXY_INCLUDE_IMAGE_H
 
 #include "ReconTypes.h"
 #include "AnimInfo.h"
 
-namespace Sexy {
+namespace Sexy
+{
 
 class Image
 {
 public:
     virtual ~Image();
 
-    virtual MemoryImage * AsMemoryImage();
-    virtual DeviceImage * AsDeviceImage();
+    virtual MemoryImage *AsMemoryImage();
+    virtual DeviceImage *AsDeviceImage();
     virtual int GetWidth();
     virtual int GetHeight();
     virtual int GetPitch();
@@ -40,30 +42,45 @@ public:
     virtual PixelFormat GetPixelFormatHint();
     virtual void SetPixelFormatHint(PixelFormat theFormat);
     virtual void Finalize();
-    virtual void SetBits(unsigned int * theBits, int theWidth, int theHeight, bool theOwnsBits);
-    virtual unsigned int * GetBits();
+    virtual void SetBits(unsigned int *theBits, int theWidth, int theHeight, bool theOwnsBits);
+    virtual unsigned int *GetBits();
     virtual unsigned int GetPixel(int theX, int theY);
-    virtual unsigned int * GetPixels();
-    virtual void PolyFill3D(const TPoint<int> * thePoints, int thePointCount, const TRect<int> * theClipRect, const Color & theColor, int theDrawMode, int theTx, int theTy, bool theConvex);
-    virtual void FillRect(const TRect<int> & theRect, const Color & theColor, int theDrawMode);
-    virtual void DrawRect(const TRect<int> & theRect, const Color & theColor, int theDrawMode);
-    virtual void ClearRect(const TRect<int> & theRect);
-    virtual void DrawLine(double theStartX, double theStartY, double theEndX, double theEndY, const Color & theColor, int theDrawMode);
-    virtual void DrawLineAA(double theStartX, double theStartY, double theEndX, double theEndY, const Color & theColor, int theDrawMode);
-    virtual void FillScanLines(int * theSpans, int theSpanCount, const Color & theColor, int theDrawMode);
-    virtual void FillScanLinesWithCoverage(int * theSpans, int theSpanCount, const Color & theColor, int theDrawMode, const unsigned char * theCoverage, int theCoverageX, int theCoverageY, int theCoverageWidth, int theCoverageHeight);
-    virtual void Blt(Image * theSource, int theX, int theY, const TRect<int> & theSourceRect, const Color & theColor, int theDrawMode, bool theColorize = false);
-    virtual void BltF(Image * theSource, float theX, float theY, const TRect<int> & theSourceRect, const TRect<int> & theClipRect, const Color & theColor, int theDrawMode);
-    virtual void BltRotated(Image * theSource, float theX, float theY, const TRect<int> & theSourceRect, const TRect<int> & theClipRect, const Color & theColor, int theDrawMode, double theRotate, float theRotateCenterX, float theRotateCenterY);
-    virtual void StretchBlt(Image * theSource, const TRect<int> & theDestRect, const TRect<int> & theSrcRect, const TRect<int> & theClipRect, const Color & theColor, int theDrawMode, bool theFastStretch);
-    virtual void BltMatrix(Image * theSource, float theX, float theY, const SexyMatrix3 & theMatrix, const TRect<int> & theSrcRect, const Color & theColor, int theDrawMode, const TRect<int> & theClipRect, bool theLinearBlend, bool theMirror);
-    virtual void BltTrianglesTex(Image * theSource, const SexyVertex2D (*theTriangles)[3], int theTriangleCount, const TRect<int> & theClipRect, const Color & theColor, int theDrawMode, float theTx, float theTy, bool theBlend);
-    virtual void BltMirror(Image * theSource, int theX, int theY, const TRect<int> & theSourceRect, const Color & theColor, int theDrawMode);
-    virtual void StretchBltMirror(Image * theSource, const TRect<int> & theDestRect, const TRect<int> & theSrcRect, const TRect<int> & theClipRect, const Color & theColor, int theDrawMode, bool theFastStretch);
+    virtual unsigned int *GetPixels();
+    virtual void PolyFill3D(const TPoint<int> *thePoints, int thePointCount, const TRect<int> *theClipRect,
+        const Color &theColor, int theDrawMode, int theTx, int theTy, bool theConvex);
+    virtual void FillRect(const TRect<int> &theRect, const Color &theColor, int theDrawMode);
+    virtual void DrawRect(const TRect<int> &theRect, const Color &theColor, int theDrawMode);
+    virtual void ClearRect(const TRect<int> &theRect);
+    virtual void DrawLine(
+        double theStartX, double theStartY, double theEndX, double theEndY, const Color &theColor, int theDrawMode);
+    virtual void DrawLineAA(
+        double theStartX, double theStartY, double theEndX, double theEndY, const Color &theColor, int theDrawMode);
+    virtual void FillScanLines(int *theSpans, int theSpanCount, const Color &theColor, int theDrawMode);
+    virtual void FillScanLinesWithCoverage(int *theSpans, int theSpanCount, const Color &theColor, int theDrawMode,
+        const unsigned char *theCoverage, int theCoverageX, int theCoverageY, int theCoverageWidth,
+        int theCoverageHeight);
+    virtual void Blt(Image *theSource, int theX, int theY, const TRect<int> &theSourceRect, const Color &theColor,
+        int theDrawMode, bool theColorize = false);
+    virtual void BltF(Image *theSource, float theX, float theY, const TRect<int> &theSourceRect,
+        const TRect<int> &theClipRect, const Color &theColor, int theDrawMode);
+    virtual void BltRotated(Image *theSource, float theX, float theY, const TRect<int> &theSourceRect,
+        const TRect<int> &theClipRect, const Color &theColor, int theDrawMode, double theRotate, float theRotateCenterX,
+        float theRotateCenterY);
+    virtual void StretchBlt(Image *theSource, const TRect<int> &theDestRect, const TRect<int> &theSrcRect,
+        const TRect<int> &theClipRect, const Color &theColor, int theDrawMode, bool theFastStretch);
+    virtual void BltMatrix(Image *theSource, float theX, float theY, const SexyMatrix3 &theMatrix,
+        const TRect<int> &theSrcRect, const Color &theColor, int theDrawMode, const TRect<int> &theClipRect,
+        bool theLinearBlend, bool theMirror);
+    virtual void BltTrianglesTex(Image *theSource, const SexyVertex2D (*theTriangles)[3], int theTriangleCount,
+        const TRect<int> &theClipRect, const Color &theColor, int theDrawMode, float theTx, float theTy, bool theBlend);
+    virtual void BltMirror(
+        Image *theSource, int theX, int theY, const TRect<int> &theSourceRect, const Color &theColor, int theDrawMode);
+    virtual void StretchBltMirror(Image *theSource, const TRect<int> &theDestRect, const TRect<int> &theSrcRect,
+        const TRect<int> &theClipRect, const Color &theColor, int theDrawMode, bool theFastStretch);
     virtual void Palletize();
     virtual void Flip(unsigned int theFlags);
     virtual bool HasTransform();
-    virtual void PushTransform(const SexyMatrix3 & theTransform, bool theConcatenate);
+    virtual void PushTransform(const SexyMatrix3 &theTransform, bool theConcatenate);
     virtual void PopTransform();
     virtual void SetWrapMode(int theWrapModeX, int theWrapModeY);
     virtual bool Is3D();
@@ -84,8 +101,8 @@ public:
     PixelFormat mPixelFormatHint;
     int mNumRows;
     int mNumCols;
-    AnimInfo * mAnimInfo;
-    MemoryImage* mAttachedParent;
+    AnimInfo *mAnimInfo;
+    MemoryImage *mAttachedParent;
     int mSubRectX;
     int mSubRectY;
     int mSubRectRight;
@@ -97,19 +114,21 @@ public:
 
     int MakeTag(char theA, char theB, char theC, char theD);
     Image();
-    Image(Sexy::Image const& theOther);
+    Image(Sexy::Image const &theOther);
     int GetCelHeight();
     int GetCelWidth();
     int GetCelCount();
     TRect<int> GetCelRect(int theCol);
     TRect<int> GetCelRect(int theCol, int theRow);
-    void * CreateRenderData();
+    void *CreateRenderData();
     int GetAnimCel(int theTick);
     TRect<int> GetAnimCelRect(int theCel);
-    void CopyAttributes(Sexy::Image * theSource);
-    Sexy::Graphics * GetGraphics();
+    void CopyAttributes(Sexy::Image *theSource);
+    Sexy::Graphics *GetGraphics();
 };
 
 } // namespace Sexy
 
 using Sexy::Image;
+
+#endif // LAWNPROJECTTV_SEXY_INCLUDE_IMAGE_H

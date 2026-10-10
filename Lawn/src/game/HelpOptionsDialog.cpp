@@ -17,9 +17,9 @@
 // ==========================================================================
 int HelpOptionsDialog::GetPreferredHeight(int theWidth)
 {
-  (void)theWidth;
-  // The options background is square, so the preferred height is the image width.
-  return IMAGE_OPTIONS_MENUBACK->mWidth;
+    (void)theWidth;
+    // The options background is square, so the preferred height is the image width.
+    return IMAGE_OPTIONS_MENUBACK->mWidth;
 }
 
 // ==========================================================================
@@ -28,7 +28,7 @@ int HelpOptionsDialog::GetPreferredHeight(int theWidth)
 // ==========================================================================
 void HelpOptionsDialog::ButtonPress(int theId)
 {
-  mApp->PlaySample(SOUND_GRAVEBUTTON, true);
+    mApp->PlaySample(SOUND_GRAVEBUTTON, true);
 }
 
 // ==========================================================================
@@ -37,14 +37,14 @@ void HelpOptionsDialog::ButtonPress(int theId)
 // ==========================================================================
 HelpOptionsDialog::~HelpOptionsDialog()
 {
-  // The five buttons belong to this dialog. The binary's `vptr[1]` calls are
-  // the Itanium deleting destructors, which is exactly what `delete` compiles
-  // to; the vptr stores around them are the compiler's own.
-  delete mHowToPlayButton;
-  delete mSwitchUserButton;
-  delete mBackButton;
-  delete mSettingsButton;
-  delete mCreditsButton;
+    // The five buttons belong to this dialog. The binary's `vptr[1]` calls are
+    // the Itanium deleting destructors, which is exactly what `delete` compiles
+    // to; the vptr stores around them are the compiler's own.
+    delete mHowToPlayButton;
+    delete mSwitchUserButton;
+    delete mBackButton;
+    delete mSettingsButton;
+    delete mCreditsButton;
 }
 
 // ==========================================================================
@@ -53,56 +53,56 @@ HelpOptionsDialog::~HelpOptionsDialog()
 // ==========================================================================
 void HelpOptionsDialog::GameButtonDown(Sexy::GamepadButton theButton, int thePlayerIndex, unsigned int theModifiers)
 {
-  (void)thePlayerIndex;
-  // Button B with no modifier presses the back button.
-  if ((theModifiers & 1u) == 0 && theButton == GAMEPAD_BUTTON_B)
-    ButtonDepress(4);
+    (void)thePlayerIndex;
+    // Button B with no modifier presses the back button.
+    if ((theModifiers & 1u) == 0 && theButton == GAMEPAD_BUTTON_B)
+        ButtonDepress(4);
 }
 
 // ==========================================================================
 // HelpOptionsDialog::HelpOptionsDialog(LawnApp *)
 // @00168348  706 bytes
 // ==========================================================================
-HelpOptionsDialog::HelpOptionsDialog(LawnApp *theApp)
-    : LawnDialog(theApp, nullptr, 3, true, "[HELP_AND_OPTIONS]", "", "", 0)
+HelpOptionsDialog::HelpOptionsDialog(LawnApp *theApp) :
+    LawnDialog(theApp, nullptr, 3, true, "[HELP_AND_OPTIONS]", "", "", 0)
 {
-  mApp = theApp;
-  SetColor(3, Sexy::Color(255, 255, 100));
-  mBackButton = (GameButton *)MakeButton(4, this, this, Sexy::String("[BACK]"));
-  mHowToPlayButton = (GameButton *)MakeButton(0, this, this, Sexy::String("[HOW_TO_PLAY]"));
-  mSwitchUserButton = (GameButton *)MakeButton(1, this, this, Sexy::String("[CONTROLS]"));
-  mSettingsButton = (GameButton *)MakeButton(2, this, this, Sexy::String("[SETTINGS]"));
-  mCreditsButton = (GameButton *)MakeButton(3, this, this, Sexy::String("[CREDITS]"));
+    mApp = theApp;
+    SetColor(3, Sexy::Color(255, 255, 100));
+    mBackButton = (GameButton *)MakeButton(4, this, this, Sexy::String("[BACK]"));
+    mHowToPlayButton = (GameButton *)MakeButton(0, this, this, Sexy::String("[HOW_TO_PLAY]"));
+    mSwitchUserButton = (GameButton *)MakeButton(1, this, this, Sexy::String("[CONTROLS]"));
+    mSettingsButton = (GameButton *)MakeButton(2, this, this, Sexy::String("[SETTINGS]"));
+    mCreditsButton = (GameButton *)MakeButton(3, this, this, Sexy::String("[CREDITS]"));
 }
 
 // ==========================================================================
 // HelpOptionsDialog::AddedToManager(Sexy::WidgetManager *)
 // @00168B88  90 bytes
 // ==========================================================================
-void HelpOptionsDialog::AddedToManager(Sexy::WidgetManager * theWidgetManager)
+void HelpOptionsDialog::AddedToManager(Sexy::WidgetManager *theWidgetManager)
 {
-  Sexy::Dialog::AddedToManager(theWidgetManager);
-  AddWidget(mHowToPlayButton);
-  AddWidget(mSwitchUserButton);
-  AddWidget(mBackButton);
-  AddWidget(mSettingsButton);
-  // The credits button is only reachable from the main menu.
-  if ( ((LawnApp *)gLawnApp)->mGameScene == SCENE_MENU )
-    AddWidget(mCreditsButton);
+    Sexy::Dialog::AddedToManager(theWidgetManager);
+    AddWidget(mHowToPlayButton);
+    AddWidget(mSwitchUserButton);
+    AddWidget(mBackButton);
+    AddWidget(mSettingsButton);
+    // The credits button is only reachable from the main menu.
+    if (((LawnApp *)gLawnApp)->mGameScene == SCENE_MENU)
+        AddWidget(mCreditsButton);
 }
 
 // ==========================================================================
 // HelpOptionsDialog::RemovedFromManager(Sexy::WidgetManager *)
 // @00168C30  70 bytes
 // ==========================================================================
-void HelpOptionsDialog::RemovedFromManager(Sexy::WidgetManager * theWidgetManager)
+void HelpOptionsDialog::RemovedFromManager(Sexy::WidgetManager *theWidgetManager)
 {
-  Sexy::Dialog::RemovedFromManager(theWidgetManager);
-  RemoveWidget(mHowToPlayButton);
-  RemoveWidget(mSwitchUserButton);
-  RemoveWidget(mBackButton);
-  RemoveWidget(mSettingsButton);
-  RemoveWidget(mCreditsButton);
+    Sexy::Dialog::RemovedFromManager(theWidgetManager);
+    RemoveWidget(mHowToPlayButton);
+    RemoveWidget(mSwitchUserButton);
+    RemoveWidget(mBackButton);
+    RemoveWidget(mSettingsButton);
+    RemoveWidget(mCreditsButton);
 }
 
 // ==========================================================================
@@ -111,30 +111,30 @@ void HelpOptionsDialog::RemovedFromManager(Sexy::WidgetManager * theWidgetManage
 // ==========================================================================
 void HelpOptionsDialog::Resize(int theX, int theY, int theWidth, int theHeight)
 {
-  int aButtonWidth = theWidth - 85;
-  Sexy::Dialog::Resize(theX, theY, theWidth, theHeight);
-  int aButtonX = theWidth / 2 - aButtonWidth / 2 + 6;
-  mHowToPlayButton->Resize(aButtonX, 116, aButtonWidth, 46);
-  mSwitchUserButton->Resize(aButtonX, 162, aButtonWidth, 46);
-  mSettingsButton->Resize(aButtonX, 208, aButtonWidth, 46);
-  mCreditsButton->Resize(aButtonX, 254, aButtonWidth, 46);
-  // SetFocusLinks(up, down, left, right): only the vertical pair is used.
-  mHowToPlayButton->SetFocusLinks(mBackButton, mSwitchUserButton, nullptr, nullptr);
-  mSwitchUserButton->SetFocusLinks(mHowToPlayButton, mSettingsButton, nullptr, nullptr);
-  mCreditsButton->SetFocusLinks(mSettingsButton, mBackButton, nullptr, nullptr);
-  // In the main menu the credits button sits between the settings button and
-  // the back button, so the ring runs ... -> settings -> credits -> back -> ...
-  if ( ((LawnApp *)gLawnApp)->mGameScene == SCENE_MENU )
-  {
-    mSettingsButton->SetFocusLinks(mSwitchUserButton, mCreditsButton, nullptr, nullptr);
-    mBackButton->SetFocusLinks(mCreditsButton, mHowToPlayButton, nullptr, nullptr);
-  }
-  else
-  {
-    mSettingsButton->SetFocusLinks(mSwitchUserButton, mBackButton, nullptr, nullptr);
-    mBackButton->SetFocusLinks(mSettingsButton, mHowToPlayButton, nullptr, nullptr);
-  }
-  mBackButton->Resize(aButtonX, 371, aButtonWidth, 46);
+    int aButtonWidth = theWidth - 85;
+    Sexy::Dialog::Resize(theX, theY, theWidth, theHeight);
+    int aButtonX = theWidth / 2 - aButtonWidth / 2 + 6;
+    mHowToPlayButton->Resize(aButtonX, 116, aButtonWidth, 46);
+    mSwitchUserButton->Resize(aButtonX, 162, aButtonWidth, 46);
+    mSettingsButton->Resize(aButtonX, 208, aButtonWidth, 46);
+    mCreditsButton->Resize(aButtonX, 254, aButtonWidth, 46);
+    // SetFocusLinks(up, down, left, right): only the vertical pair is used.
+    mHowToPlayButton->SetFocusLinks(mBackButton, mSwitchUserButton, nullptr, nullptr);
+    mSwitchUserButton->SetFocusLinks(mHowToPlayButton, mSettingsButton, nullptr, nullptr);
+    mCreditsButton->SetFocusLinks(mSettingsButton, mBackButton, nullptr, nullptr);
+    // In the main menu the credits button sits between the settings button and
+    // the back button, so the ring runs ... -> settings -> credits -> back -> ...
+    if (((LawnApp *)gLawnApp)->mGameScene == SCENE_MENU)
+    {
+        mSettingsButton->SetFocusLinks(mSwitchUserButton, mCreditsButton, nullptr, nullptr);
+        mBackButton->SetFocusLinks(mCreditsButton, mHowToPlayButton, nullptr, nullptr);
+    }
+    else
+    {
+        mSettingsButton->SetFocusLinks(mSwitchUserButton, mBackButton, nullptr, nullptr);
+        mBackButton->SetFocusLinks(mSettingsButton, mHowToPlayButton, nullptr, nullptr);
+    }
+    mBackButton->Resize(aButtonX, 371, aButtonWidth, 46);
 }
 
 // ==========================================================================
@@ -143,7 +143,7 @@ void HelpOptionsDialog::Resize(int theX, int theY, int theWidth, int theHeight)
 // ==========================================================================
 void HelpOptionsDialog::Update()
 {
-  Sexy::Dialog::Update();
+    Sexy::Dialog::Update();
 }
 
 // ==========================================================================
@@ -152,28 +152,28 @@ void HelpOptionsDialog::Update()
 // ==========================================================================
 void HelpOptionsDialog::ButtonDepress(int theId)
 {
-  Sexy::Dialog::ButtonDepress(theId);
-  switch ( theId )
-  {
-    case 0:
-      mApp->ShowHelpTextScreen(0);
-      break;
-    case 1:
-      mApp->ShowHelpTextScreen(1);
-      break;
-    case 2:
-      mApp->DoSettingsDialog(false);
-      break;
-    case 3:
-      mApp->ShowCreditScreen(true);
-      break;
-    case 4:
-      // The back button closes the dialog through the base implementation.
-      Sexy::Dialog::ButtonDepress(1000);
-      break;
-    default:
-      break;
-  }
+    Sexy::Dialog::ButtonDepress(theId);
+    switch (theId)
+    {
+        case 0:
+            mApp->ShowHelpTextScreen(0);
+            break;
+        case 1:
+            mApp->ShowHelpTextScreen(1);
+            break;
+        case 2:
+            mApp->DoSettingsDialog(false);
+            break;
+        case 3:
+            mApp->ShowCreditScreen(true);
+            break;
+        case 4:
+            // The back button closes the dialog through the base implementation.
+            Sexy::Dialog::ButtonDepress(1000);
+            break;
+        default:
+            break;
+    }
 }
 
 // ==========================================================================
@@ -182,22 +182,22 @@ void HelpOptionsDialog::ButtonDepress(int theId)
 // ==========================================================================
 int HelpOptionsDialog::KeyDown(Sexy::KeyCode theKey)
 {
-  if ( theKey != Sexy::KEYCODE_ESCAPE )
-    return LawnDialog::KeyDown(theKey);
-  // Escape backs out of the dialog exactly as the back button does; the
-  // binary calls the base implementation directly rather than re-entering
-  // this class's own ButtonDepress.
-  Sexy::Dialog::ButtonDepress(1001);
-  return 1;
+    if (theKey != Sexy::KEYCODE_ESCAPE)
+        return LawnDialog::KeyDown(theKey);
+    // Escape backs out of the dialog exactly as the back button does; the
+    // binary calls the base implementation directly rather than re-entering
+    // this class's own ButtonDepress.
+    Sexy::Dialog::ButtonDepress(1001);
+    return 1;
 }
 
 // ==========================================================================
 // HelpOptionsDialog::Draw(Sexy::Graphics *)
 // @00168F88  4 bytes
 // ==========================================================================
-void HelpOptionsDialog::Draw(Sexy::Graphics * g)
+void HelpOptionsDialog::Draw(Sexy::Graphics *g)
 {
-  LawnDialog::Draw(g);
+    LawnDialog::Draw(g);
 }
 
 // ==========================================================================
@@ -206,9 +206,9 @@ void HelpOptionsDialog::Draw(Sexy::Graphics * g)
 // ==========================================================================
 void HelpOptionsDialog::GotFocus()
 {
-  LawnDialog::GotFocus();
-  // Nothing in this container holds the focus yet, so hand it to the first
-  // button and raise it (Widget::SetFocus, slot 57).
-  if ( mFocusedChildWidget == nullptr )
-    SetFocus(mHowToPlayButton, true);
+    LawnDialog::GotFocus();
+    // Nothing in this container holds the focus yet, so hand it to the first
+    // button and raise it (Widget::SetFocus, slot 57).
+    if (mFocusedChildWidget == nullptr)
+        SetFocus(mHowToPlayButton, true);
 }

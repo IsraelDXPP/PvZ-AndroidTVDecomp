@@ -32,27 +32,28 @@
 
 extern Sexy::CritSect gRenderCritSec;
 
-namespace {
-
-const Sexy::String& AsString(Sexy::WString const& theWide)
+namespace
 {
-    const void* aWide = &theWide;
-    return *static_cast<const Sexy::String*>(aWide);
+
+const Sexy::String &AsString(Sexy::WString const &theWide)
+{
+    const void *aWide = &theWide;
+    return *static_cast<const Sexy::String *>(aWide);
 }
 
-const Sexy::WString& AsWide(Sexy::String const& theText)
+const Sexy::WString &AsWide(Sexy::String const &theText)
 {
-    const void* aText = &theText;
-    return *static_cast<const Sexy::WString*>(aText);
+    const void *aText = &theText;
+    return *static_cast<const Sexy::WString *>(aText);
 }
 
-const int* WideChars(Sexy::String const& theWide)
+const int *WideChars(Sexy::String const &theWide)
 {
-    const void* aChars = theWide.c_str();
-    return static_cast<const int*>(aChars);
+    const void *aChars = theWide.c_str();
+    return static_cast<const int *>(aChars);
 }
 
-void ReadBytes(const unsigned char*& theCursor, void* theDest, int theCount)
+void ReadBytes(const unsigned char *&theCursor, void *theDest, int theCount)
 {
     if (theCount <= 0)
         return;
@@ -60,7 +61,7 @@ void ReadBytes(const unsigned char*& theCursor, void* theDest, int theCount)
     theCursor += theCount;
 }
 
-void WriteBytes(unsigned char*& theCursor, const void* theSrc, int theCount)
+void WriteBytes(unsigned char *&theCursor, const void *theSrc, int theCount)
 {
     if (theCount <= 0 || theCursor == nullptr)
         return;
@@ -68,19 +69,19 @@ void WriteBytes(unsigned char*& theCursor, const void* theSrc, int theCount)
     theCursor += theCount;
 }
 
-void WriteString(unsigned char*& theCursor, Sexy::String const& theText)
+void WriteString(unsigned char *&theCursor, Sexy::String const &theText)
 {
     int aLength = (int)theText.length();
     WriteBytes(theCursor, &aLength, 4);
     WriteBytes(theCursor, theText.c_str(), aLength);
 }
 
-int StringBytes(Sexy::String const& theText)
+int StringBytes(Sexy::String const &theText)
 {
     return (int)theText.length() + 4;
 }
 
-Sexy::String ReadString(const unsigned char*& theCursor, bool theSwap)
+Sexy::String ReadString(const unsigned char *&theCursor, bool theSwap)
 {
     int aLength = 0;
     ReadBytes(theCursor, &aLength, 4);
@@ -92,8 +93,8 @@ Sexy::String ReadString(const unsigned char*& theCursor, bool theSwap)
     if (aLength == 0)
         return aText;
     aText.reserve((unsigned int)aLength);
-    const void* aTextBytes = theCursor;
-    aText.Assign(static_cast<const char*>(aTextBytes), (unsigned int)aLength);
+    const void *aTextBytes = theCursor;
+    aText.Assign(static_cast<const char *>(aTextBytes), (unsigned int)aLength);
     theCursor += aLength;
     return aText;
 }
@@ -117,13 +118,12 @@ int SignedHalf(unsigned short aHalf)
     return (int)(short)aHalf;
 }
 
-bool NameEndsWithMod(Sexy::String const& theName)
+bool NameEndsWithMod(Sexy::String const &theName)
 {
-    return theName.length() > 5
-        && theName.compare(theName.length() - 5, 5, "__MOD") == 0;
+    return theName.length() > 5 && theName.compare(theName.length() - 5, 5, "__MOD") == 0;
 }
 
-bool VectorHas(std::vector<Sexy::String> const& theTags, Sexy::String const& theNeedle)
+bool VectorHas(std::vector<Sexy::String> const &theTags, Sexy::String const &theNeedle)
 {
     for (unsigned int i = 0; i < theTags.size(); ++i)
     {
@@ -133,7 +133,7 @@ bool VectorHas(std::vector<Sexy::String> const& theTags, Sexy::String const& the
     return false;
 }
 
-Sexy::TRect<int> SourceRect(Sexy::ActiveFontLayer* theLayer, int theChar)
+Sexy::TRect<int> SourceRect(Sexy::ActiveFontLayer *theLayer, int theChar)
 {
     auto found = theLayer->mCharRects.find(theChar);
     if (found == theLayer->mCharRects.end())
@@ -143,7 +143,7 @@ Sexy::TRect<int> SourceRect(Sexy::ActiveFontLayer* theLayer, int theChar)
 
 struct DrawGlyphRecord
 {
-    Sexy::Image* mImage;
+    Sexy::Image *mImage;
     int mX;
     int mY;
     int mSrcX;
@@ -152,23 +152,22 @@ struct DrawGlyphRecord
     int mSrcHeight;
     int mDrawMode;
     Sexy::Color mColor;
-    DrawGlyphRecord* mNext;
+    DrawGlyphRecord *mNext;
 };
 
-DrawGlyphRecord* sDrawHeads[256];
-DrawGlyphRecord* sDrawTails[256];
+DrawGlyphRecord *sDrawHeads[256];
+DrawGlyphRecord *sDrawTails[256];
 DrawGlyphRecord sDrawRecords[0x1000];
 
-void ApplyFormatHint(Sexy::FontLayer* theLayer, Sexy::Image* theImage, int theHint, bool theIsNew)
+void ApplyFormatHint(Sexy::FontLayer *theLayer, Sexy::Image *theImage, int theHint, bool theIsNew)
 {
     if (!theIsNew || theImage == nullptr)
         return;
     theImage->Palletize();
     if (theHint == 0 || theImage->GetPixelFormatHint() != 0)
         return;
-    Sexy::NativeDisplay* aDisplay = theLayer->mFontData->mApp != nullptr
-        ? theLayer->mFontData->mApp->mPlatformDriverOrQueue
-        : nullptr;
+    Sexy::NativeDisplay *aDisplay =
+        theLayer->mFontData->mApp != nullptr ? theLayer->mFontData->mApp->mPlatformDriverOrQueue : nullptr;
     if (aDisplay != nullptr && aDisplay->IsPixelFormatSupported(Sexy::PixelFormat(theHint)))
     {
         theImage->SetPixelFormatHint(Sexy::PixelFormat(theHint));
@@ -176,19 +175,19 @@ void ApplyFormatHint(Sexy::FontLayer* theLayer, Sexy::Image* theImage, int theHi
     }
 }
 
-void LoadLayerImage(Sexy::FontData* theFont, Sexy::FontLayer* theLayer, int theHint, int& theFailed)
+void LoadLayerImage(Sexy::FontData *theFont, Sexy::FontLayer *theLayer, int theHint, int &theFailed)
 {
     bool aIsNew = false;
     bool aGotImage = false;
     Sexy::SharedImageRef aLoaded;
-    Sexy::SexyAppBase* aApp = gSexyAppBase;
+    Sexy::SexyAppBase *aApp = gSexyAppBase;
     if (aApp->mResourceManager != nullptr && theFont->mImageGroup.empty())
     {
         Sexy::String aId = aApp->mResourceManager->GetIdByPath(theLayer->mImageFileName);
         if (!aId.empty())
         {
             aLoaded = aApp->mResourceManager->GetImage(aId);
-            Sexy::DeviceImage* aDevice = aLoaded;
+            Sexy::DeviceImage *aDevice = aLoaded;
             if (aDevice == nullptr)
                 aLoaded = aApp->mResourceManager->LoadImage(aId);
             aDevice = aLoaded;
@@ -203,14 +202,14 @@ void LoadLayerImage(Sexy::FontData* theFont, Sexy::FontLayer* theLayer, int theH
         aLoaded = aApp->GetSharedImage(aFile, aVariant, &aIsNew, true, false);
     }
     theLayer->mImage = aLoaded;
-    Sexy::Image* aImage = theLayer->mImage;
+    Sexy::Image *aImage = theLayer->mImage;
     if (aImage == nullptr)
         theFailed = 1;
     else
         ApplyFormatHint(theLayer, aImage, theHint, aIsNew);
 }
 
-int MeasureLayerSize(Sexy::FontData* theFont)
+int MeasureLayerSize(Sexy::FontData *theFont)
 {
     int aSize = 8 * (int)theFont->mCharMap.size() + 37;
     for (auto aLayer = theFont->mLayerList.begin(); aLayer != theFont->mLayerList.end(); ++aLayer)
@@ -229,7 +228,7 @@ int MeasureLayerSize(Sexy::FontData* theFont)
     return aSize;
 }
 
-void WriteCharData(unsigned char*& theCursor, int theChar, Sexy::CharData const& theData)
+void WriteCharData(unsigned char *&theCursor, int theChar, Sexy::CharData const &theData)
 {
     WriteBytes(theCursor, &theChar, 4);
     WriteBytes(theCursor, &theData.mPackedOrigin, 4);
@@ -241,7 +240,7 @@ void WriteCharData(unsigned char*& theCursor, int theChar, Sexy::CharData const&
     WriteBytes(theCursor, &theData.mPageHeight, 2);
 }
 
-void ReadCharData(const unsigned char*& theCursor, Sexy::CharData* theData, bool theSwap)
+void ReadCharData(const unsigned char *&theCursor, Sexy::CharData *theData, bool theSwap)
 {
     ReadBytes(theCursor, &theData->mPackedOrigin, 4);
     ReadBytes(theCursor, &theData->mPackedSize, 4);
@@ -272,7 +271,7 @@ void ReadCharData(const unsigned char*& theCursor, Sexy::CharData* theData, bool
         theData->mPageHeight = (unsigned short)EndianShort((short)theData->mPageHeight);
 }
 
-int ReadFont(Sexy::ImageFont* theFont, const unsigned char* theCursor, bool theSwap)
+int ReadFont(Sexy::ImageFont *theFont, const unsigned char *theCursor, bool theSwap)
 {
     int aMagic = 0;
     ReadBytes(theCursor, &aMagic, 4);
@@ -326,7 +325,7 @@ int ReadFont(Sexy::ImageFont* theFont, const unsigned char* theCursor, bool theS
     for (int aLayerIndex = 0; aLayerIndex < aLayerCount; ++aLayerIndex)
     {
         theFont->mFontData->mLayerList.push_back(Sexy::FontLayer(theFont->mFontData));
-        Sexy::FontLayer* aFontLayer = &theFont->mFontData->mLayerList.back();
+        Sexy::FontLayer *aFontLayer = &theFont->mFontData->mLayerList.back();
 
         aFontLayer->mLayerName = ReadString(theCursor, theSwap);
         Sexy::String aWideName;
@@ -370,8 +369,7 @@ int ReadFont(Sexy::ImageFont* theFont, const unsigned char* theCursor, bool theS
                 {
                     aFontLayer->mKerningValues[aKern].mSecondChar =
                         EndianInt(aFontLayer->mKerningValues[aKern].mSecondChar);
-                    aFontLayer->mKerningValues[aKern].mAmount =
-                        EndianInt(aFontLayer->mKerningValues[aKern].mAmount);
+                    aFontLayer->mKerningValues[aKern].mAmount = EndianInt(aFontLayer->mKerningValues[aKern].mAmount);
                 }
             }
         }
@@ -386,7 +384,7 @@ int ReadFont(Sexy::ImageFont* theFont, const unsigned char* theCursor, bool theS
             ReadBytes(theCursor, &aKey, 4);
             if (theSwap)
                 aKey = (int)EndianUINT32((unsigned int)aKey);
-            Sexy::CharData* aData = aFontLayer->SetCharData(aKey);
+            Sexy::CharData *aData = aFontLayer->SetCharData(aKey);
             ReadCharData(theCursor, aData, theSwap);
         }
 
@@ -477,16 +475,14 @@ int Sexy::ImageFont::CharWidth(int theChar)
     return CharWidthKern(theChar, 0);
 }
 
-void Sexy::ImageFont::DrawString(Sexy::Graphics* theGraphics, int theX, int theY,
-                                 Sexy::String const& theString, Color const& theColor,
-                                 TRect<int> const& theClipRect)
+void Sexy::ImageFont::DrawString(Sexy::Graphics *theGraphics, int theX, int theY, Sexy::String const &theString,
+    Color const &theColor, TRect<int> const &theClipRect)
 {
     DrawStringEx(theGraphics, theX, theY, theString, theColor, &theClipRect, nullptr, nullptr);
 }
 
-void Sexy::ImageFont::DrawString(Sexy::Graphics* theGraphics, int theX, int theY,
-                                 Sexy::WString const& theString, Color const& theColor,
-                                 TRect<int> const& theClipRect)
+void Sexy::ImageFont::DrawString(Sexy::Graphics *theGraphics, int theX, int theY, Sexy::WString const &theString,
+    Color const &theColor, TRect<int> const &theClipRect)
 {
     DrawStringEx(theGraphics, theX, theY, theString, theColor, &theClipRect, nullptr, nullptr);
 }
@@ -525,7 +521,7 @@ bool Sexy::ImageFont::IsComposited()
     return true;
 }
 
-Sexy::ImageFont* Sexy::ImageFont::Prepare()
+Sexy::ImageFont *Sexy::ImageFont::Prepare()
 {
     if (mRecalcFontSize)
         return this;
@@ -534,7 +530,7 @@ Sexy::ImageFont* Sexy::ImageFont::Prepare()
     return this;
 }
 
-int Sexy::ImageFont::StringWidth(Sexy::String const& theString)
+int Sexy::ImageFont::StringWidth(Sexy::String const &theString)
 {
     // The binary widens to basic_string<int> and measures that. This port's
     // string is already one byte per glyph for the title label, and the
@@ -552,28 +548,28 @@ int Sexy::ImageFont::StringWidth(Sexy::String const& theString)
     return aWidth;
 }
 
-int Sexy::ImageFont::AddTag(Sexy::String const& theTag)
+int Sexy::ImageFont::AddTag(Sexy::String const &theTag)
 {
     Sexy::String aWide;
     StringToWString(&aWide, theTag.c_str());
     return AddTag(AsWide(aWide));
 }
 
-int Sexy::ImageFont::RemoveTag(Sexy::String const& theTag)
+int Sexy::ImageFont::RemoveTag(Sexy::String const &theTag)
 {
     Sexy::String aWide;
     StringToWString(&aWide, theTag.c_str());
     return RemoveTag(AsWide(aWide));
 }
 
-int Sexy::ImageFont::HasTag(Sexy::String const& theTag)
+int Sexy::ImageFont::HasTag(Sexy::String const &theTag)
 {
     Sexy::String aWide;
     StringToWString(&aWide, theTag.c_str());
     return HasTag(AsWide(aWide));
 }
 
-int Sexy::ImageFont::AddTag(Sexy::WString const& theTag)
+int Sexy::ImageFont::AddTag(Sexy::WString const &theTag)
 {
     if (HasTag(theTag) != 0)
         return 0;
@@ -584,7 +580,7 @@ int Sexy::ImageFont::AddTag(Sexy::WString const& theTag)
     return 1;
 }
 
-int Sexy::ImageFont::RemoveTag(Sexy::WString const& theTag)
+int Sexy::ImageFont::RemoveTag(Sexy::WString const &theTag)
 {
     Sexy::String aUpper;
     StringToUpper(&aUpper, AsString(theTag).c_str());
@@ -600,9 +596,9 @@ int Sexy::ImageFont::RemoveTag(Sexy::WString const& theTag)
     return 0;
 }
 
-int Sexy::ImageFont::HasTag(Sexy::WString const& theTag)
+int Sexy::ImageFont::HasTag(Sexy::WString const &theTag)
 {
-    const Sexy::String& aTag = AsString(theTag);
+    const Sexy::String &aTag = AsString(theTag);
     for (unsigned int i = 0; i < mTags.size(); ++i)
     {
         if (mTags[i] == aTag)
@@ -611,20 +607,20 @@ int Sexy::ImageFont::HasTag(Sexy::WString const& theTag)
     return 0;
 }
 
-Sexy::String Sexy::ImageFont::GetDefine(Sexy::WString const& theName)
+Sexy::String Sexy::ImageFont::GetDefine(Sexy::WString const &theName)
 {
-    Sexy::DataElement* aElement = mFontData->Dereference(AsString(theName));
+    Sexy::DataElement *aElement = mFontData->Dereference(AsString(theName));
     if (aElement == nullptr)
         return Sexy::String();
     return mFontData->DataElementToString(aElement, true);
 }
 
-int Sexy::ImageFont::StringWidth(Sexy::WString const& theString)
+int Sexy::ImageFont::StringWidth(Sexy::WString const &theString)
 {
-    const Sexy::String& aWide = AsString(theString);
+    const Sexy::String &aWide = AsString(theString);
     if (aWide.empty())
         return 0;
-    const int* aChars = WideChars(aWide);
+    const int *aChars = WideChars(aWide);
     int aWidth = 0;
     int aPrevMapped = 0;
     for (unsigned int i = 0; i < aWide.size(); ++i)
@@ -636,7 +632,7 @@ int Sexy::ImageFont::StringWidth(Sexy::WString const& theString)
     return aWidth;
 }
 
-void Sexy::ImageFont::StringToGlyphs(std::wstring const& theString, std::vector<Glyph>& theGlyphs)
+void Sexy::ImageFont::StringToGlyphs(std::wstring const &theString, std::vector<Glyph> &theGlyphs)
 {
     Prepare();
     if (theString.empty())
@@ -661,8 +657,8 @@ void Sexy::ImageFont::StringToGlyphs(std::wstring const& theString, std::vector<
             double aScaledPointSize = (double)mPointSize * aScale;
             for (int aLayer = 0; aLayer < aLayerCount; ++aLayer)
             {
-                FontLayer* aFontLayer = mActiveLayerList[(unsigned int)aLayer].mLayer;
-                CharData* aCharData = aFontLayer->GetCharData(aMapped);
+                FontLayer *aFontLayer = mActiveLayerList[(unsigned int)aLayer].mLayer;
+                CharData *aCharData = aFontLayer->GetCharData(aMapped);
                 int aLayerPointSize = aFontLayer->mPointSize;
                 int aWidth = aLayerPointSize != 0
                     ? (int)(aScaledPointSize * (double)(short)aCharData->mAdvance / (double)aLayerPointSize)
@@ -674,8 +670,7 @@ void Sexy::ImageFont::StringToGlyphs(std::wstring const& theString, std::vector<
                     aKern = aFontLayer->mSpacing;
                     if (aCharData->mKernCount != 0)
                     {
-                        FontLayer::KerningValue* aPair =
-                            aFontLayer->mKerningValues.data() + aCharData->mKernIndex;
+                        FontLayer::KerningValue *aPair = aFontLayer->mKerningValues.data() + aCharData->mKernIndex;
                         for (unsigned int aPairIndex = 0; aPairIndex < aCharData->mKernCount; ++aPairIndex)
                         {
                             if (aMapped == aPair->mSecondChar)
@@ -719,10 +714,8 @@ void Sexy::ImageFont::StringToGlyphs(std::wstring const& theString, std::vector<
     }
 }
 
-void Sexy::ImageFont::DrawGlyphs(Sexy::Graphics* theGraphics, int theX, int theY,
-                                 std::vector<Glyph>& theGlyphs, unsigned int theStart,
-                                 unsigned int theCount, Color const& theColor,
-                                 TRect<int> const& theClipRect)
+void Sexy::ImageFont::DrawGlyphs(Sexy::Graphics *theGraphics, int theX, int theY, std::vector<Glyph> &theGlyphs,
+    unsigned int theStart, unsigned int theCount, Color const &theColor, TRect<int> const &theClipRect)
 {
     (void)theClipRect;
     if (theGlyphs.empty() || theStart >= theGlyphs.size())
@@ -745,8 +738,8 @@ void Sexy::ImageFont::DrawGlyphs(Sexy::Graphics* theGraphics, int theX, int theY
         int mHeight;
         int mDrawMode;
         Color mColor;
-        Sexy::Image* mImage;
-        GlyphSprite* mNext;
+        Sexy::Image *mImage;
+        GlyphSprite *mNext;
     };
 
     gRenderCritSec.Lock();
@@ -756,21 +749,25 @@ void Sexy::ImageFont::DrawGlyphs(Sexy::Graphics* theGraphics, int theX, int theY
     std::vector<Color> aLayerColors((unsigned int)aLayerCount);
     for (int aLayer = 0; aLayer < aLayerCount; ++aLayer)
     {
-        FontLayer* aFontLayer = mActiveLayerList[(unsigned int)aLayer].mLayer;
+        FontLayer *aFontLayer = mActiveLayerList[(unsigned int)aLayer].mLayer;
         Color aColor;
         aColor.mAlpha = theColor.mAlpha + aFontLayer->mColorAdd.mAlpha * theColor.mAlpha / 255;
         aColor.mRed = theColor.mRed + aFontLayer->mColorAdd.mRed * theColor.mRed / 255;
         aColor.mGreen = theColor.mGreen + aFontLayer->mColorAdd.mGreen * theColor.mGreen / 255;
         aColor.mBlue = theColor.mBlue + aFontLayer->mColorAdd.mBlue * theColor.mBlue / 255;
-        if (aColor.mAlpha >= 255) aColor.mAlpha = 255;
-        if (aColor.mRed >= 255) aColor.mRed = 255;
-        if (aColor.mGreen >= 255) aColor.mGreen = 255;
-        if (aColor.mBlue >= 255) aColor.mBlue = 255;
+        if (aColor.mAlpha >= 255)
+            aColor.mAlpha = 255;
+        if (aColor.mRed >= 255)
+            aColor.mRed = 255;
+        if (aColor.mGreen >= 255)
+            aColor.mGreen = 255;
+        if (aColor.mBlue >= 255)
+            aColor.mBlue = 255;
         aLayerColors[(unsigned int)aLayer] = aColor;
     }
 
-    GlyphSprite* aBuckets[256];
-    GlyphSprite* aBucketTails[256];
+    GlyphSprite *aBuckets[256];
+    GlyphSprite *aBucketTails[256];
     for (int i = 0; i < 256; ++i)
     {
         aBuckets[i] = nullptr;
@@ -781,11 +778,11 @@ void Sexy::ImageFont::DrawGlyphs(Sexy::Graphics* theGraphics, int theX, int theY
 
     for (unsigned int aGlyphIndex = theStart; aGlyphIndex < anEnd; ++aGlyphIndex)
     {
-        Glyph& aGlyph = theGlyphs[aGlyphIndex];
+        Glyph &aGlyph = theGlyphs[aGlyphIndex];
         for (int aLayer = 0; aLayer < aLayerCount; ++aLayer)
         {
-            FontLayer* aFontLayer = mActiveLayerList[(unsigned int)aLayer].mLayer;
-            CharData* aCharData = nullptr;
+            FontLayer *aFontLayer = mActiveLayerList[(unsigned int)aLayer].mLayer;
+            CharData *aCharData = nullptr;
             if (aLayer == 0)
                 aCharData = aGlyph.mCharData;
             else
@@ -834,7 +831,7 @@ void Sexy::ImageFont::DrawGlyphs(Sexy::Graphics* theGraphics, int theX, int theY
             aSprite.mImage = aFontLayer->mImage.mImage;
             aSprite.mNext = nullptr;
             aSprites.push_back(aSprite);
-            GlyphSprite* aRecord = &aSprites.back();
+            GlyphSprite *aRecord = &aSprites.back();
             if (aBucketTails[anOrder] != nullptr)
                 aBucketTails[anOrder]->mNext = aRecord;
             else
@@ -847,7 +844,7 @@ void Sexy::ImageFont::DrawGlyphs(Sexy::Graphics* theGraphics, int theX, int theY
     int aSavedDrawMode = theGraphics->GetDrawMode();
     for (int i = 0; i < 256; ++i)
     {
-        for (GlyphSprite* aRecord = aBuckets[i]; aRecord != nullptr; aRecord = aRecord->mNext)
+        for (GlyphSprite *aRecord = aBuckets[i]; aRecord != nullptr; aRecord = aRecord->mNext)
         {
             if (aRecord->mDrawMode != -1)
                 theGraphics->SetDrawMode(aRecord->mDrawMode);
@@ -865,14 +862,13 @@ void Sexy::ImageFont::DrawGlyphs(Sexy::Graphics* theGraphics, int theX, int theY
     gRenderCritSec.Unlock();
 }
 
-int Sexy::ImageFont::SerializeWrite(void* theStream, int theSize)
+int Sexy::ImageFont::SerializeWrite(void *theStream, int theSize)
 {
     int aSize = theSize;
     if (theSize <= 0)
     {
         int aLayerSize = MeasureLayerSize(mFontData);
-        int aTagsBytes = StringBytes(mFontData->mFileName) + StringBytes(mFontData->mErrorHeader)
-            + 8 + aLayerSize;
+        int aTagsBytes = StringBytes(mFontData->mFileName) + StringBytes(mFontData->mErrorHeader) + 8 + aLayerSize;
         for (unsigned int i = 0; i < mTags.size(); ++i)
             aTagsBytes += StringBytes(mTags[i]);
         aSize = aTagsBytes + 9;
@@ -880,7 +876,7 @@ int Sexy::ImageFont::SerializeWrite(void* theStream, int theSize)
     if (theStream == nullptr)
         return aSize;
 
-    unsigned char* aCursor = static_cast<unsigned char*>(theStream);
+    unsigned char *aCursor = static_cast<unsigned char *>(theStream);
     int aMagic = kFontFileMagic;
     int aVersion = kFontFileVersion;
     WriteBytes(aCursor, &aMagic, 4);
@@ -999,16 +995,16 @@ int Sexy::ImageFont::GetLayerCount()
     return aCount;
 }
 
-void Sexy::ImageFont::PopLayerColor(Sexy::String const& theLayerName)
+void Sexy::ImageFont::PopLayerColor(Sexy::String const &theLayerName)
 {
     Sexy::String aModName(theLayerName);
     aModName.Append("__MOD", 5);
     for (unsigned int i = 0; i < mActiveLayerList.size(); ++i)
     {
-        FontLayer* aFontLayer = mActiveLayerList[i].mLayer;
+        FontLayer *aFontLayer = mActiveLayerList[i].mLayer;
         if (aFontLayer == nullptr)
             continue;
-        const char* aName = aFontLayer->mLayerName.c_str();
+        const char *aName = aFontLayer->mLayerName.c_str();
         if (strcasecmp(aName, theLayerName.c_str()) == 0 || strcasecmp(aName, aModName.c_str()) == 0)
             mActiveLayerList[i].PopColor();
     }
@@ -1037,11 +1033,9 @@ int Sexy::ImageFont::MappedCharWidthKern(int theChar, int thePrevChar)
     int aMaxWidth = 0;
     for (unsigned int i = 0; i < mActiveLayerList.size(); ++i)
     {
-        FontLayer* aFontLayer = mActiveLayerList[i].mLayer;
-        CharData* aCharData = aFontLayer->GetCharData(theChar);
-        double aGlyphScale = aFontLayer->mPointSize != 0
-            ? aScale / (double)aFontLayer->mPointSize
-            : mScale;
+        FontLayer *aFontLayer = mActiveLayerList[i].mLayer;
+        CharData *aCharData = aFontLayer->GetCharData(theChar);
+        double aGlyphScale = aFontLayer->mPointSize != 0 ? aScale / (double)aFontLayer->mPointSize : mScale;
         int aWidth = (int)((double)(short)aCharData->mAdvance * aGlyphScale);
         // MappedCharWidthKern @0x3113F0 looks the pair up on the previous
         // glyph. The amount is how far this glyph sits from that one.
@@ -1049,17 +1043,15 @@ int Sexy::ImageFont::MappedCharWidthKern(int theChar, int thePrevChar)
         if (thePrevChar != 0)
         {
             aKern = aFontLayer->mSpacing;
-            CharData* aPrevData = aFontLayer->GetCharData(thePrevChar);
+            CharData *aPrevData = aFontLayer->GetCharData(thePrevChar);
             if (aPrevData->mKernCount != 0)
             {
-                FontLayer::KerningValue* aKerning =
-                    aFontLayer->mKerningValues.data() + aPrevData->mKernIndex;
+                FontLayer::KerningValue *aKerning = aFontLayer->mKerningValues.data() + aPrevData->mKernIndex;
                 for (unsigned short aPair = 0; aPair < aPrevData->mKernCount; ++aPair)
                 {
                     if (aKerning[aPair].mSecondChar == theChar)
                     {
-                        aKern = (int)((double)aFontLayer->mSpacing
-                            + (double)aKerning[aPair].mAmount * aGlyphScale);
+                        aKern = (int)((double)aFontLayer->mSpacing + (double)aKerning[aPair].mAmount * aGlyphScale);
                         break;
                     }
                 }
@@ -1072,23 +1064,23 @@ int Sexy::ImageFont::MappedCharWidthKern(int theChar, int thePrevChar)
     return aMaxWidth;
 }
 
-void Sexy::ImageFont::PushLayerColor(Sexy::String const& theLayerName, Color const& theColor)
+void Sexy::ImageFont::PushLayerColor(Sexy::String const &theLayerName, Color const &theColor)
 {
     Prepare();
     Sexy::String aModName(theLayerName);
     aModName.Append("__MOD", 5);
     for (unsigned int i = 0; i < mActiveLayerList.size(); ++i)
     {
-        FontLayer* aFontLayer = mActiveLayerList[i].mLayer;
+        FontLayer *aFontLayer = mActiveLayerList[i].mLayer;
         if (aFontLayer == nullptr)
             continue;
-        const char* aName = aFontLayer->mLayerName.c_str();
+        const char *aName = aFontLayer->mLayerName.c_str();
         if (strcasecmp(aName, theLayerName.c_str()) == 0 || strcasecmp(aName, aModName.c_str()) == 0)
             mActiveLayerList[i].PushColor(theColor);
     }
 }
 
-void Sexy::ImageFont::PushLayerColor(int theLayerIndex, Color const& theColor)
+void Sexy::ImageFont::PushLayerColor(int theLayerIndex, Color const &theColor)
 {
     Prepare();
     int aIndex = 0;
@@ -1105,7 +1097,7 @@ void Sexy::ImageFont::PushLayerColor(int theLayerIndex, Color const& theColor)
     }
 }
 
-void Sexy::ImageFont::GlyphExtentsList(std::list<const Glyph*> const& theGlyphsList, TextExtents& theExtents)
+void Sexy::ImageFont::GlyphExtentsList(std::list<const Glyph *> const &theGlyphsList, TextExtents &theExtents)
 {
     theExtents = TextExtents();
     if (theGlyphsList.empty())
@@ -1119,7 +1111,7 @@ void Sexy::ImageFont::GlyphExtentsList(std::list<const Glyph*> const& theGlyphsL
     float aRunMaxY = 0.0f;
     bool aFirst = true;
 
-    for (const Glyph* aGlyph : theGlyphsList)
+    for (const Glyph *aGlyph : theGlyphsList)
     {
         if (aGlyph->mInkWidth == 0 || aGlyph->mInkHeight == 0)
             continue;
@@ -1134,15 +1126,12 @@ void Sexy::ImageFont::GlyphExtentsList(std::list<const Glyph*> const& theGlyphsL
             int aMinY = 0;
             int aMaxX = 0;
             int aMaxY = 0;
-            CharData* aCached[] = {aGlyph->mCharData, aGlyph->mCharData1,
-                                   aGlyph->mCharData2, aGlyph->mCharData3};
+            CharData *aCached[] = {aGlyph->mCharData, aGlyph->mCharData1, aGlyph->mCharData2, aGlyph->mCharData3};
             for (int aLayerIndex = 0; aLayerIndex < aLayerCount; ++aLayerIndex)
             {
-                ActiveFontLayer* aLayer = &mActiveLayerList[(unsigned int)aLayerIndex];
-                FontLayer* aFontLayer = aLayer->mLayer;
-                CharData* aCharData = aLayerIndex <= 3
-                    ? aCached[aLayerIndex]
-                    : aFontLayer->GetCharData(aGlyph->mChar);
+                ActiveFontLayer *aLayer = &mActiveLayerList[(unsigned int)aLayerIndex];
+                FontLayer *aFontLayer = aLayer->mLayer;
+                CharData *aCharData = aLayerIndex <= 3 ? aCached[aLayerIndex] : aFontLayer->GetCharData(aGlyph->mChar);
                 if (aCharData == nullptr)
                     continue;
 
@@ -1164,8 +1153,7 @@ void Sexy::ImageFont::GlyphExtentsList(std::list<const Glyph*> const& theGlyphsL
                 else
                 {
                     aX = aPenX + (int)(aGlyphScale * (double)(aFontLayer->mOffset.mX + aOffsetX));
-                    aY = aPenY - (int)(aGlyphScale * (double)(aFontLayer->mAscent
-                        - aFontLayer->mOffset.mY - aOffsetY));
+                    aY = aPenY - (int)(aGlyphScale * (double)(aFontLayer->mAscent - aFontLayer->mOffset.mY - aOffsetY));
                 }
 
                 Sexy::TRect<int> aSrc = SourceRect(aLayer, aGlyph->mChar);
@@ -1219,8 +1207,8 @@ void Sexy::ImageFont::GlyphExtentsList(std::list<const Glyph*> const& theGlyphsL
     aRunMaxX -= aRunMinX;
     aRunMaxY -= aRunMinY;
 
-    const Glyph* aFirstGlyph = theGlyphsList.front();
-    const Glyph* aLastGlyph = theGlyphsList.back();
+    const Glyph *aFirstGlyph = theGlyphsList.front();
+    const Glyph *aLastGlyph = theGlyphsList.back();
     int aFirstPenX = (int)aFirstGlyph->mX;
     int aFirstPenY = (int)aFirstGlyph->mY;
     theExtents.mMinX = aRunMinX - aFirstGlyph->mX;
@@ -1231,10 +1219,8 @@ void Sexy::ImageFont::GlyphExtentsList(std::list<const Glyph*> const& theGlyphsL
     theExtents.mSpanY = (float)((int)(aLastGlyph->mAdvanceY + aLastGlyph->mY) - aFirstPenY);
 }
 
-void Sexy::ImageFont::DrawStringEx(Sexy::Graphics* theGraphics, int theX, int theY,
-                                   Sexy::String const& theString, Color const& theColor,
-                                   TRect<int> const* theClipRect,
-                                   std::list<TRect<int>>* theDrawnAreas, int* theWidth)
+void Sexy::ImageFont::DrawStringEx(Sexy::Graphics *theGraphics, int theX, int theY, Sexy::String const &theString,
+    Color const &theColor, TRect<int> const *theClipRect, std::list<TRect<int>> *theDrawnAreas, int *theWidth)
 {
     (void)theClipRect;
     if (theString.empty())
@@ -1279,15 +1265,13 @@ void Sexy::ImageFont::DrawStringEx(Sexy::Graphics* theGraphics, int theX, int th
     int aChar = aChars.empty() ? 0 : GetMappedChar(aChars[0]);
     for (unsigned aIndex = 0; aIndex < aLength; ++aIndex)
     {
-        int aNext = aIndex >= aLength - 1
-            ? 0
-            : GetMappedChar(aChars[aIndex + 1]);
+        int aNext = aIndex >= aLength - 1 ? 0 : GetMappedChar(aChars[aIndex + 1]);
         int aPenMax = aPen;
         for (unsigned int aLayerIndex = 0; aLayerIndex < mActiveLayerList.size(); ++aLayerIndex)
         {
-            ActiveFontLayer* aLayer = &mActiveLayerList[aLayerIndex];
-            FontLayer* aFontLayer = aLayer->mLayer;
-            CharData* aCharData = aFontLayer->GetCharData(aChar);
+            ActiveFontLayer *aLayer = &mActiveLayerList[aLayerIndex];
+            FontLayer *aFontLayer = aLayer->mLayer;
+            CharData *aCharData = aFontLayer->GetCharData(aChar);
 
             double aGlyphScale = mScale;
             if (aFontLayer->mPointSize != 0)
@@ -1310,8 +1294,7 @@ void Sexy::ImageFont::DrawStringEx(Sexy::Graphics* theGraphics, int theX, int th
                     aKern = aFontLayer->mSpacing;
                     if (aCharData->mKernCount != 0)
                     {
-                        FontLayer::KerningValue* aKerning =
-                            aFontLayer->mKerningValues.data() + aCharData->mKernIndex;
+                        FontLayer::KerningValue *aKerning = aFontLayer->mKerningValues.data() + aCharData->mKernIndex;
                         for (unsigned short i = 0; i < aCharData->mKernCount; ++i)
                         {
                             if (aKerning[i].mSecondChar == aNext)
@@ -1327,8 +1310,7 @@ void Sexy::ImageFont::DrawStringEx(Sexy::Graphics* theGraphics, int theX, int th
             }
             else
             {
-                aY = theY - (int)(aGlyphScale * (double)(aFontLayer->mAscent
-                    - aFontLayer->mOffset.mY - aOffsetY));
+                aY = theY - (int)(aGlyphScale * (double)(aFontLayer->mAscent - aFontLayer->mOffset.mY - aOffsetY));
                 aX = aPen + (int)(aGlyphScale * (double)(aOffsetX + aFontLayer->mOffset.mX));
                 aAdvance = (int)(aGlyphScale * (double)(short)aCharData->mAdvance);
                 if (aNext != 0)
@@ -1336,8 +1318,7 @@ void Sexy::ImageFont::DrawStringEx(Sexy::Graphics* theGraphics, int theX, int th
                     aKern = aFontLayer->mSpacing;
                     if (aCharData->mKernCount != 0)
                     {
-                        FontLayer::KerningValue* aKerning =
-                            aFontLayer->mKerningValues.data() + aCharData->mKernIndex;
+                        FontLayer::KerningValue *aKerning = aFontLayer->mKerningValues.data() + aCharData->mKernIndex;
                         for (unsigned short i = 0; i < aCharData->mKernCount; ++i)
                         {
                             if (aKerning[i].mSecondChar == aNext)
@@ -1352,8 +1333,8 @@ void Sexy::ImageFont::DrawStringEx(Sexy::Graphics* theGraphics, int theX, int th
             Color aDrawn;
             if (aLayer->mColorStack.empty())
             {
-                Color const& aMult = aFontLayer->mColorMult;
-                Color const& aAdd = aFontLayer->mColorAdd;
+                Color const &aMult = aFontLayer->mColorMult;
+                Color const &aAdd = aFontLayer->mColorAdd;
                 aDrawn.mRed = ClampChannel(MulDiv255(aMult.mRed, theColor.mRed) + aAdd.mRed);
                 aDrawn.mGreen = ClampChannel(MulDiv255(aMult.mGreen, theColor.mGreen) + aAdd.mGreen);
                 aDrawn.mBlue = ClampChannel(MulDiv255(aMult.mBlue, theColor.mBlue) + aAdd.mBlue);
@@ -1361,14 +1342,14 @@ void Sexy::ImageFont::DrawStringEx(Sexy::Graphics* theGraphics, int theX, int th
             }
             else
             {
-                Color const& aStacked = aLayer->mColorStack.back();
-                Color const& aMult = aFontLayer->mColorMult;
+                Color const &aStacked = aLayer->mColorStack.back();
+                Color const &aMult = aFontLayer->mColorMult;
                 Color aMixed;
                 aMixed.mRed = ClampChannel(MulDiv255(aMult.mRed, aStacked.mRed));
                 aMixed.mGreen = ClampChannel(MulDiv255(aMult.mGreen, aStacked.mGreen));
                 aMixed.mBlue = ClampChannel(MulDiv255(aMult.mBlue, aStacked.mBlue));
                 aMixed.mAlpha = ClampChannel(MulDiv255(aMult.mAlpha, aStacked.mAlpha));
-                Color const& aAdd = aFontLayer->mColorAdd;
+                Color const &aAdd = aFontLayer->mColorAdd;
                 aDrawn.mRed = ClampChannel(MulDiv255(aMixed.mRed, theColor.mRed) + aAdd.mRed);
                 aDrawn.mGreen = ClampChannel(MulDiv255(aMixed.mGreen, theColor.mGreen) + aAdd.mGreen);
                 aDrawn.mBlue = ClampChannel(MulDiv255(aMixed.mBlue, theColor.mBlue) + aAdd.mBlue);
@@ -1385,7 +1366,7 @@ void Sexy::ImageFont::DrawStringEx(Sexy::Graphics* theGraphics, int theX, int th
             else if (aBucket >= 255)
                 aBucket = 255;
 
-            DrawGlyphRecord* aRecord = &sDrawRecords[aRecordCount];
+            DrawGlyphRecord *aRecord = &sDrawRecords[aRecordCount];
             ++aRecordCount;
             aRecord->mImage = aLayer->mImage;
             aRecord->mX = aX;
@@ -1424,7 +1405,7 @@ void Sexy::ImageFont::DrawStringEx(Sexy::Graphics* theGraphics, int theX, int th
     Color aSavedColor = theGraphics->GetColor();
     for (int aBucket = 0; aBucket < 256; ++aBucket)
     {
-        for (DrawGlyphRecord* aRecord = sDrawHeads[aBucket]; aRecord != nullptr; aRecord = aRecord->mNext)
+        for (DrawGlyphRecord *aRecord = sDrawHeads[aBucket]; aRecord != nullptr; aRecord = aRecord->mNext)
         {
             int aSavedMode = theGraphics->GetDrawMode();
             if (aRecord->mDrawMode != -1)
@@ -1443,24 +1424,21 @@ void Sexy::ImageFont::DrawStringEx(Sexy::Graphics* theGraphics, int theX, int th
     gRenderCritSec.Unlock();
 }
 
-void Sexy::ImageFont::DrawStringEx(Sexy::Graphics* theGraphics, int theX, int theY,
-                                   Sexy::WString const& theString, Color const& theColor,
-                                   TRect<int> const* theClipRect,
-                                   std::list<TRect<int>>* theDrawnAreas, int* theWidth)
+void Sexy::ImageFont::DrawStringEx(Sexy::Graphics *theGraphics, int theX, int theY, Sexy::WString const &theString,
+    Color const &theColor, TRect<int> const *theClipRect, std::list<TRect<int>> *theDrawnAreas, int *theWidth)
 {
-    DrawStringEx(theGraphics, theX, theY, AsString(theString), theColor,
-                 theClipRect, theDrawnAreas, theWidth);
+    DrawStringEx(theGraphics, theX, theY, AsString(theString), theColor, theClipRect, theDrawnAreas, theWidth);
 }
 
-Sexy::ImageFont::ImageFont(Sexy::Image* theImage)
-    : mFontData(nullptr)
-    , mPointSize(0)
-    , mRecalcFontSize(false)
-    , mActiveListPad(0)
-    , mScale(1.0)
-    , mForceScaledImagesWhite(false)
-    , mApp(nullptr)
-    , mDigestComputed(false)
+Sexy::ImageFont::ImageFont(Sexy::Image *theImage) :
+    mFontData(nullptr),
+    mPointSize(0),
+    mRecalcFontSize(false),
+    mActiveListPad(0),
+    mScale(1.0),
+    mForceScaledImagesWhite(false),
+    mApp(nullptr),
+    mDigestComputed(false)
 {
     std::memset(mDigest, 0, sizeof(mDigest));
     mFontData = new FontData();
@@ -1472,7 +1450,7 @@ Sexy::ImageFont::ImageFont(Sexy::Image* theImage)
 
     FontLayer aLayer(mFontData);
     mFontData->mLayerList.push_back(aLayer);
-    FontLayer* aFontLayer = &mFontData->mLayerList.back();
+    FontLayer *aFontLayer = &mFontData->mLayerList.back();
     mFontData->mLayerMap[aFontLayer->mLayerName] = aFontLayer;
     aFontLayer->mImage.Release();
     aFontLayer->mImage.mImage = theImage;
@@ -1481,33 +1459,33 @@ Sexy::ImageFont::ImageFont(Sexy::Image* theImage)
     aFontLayer->mAscent = aHeight;
 }
 
-int Sexy::ImageFont::SerializeRead(void* theStream, int theSize)
+int Sexy::ImageFont::SerializeRead(void *theStream, int theSize)
 {
     (void)theSize;
     if (theStream == nullptr)
         return 0;
-    return ReadFont(this, static_cast<const unsigned char*>(theStream), false);
+    return ReadFont(this, static_cast<const unsigned char *>(theStream), false);
 }
 
-int Sexy::ImageFont::SerializeReadEndian(void* theStream, int theSize)
+int Sexy::ImageFont::SerializeReadEndian(void *theStream, int theSize)
 {
     (void)theSize;
     if (theStream == nullptr)
         return 0;
-    return ReadFont(this, static_cast<const unsigned char*>(theStream), true);
+    return ReadFont(this, static_cast<const unsigned char *>(theStream), true);
 }
 
-Sexy::ImageFont::ImageFont(Sexy::ImageFont const& theOther)
-    : Font(theOther)
-    , mFontData(theOther.mFontData)
-    , mPointSize(theOther.mPointSize)
-    , mTags(theOther.mTags)
-    , mRecalcFontSize(theOther.mRecalcFontSize)
-    , mActiveListPad(theOther.mActiveListPad)
-    , mScale(theOther.mScale)
-    , mForceScaledImagesWhite(theOther.mForceScaledImagesWhite)
-    , mApp(theOther.mApp)
-    , mDigestComputed(theOther.mDigestComputed)
+Sexy::ImageFont::ImageFont(Sexy::ImageFont const &theOther) :
+    Font(theOther),
+    mFontData(theOther.mFontData),
+    mPointSize(theOther.mPointSize),
+    mTags(theOther.mTags),
+    mRecalcFontSize(theOther.mRecalcFontSize),
+    mActiveListPad(theOther.mActiveListPad),
+    mScale(theOther.mScale),
+    mForceScaledImagesWhite(theOther.mForceScaledImagesWhite),
+    mApp(theOther.mApp),
+    mDigestComputed(theOther.mDigestComputed)
 {
     std::memcpy(mDigest, theOther.mDigest, sizeof(mDigest));
     mFontData->Ref();
@@ -1515,12 +1493,12 @@ Sexy::ImageFont::ImageFont(Sexy::ImageFont const& theOther)
         mActiveLayerList = theOther.mActiveLayerList;
 }
 
-Sexy::ImageFont* Sexy::ImageFont::Duplicate()
+Sexy::ImageFont *Sexy::ImageFont::Duplicate()
 {
     return new ImageFont(*this);
 }
 
-int Sexy::ImageFont::UpdateDigest(Sexy::String const& theFileName)
+int Sexy::ImageFont::UpdateDigest(Sexy::String const &theFileName)
 {
     if (mDigestComputed)
         return mDigestComputed;
@@ -1531,7 +1509,7 @@ int Sexy::ImageFont::UpdateDigest(Sexy::String const& theFileName)
 
     MD5Context aState;
     MD5Init(&aState);
-    const unsigned char* aData = aBuffer.mData.empty() ? nullptr : aBuffer.mData.data();
+    const unsigned char *aData = aBuffer.mData.empty() ? nullptr : aBuffer.mData.data();
     size_t aByteCount = (size_t)((aBuffer.mDataBitSize + 7) / 8);
     MD5Update(&aState, aData, (unsigned int)aByteCount);
     MD5Final(mDigest, &aState);
@@ -1539,15 +1517,15 @@ int Sexy::ImageFont::UpdateDigest(Sexy::String const& theFileName)
     return aResult;
 }
 
-bool Sexy::ImageFont::CheckCachedBuffer(Sexy::Buffer& theBuffer, Sexy::String const& theFileName)
+bool Sexy::ImageFont::CheckCachedBuffer(Sexy::Buffer &theBuffer, Sexy::String const &theFileName)
 {
-    const unsigned char* aData = theBuffer.mData.empty() ? nullptr : theBuffer.mData.data();
+    const unsigned char *aData = theBuffer.mData.empty() ? nullptr : theBuffer.mData.data();
     if (UpdateDigest(theFileName) == 0)
         return false;
     if (aData == nullptr || std::memcmp(aData, mDigest, sizeof(mDigest)) != 0)
         return false;
 
-    const unsigned char* aCursor = aData + sizeof(mDigest);
+    const unsigned char *aCursor = aData + sizeof(mDigest);
     unsigned int aWord = 0;
     ReadBytes(aCursor, &aWord, 4);
     if (aWord != (unsigned int)kFontFileMagic)
@@ -1572,10 +1550,10 @@ void Sexy::ImageFont::GenerateActiveFontLayers()
     bool aFirstMatch = true;
     for (auto aNode = mFontData->mLayerList.begin(); aNode != mFontData->mLayerList.end(); ++aNode)
     {
-        FontLayer* aFontLayer = &*aNode;
+        FontLayer *aFontLayer = &*aNode;
         // mMaxPointSize stays -1 when the descriptor sets no upper bound.
-        if (mPointSize < aFontLayer->mMinPointSize
-            || (aFontLayer->mMaxPointSize != -1 && mPointSize > aFontLayer->mMaxPointSize))
+        if (mPointSize < aFontLayer->mMinPointSize ||
+            (aFontLayer->mMaxPointSize != -1 && mPointSize > aFontLayer->mMaxPointSize))
             continue;
 
         bool aMatch = true;
@@ -1596,13 +1574,12 @@ void Sexy::ImageFont::GenerateActiveFontLayers()
             continue;
 
         mActiveLayerList.push_back(ActiveFontLayer());
-        ActiveFontLayer* aActive = &mActiveLayerList.back();
+        ActiveFontLayer *aActive = &mActiveLayerList.back();
         aActive->mLayer = aFontLayer;
 
         double aMetricScale = mScale;
         double aMetricDiv = 1.0;
-        bool aRescale = !(mScale == 1.0
-            && (aFontLayer->mPointSize == 0 || aFontLayer->mPointSize == mPointSize));
+        bool aRescale = !(mScale == 1.0 && (aFontLayer->mPointSize == 0 || aFontLayer->mPointSize == mPointSize));
         if (aRescale && aFontLayer->mPointSize != 0)
         {
             aMetricScale = mScale * (double)mPointSize;
@@ -1611,12 +1588,11 @@ void Sexy::ImageFont::GenerateActiveFontLayers()
 
         if (aRescale)
         {
-            Sexy::MemoryImage* aScaled = new Sexy::MemoryImage(mFontData->mApp);
+            Sexy::MemoryImage *aScaled = new Sexy::MemoryImage(mFontData->mApp);
             int aTotalWidth = 0;
             int aMaxHeight = 0;
             double aInvPoint = 1.0 / aMetricDiv;
-            for (auto aChar = aFontLayer->mCharDataMap.begin();
-                 aChar != aFontLayer->mCharDataMap.end(); ++aChar)
+            for (auto aChar = aFontLayer->mCharDataMap.begin(); aChar != aFontLayer->mCharDataMap.end(); ++aChar)
             {
                 int aWidth = (int)((aMetricScale * (double)(unsigned short)aChar->second.mWidth) * aInvPoint);
                 int aHeight = (int)((aMetricScale * (double)(unsigned short)aChar->second.mHeight) * aInvPoint);
@@ -1631,22 +1607,22 @@ void Sexy::ImageFont::GenerateActiveFontLayers()
             aScaled->Create(aTotalWidth, aMaxHeight);
             {
                 Sexy::Graphics aGraphics(aScaled);
-                for (auto aChar = aFontLayer->mCharDataMap.begin();
-                     aChar != aFontLayer->mCharDataMap.end(); ++aChar)
+                for (auto aChar = aFontLayer->mCharDataMap.begin(); aChar != aFontLayer->mCharDataMap.end(); ++aChar)
                 {
-                    Sexy::Image* aSrc = aFontLayer->mImage;
+                    Sexy::Image *aSrc = aFontLayer->mImage;
                     if (aSrc == nullptr)
                         continue;
                     TRect<int> aDestRect = aActive->mCharRects[aChar->first];
-                    TRect<int> aSrcRect((int)(short)aChar->second.mX, (int)(short)aChar->second.mY,
-                                        (int)(unsigned short)aChar->second.mWidth,
-                                        (int)(unsigned short)aChar->second.mHeight);
+                    TRect<int> aSrcRect((int)(short)aChar->second.mX,
+                        (int)(short)aChar->second.mY,
+                        (int)(unsigned short)aChar->second.mWidth,
+                        (int)(unsigned short)aChar->second.mHeight);
                     aGraphics.DrawImage(aSrc, aDestRect, aSrcRect);
                 }
                 if (mForceScaledImagesWhite)
                 {
                     int aCount = aScaled->mWidth * aScaled->mHeight;
-                    unsigned int* aBits = aScaled->GetBits();
+                    unsigned int *aBits = aScaled->GetBits();
                     for (int aPixel = 0; aPixel < aCount; ++aPixel)
                         aBits[aPixel] |= 0x00FFFFFFu;
                 }
@@ -1657,11 +1633,10 @@ void Sexy::ImageFont::GenerateActiveFontLayers()
         {
             aActive->mImage = aFontLayer->mImage;
             aActive->mOwnsImage = false;
-            for (auto aChar = aFontLayer->mCharDataMap.begin();
-                 aChar != aFontLayer->mCharDataMap.end(); ++aChar)
+            for (auto aChar = aFontLayer->mCharDataMap.begin(); aChar != aFontLayer->mCharDataMap.end(); ++aChar)
             {
-                aActive->mCharRects[aChar->first] = TRect<int>(
-                    (int)(short)aChar->second.mX, (int)(short)aChar->second.mY,
+                aActive->mCharRects[aChar->first] = TRect<int>((int)(short)aChar->second.mX,
+                    (int)(short)aChar->second.mY,
                     (int)(unsigned short)aChar->second.mWidth,
                     (int)(unsigned short)aChar->second.mHeight);
             }
@@ -1692,15 +1667,15 @@ void Sexy::ImageFont::GenerateActiveFontLayers()
     }
 }
 
-Sexy::ImageFont::ImageFont(Sexy::SexyAppBase* theApp, Sexy::String const& theFileName)
-    : mFontData(nullptr)
-    , mPointSize(0)
-    , mRecalcFontSize(false)
-    , mActiveListPad(0)
-    , mScale(1.0)
-    , mForceScaledImagesWhite(false)
-    , mApp(theApp)
-    , mDigestComputed(false)
+Sexy::ImageFont::ImageFont(Sexy::SexyAppBase *theApp, Sexy::String const &theFileName) :
+    mFontData(nullptr),
+    mPointSize(0),
+    mRecalcFontSize(false),
+    mActiveListPad(0),
+    mScale(1.0),
+    mForceScaledImagesWhite(false),
+    mApp(theApp),
+    mDigestComputed(false)
 {
     std::memset(mDigest, 0, sizeof(mDigest));
     mFontData = new FontData();
@@ -1716,21 +1691,17 @@ Sexy::ImageFont::ImageFont(Sexy::SexyAppBase* theApp, Sexy::String const& theFil
     aCacheName += aRelativeName;
 
     Sexy::Buffer aBuffer;
-    bool aCached = (theApp->ReadBufferFromFile(aFileName, &aBuffer, true) != 0
-            && aBuffer.mDataBitSize > 120
-            && CheckCachedBuffer(aBuffer, theFileName))
-        || (theApp->ReadBufferFromFile(aRelativeName, &aBuffer, true) != 0
-            && aBuffer.mDataBitSize > 120
-            && CheckCachedBuffer(aBuffer, theFileName))
-        || (theApp->ReadBufferFromFile(aCacheName, &aBuffer, true) != 0
-            && aBuffer.mDataBitSize > 120
-            && CheckCachedBuffer(aBuffer, theFileName));
+    bool aCached = (theApp->ReadBufferFromFile(aFileName, &aBuffer, true) != 0 && aBuffer.mDataBitSize > 120 &&
+                       CheckCachedBuffer(aBuffer, theFileName)) ||
+        (theApp->ReadBufferFromFile(aRelativeName, &aBuffer, true) != 0 && aBuffer.mDataBitSize > 120 &&
+            CheckCachedBuffer(aBuffer, theFileName)) ||
+        (theApp->ReadBufferFromFile(aCacheName, &aBuffer, true) != 0 && aBuffer.mDataBitSize > 120 &&
+            CheckCachedBuffer(aBuffer, theFileName));
     if (aCached)
     {
-        unsigned char* aData = aBuffer.mData.empty() ? nullptr : aBuffer.mData.data();
+        unsigned char *aData = aBuffer.mData.empty() ? nullptr : aBuffer.mData.data();
         int aByteCount = (aBuffer.mDataBitSize + 7) / 8;
-        if (aData != nullptr
-            && SerializeRead(aData + sizeof(mDigest), aByteCount - (int)sizeof(mDigest)) != 0)
+        if (aData != nullptr && SerializeRead(aData + sizeof(mDigest), aByteCount - (int)sizeof(mDigest)) != 0)
         {
             logfi("Loaded cached %s successfully.", theFileName.c_str());
             return;
@@ -1751,7 +1722,7 @@ Sexy::ImageFont::ImageFont(Sexy::SexyAppBase* theApp, Sexy::String const& theFil
             unsigned char aDigest[16];
             MD5Context aState;
             MD5Init(&aState);
-            const unsigned char* aFontBytes = aFontBuffer.mData.empty() ? nullptr : aFontBuffer.mData.data();
+            const unsigned char *aFontBytes = aFontBuffer.mData.empty() ? nullptr : aFontBuffer.mData.data();
             MD5Update(&aState, aFontBytes, (unsigned int)((aFontBuffer.mDataBitSize + 7) / 8));
             MD5Final(aDigest, &aState);
 
@@ -1760,7 +1731,7 @@ Sexy::ImageFont::ImageFont(Sexy::SexyAppBase* theApp, Sexy::String const& theFil
             MkDir(aDir);
 
             int aSize = SerializeWrite(nullptr, 0);
-            unsigned char* aCache = new unsigned char[aSize + (int)sizeof(aDigest)];
+            unsigned char *aCache = new unsigned char[aSize + (int)sizeof(aDigest)];
             std::memcpy(aCache, aDigest, sizeof(aDigest));
             SerializeWrite(aCache + sizeof(aDigest), aSize);
             GetFileDir(&aDir, &aCacheName, 0);
@@ -1771,15 +1742,15 @@ Sexy::ImageFont::ImageFont(Sexy::SexyAppBase* theApp, Sexy::String const& theFil
     }
 }
 
-Sexy::ImageFont::ImageFont(Sexy::Image* theImage, Sexy::String const& theFileName)
-    : mFontData(nullptr)
-    , mPointSize(0)
-    , mRecalcFontSize(false)
-    , mActiveListPad(0)
-    , mScale(1.0)
-    , mForceScaledImagesWhite(false)
-    , mApp(nullptr)
-    , mDigestComputed(false)
+Sexy::ImageFont::ImageFont(Sexy::Image *theImage, Sexy::String const &theFileName) :
+    mFontData(nullptr),
+    mPointSize(0),
+    mRecalcFontSize(false),
+    mActiveListPad(0),
+    mScale(1.0),
+    mForceScaledImagesWhite(false),
+    mApp(nullptr),
+    mDigestComputed(false)
 {
     std::memset(mDigest, 0, sizeof(mDigest));
     mFontData = new FontData();

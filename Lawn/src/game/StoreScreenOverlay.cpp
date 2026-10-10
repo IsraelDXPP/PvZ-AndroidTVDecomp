@@ -14,7 +14,7 @@
 // ==========================================================================
 void StoreScreenOverlay::Draw(Sexy::Graphics *g)
 {
-  mStoreScreen->DrawOverlay(g);
+    mStoreScreen->DrawOverlay(g);
 }
 
 // ==========================================================================
@@ -24,6 +24,4 @@ void StoreScreenOverlay::Draw(Sexy::Graphics *g)
 // The binary stores the vptr and calls Sexy::Widget::~Widget, which is what the
 // compiler emits for this empty body.
 // ==========================================================================
-StoreScreenOverlay::~StoreScreenOverlay()
-{
-}
+StoreScreenOverlay::~StoreScreenOverlay() {}

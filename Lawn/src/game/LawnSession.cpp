@@ -24,8 +24,8 @@ int MSleep(int theMillis);
 // ==========================================================================
 LawnSession::~LawnSession()
 {
-  // Sexy::Thread::~Thread runs for mThread on its own now that the member has a
-  // real type; the binary's body is that one call and nothing else.
+    // Sexy::Thread::~Thread runs for mThread on its own now that the member has a
+    // real type; the binary's body is that one call and nothing else.
 }
 
 // ==========================================================================
@@ -34,35 +34,35 @@ LawnSession::~LawnSession()
 // ==========================================================================
 bool LawnSession::HandleTask()
 {
-  if ( mTask != nullptr )
-  {
-    mTaskDone = false;
-    mTask->Run();
-    mTask = nullptr;
-    mTaskDone = true;
-    // Non-null means "a task was run"; the only caller tests the result against
-    // zero. The binary returns `&dword_0 + 1`, which is that same 1.
-    return true;
-  }
-  return false;
+    if (mTask != nullptr)
+    {
+        mTaskDone = false;
+        mTask->Run();
+        mTask = nullptr;
+        mTaskDone = true;
+        // Non-null means "a task was run"; the only caller tests the result against
+        // zero. The binary returns `&dword_0 + 1`, which is that same 1.
+        return true;
+    }
+    return false;
 }
 
 // ==========================================================================
 // LawnSession::SessionThreadProc(void *)
 // @001EBD08  36 bytes
 // ==========================================================================
-LawnSession * LawnSession::SessionThreadProc(void *theUnused)
+LawnSession *LawnSession::SessionThreadProc(void *theUnused)
 {
-  (void)theUnused;
-  while ( !mShutdown )
-  {
-    if ( !HandleTask() )
+    (void)theUnused;
+    while (!mShutdown)
     {
-      MSleep(20);
-      HandleTask();
+        if (!HandleTask())
+        {
+            MSleep(20);
+            HandleTask();
+        }
     }
-  }
-  return this;
+    return this;
 }
 
 // ==========================================================================
@@ -71,20 +71,20 @@ LawnSession * LawnSession::SessionThreadProc(void *theUnused)
 // ==========================================================================
 LawnSession::LawnSession()
 {
-  mTaskDone = true;
-  mShutdown = false;
-  mTask = nullptr;
-  // mThread is default-constructed by the compiler, which is the binary's
-  // Sexy::Thread::Thread(this + 12).
+    mTaskDone = true;
+    mShutdown = false;
+    mTask = nullptr;
+    // mThread is default-constructed by the compiler, which is the binary's
+    // Sexy::Thread::Thread(this + 12).
 }
 
 // TODO(recon): the dump passes the member function's address straight to
 // Thread::Create as a void(*)(void*); C++ cannot take a member function's
 // address that way, so this thunk is the same call. It is the function
 // Sexy::Thread::Create below would be handed.
-static void LaudSessionThreadProcThunk(void *theObject)
+[[maybe_unused]] static void LawnSessionThreadProcThunk(void *theObject)
 {
-  ((LawnSession *)theObject)->SessionThreadProc(nullptr);
+    static_cast<LawnSession *>(theObject)->SessionThreadProc(nullptr);
 }
 
 // ==========================================================================
@@ -93,33 +93,32 @@ static void LaudSessionThreadProcThunk(void *theObject)
 // ==========================================================================
 int LawnSession::Init()
 {
-  // PLACEHOLDER: no session thread on this platform.
-  //
-  // The original starts the server-session thread and immediately destroys the
-  // Sexy::Thread object that owns it:
-  //
-  //     Sexy::Thread aThread = Sexy::Thread::Create(LaudSessionThreadProcThunk, this);
-  //     return 1;                       // ~Thread runs here, and it joins
-  //
-  // and that destructor joins the thread. The session thread talks to the game
-  // server, so on a platform with no server backend it never finishes, the join
-  // never returns, and the whole game stops here:
-  //
-  //     step: LawnApp::Init entered
-  //     step: Init: before LawnSession::Init
-  //     (the "after" line never printed; the process neither crashed nor exited)
-  //
-  // The session belongs to the Android/online layer, which this port does not
-  // provide, so the equivalent behaviour is to report a ready session without
-  // starting one. The caller only reads the return value:
-  //
-  //     if ( LawnSession::Init(...) == 0 ) DoExit(-1);
-  //
-  // so 1 means "session ready", which is what single-player needs. Nothing else
-  // in the tree reads the thread this would have created. The original body is
-  // kept in the comment above for the day a server backend exists.
-  (void)LaudSessionThreadProcThunk;
-  return 1;
+    // PLACEHOLDER: no session thread on this platform.
+    //
+    // The original starts the server-session thread and immediately destroys the
+    // Sexy::Thread object that owns it:
+    //
+    //     Sexy::Thread aThread = Sexy::Thread::Create(LawnSessionThreadProcThunk, this);
+    //     return 1;                       // ~Thread runs here, and it joins
+    //
+    // and that destructor joins the thread. The session thread talks to the game
+    // server, so on a platform with no server backend it never finishes, the join
+    // never returns, and the whole game stops here:
+    //
+    //     step: LawnApp::Init entered
+    //     step: Init: before LawnSession::Init
+    //     (the "after" line never printed; the process neither crashed nor exited)
+    //
+    // The session belongs to the Android/online layer, which this port does not
+    // provide, so the equivalent behaviour is to report a ready session without
+    // starting one. The caller only reads the return value:
+    //
+    //     if ( LawnSession::Init(...) == 0 ) DoExit(-1);
+    //
+    // so 1 means "session ready", which is what single-player needs. Nothing else
+    // in the tree reads the thread this would have created. The original body is
+    // kept in the comment above for the day a server backend exists.
+    return 1;
 }
 
 // ==========================================================================
@@ -128,11 +127,11 @@ int LawnSession::Init()
 // ==========================================================================
 int LawnSession::Shutdown()
 {
-  mShutdown = true;
-  // The binary sets no return value at all -- r0 still holds the receiver when
-  // it returns -- and the one caller (LawnApp::Shutdown) discards it, so any
-  // non-zero value is faithful. 1 means "shut down".
-  return 1;
+    mShutdown = true;
+    // The binary sets no return value at all -- r0 still holds the receiver when
+    // it returns -- and the one caller (LawnApp::Shutdown) discards it, so any
+    // non-zero value is faithful. 1 means "shut down".
+    return 1;
 }
 
 // ==========================================================================
@@ -141,15 +140,15 @@ int LawnSession::Shutdown()
 // ==========================================================================
 int LawnSession::StartTask(LawnSessionTask *theTask)
 {
-  int aResult = mTaskDone;
+    int aResult = mTaskDone;
 
-  if ( aResult == 0 )
+    if (aResult == 0)
+        return aResult;
+    if (mTask != nullptr)
+        return 0;
+    mTaskDone = false;
+    mTask = theTask;
     return aResult;
-  if ( mTask != nullptr )
-    return 0;
-  mTaskDone = false;
-  mTask = theTask;
-  return aResult;
 }
 
 // ==========================================================================
@@ -158,5 +157,5 @@ int LawnSession::StartTask(LawnSessionTask *theTask)
 // ==========================================================================
 int LawnSession::IsTaskDone()
 {
-  return mTaskDone;
+    return mTaskDone;
 }

@@ -17,28 +17,28 @@
 // Sexy::XMLWriter::Fail(Sexy::String const&)
 // @003B7D80  10 bytes
 // ==========================================================================
-int Sexy::XMLWriter::Fail(Sexy::String const& theError)
+int Sexy::XMLWriter::Fail(Sexy::String const &theError)
 {
-  // AssignStringThunk is a tail jump to basic_string::assign. The flag at +0x14 is
-  // written before the assign, which is why the binary reaches it as (this+8)+12.
-  mHasFailed = true;
-  mErrorText = theError;
-  return 0;
+    // AssignStringThunk is a tail jump to basic_string::assign. The flag at +0x14 is
+    // written before the assign, which is why the binary reaches it as (this+8)+12.
+    mHasFailed = true;
+    mErrorText = theError;
+    return 0;
 }
 
 // ==========================================================================
 // Sexy::XMLWriter::Init()
 // @003B7D8C  56 bytes
 // ==========================================================================
-void * Sexy::XMLWriter::Init()
+void *Sexy::XMLWriter::Init()
 {
-  // StringAssignCStr is basic_string::assign(const char*) and gEmptyCString is the empty
-  // C string at 0x57D7EA, so both calls below are an assignment from "".
-  mOutputText = "";
-  mLineNum = 1;
-  mHasFailed = false;
-  mErrorText = "";
-  return memset(mBuffer, 0, 0x400u);
+    // StringAssignCStr is basic_string::assign(const char*) and gEmptyCString is the empty
+    // C string at 0x57D7EA, so both calls below are an assignment from "".
+    mOutputText = "";
+    mLineNum = 1;
+    mHasFailed = false;
+    mErrorText = "";
+    return memset(mBuffer, 0, 0x400u);
 }
 
 // ==========================================================================
@@ -47,9 +47,9 @@ void * Sexy::XMLWriter::Init()
 // ==========================================================================
 Sexy::String *Sexy::XMLWriter::WriteHeader()
 {
-  mOutputText.Append("<?xml version=\"1.0\" ?>\n", 0x17u);
-  ++mLineNum;
-  return &mOutputText;
+    mOutputText.Append("<?xml version=\"1.0\" ?>\n", 0x17u);
+    ++mLineNum;
+    return &mOutputText;
 }
 
 // ==========================================================================
@@ -58,10 +58,10 @@ Sexy::String *Sexy::XMLWriter::WriteHeader()
 // ==========================================================================
 Sexy::String *Sexy::XMLWriter::OpenMemoryFile()
 {
-  bool& aWritingToMemory = mWritingToMemory;
-  aWritingToMemory = true;
-  Init();
-  return WriteHeader();
+    bool &aWritingToMemory = mWritingToMemory;
+    aWritingToMemory = true;
+    Init();
+    return WriteHeader();
 }
 
 // ==========================================================================
@@ -70,7 +70,7 @@ Sexy::String *Sexy::XMLWriter::OpenMemoryFile()
 // ==========================================================================
 int Sexy::XMLWriter::HasFailed()
 {
-  return mHasFailed;
+    return mHasFailed;
 }
 
 // ==========================================================================
@@ -79,9 +79,9 @@ int Sexy::XMLWriter::HasFailed()
 // ==========================================================================
 Sexy::String Sexy::XMLWriter::GetErrorText()
 {
-  // Returned by value: the binary's r0 is the destination buffer and r1 is the
-  // object, so this is a copy of mErrorText at +0x08.
-  return mErrorText;
+    // Returned by value: the binary's r0 is the destination buffer and r1 is the
+    // object, so this is a copy of mErrorText at +0x08.
+    return mErrorText;
 }
 
 // ==========================================================================
@@ -90,7 +90,7 @@ Sexy::String Sexy::XMLWriter::GetErrorText()
 // ==========================================================================
 int Sexy::XMLWriter::GetCurrentLineNum()
 {
-  return mLineNum;
+    return mLineNum;
 }
 
 // ==========================================================================
@@ -99,44 +99,44 @@ int Sexy::XMLWriter::GetCurrentLineNum()
 // ==========================================================================
 Sexy::String Sexy::XMLWriter::GetFileName()
 {
-  return mFileName;
+    return mFileName;
 }
 
 // ==========================================================================
 // Sexy::XMLWriter::ValidateElementNodeName(Sexy::String const&)
 // @003B7E24  132 bytes
 // ==========================================================================
-int Sexy::XMLWriter::ValidateElementNodeName(Sexy::String const& theName)
+int Sexy::XMLWriter::ValidateElementNodeName(Sexy::String const &theName)
 {
-  const char *aChars = theName.c_str();
-  unsigned int aLength = theName.size();
-  if (aLength == 0)
-    return 1;
+    const char *aChars = theName.c_str();
+    unsigned int aLength = theName.size();
+    if (aLength == 0)
+        return 1;
 
-  unsigned char aChar = (unsigned char)*aChars;
-  int aBad = (unsigned char)(aChar - 48) > 0x4Au || (unsigned char)(aChar - 58) <= 6u;
-  if (aBad != 0)
-    return 0;
-  if ((unsigned char)(aChar - 91) > 3u && aChar != 96)
-  {
-    const char *aLast = aChars + aLength - 1;
-    while (aChars != aLast)
-    {
-      aChar = (unsigned char)*++aChars;
-      unsigned char aBracket = (unsigned char)(aChar - 91);
-      int aColonRange = (unsigned char)(aChar - 58) <= 6u;
-      if ((unsigned char)(aChar - 48) > 0x4Au)
-        aBad = aColonRange | 1;
-      else
-        aBad = aColonRange;
-      if (aBad != 0)
+    unsigned char aChar = (unsigned char)*aChars;
+    int aBad = (unsigned char)(aChar - 48) > 0x4Au || (unsigned char)(aChar - 58) <= 6u;
+    if (aBad != 0)
         return 0;
-      if (aBracket <= 3u || aChar == 96)
-        return aBad;
+    if ((unsigned char)(aChar - 91) > 3u && aChar != 96)
+    {
+        const char *aLast = aChars + aLength - 1;
+        while (aChars != aLast)
+        {
+            aChar = (unsigned char)*++aChars;
+            unsigned char aBracket = (unsigned char)(aChar - 91);
+            int aColonRange = (unsigned char)(aChar - 58) <= 6u;
+            if ((unsigned char)(aChar - 48) > 0x4Au)
+                aBad = aColonRange | 1;
+            else
+                aBad = aColonRange;
+            if (aBad != 0)
+                return 0;
+            if (aBracket <= 3u || aChar == 96)
+                return aBad;
+        }
+        return 1;
     }
-    return 1;
-  }
-  return aBad;
+    return aBad;
 }
 
 // ==========================================================================
@@ -145,16 +145,16 @@ int Sexy::XMLWriter::ValidateElementNodeName(Sexy::String const& theName)
 // ==========================================================================
 int Sexy::XMLWriter::CheckFileOpen()
 {
-  if (mFile != nullptr)
-    return 1;
-  bool& aWritingToMemory = mWritingToMemory;
-  if (!aWritingToMemory)
-  {
-    Fail(Sexy::String("No File Opened for writing"));
+    if (mFile != nullptr)
+        return 1;
+    bool &aWritingToMemory = mWritingToMemory;
+    if (!aWritingToMemory)
+    {
+        Fail(Sexy::String("No File Opened for writing"));
+        return 0;
+    }
+    // mFile is still null on this path, and that is what the binary returns.
     return 0;
-  }
-  // mFile is still null on this path, and that is what the binary returns.
-  return 0;
 }
 
 // ==========================================================================
@@ -163,41 +163,41 @@ int Sexy::XMLWriter::CheckFileOpen()
 // ==========================================================================
 int Sexy::XMLWriter::StopElement()
 {
-  CheckFileOpen();
-  if (mHasFailed)
-    return 0;
-  if (mElements.empty())
-  {
-    Fail(Sexy::String("Stop Element Calls do not match StartElement Calls."));
-    return 0;
-  }
+    CheckFileOpen();
+    if (mHasFailed)
+        return 0;
+    if (mElements.empty())
+    {
+        Fail(Sexy::String("Stop Element Calls do not match StartElement Calls."));
+        return 0;
+    }
 
-  Sexy::String aName = mElements.back();
-  mElements.pop_back();
+    Sexy::String aName = mElements.back();
+    mElements.pop_back();
 
-  bool& aAttributesOpen = mAttributesOpen;
-  if (aAttributesOpen)
-  {
-    mOutputText.Append("/>\n", 3u);
-    ++mLineNum;
-  }
-  else
-  {
-    int aDepth = mElements.size();
-    for (int aTab = 0; aTab < aDepth; ++aTab)
-      mOutputText.Append("\t", 1u);
-    sprintf(mBuffer, "</%s>\n", aName.c_str());
-    mOutputText.Append(mBuffer, (unsigned int)strlen(mBuffer));
-  }
+    bool &aAttributesOpen = mAttributesOpen;
+    if (aAttributesOpen)
+    {
+        mOutputText.Append("/>\n", 3u);
+        ++mLineNum;
+    }
+    else
+    {
+        const std::size_t aDepth = mElements.size();
+        for (std::size_t aTab = 0; aTab < aDepth; ++aTab)
+            mOutputText.Append("\t", 1u);
+        sprintf(mBuffer, "</%s>\n", aName.c_str());
+        mOutputText.Append(mBuffer, (unsigned int)strlen(mBuffer));
+    }
 
-  aAttributesOpen = false;
-  while (!mComments.empty())
-  {
-    sprintf(mBuffer, "<!--  %s -->\n", mComments.back().c_str());
-    mOutputText.Append(mBuffer, (unsigned int)strlen(mBuffer));
-    mComments.pop_back();
-  }
-  return 1;
+    aAttributesOpen = false;
+    while (!mComments.empty())
+    {
+        sprintf(mBuffer, "<!--  %s -->\n", mComments.back().c_str());
+        mOutputText.Append(mBuffer, (unsigned int)strlen(mBuffer));
+        mComments.pop_back();
+    }
+    return 1;
 }
 
 // ==========================================================================
@@ -206,42 +206,42 @@ int Sexy::XMLWriter::StopElement()
 // ==========================================================================
 int Sexy::XMLWriter::CloseFile()
 {
-  while (!mElements.empty() && !mHasFailed)
-    StopElement();
-  if (mFile != nullptr)
-  {
-    const bool aWritten = SDL_WriteIO(mFile, mOutputText.c_str(), mOutputText.size()) == mOutputText.size();
-    const bool aClosed = SDL_CloseIO(mFile);
-    mFile = nullptr;
-    if (!aWritten || !aClosed)
+    while (!mElements.empty() && !mHasFailed)
+        StopElement();
+    if (mFile != nullptr)
     {
-      Fail(Sexy::String("Unable to write file ") + mFileName);
-      return 0;
+        const bool aWritten = SDL_WriteIO(mFile, mOutputText.c_str(), mOutputText.size()) == mOutputText.size();
+        const bool aClosed = SDL_CloseIO(mFile);
+        mFile = nullptr;
+        if (!aWritten || !aClosed)
+        {
+            Fail(Sexy::String("Unable to write file ") + mFileName);
+            return 0;
+        }
+        return 1;
     }
-    return 1;
-  }
-  Fail(Sexy::String("File not Open"));
-  return 0;
+    Fail(Sexy::String("File not Open"));
+    return 0;
 }
 
 // ==========================================================================
 // Sexy::XMLWriter::OpenFile(Sexy::String const&)
 // @003B8320  142 bytes
 // ==========================================================================
-int Sexy::XMLWriter::OpenFile(Sexy::String const& theFileName)
+int Sexy::XMLWriter::OpenFile(Sexy::String const &theFileName)
 {
-  SDL_IOStream* aFile = SDL_IOFromFile(theFileName.c_str(), "wb");
-  mFile = aFile;
-  if (aFile != nullptr)
-  {
-    mFileName.assign(theFileName.c_str(), theFileName.size());
-    Init();
-    WriteHeader();
-    return 1;
-  }
-  mLineNum = 0;
-  Fail(Sexy::String("Unable to open file ") + theFileName);
-  return 0;
+    SDL_IOStream *aFile = SDL_IOFromFile(theFileName.c_str(), "wb");
+    mFile = aFile;
+    if (aFile != nullptr)
+    {
+        mFileName.assign(theFileName.c_str(), theFileName.size());
+        Init();
+        WriteHeader();
+        return 1;
+    }
+    mLineNum = 0;
+    Fail(Sexy::String("Unable to open file ") + theFileName);
+    return 0;
 }
 
 // ==========================================================================
@@ -250,104 +250,104 @@ int Sexy::XMLWriter::OpenFile(Sexy::String const& theFileName)
 // ==========================================================================
 Sexy::String *Sexy::XMLWriter::Comment(const Sexy::String &theComment)
 {
-  mComments.push_back(theComment);
-  return &mComments.back();
+    mComments.push_back(theComment);
+    return &mComments.back();
 }
 
 // ==========================================================================
 // Sexy::XMLWriter::Warn(Sexy::String const&)
 // @003B8B74  122 bytes
 // ==========================================================================
-void Sexy::XMLWriter::Warn(Sexy::String const& theMessage)
+void Sexy::XMLWriter::Warn(Sexy::String const &theMessage)
 {
-  Sexy::String aWarning = Sexy::String("WARNING: ") + theMessage;
-  Comment(aWarning);
+    Sexy::String aWarning = Sexy::String("WARNING: ") + theMessage;
+    Comment(aWarning);
 }
 
 // ==========================================================================
 // Sexy::XMLWriter::WriteAttribute(Sexy::String const&,Sexy::String const&)
 // @003B8C08  472 bytes
 // ==========================================================================
-int Sexy::XMLWriter::WriteAttribute(Sexy::String const& theName, Sexy::String const& theValue)
+int Sexy::XMLWriter::WriteAttribute(Sexy::String const &theName, Sexy::String const &theValue)
 {
-  CheckFileOpen();
-  if (mHasFailed)
-    return 0;
-  bool& aAttributesOpen = mAttributesOpen;
-  if (!aAttributesOpen)
-  {
-    if (mElements.size() != 0)
-      Fail(Sexy::String("Attributes Section already closed for ") + *&mElements.back());
-    else
-      Fail(Sexy::String("No Element Nodes Open for Writing Attributes."));
-    return 0;
-  }
-  if (ValidateElementNodeName(theName) == 0)
-    Warn(theName + " is an invalid Attribute Name.");
-  Sexy::String aEncoded;
-  XMLEncodeString(&aEncoded, theValue.c_str());
-  sprintf(mBuffer, " %s=\"%s\"", theName.c_str(), aEncoded.c_str());
-  mOutputText.Append(mBuffer, (unsigned int)strlen(mBuffer));
-  return 1;
+    CheckFileOpen();
+    if (mHasFailed)
+        return 0;
+    bool &aAttributesOpen = mAttributesOpen;
+    if (!aAttributesOpen)
+    {
+        if (mElements.size() != 0)
+            Fail(Sexy::String("Attributes Section already closed for ") + *&mElements.back());
+        else
+            Fail(Sexy::String("No Element Nodes Open for Writing Attributes."));
+        return 0;
+    }
+    if (ValidateElementNodeName(theName) == 0)
+        Warn(theName + " is an invalid Attribute Name.");
+    Sexy::String aEncoded;
+    XMLEncodeString(&aEncoded, theValue.c_str());
+    sprintf(mBuffer, " %s=\"%s\"", theName.c_str(), aEncoded.c_str());
+    mOutputText.Append(mBuffer, (unsigned int)strlen(mBuffer));
+    return 1;
 }
 
 // ==========================================================================
 // Sexy::XMLWriter::WriteAttribute(Sexy::String const&,int const&)
 // @003B8DFC  94 bytes
 // ==========================================================================
-int Sexy::XMLWriter::WriteAttribute(Sexy::String const& theName, int const& theValue)
+int Sexy::XMLWriter::WriteAttribute(Sexy::String const &theName, int const &theValue)
 {
-  Sexy::String aText;
-  StrFormat(&aText, "%d", theValue);
-  return WriteAttribute(theName, aText);
+    Sexy::String aText;
+    StrFormat(&aText, "%d", theValue);
+    return WriteAttribute(theName, aText);
 }
 
 // ==========================================================================
 // Sexy::XMLWriter::WriteAttribute(Sexy::String const&,float const&)
 // @003B8E74  104 bytes
 // ==========================================================================
-int Sexy::XMLWriter::WriteAttribute(Sexy::String const& theName, float const& theValue)
+int Sexy::XMLWriter::WriteAttribute(Sexy::String const &theName, float const &theValue)
 {
-  // The binary promotes the float to double before the variadic formatter.
-  Sexy::String aText;
-  StrFormat(&aText, "%f", (double)theValue);
-  return WriteAttribute(theName, aText);
+    // The binary promotes the float to double before the variadic formatter.
+    Sexy::String aText;
+    StrFormat(&aText, "%f", (double)theValue);
+    return WriteAttribute(theName, aText);
 }
 
 // ==========================================================================
 // Sexy::XMLWriter::StartElement(Sexy::String const&)
 // @003B8EF8  616 bytes
 // ==========================================================================
-int Sexy::XMLWriter::StartElement(Sexy::String const& theName)
+int Sexy::XMLWriter::StartElement(Sexy::String const &theName)
 {
-  CheckFileOpen();
-  if (mHasFailed)
-    return 0;
-  bool& aAttributesOpen = mAttributesOpen;
-  if (aAttributesOpen)
-  {
-    mOutputText.Append(">\n", 2u);
-    ++mLineNum;
-  }
-  if (ValidateElementNodeName(theName) == 0)
-    Warn(theName + " is an Invalid Node Name.");
+    CheckFileOpen();
+    if (mHasFailed)
+        return 0;
+    bool &aAttributesOpen = mAttributesOpen;
+    if (aAttributesOpen)
+    {
+        mOutputText.Append(">\n", 2u);
+        ++mLineNum;
+    }
+    if (ValidateElementNodeName(theName) == 0)
+        Warn(theName + " is an Invalid Node Name.");
 
-  while (!mComments.empty())
-  {
-    sprintf(mBuffer, "<!--  %s -->\n", mComments.back().c_str());
+    while (!mComments.empty())
+    {
+        sprintf(mBuffer, "<!--  %s -->\n", mComments.back().c_str());
+        mOutputText.Append(mBuffer, (unsigned int)strlen(mBuffer));
+        mComments.pop_back();
+    }
+
+    mElements.push_back(theName);
+
+    const std::size_t aDepth = mElements.size();
+    for (std::size_t aTab = 1; aTab < aDepth; ++aTab)
+        mOutputText.Append("\t", 1u);
+    sprintf(mBuffer, "<%s", theName.c_str());
     mOutputText.Append(mBuffer, (unsigned int)strlen(mBuffer));
-    mComments.pop_back();
-  }
-
-  mElements.push_back(theName);
-
-  int aDepth = mElements.size();
-  for (int aTab = 1; aTab < aDepth; ++aTab)
-    mOutputText.Append("\t", 1u);
-  sprintf(mBuffer, "<%s", theName.c_str());
-  mOutputText.Append(mBuffer, (unsigned int)strlen(mBuffer));
-  aAttributesOpen = true;
-  return 1;
+    aAttributesOpen = true;
+    return 1;
 }
 
 // ==========================================================================
@@ -356,37 +356,44 @@ int Sexy::XMLWriter::StartElement(Sexy::String const& theName)
 // ==========================================================================
 int Sexy::XMLWriter::StartElement(Sexy::XMLElement *theElement)
 {
-  int aStarted = StartElement(theElement->mInstruction);
-  if (aStarted == 0)
-    return 0;
+    int aStarted = StartElement(theElement->mInstruction);
+    if (aStarted == 0)
+        return 0;
 
-  for (std::map<Sexy::String, Sexy::String>::const_iterator attr = theElement->mAttributes.begin();
-       attr != theElement->mAttributes.end(); ++attr)
-  {
-    if (WriteAttribute(attr->first, attr->second) == 0)
-      return 0;
-  }
-  return aStarted;
+    for (std::map<Sexy::String, Sexy::String>::const_iterator attr = theElement->mAttributes.begin();
+        attr != theElement->mAttributes.end();
+        ++attr)
+    {
+        if (WriteAttribute(attr->first, attr->second) == 0)
+            return 0;
+    }
+    return aStarted;
 }
 
 // ==========================================================================
 // Sexy::XMLWriter::AddAttribute(Sexy::XMLElement *,Sexy::String const&,Sexy::String const&)
 // @003B9228  482 bytes
 // ==========================================================================
-int Sexy::XMLWriter::AddAttribute(Sexy::XMLElement *theElement, Sexy::String const& theName, Sexy::String const& theValue)
+int Sexy::XMLWriter::AddAttribute(
+    Sexy::XMLElement *theElement, Sexy::String const &theName, Sexy::String const &theValue)
 {
-  if (theElement == nullptr)
-    return 0;
-  const bool inserted = theElement->mAttributes.find(theName) == theElement->mAttributes.end();
-  theElement->mAttributes[theName] = theValue;
-  return inserted ? 1 : 0;
+    if (theElement == nullptr)
+        return 0;
+    const bool inserted = theElement->mAttributes.find(theName) == theElement->mAttributes.end();
+    theElement->mAttributes[theName] = theValue;
+    return inserted ? 1 : 0;
 }
 
 // ==========================================================================
 // Sexy::XMLWriter::XMLWriter() @0x3B9488
-Sexy::XMLWriter::XMLWriter()
-    : mLineNum(0), mFile(nullptr), mHasFailed(false), mSpareFlag(false),
-      mAttributesOpen(false), mWritingToMemory(false), mBuffer{}
+Sexy::XMLWriter::XMLWriter() :
+    mLineNum(0),
+    mFile(nullptr),
+    mHasFailed(false),
+    mSpareFlag(false),
+    mAttributesOpen(false),
+    mWritingToMemory(false),
+    mBuffer{}
 {
 }
 
@@ -396,16 +403,14 @@ Sexy::XMLWriter::XMLWriter()
 // ==========================================================================
 Sexy::XMLWriter::~XMLWriter()
 {
-  // The vptr store is the compiler's; XMLWriter is a root class, so no base
-  // destructor follows.
-  //
-  // Flush the accumulated text before closing the stream.
-  if ( mFile != nullptr )
-  {
-    SDL_WriteIO(mFile, mOutputText.c_str(), mOutputText.size());
-    SDL_CloseIO(mFile);
-    mFile = nullptr;
-  }
-
-
+    // The vptr store is the compiler's; XMLWriter is a root class, so no base
+    // destructor follows.
+    //
+    // Flush the accumulated text before closing the stream.
+    if (mFile != nullptr)
+    {
+        SDL_WriteIO(mFile, mOutputText.c_str(), mOutputText.size());
+        SDL_CloseIO(mFile);
+        mFile = nullptr;
+    }
 }

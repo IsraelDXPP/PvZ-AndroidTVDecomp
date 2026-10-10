@@ -7,7 +7,8 @@
 // Resource groups are owned by a standard set; the host does not need the
 // original libstdc++ tree layout.
 
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_ZENGARDEN_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_ZENGARDEN_H
 
 #include "ReconTypes.h"
 // Classes this one calls a method on: the call needs the
@@ -58,21 +59,21 @@ public:
 class ZenGarden
 {
 public:
-    LawnApp *mApp;          // +0x00
-    Board *mBoard;          // +0x04
+    LawnApp *mApp; // +0x00
+    Board *mBoard; // +0x04
     GardenType mGardenType; // +0x08
     // The help bar this garden installs while it owns the board; looked up from
     // `mApp->mHelpBarWidget` on first use and cached here.
     HelpBarWidget *mHelpBar; // +0x0C
     GameObjectType mSelectedTool; // +0x10, last tool recorded by ToolChanged
     // Set while the garden still wants the shop button on the help bar.
-    bool mShowShopButton;    // +0x14
+    bool mShowShopButton; // +0x14
     std::set<Sexy::String> mLoadedResources;
 
     ZenGarden();
     void RemovePottedPlant(Plant *thePlant);
     void ZenGardenStart();
-    TodParticleSystem * AddHappyEffect(Plant *thePlant);
+    TodParticleSystem *AddHappyEffect(Plant *thePlant);
     void RemoveHappyEffect(Plant *thePlant);
     bool WasPlantNeedFulfilledToday(PottedPlant *thePottedPlant);
     bool WasPlantFertilizedInLastHour(PottedPlant *thePottedPlant);
@@ -85,8 +86,8 @@ public:
     void StinkyStartFallingAsleep(GridItem *theStinky);
     void StinkyFinishFallingAsleep(GridItem *theStinky, int theBlendTime);
     void UpdateStinkyMotionTrail(GridItem *theStinky, bool theStinkyHighOnChocolate);
-    GridItem * GetStinky();
-    SpecialGridPlacement * GetSpecialGridPlacements(int &theCount);
+    GridItem *GetStinky();
+    SpecialGridPlacement *GetSpecialGridPlacements(int &theCount);
     void StinkyPickGoal(GridItem *theStinky);
     int PixelToGridX(int theX, int theY);
     int PixelToGridY(int theX, int theY);
@@ -97,7 +98,7 @@ public:
     int GridCellHeight(int theGridX, int theGridY);
     void DrawBackdrop(Sexy::Graphics *g);
     void ShowTutorialArrowOnWateringCan();
-    PottedPlant * PottedPlantFromIndex(int thePottedPlantIndex);
+    PottedPlant *PottedPlantFromIndex(int thePottedPlantIndex);
     bool PlantCanHaveChocolate(Plant *thePlant);
     bool IsZenGardenFull(bool theIncludeDroppedPresents);
     void FindOpenZenGardenSpot(unsigned char &theSpotX, unsigned char &theSpotY);
@@ -111,13 +112,13 @@ public:
     void UpdatePlantNeeds();
     void FeedChocolateToPlant(Plant *thePlant);
     void MouseDownWithEmptyWheelBarrow(Plant *thePlant);
-    PottedPlant * GetPottedPlantInWheelbarrow();
+    PottedPlant *GetPottedPlantInWheelbarrow();
     void MovePlant(Plant *thePlant, int theGridX, int theGridY);
     void PlantWatered(Plant *thePlant);
     void SetPlantAnimSpeed(Plant *thePlant);
     int PlantGetMinutesSinceHappy(Plant *thePlant);
     int PlantSetLaunchCounter(Plant *thePlant);
-    Plant * PlacePottedPlant(int thePottedPlantIndex);
+    Plant *PlacePottedPlant(int thePottedPlantIndex);
     int AddPottedPlant(PottedPlant *thePottedPlant);
     void AdvanceCrazyDaveDialog();
     void PlantFertilized(Plant *thePlant);
@@ -159,10 +160,13 @@ public:
     void OpenStore();
     ~ZenGarden();
     int LoadResources(Sexy::String const &theGroup);
-    void DrawPottedPlant(Sexy::Graphics *g, float x, float y, PottedPlant *thePottedPlant, float theScale, bool theDrawPot);
+    void DrawPottedPlant(
+        Sexy::Graphics *g, float x, float y, PottedPlant *thePottedPlant, float theScale, bool theDrawPot);
     void DrawPottedPlantIcon(Sexy::Graphics *g, float x, float y, PottedPlant *thePottedPlant);
     void GotoGarden(int theGardenIndex);
     void GotoNextGarden();
 };
 
 // Layout check: three named members plus the unnamed 0x24-byte tail.
+
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_ZENGARDEN_H

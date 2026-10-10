@@ -260,8 +260,11 @@ def compile_sources(args: argparse.Namespace) -> None:
     bgfx_include = shaderc.parent.parent.parent / "include" / "bgfx"
     if not (bgfx_include / "bgfx_shader.sh").is_file():
         bgfx_include = next(
-            (prefix / "include" / "bgfx" for prefix in installed_prefixes()
-             if (prefix / "include" / "bgfx" / "bgfx_shader.sh").is_file()),
+            (
+                prefix / "include" / "bgfx"
+                for prefix in installed_prefixes()
+                if (prefix / "include" / "bgfx" / "bgfx_shader.sh").is_file()
+            ),
             bgfx_include,
         )
     if (bgfx_include / "bgfx_shader.sh").is_file() and bgfx_include not in includes:
@@ -295,8 +298,10 @@ def compile_sources(args: argparse.Namespace) -> None:
                 profile = profiles.get(target.name, target.compute_profile if stage == "compute" else target.profile)
                 validate_profile(target, profile)
                 platform = platforms.get(target.name, target.platform)
-                command = [str(shaderc), "-f", str(source), "-o", str(binary_path),
-                           "--type", stage, "--platform", platform, "-p", profile, "-O", str(args.optimize)]
+                command = [
+                    str(shaderc), "-f", str(source), "-o", str(binary_path),
+                    "--type", stage, "--platform", platform, "-p", profile, "-O", str(args.optimize),
+                ]
                 for include in [source.parent, *includes]:
                     command.extend(["-i", str(include)])
                 if varying.is_file():
@@ -346,8 +351,10 @@ def inspect_package(args: argparse.Namespace) -> None:
 
 def add_selection(parser: argparse.ArgumentParser, required: bool) -> None:
     selection = parser.add_mutually_exclusive_group(required=required)
-    selection.add_argument("--targets", dest="flags", type=parse_targets, metavar="BACKENDS",
-                           help="comma-separated dx,metal,opengl,opengles,vulkan")
+    selection.add_argument(
+        "--targets", dest="flags", type=parse_targets, metavar="BACKENDS",
+        help="comma-separated dx,metal,opengl,opengles,vulkan",
+    )
     selection.add_argument("--flags", type=parse_flags, metavar="UINT32", help="backend mask, e.g. 0x3 for dx+metal")
 
 

@@ -16,18 +16,18 @@
 #include <cstring>
 
 // Same product as SexyMatrix3Multiply @0x1fd004.
-static SexyVector2 SexyMatrix3MulVector2(const SexyMatrix3& theMatrix,
-                                         const SexyVector2& theVector)
+static SexyVector2 SexyMatrix3MulVector2(const SexyMatrix3 &theMatrix, const SexyVector2 &theVector)
 {
-  return theMatrix * theVector;
+    return theMatrix * theVector;
 }
 
-static SexyMatrix3 SexyMatrix3MulMatrix3(const SexyMatrix3& a, const SexyMatrix3& b)
+static SexyMatrix3 SexyMatrix3MulMatrix3(const SexyMatrix3 &a, const SexyMatrix3 &b)
 {
-  return a * b;
+    return a * b;
 }
 
-namespace {
+namespace
+{
 
 // DataArray<T> stores `{ T mItem; uint32_t mID; }`. The id word is not a member
 // of T, so the slot is named here the same way EffectSystem.cpp names it.
@@ -38,31 +38,30 @@ namespace {
 // index past mMaxSize, or a slot whose stored id no longer matches is a miss.
 // Holders store the slot array as a byte block. The one conversion is from that
 // block to the slot the caller named.
-template <class Slot>
-Slot *TryGetSlot(Slot *theSlots, unsigned int theMaxSize, int theId)
+template <class Slot> Slot *TryGetSlot(Slot *theSlots, unsigned int theMaxSize, int theId)
 {
-  if (theId == 0)
-    return nullptr;
-  unsigned int anIndex = (unsigned int)(unsigned short)theId;
-  if (anIndex >= theMaxSize)
-    return nullptr;
-  Slot *aSlot = &theSlots[anIndex];
-  if ((unsigned int)theId != aSlot->mID)
-    return nullptr;
-  return aSlot;
+    if (theId == 0)
+        return nullptr;
+    unsigned int anIndex = (unsigned int)(unsigned short)theId;
+    if (anIndex >= theMaxSize)
+        return nullptr;
+    Slot *aSlot = &theSlots[anIndex];
+    if ((unsigned int)theId != aSlot->mID)
+        return nullptr;
+    return aSlot;
 }
 
 Attachment *TryGetAttachment(AttachmentHolder *theHolder, int theId)
 {
-  if (theId == 0)
-    return nullptr;
-  unsigned int anIndex = (unsigned int)(unsigned short)theId;
-  if (anIndex >= theHolder->mMaxSize)
-    return nullptr;
-  Attachment *aAttachment = &theHolder->mBlock[anIndex];
-  if (theId != aAttachment->mAttachmentID)
-    return nullptr;
-  return aAttachment;
+    if (theId == 0)
+        return nullptr;
+    unsigned int anIndex = (unsigned int)(unsigned short)theId;
+    if (anIndex >= theHolder->mMaxSize)
+        return nullptr;
+    Attachment *aAttachment = &theHolder->mBlock[anIndex];
+    if (theId != aAttachment->mAttachmentID)
+        return nullptr;
+    return aAttachment;
 }
 
 // The DataArray key sits in the slot after the object. The holder block is
@@ -70,52 +69,51 @@ Attachment *TryGetAttachment(AttachmentHolder *theHolder, int theId)
 // this object.
 unsigned int ParticleSystemKey(const TodParticleSystem *theSystem)
 {
-  DataArray<TodParticleSystem, ParticleSystemSlot> &anArray =
-      theSystem->mParticleHolder->mParticleSystems;
-  ParticleSystemSlot *aSlots = anArray.mBlock;
-  for (unsigned int anIndex = 0; anIndex < anArray.mMaxSize; ++anIndex)
-  {
-    if (&aSlots[anIndex].mItem == theSystem)
-      return aSlots[anIndex].mID;
-  }
-  return 0;
+    DataArray<TodParticleSystem, ParticleSystemSlot> &anArray = theSystem->mParticleHolder->mParticleSystems;
+    ParticleSystemSlot *aSlots = anArray.mBlock;
+    for (unsigned int anIndex = 0; anIndex < anArray.mMaxSize; ++anIndex)
+    {
+        if (&aSlots[anIndex].mItem == theSystem)
+            return aSlots[anIndex].mID;
+    }
+    return 0;
 }
 
 unsigned int ReanimationKey(const Reanimation *theReanim)
 {
-  ReanimationHolder *aHolder = theReanim->mReanimationHolder;
-  ReanimationSlot *aSlots = aHolder->mBlock;
-  for (unsigned int anIndex = 0; anIndex < aHolder->mMaxSize; ++anIndex)
-  {
-    if (&aSlots[anIndex].mItem == theReanim)
-      return aSlots[anIndex].mID;
-  }
-  return 0;
+    ReanimationHolder *aHolder = theReanim->mReanimationHolder;
+    ReanimationSlot *aSlots = aHolder->mBlock;
+    for (unsigned int anIndex = 0; anIndex < aHolder->mMaxSize; ++anIndex)
+    {
+        if (&aSlots[anIndex].mItem == theReanim)
+            return aSlots[anIndex].mID;
+    }
+    return 0;
 }
 
 // A missing or dead id allocates a fresh attachment and stores its id back
 // into the caller's slot. The new effect is a translation of (theOffsetX,
 // theOffsetY); the "don't draw if the parent is hidden" flag starts clear.
-AttachEffect *CreateEffectAttachment(int &theId, EffectType theEffectType, unsigned int theEffectId,
-                                     float theOffsetX, float theOffsetY)
+AttachEffect *CreateEffectAttachment(
+    int &theId, EffectType theEffectType, unsigned int theEffectId, float theOffsetX, float theOffsetY)
 {
-  AttachmentHolder *aHolder = gEffectSystem->mAttachmentHolder;
-  Attachment *anAttachment = TryGetAttachment(aHolder, theId);
-  if (anAttachment == nullptr || anAttachment->mDead)
-  {
-    anAttachment = aHolder->AllocAttachment();
-    theId = anAttachment->mAttachmentID;
-  }
+    AttachmentHolder *aHolder = gEffectSystem->mAttachmentHolder;
+    Attachment *anAttachment = TryGetAttachment(aHolder, theId);
+    if (anAttachment == nullptr || anAttachment->mDead)
+    {
+        anAttachment = aHolder->AllocAttachment();
+        theId = anAttachment->mAttachmentID;
+    }
 
-  AttachEffect *anEffect = &anAttachment->mEffectArray[anAttachment->mNumEffects];
-  anEffect->mEffectType = theEffectType;
-  anEffect->mEffectID = theEffectId;
-  anEffect->mDontDrawIfParentHidden = false;
-  anEffect->mOffset.LoadIdentity();
-  anEffect->mOffset.m02 = theOffsetX;
-  anEffect->mOffset.m12 = theOffsetY;
-  ++anAttachment->mNumEffects;
-  return anEffect;
+    AttachEffect *anEffect = &anAttachment->mEffectArray[anAttachment->mNumEffects];
+    anEffect->mEffectType = theEffectType;
+    anEffect->mEffectID = theEffectId;
+    anEffect->mDontDrawIfParentHidden = false;
+    anEffect->mOffset.LoadIdentity();
+    anEffect->mOffset.m02 = theOffsetX;
+    anEffect->mOffset.m12 = theOffsetY;
+    ++anAttachment->mNumEffects;
+    return anEffect;
 }
 
 } // namespace
@@ -126,9 +124,9 @@ AttachEffect *CreateEffectAttachment(int &theId, EffectType theEffectType, unsig
 // ==========================================================================
 Attachment::~Attachment()
 {
-  // An attachment that is still live has to be taken off its host before the
-  // object goes away; AttachmentDie is what does that.
-  AttachmentDie();
+    // An attachment that is still live has to be taken off its host before the
+    // object goes away; AttachmentDie is what does that.
+    AttachmentDie();
 }
 
 // ==========================================================================
@@ -137,87 +135,86 @@ Attachment::~Attachment()
 // ==========================================================================
 void Attachment::Update()
 {
-  // A dead or missing effect is slid out of the array. The index is not
-  // advanced across that slot, so the element that moved down is visited next.
-  // Attachment slots are not tested for mDead; the other three are.
-  int aCount = mNumEffects;
-  if (aCount > 0)
-  {
-    EffectSystem *aSystem = gEffectSystem;
-    for (int i = 0; i < aCount; ++i)
+    // A dead or missing effect is slid out of the array. The index is not
+    // advanced across that slot, so the element that moved down is visited next.
+    // Attachment slots are not tested for mDead; the other three are.
+    int aCount = mNumEffects;
+    if (aCount > 0)
     {
-      AttachEffect *anEffect = &mEffectArray[i];
-      bool aRemove = false;
-      switch (anEffect->mEffectType)
-      {
-        case EFFECT_PARTICLE:
+        EffectSystem *aSystem = gEffectSystem;
+        for (int i = 0; i < aCount; ++i)
         {
-          DataArray<TodParticleSystem, ParticleSystemSlot> *aArray =
-              &aSystem->mParticleHolder->mParticleSystems;
-          ParticleSystemSlot *aSlot = TryGetSlot<ParticleSystemSlot>(
-              aArray->mBlock, aArray->mMaxSize, anEffect->mEffectID);
-          if (aSlot == nullptr || aSlot->mItem.mDead)
-            aRemove = true;
-          else
-            aSlot->mItem.Update();
-          break;
-        }
-        case EFFECT_TRAIL:
-        {
-          DataArray<Trail, TrailSlot> *aArray = &aSystem->mTrailHolder->mTrails;
-          TrailSlot *aSlot = TryGetSlot<TrailSlot>(
-              aArray->mBlock, aArray->mMaxSize, anEffect->mEffectID);
-          if (aSlot == nullptr || aSlot->mItem.mDead)
-            aRemove = true;
-          else
-            aSlot->mItem.Update();
-          break;
-        }
-        case EFFECT_REANIM:
-        {
-          ReanimationHolder *aHolder = aSystem->mReanimationHolder;
-          ReanimationSlot *aSlot = TryGetSlot<ReanimationSlot>(
-              aHolder->mBlock, aHolder->mMaxSize, anEffect->mEffectID);
-          if (aSlot == nullptr || aSlot->mItem.mDead)
-            aRemove = true;
-          else
-            aSlot->mItem.Update();
-          break;
-        }
-        case EFFECT_ATTACHMENT:
-        {
-          Attachment *aChild = TryGetAttachment(aSystem->mAttachmentHolder, anEffect->mEffectID);
-          if (aChild == nullptr)
-            aRemove = true;
-          else
-            aChild->Update();
-          break;
-        }
-        default:
-          aRemove = true;
-          break;
-      }
+            AttachEffect *anEffect = &mEffectArray[i];
+            bool aRemove = false;
+            switch (anEffect->mEffectType)
+            {
+                case EFFECT_PARTICLE:
+                {
+                    DataArray<TodParticleSystem, ParticleSystemSlot> *aArray =
+                        &aSystem->mParticleHolder->mParticleSystems;
+                    ParticleSystemSlot *aSlot =
+                        TryGetSlot<ParticleSystemSlot>(aArray->mBlock, aArray->mMaxSize, anEffect->mEffectID);
+                    if (aSlot == nullptr || aSlot->mItem.mDead)
+                        aRemove = true;
+                    else
+                        aSlot->mItem.Update();
+                    break;
+                }
+                case EFFECT_TRAIL:
+                {
+                    DataArray<Trail, TrailSlot> *aArray = &aSystem->mTrailHolder->mTrails;
+                    TrailSlot *aSlot = TryGetSlot<TrailSlot>(aArray->mBlock, aArray->mMaxSize, anEffect->mEffectID);
+                    if (aSlot == nullptr || aSlot->mItem.mDead)
+                        aRemove = true;
+                    else
+                        aSlot->mItem.Update();
+                    break;
+                }
+                case EFFECT_REANIM:
+                {
+                    ReanimationHolder *aHolder = aSystem->mReanimationHolder;
+                    ReanimationSlot *aSlot =
+                        TryGetSlot<ReanimationSlot>(aHolder->mBlock, aHolder->mMaxSize, anEffect->mEffectID);
+                    if (aSlot == nullptr || aSlot->mItem.mDead)
+                        aRemove = true;
+                    else
+                        aSlot->mItem.Update();
+                    break;
+                }
+                case EFFECT_ATTACHMENT:
+                {
+                    Attachment *aChild = TryGetAttachment(aSystem->mAttachmentHolder, anEffect->mEffectID);
+                    if (aChild == nullptr)
+                        aRemove = true;
+                    else
+                        aChild->Update();
+                    break;
+                }
+                default:
+                    aRemove = true;
+                    break;
+            }
 
-      if (aRemove)
-      {
-        int aRemain = aCount - i - 1;
-        if (aRemain > 0)
-        {
-          memmove(anEffect, anEffect + 1, (size_t)aRemain * sizeof(AttachEffect));
-          --i;
-          aCount = mNumEffects;
+            if (aRemove)
+            {
+                int aRemain = aCount - i - 1;
+                if (aRemain > 0)
+                {
+                    memmove(anEffect, anEffect + 1, (size_t)aRemain * sizeof(AttachEffect));
+                    --i;
+                    aCount = mNumEffects;
+                }
+                aCount -= 1;
+                mNumEffects = aCount;
+            }
+            else
+            {
+                aCount = mNumEffects;
+            }
         }
-        aCount -= 1;
-        mNumEffects = aCount;
-      }
-      else
-      {
-        aCount = mNumEffects;
-      }
     }
-  }
-  if (aCount == 0)
-    mDead = true;
+    if (aCount == 0)
+        mDead = true;
 }
 
 // ==========================================================================
@@ -226,57 +223,56 @@ void Attachment::Update()
 // ==========================================================================
 void Attachment::SetPosition(const Sexy::SexyVector2 &thePosition)
 {
-  // A missing effect is skipped, not removed. The offset is applied before the
-  // effect is moved, and a nested attachment receives that transformed point,
-  // not the caller's original vector.
-  if (mNumEffects <= 0)
-    return;
+    // A missing effect is skipped, not removed. The offset is applied before the
+    // effect is moved, and a nested attachment receives that transformed point,
+    // not the caller's original vector.
+    if (mNumEffects <= 0)
+        return;
 
-  EffectSystem *aSystem = gEffectSystem;
-  for (int i = 0; i < mNumEffects; ++i)
-  {
-    AttachEffect *anEffect = &mEffectArray[i];
-    SexyVector2 aPos = SexyMatrix3MulVector2(anEffect->mOffset, thePosition);
-    switch (anEffect->mEffectType)
+    EffectSystem *aSystem = gEffectSystem;
+    for (int i = 0; i < mNumEffects; ++i)
     {
-      case EFFECT_PARTICLE:
-      {
-        DataArray<TodParticleSystem, ParticleSystemSlot> *aArray = &aSystem->mParticleHolder->mParticleSystems;
-        ParticleSystemSlot *aSlot = TryGetSlot<ParticleSystemSlot>(
-            aArray->mBlock, aArray->mMaxSize, anEffect->mEffectID);
-        if (aSlot != nullptr)
-          aSlot->mItem.SystemMove(aPos.mX, aPos.mY);
-        break;
-      }
-      case EFFECT_TRAIL:
-      {
-        DataArray<Trail, TrailSlot> *aArray = &aSystem->mTrailHolder->mTrails;
-        TrailSlot *aSlot = TryGetSlot<TrailSlot>(
-            aArray->mBlock, aArray->mMaxSize, anEffect->mEffectID);
-        if (aSlot != nullptr)
-          aSlot->mItem.AddPoint(aPos.mX, aPos.mY);
-        break;
-      }
-      case EFFECT_REANIM:
-      {
-        ReanimationHolder *aHolder = aSystem->mReanimationHolder;
-        ReanimationSlot *aSlot = TryGetSlot<ReanimationSlot>(
-            aHolder->mBlock, aHolder->mMaxSize, anEffect->mEffectID);
-        if (aSlot != nullptr)
-          aSlot->mItem.SetPosition(aPos.mX, aPos.mY);
-        break;
-      }
-      case EFFECT_ATTACHMENT:
-      {
-        Attachment *aChild = TryGetAttachment(aSystem->mAttachmentHolder, anEffect->mEffectID);
-        if (aChild != nullptr)
-          aChild->SetPosition(aPos);
-        break;
-      }
-      default:
-        break;
+        AttachEffect *anEffect = &mEffectArray[i];
+        SexyVector2 aPos = SexyMatrix3MulVector2(anEffect->mOffset, thePosition);
+        switch (anEffect->mEffectType)
+        {
+            case EFFECT_PARTICLE:
+            {
+                DataArray<TodParticleSystem, ParticleSystemSlot> *aArray = &aSystem->mParticleHolder->mParticleSystems;
+                ParticleSystemSlot *aSlot =
+                    TryGetSlot<ParticleSystemSlot>(aArray->mBlock, aArray->mMaxSize, anEffect->mEffectID);
+                if (aSlot != nullptr)
+                    aSlot->mItem.SystemMove(aPos.mX, aPos.mY);
+                break;
+            }
+            case EFFECT_TRAIL:
+            {
+                DataArray<Trail, TrailSlot> *aArray = &aSystem->mTrailHolder->mTrails;
+                TrailSlot *aSlot = TryGetSlot<TrailSlot>(aArray->mBlock, aArray->mMaxSize, anEffect->mEffectID);
+                if (aSlot != nullptr)
+                    aSlot->mItem.AddPoint(aPos.mX, aPos.mY);
+                break;
+            }
+            case EFFECT_REANIM:
+            {
+                ReanimationHolder *aHolder = aSystem->mReanimationHolder;
+                ReanimationSlot *aSlot =
+                    TryGetSlot<ReanimationSlot>(aHolder->mBlock, aHolder->mMaxSize, anEffect->mEffectID);
+                if (aSlot != nullptr)
+                    aSlot->mItem.SetPosition(aPos.mX, aPos.mY);
+                break;
+            }
+            case EFFECT_ATTACHMENT:
+            {
+                Attachment *aChild = TryGetAttachment(aSystem->mAttachmentHolder, anEffect->mEffectID);
+                if (aChild != nullptr)
+                    aChild->SetPosition(aPos);
+                break;
+            }
+            default:
+                break;
+        }
     }
-  }
 }
 
 // ==========================================================================
@@ -285,108 +281,107 @@ void Attachment::SetPosition(const Sexy::SexyVector2 &thePosition)
 // ==========================================================================
 void Attachment::OverrideColor(const Color &theColor)
 {
-  // Reanimations take the colour into mColorOverride. Particles are filtered
-  // by the empty emitter name. Trails are ignored. A miss is skipped.
-  if (mNumEffects <= 0)
-    return;
+    // Reanimations take the colour into mColorOverride. Particles are filtered
+    // by the empty emitter name. Trails are ignored. A miss is skipped.
+    if (mNumEffects <= 0)
+        return;
 
-  EffectSystem *aSystem = gEffectSystem;
-  for (int i = 0; i < mNumEffects; ++i)
-  {
-    AttachEffect *anEffect = &mEffectArray[i];
-    switch (anEffect->mEffectType)
+    EffectSystem *aSystem = gEffectSystem;
+    for (int i = 0; i < mNumEffects; ++i)
     {
-      case EFFECT_REANIM:
-      {
-        ReanimationHolder *aHolder = aSystem->mReanimationHolder;
-        ReanimationSlot *aSlot = TryGetSlot<ReanimationSlot>(
-            aHolder->mBlock, aHolder->mMaxSize, anEffect->mEffectID);
-        if (aSlot != nullptr)
-          aSlot->mItem.mColorOverride = theColor;
-        break;
-      }
-      case EFFECT_ATTACHMENT:
-      {
-        Attachment *aChild = TryGetAttachment(aSystem->mAttachmentHolder, anEffect->mEffectID);
-        if (aChild != nullptr)
-          aChild->OverrideColor(theColor);
-        break;
-      }
-      case EFFECT_PARTICLE:
-      {
-        DataArray<TodParticleSystem, ParticleSystemSlot> *aArray = &aSystem->mParticleHolder->mParticleSystems;
-        ParticleSystemSlot *aSlot = TryGetSlot<ParticleSystemSlot>(
-            aArray->mBlock, aArray->mMaxSize, anEffect->mEffectID);
-        if (aSlot != nullptr)
-          aSlot->mItem.OverrideColor("", theColor);
-        break;
-      }
-      default:
-        break;
+        AttachEffect *anEffect = &mEffectArray[i];
+        switch (anEffect->mEffectType)
+        {
+            case EFFECT_REANIM:
+            {
+                ReanimationHolder *aHolder = aSystem->mReanimationHolder;
+                ReanimationSlot *aSlot =
+                    TryGetSlot<ReanimationSlot>(aHolder->mBlock, aHolder->mMaxSize, anEffect->mEffectID);
+                if (aSlot != nullptr)
+                    aSlot->mItem.mColorOverride = theColor;
+                break;
+            }
+            case EFFECT_ATTACHMENT:
+            {
+                Attachment *aChild = TryGetAttachment(aSystem->mAttachmentHolder, anEffect->mEffectID);
+                if (aChild != nullptr)
+                    aChild->OverrideColor(theColor);
+                break;
+            }
+            case EFFECT_PARTICLE:
+            {
+                DataArray<TodParticleSystem, ParticleSystemSlot> *aArray = &aSystem->mParticleHolder->mParticleSystems;
+                ParticleSystemSlot *aSlot =
+                    TryGetSlot<ParticleSystemSlot>(aArray->mBlock, aArray->mMaxSize, anEffect->mEffectID);
+                if (aSlot != nullptr)
+                    aSlot->mItem.OverrideColor("", theColor);
+                break;
+            }
+            default:
+                break;
+        }
     }
-  }
 }
 
 // ==========================================================================
 // Attachment::PropogateColor(Sexy::Color const&,bool,Sexy::Color const&,bool,Sexy::Color const&)
 // @001F4EC8  326 bytes
 // ==========================================================================
-void Attachment::PropogateColor(const Color &theColor, bool theEnableAdditive,
-                                        const Color &theAdditiveColor, bool theEnableOverlay,
-                                        const Color &theOverlayColor)
+void Attachment::PropogateColor(const Color &theColor, bool theEnableAdditive, const Color &theAdditiveColor,
+    bool theEnableOverlay, const Color &theOverlayColor)
 {
-  // An effect with mDontPropogateColor set is skipped. Particles are told to
-  // override every emitter (null name).
-  if (mNumEffects > 0)
-  {
-    EffectSystem *aSystem = gEffectSystem;
-    for (int i = 0; i < mNumEffects; ++i)
+    // An effect with mDontPropogateColor set is skipped. Particles are told to
+    // override every emitter (null name).
+    if (mNumEffects > 0)
     {
-      AttachEffect *anEffect = &mEffectArray[i];
-      if (anEffect->mDontPropogateColor)
-        continue;
-      switch (anEffect->mEffectType)
-      {
-        case EFFECT_REANIM:
+        EffectSystem *aSystem = gEffectSystem;
+        for (int i = 0; i < mNumEffects; ++i)
         {
-          ReanimationHolder *aHolder = aSystem->mReanimationHolder;
-          ReanimationSlot *aSlot = TryGetSlot<ReanimationSlot>(
-              aHolder->mBlock, aHolder->mMaxSize, anEffect->mEffectID);
-          if (aSlot == nullptr)
-            break;
-          aSlot->mItem.mColorOverride = theColor;
-          aSlot->mItem.mExtraAdditiveColor = theAdditiveColor;
-          aSlot->mItem.mEnableExtraAdditiveDraw = theEnableAdditive;
-          aSlot->mItem.mExtraOverlayColor = theOverlayColor;
-          aSlot->mItem.mEnableExtraOverlayDraw = theEnableOverlay;
-          aSlot->mItem.PropogateColorToAttachments();
-          break;
+            AttachEffect *anEffect = &mEffectArray[i];
+            if (anEffect->mDontPropogateColor)
+                continue;
+            switch (anEffect->mEffectType)
+            {
+                case EFFECT_REANIM:
+                {
+                    ReanimationHolder *aHolder = aSystem->mReanimationHolder;
+                    ReanimationSlot *aSlot =
+                        TryGetSlot<ReanimationSlot>(aHolder->mBlock, aHolder->mMaxSize, anEffect->mEffectID);
+                    if (aSlot == nullptr)
+                        break;
+                    aSlot->mItem.mColorOverride = theColor;
+                    aSlot->mItem.mExtraAdditiveColor = theAdditiveColor;
+                    aSlot->mItem.mEnableExtraAdditiveDraw = theEnableAdditive;
+                    aSlot->mItem.mExtraOverlayColor = theOverlayColor;
+                    aSlot->mItem.mEnableExtraOverlayDraw = theEnableOverlay;
+                    aSlot->mItem.PropogateColorToAttachments();
+                    break;
+                }
+                case EFFECT_ATTACHMENT:
+                {
+                    Attachment *aChild = TryGetAttachment(aSystem->mAttachmentHolder, anEffect->mEffectID);
+                    if (aChild != nullptr)
+                        aChild->PropogateColor(
+                            theColor, theEnableAdditive, theAdditiveColor, theEnableOverlay, theOverlayColor);
+                    break;
+                }
+                case EFFECT_PARTICLE:
+                {
+                    DataArray<TodParticleSystem, ParticleSystemSlot> *aArray =
+                        &aSystem->mParticleHolder->mParticleSystems;
+                    ParticleSystemSlot *aSlot =
+                        TryGetSlot<ParticleSystemSlot>(aArray->mBlock, aArray->mMaxSize, anEffect->mEffectID);
+                    if (aSlot == nullptr)
+                        break;
+                    aSlot->mItem.OverrideColor(nullptr, theColor);
+                    aSlot->mItem.OverrideExtraAdditiveDraw(nullptr, theEnableAdditive);
+                    break;
+                }
+                default:
+                    break;
+            }
         }
-        case EFFECT_ATTACHMENT:
-        {
-          Attachment *aChild = TryGetAttachment(aSystem->mAttachmentHolder, anEffect->mEffectID);
-          if (aChild != nullptr)
-            aChild->PropogateColor(theColor, theEnableAdditive, theAdditiveColor,
-                                   theEnableOverlay, theOverlayColor);
-          break;
-        }
-        case EFFECT_PARTICLE:
-        {
-          DataArray<TodParticleSystem, ParticleSystemSlot> *aArray =
-              &aSystem->mParticleHolder->mParticleSystems;
-          ParticleSystemSlot *aSlot = TryGetSlot<ParticleSystemSlot>(
-              aArray->mBlock, aArray->mMaxSize, anEffect->mEffectID);
-          if (aSlot == nullptr)
-            break;
-          aSlot->mItem.OverrideColor(nullptr, theColor);
-          aSlot->mItem.OverrideExtraAdditiveDraw(nullptr, theEnableAdditive);
-          break;
-        }
-        default:
-          break;
-      }
     }
-  }
 }
 
 // ==========================================================================
@@ -395,46 +390,46 @@ void Attachment::PropogateColor(const Color &theColor, bool theEnableAdditive,
 // ==========================================================================
 void Attachment::OverrideScale(float theScale)
 {
-  // Reanimations are scaled on both axes by the same value. Particles apply
-  // the scale to every emitter (null name). Trails are ignored.
-  if (mNumEffects <= 0)
-    return;
+    // Reanimations are scaled on both axes by the same value. Particles apply
+    // the scale to every emitter (null name). Trails are ignored.
+    if (mNumEffects <= 0)
+        return;
 
-  EffectSystem *aSystem = gEffectSystem;
-  for (int i = 0; i < mNumEffects; ++i)
-  {
-    AttachEffect *anEffect = &mEffectArray[i];
-    switch (anEffect->mEffectType)
+    EffectSystem *aSystem = gEffectSystem;
+    for (int i = 0; i < mNumEffects; ++i)
     {
-      case EFFECT_REANIM:
-      {
-        ReanimationHolder *aHolder = aSystem->mReanimationHolder;
-        ReanimationSlot *aSlot = TryGetSlot<ReanimationSlot>(
-            aHolder->mBlock, aHolder->mMaxSize, anEffect->mEffectID);
-        if (aSlot != nullptr)
-          aSlot->mItem.OverrideScale(theScale, theScale);
-        break;
-      }
-      case EFFECT_ATTACHMENT:
-      {
-        Attachment *aChild = TryGetAttachment(aSystem->mAttachmentHolder, anEffect->mEffectID);
-        if (aChild != nullptr)
-          aChild->OverrideScale(theScale);
-        break;
-      }
-      case EFFECT_PARTICLE:
-      {
-        DataArray<TodParticleSystem, ParticleSystemSlot> *aArray = &aSystem->mParticleHolder->mParticleSystems;
-        ParticleSystemSlot *aSlot = TryGetSlot<ParticleSystemSlot>(
-            aArray->mBlock, aArray->mMaxSize, anEffect->mEffectID);
-        if (aSlot != nullptr)
-          aSlot->mItem.OverrideScale(nullptr, theScale);
-        break;
-      }
-      default:
-        break;
+        AttachEffect *anEffect = &mEffectArray[i];
+        switch (anEffect->mEffectType)
+        {
+            case EFFECT_REANIM:
+            {
+                ReanimationHolder *aHolder = aSystem->mReanimationHolder;
+                ReanimationSlot *aSlot =
+                    TryGetSlot<ReanimationSlot>(aHolder->mBlock, aHolder->mMaxSize, anEffect->mEffectID);
+                if (aSlot != nullptr)
+                    aSlot->mItem.OverrideScale(theScale, theScale);
+                break;
+            }
+            case EFFECT_ATTACHMENT:
+            {
+                Attachment *aChild = TryGetAttachment(aSystem->mAttachmentHolder, anEffect->mEffectID);
+                if (aChild != nullptr)
+                    aChild->OverrideScale(theScale);
+                break;
+            }
+            case EFFECT_PARTICLE:
+            {
+                DataArray<TodParticleSystem, ParticleSystemSlot> *aArray = &aSystem->mParticleHolder->mParticleSystems;
+                ParticleSystemSlot *aSlot =
+                    TryGetSlot<ParticleSystemSlot>(aArray->mBlock, aArray->mMaxSize, anEffect->mEffectID);
+                if (aSlot != nullptr)
+                    aSlot->mItem.OverrideScale(nullptr, theScale);
+                break;
+            }
+            default:
+                break;
+        }
     }
-  }
 }
 
 // ==========================================================================
@@ -443,22 +438,22 @@ void Attachment::OverrideScale(float theScale)
 // ==========================================================================
 void Attachment::CrossFade(const char *theCrossFadeName)
 {
-  // Only particle effects cross-fade. A miss is skipped.
-  if (mNumEffects <= 0)
-    return;
+    // Only particle effects cross-fade. A miss is skipped.
+    if (mNumEffects <= 0)
+        return;
 
-  EffectSystem *aSystem = gEffectSystem;
-  for (int i = 0; i < mNumEffects; ++i)
-  {
-    AttachEffect *anEffect = &mEffectArray[i];
-    if (anEffect->mEffectType != EFFECT_PARTICLE)
-      continue;
-    DataArray<TodParticleSystem, ParticleSystemSlot> *aArray = &aSystem->mParticleHolder->mParticleSystems;
-    ParticleSystemSlot *aSlot = TryGetSlot<ParticleSystemSlot>(
-        aArray->mBlock, aArray->mMaxSize, anEffect->mEffectID);
-    if (aSlot != nullptr)
-      aSlot->mItem.CrossFade(theCrossFadeName);
-  }
+    EffectSystem *aSystem = gEffectSystem;
+    for (int i = 0; i < mNumEffects; ++i)
+    {
+        AttachEffect *anEffect = &mEffectArray[i];
+        if (anEffect->mEffectType != EFFECT_PARTICLE)
+            continue;
+        DataArray<TodParticleSystem, ParticleSystemSlot> *aArray = &aSystem->mParticleHolder->mParticleSystems;
+        ParticleSystemSlot *aSlot =
+            TryGetSlot<ParticleSystemSlot>(aArray->mBlock, aArray->mMaxSize, anEffect->mEffectID);
+        if (aSlot != nullptr)
+            aSlot->mItem.CrossFade(theCrossFadeName);
+    }
 }
 
 // ==========================================================================
@@ -467,63 +462,62 @@ void Attachment::CrossFade(const char *theCrossFadeName)
 // ==========================================================================
 void Attachment::SetMatrix(const Sexy::SexyTransform2D &theMatrix)
 {
-  // Product is theMatrix * mOffset, built before the type switch. A miss is
-  // skipped, not removed. Particles move by the product's translation; trails
-  // store that translation in mColorR/mColorG (Draw adds those to the point).
-  // Reanimations copy the whole product into mOverlayMatrix. A nested
-  // attachment receives the product, not the caller's original matrix.
-  if (mNumEffects <= 0)
-    return;
+    // Product is theMatrix * mOffset, built before the type switch. A miss is
+    // skipped, not removed. Particles move by the product's translation; trails
+    // store that translation in mColorR/mColorG (Draw adds those to the point).
+    // Reanimations copy the whole product into mOverlayMatrix. A nested
+    // attachment receives the product, not the caller's original matrix.
+    if (mNumEffects <= 0)
+        return;
 
-  EffectSystem *aSystem = gEffectSystem;
-  for (int i = 0; i < mNumEffects; ++i)
-  {
-    AttachEffect *anEffect = &mEffectArray[i];
-    SexyMatrix3 aProduct = SexyMatrix3MulMatrix3(theMatrix, anEffect->mOffset);
-    Sexy::SexyTransform2D aTransform(aProduct);
-    switch (anEffect->mEffectType)
+    EffectSystem *aSystem = gEffectSystem;
+    for (int i = 0; i < mNumEffects; ++i)
     {
-      case EFFECT_PARTICLE:
-      {
-        DataArray<TodParticleSystem, ParticleSystemSlot> *aArray = &aSystem->mParticleHolder->mParticleSystems;
-        ParticleSystemSlot *aSlot = TryGetSlot<ParticleSystemSlot>(
-            aArray->mBlock, aArray->mMaxSize, anEffect->mEffectID);
-        if (aSlot != nullptr)
-          aSlot->mItem.SystemMove(aTransform.m02, aTransform.m12);
-        break;
-      }
-      case EFFECT_TRAIL:
-      {
-        DataArray<Trail, TrailSlot> *aArray = &aSystem->mTrailHolder->mTrails;
-        TrailSlot *aSlot = TryGetSlot<TrailSlot>(
-            aArray->mBlock, aArray->mMaxSize, anEffect->mEffectID);
-        if (aSlot != nullptr)
+        AttachEffect *anEffect = &mEffectArray[i];
+        SexyMatrix3 aProduct = SexyMatrix3MulMatrix3(theMatrix, anEffect->mOffset);
+        Sexy::SexyTransform2D aTransform(aProduct);
+        switch (anEffect->mEffectType)
         {
-          aSlot->mItem.mOffsetX = aTransform.m02;
-          aSlot->mItem.mOffsetY = aTransform.m12;
+            case EFFECT_PARTICLE:
+            {
+                DataArray<TodParticleSystem, ParticleSystemSlot> *aArray = &aSystem->mParticleHolder->mParticleSystems;
+                ParticleSystemSlot *aSlot =
+                    TryGetSlot<ParticleSystemSlot>(aArray->mBlock, aArray->mMaxSize, anEffect->mEffectID);
+                if (aSlot != nullptr)
+                    aSlot->mItem.SystemMove(aTransform.m02, aTransform.m12);
+                break;
+            }
+            case EFFECT_TRAIL:
+            {
+                DataArray<Trail, TrailSlot> *aArray = &aSystem->mTrailHolder->mTrails;
+                TrailSlot *aSlot = TryGetSlot<TrailSlot>(aArray->mBlock, aArray->mMaxSize, anEffect->mEffectID);
+                if (aSlot != nullptr)
+                {
+                    aSlot->mItem.mOffsetX = aTransform.m02;
+                    aSlot->mItem.mOffsetY = aTransform.m12;
+                }
+                break;
+            }
+            case EFFECT_REANIM:
+            {
+                ReanimationHolder *aHolder = aSystem->mReanimationHolder;
+                ReanimationSlot *aSlot =
+                    TryGetSlot<ReanimationSlot>(aHolder->mBlock, aHolder->mMaxSize, anEffect->mEffectID);
+                if (aSlot != nullptr)
+                    aSlot->mItem.mOverlayMatrix = aTransform;
+                break;
+            }
+            case EFFECT_ATTACHMENT:
+            {
+                Attachment *aChild = TryGetAttachment(aSystem->mAttachmentHolder, anEffect->mEffectID);
+                if (aChild != nullptr)
+                    aChild->SetMatrix(aTransform);
+                break;
+            }
+            default:
+                break;
         }
-        break;
-      }
-      case EFFECT_REANIM:
-      {
-        ReanimationHolder *aHolder = aSystem->mReanimationHolder;
-        ReanimationSlot *aSlot = TryGetSlot<ReanimationSlot>(
-            aHolder->mBlock, aHolder->mMaxSize, anEffect->mEffectID);
-        if (aSlot != nullptr)
-          aSlot->mItem.mOverlayMatrix = aTransform;
-        break;
-      }
-      case EFFECT_ATTACHMENT:
-      {
-        Attachment *aChild = TryGetAttachment(aSystem->mAttachmentHolder, anEffect->mEffectID);
-        if (aChild != nullptr)
-          aChild->SetMatrix(aTransform);
-        break;
-      }
-      default:
-        break;
     }
-  }
 }
 
 // ==========================================================================
@@ -532,58 +526,57 @@ void Attachment::SetMatrix(const Sexy::SexyTransform2D &theMatrix)
 // ==========================================================================
 void Attachment::Draw(Sexy::Graphics *g, bool theParentHidden)
 {
-  // An effect whose parent is hidden is skipped when mDontDrawIfParentHidden
-  // is set. A miss is skipped. The count is reloaded after a draw, so a
-  // nested draw that changes this list is seen on the next iteration.
-  if (mNumEffects <= 0)
-    return;
+    // An effect whose parent is hidden is skipped when mDontDrawIfParentHidden
+    // is set. A miss is skipped. The count is reloaded after a draw, so a
+    // nested draw that changes this list is seen on the next iteration.
+    if (mNumEffects <= 0)
+        return;
 
-  EffectSystem *aSystem = gEffectSystem;
-  for (int i = 0; i < mNumEffects; ++i)
-  {
-    AttachEffect *anEffect = &mEffectArray[i];
-    if (theParentHidden && anEffect->mDontDrawIfParentHidden)
-      continue;
-    switch (anEffect->mEffectType)
+    EffectSystem *aSystem = gEffectSystem;
+    for (int i = 0; i < mNumEffects; ++i)
     {
-      case EFFECT_PARTICLE:
-      {
-        DataArray<TodParticleSystem, ParticleSystemSlot> *aArray = &aSystem->mParticleHolder->mParticleSystems;
-        ParticleSystemSlot *aSlot = TryGetSlot<ParticleSystemSlot>(
-            aArray->mBlock, aArray->mMaxSize, anEffect->mEffectID);
-        if (aSlot != nullptr)
-          aSlot->mItem.Draw(g);
-        break;
-      }
-      case EFFECT_TRAIL:
-      {
-        DataArray<Trail, TrailSlot> *aArray = &aSystem->mTrailHolder->mTrails;
-        TrailSlot *aSlot = TryGetSlot<TrailSlot>(
-            aArray->mBlock, aArray->mMaxSize, anEffect->mEffectID);
-        if (aSlot != nullptr)
-          aSlot->mItem.Draw(g);
-        break;
-      }
-      case EFFECT_REANIM:
-      {
-        ReanimationHolder *aHolder = aSystem->mReanimationHolder;
-        ReanimationSlot *aSlot = TryGetSlot<ReanimationSlot>(
-            aHolder->mBlock, aHolder->mMaxSize, anEffect->mEffectID);
-        if (aSlot != nullptr)
-          aSlot->mItem.Draw(g);
-        break;
-      }
-      case EFFECT_ATTACHMENT:
-      {
-        Attachment *aChild = TryGetAttachment(aSystem->mAttachmentHolder, anEffect->mEffectID);
-        if (aChild != nullptr)
-          aChild->Draw(g, theParentHidden);
-        break;
-      }
-      default:
-        break;
+        AttachEffect *anEffect = &mEffectArray[i];
+        if (theParentHidden && anEffect->mDontDrawIfParentHidden)
+            continue;
+        switch (anEffect->mEffectType)
+        {
+            case EFFECT_PARTICLE:
+            {
+                DataArray<TodParticleSystem, ParticleSystemSlot> *aArray = &aSystem->mParticleHolder->mParticleSystems;
+                ParticleSystemSlot *aSlot =
+                    TryGetSlot<ParticleSystemSlot>(aArray->mBlock, aArray->mMaxSize, anEffect->mEffectID);
+                if (aSlot != nullptr)
+                    aSlot->mItem.Draw(g);
+                break;
+            }
+            case EFFECT_TRAIL:
+            {
+                DataArray<Trail, TrailSlot> *aArray = &aSystem->mTrailHolder->mTrails;
+                TrailSlot *aSlot = TryGetSlot<TrailSlot>(aArray->mBlock, aArray->mMaxSize, anEffect->mEffectID);
+                if (aSlot != nullptr)
+                    aSlot->mItem.Draw(g);
+                break;
+            }
+            case EFFECT_REANIM:
+            {
+                ReanimationHolder *aHolder = aSystem->mReanimationHolder;
+                ReanimationSlot *aSlot =
+                    TryGetSlot<ReanimationSlot>(aHolder->mBlock, aHolder->mMaxSize, anEffect->mEffectID);
+                if (aSlot != nullptr)
+                    aSlot->mItem.Draw(g);
+                break;
+            }
+            case EFFECT_ATTACHMENT:
+            {
+                Attachment *aChild = TryGetAttachment(aSystem->mAttachmentHolder, anEffect->mEffectID);
+                if (aChild != nullptr)
+                    aChild->Draw(g, theParentHidden);
+                break;
+            }
+            default:
+                break;
+        }
     }
-  }
 }
 
 // ==========================================================================
@@ -592,61 +585,60 @@ void Attachment::Draw(Sexy::Graphics *g, bool theParentHidden)
 // ==========================================================================
 void Attachment::Detach()
 {
-  // Clears the host flag on the effect (particle and reanimation
-  // mIsAttachment, trail mUnkE4) and detaches a nested attachment. Every
-  // effect id is then zeroed, including a miss. The list is always emptied
-  // and this attachment marked dead, even when it held nothing.
-  if (mNumEffects > 0)
-  {
-    EffectSystem *aSystem = gEffectSystem;
-    for (int i = 0; i < mNumEffects; ++i)
+    // Clears the host flag on the effect (particle and reanimation
+    // mIsAttachment, trail mUnkE4) and detaches a nested attachment. Every
+    // effect id is then zeroed, including a miss. The list is always emptied
+    // and this attachment marked dead, even when it held nothing.
+    if (mNumEffects > 0)
     {
-      AttachEffect *anEffect = &mEffectArray[i];
-      switch (anEffect->mEffectType)
-      {
-        case EFFECT_PARTICLE:
+        EffectSystem *aSystem = gEffectSystem;
+        for (int i = 0; i < mNumEffects; ++i)
         {
-          DataArray<TodParticleSystem, ParticleSystemSlot> *aArray =
-              &aSystem->mParticleHolder->mParticleSystems;
-          ParticleSystemSlot *aSlot = TryGetSlot<ParticleSystemSlot>(
-              aArray->mBlock, aArray->mMaxSize, anEffect->mEffectID);
-          if (aSlot != nullptr)
-            aSlot->mItem.mIsAttachment = false;
-          break;
+            AttachEffect *anEffect = &mEffectArray[i];
+            switch (anEffect->mEffectType)
+            {
+                case EFFECT_PARTICLE:
+                {
+                    DataArray<TodParticleSystem, ParticleSystemSlot> *aArray =
+                        &aSystem->mParticleHolder->mParticleSystems;
+                    ParticleSystemSlot *aSlot =
+                        TryGetSlot<ParticleSystemSlot>(aArray->mBlock, aArray->mMaxSize, anEffect->mEffectID);
+                    if (aSlot != nullptr)
+                        aSlot->mItem.mIsAttachment = false;
+                    break;
+                }
+                case EFFECT_TRAIL:
+                {
+                    DataArray<Trail, TrailSlot> *aArray = &aSystem->mTrailHolder->mTrails;
+                    TrailSlot *aSlot = TryGetSlot<TrailSlot>(aArray->mBlock, aArray->mMaxSize, anEffect->mEffectID);
+                    if (aSlot != nullptr)
+                        aSlot->mItem.mIsAttachment = false;
+                    break;
+                }
+                case EFFECT_REANIM:
+                {
+                    ReanimationHolder *aHolder = aSystem->mReanimationHolder;
+                    ReanimationSlot *aSlot =
+                        TryGetSlot<ReanimationSlot>(aHolder->mBlock, aHolder->mMaxSize, anEffect->mEffectID);
+                    if (aSlot != nullptr)
+                        aSlot->mItem.mIsAttachment = false;
+                    break;
+                }
+                case EFFECT_ATTACHMENT:
+                {
+                    Attachment *aChild = TryGetAttachment(aSystem->mAttachmentHolder, anEffect->mEffectID);
+                    if (aChild != nullptr)
+                        aChild->Detach();
+                    break;
+                }
+                default:
+                    break;
+            }
+            anEffect->mEffectID = 0;
         }
-        case EFFECT_TRAIL:
-        {
-          DataArray<Trail, TrailSlot> *aArray = &aSystem->mTrailHolder->mTrails;
-          TrailSlot *aSlot = TryGetSlot<TrailSlot>(
-              aArray->mBlock, aArray->mMaxSize, anEffect->mEffectID);
-          if (aSlot != nullptr)
-            aSlot->mItem.mIsAttachment = false;
-          break;
-        }
-        case EFFECT_REANIM:
-        {
-          ReanimationHolder *aHolder = aSystem->mReanimationHolder;
-          ReanimationSlot *aSlot = TryGetSlot<ReanimationSlot>(
-              aHolder->mBlock, aHolder->mMaxSize, anEffect->mEffectID);
-          if (aSlot != nullptr)
-            aSlot->mItem.mIsAttachment = false;
-          break;
-        }
-        case EFFECT_ATTACHMENT:
-        {
-          Attachment *aChild = TryGetAttachment(aSystem->mAttachmentHolder, anEffect->mEffectID);
-          if (aChild != nullptr)
-            aChild->Detach();
-          break;
-        }
-        default:
-          break;
-      }
-      anEffect->mEffectID = 0;
     }
-  }
-  mNumEffects = 0;
-  mDead = true;
+    mNumEffects = 0;
+    mDead = true;
 }
 
 // ==========================================================================
@@ -655,61 +647,60 @@ void Attachment::Detach()
 // ==========================================================================
 void Attachment::AttachmentDie()
 {
-  // Kills the effect itself: particles and reanimations die, a trail is
-  // marked dead, a nested attachment dies. Every effect id is then zeroed,
-  // including a miss. The list is always emptied and this attachment marked
-  // dead, even when it held nothing.
-  if (mNumEffects > 0)
-  {
-    EffectSystem *aSystem = gEffectSystem;
-    for (int i = 0; i < mNumEffects; ++i)
+    // Kills the effect itself: particles and reanimations die, a trail is
+    // marked dead, a nested attachment dies. Every effect id is then zeroed,
+    // including a miss. The list is always emptied and this attachment marked
+    // dead, even when it held nothing.
+    if (mNumEffects > 0)
     {
-      AttachEffect *anEffect = &mEffectArray[i];
-      switch (anEffect->mEffectType)
-      {
-        case EFFECT_PARTICLE:
+        EffectSystem *aSystem = gEffectSystem;
+        for (int i = 0; i < mNumEffects; ++i)
         {
-          DataArray<TodParticleSystem, ParticleSystemSlot> *aArray =
-              &aSystem->mParticleHolder->mParticleSystems;
-          ParticleSystemSlot *aSlot = TryGetSlot<ParticleSystemSlot>(
-              aArray->mBlock, aArray->mMaxSize, anEffect->mEffectID);
-          if (aSlot != nullptr)
-            aSlot->mItem.ParticleSystemDie();
-          break;
+            AttachEffect *anEffect = &mEffectArray[i];
+            switch (anEffect->mEffectType)
+            {
+                case EFFECT_PARTICLE:
+                {
+                    DataArray<TodParticleSystem, ParticleSystemSlot> *aArray =
+                        &aSystem->mParticleHolder->mParticleSystems;
+                    ParticleSystemSlot *aSlot =
+                        TryGetSlot<ParticleSystemSlot>(aArray->mBlock, aArray->mMaxSize, anEffect->mEffectID);
+                    if (aSlot != nullptr)
+                        aSlot->mItem.ParticleSystemDie();
+                    break;
+                }
+                case EFFECT_TRAIL:
+                {
+                    DataArray<Trail, TrailSlot> *aArray = &aSystem->mTrailHolder->mTrails;
+                    TrailSlot *aSlot = TryGetSlot<TrailSlot>(aArray->mBlock, aArray->mMaxSize, anEffect->mEffectID);
+                    if (aSlot != nullptr)
+                        aSlot->mItem.mDead = true;
+                    break;
+                }
+                case EFFECT_REANIM:
+                {
+                    ReanimationHolder *aHolder = aSystem->mReanimationHolder;
+                    ReanimationSlot *aSlot =
+                        TryGetSlot<ReanimationSlot>(aHolder->mBlock, aHolder->mMaxSize, anEffect->mEffectID);
+                    if (aSlot != nullptr)
+                        aSlot->mItem.ReanimationDie();
+                    break;
+                }
+                case EFFECT_ATTACHMENT:
+                {
+                    Attachment *aChild = TryGetAttachment(aSystem->mAttachmentHolder, anEffect->mEffectID);
+                    if (aChild != nullptr)
+                        aChild->AttachmentDie();
+                    break;
+                }
+                default:
+                    break;
+            }
+            anEffect->mEffectID = 0;
         }
-        case EFFECT_TRAIL:
-        {
-          DataArray<Trail, TrailSlot> *aArray = &aSystem->mTrailHolder->mTrails;
-          TrailSlot *aSlot = TryGetSlot<TrailSlot>(
-              aArray->mBlock, aArray->mMaxSize, anEffect->mEffectID);
-          if (aSlot != nullptr)
-            aSlot->mItem.mDead = true;
-          break;
-        }
-        case EFFECT_REANIM:
-        {
-          ReanimationHolder *aHolder = aSystem->mReanimationHolder;
-          ReanimationSlot *aSlot = TryGetSlot<ReanimationSlot>(
-              aHolder->mBlock, aHolder->mMaxSize, anEffect->mEffectID);
-          if (aSlot != nullptr)
-            aSlot->mItem.ReanimationDie();
-          break;
-        }
-        case EFFECT_ATTACHMENT:
-        {
-          Attachment *aChild = TryGetAttachment(aSystem->mAttachmentHolder, anEffect->mEffectID);
-          if (aChild != nullptr)
-            aChild->AttachmentDie();
-          break;
-        }
-        default:
-          break;
-      }
-      anEffect->mEffectID = 0;
     }
-  }
-  mNumEffects = 0;
-  mDead = true;
+    mNumEffects = 0;
+    mDead = true;
 }
 
 // ==========================================================================
@@ -725,20 +716,20 @@ void Attachment::AttachmentDie()
 // ==========================================================================
 Attachment::Attachment()
 {
-  for (int anEffectIndex = 0; anEffectIndex < 16; ++anEffectIndex)
-    mEffectArray[anEffectIndex].mOffset = Sexy::SexyTransform2D();
+    for (int anEffectIndex = 0; anEffectIndex < 16; ++anEffectIndex)
+        mEffectArray[anEffectIndex].mOffset = Sexy::SexyTransform2D();
 
-  // TV registers the effect array, count and dead flag (773 bytes on ARM).
-  const size_t aSyncBlockSize = MakeSyncBlock(mEffectArray, mDead).mSize;
-  SyncBlockInfo aBlock;
-  aBlock.mData = &mEffectArray[0];
-  aBlock.mSize = aSyncBlockSize;
+    // TV registers the effect array, count and dead flag (773 bytes on ARM).
+    const size_t aSyncBlockSize = MakeSyncBlock(mEffectArray, mDead).mSize;
+    SyncBlockInfo aBlock;
+    aBlock.mData = &mEffectArray[0];
+    aBlock.mSize = aSyncBlockSize;
 
-  mSyncBlocks.push_back(aBlock);
-  memset(mEffectArray, 0, sizeof(mEffectArray));
+    mSyncBlocks.push_back(aBlock);
+    memset(mEffectArray, 0, sizeof(mEffectArray));
 
-  mNumEffects = 0;
-  mDead = false;
+    mNumEffects = 0;
+    mDead = false;
 }
 
 // The free functions are the binary's AttachmentID wrappers. Each one resolves
@@ -747,217 +738,214 @@ Attachment::Attachment()
 
 AttachEffect *AttachParticle(int &theId, TodParticleSystem *theSystem, float theOffsetX, float theOffsetY)
 {
-  if (theSystem == nullptr)
-    return nullptr;
-  AttachEffect *anEffect = CreateEffectAttachment(theId, EFFECT_PARTICLE, ParticleSystemKey(theSystem),
-                                                  theOffsetX, theOffsetY);
-  theSystem->mIsAttachment = true;
-  return anEffect;
+    if (theSystem == nullptr)
+        return nullptr;
+    AttachEffect *anEffect =
+        CreateEffectAttachment(theId, EFFECT_PARTICLE, ParticleSystemKey(theSystem), theOffsetX, theOffsetY);
+    theSystem->mIsAttachment = true;
+    return anEffect;
 }
 
 AttachEffect *AttachReanim(int &theId, Reanimation *theReanim, float theOffsetX, float theOffsetY)
 {
-  AttachEffect *anEffect = CreateEffectAttachment(theId, EFFECT_REANIM, ReanimationKey(theReanim),
-                                                  theOffsetX, theOffsetY);
-  theReanim->mIsAttachment = true;
-  return anEffect;
+    AttachEffect *anEffect =
+        CreateEffectAttachment(theId, EFFECT_REANIM, ReanimationKey(theReanim), theOffsetX, theOffsetY);
+    theReanim->mIsAttachment = true;
+    return anEffect;
 }
 
 void AttachmentUpdate(int &theId)
 {
-  Attachment *anAttachment = TryGetAttachment(gEffectSystem->mAttachmentHolder, theId);
-  if (anAttachment == nullptr)
-  {
-    if (theId != 0)
-      theId = 0;
-    return;
-  }
-  anAttachment->Update();
+    Attachment *anAttachment = TryGetAttachment(gEffectSystem->mAttachmentHolder, theId);
+    if (anAttachment == nullptr)
+    {
+        if (theId != 0)
+            theId = 0;
+        return;
+    }
+    anAttachment->Update();
 }
 
 void AttachmentSetMatrix(int &theId, const Sexy::SexyTransform2D &theMatrix)
 {
-  if (theId == 0)
-    return;
-  Attachment *anAttachment = TryGetAttachment(gEffectSystem->mAttachmentHolder, theId);
-  if (anAttachment == nullptr)
-  {
-    theId = 0;
-    return;
-  }
-  anAttachment->SetMatrix(theMatrix);
+    if (theId == 0)
+        return;
+    Attachment *anAttachment = TryGetAttachment(gEffectSystem->mAttachmentHolder, theId);
+    if (anAttachment == nullptr)
+    {
+        theId = 0;
+        return;
+    }
+    anAttachment->SetMatrix(theMatrix);
 }
 
 void AttachmentUpdateAndSetMatrix(int &theId, const Sexy::SexyTransform2D &theMatrix)
 {
-  if (theId == 0)
-    return;
-  Attachment *anAttachment = TryGetAttachment(gEffectSystem->mAttachmentHolder, theId);
-  if (anAttachment == nullptr)
-  {
-    theId = 0;
-    return;
-  }
-  anAttachment->Update();
-  anAttachment->SetMatrix(theMatrix);
+    if (theId == 0)
+        return;
+    Attachment *anAttachment = TryGetAttachment(gEffectSystem->mAttachmentHolder, theId);
+    if (anAttachment == nullptr)
+    {
+        theId = 0;
+        return;
+    }
+    anAttachment->Update();
+    anAttachment->SetMatrix(theMatrix);
 }
 
 void AttachmentUpdateAndMove(int &theId, float thePosX, float thePosY)
 {
-  if (theId == 0)
-    return;
-  Attachment *anAttachment = TryGetAttachment(gEffectSystem->mAttachmentHolder, theId);
-  if (anAttachment == nullptr)
-  {
-    theId = 0;
-    return;
-  }
-  anAttachment->Update();
-  Sexy::SexyVector2 aPosition(thePosX, thePosY);
-  anAttachment->SetPosition(aPosition);
+    if (theId == 0)
+        return;
+    Attachment *anAttachment = TryGetAttachment(gEffectSystem->mAttachmentHolder, theId);
+    if (anAttachment == nullptr)
+    {
+        theId = 0;
+        return;
+    }
+    anAttachment->Update();
+    Sexy::SexyVector2 aPosition(thePosX, thePosY);
+    anAttachment->SetPosition(aPosition);
 }
 
 void AttachmentOverrideColor(int theId, const Sexy::Color &theColor)
 {
-  Attachment *anAttachment = TryGetAttachment(gEffectSystem->mAttachmentHolder, theId);
-  if (anAttachment != nullptr)
-    anAttachment->OverrideColor(theColor);
+    Attachment *anAttachment = TryGetAttachment(gEffectSystem->mAttachmentHolder, theId);
+    if (anAttachment != nullptr)
+        anAttachment->OverrideColor(theColor);
 }
 
 void AttachmentPropogateColor(int theId, const Sexy::Color &theColor, bool theEnableAdditive,
-                              const Sexy::Color &theAdditive, bool theEnableOverlay,
-                              const Sexy::Color &theOverlay)
+    const Sexy::Color &theAdditive, bool theEnableOverlay, const Sexy::Color &theOverlay)
 {
-  Attachment *anAttachment = TryGetAttachment(gEffectSystem->mAttachmentHolder, theId);
-  if (anAttachment != nullptr)
-    anAttachment->PropogateColor(theColor, theEnableAdditive, theAdditive, theEnableOverlay, theOverlay);
+    Attachment *anAttachment = TryGetAttachment(gEffectSystem->mAttachmentHolder, theId);
+    if (anAttachment != nullptr)
+        anAttachment->PropogateColor(theColor, theEnableAdditive, theAdditive, theEnableOverlay, theOverlay);
 }
 
 void AttachmentOverrideScale(int theId, float theScale)
 {
-  Attachment *anAttachment = TryGetAttachment(gEffectSystem->mAttachmentHolder, theId);
-  if (anAttachment != nullptr)
-    anAttachment->OverrideScale(theScale);
+    Attachment *anAttachment = TryGetAttachment(gEffectSystem->mAttachmentHolder, theId);
+    if (anAttachment != nullptr)
+        anAttachment->OverrideScale(theScale);
 }
 
 void AttachmentCrossFade(int theId, const char *theCrossFadeName)
 {
-  Attachment *anAttachment = TryGetAttachment(gEffectSystem->mAttachmentHolder, theId);
-  if (anAttachment != nullptr)
-    anAttachment->CrossFade(theCrossFadeName);
+    Attachment *anAttachment = TryGetAttachment(gEffectSystem->mAttachmentHolder, theId);
+    if (anAttachment != nullptr)
+        anAttachment->CrossFade(theCrossFadeName);
 }
 
 void AttachmentReanimTypeDie(int &theId, ReanimationType theType)
 {
-  Attachment *anAttachment = TryGetAttachment(gEffectSystem->mAttachmentHolder, theId);
-  if (anAttachment == nullptr)
-    return;
-  ReanimationHolder *aHolder = gEffectSystem->mReanimationHolder;
-  int aCount = anAttachment->mNumEffects;
-  for (int anIndex = 0; anIndex < aCount; ++anIndex)
-  {
-    AttachEffect *anEffect = &anAttachment->mEffectArray[anIndex];
-    if (anEffect->mEffectType != EFFECT_REANIM)
-      continue;
-    ReanimationSlot *aSlot = TryGetSlot<ReanimationSlot>(
-        aHolder->mBlock, aHolder->mMaxSize, anEffect->mEffectID);
-    if (aSlot != nullptr && aSlot->mItem.mReanimationType == theType)
+    Attachment *anAttachment = TryGetAttachment(gEffectSystem->mAttachmentHolder, theId);
+    if (anAttachment == nullptr)
+        return;
+    ReanimationHolder *aHolder = gEffectSystem->mReanimationHolder;
+    int aCount = anAttachment->mNumEffects;
+    for (int anIndex = 0; anIndex < aCount; ++anIndex)
     {
-      aSlot->mItem.ReanimationDie();
-      aCount = anAttachment->mNumEffects;
+        AttachEffect *anEffect = &anAttachment->mEffectArray[anIndex];
+        if (anEffect->mEffectType != EFFECT_REANIM)
+            continue;
+        ReanimationSlot *aSlot = TryGetSlot<ReanimationSlot>(aHolder->mBlock, aHolder->mMaxSize, anEffect->mEffectID);
+        if (aSlot != nullptr && aSlot->mItem.mReanimationType == theType)
+        {
+            aSlot->mItem.ReanimationDie();
+            aCount = anAttachment->mNumEffects;
+        }
     }
-  }
 }
 
 void AttachmentDetachCrossFadeParticleType(int &theId, ParticleEffect theEffect, const char *theCrossFadeName)
 {
-  Attachment *anAttachment = TryGetAttachment(gEffectSystem->mAttachmentHolder, theId);
-  if (anAttachment == nullptr)
-    return;
-  DataArray<TodParticleSystem, ParticleSystemSlot> *aSystems = &gEffectSystem->mParticleHolder->mParticleSystems;
-  TodParticleDefinition *aWanted = &gParticleDefArray[theEffect];
-  int aCount = anAttachment->mNumEffects;
-  for (int anIndex = 0; anIndex < aCount; ++anIndex)
-  {
-    AttachEffect *anEffect = &anAttachment->mEffectArray[anIndex];
-    if (anEffect->mEffectType != EFFECT_PARTICLE)
-      continue;
-    ParticleSystemSlot *aSlot = TryGetSlot<ParticleSystemSlot>(
-        aSystems->mBlock, aSystems->mMaxSize, anEffect->mEffectID);
-    if (aSlot == nullptr || aSlot->mItem.mParticleDef != aWanted)
-      continue;
-    if (theCrossFadeName != nullptr)
+    Attachment *anAttachment = TryGetAttachment(gEffectSystem->mAttachmentHolder, theId);
+    if (anAttachment == nullptr)
+        return;
+    DataArray<TodParticleSystem, ParticleSystemSlot> *aSystems = &gEffectSystem->mParticleHolder->mParticleSystems;
+    TodParticleDefinition *aWanted = &gParticleDefArray[theEffect];
+    int aCount = anAttachment->mNumEffects;
+    for (int anIndex = 0; anIndex < aCount; ++anIndex)
     {
-      aSlot->mItem.mIsAttachment = false;
-      aSlot->mItem.CrossFade(theCrossFadeName);
+        AttachEffect *anEffect = &anAttachment->mEffectArray[anIndex];
+        if (anEffect->mEffectType != EFFECT_PARTICLE)
+            continue;
+        ParticleSystemSlot *aSlot =
+            TryGetSlot<ParticleSystemSlot>(aSystems->mBlock, aSystems->mMaxSize, anEffect->mEffectID);
+        if (aSlot == nullptr || aSlot->mItem.mParticleDef != aWanted)
+            continue;
+        if (theCrossFadeName != nullptr)
+        {
+            aSlot->mItem.mIsAttachment = false;
+            aSlot->mItem.CrossFade(theCrossFadeName);
+        }
+        else
+        {
+            aSlot->mItem.ParticleSystemDie();
+        }
+        anEffect->mEffectID = 0;
+        aCount = anAttachment->mNumEffects;
     }
-    else
-    {
-      aSlot->mItem.ParticleSystemDie();
-    }
-    anEffect->mEffectID = 0;
-    aCount = anAttachment->mNumEffects;
-  }
 }
 
 void AttachmentDraw(int theId, Sexy::Graphics *g, bool theParentHidden)
 {
-  Attachment *anAttachment = TryGetAttachment(gEffectSystem->mAttachmentHolder, theId);
-  if (anAttachment != nullptr)
-    anAttachment->Draw(g, theParentHidden);
+    Attachment *anAttachment = TryGetAttachment(gEffectSystem->mAttachmentHolder, theId);
+    if (anAttachment != nullptr)
+        anAttachment->Draw(g, theParentHidden);
 }
 
 void AttachmentDie(int &theId)
 {
-  if (theId == 0)
-    return;
-  Attachment *anAttachment = TryGetAttachment(gEffectSystem->mAttachmentHolder, theId);
-  theId = 0;
-  if (anAttachment != nullptr)
-    anAttachment->AttachmentDie();
+    if (theId == 0)
+        return;
+    Attachment *anAttachment = TryGetAttachment(gEffectSystem->mAttachmentHolder, theId);
+    theId = 0;
+    if (anAttachment != nullptr)
+        anAttachment->AttachmentDie();
 }
 
 void AttachmentDetach(int &theId)
 {
-  if (theId == 0)
-    return;
-  Attachment *anAttachment = TryGetAttachment(gEffectSystem->mAttachmentHolder, theId);
-  theId = 0;
-  if (anAttachment != nullptr)
-    anAttachment->Detach();
+    if (theId == 0)
+        return;
+    Attachment *anAttachment = TryGetAttachment(gEffectSystem->mAttachmentHolder, theId);
+    theId = 0;
+    if (anAttachment != nullptr)
+        anAttachment->Detach();
 }
 
 Reanimation *FindReanimAttachment(const int &theId)
 {
-  Attachment *anAttachment = TryGetAttachment(gEffectSystem->mAttachmentHolder, theId);
-  if (anAttachment == nullptr || anAttachment->mNumEffects <= 0)
+    Attachment *anAttachment = TryGetAttachment(gEffectSystem->mAttachmentHolder, theId);
+    if (anAttachment == nullptr || anAttachment->mNumEffects <= 0)
+        return nullptr;
+    ReanimationHolder *aHolder = gEffectSystem->mReanimationHolder;
+    for (int anIndex = 0; anIndex < anAttachment->mNumEffects; ++anIndex)
+    {
+        AttachEffect *anEffect = &anAttachment->mEffectArray[anIndex];
+        if (anEffect->mEffectType != EFFECT_REANIM)
+            continue;
+        ReanimationSlot *aSlot = TryGetSlot<ReanimationSlot>(aHolder->mBlock, aHolder->mMaxSize, anEffect->mEffectID);
+        if (aSlot != nullptr)
+            return &aSlot->mItem;
+    }
     return nullptr;
-  ReanimationHolder *aHolder = gEffectSystem->mReanimationHolder;
-  for (int anIndex = 0; anIndex < anAttachment->mNumEffects; ++anIndex)
-  {
-    AttachEffect *anEffect = &anAttachment->mEffectArray[anIndex];
-    if (anEffect->mEffectType != EFFECT_REANIM)
-      continue;
-    ReanimationSlot *aSlot = TryGetSlot<ReanimationSlot>(
-        aHolder->mBlock, aHolder->mMaxSize, anEffect->mEffectID);
-    if (aSlot != nullptr)
-      return &aSlot->mItem;
-  }
-  return nullptr;
 }
 
 AttachEffect *FindFirstAttachment(const int &theId)
 {
-  Attachment *anAttachment = TryGetAttachment(gEffectSystem->mAttachmentHolder, theId);
-  if (anAttachment == nullptr || anAttachment->mNumEffects == 0)
-    return nullptr;
-  return &anAttachment->mEffectArray[0];
+    Attachment *anAttachment = TryGetAttachment(gEffectSystem->mAttachmentHolder, theId);
+    if (anAttachment == nullptr || anAttachment->mNumEffects == 0)
+        return nullptr;
+    return &anAttachment->mEffectArray[0];
 }
 
 bool IsFullOfAttachments(const int &theId)
 {
-  Attachment *anAttachment = TryGetAttachment(gEffectSystem->mAttachmentHolder, theId);
-  if (anAttachment == nullptr)
-    return false;
-  return anAttachment->mNumEffects > 15;
+    Attachment *anAttachment = TryGetAttachment(gEffectSystem->mAttachmentHolder, theId);
+    if (anAttachment == nullptr)
+        return false;
+    return anAttachment->mNumEffects > 15;
 }

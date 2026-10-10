@@ -1,4 +1,5 @@
-#pragma once
+#ifndef LAWNPROJECTTV_SEXY_INCLUDE_LEVEL_H
+#define LAWNPROJECTTV_SEXY_INCLUDE_LEVEL_H
 
 #include "ReconTypes.h"
 
@@ -14,7 +15,13 @@ struct LevelPlantInfo
     int mPlantId;
 };
 
-enum class LevelWaveActionType { Scale, Spawn, Missing, Fill };
+enum class LevelWaveActionType
+{
+    Scale,
+    Spawn,
+    Missing,
+    Fill
+};
 
 struct LevelWaveAction
 {
@@ -128,16 +135,31 @@ struct LevelWave
     std::vector<LevelWaveAction> mActions;
     bool mHasActions = false;
 
-    LevelWave()
-        : mPoints(0), mFlag(false), mHasPoints(false), mHasFlag(false), mNextWaveDelay(-1)
+    LevelWave() :
+        mPoints(0),
+        mFlag(false),
+        mHasPoints(false),
+        mHasFlag(false),
+        mNextWaveDelay(-1)
     {
     }
 };
 
-namespace Sexy {
+namespace Sexy
+{
 
-enum class LevelSpawnRules { Legacy, Native, Xml };
-enum class LevelFlagRules { Legacy, Native, Xml };
+enum class LevelSpawnRules
+{
+    Legacy,
+    Native,
+    Xml
+};
+enum class LevelFlagRules
+{
+    Legacy,
+    Native,
+    Xml
+};
 
 struct LevelLoadContext
 {
@@ -203,10 +225,10 @@ public:
     String mConfigurationError;
 
     Level();
-    bool InitFromXML(GameMode theMode, int theLevelId, char const* thePath);
-    bool InitFromXML(const LevelLoadContext& theContext, const String& thePath);
-    bool MatchesContext(const LevelLoadContext& theContext) const;
-    const LevelWave* FindWave(int theWave) const;
+    bool InitFromXML(GameMode theMode, int theLevelId, char const *thePath);
+    bool InitFromXML(const LevelLoadContext &theContext, const String &thePath);
+    bool MatchesContext(const LevelLoadContext &theContext) const;
+    const LevelWave *FindWave(int theWave) const;
     int hasPlantOnPosition(int theX, int theY);
     int getPlantIdOnPosition(int theX, int theY);
     int isSeedForbidden(int theSeed);
@@ -220,3 +242,5 @@ public:
 };
 
 } // namespace Sexy
+
+#endif // LAWNPROJECTTV_SEXY_INCLUDE_LEVEL_H

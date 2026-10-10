@@ -21,7 +21,8 @@
 // (map-lawn section 2.I).
 // MSVC x86 gives a virtual destructor ONE slot where Itanium gives two (D1+D0).
 
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_MASKHELPWIDGET_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_MASKHELPWIDGET_H
 
 #include "ReconTypes.h"
 // These includes exist because the transcribed bodies call methods on complete
@@ -50,12 +51,14 @@ public:
     // Widget's own slot 36, so this is a real override. The transcription's
     // `float Draw(float a3)` was the decompiler reusing its third argument
     // register; the body never reads it.
-    virtual void Draw(Sexy::Graphics * g);
+    virtual void Draw(Sexy::Graphics *g);
 
     // Widget occupies +0x00..+0xFF.
-    int mHelpTextId;   // +0x100  (the constructor and RemovedFromManager store -1)
-    LawnApp *mApp;     // +0x104
+    int mHelpTextId; // +0x100  (the constructor and RemovedFromManager store -1)
+    LawnApp *mApp; // +0x104
     // Size 0x108.
 
     explicit MaskHelpWidget(LawnApp *theApp);
 };
+
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_MASKHELPWIDGET_H

@@ -12,19 +12,20 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
-namespace ImageLib {
+namespace ImageLib
+{
 
 bool gAutoLoadAlpha = true;
 unsigned int gAlphaComposeColor = 0;
 
-Image::Image()
-    : mOwnsBits(0),
-      mWidth(0),
-      mHeight(0),
-      mBits(nullptr),
-      mText1(nullptr),
-      mText2(nullptr),
-      mPalettized(false)
+Image::Image() :
+    mOwnsBits(0),
+    mWidth(0),
+    mHeight(0),
+    mBits(nullptr),
+    mText1(nullptr),
+    mText2(nullptr),
+    mPalettized(false)
 {
 }
 
@@ -34,35 +35,36 @@ Image::~Image()
         delete[] mBits;
 }
 
-unsigned int* Image::GetBits()
+unsigned int *Image::GetBits()
 {
     return mBits;
 }
 
-char * WritePNGImage(const Sexy::String& thePath, Image * thePixels)
+char *WritePNGImage(const Sexy::String &thePath, Image *thePixels)
 {
     (void)thePixels;
     (void)thePath;
     return nullptr;
 }
 
-char * WriteJPEGImage(const Sexy::String& thePath, Image * thePixels)
+char *WriteJPEGImage(const Sexy::String &thePath, Image *thePixels)
 {
     (void)thePixels;
     (void)thePath;
     return nullptr;
 }
 
-namespace {
+namespace
+{
 
-bool ExtensionMatches(const std::string& theExt, const char* theName)
+bool ExtensionMatches(const std::string &theExt, const char *theName)
 {
     if (theExt.empty())
         return true;
     return SDL_strcasecmp(theExt.c_str(), theName) == 0;
 }
 
-Image* DecodeFile(const std::string& thePath)
+Image *DecodeFile(const std::string &thePath)
 {
     if (!Sexy::SDLFile::FileExists(thePath))
         return nullptr;
@@ -71,26 +73,26 @@ Image* DecodeFile(const std::string& thePath)
     if (!Sexy::SDLFile::ReadFile(thePath, aBytes) || aBytes.empty())
         return nullptr;
 
-    SDL_Surface* decoded = IMG_Load_IO(SDL_IOFromConstMem(aBytes.data(), aBytes.size()), true);
+    SDL_Surface *decoded = IMG_Load_IO(SDL_IOFromConstMem(aBytes.data(), aBytes.size()), true);
     if (decoded != nullptr)
     {
-        SDL_Surface* rgba = SDL_ConvertSurface(decoded, SDL_PIXELFORMAT_RGBA32);
+        SDL_Surface *rgba = SDL_ConvertSurface(decoded, SDL_PIXELFORMAT_RGBA32);
         SDL_DestroySurface(decoded);
         if (rgba != nullptr)
         {
-            Image* image = new Image();
+            Image *image = new Image();
             image->mWidth = rgba->w;
             image->mHeight = rgba->h;
             image->mOwnsBits = 1;
             image->mBits = new unsigned int[size_t(rgba->w) * rgba->h];
-            const unsigned char* pixels = static_cast<const unsigned char*>(rgba->pixels);
+            const unsigned char *pixels = static_cast<const unsigned char *>(rgba->pixels);
             for (int row = 0; row < rgba->h; ++row)
                 for (int column = 0; column < rgba->w; ++column)
                 {
-                    const unsigned char* pixel = pixels + size_t(row) * rgba->pitch + column * 4;
-                    image->mBits[size_t(row) * rgba->w + column] = (static_cast<unsigned int>(pixel[3]) << 24)
-                        | (static_cast<unsigned int>(pixel[0]) << 16) | (static_cast<unsigned int>(pixel[1]) << 8)
-                        | static_cast<unsigned int>(pixel[2]);
+                    const unsigned char *pixel = pixels + size_t(row) * rgba->pitch + column * 4;
+                    image->mBits[size_t(row) * rgba->w + column] = (static_cast<unsigned int>(pixel[3]) << 24) |
+                        (static_cast<unsigned int>(pixel[0]) << 16) | (static_cast<unsigned int>(pixel[1]) << 8) |
+                        static_cast<unsigned int>(pixel[2]);
                 }
             SDL_DestroySurface(rgba);
             return image;
@@ -100,12 +102,11 @@ Image* DecodeFile(const std::string& thePath)
     int aWidth = 0;
     int aHeight = 0;
     int aComponents = 0;
-    unsigned char* aRgba = stbi_load_from_memory(
-        aBytes.data(), (int)aBytes.size(), &aWidth, &aHeight, &aComponents, 4);
+    unsigned char *aRgba = stbi_load_from_memory(aBytes.data(), (int)aBytes.size(), &aWidth, &aHeight, &aComponents, 4);
     if (aRgba == nullptr || aWidth <= 0 || aHeight <= 0)
         return nullptr;
 
-    Image* aImage = new Image();
+    Image *aImage = new Image();
     aImage->mWidth = aWidth;
     aImage->mHeight = aHeight;
     aImage->mOwnsBits = 1;
@@ -124,7 +125,7 @@ Image* DecodeFile(const std::string& thePath)
     return aImage;
 }
 
-void ApplyAlphaMask(Image* theColor, Image* theAlpha)
+void ApplyAlphaMask(Image *theColor, Image *theAlpha)
 {
     int aCount = theColor->mWidth * theColor->mHeight;
     for (int aIndex = 0; aIndex < aCount; ++aIndex)
@@ -135,7 +136,7 @@ void ApplyAlphaMask(Image* theColor, Image* theAlpha)
     theColor->mPalettized = false;
 }
 
-void ComposeSolid(Image* theAlpha, unsigned int theColor)
+void ComposeSolid(Image *theAlpha, unsigned int theColor)
 {
     int aCount = theAlpha->mWidth * theAlpha->mHeight;
     for (int aIndex = 0; aIndex < aCount; ++aIndex)
@@ -145,7 +146,7 @@ void ComposeSolid(Image* theAlpha, unsigned int theColor)
     }
 }
 
-Image* LoadImageFile(const std::string& thePath, bool lookForAlpha)
+Image *LoadImageFile(const std::string &thePath, bool lookForAlpha)
 {
     if (thePath.empty())
         return nullptr;
@@ -165,8 +166,8 @@ Image* LoadImageFile(const std::string& thePath, bool lookForAlpha)
         aBase = thePath.substr(0, (size_t)aDot);
     }
 
-    Image* aDecoded = nullptr;
-    const char* aExtensions[] = { ".tga", ".jpg", ".png", ".gif" };
+    Image *aDecoded = nullptr;
+    const char *aExtensions[] = {".tga", ".jpg", ".png", ".gif"};
     for (int aKind = 0; aKind < 4; ++aKind)
     {
         if (!ExtensionMatches(aExt, aExtensions[aKind]))
@@ -187,7 +188,7 @@ Image* LoadImageFile(const std::string& thePath, bool lookForAlpha)
         aPrefixMask.insert((size_t)aSlash + 1, "_");
     else
         aPrefixMask.insert(0, "_");
-    Image* aAlpha = LoadImageFile(aPrefixMask, false);
+    Image *aAlpha = LoadImageFile(aPrefixMask, false);
     if (aAlpha == nullptr)
         aAlpha = LoadImageFile(thePath + "_", false);
     if (aAlpha == nullptr)
@@ -199,8 +200,8 @@ Image* LoadImageFile(const std::string& thePath, bool lookForAlpha)
         return aAlpha;
     }
 
-    if (aDecoded->mBits != nullptr && aAlpha->mBits != nullptr &&
-        aDecoded->mWidth == aAlpha->mWidth && aDecoded->mHeight == aAlpha->mHeight)
+    if (aDecoded->mBits != nullptr && aAlpha->mBits != nullptr && aDecoded->mWidth == aAlpha->mWidth &&
+        aDecoded->mHeight == aAlpha->mHeight)
         ApplyAlphaMask(aDecoded, aAlpha);
     delete aAlpha;
     return aDecoded;
@@ -208,7 +209,7 @@ Image* LoadImageFile(const std::string& thePath, bool lookForAlpha)
 
 } // namespace
 
-Image* GetImage(Sexy::String const& thePath, bool lookForAlpha, bool thePurge, bool theFlags)
+Image *GetImage(Sexy::String const &thePath, bool lookForAlpha, bool thePurge, bool theFlags)
 {
     (void)thePurge;
     (void)theFlags;

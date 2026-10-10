@@ -122,7 +122,14 @@ macOS / Linux 使用相同命令，环境变量改用 `export` 设置。支持�
 
 普通构建使用仓库已生成的 SCBP 包。需要重新生成时，在配置命令追加 `-DVCPKG_MANIFEST_FEATURES=shader-tools`；该 feature 将 bgfx 工具构建为宿主机程序，Android 不会把 shaderc 编进目标库。生成步骤见 [Shaders/README.md](Shaders/README.md)。本机私有覆盖配置可写入不提交的 `CMakeUserPresets.json`。
 
+## 源码格式
+
+源码及配置统一使用四个空格缩进，不使用 Tab。`.editorconfig` 提供编辑器设置，`.clang-format` 提供 C++ 格式规则。项目头文件使用标准 include guard；类按自然对齐布局，链接依赖通过 CMake 声明。Windows 编译启用 MSVC `/permissive-`，检查标准 C++ 语法。
+
+在项目根目录执行 `clang-format -i 文件路径` 可按统一规则格式化指定 C++ 文件。
+
 ## 渲染后端配置
+
 
 在游戏资源根的 `setup.env`（`assets/setup.env` 或 `assets/files/setup.env`）设置：
 

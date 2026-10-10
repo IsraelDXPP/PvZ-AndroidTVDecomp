@@ -30,7 +30,7 @@
 // The body is nine instructions and uses none of the three arguments: the two
 // listener parameters are overwritten and the word it leaves in r0 is the
 // receiver, so it returns nothing.
-void CheatCodeDialog::EditWidgetText(int theId, const Sexy::String& theText)
+void CheatCodeDialog::EditWidgetText(int theId, const Sexy::String &theText)
 {
     (void)theId;
     (void)theText;
@@ -76,8 +76,8 @@ CheatCodeDialog::~CheatCodeDialog()
 // `CreateEditWidget(0, (Sexy::EditListener *)((char *)this + 0x2FC), this)`
 // hands the framework this object's EditListener sub-object -- which is what the
 // second base is for -- and the result is kept in mEditWidget.
-CheatCodeDialog::CheatCodeDialog(LawnApp *theApp)
-    : LawnDialog(theApp, nullptr, 37, true, "[CHEAT]", "[ENTER_CHEAT_CODE]", "", 2)
+CheatCodeDialog::CheatCodeDialog(LawnApp *theApp) :
+    LawnDialog(theApp, nullptr, 37, true, "[CHEAT]", "[ENTER_CHEAT_CODE]", "", 2)
 {
     mVerticalCenterText = false;
     mApp = theApp;
@@ -117,7 +117,7 @@ int CheatCodeDialog::GetPreferredHeight(int theWidth)
 // The two indirect calls are the receiver's own vptr at byte 0x18 (slot 6,
 // WidgetContainer::AddWidget) and at byte 0xE4 (slot 57, Widget::SetFocus), each
 // with the EditWidget as the argument -- i.e. plain unqualified virtual calls.
-void CheatCodeDialog::AddedToManager(Sexy::WidgetManager * theWidgetManager)
+void CheatCodeDialog::AddedToManager(Sexy::WidgetManager *theWidgetManager)
 {
     LawnDialog::AddedToManager(theWidgetManager);
     AddWidget(mEditWidget);
@@ -128,7 +128,7 @@ void CheatCodeDialog::AddedToManager(Sexy::WidgetManager * theWidgetManager)
 // CheatCodeDialog::RemovedFromManager(Sexy::WidgetManager *)
 // @001923F8  22 bytes
 // ==========================================================================
-void CheatCodeDialog::RemovedFromManager(Sexy::WidgetManager * theWidgetManager)
+void CheatCodeDialog::RemovedFromManager(Sexy::WidgetManager *theWidgetManager)
 {
     LawnDialog::RemovedFromManager(theWidgetManager);
     RemoveWidget(mEditWidget);
@@ -144,17 +144,15 @@ void CheatCodeDialog::RemovedFromManager(Sexy::WidgetManager * theWidgetManager)
 void CheatCodeDialog::Resize(int theX, int theY, int theWidth, int theHeight)
 {
     LawnDialog::Resize(theX, theY, theWidth, theHeight);
-    mEditWidget->Resize(mContentInsets.mLeft + 12,
-                        mWidth - 155,
-                        mHeight - mContentInsets.mLeft - mContentInsets.mRight - 24,
-                        28);
+    mEditWidget->Resize(
+        mContentInsets.mLeft + 12, mWidth - 155, mHeight - mContentInsets.mLeft - mContentInsets.mRight - 24, 28);
 }
 
 // ==========================================================================
 // CheatCodeDialog::Draw(Sexy::Graphics *)
 // @00192450  24 bytes
 // ==========================================================================
-void CheatCodeDialog::Draw(Sexy::Graphics * g)
+void CheatCodeDialog::Draw(Sexy::Graphics *g)
 {
     LawnDialog::Draw(g);
     DrawEditBox(g, mEditWidget);
@@ -172,7 +170,6 @@ void CheatCodeDialog::GotFocus()
     Widget *aFocusedBefore = mFocusedChildWidget;
     LawnDialog::GotFocus();
 
-    if (aFocusedBefore == nullptr || mFocusedChildWidget == nullptr ||
-        mFocusedChildWidget == mEditWidget)
+    if (aFocusedBefore == nullptr || mFocusedChildWidget == nullptr || mFocusedChildWidget == mEditWidget)
         SetFocus(mEditWidget, true);
 }

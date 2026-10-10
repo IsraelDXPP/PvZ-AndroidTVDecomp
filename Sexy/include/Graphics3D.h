@@ -1,11 +1,13 @@
 // Graphics3D makes its stored 3D context current, then forwards one call
 // to the render device. It is not polymorphic.
 
-#pragma once
+#ifndef LAWNPROJECTTV_SEXY_INCLUDE_GRAPHICS3D_H
+#define LAWNPROJECTTV_SEXY_INCLUDE_GRAPHICS3D_H
 
 #include "ReconTypes.h"
 
-namespace Sexy {
+namespace Sexy
+{
 
 class Graphics;
 class RenderDevice3D;
@@ -28,7 +30,7 @@ public:
     RenderDevice3D *mRenderDevice;
     HRenderContext mRenderContext;
 
-    Graphics3D(Graphics *theGraphics, RenderDevice3D *theDevice, HRenderContext const& theContext);
+    Graphics3D(Graphics *theGraphics, RenderDevice3D *theDevice, HRenderContext const &theContext);
 
     void SetAsCurrentContext();
     Graphics *Get2D();
@@ -40,15 +42,15 @@ public:
     bool SupportsImageRenderTargets();
     int GetMaxTextureStages();
 
-    void DrawPrimitiveEx(unsigned long theFlags, Graphics3D_EPrimitiveType theType,
-                         SexyVertex const* theVertices, int theVertexCount, Color const& theColor,
-                         int theDrawMode, float theX, float theY, bool theBlend, unsigned int theTexCoord);
-    void RenderMesh(Mesh *theMesh, SexyMatrix4 const& theTransform, Color const& theColor, bool theBlend);
+    void DrawPrimitiveEx(unsigned long theFlags, Graphics3D_EPrimitiveType theType, SexyVertex const *theVertices,
+        int theVertexCount, Color const &theColor, int theDrawMode, float theX, float theY, bool theBlend,
+        unsigned int theTexCoord);
+    void RenderMesh(Mesh *theMesh, SexyMatrix4 const &theTransform, Color const &theColor, bool theBlend);
     void SetBltDepth(float theDepth);
-    void PushTransform(SexyMatrix3 const& theTransform, bool theConcatenate);
+    void PushTransform(SexyMatrix3 const &theTransform, bool theConcatenate);
     void PopTransform();
-    void PopTransform(SexyMatrix3 & theTransform);
-    void ClearColorBuffer(Color const& theColor);
+    void PopTransform(SexyMatrix3 &theTransform);
+    void ClearColorBuffer(Color const &theColor);
     void ClearDepthBuffer();
     void SetDepthState(Graphics3D_ECompareFunc theFunc, bool theWriteEnabled);
     void SetAlphaTest(Graphics3D_ECompareFunc theFunc, int theRef);
@@ -56,19 +58,19 @@ public:
     void SetBlend(Graphics3D_EBlendMode theSrcBlend, Graphics3D_EBlendMode theDestBlend);
     void SetBackfaceCulling(bool theCulling, bool theClockwise);
     void SetLightEnabled(int theLight, bool theEnabled);
-    void SetPointLight(int theLight, SexyVector3 const& thePosition, Graphics3D_LightColors const& theColors,
-                       float theRange, SexyVector3 const& theAttenuation);
-    void SetDirectionalLight(int theLight, SexyVector3 const& theDirection, Graphics3D_LightColors const& theColors);
-    void SetGlobalAmbient(Color const& theColor);
-    void SetMaterialAmbient(Color const& theColor, int theLight);
-    void SetMaterialDiffuse(Color const& theColor, int theLight);
-    void SetMaterialSpecular(Color const& theColor, int theLight, float theShininess);
-    void SetMaterialEmissive(Color const& theColor, int theLight);
+    void SetPointLight(int theLight, SexyVector3 const &thePosition, Graphics3D_LightColors const &theColors,
+        float theRange, SexyVector3 const &theAttenuation);
+    void SetDirectionalLight(int theLight, SexyVector3 const &theDirection, Graphics3D_LightColors const &theColors);
+    void SetGlobalAmbient(Color const &theColor);
+    void SetMaterialAmbient(Color const &theColor, int theLight);
+    void SetMaterialDiffuse(Color const &theColor, int theLight);
+    void SetMaterialSpecular(Color const &theColor, int theLight, float theShininess);
+    void SetMaterialEmissive(Color const &theColor, int theLight);
     void SetLightingEnabled(bool theEnabled, bool theApplyDefaultMaterial);
-    void SetWorldTransform(SexyMatrix4 const* theTransform);
-    void SetViewTransform(SexyMatrix4 const* theTransform);
-    void SetProjectionTransform(SexyMatrix4 const* theTransform);
-    void SetTextureTransform(int theStage, SexyMatrix4 const* theTransform, int theFlags);
+    void SetWorldTransform(SexyMatrix4 const *theTransform);
+    void SetViewTransform(SexyMatrix4 const *theTransform);
+    void SetProjectionTransform(SexyMatrix4 const *theTransform);
+    void SetTextureTransform(int theStage, SexyMatrix4 const *theTransform, int theFlags);
     void SetTexture(int theStage, Image *theTexture);
     void SetTextureWrap(int theStage, bool theWrap);
     void SetTextureWrap(int theStage, bool theWrapS, bool theWrapT);
@@ -82,3 +84,5 @@ public:
 };
 
 } // namespace Sexy
+
+#endif // LAWNPROJECTTV_SEXY_INCLUDE_GRAPHICS3D_H

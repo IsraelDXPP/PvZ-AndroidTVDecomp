@@ -10,7 +10,8 @@
 // MouseDown, ButtonPress, ButtonDepress. The virtual destructor is the pair
 // the compiler collapses to one slot.
 
-#pragma once
+#ifndef LAWNPROJECTTV_SEXY_INCLUDE_BOARD_H
+#define LAWNPROJECTTV_SEXY_INCLUDE_BOARD_H
 
 #include "ReconTypes.h"
 #include "ButtonListener.h"
@@ -25,7 +26,8 @@ class TodParticleDefinition;
 class TodParticleSystem;
 class TrailDefinition;
 
-namespace Sexy {
+namespace Sexy
+{
 
 class Font;
 class HyperlinkWidget;
@@ -38,13 +40,13 @@ public:
     // The binary constructor takes a GameApp*, the framework demo's app class.
     // This tree does not model GameApp; every member the bodies read through
     // it is a SexyAppBase member, so the parameter is the base they really are.
-    Board(Sexy::SexyAppBase* theApp);
+    Board(Sexy::SexyAppBase *theApp);
     virtual ~Board();
 
-    virtual void AddedToManager(WidgetManager* theWidgetManager);
-    virtual void RemovedFromManager(WidgetManager* theWidgetManager);
+    virtual void AddedToManager(WidgetManager *theWidgetManager);
+    virtual void RemovedFromManager(WidgetManager *theWidgetManager);
     virtual void Update();
-    virtual void Draw(Sexy::Graphics* g);
+    virtual void Draw(Sexy::Graphics *g);
     virtual int KeyChar(char theChar);
     virtual void MouseDown(int x, int y, int theClickCount);
 
@@ -61,12 +63,12 @@ public:
     void TryToLoadEffect();
     int ClearEffects();
     void LoadEffectDef();
-    void DrawPerfText(Sexy::Graphics* g);
+    void DrawPerfText(Sexy::Graphics *g);
     bool DefinitionHasChanged();
     void NextAnim();
     int Blink();
     void FadeOutParticles();
-    Reanimation* GetBuddyReanimation();
+    Reanimation *GetBuddyReanimation();
     void MakeAllBuddyImages();
     void NewEffectDialog();
     double RunATest();
@@ -76,11 +78,11 @@ public:
     void MakeBuddyImageStrip();
     void MakeBuddyImage();
 
-    Sexy::HyperlinkWidget* mLoadNewEffectButton;
-    Sexy::SexyAppBase* mApp;
-    TodParticleDefinition* mParticleDef;
-    TrailDefinition* mTrailDef;
-    ReanimatorDefinition* mReanimatorDef;
+    Sexy::HyperlinkWidget *mLoadNewEffectButton;
+    Sexy::SexyAppBase *mApp;
+    TodParticleDefinition *mParticleDef;
+    TrailDefinition *mTrailDef;
+    ReanimatorDefinition *mReanimatorDef;
     // [0] is mFileName's timestamp, [1 + i] is mImageNames[i]'s. The bodies
     // index it as one array.
     int mFileDates[101];
@@ -88,11 +90,13 @@ public:
     int mNumImages;
     Sexy::String mFileName;
     Sexy::String mImageNames[100];
-    EffectSystem* mEffectSystem;
-    Sexy::Font* mFont;
+    EffectSystem *mEffectSystem;
+    Sexy::Font *mFont;
     int mUnusedWord;
     int mFrameCounter;
     Sexy::String mTrackName;
 };
 
 } // namespace Sexy
+
+#endif // LAWNPROJECTTV_SEXY_INCLUDE_BOARD_H

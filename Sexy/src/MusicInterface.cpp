@@ -74,25 +74,25 @@
 // ==========================================================================
 bool Sexy::MusicInterface::IsLoaded(int theSongId)
 {
-  // `MOVS R0, #0; BX LR` -- the ARM body is a constant `return 0`, so nothing
-  // is ever reported as loaded. Music::MusicLoadCreditsSong (Game\Music.cpp:662)
-  // reads this and goes on to LoadSong, which fails for the same reason.
-  (void)theSongId;
-  return false;
+    // `MOVS R0, #0; BX LR` -- the ARM body is a constant `return 0`, so nothing
+    // is ever reported as loaded. Music::MusicLoadCreditsSong (Game\Music.cpp:662)
+    // reads this and goes on to LoadSong, which fails for the same reason.
+    (void)theSongId;
+    return false;
 }
 
 // ==========================================================================
 // Sexy::MusicInterface::LoadMusic(int,Sexy::String const&)
 // @004062C4  4 bytes
 // ==========================================================================
-bool Sexy::MusicInterface::LoadMusic(int theSongId, Sexy::String const & theFileName)
+bool Sexy::MusicInterface::LoadMusic(int theSongId, Sexy::String const &theFileName)
 {
-  // `MOVS R0, #0; BX LR` -- a constant `return 0`: no backend, so no song is
-  // ever loaded. The caller in Game\Music.cpp:189 turns this into
-  // `mMusicDisabled = true`.
-  (void)theSongId;
-  (void)theFileName;
-  return false;
+    // `MOVS R0, #0; BX LR` -- a constant `return 0`: no backend, so no song is
+    // ever loaded. The caller in Game\Music.cpp:189 turns this into
+    // `mMusicDisabled = true`.
+    (void)theSongId;
+    (void)theFileName;
+    return false;
 }
 
 // ==========================================================================
@@ -101,10 +101,10 @@ bool Sexy::MusicInterface::LoadMusic(int theSongId, Sexy::String const & theFile
 // ==========================================================================
 void Sexy::MusicInterface::PlayMusic(int theSongId, int theOffset, bool noLoop)
 {
-  // `BX LR` -- the ARM body is empty.
-  (void)theSongId;
-  (void)theOffset;
-  (void)noLoop;
+    // `BX LR` -- the ARM body is empty.
+    (void)theSongId;
+    (void)theOffset;
+    (void)noLoop;
 }
 
 // ==========================================================================
@@ -113,8 +113,8 @@ void Sexy::MusicInterface::PlayMusic(int theSongId, int theOffset, bool noLoop)
 // ==========================================================================
 void Sexy::MusicInterface::StopMusic(int theSongId)
 {
-  // `BX LR` -- the ARM body is empty.
-  (void)theSongId;
+    // `BX LR` -- the ARM body is empty.
+    (void)theSongId;
 }
 
 // ==========================================================================
@@ -126,10 +126,10 @@ void Sexy::MusicInterface::StopMusic(int theSongId)
 // through this slot to strip the drums and hihats into their own tracks.
 void Sexy::MusicInterface::SetChannelVolume(int theSongId, int theChannel, float theVolume)
 {
-  // `BX LR` -- the ARM body is empty. Nothing to mute when nothing loaded.
-  (void)theSongId;
-  (void)theChannel;
-  (void)theVolume;
+    // `BX LR` -- the ARM body is empty. Nothing to mute when nothing loaded.
+    (void)theSongId;
+    (void)theChannel;
+    (void)theVolume;
 }
 
 // ==========================================================================
@@ -138,8 +138,8 @@ void Sexy::MusicInterface::SetChannelVolume(int theSongId, int theChannel, float
 // ==========================================================================
 void Sexy::MusicInterface::PauseMusic(int theSongId)
 {
-  // `BX LR` -- the ARM body is empty.
-  (void)theSongId;
+    // `BX LR` -- the ARM body is empty.
+    (void)theSongId;
 }
 
 // ==========================================================================
@@ -148,8 +148,8 @@ void Sexy::MusicInterface::PauseMusic(int theSongId)
 // ==========================================================================
 void Sexy::MusicInterface::ResumeMusic(int theSongId)
 {
-  // `BX LR` -- the ARM body is empty.
-  (void)theSongId;
+    // `BX LR` -- the ARM body is empty.
+    (void)theSongId;
 }
 
 // ==========================================================================
@@ -158,7 +158,7 @@ void Sexy::MusicInterface::ResumeMusic(int theSongId)
 // ==========================================================================
 void Sexy::MusicInterface::StopAllMusic()
 {
-  // `BX LR` -- the ARM body is empty.
+    // `BX LR` -- the ARM body is empty.
 }
 
 // ==========================================================================
@@ -167,8 +167,8 @@ void Sexy::MusicInterface::StopAllMusic()
 // ==========================================================================
 void Sexy::MusicInterface::UnloadMusic(int theSongId)
 {
-  // `BX LR` -- the ARM body is empty.
-  (void)theSongId;
+    // `BX LR` -- the ARM body is empty.
+    (void)theSongId;
 }
 
 // ==========================================================================
@@ -177,7 +177,7 @@ void Sexy::MusicInterface::UnloadMusic(int theSongId)
 // ==========================================================================
 void Sexy::MusicInterface::UnloadAllMusic()
 {
-  // `BX LR` -- the ARM body is empty.
+    // `BX LR` -- the ARM body is empty.
 }
 
 // ==========================================================================
@@ -186,7 +186,7 @@ void Sexy::MusicInterface::UnloadAllMusic()
 // ==========================================================================
 void Sexy::MusicInterface::PauseAllMusic()
 {
-  // `BX LR` -- the ARM body is empty.
+    // `BX LR` -- the ARM body is empty.
 }
 
 // ==========================================================================
@@ -195,7 +195,7 @@ void Sexy::MusicInterface::PauseAllMusic()
 // ==========================================================================
 void Sexy::MusicInterface::ResumeAllMusic()
 {
-  // `BX LR` -- the ARM body is empty.
+    // `BX LR` -- the ARM body is empty.
 }
 
 // ==========================================================================
@@ -204,13 +204,13 @@ void Sexy::MusicInterface::ResumeAllMusic()
 // ==========================================================================
 void Sexy::MusicInterface::FadeIn(int theSongId, int theOffset, double theVolume, bool noLoop)
 {
-  // `BX LR` -- the ARM body is empty. The fade is driven from the game side
-  // instead: Music::MusicUpdate (Game\Music.cpp:557) ramps the volume itself
-  // with TodAnimateCurveFloat and pushes each step through SetSongVolume.
-  (void)theSongId;
-  (void)theOffset;
-  (void)theVolume;
-  (void)noLoop;
+    // `BX LR` -- the ARM body is empty. The fade is driven from the game side
+    // instead: Music::MusicUpdate (Game\Music.cpp:557) ramps the volume itself
+    // with TodAnimateCurveFloat and pushes each step through SetSongVolume.
+    (void)theSongId;
+    (void)theOffset;
+    (void)theVolume;
+    (void)noLoop;
 }
 
 // ==========================================================================
@@ -219,10 +219,10 @@ void Sexy::MusicInterface::FadeIn(int theSongId, int theOffset, double theVolume
 // ==========================================================================
 void Sexy::MusicInterface::FadeOut(int theSongId, bool noLoop, double theVolume)
 {
-  // `BX LR` -- the ARM body is empty, for the same reason as FadeIn above.
-  (void)theSongId;
-  (void)noLoop;
-  (void)theVolume;
+    // `BX LR` -- the ARM body is empty, for the same reason as FadeIn above.
+    (void)theSongId;
+    (void)noLoop;
+    (void)theVolume;
 }
 
 // ==========================================================================
@@ -231,9 +231,9 @@ void Sexy::MusicInterface::FadeOut(int theSongId, bool noLoop, double theVolume)
 // ==========================================================================
 void Sexy::MusicInterface::FadeOutAll(bool noLoop, double theVolume)
 {
-  // `BX LR` -- the ARM body is empty.
-  (void)noLoop;
-  (void)theVolume;
+    // `BX LR` -- the ARM body is empty.
+    (void)noLoop;
+    (void)theVolume;
 }
 
 // ==========================================================================
@@ -245,9 +245,9 @@ void Sexy::MusicInterface::FadeOutAll(bool noLoop, double theVolume)
 // ids it tracks rather than the file ids it loaded.
 void Sexy::MusicInterface::SetSongVolume(int theSongId, double theVolume)
 {
-  // `BX LR` -- the ARM body is empty.
-  (void)theSongId;
-  (void)theVolume;
+    // `BX LR` -- the ARM body is empty.
+    (void)theSongId;
+    (void)theVolume;
 }
 
 // ==========================================================================
@@ -256,12 +256,12 @@ void Sexy::MusicInterface::SetSongVolume(int theSongId, double theVolume)
 // ==========================================================================
 void Sexy::MusicInterface::SetSongMaxVolume(int theSongId, double theVolume)
 {
-  // `BX LR` -- the ARM body is empty. This is one of the two slots the concrete
-  // AudiereMusicInterface does NOT override (its table @0x68ECD8 points slot 17
-  // straight back at this address), so the empty body is the real
-  // implementation for every backend in this build.
-  (void)theSongId;
-  (void)theVolume;
+    // `BX LR` -- the ARM body is empty. This is one of the two slots the concrete
+    // AudiereMusicInterface does NOT override (its table @0x68ECD8 points slot 17
+    // straight back at this address), so the empty body is the real
+    // implementation for every backend in this build.
+    (void)theSongId;
+    (void)theVolume;
 }
 
 // ==========================================================================
@@ -270,9 +270,9 @@ void Sexy::MusicInterface::SetSongMaxVolume(int theSongId, double theVolume)
 // ==========================================================================
 bool Sexy::MusicInterface::IsPlaying(int theSongId)
 {
-  // `MOVS R0, #0; BX LR` -- a constant `return 0`: nothing ever plays.
-  (void)theSongId;
-  return false;
+    // `MOVS R0, #0; BX LR` -- a constant `return 0`: nothing ever plays.
+    (void)theSongId;
+    return false;
 }
 
 // ==========================================================================
@@ -281,13 +281,13 @@ bool Sexy::MusicInterface::IsPlaying(int theSongId)
 // ==========================================================================
 int Sexy::MusicInterface::GetOrder(int theSongId)
 {
-  // `MOVS R0, #0; BX LR` -- a constant `return 0`. The order is the module
-  // position the track has reached; Music::UpdateMusicBurst (Game\Music.cpp:359)
-  // uses it to keep the drums layer in step with the main track, and reads 0 as
-  // "at the very start", so the burst logic stays consistent rather than
-  // faulting.
-  (void)theSongId;
-  return 0;
+    // `MOVS R0, #0; BX LR` -- a constant `return 0`. The order is the module
+    // position the track has reached; Music::UpdateMusicBurst (Game\Music.cpp:359)
+    // uses it to keep the drums layer in step with the main track, and reads 0 as
+    // "at the very start", so the burst logic stays consistent rather than
+    // faulting.
+    (void)theSongId;
+    return 0;
 }
 
 // ==========================================================================
@@ -296,9 +296,9 @@ int Sexy::MusicInterface::GetOrder(int theSongId)
 // ==========================================================================
 int Sexy::MusicInterface::GetTempo(int theSongId)
 {
-  // `MOVS R0, #0; BX LR` -- a constant `return 0`.
-  (void)theSongId;
-  return 0;
+    // `MOVS R0, #0; BX LR` -- a constant `return 0`.
+    (void)theSongId;
+    return 0;
 }
 
 // ==========================================================================
@@ -307,9 +307,9 @@ int Sexy::MusicInterface::GetTempo(int theSongId)
 // ==========================================================================
 void Sexy::MusicInterface::SetTempo(int theSongId, int theTempo)
 {
-  // `BX LR` -- the ARM body is empty.
-  (void)theSongId;
-  (void)theTempo;
+    // `BX LR` -- the ARM body is empty.
+    (void)theSongId;
+    (void)theTempo;
 }
 
 // ==========================================================================
@@ -318,11 +318,11 @@ void Sexy::MusicInterface::SetTempo(int theSongId, int theTempo)
 // ==========================================================================
 void Sexy::MusicInterface::SetVolume(double theVolume)
 {
-  // `BX LR` -- the ARM body is empty. SexyAppBase::SetMusicVolume
-  // (SexyAppBase.cpp:1167) guards its call with a null test on mMusicInterface
-  // but not on a live backend, so this is the slot that swallows the master
-  // volume when there is none.
-  (void)theVolume;
+    // `BX LR` -- the ARM body is empty. SexyAppBase::SetMusicVolume
+    // (SexyAppBase.cpp:1167) guards its call with a null test on mMusicInterface
+    // but not on a live backend, so this is the slot that swallows the master
+    // volume when there is none.
+    (void)theVolume;
 }
 
 // ==========================================================================
@@ -331,11 +331,11 @@ void Sexy::MusicInterface::SetVolume(double theVolume)
 // ==========================================================================
 void Sexy::MusicInterface::SetMusicAmplify(int theSongId, double theVolume)
 {
-  // `BX LR` -- the ARM body is empty. Like SetSongMaxVolume above, this is one
-  // of the two slots the concrete AudiereMusicInterface inherits rather than
-  // overrides (its table @0x68ECD8 points slot 24 back at this address).
-  (void)theSongId;
-  (void)theVolume;
+    // `BX LR` -- the ARM body is empty. Like SetSongMaxVolume above, this is one
+    // of the two slots the concrete AudiereMusicInterface inherits rather than
+    // overrides (its table @0x68ECD8 points slot 24 back at this address).
+    (void)theSongId;
+    (void)theVolume;
 }
 
 // ==========================================================================
@@ -344,7 +344,7 @@ void Sexy::MusicInterface::SetMusicAmplify(int theSongId, double theVolume)
 // ==========================================================================
 void Sexy::MusicInterface::Update()
 {
-  // `BX LR` -- the ARM body is empty. SexyAppBase::UpdateFrames calls this once
-  // per frame (SexyAppBase.cpp:6132); with no backend there is no streaming
-  // state to advance.
+    // `BX LR` -- the ARM body is empty. SexyAppBase::UpdateFrames calls this once
+    // per frame (SexyAppBase.cpp:6132); with no backend there is no streaming
+    // state to advance.
 }

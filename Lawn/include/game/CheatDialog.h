@@ -1,7 +1,8 @@
 // CheatDialog -- TV developer level selector (0x191AA0).
 // The edit widget reports input through the dialog's EditListener base.
 
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_CHEATDIALOG_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_CHEATDIALOG_H
 
 #include "ReconTypes.h"
 // These includes exist because the transcribed bodies call methods on complete
@@ -30,7 +31,7 @@ public:
     virtual void Resize(int theX, int theY, int theWidth, int theHeight);
     virtual void GotFocus();
 
-    void EditWidgetText(int theId, const Sexy::String& theText) override;
+    void EditWidgetText(int theId, const Sexy::String &theText) override;
     int AllowChar(int theId, char theChar) override;
     CheatDialog(LawnApp *theApp);
     int ApplyCheat();
@@ -39,3 +40,5 @@ public:
     LawnApp *mApp;
     Sexy::EditWidget *mEditWidget;
 };
+
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_CHEATDIALOG_H

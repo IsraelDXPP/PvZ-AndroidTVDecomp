@@ -38,7 +38,8 @@
 // r0 holding the `a2 / NumColumns()` quotient from `__aeabi_idiv`. No caller reads
 // any of the three values.
 
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_IMITATERDIALOG_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_IMITATERDIALOG_H
 
 #include "ReconTypes.h"
 // Classes this one calls a method on: the call needs the
@@ -65,24 +66,24 @@ class SeedChooserScreen;
 class ImitaterDialog : public LawnDialog
 {
 public:
-    virtual ~ImitaterDialog();                          // [  0],[1] 0x000/0x004
-    virtual void Update();                              // [ 31] 0x07C
-    virtual void Draw(Sexy::Graphics *theGraphics);             // [ 36] 0x090
-    virtual void DrawOverlay(Sexy::Graphics *theGraphics);      // [ 54] 0x0D8
-    virtual int KeyDown(Sexy::KeyCode theKey);             // [ 71] 0x11C
-    virtual void MouseDown(int theX, int theY, int theClickCount);     // [ 76] 0x130
-    virtual void MouseUp(int theX, int theY, int theClickCount);       // [ 79] 0x13C
+    virtual ~ImitaterDialog(); // [  0],[1] 0x000/0x004
+    virtual void Update(); // [ 31] 0x07C
+    virtual void Draw(Sexy::Graphics *theGraphics); // [ 36] 0x090
+    virtual void DrawOverlay(Sexy::Graphics *theGraphics); // [ 54] 0x0D8
+    virtual int KeyDown(Sexy::KeyCode theKey); // [ 71] 0x11C
+    virtual void MouseDown(int theX, int theY, int theClickCount); // [ 76] 0x130
+    virtual void MouseUp(int theX, int theY, int theClickCount); // [ 79] 0x13C
     virtual int OnKeyDown(Sexy::KeyCode theKey, unsigned int theFlags); // [133] 0x214 (new virtual)
 
     // ---- derived member area: +0x2FC..+0x30F (LawnDialog ends at 0x2FC) ----
     // Names are from the call sites: the constructor seeds all five, Draw/DrawOverlay
     // use the tool tip, and KeyDown/GameButtonDown carry the selected seed and the
     // gamepad index that GamepadToPlayerIndex converts.
-    ToolTipWidget * mToolTipWidget; // +0x2FC, the shared ToolTipWidget this dialog owns
-    int mToolTipSeed;               // +0x300, the seed the tool tip is showing, -1 for none
-    int mSelectedSeed;              // +0x304, the highlighted seed packet, -1 for none
-    int mPlayerIndex;               // +0x308, the gamepad index this dialog belongs to
-    HelpBarWidget * mHelpBar;       // +0x30C, mApp->mHelpBarWidget
+    ToolTipWidget *mToolTipWidget; // +0x2FC, the shared ToolTipWidget this dialog owns
+    int mToolTipSeed; // +0x300, the seed the tool tip is showing, -1 for none
+    int mSelectedSeed; // +0x304, the highlighted seed packet, -1 for none
+    int mPlayerIndex; // +0x308, the gamepad index this dialog belongs to
+    HelpBarWidget *mHelpBar; // +0x30C, mApp->mHelpBarWidget
     // 0x310
 
     // The remaining methods. None of these owns a vtable slot.
@@ -96,7 +97,7 @@ public:
     // The disassembly of 0x14ec8c compares the second argument against mPlayerIndex
     // and switches on the first, so the first parameter IS the button: the
     // transcribed spelling named it `result` on the theory that it was the receiver.
-    void GameButtonDown(Sexy::GamepadButton theButton, int thePlayerIndex,
-                        unsigned int theButtonFlags);
+    void GameButtonDown(Sexy::GamepadButton theButton, int thePlayerIndex, unsigned int theButtonFlags);
 };
 
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_IMITATERDIALOG_H

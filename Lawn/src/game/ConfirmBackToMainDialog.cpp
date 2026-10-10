@@ -17,11 +17,11 @@
 // ==========================================================================
 ConfirmBackToMainDialog::~ConfirmBackToMainDialog()
 {
-  // The binary frees the restart button through its deleting destructor (slot 1
-  // of the button's vtable) and then chains to the base destructor; both vptr
-  // stores the transcription carried are the compiler's own.
-  if ( mRestartButton != nullptr )
-    delete mRestartButton;
+    // The binary frees the restart button through its deleting destructor (slot 1
+    // of the button's vtable) and then chains to the base destructor; both vptr
+    // stores the transcription carried are the compiler's own.
+    if (mRestartButton != nullptr)
+        delete mRestartButton;
 }
 
 // ==========================================================================
@@ -30,9 +30,9 @@ ConfirmBackToMainDialog::~ConfirmBackToMainDialog()
 // ==========================================================================
 void ConfirmBackToMainDialog::GotFocus()
 {
-  LawnDialog::GotFocus();
-  if ( mFocusedChildWidget == nullptr )
-    SetFocus(mLawnYesButton, true);
+    LawnDialog::GotFocus();
+    if (mFocusedChildWidget == nullptr)
+        SetFocus(mLawnYesButton, true);
 }
 
 // ==========================================================================
@@ -41,7 +41,7 @@ void ConfirmBackToMainDialog::GotFocus()
 // ==========================================================================
 void ConfirmBackToMainDialog::MouseDrag(int theX, int theY)
 {
-  Sexy::Dialog::MouseDrag(theX, theY);
+    Sexy::Dialog::MouseDrag(theX, theY);
 }
 
 // ==========================================================================
@@ -50,54 +50,53 @@ void ConfirmBackToMainDialog::MouseDrag(int theX, int theY)
 // ==========================================================================
 void ConfirmBackToMainDialog::ButtonDepress(int theId)
 {
-  if ( theId == 1 )
-  {
-    // Slot 107 (byte 0x1AC) of LawnApp's vtable is LawnApp::KillDialog.
-    gLawnApp->DoRestartConfirmDialog();
-    mApp->KillDialog(23);
-    Sexy::Dialog::ButtonDepress(1);
-    return;
-  }
-  Sexy::Dialog::ButtonDepress(theId);
+    if (theId == 1)
+    {
+        // Slot 107 (byte 0x1AC) of LawnApp's vtable is LawnApp::KillDialog.
+        gLawnApp->DoRestartConfirmDialog();
+        mApp->KillDialog(23);
+        Sexy::Dialog::ButtonDepress(1);
+        return;
+    }
+    Sexy::Dialog::ButtonDepress(theId);
 }
 
 // ==========================================================================
 // ConfirmBackToMainDialog::ConfirmBackToMainDialog(bool)
 // @00140508  788 bytes
 // ==========================================================================
-ConfirmBackToMainDialog::ConfirmBackToMainDialog(bool theLeaveGame)
-  : LawnDialog(gLawnApp, nullptr, 23, true, "[LEAVE_GAME_HEADER]",
-               gLawnApp->IsFullVersion() && theLeaveGame ? "[LEAVE_GAME]" : "[LEAVE_GAME_DEMO_MODE]",
-               "", 1)
+ConfirmBackToMainDialog::ConfirmBackToMainDialog(bool theLeaveGame) :
+    LawnDialog(gLawnApp, nullptr, 23, true, "[LEAVE_GAME_HEADER]",
+        gLawnApp->IsFullVersion() && theLeaveGame ? "[LEAVE_GAME]" : "[LEAVE_GAME_DEMO_MODE]", "", 1)
 {
-  // The three `StringCtor(&slot, "literal", ...)` triples the transcription
-  // carried are libstdc++ COW string constructions; the base constructor's
-  // by-reference parameters take the literals directly.
+    // The three `StringCtor(&slot, "literal", ...)` triples the transcription
+    // carried are libstdc++ COW string constructions; the base constructor's
+    // by-reference parameters take the literals directly.
 
-  // Both labels go through GameButton's own slot 127 (byte 0x1FC).
-  mLawnYesButton->SetLabel("[LEAVE_BUTTON]");
-  mLawnNoButton->SetLabel("[DIALOG_BUTTON_CANCEL]");
+    // Both labels go through GameButton's own slot 127 (byte 0x1FC).
+    mLawnYesButton->SetLabel("[LEAVE_BUTTON]");
+    mLawnNoButton->SetLabel("[DIALOG_BUTTON_CANCEL]");
 
-  CalcSize(300, 30, true);
-  // Slot 50 (byte 0xC8) of the dialog's own vtable is LawnDialog::Resize; the
-  // dialog is centred in the 800x600 design area.
-  Resize((800 - mWidth) / 2, (600 - mHeight) / 2, mWidth, mHeight);
-  mClip = false;
-  mDrawQRCode = mApp->NeedShowQRCode() != 0;
-  mRestartButton = MakeButton(1, static_cast<Sexy::ButtonListener *>(this), this, "[RESTART_BUTTON]");
+    CalcSize(300, 30, true);
+    // Slot 50 (byte 0xC8) of the dialog's own vtable is LawnDialog::Resize; the
+    // dialog is centred in the 800x600 design area.
+    Resize((800 - mWidth) / 2, (600 - mHeight) / 2, mWidth, mHeight);
+    mClip = false;
+    mDrawQRCode = mApp->NeedShowQRCode() != 0;
+    mRestartButton = MakeButton(1, static_cast<Sexy::ButtonListener *>(this), this, "[RESTART_BUTTON]");
 
-  // The three buttons share one row: the yes button, the restart button 173
-  // pixels later and the cancel button 346 pixels after that.
-  int aRowX = (mWidth - 509) / 2;
-  mLawnYesButton->Resize(aRowX, mLawnYesButton->mY, 163, 46);
-  mRestartButton->Resize(aRowX + 173, mLawnYesButton->mY, 163, 46);
-  mLawnNoButton->Resize(aRowX + 346, mLawnYesButton->mY, 163, 46);
+    // The three buttons share one row: the yes button, the restart button 173
+    // pixels later and the cancel button 346 pixels after that.
+    int aRowX = (mWidth - 509) / 2;
+    mLawnYesButton->Resize(aRowX, mLawnYesButton->mY, 163, 46);
+    mRestartButton->Resize(aRowX + 173, mLawnYesButton->mY, 163, 46);
+    mLawnNoButton->Resize(aRowX + 346, mLawnYesButton->mY, 163, 46);
 
-  // Slot 59 (byte 0xEC) is Widget::SetFocusLinks(up, down, left, right): the
-  // three buttons form one horizontal chain, yes -> restart -> cancel.
-  mLawnYesButton->SetFocusLinks(nullptr, nullptr, nullptr, mRestartButton);
-  mRestartButton->SetFocusLinks(nullptr, nullptr, mLawnYesButton, mLawnNoButton);
-  mLawnNoButton->SetFocusLinks(nullptr, nullptr, mRestartButton, nullptr);
+    // Slot 59 (byte 0xEC) is Widget::SetFocusLinks(up, down, left, right): the
+    // three buttons form one horizontal chain, yes -> restart -> cancel.
+    mLawnYesButton->SetFocusLinks(nullptr, nullptr, nullptr, mRestartButton);
+    mRestartButton->SetFocusLinks(nullptr, nullptr, mLawnYesButton, mLawnNoButton);
+    mLawnNoButton->SetFocusLinks(nullptr, nullptr, mRestartButton, nullptr);
 }
 
 // ==========================================================================
@@ -106,9 +105,9 @@ ConfirmBackToMainDialog::ConfirmBackToMainDialog(bool theLeaveGame)
 // ==========================================================================
 void ConfirmBackToMainDialog::AddedToManager(Sexy::WidgetManager *theManager)
 {
-  LawnDialog::AddedToManager(theManager);
-  // Slot 6 (byte 0x18) of the dialog's own vtable is WidgetContainer::AddWidget.
-  AddWidget(mRestartButton);
+    LawnDialog::AddedToManager(theManager);
+    // Slot 6 (byte 0x18) of the dialog's own vtable is WidgetContainer::AddWidget.
+    AddWidget(mRestartButton);
 }
 
 // ==========================================================================
@@ -117,6 +116,6 @@ void ConfirmBackToMainDialog::AddedToManager(Sexy::WidgetManager *theManager)
 // ==========================================================================
 void ConfirmBackToMainDialog::RemovedFromManager(Sexy::WidgetManager *theManager)
 {
-  LawnDialog::RemovedFromManager(theManager);
-  RemoveWidget(mRestartButton);
+    LawnDialog::RemovedFromManager(theManager);
+    RemoveWidget(mRestartButton);
 }

@@ -10,9 +10,10 @@
 
 #include <cstring>
 
-namespace {
+namespace
+{
 
-Sexy::String FileDirectory(const char* thePath)
+Sexy::String FileDirectory(const char *thePath)
 {
     Sexy::String aPath(thePath != nullptr ? thePath : "");
     Sexy::String aDir;
@@ -20,7 +21,7 @@ Sexy::String FileDirectory(const char* thePath)
     return aDir;
 }
 
-Sexy::String FileNameOnly(const char* thePath)
+Sexy::String FileNameOnly(const char *thePath)
 {
     Sexy::String aPath(thePath);
     Sexy::String aName;
@@ -28,11 +29,11 @@ Sexy::String FileNameOnly(const char* thePath)
     return aName;
 }
 
-Sexy::String ExtensionWithoutDot(const Sexy::String& thePath)
+Sexy::String ExtensionWithoutDot(const Sexy::String &thePath)
 {
-    const char* aText = thePath.c_str();
-    const char* aDot = nullptr;
-    for (const char* aScan = aText; *aScan != '\0'; ++aScan)
+    const char *aText = thePath.c_str();
+    const char *aDot = nullptr;
+    for (const char *aScan = aText; *aScan != '\0'; ++aScan)
     {
         if (*aScan == '.')
             aDot = aScan;
@@ -48,8 +49,8 @@ Sexy::String ExtensionWithoutDot(const Sexy::String& thePath)
 
 } // namespace
 
-int Sexy::RenderEffectDefinition::LoadFromMem(unsigned long theByteCount, void const* theBytes,
-                                              char const* theName, char const* theSourceFile)
+int Sexy::RenderEffectDefinition::LoadFromMem(
+    unsigned long theByteCount, void const *theBytes, char const *theName, char const *theSourceFile)
 {
     mData.resize(theByteCount);
     if (theByteCount != 0 && theBytes != nullptr)
@@ -59,7 +60,7 @@ int Sexy::RenderEffectDefinition::LoadFromMem(unsigned long theByteCount, void c
     return 1;
 }
 
-int Sexy::RenderEffectDefinition::LoadFromFile(char const* thePath, char const* theName)
+int Sexy::RenderEffectDefinition::LoadFromFile(char const *thePath, char const *theName)
 {
     if (thePath == nullptr)
         return 0;
@@ -90,13 +91,12 @@ int Sexy::RenderEffectDefinition::LoadFromFile(char const* thePath, char const* 
 
     Sexy::Buffer aBuffer;
     const int aReadLanguage = gSexyAppBase->ReadBufferFromFile(aLanguagePath, &aBuffer, true);
-    const int aReadPlain = (aReadLanguage != 0)
-                               ? aReadLanguage
-                               : gSexyAppBase->ReadBufferFromFile(aPlainPath, &aBuffer, true);
+    const int aReadPlain =
+        (aReadLanguage != 0) ? aReadLanguage : gSexyAppBase->ReadBufferFromFile(aPlainPath, &aBuffer, true);
     if (aReadPlain == 0)
         return 0;
 
     const unsigned long aByteCount = (unsigned long)((aBuffer.mDataBitSize + 7) / 8);
-    const void* aBytes = aBuffer.mData.empty() ? nullptr : aBuffer.mData.data();
+    const void *aBytes = aBuffer.mData.empty() ? nullptr : aBuffer.mData.data();
     return LoadFromMem(aByteCount, aBytes, theName, ExtensionWithoutDot(aPlainPath).c_str());
 }

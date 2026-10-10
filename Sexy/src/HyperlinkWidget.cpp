@@ -11,11 +11,9 @@
 #include "TextLayout.h"
 #include "WidgetManager.h"
 
-Sexy::HyperlinkWidget::~HyperlinkWidget()
-{
-}
+Sexy::HyperlinkWidget::~HyperlinkWidget() {}
 
-void Sexy::HyperlinkWidget::Draw(Sexy::Graphics * theGraphics)
+void Sexy::HyperlinkWidget::Draw(Sexy::Graphics *theGraphics)
 {
     if (mFont != nullptr)
     {
@@ -52,14 +50,13 @@ void Sexy::HyperlinkWidget::Draw(Sexy::Graphics * theGraphics)
     theGraphics->SetFont(mFont);
     mTextLayout.Draw(theGraphics, textX, textY, theGraphics->GetColor());
 
-    const int underlineY = (int)(mLabelExtents.mMinY + mLabelExtents.mHeight
-                                 + (float)mUnderlineOffset + (float)textY);
+    const int underlineY = (int)(mLabelExtents.mMinY + mLabelExtents.mHeight + (float)mUnderlineOffset + (float)textY);
     for (int line = 0; line < mUnderlineSize; ++line)
         theGraphics->FillRect(textX, underlineY + line, layoutWidth, 1);
 }
 
-Sexy::HyperlinkWidget::HyperlinkWidget(int theId, Sexy::ButtonListener * theListener)
-    : ButtonWidget(theId, theListener)
+Sexy::HyperlinkWidget::HyperlinkWidget(int theId, Sexy::ButtonListener *theListener) :
+    ButtonWidget(theId, theListener)
 {
     mColor = Sexy::Color(255, 255, 255);
     mOverColor = Sexy::Color(255, 255, 255);

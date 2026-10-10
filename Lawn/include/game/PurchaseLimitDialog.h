@@ -39,7 +39,8 @@
 //                  Draw prints in red
 //     size 0x318
 
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_PURCHASELIMITDIALOG_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_PURCHASELIMITDIALOG_H
 
 #include "ReconTypes.h"
 // The transcribed bodies call methods on these, so the includes stay.
@@ -66,24 +67,24 @@ public:
     virtual ~PurchaseLimitDialog();
 
     // --- this class's own vtable entries, in table order -------------------
-    virtual void AddedToManager(Sexy::WidgetManager *theWidgetManager);     // [29]
+    virtual void AddedToManager(Sexy::WidgetManager *theWidgetManager); // [29]
     virtual void RemovedFromManager(Sexy::WidgetManager *theWidgetManager); // [30]
-    virtual void Draw(Sexy::Graphics *theGraphics);                    // [36]
-    virtual int KeyDown(Sexy::KeyCode theKey);                    // [71]
-    virtual int KeyUp(Sexy::KeyCode theKey);                      // [72]
+    virtual void Draw(Sexy::Graphics *theGraphics); // [36]
+    virtual int KeyDown(Sexy::KeyCode theKey); // [71]
+    virtual int KeyUp(Sexy::KeyCode theKey); // [72]
 
     // --- the EditListener slot this class overrides (secondary table) -------
     // Sexy\EditListener.h declares the return type as int; the binary's body
     // returns the same 0/1 the other two values are, so the base's int is kept.
-    virtual int AllowChar(int theId, char theChar);                    // [3]
+    virtual int AllowChar(int theId, char theChar); // [3]
 
     // --- members, +0x300.. (the EditListener base owns +0x2FC) -------------
-    int mPurchaseId;               // +0x300, the id BuyMoney takes
-    LawnApp * mApp;                // +0x304
+    int mPurchaseId; // +0x300, the id BuyMoney takes
+    LawnApp *mApp; // +0x304
     Sexy::EditWidget *mEditWidget; // +0x308
-    bool mKeyFailed;               // +0x30C, the typed key did not match
-    Sexy::String mPrompt;          // +0x310, translated prompt, unused by Draw
-    Sexy::String mFailedText;      // +0x314, drawn in red after a bad key
+    bool mKeyFailed; // +0x30C, the typed key did not match
+    Sexy::String mPrompt; // +0x310, translated prompt, unused by Draw
+    Sexy::String mFailedText; // +0x314, drawn in red after a bad key
     // size 0x318
 
     PurchaseLimitDialog(LawnApp *theApp, int theLimit);
@@ -92,7 +93,8 @@ public:
     // the dump's receiver is the result buffer and its argument is the real
     // `this`. The real signature returns by value, which is what is declared.
     Sexy::String GetName();
-    int SetKey(Sexy::String const& theKey);
+    int SetKey(Sexy::String const &theKey);
     void ButtonDepress(int theId);
 };
 
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_PURCHASELIMITDIALOG_H

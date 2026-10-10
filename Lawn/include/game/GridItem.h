@@ -13,7 +13,8 @@
 //   [  0] 0x13c5a0  GridItem::~GridItem
 //   [  1] 0x13c5ec  GridItem::~GridItem
 
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_GRIDITEM_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_GRIDITEM_H
 
 #include "ReconTypes.h"
 // The bodies need the complete types, so these includes stay for now (stage C
@@ -50,40 +51,40 @@ public:
 class GridItem : public SyncObject
 {
 public:
-    LawnApp *mApp;                          // +0x10
-    Board   *mBoard;                        // +0x14
-    GridItemType mGridItemType;             // +0x18
-    GridItemState mGridItemState;           // +0x1C
-    int      mGridX;                        // +0x20
-    int      mGridY;                        // +0x24
-    int      mGridItemCounter;              // +0x28
-    int      mRenderOrder;                  // +0x2C
-    bool     mDead;                         // +0x30
-    float    mPosX;                         // +0x34
-    float    mPosY;                         // +0x38
-    float    mGoalX;                        // +0x3C
-    float    mGoalY;                        // +0x40
-    ReanimationID    mGridItemReanimID;     // +0x44
-    ParticleSystemID mGridItemParticleID;   // +0x48
-    ZombieType  mZombieType;                // +0x4C
-    SeedType    mSeedType;                  // +0x50
-    ScaryPotType mScaryPotType;             // +0x54
-    bool     mHighlighted;                  // +0x58
-    int      mTransparentCounter;           // +0x5C
-    int      mSunCount;                     // +0x60
+    LawnApp *mApp; // +0x10
+    Board *mBoard; // +0x14
+    GridItemType mGridItemType; // +0x18
+    GridItemState mGridItemState; // +0x1C
+    int mGridX; // +0x20
+    int mGridY; // +0x24
+    int mGridItemCounter; // +0x28
+    int mRenderOrder; // +0x2C
+    bool mDead; // +0x30
+    float mPosX; // +0x34
+    float mPosY; // +0x38
+    float mGoalX; // +0x3C
+    float mGoalY; // +0x40
+    ReanimationID mGridItemReanimID; // +0x44
+    ParticleSystemID mGridItemParticleID; // +0x48
+    ZombieType mZombieType; // +0x4C
+    SeedType mSeedType; // +0x50
+    ScaryPotType mScaryPotType; // +0x54
+    bool mHighlighted; // +0x58
+    int mTransparentCounter; // +0x5C
+    int mSunCount; // +0x60
     MotionTrailFrame mMotionTrailFrames[12]; // +0x64 ~ +0xF3
-    int      mMotionTrailCount;             // +0xF4
-    bool     mIsVSGraveStone;               // +0xF8
-    bool     mIsSpecialGrave;               // +0xF9
-    int      mMoundLevel;                   // +0xFC
-    int      mSummonIndex;                  // +0x100
-    int      mSummonCounter;                // +0x104
-    int      mLaunchCounter;                // +0x108
-    int      mLaunchRate;                   // +0x10C
-    int      mGraveJustGotShotCounter;      // +0x110
-    int      mVSGraveStoneHealth;           // +0x114
-    int      mVSTargetZombieHealth;         // +0x118
-    int      mVSTargetZombieDieCounter;     // +0x11C
+    int mMotionTrailCount; // +0xF4
+    bool mIsVSGraveStone; // +0xF8
+    bool mIsSpecialGrave; // +0xF9
+    int mMoundLevel; // +0xFC
+    int mSummonIndex; // +0x100
+    int mSummonCounter; // +0x104
+    int mLaunchCounter; // +0x108
+    int mLaunchRate; // +0x10C
+    int mGraveJustGotShotCounter; // +0x110
+    int mVSGraveStoneHealth; // +0x114
+    int mVSTargetZombieHealth; // +0x118
+    int mVSTargetZombieDieCounter; // +0x11C
     // +0x120 is a SharedImageRef, not three anonymous words: the constructor
     // placement-news one there (`SharedImageRef::SharedImageRef()` at 0x13DA90
     // with r0 = this + 0x120), and DrawMPTarget assigns the GetSharedImage result
@@ -91,9 +92,9 @@ public:
     // 12 bytes, exactly the space `unkMems2[3]` used to occupy, and it sits
     // OUTSIDE the 260-byte sync block that starts at mGridItemType.
     Sexy::SharedImageRef mTargetImageOverride; // +0x120
-    TodParticleSystem * GridItemDie();
-    float * DrawGridItemOverlay(Sexy::Graphics *theGraphics);
-    TodParticleSystem * UpdateBrain();
+    TodParticleSystem *GridItemDie();
+    float *DrawGridItemOverlay(Sexy::Graphics *theGraphics);
+    TodParticleSystem *UpdateBrain();
     void DrawIZombieBrain(Sexy::Graphics *theGraphics);
     void DrawGraveStone(Sexy::Graphics *theGraphics);
     void DrawMPTarget(Sexy::Graphics *theGraphics);
@@ -102,11 +103,11 @@ public:
     int DrawLadder(Sexy::Graphics *theGraphics);
     void AddGraveStoneParticles();
     void OpenPortal();
-    TodParticleSystem * ClosePortal();
-    TodParticleSystem * UpdatePortal();
+    TodParticleSystem *ClosePortal();
+    TodParticleSystem *UpdatePortal();
     void DrawSquirrel(Sexy::Graphics *theGraphics);
-    Zombie * RakeFindZombie();
-    Zombie * UpdateRake();
+    Zombie *RakeFindZombie();
+    Zombie *UpdateRake();
     int UpdateBurialMound();
     int GetMoundUpgradeCost();
     int TakeDamage(int theDamage, unsigned int theFlags);
@@ -119,7 +120,7 @@ public:
     int UpdateScaryPot();
     int Update();
     int DrawScaryPot(Sexy::Graphics *theGraphics);
-    TodParticleSystem * DrawGridItem(Sexy::Graphics *theGraphics);
+    TodParticleSystem *DrawGridItem(Sexy::Graphics *theGraphics);
 };
 
 struct GridItemSlot
@@ -127,3 +128,5 @@ struct GridItemSlot
     GridItem mItem;
     unsigned int mID;
 };
+
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_GRIDITEM_H

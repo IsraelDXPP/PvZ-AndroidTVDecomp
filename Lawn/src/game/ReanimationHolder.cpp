@@ -4,7 +4,8 @@
 #include "DataArrayMethods.h"
 #include <cstring>
 
-namespace {
+namespace
+{
 
 const int kReanimationCapacity = 1024;
 const int kReanimationStride = 220;
@@ -31,9 +32,10 @@ ReanimationHolder::~ReanimationHolder()
     DisposeHolder();
 }
 
-Reanimation* ReanimationHolder::AllocReanimation(float theX, float theY, int theRenderOrder, ReanimationType theReanimationType)
+Reanimation *ReanimationHolder::AllocReanimation(
+    float theX, float theY, int theRenderOrder, ReanimationType theReanimationType)
 {
-    Reanimation* aReanim = DataArrayAlloc();
+    Reanimation *aReanim = DataArrayAlloc();
     aReanim->mReanimationHolder = this;
     aReanim->mRenderOrder = theRenderOrder;
     aReanim->ReanimationInitializeType(theX, theY, theReanimationType);

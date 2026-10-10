@@ -7,7 +7,8 @@
 #include "BgfxRenderDevice.h"
 #include <cmath>
 
-namespace {
+namespace
+{
 
 Sexy::BgfxRenderDevice::DrawMode ToDeviceMode(int theDrawMode)
 {
@@ -16,7 +17,7 @@ Sexy::BgfxRenderDevice::DrawMode ToDeviceMode(int theDrawMode)
     return Sexy::BgfxRenderDevice::DRAWMODE_NORMAL;
 }
 
-Sexy::MemoryImage* AsMemory(Sexy::Image* theImage)
+Sexy::MemoryImage *AsMemory(Sexy::Image *theImage)
 {
     if (theImage == nullptr)
         return nullptr;
@@ -26,9 +27,8 @@ Sexy::MemoryImage* AsMemory(Sexy::Image* theImage)
 // Clip a source rect the way Graphics::DrawImage clips before Blt. The
 // hardware quad has no software clip of its own, so the intersection is
 // applied here and the destination moves with the clipped edge.
-bool ClipSource(const Sexy::TRect<int>& theSource, int theX, int theY,
-                const Sexy::TRect<int>& theClip, Sexy::TRect<int>& theOutSrc,
-                int& theOutX, int& theOutY)
+bool ClipSource(const Sexy::TRect<int> &theSource, int theX, int theY, const Sexy::TRect<int> &theClip,
+    Sexy::TRect<int> &theOutSrc, int &theOutX, int &theOutY)
 {
     int aLeft = theX;
     int aTop = theY;
@@ -49,15 +49,15 @@ bool ClipSource(const Sexy::TRect<int>& theSource, int theX, int theY,
 
     theOutX = aLeft;
     theOutY = aTop;
-    theOutSrc = Sexy::TRect<int>(theSource.mX + aLeft - theX, theSource.mY + aTop - theY,
-                                 aRight - aLeft, aBottom - aTop);
+    theOutSrc =
+        Sexy::TRect<int>(theSource.mX + aLeft - theX, theSource.mY + aTop - theY, aRight - aLeft, aBottom - aTop);
     return true;
 }
 
 }
 
-Sexy::GLImage::GLImage()
-    : MemoryImage()
+Sexy::GLImage::GLImage() :
+    MemoryImage()
 {
 }
 
@@ -65,7 +65,7 @@ Sexy::GLImage::~GLImage() = default;
 
 bool Sexy::GLImage::IsCurrentTarget() const
 {
-    BgfxRenderDevice* aDevice = BgfxRenderDevice::sCurrent;
+    BgfxRenderDevice *aDevice = BgfxRenderDevice::sCurrent;
     return aDevice != nullptr && aDevice->GetDrawTarget() == this;
 }
 
@@ -94,7 +94,7 @@ void Sexy::GLImage::PopTransform(SexyMatrix3 &theTransform)
         BgfxRenderDevice::sCurrent->PopTransform(theTransform);
 }
 
-void Sexy::GLImage::FillRect(const TRect<int> & theRect, const Color & theColor, int theDrawMode)
+void Sexy::GLImage::FillRect(const TRect<int> &theRect, const Color &theColor, int theDrawMode)
 {
     if (!IsCurrentTarget())
     {
@@ -104,7 +104,7 @@ void Sexy::GLImage::FillRect(const TRect<int> & theRect, const Color & theColor,
     BgfxRenderDevice::sCurrent->FillRect(theRect, theColor, ToDeviceMode(theDrawMode));
 }
 
-void Sexy::GLImage::ClearRect(const TRect<int> & theRect)
+void Sexy::GLImage::ClearRect(const TRect<int> &theRect)
 {
     if (!IsCurrentTarget())
     {
@@ -114,27 +114,26 @@ void Sexy::GLImage::ClearRect(const TRect<int> & theRect)
     BgfxRenderDevice::sCurrent->FillRect(theRect, Color(0, 0, 0, 0), BgfxRenderDevice::DRAWMODE_NORMAL);
 }
 
-void Sexy::GLImage::DrawLine(double theStartX, double theStartY, double theEndX, double theEndY,
-                             const Color & theColor, int theDrawMode)
+void Sexy::GLImage::DrawLine(
+    double theStartX, double theStartY, double theEndX, double theEndY, const Color &theColor, int theDrawMode)
 {
     if (!IsCurrentTarget())
     {
         MemoryImage::DrawLine(theStartX, theStartY, theEndX, theEndY, theColor, theDrawMode);
         return;
     }
-    BgfxRenderDevice::sCurrent->DrawLine((float)theStartX, (float)theStartY,
-                                       (float)theEndX, (float)theEndY,
-                                       theColor, ToDeviceMode(theDrawMode));
+    BgfxRenderDevice::sCurrent->DrawLine(
+        (float)theStartX, (float)theStartY, (float)theEndX, (float)theEndY, theColor, ToDeviceMode(theDrawMode));
 }
 
-void Sexy::GLImage::DrawLineAA(double theStartX, double theStartY, double theEndX, double theEndY,
-                               const Color & theColor, int theDrawMode)
+void Sexy::GLImage::DrawLineAA(
+    double theStartX, double theStartY, double theEndX, double theEndY, const Color &theColor, int theDrawMode)
 {
     DrawLine(theStartX, theStartY, theEndX, theEndY, theColor, theDrawMode);
 }
 
-void Sexy::GLImage::Blt(Image * theSource, int theX, int theY, const TRect<int> & theSourceRect,
-                        const Color & theColor, int theDrawMode, bool theColorize)
+void Sexy::GLImage::Blt(Image *theSource, int theX, int theY, const TRect<int> &theSourceRect, const Color &theColor,
+    int theDrawMode, bool theColorize)
 {
     if (!IsCurrentTarget())
     {
@@ -142,7 +141,7 @@ void Sexy::GLImage::Blt(Image * theSource, int theX, int theY, const TRect<int> 
         return;
     }
 
-    MemoryImage* aSource = AsMemory(theSource);
+    MemoryImage *aSource = AsMemory(theSource);
     if (aSource == nullptr)
         return;
 
@@ -157,13 +156,18 @@ void Sexy::GLImage::Blt(Image * theSource, int theX, int theY, const TRect<int> 
     // software replace path; the font outline is already in the atlas, so a
     // replace here erases it. The flag stays off on this path.
     (void)theColorize;
-    BgfxRenderDevice::sCurrent->DrawImage(
-        aSource, TRect<int>(aX, aY, aSrc.mWidth, aSrc.mHeight), aSrc,
-        theColor, ToDeviceMode(theDrawMode), false, true, false);
+    BgfxRenderDevice::sCurrent->DrawImage(aSource,
+        TRect<int>(aX, aY, aSrc.mWidth, aSrc.mHeight),
+        aSrc,
+        theColor,
+        ToDeviceMode(theDrawMode),
+        false,
+        true,
+        false);
 }
 
-void Sexy::GLImage::BltF(Image * theSource, float theX, float theY, const TRect<int> & theSourceRect,
-                         const TRect<int> & theClipRect, const Color & theColor, int theDrawMode)
+void Sexy::GLImage::BltF(Image *theSource, float theX, float theY, const TRect<int> &theSourceRect,
+    const TRect<int> &theClipRect, const Color &theColor, int theDrawMode)
 {
     if (!IsCurrentTarget())
     {
@@ -171,7 +175,7 @@ void Sexy::GLImage::BltF(Image * theSource, float theX, float theY, const TRect<
         return;
     }
 
-    MemoryImage* aSource = AsMemory(theSource);
+    MemoryImage *aSource = AsMemory(theSource);
     if (aSource == nullptr)
         return;
 
@@ -181,23 +185,36 @@ void Sexy::GLImage::BltF(Image * theSource, float theX, float theY, const TRect<
     if (!ClipSource(theSourceRect, (int)theX, (int)theY, theClipRect, aSrc, aX, aY))
         return;
 
-    BgfxRenderDevice::sCurrent->DrawImage(
-        aSource, TRect<int>(aX, aY, aSrc.mWidth, aSrc.mHeight), aSrc,
-        theColor, ToDeviceMode(theDrawMode), false, true, false);
+    BgfxRenderDevice::sCurrent->DrawImage(aSource,
+        TRect<int>(aX, aY, aSrc.mWidth, aSrc.mHeight),
+        aSrc,
+        theColor,
+        ToDeviceMode(theDrawMode),
+        false,
+        true,
+        false);
 }
 
-void Sexy::GLImage::BltRotated(Image * theSource, float theX, float theY, const TRect<int> & theSourceRect,
-                               const TRect<int> & theClipRect, const Color & theColor, int theDrawMode,
-                               double theRotate, float theRotateCenterX, float theRotateCenterY)
+void Sexy::GLImage::BltRotated(Image *theSource, float theX, float theY, const TRect<int> &theSourceRect,
+    const TRect<int> &theClipRect, const Color &theColor, int theDrawMode, double theRotate, float theRotateCenterX,
+    float theRotateCenterY)
 {
     if (!IsCurrentTarget())
     {
-        MemoryImage::BltRotated(theSource, theX, theY, theSourceRect, theClipRect, theColor,
-                                theDrawMode, theRotate, theRotateCenterX, theRotateCenterY);
+        MemoryImage::BltRotated(theSource,
+            theX,
+            theY,
+            theSourceRect,
+            theClipRect,
+            theColor,
+            theDrawMode,
+            theRotate,
+            theRotateCenterX,
+            theRotateCenterY);
         return;
     }
 
-    MemoryImage* aSource = AsMemory(theSource);
+    MemoryImage *aSource = AsMemory(theSource);
     if (aSource == nullptr)
         return;
 
@@ -213,22 +230,19 @@ void Sexy::GLImage::BltRotated(Image * theSource, float theX, float theY, const 
     aMatrix.m10 = -aSin;
     aMatrix.m11 = aCos;
     aMatrix.m12 = theRotateCenterY + theRotateCenterX * aSin - theRotateCenterY * aCos;
-    BltMatrix(theSource, theX, theY, aMatrix, theSourceRect, theColor, theDrawMode,
-              theClipRect, false, false);
+    BltMatrix(theSource, theX, theY, aMatrix, theSourceRect, theColor, theDrawMode, theClipRect, false, false);
 }
 
-void Sexy::GLImage::StretchBlt(Image * theSource, const TRect<int> & theDestRect, const TRect<int> & theSrcRect,
-                               const TRect<int> & theClipRect, const Color & theColor, int theDrawMode,
-                               bool theFastStretch)
+void Sexy::GLImage::StretchBlt(Image *theSource, const TRect<int> &theDestRect, const TRect<int> &theSrcRect,
+    const TRect<int> &theClipRect, const Color &theColor, int theDrawMode, bool theFastStretch)
 {
     if (!IsCurrentTarget())
     {
-        MemoryImage::StretchBlt(theSource, theDestRect, theSrcRect, theClipRect, theColor,
-                                theDrawMode, theFastStretch);
+        MemoryImage::StretchBlt(theSource, theDestRect, theSrcRect, theClipRect, theColor, theDrawMode, theFastStretch);
         return;
     }
 
-    MemoryImage* aSource = AsMemory(theSource);
+    MemoryImage *aSource = AsMemory(theSource);
     if (aSource == nullptr)
         return;
 
@@ -239,28 +253,36 @@ void Sexy::GLImage::StretchBlt(Image * theSource, const TRect<int> & theDestRect
     float aScaleX = (float)theSrcRect.mWidth / (float)theDestRect.mWidth;
     float aScaleY = (float)theSrcRect.mHeight / (float)theDestRect.mHeight;
     TRect<int> aSrc(theSrcRect.mX + (int)((float)(aDest.mX - theDestRect.mX) * aScaleX),
-                    theSrcRect.mY + (int)((float)(aDest.mY - theDestRect.mY) * aScaleY),
-                    (int)((float)aDest.mWidth * aScaleX),
-                    (int)((float)aDest.mHeight * aScaleY));
+        theSrcRect.mY + (int)((float)(aDest.mY - theDestRect.mY) * aScaleY),
+        (int)((float)aDest.mWidth * aScaleX),
+        (int)((float)aDest.mHeight * aScaleY));
     if (aSrc.mWidth <= 0 || aSrc.mHeight <= 0)
         return;
 
-    BgfxRenderDevice::sCurrent->DrawImage(aSource, aDest, aSrc, theColor, ToDeviceMode(theDrawMode),
-                                        false, theFastStretch, false);
+    BgfxRenderDevice::sCurrent->DrawImage(
+        aSource, aDest, aSrc, theColor, ToDeviceMode(theDrawMode), false, theFastStretch, false);
 }
 
-void Sexy::GLImage::BltMatrix(Image * theSource, float theX, float theY, const SexyMatrix3 & theMatrix,
-                              const TRect<int> & theSourceRect, const Color & theColor, int theDrawMode,
-                              const TRect<int> & theClipRect, bool theLinearBlend, bool theMirror)
+void Sexy::GLImage::BltMatrix(Image *theSource, float theX, float theY, const SexyMatrix3 &theMatrix,
+    const TRect<int> &theSourceRect, const Color &theColor, int theDrawMode, const TRect<int> &theClipRect,
+    bool theLinearBlend, bool theMirror)
 {
     if (!IsCurrentTarget())
     {
-        MemoryImage::BltMatrix(theSource, theX, theY, theMatrix, theSourceRect, theColor,
-                               theDrawMode, theClipRect, theLinearBlend, theMirror);
+        MemoryImage::BltMatrix(theSource,
+            theX,
+            theY,
+            theMatrix,
+            theSourceRect,
+            theColor,
+            theDrawMode,
+            theClipRect,
+            theLinearBlend,
+            theMirror);
         return;
     }
 
-    MemoryImage* aSource = AsMemory(theSource);
+    MemoryImage *aSource = AsMemory(theSource);
     if (aSource == nullptr)
         return;
 
@@ -276,29 +298,34 @@ void Sexy::GLImage::BltMatrix(Image * theSource, float theX, float theY, const S
     if (aClip.mWidth <= 0 || aClip.mHeight <= 0)
         return;
 
-    BgfxRenderDevice* aDevice = BgfxRenderDevice::sCurrent;
+    BgfxRenderDevice *aDevice = BgfxRenderDevice::sCurrent;
     bool aNeedsClip = aClip != aScreen;
     if (aNeedsClip)
         aDevice->SetClipRect(aClip);
-    aDevice->DrawImageMatrix(aSource, theMatrix, theX, theY, theSourceRect,
-                             theColor, ToDeviceMode(theDrawMode), true);
+    aDevice->DrawImageMatrix(aSource, theMatrix, theX, theY, theSourceRect, theColor, ToDeviceMode(theDrawMode), true);
     if (aNeedsClip)
         aDevice->ClearClipRect();
 }
 
-void Sexy::GLImage::BltTrianglesTex(Image * theSource, const SexyVertex2D (*theTriangles)[3],
-                                    int theTriangleCount, const TRect<int> & theClipRect,
-                                    const Color & theColor, int theDrawMode, float theTx, float theTy,
-                                    bool theLinearBlend)
+void Sexy::GLImage::BltTrianglesTex(Image *theSource, const SexyVertex2D (*theTriangles)[3], int theTriangleCount,
+    const TRect<int> &theClipRect, const Color &theColor, int theDrawMode, float theTx, float theTy,
+    bool theLinearBlend)
 {
     if (!IsCurrentTarget())
     {
-        MemoryImage::BltTrianglesTex(theSource, theTriangles, theTriangleCount, theClipRect,
-                                     theColor, theDrawMode, theTx, theTy, theLinearBlend);
+        MemoryImage::BltTrianglesTex(theSource,
+            theTriangles,
+            theTriangleCount,
+            theClipRect,
+            theColor,
+            theDrawMode,
+            theTx,
+            theTy,
+            theLinearBlend);
         return;
     }
 
-    MemoryImage* aSource = AsMemory(theSource);
+    MemoryImage *aSource = AsMemory(theSource);
     if (aSource == nullptr)
         return;
 
@@ -312,15 +339,14 @@ void Sexy::GLImage::BltTrianglesTex(Image * theSource, const SexyVertex2D (*theT
     TRect<int> aClip = theClipRect.Intersection(aScreen);
     if (aClip.mWidth <= 0 || aClip.mHeight <= 0)
         aClip = aScreen;
-    BgfxRenderDevice* aDevice = BgfxRenderDevice::sCurrent;
+    BgfxRenderDevice *aDevice = BgfxRenderDevice::sCurrent;
     aDevice->SetClipRect(aClip);
-    aDevice->DrawTriangles(aSource, theTriangles, theTriangleCount, theColor,
-                           ToDeviceMode(theDrawMode), theTx, theTy);
+    aDevice->DrawTriangles(aSource, theTriangles, theTriangleCount, theColor, ToDeviceMode(theDrawMode), theTx, theTy);
     aDevice->ClearClipRect();
 }
 
-void Sexy::GLImage::BltMirror(Image * theSource, int theX, int theY, const TRect<int> & theSourceRect,
-                              const Color & theColor, int theDrawMode)
+void Sexy::GLImage::BltMirror(
+    Image *theSource, int theX, int theY, const TRect<int> &theSourceRect, const Color &theColor, int theDrawMode)
 {
     if (!IsCurrentTarget())
     {
@@ -328,7 +354,7 @@ void Sexy::GLImage::BltMirror(Image * theSource, int theX, int theY, const TRect
         return;
     }
 
-    MemoryImage* aSource = AsMemory(theSource);
+    MemoryImage *aSource = AsMemory(theSource);
     if (aSource == nullptr)
         return;
 
@@ -339,23 +365,27 @@ void Sexy::GLImage::BltMirror(Image * theSource, int theX, int theY, const TRect
     if (!ClipSource(theSourceRect, theX, theY, aClip, aSrc, aX, aY))
         return;
 
-    BgfxRenderDevice::sCurrent->DrawImage(
-        aSource, TRect<int>(aX, aY, aSrc.mWidth, aSrc.mHeight), aSrc,
-        theColor, ToDeviceMode(theDrawMode), true, true, false);
+    BgfxRenderDevice::sCurrent->DrawImage(aSource,
+        TRect<int>(aX, aY, aSrc.mWidth, aSrc.mHeight),
+        aSrc,
+        theColor,
+        ToDeviceMode(theDrawMode),
+        true,
+        true,
+        false);
 }
 
-void Sexy::GLImage::StretchBltMirror(Image * theSource, const TRect<int> & theDestRect,
-                                     const TRect<int> & theSrcRect, const TRect<int> & theClipRect,
-                                     const Color & theColor, int theDrawMode, bool theFastStretch)
+void Sexy::GLImage::StretchBltMirror(Image *theSource, const TRect<int> &theDestRect, const TRect<int> &theSrcRect,
+    const TRect<int> &theClipRect, const Color &theColor, int theDrawMode, bool theFastStretch)
 {
     if (!IsCurrentTarget())
     {
-        MemoryImage::StretchBltMirror(theSource, theDestRect, theSrcRect, theClipRect, theColor,
-                                      theDrawMode, theFastStretch);
+        MemoryImage::StretchBltMirror(
+            theSource, theDestRect, theSrcRect, theClipRect, theColor, theDrawMode, theFastStretch);
         return;
     }
 
-    MemoryImage* aSource = AsMemory(theSource);
+    MemoryImage *aSource = AsMemory(theSource);
     if (aSource == nullptr)
         return;
 
@@ -363,6 +393,6 @@ void Sexy::GLImage::StretchBltMirror(Image * theSource, const TRect<int> & theDe
     if (aDest.mWidth <= 0 || aDest.mHeight <= 0)
         return;
 
-    BgfxRenderDevice::sCurrent->DrawImage(aSource, aDest, theSrcRect, theColor, ToDeviceMode(theDrawMode),
-                                        true, theFastStretch, false);
+    BgfxRenderDevice::sCurrent->DrawImage(
+        aSource, aDest, theSrcRect, theColor, ToDeviceMode(theDrawMode), true, theFastStretch, false);
 }

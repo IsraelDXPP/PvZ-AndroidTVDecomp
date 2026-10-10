@@ -4,21 +4,21 @@
 #include "ResourceRef.h"
 #include "ResourceManager.h"
 
-Sexy::ResourceRef::ResourceRef()
-    : mBaseRes(nullptr)
-    , mRefPad(0)
+Sexy::ResourceRef::ResourceRef() :
+    mBaseRes(nullptr),
+    mRefPad(0)
 {
 }
 
-Sexy::ResourceRef::ResourceRef(const ResourceRef& theOther)
-    : mBaseRes(theOther.mBaseRes)
-    , mRefPad(0)
+Sexy::ResourceRef::ResourceRef(const ResourceRef &theOther) :
+    mBaseRes(theOther.mBaseRes),
+    mRefPad(0)
 {
     if (mBaseRes != nullptr)
         ++mBaseRes->mRefCount;
 }
 
-Sexy::ResourceRef& Sexy::ResourceRef::operator=(const ResourceRef& theOther)
+Sexy::ResourceRef &Sexy::ResourceRef::operator=(const ResourceRef &theOther)
 {
     if (this == &theOther)
         return *this;
@@ -43,7 +43,7 @@ Sexy::String Sexy::ResourceRef::GetId()
 
 void Sexy::ResourceRef::Release()
 {
-    ResourceManager_BaseRes* record = mBaseRes;
+    ResourceManager_BaseRes *record = mBaseRes;
     mBaseRes = nullptr;
     if (record != nullptr && record->mManager != nullptr)
         record->mManager->Deref(record);

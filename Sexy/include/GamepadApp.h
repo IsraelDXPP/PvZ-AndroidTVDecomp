@@ -15,7 +15,8 @@
 // Member order and method signatures match the previous declaration. The
 // pending-event list and the atlas cache are standard containers.
 
-#pragma once
+#ifndef LAWNPROJECTTV_SEXY_INCLUDE_GAMEPADAPP_H
+#define LAWNPROJECTTV_SEXY_INCLUDE_GAMEPADAPP_H
 
 #include "ReconTypes.h"
 #include "AtlasParser.h"
@@ -30,7 +31,8 @@
 #include <map>
 #include <string>
 
-namespace Sexy {
+namespace Sexy
+{
 
 class IInputDriver;
 
@@ -40,39 +42,38 @@ public:
     virtual ~GamepadApp();
 
     virtual void UpdateFrames();
-    virtual Sexy::Image *GetImage(Sexy::String const& theName, bool thePurge);
-    virtual Sexy::Image *GetImageWithAttrs(Sexy::String const& theName, Sexy::String const& theVariant,
-                                           Sexy::String const& theAttributes, bool thePurge);
-    virtual bool ProcessMessage(Sexy::Event & theEvent);
+    virtual Sexy::Image *GetImage(Sexy::String const &theName, bool thePurge);
+    virtual Sexy::Image *GetImageWithAttrs(
+        Sexy::String const &theName, Sexy::String const &theVariant, Sexy::String const &theAttributes, bool thePurge);
+    virtual bool ProcessMessage(Sexy::Event &theEvent);
     virtual int DeviceAdded(Sexy::IInputDriver *theDriver);
     virtual int DeviceRemoved(Sexy::IInputDriver *theDriver);
     virtual void GamepadConnected();
     virtual void GamepadDisconnected();
 
     Sexy::Gamepad *mGamepads[4];
-    bool           mGamePad1IsOn;
-    CritSect       mDeviceEventCritSect;
-    AtlasParser    mAtlasParser;
-    CritSect       mAtlasCritSect;
-    bool           mHasGamepad;
-    bool           mGamePad2IsOn;
+    bool mGamePad1IsOn;
+    CritSect mDeviceEventCritSect;
+    AtlasParser mAtlasParser;
+    CritSect mAtlasCritSect;
+    bool mHasGamepad;
+    bool mGamePad2IsOn;
 
     Gamepad *GetGamepad(int theIndex);
     int GetGamepadIndex(int theSlot, int theDevice);
-    GamepadApp* SwapGamepadId(int theFirst, int theSecond);
-    int MapToButtonEvent(Sexy::Event const* theEvent, int & theButton, int & thePadIndex,
-                         unsigned int & theRepeat);
+    GamepadApp *SwapGamepadId(int theFirst, int theSecond);
+    int MapToButtonEvent(Sexy::Event const *theEvent, int &theButton, int &thePadIndex, unsigned int &theRepeat);
     int CheckGamepad();
     int HasGamepad();
-    int LoadAtlasMap(Sexy::String const& thePath);
+    int LoadAtlasMap(Sexy::String const &thePath);
     GamepadApp();
-    Image *GetImageFromAtlas(Sexy::String const& theName);
+    Image *GetImageFromAtlas(Sexy::String const &theName);
     int ProcessDeviceEvents();
 
     struct PendingDeviceEvent
     {
         bool mAdded;
-        int  mDeviceId;
+        int mDeviceId;
     };
 
     std::list<PendingDeviceEvent> mPendingDeviceEvents;
@@ -83,3 +84,5 @@ public:
 } // namespace Sexy
 
 using Sexy::GamepadApp;
+
+#endif // LAWNPROJECTTV_SEXY_INCLUDE_GAMEPADAPP_H

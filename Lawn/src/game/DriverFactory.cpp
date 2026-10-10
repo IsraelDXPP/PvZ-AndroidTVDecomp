@@ -26,21 +26,21 @@
 #include <map>
 #include <set>
 
-namespace Sexy {
+namespace Sexy
+{
 
 // libstdc++'s _Rb_tree_node<Driver *>: the four-word node base followed by the
 // one stored pointer. Both AddDriver bodies allocate exactly sizeof(DriverNode)
 // = 0x14 bytes for it and put the driver in the value slot at +0x10.
-template <class T>
-struct DriverNode : RbTree::NodeBase
+template <class T> struct DriverNode : RbTree::NodeBase
 {
-    T *mDriver;     // +0x10
+    T *mDriver; // +0x10
 };
-
 
 } // namespace Sexy
 
-namespace {
+namespace
+{
 
 // DriverCompare orders the set by driver priority, so every descent in this file
 // reads the node's driver and then its mPriority.
@@ -92,8 +92,7 @@ int Sexy::DriverFactory::AddDriver(Sexy::Driver *theDriver)
         while (true)
         {
             aParentPriority = PriorityOf(aParent);
-            RbTree::NodeBase *aChild =
-                (aParentPriority <= aNewPriority) ? aParent->mRight : aParent->mLeft;
+            RbTree::NodeBase *aChild = (aParentPriority <= aNewPriority) ? aParent->mRight : aParent->mLeft;
             if (aChild == nullptr)
                 break;
             aParent = aChild;
@@ -128,8 +127,7 @@ Sexy::Driver *Sexy::DriverFactory::Find(Sexy::String theName)
         // The literal name "auto" resolves to the last driver in the set, which
         // is where decrementing the end sentinel lands.
         if (mDriverMap.mCount != 0)
-            return static_cast<DriverNode<Sexy::Driver> *>(
-                       RbTree::_M_decrement(&mDriverMap.mHeader))->mDriver;
+            return static_cast<DriverNode<Sexy::Driver> *>(RbTree::_M_decrement(&mDriverMap.mHeader))->mDriver;
         return nullptr;
     }
 
@@ -146,8 +144,7 @@ Sexy::Driver *Sexy::DriverFactory::Find(Sexy::String theName)
     while (true)
     {
         Sexy::Driver *aDriver = static_cast<DriverNode<Sexy::Driver> *>(aNode)->mDriver;
-        if (aLength == aDriver->mName.size() &&
-            std::memcmp(aDriver->mName.data(), aName, aLength) == 0)
+        if (aLength == aDriver->mName.size() && std::memcmp(aDriver->mName.data(), aName, aLength) == 0)
             return aDriver;
 
         aNode = RbTree::_M_increment(aNode);
@@ -163,19 +160,16 @@ Sexy::Driver *Sexy::DriverFactory::Find(Sexy::String theName)
 // Two bytes, `BX LR`: an empty body. Its callers rely on the callee leaving r0
 // alone and read the receiver back out of it.
 // ==========================================================================
-void Sexy::DriverFactory::GetDrivers()
-{
-}
+void Sexy::DriverFactory::GetDrivers() {}
 
-std::vector<Sexy::Driver*> Sexy::DriverFactory::Drivers()
+std::vector<Sexy::Driver *> Sexy::DriverFactory::Drivers()
 {
-    std::vector<Sexy::Driver*> theDrivers;
-    RbTree::NodeBase* theEnd = &mDriverMap.mHeader;
-    for (RbTree::NodeBase* theNode = mDriverMap.mHeader.mLeft;
-         theNode != theEnd;
-         theNode = RbTree::_M_increment(theNode))
+    std::vector<Sexy::Driver *> theDrivers;
+    RbTree::NodeBase *theEnd = &mDriverMap.mHeader;
+    for (RbTree::NodeBase *theNode = mDriverMap.mHeader.mLeft; theNode != theEnd;
+        theNode = RbTree::_M_increment(theNode))
     {
-        theDrivers.push_back(static_cast<DriverNode<Sexy::Driver>*>(theNode)->mDriver);
+        theDrivers.push_back(static_cast<DriverNode<Sexy::Driver> *>(theNode)->mDriver);
     }
     return theDrivers;
 }
@@ -282,8 +276,7 @@ void Sexy::DriverFactory::RemoveDriver(Sexy::Driver *theDriver)
             delete static_cast<DriverNode<Sexy::Driver> *>(
                 RbTree::_Rb_tree_rebalance_for_erase(aKilled, mDriverMap.mHeader));
             --mDriverMap.mCount;
-        }
-        while (aNext != aUpperBound);
+        } while (aNext != aUpperBound);
     }
 }
 
@@ -304,10 +297,8 @@ int PakLib::DriverFactory::AddDriver(PakLib::Driver *theDriver)
 
         while (true)
         {
-            aParentPriority =
-                static_cast<Sexy::DriverNode<PakLib::Driver> *>(aParent)->mDriver->mPriority;
-            Sexy::RbTree::NodeBase *aChild =
-                (aParentPriority <= aNewPriority) ? aParent->mRight : aParent->mLeft;
+            aParentPriority = static_cast<Sexy::DriverNode<PakLib::Driver> *>(aParent)->mDriver->mPriority;
+            Sexy::RbTree::NodeBase *aChild = (aParentPriority <= aNewPriority) ? aParent->mRight : aParent->mLeft;
             if (aChild == nullptr)
                 break;
             aParent = aChild;
@@ -323,8 +314,7 @@ int PakLib::DriverFactory::AddDriver(PakLib::Driver *theDriver)
     Sexy::DriverNode<PakLib::Driver> *aNewNode = new Sexy::DriverNode<PakLib::Driver>;
     aNewNode->mDriver = theDriver;
 
-    Sexy::RbTree::_Rb_tree_insert_and_rebalance(aInsertLeft, aNewNode, aParent,
-                                                mDriverMap.mHeader);
+    Sexy::RbTree::_Rb_tree_insert_and_rebalance(aInsertLeft, aNewNode, aParent, mDriverMap.mHeader);
     ++mDriverMap.mCount;
     return 0;
 }
@@ -368,8 +358,8 @@ PakLib::Driver *PakLib::DriverFactory::FindNext(PakLib::Driver *theDriver)
     {
         if (mDriverMap.mCount == 0)
             return nullptr;
-        return static_cast<Sexy::DriverNode<PakLib::Driver> *>(
-            Sexy::RbTree::_M_decrement(&mDriverMap.mHeader))->mDriver;
+        return static_cast<Sexy::DriverNode<PakLib::Driver> *>(Sexy::RbTree::_M_decrement(&mDriverMap.mHeader))
+            ->mDriver;
     }
 
     Sexy::RbTree::NodeBase *aEnd = &mDriverMap.mHeader;
@@ -398,8 +388,7 @@ void PakLib::DriverFactory::RemoveDriver(PakLib::Driver *theDriver, bool theDele
 
     if (theDeleteDriver)
     {
-        PakLib::Driver *aDriver =
-            static_cast<Sexy::DriverNode<PakLib::Driver> *>(aFound)->mDriver;
+        PakLib::Driver *aDriver = static_cast<Sexy::DriverNode<PakLib::Driver> *>(aFound)->mDriver;
         delete aDriver;
     }
 

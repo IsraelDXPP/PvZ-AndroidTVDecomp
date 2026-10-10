@@ -6,11 +6,13 @@
 //
 // SIZE 0x8, from the binary's allocation sites.
 
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_SHAREMANAGER_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_SHAREMANAGER_H
 
 #include "ReconTypes.h"
 
-namespace Native {
+namespace Native
+{
 
 class ShareManager
 {
@@ -27,19 +29,21 @@ public:
     class Listener
     {
     public:
-        virtual void onComplete(ShareManager * theManager, int theCode);
-        virtual void onCancel(ShareManager * theManager, int theCode);
-        virtual void onError(ShareManager * theManager, int theCode);
+        virtual void onComplete(ShareManager *theManager, int theCode);
+        virtual void onCancel(ShareManager *theManager, int theCode);
+        virtual void onError(ShareManager *theManager, int theCode);
     };
 
     int create();
-    int setListener(Listener * theListener);
+    int setListener(Listener *theListener);
     int getName();
     int getFeatures();
     int share();
-    int share(Native::ShareManager_Post const & thePost);
+    int share(Native::ShareManager_Post const &thePost);
 };
 
 } // namespace Native
 
 // Layout check: two unnamed words.
+
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_SHAREMANAGER_H

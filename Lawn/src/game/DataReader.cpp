@@ -32,17 +32,17 @@ DataReader::~DataReader()
     Close();
 }
 
-bool DataReader::OpenFile(const Sexy::String& theFileName)
+bool DataReader::OpenFile(const Sexy::String &theFileName)
 {
     Close();
     mFile = SDL_IOFromFile(theFileName.c_str(), "rb");
     return mFile != nullptr;
 }
 
-void DataReader::OpenMemory(const void* theData, unsigned long theDataLen, bool takeOwnership)
+void DataReader::OpenMemory(const void *theData, unsigned long theDataLen, bool takeOwnership)
 {
     Close();
-    mData = (char*)theData;
+    mData = (char *)theData;
     mDataLen = theDataLen;
     mOwnData = takeOwnership;
 }
@@ -57,7 +57,7 @@ int DataReader::Rewind(unsigned long theNumBytes)
     return 1;
 }
 
-int DataReader::ReadBytes(void* theMem, unsigned long theNumBytes)
+int DataReader::ReadBytes(void *theMem, unsigned long theNumBytes)
 {
     if (mData != nullptr)
     {
@@ -128,7 +128,7 @@ double DataReader::ReadDouble()
     return value;
 }
 
-int DataReader::ReadString(Sexy::String& theStr)
+int DataReader::ReadString(Sexy::String &theStr)
 {
     unsigned int length = (unsigned int)ReadShort();
     StringResize(&theStr, length, 0);

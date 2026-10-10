@@ -23,24 +23,20 @@
 // ==========================================================================
 bool TreeOfWisdomControls::BeginDraw(Sexy::Graphics *theGraphics)
 {
-  return true;
+    return true;
 }
 
 // ==========================================================================
 // TreeOfWisdomControls::EndDraw(Sexy::Graphics *)
 // @001BCE44  2 bytes
 // ==========================================================================
-void TreeOfWisdomControls::EndDraw(Sexy::Graphics *theGraphics)
-{
-}
+void TreeOfWisdomControls::EndDraw(Sexy::Graphics *theGraphics) {}
 
 // ==========================================================================
 // TreeOfWisdomControls::MakeParentGraphicsFrame(Sexy::Graphics *)
 // @001BCE50  2 bytes
 // ==========================================================================
-void TreeOfWisdomControls::MakeParentGraphicsFrame()
-{
-}
+void TreeOfWisdomControls::MakeParentGraphicsFrame() {}
 
 // ==========================================================================
 // TreeOfWisdomControls::OnButtonUp(int,int,unsigned int)
@@ -48,9 +44,9 @@ void TreeOfWisdomControls::MakeParentGraphicsFrame()
 // ==========================================================================
 void TreeOfWisdomControls::OnButtonUp(int theButton, int thePlayerIndex, unsigned int theFlags)
 {
-  (void)theButton;
-  (void)thePlayerIndex;
-  (void)theFlags;
+    (void)theButton;
+    (void)thePlayerIndex;
+    (void)theFlags;
 }
 
 // ==========================================================================
@@ -59,9 +55,9 @@ void TreeOfWisdomControls::OnButtonUp(int theButton, int thePlayerIndex, unsigne
 // ==========================================================================
 void TreeOfWisdomControls::OnGameAxisMove(int theAxis, int theValue, int thePlayerIndex)
 {
-  (void)theAxis;
-  (void)theValue;
-  (void)thePlayerIndex;
+    (void)theAxis;
+    (void)theValue;
+    (void)thePlayerIndex;
 }
 
 // ==========================================================================
@@ -72,9 +68,7 @@ void TreeOfWisdomControls::OnGameAxisMove(int theAxis, int theValue, int thePlay
 // `GamepadControls::~GamepadControls()`. With a real base class the compiler
 // emits both, and spelling them by hand would re-construct and then
 // double-destroy the base's mSyncBlocks, so the body stays empty.
-TreeOfWisdomControls::~TreeOfWisdomControls()
-{
-}
+TreeOfWisdomControls::~TreeOfWisdomControls() {}
 
 // ==========================================================================
 // TreeOfWisdomControls::OnButtonDown(int,int,unsigned int)
@@ -82,71 +76,72 @@ TreeOfWisdomControls::~TreeOfWisdomControls()
 // ==========================================================================
 void TreeOfWisdomControls::OnButtonDown(int theButton, int thePlayerIndex, unsigned int theFlags)
 {
-  // The buttons are matched against start (5) and the buttons after it. Only
-  // this player's gamepad index gets the event.
-  if (mGamepadIndex != thePlayerIndex)
-    return;
+    // The buttons are matched against start (5) and the buttons after it. Only
+    // this player's gamepad index gets the event.
+    if (mGamepadIndex != thePlayerIndex)
+        return;
 
-  // The binary branches straight into the base implementation.
-  BaseGamepadControls::OnButtonDown(theButton, thePlayerIndex, theFlags);
+    // The binary branches straight into the base implementation.
+    BaseGamepadControls::OnButtonDown(theButton, thePlayerIndex, theFlags);
 
-  switch (theButton - 5)
-  {
-    case 0:
-      mBoard->mApp->PlaySample(SOUND_PAUSE, true);
-      mBoard->mApp->DoNewOptions(false, mGamepadIndex);
-      break;
-    case 1:
-      if (mBoard->mChallenge->TreeOfWisdomCanFeed() != 0)
-      {
-        mBoard->MouseDownWithTool((int)mCursorPositionX, (int)mCursorPositionY, 0,
-                                  mBoard->mCursorObject[mPlayerIndex]->mCursorType, 0);
-        mSelectedTool = 0;
-      }
-      break;
-    case 2:
-      mApp->DoConfirmBackToMain(false);
-      break;
-    case 3:
-      mApp->mBoard->mChallenge->TreeOfWisdomOpenStore();
-      break;
-    case 5:
-      // Step backwards through the shop tools in use, wrapping at the ends of
-      // the OBJECT_TYPE_WATERING_CAN..OBJECT_TYPE_TREE_OF_WISDOM_GARDEN range.
-      if (mApp->mGameScene == SCENE_PLAYING)
-      {
-        int aTool = mSelectedTool;
-        do
-        {
-          if (aTool-- <= OBJECT_TYPE_WATERING_CAN)
-            aTool = OBJECT_TYPE_TREE_OF_WISDOM_GARDEN;
-        }
-        while (mBoard->CanUseGameObject((GameObjectType)aTool) == 0
-            || mBoard->PickUpTool((GameObjectType)aTool, mPlayerIndex) == 0);
-        // Cases 5 and 6 share this store at 0x1BD69A.
-        mSelectedTool = aTool;
-      }
-      break;
-    case 6:
-      // And forwards, with the same wrap.
-      if (mApp->mGameScene == SCENE_PLAYING)
-      {
-        int aTool = mSelectedTool;
-        do
-        {
-          if (aTool++ == OBJECT_TYPE_TREE_OF_WISDOM_GARDEN)
-            aTool = OBJECT_TYPE_WATERING_CAN;
-          else if (aTool > OBJECT_TYPE_TREE_OF_WISDOM_GARDEN)
+    switch (theButton - 5)
+    {
+        case 0:
+            mBoard->mApp->PlaySample(SOUND_PAUSE, true);
+            mBoard->mApp->DoNewOptions(false, mGamepadIndex);
             break;
-        }
-        while (mBoard->CanUseGameObject((GameObjectType)aTool) == 0
-            || mBoard->PickUpTool((GameObjectType)aTool, mPlayerIndex) == 0);
-        mSelectedTool = aTool;
-      }
-      break;
-    default:
-      break;
-  }
+        case 1:
+            if (mBoard->mChallenge->TreeOfWisdomCanFeed() != 0)
+            {
+                mBoard->MouseDownWithTool((int)mCursorPositionX,
+                    (int)mCursorPositionY,
+                    0,
+                    mBoard->mCursorObject[mPlayerIndex]->mCursorType,
+                    0);
+                mSelectedTool = 0;
+            }
+            break;
+        case 2:
+            mApp->DoConfirmBackToMain(false);
+            break;
+        case 3:
+            mApp->mBoard->mChallenge->TreeOfWisdomOpenStore();
+            break;
+        case 5:
+            // Step backwards through the shop tools in use, wrapping at the ends of
+            // the OBJECT_TYPE_WATERING_CAN..OBJECT_TYPE_TREE_OF_WISDOM_GARDEN range.
+            if (mApp->mGameScene == SCENE_PLAYING)
+            {
+                int aTool = mSelectedTool;
+                do
+                {
+                    if (aTool-- <= OBJECT_TYPE_WATERING_CAN)
+                        aTool = OBJECT_TYPE_TREE_OF_WISDOM_GARDEN;
+                } while (mBoard->CanUseGameObject((GameObjectType)aTool) == 0 ||
+                    mBoard->PickUpTool((GameObjectType)aTool, mPlayerIndex) == 0);
+                // Cases 5 and 6 share this store at 0x1BD69A.
+                mSelectedTool = aTool;
+            }
+            break;
+        case 6:
+            // And forwards, with the same wrap.
+            if (mApp->mGameScene == SCENE_PLAYING)
+            {
+                int aTool = mSelectedTool;
+                do
+                {
+                    if (aTool++ == OBJECT_TYPE_TREE_OF_WISDOM_GARDEN)
+                        aTool = OBJECT_TYPE_WATERING_CAN;
+                    else if (aTool > OBJECT_TYPE_TREE_OF_WISDOM_GARDEN)
+                        break;
+                } while (mBoard->CanUseGameObject((GameObjectType)aTool) == 0 ||
+                    mBoard->PickUpTool((GameObjectType)aTool, mPlayerIndex) == 0);
+                mSelectedTool = aTool;
+            }
+            break;
+        default:
+            break;
+    }
 }
 
 // ==========================================================================
@@ -155,30 +150,27 @@ void TreeOfWisdomControls::OnButtonDown(int theButton, int thePlayerIndex, unsig
 // ==========================================================================
 void TreeOfWisdomControls::Draw(Sexy::Graphics *theGraphics)
 {
-  // The binary leaves r0 untouched on the empty path, so there is no return
-  // value to reproduce; no caller reads it (slot [7] is declared void).
-  if (mGamepadIndex == -1)
-    return;
+    // The binary leaves r0 untouched on the empty path, so there is no return
+    // value to reproduce; no caller reads it (slot [7] is declared void).
+    if (mGamepadIndex == -1)
+        return;
 
-  // A cursor flower bobbing on the highlight animation phase.
-  float aBob = sinf(mCursorHighlightAnimPhase * 5.0f);
-  SexyTransform2D aTransform(true);
-  aTransform.Translate(mCursorPositionX,
-                       (float)(mCursorPositionY - (float)(aBob * 7.0)) - 23.0);
+    // A cursor flower bobbing on the highlight animation phase.
+    float aBob = sinf(mCursorHighlightAnimPhase * 5.0f);
+    SexyTransform2D aTransform(true);
+    aTransform.Translate(mCursorPositionX, (float)(mCursorPositionY - (float)(aBob * 7.0)) - 23.0);
 
-  theGraphics->DrawImageMatrix(IMAGE_CURSOR_FLOWER, aTransform, 0.0, 0.0, true);
-  theGraphics->SetColorizeImages(false);
-  theGraphics->SetColor(Sexy::Color::White);
+    theGraphics->DrawImageMatrix(IMAGE_CURSOR_FLOWER, aTransform, 0.0, 0.0, true);
+    theGraphics->SetColorizeImages(false);
+    theGraphics->SetColor(Sexy::Color::White);
 
-  HitResult aHitResult;
-  mBoard->mChallenge->TreeOfWisdomHitTest((int)mCursorPositionX,
-                                                        (int)mCursorPositionY,
-                                                        &aHitResult);
+    HitResult aHitResult;
+    mBoard->mChallenge->TreeOfWisdomHitTest((int)mCursorPositionX, (int)mCursorPositionY, &aHitResult);
 
-  // Element 28 of mPurchases is StoreItem::STORE_ITEM_TREE_FOOD, the tree's
-  // food supply: the flower only appears once the player owns more than 1000.
-  mCursorOnTree = aHitResult.mObjectType == OBJECT_TYPE_TREE_OF_WISDOM_GARDEN
-             && mApp->mPlayerInfo->mPurchases[28] > 1000;
+    // Element 28 of mPurchases is StoreItem::STORE_ITEM_TREE_FOOD, the tree's
+    // food supply: the flower only appears once the player owns more than 1000.
+    mCursorOnTree =
+        aHitResult.mObjectType == OBJECT_TYPE_TREE_OF_WISDOM_GARDEN && mApp->mPlayerInfo->mPurchases[28] > 1000;
 }
 
 // ==========================================================================
@@ -187,94 +179,93 @@ void TreeOfWisdomControls::Draw(Sexy::Graphics *theGraphics)
 // ==========================================================================
 int TreeOfWisdomControls::Update(float theFrac)
 {
-  // Whatever tool the player picked up this frame is worth a redraw of the
-  // board's help text.
-  int aSelectedTool = mSelectedTool;
-  if (aSelectedTool != 0 && aSelectedTool != mPreviousTool)
-  {
-    mBoard->mHelpTextDirty = true;
-    mPreviousTool = aSelectedTool;
-  }
+    // Whatever tool the player picked up this frame is worth a redraw of the
+    // board's help text.
+    int aSelectedTool = mSelectedTool;
+    if (aSelectedTool != 0 && aSelectedTool != mPreviousTool)
+    {
+        mBoard->mHelpTextDirty = true;
+        mPreviousTool = aSelectedTool;
+    }
 
-  // Qualified, as in the binary: the base implementation, not GamepadControls'.
-  int aResult = BaseGamepadControls::Update(theFrac);
-  if (mBoard->mMouseInputActive[mPlayerIndex])
+    // Qualified, as in the binary: the base implementation, not GamepadControls'.
+    int aResult = BaseGamepadControls::Update(theFrac);
+    if (mBoard->mMouseInputActive[mPlayerIndex])
+        return aResult;
+    if (mGamepadIndex == -1)
+        return aResult;
+
+    aResult = mBoard->mChallenge->TreeOfWisdomCanFeed();
+    if (aResult != 0)
+    {
+        // Nothing in hand, or a plain cursor: offer the tree food.
+        if (mSelectedTool == 0 || mBoard->mCursorObject[0]->mCursorType == 0)
+        {
+            int aPlayerIndex = mPlayerIndex;
+            mSelectedTool = OBJECT_TYPE_TREE_FOOD;
+            aResult = mBoard->PickUpTool(OBJECT_TYPE_TREE_FOOD, aPlayerIndex);
+        }
+    }
+
+    // The left stick drives the cursor: velocity integrates the stick vector,
+    // the cursor is clamped to the tree of wisdom's clickable area, and the
+    // right-stick pair carries the same vector for the drawing code.
+    float aVelocityX = mGamepadVelocityLeftX;
+    float aVelocityY = mGamepadVelocityLeftY;
+    float aStickX = mInputLeftStickX;
+    float aStickY = mInputLeftStickY;
+    float aPosX = mCursorPositionX + (float)(theFrac * aVelocityX);
+    float aPosY = mCursorPositionY + (float)(theFrac * aVelocityY);
+
+    if (aPosX > 770.0)
+        aPosX = 770.0;
+    if (aPosX < 40.0)
+        aPosX = 40.0;
+    if (aPosY > 580.0)
+        aPosY = 580.0;
+    if (aPosY < 80.0)
+        aPosY = 80.0;
+    mCursorPositionX = aPosX;
+    mCursorPositionY = aPosY;
+
+    if ((float)((float)(aStickX * aStickX) + (float)(aStickY * aStickY)) == 0.0)
+    {
+        // Stick released: coast to a stop.
+        mGamepadVelocityLeftX = aVelocityX * 0.9;
+        mGamepadVelocityLeftY = aVelocityY * 0.9;
+    }
+    else
+    {
+        float aAccelX = aStickX * 1800.0;
+        float aAccelY = -(float)(1800.0 * aStickY);
+        mGamepadVelocityRightX = aAccelX;
+        mGamepadVelocityRightY = aAccelY;
+
+        // Turning against the current velocity first halves it.
+        if ((float)((float)(aAccelX * aVelocityX) + (float)(aAccelY * aVelocityY)) <= 0.0)
+        {
+            aVelocityX = aVelocityX * 0.5;
+            aVelocityY = aVelocityY * 0.5;
+        }
+
+        float aNewVelocityX = aVelocityX + (float)(theFrac * aAccelX);
+        float aNewVelocityY = aVelocityY + (float)(aAccelY * theFrac);
+        mGamepadVelocityLeftX = aNewVelocityX;
+        mGamepadVelocityLeftY = aNewVelocityY;
+
+        float aSpeed = sqrtf((float)((float)(aNewVelocityX * aNewVelocityX) + (float)(aNewVelocityY * aNewVelocityY)));
+        if (aSpeed > 375.0)
+        {
+            if (aSpeed != 0.0)
+            {
+                aNewVelocityY = aNewVelocityY / aSpeed;
+                aNewVelocityX = aNewVelocityX / aSpeed;
+            }
+            mGamepadVelocityLeftX = aNewVelocityX * 375.0;
+            mGamepadVelocityLeftY = aNewVelocityY * 375.0;
+        }
+    }
     return aResult;
-  if (mGamepadIndex == -1)
-    return aResult;
-
-  aResult = mBoard->mChallenge->TreeOfWisdomCanFeed();
-  if (aResult != 0)
-  {
-    // Nothing in hand, or a plain cursor: offer the tree food.
-    if (mSelectedTool == 0 || mBoard->mCursorObject[0]->mCursorType == 0)
-    {
-      int aPlayerIndex = mPlayerIndex;
-      mSelectedTool = OBJECT_TYPE_TREE_FOOD;
-      aResult = mBoard->PickUpTool(OBJECT_TYPE_TREE_FOOD, aPlayerIndex);
-    }
-  }
-
-  // The left stick drives the cursor: velocity integrates the stick vector,
-  // the cursor is clamped to the tree of wisdom's clickable area, and the
-  // right-stick pair carries the same vector for the drawing code.
-  float aVelocityX = mGamepadVelocityLeftX;
-  float aVelocityY = mGamepadVelocityLeftY;
-  float aStickX = mInputLeftStickX;
-  float aStickY = mInputLeftStickY;
-  float aPosX = mCursorPositionX + (float)(theFrac * aVelocityX);
-  float aPosY = mCursorPositionY + (float)(theFrac * aVelocityY);
-
-  if (aPosX > 770.0)
-    aPosX = 770.0;
-  if (aPosX < 40.0)
-    aPosX = 40.0;
-  if (aPosY > 580.0)
-    aPosY = 580.0;
-  if (aPosY < 80.0)
-    aPosY = 80.0;
-  mCursorPositionX = aPosX;
-  mCursorPositionY = aPosY;
-
-  if ((float)((float)(aStickX * aStickX) + (float)(aStickY * aStickY)) == 0.0)
-  {
-    // Stick released: coast to a stop.
-    mGamepadVelocityLeftX = aVelocityX * 0.9;
-    mGamepadVelocityLeftY = aVelocityY * 0.9;
-  }
-  else
-  {
-    float aAccelX = aStickX * 1800.0;
-    float aAccelY = -(float)(1800.0 * aStickY);
-    mGamepadVelocityRightX = aAccelX;
-    mGamepadVelocityRightY = aAccelY;
-
-    // Turning against the current velocity first halves it.
-    if ((float)((float)(aAccelX * aVelocityX) + (float)(aAccelY * aVelocityY)) <= 0.0)
-    {
-      aVelocityX = aVelocityX * 0.5;
-      aVelocityY = aVelocityY * 0.5;
-    }
-
-    float aNewVelocityX = aVelocityX + (float)(theFrac * aAccelX);
-    float aNewVelocityY = aVelocityY + (float)(aAccelY * theFrac);
-    mGamepadVelocityLeftX = aNewVelocityX;
-    mGamepadVelocityLeftY = aNewVelocityY;
-
-    float aSpeed = sqrtf((float)((float)(aNewVelocityX * aNewVelocityX)
-                               + (float)(aNewVelocityY * aNewVelocityY)));
-    if (aSpeed > 375.0)
-    {
-      if (aSpeed != 0.0)
-      {
-        aNewVelocityY = aNewVelocityY / aSpeed;
-        aNewVelocityX = aNewVelocityX / aSpeed;
-      }
-      mGamepadVelocityLeftX = aNewVelocityX * 375.0;
-      mGamepadVelocityLeftY = aNewVelocityY * 375.0;
-    }
-  }
-  return aResult;
 }
 
 // ==========================================================================
@@ -283,93 +274,94 @@ int TreeOfWisdomControls::Update(float theFrac)
 // ==========================================================================
 bool TreeOfWisdomControls::OnKeyDown(Sexy::KeyCode theKey, unsigned int theFlags)
 {
-  if (GamepadControls::OnKeyDown(theKey, theFlags))
-    return true;
+    if (GamepadControls::OnKeyDown(theKey, theFlags))
+        return true;
 
-  bool aHandled = XButtonKeyCodeDown(theKey) != 0;
-  if (aHandled)
-  {
-    mBoard->mApp->PlaySample(SOUND_PAUSE, true);
-    mBoard->mApp->DoNewOptions(false, mGamepadIndex);
-    return aHandled;
-  }
-
-  if (theKey == Sexy::KEYCODE_RETURN)
-  {
-    if (mGamepadState == MOVEMENT_STATE_SELECT_SEED)
+    bool aHandled = XButtonKeyCodeDown(theKey) != 0;
+    if (aHandled)
     {
-      int aCanFeed = mBoard->mChallenge->TreeOfWisdomCanFeed();
-      if (aCanFeed != 0)
-      {
-        mBoard->MouseDownWithTool((int)mCursorPositionX, (int)mCursorPositionY, 0,
-                                  mBoard->mCursorObject[mPlayerIndex]->mCursorType, 0);
-        mSelectedTool = 0;
-        aHandled = aCanFeed != 0;
-        GotoState(MOVEMENT_STATE_NORMAL);
-      }
+        mBoard->mApp->PlaySample(SOUND_PAUSE, true);
+        mBoard->mApp->DoNewOptions(false, mGamepadIndex);
+        return aHandled;
     }
-    else
+
+    if (theKey == Sexy::KEYCODE_RETURN)
     {
-      aHandled = true;
-      GotoState(MOVEMENT_STATE_SELECT_SEED);
+        if (mGamepadState == MOVEMENT_STATE_SELECT_SEED)
+        {
+            int aCanFeed = mBoard->mChallenge->TreeOfWisdomCanFeed();
+            if (aCanFeed != 0)
+            {
+                mBoard->MouseDownWithTool((int)mCursorPositionX,
+                    (int)mCursorPositionY,
+                    0,
+                    mBoard->mCursorObject[mPlayerIndex]->mCursorType,
+                    0);
+                mSelectedTool = 0;
+                aHandled = aCanFeed != 0;
+                GotoState(MOVEMENT_STATE_NORMAL);
+            }
+        }
+        else
+        {
+            aHandled = true;
+            GotoState(MOVEMENT_STATE_SELECT_SEED);
+        }
+        return aHandled;
+    }
+
+    if (theKey == Sexy::KEYCODE_ESCAPE)
+    {
+        mApp->DoConfirmBackToMain(false);
+        return true;
+    }
+
+    // The tool-cycling keys only work while a seed is selected.
+    if (mGamepadState != MOVEMENT_STATE_SELECT_SEED)
+        return aHandled;
+
+    if (theKey == Sexy::KEYCODE_LEFT)
+    {
+        if (mApp->mGameScene != SCENE_PLAYING)
+            return aHandled;
+
+        int aTool = mSelectedTool;
+        do
+        {
+            if (aTool-- <= OBJECT_TYPE_WATERING_CAN)
+                aTool = OBJECT_TYPE_TREE_OF_WISDOM_GARDEN;
+        } while (mBoard->CanUseGameObject((GameObjectType)aTool) == 0 ||
+            mBoard->PickUpTool((GameObjectType)aTool, mPlayerIndex) == 0);
+        mSelectedTool = aTool;
+        return aHandled;
+    }
+
+    if (theKey == Sexy::KEYCODE_RIGHT && mApp->mGameScene == SCENE_PLAYING)
+    {
+        int aTool = mSelectedTool;
+        do
+        {
+            if (aTool++ == OBJECT_TYPE_TREE_OF_WISDOM_GARDEN)
+                aTool = OBJECT_TYPE_WATERING_CAN;
+            else if (aTool > OBJECT_TYPE_TREE_OF_WISDOM_GARDEN)
+                break;
+        } while (mBoard->CanUseGameObject((GameObjectType)aTool) == 0 ||
+            mBoard->PickUpTool((GameObjectType)aTool, mPlayerIndex) == 0);
+        aHandled = true;
+        mSelectedTool = aTool;
     }
     return aHandled;
-  }
-
-  if (theKey == Sexy::KEYCODE_ESCAPE)
-  {
-    mApp->DoConfirmBackToMain(false);
-    return true;
-  }
-
-  // The tool-cycling keys only work while a seed is selected.
-  if (mGamepadState != MOVEMENT_STATE_SELECT_SEED)
-    return aHandled;
-
-  if (theKey == Sexy::KEYCODE_LEFT)
-  {
-    if (mApp->mGameScene != SCENE_PLAYING)
-      return aHandled;
-
-    int aTool = mSelectedTool;
-    do
-    {
-      if (aTool-- <= OBJECT_TYPE_WATERING_CAN)
-        aTool = OBJECT_TYPE_TREE_OF_WISDOM_GARDEN;
-    }
-    while (mBoard->CanUseGameObject((GameObjectType)aTool) == 0
-        || mBoard->PickUpTool((GameObjectType)aTool, mPlayerIndex) == 0);
-    mSelectedTool = aTool;
-    return aHandled;
-  }
-
-  if (theKey == Sexy::KEYCODE_RIGHT && mApp->mGameScene == SCENE_PLAYING)
-  {
-    int aTool = mSelectedTool;
-    do
-    {
-      if (aTool++ == OBJECT_TYPE_TREE_OF_WISDOM_GARDEN)
-        aTool = OBJECT_TYPE_WATERING_CAN;
-      else if (aTool > OBJECT_TYPE_TREE_OF_WISDOM_GARDEN)
-        break;
-    }
-    while (mBoard->CanUseGameObject((GameObjectType)aTool) == 0
-        || mBoard->PickUpTool((GameObjectType)aTool, mPlayerIndex) == 0);
-    aHandled = true;
-    mSelectedTool = aTool;
-  }
-  return aHandled;
 }
 
 // ==========================================================================
 // TreeOfWisdomControls::TreeOfWisdomControls(Board *,int,int)
 // @001C30A4  54 bytes
 // ==========================================================================
-TreeOfWisdomControls::TreeOfWisdomControls(Board *theBoard, int thePlayerIndex1, int thePlayerIndex2)
-  : GamepadControls(theBoard, thePlayerIndex1, thePlayerIndex2)
+TreeOfWisdomControls::TreeOfWisdomControls(Board *theBoard, int thePlayerIndex1, int thePlayerIndex2) :
+    GamepadControls(theBoard, thePlayerIndex1, thePlayerIndex2)
 {
-  mCursorOnTree = 0;
-  mPreviousTool = 0;
-  mSelectedTool = 0;
-  GotoState(MOVEMENT_STATE_NORMAL);
+    mCursorOnTree = 0;
+    mPreviousTool = 0;
+    mSelectedTool = 0;
+    GotoState(MOVEMENT_STATE_NORMAL);
 }

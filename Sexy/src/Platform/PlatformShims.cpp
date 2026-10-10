@@ -27,26 +27,26 @@
 extern "C" int curl_global_init(int theFlags)
 {
     (void)theFlags;
-    return 0;               // CURLE_OK; nothing to initialise
+    return 0; // CURLE_OK; nothing to initialise
 }
 
 // TODO(recon): percent-encodes the argument. Returning null means "failed",
 // which every caller already handles -- the transcribed bodies test the result
 // before using it.
-extern "C" char * curl_escape(const char * theText)
+extern "C" char *curl_escape(const char *theText)
 {
     (void)theText;
     return nullptr;
 }
 
-extern "C" char * curl_unescape(const char * theText, int theLength)
+extern "C" char *curl_unescape(const char *theText, int theLength)
 {
     (void)theText;
     (void)theLength;
     return nullptr;
 }
 
-extern "C" void curl_free(void * thePointer)
+extern "C" void curl_free(void *thePointer)
 {
     (void)thePointer;
 }
@@ -55,19 +55,19 @@ extern "C" void curl_free(void * thePointer)
 // Android notification JNI
 // ---------------------------------------------------------------------------
 
-extern "C" int NativeNotificationManagerCreate(void * theObject)
+extern "C" int NativeNotificationManagerCreate(void *theObject)
 {
     (void)theObject;
-    return 0;               // "not available" -- callers take the no-notification path
+    return 0; // "not available" -- callers take the no-notification path
 }
 
-extern "C" int NativeNotificationManagerGetFeatures(void * theObject)
+extern "C" int NativeNotificationManagerGetFeatures(void *theObject)
 {
     (void)theObject;
-    return 0;               // no capabilities, so every feature test reads unsupported
+    return 0; // no capabilities, so every feature test reads unsupported
 }
 
-extern "C" int NativeNotificationManagerGetName(void * theObject)
+extern "C" int NativeNotificationManagerGetName(void *theObject)
 {
     (void)theObject;
     return 0;
@@ -75,18 +75,18 @@ extern "C" int NativeNotificationManagerGetName(void * theObject)
 
 extern "C" int NativeNotificationManagerSetAlias()
 {
-    return 0;               // not set
+    return 0; // not set
 }
 
 extern "C" int NativeNotificationManagerSetTags()
 {
-    return 0;               // not set
+    return 0; // not set
 }
 
 // Returns 1 rather than 0: nothing was ever posted, so a cancellation succeeds
 // trivially, and a failure code would make the caller retry an operation that
 // cannot be performed here.
-extern "C" int NativeNotificationManagerCancelAllNotifications(void * theObject)
+extern "C" int NativeNotificationManagerCancelAllNotifications(void *theObject)
 {
     (void)theObject;
     return 1;

@@ -16,43 +16,47 @@
 // This is an interface: the tree never constructs a SoundManager, it only calls
 // through a pointer, so the slots are declared and not defined.
 
-#pragma once
+#ifndef LAWNPROJECTTV_SEXY_INCLUDE_SOUNDMANAGER_H
+#define LAWNPROJECTTV_SEXY_INCLUDE_SOUNDMANAGER_H
 
 #include "ReconTypes.h"
 #include "SexyString.h"
 #include "SoundInstance.h"
 
-namespace Sexy {
+namespace Sexy
+{
 
 class SoundManager
 {
 public:
-    virtual ~SoundManager();                                                   //   0
+    virtual ~SoundManager(); //   0
 
-    virtual bool Initialized() = 0;                                            //   8
-    virtual bool LoadSound(unsigned int theSoundId, const String & theFileName) = 0; //  12
-    virtual int LoadSound(const String & theFileName) = 0;                     //  16
-    virtual void ReleaseSound(unsigned int theSoundId) = 0;                    //  20
-    virtual void SetVolume(double theVolume) = 0;                              //  24
-    virtual void SetVolume(int theSoundId, double theVolume) = 0;              //  28
+    virtual bool Initialized() = 0; //   8
+    virtual bool LoadSound(unsigned int theSoundId, const String &theFileName) = 0; //  12
+    virtual int LoadSound(const String &theFileName) = 0; //  16
+    virtual void ReleaseSound(unsigned int theSoundId) = 0; //  20
+    virtual void SetVolume(double theVolume) = 0; //  24
+    virtual void SetVolume(int theSoundId, double theVolume) = 0; //  28
     virtual void SetBaseVolume(unsigned int theSoundId, double theVolume) = 0; //  32
-    virtual void SetBasePan(unsigned int theSoundId, int thePan) = 0;          //  36
-    virtual bool IsPlaying(unsigned int theSoundId) = 0;                       //  40
-    virtual SoundInstance * GetPlayingSoundInstance(unsigned int theSoundId) = 0; //  44
-    virtual SoundInstance * GetSoundInstance(unsigned int theSoundId) = 0;     //  48
-    virtual void ReleaseSounds() = 0;                                          //  52
-    virtual void ReleaseChannels() = 0;                                        //  56
-    virtual double GetMasterVolume() = 0;                                      //  60
-    virtual void SetMasterVolume(double theVolume) = 0;                        //  64
-    virtual void Flush() = 0;                                                  //  68
-    virtual void SetCooperativeWindow(void * theWindow, bool theActive) = 0;   //  72
-    virtual void StopAllSounds() = 0;                                          //  76
-    virtual int GetFreeSoundId() = 0;                                          //  80
-    virtual int GetNumSounds() = 0;                                            //  84
-    virtual void Update() = 0;                                                 //  88
+    virtual void SetBasePan(unsigned int theSoundId, int thePan) = 0; //  36
+    virtual bool IsPlaying(unsigned int theSoundId) = 0; //  40
+    virtual SoundInstance *GetPlayingSoundInstance(unsigned int theSoundId) = 0; //  44
+    virtual SoundInstance *GetSoundInstance(unsigned int theSoundId) = 0; //  48
+    virtual void ReleaseSounds() = 0; //  52
+    virtual void ReleaseChannels() = 0; //  56
+    virtual double GetMasterVolume() = 0; //  60
+    virtual void SetMasterVolume(double theVolume) = 0; //  64
+    virtual void Flush() = 0; //  68
+    virtual void SetCooperativeWindow(void *theWindow, bool theActive) = 0; //  72
+    virtual void StopAllSounds() = 0; //  76
+    virtual int GetFreeSoundId() = 0; //  80
+    virtual int GetNumSounds() = 0; //  84
+    virtual void Update() = 0; //  88
 };
 
 } // namespace Sexy
 
 // The global spelling, which the transcribed bodies use.
 using Sexy::SoundManager;
+
+#endif // LAWNPROJECTTV_SEXY_INCLUDE_SOUNDMANAGER_H

@@ -9,7 +9,8 @@
 // Names the Runtime layer already defines, and names the C runtime owns,
 // are deliberately absent: declaring those would be a redefinition.
 
-#pragma once
+#ifndef LAWNPROJECTTV_SEXY_INCLUDE_RECONTYPES_H
+#define LAWNPROJECTTV_SEXY_INCLUDE_RECONTYPES_H
 
 #include "SexyTypes.h"
 #include "CoreTypes.h"
@@ -61,15 +62,17 @@ class ParseWidget;
 // helpers. A node here is libstdc++'s _Rb_tree_node_base: colour, parent,
 // left, right, in that order.
 // ---------------------------------------------------------------------------
-namespace Sexy {
-namespace RbTree {
+namespace Sexy
+{
+namespace RbTree
+{
 
 struct NodeBase
 {
-    int             mColor;     // 0 = red, 1 = black
-    NodeBase*       mParent;
-    NodeBase*       mLeft;
-    NodeBase*       mRight;
+    int mColor; // 0 = red, 1 = black
+    NodeBase *mParent;
+    NodeBase *mLeft;
+    NodeBase *mRight;
 };
 
 // The whole of a libstdc++ std::map / std::set object, word by word: the
@@ -83,20 +86,19 @@ struct NodeBase
 // header comments in Sexy\SexyAppBase.h and Game\AtlasParser.h describe.
 struct MapStorage
 {
-    unsigned int mComparator;   // +0x00
-    NodeBase     mHeader;       // +0x04  colour, parent/root, left, right
-    unsigned int mCount;        // +0x14
+    unsigned int mComparator; // +0x00
+    NodeBase mHeader; // +0x04  colour, parent/root, left, right
+    unsigned int mCount; // +0x14
 };
 
-NodeBase* _M_minimum(NodeBase* theNode);
-NodeBase* _M_maximum(NodeBase* theNode);
-NodeBase* _M_increment(NodeBase* theNode);
-NodeBase* _M_decrement(NodeBase* theNode);
-void      _Rb_tree_rotate_left(NodeBase* theNode, NodeBase*& theRoot);
-void      _Rb_tree_rotate_right(NodeBase* theNode, NodeBase*& theRoot);
-void      _Rb_tree_insert_and_rebalance(bool theInsertLeft, NodeBase* theNode,
-                                        NodeBase* theParent, NodeBase& theHeader);
-NodeBase* _Rb_tree_rebalance_for_erase(NodeBase* theNode, NodeBase& theHeader);
+NodeBase *_M_minimum(NodeBase *theNode);
+NodeBase *_M_maximum(NodeBase *theNode);
+NodeBase *_M_increment(NodeBase *theNode);
+NodeBase *_M_decrement(NodeBase *theNode);
+void _Rb_tree_rotate_left(NodeBase *theNode, NodeBase *&theRoot);
+void _Rb_tree_rotate_right(NodeBase *theNode, NodeBase *&theRoot);
+void _Rb_tree_insert_and_rebalance(bool theInsertLeft, NodeBase *theNode, NodeBase *theParent, NodeBase &theHeader);
+NodeBase *_Rb_tree_rebalance_for_erase(NodeBase *theNode, NodeBase &theHeader);
 
 // The tree's own recursion, which frees the subtree below a node.
 //
@@ -107,8 +109,8 @@ NodeBase* _Rb_tree_rebalance_for_erase(NodeBase* theNode, NodeBase& theHeader);
 // but the walk only needs the node it starts from -- the header is what the
 // tree object holds, not something the recursion uses. The one-argument form
 // is the operation; call sites drop the header.
-void _M_erase(NodeBase* theNode);
-void _M_erase_aux(NodeBase* theFirst, NodeBase* theLast);
+void _M_erase(NodeBase *theNode);
+void _M_erase_aux(NodeBase *theFirst, NodeBase *theLast);
 // The lookup the containers call: the std::set / std::map keyed on Sexy::String
 // instantiation, whose ordering is std::less<std::string>. `theTree` is the
 // tree object itself -- the MapStorage the callers already hold, the address of
@@ -120,73 +122,72 @@ void _M_erase_aux(NodeBase* theFirst, NodeBase* theLast);
 // key type cannot be handed to this ordering by accident: an int key read as a
 // COW string dereferences the integer as an address. Those trees need their own
 // instantiation, which is the two entries below.
-Sexy::RbTree::NodeBase* find(NodeBase* theTree, const Sexy::String* theKey);
+Sexy::RbTree::NodeBase *find(NodeBase *theTree, const Sexy::String *theKey);
 // Same string-keyed find, taking the map object the binary passes in r0.
 // AwardScreen::LoadResources and CutScene::LoadResources pass &mLoadedResources.
-NodeBase* find(MapStorage* theTree, const Sexy::String* theKey);
+NodeBase *find(MapStorage *theTree, const Sexy::String *theKey);
 // The std::less<int> instantiation, DEFINED in RbTree.cpp from the binary's own
 // `_ZNSt8_Rb_treeIiSt4pairIKiN4Sexy5_WaveEESt10_Select1stIS4_ESt4lessIiESaIS4_EE4findERS1_`
 // (@0x1EC12C). It is Sexy::Level's wave table, and the int ordering means the
 // key is read as an int at node +16, not dereferenced as a string pointer.
-NodeBase* find(NodeBase* theTree, const int* theKey);
+NodeBase *find(NodeBase *theTree, const int *theKey);
 // The same instantiation, taking the map object the binary passes in r0.
 // Level::mWaves is that object; the node walk starts at its header.
-NodeBase* find(MapStorage* theTree, const int* theKey);
+NodeBase *find(MapStorage *theTree, const int *theKey);
 // The std::less<T *> instantiation, DEFINED in RbTree.cpp. It is the one
 // MemoryImage::AddSubImage / RemoveSubImage call, under the binary's own name
 // _ZNSt8_Rb_treeIPN4Sexy11MemoryImageES2_St9_IdentityIS2_ESt4lessIS2_ESaIS2_EE4findERKS2_
 // (@0x328800). Its nodes hold the pointer itself, so the payload is one word.
-NodeBase* find(NodeBase* theTree, void* const* theKey);
+NodeBase *find(NodeBase *theTree, void *const *theKey);
 // The insert helpers return the node and, through the out parameter, whether
 // the key was already present.
-NodeBase* _M_get_insert_unique_pos(const void* theKey, NodeBase** thePos);
+NodeBase *_M_get_insert_unique_pos(const void *theKey, NodeBase **thePos);
 // equal_range(theNode, theKey, &first, &second) -- the span lookup. The binary
 // returns the pair through two out-parameters, and ResourceManager had to
 // declare it file-locally because it was missing here.
 // TODO(recon): confirm the argument order against a call site once one is
 // transcribed faithfully.
-NodeBase* equal_range(NodeBase* theNode, const void* theKey,
-                      NodeBase** theFirst, NodeBase** theSecond);
+NodeBase *equal_range(NodeBase *theNode, const void *theKey, NodeBase **theFirst, NodeBase **theSecond);
 // std::_Rb_tree::_M_insert_unique(const value_type&) for the same string-keyed
 // instantiation: `theTree` is the tree object, the value the key to insert. The
 // result is the node holding the key, the new one or the one it collided with.
 // The value parameter is typed for the same reason find's key is: the node this
 // allocates and the comparison it walks with are both the Sexy::String ones.
-NodeBase* _M_insert_unique(NodeBase* theTree, const Sexy::String* theValue);
+NodeBase *_M_insert_unique(NodeBase *theTree, const Sexy::String *theValue);
 // Same insert, taking the map object the binary passes. AwardScreen passes
 // &mLoadedResources (this+0x118).
-NodeBase* _M_insert_unique(MapStorage* theTree, const Sexy::String* theValue);
+NodeBase *_M_insert_unique(MapStorage *theTree, const Sexy::String *theValue);
 // The MAP instantiations of the same operation. Their node holds the whole
 // value_type -- a pair<const String, T> -- not just the key, so the caller says
 // how many bytes follow the node base. DefaultProfileMgr is the one user: its
 // tree is a map<String, DefaultPlayerList> and PlayerListAt reads the second
 // half of the pair at node+20, which a 20-byte set node does not have.
-NodeBase* _M_insert_unique(NodeBase* theTree, const void* theValue, size_t theValueSize);
+NodeBase *_M_insert_unique(NodeBase *theTree, const void *theValue, size_t theValueSize);
 // The std::less<T *> instantiation of the same operation, DEFINED in RbTree.cpp.
-NodeBase* _M_insert_unique(NodeBase* theTree, void* const* theValue);
-NodeBase* _M_insert_unique_(NodeBase* thePos, const void* theValue);
+NodeBase *_M_insert_unique(NodeBase *theTree, void *const *theValue);
+NodeBase *_M_insert_unique_(NodeBase *thePos, const void *theValue);
 // std::_Rb_tree<int, pair<int const, Sexy::_Wave>>:: _M_insert_unique_(iterator, value).
 // The binary passes the map object, the hint node, and the 24-byte pair.
-NodeBase* _M_insert_unique_(MapStorage* theTree, NodeBase* thePos, const void* theValue);
-NodeBase* _M_insert_(NodeBase* thePos, const void* theValue);
-NodeBase* _M_get_insert_equal_pos(const void* theKey);
-NodeBase* _M_insert_equal(const void* theValue);
-NodeBase* _M_lower_bound(NodeBase* theNode, const Sexy::String* theKey);
-NodeBase* _M_upper_bound(NodeBase* theNode, const void* theKey);
-NodeBase* _M_begin(NodeBase* theHeader);
-NodeBase* _M_end(NodeBase* theHeader);
-NodeBase* _M_leftmost(NodeBase* theNode);
-NodeBase* _M_rightmost(NodeBase* theNode);
-void      _M_destroy_node(NodeBase* theNode);
-void      _M_put_node(NodeBase* theNode);
-NodeBase* _M_create_node(const Sexy::String* theValue);
+NodeBase *_M_insert_unique_(MapStorage *theTree, NodeBase *thePos, const void *theValue);
+NodeBase *_M_insert_(NodeBase *thePos, const void *theValue);
+NodeBase *_M_get_insert_equal_pos(const void *theKey);
+NodeBase *_M_insert_equal(const void *theValue);
+NodeBase *_M_lower_bound(NodeBase *theNode, const Sexy::String *theKey);
+NodeBase *_M_upper_bound(NodeBase *theNode, const void *theKey);
+NodeBase *_M_begin(NodeBase *theHeader);
+NodeBase *_M_end(NodeBase *theHeader);
+NodeBase *_M_leftmost(NodeBase *theNode);
+NodeBase *_M_rightmost(NodeBase *theNode);
+void _M_destroy_node(NodeBase *theNode);
+void _M_put_node(NodeBase *theNode);
+NodeBase *_M_create_node(const Sexy::String *theValue);
 // The node storage for a value of the caller's size: the four-word base followed
 // by the whole value_type. Only the value's first word is a Sexy::String and is
 // copy-constructed; the rest is copied as bytes.
-NodeBase* _M_create_node_sized(const void* theValue, size_t theValueSize);
+NodeBase *_M_create_node_sized(const void *theValue, size_t theValueSize);
 // libstdc++'s `_Rb_tree::_M_copy(_Link_type, _Base_ptr)`: the deep copy a map
 // member's copy constructor performs. The definition is in Sexy/ReconFuncs.cpp.
-NodeBase* _M_copy(NodeBase* theNode, NodeBase* theParent);
+NodeBase *_M_copy(NodeBase *theNode, NodeBase *theParent);
 
 } // namespace RbTree
 } // namespace Sexy
@@ -205,27 +206,27 @@ NodeBase* _M_copy(NodeBase* theNode, NodeBase* theParent);
 // no translation unit in this project does `using namespace std;`, so a bare
 // `find(...)` can only mean this one.
 // ---------------------------------------------------------------------------
-using Sexy::RbTree::NodeBase;
-using Sexy::RbTree::find;
-using Sexy::RbTree::equal_range;
-using Sexy::RbTree::_M_erase;
-using Sexy::RbTree::_M_erase_aux;
-using Sexy::RbTree::_M_insert_unique;
-using Sexy::RbTree::_M_insert_unique_;
-using Sexy::RbTree::_M_insert_;
-using Sexy::RbTree::_M_insert_equal;
-using Sexy::RbTree::_M_get_insert_unique_pos;
-using Sexy::RbTree::_M_get_insert_equal_pos;
-using Sexy::RbTree::_M_lower_bound;
-using Sexy::RbTree::_M_upper_bound;
 using Sexy::RbTree::_M_begin;
-using Sexy::RbTree::_M_end;
-using Sexy::RbTree::_M_leftmost;
-using Sexy::RbTree::_M_rightmost;
-using Sexy::RbTree::_M_destroy_node;
-using Sexy::RbTree::_M_put_node;
 using Sexy::RbTree::_M_create_node;
 using Sexy::RbTree::_M_create_node_sized;
+using Sexy::RbTree::_M_destroy_node;
+using Sexy::RbTree::_M_end;
+using Sexy::RbTree::_M_erase;
+using Sexy::RbTree::_M_erase_aux;
+using Sexy::RbTree::_M_get_insert_equal_pos;
+using Sexy::RbTree::_M_get_insert_unique_pos;
+using Sexy::RbTree::_M_insert_;
+using Sexy::RbTree::_M_insert_equal;
+using Sexy::RbTree::_M_insert_unique;
+using Sexy::RbTree::_M_insert_unique_;
+using Sexy::RbTree::_M_leftmost;
+using Sexy::RbTree::_M_lower_bound;
+using Sexy::RbTree::_M_put_node;
+using Sexy::RbTree::_M_rightmost;
+using Sexy::RbTree::_M_upper_bound;
+using Sexy::RbTree::equal_range;
+using Sexy::RbTree::find;
+using Sexy::RbTree::NodeBase;
 
 // ---------------------------------------------------------------------------
 // ReconDynamicCast -- the runtime's own downcast.
@@ -242,13 +243,12 @@ using Sexy::RbTree::_M_create_node_sized;
 // the objects reaching them are already of the expected type because the caller
 // selected them from a vtable slot that only that type implements.
 // ---------------------------------------------------------------------------
-inline void* ReconDynamicCast(void* theObject, const void* /*srcType*/,
-                              const void* /*dstType*/, int /*flags*/)
+inline void *ReconDynamicCast(void *theObject, const void * /*srcType*/, const void * /*dstType*/, int /*flags*/)
 {
     return theObject;
 }
-inline const void* ReconDynamicCast(const void* theObject, const void* /*srcType*/,
-                                    const void* /*dstType*/, int /*flags*/)
+inline const void *ReconDynamicCast(
+    const void *theObject, const void * /*srcType*/, const void * /*dstType*/, int /*flags*/)
 {
     return theObject;
 }
@@ -257,14 +257,17 @@ inline const void* ReconDynamicCast(const void* theObject, const void* /*srcType
 // The enum types. See the note on the first one: each is one int and
 // converts like an enum, because that is how the binary uses it.
 // ---------------------------------------------------------------------------
-namespace Sexy { class SoundInstance; }
+namespace Sexy
+{
+class SoundInstance;
+}
 
 // FoleyInstance -- the 20-byte sound slot TodFoley walks (`v5 += 20`).
 // A pointer, a refcount, a paused flag padded to a word, then two times.
 // It is not an enum; the one-int shim stole the name from this record.
 struct FoleyInstance
 {
-    Sexy::SoundInstance* mInstance;
+    Sexy::SoundInstance *mInstance;
     int mRefCount;
     bool mPaused;
     int mStartTime;
@@ -275,31 +278,36 @@ struct FoleyInstance
 // Pen, mapped character, ink bounds, advance, and
 // the four layer character records. The four pad words are part of the
 // original record and are left zero.
-namespace Sexy { class CharData; }
+namespace Sexy
+{
+class CharData;
+}
 struct Glyph
 {
-    float       mX = 0.0f;
-    float       mY = 0.0f;
-    int         mChar = 0;
-    int         mInkWidth = 0;
-    int         mInkHeight = 0;
-    int         mAdvanceX = 0;
-    float       mAdvanceY = 0.0f;
-    int         mPad0 = 0;
-    int         mPad1 = 0;
-    int         mPad2 = 0;
-    int         mPad3 = 0;
-    Sexy::CharData* mCharData = nullptr;
-    Sexy::CharData* mCharData1 = nullptr;
-    Sexy::CharData* mCharData2 = nullptr;
-    Sexy::CharData* mCharData3 = nullptr;
+    float mX = 0.0f;
+    float mY = 0.0f;
+    int mChar = 0;
+    int mInkWidth = 0;
+    int mInkHeight = 0;
+    int mAdvanceX = 0;
+    float mAdvanceY = 0.0f;
+    int mPad0 = 0;
+    int mPad1 = 0;
+    int mPad2 = 0;
+    int mPad3 = 0;
+    Sexy::CharData *mCharData = nullptr;
+    Sexy::CharData *mCharData1 = nullptr;
+    Sexy::CharData *mCharData2 = nullptr;
+    Sexy::CharData *mCharData3 = nullptr;
 };
 
 // MiscStat -- an enum in the binary. The transcription could not classify the
 // demangled type and emitted a one-int struct; the call sites pass plain
 // integers, so it needs the conversions an enum has. Size and layout are
 // unchanged (one int), and `.mValue` still names the value.
-enum MiscStat : int {};
+enum MiscStat : int
+{
+};
 
 // BUTTON_ALIGNMENT_X -- an enum in the binary. The mangled constructor name
 // carries it verbatim, and the string is mangled as a TYPE (not a template
@@ -308,7 +316,9 @@ enum MiscStat : int {};
 // Its enumerators are not recoverable from the signature, and every call site
 // passes a plain integer, so it gets the same one-int shim as the other
 // unclassified enums here. Size and layout are unchanged (one int).
-enum BUTTON_ALIGNMENT_X : int {};
+enum BUTTON_ALIGNMENT_X : int
+{
+};
 
 // PIParticleInstance is the live particle record (PIEffect.h). The free-list
 // stride is 228 and the dead-list stride is 256. It is not a one-int enum.
@@ -327,7 +337,7 @@ struct PIParticleInstanceCounter
 class UTF8
 {
 public:
-    static Sexy::String filterUnicode(Sexy::String const& theText);
+    static Sexy::String filterUnicode(Sexy::String const &theText);
 };
 
 // SCoinItem -- the element type of the `std::vector<SCoinItem>` in
@@ -338,8 +348,8 @@ public:
 // into the second (DrRpcEngine.cpp, the `JSONNode_at(..., "value")` pair).
 struct SCoinItem
 {
-    int mValue;     // +0x00  the "value" node
-    int mGetCoin;   // +0x04  the "getcoin" node
+    int mValue; // +0x00  the "value" node
+    int mGetCoin; // +0x04  the "getcoin" node
 };
 
 // PLANTSETTING / TombConfig -- the element types of two more vectors the tree
@@ -350,8 +360,12 @@ struct SCoinItem
 // is all that is needed.
 // TODO(recon): pin each record's extent from its vector's stride and name the
 // fields once a body reads one.
-namespace Sexy {
-struct PLANTSETTING { int mFields[4]; };
+namespace Sexy
+{
+struct PLANTSETTING
+{
+    int mFields[4];
+};
 // Level-file initTomb writes two words per record (column, row). The vector
 // stride in LawnApp's loader and Board::PickBackground is 8, not 16.
 struct TombConfig
@@ -376,22 +390,32 @@ using Sexy::TombConfig;
 //   PIInterpolatorPoint     8 bytes  -- two words
 // TODO(recon): name the fields once a body reads one by name.
 // ---------------------------------------------------------------------------
-namespace Sexy {
-struct PIParticleDefInstance { float mField0; float mField1; int mField2; int mField3; };
-struct PIValuePoint         { int mField0; int mField1; };
+namespace Sexy
+{
+struct PIParticleDefInstance
+{
+    float mField0;
+    float mField1;
+    int mField2;
+    int mField3;
+};
+struct PIValuePoint
+{
+    int mField0;
+    int mField1;
+};
 // Keyframe of a colour ramp. mField0 is the colour word InterpColor blends.
 // mField1 is the key time.
 struct PIInterpolatorPoint
 {
-    int   mField0 = 0;
+    int mField0 = 0;
     float mField1 = 0.0f;
 };
 
 // ObjectPool<T> -- the free-list allocator behind PIEffect's particle storage.
 // Alloc takes the pool as its first argument. The four header words are the
 // pool bookkeeping; the current Alloc does not walk a free list.
-template <class T>
-class ObjectPool
+template <class T> class ObjectPool
 {
 public:
     int mField0 = 0;
@@ -406,7 +430,7 @@ public:
     // `new T` and not `operator new(sizeof(T))`: T is a plain aggregate with no
     // constructor, so a new-expression performs no initialisation and produces
     // exactly the raw slot the binary's pool hands back.
-    static T* Alloc(ObjectPool<T>* thePool)
+    static T *Alloc(ObjectPool<T> *thePool)
     {
         (void)thePool;
         return new T;
@@ -438,11 +462,30 @@ struct TodWeightedArray
     int mItem;
     int mWeight;
 
-    TodWeightedArray() : mItem(0), mWeight(0) {}
-    TodWeightedArray(int theItem, int theWeight) : mItem(theItem), mWeight(theWeight) {}
-    TodWeightedArray(int theValue) : mItem(theValue), mWeight(0) {}
-    operator int() const { return mItem; }
-    TodWeightedArray& operator=(int theValue) { mItem = theValue; return *this; }
+    TodWeightedArray() :
+        mItem(0),
+        mWeight(0)
+    {
+    }
+    TodWeightedArray(int theItem, int theWeight) :
+        mItem(theItem),
+        mWeight(theWeight)
+    {
+    }
+    TodWeightedArray(int theValue) :
+        mItem(theValue),
+        mWeight(0)
+    {
+    }
+    operator int() const
+    {
+        return mItem;
+    }
+    TodWeightedArray &operator=(int theValue)
+    {
+        mItem = theValue;
+        return *this;
+    }
 };
 
 // TodWeightedGridArray -- NOT an enum. The transcriber emitted a one-int
@@ -509,7 +552,9 @@ enum AdviceType : int
 // demangled type and emitted a one-int struct; the call sites pass plain
 // integers, so it needs the conversions an enum has. Size and layout are
 // unchanged (one int), and `.mValue` still names the value.
-enum AlmanacDialog_SeedDir : int {};
+enum AlmanacDialog_SeedDir : int
+{
+};
 
 // AttacherInfo -- the record ParseAttacherTrack fills. Two names, the low-FPS
 // threshold, and the loop type. Sexy::String is one pointer, so the record is
@@ -526,13 +571,17 @@ struct AttacherInfo
 // demangled type and emitted a one-int struct; the call sites pass plain
 // integers, so it needs the conversions an enum has. Size and layout are
 // unchanged (one int), and `.mValue` still names the value.
-enum BaseGamepadControls_MovementState : int {};
+enum BaseGamepadControls_MovementState : int
+{
+};
 
 // BossPart -- an enum in the binary. The transcription could not classify the
 // demangled type and emitted a one-int struct; the call sites pass plain
 // integers, so it needs the conversions an enum has. Size and layout are
 // unchanged (one int), and `.mValue` still names the value.
-enum BossPart : int {};
+enum BossPart : int
+{
+};
 
 // ChallengePage -- an enum in the binary. The transcription could not classify the
 // demangled type and emitted a one-int struct; the call sites pass plain
@@ -605,7 +654,7 @@ enum CreditsPhase : int
     CREDITS_MAIN1 = 0,
     CREDITS_MAIN2 = 1,
     CREDITS_MAIN3 = 2,
-    CREDITS_END   = 3
+    CREDITS_END = 3
 };
 
 // DrawVariation -- an enum in the binary. The transcription could not classify the
@@ -639,13 +688,17 @@ enum DrawVariation : int
 // demangled type and emitted a one-int struct; the call sites pass plain
 // integers, so it needs the conversions an enum has. Size and layout are
 // unchanged (one int), and `.mValue` still names the value.
-enum E_DAVESINGLEHELP : int {};
+enum E_DAVESINGLEHELP : int
+{
+};
 
 // E_SHOP_PACKET -- an enum in the binary. The transcription could not classify the
 // demangled type and emitted a one-int struct; the call sites pass plain
 // integers, so it needs the conversions an enum has. Size and layout are
 // unchanged (one int), and `.mValue` still names the value.
-enum E_SHOP_PACKET : int {};
+enum E_SHOP_PACKET : int
+{
+};
 
 enum FilterEffect : int
 {
@@ -750,7 +803,9 @@ enum GridItemType : int
 // demangled type and emitted a one-int struct; the call sites pass plain
 // integers, so it needs the conversions an enum has. Size and layout are
 // unchanged (one int), and `.mValue` still names the value.
-enum MainMenu_MenuScene : int {};
+enum MainMenu_MenuScene : int
+{
+};
 
 // MusicTune -- an enum in the binary. The transcription could not classify the
 // demangled type and emitted a one-int struct; the call sites pass plain
@@ -892,7 +947,9 @@ enum ParticleEffect : int
 // demangled type and emitted a one-int struct; the call sites pass plain
 // integers, so it needs the conversions an enum has. Size and layout are
 // unchanged (one int), and `.mValue` still names the value.
-enum ParticleSystemID : int {};
+enum ParticleSystemID : int
+{
+};
 
 // PlantPriority -- an enum in the binary. The transcription could not classify the
 // demangled type and emitted a one-int struct; the call sites pass plain
@@ -1249,26 +1306,30 @@ enum StoreItem : int
 // demangled type and emitted a one-int struct; the call sites pass plain
 // integers, so it needs the conversions an enum has. Size and layout are
 // unchanged (one int), and `.mValue` still names the value.
-enum StoreScreen_ItemDir : int {};
+enum StoreScreen_ItemDir : int
+{
+};
 
 // VSSetupMenu_VSSetupState -- an enum in the binary. The transcription could not classify the
 // demangled type and emitted a one-int struct; the call sites pass plain
 // integers, so it needs the conversions an enum has. Size and layout are
 // unchanged (one int), and `.mValue` still names the value.
-enum VSSetupMenu_VSSetupState : int {};
+enum VSSetupMenu_VSSetupState : int
+{
+};
 
 // The framework value types, under the global spelling the binary
 // also uses. `TRect` in a signature and `Sexy::TRect` in a body name
 // the same type.
-using Sexy::TPoint;
-using Sexy::TRect;
-using Sexy::Point;
-using Sexy::Rect;
+using Sexy::Color;
 using Sexy::FPoint;
 using Sexy::FRect;
-using Sexy::Color;
 using Sexy::Insets;
+using Sexy::Point;
+using Sexy::Rect;
 using Sexy::String;
+using Sexy::TPoint;
+using Sexy::TRect;
 
 // Types the demangled signatures name that have no header of their own:
 // the bodies only ever pass these by pointer, which an incomplete type
@@ -1283,12 +1344,28 @@ struct TMLongCard
 {
     int mValue;
 
-    TMLongCard() : mValue(0) {}
-    TMLongCard(int theValue) : mValue(theValue) {}
+    TMLongCard() :
+        mValue(0)
+    {
+    }
+    TMLongCard(int theValue) :
+        mValue(theValue)
+    {
+    }
     template <class Word>
-    TMLongCard(const Word& theValue) : mValue((int)(unsigned int)theValue) {}
-    operator int() const { return mValue; }
-    TMLongCard& operator=(int theValue) { mValue = theValue; return *this; }
+    TMLongCard(const Word &theValue) :
+        mValue((int)(unsigned int)theValue)
+    {
+    }
+    operator int() const
+    {
+        return mValue;
+    }
+    TMLongCard &operator=(int theValue)
+    {
+        mValue = theValue;
+        return *this;
+    }
 };
 
 class ReanimAtlas;
@@ -1298,12 +1375,11 @@ class Graphics3D;
 // Each entry stores a native pointer and the byte count of its state range.
 struct SyncBlockInfo
 {
-    void*   mData;
-    size_t  mSize;
+    void *mData;
+    size_t mSize;
 };
 
-template<class First, class Last>
-SyncBlockInfo MakeSyncBlock(First &theFirst, Last &theLast)
+template <class First, class Last> SyncBlockInfo MakeSyncBlock(First &theFirst, Last &theLast)
 {
     auto *aBegin = reinterpret_cast<unsigned char *>(&theFirst);
     auto *anEnd = reinterpret_cast<unsigned char *>(&theLast) + sizeof(theLast);
@@ -1335,14 +1411,16 @@ class Attachment;
 class Trail;
 class CursorObject;
 
-namespace Native {
-    class GameCenter_Message;
-    class GameCenter_Payment;
-    class GameCenter_RechargeArgs;
-    class GameCenter_Score;
-    class ShareManager_Post;
+namespace Native
+{
+class GameCenter_Message;
+class GameCenter_Payment;
+class GameCenter_RechargeArgs;
+class GameCenter_Score;
+class ShareManager_Post;
 }
-namespace PakLib {
+namespace PakLib
+{
 
 // PakLib::Driver -- the archive driver, a DIFFERENT class from Sexy::Driver.
 //
@@ -1372,8 +1450,8 @@ class Driver
 public:
     virtual ~Driver() = default;
 
-    Sexy::String mName;     // +0x04  copied in by the constructor
-    int          mPriority; // +0x08  GetPriority returns it
+    Sexy::String mName; // +0x04  copied in by the constructor
+    int mPriority; // +0x08  GetPriority returns it
     // Size 0x0C.
 
     Driver(Sexy::String theName, int thePriority);
@@ -1382,310 +1460,323 @@ public:
 };
 
 } // namespace PakLib
-namespace Sexy {
-    using ::SexyMatrix3;
-    // The transcribed enum types, spelled both ways. The binary writes
-    // `Sexy::Glyph` in some signatures and plain `Glyph` in the bodies,
-    // so both names have to resolve to the same type.
-    using ::FoleyInstance;
-    using ::Glyph;
-    using ::MiscStat;
+namespace Sexy
+{
+using ::SexyMatrix3;
+// The transcribed enum types, spelled both ways. The binary writes
+// `Sexy::Glyph` in some signatures and plain `Glyph` in the bodies,
+// so both names have to resolve to the same type.
+using ::FoleyInstance;
+using ::Glyph;
+using ::MiscStat;
 
-    using ::TextExtents;
-    using ::TodWeightedArray;
-    using ::TodWeightedGridArray;
-    using ::AdviceType;
-    using ::AlmanacDialog_SeedDir;
-    using ::AttacherInfo;
-    using ::BaseGamepadControls_MovementState;
-    using ::BossPart;
-    using ::ChallengePage;
-    using ::ChallengeState;
+using ::AdviceType;
+using ::AlmanacDialog_SeedDir;
+using ::AttacherInfo;
+using ::BaseGamepadControls_MovementState;
+using ::BossPart;
+using ::ChallengePage;
+using ::ChallengeState;
+using ::TextExtents;
+using ::TodWeightedArray;
+using ::TodWeightedGridArray;
 
-    using ::CoinMotion;
-    using ::CreditsPhase;
-    using ::DrawVariation;
-    using ::E_DAVESINGLEHELP;
-    using ::E_SHOP_PACKET;
-    using ::FilterEffect;
-    using ::GameStats_MiscStat;
-    using ::GridItemState;
-    using ::GridItemType;
+using ::CoinMotion;
+using ::CreditsPhase;
+using ::DrawVariation;
+using ::E_DAVESINGLEHELP;
+using ::E_SHOP_PACKET;
+using ::FilterEffect;
+using ::GameStats_MiscStat;
+using ::GridItemState;
+using ::GridItemType;
 
-    using ::MainMenu_MenuScene;
-    using ::MusicTune;
-    using ::ParticleEffect;
-    using ::ParticleSystemID;
-    using ::PlantPriority;
-    using ::PlayerFlags;
-    using ::ProjectileType;
-    using ::ReanimationID;
-    using ::ReanimationType;
-    using ::RenderLayer;
-    using ::SeedChooserScreen_SeedDir;
-    using ::StoreItem;
-    using ::StoreScreen_ItemDir;
+using ::MainMenu_MenuScene;
+using ::MusicTune;
+using ::ParticleEffect;
+using ::ParticleSystemID;
+using ::PlantPriority;
+using ::PlayerFlags;
+using ::ProjectileType;
+using ::ReanimationID;
+using ::ReanimationType;
+using ::RenderLayer;
+using ::SeedChooserScreen_SeedDir;
+using ::StoreItem;
+using ::StoreScreen_ItemDir;
 
-    using ::VSSetupMenu_VSSetupState;
+using ::VSSetupMenu_VSSetupState;
 
-    using ::SexyVector2;
-    using ::SexyVector3;
-    using ::SexyVertex2D;
+using ::SexyVector2;
+using ::SexyVector3;
+using ::SexyVertex2D;
 
-    class ActiveFontLayer;
-    class AnimInfo;
-    class AuthManager;
-    class Bezier;
-    class Buffer;
-    class ButtonListener;
-    class ButtonWidget;
-    class DataElement;
-    class DefaultPlayerInfo;
-    class DefaultProfileMgr;
-    class DefaultProfileMgr_DefaultPlayerList;
-    class DescParser;
-    class DeviceImage;
-    class Dialog;
-    class DialogButton;
-    class Driver;
-    class EditController;
-    class EditListener;
-    class EditState;
-    class EditWidget;
-    // The event record's callback shape. It has to be declared before Event,
-    // which stores one. `matchEvent` is assigned a method address in the
-    // bodies, so it is a function
-    // pointer rather than an int.
-    typedef int (*MatchProc)(int, int, int);
-    // The late-binding record the event points at. Declared here as well as at
-    // global scope because Event stores a pointer to it, and this definition
-    // comes first in the file.
-    struct _LateBindings;
-    typedef _LateBindings *LateBindingsPtr;
-    // Event -- an input event. A plain data record: no `Event::` method exists
-    // in the binary, and the transcribed bodies only read and write members.
-    //
-    // SIZE 0x34 = 13 words. The record was modelled 32 bytes, which was four
-    // words short; five independent readings of the ARM agree on 0x34:
-    //
-    //  1. `SexyAppBase::PopulateMessages` @0x33B7E4 copies ONE event with a
-    //     hand-unrolled 13-word block. Source `this+0x754` (mParameterStorage)
-    //     -> destination `[R6]`: five separate `LDR/STR` pairs write +0x00,
-    //     +0x04, +0x08, +0x0C, +0x10, then `ADD.W R8, R6, #0x14` + `STM.W R8!,
-    //     {R0-R3}` writes +0x14..+0x20 and the closing `LDM.W R9, {R0-R3}` /
-    //     `STM.W R8, {R0-R3}` writes +0x24..+0x30. 13 words, ending at +0x33.
-    //  2. The same function advances the vector's write cursor with
-    //     `ADD.W R3, R6, #0x34` (twice: @0x33B854 and @0x33B92A), so the stride
-    //     of the event vector is 0x34.
-    //  3. `InputManager::PushEvent` @0x3B79C0 allocates `operator new(0x3Cu)`:
-    //     an 8-byte list-node header followed by 13 words, and it copies exactly
-    //     those 13 words into the node.
-    //  4. `InputManager::PreprocessEvent` @0x3B7288 writes the tail fields at
-    //     the literal ARM offsets `[R4,#0x28]`, `[R4,#0x2C]` and `[R4,#0x30]`.
-    //  5. `InputManager::Update` @0x3B7AA8 sizes its frame slot
-    //     a stack Event at 0x34 and then clears it in two
-    //     pieces -- 16 bytes for +0x00..+0x0F and
-    //     12 bytes from eventCodeMask for +0x14..+0x1F -- which is
-    //     consistent with the tail at +0x20..+0x33 being the five words the
-    //     old 32-byte model had no room for.
-    //
-    // The first eight words keep the names the transcribed bodies already use.
-    //
-    // The five-word tail at +0x20..+0x33 is what the old 32-byte model had no
-    // room for. The transcriber spelled it as the next Event.
-    // It is not a second Event and it is not a positional mirror of the head;
-    // the ARM shows which head field lands in which tail slot:
-    //
-    //   `PreprocessEvent` @0x3B72C0-0x3B72C4 saves three head fields before it
-    //   rewrites them, and the register map at that point is
-    //       modifierMask   (head +0x04) is saved at +0x28
-    //       eventCodeMask  (head +0x14) is saved at +0x2C
-    //       matchEvent     (head +0x18) is saved at +0x30
-    //   so +0x28/+0x2C/+0x30 are the pre-update values of those three fields,
-    //   and `PushEvent` @0x3B79C0 copies them out into the event list unchanged.
-    //
-    // +0x20 and +0x24 are NOT written by any SexyAppBase/InputManager body: the
-    // only reads are `PreprocessEvent` @0x3B732C, which uses them as the
-    // divisor pair of eventCodeMask over modifiers, and matchEvent over the
-    // other saved scale.
-    // (the same scaling block the head's `modifierMask & 0x20` selects). They
-    // are therefore filled by the input driver, and what they mean is not
-    // settled by anything in this tree yet.
-    struct Event
-    {
-        static constexpr int MOUSE_DOWN = 3;
-        static constexpr int MOUSE_UP = 4;
-        static constexpr int MOUSE_MOVE = 7;
-        static constexpr int MOUSE_WHEEL = 512;
-        static constexpr int MOUSE_EXIT = 1024;
-        static constexpr int MOUSE_CANCEL = 2048;
-        // SDL text input shares the platform event queue with key presses.
-        static constexpr int CHARACTER_INPUT = 256;
-        int             modifiers;      // +0x00
-        TMLongCard      modifierMask;   // +0x04
-        // The input driver's slot. Callers compare and shift it as an integer
-        // device id; a zero means the event came from the platform display.
-        int             lateModifiers;  // +0x08
-        TMLongCard      eventType;      // +0x0C
-        TMLongCard      eventCode;      // +0x10
-        TMLongCard      eventCodeMask;  // +0x14
-        int             matchEvent;     // +0x18  event code, or the pointer Y
-        int             standard;       // +0x1C
-        // Driver-supplied scaling pair; only the two reads above are known.
-        TMLongCard      mScaleDivisorX;     // +0x20
-        TMLongCard      mScaleDivisorY;     // +0x24
-        // PreProcessEvent's saved state, copied out by PushEvent.
-        TMLongCard      mSavedModifierMask;  // +0x28
-        TMLongCard      mSavedEventCodeMask; // +0x2C
-        int             mSavedMatchEvent;    // +0x30
-        // size 0x34
-    };
+class ActiveFontLayer;
+class AnimInfo;
+class AuthManager;
+class Bezier;
+class Buffer;
+class ButtonListener;
+class ButtonWidget;
+class DataElement;
+class DefaultPlayerInfo;
+class DefaultProfileMgr;
+class DefaultProfileMgr_DefaultPlayerList;
+class DescParser;
+class DeviceImage;
+class Dialog;
+class DialogButton;
+class Driver;
+class EditController;
+class EditListener;
+class EditState;
+class EditWidget;
+// The event record's callback shape. It has to be declared before Event,
+// which stores one. `matchEvent` is assigned a method address in the
+// bodies, so it is a function
+// pointer rather than an int.
+typedef int (*MatchProc)(int, int, int);
+// The late-binding record the event points at. Declared here as well as at
+// global scope because Event stores a pointer to it, and this definition
+// comes first in the file.
+struct _LateBindings;
+typedef _LateBindings *LateBindingsPtr;
+// Event -- an input event. A plain data record: no `Event::` method exists
+// in the binary, and the transcribed bodies only read and write members.
+//
+// SIZE 0x34 = 13 words. The record was modelled 32 bytes, which was four
+// words short; five independent readings of the ARM agree on 0x34:
+//
+//  1. `SexyAppBase::PopulateMessages` @0x33B7E4 copies ONE event with a
+//     hand-unrolled 13-word block. Source `this+0x754` (mParameterStorage)
+//     -> destination `[R6]`: five separate `LDR/STR` pairs write +0x00,
+//     +0x04, +0x08, +0x0C, +0x10, then `ADD.W R8, R6, #0x14` + `STM.W R8!,
+//     {R0-R3}` writes +0x14..+0x20 and the closing `LDM.W R9, {R0-R3}` /
+//     `STM.W R8, {R0-R3}` writes +0x24..+0x30. 13 words, ending at +0x33.
+//  2. The same function advances the vector's write cursor with
+//     `ADD.W R3, R6, #0x34` (twice: @0x33B854 and @0x33B92A), so the stride
+//     of the event vector is 0x34.
+//  3. `InputManager::PushEvent` @0x3B79C0 allocates `operator new(0x3Cu)`:
+//     an 8-byte list-node header followed by 13 words, and it copies exactly
+//     those 13 words into the node.
+//  4. `InputManager::PreprocessEvent` @0x3B7288 writes the tail fields at
+//     the literal ARM offsets `[R4,#0x28]`, `[R4,#0x2C]` and `[R4,#0x30]`.
+//  5. `InputManager::Update` @0x3B7AA8 sizes its frame slot
+//     a stack Event at 0x34 and then clears it in two
+//     pieces -- 16 bytes for +0x00..+0x0F and
+//     12 bytes from eventCodeMask for +0x14..+0x1F -- which is
+//     consistent with the tail at +0x20..+0x33 being the five words the
+//     old 32-byte model had no room for.
+//
+// The first eight words keep the names the transcribed bodies already use.
+//
+// The five-word tail at +0x20..+0x33 is what the old 32-byte model had no
+// room for. The transcriber spelled it as the next Event.
+// It is not a second Event and it is not a positional mirror of the head;
+// the ARM shows which head field lands in which tail slot:
+//
+//   `PreprocessEvent` @0x3B72C0-0x3B72C4 saves three head fields before it
+//   rewrites them, and the register map at that point is
+//       modifierMask   (head +0x04) is saved at +0x28
+//       eventCodeMask  (head +0x14) is saved at +0x2C
+//       matchEvent     (head +0x18) is saved at +0x30
+//   so +0x28/+0x2C/+0x30 are the pre-update values of those three fields,
+//   and `PushEvent` @0x3B79C0 copies them out into the event list unchanged.
+//
+// +0x20 and +0x24 are NOT written by any SexyAppBase/InputManager body: the
+// only reads are `PreprocessEvent` @0x3B732C, which uses them as the
+// divisor pair of eventCodeMask over modifiers, and matchEvent over the
+// other saved scale.
+// (the same scaling block the head's `modifierMask & 0x20` selects). They
+// are therefore filled by the input driver, and what they mean is not
+// settled by anything in this tree yet.
+struct Event
+{
+    static constexpr int MOUSE_DOWN = 3;
+    static constexpr int MOUSE_UP = 4;
+    static constexpr int MOUSE_MOVE = 7;
+    static constexpr int MOUSE_WHEEL = 512;
+    static constexpr int MOUSE_EXIT = 1024;
+    static constexpr int MOUSE_CANCEL = 2048;
+    // SDL text input shares the platform event queue with key presses.
+    static constexpr int CHARACTER_INPUT = 256;
+    int modifiers; // +0x00
+    TMLongCard modifierMask; // +0x04
+    // The input driver's slot. Callers compare and shift it as an integer
+    // device id; a zero means the event came from the platform display.
+    int lateModifiers; // +0x08
+    TMLongCard eventType; // +0x0C
+    TMLongCard eventCode; // +0x10
+    TMLongCard eventCodeMask; // +0x14
+    int matchEvent; // +0x18  event code, or the pointer Y
+    int standard; // +0x1C
+    // Driver-supplied scaling pair; only the two reads above are known.
+    TMLongCard mScaleDivisorX; // +0x20
+    TMLongCard mScaleDivisorY; // +0x24
+    // PreProcessEvent's saved state, copied out by PushEvent.
+    TMLongCard mSavedModifierMask; // +0x28
+    TMLongCard mSavedEventCodeMask; // +0x2C
+    int mSavedMatchEvent; // +0x30
+    // size 0x34
+};
 
-    // Layout check: 13 words, the stride PopulateMessages walks the event vector
-    // with and the record PushEvent allocates room for.
-    class FlagsMod;
-    class Font;
-    class FontData;
-    class FontLayer;
-    class Font_TextExtents;
-    class GamepadApp;
-    class Graphics;
-    // The Graphics3D option types. The binary's real names are nested
-    // (`Sexy::Graphics3D::EBlendMode` and siblings); the transcriber flattened
-    // them to these names. Each is one word: every use passes it into an int
-    // vtable slot, switches on it, or compares it against 0/1/4, so an int is
-    // the complete and correct type.
-    typedef int Graphics3D_EBlendMode;
-    typedef int Graphics3D_ECompareFunc;
-    typedef int Graphics3D_EMaskMode;
-    typedef int Graphics3D_EPrimitiveType;
-    typedef int Graphics3D_ETexCoordGen;
-    class Graphics3D_LightColors;
-    class GraphicsState;
-    class HyperlinkWidget;
-    class IFileDriver;
-    class IGraphicsDriver;
-    class IInputDriver;
-    class Image;
-    class ImageFont;
-    class ImageWidget;
-    class InputDriver;
-    class InputDriverFactory;
-    class InputManager;
-    // InputManager's device-event code. The binary's real name is the nested
-    // `Sexy::InputManager::DeviceEvent` -- the mangled
-    // `_ZN4Sexy12InputManager13DispatchEventEPNS_12IInputDriverENS0_11DeviceEventEPNS_5EventE`
-    // uses the `S0_` substitution, which only a nested type gets -- and the
-    // transcriber flattened it to this name.
-    //
-    // It is one word, passed BY VALUE: the callers pass the literals 0, 1 and
-    // 2, and DispatchEvent only compares it. No site takes its size or address,
-    // so an int is the complete and correct type.
-    typedef int InputManager_DeviceEvent;
-    class InputStatusInfo;
-    class LabelWidget;
-    class ListDataElement;
-    class ListListener;
-    class ListWidget;
-    enum LogLevel : int {};
-    class LogListener;
-    class LogManager;
-    class MemoryImage;
-    class MenuWidget;
-    class MusicInterface;
-    class PASpriteDef;
-    class PASpriteInst;
-    class PATransform;
-    class PIBlocker;
-    class PIDeflector;
-    class PIEffect;
-    class PIEmitter;
-    class PIEmitterInstance;
-    class PIEmitterInstanceDef;
-    class PIForce;
-    class PILayer;
-    class PILayerDef;
-    class PIParticleDef;
-    class PIValue;
-    class PIValue2D;
-    class PixelData;
-    // PixelFormat -- an enum in the binary. The platform layer stores one in
-    // GLTexture::mFormat and the bodies compare it against integers, so it
-    // needs a definition rather than a declaration. Size and layout: one int.
-    enum PixelFormat : int
-    {
-        PIXEL_FORMAT_NONE     = 0,
-        PIXEL_FORMAT_LUT8     = 1,
-        PIXEL_FORMAT_A8R8G8B8 = 2,
-        PIXEL_FORMAT_A4R4G4B4 = 3,
-        PIXEL_FORMAT_A1R5G5B5 = 4,
-        PIXEL_FORMAT_R5G6R5   = 5,
-        PIXEL_FORMAT_A8B8G8R8 = 6,
-        PIXEL_FORMAT_R4G4B4A4 = 7,
-        PIXEL_FORMAT_R5G5B5A1 = 8,
-        PIXEL_FORMAT_X8R8G8B8 = 9,
-        PIXEL_FORMAT_L8A8     = 10
-    };
-    class PlayerInfo;
-    class PopAnim;
-    class ProfileMgr;
-    class RenderEffectDefinition;
-    class ResourceManager;
-    // The resource records (ResourceManager_BaseRes and the per-kind derived
-    // structs) are DEFINED in Sexy\ResourceRecords.h, not forward-declared here.
-    // They used to be declared here while the definitions lived nested inside
-    // ResourceManager, which left every use of them incomplete -- ResourceManager
-    // .cpp reported C2027 at 32 sites. ResourceRecords.h is the shared home
-    // because ResourceRef.h needs the complete name and cannot include
-    // ResourceManager.h.
-    // Sexy::GenericResFile -- the object a ResourceRef converts to
-    // (_ZN4Sexy11ResourceRefcvPNS_14GenericResFileEEv @0x32a2bc). Only ever used
-    // as a pointer, so the forward declaration is the whole requirement.
-    class GenericResFile;
-    class ResourceRef;
-    // Sexy::SWHelper_SWDiffuse and Sexy::SWHelper_SWTextureInfo are DEFINED in
-    // Sexy\SWHelper.h (four words and ten words). They used to be forward-declared
-    // here, which is why SWHelper.cpp had to build both as raw word blocks.
-    class ScrollListener;
-    class ScrollbarWidget;
-    class ScrollbuttonWidget;
-    class SelectableWidget;
-    class SexyAppBase;
-    class SexyCommonApp;
-    enum SexyCommonApp_E_MESSAGEBOX_TYPE : int {};
-    enum SexyCommonApp_E_TESTAD_MODE : int {};
-    enum SexyCommonApp_POST_TYPE : int {};
-    class SexyMatrix4;
-    class SexyPerf;
-    class SexyTransform2D;
-    class SexyVertex;
-    // Sexy::SharedImage is DEFINED in Sexy\SharedImage.h (0x8 bytes: an Image
-    // pointer and a reference count). It used to be forward-declared here, which
-    // left ResourceManager.cpp unable to read its words.
-    class SharedImageRef;
-    class SingleDataElement;
-    class Slider;
-    class SliderListener;
-    class TextLayout;
-    class TextLine;
-    class Transform;
-    class Widget;
-    // WidgetAnimationState -- an enum in the binary. Widget.h takes one BY
-    // VALUE (`GetAnimatorForState(Sexy::WidgetAnimationState)`), so an
-    // incomplete type cannot work. One word, with the conversions an enum has.
-    enum WidgetAnimationState : int {};
-    class WidgetAnimator;
-    class WidgetContainer;
-    class WidgetManager;
-    class XMLElement;
-    class XMLParser;
-    class XMLWriter;
-    namespace SharedRenderTarget {
-        class Pool;
-    }
+// Layout check: 13 words, the stride PopulateMessages walks the event vector
+// with and the record PushEvent allocates room for.
+class FlagsMod;
+class Font;
+class FontData;
+class FontLayer;
+class Font_TextExtents;
+class GamepadApp;
+class Graphics;
+// The Graphics3D option types. The binary's real names are nested
+// (`Sexy::Graphics3D::EBlendMode` and siblings); the transcriber flattened
+// them to these names. Each is one word: every use passes it into an int
+// vtable slot, switches on it, or compares it against 0/1/4, so an int is
+// the complete and correct type.
+typedef int Graphics3D_EBlendMode;
+typedef int Graphics3D_ECompareFunc;
+typedef int Graphics3D_EMaskMode;
+typedef int Graphics3D_EPrimitiveType;
+typedef int Graphics3D_ETexCoordGen;
+class Graphics3D_LightColors;
+class GraphicsState;
+class HyperlinkWidget;
+class IFileDriver;
+class IGraphicsDriver;
+class IInputDriver;
+class Image;
+class ImageFont;
+class ImageWidget;
+class InputDriver;
+class InputDriverFactory;
+class InputManager;
+// InputManager's device-event code. The binary's real name is the nested
+// `Sexy::InputManager::DeviceEvent` -- the mangled
+// `_ZN4Sexy12InputManager13DispatchEventEPNS_12IInputDriverENS0_11DeviceEventEPNS_5EventE`
+// uses the `S0_` substitution, which only a nested type gets -- and the
+// transcriber flattened it to this name.
+//
+// It is one word, passed BY VALUE: the callers pass the literals 0, 1 and
+// 2, and DispatchEvent only compares it. No site takes its size or address,
+// so an int is the complete and correct type.
+typedef int InputManager_DeviceEvent;
+class InputStatusInfo;
+class LabelWidget;
+class ListDataElement;
+class ListListener;
+class ListWidget;
+enum LogLevel : int
+{
+};
+class LogListener;
+class LogManager;
+class MemoryImage;
+class MenuWidget;
+class MusicInterface;
+class PASpriteDef;
+class PASpriteInst;
+class PATransform;
+class PIBlocker;
+class PIDeflector;
+class PIEffect;
+class PIEmitter;
+class PIEmitterInstance;
+class PIEmitterInstanceDef;
+class PIForce;
+class PILayer;
+class PILayerDef;
+class PIParticleDef;
+class PIValue;
+class PIValue2D;
+class PixelData;
+// PixelFormat -- an enum in the binary. The platform layer stores one in
+// GLTexture::mFormat and the bodies compare it against integers, so it
+// needs a definition rather than a declaration. Size and layout: one int.
+enum PixelFormat : int
+{
+    PIXEL_FORMAT_NONE = 0,
+    PIXEL_FORMAT_LUT8 = 1,
+    PIXEL_FORMAT_A8R8G8B8 = 2,
+    PIXEL_FORMAT_A4R4G4B4 = 3,
+    PIXEL_FORMAT_A1R5G5B5 = 4,
+    PIXEL_FORMAT_R5G6R5 = 5,
+    PIXEL_FORMAT_A8B8G8R8 = 6,
+    PIXEL_FORMAT_R4G4B4A4 = 7,
+    PIXEL_FORMAT_R5G5B5A1 = 8,
+    PIXEL_FORMAT_X8R8G8B8 = 9,
+    PIXEL_FORMAT_L8A8 = 10
+};
+class PlayerInfo;
+class PopAnim;
+class ProfileMgr;
+class RenderEffectDefinition;
+class ResourceManager;
+// The resource records (ResourceManager_BaseRes and the per-kind derived
+// structs) are DEFINED in Sexy\ResourceRecords.h, not forward-declared here.
+// They used to be declared here while the definitions lived nested inside
+// ResourceManager, which left every use of them incomplete -- ResourceManager
+// .cpp reported C2027 at 32 sites. ResourceRecords.h is the shared home
+// because ResourceRef.h needs the complete name and cannot include
+// ResourceManager.h.
+// Sexy::GenericResFile -- the object a ResourceRef converts to
+// (_ZN4Sexy11ResourceRefcvPNS_14GenericResFileEEv @0x32a2bc). Only ever used
+// as a pointer, so the forward declaration is the whole requirement.
+class GenericResFile;
+class ResourceRef;
+// Sexy::SWHelper_SWDiffuse and Sexy::SWHelper_SWTextureInfo are DEFINED in
+// Sexy\SWHelper.h (four words and ten words). They used to be forward-declared
+// here, which is why SWHelper.cpp had to build both as raw word blocks.
+class ScrollListener;
+class ScrollbarWidget;
+class ScrollbuttonWidget;
+class SelectableWidget;
+class SexyAppBase;
+class SexyCommonApp;
+enum SexyCommonApp_E_MESSAGEBOX_TYPE : int
+{
+};
+enum SexyCommonApp_E_TESTAD_MODE : int
+{
+};
+enum SexyCommonApp_POST_TYPE : int
+{
+};
+class SexyMatrix4;
+class SexyPerf;
+class SexyTransform2D;
+class SexyVertex;
+// Sexy::SharedImage is DEFINED in Sexy\SharedImage.h (0x8 bytes: an Image
+// pointer and a reference count). It used to be forward-declared here, which
+// left ResourceManager.cpp unable to read its words.
+class SharedImageRef;
+class SingleDataElement;
+class Slider;
+class SliderListener;
+class TextLayout;
+struct TextLine;
+class Transform;
+class Widget;
+// WidgetAnimationState -- an enum in the binary. Widget.h takes one BY
+// VALUE (`GetAnimatorForState(Sexy::WidgetAnimationState)`), so an
+// incomplete type cannot work. One word, with the conversions an enum has.
+enum WidgetAnimationState : int
+{
+};
+class WidgetAnimator;
+class WidgetContainer;
+class WidgetManager;
+class XMLElement;
+class XMLParser;
+class XMLWriter;
+namespace SharedRenderTarget
+{
+class Pool;
 }
-namespace TM {
-    class LogComposer;
+}
+namespace TM
+{
+class LogComposer;
 }
 
 class AlmanacDialog;
@@ -1774,7 +1865,8 @@ class internalJSONNode;
 // Same 4 bytes either way; see tools/ida_transcribe.py.
 // AlmanacPage -- a real enum. Taken from the authoritative header
 // PvZ\Lawn\Common\ConstEnums.h:94. It used to be a bare `typedef int`.
-enum AlmanacPage {
+enum AlmanacPage
+{
     ALMANAC_PAGE_INDEX,
     ALMANAC_PAGE_PLANTS,
     ALMANAC_PAGE_ZOMBIES,
@@ -1784,7 +1876,8 @@ typedef int AtlasConfig;
 typedef int AtlasIdx;
 // AwardType -- a real enum. Taken from the authoritative header
 // PvZ\Lawn\Common\ConstEnums.h:99. It used to be a bare `typedef int`.
-enum AwardType {
+enum AwardType
+{
     AWARD_FORLEVEL,
     AWARD_CREDITS_ZOMBIENOTE,
     AWARD_HELP_ZOMBIENOTE,
@@ -1795,7 +1888,8 @@ enum AwardType {
 // PvZ\SexyAppFramework\Misc\GamepadButtons.h:25. It used to be a bare `typedef int`.
 // The binary only ever passes plain integers through the GameButtonDown/Up
 // signatures, so stage two still has to add the casts at those call sites.
-enum GamepadButton {
+enum GamepadButton
+{
     GAMEPAD_BUTTON_NONE = -1,
     GAMEPAD_BUTTON_UP = 0,
     GAMEPAD_BUTTON_DOWN = 1,
@@ -1824,7 +1918,8 @@ typedef int GamepadControl;
 typedef int GamepadStick;
 // BoardResult -- a real enum. Taken from the authoritative header
 // PvZ\Lawn\Common\ConstEnums.h:118. It used to be a bare `typedef int`.
-enum BoardResult {
+enum BoardResult
+{
     BOARDRESULT_NONE = 0,
     BOARDRESULT_WON = 1,
     BOARDRESULT_LOST = 2,
@@ -1841,7 +1936,8 @@ typedef int ChallengeType;
 // PvZ\Lawn\Common\ConstEnums.h:186. It used to be a bare `typedef int`.
 // The commented-out COIN_PRESENT_SURVIVAL_MODE is an artifact of the authoritative
 // header: the following explicit `= 27` keeps Present32 at its original value.
-enum CoinType {
+enum CoinType
+{
     COIN_NONE,
     COIN_SILVER,
     COIN_GOLD,
@@ -1881,7 +1977,8 @@ enum CoinType {
 };
 // CursorType -- was a bare `typedef int`. Definition copied from the authoritative
 // header PvZ\Lawn\Common\ConstEnums.h:234.
-enum CursorType {
+enum CursorType
+{
     CURSOR_TYPE_NORMAL = 0,
     CURSOR_TYPE_PLANT_FROM_BANK = 1,
     CURSOR_TYPE_PLANT_FROM_USABLE_COIN = 2,
@@ -1910,7 +2007,8 @@ typedef int DialogResult;
 // PvZ\Lawn\Common\ConstEnums.h:422. It used to be a bare `typedef int`.
 // The "extended begin/end" section holds values the Android TV mod added on top of
 // NUM_FOLEY; they may not all exist in this .so, but porting PvZ-src needs them.
-enum FoleyType {
+enum FoleyType
+{
     FOLEY_SUN,
     FOLEY_SPLAT = 1,
     FOLEY_LAWNMOWER,
@@ -2047,7 +2145,8 @@ typedef int FontIdx;
 // PvZ\Lawn\Common\ConstEnums.h:554. It used to be a bare `typedef int`.
 // Note the deliberate gap at 94: the authoritative header has no member there and
 // jumps straight from GAMEMODE_CHALLENGE_POOL_PARTY to NUM_GAME_MODES = 95.
-enum GameMode {
+enum GameMode
+{
     GAMEMODE_ADVENTURE = 0,
     GAMEMODE_ADVENTURE_TWO_PLAYER = 1,
     GAMEMODE_SURVIVAL_NORMAL_STAGE_1 = 2,
@@ -2146,7 +2245,8 @@ enum GameMode {
 };
 // GameObjectType -- a real enum. Taken from the authoritative header
 // PvZ\Lawn\Common\ConstEnums.h:651. It used to be a bare `typedef int`.
-enum GameObjectType {
+enum GameObjectType
+{
     OBJECT_TYPE_NONE = 0,
     OBJECT_TYPE_PLANT = 1,
     OBJECT_TYPE_PROJECTILE = 2,
@@ -2174,7 +2274,8 @@ enum GameObjectType {
 };
 // GameScenes -- a real enum. Taken from the authoritative header
 // PvZ\Lawn\Common\ConstEnums.h:677. It used to be a bare `typedef int`.
-enum GameScenes {
+enum GameScenes
+{
     SCENE_LOADING = 0,
     SCENE_MENU = 1,
     SCENE_LEVEL_INTRO = 2,
@@ -2187,7 +2288,8 @@ enum GameScenes {
 };
 // GridSquareType -- a real enum. Taken from the authoritative header
 // PvZ\Lawn\Common\ConstEnums.h:746. It used to be a bare `typedef int`.
-enum GridSquareType {
+enum GridSquareType
+{
     GRIDSQUARE_NONE = 0,
     GRIDSQUARE_GRASS = 1,
     GRIDSQUARE_DIRT,
@@ -2209,27 +2311,30 @@ struct _LateBindings;
 typedef _LateBindings *LateBindingsPtr;
 typedef int TMTypeMatch;
 typedef int TMModifierMatch;
-typedef void* TMEventPtr;
+typedef void *TMEventPtr;
 typedef int LawnAppState;
 // The three lawn-mower enums. Definitions taken from the authoritative header
 // PvZ\Lawn\Common\ConstEnums.h:767/773/801, and they agree with the values in the
 // PC reference source Lawn\LawnMower.h.
 // LawnMowerType used to be a bare `typedef int`, and LawnMowerState / MowerHeight
 // did not exist anywhere in the tree.
-enum LawnMowerState {
+enum LawnMowerState
+{
     MOWER_ROLLING_IN = 0,
     MOWER_READY = 1,
     MOWER_TRIGGERED = 2,
     MOWER_SQUISHED = 3,
 };
-enum LawnMowerType {
+enum LawnMowerType
+{
     LAWNMOWER_LAWN = 0,
     LAWNMOWER_POOL = 1,
     LAWNMOWER_ROOF = 2,
     LAWNMOWER_SUPER_MOWER = 3,
     NUM_MOWER_TYPES = 4,
 };
-enum MowerHeight {
+enum MowerHeight
+{
     MOWER_HEIGHT_LAND = 0,
     MOWER_HEIGHT_DOWN_TO_POOL = 1,
     MOWER_HEIGHT_IN_POOL = 2,
@@ -2237,7 +2342,8 @@ enum MowerHeight {
 };
 // ScaryPotType -- taken from the authoritative header PvZ\Lawn\Common\ConstEnums.h:1298.
 // This tree did not have it before.
-enum ScaryPotType {
+enum ScaryPotType
+{
     SCARYPOT_NONE = 0,
     SCARYPOT_SEED = 1,
     SCARYPOT_ZOMBIE = 2,
@@ -2247,7 +2353,8 @@ enum ScaryPotType {
 // PvZ\Lawn\Common\ConstEnums.h (line numbers noted per enum). None of them existed
 // in this tree before; the transcribed headers used bare `int` for the members that
 // carry them. Chinese comments in the source were dropped.
-enum ZombieHeight {                 // ConstEnums.h:1556
+enum ZombieHeight
+{ // ConstEnums.h:1556
     HEIGHT_ZOMBIE_NORMAL = 0,
     HEIGHT_IN_TO_POOL = 1,
     HEIGHT_OUT_OF_POOL = 2,
@@ -2260,7 +2367,8 @@ enum ZombieHeight {                 // ConstEnums.h:1556
     HEIGHT_GETTING_BUNGEE_DROPPED = 9,
     HEIGHT_ZOMBIQUARIUM = 10,
 };
-enum HelmType {                     // ConstEnums.h:753
+enum HelmType
+{ // ConstEnums.h:753
     HELMTYPE_NONE = 0,
     HELMTYPE_TRAFFIC_CONE = 1,
     HELMTYPE_PAIL = 2,
@@ -2274,7 +2382,8 @@ enum HelmType {                     // ConstEnums.h:753
     HELMTYPE_GIGA_FOOTBALL = 10,
     HELMTYPE_CROSSING_GUARD = 11,
 };
-enum ShieldType {                   // ConstEnums.h:1441
+enum ShieldType
+{ // ConstEnums.h:1441
     SHIELDTYPE_NONE = 0,
     SHIELDTYPE_DOOR = 1,
     SHIELDTYPE_NEWSPAPER = 2,
@@ -2282,7 +2391,8 @@ enum ShieldType {                   // ConstEnums.h:1441
     SHIELDTYPE_TRASHCAN = 4,
     SHIELDTYPE_SUNDAY_EDITION = 5,
 };
-enum RenderObjectType {             // ConstEnums.h:1271
+enum RenderObjectType
+{ // ConstEnums.h:1271
     RENDER_ITEM_COIN = 0,
     RENDER_ITEM_PROJECTILE,
     RENDER_ITEM_ZOMBIE,
@@ -2309,7 +2419,8 @@ enum RenderObjectType {             // ConstEnums.h:1271
     RENDER_ITEM_GRID_ITEM,
     RENDER_ITEM_GRID_ITEM_OVERLAY,
 };
-enum ProjectileMotion {             // ConstEnums.h:980
+enum ProjectileMotion
+{ // ConstEnums.h:980
     MOTION_STRAIGHT = 0,
     MOTION_LOBBED = 1,
     MOTION_THREEPEATER = 2,
@@ -2324,13 +2435,20 @@ enum ProjectileMotion {             // ConstEnums.h:980
 // The id enums. ConstEnums.h:1786 declares them all as one-member enums holding a
 // NULL sentinel; AttachmentID and CoinID were the ones still missing here. The
 // struct-wrapped ReanimationID / ParticleSystemID live further up this file.
-enum AttachmentID { ATTACHMENTID_NULL = 0 };   // ConstEnums.h:1786
-enum CoinID { COINID_NULL = 0 };               // ConstEnums.h:1787
+enum AttachmentID
+{
+    ATTACHMENTID_NULL = 0
+}; // ConstEnums.h:1786
+enum CoinID
+{
+    COINID_NULL = 0
+}; // ConstEnums.h:1787
 // MessageStyle -- a real enum. Taken from the authoritative header
 // PvZ\Lawn\Common\ConstEnums.h:780. It used to be a bare `typedef int`.
 // Note MESSAGE_STYLE_ACHIEVEMENT = 3: the authoritative header reuses the value 3,
 // so it is not a distinct member value.
-enum MessageStyle {
+enum MessageStyle
+{
     MESSAGE_STYLE_OFF = 0,
     MESSAGE_STYLE_TUTORIAL_LEVEL1 = 1,
     MESSAGE_STYLE_TUTORIAL_LEVEL1_STAY = 2,
@@ -2360,12 +2478,16 @@ typedef int ParticleKind;
 // PvZ\Lawn\Common\ConstEnums.h:1791. It used to be a bare `typedef int`.
 // It is NOT struct-wrapped in this tree: Board.cpp and Zombie.cpp already spell it
 // `PlantID::PLANTID_NULL` and `PlantID(v)`, which only compiles once it is an enum.
-enum PlantID { PLANTID_NULL };
+enum PlantID
+{
+    PLANTID_NULL
+};
 typedef int PlantSubClass;
 typedef int PlantType;
 // ReanimLoopType -- a real enum. Taken from the authoritative header
 // PvZ\Lawn\Common\ConstEnums.h:1244. It used to be a bare `typedef int`.
-enum ReanimLoopType {
+enum ReanimLoopType
+{
     REANIM_LOOP = 0,
     REANIM_LOOP_FULL_LAST_FRAME = 1,
     REANIM_PLAY_ONCE = 2,
@@ -2379,7 +2501,8 @@ typedef int SeedPacketType;
 // PvZ\Lawn\Common\ConstEnums.h. Challenge::CanPlantAt returns it: the binary's
 // body returns exactly these small integers (0 for "ok", 7 for "not passed the
 // line", and so on), and the authoritative Challenge.h declares the return type.
-enum PlantingReason {
+enum PlantingReason
+{
     PLANTING_OK = 0,
     PLANTING_NOT_HERE = 1,
     PLANTING_ONLY_ON_GRAVES = 2,
@@ -2409,7 +2532,8 @@ enum PlantingReason {
 // but porting PvZ-src needs them, so they are kept.
 // TODO(recon): phase B should move this block into a dedicated ConstEnums.h so the
 // directory layout matches PvZ's.
-enum SeedType {
+enum SeedType
+{
     SEED_PEASHOOTER = 0,
     SEED_SUNFLOWER = 1,
     SEED_CHERRYBOMB = 2,
@@ -2551,27 +2675,29 @@ typedef int StorePageType;
 // PvZ\Lawn\Common\ConstEnums.h:1498. It used to be a bare `typedef int`.
 // The authoritative header carries a Chinese one-line gloss on each member; R1
 // forbids CJK here, so every gloss was translated into the English shown below.
-enum TodCurves {
-    CURVE_CONSTANT,           // constant value
-    CURVE_LINEAR,             // straight line
-    CURVE_EASE_IN,            // quadratic ease-in
-    CURVE_EASE_OUT,           // quadratic ease-out
-    CURVE_EASE_IN_OUT,        // quadratic ease-in-out
-    CURVE_EASE_IN_OUT_WEAK,   // weak quadratic ease-in-out
-    CURVE_FAST_IN_OUT,        // strong ease-in-out
-    CURVE_FAST_IN_OUT_WEAK,   // weaker strong ease-in-out
-    CURVE_WEAK_FAST_IN_OUT,   // weakest strong ease-in-out
-    CURVE_BOUNCE,             // bounce, no easing
+enum TodCurves
+{
+    CURVE_CONSTANT, // constant value
+    CURVE_LINEAR, // straight line
+    CURVE_EASE_IN, // quadratic ease-in
+    CURVE_EASE_OUT, // quadratic ease-out
+    CURVE_EASE_IN_OUT, // quadratic ease-in-out
+    CURVE_EASE_IN_OUT_WEAK, // weak quadratic ease-in-out
+    CURVE_FAST_IN_OUT, // strong ease-in-out
+    CURVE_FAST_IN_OUT_WEAK, // weaker strong ease-in-out
+    CURVE_WEAK_FAST_IN_OUT, // weakest strong ease-in-out
+    CURVE_BOUNCE, // bounce, no easing
     CURVE_BOUNCE_FAST_MIDDLE, // bounce with a fast middle segment
     CURVE_BOUNCE_SLOW_MIDDLE, // bounce with a slow middle segment
-    CURVE_SIN_WAVE,           // sine wave
-    CURVE_EASE_SIN_WAVE       // eased sine wave
+    CURVE_SIN_WAVE, // sine wave
+    CURVE_EASE_SIN_WAVE // eased sine wave
 };
 typedef int TodParticleKind;
 typedef int TrailType;
 // TutorialState -- a real enum. Taken from the authoritative header
 // PvZ\Lawn\Common\ConstEnums.h:1518. It used to be a bare `typedef int`.
-enum TutorialState {
+enum TutorialState
+{
     TUTORIAL_OFF = 0,
     TUTORIAL_LEVEL_1_PICK_UP_PEASHOOTER = 1,
     TUTORIAL_LEVEL_1_PLANT_PEASHOOTER = 2,
@@ -2609,14 +2735,18 @@ struct ZombieDrawPosition;
 // ZombieID -- a real enum, the one-member NULL sentinel from the authoritative header
 // PvZ\Lawn\Common\ConstEnums.h:1793. It used to be a bare `typedef int`.
 // It is NOT struct-wrapped in this tree.
-enum ZombieID { ZOMBIEID_NULL };
+enum ZombieID
+{
+    ZOMBIEID_NULL
+};
 typedef int ZombiePartsCount;
 // ZombiePhase -- a real enum. Taken from the authoritative header
 // PvZ\Lawn\Common\ConstEnums.h:1569. It used to be a bare `typedef int`.
 // The explicit values matter: the authoritative header deliberately leaves gaps
 // (37, 39, 56-58, 81-83) and skips 82. The "extended" section at the end holds the
 // values the Android TV mod appended after PHASE_SQUASH_DONE_FALLING.
-enum ZombiePhase {
+enum ZombiePhase
+{
     PHASE_ZOMBIE_NORMAL,
     PHASE_ZOMBIE_DYING,
     PHASE_ZOMBIE_BURNED,
@@ -2754,7 +2884,8 @@ enum ZombiePhase {
 //   RedeyeGargantuar=0x21(33), ZombieTypesCount=0x22(34),
 //   CachedPolevaulterWithPole=0x23(35), CachedZombieTypesCount=0x24(36) -- all
 // of them agree with this enum.
-enum ZombieType {
+enum ZombieType
+{
     ZOMBIE_INVALID = -1,
     ZOMBIE_NORMAL = 0,
     ZOMBIE_FLAG = 1,
@@ -2824,7 +2955,8 @@ enum ZombieType {
 // source SexyAppFramework\Image.h:20. The binary agrees: AnimInfo's constructor
 // stores 0 and GetCel compares it against 1 and 2 (AnimType_Once /
 // AnimType_PingPong).
-enum AnimType {
+enum AnimType
+{
     AnimType_None = 0,
     AnimType_Once = 1,
     AnimType_PingPong = 2,
@@ -2838,7 +2970,8 @@ enum AnimType {
 
 // TrailFlags -- the flag set of TrailDefinition::mTrailFlags. Taken from the PC
 // reference source TodLib\Trail.h. Only referenced through a plain int so far.
-enum TrailFlags {
+enum TrailFlags
+{
     TRAIL_FLAG_LOOPS = 0,
 };
 
@@ -2852,24 +2985,26 @@ enum TrailFlags {
 // 0x10 + 5 * 8 == 0x38.
 struct FloatParameterTrackNode
 {
-    float     mTime;
-    float     mLowValue;
-    float     mHighValue;
+    float mTime;
+    float mLowValue;
+    float mHighValue;
     TodCurves mCurveType;
     TodCurves mDistribution;
 };
 struct FloatParameterTrack
 {
-    FloatParameterTrackNode* mNodes;      // +0
-    int                      mCountNodes; // +4
+    FloatParameterTrackNode *mNodes; // +0
+    int mCountNodes; // +4
 };
 
-namespace Sexy {
+namespace Sexy
+{
 // KeyCode -- a real enum. Taken from the authoritative header
 // PvZ\SexyAppFramework\Misc\KeyCodes.h:25. It used to be a bare `typedef int`.
 // The aliases with duplicate values (KEYCODE_KANA/HANGEUL/HANGUL = 0x15, etc.) are
 // kept verbatim from the authoritative header.
-enum KeyCode {
+enum KeyCode
+{
     KEYCODE_UNKNOWN = 0x00,
     KEYCODE_LBUTTON = 0x01,
     KEYCODE_RBUTTON = 0x02,
@@ -2989,13 +3124,13 @@ enum KeyCode {
     KEYCODE_GAMEPAD_DPAD_DOWN,
 };
 typedef int LoadIdentity;
-            // TODO(recon): the framework puts GamepadButton in namespace Sexy, but the
-            // 69 GameButtonDown/GameButtonUp signatures in this tree all spell it as the
-            // global type declared above, so this namespaced spelling is left as int.
-            typedef int GamepadButton;
-            typedef int GamepadAxis;
-            typedef int GamepadControl;
-            typedef int GamepadStick;
+// TODO(recon): the framework puts GamepadButton in namespace Sexy, but the
+// 69 GameButtonDown/GameButtonUp signatures in this tree all spell it as the
+// global type declared above, so this namespaced spelling is left as int.
+typedef int GamepadButton;
+typedef int GamepadAxis;
+typedef int GamepadControl;
+typedef int GamepadStick;
 typedef int MusicType;
 typedef int SoundType;
 typedef int WidgetFocusDir;
@@ -3018,21 +3153,23 @@ struct SortedKern
     int mSecond;
     int mAmount;
 
-    static int Compare(const void* a, const void* b);
+    static int Compare(const void *a, const void *b);
 };
 
 // Helper types the signatures name that have no header of their own.
 // They are passed by pointer or reference only, so an incomplete type
 // is enough. Declared at global scope and inside Sexy, because the
 // signatures spell them both ways.
-namespace Sexy {
+namespace Sexy
+{
 
 }
 
 // The key codes the bodies name. The binary's own values are the
 // Windows virtual-key codes, which is what the framework maps to.
 enum
-{    KEYCODE_LAST = 0xFFFF,
+{
+    KEYCODE_LAST = 0xFFFF,
     // The framework key codes this project's platform layer maps onto.
     // The values are the Windows virtual-key codes, which is what the
     // binary's enum already uses.
@@ -3194,32 +3331,32 @@ enum
 // Every static record in the table stores a null image pointer.
 struct PlantImageRef
 {
-    Sexy::Image* mImage;
+    Sexy::Image *mImage;
 };
 
 struct PlantDefinition
 {
-    SeedType         mSeedType;
-    PlantImageRef*   mPlantImage;
-    ReanimationType  mReanimationType;
-    int              mPacketIndex;
-    int              mPlantCost;
-    int              mRefreshTime;
-    PlantSubClass    mSubclass;
-    int              mLaunchRate;
-    const char*      mPlantName;
+    SeedType mSeedType;
+    PlantImageRef *mPlantImage;
+    ReanimationType mReanimationType;
+    int mPacketIndex;
+    int mPlantCost;
+    int mRefreshTime;
+    PlantSubClass mSubclass;
+    int mLaunchRate;
+    const char *mPlantName;
 };
 
 // ChallengeDefinition -- the 24-byte record GetChallengeDefinition indexes.
 // Ninety-four records; the row/column lookups stop at that count.
 struct ChallengeDefinition
 {
-    GameMode    mChallengeMode;
-    int         mChallengeIconIndex;
-    int         mPage;
-    int         mRow;
-    int         mCol;
-    const char* mChallengeName;
+    GameMode mChallengeMode;
+    int mChallengeIconIndex;
+    int mPage;
+    int mRow;
+    int mCol;
+    const char *mChallengeName;
 };
 
 // Last, so every name ReconFreeFunctions.h's declarations use (Sexy::Graphics,
@@ -3237,7 +3374,8 @@ struct ChallengeDefinition
 // reproduced verbatim from the authoritative header
 // PvZ\SexyAppFramework\Misc\Flags.h, where they also live in `namespace Sexy`.
 // ---------------------------------------------------------------------------
-namespace Sexy {
+namespace Sexy
+{
 
 class FlagsMod
 {
@@ -3259,7 +3397,10 @@ public:
     int mUnderFlags;
     bool mIsOver;
 
-    int GetFlags() { return mIsOver ? mOverFlags : mUnderFlags; }
+    int GetFlags()
+    {
+        return mIsOver ? mOverFlags : mUnderFlags;
+    }
 };
 
 } // namespace Sexy
@@ -3275,7 +3416,8 @@ public:
 // enum StorePages. StoreScreen::mPage sits at +0x300. The tree previously only
 // had the transcribed int typedef `StorePage`, which is the same enum under a
 // different spelling.
-enum StorePages {
+enum StorePages
+{
     STORE_PAGE_SLOT_UPGRADES = 0,
     STORE_PAGE_PLANT_UPGRADES = 1,
     STORE_PAGE_ZEN1 = 2,
@@ -3285,7 +3427,8 @@ enum StorePages {
 };
 
 // enum BackgroundType. VSResultsMenu::mBoardBackground at +0x158.
-enum BackgroundType {
+enum BackgroundType
+{
     BACKGROUND_1_DAY = 0,
     BACKGROUND_2_NIGHT = 1,
     BACKGROUND_3_POOL = 2,
@@ -3300,7 +3443,8 @@ enum BackgroundType {
 
 // enum UnlockingState. ChallengeScreen::mUnlockState at +0x28C;
 // ChallengeScreen.cpp writes 1 and 2 there and decrements a counter beside it.
-enum UnlockingState {
+enum UnlockingState
+{
     UNLOCK_OFF = 0,
     UNLOCK_SHAKING = 1,
     UNLOCK_FADING = 2,
@@ -3309,7 +3453,8 @@ enum UnlockingState {
 // enum PlantRowType -- the value of each Board::mPlantRow[] slot. Values from
 // the authoritative header (PvZ\Lawn\Common\ConstEnums.h:961). Board::PickBackground
 // writes all four, and Board::GridToPixelX / CanPlantAt read them back.
-enum PlantRowType {
+enum PlantRowType
+{
     PLANTROW_DIRT = 0,
     PLANTROW_NORMAL = 1,
     PLANTROW_POOL = 2,
@@ -3319,7 +3464,8 @@ enum PlantRowType {
 // enum DebugTextMode -- Board::mDebugTextMode at +0x5718, set by the debug
 // key handler and read by Board::DrawDebugText. Values from the authoritative
 // header PvZ\Lawn\Common\ConstEnums.h:365.
-enum DebugTextMode {
+enum DebugTextMode
+{
     DEBUG_TEXT_NONE = 0,
     DEBUG_TEXT_ZOMBIE_SPAWN = 1,
     DEBUG_TEXT_MUSIC = 2,
@@ -3337,7 +3483,8 @@ enum DebugTextMode {
 // ---------------------------------------------------------------------------
 
 // Garden locations. Potted plants use the first four values; the tree is a separate scene.
-enum GardenType : unsigned int {
+enum GardenType : unsigned int
+{
     GARDEN_MAIN = 0,
     GARDEN_MUSHROOM = 1,
     GARDEN_WHEELBARROW = 2,
@@ -3346,7 +3493,8 @@ enum GardenType : unsigned int {
 };
 
 // enum PottedPlantNeed. PottedPlant::mPlantNeed, 3 bits.
-enum PottedPlantNeed : unsigned int {
+enum PottedPlantNeed : unsigned int
+{
     PLANTNEED_NONE = 0,
     PLANTNEED_WATER = 1,
     PLANTNEED_FERTILIZER = 2,
@@ -3355,7 +3503,8 @@ enum PottedPlantNeed : unsigned int {
 };
 
 // enum PottedPlantAge. PottedPlant::mPlantAge, 2 bits.
-enum PottedPlantAge : unsigned int {
+enum PottedPlantAge : unsigned int
+{
     PLANTAGE_SPROUT = 0,
     PLANTAGE_SMALL = 1,
     PLANTAGE_MEDIUM = 2,
@@ -3365,7 +3514,8 @@ enum PottedPlantAge : unsigned int {
 // PottedPlant::FacingDirection -- the 1-bit `mFacing` field. Taken from
 // PvZ\Lawn\System\PlayerInfo.h:34, which is the authority for PottedPlant's
 // bitfield layout.
-enum FacingDirection {
+enum FacingDirection
+{
     FACING_RIGHT = 0,
     FACING_LEFT = 1,
 };
@@ -3391,7 +3541,8 @@ enum FacingDirection {
 // recon tree declares them.
 
 // ChosenSeedState -- the state a seed packet animates through in SeedChooserScreen.
-enum ChosenSeedState {
+enum ChosenSeedState
+{
     SEED_FLYING_TO_BANK = 0,
     SEED_IN_BANK = 1,
     SEED_FLYING_TO_CHOOSER = 2,
@@ -3400,13 +3551,17 @@ enum ChosenSeedState {
 };
 
 // BannedSeedState -- whether a packet is banned in the extended chooser.
-enum BannedSeedState {
+enum BannedSeedState
+{
     SEED_NOT_BANNED = 0,
     SEED_BANNED = 1,
 };
 
 // SeedChooserState -- SeedChooserScreen::mChooseState.
-enum SeedChooserState {
+enum SeedChooserState
+{
     CHOOSE_NORMAL = 0,
     CHOOSE_VIEW_LAWN = 1,
 };
+
+#endif // LAWNPROJECTTV_SEXY_INCLUDE_RECONTYPES_H

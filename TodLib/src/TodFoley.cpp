@@ -62,8 +62,7 @@ void SoundSystemReleaseFinishedInstances(TodFoley *theSoundSystem)
     {
         FoleyTypeData &aTypeData = theSoundSystem->mTypeData[aFoleyIndex];
 
-        for (int anInstanceIndex = 0; anInstanceIndex < FoleyTypeData::MAX_FOLEY_INSTANCES;
-             ++anInstanceIndex)
+        for (int anInstanceIndex = 0; anInstanceIndex < FoleyTypeData::MAX_FOLEY_INSTANCES; ++anInstanceIndex)
         {
             FoleyTypeDataElement &anInstance = aTypeData.mFoleyInstances[anInstanceIndex];
 
@@ -91,8 +90,7 @@ FoleyTypeDataElement *SoundSystemFindInstance(TodFoley *theSoundSystem, FoleyTyp
 {
     FoleyTypeDataElement *anInstances = theSoundSystem->mTypeData[theFoleyType].mFoleyInstances;
 
-    for (int anInstanceIndex = 0; anInstanceIndex < FoleyTypeData::MAX_FOLEY_INSTANCES;
-         ++anInstanceIndex)
+    for (int anInstanceIndex = 0; anInstanceIndex < FoleyTypeData::MAX_FOLEY_INSTANCES; ++anInstanceIndex)
     {
         if (anInstances[anInstanceIndex].mRefCount > 0)
             return &anInstances[anInstanceIndex];
@@ -111,8 +109,7 @@ bool SoundSystemHasFoleyPlayedTooRecently(TodFoley *theSoundSystem, FoleyType th
 {
     FoleyTypeDataElement *anInstances = theSoundSystem->mTypeData[theFoleyType].mFoleyInstances;
 
-    for (int anInstanceIndex = 0; anInstanceIndex < FoleyTypeData::MAX_FOLEY_INSTANCES;
-         ++anInstanceIndex)
+    for (int anInstanceIndex = 0; anInstanceIndex < FoleyTypeData::MAX_FOLEY_INSTANCES; ++anInstanceIndex)
     {
         if (anInstances[anInstanceIndex].mRefCount != 0 &&
             GetApp()->GetFrameCounter() - anInstances[anInstanceIndex].mStartTime <= 9)
@@ -128,13 +125,11 @@ bool SoundSystemHasFoleyPlayedTooRecently(TodFoley *theSoundSystem, FoleyType th
 // The first instance of this foley type with a free slot, or null when all
 // eight are taken.
 // ==========================================================================
-FoleyTypeDataElement *SoundSystemGetFreeInstanceIndex(TodFoley *theSoundSystem,
-                                                      FoleyType theFoleyType)
+FoleyTypeDataElement *SoundSystemGetFreeInstanceIndex(TodFoley *theSoundSystem, FoleyType theFoleyType)
 {
     FoleyTypeDataElement *anInstances = theSoundSystem->mTypeData[theFoleyType].mFoleyInstances;
 
-    for (int anInstanceIndex = 0; anInstanceIndex < FoleyTypeData::MAX_FOLEY_INSTANCES;
-         ++anInstanceIndex)
+    for (int anInstanceIndex = 0; anInstanceIndex < FoleyTypeData::MAX_FOLEY_INSTANCES; ++anInstanceIndex)
     {
         if (anInstances[anInstanceIndex].mRefCount == 0)
             return &anInstances[anInstanceIndex];
@@ -183,8 +178,7 @@ void TodFoley::GamePause(bool thePause)
 
         FoleyTypeData &aTypeData = mTypeData[aFoleyIndex];
 
-        for (int anInstanceIndex = 0; anInstanceIndex < FoleyTypeData::MAX_FOLEY_INSTANCES;
-             ++anInstanceIndex)
+        for (int anInstanceIndex = 0; anInstanceIndex < FoleyTypeData::MAX_FOLEY_INSTANCES; ++anInstanceIndex)
         {
             FoleyTypeDataElement &anInstance = aTypeData.mFoleyInstances[anInstanceIndex];
 
@@ -226,8 +220,7 @@ void TodFoley::CancelPausedFoley()
     {
         FoleyTypeData &aTypeData = mTypeData[aFoleyIndex];
 
-        for (int anInstanceIndex = 0; anInstanceIndex < FoleyTypeData::MAX_FOLEY_INSTANCES;
-             ++anInstanceIndex)
+        for (int anInstanceIndex = 0; anInstanceIndex < FoleyTypeData::MAX_FOLEY_INSTANCES; ++anInstanceIndex)
         {
             FoleyTypeDataElement &anInstance = aTypeData.mFoleyInstances[anInstanceIndex];
 
@@ -305,8 +298,7 @@ FoleyTypeDataElement *TodFoley::PlayFoleyPitch(FoleyType theFoleyType, float the
 
     for (int aVariation = 0; aVariation < 10; ++aVariation)
     {
-        if ((aFoleyParams->mFoleyFlags & 0x10) != 0 &&
-            mTypeData[theFoleyType].mLastVariationPlayed == aVariation)
+        if ((aFoleyParams->mFoleyFlags & 0x10) != 0 && mTypeData[theFoleyType].mLastVariationPlayed == aVariation)
             continue;
         if (aFoleyParams->mSfxID[aVariation] == nullptr)
             break;
@@ -326,8 +318,7 @@ FoleyTypeDataElement *TodFoley::PlayFoleyPitch(FoleyType theFoleyType, float the
     if (aSoundId < 0)
         return nullptr;
 
-    Sexy::SoundInstance *aSound =
-        aSoundManager->GetSoundInstance(aSoundId);
+    Sexy::SoundInstance *aSound = aSoundManager->GetSoundInstance(aSoundId);
     if (aSound == nullptr)
         return nullptr;
 
@@ -361,8 +352,7 @@ FoleyTypeDataElement *TodFoley::PlayFoley(FoleyType theFoleyType)
 
     // `Sexy::Rand(float)` @0x2F9EE4, which is what the dump's stray second
     // argument to Rand stands for. A zero pitch range means no randomisation.
-    const float aPitch =
-        (aFoleyParams->mPitchRange == 0.0f) ? 0.0f : Rand(aFoleyParams->mPitchRange);
+    const float aPitch = (aFoleyParams->mPitchRange == 0.0f) ? 0.0f : Rand(aFoleyParams->mPitchRange);
 
     return PlayFoleyPitch(theFoleyType, aPitch);
 }
@@ -387,8 +377,7 @@ int TodFoley::RehookupSoundWithMusicVolume()
 
         FoleyTypeData &aTypeData = mTypeData[aFoleyIndex];
 
-        for (int anInstanceIndex = 0; anInstanceIndex < FoleyTypeData::MAX_FOLEY_INSTANCES;
-             ++anInstanceIndex)
+        for (int anInstanceIndex = 0; anInstanceIndex < FoleyTypeData::MAX_FOLEY_INSTANCES; ++anInstanceIndex)
         {
             FoleyTypeDataElement &anInstance = aTypeData.mFoleyInstances[anInstanceIndex];
 

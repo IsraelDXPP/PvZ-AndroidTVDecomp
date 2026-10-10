@@ -21,9 +21,7 @@
 // Sexy::ButtonListener sub-object at +0x100 (Widget is 0x100 bytes, see
 // Dialog.h); a real base class makes the compiler emit both, and the explicit
 // `~LawnDialog()` call is the base destructor it already runs.
-BuySunMoneyDialog::~BuySunMoneyDialog()
-{
-}
+BuySunMoneyDialog::~BuySunMoneyDialog() {}
 
 // ==========================================================================
 // BuySunMoneyDialog::GotFocus()
@@ -76,12 +74,8 @@ void BuySunMoneyDialog::ButtonDepress(int theId)
     {
         if (mApp->GotoBuyTool((E_SHOP_PACKET)11) != 0)
         {
-            mApp->LawnMessageBox(51,
-                                 "[SHOP_BUYSUNMONEY_SUCCEED]",
-                                 "[SHOP_BUYSUNMONEY_SUCCEEDMSG]",
-                                 "[DIALOG_BUTTON_OK]",
-                                 "",
-                                 3);
+            mApp->LawnMessageBox(
+                51, "[SHOP_BUYSUNMONEY_SUCCEED]", "[SHOP_BUYSUNMONEY_SUCCEEDMSG]", "[DIALOG_BUTTON_OK]", "", 3);
             mWidgetManager->SetFocus(this);
             mApp->AddBuySunMoneyCount();
             mApp->KillDialog(84);
@@ -102,9 +96,8 @@ void BuySunMoneyDialog::ButtonDepress(int theId)
 // StrFormat with the price (`50 * mApp->mInitialSunMoney`) and the caller's
 // second argument, and the result replaces mDialogLines before the two buttons
 // get their labels.
-BuySunMoneyDialog::BuySunMoneyDialog(Zombie *theZombie, int theSunAmount)
-    : LawnDialog(gLawnApp, nullptr, 84, true,
-                 "[SHOP_BUYSUNMONEY_LABEL]", "[SHOP_BUYSUNMONEY_MSG]", "", 1)
+BuySunMoneyDialog::BuySunMoneyDialog(Zombie *theZombie, int theSunAmount) :
+    LawnDialog(gLawnApp, nullptr, 84, true, "[SHOP_BUYSUNMONEY_LABEL]", "[SHOP_BUYSUNMONEY_MSG]", "", 1)
 {
     // The dump reads the string's character data before formatting and tests
     // nothing; StrFormat writes into a separate temporary that is then assigned.
@@ -130,7 +123,7 @@ BuySunMoneyDialog::BuySunMoneyDialog(Zombie *theZombie, int theSunAmount)
 // ==========================================================================
 // A bare tail call to LawnDialog's implementation (0x1410fc); the class only
 // exists to make the slot non-abstract.
-void BuySunMoneyDialog::AddedToManager(Sexy::WidgetManager * theWidgetManager)
+void BuySunMoneyDialog::AddedToManager(Sexy::WidgetManager *theWidgetManager)
 {
     LawnDialog::AddedToManager(theWidgetManager);
 }
@@ -140,7 +133,7 @@ void BuySunMoneyDialog::AddedToManager(Sexy::WidgetManager * theWidgetManager)
 // @001412B4  4 bytes
 // ==========================================================================
 // As above: a bare tail call to LawnDialog::RemovedFromManager (0x141254).
-void BuySunMoneyDialog::RemovedFromManager(Sexy::WidgetManager * theWidgetManager)
+void BuySunMoneyDialog::RemovedFromManager(Sexy::WidgetManager *theWidgetManager)
 {
     LawnDialog::RemovedFromManager(theWidgetManager);
 }

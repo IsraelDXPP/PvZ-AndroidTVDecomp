@@ -22,7 +22,7 @@
 // lists the receiver alone.
 void CreditsOverlay::Draw(Sexy::Graphics *theGraphics)
 {
-  mParent->DrawOverlay(theGraphics);
+    mParent->DrawOverlay(theGraphics);
 }
 
 // ==========================================================================
@@ -30,6 +30,4 @@ void CreditsOverlay::Draw(Sexy::Graphics *theGraphics)
 // @001B908C  24 bytes
 // ==========================================================================
 // Nothing to release: the base destructor runs implicitly.
-CreditsOverlay::~CreditsOverlay()
-{
-}
+CreditsOverlay::~CreditsOverlay() {}

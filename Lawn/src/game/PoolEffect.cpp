@@ -40,13 +40,11 @@ unsigned char PoolEffect::BilinearLookupFixedPoint(unsigned int u, unsigned int 
     unsigned int fracU = u & 0xFFFE;
     int nextRow = (unsigned char)(BYTE2(v) + 1);
     unsigned int fracV = v & 0xFFFE;
-    return (unsigned char)((((((fracV + 1) * (0xFFFF - fracU)) >> 16) * mask[column + (nextRow << 8)]) >> 16)
-                            + (((((0xFFFF - fracV) * (fracU + 1)) >> 16)
-                                * mask[(unsigned char)(column + 1) + ((unsigned char)row << 8)]) >> 16)
-                            + (((((0xFFFF - fracV) * (0xFFFF - fracU)) >> 16)
-                                * mask[column + ((unsigned char)row << 8)]) >> 16)
-                            + (((((fracV + 1) * (fracU + 1)) >> 16)
-                                * mask[(unsigned char)(column + 1) + (nextRow << 8)]) >> 16));
+    return (unsigned char)((((((fracV + 1) * (0xFFFF - fracU)) >> 16) * mask[column + (nextRow << 8)]) >> 16) +
+        (((((0xFFFF - fracV) * (fracU + 1)) >> 16) * mask[(unsigned char)(column + 1) + ((unsigned char)row << 8)]) >>
+            16) +
+        (((((0xFFFF - fracV) * (0xFFFF - fracU)) >> 16) * mask[column + ((unsigned char)row << 8)]) >> 16) +
+        (((((fracV + 1) * (fracU + 1)) >> 16) * mask[(unsigned char)(column + 1) + (nextRow << 8)]) >> 16));
 }
 
 unsigned char PoolEffect::BilinearLookup(float u, float v)
@@ -60,22 +58,16 @@ unsigned char PoolEffect::BilinearLookup(float u, float v)
     float weightV = (1.0f - v) + floorV;
     unsigned char column = (unsigned char)(int)floorU;
     unsigned char nextRow = (unsigned char)(row + 1);
-    float top = (float)mask[column + (row << 8)] * weightU
-              + (float)nextColumn[row << 8] * (u - floorU);
-    float bottom = (float)mask[column + (nextRow << 8)] * weightU
-                 + (float)nextColumn[nextRow << 8] * (u - floorU);
+    float top = (float)mask[column + (row << 8)] * weightU + (float)nextColumn[row << 8] * (u - floorU);
+    float bottom = (float)mask[column + (nextRow << 8)] * weightU + (float)nextColumn[nextRow << 8] * (u - floorU);
     return (unsigned char)(unsigned int)(top * weightV + bottom * (v - floorV));
 }
 
-void PoolEffect::UpdateWaterEffect(Sexy::Graphics *)
-{
-}
+void PoolEffect::UpdateWaterEffect(Sexy::Graphics *) {}
 
 void PoolEffect::PoolEffectUpdate()
 {
     ++mPoolCounter;
 }
 
-void PoolEffect::PoolEffectDraw(Sexy::Graphics *, bool)
-{
-}
+void PoolEffect::PoolEffectDraw(Sexy::Graphics *, bool) {}

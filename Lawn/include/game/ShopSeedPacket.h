@@ -1,4 +1,5 @@
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_SHOPSEEDPACKET_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_SHOPSEEDPACKET_H
 
 #include "ReconTypes.h"
 #include "GameObject.h"
@@ -34,3 +35,5 @@ public:
     void DrawBackground(Sexy::Graphics *g);
     void Draw(Sexy::Graphics *g);
 };
+
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_SHOPSEEDPACKET_H

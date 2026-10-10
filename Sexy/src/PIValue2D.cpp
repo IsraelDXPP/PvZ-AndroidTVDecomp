@@ -4,19 +4,19 @@
 
 #include "PIValue2D.h"
 
-Sexy::PIValue2D::PIValue2D(const PIValue2D& other)
-    : mKeyframes(other.mKeyframes)
-    , mBezier(other.mBezier)
-    , mLastValueTime(other.mLastValueTime)
-    , mLastValueX(other.mLastValueX)
-    , mLastValueY(other.mLastValueY)
-    , mLastVelocityTime(other.mLastVelocityTime)
-    , mLastVelocityX(other.mLastVelocityX)
-    , mLastVelocityY(other.mLastVelocityY)
+Sexy::PIValue2D::PIValue2D(const PIValue2D &other) :
+    mKeyframes(other.mKeyframes),
+    mBezier(other.mBezier),
+    mLastValueTime(other.mLastValueTime),
+    mLastValueX(other.mLastValueX),
+    mLastValueY(other.mLastValueY),
+    mLastVelocityTime(other.mLastVelocityTime),
+    mLastVelocityX(other.mLastVelocityX),
+    mLastVelocityY(other.mLastVelocityY)
 {
 }
 
-float* Sexy::PIValue2D::GetValueAt(float theTime)
+float *Sexy::PIValue2D::GetValueAt(float theTime)
 {
     if (mLastValueTime == theTime)
         return &mLastValueX;
@@ -33,7 +33,7 @@ float* Sexy::PIValue2D::GetValueAt(float theTime)
 
     if (mBezier.mPointCount > 0)
     {
-        const float* evaluated = mBezier.Evaluate(theTime);
+        const float *evaluated = mBezier.Evaluate(theTime);
         mLastValueX = evaluated[0];
         mLastValueY = evaluated[1];
         return &mLastValueX;
@@ -75,14 +75,14 @@ float* Sexy::PIValue2D::GetValueAt(float theTime)
     float mix = (theTime - startTime) / (endTime - startTime);
     if (mix > 1.0f)
         mix = 1.0f;
-    mLastValueX = mKeyframes[(size_t)index - 1].mX
-        + mix * (mKeyframes[(size_t)index].mX - mKeyframes[(size_t)index - 1].mX);
-    mLastValueY = mKeyframes[(size_t)index - 1].mY
-        + mix * (mKeyframes[(size_t)index].mY - mKeyframes[(size_t)index - 1].mY);
+    mLastValueX =
+        mKeyframes[(size_t)index - 1].mX + mix * (mKeyframes[(size_t)index].mX - mKeyframes[(size_t)index - 1].mX);
+    mLastValueY =
+        mKeyframes[(size_t)index - 1].mY + mix * (mKeyframes[(size_t)index].mY - mKeyframes[(size_t)index - 1].mY);
     return &mLastValueX;
 }
 
-float* Sexy::PIValue2D::GetVelocityAt(float theTime)
+float *Sexy::PIValue2D::GetVelocityAt(float theTime)
 {
     if (mLastVelocityTime == theTime)
         return &mLastVelocityX;
@@ -99,15 +99,14 @@ float* Sexy::PIValue2D::GetVelocityAt(float theTime)
 
     if (mBezier.mPointCount > 0)
     {
-        const float* evaluated = mBezier.Velocity(theTime, 0);
+        const float *evaluated = mBezier.Velocity(theTime, 0);
         mLastVelocityX = evaluated[0];
         mLastVelocityY = evaluated[1];
         return &mLastVelocityX;
     }
 
     int index = 1;
-    while (theTime < mKeyframes[(size_t)index - 1].mTime
-        || theTime > mKeyframes[(size_t)index].mTime)
+    while (theTime < mKeyframes[(size_t)index - 1].mTime || theTime > mKeyframes[(size_t)index].mTime)
     {
         if (index == keyCount - 1)
             break;

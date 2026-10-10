@@ -22,7 +22,7 @@
 // CheatDialog::EditWidgetText(int,Sexy::String const&)
 // @001919C0  24 bytes
 // ==========================================================================
-void CheatDialog::EditWidgetText(int theId, const Sexy::String& theText)
+void CheatDialog::EditWidgetText(int theId, const Sexy::String &theText)
 {
     (void)theId;
     (void)theText;
@@ -41,7 +41,7 @@ CheatDialog::~CheatDialog()
     // The three vptr stores and the explicit ~LawnDialog() call are the
     // compiler's; what is left is the owned EditWidget, released through its
     // deleting destructor behind a null test, i.e. `delete`.
-    if ( mEditWidget != nullptr )
+    if (mEditWidget != nullptr)
         delete mEditWidget;
 }
 
@@ -55,7 +55,7 @@ int CheatDialog::AllowChar(int theId, char theChar)
     // Digits, the cheat prefixes 'c'/'C' and 'f'/'F', and the level separator.
     if (theChar >= '0' && theChar <= '9')
         return true;
-    if ( theChar == 'c' || theChar == '-' )
+    if (theChar == 'c' || theChar == '-')
         return true;
     return theChar == 'C' || theChar == 'f' || theChar == 'F';
 }
@@ -64,8 +64,8 @@ int CheatDialog::AllowChar(int theId, char theChar)
 // CheatDialog::CheatDialog(LawnApp *)
 // @00191AA0  718 bytes
 // ==========================================================================
-CheatDialog::CheatDialog(LawnApp *theApp)
-    : LawnDialog(theApp, nullptr, 36, true, "CHEAT", "Enter New Level:", "", 2)
+CheatDialog::CheatDialog(LawnApp *theApp) :
+    LawnDialog(theApp, nullptr, 36, true, "CHEAT", "Enter New Level:", "", 2)
 {
     // The three Sexy::String temporaries the dump builds and then releases by
     // hand are the base constructor's header/lines/footer arguments; the vptr
@@ -79,13 +79,13 @@ CheatDialog::CheatDialog(LawnApp *theApp)
     // The level the edit box starts with: "C<mode>" for a custom level,
     // "F<area>-<sub>" once the adventure is finished, "<area>-<sub>" otherwise.
     Sexy::String aLevelString;
-    if ( mApp->mGameMode != GAMEMODE_ADVENTURE )
+    if (mApp->mGameMode != GAMEMODE_ADVENTURE)
     {
         Sexy::String aFormatted;
         StrFormat(&aFormatted, "C%d", mApp->mGameMode);
         aLevelString = aFormatted;
     }
-    else if ( mApp->HasFinishedAdventure() )
+    else if (mApp->HasFinishedAdventure())
     {
         // LawnApp::GetStageString writes its result through the receiver, which
         // is the sret buffer the transcription kept as `this`.
@@ -112,13 +112,13 @@ int CheatDialog::ApplyCheat()
         return 0;
     const char *aText = mEditWidget->mString.c_str();
     int aLevel;
-    if ( sscanf(aText, "c%d", &aLevel) == 1 || sscanf(aText, "C%d", &aLevel) == 1 )
+    if (sscanf(aText, "c%d", &aLevel) == 1 || sscanf(aText, "C%d", &aLevel) == 1)
     {
         // A custom level number, carried in the mode word and clamped to 0..90.
         mApp->KillBoard();
-        if ( aLevel < 0 )
+        if (aLevel < 0)
             aLevel = 0;
-        else if ( aLevel >= 90 )
+        else if (aLevel >= 90)
             aLevel = 90;
         mApp->mGameMode = (GameMode)aLevel;
         return 1;
@@ -130,16 +130,16 @@ int CheatDialog::ApplyCheat()
     int aSub;
     int aNewLevel = -1;
     bool aFinishedAdventure = false;
-    if ( sscanf(aText, "f%d-%d", &aArea, &aSub) == 2 || sscanf(aText, "F%d-%d", &aArea, &aSub) == 2 )
+    if (sscanf(aText, "f%d-%d", &aArea, &aSub) == 2 || sscanf(aText, "F%d-%d", &aArea, &aSub) == 2)
     {
         aNewLevel = aSub + 10 * (aArea - 1);
         aFinishedAdventure = true;
     }
-    else if ( sscanf(aText, "f%d", &aNewLevel) == 1 || sscanf(aText, "F%d", &aNewLevel) == 1 )
+    else if (sscanf(aText, "f%d", &aNewLevel) == 1 || sscanf(aText, "F%d", &aNewLevel) == 1)
     {
         aFinishedAdventure = true;
     }
-    else if ( sscanf(aText, "%d-%d", &aArea, &aSub) == 2 )
+    else if (sscanf(aText, "%d-%d", &aArea, &aSub) == 2)
     {
         aNewLevel = aSub + 10 * (aArea - 1);
     }
@@ -148,11 +148,14 @@ int CheatDialog::ApplyCheat()
         sscanf(aText, "%d", &aNewLevel);
     }
 
-    if ( aNewLevel <= 0 )
+    if (aNewLevel <= 0)
     {
-        mApp->DoDialog(38, true, "Enter Level",
-                       "Invalid Level. Do 'number' or 'area-subarea' or 'Cnumber' or 'Farea-subarea'.",
-                       "OK", 3);
+        mApp->DoDialog(38,
+            true,
+            "Enter Level",
+            "Invalid Level. Do 'number' or 'area-subarea' or 'Cnumber' or 'Farea-subarea'.",
+            "OK",
+            3);
         return 0;
     }
 
@@ -203,10 +206,8 @@ void CheatDialog::Resize(int theX, int theY, int theWidth, int theHeight)
 {
     // The edit box sits inside the content insets, above the two buttons.
     LawnDialog::Resize(theX, theY, theWidth, theHeight);
-    mEditWidget->Resize(mContentInsets.mLeft + 12,
-                        mHeight - 155,
-                        mWidth - mContentInsets.mLeft - mContentInsets.mRight - 24,
-                        28);
+    mEditWidget->Resize(
+        mContentInsets.mLeft + 12, mHeight - 155, mWidth - mContentInsets.mLeft - mContentInsets.mRight - 24, 28);
 }
 
 // ==========================================================================
@@ -231,7 +232,6 @@ void CheatDialog::GotFocus()
     Widget *aFocusedBefore = mFocusedChildWidget;
     LawnDialog::GotFocus();
 
-    if ( aFocusedBefore == nullptr || mFocusedChildWidget == nullptr ||
-         mFocusedChildWidget == mEditWidget )
+    if (aFocusedBefore == nullptr || mFocusedChildWidget == nullptr || mFocusedChildWidget == mEditWidget)
         SetFocus(mEditWidget, true);
 }

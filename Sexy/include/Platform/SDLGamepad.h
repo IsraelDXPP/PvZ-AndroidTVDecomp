@@ -3,7 +3,8 @@
 // SDL controller ids are the devices. A connected pad becomes key events the
 // game already understands; sticks are read back through GetAxisInfo.
 
-#pragma once
+#ifndef LAWNPROJECTTV_SEXY_INCLUDE_PLATFORM_SDLGAMEPAD_H
+#define LAWNPROJECTTV_SEXY_INCLUDE_PLATFORM_SDLGAMEPAD_H
 
 #include "IInputDriver.h"
 #include "InputDriver.h"
@@ -32,3 +33,5 @@ public:
 IInputDriver *CreateSDLGamepad(InputDriver *theOwner);
 
 } // namespace Sexy
+
+#endif // LAWNPROJECTTV_SEXY_INCLUDE_PLATFORM_SDLGAMEPAD_H

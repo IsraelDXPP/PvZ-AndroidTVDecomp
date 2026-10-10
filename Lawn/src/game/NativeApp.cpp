@@ -11,10 +11,10 @@
 // ==========================================================================
 int Native::NativeApp::getGameCenter()
 {
-  // TODO(recon): the binary tail-calls the imported symbol
-  // __imp__ZNK6Native9NativeApp13getGameCenterEv (an ELF PLT entry with no
-  // implementation in this tree). Neutral stub until the import is modelled.
-  return 0;
+    // TODO(recon): the binary tail-calls the imported symbol
+    // __imp__ZNK6Native9NativeApp13getGameCenterEv (an ELF PLT entry with no
+    // implementation in this tree). Neutral stub until the import is modelled.
+    return 0;
 }
 
 // ==========================================================================
@@ -23,10 +23,10 @@ int Native::NativeApp::getGameCenter()
 // ==========================================================================
 int Native::NativeApp::getShareManager()
 {
-  // TODO(recon): the binary tail-calls the imported symbol
-  // __imp__ZNK6Native9NativeApp15getShareManagerEv (an ELF PLT entry with no
-  // implementation in this tree). Neutral stub until the import is modelled.
-  return 0;
+    // TODO(recon): the binary tail-calls the imported symbol
+    // __imp__ZNK6Native9NativeApp15getShareManagerEv (an ELF PLT entry with no
+    // implementation in this tree). Neutral stub until the import is modelled.
+    return 0;
 }
 
 // ==========================================================================
@@ -35,8 +35,8 @@ int Native::NativeApp::getShareManager()
 // ==========================================================================
 int Native::NativeApp::getNotificationManager()
 {
-  // TODO(recon): the binary tail-calls the imported symbol
-  // __imp__ZNK6Native9NativeApp22getNotificationManagerEv (an ELF PLT entry
-  // with no implementation in this tree). Neutral stub until it is modelled.
-  return 0;
+    // TODO(recon): the binary tail-calls the imported symbol
+    // __imp__ZNK6Native9NativeApp22getNotificationManagerEv (an ELF PLT entry
+    // with no implementation in this tree). Neutral stub until it is modelled.
+    return 0;
 }

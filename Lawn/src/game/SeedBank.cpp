@@ -17,7 +17,8 @@
 
 #include <cstring>
 
-namespace {
+namespace
+{
 
 const Sexy::Color kTipColor(224, 187, 98);
 const int kSunLabelJustify = 2;
@@ -76,9 +77,8 @@ int HeldSlot(SeedBank *theBank, int theIndex)
     Board *aBoard = theBank->mBoard;
     if (theBank->mApp->IsCoopMode() || theBank->mApp->mGameMode == GAMEMODE_MP_VS)
     {
-        GamepadControls *aControls = aBoard->mSeedBank[0] == theBank
-            ? aBoard->mGamepadControls[0]
-            : aBoard->mGamepadControls[1];
+        GamepadControls *aControls =
+            aBoard->mSeedBank[0] == theBank ? aBoard->mGamepadControls[0] : aBoard->mGamepadControls[1];
         if (aControls->mGamepadIndex != -1 && theIndex == aControls->mSelectedSeedIndex)
             return 1;
         return 0;
@@ -350,8 +350,7 @@ void SeedBank::Draw(Sexy::Graphics *theGraphics)
 
     if ((aHasPad || aPadsOn) && aCanShop)
     {
-        DrawTip(theGraphics, aControls->mIsInShopSeedBank
-            ? "[GAMEPAD_SHOPTIP_2]" : "[GAMEPAD_SHOPTIP_1]", 220, -9);
+        DrawTip(theGraphics, aControls->mIsInShopSeedBank ? "[GAMEPAD_SHOPTIP_2]" : "[GAMEPAD_SHOPTIP_1]", 220, -9);
     }
 
     float aSavedTransX = theGraphics->mTransX;
@@ -419,11 +418,7 @@ void SeedBank::Draw(Sexy::Graphics *theGraphics)
     else
     {
         int aExtraWidth = mBoard->GetSeedBankExtraWidth();
-        Sexy::TRect<int> aSrc(
-            IMAGE_SEEDBANK->mWidth - aExtraWidth - 12,
-            0,
-            aExtraWidth + 12,
-            IMAGE_SEEDBANK->mHeight);
+        Sexy::TRect<int> aSrc(IMAGE_SEEDBANK->mWidth - aExtraWidth - 12, 0, aExtraWidth + 12, IMAGE_SEEDBANK->mHeight);
         theGraphics->DrawImage(IMAGE_SEEDBANK, 0, 0);
         theGraphics->DrawImage(IMAGE_SEEDBANK, IMAGE_SEEDBANK->mWidth - 12, 0, aSrc);
     }
@@ -509,8 +504,8 @@ void SeedBank::Draw(Sexy::Graphics *theGraphics)
         theGraphics->Translate(0, -96);
     }
 
-    if (mToolTipWidget != nullptr && aShowShop
-        && aControls->mIsInShopSeedBank && aControls->mSelectedShopSeedIndex <= 5)
+    if (mToolTipWidget != nullptr && aShowShop && aControls->mIsInShopSeedBank &&
+        aControls->mSelectedShopSeedIndex <= 5)
     {
         Sexy::String aLabelKey;
         Sexy::String aTitleKey;

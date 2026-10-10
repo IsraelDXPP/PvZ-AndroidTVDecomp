@@ -8,17 +8,19 @@
 // The return is DataElement*: SingleDataElement and ListDataElement override
 // it covariantly. mElementKind is 0 for a single value and non-zero for a list.
 
-#pragma once
+#ifndef LAWNPROJECTTV_SEXY_INCLUDE_DATAELEMENT_H
+#define LAWNPROJECTTV_SEXY_INCLUDE_DATAELEMENT_H
 
 #include "ReconTypes.h"
 
-namespace Sexy {
+namespace Sexy
+{
 
 class DataElement
 {
 public:
     virtual ~DataElement();
-    virtual DataElement* Duplicate();
+    virtual DataElement *Duplicate();
 
     DataElement();
 
@@ -28,3 +30,5 @@ public:
 } // namespace Sexy
 
 using Sexy::DataElement;
+
+#endif // LAWNPROJECTTV_SEXY_INCLUDE_DATAELEMENT_H

@@ -19,6 +19,4 @@ TrailDefinition::TrailDefinition()
     mAlphaOverTime.mCountNodes = 0;
 }
 
-TrailDefinition::~TrailDefinition()
-{
-}
+TrailDefinition::~TrailDefinition() {}

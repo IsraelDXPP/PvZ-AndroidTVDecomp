@@ -22,7 +22,8 @@
 // vtable instead of adding a primary slot, so the absolute indices differ there;
 // the declaration order is what has to match.
 
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_CREDITSCREEN_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_CREDITSCREEN_H
 
 #include "ReconTypes.h"
 #include "CreditsTiming.h"
@@ -61,20 +62,20 @@ public:
     virtual ~CreditScreen();
 
     // The three entries this class appends to the primary vtable.
-    virtual void ButtonPress(int theId);    // [122] 0x1b9074
-    virtual void ButtonDepress(int theId);  // [123] 0x1b9080
+    virtual void ButtonPress(int theId); // [122] 0x1b9074
+    virtual void ButtonDepress(int theId); // [123] 0x1b9080
     virtual void GameButtonDown(Sexy::GamepadButton theButton, int thePlayerIndex,
-                                unsigned int theModifierFlag); // [124] 0x1b9178
+        unsigned int theModifierFlag); // [124] 0x1b9178
     // Overrides of Widget slots.
-    virtual void AddedToManager(Sexy::WidgetManager *theWidgetManager);   // [ 29] 0x1b90d4
+    virtual void AddedToManager(Sexy::WidgetManager *theWidgetManager); // [ 29] 0x1b90d4
     virtual void RemovedFromManager(Sexy::WidgetManager *theWidgetManager); // [ 30] 0x1b90ec
-    virtual void Update();                                               // [ 31] 0x1bc0e4
-    virtual void Draw(Sexy::Graphics *g);                                // [ 36] 0x1bc390
-    virtual void DrawOverlay(Sexy::Graphics *g);                         // [ 54] 0x1b9118
-    virtual void GotFocus();                                             // [ 61] 0x1b9114
-    virtual int KeyChar(char theChar);                                  // [ 67] 0x1bbf84
-    virtual int KeyDown(Sexy::KeyCode theKey);                          // [ 71] 0x1bc2e0
-    virtual void MouseUp(int x, int y, int theClickCount);               // [ 79] 0x1b9070
+    virtual void Update(); // [ 31] 0x1bc0e4
+    virtual void Draw(Sexy::Graphics *g); // [ 36] 0x1bc390
+    virtual void DrawOverlay(Sexy::Graphics *g); // [ 54] 0x1b9118
+    virtual void GotFocus(); // [ 61] 0x1b9114
+    virtual int KeyChar(char theChar); // [ 67] 0x1bbf84
+    virtual int KeyDown(Sexy::KeyCode theKey); // [ 71] 0x1bc2e0
+    virtual void MouseUp(int x, int y, int theClickCount); // [ 79] 0x1b9070
 
     // Not vtable slots; the signatures are the ones the transcribed bodies define.
     CreditScreen(LawnApp *theApp, bool theFromMainMenu);
@@ -96,26 +97,28 @@ public:
     // cross-checked against CreditScreen.cpp's raw accesses (+260/+288/+336/+337/
     // +352/+376 are all reached there).
     // -----------------------------------------------------------------------
-    LawnApp *mApp;                    // +0x104
-    CreditsPhase mCreditsPhase;       // +0x108
-    int mCreditsPhaseCounter;         // +0x10C
-    ReanimationID mCreditsReanimID;   // +0x110
-    ParticleSystemID mFogParticleID;  // +0x114
-    int mBlinkCountdown;              // +0x118
-    Sexy::Widget *mOverlayWidget;     // +0x11C
-    bool mDrawBrain;                  // +0x120
-    float mBrainPosX;                 // +0x124
-    float mBrainPosY;                 // +0x128
-    int mUpdateCount;                 // +0x12C
-    int mDrawCount;                   // +0x130
+    LawnApp *mApp; // +0x104
+    CreditsPhase mCreditsPhase; // +0x108
+    int mCreditsPhaseCounter; // +0x10C
+    ReanimationID mCreditsReanimID; // +0x110
+    ParticleSystemID mFogParticleID; // +0x114
+    int mBlinkCountdown; // +0x118
+    Sexy::Widget *mOverlayWidget; // +0x11C
+    bool mDrawBrain; // +0x120
+    float mBrainPosX; // +0x124
+    float mBrainPosY; // +0x128
+    int mUpdateCount; // +0x12C
+    int mDrawCount; // +0x130
     Sexy::PerfTimer mTimerSinceStart; // +0x138
-    bool mDontSync;                   // +0x150
-    bool mCreditsPaused;              // +0x151
-    double mSavedMusicVolume;          // +0x158
-    bool mPreloaded;                  // +0x160
-    int mLastDrawCount;               // +0x164
-    double mScrollPositionY1;         // +0x168
-    double mScrollPositionY2;         // +0x170
-    bool mIsFromMainMenu;             // +0x178
+    bool mDontSync; // +0x150
+    bool mCreditsPaused; // +0x151
+    double mSavedMusicVolume; // +0x158
+    bool mPreloaded; // +0x160
+    int mLastDrawCount; // +0x164
+    double mScrollPositionY1; // +0x168
+    double mScrollPositionY2; // +0x170
+    bool mIsFromMainMenu; // +0x178
     // size 0x17C, allocation 0x180
 };
+
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_CREDITSCREEN_H

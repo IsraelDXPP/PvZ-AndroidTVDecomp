@@ -3,7 +3,8 @@
 // writes after the name. mEmitInReverse walks the definitions backwards.
 // mHasLifeKeys is set when the first curve has at least one key.
 
-#pragma once
+#ifndef LAWNPROJECTTV_SEXY_INCLUDE_PIEMITTER_H
+#define LAWNPROJECTTV_SEXY_INCLUDE_PIEMITTER_H
 
 #include "ReconTypes.h"
 #include "Bezier.h"
@@ -11,7 +12,8 @@
 #include "PIValue.h"
 #include <vector>
 
-namespace Sexy {
+namespace Sexy
+{
 
 class PIEmitter
 {
@@ -23,8 +25,11 @@ public:
     bool mEmitInReverse;
     bool mHasLifeKeys;
 
-    PIEmitter()
-        : mName(), mSerialize(false), mEmitInReverse(false), mHasLifeKeys(false)
+    PIEmitter() :
+        mName(),
+        mSerialize(false),
+        mEmitInReverse(false),
+        mHasLifeKeys(false)
     {
     }
 };
@@ -32,3 +37,5 @@ public:
 } // namespace Sexy
 
 using Sexy::PIEmitter;
+
+#endif // LAWNPROJECTTV_SEXY_INCLUDE_PIEMITTER_H

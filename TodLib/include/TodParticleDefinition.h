@@ -1,4 +1,5 @@
-#pragma once
+#ifndef LAWNPROJECTTV_TODLIB_INCLUDE_TODPARTICLEDEFINITION_H
+#define LAWNPROJECTTV_TODLIB_INCLUDE_TODPARTICLEDEFINITION_H
 
 #include "ReconTypes.h"
 #include "Image.h"
@@ -55,15 +56,15 @@ struct ParticleField
 class TodEmitterDefinition
 {
 public:
-    Sexy::Image* mImage;
+    Sexy::Image *mImage;
     int mImageCol;
     int mImageRow;
     int mImageFrames;
     int mAnimated;
     int mFlags;
     ParticleEmitterType mEmitterType;
-    const char* mName;
-    const char* mOnDuration;
+    const char *mName;
+    const char *mOnDuration;
     FloatParameterTrack mSystemDuration;
     FloatParameterTrack mCrossFadeDuration;
     FloatParameterTrack mSpawnRate;
@@ -86,9 +87,9 @@ public:
     FloatParameterTrack mSystemBlue;
     FloatParameterTrack mSystemAlpha;
     FloatParameterTrack mSystemBrightness;
-    ParticleField* mParticleFields;
+    ParticleField *mParticleFields;
     int mParticleFieldCount;
-    ParticleField* mSystemFields;
+    ParticleField *mSystemFields;
     int mSystemFieldCount;
     FloatParameterTrack mParticleRed;
     FloatParameterTrack mParticleGreen;
@@ -111,8 +112,10 @@ public:
 class TodParticleDefinition
 {
 public:
-    TodEmitterDefinition* mEmitterDefs;
+    TodEmitterDefinition *mEmitterDefs;
     int mEmitterDefCount;
 
     TodParticleDefinition();
 };
+
+#endif // LAWNPROJECTTV_TODLIB_INCLUDE_TODPARTICLEDEFINITION_H

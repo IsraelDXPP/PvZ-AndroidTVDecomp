@@ -6,9 +6,11 @@
 #include "Graphics.h"
 #include "IGraphicsDriver.h"
 
-namespace Sexy {
+namespace Sexy
+{
 
-namespace {
+namespace
+{
 
 // Capability bits the device reports in GetCapsFlags.
 const int kCapPixelShaders = 2;
@@ -34,10 +36,10 @@ void Graphics3D::SetAsCurrentContext()
     mRenderDevice->SetCurrentContext(mRenderContext.mValue);
 }
 
-Graphics3D::Graphics3D(Graphics *theGraphics, RenderDevice3D *theDevice, HRenderContext const& theContext)
-    : mGraphics2D(theGraphics)
-    , mRenderDevice(theDevice)
-    , mRenderContext(theContext)
+Graphics3D::Graphics3D(Graphics *theGraphics, RenderDevice3D *theDevice, HRenderContext const &theContext) :
+    mGraphics2D(theGraphics),
+    mRenderDevice(theDevice),
+    mRenderContext(theContext)
 {
 }
 
@@ -77,15 +79,15 @@ int Graphics3D::GetMaxTextureStages()
 }
 
 void Graphics3D::DrawPrimitiveEx(unsigned long theFlags, Graphics3D_EPrimitiveType theType,
-                                 SexyVertex const* theVertices, int theVertexCount, Color const& theColor,
-                                 int theDrawMode, float theX, float theY, bool theBlend, unsigned int theTexCoord)
+    SexyVertex const *theVertices, int theVertexCount, Color const &theColor, int theDrawMode, float theX, float theY,
+    bool theBlend, unsigned int theTexCoord)
 {
     SetAsCurrentContext();
-    mRenderDevice->DrawPrimitiveEx(theFlags, theType, theVertices, theVertexCount, theColor,
-                                   theDrawMode, theX, theY, theBlend, theTexCoord);
+    mRenderDevice->DrawPrimitiveEx(
+        theFlags, theType, theVertices, theVertexCount, theColor, theDrawMode, theX, theY, theBlend, theTexCoord);
 }
 
-void Graphics3D::RenderMesh(Mesh *theMesh, SexyMatrix4 const& theTransform, Color const& theColor, bool theBlend)
+void Graphics3D::RenderMesh(Mesh *theMesh, SexyMatrix4 const &theTransform, Color const &theColor, bool theBlend)
 {
     SetAsCurrentContext();
     mRenderDevice->RenderMesh(theMesh, theTransform, theColor, theBlend);
@@ -97,7 +99,7 @@ void Graphics3D::SetBltDepth(float theDepth)
     mRenderDevice->SetBltDepth(theDepth);
 }
 
-void Graphics3D::PushTransform(SexyMatrix3 const& theTransform, bool theConcatenate)
+void Graphics3D::PushTransform(SexyMatrix3 const &theTransform, bool theConcatenate)
 {
     SetAsCurrentContext();
     mRenderDevice->PushTransform(theTransform, theConcatenate);
@@ -109,13 +111,13 @@ void Graphics3D::PopTransform()
     mRenderDevice->PopTransform();
 }
 
-void Graphics3D::PopTransform(SexyMatrix3 & theTransform)
+void Graphics3D::PopTransform(SexyMatrix3 &theTransform)
 {
     SetAsCurrentContext();
     mRenderDevice->PopTransform(theTransform);
 }
 
-void Graphics3D::ClearColorBuffer(Color const& theColor)
+void Graphics3D::ClearColorBuffer(Color const &theColor)
 {
     SetAsCurrentContext();
     mRenderDevice->ClearColorBuffer(theColor);
@@ -163,45 +165,45 @@ void Graphics3D::SetLightEnabled(int theLight, bool theEnabled)
     mRenderDevice->SetLightEnabled(theLight, theEnabled);
 }
 
-void Graphics3D::SetPointLight(int theLight, SexyVector3 const& thePosition, Graphics3D_LightColors const& theColors,
-                               float theRange, SexyVector3 const& theAttenuation)
+void Graphics3D::SetPointLight(int theLight, SexyVector3 const &thePosition, Graphics3D_LightColors const &theColors,
+    float theRange, SexyVector3 const &theAttenuation)
 {
     SetAsCurrentContext();
     mRenderDevice->SetPointLight(theLight, thePosition, theColors, theRange, theAttenuation);
 }
 
-void Graphics3D::SetDirectionalLight(int theLight, SexyVector3 const& theDirection,
-                                     Graphics3D_LightColors const& theColors)
+void Graphics3D::SetDirectionalLight(
+    int theLight, SexyVector3 const &theDirection, Graphics3D_LightColors const &theColors)
 {
     SetAsCurrentContext();
     mRenderDevice->SetDirectionalLight(theLight, theDirection, theColors);
 }
 
-void Graphics3D::SetGlobalAmbient(Color const& theColor)
+void Graphics3D::SetGlobalAmbient(Color const &theColor)
 {
     SetAsCurrentContext();
     mRenderDevice->SetGlobalAmbient(theColor);
 }
 
-void Graphics3D::SetMaterialAmbient(Color const& theColor, int theLight)
+void Graphics3D::SetMaterialAmbient(Color const &theColor, int theLight)
 {
     SetAsCurrentContext();
     mRenderDevice->SetMaterialAmbient(theColor, theLight);
 }
 
-void Graphics3D::SetMaterialDiffuse(Color const& theColor, int theLight)
+void Graphics3D::SetMaterialDiffuse(Color const &theColor, int theLight)
 {
     SetAsCurrentContext();
     mRenderDevice->SetMaterialDiffuse(theColor, theLight);
 }
 
-void Graphics3D::SetMaterialSpecular(Color const& theColor, int theLight, float theShininess)
+void Graphics3D::SetMaterialSpecular(Color const &theColor, int theLight, float theShininess)
 {
     SetAsCurrentContext();
     mRenderDevice->SetMaterialSpecular(theColor, theLight, theShininess);
 }
 
-void Graphics3D::SetMaterialEmissive(Color const& theColor, int theLight)
+void Graphics3D::SetMaterialEmissive(Color const &theColor, int theLight)
 {
     SetAsCurrentContext();
     mRenderDevice->SetMaterialEmissive(theColor, theLight);
@@ -220,25 +222,25 @@ void Graphics3D::SetLightingEnabled(bool theEnabled, bool theApplyDefaultMateria
     }
 }
 
-void Graphics3D::SetWorldTransform(SexyMatrix4 const* theTransform)
+void Graphics3D::SetWorldTransform(SexyMatrix4 const *theTransform)
 {
     SetAsCurrentContext();
     mRenderDevice->SetWorldTransform(theTransform);
 }
 
-void Graphics3D::SetViewTransform(SexyMatrix4 const* theTransform)
+void Graphics3D::SetViewTransform(SexyMatrix4 const *theTransform)
 {
     SetAsCurrentContext();
     mRenderDevice->SetViewTransform(theTransform);
 }
 
-void Graphics3D::SetProjectionTransform(SexyMatrix4 const* theTransform)
+void Graphics3D::SetProjectionTransform(SexyMatrix4 const *theTransform)
 {
     SetAsCurrentContext();
     mRenderDevice->SetProjectionTransform(theTransform);
 }
 
-void Graphics3D::SetTextureTransform(int theStage, SexyMatrix4 const* theTransform, int theFlags)
+void Graphics3D::SetTextureTransform(int theStage, SexyMatrix4 const *theTransform, int theFlags)
 {
     SetAsCurrentContext();
     mRenderDevice->SetTextureTransform(theStage, theTransform, theFlags);
@@ -299,31 +301,31 @@ void Graphics3D::SetMasking(Graphics3D_EMaskMode theMode, int theAlphaRef, float
     SetAsCurrentContext();
     switch (theMode)
     {
-    case 0:
-        mRenderDevice->SetAlphaTest(kCompareAlways, 0);
-        mRenderDevice->SetDepthState(kCompareAlways, false);
-        mRenderDevice->SetBltDepth(theClearDepth);
-        mRenderDevice->SetBlend(kBlendNone, kBlendNone);
-        break;
-    case 1:
-    case 2:
-        mRenderDevice->SetAlphaTest(kCompareGreater, theAlphaRef);
-        mRenderDevice->SetDepthState(kCompareAlways, true);
-        mRenderDevice->SetBltDepth(theWriteDepth);
-        if (theMode == 1)
-            mRenderDevice->SetBlend(kBlendOne, kBlendZero);
-        else
+        case 0:
+            mRenderDevice->SetAlphaTest(kCompareAlways, 0);
+            mRenderDevice->SetDepthState(kCompareAlways, false);
+            mRenderDevice->SetBltDepth(theClearDepth);
             mRenderDevice->SetBlend(kBlendNone, kBlendNone);
-        break;
-    case 3:
-    case 4:
-        mRenderDevice->SetAlphaTest(kCompareGreater, 0);
-        mRenderDevice->SetDepthState(theMode == 4 ? kCompareLessEqual : kCompareGreaterEqual, false);
-        mRenderDevice->SetBltDepth(theClearDepth);
-        mRenderDevice->SetBlend(kBlendNone, kBlendNone);
-        break;
-    default:
-        break;
+            break;
+        case 1:
+        case 2:
+            mRenderDevice->SetAlphaTest(kCompareGreater, theAlphaRef);
+            mRenderDevice->SetDepthState(kCompareAlways, true);
+            mRenderDevice->SetBltDepth(theWriteDepth);
+            if (theMode == 1)
+                mRenderDevice->SetBlend(kBlendOne, kBlendZero);
+            else
+                mRenderDevice->SetBlend(kBlendNone, kBlendNone);
+            break;
+        case 3:
+        case 4:
+            mRenderDevice->SetAlphaTest(kCompareGreater, 0);
+            mRenderDevice->SetDepthState(theMode == 4 ? kCompareLessEqual : kCompareGreaterEqual, false);
+            mRenderDevice->SetBltDepth(theClearDepth);
+            mRenderDevice->SetBlend(kBlendNone, kBlendNone);
+            break;
+        default:
+            break;
     }
 }
 

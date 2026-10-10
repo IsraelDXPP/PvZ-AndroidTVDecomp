@@ -31,7 +31,8 @@
 //   [131] 0x195978  VSSetupMenu::GameButtonDown
 //   [132] 0x194ee0  VSSetupMenu::GameButtonUp
 
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_VSSETUPMENU_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_VSSETUPMENU_H
 
 #include "ReconTypes.h"
 // The base class, plus the classes this one calls a method on: the call needs the
@@ -83,8 +84,8 @@ public:
 
     enum VSSetupState
     {
-        VS_SETUP_STATE_CONTROLLERS = 0,   // WaitForSecondPlayerDialog
-        VS_SETUP_STATE_SIDES = 1,         // no controller has a side yet
+        VS_SETUP_STATE_CONTROLLERS = 0, // WaitForSecondPlayerDialog
+        VS_SETUP_STATE_SIDES = 1, // no controller has a side yet
         VS_SETUP_STATE_SELECT_BATTLE = 2, // both controllers have a side
         VS_SETUP_STATE_CUSTOM_BATTLE = 3, // picking seeds for the custom battle
     };
@@ -132,24 +133,24 @@ public:
 
     // Overrides of base slots.
     virtual void AddedToManager(Sexy::WidgetManager *theWidgetManager); // [ 29] 0x194ee4
-    virtual void Update();                                              // [ 31] 0x195660
-    virtual void Draw(Sexy::Graphics *g);                               // [ 36] 0x195130
-    virtual void DrawOverlay(Sexy::Graphics *g);                        // [ 54] 0x194f5c
-    virtual void GotFocus();                                            // [ 61] 0x195380
-    virtual int KeyChar(char theChar);                                 // [ 67] 0x194ed8
-    virtual int KeyDown(Sexy::KeyCode theKey);                         // [ 71] 0x19516c
+    virtual void Update(); // [ 31] 0x195660
+    virtual void Draw(Sexy::Graphics *g); // [ 36] 0x195130
+    virtual void DrawOverlay(Sexy::Graphics *g); // [ 54] 0x194f5c
+    virtual void GotFocus(); // [ 61] 0x195380
+    virtual int KeyChar(char theChar); // [ 67] 0x194ed8
+    virtual int KeyDown(Sexy::KeyCode theKey); // [ 71] 0x19516c
     void MouseDown(int x, int y, int theClickCount) override;
     void MouseDrag(int x, int y) override;
     void MouseUp(int x, int y, int theClickCount) override;
 
     // The five entries this class appends.
-    virtual void ButtonPress(int theId);                                // [128] 0x194ecc
-    virtual void ButtonDepress(int theId);                              // [129] 0x1961b4
+    virtual void ButtonPress(int theId); // [128] 0x194ecc
+    virtual void ButtonDepress(int theId); // [129] 0x1961b4
     virtual void GameAxisMove(Sexy::GamepadAxis theAxis, int theValue, int thePlayerIndex); // [130] 0x194edc
     virtual void GameButtonDown(Sexy::GamepadButton theButton, int thePlayerIndex,
-                                unsigned int theModifierFlag);          // [131] 0x195978
+        unsigned int theModifierFlag); // [131] 0x195978
     virtual void GameButtonUp(Sexy::GamepadButton theButton, int thePlayerIndex,
-                              unsigned int theModifierFlag);            // [132] 0x194ee0
+        unsigned int theModifierFlag); // [132] 0x194ee0
 
     // Not vtable slots; the signatures are the ones the transcribed bodies define.
     VSSetupMenu();
@@ -174,18 +175,20 @@ public:
     // which pushed every member below 12 bytes late and made sizeof(VSSetupMenu)
     // 0x15C against the 0x150 allocation at LawnApp.cpp:1040.
     // -----------------------------------------------------------------------
-    LawnApp *mApp;                // +0x124
+    LawnApp *mApp; // +0x124
     VSSetupMenu_VSSetupState mState; // +0x128
-    int mControllerIndex[2];      // +0x12C, +0x130  (0: pad 1, 1: pad 2)
-    VSSide mSides[2];             // +0x134, +0x138
-    bool mSideLocked[2];          // +0x13C, +0x13D
-    VSSide mSeedPickTurn;         // +0x140
+    int mControllerIndex[2]; // +0x12C, +0x130  (0: pad 1, 1: pad 2)
+    VSSide mSides[2]; // +0x134, +0x138
+    bool mSideLocked[2]; // +0x13C, +0x13D
+    VSSide mSeedPickTurn; // +0x140
     int mChooserAnimateUpdateCnt; // +0x144
-    VSSetupMode mSetupMode;       // +0x148
+    VSSetupMode mSetupMode; // +0x148
     // Set by the selector's quick-play cheat. GotFocus then fills both banks
     // from msQuickPlayDecks and closes the setup.
-    bool mQuickPlay;              // +0x14C
+    bool mQuickPlay; // +0x14C
     int mMouseController = -1;
     int mMouseLastX = 0;
     // size 0x150, matching `operator new(0x150u)` at LawnApp.cpp:1040.
 };
+
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_VSSETUPMENU_H

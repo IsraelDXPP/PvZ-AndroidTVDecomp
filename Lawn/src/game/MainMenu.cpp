@@ -34,7 +34,7 @@
 
 // The camera X each menu scene slides to, indexed by MenuScene. Word 3 is never
 // read: MenuScene has three values.
-float MainMenu::msMenuOffsetX[4] = { 0.0f, -1280.0f, -2560.0f, 0.0f };
+float MainMenu::msMenuOffsetX[4] = {0.0f, -1280.0f, -2560.0f, 0.0f};
 
 // SexyAppBase.h names LawnApp's word at +0x2E4 `mPlatformDriverOrQueue` and
 // records that its type could not be recovered. Its byte at +96 is the
@@ -42,7 +42,7 @@ float MainMenu::msMenuOffsetX[4] = { 0.0f, -1280.0f, -2560.0f, 0.0f };
 // on, so it is read once here instead of spelling the offset at each site.
 static bool IsWideScreen(LawnApp *theApp)
 {
-  return theApp->mPlatformDriverOrQueue->mWideScreen;
+    return theApp->mPlatformDriverOrQueue->mWideScreen;
 }
 
 // Music2.h re-declares MakeSureMusicIsPlaying with a `const char *` parameter and
@@ -52,23 +52,22 @@ static bool IsWideScreen(LawnApp *theApp)
 // with no enumerators.
 static void MakeSureMusicIsPlaying(LawnApp *theApp, MusicTune theTune)
 {
-  static_cast<Music *>(theApp->mMusic)->MakeSureMusicIsPlaying(theTune);
+    static_cast<Music *>(theApp->mMusic)->MakeSureMusicIsPlaying(theTune);
 }
 
 // Exit @0x19CA34 and DrawFade @0x19CCF8 use the same button track stem.
 static Sexy::String GetButtonTransitionTrackName(Sexy::WidgetAnimator *theAnimator, const char *theSuffix)
 {
-  ReanimTrackWidgetAnimator *trackAnimator = dynamic_cast<ReanimTrackWidgetAnimator *>(theAnimator);
-  if ( trackAnimator == nullptr || trackAnimator->mTrackName1.empty() )
-    return Sexy::String();
+    ReanimTrackWidgetAnimator *trackAnimator = dynamic_cast<ReanimTrackWidgetAnimator *>(theAnimator);
+    if (trackAnimator == nullptr || trackAnimator->mTrackName1.empty())
+        return Sexy::String();
 
-  std::string_view buttonTrack(trackAnimator->mTrackName1.c_str(), trackAnimator->mTrackName1.size());
-  size_t stemLength = buttonTrack.rfind(" button");
-  if ( stemLength == std::string_view::npos )
-    stemLength = buttonTrack.size();
-  return "anim_" + trackAnimator->mTrackName1.substr(0, static_cast<unsigned int>(stemLength)) + theSuffix;
+    std::string_view buttonTrack(trackAnimator->mTrackName1.c_str(), trackAnimator->mTrackName1.size());
+    size_t stemLength = buttonTrack.rfind(" button");
+    if (stemLength == std::string_view::npos)
+        stemLength = buttonTrack.size();
+    return "anim_" + trackAnimator->mTrackName1.substr(0, static_cast<unsigned int>(stemLength)) + theSuffix;
 }
-
 
 // ==========================================================================
 // MainMenu::~MainMenu()
@@ -76,26 +75,26 @@ static Sexy::String GetButtonTransitionTrackName(Sexy::WidgetAnimator *theAnimat
 // ==========================================================================
 MainMenu::~MainMenu()
 {
-  // Every reanimation the menu created is handed back by id; mHouseReanimID is
-  // deliberately NOT removed here (the house screen takes it over).
-  mApp->RemoveReanimation(mSkyReanimID);
-  mApp->RemoveReanimation(mSky2ReanimID);
-  mApp->RemoveReanimation(mZombieHandReanimID);
-  mApp->RemoveReanimation(mCrowReanimID);
-  mApp->RemoveReanimation(mFallingLeavesReanimID);
-  mApp->RemoveReanimation(mButterflyReanimID);
-  mApp->RemoveReanimation(mOverlayReanimID);
+    // Every reanimation the menu created is handed back by id; mHouseReanimID is
+    // deliberately NOT removed here (the house screen takes it over).
+    mApp->RemoveReanimation(mSkyReanimID);
+    mApp->RemoveReanimation(mSky2ReanimID);
+    mApp->RemoveReanimation(mZombieHandReanimID);
+    mApp->RemoveReanimation(mCrowReanimID);
+    mApp->RemoveReanimation(mFallingLeavesReanimID);
+    mApp->RemoveReanimation(mButterflyReanimID);
+    mApp->RemoveReanimation(mOverlayReanimID);
 
-  if ( m2DMarkImage != nullptr )
-  {
-    // The binary calls the object's own vtable slot 1 and then clears the word,
-    // which is a reference-counted release; Widget::RemovedSharedImage is the
-    // same operation under the name this tree has for it.
-    RemovedSharedImage(m2DMarkImage);
-    m2DMarkImage = nullptr;
-  }
-  // The binary also releases mExitTrackName's rep here; the member's own String
-  // destructor does exactly that, so there is nothing to write.
+    if (m2DMarkImage != nullptr)
+    {
+        // The binary calls the object's own vtable slot 1 and then clears the word,
+        // which is a reference-counted release; Widget::RemovedSharedImage is the
+        // same operation under the name this tree has for it.
+        RemovedSharedImage(m2DMarkImage);
+        m2DMarkImage = nullptr;
+    }
+    // The binary also releases mExitTrackName's rep here; the member's own String
+    // destructor does exactly that, so there is nothing to write.
 }
 
 // ==========================================================================
@@ -104,7 +103,7 @@ MainMenu::~MainMenu()
 // ==========================================================================
 bool MainMenu::RetainWidgetsOnExit()
 {
-  return mRetainWidgetsOnExit;
+    return mRetainWidgetsOnExit;
 }
 
 // ==========================================================================
@@ -113,10 +112,10 @@ bool MainMenu::RetainWidgetsOnExit()
 // ==========================================================================
 void MainMenu::RemovedFromManager(Sexy::WidgetManager *theWidgetManager)
 {
-  LawnMenuWidget::RemovedFromManager(theWidgetManager);
-  // The house reanimation is torn down by hand here rather than released.
-  mApp->RemoveReanimation(mHouseReanimID);
-  mHouseReanimID = REANIMATIONID_NULL;
+    LawnMenuWidget::RemovedFromManager(theWidgetManager);
+    // The house reanimation is torn down by hand here rather than released.
+    mApp->RemoveReanimation(mHouseReanimID);
+    mHouseReanimID = REANIMATIONID_NULL;
 }
 
 // ==========================================================================
@@ -125,34 +124,34 @@ void MainMenu::RemovedFromManager(Sexy::WidgetManager *theWidgetManager)
 // ==========================================================================
 void MainMenu::Enter()
 {
-  Sexy::MenuWidget::Enter();
+    Sexy::MenuWidget::Enter();
 
-  FindWidget(ACHIEVEMENTS_BUTTON)->SetDisabled(false);
-  FindWidget(UNLOCK_BUTTON)->SetDisabled(true);
+    FindWidget(ACHIEVEMENTS_BUTTON)->SetDisabled(false);
+    FindWidget(UNLOCK_BUTTON)->SetDisabled(true);
 
-  Reanimation *aMainMenuReanim = mApp->ReanimationTryToGet(mBackdropReanimID);
-  if ( aMainMenuReanim != nullptr )
-  {
-    if ( mMenuScene == MENUSCENE_EXTRA )
-      aMainMenuReanim->PlayReanim("anim_enter_right", REANIM_PLAY_ONCE_FULL_LAST_FRAME_AND_HOLD, 0, 12.0);
-    else
-      aMainMenuReanim->PlayReanim("anim_enter", REANIM_PLAY_ONCE_FULL_LAST_FRAME_AND_HOLD, 0, 12.0);
-    // The camera holds still for this many frames before the idle loop starts.
-    mEnterReanimationCounter = 110;
-  }
+    Reanimation *aMainMenuReanim = mApp->ReanimationTryToGet(mBackdropReanimID);
+    if (aMainMenuReanim != nullptr)
+    {
+        if (mMenuScene == MENUSCENE_EXTRA)
+            aMainMenuReanim->PlayReanim("anim_enter_right", REANIM_PLAY_ONCE_FULL_LAST_FRAME_AND_HOLD, 0, 12.0);
+        else
+            aMainMenuReanim->PlayReanim("anim_enter", REANIM_PLAY_ONCE_FULL_LAST_FRAME_AND_HOLD, 0, 12.0);
+        // The camera holds still for this many frames before the idle loop starts.
+        mEnterReanimationCounter = 110;
+    }
 
-  Reanimation *aCrowReanim = mApp->ReanimationTryToGet(mCrowReanimID);
-  if ( aCrowReanim != nullptr )
-  {
-    aCrowReanim->PlayReanim("anim_land", REANIM_PLAY_ONCE_AND_HOLD, 0, 7.0);
-    // Resource IDs 622-624 are the three crow wing-flap samples.
-    mApp->PlaySample(Sexy::GetSoundById(Rand() % 3 + 622), true);
-  }
+    Reanimation *aCrowReanim = mApp->ReanimationTryToGet(mCrowReanimID);
+    if (aCrowReanim != nullptr)
+    {
+        aCrowReanim->PlayReanim("anim_land", REANIM_PLAY_ONCE_AND_HOLD, 0, 7.0);
+        // Resource IDs 622-624 are the three crow wing-flap samples.
+        mApp->PlaySample(Sexy::GetSoundById(Rand() % 3 + 622), true);
+    }
 
-  mCrowLeaving = false;
-  mCrowTalking = true;
-  mExitTrackName = "";
-  mExitCounter = 0;
+    mCrowLeaving = false;
+    mCrowTalking = true;
+    mExitTrackName = "";
+    mExitCounter = 0;
 }
 
 // ==========================================================================
@@ -161,150 +160,150 @@ void MainMenu::Enter()
 // ==========================================================================
 void MainMenu::OnExit()
 {
-  LawnApp *aApp = mApp;
-  if ( aApp->mPlayerInfo == nullptr )
-    return;
-  // Whether the profile has never been played, which decides between the
-  // intro and a replay of the adventure.
-  bool aFreshProfile = (aApp->mPlayerInfo->mLevel == 0);
-
-  switch ( mPressedButtonId )
-  {
-    case START_ADVENTURE_BUTTON:
-    case ADVENTURE_BUTTON:
-      aApp->KillGameSelector();
-      if ( aApp->IsIceDemo() )
-      {
-        aApp->PreNewGame(GAMEMODE_CHALLENGE_ICE, false);
-        break;
-      }
-      if ( aApp->IsFirstTimeAdventureMode() && aApp->mPlayerInfo->mLevel == 0 )
-      {
-        aApp->mPlayerInfo->mLevel = 1;
-        aApp->PreNewGame(GAMEMODE_INTRO, false);
+    LawnApp *aApp = mApp;
+    if (aApp->mPlayerInfo == nullptr)
         return;
-      }
-      // A profile that has already finished the adventure replays it; a fresh
-      // one is sent to the intro instead.
-      if ( aApp->HasFinishedAdventure() )
-      {
-        if ( aFreshProfile )
-          aApp->mPlayerInfo->mLevel = 1;
-        aApp->PreNewGame(GAMEMODE_ADVENTURE, !aFreshProfile);
-        return;
-      }
-      // The garden tutorial interrupts the adventure the first time 1-10 is
-      // cleared with no potted plants yet.
-      if ( aApp->mPlayerInfo->mLevel == 45 && aApp->mPlayerInfo->mNumPottedPlants == 0 )
-      {
-        aApp->PreNewGame(GAMEMODE_CHALLENGE_ZEN_GARDEN, false);
-        aApp->mZenGarden->SetupForZenTutorial();
-        break;
-      }
-      if ( aFreshProfile )
-        aApp->mPlayerInfo->mLevel = 1;
-      aApp->PreNewGame(GAMEMODE_ADVENTURE, !aFreshProfile);
-      return;
-    case HOUSE_BUTTON:
-        aApp->KillGameSelector();
-        aApp->ShowHouseScreen();
-        break;
-    case RETURN_TO_ARCADE_BUTTON:
-        if ( !aApp->IsFullVersion() )
-        {
-          mApp->KillGameSelector();
-          mApp->PreNewGame(GAMEMODE_UPSELL, false);
-        }
-        break;
-    case VS_BUTTON:
-        aApp->KillGameSelector();
-        mApp->mVsInitialPlantMode = 0;
-        mApp->PreNewGame(GAMEMODE_MP_VS, false);
-        break;
-      // 3, 1, 0 and 4 are the ChallengePage the four mode buttons open: the
-      // coop, mini-game, survival and puzzle pages.
-    case VS_COOP_BUTTON:
-        aApp->KillGameSelector();
-        mApp->ShowChallengeScreen(ChallengePage(3));
-        break;
-    case MINI_GAMES_BUTTON:
-        aApp->KillGameSelector();
-        mApp->ShowChallengeScreen(ChallengePage(1));
-        break;
-    case SURVIVAL_BUTTON:
-        aApp->KillGameSelector();
-        mApp->ShowChallengeScreen(ChallengePage(0));
-        break;
-    case PUZZLE_BUTTON:
-        aApp->KillGameSelector();
-        mApp->ShowChallengeScreen(ChallengePage(4));
-        break;
-    case STORE_BUTTON:
-      {
-        StoreScreen *aStoreScreen = mApp->ShowStoreScreen();
-        if ( mStoreIntro )
-        {
-          mStoreIntro = false;
-          aStoreScreen->SetupForIntro(601);
-          aStoreScreen->WaitForResult(true);
-          if ( !mApp->mShutDown )
-          {
-            mApp->PreNewGame(GAMEMODE_ADVENTURE, false);
-            mApp->KillGameSelector();
-          }
-          return;
-        }
-        aStoreScreen->WaitForResult(false);
-        if ( mApp->mShutDown )
-          return;
-        bool aGoToTreeNow = aStoreScreen->mGoToTreeNow;
-        mApp->KillStoreScreen();
-        if ( aGoToTreeNow )
-        {
-          mIsFading = false;
-          mRetainWidgetsOnExit = false;
-          mApp->KillGameSelector();
-          mApp->PreNewGame(GAMEMODE_TREE_OF_WISDOM, false);
-          return;
-        }
-        mApp->mWidgetManager->SetFocus(this);
-        MakeSureMusicIsPlaying(mApp, MusicTune(7));
-        break;
-      }
-    case ZEN_BUTTON:
-        aApp->KillGameSelector();
-        mApp->PreNewGame(GAMEMODE_CHALLENGE_ZEN_GARDEN, false);
-        if ( !mApp->HasFinishedAdventure() && mApp->mPlayerInfo->mLevel == 45
-          && mApp->mPlayerInfo->mNumPottedPlants == 0 )
-          mApp->mZenGarden->SetupForZenTutorial();
-        break;
-    case ALMANAC_BUTTON:
-      {
-        AlmanacDialog *aAlmanacDialog = mApp->DoAlmanacDialog((SeedType)-1, (ZombieType)-1);
-        aAlmanacDialog->WaitForResult(true);
-        if ( mApp->mShutDown )
-          return;
-        mApp->mWidgetManager->SetFocus(this);
-        MakeSureMusicIsPlaying(mApp, MusicTune(7));
-        break;
-      }
-    case MAIL_BUTTON:
-      {
-        MailScreen *aMailScreen = new MailScreen(mApp);
-        mApp->AddDialog(aMailScreen);
-        mApp->mWidgetManager->SetFocus(aMailScreen);
-        break;
-      }
-    default:
-        break;
-  }
+    // Whether the profile has never been played, which decides between the
+    // intro and a replay of the adventure.
+    bool aFreshProfile = (aApp->mPlayerInfo->mLevel == 0);
 
-  if ( mRetainWidgetsOnExit )
-  {
-    mIsFading = false;
-    mRetainWidgetsOnExit = false;
-    Enter();
-  }
+    switch (mPressedButtonId)
+    {
+        case START_ADVENTURE_BUTTON:
+        case ADVENTURE_BUTTON:
+            aApp->KillGameSelector();
+            if (aApp->IsIceDemo())
+            {
+                aApp->PreNewGame(GAMEMODE_CHALLENGE_ICE, false);
+                break;
+            }
+            if (aApp->IsFirstTimeAdventureMode() && aApp->mPlayerInfo->mLevel == 0)
+            {
+                aApp->mPlayerInfo->mLevel = 1;
+                aApp->PreNewGame(GAMEMODE_INTRO, false);
+                return;
+            }
+            // A profile that has already finished the adventure replays it; a fresh
+            // one is sent to the intro instead.
+            if (aApp->HasFinishedAdventure())
+            {
+                if (aFreshProfile)
+                    aApp->mPlayerInfo->mLevel = 1;
+                aApp->PreNewGame(GAMEMODE_ADVENTURE, !aFreshProfile);
+                return;
+            }
+            // The garden tutorial interrupts the adventure the first time 1-10 is
+            // cleared with no potted plants yet.
+            if (aApp->mPlayerInfo->mLevel == 45 && aApp->mPlayerInfo->mNumPottedPlants == 0)
+            {
+                aApp->PreNewGame(GAMEMODE_CHALLENGE_ZEN_GARDEN, false);
+                aApp->mZenGarden->SetupForZenTutorial();
+                break;
+            }
+            if (aFreshProfile)
+                aApp->mPlayerInfo->mLevel = 1;
+            aApp->PreNewGame(GAMEMODE_ADVENTURE, !aFreshProfile);
+            return;
+        case HOUSE_BUTTON:
+            aApp->KillGameSelector();
+            aApp->ShowHouseScreen();
+            break;
+        case RETURN_TO_ARCADE_BUTTON:
+            if (!aApp->IsFullVersion())
+            {
+                mApp->KillGameSelector();
+                mApp->PreNewGame(GAMEMODE_UPSELL, false);
+            }
+            break;
+        case VS_BUTTON:
+            aApp->KillGameSelector();
+            mApp->mVsInitialPlantMode = 0;
+            mApp->PreNewGame(GAMEMODE_MP_VS, false);
+            break;
+            // 3, 1, 0 and 4 are the ChallengePage the four mode buttons open: the
+            // coop, mini-game, survival and puzzle pages.
+        case VS_COOP_BUTTON:
+            aApp->KillGameSelector();
+            mApp->ShowChallengeScreen(ChallengePage(3));
+            break;
+        case MINI_GAMES_BUTTON:
+            aApp->KillGameSelector();
+            mApp->ShowChallengeScreen(ChallengePage(1));
+            break;
+        case SURVIVAL_BUTTON:
+            aApp->KillGameSelector();
+            mApp->ShowChallengeScreen(ChallengePage(0));
+            break;
+        case PUZZLE_BUTTON:
+            aApp->KillGameSelector();
+            mApp->ShowChallengeScreen(ChallengePage(4));
+            break;
+        case STORE_BUTTON:
+        {
+            StoreScreen *aStoreScreen = mApp->ShowStoreScreen();
+            if (mStoreIntro)
+            {
+                mStoreIntro = false;
+                aStoreScreen->SetupForIntro(601);
+                aStoreScreen->WaitForResult(true);
+                if (!mApp->mShutDown)
+                {
+                    mApp->PreNewGame(GAMEMODE_ADVENTURE, false);
+                    mApp->KillGameSelector();
+                }
+                return;
+            }
+            aStoreScreen->WaitForResult(false);
+            if (mApp->mShutDown)
+                return;
+            bool aGoToTreeNow = aStoreScreen->mGoToTreeNow;
+            mApp->KillStoreScreen();
+            if (aGoToTreeNow)
+            {
+                mIsFading = false;
+                mRetainWidgetsOnExit = false;
+                mApp->KillGameSelector();
+                mApp->PreNewGame(GAMEMODE_TREE_OF_WISDOM, false);
+                return;
+            }
+            mApp->mWidgetManager->SetFocus(this);
+            MakeSureMusicIsPlaying(mApp, MusicTune(7));
+            break;
+        }
+        case ZEN_BUTTON:
+            aApp->KillGameSelector();
+            mApp->PreNewGame(GAMEMODE_CHALLENGE_ZEN_GARDEN, false);
+            if (!mApp->HasFinishedAdventure() && mApp->mPlayerInfo->mLevel == 45 &&
+                mApp->mPlayerInfo->mNumPottedPlants == 0)
+                mApp->mZenGarden->SetupForZenTutorial();
+            break;
+        case ALMANAC_BUTTON:
+        {
+            AlmanacDialog *aAlmanacDialog = mApp->DoAlmanacDialog((SeedType)-1, (ZombieType)-1);
+            aAlmanacDialog->WaitForResult(true);
+            if (mApp->mShutDown)
+                return;
+            mApp->mWidgetManager->SetFocus(this);
+            MakeSureMusicIsPlaying(mApp, MusicTune(7));
+            break;
+        }
+        case MAIL_BUTTON:
+        {
+            MailScreen *aMailScreen = new MailScreen(mApp);
+            mApp->AddDialog(aMailScreen);
+            mApp->mWidgetManager->SetFocus(aMailScreen);
+            break;
+        }
+        default:
+            break;
+    }
+
+    if (mRetainWidgetsOnExit)
+    {
+        mIsFading = false;
+        mRetainWidgetsOnExit = false;
+        Enter();
+    }
 }
 
 // ==========================================================================
@@ -313,57 +312,84 @@ void MainMenu::OnExit()
 // ==========================================================================
 bool MainMenu::UpdateExit()
 {
-  bool anUpdated = Sexy::MenuWidget::UpdateExit();
-  int aPressedButton = mPressedButtonId;
-  mExitCounter++;
+    bool anUpdated = Sexy::MenuWidget::UpdateExit();
+    int aPressedButton = mPressedButtonId;
+    mExitCounter++;
 
-  if ( aPressedButton == ADVENTURE_BUTTON )
-  {
-    Sexy::Widget *aWidget = FindWidget(mPressedButtonId);
-    if ( aWidget != nullptr )
+    if (aPressedButton == ADVENTURE_BUTTON)
     {
-      if ( mExitCounter % 20 > 9 )
-        aWidget->SetColor(5, Sexy::Color::White);
-      else
-        aWidget->SetColor(5, Sexy::Color(128, 128, 128));
+        Sexy::Widget *aWidget = FindWidget(mPressedButtonId);
+        if (aWidget != nullptr)
+        {
+            if (mExitCounter % 20 > 9)
+                aWidget->SetColor(5, Sexy::Color::White);
+            else
+                aWidget->SetColor(5, Sexy::Color(128, 128, 128));
+        }
+        if (mExitCounter == 125)
+            mApp->PlaySample(SOUND_EVILLAUGH, true);
+        if (mExitCounter >= 450)
+            return anUpdated;
+        return false;
     }
-    if ( mExitCounter == 125 )
-      mApp->PlaySample(SOUND_EVILLAUGH, true);
-    if ( mExitCounter >= 450 )
-      return anUpdated;
-    return false;
-  }
-  // Each mode button plays its own sound once the exit animation has run for a
-  // while; the counter it waits for differs per page.
-  int aSound = -1;
-  switch ( aPressedButton )
-  {
-    case VS_BUTTON:         if ( mExitCounter == 72 )  aSound = SOUND_VS;        break;
-    case VS_COOP_BUTTON:    if ( mExitCounter == 72 )  aSound = SOUND_COOP;      break;
-    case MINI_GAMES_BUTTON: if ( mExitCounter == 30 )  aSound = SOUND_MINIGAMES; break;
-    case SURVIVAL_BUTTON:   if ( mExitCounter == 72 )  aSound = SOUND_SURVIVAL;  break;
-    case PUZZLE_BUTTON:     if ( mExitCounter == 100 ) aSound = SOUND_PUZZLE;    break;
-    case STORE_BUTTON:      if ( mExitCounter == 88 )  aSound = SOUND_SHOP;      break;
-    case ZEN_BUTTON:        if ( mExitCounter == 72 )  aSound = SOUND_ZEN;       break;
-    case ALMANAC_BUTTON:    if ( mExitCounter == 88 )  aSound = SOUND_ALMANAC;   break;
-    case MAIL_BUTTON:       if ( mExitCounter == 88 )  aSound = SOUND_MAIL;      break;
-    default: break;
-  }
-  if ( aSound != -1 )
-    mApp->PlaySample(aSound, true);
+    // Each mode button plays its own sound once the exit animation has run for a
+    // while; the counter it waits for differs per page.
+    int aSound = -1;
+    switch (aPressedButton)
+    {
+        case VS_BUTTON:
+            if (mExitCounter == 72)
+                aSound = SOUND_VS;
+            break;
+        case VS_COOP_BUTTON:
+            if (mExitCounter == 72)
+                aSound = SOUND_COOP;
+            break;
+        case MINI_GAMES_BUTTON:
+            if (mExitCounter == 30)
+                aSound = SOUND_MINIGAMES;
+            break;
+        case SURVIVAL_BUTTON:
+            if (mExitCounter == 72)
+                aSound = SOUND_SURVIVAL;
+            break;
+        case PUZZLE_BUTTON:
+            if (mExitCounter == 100)
+                aSound = SOUND_PUZZLE;
+            break;
+        case STORE_BUTTON:
+            if (mExitCounter == 88)
+                aSound = SOUND_SHOP;
+            break;
+        case ZEN_BUTTON:
+            if (mExitCounter == 72)
+                aSound = SOUND_ZEN;
+            break;
+        case ALMANAC_BUTTON:
+            if (mExitCounter == 88)
+                aSound = SOUND_ALMANAC;
+            break;
+        case MAIL_BUTTON:
+            if (mExitCounter == 88)
+                aSound = SOUND_MAIL;
+            break;
+        default:
+            break;
+    }
+    if (aSound != -1)
+        mApp->PlaySample(aSound, true);
 
-  if ( mExitCounter == 65 )
-  {
-    Reanimation *aMainMenuReanim = mApp->ReanimationTryToGet(mBackdropReanimID);
-    if ( aMainMenuReanim != nullptr && !mExitTrackName.empty()
-      && aMainMenuReanim->FindTrackIndex(mExitTrackName.c_str()) != -1 )
-      aMainMenuReanim->PlayReanim(mExitTrackName.c_str(),
-        REANIM_PLAY_ONCE_FULL_LAST_FRAME_AND_HOLD, 4, 12.0);
+    if (mExitCounter == 65)
+    {
+        Reanimation *aMainMenuReanim = mApp->ReanimationTryToGet(mBackdropReanimID);
+        if (aMainMenuReanim != nullptr && !mExitTrackName.empty() &&
+            aMainMenuReanim->FindTrackIndex(mExitTrackName.c_str()) != -1)
+            aMainMenuReanim->PlayReanim(mExitTrackName.c_str(), REANIM_PLAY_ONCE_FULL_LAST_FRAME_AND_HOLD, 4, 12.0);
+        return false;
+    }
+    if (mExitCounter > 200)
+        return anUpdated;
     return false;
-  }
-  if ( mExitCounter > 200 )
-    return anUpdated;
-  return false;
 }
 
 // ==========================================================================
@@ -372,79 +398,78 @@ bool MainMenu::UpdateExit()
 // ==========================================================================
 Reanimation *MainMenu::UpdateCrow(Reanimation *theCrow)
 {
-  Reanimation *aMainMenuReanim = mApp->ReanimationTryToGet(mBackdropReanimID);
-  if ( aMainMenuReanim == nullptr )
-    return nullptr;
+    Reanimation *aMainMenuReanim = mApp->ReanimationTryToGet(mBackdropReanimID);
+    if (aMainMenuReanim == nullptr)
+        return nullptr;
 
-  // The crow's pose is driven by the main menu's own "crow2" track: the track's
-  // transform is read back, quantised, and copied onto the crow's overlay matrix.
-  int aTrackIndex = aMainMenuReanim->FindTrackIndex("crow2");
-  ReanimatorTransform aCrowTransform;
-  aMainMenuReanim->GetCurrentTransform(aTrackIndex, &aCrowTransform);
+    // The crow's pose is driven by the main menu's own "crow2" track: the track's
+    // transform is read back, quantised, and copied onto the crow's overlay matrix.
+    int aTrackIndex = aMainMenuReanim->FindTrackIndex("crow2");
+    ReanimatorTransform aCrowTransform;
+    aMainMenuReanim->GetCurrentTransform(aTrackIndex, &aCrowTransform);
 
-  if ( aCrowTransform.mSkewX > 0.0f && aCrowTransform.mSkewX < 0.5f )
-    aCrowTransform.mSkewX = 0.5f;
-  else if ( aCrowTransform.mSkewX < 0.0f && aCrowTransform.mSkewX > -0.5f )
-    aCrowTransform.mSkewX = -0.5f;
+    if (aCrowTransform.mSkewX > 0.0f && aCrowTransform.mSkewX < 0.5f)
+        aCrowTransform.mSkewX = 0.5f;
+    else if (aCrowTransform.mSkewX < 0.0f && aCrowTransform.mSkewX > -0.5f)
+        aCrowTransform.mSkewX = -0.5f;
 
-  aCrowTransform.mSkewX = (aCrowTransform.mSkewX > 90.0f) ? 180.0f : 0.0f;
-  aCrowTransform.mSkewY = (aCrowTransform.mSkewY <= 90.0f) ? 0.0f : 180.0f;
+    aCrowTransform.mSkewX = (aCrowTransform.mSkewX > 90.0f) ? 180.0f : 0.0f;
+    aCrowTransform.mSkewY = (aCrowTransform.mSkewY <= 90.0f) ? 0.0f : 180.0f;
 
-  SexyTransform2D aCrowMatrix;
-  aMainMenuReanim->MatrixFromTransform(aCrowTransform, aCrowMatrix);
+    SexyTransform2D aCrowMatrix;
+    aMainMenuReanim->MatrixFromTransform(aCrowTransform, aCrowMatrix);
 
-  Reanimation *aCrowReanim = mApp->ReanimationTryToGet(mCrowReanimID);
-  if ( aCrowReanim != nullptr )
-  {
-    aCrowMatrix.Translate(mCameraOffsetX, 0.0f);
-    aCrowReanim->mOverlayMatrix = aCrowMatrix;
-  }
-
-  if ( mFocusedChildCounter == 150 )
-  {
-    Reanimation *aTalkReanim = mApp->ReanimationTryToGet(mCrowReanimID);
-    if ( aTalkReanim != nullptr )
-      aTalkReanim->PlayReanim("anim_talk", REANIM_PLAY_ONCE_AND_HOLD, 0, 12.0);
-  }
-
-  if ( aCrowReanim == nullptr )
-    return nullptr;
-
-  if ( aCrowReanim->IsAnimPlaying("anim_idle") && aCrowReanim->ShouldTriggerTimedEvent(0.99f) )
-  {
-    mCrowIdleLoops++;
-    if ( mCrowIdleLoops > 2 )
+    Reanimation *aCrowReanim = mApp->ReanimationTryToGet(mCrowReanimID);
+    if (aCrowReanim != nullptr)
     {
-      mCrowIdleLoops = 0;
-      // Five times out of ten the crow stretches, three times it pecks; the
-      // remaining two leave the idle loop running.
-      switch ( Rand(10) )
-      {
-        case 0:
-        case 1:
-        case 2:
-        case 3:
-        case 4:
-          aCrowReanim->PlayReanim("anim_idle2", REANIM_PLAY_ONCE_AND_HOLD, 0, 12.0);
-          break;
-        case 5:
-        case 6:
-        case 7:
-          aCrowReanim->PlayReanim("anim_idle3", REANIM_PLAY_ONCE_AND_HOLD, 0, 12.0);
-          break;
-        default:
-          break;
-      }
+        aCrowMatrix.Translate(mCameraOffsetX, 0.0f);
+        aCrowReanim->mOverlayMatrix = aCrowMatrix;
     }
-  }
-  else if ( aCrowReanim->IsAnimPlaying("anim_talk")
-         || aCrowReanim->IsAnimPlaying("anim_idle2")
-         || aCrowReanim->IsAnimPlaying("anim_idle3") )
-  {
-    if ( aCrowReanim->ShouldTriggerTimedEvent(0.99f) )
-      aCrowReanim->PlayReanim("anim_idle", REANIM_LOOP, 0, 12.0);
-  }
-  return nullptr;
+
+    if (mFocusedChildCounter == 150)
+    {
+        Reanimation *aTalkReanim = mApp->ReanimationTryToGet(mCrowReanimID);
+        if (aTalkReanim != nullptr)
+            aTalkReanim->PlayReanim("anim_talk", REANIM_PLAY_ONCE_AND_HOLD, 0, 12.0);
+    }
+
+    if (aCrowReanim == nullptr)
+        return nullptr;
+
+    if (aCrowReanim->IsAnimPlaying("anim_idle") && aCrowReanim->ShouldTriggerTimedEvent(0.99f))
+    {
+        mCrowIdleLoops++;
+        if (mCrowIdleLoops > 2)
+        {
+            mCrowIdleLoops = 0;
+            // Five times out of ten the crow stretches, three times it pecks; the
+            // remaining two leave the idle loop running.
+            switch (Rand(10))
+            {
+                case 0:
+                case 1:
+                case 2:
+                case 3:
+                case 4:
+                    aCrowReanim->PlayReanim("anim_idle2", REANIM_PLAY_ONCE_AND_HOLD, 0, 12.0);
+                    break;
+                case 5:
+                case 6:
+                case 7:
+                    aCrowReanim->PlayReanim("anim_idle3", REANIM_PLAY_ONCE_AND_HOLD, 0, 12.0);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+    else if (aCrowReanim->IsAnimPlaying("anim_talk") || aCrowReanim->IsAnimPlaying("anim_idle2") ||
+        aCrowReanim->IsAnimPlaying("anim_idle3"))
+    {
+        if (aCrowReanim->ShouldTriggerTimedEvent(0.99f))
+            aCrowReanim->PlayReanim("anim_idle", REANIM_LOOP, 0, 12.0);
+    }
+    return nullptr;
 }
 
 // ==========================================================================
@@ -453,101 +478,101 @@ Reanimation *MainMenu::UpdateCrow(Reanimation *theCrow)
 // ==========================================================================
 void MainMenu::GotFocus()
 {
-  Sexy::MenuWidget::GotFocus();
+    Sexy::MenuWidget::GotFocus();
 
-  // FindWidget is WidgetContainer's lookup by widget id. The pressed entry is the
-  // one that should hold the focus if it is still on screen; otherwise the first
-  // button of the scene the menu is showing gets it.
-  Sexy::Widget *aAdventureButton = FindWidget(ADVENTURE_BUTTON);
-  Sexy::Widget *aStartButton = FindWidget(START_ADVENTURE_BUTTON);
-  Sexy::Widget *aBackStoneButton = FindWidget(BACK_STONE_BUTTON);
-  Sexy::Widget *aBackPotButton = FindWidget(BACK_POT_BUTTON);
-  Sexy::Widget *aPressedWidget = FindWidget(mPressedButtonId);
+    // FindWidget is WidgetContainer's lookup by widget id. The pressed entry is the
+    // one that should hold the focus if it is still on screen; otherwise the first
+    // button of the scene the menu is showing gets it.
+    Sexy::Widget *aAdventureButton = FindWidget(ADVENTURE_BUTTON);
+    Sexy::Widget *aStartButton = FindWidget(START_ADVENTURE_BUTTON);
+    Sexy::Widget *aBackStoneButton = FindWidget(BACK_STONE_BUTTON);
+    Sexy::Widget *aBackPotButton = FindWidget(BACK_POT_BUTTON);
+    Sexy::Widget *aPressedWidget = FindWidget(mPressedButtonId);
 
-  bool aHandled = false;
-  if ( aPressedWidget != nullptr )
-  {
-    if ( mFocusedChildWidget != nullptr )
+    bool aHandled = false;
+    if (aPressedWidget != nullptr)
     {
-      aHandled = true;
+        if (mFocusedChildWidget != nullptr)
+        {
+            aHandled = true;
+        }
+        else if (aPressedWidget->mVisible && aPressedWidget->IsOnScreen())
+        {
+            SetFocus(aPressedWidget, true);
+            aHandled = true;
+        }
     }
-    else if ( aPressedWidget->mVisible && aPressedWidget->IsOnScreen() )
+    else if (mFocusedChildWidget != nullptr)
     {
-      SetFocus(aPressedWidget, true);
-      aHandled = true;
+        aHandled = true;
     }
-  }
-  else if ( mFocusedChildWidget != nullptr )
-  {
-    aHandled = true;
-  }
 
-  if ( !aHandled )
-  {
-    switch ( mMenuScene )
+    if (!aHandled)
     {
-      case MENUSCENE_MAIN:
-        SetFocus(mFirstTimeAdventure ? aStartButton : aAdventureButton, false);
-        break;
-      case MENUSCENE_EXTRA:
-        SetFocus(aBackPotButton, true);
-        break;
-      case MENUSCENE_MORE_WAYS:
-        SetFocus(aBackStoneButton, true);
-        break;
-      default:
-        break;
+        switch (mMenuScene)
+        {
+            case MENUSCENE_MAIN:
+                SetFocus(mFirstTimeAdventure ? aStartButton : aAdventureButton, false);
+                break;
+            case MENUSCENE_EXTRA:
+                SetFocus(aBackPotButton, true);
+                break;
+            case MENUSCENE_MORE_WAYS:
+                SetFocus(aBackStoneButton, true);
+                break;
+            default:
+                break;
+        }
     }
-  }
 
-  MakeSureMusicIsPlaying(mApp, MusicTune(7));
-  mCrowTalking = true;
-  mApp->SetHouseReanim(mApp->ReanimationTryToGet(mHouseReanimID));
+    MakeSureMusicIsPlaying(mApp, MusicTune(7));
+    mCrowTalking = true;
+    mApp->SetHouseReanim(mApp->ReanimationTryToGet(mHouseReanimID));
 
-  if ( mApp->mHelpBarWidget != nullptr )
-  {
-    HelpBarWidget *aHelpBar = mApp->mHelpBarWidget;
-    aHelpBar->ClearButtons(0);
-    // TODO(recon): the HelpAlign enumerator for 0 is not recovered.
-    aHelpBar->AddButton(GAMEPAD_BUTTON_A, "[SELECT]", (HelpBarWidget::HelpAlign)0);
-    if ( mMenuScene == MENUSCENE_MAIN )
-      aHelpBar->AddButton(GAMEPAD_BUTTON_B, "[QUIT]", (HelpBarWidget::HelpAlign)0);
-    aHelpBar->mDrawShade = false;
-    mApp->ShowHelpBarWidget();
-  }
-  mApp->mP2JoinPromptTimer = 2;
+    if (mApp->mHelpBarWidget != nullptr)
+    {
+        HelpBarWidget *aHelpBar = mApp->mHelpBarWidget;
+        aHelpBar->ClearButtons(0);
+        // TODO(recon): the HelpAlign enumerator for 0 is not recovered.
+        aHelpBar->AddButton(GAMEPAD_BUTTON_A, "[SELECT]", (HelpBarWidget::HelpAlign)0);
+        if (mMenuScene == MENUSCENE_MAIN)
+            aHelpBar->AddButton(GAMEPAD_BUTTON_B, "[QUIT]", (HelpBarWidget::HelpAlign)0);
+        aHelpBar->mDrawShade = false;
+        mApp->ShowHelpBarWidget();
+    }
+    mApp->mP2JoinPromptTimer = 2;
 }
 
 // ==========================================================================
 // MainMenu::FinishedTransition(char const*)
 // @0019A2F4  110 bytes
 // ==========================================================================
-bool MainMenu::FinishedTransition(char const* theTrackName)
+bool MainMenu::FinishedTransition(char const *theTrackName)
 {
-  if ( theTrackName == nullptr )
-    return false;
+    if (theTrackName == nullptr)
+        return false;
 
-  Reanimation *aMainMenuReanim = mApp->ReanimationTryToGet(mBackdropReanimID);
-  if ( aMainMenuReanim == nullptr )
-    return false;
+    Reanimation *aMainMenuReanim = mApp->ReanimationTryToGet(mBackdropReanimID);
+    if (aMainMenuReanim == nullptr)
+        return false;
 
-  if ( aMainMenuReanim->FindTrackIndex(theTrackName) == -1 )
-  {
-    // The track does not exist, so the slide is timed by the counter instead.
-    mTransitionCounter--;
-    return mTransitionCounter == 0;
-  }
+    if (aMainMenuReanim->FindTrackIndex(theTrackName) == -1)
+    {
+        // The track does not exist, so the slide is timed by the counter instead.
+        mTransitionCounter--;
+        return mTransitionCounter == 0;
+    }
 
-  // The track is finished when it is sitting on the last frame of the layer and
-  // the animation clock has stopped advancing past it.
-  int aFirstFrame = 0;
-  int aLastFrame = 0;
-  aMainMenuReanim->GetFramesForLayer(theTrackName, aFirstFrame, aLastFrame);
-  ReanimatorFrameTime aFrameTime;
-  aMainMenuReanim->GetFrameTime(&aFrameTime);
-  if ( aFrameTime.mAnimFrameBeforeInt != aLastFrame + aFirstFrame - 1 )
-    return false;
-  return aFrameTime.mAnimFrameBeforeInt == aFrameTime.mAnimFrameAfterInt;
+    // The track is finished when it is sitting on the last frame of the layer and
+    // the animation clock has stopped advancing past it.
+    int aFirstFrame = 0;
+    int aLastFrame = 0;
+    aMainMenuReanim->GetFramesForLayer(theTrackName, aFirstFrame, aLastFrame);
+    ReanimatorFrameTime aFrameTime;
+    aMainMenuReanim->GetFrameTime(&aFrameTime);
+    if (aFrameTime.mAnimFrameBeforeInt != aLastFrame + aFirstFrame - 1)
+        return false;
+    return aFrameTime.mAnimFrameBeforeInt == aFrameTime.mAnimFrameAfterInt;
 }
 
 // ==========================================================================
@@ -556,54 +581,54 @@ bool MainMenu::FinishedTransition(char const* theTrackName)
 // ==========================================================================
 Reanimation *MainMenu::OnScene(MainMenu_MenuScene theScene)
 {
-  if ( mApp->mHelpBarWidget != nullptr )
-  {
-    mApp->mHelpBarWidget->ClearButtons(0);
-    mApp->mHelpBarWidget->AddButton(GAMEPAD_BUTTON_A, "[SELECT]", (HelpBarWidget::HelpAlign)0);
-    if ( theScene == MENUSCENE_MAIN )
+    if (mApp->mHelpBarWidget != nullptr)
     {
-      mApp->mHelpBarWidget->AddButton(GAMEPAD_BUTTON_B, "[QUIT]", (HelpBarWidget::HelpAlign)0);
+        mApp->mHelpBarWidget->ClearButtons(0);
+        mApp->mHelpBarWidget->AddButton(GAMEPAD_BUTTON_A, "[SELECT]", (HelpBarWidget::HelpAlign)0);
+        if (theScene == MENUSCENE_MAIN)
+        {
+            mApp->mHelpBarWidget->AddButton(GAMEPAD_BUTTON_B, "[QUIT]", (HelpBarWidget::HelpAlign)0);
 
-      Reanimation *aMainMenuReanim = mApp->ReanimationTryToGet(mBackdropReanimID);
-      if ( aMainMenuReanim != nullptr )
-        aMainMenuReanim->PlayReanim("anim_idle", REANIM_LOOP, 4, 12.0);
+            Reanimation *aMainMenuReanim = mApp->ReanimationTryToGet(mBackdropReanimID);
+            if (aMainMenuReanim != nullptr)
+                aMainMenuReanim->PlayReanim("anim_idle", REANIM_LOOP, 4, 12.0);
 
-      Reanimation *aCrowReanim = mApp->ReanimationTryToGet(mCrowReanimID);
-      if ( aCrowReanim != nullptr )
+            Reanimation *aCrowReanim = mApp->ReanimationTryToGet(mCrowReanimID);
+            if (aCrowReanim != nullptr)
+                aCrowReanim->PlayReanim("anim_idle", REANIM_LOOP, 0, 12.0);
+            return aCrowReanim;
+        }
+    }
+
+    Reanimation *aMainMenuReanim = mApp->ReanimationTryToGet(mBackdropReanimID);
+    if (aMainMenuReanim != nullptr)
+    {
+        if (theScene == MENUSCENE_MORE_WAYS)
+        {
+            aMainMenuReanim->PlayReanim("anim_idle_left", REANIM_LOOP, 4, 12.0);
+        }
+        else if (theScene == MENUSCENE_EXTRA)
+        {
+            aMainMenuReanim->PlayReanim("anim_idle_right", REANIM_LOOP, 4, 12.0);
+            Reanimation *aButterflyReanim = mApp->ReanimationTryToGet(mButterflyReanimID);
+            if (aButterflyReanim != nullptr)
+            {
+                aButterflyReanim->SetFramesForLayer("anim_idle");
+                aButterflyReanim->SetAnimRate(0.0f);
+                aButterflyReanim->mIsAttachment = true;
+                aButterflyReanim->mLoopType = REANIM_PLAY_ONCE_AND_HOLD;
+            }
+        }
+        else
+        {
+            aMainMenuReanim->PlayReanim("anim_idle", REANIM_LOOP, 4, 12.0);
+        }
+    }
+
+    Reanimation *aCrowReanim = mApp->ReanimationTryToGet(mCrowReanimID);
+    if (aCrowReanim != nullptr)
         aCrowReanim->PlayReanim("anim_idle", REANIM_LOOP, 0, 12.0);
-      return aCrowReanim;
-    }
-  }
-
-  Reanimation *aMainMenuReanim = mApp->ReanimationTryToGet(mBackdropReanimID);
-  if ( aMainMenuReanim != nullptr )
-  {
-    if ( theScene == MENUSCENE_MORE_WAYS )
-    {
-      aMainMenuReanim->PlayReanim("anim_idle_left", REANIM_LOOP, 4, 12.0);
-    }
-    else if ( theScene == MENUSCENE_EXTRA )
-    {
-      aMainMenuReanim->PlayReanim("anim_idle_right", REANIM_LOOP, 4, 12.0);
-      Reanimation *aButterflyReanim = mApp->ReanimationTryToGet(mButterflyReanimID);
-      if ( aButterflyReanim != nullptr )
-      {
-        aButterflyReanim->SetFramesForLayer("anim_idle");
-        aButterflyReanim->SetAnimRate(0.0f);
-        aButterflyReanim->mIsAttachment = true;
-        aButterflyReanim->mLoopType = REANIM_PLAY_ONCE_AND_HOLD;
-      }
-    }
-    else
-    {
-      aMainMenuReanim->PlayReanim("anim_idle", REANIM_LOOP, 4, 12.0);
-    }
-  }
-
-  Reanimation *aCrowReanim = mApp->ReanimationTryToGet(mCrowReanimID);
-  if ( aCrowReanim != nullptr )
-    aCrowReanim->PlayReanim("anim_idle", REANIM_LOOP, 0, 12.0);
-  return aCrowReanim;
+    return aCrowReanim;
 }
 
 // ==========================================================================
@@ -612,7 +637,7 @@ Reanimation *MainMenu::OnScene(MainMenu_MenuScene theScene)
 // ==========================================================================
 bool MainMenu::InTransition()
 {
-  return mMenuScene != mTargetMenuScene;
+    return mMenuScene != mTargetMenuScene;
 }
 
 // ==========================================================================
@@ -621,9 +646,9 @@ bool MainMenu::InTransition()
 // ==========================================================================
 void MainMenu::ButtonPress(int theId)
 {
-  // The whole body is a tail call to InTransition; the base declares this slot
-  // void, so the result is discarded.
-  InTransition();
+    // The whole body is a tail call to InTransition; the base declares this slot
+    // void, so the result is discarded.
+    InTransition();
 }
 
 // ==========================================================================
@@ -632,34 +657,34 @@ void MainMenu::ButtonPress(int theId)
 // ==========================================================================
 float MainMenu::UpdateCameraPosition()
 {
-  if ( InTransition() && mHasCameraTrack != 0 )
-  {
-    Reanimation *aMainMenuReanim = mApp->ReanimationGet(mBackdropReanimID);
-    if ( aMainMenuReanim != nullptr )
+    if (InTransition() && mHasCameraTrack != 0)
     {
-      int aCameraTrack = aMainMenuReanim->FindTrackIndex("camera");
-      if ( aCameraTrack != -1 )
-      {
-        ReanimatorTransform aTransform;
-        aMainMenuReanim->GetCurrentTransform(aCameraTrack, &aTransform);
-        mCameraOffsetX = -aTransform.mTransX;
-      }
+        Reanimation *aMainMenuReanim = mApp->ReanimationGet(mBackdropReanimID);
+        if (aMainMenuReanim != nullptr)
+        {
+            int aCameraTrack = aMainMenuReanim->FindTrackIndex("camera");
+            if (aCameraTrack != -1)
+            {
+                ReanimatorTransform aTransform;
+                aMainMenuReanim->GetCurrentTransform(aCameraTrack, &aTransform);
+                mCameraOffsetX = -aTransform.mTransX;
+            }
+        }
     }
-  }
-  else if ( !InTransition() )
-  {
-    mCameraOffsetX = msMenuOffsetX[mMenuScene];
-  }
-  else
-  {
-    // Sliding between scenes: the camera is animated from the scene it is leaving
-    // to the one it is entering, one step per call.
-    int aCounter = mTransitionCounter;
-    mTransitionCounter = aCounter - 1;
-    mCameraOffsetX = TodAnimateCurveFloat(100, 0, aCounter,
-      msMenuOffsetX[mMenuScene], msMenuOffsetX[mTargetMenuScene], TodCurves(4));
-  }
-  return mCameraOffsetX;
+    else if (!InTransition())
+    {
+        mCameraOffsetX = msMenuOffsetX[mMenuScene];
+    }
+    else
+    {
+        // Sliding between scenes: the camera is animated from the scene it is leaving
+        // to the one it is entering, one step per call.
+        int aCounter = mTransitionCounter;
+        mTransitionCounter = aCounter - 1;
+        mCameraOffsetX = TodAnimateCurveFloat(
+            100, 0, aCounter, msMenuOffsetX[mMenuScene], msMenuOffsetX[mTargetMenuScene], TodCurves(4));
+    }
+    return mCameraOffsetX;
 }
 
 // ==========================================================================
@@ -668,124 +693,124 @@ float MainMenu::UpdateCameraPosition()
 // ==========================================================================
 void MainMenu::SetScene(unsigned int theScene)
 {
-  // First call, from the constructor: both scenes start equal so nothing slides.
-  if ( mMenuScene == -1 )
-  {
-    mMenuScene = theScene;
+    // First call, from the constructor: both scenes start equal so nothing slides.
+    if (mMenuScene == -1)
+    {
+        mMenuScene = theScene;
+        mTargetMenuScene = theScene;
+        mTransitionCounter = 0;
+        if (theScene <= MENUSCENE_EXTRA)
+            mCameraOffsetX = msMenuOffsetX[theScene];
+        return;
+    }
+
+    // A slide already running counts as finished. The scene it was heading for
+    // becomes the one on screen, and the new target starts a fresh slide.
+    int aOldScene = InTransition() ? mTargetMenuScene : mMenuScene;
+    if (InTransition())
+    {
+        mMenuScene = aOldScene;
+        // 0x19A658 only resets this offset when interrupting an existing slide.
+        if (theScene <= MENUSCENE_EXTRA)
+            mCameraOffsetY = msMenuOffsetX[aOldScene];
+    }
     mTargetMenuScene = theScene;
-    mTransitionCounter = 0;
-    if ( theScene <= MENUSCENE_EXTRA )
-      mCameraOffsetX = msMenuOffsetX[theScene];
-    return;
-  }
+    mTransitionCounter = 100;
 
-  // A slide already running counts as finished. The scene it was heading for
-  // becomes the one on screen, and the new target starts a fresh slide.
-  int aOldScene = InTransition() ? mTargetMenuScene : mMenuScene;
-  if ( InTransition() )
-  {
-    mMenuScene = aOldScene;
-    // 0x19A658 only resets this offset when interrupting an existing slide.
-    if ( theScene <= MENUSCENE_EXTRA )
-      mCameraOffsetY = msMenuOffsetX[aOldScene];
-  }
-  mTargetMenuScene = theScene;
-  mTransitionCounter = 100;
+    const char *aTrackName = nullptr;
+    if (aOldScene == MENUSCENE_MAIN)
+    {
+        if (theScene == MENUSCENE_MORE_WAYS)
+            aTrackName = "anim_center_left";
+        else if (theScene == MENUSCENE_EXTRA)
+            aTrackName = "anim_center_right";
+        else if (theScene == MENUSCENE_MAIN)
+            aTrackName = "anim_left_center";
+    }
+    else if (aOldScene == MENUSCENE_EXTRA && theScene == MENUSCENE_MAIN)
+    {
+        aTrackName = "anim_right_center";
+    }
+    else if (aOldScene == MENUSCENE_MORE_WAYS && theScene == MENUSCENE_MAIN)
+    {
+        aTrackName = "anim_left_center";
+    }
+    if (aTrackName == nullptr)
+        return;
 
-  const char *aTrackName = nullptr;
-  if ( aOldScene == MENUSCENE_MAIN )
-  {
-    if ( theScene == MENUSCENE_MORE_WAYS )
-      aTrackName = "anim_center_left";
-    else if ( theScene == MENUSCENE_EXTRA )
-      aTrackName = "anim_center_right";
-    else if ( theScene == MENUSCENE_MAIN )
-      aTrackName = "anim_left_center";
-  }
-  else if ( aOldScene == MENUSCENE_EXTRA && theScene == MENUSCENE_MAIN )
-  {
-    aTrackName = "anim_right_center";
-  }
-  else if ( aOldScene == MENUSCENE_MORE_WAYS && theScene == MENUSCENE_MAIN )
-  {
-    aTrackName = "anim_left_center";
-  }
-  if ( aTrackName == nullptr )
-    return;
+    Reanimation *aMainMenuReanim = mApp->ReanimationTryToGet(mBackdropReanimID);
+    if (aMainMenuReanim != nullptr && aMainMenuReanim->TrackExists(aTrackName))
+    {
+        mPlayingTrackName = aTrackName;
+        aMainMenuReanim->PlayReanim(aTrackName, REANIM_PLAY_ONCE_FULL_LAST_FRAME_AND_HOLD, 0, 12.0);
+    }
 
-  Reanimation *aMainMenuReanim = mApp->ReanimationTryToGet(mBackdropReanimID);
-  if ( aMainMenuReanim != nullptr && aMainMenuReanim->TrackExists(aTrackName) )
-  {
-    mPlayingTrackName = aTrackName;
-    aMainMenuReanim->PlayReanim(aTrackName, REANIM_PLAY_ONCE_FULL_LAST_FRAME_AND_HOLD, 0, 12.0);
-  }
-
-  Reanimation *aCrowReanim = mApp->ReanimationTryToGet(mCrowReanimID);
-  if ( aCrowReanim != nullptr )
-  {
-    aCrowReanim->PlayReanim("anim_fly", REANIM_PLAY_ONCE_FULL_LAST_FRAME_AND_HOLD, 0, 12.0);
-    mApp->PlaySample(Sexy::GetSoundById(Rand() % 3 + 622), true);
-  }
+    Reanimation *aCrowReanim = mApp->ReanimationTryToGet(mCrowReanimID);
+    if (aCrowReanim != nullptr)
+    {
+        aCrowReanim->PlayReanim("anim_fly", REANIM_PLAY_ONCE_FULL_LAST_FRAME_AND_HOLD, 0, 12.0);
+        mApp->PlaySample(Sexy::GetSoundById(Rand() % 3 + 622), true);
+    }
 }
 
 // ==========================================================================
 // MainMenu::MainMenu(LawnApp *)
 // @0019A75C  568 bytes
 // ==========================================================================
-MainMenu::MainMenu(LawnApp *theApp)
-  : LawnMenuWidget("menu/MainMenu.menu.txt")
+MainMenu::MainMenu(LawnApp *theApp) :
+    LawnMenuWidget("menu/MainMenu.menu.txt")
 {
-  // Every mode starts locked and the adventure clears the ones it has reached.
-  mBackdropReanimID = REANIMATIONID_NULL;
-  mCameraOffsetX = -1280.0f;
-  mCameraOffsetY = 0.0f;
-  mApp = theApp;
-  mFadeOriginX = 0.0f;
-  mFadeOriginY = 0.0f;
-  // The base constructor leaves the widget clipping its children.
-  mClip = false;
-  mHasCameraTrack = 0;
-  mTransitionCounter = 0;
-  mPlayingTrackName = nullptr;
-  mMenuScene = -1;
-  mTargetMenuScene = -1;
-  mPressedButtonId = -1;
-  SetScene(MENUSCENE_MAIN);
-  mExitCounter = 0;
-  mKeepDrawing = false;
-  mHandPlaying = false;
-  mRetainWidgetsOnExit = false;
-  mLastFocusedChild = nullptr;
-  mFocusedChildCounter = 0;
-  mSkyReanimID = REANIMATIONID_NULL;
-  mSky2ReanimID = REANIMATIONID_NULL;
-  mHouseReanimID = REANIMATIONID_NULL;
-  mZombieHandReanimID = REANIMATIONID_NULL;
-  mCrowReanimID = REANIMATIONID_NULL;
-  mFallingLeavesReanimID = REANIMATIONID_NULL;
-  mButterflyReanimID = REANIMATIONID_NULL;
-  mOverlayReanimID = REANIMATIONID_NULL;
-  mCrowTalking = false;
-  mCrowIdleLoops = 0;
-  mEnterReanimationCounter = 0;
-  mFadeHold = 0;
-  mCrowLeaving = false;
-  mFirstTimeAdventure = true;
-  mMiniGameLocked = true;
-  mCoopModeLocked = true;
-  mPuzzleModeLocked = true;
-  mSurvivalModeLocked = true;
-  mVSModeLocked = true;
-  // The butterfly's first flap is a random point in the half second after the
-  // menu appears.
-  mButterflyAnimCounter = Rand(500) + 500;
-  mStoreIntro = false;
-  mUnseenMailCounter = 0;
-  mCreateUserDialogOpened = false;
-  mSceneWidgets[0] = nullptr;
-  mSceneWidgets[1] = nullptr;
-  mSceneWidgets[2] = nullptr;
-  m2DMarkImage = mApp->GetImage("images/mark/mainmenu_2d_mark_bg.png", true);
+    // Every mode starts locked and the adventure clears the ones it has reached.
+    mBackdropReanimID = REANIMATIONID_NULL;
+    mCameraOffsetX = -1280.0f;
+    mCameraOffsetY = 0.0f;
+    mApp = theApp;
+    mFadeOriginX = 0.0f;
+    mFadeOriginY = 0.0f;
+    // The base constructor leaves the widget clipping its children.
+    mClip = false;
+    mHasCameraTrack = 0;
+    mTransitionCounter = 0;
+    mPlayingTrackName = nullptr;
+    mMenuScene = -1;
+    mTargetMenuScene = -1;
+    mPressedButtonId = -1;
+    SetScene(MENUSCENE_MAIN);
+    mExitCounter = 0;
+    mKeepDrawing = false;
+    mHandPlaying = false;
+    mRetainWidgetsOnExit = false;
+    mLastFocusedChild = nullptr;
+    mFocusedChildCounter = 0;
+    mSkyReanimID = REANIMATIONID_NULL;
+    mSky2ReanimID = REANIMATIONID_NULL;
+    mHouseReanimID = REANIMATIONID_NULL;
+    mZombieHandReanimID = REANIMATIONID_NULL;
+    mCrowReanimID = REANIMATIONID_NULL;
+    mFallingLeavesReanimID = REANIMATIONID_NULL;
+    mButterflyReanimID = REANIMATIONID_NULL;
+    mOverlayReanimID = REANIMATIONID_NULL;
+    mCrowTalking = false;
+    mCrowIdleLoops = 0;
+    mEnterReanimationCounter = 0;
+    mFadeHold = 0;
+    mCrowLeaving = false;
+    mFirstTimeAdventure = true;
+    mMiniGameLocked = true;
+    mCoopModeLocked = true;
+    mPuzzleModeLocked = true;
+    mSurvivalModeLocked = true;
+    mVSModeLocked = true;
+    // The butterfly's first flap is a random point in the half second after the
+    // menu appears.
+    mButterflyAnimCounter = Rand(500) + 500;
+    mStoreIntro = false;
+    mUnseenMailCounter = 0;
+    mCreateUserDialogOpened = false;
+    mSceneWidgets[0] = nullptr;
+    mSceneWidgets[1] = nullptr;
+    mSceneWidgets[2] = nullptr;
+    m2DMarkImage = mApp->GetImage("images/mark/mainmenu_2d_mark_bg.png", true);
 }
 
 // ==========================================================================
@@ -794,9 +819,9 @@ MainMenu::MainMenu(LawnApp *theApp)
 // ==========================================================================
 int MainMenu::GetScene()
 {
-  if ( InTransition() )
-    return 4;
-  return mMenuScene;
+    if (InTransition())
+        return 4;
+    return mMenuScene;
 }
 
 // ==========================================================================
@@ -805,111 +830,109 @@ int MainMenu::GetScene()
 // ==========================================================================
 void MainMenu::Draw(Sexy::Graphics *theGraphics)
 {
-  // Any of the three full-screen dialogs that can sit over the menu suppresses
-  // the whole draw: 6 is the store, 5 the almanac and 60 the mailbox.
-  if ( mWidgetManager == nullptr
-    || mApp->GetDialog(6) != nullptr
-    || mApp->GetDialog(5) != nullptr
-    || mApp->GetDialog(60) != nullptr )
-    return;
+    // Any of the three full-screen dialogs that can sit over the menu suppresses
+    // the whole draw: 6 is the store, 5 the almanac and 60 the mailbox.
+    if (mWidgetManager == nullptr || mApp->GetDialog(6) != nullptr || mApp->GetDialog(5) != nullptr ||
+        mApp->GetDialog(60) != nullptr)
+        return;
 
-  Reanimation *aMainMenuReanim = mApp->ReanimationTryToGet(mBackdropReanimID);
-  if ( aMainMenuReanim == nullptr )
-    return;
+    Reanimation *aMainMenuReanim = mApp->ReanimationTryToGet(mBackdropReanimID);
+    if (aMainMenuReanim == nullptr)
+        return;
 
-  Reanimation *aSkyReanim = mApp->ReanimationTryToGet(mSkyReanimID);
-  Reanimation *aSky2Reanim = mApp->ReanimationTryToGet(mSky2ReanimID);
-  if ( aSkyReanim != nullptr && aSky2Reanim != nullptr )
-  {
-    aSkyReanim->DrawRenderGroup(theGraphics, 0);
-    // The second sky layer is the same art squashed to 40% and drawn as the
-    // reflection the menu hangs over; its matrix is restored afterwards.
-    SexyTransform2D aSkySavedMatrix = aSky2Reanim->mOverlayMatrix;
-    aSky2Reanim->mOverlayMatrix.Scale(1.0f, 0.4f);
-    aSky2Reanim->mOverlayMatrix.m01 = -0.4f;
-    aSky2Reanim->DrawRenderGroup(theGraphics, 2);
-    aSky2Reanim->mOverlayMatrix = aSkySavedMatrix;
-  }
-
-  aMainMenuReanim->DrawRenderGroup(theGraphics, 1);
-  // Reference MainMenu::Draw places the selectable house on the original
-  // House track. Draw @0x19A9FC retains the scene's layer order and camera.
-  Reanimation* house = mApp->ReanimationTryToGet(mHouseReanimID);
-  const int houseTrack = aMainMenuReanim->FindTrackIndex("House");
-  if (house != nullptr && houseTrack >= 0)
-  {
-    ReanimatorTransform transform;
-    SexyTransform2D matrix;
-    aMainMenuReanim->GetCurrentTransform(houseTrack, &transform);
-    aMainMenuReanim->MatrixFromTransform(transform, matrix);
-    matrix.Translate(mCameraOffsetX + 237.0f, mCameraOffsetY + 60.0f);
-    house->mOverlayMatrix = matrix;
-    house->DrawRenderGroup(theGraphics, 0);
-  }
-  aMainMenuReanim->DrawRenderGroup(theGraphics, 0);
-
-  if ( mMenuScene == MENUSCENE_EXTRA )
-  {
-    Reanimation *aButterflyReanim = mApp->ReanimationTryToGet(mButterflyReanimID);
-    if ( aButterflyReanim != nullptr )
-      aButterflyReanim->Draw(theGraphics);
-  }
-  Reanimation *aCrowReanim = mApp->ReanimationTryToGet(mCrowReanimID);
-  if ( aCrowReanim != nullptr && (!mCrowLeaving || mExitCounter <= 65) )
-    aCrowReanim->Draw(theGraphics);
-
-  MenuWidget::Draw(theGraphics);
-  DeferOverlay(0);
-  if ( !InTransition() )
-    DrawSpeechBubble(theGraphics);
-
-  int aMailAlertTrack = aMainMenuReanim->FindTrackIndex("mail alert");
-  if ( aMailAlertTrack > 0 && mApp->mMailBox->GetNumUnseenMessages() > 0 )
-  {
-    LawnPlayerInfo *aPlayerInfo = mApp->mPlayerInfo;
-    if ( aPlayerInfo->mLevel > 0 || aPlayerInfo->GetFlag(PlayerFlags(1)) )
+    Reanimation *aSkyReanim = mApp->ReanimationTryToGet(mSkyReanimID);
+    Reanimation *aSky2Reanim = mApp->ReanimationTryToGet(mSky2ReanimID);
+    if (aSkyReanim != nullptr && aSky2Reanim != nullptr)
     {
-      ReanimatorTransform aMailTransform;
-      aMainMenuReanim->GetCurrentTransform(aMailAlertTrack, &aMailTransform);
-      Sexy::Image *aMailAlertImage = aMailTransform.mImage;
-      SexyTransform2D aMailMatrix;
-      aMainMenuReanim->MatrixFromTransform(aMailTransform, aMailMatrix);
-      aMailMatrix.Translate(mCameraOffsetX, mCameraOffsetY);
-      // The alert sits a quarter of its own width to the right of the envelope
-      // it hangs off, and everything shifts 240 pixels right on a 4:3 screen.
-      aMailMatrix.Translate((float)(aMailAlertImage->mWidth / 4), 0.0f);
-      if ( !IsWideScreen(gLawnApp) )
-        aMailMatrix.Translate(-240.0f, 0.0f);
-
-      int aUnseenMailCounter = mUnseenMailCounter;
-      if ( aUnseenMailCounter > 99 )
-        aUnseenMailCounter = 0;
-      mUnseenMailCounter = aUnseenMailCounter;
-      // The pulse is time-based: the curve is evaluated for its own sake and its
-      // result is not used.
-      TodAnimateCurveFloat(0, 100, aUnseenMailCounter, 0.75f, 0.8f, TodCurves(12));
-
-      TRect<int> aMailRect = { 0, 0, aMailAlertImage->mWidth, aMailAlertImage->mHeight };
-      theGraphics->DrawImageMatrix(aMailAlertImage, aMailMatrix, aMailRect, 0.0f, 0.0f, true);
+        aSkyReanim->DrawRenderGroup(theGraphics, 0);
+        // The second sky layer is the same art squashed to 40% and drawn as the
+        // reflection the menu hangs over; its matrix is restored afterwards.
+        SexyTransform2D aSkySavedMatrix = aSky2Reanim->mOverlayMatrix;
+        aSky2Reanim->mOverlayMatrix.Scale(1.0f, 0.4f);
+        aSky2Reanim->mOverlayMatrix.m01 = -0.4f;
+        aSky2Reanim->DrawRenderGroup(theGraphics, 2);
+        aSky2Reanim->mOverlayMatrix = aSkySavedMatrix;
     }
-  }
-  int aMoreTrack = aMainMenuReanim->FindTrackIndex("more");
-  ReanimatorTransform aMoreTransform;
-  aMainMenuReanim->GetCurrentTransform(aMoreTrack, &aMoreTransform);
-  SexyTransform2D aMoreMatrix;
-  aMainMenuReanim->MatrixFromTransform(aMoreTransform, aMoreMatrix);
-  aMoreMatrix.Translate(mCameraOffsetX, mCameraOffsetY);
-  aMoreMatrix.Translate(120.0f, 200.0f);
-  if ( !IsWideScreen(gLawnApp) )
-    aMoreMatrix.Translate(-240.0f, 0.0f);
 
-  TRect<int> a2DMarkRect = { 0, 0, m2DMarkImage->mWidth, m2DMarkImage->mHeight };
-  theGraphics->DrawImageMatrix(m2DMarkImage, aMoreMatrix, a2DMarkRect, 0.0f, 0.0f, true);
+    aMainMenuReanim->DrawRenderGroup(theGraphics, 1);
+    // Reference MainMenu::Draw places the selectable house on the original
+    // House track. Draw @0x19A9FC retains the scene's layer order and camera.
+    Reanimation *house = mApp->ReanimationTryToGet(mHouseReanimID);
+    const int houseTrack = aMainMenuReanim->FindTrackIndex("House");
+    if (house != nullptr && houseTrack >= 0)
+    {
+        ReanimatorTransform transform;
+        SexyTransform2D matrix;
+        aMainMenuReanim->GetCurrentTransform(houseTrack, &transform);
+        aMainMenuReanim->MatrixFromTransform(transform, matrix);
+        matrix.Translate(mCameraOffsetX + 237.0f, mCameraOffsetY + 60.0f);
+        house->mOverlayMatrix = matrix;
+        house->DrawRenderGroup(theGraphics, 0);
+    }
+    aMainMenuReanim->DrawRenderGroup(theGraphics, 0);
 
-  // The QR code sits inside the 2D mark, a little up and to the left of it.
-  TRect<int> aQRCodeRect = { 15, 15, 90, 90 };
-  aMoreMatrix.Translate(-4.0f, -16.0f);
-  theGraphics->DrawImageMatrix(mApp->mQRCodeImage, aMoreMatrix, aQRCodeRect, 0.0f, 0.0f, true);
+    if (mMenuScene == MENUSCENE_EXTRA)
+    {
+        Reanimation *aButterflyReanim = mApp->ReanimationTryToGet(mButterflyReanimID);
+        if (aButterflyReanim != nullptr)
+            aButterflyReanim->Draw(theGraphics);
+    }
+    Reanimation *aCrowReanim = mApp->ReanimationTryToGet(mCrowReanimID);
+    if (aCrowReanim != nullptr && (!mCrowLeaving || mExitCounter <= 65))
+        aCrowReanim->Draw(theGraphics);
+
+    MenuWidget::Draw(theGraphics);
+    DeferOverlay(0);
+    if (!InTransition())
+        DrawSpeechBubble(theGraphics);
+
+    int aMailAlertTrack = aMainMenuReanim->FindTrackIndex("mail alert");
+    if (aMailAlertTrack > 0 && mApp->mMailBox->GetNumUnseenMessages() > 0)
+    {
+        LawnPlayerInfo *aPlayerInfo = mApp->mPlayerInfo;
+        if (aPlayerInfo->mLevel > 0 || aPlayerInfo->GetFlag(PlayerFlags(1)))
+        {
+            ReanimatorTransform aMailTransform;
+            aMainMenuReanim->GetCurrentTransform(aMailAlertTrack, &aMailTransform);
+            Sexy::Image *aMailAlertImage = aMailTransform.mImage;
+            SexyTransform2D aMailMatrix;
+            aMainMenuReanim->MatrixFromTransform(aMailTransform, aMailMatrix);
+            aMailMatrix.Translate(mCameraOffsetX, mCameraOffsetY);
+            // The alert sits a quarter of its own width to the right of the envelope
+            // it hangs off, and everything shifts 240 pixels right on a 4:3 screen.
+            aMailMatrix.Translate((float)(aMailAlertImage->mWidth / 4), 0.0f);
+            if (!IsWideScreen(gLawnApp))
+                aMailMatrix.Translate(-240.0f, 0.0f);
+
+            int aUnseenMailCounter = mUnseenMailCounter;
+            if (aUnseenMailCounter > 99)
+                aUnseenMailCounter = 0;
+            mUnseenMailCounter = aUnseenMailCounter;
+            // The pulse is time-based: the curve is evaluated for its own sake and its
+            // result is not used.
+            TodAnimateCurveFloat(0, 100, aUnseenMailCounter, 0.75f, 0.8f, TodCurves(12));
+
+            TRect<int> aMailRect = {0, 0, aMailAlertImage->mWidth, aMailAlertImage->mHeight};
+            theGraphics->DrawImageMatrix(aMailAlertImage, aMailMatrix, aMailRect, 0.0f, 0.0f, true);
+        }
+    }
+    int aMoreTrack = aMainMenuReanim->FindTrackIndex("more");
+    ReanimatorTransform aMoreTransform;
+    aMainMenuReanim->GetCurrentTransform(aMoreTrack, &aMoreTransform);
+    SexyTransform2D aMoreMatrix;
+    aMainMenuReanim->MatrixFromTransform(aMoreTransform, aMoreMatrix);
+    aMoreMatrix.Translate(mCameraOffsetX, mCameraOffsetY);
+    aMoreMatrix.Translate(120.0f, 200.0f);
+    if (!IsWideScreen(gLawnApp))
+        aMoreMatrix.Translate(-240.0f, 0.0f);
+
+    TRect<int> a2DMarkRect = {0, 0, m2DMarkImage->mWidth, m2DMarkImage->mHeight};
+    theGraphics->DrawImageMatrix(m2DMarkImage, aMoreMatrix, a2DMarkRect, 0.0f, 0.0f, true);
+
+    // The QR code sits inside the 2D mark, a little up and to the left of it.
+    TRect<int> aQRCodeRect = {15, 15, 90, 90};
+    aMoreMatrix.Translate(-4.0f, -16.0f);
+    theGraphics->DrawImageMatrix(mApp->mQRCodeImage, aMoreMatrix, aQRCodeRect, 0.0f, 0.0f, true);
 }
 
 // ==========================================================================
@@ -918,192 +941,193 @@ void MainMenu::Draw(Sexy::Graphics *theGraphics)
 // ==========================================================================
 void MainMenu::Update()
 {
-  // The store, the almanac and the mailbox each freeze the whole menu.
-  if ( mApp->GetDialog(6) != nullptr )
-    return;
-  if ( mApp->GetDialog(5) != nullptr )
-    return;
-  if ( mApp->GetDialog(60) != nullptr )
-    return;
+    // The store, the almanac and the mailbox each freeze the whole menu.
+    if (mApp->GetDialog(6) != nullptr)
+        return;
+    if (mApp->GetDialog(5) != nullptr)
+        return;
+    if (mApp->GetDialog(60) != nullptr)
+        return;
 
-  // The camera moves every frame, so the menu is never clean for long.
-  MarkDirty();
+    // The camera moves every frame, so the menu is never clean for long.
+    MarkDirty();
 
-  if ( mEnterReanimationCounter > 0 )
-  {
-    mEnterReanimationCounter--;
-    if ( mEnterReanimationCounter == 0 )
+    if (mEnterReanimationCounter > 0)
     {
-      // The entrance is over: the menu drops into the idle loop of the scene it
-      // is showing, and so does the crow.
-      Reanimation *aMainMenuReanim = mApp->ReanimationTryToGet(mBackdropReanimID);
-      if ( aMainMenuReanim != nullptr )
-      {
-        switch ( mMenuScene )
+        mEnterReanimationCounter--;
+        if (mEnterReanimationCounter == 0)
         {
-          case MENUSCENE_MAIN:
-            aMainMenuReanim->PlayReanim("anim_idle", REANIM_LOOP, 0, 12.0);
-            break;
-          case MENUSCENE_EXTRA:
-            aMainMenuReanim->PlayReanim("anim_idle_right", REANIM_LOOP, 0, 12.0);
-            break;
-          case MENUSCENE_MORE_WAYS:
-            aMainMenuReanim->PlayReanim("anim_idle_left", REANIM_LOOP, 0, 12.0);
-            break;
-          default:
-            break;
+            // The entrance is over: the menu drops into the idle loop of the scene it
+            // is showing, and so does the crow.
+            Reanimation *aMainMenuReanim = mApp->ReanimationTryToGet(mBackdropReanimID);
+            if (aMainMenuReanim != nullptr)
+            {
+                switch (mMenuScene)
+                {
+                    case MENUSCENE_MAIN:
+                        aMainMenuReanim->PlayReanim("anim_idle", REANIM_LOOP, 0, 12.0);
+                        break;
+                    case MENUSCENE_EXTRA:
+                        aMainMenuReanim->PlayReanim("anim_idle_right", REANIM_LOOP, 0, 12.0);
+                        break;
+                    case MENUSCENE_MORE_WAYS:
+                        aMainMenuReanim->PlayReanim("anim_idle_left", REANIM_LOOP, 0, 12.0);
+                        break;
+                    default:
+                        break;
+                }
+            }
+            Reanimation *aCrowReanim = mApp->ReanimationTryToGet(mCrowReanimID);
+            if (aCrowReanim != nullptr)
+                aCrowReanim->PlayReanim("anim_idle", REANIM_LOOP, 0, 12.0);
         }
-      }
-      Reanimation *aCrowReanim = mApp->ReanimationTryToGet(mCrowReanimID);
-      if ( aCrowReanim != nullptr )
-        aCrowReanim->PlayReanim("anim_idle", REANIM_LOOP, 0, 12.0);
     }
-  }
 
-  MenuWidget::Update();
+    MenuWidget::Update();
 
-  // TODO(recon): one object per menu scene, faded by how far the camera is from
-  // that scene's resting position. Nothing in the binary ever stores a non-null
-  // value in mSceneWidgets, so this loop never runs and the class behind vtable
-  // slot 7 -- called with the alpha as a double -- cannot be recovered; see the
-  // member's note in MainMenu.h.
-  for ( int aScene = 0; aScene < 3; aScene++ )
-  {
-    Sexy::Widget *aSceneWidget = mSceneWidgets[aScene];
-    if ( aSceneWidget != nullptr )
+    // TODO(recon): one object per menu scene, faded by how far the camera is from
+    // that scene's resting position. Nothing in the binary ever stores a non-null
+    // value in mSceneWidgets, so this loop never runs and the class behind vtable
+    // slot 7 -- called with the alpha as a double -- cannot be recovered; see the
+    // member's note in MainMenu.h.
+    for (int aScene = 0; aScene < 3; aScene++)
     {
-      float aSceneAlpha = 1.0f - fabsf((mCameraOffsetX - msMenuOffsetX[aScene]) * -0.00078125f);
-      if ( aSceneAlpha < 0.0f )
-        aSceneAlpha = 0.0f;
-    }
-  }
-
-  if ( InTransition() )
-  {
-    int aTargetScene = mTargetMenuScene;
-    const char *aPlayingTrack = mPlayingTrackName;
-    if ( aPlayingTrack != nullptr || mCameraOffsetX != msMenuOffsetX[aTargetScene] )
-    {
-      if ( FinishedTransition(aPlayingTrack) )
-      {
-        // The slide has arrived. The scene being slid towards becomes the scene
-        // on screen and takes the focus onto the button that leads back.
-        aTargetScene = mTargetMenuScene;
-        int aPreviousScene = mMenuScene;
-        mPlayingTrackName = nullptr;
-        mMenuScene = aTargetScene;
-        switch ( aTargetScene )
+        Sexy::Widget *aSceneWidget = mSceneWidgets[aScene];
+        if (aSceneWidget != nullptr)
         {
-          case MENUSCENE_MAIN:
-            SetFocus(FindWidget(aPreviousScene != MENUSCENE_MORE_WAYS ? MORE_BUTTON : MORE_WAYS_BUTTON), true);
-            break;
-          case MENUSCENE_EXTRA:
-            SetFocus(FindWidget(BACK_POT_BUTTON), true);
-            break;
-          case MENUSCENE_MORE_WAYS:
-            SetFocus(FindWidget(BACK_STONE_BUTTON), true);
-            break;
-          default:
-            break;
+            float aSceneAlpha = 1.0f - fabsf((mCameraOffsetX - msMenuOffsetX[aScene]) * -0.00078125f);
+            if (aSceneAlpha < 0.0f)
+                aSceneAlpha = 0.0f;
         }
-        OnScene((MainMenu_MenuScene)mMenuScene);
-      }
     }
 
-    // Everything that rides the camera is moved onto it, including the
-    // butterfly, which sits one scene width to the right.
-    UpdateCameraPosition();
-    Reanimation *aSkyReanim = mApp->ReanimationTryToGet(mSkyReanimID);
-    if ( aSkyReanim != nullptr )
-      aSkyReanim->SetPosition(mCameraOffsetX, mCameraOffsetY);
-    Reanimation *aSky2Reanim = mApp->ReanimationTryToGet(mSky2ReanimID);
-    if ( aSky2Reanim != nullptr )
-      aSky2Reanim->SetPosition(mCameraOffsetX, mCameraOffsetY);
-    Reanimation *aMainMenuReanim = mApp->ReanimationTryToGet(mBackdropReanimID);
-    if ( aMainMenuReanim != nullptr )
-      aMainMenuReanim->SetPosition(mCameraOffsetX, mCameraOffsetY);
-    Reanimation *aLeavesReanim = mApp->ReanimationTryToGet(mFallingLeavesReanimID);
-    if ( aLeavesReanim != nullptr )
-      aLeavesReanim->SetPosition(mCameraOffsetX, mCameraOffsetY);
-    Reanimation *aSceneButterfly = mApp->ReanimationTryToGet(mButterflyReanimID);
-    if ( aSceneButterfly != nullptr )
-      aSceneButterfly->SetPosition(mCameraOffsetX + 2560.0f, mCameraOffsetY);
-  }
-
-  mApp->mEffectSystem->Update();
-  Reanimation* houseAnimation = mApp->ReanimationTryToGet(mHouseReanimID);
-  if (houseAnimation != nullptr)
-    houseAnimation->Update();
-
-  Reanimation *aButterflyReanim = mApp->ReanimationTryToGet(mButterflyReanimID);
-  if ( aButterflyReanim != nullptr )
-  {
-    aButterflyReanim->Update();
-    if ( mMenuScene == MENUSCENE_EXTRA && !aButterflyReanim->IsAnimPlaying("anim_idle") )
+    if (InTransition())
     {
-      mButterflyAnimCounter--;
-      if ( mButterflyAnimCounter == 0 )
-      {
-        aButterflyReanim->PlayReanim("anim_idle", REANIM_PLAY_ONCE_AND_HOLD, 0, 12.0);
-        mButterflyAnimCounter = Rand(3000) + 3000;
-      }
+        int aTargetScene = mTargetMenuScene;
+        const char *aPlayingTrack = mPlayingTrackName;
+        if (aPlayingTrack != nullptr || mCameraOffsetX != msMenuOffsetX[aTargetScene])
+        {
+            if (FinishedTransition(aPlayingTrack))
+            {
+                // The slide has arrived. The scene being slid towards becomes the scene
+                // on screen and takes the focus onto the button that leads back.
+                aTargetScene = mTargetMenuScene;
+                int aPreviousScene = mMenuScene;
+                mPlayingTrackName = nullptr;
+                mMenuScene = aTargetScene;
+                switch (aTargetScene)
+                {
+                    case MENUSCENE_MAIN:
+                        SetFocus(
+                            FindWidget(aPreviousScene != MENUSCENE_MORE_WAYS ? MORE_BUTTON : MORE_WAYS_BUTTON), true);
+                        break;
+                    case MENUSCENE_EXTRA:
+                        SetFocus(FindWidget(BACK_POT_BUTTON), true);
+                        break;
+                    case MENUSCENE_MORE_WAYS:
+                        SetFocus(FindWidget(BACK_STONE_BUTTON), true);
+                        break;
+                    default:
+                        break;
+                }
+                OnScene((MainMenu_MenuScene)mMenuScene);
+            }
+        }
+
+        // Everything that rides the camera is moved onto it, including the
+        // butterfly, which sits one scene width to the right.
+        UpdateCameraPosition();
+        Reanimation *aSkyReanim = mApp->ReanimationTryToGet(mSkyReanimID);
+        if (aSkyReanim != nullptr)
+            aSkyReanim->SetPosition(mCameraOffsetX, mCameraOffsetY);
+        Reanimation *aSky2Reanim = mApp->ReanimationTryToGet(mSky2ReanimID);
+        if (aSky2Reanim != nullptr)
+            aSky2Reanim->SetPosition(mCameraOffsetX, mCameraOffsetY);
+        Reanimation *aMainMenuReanim = mApp->ReanimationTryToGet(mBackdropReanimID);
+        if (aMainMenuReanim != nullptr)
+            aMainMenuReanim->SetPosition(mCameraOffsetX, mCameraOffsetY);
+        Reanimation *aLeavesReanim = mApp->ReanimationTryToGet(mFallingLeavesReanimID);
+        if (aLeavesReanim != nullptr)
+            aLeavesReanim->SetPosition(mCameraOffsetX, mCameraOffsetY);
+        Reanimation *aSceneButterfly = mApp->ReanimationTryToGet(mButterflyReanimID);
+        if (aSceneButterfly != nullptr)
+            aSceneButterfly->SetPosition(mCameraOffsetX + 2560.0f, mCameraOffsetY);
     }
-  }
 
-  Reanimation *aCrowReanim = mApp->ReanimationTryToGet(mCrowReanimID);
-  if ( aCrowReanim != nullptr )
-    UpdateCrow(aCrowReanim);
+    mApp->mEffectSystem->Update();
+    Reanimation *houseAnimation = mApp->ReanimationTryToGet(mHouseReanimID);
+    if (houseAnimation != nullptr)
+        houseAnimation->Update();
 
-  // The crow caws a while after the focus has settled on a button. A change of
-  // focus restarts the wait.
-  if ( mWidgetManager == nullptr || mFocusedChildWidget == mLastFocusedChild )
-  {
-    if ( mLastFocusedChild != nullptr && !InTransition() )
+    Reanimation *aButterflyReanim = mApp->ReanimationTryToGet(mButterflyReanimID);
+    if (aButterflyReanim != nullptr)
     {
-      mFocusedChildCounter++;
-      if ( mFocusedChildCounter == 235 )
-        mApp->PlaySample(Sexy::GetSoundById(Rand() % 3 + 625), true);
+        aButterflyReanim->Update();
+        if (mMenuScene == MENUSCENE_EXTRA && !aButterflyReanim->IsAnimPlaying("anim_idle"))
+        {
+            mButterflyAnimCounter--;
+            if (mButterflyAnimCounter == 0)
+            {
+                aButterflyReanim->PlayReanim("anim_idle", REANIM_PLAY_ONCE_AND_HOLD, 0, 12.0);
+                mButterflyAnimCounter = Rand(3000) + 3000;
+            }
+        }
     }
-  }
-  else
-  {
-    mLastFocusedChild = mFocusedChildWidget;
-    mFocusedChildCounter = 0;
-  }
 
-  LawnApp *aApp = mApp;
-  if ( aApp->mPlayerInfo == nullptr && !mCreateUserDialogOpened )
-  {
-    mCreateUserDialogOpened = true;
-    aApp->DoCreateUserDialog();
-    aApp = mApp;
-  }
+    Reanimation *aCrowReanim = mApp->ReanimationTryToGet(mCrowReanimID);
+    if (aCrowReanim != nullptr)
+        UpdateCrow(aCrowReanim);
 
-  if ( mMenuScene == MENUSCENE_MORE_WAYS )
-  {
-    Reanimation *aSky2Reanim = aApp->ReanimationTryToGet(mSky2ReanimID);
-    if ( aSky2Reanim != nullptr )
+    // The crow caws a while after the focus has settled on a button. A change of
+    // focus restarts the wait.
+    if (mWidgetManager == nullptr || mFocusedChildWidget == mLastFocusedChild)
     {
-      // The storm in the more-ways sky flashes at these three frames. A flash
-      // that is missed re-arms itself ten frames later.
-      const int aLightningFrames[3] = { 3, 67, 124 };
-      ReanimatorTrack *aTracks = aSky2Reanim->mDefinition->mTracks;
-      float aFrameScale = 1.0f / (float)(aTracks->mTransformCount - 1);
-      for ( int i = 0; i < 3; i++ )
-      {
-        if ( aSky2Reanim->ShouldTriggerTimedEvent((float)aLightningFrames[i] * aFrameScale) )
-          mApp->PlaySample(Sexy::GetSoundById(Rand() % 3 + 628), true);
-        else
-          aSky2Reanim->ShouldTriggerTimedEvent((float)(aLightningFrames[i] + 10) * aFrameScale);
-      }
+        if (mLastFocusedChild != nullptr && !InTransition())
+        {
+            mFocusedChildCounter++;
+            if (mFocusedChildCounter == 235)
+                mApp->PlaySample(Sexy::GetSoundById(Rand() % 3 + 625), true);
+        }
     }
-    aApp = mApp;
-  }
+    else
+    {
+        mLastFocusedChild = mFocusedChildWidget;
+        mFocusedChildCounter = 0;
+    }
 
-  if ( mApp->mMailBox->GetNumUnseenMessages() <= 0 )
-    mUnseenMailCounter = 0;
-  else
-    mUnseenMailCounter++;
+    LawnApp *aApp = mApp;
+    if (aApp->mPlayerInfo == nullptr && !mCreateUserDialogOpened)
+    {
+        mCreateUserDialogOpened = true;
+        aApp->DoCreateUserDialog();
+        aApp = mApp;
+    }
+
+    if (mMenuScene == MENUSCENE_MORE_WAYS)
+    {
+        Reanimation *aSky2Reanim = aApp->ReanimationTryToGet(mSky2ReanimID);
+        if (aSky2Reanim != nullptr)
+        {
+            // The storm in the more-ways sky flashes at these three frames. A flash
+            // that is missed re-arms itself ten frames later.
+            const int aLightningFrames[3] = {3, 67, 124};
+            ReanimatorTrack *aTracks = aSky2Reanim->mDefinition->mTracks;
+            float aFrameScale = 1.0f / (float)(aTracks->mTransformCount - 1);
+            for (int i = 0; i < 3; i++)
+            {
+                if (aSky2Reanim->ShouldTriggerTimedEvent((float)aLightningFrames[i] * aFrameScale))
+                    mApp->PlaySample(Sexy::GetSoundById(Rand() % 3 + 628), true);
+                else
+                    aSky2Reanim->ShouldTriggerTimedEvent((float)(aLightningFrames[i] + 10) * aFrameScale);
+            }
+        }
+        aApp = mApp;
+    }
+
+    if (mApp->mMailBox->GetNumUnseenMessages() <= 0)
+        mUnseenMailCounter = 0;
+    else
+        mUnseenMailCounter++;
 }
 
 // ==========================================================================
@@ -1112,123 +1136,118 @@ void MainMenu::Update()
 // ==========================================================================
 void MainMenu::DrawSpeechBubble(Sexy::Graphics *theGraphics)
 {
-  // The bubble only shows while the crow is perched and the focus has been
-  // still for a while.
-  if ( InTransition()
-    || !mCrowTalking
-    || mIsFading
-    || mWidgetManager == nullptr
-    || mLastFocusedChild == nullptr
-    || mEnterReanimationCounter > 0 )
-  {
-    mFocusedChildCounter = 0;
-    return;
-  }
+    // The bubble only shows while the crow is perched and the focus has been
+    // still for a while.
+    if (InTransition() || !mCrowTalking || mIsFading || mWidgetManager == nullptr || mLastFocusedChild == nullptr ||
+        mEnterReanimationCounter > 0)
+    {
+        mFocusedChildCounter = 0;
+        return;
+    }
 
-  int aCounter = mFocusedChildCounter;
-  if ( aCounter <= 229 )
-    return;
+    int aCounter = mFocusedChildCounter;
+    if (aCounter <= 229)
+        return;
 
-  float anAlpha;
-  if ( aCounter <= 234 )
-  {
-    anAlpha = TodAnimateCurveFloat(230, 235, aCounter, 0.5f, 1.0f, TodCurves(1));
-    if ( anAlpha < 0.5f )
-      return;
-  }
-  else if ( (unsigned int)(aCounter - 236) <= 4 )
-  {
-    // The bubble overshoots slightly and settles back.
-    anAlpha = TodAnimateCurveFloat(235, 240, aCounter, 1.0f, 1.1f, TodCurves(9));
-    if ( anAlpha < 0.5f )
-      return;
-  }
-  else if ( aCounter <= 749 )
-  {
-    anAlpha = 1.0f;
-  }
-  else
-  {
-    anAlpha = TodAnimateCurveFloat(750, 775, aCounter, 1.0f, 0.0f, TodCurves(1));
-    if ( anAlpha < 0.5f )
-      return;
-  }
-
-  theGraphics->PushState();
-  theGraphics->SetColorizeImages(false);
-
-  // The bubble names the button that holds the focus. The sixth entry is not a
-  // real button in this build and gets its own two strings instead.
-  Sexy::Widget *aFocusedWidget = mFocusedChildWidget;
-  Sexy::String aBubbleText;
-  if ( aFocusedWidget != nullptr )
-  {
-    Sexy::String aKey;
-    StrFormat(&aKey, "[CROW_SELECTION_%d]", aFocusedWidget->mWidgetId);
-    TodStringTranslate(&aBubbleText, aKey.c_str());
-    aFocusedWidget = mFocusedChildWidget;
-  }
-  // The binary reads the widget again here without a null check; mLastFocusedChild
-  // is only ever a copy of an earlier mFocusedChildWidget, which may since have
-  // gone away, so the check stays.
-  if ( aFocusedWidget != nullptr && aFocusedWidget->mWidgetId == 6 )
-  {
-    if ( mApp->IsFullVersion() )
-      TodStringTranslate(&aBubbleText, "[CROW_SELECTION_DLC]");
+    float anAlpha;
+    if (aCounter <= 234)
+    {
+        anAlpha = TodAnimateCurveFloat(230, 235, aCounter, 0.5f, 1.0f, TodCurves(1));
+        if (anAlpha < 0.5f)
+            return;
+    }
+    else if ((unsigned int)(aCounter - 236) <= 4)
+    {
+        // The bubble overshoots slightly and settles back.
+        anAlpha = TodAnimateCurveFloat(235, 240, aCounter, 1.0f, 1.1f, TodCurves(9));
+        if (anAlpha < 0.5f)
+            return;
+    }
+    else if (aCounter <= 749)
+    {
+        anAlpha = 1.0f;
+    }
     else
-      TodStringTranslate(&aBubbleText, "[UNLOCK_FULL_GAME]");
-  }
+    {
+        anAlpha = TodAnimateCurveFloat(750, 775, aCounter, 1.0f, 0.0f, TodCurves(1));
+        if (anAlpha < 0.5f)
+            return;
+    }
 
-  // The bubble hangs off the crow's own track, so the menu reanimation has to be
-  // there and to have that track.
-  Reanimation *aMainMenuReanim = mApp->ReanimationTryToGet(mBackdropReanimID);
-  if ( aMainMenuReanim == nullptr )
-    return;
-  int aTrackIndex = aMainMenuReanim->FindTrackIndex("crow2");
-  if ( aTrackIndex == -1 )
-    return;
+    theGraphics->PushState();
+    theGraphics->SetColorizeImages(false);
 
-  ReanimatorTransform aBubbleTransform;
-  aMainMenuReanim->GetCurrentTransform(aTrackIndex, &aBubbleTransform);
-  aBubbleTransform.mTransX = (aBubbleTransform.mTransX + mCameraOffsetX) - 16.0f;
-  aBubbleTransform.mTransY = aBubbleTransform.mTransY + 64.0f;
+    // The bubble names the button that holds the focus. The sixth entry is not a
+    // real button in this build and gets its own two strings instead.
+    Sexy::Widget *aFocusedWidget = mFocusedChildWidget;
+    Sexy::String aBubbleText;
+    if (aFocusedWidget != nullptr)
+    {
+        Sexy::String aKey;
+        StrFormat(&aKey, "[CROW_SELECTION_%d]", aFocusedWidget->mWidgetId);
+        TodStringTranslate(&aBubbleText, aKey.c_str());
+        aFocusedWidget = mFocusedChildWidget;
+    }
+    // The binary reads the widget again here without a null check; mLastFocusedChild
+    // is only ever a copy of an earlier mFocusedChildWidget, which may since have
+    // gone away, so the check stays.
+    if (aFocusedWidget != nullptr && aFocusedWidget->mWidgetId == 6)
+    {
+        if (mApp->IsFullVersion())
+            TodStringTranslate(&aBubbleText, "[CROW_SELECTION_DLC]");
+        else
+            TodStringTranslate(&aBubbleText, "[UNLOCK_FULL_GAME]");
+    }
 
-  // First the rect the text is measured in, then the one it is drawn in: the
-  // measured height only widens the bubble, it never shrinks it.
-  TRect<int> aTextRect;
-  aTextRect.mX = (int)aBubbleTransform.mTransX;
-  aTextRect.mY = (int)aBubbleTransform.mTransY;
-  aTextRect.mWidth = 160;
-  aTextRect.mHeight = 64;
-  // The last two argument pairs are (justification, drawOutline, drawShaded);
-  // 2 is the centred justification.
-  int aTextHeight = TodDrawStringWrappedHelper(theGraphics, aBubbleText, aTextRect,
-    FONT_BRIANNETOD16, Color(0, 0, 0), 2, false, false);
-  int aBubbleHeight = (aTextHeight > 64) ? aTextHeight : aTextRect.mHeight;
-  int aBubblePadding = aBubbleHeight + 32;
-  if ( aTextHeight > 64 )
-    aTextRect.mHeight = aTextHeight;
+    // The bubble hangs off the crow's own track, so the menu reanimation has to be
+    // there and to have that track.
+    Reanimation *aMainMenuReanim = mApp->ReanimationTryToGet(mBackdropReanimID);
+    if (aMainMenuReanim == nullptr)
+        return;
+    int aTrackIndex = aMainMenuReanim->FindTrackIndex("crow2");
+    if (aTrackIndex == -1)
+        return;
 
-  // The bubble grows out of the crow, hangs for a while, then shrinks back.
-  TRect<int> aBubbleRect;
-  aBubbleRect.mX = (int)(aBubbleTransform.mTransX - 24.0f);
-  aBubbleRect.mWidth = (int)(anAlpha * 192.0f);
-  aBubbleRect.mY = (int)((aBubbleTransform.mTransY - 16.0f)
-    + (float)((float)aBubblePadding * (1.0f - anAlpha)));
-  aBubbleRect.mHeight = (int)((float)(aBubblePadding % 32 + aBubblePadding) * anAlpha);
+    ReanimatorTransform aBubbleTransform;
+    aMainMenuReanim->GetCurrentTransform(aTrackIndex, &aBubbleTransform);
+    aBubbleTransform.mTransX = (aBubbleTransform.mTransX + mCameraOffsetX) - 16.0f;
+    aBubbleTransform.mTransY = aBubbleTransform.mTransY + 64.0f;
 
-  theGraphics->SetColorizeImages(true);
-  theGraphics->SetColor(Color(255, 255, 255, (int)(anAlpha * 255.0f)));
-  theGraphics->DrawImageBox(aBubbleRect, IMAGE_CROW_BUBBLE);
-  theGraphics->SetColorizeImages(false);
+    // First the rect the text is measured in, then the one it is drawn in: the
+    // measured height only widens the bubble, it never shrinks it.
+    TRect<int> aTextRect;
+    aTextRect.mX = (int)aBubbleTransform.mTransX;
+    aTextRect.mY = (int)aBubbleTransform.mTransY;
+    aTextRect.mWidth = 160;
+    aTextRect.mHeight = 64;
+    // The last two argument pairs are (justification, drawOutline, drawShaded);
+    // 2 is the centred justification.
+    int aTextHeight = TodDrawStringWrappedHelper(
+        theGraphics, aBubbleText, aTextRect, FONT_BRIANNETOD16, Color(0, 0, 0), 2, false, false);
+    int aBubbleHeight = (aTextHeight > 64) ? aTextHeight : aTextRect.mHeight;
+    int aBubblePadding = aBubbleHeight + 32;
+    if (aTextHeight > 64)
+        aTextRect.mHeight = aTextHeight;
 
-  // The text is outlined while the bubble is still growing, and only from the
-  // frame the counter reaches 241.
-  if ( (unsigned int)(mFocusedChildCounter - 241) <= 0x1FC )
-    TodDrawStringWrappedHelper(theGraphics, aBubbleText, aTextRect,
-      FONT_BRIANNETOD16, Color(0, 0, 0), 2, true, false);
+    // The bubble grows out of the crow, hangs for a while, then shrinks back.
+    TRect<int> aBubbleRect;
+    aBubbleRect.mX = (int)(aBubbleTransform.mTransX - 24.0f);
+    aBubbleRect.mWidth = (int)(anAlpha * 192.0f);
+    aBubbleRect.mY = (int)((aBubbleTransform.mTransY - 16.0f) + (float)((float)aBubblePadding * (1.0f - anAlpha)));
+    aBubbleRect.mHeight = (int)((float)(aBubblePadding % 32 + aBubblePadding) * anAlpha);
 
-  theGraphics->PopState();
+    theGraphics->SetColorizeImages(true);
+    theGraphics->SetColor(Color(255, 255, 255, (int)(anAlpha * 255.0f)));
+    theGraphics->DrawImageBox(aBubbleRect, IMAGE_CROW_BUBBLE);
+    theGraphics->SetColorizeImages(false);
+
+    // The text is outlined while the bubble is still growing, and only from the
+    // frame the counter reaches 241.
+    if ((unsigned int)(mFocusedChildCounter - 241) <= 0x1FC)
+        TodDrawStringWrappedHelper(
+            theGraphics, aBubbleText, aTextRect, FONT_BRIANNETOD16, Color(0, 0, 0), 2, true, false);
+
+    theGraphics->PopState();
 }
 
 // ==========================================================================
@@ -1237,16 +1256,16 @@ void MainMenu::DrawSpeechBubble(Sexy::Graphics *theGraphics)
 // ==========================================================================
 void MainMenu::StartAdventureMode()
 {
-  mApp->mMusic->StopAllMusic();
-  mApp->PlaySample(SOUND_LOSEMUSIC, true);
-  mHandPlaying = true;
+    mApp->mMusic->StopAllMusic();
+    mApp->PlaySample(SOUND_LOSEMUSIC, true);
+    mHandPlaying = true;
 
-  // Every mode button pushes the same rock aside with the zombie hand.
-  Reanimation *aHandReanim = mApp->AddReanimation(0.0f, 0.0f, 0, REANIM_ZOMBIE_HAND);
-  aHandReanim->mLoopType = REANIM_PLAY_ONCE_AND_HOLD;
-  aHandReanim->IgnoreClipRectForPrefix("rock", true);
-  mZombieHandReanimID = mApp->ReanimationGetID(aHandReanim);
-  mApp->PlayFoley(FOLEY_DIRT_RISE);
+    // Every mode button pushes the same rock aside with the zombie hand.
+    Reanimation *aHandReanim = mApp->AddReanimation(0.0f, 0.0f, 0, REANIM_ZOMBIE_HAND);
+    aHandReanim->mLoopType = REANIM_PLAY_ONCE_AND_HOLD;
+    aHandReanim->IgnoreClipRectForPrefix("rock", true);
+    mZombieHandReanimID = mApp->ReanimationGetID(aHandReanim);
+    mApp->PlayFoley(FOLEY_DIRT_RISE);
 }
 
 // ==========================================================================
@@ -1255,7 +1274,7 @@ void MainMenu::StartAdventureMode()
 // ==========================================================================
 void MainMenu::StartCoopAdventureMode()
 {
-  // The TV build has no two-player adventure: the body is empty in the binary.
+    // The TV build has no two-player adventure: the body is empty in the binary.
 }
 
 // ==========================================================================
@@ -1264,13 +1283,13 @@ void MainMenu::StartCoopAdventureMode()
 // ==========================================================================
 int MainMenu::DoUnlockDialog(int theLevel, int theItemId)
 {
-  if ( mApp->GetDialog(18) != nullptr )
-    return 0;
+    if (mApp->GetDialog(18) != nullptr)
+        return 0;
 
-  UnlockDialog *aUnlockDialog = new UnlockDialog(theLevel, theItemId);
-  mApp->AddDialogWithId(18, aUnlockDialog);
-  mApp->mWidgetManager->SetFocus(aUnlockDialog);
-  return 0;
+    UnlockDialog *aUnlockDialog = new UnlockDialog(theLevel, theItemId);
+    mApp->AddDialogWithId(18, aUnlockDialog);
+    mApp->mWidgetManager->SetFocus(aUnlockDialog);
+    return 0;
 }
 
 // ==========================================================================
@@ -1279,84 +1298,84 @@ int MainMenu::DoUnlockDialog(int theLevel, int theItemId)
 // ==========================================================================
 int MainMenu::SyncButtons()
 {
-  Reanimation *aMainMenuReanim = mApp->ReanimationTryToGet(mBackdropReanimID);
-  if ( aMainMenuReanim == nullptr )
-    return 0;
+    Reanimation *aMainMenuReanim = mApp->ReanimationTryToGet(mBackdropReanimID);
+    if (aMainMenuReanim == nullptr)
+        return 0;
 
-  // The scene buttons, plus the entries either side of them.
-  Sexy::Widget *aMoreWaysButton = FindWidget(MORE_WAYS_BUTTON);
-  Sexy::Widget *aHouseButton = FindWidget(HOUSE_BUTTON);
-  Sexy::Widget *aStartButton = FindWidget(START_ADVENTURE_BUTTON);
-  Sexy::Widget *aAdventureButton = FindWidget(ADVENTURE_BUTTON);
-  FindWidget(MAIL_BUTTON);
-  Sexy::Widget *aAchievementsButton = FindWidget(ACHIEVEMENTS_BUTTON);
-  aAchievementsButton->SetDisabled(false);
-  // MenuWidget::Exit @0x2AF2C8 disables every child during the iris animation.
-  // Achievements are available locally, so retain the trophy while input is
-  // disabled instead of replacing it with the unavailable-service flower.
-  GameButton* achievements = dynamic_cast<GameButton*>(aAchievementsButton);
-  if (achievements != nullptr)
-  {
-    achievements->mDisabledImage = achievements->mButtonImage;
-    achievements->mDisabledRect = achievements->mNormalRect;
-  }
-  Sexy::Widget *aUnlockButton = FindWidget(UNLOCK_BUTTON);
-  aUnlockButton->SetDisabled(true);
-  aHouseButton->SetVisible(true);
-  aHouseButton->SetDisabled(false);
-
-  // A fresh profile sees the "start adventure" sign instead of the level list,
-  // and the two share a focus link either way.
-  if ( mFirstTimeAdventure )
-  {
-    if ( aAdventureButton != nullptr && aStartButton != nullptr )
+    // The scene buttons, plus the entries either side of them.
+    Sexy::Widget *aMoreWaysButton = FindWidget(MORE_WAYS_BUTTON);
+    Sexy::Widget *aHouseButton = FindWidget(HOUSE_BUTTON);
+    Sexy::Widget *aStartButton = FindWidget(START_ADVENTURE_BUTTON);
+    Sexy::Widget *aAdventureButton = FindWidget(ADVENTURE_BUTTON);
+    FindWidget(MAIL_BUTTON);
+    Sexy::Widget *aAchievementsButton = FindWidget(ACHIEVEMENTS_BUTTON);
+    aAchievementsButton->SetDisabled(false);
+    // MenuWidget::Exit @0x2AF2C8 disables every child during the iris animation.
+    // Achievements are available locally, so retain the trophy while input is
+    // disabled instead of replacing it with the unavailable-service flower.
+    GameButton *achievements = dynamic_cast<GameButton *>(aAchievementsButton);
+    if (achievements != nullptr)
     {
-      aStartButton->SetVisible(true);
-      aAdventureButton->SetVisible(false);
-      aMoreWaysButton->SetFocusLink(0, aStartButton);  // up
-      aHouseButton->SetFocusLink(2, aStartButton);     // left
+        achievements->mDisabledImage = achievements->mButtonImage;
+        achievements->mDisabledRect = achievements->mNormalRect;
     }
-  }
-  else if ( aAdventureButton != nullptr && aStartButton != nullptr )
-  {
-    aStartButton->SetVisible(false);
-    aAdventureButton->SetVisible(true);
-    aMoreWaysButton->SetFocusLink(0, aAdventureButton);  // up
-    aHouseButton->SetFocusLink(2, aAdventureButton);     // left
-  }
+    Sexy::Widget *aUnlockButton = FindWidget(UNLOCK_BUTTON);
+    aUnlockButton->SetDisabled(true);
+    aHouseButton->SetVisible(true);
+    aHouseButton->SetDisabled(false);
 
-  bool aCanShowAlmanac = mApp->CanShowAlmanac();
-  bool aCanShowStore = mApp->CanShowStore();
-  bool aCanShowZenGarden = mApp->CanShowZenGarden();
+    // A fresh profile sees the "start adventure" sign instead of the level list,
+    // and the two share a focus link either way.
+    if (mFirstTimeAdventure)
+    {
+        if (aAdventureButton != nullptr && aStartButton != nullptr)
+        {
+            aStartButton->SetVisible(true);
+            aAdventureButton->SetVisible(false);
+            aMoreWaysButton->SetFocusLink(0, aStartButton); // up
+            aHouseButton->SetFocusLink(2, aStartButton); // left
+        }
+    }
+    else if (aAdventureButton != nullptr && aStartButton != nullptr)
+    {
+        aStartButton->SetVisible(false);
+        aAdventureButton->SetVisible(true);
+        aMoreWaysButton->SetFocusLink(0, aAdventureButton); // up
+        aHouseButton->SetFocusLink(2, aAdventureButton); // left
+    }
 
-  // A page the profile has not reached yet is hidden and greyed; its reanimation
-  // groups are dropped out of the menu at the same time.
-  aMainMenuReanim->AssignRenderGroupToPrefix("almanac", aCanShowAlmanac ? 0 : -1);
-  aMainMenuReanim->AssignRenderGroupToPrefix("packets", aCanShowAlmanac ? 0 : -1);
-  Sexy::Widget *aAlmanacButton = FindWidget(ALMANAC_BUTTON);
-  if ( aAlmanacButton != nullptr )
-  {
-    aAlmanacButton->mVisible = aCanShowAlmanac;
-    aAlmanacButton->mDisabled = !aCanShowAlmanac;
-  }
+    bool aCanShowAlmanac = mApp->CanShowAlmanac();
+    bool aCanShowStore = mApp->CanShowStore();
+    bool aCanShowZenGarden = mApp->CanShowZenGarden();
 
-  aMainMenuReanim->AssignRenderGroupToPrefix("shop", aCanShowStore ? 0 : -1);
-  Sexy::Widget *aStoreButton = FindWidget(STORE_BUTTON);
-  if ( aStoreButton != nullptr )
-  {
-    aStoreButton->mDisabled = !aCanShowStore;
-    aStoreButton->mVisible = aCanShowStore;
-  }
+    // A page the profile has not reached yet is hidden and greyed; its reanimation
+    // groups are dropped out of the menu at the same time.
+    aMainMenuReanim->AssignRenderGroupToPrefix("almanac", aCanShowAlmanac ? 0 : -1);
+    aMainMenuReanim->AssignRenderGroupToPrefix("packets", aCanShowAlmanac ? 0 : -1);
+    Sexy::Widget *aAlmanacButton = FindWidget(ALMANAC_BUTTON);
+    if (aAlmanacButton != nullptr)
+    {
+        aAlmanacButton->mVisible = aCanShowAlmanac;
+        aAlmanacButton->mDisabled = !aCanShowAlmanac;
+    }
 
-  aMainMenuReanim->AssignRenderGroupToPrefix("zengarden", aCanShowZenGarden ? 0 : -1);
-  aMainMenuReanim->AssignRenderGroupToPrefix("bonsai", aCanShowZenGarden ? 0 : -1);
-  Sexy::Widget *aZenButton = FindWidget(ZEN_BUTTON);
-  if ( aZenButton != nullptr )
-  {
-    aZenButton->mVisible = aCanShowZenGarden;
-    aZenButton->mDisabled = !aCanShowZenGarden;
-  }
-  return 0;
+    aMainMenuReanim->AssignRenderGroupToPrefix("shop", aCanShowStore ? 0 : -1);
+    Sexy::Widget *aStoreButton = FindWidget(STORE_BUTTON);
+    if (aStoreButton != nullptr)
+    {
+        aStoreButton->mDisabled = !aCanShowStore;
+        aStoreButton->mVisible = aCanShowStore;
+    }
+
+    aMainMenuReanim->AssignRenderGroupToPrefix("zengarden", aCanShowZenGarden ? 0 : -1);
+    aMainMenuReanim->AssignRenderGroupToPrefix("bonsai", aCanShowZenGarden ? 0 : -1);
+    Sexy::Widget *aZenButton = FindWidget(ZEN_BUTTON);
+    if (aZenButton != nullptr)
+    {
+        aZenButton->mVisible = aCanShowZenGarden;
+        aZenButton->mDisabled = !aCanShowZenGarden;
+    }
+    return 0;
 }
 
 // ==========================================================================
@@ -1365,61 +1384,61 @@ int MainMenu::SyncButtons()
 // ==========================================================================
 int MainMenu::SyncProfile(bool theReload)
 {
-  if ( theReload )
-  {
-    // A profile reload takes long enough to need the loading dialog, and the
-    // menu keeps drawing behind it.
-    mKeepDrawing = true;
-    mApp->DoDialog(51, true, "[LOADING]", "", "", 0);
-    mApp->DrawDirtyStuff();
-    mApp->PreloadForUser();
-    mApp->KillDialog(51);
-    mKeepDrawing = false;
-  }
+    if (theReload)
+    {
+        // A profile reload takes long enough to need the loading dialog, and the
+        // menu keeps drawing behind it.
+        mKeepDrawing = true;
+        mApp->DoDialog(51, true, "[LOADING]", "", "", 0);
+        mApp->DrawDirtyStuff();
+        mApp->PreloadForUser();
+        mApp->KillDialog(51);
+        mKeepDrawing = false;
+    }
 
-  LawnApp *aApp = mApp;
-  // Every mode starts locked again; the profile unlocks the ones it has passed.
-  mFirstTimeAdventure = true;
-  mMiniGameLocked = true;
-  mPuzzleModeLocked = true;
-  mSurvivalModeLocked = true;
+    LawnApp *aApp = mApp;
+    // Every mode starts locked again; the profile unlocks the ones it has passed.
+    mFirstTimeAdventure = true;
+    mMiniGameLocked = true;
+    mPuzzleModeLocked = true;
+    mSurvivalModeLocked = true;
 
-  LawnPlayerInfo *aPlayerInfo = aApp->mPlayerInfo;
-  if ( aPlayerInfo != nullptr && !aApp->IsIceDemo() )
-  {
-    if ( aApp->mPlayerInfo->mLevel > 1 )
-      mFirstTimeAdventure = false;
-    if ( aApp->HasFinishedAdventure() )
+    LawnPlayerInfo *aPlayerInfo = aApp->mPlayerInfo;
+    if (aPlayerInfo != nullptr && !aApp->IsIceDemo())
     {
-      mFirstTimeAdventure = false;
-      mMiniGameLocked = false;
-      mSurvivalModeLocked = false;
-      mPuzzleModeLocked = false;
-      mCoopModeLocked = false;
-      mVSModeLocked = false;
+        if (aApp->mPlayerInfo->mLevel > 1)
+            mFirstTimeAdventure = false;
+        if (aApp->HasFinishedAdventure())
+        {
+            mFirstTimeAdventure = false;
+            mMiniGameLocked = false;
+            mSurvivalModeLocked = false;
+            mPuzzleModeLocked = false;
+            mCoopModeLocked = false;
+            mVSModeLocked = false;
+        }
+        if (aApp->mPlayerInfo->GetFlag(PlayerFlags(16)))
+            mMiniGameLocked = false;
+        if (aApp->mPlayerInfo->GetFlag(PlayerFlags(0x4000)))
+        {
+            mCoopModeLocked = false;
+            mVSModeLocked = false;
+        }
+        if (aApp->mPlayerInfo->GetFlag(PlayerFlags(32)))
+            mPuzzleModeLocked = false;
+        if (aApp->mPlayerInfo->GetFlag(PlayerFlags(1024)))
+            mSurvivalModeLocked = false;
+        // The trial build locks the last two pages whatever the profile says.
+        if (aApp->IsTrialStageLocked())
+        {
+            mPuzzleModeLocked = true;
+            mSurvivalModeLocked = true;
+        }
     }
-    if ( aApp->mPlayerInfo->GetFlag(PlayerFlags(16)) )
-      mMiniGameLocked = false;
-    if ( aApp->mPlayerInfo->GetFlag(PlayerFlags(0x4000)) )
-    {
-      mCoopModeLocked = false;
-      mVSModeLocked = false;
-    }
-    if ( aApp->mPlayerInfo->GetFlag(PlayerFlags(32)) )
-      mPuzzleModeLocked = false;
-    if ( aApp->mPlayerInfo->GetFlag(PlayerFlags(1024)) )
-      mSurvivalModeLocked = false;
-    // The trial build locks the last two pages whatever the profile says.
-    if ( aApp->IsTrialStageLocked() )
-    {
-      mPuzzleModeLocked = true;
-      mSurvivalModeLocked = true;
-    }
-  }
-  SyncButtons();
-  AlmanacInitForPlayer();
-  BoardInitForPlayer();
-  return 0;
+    SyncButtons();
+    AlmanacInitForPlayer();
+    BoardInitForPlayer();
+    return 0;
 }
 
 // ==========================================================================
@@ -1428,128 +1447,127 @@ int MainMenu::SyncProfile(bool theReload)
 // ==========================================================================
 void MainMenu::AddedToManager(Sexy::WidgetManager *theWidgetManager)
 {
-  // The whole menu reanimation set is built here, at the camera origin.
-  Reanimation *aSkyReanim = mApp->AddReanimation(mCameraOffsetX, mCameraOffsetY, 0, REANIM_MAINMENU_SKY);
-  if ( aSkyReanim != nullptr )
-  {
-    aSkyReanim->PlayReanim("anim_idle", REANIM_LOOP, 0, 0.2);
-    mSkyReanimID = mApp->ReanimationGetID(aSkyReanim);
-  }
-
-  Reanimation *aSky2Reanim = mApp->AddReanimation(mCameraOffsetX, mCameraOffsetY, 0, REANIM_MAINMENU_SKY2);
-  if ( aSky2Reanim != nullptr )
-  {
-    // The storm layer draws in its own render group so the menu can squash it
-    // into the reflection the camera hangs over.
-    aSky2Reanim->AssignRenderGroupToPrefix("dark clouds", 2);
-    aSky2Reanim->AssignRenderGroupToPrefix("lightning", 2);
-    aSky2Reanim->AssignRenderGroupToPrefix("sky4", 2);
-    aSky2Reanim->SetTruncateDisappearingFrames(nullptr, false);
-    aSky2Reanim->PlayReanim("anim_idle", REANIM_LOOP, 0, 10.0);
-    mSky2ReanimID = mApp->ReanimationGetID(aSky2Reanim);
-  }
-
-  Reanimation *aMainMenuReanim = mApp->AddReanimation(mCameraOffsetX, mCameraOffsetY, 0, REANIM_MAINMENU);
-  if ( aMainMenuReanim != nullptr )
-  {
-    // The camera track is what makes the menu slide; without it SetScene falls
-    // back to the transition counter.
-    mHasCameraTrack = aMainMenuReanim->TrackExists("camera");
-    if ( mMenuScene == MENUSCENE_EXTRA )
-      aMainMenuReanim->PlayReanim("anim_enter_right", REANIM_PLAY_ONCE_FULL_LAST_FRAME_AND_HOLD, 0, 12.0);
-    else
-      aMainMenuReanim->PlayReanim("anim_enter", REANIM_PLAY_ONCE_FULL_LAST_FRAME_AND_HOLD, 0, 12.0);
-    mBackdropReanimID = mApp->ReanimationGetID(aMainMenuReanim);
-    aMainMenuReanim->SetTruncateDisappearingFrames(nullptr, false);
-    aMainMenuReanim->SetTruncateDisappearingFrames("Rich_blink", true);
-    aMainMenuReanim->SetTruncateDisappearingFrames("Matt_blink", true);
-    // Everything belonging to another scene is dropped out of this one. The
-    // binary parks "clouds" twice; kept as it stands.
-    aMainMenuReanim->AssignRenderGroupToPrefix("Hood", 1);
-    aMainMenuReanim->AssignRenderGroupToPrefix("clouds", -1);
-    aMainMenuReanim->AssignRenderGroupToPrefix("dark clouds", -1);
-    aMainMenuReanim->AssignRenderGroupToPrefix("dark clouds 2", -1);
-    aMainMenuReanim->AssignRenderGroupToPrefix("clouds", -1);
-    aMainMenuReanim->AssignRenderGroupToPrefix("sky", -1);
-    aMainMenuReanim->AssignRenderGroupToPrefix("sun light", -1);
-    aMainMenuReanim->AssignRenderGroupToPrefix("ground color copy", 1);
-    aMainMenuReanim->AssignRenderGroupToPrefix("crow", -1);
-    aMainMenuReanim->AssignRenderGroupToTrack("mail alert", -1);
-  }
-
-  Reanimation *aCrowReanim = mApp->AddReanimation(mCameraOffsetX, mCameraOffsetY, 0, REANIM_CROW);
-  if ( aCrowReanim != nullptr )
-  {
-    mCrowReanimID = mApp->ReanimationGetID(aCrowReanim);
-    aCrowReanim->SetTruncateDisappearingFrames(nullptr, false);
-    aCrowReanim->SetTruncateDisappearingFrames("Crow_EyeLid_Closed", true);
-    aCrowReanim->PlayReanim("anim_land", REANIM_PLAY_ONCE_AND_HOLD, 0, 12.0);
-    mApp->PlaySample(Sexy::GetSoundById(Rand() % 3 + 622), true);
-  }
-
-  Reanimation *aLeavesReanim = mApp->AddReanimation(mCameraOffsetX, mCameraOffsetY, 0, REANIM_FALLING_LEAVES);
-  if ( aLeavesReanim != nullptr )
-  {
-    aLeavesReanim->PlayReanim("anim_idle", REANIM_LOOP, 0, 12.0);
-    mFallingLeavesReanimID = mApp->ReanimationGetID(aLeavesReanim);
-  }
-
-  // The butterfly of the far scene lives one scene to the right of the camera,
-  // stopped on its first frame until the scene is entered.
-  Reanimation *aButterflyReanim = mApp->AddReanimation(mCameraOffsetX + 2560.0f, mCameraOffsetY, 0, REANIM_BUTTERFLY);
-  if ( aButterflyReanim != nullptr )
-  {
-    aButterflyReanim->SetAnimRate(0.0);
-    aButterflyReanim->mIsAttachment = true;
-    aButterflyReanim->mLoopType = REANIM_PLAY_ONCE_AND_HOLD;
-    mButterflyReanimID = mApp->ReanimationGetID(aButterflyReanim);
-  }
-
-  MenuWidget::AddedToManager(theWidgetManager);
-  Reanimation* house = mApp->AddReanimation(0.0f, 0.0f, 0, REANIM_HOUSE);
-  if (house != nullptr)
-  {
-    mHouseReanimID = mApp->ReanimationGetID(house);
-    mApp->SetHouseReanim(house);
-    house->Update();
-  }
-  if (aMainMenuReanim != nullptr)
-  {
-    Sexy::Image* leaderboardSign = mApp->GetConsoleImage("leaderboards");
-    if (leaderboardSign != nullptr)
-      aMainMenuReanim->SetImageDefinition("leaderboards", leaderboardSign);
-    const char* const tracks[] = {"Hood1", "Hood2", "Hood3", "Hood4", "ground color copy"};
-    const char* const images[] = {"hood1_house", "hood2_house", "hood3_house", "hood4_house", "house_hill_house"};
-    for (int imageIndex = 0; imageIndex < 5; ++imageIndex)
+    // The whole menu reanimation set is built here, at the camera origin.
+    Reanimation *aSkyReanim = mApp->AddReanimation(mCameraOffsetX, mCameraOffsetY, 0, REANIM_MAINMENU_SKY);
+    if (aSkyReanim != nullptr)
     {
-      Sexy::Image* image = mApp->GetConsoleImage(images[imageIndex]);
-      if (image != nullptr && aMainMenuReanim->FindTrackIndex(tracks[imageIndex]) >= 0)
-        aMainMenuReanim->SetImageOverride(tracks[imageIndex], image);
+        aSkyReanim->PlayReanim("anim_idle", REANIM_LOOP, 0, 0.2);
+        mSkyReanimID = mApp->ReanimationGetID(aSkyReanim);
     }
-    aMainMenuReanim->AssignRenderGroupToTrack("House", -1);
-  }
-  SyncProfile(false);
 
-  // Every entry of the menu carries the same render order. The list repeats
-  // id 1 because the array in the binary does.
-  static const int aButtonIds[] = { 1, 1, 2, 9, 10, 12, 13, 14, 16, 17, 18, -1 };
-  for ( int i = 0; aButtonIds[i] != -1; i++ )
-  {
-    Sexy::Widget *aWidget = FindWidget(aButtonIds[i]);
-    if ( aWidget != nullptr )
+    Reanimation *aSky2Reanim = mApp->AddReanimation(mCameraOffsetX, mCameraOffsetY, 0, REANIM_MAINMENU_SKY2);
+    if (aSky2Reanim != nullptr)
     {
-      GameButton *aButton = dynamic_cast<GameButton *>(aWidget);
-      if ( aButton != nullptr )
-        aButton->mPressSoundId = 512;
+        // The storm layer draws in its own render group so the menu can squash it
+        // into the reflection the camera hangs over.
+        aSky2Reanim->AssignRenderGroupToPrefix("dark clouds", 2);
+        aSky2Reanim->AssignRenderGroupToPrefix("lightning", 2);
+        aSky2Reanim->AssignRenderGroupToPrefix("sky4", 2);
+        aSky2Reanim->SetTruncateDisappearingFrames(nullptr, false);
+        aSky2Reanim->PlayReanim("anim_idle", REANIM_LOOP, 0, 10.0);
+        mSky2ReanimID = mApp->ReanimationGetID(aSky2Reanim);
     }
-  }
 
-  // The focus starts on the adventure entry, or on the "start" sign of a fresh
-  // profile, and that widget also becomes the default focus.
-  Sexy::Widget *aFocusWidget = FindWidget(mFirstTimeAdventure ? START_ADVENTURE_BUTTON
-                                                             : ADVENTURE_BUTTON);
-  SetFocus(aFocusWidget, true);
-  SetDefaultFocus(aFocusWidget);
+    Reanimation *aMainMenuReanim = mApp->AddReanimation(mCameraOffsetX, mCameraOffsetY, 0, REANIM_MAINMENU);
+    if (aMainMenuReanim != nullptr)
+    {
+        // The camera track is what makes the menu slide; without it SetScene falls
+        // back to the transition counter.
+        mHasCameraTrack = aMainMenuReanim->TrackExists("camera");
+        if (mMenuScene == MENUSCENE_EXTRA)
+            aMainMenuReanim->PlayReanim("anim_enter_right", REANIM_PLAY_ONCE_FULL_LAST_FRAME_AND_HOLD, 0, 12.0);
+        else
+            aMainMenuReanim->PlayReanim("anim_enter", REANIM_PLAY_ONCE_FULL_LAST_FRAME_AND_HOLD, 0, 12.0);
+        mBackdropReanimID = mApp->ReanimationGetID(aMainMenuReanim);
+        aMainMenuReanim->SetTruncateDisappearingFrames(nullptr, false);
+        aMainMenuReanim->SetTruncateDisappearingFrames("Rich_blink", true);
+        aMainMenuReanim->SetTruncateDisappearingFrames("Matt_blink", true);
+        // Everything belonging to another scene is dropped out of this one. The
+        // binary parks "clouds" twice; kept as it stands.
+        aMainMenuReanim->AssignRenderGroupToPrefix("Hood", 1);
+        aMainMenuReanim->AssignRenderGroupToPrefix("clouds", -1);
+        aMainMenuReanim->AssignRenderGroupToPrefix("dark clouds", -1);
+        aMainMenuReanim->AssignRenderGroupToPrefix("dark clouds 2", -1);
+        aMainMenuReanim->AssignRenderGroupToPrefix("clouds", -1);
+        aMainMenuReanim->AssignRenderGroupToPrefix("sky", -1);
+        aMainMenuReanim->AssignRenderGroupToPrefix("sun light", -1);
+        aMainMenuReanim->AssignRenderGroupToPrefix("ground color copy", 1);
+        aMainMenuReanim->AssignRenderGroupToPrefix("crow", -1);
+        aMainMenuReanim->AssignRenderGroupToTrack("mail alert", -1);
+    }
+
+    Reanimation *aCrowReanim = mApp->AddReanimation(mCameraOffsetX, mCameraOffsetY, 0, REANIM_CROW);
+    if (aCrowReanim != nullptr)
+    {
+        mCrowReanimID = mApp->ReanimationGetID(aCrowReanim);
+        aCrowReanim->SetTruncateDisappearingFrames(nullptr, false);
+        aCrowReanim->SetTruncateDisappearingFrames("Crow_EyeLid_Closed", true);
+        aCrowReanim->PlayReanim("anim_land", REANIM_PLAY_ONCE_AND_HOLD, 0, 12.0);
+        mApp->PlaySample(Sexy::GetSoundById(Rand() % 3 + 622), true);
+    }
+
+    Reanimation *aLeavesReanim = mApp->AddReanimation(mCameraOffsetX, mCameraOffsetY, 0, REANIM_FALLING_LEAVES);
+    if (aLeavesReanim != nullptr)
+    {
+        aLeavesReanim->PlayReanim("anim_idle", REANIM_LOOP, 0, 12.0);
+        mFallingLeavesReanimID = mApp->ReanimationGetID(aLeavesReanim);
+    }
+
+    // The butterfly of the far scene lives one scene to the right of the camera,
+    // stopped on its first frame until the scene is entered.
+    Reanimation *aButterflyReanim = mApp->AddReanimation(mCameraOffsetX + 2560.0f, mCameraOffsetY, 0, REANIM_BUTTERFLY);
+    if (aButterflyReanim != nullptr)
+    {
+        aButterflyReanim->SetAnimRate(0.0);
+        aButterflyReanim->mIsAttachment = true;
+        aButterflyReanim->mLoopType = REANIM_PLAY_ONCE_AND_HOLD;
+        mButterflyReanimID = mApp->ReanimationGetID(aButterflyReanim);
+    }
+
+    MenuWidget::AddedToManager(theWidgetManager);
+    Reanimation *house = mApp->AddReanimation(0.0f, 0.0f, 0, REANIM_HOUSE);
+    if (house != nullptr)
+    {
+        mHouseReanimID = mApp->ReanimationGetID(house);
+        mApp->SetHouseReanim(house);
+        house->Update();
+    }
+    if (aMainMenuReanim != nullptr)
+    {
+        Sexy::Image *leaderboardSign = mApp->GetConsoleImage("leaderboards");
+        if (leaderboardSign != nullptr)
+            aMainMenuReanim->SetImageDefinition("leaderboards", leaderboardSign);
+        const char *const tracks[] = {"Hood1", "Hood2", "Hood3", "Hood4", "ground color copy"};
+        const char *const images[] = {"hood1_house", "hood2_house", "hood3_house", "hood4_house", "house_hill_house"};
+        for (int imageIndex = 0; imageIndex < 5; ++imageIndex)
+        {
+            Sexy::Image *image = mApp->GetConsoleImage(images[imageIndex]);
+            if (image != nullptr && aMainMenuReanim->FindTrackIndex(tracks[imageIndex]) >= 0)
+                aMainMenuReanim->SetImageOverride(tracks[imageIndex], image);
+        }
+        aMainMenuReanim->AssignRenderGroupToTrack("House", -1);
+    }
+    SyncProfile(false);
+
+    // Every entry of the menu carries the same render order. The list repeats
+    // id 1 because the array in the binary does.
+    static const int aButtonIds[] = {1, 1, 2, 9, 10, 12, 13, 14, 16, 17, 18, -1};
+    for (int i = 0; aButtonIds[i] != -1; i++)
+    {
+        Sexy::Widget *aWidget = FindWidget(aButtonIds[i]);
+        if (aWidget != nullptr)
+        {
+            GameButton *aButton = dynamic_cast<GameButton *>(aWidget);
+            if (aButton != nullptr)
+                aButton->mPressSoundId = 512;
+        }
+    }
+
+    // The focus starts on the adventure entry, or on the "start" sign of a fresh
+    // profile, and that widget also becomes the default focus.
+    Sexy::Widget *aFocusWidget = FindWidget(mFirstTimeAdventure ? START_ADVENTURE_BUTTON : ADVENTURE_BUTTON);
+    SetFocus(aFocusWidget, true);
+    SetDefaultFocus(aFocusWidget);
 }
 
 // ==========================================================================
@@ -1558,124 +1576,124 @@ void MainMenu::AddedToManager(Sexy::WidgetManager *theWidgetManager)
 // ==========================================================================
 int MainMenu::KeyChar(char theChar)
 {
-  Sexy::String aTemp;
-  if ( mCreateUserDialogOpened )
-    return 1;
-  if (!mApp->mDebugKeysEnabled || gDisableDebugKeys)
-    return 1;
+    Sexy::String aTemp;
+    if (mCreateUserDialogOpened)
+        return 1;
+    if (!mApp->mDebugKeysEnabled || gDisableDebugKeys)
+        return 1;
 
-  // TV 0x19C02C: 'u' unlocks the current profile.
-  if ( theChar == 'u' )
-  {
-    if ( mApp->mPlayerInfo != nullptr )
+    // TV 0x19C02C: 'u' unlocks the current profile.
+    if (theChar == 'u')
     {
-    StrFormat(&aTemp, "Selector cheat key '%c'", 'u');
-    mApp->mPlayerInfo->SetFlag(PLAYER_FLAG_ADVENTURE_COMPLETE, true);
-    mApp->mPlayerInfo->SetFlag(0x8000, 1);
-    mApp->mPlayerInfo->AddCoins(50000);
-    mApp->mPlayerInfo->SetFlag(2, 1);
-    mApp->mPlayerInfo->SetFlag(16, 1);
-    mApp->mPlayerInfo->SetFlag(32, 1);
-    mApp->mPlayerInfo->SetFlag(1024, 1);
-    mApp->mPlayerInfo->SetFlag(0x4000, 1);
-    // Every challenge record becomes 20 except the three that are not levels:
-    // 14 (the Zen Garden), 51 and 70/71.
-    for ( int i = 2; i != 102; i++ )
+        if (mApp->mPlayerInfo != nullptr)
+        {
+            StrFormat(&aTemp, "Selector cheat key '%c'", 'u');
+            mApp->mPlayerInfo->SetFlag(PLAYER_FLAG_ADVENTURE_COMPLETE, true);
+            mApp->mPlayerInfo->SetFlag(0x8000, 1);
+            mApp->mPlayerInfo->AddCoins(50000);
+            mApp->mPlayerInfo->SetFlag(2, 1);
+            mApp->mPlayerInfo->SetFlag(16, 1);
+            mApp->mPlayerInfo->SetFlag(32, 1);
+            mApp->mPlayerInfo->SetFlag(1024, 1);
+            mApp->mPlayerInfo->SetFlag(0x4000, 1);
+            // Every challenge record becomes 20 except the three that are not levels:
+            // 14 (the Zen Garden), 51 and 70/71.
+            for (int i = 2; i != 102; i++)
+            {
+                bool aSkip = (i > 51);
+                if (i != 51)
+                    aSkip = ((unsigned int)(i - 70) > 1);
+                if (aSkip && i != 14)
+                    mApp->mPlayerInfo->mChallengeRecords[i - 2] = 20;
+            }
+            mApp->mPlayerInfo->mLevel = 1;
+            for (bool &achievement : mApp->mPlayerInfo->mAchievements)
+                achievement = true;
+            mApp->TryToSaveProfile();
+            SyncProfile(true);
+            Sexy::String aSavedGameName;
+            GetSavedGameName(
+                &aSavedGameName, GAMEMODE_ADVENTURE, mApp->mPlayerInfo->GetProfileId(), mApp->mPlayerInfo->GetId());
+            mApp->EraseFile(aSavedGameName);
+        }
+    }
+    else if (theChar == 'l')
     {
-      bool aSkip = (i > 51);
-      if ( i != 51 )
-        aSkip = ((unsigned int)(i - 70) > 1);
-      if ( aSkip && i != 14 )
-        mApp->mPlayerInfo->mChallengeRecords[i - 2] = 20;
+        if (mApp->mPlayerInfo != nullptr)
+        {
+            mApp->mPlayerInfo->LoadDetails();
+            SyncProfile(true);
+        }
     }
-    mApp->mPlayerInfo->mLevel = 1;
-    for (bool& achievement : mApp->mPlayerInfo->mAchievements)
-      achievement = true;
-    mApp->TryToSaveProfile();
-    SyncProfile(true);
-    Sexy::String aSavedGameName;
-    GetSavedGameName(&aSavedGameName, GAMEMODE_ADVENTURE,
-                     mApp->mPlayerInfo->GetProfileId(), mApp->mPlayerInfo->GetId());
-    mApp->EraseFile(aSavedGameName);
-    }
-  }
-  else if ( theChar == 'l' )
-  {
-    if ( mApp->mPlayerInfo != nullptr )
+    else if (theChar == 'c')
     {
-      mApp->mPlayerInfo->LoadDetails();
-      SyncProfile(true);
+        mApp->DoUserDialog();
     }
-  }
-  else if ( theChar == 'c' )
-  {
-    mApp->DoUserDialog();
-  }
 
-  {
-    // The remaining selector keys are independent of the profile shortcuts.
-    StrFormat(&aTemp, "Selector cheat key '%c'", theChar);
-    switch ( theChar & 0xDF )
     {
-      case 'V':
-        mApp->KillGameSelector();
-        mApp->PreNewGame(GAMEMODE_MP_VS, false);
-        if ( mApp->mVSSetupMenu != nullptr )
-          mApp->mVSSetupMenu->mQuickPlay = true;
-        break;
-      case 'F':
-        LawnApp::MP_FLOWERPOT_TEST ^= 1u;
-        break;
-      case 'D':
-        LawnApp::MP_GRAVESTONE_TARGETS_TEST ^= 1u;
-        break;
-      case 'T':
-        mApp->KillGameSelector();
-        mApp->PreNewGame(GAMEMODE_MP_VS, false);
-        break;
-      case 'Q':
-        mApp->KillGameSelector();
-        mApp->ShowChallengeScreen(CHALLENGE_PAGE_LIMBO);
-        break;
-      case 'C':
-        mMiniGameLocked = false;
-        mPuzzleModeLocked = false;
-        mSurvivalModeLocked = false;
-        SyncButtons();
-        break;
-      default:
-        break;
+        // The remaining selector keys are independent of the profile shortcuts.
+        StrFormat(&aTemp, "Selector cheat key '%c'", theChar);
+        switch (theChar & 0xDF)
+        {
+            case 'V':
+                mApp->KillGameSelector();
+                mApp->PreNewGame(GAMEMODE_MP_VS, false);
+                if (mApp->mVSSetupMenu != nullptr)
+                    mApp->mVSSetupMenu->mQuickPlay = true;
+                break;
+            case 'F':
+                LawnApp::MP_FLOWERPOT_TEST ^= 1u;
+                break;
+            case 'D':
+                LawnApp::MP_GRAVESTONE_TARGETS_TEST ^= 1u;
+                break;
+            case 'T':
+                mApp->KillGameSelector();
+                mApp->PreNewGame(GAMEMODE_MP_VS, false);
+                break;
+            case 'Q':
+                mApp->KillGameSelector();
+                mApp->ShowChallengeScreen(CHALLENGE_PAGE_LIMBO);
+                break;
+            case 'C':
+                mMiniGameLocked = false;
+                mPuzzleModeLocked = false;
+                mSurvivalModeLocked = false;
+                SyncButtons();
+                break;
+            default:
+                break;
+        }
+        if (theChar == 'z')
+        {
+            mApp->ShowMainMenuScreen();
+            return 1;
+        }
+        switch (theChar)
+        {
+            case 'h':
+                mApp->TransitionToHouseScreen();
+                break;
+            case 'p':
+                mApp->ShowHelpTextScreen(0);
+                break;
+            case 'U':
+                mApp->KillGameSelector();
+                mApp->mVsInitialPlantMode = 0;
+                mApp->PreNewGame(GAMEMODE_UPSELL, false);
+                break;
+            case 'P':
+                mApp->KillGameSelector();
+                mApp->ShowChallengeScreen(CHALLENGE_PAGE_COOP);
+                break;
+            case 'm':
+                mApp->AddDialog(new MailScreen(mApp));
+                break;
+            default:
+                break;
+        }
     }
-    if ( theChar == 'z' )
-    {
-      mApp->ShowMainMenuScreen();
-      return 1;
-    }
-    switch ( theChar )
-    {
-      case 'h':
-        mApp->TransitionToHouseScreen();
-        break;
-      case 'p':
-        mApp->ShowHelpTextScreen(0);
-        break;
-      case 'U':
-        mApp->KillGameSelector();
-        mApp->mVsInitialPlantMode = 0;
-        mApp->PreNewGame(GAMEMODE_UPSELL, false);
-        break;
-      case 'P':
-        mApp->KillGameSelector();
-        mApp->ShowChallengeScreen(CHALLENGE_PAGE_COOP);
-        break;
-      case 'm':
-        mApp->AddDialog(new MailScreen(mApp));
-        break;
-      default:
-        break;
-    }
-  }
-  return 1;
+    return 1;
 }
 
 // ==========================================================================
@@ -1684,163 +1702,167 @@ int MainMenu::KeyChar(char theChar)
 // ==========================================================================
 int MainMenu::HideCrowBubble()
 {
-  // 750 is the "hide now" frame the speech bubble animates out over; 775 is the
-  // slow path used once the bubble is already past its fade-out window.
-  if ( (unsigned int)(mFocusedChildCounter - 230) < 0x208 )
-    mFocusedChildCounter = 750;
-  else
-    mFocusedChildCounter = 775;
-  return mFocusedChildCounter;
+    // 750 is the "hide now" frame the speech bubble animates out over; 775 is the
+    // slow path used once the bubble is already past its fade-out window.
+    if ((unsigned int)(mFocusedChildCounter - 230) < 0x208)
+        mFocusedChildCounter = 750;
+    else
+        mFocusedChildCounter = 775;
+    return mFocusedChildCounter;
 }
 
 // ==========================================================================
 // MainMenu::ButtonDepress(int)
 // @0019C414  816 bytes
 // ==========================================================================
-namespace {
+namespace
+{
 
 void ShowLocked(MainMenu *theMenu, const char *theMessage)
 {
-  theMenu->mApp->LawnMessageBox(51, "[MODE_LOCKED]", theMessage,
-                                "[DIALOG_BUTTON_OK]", gEmptyCString, 3);
-  theMenu->mWidgetManager->SetFocus(theMenu);
+    theMenu->mApp->LawnMessageBox(51, "[MODE_LOCKED]", theMessage, "[DIALOG_BUTTON_OK]", gEmptyCString, 3);
+    theMenu->mWidgetManager->SetFocus(theMenu);
 }
 
 void ShowTrialLocked(MainMenu *theMenu)
 {
-  theMenu->HideCrowBubble();
-  theMenu->mApp->LawnMessageBox(51, "[MODE_LOCKED]", "[TRIAL_LOCKED_MESSAGE]",
-                                "[GET_FULL_VERSION_YES_BUTTON]", "[GET_FULL_VERSION_NO_BUTTON]", 1);
-  theMenu->mWidgetManager->SetFocus(theMenu);
+    theMenu->HideCrowBubble();
+    theMenu->mApp->LawnMessageBox(51,
+        "[MODE_LOCKED]",
+        "[TRIAL_LOCKED_MESSAGE]",
+        "[GET_FULL_VERSION_YES_BUTTON]",
+        "[GET_FULL_VERSION_NO_BUTTON]",
+        1);
+    theMenu->mWidgetManager->SetFocus(theMenu);
 }
 
 } // namespace
 
 void MainMenu::ButtonDepress(int theId)
 {
-  if ( InTransition() || mIsFading || mEnterReanimationCounter > 0 )
-    return;
+    if (InTransition() || mIsFading || mEnterReanimationCounter > 0)
+        return;
 
-  mPressedButtonId = theId;
+    mPressedButtonId = theId;
 
-  // Mini-games, puzzles, survival and coop each have their own lock. A trial
-  // build refuses the versus pair as well.
-  if ( theId == MINI_GAMES_BUTTON && !mApp->IsFullVersion() )
-  {
-    ShowTrialLocked(this);
-    return;
-  }
-  if ( theId == MINI_GAMES_BUTTON && mMiniGameLocked )
-  {
-    HideCrowBubble();
-    ShowLocked(this, "[MINIGAME_LOCKED_MESSAGE]");
-    return;
-  }
-  if ( theId == PUZZLE_BUTTON && !mApp->IsFullVersion() )
-  {
-    ShowTrialLocked(this);
-    return;
-  }
-  if ( theId == PUZZLE_BUTTON && mPuzzleModeLocked )
-  {
-    ShowLocked(this, "[PUZZLE_LOCKED_MESSAGE]");
-    return;
-  }
-  if ( theId == SURVIVAL_BUTTON && !mApp->IsFullVersion() )
-  {
-    ShowTrialLocked(this);
-    return;
-  }
-  if ( theId == SURVIVAL_BUTTON && mSurvivalModeLocked )
-  {
-    ShowLocked(this, "[SURVIVAL_LOCKED_MESSAGE]");
-    return;
-  }
-  if ( theId == VS_COOP_BUTTON && mApp->IsFullVersion() && mCoopModeLocked )
-  {
-    ShowLocked(this, "[COOP_LOCKED_MESSAGE]");
-    return;
-  }
-  if ( theId == VS_BUTTON && mVSModeLocked )
-  {
-    ShowLocked(this, "[VS_LOCKED_MESSAGE]");
-    return;
-  }
-  if ( !mApp->IsFullVersion() && (theId == VS_BUTTON || theId == VS_COOP_BUTTON) )
-  {
-    ShowTrialLocked(this);
-    return;
-  }
+    // Mini-games, puzzles, survival and coop each have their own lock. A trial
+    // build refuses the versus pair as well.
+    if (theId == MINI_GAMES_BUTTON && !mApp->IsFullVersion())
+    {
+        ShowTrialLocked(this);
+        return;
+    }
+    if (theId == MINI_GAMES_BUTTON && mMiniGameLocked)
+    {
+        HideCrowBubble();
+        ShowLocked(this, "[MINIGAME_LOCKED_MESSAGE]");
+        return;
+    }
+    if (theId == PUZZLE_BUTTON && !mApp->IsFullVersion())
+    {
+        ShowTrialLocked(this);
+        return;
+    }
+    if (theId == PUZZLE_BUTTON && mPuzzleModeLocked)
+    {
+        ShowLocked(this, "[PUZZLE_LOCKED_MESSAGE]");
+        return;
+    }
+    if (theId == SURVIVAL_BUTTON && !mApp->IsFullVersion())
+    {
+        ShowTrialLocked(this);
+        return;
+    }
+    if (theId == SURVIVAL_BUTTON && mSurvivalModeLocked)
+    {
+        ShowLocked(this, "[SURVIVAL_LOCKED_MESSAGE]");
+        return;
+    }
+    if (theId == VS_COOP_BUTTON && mApp->IsFullVersion() && mCoopModeLocked)
+    {
+        ShowLocked(this, "[COOP_LOCKED_MESSAGE]");
+        return;
+    }
+    if (theId == VS_BUTTON && mVSModeLocked)
+    {
+        ShowLocked(this, "[VS_LOCKED_MESSAGE]");
+        return;
+    }
+    if (!mApp->IsFullVersion() && (theId == VS_BUTTON || theId == VS_COOP_BUTTON))
+    {
+        ShowTrialLocked(this);
+        return;
+    }
 
-  if ( theId == MINI_GAMES_BUTTON || theId == SURVIVAL_BUTTON || theId == PUZZLE_BUTTON
-    || theId == VS_BUTTON || theId == VS_COOP_BUTTON || theId == HOUSE_BUTTON )
-  {
-    Exit();
-    return;
-  }
+    if (theId == MINI_GAMES_BUTTON || theId == SURVIVAL_BUTTON || theId == PUZZLE_BUTTON || theId == VS_BUTTON ||
+        theId == VS_COOP_BUTTON || theId == HOUSE_BUTTON)
+    {
+        Exit();
+        return;
+    }
 
-  mPressedButtonId = -1;
-  switch ( theId )
-  {
-    case ACHIEVEMENTS_BUTTON:
-      mApp->ShowAchievementsScreen();
-      return;
-    case START_ADVENTURE_BUTTON:
-    case ADVENTURE_BUTTON:
-      StartAdventureMode();
-      // A profile that has just cleared 1-10 and owns the store flag goes to the
-      // store instead of straight into the next level.
-      if ( mApp->mPlayerInfo->GetFlag(PlayerFlags(4096)) && mApp->mPlayerInfo->mLevel == 35 )
-      {
-        mPressedButtonId = STORE_BUTTON;
-        mStoreIntro = true;
-      }
-      else
-      {
-        mPressedButtonId = ADVENTURE_BUTTON;
-        mApp->mGameMode = GAMEMODE_ADVENTURE;
-      }
-      Exit();
-      return;
-    case HELP_AND_OPTIONS_BUTTON:
-      mApp->DoHelpDialog(false);
-      return;
-    case RETURN_TO_ARCADE_BUTTON:
-      mApp->SdkExit();
-      return;
-    case MORE_WAYS_BUTTON:
-      // The TV binary leaves this entry unhandled; use its existing left-scene transition.
-      SetScene(MENUSCENE_MORE_WAYS);
-      return;
-    case MORE_BUTTON:
-      SetScene(MENUSCENE_EXTRA);
-      return;
-    case BACK_STONE_BUTTON:
-    case BACK_POT_BUTTON:
-      SetScene(MENUSCENE_MAIN);
-      return;
-    case STORE_BUTTON:
-      mPressedButtonId = STORE_BUTTON;
-      mRetainWidgetsOnExit = true;
-      Exit();
-      return;
-    case ZEN_BUTTON:
-      mPressedButtonId = ZEN_BUTTON;
-      Exit();
-      return;
-    case ALMANAC_BUTTON:
-      mPressedButtonId = ALMANAC_BUTTON;
-      mRetainWidgetsOnExit = true;
-      Exit();
-      return;
-    case MAIL_BUTTON:
-      mPressedButtonId = MAIL_BUTTON;
-      mRetainWidgetsOnExit = true;
-      Exit();
-      return;
-    default:
-      return;
-  }
+    mPressedButtonId = -1;
+    switch (theId)
+    {
+        case ACHIEVEMENTS_BUTTON:
+            mApp->ShowAchievementsScreen();
+            return;
+        case START_ADVENTURE_BUTTON:
+        case ADVENTURE_BUTTON:
+            StartAdventureMode();
+            // A profile that has just cleared 1-10 and owns the store flag goes to the
+            // store instead of straight into the next level.
+            if (mApp->mPlayerInfo->GetFlag(PlayerFlags(4096)) && mApp->mPlayerInfo->mLevel == 35)
+            {
+                mPressedButtonId = STORE_BUTTON;
+                mStoreIntro = true;
+            }
+            else
+            {
+                mPressedButtonId = ADVENTURE_BUTTON;
+                mApp->mGameMode = GAMEMODE_ADVENTURE;
+            }
+            Exit();
+            return;
+        case HELP_AND_OPTIONS_BUTTON:
+            mApp->DoHelpDialog(false);
+            return;
+        case RETURN_TO_ARCADE_BUTTON:
+            mApp->SdkExit();
+            return;
+        case MORE_WAYS_BUTTON:
+            // The TV binary leaves this entry unhandled; use its existing left-scene transition.
+            SetScene(MENUSCENE_MORE_WAYS);
+            return;
+        case MORE_BUTTON:
+            SetScene(MENUSCENE_EXTRA);
+            return;
+        case BACK_STONE_BUTTON:
+        case BACK_POT_BUTTON:
+            SetScene(MENUSCENE_MAIN);
+            return;
+        case STORE_BUTTON:
+            mPressedButtonId = STORE_BUTTON;
+            mRetainWidgetsOnExit = true;
+            Exit();
+            return;
+        case ZEN_BUTTON:
+            mPressedButtonId = ZEN_BUTTON;
+            Exit();
+            return;
+        case ALMANAC_BUTTON:
+            mPressedButtonId = ALMANAC_BUTTON;
+            mRetainWidgetsOnExit = true;
+            Exit();
+            return;
+        case MAIL_BUTTON:
+            mPressedButtonId = MAIL_BUTTON;
+            mRetainWidgetsOnExit = true;
+            Exit();
+            return;
+        default:
+            return;
+    }
 }
 
 // ==========================================================================
@@ -1849,10 +1871,10 @@ void MainMenu::ButtonDepress(int theId)
 // ==========================================================================
 int MainMenu::CancelCrowTalk()
 {
-  Reanimation *aCrowReanim = mApp->ReanimationTryToGet(mCrowReanimID);
-  if ( aCrowReanim != nullptr && aCrowReanim->IsAnimPlaying("anim_talk") )
-    aCrowReanim->PlayReanim("anim_idle", REANIM_LOOP, 0, 12.0);
-  return HideCrowBubble();
+    Reanimation *aCrowReanim = mApp->ReanimationTryToGet(mCrowReanimID);
+    if (aCrowReanim != nullptr && aCrowReanim->IsAnimPlaying("anim_talk"))
+        aCrowReanim->PlayReanim("anim_idle", REANIM_LOOP, 0, 12.0);
+    return HideCrowBubble();
 }
 
 // ==========================================================================
@@ -1861,32 +1883,32 @@ int MainMenu::CancelCrowTalk()
 // ==========================================================================
 void MainMenu::LostFocus()
 {
-  // Losing the focus remembers which entry had it.
-  if ( mFocusedChildWidget != nullptr )
-    mPressedButtonId = mFocusedChildWidget->mWidgetId;
+    // Losing the focus remembers which entry had it.
+    if (mFocusedChildWidget != nullptr)
+        mPressedButtonId = mFocusedChildWidget->mWidgetId;
 
-  Sexy::Widget::LostFocus();
+    Sexy::Widget::LostFocus();
 
-  // TODO(recon): the three per-scene objects are torn down here, one word apart,
-  // through vtable slots 11 and 2, and each word is then cleared. Nothing in the
-  // binary ever stores a non-null value there, so the loop never runs and the
-  // class behind those slots cannot be recovered; see mSceneWidgets in
-  // MainMenu.h.
-  Sexy::Widget **aSceneWidgets = mSceneWidgets;
-  for ( int i = 3; i != 0; i-- )
-  {
-    Sexy::Widget *aSceneWidget = *aSceneWidgets;
-    if ( aSceneWidget != nullptr )
-      *aSceneWidgets = nullptr;
-    aSceneWidgets++;
-  }
+    // TODO(recon): the three per-scene objects are torn down here, one word apart,
+    // through vtable slots 11 and 2, and each word is then cleared. Nothing in the
+    // binary ever stores a non-null value there, so the loop never runs and the
+    // class behind those slots cannot be recovered; see mSceneWidgets in
+    // MainMenu.h.
+    Sexy::Widget **aSceneWidgets = mSceneWidgets;
+    for (int i = 3; i != 0; i--)
+    {
+        Sexy::Widget *aSceneWidget = *aSceneWidgets;
+        if (aSceneWidget != nullptr)
+            *aSceneWidgets = nullptr;
+        aSceneWidgets++;
+    }
 
-  CancelCrowTalk();
-  mCrowTalking = false;
+    CancelCrowTalk();
+    mCrowTalking = false;
 
-  Sexy::Widget *aHelpBar = FindWidget(HELP_BAR);
-  if ( aHelpBar != nullptr )
-    aHelpBar->SetAnimator(GetAnimatorForState(Sexy::WidgetAnimationState(2)));
+    Sexy::Widget *aHelpBar = FindWidget(HELP_BAR);
+    if (aHelpBar != nullptr)
+        aHelpBar->SetAnimator(GetAnimatorForState(Sexy::WidgetAnimationState(2)));
 }
 
 // ==========================================================================
@@ -1895,22 +1917,22 @@ void MainMenu::LostFocus()
 // ==========================================================================
 void MainMenu::GameButtonDown(Sexy::GamepadButton theButton, int thePlayerIndex, unsigned int theModifierFlag)
 {
-  if ( InTransition() || mIsFading || mEnterReanimationCounter > 0 )
-    return;
+    if (InTransition() || mIsFading || mEnterReanimationCounter > 0)
+        return;
 
-  // The two shoulder buttons step through the scenes; a third button returns to
-  // the centre scene from either side. Anything else only dismisses the crow.
-  if ( theButton == 10 || theButton == 11 )
-  {
-    int aNewScene = (theButton == 10) ? mMenuScene - 1 : mMenuScene + 1;
-    if (aNewScene <= MENUSCENE_EXTRA )
-      SetScene(aNewScene);
-  }
-  else if ( theButton == 7 && (mMenuScene == MENUSCENE_MORE_WAYS || mMenuScene == MENUSCENE_EXTRA) )
-  {
-    SetScene(MENUSCENE_MAIN);
-  }
-  CancelCrowTalk();
+    // The two shoulder buttons step through the scenes; a third button returns to
+    // the centre scene from either side. Anything else only dismisses the crow.
+    if (theButton == 10 || theButton == 11)
+    {
+        int aNewScene = (theButton == 10) ? mMenuScene - 1 : mMenuScene + 1;
+        if (aNewScene <= MENUSCENE_EXTRA)
+            SetScene(aNewScene);
+    }
+    else if (theButton == 7 && (mMenuScene == MENUSCENE_MORE_WAYS || mMenuScene == MENUSCENE_EXTRA))
+    {
+        SetScene(MENUSCENE_MAIN);
+    }
+    CancelCrowTalk();
 }
 
 // ==========================================================================
@@ -1919,84 +1941,82 @@ void MainMenu::GameButtonDown(Sexy::GamepadButton theButton, int thePlayerIndex,
 // ==========================================================================
 int MainMenu::KeyDown(Sexy::KeyCode theKey)
 {
-  if ( InTransition() || mIsFading || mEnterReanimationCounter > 0 )
-    return 0;
+    if (InTransition() || mIsFading || mEnterReanimationCounter > 0)
+        return 0;
 
-  // Codes are the ones MainMenu::KeyDown compares at 0x19c940. Shoulder
-  // buttons (0x136 / 0x137) step the three scenes. B (0x131) returns to the
-  // centre scene. Left (keyboard, stick, d-pad) and right do the same when
-  // the focused entry sits on a scene edge. Anything else falls through to
-  // Widget::KeyDown, which walks SetGameLinks.
-  if ( theKey == Sexy::KEYCODE_GAMEPAD_TL || theKey == Sexy::KEYCODE_GAMEPAD_TR )
-  {
-    if ( !InTransition() && !mIsFading )
+    // Codes are the ones MainMenu::KeyDown compares at 0x19c940. Shoulder
+    // buttons (0x136 / 0x137) step the three scenes. B (0x131) returns to the
+    // centre scene. Left (keyboard, stick, d-pad) and right do the same when
+    // the focused entry sits on a scene edge. Anything else falls through to
+    // Widget::KeyDown, which walks SetGameLinks.
+    if (theKey == Sexy::KEYCODE_GAMEPAD_TL || theKey == Sexy::KEYCODE_GAMEPAD_TR)
     {
-      int aNewScene = (theKey == Sexy::KEYCODE_GAMEPAD_TL) ? mMenuScene - 1 : mMenuScene + 1;
-      if ( (unsigned int)aNewScene <= (unsigned int)MENUSCENE_EXTRA )
-        SetScene(aNewScene);
+        if (!InTransition() && !mIsFading)
+        {
+            int aNewScene = (theKey == Sexy::KEYCODE_GAMEPAD_TL) ? mMenuScene - 1 : mMenuScene + 1;
+            if ((unsigned int)aNewScene <= (unsigned int)MENUSCENE_EXTRA)
+                SetScene(aNewScene);
+        }
+        CancelCrowTalk();
+        return 1;
     }
-    CancelCrowTalk();
-    return 1;
-  }
-  else if ( theKey == Sexy::KEYCODE_ESCAPE )
-  {
-    // Escape leaves the game from the centre scene and goes back to it from the
-    // other two.
-    if ( mMenuScene != MENUSCENE_MAIN )
-      SetScene(MENUSCENE_MAIN);
-    else
-      mApp->SdkExit();
-    CancelCrowTalk();
-    return 1;
-  }
-  else if ( theKey == Sexy::KEYCODE_GAMEPAD_B )
-  {
-    if ( mMenuScene == MENUSCENE_MORE_WAYS || mMenuScene == MENUSCENE_EXTRA )
+    else if (theKey == Sexy::KEYCODE_ESCAPE)
     {
-      SetScene(MENUSCENE_MAIN);
-      CancelCrowTalk();
-      return 1;
+        // Escape leaves the game from the centre scene and goes back to it from the
+        // other two.
+        if (mMenuScene != MENUSCENE_MAIN)
+            SetScene(MENUSCENE_MAIN);
+        else
+            mApp->SdkExit();
+        CancelCrowTalk();
+        return 1;
     }
-  }
-  else if ( theKey == Sexy::KEYCODE_LEFT
-            || theKey == Sexy::KEYCODE_GAMEPAD_LEFT
-            || theKey == Sexy::KEYCODE_GAMEPAD_DPAD_LEFT )
-  {
-    int aWidgetId = mFocusedChildWidget != nullptr ? mFocusedChildWidget->mWidgetId : -1;
-    if ( aWidgetId >= 0 && aWidgetId <= MORE_WAYS_BUTTON )
+    else if (theKey == Sexy::KEYCODE_GAMEPAD_B)
     {
-      SetScene(MENUSCENE_MORE_WAYS);
-      CancelCrowTalk();
-      return 1;
+        if (mMenuScene == MENUSCENE_MORE_WAYS || mMenuScene == MENUSCENE_EXTRA)
+        {
+            SetScene(MENUSCENE_MAIN);
+            CancelCrowTalk();
+            return 1;
+        }
     }
-    if ( aWidgetId == BACK_POT_BUTTON )
+    else if (theKey == Sexy::KEYCODE_LEFT || theKey == Sexy::KEYCODE_GAMEPAD_LEFT ||
+        theKey == Sexy::KEYCODE_GAMEPAD_DPAD_LEFT)
     {
-      SetScene(MENUSCENE_MAIN);
-      CancelCrowTalk();
-      return 1;
+        int aWidgetId = mFocusedChildWidget != nullptr ? mFocusedChildWidget->mWidgetId : -1;
+        if (aWidgetId >= 0 && aWidgetId <= MORE_WAYS_BUTTON)
+        {
+            SetScene(MENUSCENE_MORE_WAYS);
+            CancelCrowTalk();
+            return 1;
+        }
+        if (aWidgetId == BACK_POT_BUTTON)
+        {
+            SetScene(MENUSCENE_MAIN);
+            CancelCrowTalk();
+            return 1;
+        }
     }
-  }
-  else if ( theKey == Sexy::KEYCODE_RIGHT
-            || theKey == Sexy::KEYCODE_GAMEPAD_RIGHT
-            || theKey == Sexy::KEYCODE_GAMEPAD_DPAD_RIGHT )
-  {
-    int aWidgetId = mFocusedChildWidget != nullptr ? mFocusedChildWidget->mWidgetId : -1;
-    if ( aWidgetId == MORE_BUTTON )
+    else if (theKey == Sexy::KEYCODE_RIGHT || theKey == Sexy::KEYCODE_GAMEPAD_RIGHT ||
+        theKey == Sexy::KEYCODE_GAMEPAD_DPAD_RIGHT)
     {
-      SetScene(MENUSCENE_EXTRA);
-      CancelCrowTalk();
-      return 1;
+        int aWidgetId = mFocusedChildWidget != nullptr ? mFocusedChildWidget->mWidgetId : -1;
+        if (aWidgetId == MORE_BUTTON)
+        {
+            SetScene(MENUSCENE_EXTRA);
+            CancelCrowTalk();
+            return 1;
+        }
+        if (aWidgetId == BACK_STONE_BUTTON)
+        {
+            SetScene(MENUSCENE_MAIN);
+            CancelCrowTalk();
+            return 1;
+        }
     }
-    if ( aWidgetId == BACK_STONE_BUTTON )
-    {
-      SetScene(MENUSCENE_MAIN);
-      CancelCrowTalk();
-      return 1;
-    }
-  }
 
-  CancelCrowTalk();
-  return Sexy::Widget::KeyDown(theKey);
+    CancelCrowTalk();
+    return Sexy::Widget::KeyDown(theKey);
 }
 
 // ==========================================================================
@@ -2005,7 +2025,7 @@ int MainMenu::KeyDown(Sexy::KeyCode theKey)
 // ==========================================================================
 int MainMenu::OnFullVersionLicenseChange()
 {
-  return SyncProfile(true);
+    return SyncProfile(true);
 }
 
 // ==========================================================================
@@ -2014,29 +2034,29 @@ int MainMenu::OnFullVersionLicenseChange()
 // ==========================================================================
 void MainMenu::Exit()
 {
-  if ( mIsFading )
-    return;
-  // The button that was pressed; its position is where the iris closes over.
-  Sexy::Widget *aButton = FindWidget(mPressedButtonId);
-  if ( aButton == nullptr )
-    return;
-  mFadeCounterFloat = 0.0f;
-  mFadeOriginY = (float)aButton->mY;
-  mFadeOriginX = (float)aButton->mX;
-  CancelCrowTalk();
-  mCrowTalking = false;
-  if ( mApp->ReanimationTryToGet(mBackdropReanimID) != 0 )
-  {
-    Sexy::String exitTrack = GetButtonTransitionTrackName(aButton->GetAnimator(), "_exit");
-    if ( !exitTrack.empty() )
-      mExitTrackName = exitTrack;
-    if ( mExitTrackName.compare("anim_minigames_exit") == 0 )
-      mCrowLeaving = true;
-  }
-  MenuWidget::Exit();
-  if ( mApp->mHelpBarWidget != nullptr )
-    mApp->mHelpBarWidget->ClearButtons(0);
-  mApp->HideHelpBarWidget();
+    if (mIsFading)
+        return;
+    // The button that was pressed; its position is where the iris closes over.
+    Sexy::Widget *aButton = FindWidget(mPressedButtonId);
+    if (aButton == nullptr)
+        return;
+    mFadeCounterFloat = 0.0f;
+    mFadeOriginY = (float)aButton->mY;
+    mFadeOriginX = (float)aButton->mX;
+    CancelCrowTalk();
+    mCrowTalking = false;
+    if (mApp->ReanimationTryToGet(mBackdropReanimID) != 0)
+    {
+        Sexy::String exitTrack = GetButtonTransitionTrackName(aButton->GetAnimator(), "_exit");
+        if (!exitTrack.empty())
+            mExitTrackName = exitTrack;
+        if (mExitTrackName.compare("anim_minigames_exit") == 0)
+            mCrowLeaving = true;
+    }
+    MenuWidget::Exit();
+    if (mApp->mHelpBarWidget != nullptr)
+        mApp->mHelpBarWidget->ClearButtons(0);
+    mApp->HideHelpBarWidget();
 }
 
 // ==========================================================================
@@ -2045,82 +2065,82 @@ void MainMenu::Exit()
 // ==========================================================================
 int MainMenu::DrawFade(Sexy::Graphics *theGraphics)
 {
-  float aFade = mFadeCounterFloat + 0.008f;
-  if ( aFade > 1.0f )
-    aFade = 1.0f;
-  mFadeCounterFloat = aFade;
+    float aFade = mFadeCounterFloat + 0.008f;
+    if (aFade > 1.0f)
+        aFade = 1.0f;
+    mFadeCounterFloat = aFade;
 
-  theGraphics->PushState();
-  theGraphics->SetColorizeImages(true);
-  theGraphics->SetColor(Sexy::Color(0, 0, 0, 255));
-
-  // The iris closes over the button that was pressed, so both the button and the
-  // menu's own reanimation have to exist for the effect to run.
-  Sexy::Widget *aButton = FindWidget(mPressedButtonId);
-  Reanimation *aMainMenuReanim = mApp->ReanimationTryToGet(mBackdropReanimID);
-  if ( aButton != nullptr && aMainMenuReanim != nullptr )
-  {
-    Sexy::String aIrisTrack = GetButtonTransitionTrackName(
-      aButton->GetAnimatorForState(Sexy::WidgetAnimationState(0)), "_exit_iris_pos");
-
-    ReanimatorTransform aTransform;
-    int aTrackIndex = aMainMenuReanim->FindTrackIndex(aIrisTrack.c_str());
-    bool aHaveIrisTrack = false;
-    if ( aTrackIndex != -1 )
-    {
-      aMainMenuReanim->GetCurrentTransform(aTrackIndex, &aTransform);
-      aHaveIrisTrack = true;
-    }
-
+    theGraphics->PushState();
+    theGraphics->SetColorizeImages(true);
     theGraphics->SetColor(Sexy::Color(0, 0, 0, 255));
-    // DrawFade @0x19D0AC: shrink from 3 to 1 over 0..0.4, then close over 0.65..0.9.
-    float aScale;
-    if ( mFadeCounterFloat < 0.6f )
-      aScale = TodAnimateCurveFloatTime(0.0f, 0.4f, mFadeCounterFloat, 3.0f, 1.0f, CURVE_EASE_IN_OUT);
-    else
-      aScale = TodAnimateCurveFloatTime(0.65f, 0.9f, mFadeCounterFloat, 1.0f, 0.0f, CURVE_EASE_OUT);
 
-    if ( mFadeCounterFloat >= 0.9f )
+    // The iris closes over the button that was pressed, so both the button and the
+    // menu's own reanimation have to exist for the effect to run.
+    Sexy::Widget *aButton = FindWidget(mPressedButtonId);
+    Reanimation *aMainMenuReanim = mApp->ReanimationTryToGet(mBackdropReanimID);
+    if (aButton != nullptr && aMainMenuReanim != nullptr)
     {
-      theGraphics->FillRect(0, 0, 1280, 720);
+        Sexy::String aIrisTrack =
+            GetButtonTransitionTrackName(aButton->GetAnimatorForState(Sexy::WidgetAnimationState(0)), "_exit_iris_pos");
+
+        ReanimatorTransform aTransform;
+        int aTrackIndex = aMainMenuReanim->FindTrackIndex(aIrisTrack.c_str());
+        bool aHaveIrisTrack = false;
+        if (aTrackIndex != -1)
+        {
+            aMainMenuReanim->GetCurrentTransform(aTrackIndex, &aTransform);
+            aHaveIrisTrack = true;
+        }
+
+        theGraphics->SetColor(Sexy::Color(0, 0, 0, 255));
+        // DrawFade @0x19D0AC: shrink from 3 to 1 over 0..0.4, then close over 0.65..0.9.
+        float aScale;
+        if (mFadeCounterFloat < 0.6f)
+            aScale = TodAnimateCurveFloatTime(0.0f, 0.4f, mFadeCounterFloat, 3.0f, 1.0f, CURVE_EASE_IN_OUT);
+        else
+            aScale = TodAnimateCurveFloatTime(0.65f, 0.9f, mFadeCounterFloat, 1.0f, 0.0f, CURVE_EASE_OUT);
+
+        if (mFadeCounterFloat >= 0.9f)
+        {
+            theGraphics->FillRect(0, 0, 1280, 720);
+        }
+        else
+        {
+            Sexy::Image *aHoleImage = IMAGE_TRANSITION_HOLE;
+            float aHoleHeight = aScale * (float)aHoleImage->mHeight;
+            float aHoleWidth = aScale * (float)aHoleImage->mWidth;
+            float aHalfHeight = aHoleHeight * 0.5f;
+            float aHalfWidth = aHoleWidth * 0.5f;
+            float aHoleX;
+            float aHoleY;
+            if (aHaveIrisTrack)
+            {
+                aHoleX = (mCameraOffsetX + aTransform.mTransX) - aHalfWidth;
+                aHoleY = (mCameraOffsetY + aTransform.mTransY) - aHalfHeight;
+            }
+            else
+            {
+                aHoleX = (float)(aButton->mX + aButton->mWidth / 2) - aHalfWidth;
+                aHoleY = (float)(aButton->mY + aButton->mHeight / 2) - aHalfHeight;
+            }
+            theGraphics->DrawImage(aHoleImage, (int)aHoleX, (int)aHoleY, (int)aHoleWidth, (int)aHoleHeight);
+            theGraphics->FillRect(0, 0, (int)(aHoleX + 1.0f), 720);
+            theGraphics->FillRect(0, 0, 1280, (int)(aHoleY + 1.0f));
+            theGraphics->FillRect(0, (int)(aHoleY + (aHoleHeight - 1.0f)), 1280, 720);
+            theGraphics->FillRect((int)(aHoleX + (aHoleWidth - 1.0f)), 0, 1280, 720);
+        }
+        theGraphics->PopState();
+        return 0;
     }
-    else
-    {
-      Sexy::Image *aHoleImage = IMAGE_TRANSITION_HOLE;
-      float aHoleHeight = aScale * (float)aHoleImage->mHeight;
-      float aHoleWidth = aScale * (float)aHoleImage->mWidth;
-      float aHalfHeight = aHoleHeight * 0.5f;
-      float aHalfWidth = aHoleWidth * 0.5f;
-      float aHoleX;
-      float aHoleY;
-      if ( aHaveIrisTrack )
-      {
-        aHoleX = (mCameraOffsetX + aTransform.mTransX) - aHalfWidth;
-        aHoleY = (mCameraOffsetY + aTransform.mTransY) - aHalfHeight;
-      }
-      else
-      {
-        aHoleX = (float)(aButton->mX + aButton->mWidth / 2) - aHalfWidth;
-        aHoleY = (float)(aButton->mY + aButton->mHeight / 2) - aHalfHeight;
-      }
-      theGraphics->DrawImage(aHoleImage, (int)aHoleX, (int)aHoleY, (int)aHoleWidth, (int)aHoleHeight);
-      theGraphics->FillRect(0, 0, (int)(aHoleX + 1.0f), 720);
-      theGraphics->FillRect(0, 0, 1280, (int)(aHoleY + 1.0f));
-      theGraphics->FillRect(0, (int)(aHoleY + (aHoleHeight - 1.0f)), 1280, 720);
-      theGraphics->FillRect((int)(aHoleX + (aHoleWidth - 1.0f)), 0, 1280, 720);
-    }
+
+    // No button to close over: a plain black fade over the second half.
+    int aAlpha = 0;
+    if (mFadeCounterFloat >= 0.5f)
+        aAlpha = (int)((mFadeCounterFloat - 0.5f) * 510.0f);
+    theGraphics->SetColor(Sexy::Color(0, 0, 0, aAlpha));
+    theGraphics->FillRect(0, 0, 1280, 720);
     theGraphics->PopState();
-  return 0;
-  }
-
-  // No button to close over: a plain black fade over the second half.
-  int aAlpha = 0;
-  if ( mFadeCounterFloat >= 0.5f )
-    aAlpha = (int)((mFadeCounterFloat - 0.5f) * 510.0f);
-  theGraphics->SetColor(Sexy::Color(0, 0, 0, aAlpha));
-  theGraphics->FillRect(0, 0, 1280, 720);
-  theGraphics->PopState();
-  return 0;
+    return 0;
 }
 
 // ==========================================================================
@@ -2129,148 +2149,146 @@ int MainMenu::DrawFade(Sexy::Graphics *theGraphics)
 // ==========================================================================
 void MainMenu::DrawOverlay(Sexy::Graphics *theGraphics)
 {
-  Sexy::Widget::DrawOverlay(theGraphics);
+    Sexy::Widget::DrawOverlay(theGraphics);
 
-  LawnPlayerInfo *aPlayerInfo = mApp->mPlayerInfo;
-  if ( aPlayerInfo == nullptr )
-    return;
+    LawnPlayerInfo *aPlayerInfo = mApp->mPlayerInfo;
+    if (aPlayerInfo == nullptr)
+        return;
 
-  if ( !mFirstTimeAdventure )
-  {
-    // The level badge counts off in tens and caps at six pages.
-    int aLevel = aPlayerInfo->mLevel;
-    int aPage = (aLevel - 1) / 10;
-    int aPages = aPage + 1;
-    int aOffset = 0;
-    if ( aPage + 1 > 1 )
+    if (!mFirstTimeAdventure)
     {
-      if ( aPages > 5 )
-      {
-        aOffset = -50;
-        aPages = 6;
-      }
-      else
-      {
-        aOffset = -10 * aPage;
-      }
+        // The level badge counts off in tens and caps at six pages.
+        int aLevel = aPlayerInfo->mLevel;
+        int aPage = (aLevel - 1) / 10;
+        int aPages = aPage + 1;
+        int aOffset = 0;
+        if (aPage + 1 > 1)
+        {
+            if (aPages > 5)
+            {
+                aOffset = -50;
+                aPages = 6;
+            }
+            else
+            {
+                aOffset = -10 * aPage;
+            }
+        }
+        else
+        {
+            aPages = 1;
+        }
+        int aDisplayLevel = aOffset + aLevel;
+        if (mApp->IsTrialStageLocked() != 0 && (aLevel > 24 || mApp->HasFinishedAdventure() != 0))
+        {
+            aDisplayLevel = 4;
+            aPages = 3;
+        }
+
+        Reanimation *aMainMenuReanim = mApp->ReanimationTryToGet(mBackdropReanimID);
+        GameButton *aAdventureButton = dynamic_cast<GameButton *>(FindWidget(ADVENTURE_BUTTON));
+        if (aAdventureButton != nullptr && aMainMenuReanim != nullptr)
+        {
+            int aTrackIndex = aMainMenuReanim->FindTrackIndex("adventure");
+            int aButtonOffsetX = IsWideScreen(mApp) ? 0 : -160;
+            // GameButton::IsButtonDown is the button's own override of the base's
+            // predicate; the pressed state is what the badge shifts down for.
+            bool aPressed = aAdventureButton->IsButtonDown();
+            float aButtonOffsetY;
+            if (aPressed)
+            {
+                aButtonOffsetY = 10.0f;
+                aButtonOffsetX -= 10;
+            }
+            else
+            {
+                aButtonOffsetY = 0.0f;
+            }
+
+            // The badge hangs off the button's own track, shifted by the camera.
+            ReanimatorTransform aTransform;
+            aMainMenuReanim->GetCurrentTransform(aTrackIndex, &aTransform);
+            aTransform.mTransX = (mCameraOffsetX + aTransform.mTransX) + (float)aButtonOffsetX;
+            aTransform.mTransY = (mCameraOffsetY + aTransform.mTransY) + aButtonOffsetY;
+            // Reference DrawOverlay adds mY + 60 during the achievements slide.
+            // Matrix text draws in screen coordinates, independently of Graphics' translation.
+            if (mApp->mAchievementsScreen != nullptr)
+                aTransform.mTransY += float(mY - LawnApp::FULLSCREEN_RECT.mY);
+            aTransform.mSkewX = -4.0f;
+            aTransform.mSkewY = -4.0f;
+            aTransform.mScaleX = aAdventureButton->mAppliedScaleX * 0.5f;
+            aTransform.mScaleY = aAdventureButton->mAppliedScaleY * 0.5f;
+
+            SexyTransform2D aMatrix;
+            aMainMenuReanim->MatrixFromTransform(aTransform, aMatrix);
+            Sexy::Color aColor(200, 200, 200, 255);
+
+            Sexy::String aText;
+            TodStringTranslate(&aText, "[MENU_LEVEL_FMT]");
+            Sexy::String aLevelText;
+            StrFormat(&aLevelText, aText.c_str(), aPages, aDisplayLevel);
+
+            // Measure the transformed text without the adventure track's translation.
+            SexyTransform2D aTextMatrix;
+            aTextMatrix.m00 = aMatrix.m00;
+            aTextMatrix.m01 = aMatrix.m01;
+            aTextMatrix.m02 = 0.0f;
+            aTextMatrix.m10 = aMatrix.m10;
+            aTextMatrix.m11 = aMatrix.m11;
+            aTextMatrix.m12 = 0.0f;
+            aTextMatrix.m20 = aMatrix.m20;
+            aTextMatrix.m21 = aMatrix.m21;
+            aTextMatrix.m22 = aMatrix.m22;
+
+            Sexy::Font *aFont = FONT_DWARVENTODCRAFT24;
+            float aTextWidth = (float)aFont->StringWidth(aLevelText);
+            float aTextHeight = (float)(aFont->GetHeight() - aFont->GetAscentPadding());
+            SexyVector2 aTextSize(aTextWidth, aTextHeight);
+            SexyVector2 aScaledSize = aTextMatrix * aTextSize;
+            aMatrix.Translate(131.0f - (aScaledSize.mX * 0.5f), (aScaledSize.mY * 0.5f) + 36.0f);
+            TodDrawStringMatrix(theGraphics, aFont, aMatrix, aLevelText, aColor);
+        }
     }
-    else
+
+    // The zen garden asks for water over its own widget, if it is visible.
+    Sexy::Widget *aZenButton = FindWidget(ZEN_BUTTON);
+    if (aZenButton != nullptr && aZenButton->mVisible)
     {
-      aPages = 1;
+        if (mApp->mZenGarden != nullptr && mApp->mZenGarden->PlantsNeedWater() != 0)
+        {
+            theGraphics->DrawImageMirror(IMAGE_PLANTSPEECHBUBBLE, aZenButton->mX - 20, aZenButton->mY - 144, true);
+            theGraphics->DrawImage(IMAGE_WATERDROP, aZenButton->mX - 3, aZenButton->mY - 135);
+        }
     }
-    int aDisplayLevel = aOffset + aLevel;
-    if ( mApp->IsTrialStageLocked() != 0 && (aLevel > 24 || mApp->HasFinishedAdventure() != 0) )
+
+    // DrawOverlay @0x19D376 reads the zombie hand at +0x148, not the crow at +0x14C.
+    Reanimation *aHandReanim = mApp->ReanimationTryToGet(mZombieHandReanimID);
+    if (aHandReanim != nullptr)
     {
-      aDisplayLevel = 4;
-      aPages = 3;
+        theGraphics->PushState();
+        if (IsWideScreen(mApp))
+        {
+            theGraphics->mTransX = (float)-LawnApp::FULLSCREEN_RECT.mX;
+            theGraphics->mTransY = (float)-LawnApp::FULLSCREEN_RECT.mY;
+        }
+        else
+        {
+            theGraphics->mTransX = 80.0f;
+            theGraphics->mTransY = 60.0f;
+        }
+        theGraphics->SetClipRect(0, 0, 800, 560);
+        aHandReanim->Draw(theGraphics);
+        theGraphics->PopState();
     }
 
-    Reanimation *aMainMenuReanim = mApp->ReanimationTryToGet(mBackdropReanimID);
-    GameButton *aAdventureButton = dynamic_cast<GameButton *>(FindWidget(ADVENTURE_BUTTON));
-    if ( aAdventureButton != nullptr && aMainMenuReanim != nullptr )
+    // @0x19D45E draws the falling leaves at +0x150 on the left scene.
+    if (mMenuScene == MENUSCENE_MORE_WAYS)
     {
-      int aTrackIndex = aMainMenuReanim->FindTrackIndex("adventure");
-      int aButtonOffsetX = IsWideScreen(mApp) ? 0 : -160;
-      // GameButton::IsButtonDown is the button's own override of the base's
-      // predicate; the pressed state is what the badge shifts down for.
-      bool aPressed = aAdventureButton->IsButtonDown();
-      float aButtonOffsetY;
-      if ( aPressed )
-      {
-        aButtonOffsetY = 10.0f;
-        aButtonOffsetX -= 10;
-      }
-      else
-      {
-        aButtonOffsetY = 0.0f;
-      }
-
-      // The badge hangs off the button's own track, shifted by the camera.
-      ReanimatorTransform aTransform;
-      aMainMenuReanim->GetCurrentTransform(aTrackIndex, &aTransform);
-      aTransform.mTransX = (mCameraOffsetX + aTransform.mTransX) + (float)aButtonOffsetX;
-      aTransform.mTransY = (mCameraOffsetY + aTransform.mTransY) + aButtonOffsetY;
-      // Reference DrawOverlay adds mY + 60 during the achievements slide.
-      // Matrix text draws in screen coordinates, independently of Graphics' translation.
-      if (mApp->mAchievementsScreen != nullptr)
-        aTransform.mTransY += float(mY - LawnApp::FULLSCREEN_RECT.mY);
-      aTransform.mSkewX = -4.0f;
-      aTransform.mSkewY = -4.0f;
-      aTransform.mScaleX = aAdventureButton->mAppliedScaleX * 0.5f;
-      aTransform.mScaleY = aAdventureButton->mAppliedScaleY * 0.5f;
-
-      SexyTransform2D aMatrix;
-      aMainMenuReanim->MatrixFromTransform(aTransform, aMatrix);
-      Sexy::Color aColor(200, 200, 200, 255);
-
-      Sexy::String aText;
-      TodStringTranslate(&aText, "[MENU_LEVEL_FMT]");
-      Sexy::String aLevelText;
-      StrFormat(&aLevelText, aText.c_str(), aPages, aDisplayLevel);
-
-      // Measure the transformed text without the adventure track's translation.
-      SexyTransform2D aTextMatrix;
-      aTextMatrix.m00 = aMatrix.m00;
-      aTextMatrix.m01 = aMatrix.m01;
-      aTextMatrix.m02 = 0.0f;
-      aTextMatrix.m10 = aMatrix.m10;
-      aTextMatrix.m11 = aMatrix.m11;
-      aTextMatrix.m12 = 0.0f;
-      aTextMatrix.m20 = aMatrix.m20;
-      aTextMatrix.m21 = aMatrix.m21;
-      aTextMatrix.m22 = aMatrix.m22;
-
-      Sexy::Font *aFont = FONT_DWARVENTODCRAFT24;
-      float aTextWidth = (float)aFont->StringWidth(aLevelText);
-      float aTextHeight = (float)(aFont->GetHeight() - aFont->GetAscentPadding());
-      SexyVector2 aTextSize(aTextWidth, aTextHeight);
-      SexyVector2 aScaledSize = aTextMatrix * aTextSize;
-      aMatrix.Translate(131.0f - (aScaledSize.mX * 0.5f), (aScaledSize.mY * 0.5f) + 36.0f);
-      TodDrawStringMatrix(theGraphics, aFont, aMatrix, aLevelText, aColor);
+        Reanimation *aLeavesReanim = mApp->ReanimationTryToGet(mFallingLeavesReanimID);
+        if (aLeavesReanim != nullptr)
+            aLeavesReanim->Draw(theGraphics);
     }
-  }
 
-  // The zen garden asks for water over its own widget, if it is visible.
-  Sexy::Widget *aZenButton = FindWidget(ZEN_BUTTON);
-  if ( aZenButton != nullptr && aZenButton->mVisible )
-  {
-    if ( mApp->mZenGarden != nullptr && mApp->mZenGarden->PlantsNeedWater() != 0 )
-    {
-      theGraphics->DrawImageMirror(IMAGE_PLANTSPEECHBUBBLE,
-                          aZenButton->mX - 20, aZenButton->mY - 144, true);
-      theGraphics->DrawImage(IMAGE_WATERDROP,
-                    aZenButton->mX - 3, aZenButton->mY - 135);
-    }
-  }
-
-  // DrawOverlay @0x19D376 reads the zombie hand at +0x148, not the crow at +0x14C.
-  Reanimation *aHandReanim = mApp->ReanimationTryToGet(mZombieHandReanimID);
-  if ( aHandReanim != nullptr )
-  {
-    theGraphics->PushState();
-    if ( IsWideScreen(mApp) )
-    {
-      theGraphics->mTransX = (float)-LawnApp::FULLSCREEN_RECT.mX;
-      theGraphics->mTransY = (float)-LawnApp::FULLSCREEN_RECT.mY;
-    }
-    else
-    {
-      theGraphics->mTransX = 80.0f;
-      theGraphics->mTransY = 60.0f;
-    }
-    theGraphics->SetClipRect(0, 0, 800, 560);
-    aHandReanim->Draw(theGraphics);
-    theGraphics->PopState();
-  }
-
-  // @0x19D45E draws the falling leaves at +0x150 on the left scene.
-  if ( mMenuScene == MENUSCENE_MORE_WAYS )
-  {
-    Reanimation *aLeavesReanim = mApp->ReanimationTryToGet(mFallingLeavesReanimID);
-    if ( aLeavesReanim != nullptr )
-      aLeavesReanim->Draw(theGraphics);
-  }
-
-  if ( mIsFading )
-    DrawFade(theGraphics);
+    if (mIsFading)
+        DrawFade(theGraphics);
 }

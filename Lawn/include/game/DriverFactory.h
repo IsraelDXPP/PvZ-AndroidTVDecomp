@@ -21,7 +21,8 @@
 //     +0x30 with the same prefix-then-header pattern, leaving exactly 0x1C bytes
 //     (+0x14 .. +0x2F) for the factory.
 
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_DRIVERFACTORY_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_DRIVERFACTORY_H
 
 #include "ReconTypes.h"
 #include <string>
@@ -29,7 +30,8 @@
 #include <map>
 #include <set>
 
-namespace PakLib {
+namespace PakLib
+{
 
 class DriverFactory
 {
@@ -42,7 +44,7 @@ public:
     // then the _Rb_tree_header, then the element count. See
     // Sexy\ReconTypes.h's RbTree::MapStorage.
     Sexy::RbTree::MapStorage mDriverMap; // +0x00 .. +0x17
-    bool mDeleteDrivers;    // +0x18, set to 1 by the constructor
+    bool mDeleteDrivers; // +0x18, set to 1 by the constructor
     // size 0x1C
 
     DriverFactory();
@@ -59,3 +61,4 @@ public:
 
 } // namespace PakLib
 
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_DRIVERFACTORY_H

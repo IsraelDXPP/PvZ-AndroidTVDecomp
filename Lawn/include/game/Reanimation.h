@@ -22,7 +22,8 @@
 // The transcribed header used a 0xE8-byte opaque placeholder here, taken
 // from the largest `this`-relative offset in the IDA dump.
 
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_REANIMATION_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_REANIMATION_H
 
 #include "ReconTypes.h"
 #include "SyncObject.h"
@@ -47,20 +48,20 @@ class TodParticleSystem;
 class ReanimatorTrackInstance
 {
 public:
-    int                  mBlendCounter;               // +0x00
-    int                  mBlendTime;                  // +0x04
-    ReanimatorTransform  mBlendTransform;             // +0x08
-    float                mShakeOverride;              // +0x38
-    float                mShakeX;                     // +0x3C
-    float                mShakeY;                     // +0x40
-    int                  mAttachmentID;               // +0x44
-    Sexy::Image         *mImageOverride;              // +0x48
-    int                  mRenderGroup;                // +0x4C
-    Sexy::Color          mTrackColor;                 // +0x50
-    bool                 mIgnoreClipRect;             // +0x60
-    bool                 mTruncateDisappearingFrames; // +0x61
-    bool                 mIgnoreColorOverride;        // +0x62
-    bool                 mIgnoreExtraAdditiveColor;   // +0x63
+    int mBlendCounter; // +0x00
+    int mBlendTime; // +0x04
+    ReanimatorTransform mBlendTransform; // +0x08
+    float mShakeOverride; // +0x38
+    float mShakeX; // +0x3C
+    float mShakeY; // +0x40
+    int mAttachmentID; // +0x44
+    Sexy::Image *mImageOverride; // +0x48
+    int mRenderGroup; // +0x4C
+    Sexy::Color mTrackColor; // +0x50
+    bool mIgnoreClipRect; // +0x60
+    bool mTruncateDisappearingFrames; // +0x61
+    bool mIgnoreColorOverride; // +0x62
+    bool mIgnoreExtraAdditiveColor; // +0x63
 
     ReanimatorTrackInstance();
 };
@@ -73,86 +74,89 @@ class TodTriangleGroup;
 class ReanimatorFrameTime
 {
 public:
-    float mFraction;           // +0x00
-    int   mAnimFrameBeforeInt; // +0x04
-    int   mAnimFrameAfterInt;  // +0x08
+    float mFraction; // +0x00
+    int mAnimFrameBeforeInt; // +0x04
+    int mAnimFrameAfterInt; // +0x08
 };
-
 
 class Reanimation : public SyncObject
 {
 public:
     virtual ~Reanimation();
 
-    ReanimationType            mReanimationType;           // +0x10
-    float                      mAnimTime;                  // +0x14
-    float                      mAnimRate;                  // +0x18
-    ReanimatorDefinition      *mDefinition;                // +0x1C
-    ReanimLoopType             mLoopType;                  // +0x20
-    bool                       mDead;                      // +0x24
-    int                        mFrameStart;                // +0x28
-    int                        mFrameCount;                // +0x2C
-    int                        mFrameBasePose;             // +0x30
-    Sexy::SexyTransform2D      mOverlayMatrix;             // +0x34 (36 bytes)
-    Sexy::Color                mColorOverride;             // +0x58 (16 bytes)
-    ReanimatorTrackInstance   *mTrackInstances;            // +0x68
-    int                        mLoopCount;                 // +0x6C
-    ReanimationHolder         *mReanimationHolder;         // +0x70
-    bool                       mIsAttachment;              // +0x74
-    int                        mRenderOrder;               // +0x78
-    Sexy::Color                mExtraAdditiveColor;        // +0x7C (16 bytes)
-    bool                       mEnableExtraAdditiveDraw;   // +0x8C
-    Sexy::Color                mExtraOverlayColor;         // +0x90 (16 bytes)
-    bool                       mEnableExtraOverlayDraw;    // +0xA0
-    float                      mLastFrameTime;             // +0xA4
-    FilterEffect               mFilterEffect;              // +0xA8
-    Sexy::Color                mCustomFilterEffectColor;   // +0xAC (16 bytes)
+    ReanimationType mReanimationType; // +0x10
+    float mAnimTime; // +0x14
+    float mAnimRate; // +0x18
+    ReanimatorDefinition *mDefinition; // +0x1C
+    ReanimLoopType mLoopType; // +0x20
+    bool mDead; // +0x24
+    int mFrameStart; // +0x28
+    int mFrameCount; // +0x2C
+    int mFrameBasePose; // +0x30
+    Sexy::SexyTransform2D mOverlayMatrix; // +0x34 (36 bytes)
+    Sexy::Color mColorOverride; // +0x58 (16 bytes)
+    ReanimatorTrackInstance *mTrackInstances; // +0x68
+    int mLoopCount; // +0x6C
+    ReanimationHolder *mReanimationHolder; // +0x70
+    bool mIsAttachment; // +0x74
+    int mRenderOrder; // +0x78
+    Sexy::Color mExtraAdditiveColor; // +0x7C (16 bytes)
+    bool mEnableExtraAdditiveDraw; // +0x8C
+    Sexy::Color mExtraOverlayColor; // +0x90 (16 bytes)
+    bool mEnableExtraOverlayDraw; // +0xA0
+    float mLastFrameTime; // +0xA4
+    FilterEffect mFilterEffect; // +0xA8
+    Sexy::Color mCustomFilterEffectColor; // +0xAC (16 bytes)
     // +0xBC is the dirty-flag word (bit 0 pending frame time, bits 1..2 pending
     // transforms/attachments) and +0xC0 is the object's own frame-time record;
     // together they fill the 16 bytes the header used to call `int unk2[4]`.
-    int                        mDirtyFlags;                // +0xBC
-    ReanimatorFrameTime        mFrameTime;                 // +0xC0 (12 bytes)
-    ReanimatorTransform       *mReanimatorTransforms;      // +0xCC
-    bool                       mFrameTimeReady;            // +0xD0
-    float                      mAnimTimeStep;              // +0xD4
+    int mDirtyFlags; // +0xBC
+    ReanimatorFrameTime mFrameTime; // +0xC0 (12 bytes)
+    ReanimatorTransform *mReanimatorTransforms; // +0xCC
+    bool mFrameTimeReady; // +0xD0
+    float mAnimTimeStep; // +0xD4
     // size 0xD8
 
-    Reanimation * SetAnimRate(float theRate);
-    ReanimatorTransform * GetTransformAtTime(int theTrackIndex, ReanimatorTransform *theTransform, ReanimatorFrameTime *theFrameTime);
+    Reanimation *SetAnimRate(float theRate);
+    ReanimatorTransform *GetTransformAtTime(
+        int theTrackIndex, ReanimatorTransform *theTransform, ReanimatorFrameTime *theFrameTime);
     int GetCurrentTransform(int theTrackIndex, ReanimatorFrameTime *theFrameTime, ReanimatorTransform *theTransform);
     int UpdateCurrentTransform(int theTrackIndex, ReanimatorFrameTime *theFrameTime);
     float MatrixFromTransform(ReanimatorTransform &theTransform, SexyMatrix3 &theMatrix);
-    void ReanimBltMatrix(Sexy::Graphics *g, Sexy::Image *theImage, SexyMatrix3 const &theTransform, TRect<int> const &theClipRect, Color const &theColor, int theDrawMode, TRect<int> const &theSrcRect);
+    void ReanimBltMatrix(Sexy::Graphics *g, Sexy::Image *theImage, SexyMatrix3 const &theTransform,
+        TRect<int> const &theClipRect, Color const &theColor, int theDrawMode, TRect<int> const &theSrcRect);
     void SetFilterEffectShader(FilterEffect theFilterEffect);
     bool DrawTrack(Sexy::Graphics *g, int theTrackIndex, int theRenderGroup, TodTriangleGroup *theTriangleGroup);
     float GetFrameTime(ReanimatorFrameTime *theFrameTime);
-    ReanimatorTransform * GetCurrentTransform(int theTrackIndex, ReanimatorTransform *theTransform);
+    ReanimatorTransform *GetCurrentTransform(int theTrackIndex, ReanimatorTransform *theTransform);
     void GetTrackMatrix(int theTrackIndex, Sexy::SexyTransform2D &theMatrix);
     int FindTrackIndexById(const char *theTrackId);
-    Sexy::Image * GetCurrentTrackImage(char *theTrackName);
+    Sexy::Image *GetCurrentTrackImage(char *theTrackName);
     int FindTrackIndex(char const *theTrackName);
-    Sexy::Image * GetCurrentTrackImage(char const *theTrackName);
+    Sexy::Image *GetCurrentTrackImage(char const *theTrackName);
     void AttachToAnotherReanimation(Reanimation *theAttachReanim, const char *theTrackName);
     void GetTrackBasePoseMatrix(int theTrackIndex, Sexy::SexyTransform2D &theBaseMatrix);
-    AttachEffect * AttachParticleToTrack(char const *theTrackName, TodParticleSystem *theParticleSystem, float thePosX, float thePosY);
-    Sexy::SexyTransform2D & GetAttachmentOverlayMatrix(int theTrackIndex, ReanimatorTransform &theTransform, Sexy::SexyTransform2D &theOverlayMatrix);
+    AttachEffect *AttachParticleToTrack(
+        char const *theTrackName, TodParticleSystem *theParticleSystem, float thePosX, float thePosY);
+    Sexy::SexyTransform2D &GetAttachmentOverlayMatrix(
+        int theTrackIndex, ReanimatorTransform &theTransform, Sexy::SexyTransform2D &theOverlayMatrix);
     void CheckDirtyFlags();
     void DrawRenderGroup(Sexy::Graphics *g, int theRenderGroup);
     void Draw(Sexy::Graphics *g);
-    Sexy::SexyTransform2D & GetAttachmentOverlayMatrix(int theTrackIndex, Sexy::SexyTransform2D &theOverlayMatrix);
+    Sexy::SexyTransform2D &GetAttachmentOverlayMatrix(int theTrackIndex, Sexy::SexyTransform2D &theOverlayMatrix);
     void GetFramesForLayer(char *theTrackName, int &theFrameStart, int &theFrameCount);
     void GetFramesForLayer(char const *theTrackName, int &theFrameStart, int &theFrameCount);
-    Reanimation * SetFramesForLayer(char const *theTrackName);
-    bool TrackExists(char const* theTrackName);
+    Reanimation *SetFramesForLayer(char const *theTrackName);
+    bool TrackExists(char const *theTrackName);
     // `_ZN11Reanimation15TrackExistsByIdEPc` @0x1FAAC0. The body compares the
     // argument with the track record's first word, so it is the track id.
-    bool TrackExistsById(const char* theTrackId);
+    bool TrackExistsById(const char *theTrackId);
     void StartBlend(int theBlendTime);
-    TodAllocator * ReanimationDelete();
+    TodAllocator *ReanimationDelete();
     void ReanimationDie();
     void SetShakeOverride(char const *theTrackName, float theShakeAmount);
-    Sexy::Image * GetImageOverride(char *theTrackName);
-    Sexy::Image * GetImageOverride(char const *theTrackName);
+    Sexy::Image *GetImageOverride(char *theTrackName);
+    Sexy::Image *GetImageOverride(char const *theTrackName);
     void SetImageOverride(char *theTrackName, Sexy::Image *theImage);
     void SetImageOverride(char const *theTrackName, Sexy::Image *theImage);
     void SetImageDefinition(char const *theTrackName, Sexy::Image *theImage);
@@ -170,14 +174,14 @@ public:
     void IgnoreClipRectForPrefix(char const *theTrackName, bool theIgnore);
     void PropogateColorToAttachments();
     bool ShouldTriggerTimedEvent(float theEventTime);
-    Reanimation * PlayReanim(char const *theTrackName, ReanimLoopType theLoopType, int theBlendTime, float theAnimRate);
-    ReanimatorTrackInstance * GetTrackInstanceByName(char const *theTrackName);
+    Reanimation *PlayReanim(char const *theTrackName, ReanimLoopType theLoopType, int theBlendTime, float theAnimRate);
+    ReanimatorTrackInstance *GetTrackInstanceByName(char const *theTrackName);
     void ParseAttacherTrack(ReanimatorTransform const &theTransform, AttacherInfo &theAttacherInfo);
     void AttacherSynchWalkSpeed(int theTrackIndex, Reanimation *theAttachReanim, AttacherInfo const &theAttacherInfo);
     bool IsAnimPlaying(char *theTrackName);
     bool IsAnimPlaying(char const *theTrackName);
     void SetBasePoseFromAnim(char const *theTrackName);
-    Reanimation * FindSubReanim(ReanimationType theReanimType);
+    Reanimation *FindSubReanim(ReanimationType theReanimType);
     Reanimation();
     void ReanimationInitializeType(float theX, float theY, ReanimationType theReanimType);
     void UpdateAttacherTrack(int theTrackIndex);
@@ -195,23 +199,25 @@ struct ReanimationSlot
 // Interned reanimation track-name ids. Startup fills them through
 // ReanimatorTrackNameToId, and TrackExistsById compares that pointer with
 // ReanimatorTrack::mTrackId.
-const char* ReanimatorTrackNameToId(const char* theName);
+const char *ReanimatorTrackNameToId(const char *theName);
 void InitReanimTrackIds();
-extern const char* ReanimTrackId__ground;
-extern const char* ReanimTrackId_anim_death;
-extern const char* ReanimTrackId_anim_death2;
-extern const char* ReanimTrackId_anim_head1;
-extern const char* ReanimTrackId_anim_idle;
-extern const char* ReanimTrackId_anim_idle2;
-extern const char* ReanimTrackId_anim_sleep;
-extern const char* ReanimTrackId_anim_stem;
-extern const char* ReanimTrackId_anim_superlongdeath;
-extern const char* ReanimTrackId_anim_swim;
-extern const char* ReanimTrackId_anim_walk;
-extern const char* ReanimTrackId_anim_walk2;
-extern const char* ReanimTrackId_anim_walnutdeath;
-extern const char* ReanimTrackId_anim_waterdeath;
-extern const char* ReanimTrackId_boss_jaw;
-extern const char* ReanimTrackId_fullscreen;
-extern const char* ReanimTrackId_zombie_catapult_pole;
-extern const char* ReanimTrackId_zombie_mustache;
+extern const char *ReanimTrackId__ground;
+extern const char *ReanimTrackId_anim_death;
+extern const char *ReanimTrackId_anim_death2;
+extern const char *ReanimTrackId_anim_head1;
+extern const char *ReanimTrackId_anim_idle;
+extern const char *ReanimTrackId_anim_idle2;
+extern const char *ReanimTrackId_anim_sleep;
+extern const char *ReanimTrackId_anim_stem;
+extern const char *ReanimTrackId_anim_superlongdeath;
+extern const char *ReanimTrackId_anim_swim;
+extern const char *ReanimTrackId_anim_walk;
+extern const char *ReanimTrackId_anim_walk2;
+extern const char *ReanimTrackId_anim_walnutdeath;
+extern const char *ReanimTrackId_anim_waterdeath;
+extern const char *ReanimTrackId_boss_jaw;
+extern const char *ReanimTrackId_fullscreen;
+extern const char *ReanimTrackId_zombie_catapult_pole;
+extern const char *ReanimTrackId_zombie_mustache;
+
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_REANIMATION_H

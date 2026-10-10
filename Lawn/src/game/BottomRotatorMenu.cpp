@@ -9,9 +9,7 @@ BottomRotatorMenu::BottomRotatorMenu()
     mScrollOffset = 0.0f;
 }
 
-BottomRotatorMenu::~BottomRotatorMenu()
-{
-}
+BottomRotatorMenu::~BottomRotatorMenu() {}
 
 void BottomRotatorMenu::AddRotatorWidget(Sexy::ButtonWidget *theWidget)
 {

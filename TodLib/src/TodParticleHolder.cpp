@@ -9,13 +9,14 @@
 #include "TodParticleSystem.h"
 #include <cstring>
 
-namespace {
-
-void FreeListNodes(DataArrayIdNode* theHead, TodAllocator *theAllocator)
+namespace
 {
-    for (DataArrayIdNode* aNode = theHead; aNode != nullptr; )
+
+void FreeListNodes(DataArrayIdNode *theHead, TodAllocator *theAllocator)
+{
+    for (DataArrayIdNode *aNode = theHead; aNode != nullptr;)
     {
-        DataArrayIdNode* aNext = aNode->mNext;
+        DataArrayIdNode *aNext = aNode->mNext;
         TodAllocatorWriteLink(aNode, theAllocator->mFreeList);
         --theAllocator->mTotalItems;
         theAllocator->mFreeList = aNode;
@@ -25,7 +26,7 @@ void FreeListNodes(DataArrayIdNode* theHead, TodAllocator *theAllocator)
 
 void FreeAllocatorBlocks(TodAllocator *theAllocator)
 {
-    for (void *aBlock = theAllocator->mBlockList; aBlock != nullptr; )
+    for (void *aBlock = theAllocator->mBlockList; aBlock != nullptr;)
     {
         void *aNext = TodAllocatorReadLink(aBlock);
         operator delete[](aBlock);
@@ -105,11 +106,10 @@ TodParticleHolder::~TodParticleHolder()
 }
 
 TodParticleSystem *TodParticleHolder::AllocParticleSystemFromDef(
-    float theX, float theY, int theRenderOrder,
-    TodParticleDefinition *theDefinition, ParticleEffect theParticleEffect)
+    float theX, float theY, int theRenderOrder, TodParticleDefinition *theDefinition, ParticleEffect theParticleEffect)
 {
-    if (mParticleSystems.mSize == mParticleSystems.mMaxSize
-        || mEmitters.mSize + (unsigned int)theDefinition->mEmitterDefCount > mEmitters.mMaxSize)
+    if (mParticleSystems.mSize == mParticleSystems.mMaxSize ||
+        mEmitters.mSize + (unsigned int)theDefinition->mEmitterDefCount > mEmitters.mMaxSize)
         return nullptr;
 
     TodParticleSystem *aSystem = mParticleSystems.DataArrayAlloc();
@@ -121,5 +121,6 @@ TodParticleSystem *TodParticleHolder::AllocParticleSystemFromDef(
 TodParticleSystem *TodParticleHolder::AllocParticleSystem(
     float theX, float theY, int theRenderOrder, ParticleEffect theParticleEffect)
 {
-    return AllocParticleSystemFromDef(theX, theY, theRenderOrder, gParticleDefArray + theParticleEffect, theParticleEffect);
+    return AllocParticleSystemFromDef(
+        theX, theY, theRenderOrder, gParticleDefArray + theParticleEffect, theParticleEffect);
 }

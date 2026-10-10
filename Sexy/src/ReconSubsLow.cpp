@@ -20,7 +20,7 @@
 #include <cstring>
 #include <vector>
 
-extern Sexy::Image* IMAGE_REANIM_CREDITS_DISCOLIGHTS;
+extern Sexy::Image *IMAGE_REANIM_CREDITS_DISCOLIGHTS;
 
 namespace
 {
@@ -34,23 +34,21 @@ struct CharRep
 };
 // CharRep is the 12-byte control block. mChars is the first character.
 
-
-
-CharRep* AsRep(void* theRep)
+CharRep *AsRep(void *theRep)
 {
-    return static_cast<CharRep*>(theRep);
+    return static_cast<CharRep *>(theRep);
 }
 
-bool IsPinnedRep(CharRep* theRep)
+bool IsPinnedRep(CharRep *theRep)
 {
-    return theRep == nullptr || theRep == (CharRep*)&Sexy::gEmptyStringRep || theRep->mRefCount < 0;
+    return theRep == nullptr || theRep == (CharRep *)&Sexy::gEmptyStringRep || theRep->mRefCount < 0;
 }
 
 // theRep is the control block, not the character pointer. A negative count
 // means the String destructor owns the buffer, so this leaves it alone.
-void ReleaseRep(char* theRep)
+void ReleaseRep(char *theRep)
 {
-    CharRep* aRep = AsRep(theRep);
+    CharRep *aRep = AsRep(theRep);
     if (IsPinnedRep(aRep))
         return;
 
@@ -60,9 +58,9 @@ void ReleaseRep(char* theRep)
 
 // Callers add the header size to this return to reach the characters, so the
 // return stays the control block. Length is written on that block.
-char* SetLength(char* theRep, unsigned int theLength)
+char *SetLength(char *theRep, unsigned int theLength)
 {
-    CharRep* aRep = AsRep(theRep);
+    CharRep *aRep = AsRep(theRep);
     if (aRep == nullptr)
         return theRep;
 
@@ -71,18 +69,18 @@ char* SetLength(char* theRep, unsigned int theLength)
     return theRep;
 }
 
-char* FreshText(const char* theText, unsigned int theLength)
+char *FreshText(const char *theText, unsigned int theLength)
 {
     if (theText == nullptr || theLength == 0)
         return Sexy::gEmptyStringData;
 
     Sexy::String aBuilt(theText, theLength);
-    char* aData = aBuilt.data();
+    char *aData = aBuilt.data();
     aBuilt.mData = Sexy::gEmptyStringData;
     return aData;
 }
 
-bool WidgetLess(Sexy::Widget* const& theLeft, Sexy::Widget* const& theRight)
+bool WidgetLess(Sexy::Widget *const &theLeft, Sexy::Widget *const &theRight)
 {
     if (theLeft == nullptr || theRight == nullptr)
         return theLeft < theRight;
@@ -91,10 +89,10 @@ bool WidgetLess(Sexy::Widget* const& theLeft, Sexy::Widget* const& theRight)
     return theLeft->mZOrder < theRight->mZOrder;
 }
 
-void SortWidgets(const char* theBegin, const char* theEnd)
+void SortWidgets(const char *theBegin, const char *theEnd)
 {
-    Sexy::Widget** aFirst = (Sexy::Widget**)theBegin;
-    Sexy::Widget** aLast = (Sexy::Widget**)theEnd;
+    Sexy::Widget **aFirst = (Sexy::Widget **)theBegin;
+    Sexy::Widget **aLast = (Sexy::Widget **)theEnd;
     if (aFirst == nullptr || aLast == nullptr || aLast <= aFirst)
         return;
     std::sort(aFirst, aLast, WidgetLess);
@@ -102,17 +100,19 @@ void SortWidgets(const char* theBegin, const char* theEnd)
 
 struct FontLayerNode
 {
-    explicit FontLayerNode(const Sexy::FontLayer& theLayer)
-        : mNext(nullptr), mPrev(nullptr), mLayer(theLayer)
+    explicit FontLayerNode(const Sexy::FontLayer &theLayer) :
+        mNext(nullptr),
+        mPrev(nullptr),
+        mLayer(theLayer)
     {
     }
 
-    void* mNext;
-    void* mPrev;
+    void *mNext;
+    void *mPrev;
     Sexy::FontLayer mLayer;
 };
 
-int ReadPacked(const unsigned char* theBytes, int theWidth)
+int ReadPacked(const unsigned char *theBytes, int theWidth)
 {
     unsigned int aPacked = 0;
     for (int i = 0; i < theWidth && i < 4; ++i)
@@ -122,91 +122,90 @@ int ReadPacked(const unsigned char* theBytes, int theWidth)
 
 } // namespace
 
-char* DisposeWStringRep(char* theRep)
+char *DisposeWStringRep(char *theRep)
 {
     ReleaseRep(theRep);
     return theRep;
 }
 
-char* DisposeMenuStringRep(char* theRep)
+char *DisposeMenuStringRep(char *theRep)
 {
     ReleaseRep(theRep);
     return theRep;
 }
 
-char* DisposeSharedStringRep(char* theRep)
+char *DisposeSharedStringRep(char *theRep)
 {
     ReleaseRep(theRep);
     return theRep;
 }
 
-char* DisposeBufferStringRep(char* theRep)
+char *DisposeBufferStringRep(char *theRep)
 {
     ReleaseRep(theRep);
     return theRep;
 }
 
-char* DisposeEditStringRep(char* theRep)
+char *DisposeEditStringRep(char *theRep)
 {
     ReleaseRep(theRep);
     return theRep;
 }
 
-char* DisposeGraphicsStringRep(char* theRep)
+char *DisposeGraphicsStringRep(char *theRep)
 {
     ReleaseRep(theRep);
     return theRep;
 }
 
-char* DisposeAppStringRep(char* theRep)
+char *DisposeAppStringRep(char *theRep)
 {
     ReleaseRep(theRep);
     return theRep;
 }
 
-char* DisposeXmlStringRep(char* theRep)
+char *DisposeXmlStringRep(char *theRep)
 {
     ReleaseRep(theRep);
     return theRep;
 }
 
-char* DisposeLayoutStringRep(char* theRep)
+char *DisposeLayoutStringRep(char *theRep)
 {
     ReleaseRep(theRep);
     return theRep;
 }
 
-char* DisposeFontStringRep(char* theRep)
+char *DisposeFontStringRep(char *theRep)
 {
     ReleaseRep(theRep);
     return theRep;
 }
 
-char* SetDescParserRepLength(char* theRep, unsigned int theLength)
+char *SetDescParserRepLength(char *theRep, unsigned int theLength)
 {
     return SetLength(theRep, theLength);
 }
 
-char* SetFontRepLength(char* theRep, unsigned int theLength)
+char *SetFontRepLength(char *theRep, unsigned int theLength)
 {
     return SetLength(theRep, theLength);
 }
 
-char* SetXmlRepLength(char* theRep, unsigned int theLength)
+char *SetXmlRepLength(char *theRep, unsigned int theLength)
 {
     return SetLength(theRep, theLength);
 }
 
-Sexy::FontLayer* CloneFontLayerNode(const Sexy::FontLayer* theSource)
+Sexy::FontLayer *CloneFontLayerNode(const Sexy::FontLayer *theSource)
 {
     if (theSource == nullptr)
         return nullptr;
-    FontLayerNode* aNode = new FontLayerNode(*theSource);
+    FontLayerNode *aNode = new FontLayerNode(*theSource);
     return &aNode->mLayer;
 }
 
-Sexy::String* StringConcatCStr(Sexy::String* theResult, const char* theLeft,
-                               const Sexy::String* theRight)
+Sexy::String *StringConcatCStr(Sexy::String *theResult, const char *theLeft, const Sexy::String *theRight)
 {
     if (theResult == nullptr)
         return theResult;
@@ -219,8 +218,7 @@ Sexy::String* StringConcatCStr(Sexy::String* theResult, const char* theLeft,
     return theResult;
 }
 
-Sexy::String* StringConcat(Sexy::String* theResult, const Sexy::String* theLeft,
-                           const Sexy::String* theRight)
+Sexy::String *StringConcat(Sexy::String *theResult, const Sexy::String *theLeft, const Sexy::String *theRight)
 {
     if (theResult == nullptr)
         return theResult;
@@ -233,8 +231,7 @@ Sexy::String* StringConcat(Sexy::String* theResult, const Sexy::String* theLeft,
     return theResult;
 }
 
-char* StringConstructRange(const char* theBegin, const char* theEnd,
-                           const void* theAlloc, int theTag)
+char *StringConstructRange(const char *theBegin, const char *theEnd, const void *theAlloc, int theTag)
 {
     (void)theAlloc;
     (void)theTag;
@@ -249,11 +246,11 @@ char* StringConstructRange(const char* theBegin, const char* theEnd,
     return FreshText(theBegin, (unsigned int)(theEnd - theBegin));
 }
 
-char* IntStringAllocRep(unsigned int theCapacity, unsigned int theOldCapacity)
+char *IntStringAllocRep(unsigned int theCapacity, unsigned int theOldCapacity)
 {
     (void)theOldCapacity;
     if (theCapacity == 0)
-        return (char*)&Sexy::gEmptyStringRep;
+        return (char *)&Sexy::gEmptyStringRep;
 
     return FreshText("", theCapacity);
 }
@@ -267,7 +264,7 @@ int CloseIntroVideo()
     return AGVideoEnable(0);
 }
 
-int* OnIntroVideoEvent(int* theEvent)
+int *OnIntroVideoEvent(int *theEvent)
 {
     if (theEvent == nullptr)
         return theEvent;
@@ -281,7 +278,7 @@ int* OnIntroVideoEvent(int* theEvent)
     return theEvent;
 }
 
-int DrawCreditsDiscoLights(Sexy::Graphics* theGraphics, float theCentreX, float theAngle)
+int DrawCreditsDiscoLights(Sexy::Graphics *theGraphics, float theCentreX, float theAngle)
 {
     if (theGraphics == nullptr || gSexyAppBase == nullptr)
         return 0;
@@ -291,12 +288,7 @@ int DrawCreditsDiscoLights(Sexy::Graphics* theGraphics, float theCentreX, float 
         return 0;
 
     const float kQuadrant = 1.5708f;
-    float aCentres[4] = {
-        theAngle,
-        theAngle + kQuadrant,
-        theAngle + kQuadrant * 2.0f,
-        theAngle + kQuadrant * 3.0f
-    };
+    float aCentres[4] = {theAngle, theAngle + kQuadrant, theAngle + kQuadrant * 2.0f, theAngle + kQuadrant * 3.0f};
 
     Sexy::Color aSaved = theGraphics->GetColor();
     theGraphics->SetColor(Sexy::Color(255, 255, 255, 128));
@@ -310,15 +302,15 @@ int DrawCreditsDiscoLights(Sexy::Graphics* theGraphics, float theCentreX, float 
     return 1;
 }
 
-int FillIntVectorFromCsv(Sexy::String* theText, void* theOut)
+int FillIntVectorFromCsv(Sexy::String *theText, void *theOut)
 {
     if (theText == nullptr || theOut == nullptr)
         return 0;
 
-    std::vector<int>* aOut = (std::vector<int>*)theOut;
+    std::vector<int> *aOut = (std::vector<int> *)theOut;
     aOut->clear();
 
-    const char* aData = theText->c_str();
+    const char *aData = theText->c_str();
     unsigned int aPos = 0;
     int aFound = 0;
     do
@@ -326,73 +318,71 @@ int FillIntVectorFromCsv(Sexy::String* theText, void* theOut)
         aOut->push_back(atoi(aData + aPos));
         aFound = StringFindChar(theText, ',', aPos);
         aPos = (unsigned int)(aFound + 1);
-    }
-    while (aFound != -1);
+    } while (aFound != -1);
     return aFound;
 }
 
-Sexy::MemoryImage* MakeCursorImage(Sexy::SexyAppBase* theApp, const unsigned char* thePixels)
+Sexy::MemoryImage *MakeCursorImage(Sexy::SexyAppBase *theApp, const unsigned char *thePixels)
 {
-    Sexy::MemoryImage* aImage = new Sexy::MemoryImage(theApp);
+    Sexy::MemoryImage *aImage = new Sexy::MemoryImage(theApp);
     aImage->Create(24, 24);
-    unsigned int* aBits = aImage->GetBits();
+    unsigned int *aBits = aImage->GetBits();
     if (aBits != nullptr && thePixels != nullptr)
         memcpy(aBits, thePixels, 2304);
     aImage->BitsChanged();
     return aImage;
 }
 
-const char* SortWidgetRangeFinal(const char* theBegin, const char* theEnd)
+const char *SortWidgetRangeFinal(const char *theBegin, const char *theEnd)
 {
     SortWidgets(theBegin, theEnd);
     return theBegin;
 }
 
-const char* SortWidgetRangeIntro(const char* theBegin, const char* theEnd, int theFlags)
+const char *SortWidgetRangeIntro(const char *theBegin, const char *theEnd, int theFlags)
 {
     (void)theFlags;
     SortWidgets(theBegin, theEnd);
     return theBegin;
 }
 
-int* GrowIntString(int* theRep, int theExtra)
+int *GrowIntString(int *theRep, int theExtra)
 {
-    CharRep* aRep = AsRep(theRep);
+    CharRep *aRep = AsRep(theRep);
     if (aRep == nullptr)
         return nullptr;
 
     unsigned int aLength = aRep->mLength + (unsigned int)theExtra;
-    char* aFresh = FreshText(aRep->mChars, aLength);
-    return (int*)aFresh;
+    char *aFresh = FreshText(aRep->mChars, aLength);
+    return (int *)aFresh;
 }
 
-int* GrowIntStringFresh(int* theRange, int theCount)
+int *GrowIntStringFresh(int *theRange, int theCount)
 {
     return GrowIntString(theRange, theCount);
 }
 
-int ReadDevicePixel(void* theImage, int theX, int theY)
+int ReadDevicePixel(void *theImage, int theX, int theY)
 {
-    Sexy::DeviceImage* aImage = (Sexy::DeviceImage*)theImage;
+    Sexy::DeviceImage *aImage = (Sexy::DeviceImage *)theImage;
     if (aImage == nullptr)
         return 0;
     if (aImage->mSurface == nullptr || aImage->mSurfaceBits == nullptr)
-        return (int)((Sexy::MemoryImage*)aImage)->MemoryImage::GetPixel(theX, theY);
+        return (int)((Sexy::MemoryImage *)aImage)->MemoryImage::GetPixel(theX, theY);
 
     int aPitch = aImage->mSurfacePitch;
     if (aPitch <= 0)
         aPitch = aImage->GetPitch();
 
     Sexy::PixelFormat aFormat = (Sexy::PixelFormat)aImage->mSurfaceFormat;
-    const unsigned char* aBytes =
-        (const unsigned char*)aImage->mSurfaceBits + theX *
-        Sexy::PixelUtil::GetBytePerPixel(aFormat) + aPitch * theY;
+    const unsigned char *aBytes =
+        (const unsigned char *)aImage->mSurfaceBits + theX * Sexy::PixelUtil::GetBytePerPixel(aFormat) + aPitch * theY;
 
     if (aFormat == Sexy::PIXEL_FORMAT_A8R8G8B8)
         return ReadPacked(aBytes, 4);
     if (aFormat == Sexy::PIXEL_FORMAT_LUT8)
     {
-        unsigned int* aPalette = aImage->GetPallete();
+        unsigned int *aPalette = aImage->GetPallete();
         if (aPalette == nullptr)
             return 0;
         return (int)aPalette[aBytes[0]];
@@ -400,14 +390,14 @@ int ReadDevicePixel(void* theImage, int theX, int theY)
     return Sexy::PixelUtil::UnpackPixel(aFormat, aBytes);
 }
 
-unsigned char* ReadChecksummedBytes(void* theReader, void* theDest, int theCount)
+unsigned char *ReadChecksummedBytes(void *theReader, void *theDest, int theCount)
 {
-    Sexy::PIEffect* aReader = (Sexy::PIEffect*)theReader;
-    unsigned char* aDest = (unsigned char*)theDest;
+    Sexy::PIEffect *aReader = (Sexy::PIEffect *)theReader;
+    unsigned char *aDest = (unsigned char *)theDest;
     if (aReader == nullptr || aDest == nullptr || theCount <= 0)
         return aDest;
 
-    unsigned char* aEnd = aDest + theCount;
+    unsigned char *aEnd = aDest + theCount;
     while (aDest != aEnd)
     {
         if (aReader->mReadPos == 1024)
@@ -428,5 +418,5 @@ unsigned char* ReadChecksummedBytes(void* theReader, void* theDest, int theCount
         ++aDest;
         ++aReader->mReadPos;
     }
-    return (unsigned char*)theDest;
+    return (unsigned char *)theDest;
 }

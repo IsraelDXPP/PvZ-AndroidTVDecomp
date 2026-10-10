@@ -11,7 +11,7 @@
 // ==========================================================================
 bool Sexy::PlayerInfo::IsSaving()
 {
-  return false;
+    return false;
 }
 
 // ==========================================================================
@@ -20,7 +20,7 @@ bool Sexy::PlayerInfo::IsSaving()
 // ==========================================================================
 bool Sexy::PlayerInfo::IsLoaded()
 {
-  return true;
+    return true;
 }
 
 // ==========================================================================
@@ -29,7 +29,7 @@ bool Sexy::PlayerInfo::IsLoaded()
 // ==========================================================================
 bool Sexy::PlayerInfo::IsLoading()
 {
-  return true;
+    return true;
 }
 
 // ==========================================================================
@@ -38,8 +38,8 @@ bool Sexy::PlayerInfo::IsLoading()
 // ==========================================================================
 Sexy::PlayerInfo::~PlayerInfo()
 {
-  // The dump's only statement stores the vptr; the compiler emits that itself
-  // once the class has real virtual functions.
+    // The dump's only statement stores the vptr; the compiler emits that itself
+    // once the class has real virtual functions.
 }
 
 // ==========================================================================
@@ -48,7 +48,7 @@ Sexy::PlayerInfo::~PlayerInfo()
 // ==========================================================================
 Sexy::PlayerInfo::PlayerInfo(Sexy::ProfileMgr *theMgr)
 {
-  mRefCount = 0;
-  mDetailFileCount = 1;
-  mProFileMgr = theMgr;
+    mRefCount = 0;
+    mDetailFileCount = 1;
+    mProFileMgr = theMgr;
 }

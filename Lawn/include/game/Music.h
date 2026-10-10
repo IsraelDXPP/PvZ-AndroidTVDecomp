@@ -36,7 +36,8 @@
 // NOTE: `Music2 : public Music` lives in Game\Music2.h and adds no data members, so
 // sizeof(Music2) is also 0x68.
 
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_MUSIC_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_MUSIC_H
 
 #include "ReconTypes.h"
 // The bodies call methods on these complete types.
@@ -83,7 +84,7 @@ public:
     virtual void MusicUpdate();
     virtual void StopAllMusic();
     virtual void StartGameMusic(bool theStartPaused);
-    virtual void LoadSong(MusicFile theMusicFile, Sexy::String const& theFileName);
+    virtual void LoadSong(MusicFile theMusicFile, Sexy::String const &theFileName);
     virtual void MusicResync();
     virtual void UpdateMusicBurst();
     virtual void StartBurst();
@@ -100,30 +101,32 @@ public:
     virtual void PlayMusic(MusicTune theTune, int theOffset, int theDrumsOffset);
 
     // ---- members, absolute offsets (base SyncObject = 0x10) ----
-    LawnApp * mApp;                          // +0x10
-    Sexy::MusicInterface * mMusicInterface;  // +0x14
-    MusicTune mCurMusicTune;                 // +0x18
-    MusicTune mLastMusicTune;                // +0x1C
-    MusicFile mCurMusicFileMain;             // +0x20
-    MusicFile mCurMusicFileDrums;            // +0x24
-    MusicFile mCurMusicFileHihats;           // +0x28
-    int mBurstOverride;                      // +0x2C
-    int mBaseBPM;                            // +0x30  the constructor writes 155
-    int mBaseModSpeed;                       // +0x34  the constructor writes 3
-    MusicBurstState mMusicBurstState;        // +0x38
-    int mBurstStateCounter;                  // +0x3C
-    MusicDrumsState mMusicDrumsState;        // +0x40
-    int mQueuedDrumTrackPackedOrder;         // +0x44
-    int mDrumsStateCounter;                  // +0x48
-    int mPauseOffset;                        // +0x4C
-    int mPauseOffsetDrums;                   // +0x50
-    bool mPaused;                            // +0x54
-    bool mMusicDisabled;                     // +0x55
+    LawnApp *mApp; // +0x10
+    Sexy::MusicInterface *mMusicInterface; // +0x14
+    MusicTune mCurMusicTune; // +0x18
+    MusicTune mLastMusicTune; // +0x1C
+    MusicFile mCurMusicFileMain; // +0x20
+    MusicFile mCurMusicFileDrums; // +0x24
+    MusicFile mCurMusicFileHihats; // +0x28
+    int mBurstOverride; // +0x2C
+    int mBaseBPM; // +0x30  the constructor writes 155
+    int mBaseModSpeed; // +0x34  the constructor writes 3
+    MusicBurstState mMusicBurstState; // +0x38
+    int mBurstStateCounter; // +0x3C
+    MusicDrumsState mMusicDrumsState; // +0x40
+    int mQueuedDrumTrackPackedOrder; // +0x44
+    int mDrumsStateCounter; // +0x48
+    int mPauseOffset; // +0x4C
+    int mPauseOffsetDrums; // +0x50
+    bool mPaused; // +0x54
+    bool mMusicDisabled; // +0x55
     // TODO(recon): two bytes of padding at +0x56..+0x57 hold the word alignment
     // for mFadeOutCounter; nothing writes them.
-    int mFadeOutCounter;                     // +0x58
-    int mFadeOutDuration;                    // +0x5C
-    float mPauseVolume;                      // +0x60  initialised to 1.0f
-    float mNormalVolume;                     // +0x64  initialised to 1.0f
+    int mFadeOutCounter; // +0x58
+    int mFadeOutDuration; // +0x5C
+    float mPauseVolume; // +0x60  initialised to 1.0f
+    float mNormalVolume; // +0x64  initialised to 1.0f
     Music();
 };
+
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_MUSIC_H

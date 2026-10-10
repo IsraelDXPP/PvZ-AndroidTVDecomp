@@ -31,9 +31,7 @@ int WaitForRemoteFileDialog::GetStatus()
 // Sexy::ButtonListener sub-object at +0x100 (Widget is 0x100 bytes, see
 // Dialog.h) and the explicit `~Dialog()` call. A real base class makes the
 // compiler emit both stores and run the base destructor itself.
-WaitForRemoteFileDialog::~WaitForRemoteFileDialog()
-{
-}
+WaitForRemoteFileDialog::~WaitForRemoteFileDialog() {}
 
 // ==========================================================================
 // WaitForRemoteFileDialog::WaitForRemoteFileDialog(int,LawnApp *,bool)
@@ -45,8 +43,8 @@ WaitForRemoteFileDialog::~WaitForRemoteFileDialog()
 // vptr stores after it are the compiler's. The base call is
 // `SavingDingusDialog::SavingDingusDialog(this, a3, a4, 56, &text, 1.0, a4)`
 // (_recon/ida/WaitForRemoteFileDialog.cpp:118).
-WaitForRemoteFileDialog::WaitForRemoteFileDialog(int theRequestId, LawnApp *theApp, bool theModal)
-    : SavingDingusDialog(theApp, theModal, 56, "[SAVING_LIVE_DIALOG]", 1.0f, theModal)
+WaitForRemoteFileDialog::WaitForRemoteFileDialog(int theRequestId, LawnApp *theApp, bool theModal) :
+    SavingDingusDialog(theApp, theModal, 56, "[SAVING_LIVE_DIALOG]", 1.0f, theModal)
 {
     mRequestId = theRequestId;
 }

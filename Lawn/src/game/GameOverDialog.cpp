@@ -25,9 +25,9 @@
 // ==========================================================================
 GameOverDialog::~GameOverDialog()
 {
-  // The primary and the ButtonListener vptrs are the compiler's own work now
-  // that Dialog really derives from Sexy::ButtonListener, and LawnDialog's
-  // destructor runs by itself.
+    // The primary and the ButtonListener vptrs are the compiler's own work now
+    // that Dialog really derives from Sexy::ButtonListener, and LawnDialog's
+    // destructor runs by itself.
 }
 
 // ==========================================================================
@@ -36,11 +36,11 @@ GameOverDialog::~GameOverDialog()
 // ==========================================================================
 void GameOverDialog::GotFocus()
 {
-  LawnDialog::GotFocus();
-  // Nothing in this container holds the focus yet, so hand it to the retry
-  // button and raise it (Widget::SetFocus, slot 57).
-  if ( mFocusedChildWidget == nullptr )
-    SetFocus(mLawnYesButton, true);
+    LawnDialog::GotFocus();
+    // Nothing in this container holds the focus yet, so hand it to the retry
+    // button and raise it (Widget::SetFocus, slot 57).
+    if (mFocusedChildWidget == nullptr)
+        SetFocus(mLawnYesButton, true);
 }
 
 // ==========================================================================
@@ -49,7 +49,7 @@ void GameOverDialog::GotFocus()
 // ==========================================================================
 void GameOverDialog::MouseDrag(int theX, int theY)
 {
-  Sexy::Dialog::MouseDrag(theX, theY);
+    Sexy::Dialog::MouseDrag(theX, theY);
 }
 
 // ==========================================================================
@@ -58,89 +58,90 @@ void GameOverDialog::MouseDrag(int theX, int theY)
 // ==========================================================================
 void GameOverDialog::ButtonDepress(int theId)
 {
-  if ( theId == 1001 )
-  {
-    mApp->PostLeaveLevel();
-    // The current game mode decides which screen the player falls back to, so
-    // it is read before the level is torn down.
-    mApp->IsSurvivalEndless(mApp->mGameMode);
-    mApp->KillDialogById(16);
-    mApp->KillBoard();
-    if ( mApp->IsSurvivalMode() )
+    if (theId == 1001)
     {
-      mApp->ShowChallengeScreen(ChallengePage(0));  // CHALLENGE_PAGE_SURVIVAL
+        mApp->PostLeaveLevel();
+        // The current game mode decides which screen the player falls back to, so
+        // it is read before the level is torn down.
+        mApp->IsSurvivalEndless(mApp->mGameMode);
+        mApp->KillDialogById(16);
+        mApp->KillBoard();
+        if (mApp->IsSurvivalMode())
+        {
+            mApp->ShowChallengeScreen(ChallengePage(0)); // CHALLENGE_PAGE_SURVIVAL
+        }
+        else if (mApp->IsPuzzleMode())
+        {
+            mApp->ShowChallengeScreen(ChallengePage(4)); // CHALLENGE_PAGE_PUZZLE
+        }
+        else if (mApp->IsAdventureMode())
+        {
+            mApp->ShowGameSelector();
+        }
+        else if (mApp->IsCoopMode())
+        {
+            mApp->ShowChallengeScreen(ChallengePage(3)); // CHALLENGE_PAGE_COOP
+        }
+        else
+        {
+            mApp->ShowChallengeScreen(ChallengePage(1)); // CHALLENGE_PAGE_CHALLENGE
+        }
     }
-    else if ( mApp->IsPuzzleMode() )
+    else if (theId == 1000)
     {
-      mApp->ShowChallengeScreen(ChallengePage(4));  // CHALLENGE_PAGE_PUZZLE
+        mApp->PostLeaveLevel();
+        mApp->PostEnterLevel();
+        mApp->KillDialogById(16);
+        mApp->EndLevel();
     }
-    else if ( mApp->IsAdventureMode() )
-    {
-      mApp->ShowGameSelector();
-    }
-    else if ( mApp->IsCoopMode() )
-    {
-      mApp->ShowChallengeScreen(ChallengePage(3));  // CHALLENGE_PAGE_COOP
-    }
-    else
-    {
-      mApp->ShowChallengeScreen(ChallengePage(1));  // CHALLENGE_PAGE_CHALLENGE
-    }
-  }
-  else if ( theId == 1000 )
-  {
-    mApp->PostLeaveLevel();
-    mApp->PostEnterLevel();
-    mApp->KillDialogById(16);
-    mApp->EndLevel();
-  }
 }
 
 // ==========================================================================
 // GameOverDialog::GameOverDialog(Sexy::String const&,bool)
 // @00140258  574 bytes
 // ==========================================================================
-GameOverDialog::GameOverDialog(const Sexy::String& theMessage, bool theShowTrophy)
+GameOverDialog::GameOverDialog(const Sexy::String &theMessage, bool theShowTrophy)
     // The base is a real base now, so the dump's placement-new of LawnDialog
     // over `this` and the two string temporaries it was handed (StringCtor is
     // StringCtor) are this initialiser list. The vptr stores at +0x00 and
     // +0x100 (Dialog's ButtonListener sub-object) are compiler-generated.
-    : LawnDialog((LawnApp *)gLawnApp, nullptr, 16, true, "[GAME_OVER]", theMessage, "", 1)
+    :
+    LawnDialog((LawnApp *)gLawnApp, nullptr, 16, true, "[GAME_OVER]", theMessage, "", 1)
 {
 
-  // The two dialog buttons the base created, relabelled.
-  mLawnYesButton->SetLabel("[TRY_AGAIN]");
-  mLawnNoButton->SetLabel("[QUIT_BUTTON]");
+    // The two dialog buttons the base created, relabelled.
+    mLawnYesButton->SetLabel("[TRY_AGAIN]");
+    mLawnNoButton->SetLabel("[QUIT_BUTTON]");
 
-  if ( theShowTrophy )
-  {
-    // The survival and puzzle screens pass the challenge's own name as the
-    // dialog text; the sixth word of the challenge definition record is it.
-    const ChallengeDefinition *aChallengeDef = mApp->GetCurrentChallengeDef();
-    Sexy::String aChallengeName;
-    TodStringTranslate(&aChallengeName, aChallengeDef->mChallengeName);
-    mDialogLines = aChallengeName;
-  }
-  // An empty header string means the dialog has no title bar, so the layout
-  // gets the extra fifteen pixels that bar would have used.
-  if ( theMessage.empty() )
-    mSpaceAfterHeader += 15;
-  CalcSize(300, 30, true);
-  // vtable slot 50: this class does not override Resize, so this is
-  // LawnDialog's, which centres the dialog on the 800x600 screen.
-  Resize((800 - mWidth) / 2, (600 - mHeight) / 2, mWidth, mHeight);
-  // The dialog's own backdrop is hidden -- LawnDialog draws the standard one --
-  // and the QR code is only shown when the app asks for it.
-  mClip = false;
-  mDrawQRCode = mApp->NeedShowQRCode();
-  // The app's board, if there is one, drops the three "show me" hints.
-  Board *aBoard = (Board *)((LawnApp *)gLawnApp)->mBoard;
-  if ( aBoard != nullptr )
-  {
-    aBoard->mShowShovel = false;
-    aBoard->mShowButter = false;
-    aBoard->mShowHammer = false;
-  }
+    if (theShowTrophy)
+    {
+        // The survival and puzzle screens pass the challenge's own name as the
+        // dialog text; the sixth word of the challenge definition record is it.
+        const ChallengeDefinition *aChallengeDef = mApp->GetCurrentChallengeDef();
+        Sexy::String aChallengeName;
+        TodStringTranslate(&aChallengeName, aChallengeDef->mChallengeName);
+        mDialogLines = aChallengeName;
+    }
+    // An empty header string means the dialog has no title bar, so the layout
+    // gets the extra fifteen pixels that bar would have used.
+    if (theMessage.empty())
+        mSpaceAfterHeader += 15;
+    CalcSize(300, 30, true);
+    // vtable slot 50: this class does not override Resize, so this is
+    // LawnDialog's, which centres the dialog on the 800x600 screen.
+    Resize((800 - mWidth) / 2, (600 - mHeight) / 2, mWidth, mHeight);
+    // The dialog's own backdrop is hidden -- LawnDialog draws the standard one --
+    // and the QR code is only shown when the app asks for it.
+    mClip = false;
+    mDrawQRCode = mApp->NeedShowQRCode();
+    // The app's board, if there is one, drops the three "show me" hints.
+    Board *aBoard = (Board *)((LawnApp *)gLawnApp)->mBoard;
+    if (aBoard != nullptr)
+    {
+        aBoard->mShowShovel = false;
+        aBoard->mShowButter = false;
+        aBoard->mShowHammer = false;
+    }
 }
 
 // ==========================================================================
@@ -149,7 +150,7 @@ GameOverDialog::GameOverDialog(const Sexy::String& theMessage, bool theShowTroph
 // ==========================================================================
 void GameOverDialog::AddedToManager(Sexy::WidgetManager *theManager)
 {
-  LawnDialog::AddedToManager(theManager);
+    LawnDialog::AddedToManager(theManager);
 }
 
 // ==========================================================================
@@ -158,5 +159,5 @@ void GameOverDialog::AddedToManager(Sexy::WidgetManager *theManager)
 // ==========================================================================
 void GameOverDialog::RemovedFromManager(Sexy::WidgetManager *theManager)
 {
-  LawnDialog::RemovedFromManager(theManager);
+    LawnDialog::RemovedFromManager(theManager);
 }

@@ -30,33 +30,27 @@
 // GAMEPAD_X_POSITIONS @0x5A1B74. Only the first three X positions are ever
 // indexed -- Update picks entry 1, 2 or 0 from the side the pad holds -- but the
 // symbol is 16 words wide in the binary, so the extent is kept.
-const SeedType VSSetupMenu::msQuickPlayDecks[2][6] =
-{
-  { (SeedType)1, (SeedType)0, (SeedType)3, (SeedType)4, (SeedType)0x14, (SeedType)0x11 },
-  { (SeedType)0x3D, (SeedType)0x3E, (SeedType)0x3F, (SeedType)0x40, (SeedType)0x46, (SeedType)0x43 },
+const SeedType VSSetupMenu::msQuickPlayDecks[2][6] = {
+    {(SeedType)1, (SeedType)0, (SeedType)3, (SeedType)4, (SeedType)0x14, (SeedType)0x11},
+    {(SeedType)0x3D, (SeedType)0x3E, (SeedType)0x3F, (SeedType)0x40, (SeedType)0x46, (SeedType)0x43},
 };
 
-const int VSSetupMenu::GAMEPAD_X_POSITIONS[16] =
-{
-  0xF0, 0x145, 0x19A, 0, 7, 0x20, 0x22, 7,
-  5, -1, 0, 3, 2, 4, 0x14, 0x11
-};
+const int VSSetupMenu::GAMEPAD_X_POSITIONS[16] = {
+    0xF0, 0x145, 0x19A, 0, 7, 0x20, 0x22, 7, 5, -1, 0, 3, 2, 4, 0x14, 0x11};
 
-const SeedType VSSetupMenu::msRandomPools[9][8] =
-{
-  { (SeedType)0, (SeedType)7, (SeedType)32, (SeedType)34, (SeedType)7, (SeedType)5, (SeedType)-1, (SeedType)0 },
-  { (SeedType)3, (SeedType)2, (SeedType)4, (SeedType)20, (SeedType)17, (SeedType)-1, (SeedType)0, (SeedType)0 },
-  { (SeedType)6, (SeedType)11, (SeedType)18, (SeedType)21, (SeedType)29, (SeedType)39, (SeedType)36, (SeedType)-1 },
-  { (SeedType)8, (SeedType)10, (SeedType)13, (SeedType)0, (SeedType)11, (SeedType)-1, (SeedType)0, (SeedType)0 },
-  { (SeedType)3, (SeedType)12, (SeedType)14, (SeedType)15, (SeedType)20, (SeedType)17, (SeedType)-1, (SeedType)0 },
-  { (SeedType)11, (SeedType)21, (SeedType)36, (SeedType)-1, (SeedType)0, (SeedType)0, (SeedType)0, (SeedType)0 },
-  { (SeedType)62, (SeedType)63, (SeedType)64, (SeedType)77, (SeedType)68, (SeedType)-1, (SeedType)0, (SeedType)0 },
-  { (SeedType)63, (SeedType)66, (SeedType)69, (SeedType)65, (SeedType)70, (SeedType)76, (SeedType)74, (SeedType)-1 },
-  { (SeedType)72, (SeedType)78, (SeedType)79, (SeedType)67, (SeedType)75, (SeedType)71, (SeedType)-1, (SeedType)0 },
+const SeedType VSSetupMenu::msRandomPools[9][8] = {
+    {(SeedType)0, (SeedType)7, (SeedType)32, (SeedType)34, (SeedType)7, (SeedType)5, (SeedType)-1, (SeedType)0},
+    {(SeedType)3, (SeedType)2, (SeedType)4, (SeedType)20, (SeedType)17, (SeedType)-1, (SeedType)0, (SeedType)0},
+    {(SeedType)6, (SeedType)11, (SeedType)18, (SeedType)21, (SeedType)29, (SeedType)39, (SeedType)36, (SeedType)-1},
+    {(SeedType)8, (SeedType)10, (SeedType)13, (SeedType)0, (SeedType)11, (SeedType)-1, (SeedType)0, (SeedType)0},
+    {(SeedType)3, (SeedType)12, (SeedType)14, (SeedType)15, (SeedType)20, (SeedType)17, (SeedType)-1, (SeedType)0},
+    {(SeedType)11, (SeedType)21, (SeedType)36, (SeedType)-1, (SeedType)0, (SeedType)0, (SeedType)0, (SeedType)0},
+    {(SeedType)62, (SeedType)63, (SeedType)64, (SeedType)77, (SeedType)68, (SeedType)-1, (SeedType)0, (SeedType)0},
+    {(SeedType)63, (SeedType)66, (SeedType)69, (SeedType)65, (SeedType)70, (SeedType)76, (SeedType)74, (SeedType)-1},
+    {(SeedType)72, (SeedType)78, (SeedType)79, (SeedType)67, (SeedType)75, (SeedType)71, (SeedType)-1, (SeedType)0},
 };
 
 int VSSetupMenu::msNextFirstPick = 1;
-
 
 // ==========================================================================
 // VSSetupMenu::ButtonPress(int)
@@ -64,7 +58,7 @@ int VSSetupMenu::msNextFirstPick = 1;
 // ==========================================================================
 void VSSetupMenu::ButtonPress(int theId)
 {
-  ;
+    ;
 }
 
 // ==========================================================================
@@ -73,7 +67,7 @@ void VSSetupMenu::ButtonPress(int theId)
 // ==========================================================================
 int VSSetupMenu::KeyChar(char theChar)
 {
-  return 1;
+    return 1;
 }
 
 // ==========================================================================
@@ -82,17 +76,16 @@ int VSSetupMenu::KeyChar(char theChar)
 // ==========================================================================
 void VSSetupMenu::GameAxisMove(Sexy::GamepadAxis theAxis, int theValue, int thePlayerIndex)
 {
-  ;
+    ;
 }
 
 // ==========================================================================
 // VSSetupMenu::GameButtonUp(Sexy::GamepadButton,int,unsigned int)
 // @00194EE0  2 bytes
 // ==========================================================================
-void VSSetupMenu::GameButtonUp(Sexy::GamepadButton theButton, int thePlayerIndex,
-                               unsigned int theModifierFlag)
+void VSSetupMenu::GameButtonUp(Sexy::GamepadButton theButton, int thePlayerIndex, unsigned int theModifierFlag)
 {
-  ;
+    ;
 }
 
 // ==========================================================================
@@ -101,13 +94,13 @@ void VSSetupMenu::GameButtonUp(Sexy::GamepadButton theButton, int thePlayerIndex
 // ==========================================================================
 void VSSetupMenu::AddedToManager(Sexy::WidgetManager *theWidgetManager)
 {
-  MenuWidget::AddedToManager(theWidgetManager);
-  for (int widgetId = BACKGROUND_FRAME; widgetId <= CONTROLLER_1; ++widgetId)
-    if (Sexy::Widget* widget = FindWidget(widgetId))
-      widget->mMouseVisible = false;
-  // The VS setup screen owns the music from the moment it is added: the binary
-  // calls Music2::MakeSureMusicIsPlaying (slot 14) on the shared Music2 unit.
-  ((LawnApp *)gLawnApp)->mMusic->MakeSureMusicIsPlaying(MUSIC_TUNE_CHOOSE_YOUR_SEEDS);
+    MenuWidget::AddedToManager(theWidgetManager);
+    for (int widgetId = BACKGROUND_FRAME; widgetId <= CONTROLLER_1; ++widgetId)
+        if (Sexy::Widget *widget = FindWidget(widgetId))
+            widget->mMouseVisible = false;
+    // The VS setup screen owns the music from the moment it is added: the binary
+    // calls Music2::MakeSureMusicIsPlaying (slot 14) on the shared Music2 unit.
+    ((LawnApp *)gLawnApp)->mMusic->MakeSureMusicIsPlaying(MUSIC_TUNE_CHOOSE_YOUR_SEEDS);
 }
 
 // ==========================================================================
@@ -116,9 +109,9 @@ void VSSetupMenu::AddedToManager(Sexy::WidgetManager *theWidgetManager)
 // ==========================================================================
 VSSetupMenu::~VSSetupMenu()
 {
-  // The dump's body is the two vptr stores plus the explicit
-  // ~LawnMenuWidget() call; with a real base class the compiler emits all
-  // three, and this class owns no resource of its own.
+    // The dump's body is the two vptr stores plus the explicit
+    // ~LawnMenuWidget() call; with a real base class the compiler emits all
+    // three, and this class owns no resource of its own.
 }
 
 // Local form of PvZ TV Touch Team's controller drag gesture.
@@ -129,7 +122,7 @@ void VSSetupMenu::MouseDown(int x, int y, int theClickCount)
         return;
     for (int player = 0; player < 2; ++player)
     {
-        Sexy::Widget* marker = FindWidget(CONTROLLER_0 + player);
+        Sexy::Widget *marker = FindWidget(CONTROLLER_0 + player);
         if (marker != nullptr && Sexy::Rect(marker->mX, marker->mY, marker->mWidth, marker->mHeight).Contains(x, y))
         {
             mMouseController = player;
@@ -144,7 +137,7 @@ void VSSetupMenu::MouseDrag(int x, int y)
 {
     if (mMouseController < 0 || mState != VS_SETUP_STATE_SIDES)
         return;
-    if (Sexy::Widget* marker = FindWidget(CONTROLLER_0 + mMouseController))
+    if (Sexy::Widget *marker = FindWidget(CONTROLLER_0 + mMouseController))
         marker->Move(marker->mX + x - mMouseLastX, marker->mY);
     mMouseLastX = x;
 }
@@ -155,12 +148,11 @@ void VSSetupMenu::MouseUp(int x, int y, int theClickCount)
     mMouseController = -1;
     if (player < 0 || theClickCount <= 0 || theClickCount == 3 || mState != VS_SETUP_STATE_SIDES)
         return;
-    Sexy::Widget* marker = FindWidget(CONTROLLER_0 + player);
+    Sexy::Widget *marker = FindWidget(CONTROLLER_0 + player);
     if (marker == nullptr)
         return;
     VSSide side = marker->mX > 400 ? VS_SIDE_ZOMBIE : marker->mX > 250 ? VS_SIDE_NONE : VS_SIDE_PLANT;
-    if (x < 0 || x >= mWidth || y < 0 || y >= mHeight
-        || (side == mSides[1 - player] && mSideLocked[1 - player]))
+    if (x < 0 || x >= mWidth || y < 0 || y >= mHeight || (side == mSides[1 - player] && mSideLocked[1 - player]))
         side = VS_SIDE_NONE;
     mSides[player] = side;
     if (side != VS_SIDE_NONE)
@@ -173,46 +165,46 @@ void VSSetupMenu::MouseUp(int x, int y, int theClickCount)
 // ==========================================================================
 void VSSetupMenu::DrawOverlay(Sexy::Graphics *theGraphics)
 {
-  Sexy::Widget::DrawOverlay(theGraphics);
-  if ( mState != VS_SETUP_STATE_CUSTOM_BATTLE )
-  {
-    Sexy::ImageWidget *aPlantSide = (Sexy::ImageWidget *)FindWidget(PLANT_SIDE);
-    Sexy::ImageWidget *aZombieSide = (Sexy::ImageWidget *)FindWidget(ZOMBIE_SIDE);
-    if ( aPlantSide != nullptr && aZombieSide != nullptr )
+    Sexy::Widget::DrawOverlay(theGraphics);
+    if (mState != VS_SETUP_STATE_CUSTOM_BATTLE)
     {
-      Sexy::Image *aPlantImage = aPlantSide->mImage;
-      Sexy::Image *aZombieImage = aZombieSide->mImage;
-      // Each side's cursor label is centred on that side's own strip.
-      float aPlantX = (float)(aPlantSide->mX + aPlantImage->mWidth / 2);
-      float aPlantY = (float)(aPlantImage->mHeight + aPlantSide->mY);
-      float aZombieX = (float)(aZombieSide->mX + aZombieImage->mWidth / 2);
-      float aZombieY = (float)(aZombieImage->mHeight + aZombieSide->mY);
-      Sexy::Image *aP1Text = IMAGE_CURSOR_P1_TEXT;
-      Sexy::Image *aP2Text = IMAGE_CURSOR_P2_TEXT;
+        Sexy::ImageWidget *aPlantSide = (Sexy::ImageWidget *)FindWidget(PLANT_SIDE);
+        Sexy::ImageWidget *aZombieSide = (Sexy::ImageWidget *)FindWidget(ZOMBIE_SIDE);
+        if (aPlantSide != nullptr && aZombieSide != nullptr)
+        {
+            Sexy::Image *aPlantImage = aPlantSide->mImage;
+            Sexy::Image *aZombieImage = aZombieSide->mImage;
+            // Each side's cursor label is centred on that side's own strip.
+            float aPlantX = (float)(aPlantSide->mX + aPlantImage->mWidth / 2);
+            float aPlantY = (float)(aPlantImage->mHeight + aPlantSide->mY);
+            float aZombieX = (float)(aZombieSide->mX + aZombieImage->mWidth / 2);
+            float aZombieY = (float)(aZombieImage->mHeight + aZombieSide->mY);
+            Sexy::Image *aP1Text = IMAGE_CURSOR_P1_TEXT;
+            Sexy::Image *aP2Text = IMAGE_CURSOR_P2_TEXT;
 
-      // A player's label is drawn over the side it picked and only once that
-      // pick is locked in.
-      if ( mSides[0] != VS_SIDE_PLANT )
-      {
-        if ( mSides[0] == VS_SIDE_ZOMBIE && mSideLocked[0] )
-          theGraphics->DrawImage(aP1Text, (int)(aZombieX - (float)(aP1Text->mWidth / 2)), (int)aZombieY);
-      }
-      else if ( mSideLocked[0] )
-      {
-        theGraphics->DrawImage(aP1Text, (int)(aPlantX - (float)(aP1Text->mWidth / 2)), (int)aPlantY);
-      }
+            // A player's label is drawn over the side it picked and only once that
+            // pick is locked in.
+            if (mSides[0] != VS_SIDE_PLANT)
+            {
+                if (mSides[0] == VS_SIDE_ZOMBIE && mSideLocked[0])
+                    theGraphics->DrawImage(aP1Text, (int)(aZombieX - (float)(aP1Text->mWidth / 2)), (int)aZombieY);
+            }
+            else if (mSideLocked[0])
+            {
+                theGraphics->DrawImage(aP1Text, (int)(aPlantX - (float)(aP1Text->mWidth / 2)), (int)aPlantY);
+            }
 
-      if ( mSides[1] != VS_SIDE_PLANT )
-      {
-        if ( mSides[1] == VS_SIDE_ZOMBIE && mSideLocked[1] )
-          theGraphics->DrawImage(aP2Text, (int)(aZombieX - (float)(aP2Text->mWidth / 2)), (int)aZombieY);
-      }
-      else if ( mSideLocked[1] )
-      {
-        theGraphics->DrawImage(aP2Text, (int)(aPlantX - (float)(aP2Text->mWidth / 2)), (int)aPlantY);
-      }
+            if (mSides[1] != VS_SIDE_PLANT)
+            {
+                if (mSides[1] == VS_SIDE_ZOMBIE && mSideLocked[1])
+                    theGraphics->DrawImage(aP2Text, (int)(aZombieX - (float)(aP2Text->mWidth / 2)), (int)aZombieY);
+            }
+            else if (mSideLocked[1])
+            {
+                theGraphics->DrawImage(aP2Text, (int)(aPlantX - (float)(aP2Text->mWidth / 2)), (int)aPlantY);
+            }
+        }
     }
-  }
 }
 
 // ==========================================================================
@@ -221,15 +213,15 @@ void VSSetupMenu::DrawOverlay(Sexy::Graphics *theGraphics)
 // ==========================================================================
 void VSSetupMenu::Draw(Sexy::Graphics *theGraphics)
 {
-  // While the level intro is still preloading the screen draws nothing at all;
-  // otherwise it hands the draw to MenuWidget and defers its own overlay.
-  Board *aBoard = mApp->mBoard;
-  if ( aBoard == nullptr || aBoard->mCutScene == nullptr || !aBoard->mCutScene->IsBeforePreloading() )
-  {
-    if ( mState != VS_SETUP_STATE_CUSTOM_BATTLE )
-      Sexy::MenuWidget::Draw(theGraphics);
-    DeferOverlay(0);
-  }
+    // While the level intro is still preloading the screen draws nothing at all;
+    // otherwise it hands the draw to MenuWidget and defers its own overlay.
+    Board *aBoard = mApp->mBoard;
+    if (aBoard == nullptr || aBoard->mCutScene == nullptr || !aBoard->mCutScene->IsBeforePreloading())
+    {
+        if (mState != VS_SETUP_STATE_CUSTOM_BATTLE)
+            Sexy::MenuWidget::Draw(theGraphics);
+        DeferOverlay(0);
+    }
 }
 
 // ==========================================================================
@@ -238,58 +230,58 @@ void VSSetupMenu::Draw(Sexy::Graphics *theGraphics)
 // ==========================================================================
 int VSSetupMenu::KeyDown(Sexy::KeyCode theKey)
 {
-  int aHandled = Sexy::Widget::KeyDown(theKey);
-  if ( aHandled == 0 )
-  {
-    // The gamepad driver translates the framework event this widget last saw
-    // into a pad button and hands it to GameButtonDown, unless the screen is
-    // already picking a battle and the button is one of the side keys.
-    const Sexy::Event *aEvent = mEvent;
-    if ( aEvent != nullptr )
+    int aHandled = Sexy::Widget::KeyDown(theKey);
+    if (aHandled == 0)
     {
-      int aButton = 0;
-      int aPlayerIndex = 0;
-      unsigned int aModifierFlag = 0;
-      int aMapped = mApp->MapToButtonEvent(aEvent, aButton, aPlayerIndex, aModifierFlag);
-      if ( aMapped != 0
-        && (mState != VS_SETUP_STATE_SELECT_BATTLE || ((aButton & 0xFFFFFFEF) - 2 > 1 && aButton != 6)) )
-      {
-        aHandled = aMapped;
-        GameButtonDown((Sexy::GamepadButton)aButton, aPlayerIndex, aModifierFlag);
-      }
+        // The gamepad driver translates the framework event this widget last saw
+        // into a pad button and hands it to GameButtonDown, unless the screen is
+        // already picking a battle and the button is one of the side keys.
+        const Sexy::Event *aEvent = mEvent;
+        if (aEvent != nullptr)
+        {
+            int aButton = 0;
+            int aPlayerIndex = 0;
+            unsigned int aModifierFlag = 0;
+            int aMapped = mApp->MapToButtonEvent(aEvent, aButton, aPlayerIndex, aModifierFlag);
+            if (aMapped != 0 &&
+                (mState != VS_SETUP_STATE_SELECT_BATTLE || ((aButton & 0xFFFFFFEF) - 2 > 1 && aButton != 6)))
+            {
+                aHandled = aMapped;
+                GameButtonDown((Sexy::GamepadButton)aButton, aPlayerIndex, aModifierFlag);
+            }
+        }
     }
-  }
-  return aHandled;
+    return aHandled;
 }
 
 // ==========================================================================
 // VSSetupMenu::VSSetupMenu(void)
 // @001951C4  290 bytes
 // ==========================================================================
-VSSetupMenu::VSSetupMenu()
-    : LawnMenuWidget("menu/VSSetupSides.txt")
+VSSetupMenu::VSSetupMenu() :
+    LawnMenuWidget("menu/VSSetupSides.txt")
 {
-  // The three words LawnMenuWidget adds at +0x118 are cleared here, the two
-  // vptr stores the dump shows around them are the compiler's, and every state
-  // word starts at -1 so the first Update can drive GoToState.
-  mBackdropReanimID = REANIMATIONID_NULL;
-  mCameraOffsetX = 0.0f;
-  mCameraOffsetY = 0.0f;
-  mState = (VSSetupMenu_VSSetupState)-1;
-  mQuickPlay = false;
-  mApp = (LawnApp *)gSexyAppBase;
-  // Player one's pad index is the profile slot the active player info carries.
-  mControllerIndex[0] = mApp->mPlayerInfo->GetId();
-  mControllerIndex[1] = -1;
-  mSides[0] = VS_SIDE_NONE;
-  mSides[1] = VS_SIDE_NONE;
-  mSeedPickTurn = VS_SIDE_NONE;
-  mState = (VSSetupMenu_VSSetupState)-1;
-  mSetupMode = (VSSetupMode)-1;
-  mSideLocked[0] = false;
-  mSideLocked[1] = false;
-  mChooserAnimateUpdateCnt = 0;
-  VSSetupMenu::msNextFirstPick = 1;
+    // The three words LawnMenuWidget adds at +0x118 are cleared here, the two
+    // vptr stores the dump shows around them are the compiler's, and every state
+    // word starts at -1 so the first Update can drive GoToState.
+    mBackdropReanimID = REANIMATIONID_NULL;
+    mCameraOffsetX = 0.0f;
+    mCameraOffsetY = 0.0f;
+    mState = (VSSetupMenu_VSSetupState)-1;
+    mQuickPlay = false;
+    mApp = (LawnApp *)gSexyAppBase;
+    // Player one's pad index is the profile slot the active player info carries.
+    mControllerIndex[0] = mApp->mPlayerInfo->GetId();
+    mControllerIndex[1] = -1;
+    mSides[0] = VS_SIDE_NONE;
+    mSides[1] = VS_SIDE_NONE;
+    mSeedPickTurn = VS_SIDE_NONE;
+    mState = (VSSetupMenu_VSSetupState)-1;
+    mSetupMode = (VSSetupMode)-1;
+    mSideLocked[0] = false;
+    mSideLocked[1] = false;
+    mChooserAnimateUpdateCnt = 0;
+    VSSetupMenu::msNextFirstPick = 1;
 }
 
 // ==========================================================================
@@ -298,20 +290,20 @@ VSSetupMenu::VSSetupMenu()
 // ==========================================================================
 void VSSetupMenu::CloseVSSetup(bool theTearDown)
 {
-  // Unless the screen is being torn down outright, the two pad assignments the
-  // players made are pushed back into the board's GamepadControls: each pad
-  // takes the side it was given and the pad index of that side's slot.
-  if ( !theTearDown )
-  {
-    GamepadControls *aControls0 = mApp->mBoard->mGamepadControls[0];
-    GamepadControls *aControls1 = mApp->mBoard->mGamepadControls[1];
-    aControls0->mPlayerIndex = mSides[0];
-    aControls0->mGamepadIndex = mControllerIndex[mSides[0]];
-    aControls1->mPlayerIndex = mSides[1];
-    aControls1->mGamepadIndex = mControllerIndex[mSides[1]];
-  }
-  mApp->KillVSSetupScreen();
-  mApp->mBoard->mCutScene->EndSeedChooser();
+    // Unless the screen is being torn down outright, the two pad assignments the
+    // players made are pushed back into the board's GamepadControls: each pad
+    // takes the side it was given and the pad index of that side's slot.
+    if (!theTearDown)
+    {
+        GamepadControls *aControls0 = mApp->mBoard->mGamepadControls[0];
+        GamepadControls *aControls1 = mApp->mBoard->mGamepadControls[1];
+        aControls0->mPlayerIndex = mSides[0];
+        aControls0->mGamepadIndex = mControllerIndex[mSides[0]];
+        aControls1->mPlayerIndex = mSides[1];
+        aControls1->mGamepadIndex = mControllerIndex[mSides[1]];
+    }
+    mApp->KillVSSetupScreen();
+    mApp->mBoard->mCutScene->EndSeedChooser();
 }
 
 // ==========================================================================
@@ -320,26 +312,26 @@ void VSSetupMenu::CloseVSSetup(bool theTearDown)
 // ==========================================================================
 void VSSetupMenu::GotFocus()
 {
-  Sexy::MenuWidget::GotFocus();
-  if ( mQuickPlay )
-  {
-    // The quick-play screen just took focus: hand the second pad its side
-    // first, then copy each player's quick-play deck into that player's bank.
-    GamepadControls *aControls1 = mApp->mBoard->mGamepadControls[1];
-    aControls1->mGamepadIndex = 1;
-    aControls1->mIsZombie = true;
-
-    for ( int aPlayer = 0; aPlayer != 2; ++aPlayer )
+    Sexy::MenuWidget::GotFocus();
+    if (mQuickPlay)
     {
-      SeedBank *aBank = mApp->mBoard->mSeedBank[aPlayer];
-      if ( aBank->mNumPackets > 0 )
-      {
-        for ( int i = 0; i < aBank->mNumPackets; ++i )
-          aBank->mSeedPackets[i].SetPacketType(msQuickPlayDecks[aPlayer][i], SEED_NONE);
-      }
+        // The quick-play screen just took focus: hand the second pad its side
+        // first, then copy each player's quick-play deck into that player's bank.
+        GamepadControls *aControls1 = mApp->mBoard->mGamepadControls[1];
+        aControls1->mGamepadIndex = 1;
+        aControls1->mIsZombie = true;
+
+        for (int aPlayer = 0; aPlayer != 2; ++aPlayer)
+        {
+            SeedBank *aBank = mApp->mBoard->mSeedBank[aPlayer];
+            if (aBank->mNumPackets > 0)
+            {
+                for (int i = 0; i < aBank->mNumPackets; ++i)
+                    aBank->mSeedPackets[i].SetPacketType(msQuickPlayDecks[aPlayer][i], SEED_NONE);
+            }
+        }
+        CloseVSSetup(false);
     }
-    CloseVSSetup(false);
-  }
 }
 
 // ==========================================================================
@@ -348,7 +340,7 @@ void VSSetupMenu::GotFocus()
 // ==========================================================================
 int VSSetupMenu::EndSeedChooser()
 {
-  return mApp->KillSeedChooserScreen();
+    return mApp->KillSeedChooserScreen();
 }
 
 // ==========================================================================
@@ -357,7 +349,7 @@ int VSSetupMenu::EndSeedChooser()
 // ==========================================================================
 int VSSetupMenu::EndZombieChooser()
 {
-  return mApp->KillZombieChooserScreen();
+    return mApp->KillZombieChooserScreen();
 }
 
 // ==========================================================================
@@ -366,24 +358,24 @@ int VSSetupMenu::EndZombieChooser()
 // ==========================================================================
 int VSSetupMenu::OnStateExit(VSSetupMenu_VSSetupState theState, VSSetupMenu_VSSetupState theNext)
 {
-  if (theState == VS_SETUP_STATE_CUSTOM_BATTLE)
-  {
-    // Leaving the custom-battle state: the nine side widgets lose their alpha,
-    // and the three chooser buttons after them are hidden.
-    for ( int i = 0; i != 9; ++i )
+    if (theState == VS_SETUP_STATE_CUSTOM_BATTLE)
     {
-      Sexy::ImageWidget *aSide = (Sexy::ImageWidget *)FindWidget(i);
-      if ( aSide != nullptr )
-        aSide->mAlpha = 255;
+        // Leaving the custom-battle state: the nine side widgets lose their alpha,
+        // and the three chooser buttons after them are hidden.
+        for (int i = 0; i != 9; ++i)
+        {
+            Sexy::ImageWidget *aSide = (Sexy::ImageWidget *)FindWidget(i);
+            if (aSide != nullptr)
+                aSide->mAlpha = 255;
+        }
+        for (int i = 9; i != 12; ++i)
+        {
+            Sexy::Widget *aWidget = FindWidget(i);
+            if (aWidget != nullptr)
+                aWidget->SetVisible(true);
+        }
     }
-    for ( int i = 9; i != 12; ++i )
-    {
-      Sexy::Widget *aWidget = FindWidget(i);
-      if ( aWidget != nullptr )
-        aWidget->SetVisible(true);
-    }
-  }
-  return 0;
+    return 0;
 }
 
 // ==========================================================================
@@ -392,13 +384,13 @@ int VSSetupMenu::OnStateExit(VSSetupMenu_VSSetupState theState, VSSetupMenu_VSSe
 // ==========================================================================
 int VSSetupMenu::SetSecondPlayerIndex(int theIndex)
 {
-  // The second player's controls record the pad index and are marked as the
-  // zombie side, so the cursor starts on the right strip.
-  GamepadControls *aControls = mApp->mBoard->mGamepadControls[1];
-  aControls->mGamepadIndex = theIndex;
-  aControls->mIsZombie = true;
-  mControllerIndex[1] = theIndex;
-  return 0;
+    // The second player's controls record the pad index and are marked as the
+    // zombie side, so the cursor starts on the right strip.
+    GamepadControls *aControls = mApp->mBoard->mGamepadControls[1];
+    aControls->mGamepadIndex = theIndex;
+    aControls->mIsZombie = true;
+    mControllerIndex[1] = theIndex;
+    return 0;
 }
 
 // ==========================================================================
@@ -407,81 +399,81 @@ int VSSetupMenu::SetSecondPlayerIndex(int theIndex)
 // ==========================================================================
 int VSSetupMenu::OnStateEnter(VSSetupMenu_VSSetupState theState, VSSetupMenu_VSSetupState thePrevious)
 {
-  int result = 0;
-  switch (theState)
-  {
-    case 0:
+    int result = 0;
+    switch (theState)
     {
-      // Entering the first state puts up the "waiting for player two" dialog and
-      // waits on it; its result decides between the pick screen and the menu.
-      mControllerIndex[1] = -1;
-      WaitForSecondPlayerDialog *aDialog = new WaitForSecondPlayerDialog(mApp);
-      mApp->AddDialog(aDialog);
-      int aDialogWidth = aDialog->mWidth;
-      aDialog->mX = mApp->mWidth / 2 - aDialogWidth / 2;
-      aDialog->mY = 150;
-      if ( aDialog->WaitForResult(true) == 1000 )
-      {
-        SetSecondPlayerIndex(mApp->mSecondPlayerGamepadIndex);
-        result = GoToState(VS_SETUP_STATE_SIDES);
-      }
-      else
-      {
-        CloseVSSetup(true);
-        mApp->KillBoard();
-        result = mApp->ShowGameSelector();
-      }
-      break;
+        case 0:
+        {
+            // Entering the first state puts up the "waiting for player two" dialog and
+            // waits on it; its result decides between the pick screen and the menu.
+            mControllerIndex[1] = -1;
+            WaitForSecondPlayerDialog *aDialog = new WaitForSecondPlayerDialog(mApp);
+            mApp->AddDialog(aDialog);
+            int aDialogWidth = aDialog->mWidth;
+            aDialog->mX = mApp->mWidth / 2 - aDialogWidth / 2;
+            aDialog->mY = 150;
+            if (aDialog->WaitForResult(true) == 1000)
+            {
+                SetSecondPlayerIndex(mApp->mSecondPlayerGamepadIndex);
+                result = GoToState(VS_SETUP_STATE_SIDES);
+            }
+            else
+            {
+                CloseVSSetup(true);
+                mApp->KillBoard();
+                result = mApp->ShowGameSelector();
+            }
+            break;
+        }
+        case 1:
+            mSideLocked[0] = false;
+            mSideLocked[1] = false;
+            break;
+        case 2:
+        {
+            // The three chooser buttons are shown, and the side the pick turn names
+            // gets the focus.
+            for (int i = 9; i != 12; ++i)
+            {
+                Sexy::Widget *aWidget = FindWidget(i);
+                if (aWidget != nullptr)
+                    aWidget->SetVisible(true);
+            }
+            int aFocusId;
+            if (mSetupMode == (VSSetupMode)1)
+                aFocusId = 10;
+            else if (mSetupMode == (VSSetupMode)2)
+                aFocusId = 11;
+            else
+                aFocusId = 9;
+            SetFocus(FindWidget(aFocusId), true);
+            break;
+        }
+        case 3:
+        {
+            // The custom-battle screen: every side widget starts transparent, the
+            // three buttons are hidden again, and both choosers auto-pick.
+            for (int i = 0; i != 9; ++i)
+            {
+                Sexy::ImageWidget *aSide = (Sexy::ImageWidget *)FindWidget(i);
+                if (aSide != nullptr)
+                    aSide->mAlpha = 0;
+            }
+            for (int i = 9; i != 12; ++i)
+            {
+                Sexy::Widget *aWidget = FindWidget(i);
+                if (aWidget != nullptr)
+                    aWidget->SetVisible(false);
+            }
+            mSeedPickTurn = (VSSide)msNextFirstPick;
+            mApp->mSeedChooserScreen->VSAutoPickResourceGen();
+            result = mApp->mZombieChooserScreen->VSAutoPickResourceGen();
+            break;
+        }
+        default:
+            return result;
     }
-    case 1:
-      mSideLocked[0] = false;
-      mSideLocked[1] = false;
-      break;
-    case 2:
-    {
-      // The three chooser buttons are shown, and the side the pick turn names
-      // gets the focus.
-      for ( int i = 9; i != 12; ++i )
-      {
-        Sexy::Widget *aWidget = FindWidget(i);
-        if ( aWidget != nullptr )
-          aWidget->SetVisible(true);
-      }
-      int aFocusId;
-      if ( mSetupMode == (VSSetupMode)1 )
-        aFocusId = 10;
-      else if ( mSetupMode == (VSSetupMode)2 )
-        aFocusId = 11;
-      else
-        aFocusId = 9;
-      SetFocus(FindWidget(aFocusId), true);
-      break;
-    }
-    case 3:
-    {
-      // The custom-battle screen: every side widget starts transparent, the
-      // three buttons are hidden again, and both choosers auto-pick.
-      for ( int i = 0; i != 9; ++i )
-      {
-        Sexy::ImageWidget *aSide = (Sexy::ImageWidget *)FindWidget(i);
-        if ( aSide != nullptr )
-          aSide->mAlpha = 0;
-      }
-      for ( int i = 9; i != 12; ++i )
-      {
-        Sexy::Widget *aWidget = FindWidget(i);
-        if ( aWidget != nullptr )
-          aWidget->SetVisible(false);
-      }
-      mSeedPickTurn = (VSSide)msNextFirstPick;
-      mApp->mSeedChooserScreen->VSAutoPickResourceGen();
-      result = mApp->mZombieChooserScreen->VSAutoPickResourceGen();
-      break;
-    }
-    default:
-      return result;
-  }
-  return result;
+    return result;
 }
 
 // ==========================================================================
@@ -490,14 +482,14 @@ int VSSetupMenu::OnStateEnter(VSSetupMenu_VSSetupState theState, VSSetupMenu_VSS
 // ==========================================================================
 int VSSetupMenu::GoToState(int theState)
 {
-  if (mState == (VSSetupMenu_VSSetupState)theState)
-    return 0;
+    if (mState == (VSSetupMenu_VSSetupState)theState)
+        return 0;
 
-  // Exit sees the old state first. Enter sees the new state first.
-  VSSetupMenu_VSSetupState aPrevious = mState;
-  OnStateExit(aPrevious, (VSSetupMenu_VSSetupState)theState);
-  mState = (VSSetupMenu_VSSetupState)theState;
-  return OnStateEnter((VSSetupMenu_VSSetupState)theState, aPrevious);
+    // Exit sees the old state first. Enter sees the new state first.
+    VSSetupMenu_VSSetupState aPrevious = mState;
+    OnStateExit(aPrevious, (VSSetupMenu_VSSetupState)theState);
+    mState = (VSSetupMenu_VSSetupState)theState;
+    return OnStateEnter((VSSetupMenu_VSSetupState)theState, aPrevious);
 }
 
 // ==========================================================================
@@ -506,217 +498,215 @@ int VSSetupMenu::GoToState(int theState)
 // ==========================================================================
 void VSSetupMenu::Update()
 {
-  MenuWidget::Update();
-  if (mState == (VSSetupMenu_VSSetupState)-1)
-    GoToState(0);
+    MenuWidget::Update();
+    if (mState == (VSSetupMenu_VSSetupState)-1)
+        GoToState(0);
 
-  // The two controller markers fade out once that player has locked a side,
-  // and slide a quarter of the way toward the strip that side owns.
-  for (int i = 0; i < 2; i++)
-  {
-    Sexy::Widget *aFound = FindWidget(CONTROLLER_0 + i);
-    if (aFound == nullptr)
-      continue;
-    Sexy::ImageWidget *aMarker = dynamic_cast<Sexy::ImageWidget *>(aFound);
-    if (aMarker == nullptr)
-      continue;
-
-    aMarker->mAlpha = mSideLocked[i] ? 0 : 255;
-
-    int aColumn = 1;
-    if (mSides[i] == VS_SIDE_NONE)
-      aColumn = 1;
-    else if (mSides[i] == VS_SIDE_ZOMBIE)
-      aColumn = 2;
-    else
-      aColumn = 0;
-    int aTargetX = GAMEPAD_X_POSITIONS[aColumn];
-    int aDelta = aTargetX - aMarker->mX;
-    if (aDelta != 0 && mMouseController != i)
+    // The two controller markers fade out once that player has locked a side,
+    // and slide a quarter of the way toward the strip that side owns.
+    for (int i = 0; i < 2; i++)
     {
-      // A shortfall of less than 4 pixels waits; larger gaps close by a quarter.
-      int aBiased = aDelta < 0 ? aDelta + 3 : aDelta;
-      aMarker->mX += aBiased >> 2;
-    }
-  }
+        Sexy::Widget *aFound = FindWidget(CONTROLLER_0 + i);
+        if (aFound == nullptr)
+            continue;
+        Sexy::ImageWidget *aMarker = dynamic_cast<Sexy::ImageWidget *>(aFound);
+        if (aMarker == nullptr)
+            continue;
 
-  Sexy::Widget *aPlantFront = FindWidget(PLANT_SIDE_FRONT);
-  if (aPlantFront != nullptr)
-  {
-    Sexy::ImageWidget *aFront = dynamic_cast<Sexy::ImageWidget *>(aPlantFront);
-    if (aFront != nullptr)
+        aMarker->mAlpha = mSideLocked[i] ? 0 : 255;
+
+        int aColumn = 1;
+        if (mSides[i] == VS_SIDE_NONE)
+            aColumn = 1;
+        else if (mSides[i] == VS_SIDE_ZOMBIE)
+            aColumn = 2;
+        else
+            aColumn = 0;
+        int aTargetX = GAMEPAD_X_POSITIONS[aColumn];
+        int aDelta = aTargetX - aMarker->mX;
+        if (aDelta != 0 && mMouseController != i)
+        {
+            // A shortfall of less than 4 pixels waits; larger gaps close by a quarter.
+            int aBiased = aDelta < 0 ? aDelta + 3 : aDelta;
+            aMarker->mX += aBiased >> 2;
+        }
+    }
+
+    Sexy::Widget *aPlantFront = FindWidget(PLANT_SIDE_FRONT);
+    if (aPlantFront != nullptr)
     {
-      bool aPlantTaken = (mSides[0] == VS_SIDE_PLANT && mSideLocked[0])
-          || (mSides[1] == VS_SIDE_PLANT && mSideLocked[1]);
-      aFront->mAlpha = aPlantTaken ? 255 : 0;
+        Sexy::ImageWidget *aFront = dynamic_cast<Sexy::ImageWidget *>(aPlantFront);
+        if (aFront != nullptr)
+        {
+            bool aPlantTaken =
+                (mSides[0] == VS_SIDE_PLANT && mSideLocked[0]) || (mSides[1] == VS_SIDE_PLANT && mSideLocked[1]);
+            aFront->mAlpha = aPlantTaken ? 255 : 0;
+        }
     }
-  }
 
-  Sexy::ImageWidget *aZombieFront = (Sexy::ImageWidget *)FindWidget(ZOMBIE_SIDE_FRONT);
-  if (aZombieFront != nullptr)
-  {
-    bool aZombieTaken = (mSides[0] == VS_SIDE_ZOMBIE && mSideLocked[0])
-        || (mSides[1] == VS_SIDE_ZOMBIE && mSideLocked[1]);
-    aZombieFront->mAlpha = aZombieTaken ? 255 : 0;
-  }
+    Sexy::ImageWidget *aZombieFront = (Sexy::ImageWidget *)FindWidget(ZOMBIE_SIDE_FRONT);
+    if (aZombieFront != nullptr)
+    {
+        bool aZombieTaken =
+            (mSides[0] == VS_SIDE_ZOMBIE && mSideLocked[0]) || (mSides[1] == VS_SIDE_ZOMBIE && mSideLocked[1]);
+        aZombieFront->mAlpha = aZombieTaken ? 255 : 0;
+    }
 
-  if (mState != VS_SETUP_STATE_CUSTOM_BATTLE)
-    return;
+    if (mState != VS_SETUP_STATE_CUSTOM_BATTLE)
+        return;
 
-  // The two choosers rock apart over the first 24 ticks, then stay put.
-  // The side that picks first starts fully open.
-  ++mChooserAnimateUpdateCnt;
-  float aOpen = 1.0f;
-  if (mChooserAnimateUpdateCnt <= 24)
-    aOpen = (float)mChooserAnimateUpdateCnt * 0.04f;
-  if (mSeedPickTurn == VS_SIDE_PLANT)
-    aOpen = 1.0f - aOpen;
+    // The two choosers rock apart over the first 24 ticks, then stay put.
+    // The side that picks first starts fully open.
+    ++mChooserAnimateUpdateCnt;
+    float aOpen = 1.0f;
+    if (mChooserAnimateUpdateCnt <= 24)
+        aOpen = (float)mChooserAnimateUpdateCnt * 0.04f;
+    if (mSeedPickTurn == VS_SIDE_PLANT)
+        aOpen = 1.0f - aOpen;
 
-  SeedChooserScreen *aSeedChooser = mApp->mSeedChooserScreen;
-  SeedChooserScreen *aZombieChooser = mApp->mZombieChooserScreen;
-  if (aSeedChooser != nullptr && aZombieChooser != nullptr)
-  {
-    float aAngle = aOpen * 3.1416f + 1.5708f;
-    aSeedChooser->Move((int)(cos(aAngle) * 20.0 + 15.0), (int)(sin(aAngle) * 4.0));
-    float aOpposite = aAngle + 3.1416f;
-    aZombieChooser->Move((int)(cos(aOpposite) * 20.0 + 470.0), (int)(sin(aOpposite) * 4.0));
+    SeedChooserScreen *aSeedChooser = mApp->mSeedChooserScreen;
+    SeedChooserScreen *aZombieChooser = mApp->mZombieChooserScreen;
+    if (aSeedChooser != nullptr && aZombieChooser != nullptr)
+    {
+        float aAngle = aOpen * 3.1416f + 1.5708f;
+        aSeedChooser->Move((int)(cos(aAngle) * 20.0 + 15.0), (int)(sin(aAngle) * 4.0));
+        float aOpposite = aAngle + 3.1416f;
+        aZombieChooser->Move((int)(cos(aOpposite) * 20.0 + 470.0), (int)(sin(aOpposite) * 4.0));
 
-    // Whichever chooser is ready and sits further left comes to the front.
-    if (aSeedChooser->CanPickNow()
-        && aSeedChooser->mX + aSeedChooser->mWidth < aZombieChooser->mX)
-      mApp->mWidgetManager->BringToFront(aSeedChooser);
-    if (aZombieChooser->CanPickNow()
-        && aZombieChooser->mX > aSeedChooser->mX + aSeedChooser->mWidth)
-      mApp->mWidgetManager->BringToFront(aSeedChooser);
-  }
+        // Whichever chooser is ready and sits further left comes to the front.
+        if (aSeedChooser->CanPickNow() && aSeedChooser->mX + aSeedChooser->mWidth < aZombieChooser->mX)
+            mApp->mWidgetManager->BringToFront(aSeedChooser);
+        if (aZombieChooser->CanPickNow() && aZombieChooser->mX > aSeedChooser->mX + aSeedChooser->mWidth)
+            mApp->mWidgetManager->BringToFront(aSeedChooser);
+    }
 
-  // Both choosers finished their picks: swap who goes first next time and start.
-  if (aSeedChooser != nullptr && aZombieChooser != nullptr
-      && aSeedChooser->mShowHelpText && aSeedChooser->mSeedsInFlight == 0
-      && aZombieChooser->mShowHelpText && aZombieChooser->mSeedsInFlight == 0)
-  {
-    msNextFirstPick = msNextFirstPick != 1;
-    aSeedChooser->OnStartButton();
-    aZombieChooser->OnStartButton();
-  }
+    // Both choosers finished their picks: swap who goes first next time and start.
+    if (aSeedChooser != nullptr && aZombieChooser != nullptr && aSeedChooser->mShowHelpText &&
+        aSeedChooser->mSeedsInFlight == 0 && aZombieChooser->mShowHelpText && aZombieChooser->mSeedsInFlight == 0)
+    {
+        msNextFirstPick = msNextFirstPick != 1;
+        aSeedChooser->OnStartButton();
+        aZombieChooser->OnStartButton();
+    }
 }
 
 // ==========================================================================
 // VSSetupMenu::GameButtonDown(Sexy::GamepadButton,int,unsigned int)
 // @00195978  898 bytes
 // ==========================================================================
-namespace {
+namespace
+{
 
 int PlayerSlot(const VSSetupMenu *theMenu, int thePad)
 {
-  return theMenu->mControllerIndex[0] != thePad ? 1 : 0;
+    return theMenu->mControllerIndex[0] != thePad ? 1 : 0;
 }
 
 void LeaveToSelector(VSSetupMenu *theMenu)
 {
-  theMenu->CloseVSSetup(true);
-  theMenu->mApp->KillBoard();
-  theMenu->mApp->ShowGameSelector();
+    theMenu->CloseVSSetup(true);
+    theMenu->mApp->KillBoard();
+    theMenu->mApp->ShowGameSelector();
 }
 
 } // namespace
 
 void VSSetupMenu::GameButtonDown(Sexy::GamepadButton theButton, int thePlayerIndex, unsigned int theModifierFlag)
 {
-  // Picking seeds: B asks whether to abandon the picks. Any other button
-  // belongs to the chooser of the side this pad locked.
-  if (mState == VS_SETUP_STATE_CUSTOM_BATTLE)
-  {
-    if (theButton != GAMEPAD_BUTTON_B)
+    // Picking seeds: B asks whether to abandon the picks. Any other button
+    // belongs to the chooser of the side this pad locked.
+    if (mState == VS_SETUP_STATE_CUSTOM_BATTLE)
     {
-      int aPlayer = mApp->GamepadToPlayerIndex((unsigned int)thePlayerIndex);
-      if (mSides[aPlayer] == VS_SIDE_PLANT)
-        mApp->mSeedChooserScreen->GameButtonDown(theButton, thePlayerIndex, theModifierFlag);
-      else if (mSides[aPlayer] == VS_SIDE_ZOMBIE)
-        mApp->mZombieChooserScreen->GameButtonDown(theButton, thePlayerIndex, theModifierFlag);
-      return;
+        if (theButton != GAMEPAD_BUTTON_B)
+        {
+            int aPlayer = mApp->GamepadToPlayerIndex((unsigned int)thePlayerIndex);
+            if (mSides[aPlayer] == VS_SIDE_PLANT)
+                mApp->mSeedChooserScreen->GameButtonDown(theButton, thePlayerIndex, theModifierFlag);
+            else if (mSides[aPlayer] == VS_SIDE_ZOMBIE)
+                mApp->mZombieChooserScreen->GameButtonDown(theButton, thePlayerIndex, theModifierFlag);
+            return;
+        }
+
+        Sexy::String aHeader = TodStringTranslate("[CONFIRM_VS_CHOOSE_SEED_BACK_HEADER]");
+        Sexy::String aBody = TodStringTranslate("[CONFIRM_VS_CHOOSE_SEED_BACK_BODY]");
+        Sexy::Dialog *aDialog = mApp->DoDialog(76, true, aHeader, aBody, Sexy::String(), 1);
+        if (aDialog->WaitForResult(true) != 1000)
+            return;
     }
 
-    Sexy::String aHeader = TodStringTranslate("[CONFIRM_VS_CHOOSE_SEED_BACK_HEADER]");
-    Sexy::String aBody = TodStringTranslate("[CONFIRM_VS_CHOOSE_SEED_BACK_BODY]");
-    Sexy::Dialog *aDialog = mApp->DoDialog(76, true, aHeader, aBody, Sexy::String(), 1);
-    if (aDialog->WaitForResult(true) != 1000)
-      return;
-  }
+    int aSlot = PlayerSlot(this, thePlayerIndex);
+    bool aOwnsPad = mControllerIndex[aSlot] == thePlayerIndex;
 
-  int aSlot = PlayerSlot(this, thePlayerIndex);
-  bool aOwnsPad = mControllerIndex[aSlot] == thePlayerIndex;
-
-  switch (theButton)
-  {
-  case GAMEPAD_BUTTON_LEFT:
-  case GAMEPAD_BUTTON_DPAD_LEFT:
-    if (mState != VS_SETUP_STATE_SIDES || !aOwnsPad || mSideLocked[aSlot])
-      return;
-    if (mSides[aSlot] == VS_SIDE_NONE)
-      mSides[aSlot] = VS_SIDE_PLANT;
-    else if (mSides[aSlot] == VS_SIDE_ZOMBIE)
-      mSides[aSlot] = VS_SIDE_NONE;
-    return;
-
-  case GAMEPAD_BUTTON_RIGHT:
-  case GAMEPAD_BUTTON_DPAD_RIGHT:
-    if (mState != VS_SETUP_STATE_SIDES || !aOwnsPad || mSideLocked[aSlot])
-      return;
-    if (mSides[aSlot] == VS_SIDE_NONE)
-      mSides[aSlot] = VS_SIDE_ZOMBIE;
-    else if (mSides[aSlot] == VS_SIDE_PLANT)
-      mSides[aSlot] = VS_SIDE_NONE;
-    return;
-
-  case GAMEPAD_BUTTON_A:
-    if (mState != VS_SETUP_STATE_SIDES || !aOwnsPad)
-      return;
-    if (mSides[aSlot] == VS_SIDE_NONE)
-      return;
-    if (mSides[aSlot] == mSides[1 - aSlot] && mSideLocked[1 - aSlot])
+    switch (theButton)
     {
-      mApp->PlaySample(SOUND_BUZZER, true);
-      return;
-    }
-    mSideLocked[aSlot] = true;
-    if (mSideLocked[0] && mSideLocked[1])
-      GoToState(VS_SETUP_STATE_SELECT_BATTLE);
-    return;
+        case GAMEPAD_BUTTON_LEFT:
+        case GAMEPAD_BUTTON_DPAD_LEFT:
+            if (mState != VS_SETUP_STATE_SIDES || !aOwnsPad || mSideLocked[aSlot])
+                return;
+            if (mSides[aSlot] == VS_SIDE_NONE)
+                mSides[aSlot] = VS_SIDE_PLANT;
+            else if (mSides[aSlot] == VS_SIDE_ZOMBIE)
+                mSides[aSlot] = VS_SIDE_NONE;
+            return;
 
-  case GAMEPAD_BUTTON_B:
-    switch (mState)
-    {
-    case VS_SETUP_STATE_CONTROLLERS:
-      LeaveToSelector(this);
-      return;
-    case VS_SETUP_STATE_SIDES:
-      if (!aOwnsPad)
-        return;
-      if (mSideLocked[aSlot])
-        mSideLocked[aSlot] = false;
-      else
-        LeaveToSelector(this);
-      return;
-    case VS_SETUP_STATE_SELECT_BATTLE:
-      GoToState(VS_SETUP_STATE_SIDES);
-      return;
-    case VS_SETUP_STATE_CUSTOM_BATTLE:
-      if (!aOwnsPad)
-        return;
-      if (mSides[aSlot] != VS_SIDE_NONE)
-        mSideLocked[aSlot] = true;
-      mApp->KillSeedChooserScreen();
-      mApp->KillZombieChooserScreen();
-      GoToState(VS_SETUP_STATE_SELECT_BATTLE);
-      return;
-    default:
-      return;
-    }
+        case GAMEPAD_BUTTON_RIGHT:
+        case GAMEPAD_BUTTON_DPAD_RIGHT:
+            if (mState != VS_SETUP_STATE_SIDES || !aOwnsPad || mSideLocked[aSlot])
+                return;
+            if (mSides[aSlot] == VS_SIDE_NONE)
+                mSides[aSlot] = VS_SIDE_ZOMBIE;
+            else if (mSides[aSlot] == VS_SIDE_PLANT)
+                mSides[aSlot] = VS_SIDE_NONE;
+            return;
 
-  default:
-    return;
-  }
+        case GAMEPAD_BUTTON_A:
+            if (mState != VS_SETUP_STATE_SIDES || !aOwnsPad)
+                return;
+            if (mSides[aSlot] == VS_SIDE_NONE)
+                return;
+            if (mSides[aSlot] == mSides[1 - aSlot] && mSideLocked[1 - aSlot])
+            {
+                mApp->PlaySample(SOUND_BUZZER, true);
+                return;
+            }
+            mSideLocked[aSlot] = true;
+            if (mSideLocked[0] && mSideLocked[1])
+                GoToState(VS_SETUP_STATE_SELECT_BATTLE);
+            return;
+
+        case GAMEPAD_BUTTON_B:
+            switch (mState)
+            {
+                case VS_SETUP_STATE_CONTROLLERS:
+                    LeaveToSelector(this);
+                    return;
+                case VS_SETUP_STATE_SIDES:
+                    if (!aOwnsPad)
+                        return;
+                    if (mSideLocked[aSlot])
+                        mSideLocked[aSlot] = false;
+                    else
+                        LeaveToSelector(this);
+                    return;
+                case VS_SETUP_STATE_SELECT_BATTLE:
+                    GoToState(VS_SETUP_STATE_SIDES);
+                    return;
+                case VS_SETUP_STATE_CUSTOM_BATTLE:
+                    if (!aOwnsPad)
+                        return;
+                    if (mSides[aSlot] != VS_SIDE_NONE)
+                        mSideLocked[aSlot] = true;
+                    mApp->KillSeedChooserScreen();
+                    mApp->KillZombieChooserScreen();
+                    GoToState(VS_SETUP_STATE_SELECT_BATTLE);
+                    return;
+                default:
+                    return;
+            }
+
+        default:
+            return;
+    }
 }
 
 // ==========================================================================
@@ -725,10 +715,10 @@ void VSSetupMenu::GameButtonDown(Sexy::GamepadButton theButton, int thePlayerInd
 // ==========================================================================
 int VSSetupMenu::OnPlayerPickedSeed(int theSeed)
 {
-  (void)theSeed;
-  mChooserAnimateUpdateCnt = 0;
-  mSeedPickTurn = mSeedPickTurn == VS_SIDE_PLANT ? VS_SIDE_ZOMBIE : VS_SIDE_PLANT;
-  return 0;
+    (void)theSeed;
+    mChooserAnimateUpdateCnt = 0;
+    mSeedPickTurn = mSeedPickTurn == VS_SIDE_PLANT ? VS_SIDE_ZOMBIE : VS_SIDE_PLANT;
+    return 0;
 }
 
 // ==========================================================================
@@ -737,57 +727,57 @@ int VSSetupMenu::OnPlayerPickedSeed(int theSeed)
 // ==========================================================================
 void VSSetupMenu::ButtonDepress(int theId)
 {
-  if (mState != VS_SETUP_STATE_SELECT_BATTLE)
-    return;
+    if (mState != VS_SETUP_STATE_SELECT_BATTLE)
+        return;
 
-  switch (theId)
-  {
-  case VSSetupMenu_Custom_Battle:
-    mApp->ShowSeedChooserScreen();
-    mApp->ShowZombieChooserScreen();
-    for (int i = 0; i < 2; i++)
+    switch (theId)
     {
-      if (mSides[i] == VS_SIDE_PLANT)
-        mApp->mSeedChooserScreen->mPlayerIndex = mControllerIndex[i];
-      else if (mSides[i] == VS_SIDE_ZOMBIE)
-        mApp->mZombieChooserScreen->mPlayerIndex = mControllerIndex[i];
+        case VSSetupMenu_Custom_Battle:
+            mApp->ShowSeedChooserScreen();
+            mApp->ShowZombieChooserScreen();
+            for (int i = 0; i < 2; i++)
+            {
+                if (mSides[i] == VS_SIDE_PLANT)
+                    mApp->mSeedChooserScreen->mPlayerIndex = mControllerIndex[i];
+                else if (mSides[i] == VS_SIDE_ZOMBIE)
+                    mApp->mZombieChooserScreen->mPlayerIndex = mControllerIndex[i];
+            }
+            mSetupMode = VS_SETUP_MODE_CUSTOM_BATTLE;
+            GoToState(VS_SETUP_STATE_CUSTOM_BATTLE);
+            return;
+
+        case VSSetupMenu_Random_Battle:
+        {
+            // Packet 0 is the fixed starter. Random cards fill the packets after it.
+            std::vector<SeedType> aZombies;
+            PickRandomZombies(aZombies);
+            mApp->mBoard->mSeedBank[1]->mSeedPackets[0].SetPacketType((SeedType)61, (SeedType)-1);
+            for (int aPacket = 0; aPacket < (int)aZombies.size(); ++aPacket)
+                mApp->mBoard->mSeedBank[1]->mSeedPackets[aPacket + 1].SetPacketType(aZombies[aPacket], (SeedType)-1);
+
+            std::vector<SeedType> aPlants;
+            PickRandomPlants(aPlants, aZombies);
+            mApp->mBoard->mSeedBank[0]->mSeedPackets[0].SetPacketType((SeedType)1, (SeedType)-1);
+            for (int aPacket = 0; aPacket < (int)aPlants.size(); ++aPacket)
+                mApp->mBoard->mSeedBank[0]->mSeedPackets[aPacket + 1].SetPacketType(aPlants[aPacket], (SeedType)-1);
+
+            mSetupMode = VS_SETUP_MODE_RANDOM_BATTLE;
+            CloseVSSetup(false);
+            return;
+        }
+
+        case VSSetupMenu_Quick_Play:
+            for (int aPlayer = 0; aPlayer < 2; aPlayer++)
+            {
+                SeedBank *aBank = mApp->mBoard->mSeedBank[aPlayer];
+                for (int i = 0; i < aBank->mNumPackets; i++)
+                    aBank->mSeedPackets[i].SetPacketType(msQuickPlayDecks[aPlayer][i], (SeedType)-1);
+            }
+            mSetupMode = VS_SETUP_MODE_QUICK_PLAY;
+            CloseVSSetup(false);
+            return;
+
+        default:
+            return;
     }
-    mSetupMode = VS_SETUP_MODE_CUSTOM_BATTLE;
-    GoToState(VS_SETUP_STATE_CUSTOM_BATTLE);
-    return;
-
-  case VSSetupMenu_Random_Battle:
-  {
-    // Packet 0 is the fixed starter. Random cards fill the packets after it.
-    std::vector<SeedType> aZombies;
-    PickRandomZombies(aZombies);
-    mApp->mBoard->mSeedBank[1]->mSeedPackets[0].SetPacketType((SeedType)61, (SeedType)-1);
-    for (int aPacket = 0; aPacket < (int)aZombies.size(); ++aPacket)
-      mApp->mBoard->mSeedBank[1]->mSeedPackets[aPacket + 1].SetPacketType(aZombies[aPacket], (SeedType)-1);
-
-    std::vector<SeedType> aPlants;
-    PickRandomPlants(aPlants, aZombies);
-    mApp->mBoard->mSeedBank[0]->mSeedPackets[0].SetPacketType((SeedType)1, (SeedType)-1);
-    for (int aPacket = 0; aPacket < (int)aPlants.size(); ++aPacket)
-      mApp->mBoard->mSeedBank[0]->mSeedPackets[aPacket + 1].SetPacketType(aPlants[aPacket], (SeedType)-1);
-
-    mSetupMode = VS_SETUP_MODE_RANDOM_BATTLE;
-    CloseVSSetup(false);
-    return;
-  }
-
-  case VSSetupMenu_Quick_Play:
-    for (int aPlayer = 0; aPlayer < 2; aPlayer++)
-    {
-      SeedBank *aBank = mApp->mBoard->mSeedBank[aPlayer];
-      for (int i = 0; i < aBank->mNumPackets; i++)
-        aBank->mSeedPackets[i].SetPacketType(msQuickPlayDecks[aPlayer][i], (SeedType)-1);
-    }
-    mSetupMode = VS_SETUP_MODE_QUICK_PLAY;
-    CloseVSSetup(false);
-    return;
-
-  default:
-    return;
-  }
 }

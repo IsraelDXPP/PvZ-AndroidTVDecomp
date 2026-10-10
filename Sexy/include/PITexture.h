@@ -2,12 +2,14 @@
 // this tree reads a field of it yet, so the eight words stay unnamed until a
 // body does. The destructor is implicit: the out-of-line body is not linked.
 
-#pragma once
+#ifndef LAWNPROJECTTV_SEXY_INCLUDE_PITEXTURE_H
+#define LAWNPROJECTTV_SEXY_INCLUDE_PITEXTURE_H
 
 #include "ReconTypes.h"
 #include "SharedImageRef.h"
 
-namespace Sexy {
+namespace Sexy
+{
 
 class PITexture
 {
@@ -18,3 +20,5 @@ public:
 } // namespace Sexy
 
 using Sexy::PITexture;
+
+#endif // LAWNPROJECTTV_SEXY_INCLUDE_PITEXTURE_H

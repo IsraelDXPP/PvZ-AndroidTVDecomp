@@ -11,7 +11,8 @@
 // heuristic, which had folded in an offset belonging to a neighbouring object;
 // it disagreed with PlayerInfo's own member table.
 
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_GAMESTATS_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_GAMESTATS_H
 
 #include "ReconTypes.h"
 class SeedBank;
@@ -28,12 +29,12 @@ public:
     float mMiniGameCompletion;
     float mPuzzleCompletion;
 
-    GameStats(const GameStats& theOther);
+    GameStats(const GameStats &theOther);
     void Reset();
     GameStats();
     int GetFavoritePlant();
     int GetFavoriteZombie();
-    GameStats* TallyPlantsUsed(SeedBank *theSeedBank);
+    GameStats *TallyPlantsUsed(SeedBank *theSeedBank);
     void SetSurvivalCompletion(float theCompletion);
     void SetMinigameCompletion(float theCompletion);
     void SetPuzzleCompletion(float theCompletion);
@@ -42,3 +43,5 @@ public:
     int GetMiscStat(GameStats_MiscStat theStat);
     Sexy::String GetStatName(GameStats_MiscStat theStat);
 };
+
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_GAMESTATS_H

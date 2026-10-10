@@ -19,9 +19,7 @@
 // ReanimationButton::~ReanimationButton()
 // @0019D70C  24 bytes
 // ==========================================================================
-ReanimationButton::~ReanimationButton()
-{
-}
+ReanimationButton::~ReanimationButton() {}
 
 // ==========================================================================
 // ReanimationButton::Update()
@@ -31,7 +29,7 @@ ReanimationButton::~ReanimationButton()
 // a bare tail call), so the lookup is made for its side effect on the holder.
 void ReanimationButton::Update()
 {
-  mApp->ReanimationTryToGet(mReanimationID);
+    mApp->ReanimationTryToGet(mReanimationID);
 }
 
 // ==========================================================================
@@ -40,26 +38,25 @@ void ReanimationButton::Update()
 // ==========================================================================
 void ReanimationButton::Draw(Sexy::Graphics *theGraphics)
 {
-  Reanimation *aReanimation = mApp->ReanimationTryToGet(mReanimationID);
-  if (aReanimation != nullptr)
-    aReanimation->Draw(theGraphics);
+    Reanimation *aReanimation = mApp->ReanimationTryToGet(mReanimationID);
+    if (aReanimation != nullptr)
+        aReanimation->Draw(theGraphics);
 }
 
 // ==========================================================================
 // ReanimationButton::ReanimationButton(int,ReanimationType,Sexy::ButtonListener *,Sexy::Widget *)
 // @0019D770  76 bytes
 // ==========================================================================
-ReanimationButton::ReanimationButton(int theId, ReanimationType theReanimationType,
-                                     Sexy::ButtonListener * theListener,
-                                     Sexy::Widget * theParent)
-    : Sexy::ButtonWidget(theId, theListener)
+ReanimationButton::ReanimationButton(
+    int theId, ReanimationType theReanimationType, Sexy::ButtonListener *theListener, Sexy::Widget *theParent) :
+    Sexy::ButtonWidget(theId, theListener)
 {
-  mReanimationType = theReanimationType;
-  mParent = theParent;
-  mReanimationID = REANIMATIONID_NULL;
-  mApp = gLawnApp;
-  mScaleX = 1.0f;
-  mScaleY = 1.0f;
+    mReanimationType = theReanimationType;
+    mParent = theParent;
+    mReanimationID = REANIMATIONID_NULL;
+    mApp = gLawnApp;
+    mScaleX = 1.0f;
+    mScaleY = 1.0f;
 }
 
 // ==========================================================================
@@ -68,8 +65,8 @@ ReanimationButton::ReanimationButton(int theId, ReanimationType theReanimationTy
 // ==========================================================================
 void ReanimationButton::SetScale(float theScaleX, float theScaleY)
 {
-  mScaleX = theScaleX;
-  mScaleY = theScaleY;
+    mScaleX = theScaleX;
+    mScaleY = theScaleY;
 }
 
 // ==========================================================================
@@ -78,9 +75,9 @@ void ReanimationButton::SetScale(float theScaleX, float theScaleY)
 // ==========================================================================
 void ReanimationButton::AddedToManager(Sexy::WidgetManager *theWidgetManager)
 {
-  Sexy::WidgetContainer::AddedToManager(theWidgetManager);
-  Reanimation *aReanimation = mApp->AddReanimation((float)mX, (float)mY, 0, mReanimationType);
-  mReanimationID = mApp->ReanimationGetID(aReanimation);
-  aReanimation->OverrideScale(mScaleX, mScaleY);
-  aReanimation->PlayReanim("enter", REANIM_PLAY_ONCE_FULL_LAST_FRAME_AND_HOLD, 0, 12.0f);
+    Sexy::WidgetContainer::AddedToManager(theWidgetManager);
+    Reanimation *aReanimation = mApp->AddReanimation((float)mX, (float)mY, 0, mReanimationType);
+    mReanimationID = mApp->ReanimationGetID(aReanimation);
+    aReanimation->OverrideScale(mScaleX, mScaleY);
+    aReanimation->PlayReanim("enter", REANIM_PLAY_ONCE_FULL_LAST_FRAME_AND_HOLD, 0, 12.0f);
 }

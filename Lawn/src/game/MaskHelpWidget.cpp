@@ -20,16 +20,14 @@
 // slot 31 loads the vtable word at +0x64 and branches to it.
 void MaskHelpWidget::Update()
 {
-  MarkDirty();
+    MarkDirty();
 }
 
 // ==========================================================================
 // MaskHelpWidget::~MaskHelpWidget()
 // @001EC1E8  24 bytes
 // ==========================================================================
-MaskHelpWidget::~MaskHelpWidget()
-{
-}
+MaskHelpWidget::~MaskHelpWidget() {}
 
 // ==========================================================================
 // MaskHelpWidget::AddedToManager(Sexy::WidgetManager *)
@@ -44,41 +42,40 @@ MaskHelpWidget::~MaskHelpWidget()
 // MaskHelpWidget::Draw(Sexy::Graphics *)
 // @001EC258  248 bytes
 // ==========================================================================
-void MaskHelpWidget::Draw(Sexy::Graphics * g)
+void MaskHelpWidget::Draw(Sexy::Graphics *g)
 {
-  int aFadeTime; // the animation's time cursor, as the integer the call takes
+    int aFadeTime; // the animation's time cursor, as the integer the call takes
 
-  if ( mHelpTextId != 0 )
-  {
-    g->SetColor(Color(0, 0, 0, 178));
-    g->FillRect(0, 0, mWidth, mHeight);
-  }
+    if (mHelpTextId != 0)
+    {
+        g->SetColor(Color(0, 0, 0, 178));
+        g->FillRect(0, 0, mWidth, mHeight);
+    }
 
-  // The framework's shared fade counter, stepped by 0.2 per frame and reset
-  // once it reaches 10 -- one fade cycle is 50 frames.
-  float aFade = gMaskHelpFade + 0.2f;
-  if ( aFade < 10.0f )
-  {
-    gMaskHelpFade = aFade;
-    aFadeTime = (int)aFade;
-  }
-  else
-  {
-    aFadeTime = 0;
-    gMaskHelpFade = 0.0f;
-  }
+    // The framework's shared fade counter, stepped by 0.2 per frame and reset
+    // once it reaches 10 -- one fade cycle is 50 frames.
+    float aFade = gMaskHelpFade + 0.2f;
+    if (aFade < 10.0f)
+    {
+        gMaskHelpFade = aFade;
+        aFadeTime = (int)aFade;
+    }
+    else
+    {
+        aFadeTime = 0;
+        gMaskHelpFade = 0.0f;
+    }
 
-  // 0..8 over the cycle, bounced: the down arrow slides down and snaps back.
-  float aCurve = (float)TodAnimateCurveFloat(0, 10, aFadeTime, 0.0f, 8.0f, CURVE_BOUNCE);
+    // 0..8 over the cycle, bounced: the down arrow slides down and snaps back.
+    float aCurve = (float)TodAnimateCurveFloat(0, 10, aFadeTime, 0.0f, 8.0f, CURVE_BOUNCE);
 
-  if ( mHelpTextId == 0 )
-  {
-    g->SetColor(Color(255, 222, 42));
-    g->SetColorizeImages(true);
-    g->DrawImageRotated(IMAGE_DOWNARROW, 332, (int)(aCurve + 235.0f),
-                        3.14159274, nullptr);
-    g->SetColorizeImages(false);
-  }
+    if (mHelpTextId == 0)
+    {
+        g->SetColor(Color(255, 222, 42));
+        g->SetColorizeImages(true);
+        g->DrawImageRotated(IMAGE_DOWNARROW, 332, (int)(aCurve + 235.0f), 3.14159274, nullptr);
+        g->SetColorizeImages(false);
+    }
 }
 
 // ==========================================================================
@@ -87,9 +84,9 @@ void MaskHelpWidget::Draw(Sexy::Graphics * g)
 // ==========================================================================
 MaskHelpWidget::MaskHelpWidget(LawnApp *theApp)
 {
-  mApp = theApp;
-  Resize(LawnApp::FULLSCREEN_RECT);
-  mHelpTextId = -1;
+    mApp = theApp;
+    Resize(LawnApp::FULLSCREEN_RECT);
+    mHelpTextId = -1;
 }
 
 // ==========================================================================
@@ -98,6 +95,6 @@ MaskHelpWidget::MaskHelpWidget(LawnApp *theApp)
 // ==========================================================================
 void MaskHelpWidget::RemovedFromManager(Sexy::WidgetManager *theManager)
 {
-  Sexy::WidgetContainer::RemovedFromManager(theManager);
-  mHelpTextId = -1;
+    Sexy::WidgetContainer::RemovedFromManager(theManager);
+    mHelpTextId = -1;
 }

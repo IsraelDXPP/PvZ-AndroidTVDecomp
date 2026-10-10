@@ -23,7 +23,8 @@
 // Object size = sizeof(MenuWidget) = 0x118. The transcribed class body was an
 // opaque 0x120-byte block, eight bytes too big.
 
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_TESTMENUWIDGET_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_TESTMENUWIDGET_H
 
 #include "ReconTypes.h"
 // The base must be complete: the object is exactly a MenuWidget plus nothing.
@@ -35,3 +36,5 @@ class TestMenuWidget : public Sexy::MenuWidget
 public:
     TestMenuWidget();
 };
+
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_TESTMENUWIDGET_H

@@ -26,13 +26,9 @@ namespace Sexy
 
 } // namespace Sexy
 
-void Sexy::GamepadApp::GamepadConnected()
-{
-}
+void Sexy::GamepadApp::GamepadConnected() {}
 
-void Sexy::GamepadApp::GamepadDisconnected()
-{
-}
+void Sexy::GamepadApp::GamepadDisconnected() {}
 
 int Sexy::GamepadApp::DeviceRemoved(Sexy::IInputDriver *theDriver)
 {
@@ -91,10 +87,10 @@ int Sexy::GamepadApp::ProcessDeviceEvents()
                 Gamepad *aPad = mGamepads[i];
                 if ((aPad->mDeviceId >> 16) == aDeviceId)
                 {
-                    IInputDriver* aDriver = mInputManager->Find(aDeviceId);
+                    IInputDriver *aDriver = mInputManager->Find(aDeviceId);
                     InputInfo aInfo{};
-                    if (aDriver == nullptr || !aDriver->GetInfo(aInfo, aPad->mDeviceId & 65535)
-                        || aInfo.mHasJoystick == 0)
+                    if (aDriver == nullptr || !aDriver->GetInfo(aInfo, aPad->mDeviceId & 65535) ||
+                        aInfo.mHasJoystick == 0)
                         aPad->CheckDeviceRemoved(aPad->mDeviceId);
                 }
             }
@@ -164,8 +160,8 @@ Sexy::GamepadApp *Sexy::GamepadApp::SwapGamepadId(int theFirst, int theSecond)
     return this;
 }
 
-int Sexy::GamepadApp::MapToButtonEvent(Sexy::Event const *theEvent, int &theButton,
-                                       int &thePadIndex, unsigned int &theRepeat)
+int Sexy::GamepadApp::MapToButtonEvent(
+    Sexy::Event const *theEvent, int &theButton, int &thePadIndex, unsigned int &theRepeat)
 {
     const int aPadIndex = GetGamepadIndex((int)theEvent->lateModifiers, (int)theEvent->eventType);
     if (aPadIndex != -1)
@@ -333,9 +329,8 @@ Sexy::Image *Sexy::GamepadApp::GetImage(Sexy::String const &theName, bool thePur
     return anImage;
 }
 
-Sexy::Image *Sexy::GamepadApp::GetImageWithAttrs(Sexy::String const &theName,
-                                                Sexy::String const &theVariant,
-                                                Sexy::String const &theAttrs, bool thePurge)
+Sexy::Image *Sexy::GamepadApp::GetImageWithAttrs(
+    Sexy::String const &theName, Sexy::String const &theVariant, Sexy::String const &theAttrs, bool thePurge)
 {
     Image *anImage = GetImageFromAtlas(theVariant);
     if (anImage == nullptr)

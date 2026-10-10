@@ -85,9 +85,7 @@ Sexy::Rect Sexy::EditWidget::GetEditArea()
     return Sexy::Rect(absPos.mX + 2, absPos.mY + 2, mWidth - 4, mHeight - 4);
 }
 
-void Sexy::EditWidget::UpdateEditText()
-{
-}
+void Sexy::EditWidget::UpdateEditText() {}
 
 int Sexy::EditWidget::EditFinished()
 {
@@ -277,9 +275,8 @@ void Sexy::EditWidget::SetText(Sexy::String const &theText, bool scrollToStart, 
 
     if (mEditSource != nullptr && mKeyboardShown)
     {
-        if (oldText == mString
-            && oldSelectionStart == GetEditSelectionStart()
-            && oldSelectionEnd == GetEditSelectionEnd())
+        if (oldText == mString && oldSelectionStart == GetEditSelectionStart() &&
+            oldSelectionEnd == GetEditSelectionEnd())
             return;
 
         mEditSource->UpdateEditArea(static_cast<Sexy::EditSink *>(this));
@@ -288,8 +285,7 @@ void Sexy::EditWidget::SetText(Sexy::String const &theText, bool scrollToStart, 
 
 int Sexy::EditWidget::SetEditState(Sexy::EditState const &theState)
 {
-    const IncomingEditState *incoming =
-        static_cast<const IncomingEditState *>(static_cast<const void *>(&theState));
+    const IncomingEditState *incoming = static_cast<const IncomingEditState *>(static_cast<const void *>(&theState));
     Sexy::String newText = incoming->mText;
 
     Sexy::String oldText = mString;
@@ -315,8 +311,7 @@ int Sexy::EditWidget::SetEditState(Sexy::EditState const &theState)
             {
                 skip = true;
             }
-            else if (mEditListener != nullptr
-                     && mEditListener->AllowChar(mId, (char)byte) == 0)
+            else if (mEditListener != nullptr && mEditListener->AllowChar(mId, (char)byte) == 0)
             {
                 break;
             }
@@ -348,8 +343,7 @@ int Sexy::EditWidget::SetEditState(Sexy::EditState const &theState)
         else
         {
             unsigned int length = mString.size();
-            bool full = (mMaxChars > 0) ? (length + 1 > (unsigned int)(mMaxChars + to - from))
-                                        : (mMaxChars != -1);
+            bool full = (mMaxChars > 0) ? (length + 1 > (unsigned int)(mMaxChars + to - from)) : (mMaxChars != -1);
             if (full)
                 break;
 
@@ -382,12 +376,11 @@ int Sexy::EditWidget::SetEditState(Sexy::EditState const &theState)
     Sexy::String wide;
     StringToWString(&wide, mString.c_str());
 
-    if (mEditSource != nullptr
-        && (wide != newText || incoming->mSelStart != cursorPos || incoming->mSelEnd != selEnd))
+    if (mEditSource != nullptr && (wide != newText || incoming->mSelStart != cursorPos || incoming->mSelEnd != selEnd))
         mEditSource->UpdateEditArea(static_cast<Sexy::EditSink *>(this));
 
-    if (mEditListener != nullptr
-        && (oldText != mString || oldHiliteStart != mHiliteStart || oldHiliteEnd != mHiliteEnd))
+    if (mEditListener != nullptr &&
+        (oldText != mString || oldHiliteStart != mHiliteStart || oldHiliteEnd != mHiliteEnd))
         mEditListener->TextChanged(mId, wide);
 
     return 1;
@@ -438,10 +431,15 @@ Sexy::EditWidget::EditWidget(int theId, Sexy::EditListener *theListener)
     mLastCursorPos = 0;
     mKeyboardShown = false;
 
-    static int defaultColors[8][3] =
-    {
-        { 0xFF, 0xFF, 0xFF }, { 0x00, 0x00, 0x00 }, { 0x00, 0x00, 0x00 }, { 0x00, 0x00, 0x00 },
-        { 0xFF, 0xFF, 0xFF }, { 0xE6, 0xE6, 0xE6 }, { 0xAD, 0xD8, 0xE6 }, { 0x00, 0x00, 0x00 },
+    static int defaultColors[8][3] = {
+        {0xFF, 0xFF, 0xFF},
+        {0x00, 0x00, 0x00},
+        {0x00, 0x00, 0x00},
+        {0x00, 0x00, 0x00},
+        {0xFF, 0xFF, 0xFF},
+        {0xE6, 0xE6, 0xE6},
+        {0xAD, 0xD8, 0xE6},
+        {0x00, 0x00, 0x00},
     };
     SetColors(defaultColors, 8);
 }
@@ -537,8 +535,7 @@ void Sexy::EditWidget::Draw(Sexy::Graphics *theGraphics)
         Sexy::SexyAppBase *theApp = mWidgetManager->mApp;
         if (theApp != nullptr && theApp->mPlatformDriverOrQueue != nullptr)
         {
-            mFont = theApp->mPlatformDriverOrQueue->CreateFont(
-                theApp, "Arial Unicode MS", 10, false, false, false);
+            mFont = theApp->mPlatformDriverOrQueue->CreateFont(theApp, "Arial Unicode MS", 10, false, false, false);
         }
     }
 
@@ -560,13 +557,13 @@ void Sexy::EditWidget::Draw(Sexy::Graphics *theGraphics)
 
         if (pass == 2 && mFont != nullptr)
         {
-            int startX = mFont->StringWidth(displayString.substr(0, mHiliteStart))
-                       - mFont->StringWidth(displayString.substr(0, mScrollPos));
+            int startX = mFont->StringWidth(displayString.substr(0, mHiliteStart)) -
+                mFont->StringWidth(displayString.substr(0, mScrollPos));
             int endX;
             if (mHiliteEnd > mHiliteStart)
             {
-                endX = mFont->StringWidth(displayString.substr(0, mHiliteEnd))
-                     - mFont->StringWidth(displayString.substr(0, mScrollPos));
+                endX = mFont->StringWidth(displayString.substr(0, mHiliteEnd)) -
+                    mFont->StringWidth(displayString.substr(0, mScrollPos));
             }
             else
             {
@@ -586,16 +583,16 @@ void Sexy::EditWidget::Draw(Sexy::Graphics *theGraphics)
             int barWidth = (endX > startX) ? (endX - startX) : (startX - endX);
             int barX = (startX < endX) ? startX : endX;
             graphics->ClipRect(mHighlightOffsetX + mClipInset + barX,
-                               (mHeight - mFont->GetHeight()) / 2,
-                               barWidth,
-                               mFont->GetHeight());
+                (mHeight - mFont->GetHeight()) / 2,
+                barWidth,
+                mFont->GetHeight());
 
             graphics->ClipRect(mClipInset, 0, mWidth - 2 * mClipInset, mHeight);
         }
         else if (pass == 1 && mFont != nullptr)
         {
-            int caretOffset = mFont->StringWidth(displayString.substr(0, mCursorPos))
-                            - mFont->StringWidth(displayString.substr(0, mScrollPos));
+            int caretOffset = mFont->StringWidth(displayString.substr(0, mCursorPos)) -
+                mFont->StringWidth(displayString.substr(0, mScrollPos));
             int caretEnd = caretOffset + 2;
 
             int otherEnd;
@@ -605,8 +602,8 @@ void Sexy::EditWidget::Draw(Sexy::Graphics *theGraphics)
             }
             else
             {
-                otherEnd = mFont->StringWidth(displayString.substr(0, mSelectionPos))
-                         - mFont->StringWidth(displayString.substr(0, mScrollPos));
+                otherEnd = mFont->StringWidth(displayString.substr(0, mSelectionPos)) -
+                    mFont->StringWidth(displayString.substr(0, mScrollPos));
             }
 
             int firstEnd = mCursorVisible ? caretOffset : caretEnd;
@@ -621,13 +618,12 @@ void Sexy::EditWidget::Draw(Sexy::Graphics *theGraphics)
             if (otherEnd > limit)
                 otherEnd = limit;
 
-            int caretWidth = (firstEnd > otherEnd) ? (firstEnd - otherEnd)
-                                                   : (otherEnd - firstEnd);
+            int caretWidth = (firstEnd > otherEnd) ? (firstEnd - otherEnd) : (otherEnd - firstEnd);
             int caretX = (firstEnd < otherEnd) ? firstEnd : otherEnd;
             graphics->ClipRect(mHighlightOffsetX + mClipInset + caretX,
-                               (mHeight - mFont->GetHeight()) / 2,
-                               caretWidth,
-                               mFont->GetHeight());
+                (mHeight - mFont->GetHeight()) / 2,
+                caretWidth,
+                mFont->GetHeight());
         }
         else
         {
@@ -662,9 +658,8 @@ void Sexy::EditWidget::Draw(Sexy::Graphics *theGraphics)
         }
 
         graphics->DrawString(displayString.substr(mScrollPos),
-                             mTextOffsetX,
-                             (int)(((float)mHeight - extents.mHeight) * 0.5f
-                                   - extents.mMinY));
+            mTextOffsetX,
+            (int)(((float)mHeight - extents.mHeight) * 0.5f - extents.mMinY));
         delete graphics;
     }
 
@@ -807,9 +802,8 @@ void Sexy::EditWidget::ShowKeyboard()
 
 int Sexy::EditWidget::ProcessKey(Sexy::KeyCode theKey, int theChar)
 {
-    if ((unsigned int)(theKey - KEYCODE_SHIFT) <= 1
-        || (unsigned int)(theKey - KEYCODE_GAMEPAD_LEFT) <= 7
-        || (unsigned int)(theKey - KEYCODE_GAMEPAD_A) <= 1)
+    if ((unsigned int)(theKey - KEYCODE_SHIFT) <= 1 || (unsigned int)(theKey - KEYCODE_GAMEPAD_LEFT) <= 7 ||
+        (unsigned int)(theKey - KEYCODE_GAMEPAD_A) <= 1)
     {
         return 0;
     }
@@ -875,9 +869,8 @@ int Sexy::EditWidget::ProcessKey(Sexy::KeyCode theKey, int theChar)
                 char byte = clipboardText[i];
                 if (byte == 13 || byte == 10)
                     break;
-                if (mFont != nullptr && mFont->CharWidth(byte) != 0
-                    && mEditListener != nullptr
-                    && mEditListener->AllowChar(mId, (int)byte) != 0)
+                if (mFont != nullptr && mFont->CharWidth(byte) != 0 && mEditListener != nullptr &&
+                    mEditListener->AllowChar(mId, (int)byte) != 0)
                     filteredText += byte;
             }
 
@@ -924,124 +917,124 @@ int Sexy::EditWidget::ProcessKey(Sexy::KeyCode theKey, int theChar)
         bool insertChar = false;
         switch (theKey)
         {
-        case KEYCODE_LEFT:
-            if (!controlDown)
-            {
-                if (shiftDown || selectionPos == -1)
-                    mCursorPos = cursorPos - 1;
+            case KEYCODE_LEFT:
+                if (!controlDown)
+                {
+                    if (shiftDown || selectionPos == -1)
+                        mCursorPos = cursorPos - 1;
+                    else
+                        mCursorPos = (selectionPos > cursorPos) ? cursorPos : selectionPos;
+                }
                 else
-                    mCursorPos = (selectionPos > cursorPos) ? cursorPos : selectionPos;
-            }
-            else
-            {
-                while (mCursorPos > 0 && IsPartOfWord(mString[mCursorPos - 1]))
-                    --mCursorPos;
-            }
-            changed = 0;
-            break;
-
-        case KEYCODE_RIGHT:
-            if (controlDown && (int)mString.size() - 1 > cursorPos)
-            {
-                while (mCursorPos < (int)mString.size() - 1 && IsPartOfWord(mString[mCursorPos + 1]))
-                    ++mCursorPos;
-                while (mCursorPos < (int)mString.size() - 1 && !IsPartOfWord(mString[mCursorPos + 1]))
-                    ++mCursorPos;
-            }
-
-            if (shiftDown || mSelectionPos == -1)
-                ++mCursorPos;
-            else
-                mCursorPos = (mCursorPos < mSelectionPos) ? mSelectionPos : mCursorPos;
-            changed = 0;
-            break;
-
-        case KEYCODE_BACK:
-            if (mString.size() == 0)
-            {
+                {
+                    while (mCursorPos > 0 && IsPartOfWord(mString[mCursorPos - 1]))
+                        --mCursorPos;
+                }
                 changed = 0;
                 break;
-            }
 
-            if (mSelectionPos == -1 || cursorPos == mSelectionPos)
-            {
-                if (cursorPos <= 0)
-                    mString = mString.substr(0);
+            case KEYCODE_RIGHT:
+                if (controlDown && (int)mString.size() - 1 > cursorPos)
+                {
+                    while (mCursorPos < (int)mString.size() - 1 && IsPartOfWord(mString[mCursorPos + 1]))
+                        ++mCursorPos;
+                    while (mCursorPos < (int)mString.size() - 1 && !IsPartOfWord(mString[mCursorPos + 1]))
+                        ++mCursorPos;
+                }
+
+                if (shiftDown || mSelectionPos == -1)
+                    ++mCursorPos;
                 else
-                    mString = mString.substr(0, cursorPos - 1) + mString.substr(mCursorPos);
-
-                int lastCursorPos = mLastCursorPos;
-                int oldCursorPos = mCursorPos;
-                mSelectionPos = -1;
-                mCursorPos = oldCursorPos - 1;
-                changed = (oldCursorPos - 1 != lastCursorPos);
-                mLastCursorPos = oldCursorPos - 2;
-            }
-            else
-            {
-                int start = (selectionPos >= cursorPos) ? mCursorPos : mSelectionPos;
-                int end = (mCursorPos >= mSelectionPos) ? mCursorPos : mSelectionPos;
-                mString = mString.substr(0, start) + mString.substr(end);
-
-                changed = 1;
-                int sel = mSelectionPos;
-                int cur = mCursorPos;
-                mSelectionPos = -1;
-                mCursorPos = (cur > sel) ? sel : cur;
-            }
-            break;
-
-        case KEYCODE_DELETE:
-            if (mString.size() == 0)
-            {
+                    mCursorPos = (mCursorPos < mSelectionPos) ? mSelectionPos : mCursorPos;
                 changed = 0;
                 break;
-            }
 
-            if (mSelectionPos == -1 || cursorPos == mSelectionPos)
-            {
-                if (cursorPos < (int)mString.size())
-                    mString = mString.substr(0, cursorPos) + mString.substr(mCursorPos + 1);
+            case KEYCODE_BACK:
+                if (mString.size() == 0)
+                {
+                    changed = 0;
+                    break;
+                }
 
-                int oldCursorPos = mCursorPos;
-                int lastCursorPos = mLastCursorPos;
-                mLastCursorPos = oldCursorPos;
-                changed = (lastCursorPos != oldCursorPos);
-            }
-            else
-            {
-                int start = (selectionPos >= cursorPos) ? mCursorPos : mSelectionPos;
-                int end = (mCursorPos >= mSelectionPos) ? mCursorPos : mSelectionPos;
-                mString = mString.substr(0, start) + mString.substr(end);
+                if (mSelectionPos == -1 || cursorPos == mSelectionPos)
+                {
+                    if (cursorPos <= 0)
+                        mString = mString.substr(0);
+                    else
+                        mString = mString.substr(0, cursorPos - 1) + mString.substr(mCursorPos);
 
-                changed = 1;
-                int sel = mSelectionPos;
-                int cur = mCursorPos;
-                mSelectionPos = -1;
-                mCursorPos = (cur > sel) ? sel : cur;
-            }
-            break;
+                    int lastCursorPos = mLastCursorPos;
+                    int oldCursorPos = mCursorPos;
+                    mSelectionPos = -1;
+                    mCursorPos = oldCursorPos - 1;
+                    changed = (oldCursorPos - 1 != lastCursorPos);
+                    mLastCursorPos = oldCursorPos - 2;
+                }
+                else
+                {
+                    int start = (selectionPos >= cursorPos) ? mCursorPos : mSelectionPos;
+                    int end = (mCursorPos >= mSelectionPos) ? mCursorPos : mSelectionPos;
+                    mString = mString.substr(0, start) + mString.substr(end);
 
-        case KEYCODE_HOME:
-            mCursorPos = 0;
-            changed = 0;
-            break;
+                    changed = 1;
+                    int sel = mSelectionPos;
+                    int cur = mCursorPos;
+                    mSelectionPos = -1;
+                    mCursorPos = (cur > sel) ? sel : cur;
+                }
+                break;
 
-        case KEYCODE_END:
-            changed = 0;
-            mCursorPos = (int)mString.size();
-            break;
+            case KEYCODE_DELETE:
+                if (mString.size() == 0)
+                {
+                    changed = 0;
+                    break;
+                }
 
-        case KEYCODE_RETURN:
-            if (mEditListener != nullptr)
-                mEditListener->EditWidgetText(mId, mString);
-            changed = 0;
-            break;
+                if (mSelectionPos == -1 || cursorPos == mSelectionPos)
+                {
+                    if (cursorPos < (int)mString.size())
+                        mString = mString.substr(0, cursorPos) + mString.substr(mCursorPos + 1);
 
-        case KEYCODE_CLEAR:
-        default:
-            insertChar = true;
-            break;
+                    int oldCursorPos = mCursorPos;
+                    int lastCursorPos = mLastCursorPos;
+                    mLastCursorPos = oldCursorPos;
+                    changed = (lastCursorPos != oldCursorPos);
+                }
+                else
+                {
+                    int start = (selectionPos >= cursorPos) ? mCursorPos : mSelectionPos;
+                    int end = (mCursorPos >= mSelectionPos) ? mCursorPos : mSelectionPos;
+                    mString = mString.substr(0, start) + mString.substr(end);
+
+                    changed = 1;
+                    int sel = mSelectionPos;
+                    int cur = mCursorPos;
+                    mSelectionPos = -1;
+                    mCursorPos = (cur > sel) ? sel : cur;
+                }
+                break;
+
+            case KEYCODE_HOME:
+                mCursorPos = 0;
+                changed = 0;
+                break;
+
+            case KEYCODE_END:
+                changed = 0;
+                mCursorPos = (int)mString.size();
+                break;
+
+            case KEYCODE_RETURN:
+                if (mEditListener != nullptr)
+                    mEditListener->EditWidgetText(mId, mString);
+                changed = 0;
+                break;
+
+            case KEYCODE_CLEAR:
+            default:
+                insertChar = true;
+                break;
         }
 
         if (insertChar)
@@ -1054,16 +1047,13 @@ int Sexy::EditWidget::ProcessKey(Sexy::KeyCode theKey, int theChar)
                 int maxChar = 127;
                 if (mWidgetManager != nullptr && mWidgetManager->mApp->mAllowExtendedChars)
                     maxChar = 255;
-                if (theChar > 0x1F && theChar <= maxChar
-                    && mFont != nullptr && mFont->StringWidth(charString) > 0
-                    && mEditListener != nullptr
-                    && mEditListener->AllowChar(mId, theChar) != 0)
+                if (theChar > 0x1F && theChar <= maxChar && mFont != nullptr && mFont->StringWidth(charString) > 0 &&
+                    mEditListener != nullptr && mEditListener->AllowChar(mId, theChar) != 0)
                 {
                     if (mSelectionPos == -1 || mSelectionPos == mCursorPos)
                     {
                         int oldCursorPos = mCursorPos;
-                        mString = mString.substr(0, oldCursorPos) + charString
-                                + mString.substr(oldCursorPos);
+                        mString = mString.substr(0, oldCursorPos) + charString + mString.substr(oldCursorPos);
 
                         int lastCursorPos = mLastCursorPos;
                         mSelectionPos = -1;
@@ -1204,14 +1194,14 @@ int Sexy::EditWidget::KeyDown(Sexy::KeyCode theKey)
     // Spell out the edit keys so keys below 'A' cannot be mistaken for letters.
     switch (theKey)
     {
-    case KEYCODE_DELETE:
-    case KEYCODE_END:
-    case KEYCODE_HOME:
-    case KEYCODE_BACK:
-    case KEYCODE_CLEAR:
-        return ProcessKey(theKey, 0);
-    default:
-        break;
+        case KEYCODE_DELETE:
+        case KEYCODE_END:
+        case KEYCODE_HOME:
+        case KEYCODE_BACK:
+        case KEYCODE_CLEAR:
+            return ProcessKey(theKey, 0);
+        default:
+            break;
     }
 
     if (!mSelected)
@@ -1221,8 +1211,7 @@ int Sexy::EditWidget::KeyDown(Sexy::KeyCode theKey)
 
     bool isLetter = theKey >= 'A' && theKey <= 'Z';
     bool isDigit = theKey >= '0' && theKey <= '9';
-    if (!isLetter && !isDigit && mEditListener != nullptr
-        && mEditListener->AllowKey(mId, theKey) != 0)
+    if (!isLetter && !isDigit && mEditListener != nullptr && mEditListener->AllowKey(mId, theKey) != 0)
         return ProcessKey(theKey, 0);
     return Sexy::Widget::KeyDown(theKey);
 }

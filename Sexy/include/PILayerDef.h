@@ -2,7 +2,8 @@
 // forces that affect them, the layer offset curve, the cached offset the
 // reader stores from that curve, and the layer spin curve.
 
-#pragma once
+#ifndef LAWNPROJECTTV_SEXY_INCLUDE_PILAYERDEF_H
+#define LAWNPROJECTTV_SEXY_INCLUDE_PILAYERDEF_H
 
 #include "ReconTypes.h"
 #include "PIBlocker.h"
@@ -14,7 +15,8 @@
 
 #include <vector>
 
-namespace Sexy {
+namespace Sexy
+{
 
 class PILayerDef
 {
@@ -29,14 +31,23 @@ public:
     float mOffsetY;
     Sexy::PIValue mSpin;
 
-    PILayerDef()
-        : mName(), mEmitters(), mDeflectors(), mBlockers(), mForces(), mValue2D(),
-          mOffsetX(0.0f), mOffsetY(0.0f), mSpin()
+    PILayerDef() :
+        mName(),
+        mEmitters(),
+        mDeflectors(),
+        mBlockers(),
+        mForces(),
+        mValue2D(),
+        mOffsetX(0.0f),
+        mOffsetY(0.0f),
+        mSpin()
     {
     }
-    PILayerDef(Sexy::PILayerDef const& other);
+    PILayerDef(Sexy::PILayerDef const &other);
 };
 
 } // namespace Sexy
 
 using Sexy::PILayerDef;
+
+#endif // LAWNPROJECTTV_SEXY_INCLUDE_PILAYERDEF_H

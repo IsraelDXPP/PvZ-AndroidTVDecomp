@@ -10,22 +10,27 @@
 // SharedImageRef.h -- reads +0 as the Image being shared and +4 as the count.
 // The class has no vtable and no other member.
 
-#pragma once
+#ifndef LAWNPROJECTTV_SEXY_INCLUDE_SHAREDIMAGE_H
+#define LAWNPROJECTTV_SEXY_INCLUDE_SHAREDIMAGE_H
 
 #include "ReconTypes.h"
 
-namespace Sexy {
+namespace Sexy
+{
 
 class SharedImage
 {
 public:
-    Image *      mImage;    // +0x00
+    Image *mImage; // +0x00
     unsigned int mRefCount; // +0x04
 
-    SharedImage()
-        : mImage(nullptr), mRefCount(0)
+    SharedImage() :
+        mImage(nullptr),
+        mRefCount(0)
     {
     }
 };
 
 } // namespace Sexy
+
+#endif // LAWNPROJECTTV_SEXY_INCLUDE_SHAREDIMAGE_H

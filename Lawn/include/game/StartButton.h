@@ -25,7 +25,8 @@
 //   The authoritative header notes "218 ints"; mUnderlineOffset is the last
 //   member and lands at +0x368, so the object is 0x36C.
 
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_STARTBUTTON_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_STARTBUTTON_H
 
 #include "ReconTypes.h"
 // The transcribed bodies call methods on these, so the includes stay.
@@ -48,25 +49,27 @@ public:
     virtual void SetFont(Sexy::Font *theFont);
 
     // --- members -----------------------------------------------------------
-    Sexy::Color  mColor;           // +0x330 (16 bytes)
-    Sexy::Color  mOverColor;       // +0x340 (16 bytes)
-    TitleScreen *mParent;          // +0x350
-    Sexy::Font  *mFont;            // +0x354
+    Sexy::Color mColor; // +0x330 (16 bytes)
+    Sexy::Color mOverColor; // +0x340 (16 bytes)
+    TitleScreen *mParent; // +0x350
+    Sexy::Font *mFont; // +0x354
     // A second, start-button-local label: the constructor seeds it with the
     // shared empty rep (0x1A6A10 stores Sexy::gEmptyStringData, the same constant
     // ButtonWidget uses for its own mLabel) and Draw passes it to
     // Graphics::DrawString. ButtonWidget's mLabel is at +0x120, well below
     // StartButton's first own member, so the two are genuinely distinct fields
     // and this declaration hides the base name inside StartButton's scope.
-    Sexy::String mLabel;           // +0x358 (4 bytes, a one-pointer COW string)
-    int          mGamepadIndex;    // +0x35C
+    Sexy::String mLabel; // +0x358 (4 bytes, a one-pointer COW string)
+    int mGamepadIndex; // +0x35C
     // 2 is the pulsing mode Draw animates with mTextAlpha.
-    int          mTextDrawMode;    // +0x360
-    float        mTextAlpha;       // +0x364
-    int          mUnderlineOffset; // +0x368
+    int mTextDrawMode; // +0x360
+    float mTextAlpha; // +0x364
+    int mUnderlineOffset; // +0x368
     // size 0x36C
 
     StartButton(int theId, Sexy::Widget *theParent, Sexy::ButtonListener *theListener);
     int GameButtonDown(Sexy::GamepadButton theButton, int thePlayerIndex, unsigned int theGamepadIndex);
     void GameButtonUp();
 };
+
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_STARTBUTTON_H

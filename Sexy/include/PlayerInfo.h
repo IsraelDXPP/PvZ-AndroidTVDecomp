@@ -2,7 +2,8 @@
 // stay pure, and IsSaving / IsLoaded / IsLoading have bodies. The derived
 // record is what the game reads and writes.
 
-#pragma once
+#ifndef LAWNPROJECTTV_SEXY_INCLUDE_PLAYERINFO_H
+#define LAWNPROJECTTV_SEXY_INCLUDE_PLAYERINFO_H
 
 #include "ReconTypes.h"
 #include "PottedPlant.h"
@@ -10,7 +11,8 @@
 
 class DataSync;
 
-namespace Sexy {
+namespace Sexy
+{
 
 class PlayerInfo
 {
@@ -21,8 +23,8 @@ public:
     virtual int GetProfileId() = 0;
     virtual Sexy::String GetName() = 0;
     virtual void Reset() = 0;
-    virtual void SyncSummary(DataSync & theSync) = 0;
-    virtual void SyncDetails(DataSync & theSync, int theVersion) = 0;
+    virtual void SyncSummary(DataSync &theSync) = 0;
+    virtual void SyncDetails(DataSync &theSync, int theVersion) = 0;
     virtual void DeleteUserFiles() = 0;
     virtual void LoadDetails() = 0;
     // Writes every userdata file and reports whether all of them landed.
@@ -34,7 +36,7 @@ public:
 
     // Profile list ownership count. The last release deletes the record.
     int mRefCount;
-    Sexy::ProfileMgr * mProFileMgr;
+    Sexy::ProfileMgr *mProFileMgr;
     // How many userdata files this profile keeps.
     int mDetailFileCount;
     Sexy::String mName;
@@ -109,11 +111,16 @@ public:
     GameStats mGameStats;
     int mTail;
 
-    char *FavoritePlants() { return mGameStats.mFavoritePlants; }
+    char *FavoritePlants()
+    {
+        return mGameStats.mFavoritePlants;
+    }
 
-    PlayerInfo(Sexy::ProfileMgr * theMgr);
+    PlayerInfo(Sexy::ProfileMgr *theMgr);
 };
 
 } // namespace Sexy
 
 using Sexy::PlayerInfo;
+
+#endif // LAWNPROJECTTV_SEXY_INCLUDE_PLAYERINFO_H

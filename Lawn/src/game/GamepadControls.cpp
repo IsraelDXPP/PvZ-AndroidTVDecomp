@@ -51,17 +51,13 @@
 // GamepadControls::MakeParentGraphicsFrame(Sexy::Graphics *)
 // @001BCE2C  2 bytes
 // ==========================================================================
-void GamepadControls::MakeParentGraphicsFrame()
-{
-}
+void GamepadControls::MakeParentGraphicsFrame() {}
 
 // ==========================================================================
 // GamepadControls::OnGameAxisMove(int,int,int)
 // @001BCE60  2 bytes
 // ==========================================================================
-void GamepadControls::OnGameAxisMove(int theAxis, int theValue, int thePlayerIndex)
-{
-}
+void GamepadControls::OnGameAxisMove(int theAxis, int theValue, int thePlayerIndex) {}
 
 // ==========================================================================
 // GamepadControls::BeginDraw(Sexy::Graphics *)
@@ -69,8 +65,8 @@ void GamepadControls::OnGameAxisMove(int theAxis, int theValue, int thePlayerInd
 // ==========================================================================
 bool GamepadControls::BeginDraw(Sexy::Graphics *theGraphics)
 {
-  // The cursor is only drawn while a gamepad owns this player.
-  return mGamepadIndex != -1;
+    // The cursor is only drawn while a gamepad owns this player.
+    return mGamepadIndex != -1;
 }
 
 // ==========================================================================
@@ -79,10 +75,10 @@ bool GamepadControls::BeginDraw(Sexy::Graphics *theGraphics)
 // ==========================================================================
 GamepadControls::~GamepadControls()
 {
-  // The two vptr stores the transcription carried are the compiler's own.
-  // +232 is mPreviewImage, released through its deleting destructor (slot 1).
-  if ( mPreviewImage != nullptr )
-    delete mPreviewImage;
+    // The two vptr stores the transcription carried are the compiler's own.
+    // +232 is mPreviewImage, released through its deleting destructor (slot 1).
+    if (mPreviewImage != nullptr)
+        delete mPreviewImage;
 }
 
 // ==========================================================================
@@ -91,20 +87,20 @@ GamepadControls::~GamepadControls()
 // ==========================================================================
 void GamepadControls::OnButtonUp(int theButton, int thePlayerIndex, unsigned int theFlags)
 {
-  if ( theButton == GAMEPAD_BUTTON_X )
-    ReleaseButter();
-  if ( mBoard->mChallenge != nullptr )
-    mBoard->mChallenge->GameButtonUp(theButton, thePlayerIndex, theFlags);
+    if (theButton == GAMEPAD_BUTTON_X)
+        ReleaseButter();
+    if (mBoard->mChallenge != nullptr)
+        mBoard->mChallenge->GameButtonUp(theButton, thePlayerIndex, theFlags);
 }
 
 // ==========================================================================
 // GamepadControls::EndDraw(Sexy::Graphics *)
 // @001BD310  18 bytes
 // ==========================================================================
-void GamepadControls::EndDraw(Sexy::Graphics * g)
+void GamepadControls::EndDraw(Sexy::Graphics *g)
 {
-  if ( mGamepadIndex != -1 )
-    g->SetColorizeImages(false);
+    if (mGamepadIndex != -1)
+        g->SetColorizeImages(false);
 }
 
 // ==========================================================================
@@ -113,22 +109,22 @@ void GamepadControls::EndDraw(Sexy::Graphics * g)
 // ==========================================================================
 int GamepadControls::OnKeyUp(Sexy::KeyCode theKey, unsigned int theFlags)
 {
-  if ( XButtonKeyCodeDown(theKey) && mGamepadState == MOVEMENT_STATE_BUTTER_HELD )
-  {
-    ReleaseButter();
-  }
-  else
-  {
-    mIsShowingDigIndicator = false;
-    if ( BaseGamepadControls::OnKeyUp(theKey, theFlags) == 0 )
+    if (XButtonKeyCodeDown(theKey) && mGamepadState == MOVEMENT_STATE_BUTTER_HELD)
     {
-      if ( mGamepadState == MOVEMENT_STATE_DIG_INDICATOR_WAIT && theKey == Sexy::KEYCODE_ESCAPE )
-        GotoState(MOVEMENT_STATE_NORMAL);
-      else
-        return 1;
+        ReleaseButter();
     }
-  }
-  return 0;
+    else
+    {
+        mIsShowingDigIndicator = false;
+        if (BaseGamepadControls::OnKeyUp(theKey, theFlags) == 0)
+        {
+            if (mGamepadState == MOVEMENT_STATE_DIG_INDICATOR_WAIT && theKey == Sexy::KEYCODE_ESCAPE)
+                GotoState(MOVEMENT_STATE_NORMAL);
+            else
+                return 1;
+        }
+    }
+    return 0;
 }
 
 // ==========================================================================
@@ -137,17 +133,17 @@ int GamepadControls::OnKeyUp(Sexy::KeyCode theKey, unsigned int theFlags)
 // ==========================================================================
 void GamepadControls::GotoSelectingState(int theSeedIndex)
 {
-  if ( !mApp->CanShopLevel() )
-    return;
+    if (!mApp->CanShopLevel())
+        return;
 
-  if ( mGamepadState != MOVEMENT_STATE_SELECT_SEED )
-  {
-    GotoState(MOVEMENT_STATE_SELECT_SEED);
-    mIsInShopSeedBank = true;
-    // The binary's trailing `-1840700269 * a2` is the compiler's multiply by
-    // the reciprocal of 7 for the modulo below.
-    mSelectedShopSeedIndex = theSeedIndex % 7;
-  }
+    if (mGamepadState != MOVEMENT_STATE_SELECT_SEED)
+    {
+        GotoState(MOVEMENT_STATE_SELECT_SEED);
+        mIsInShopSeedBank = true;
+        // The binary's trailing `-1840700269 * a2` is the compiler's multiply by
+        // the reciprocal of 7 for the modulo below.
+        mSelectedShopSeedIndex = theSeedIndex % 7;
+    }
 }
 
 // ==========================================================================
@@ -156,17 +152,17 @@ void GamepadControls::GotoSelectingState(int theSeedIndex)
 // ==========================================================================
 void GamepadControls::InvalidatePreviewReanim()
 {
-  Reanimation *aPreviewReanim4 = mApp->ReanimationTryToGet(mPreviewReanimID4);
-  if ( aPreviewReanim4 != nullptr )
-  {
-    aPreviewReanim4->ReanimationDie();
-    mPreviewReanimID4 = (ReanimationID)0;
-  }
-  if ( mPreviewReanimID3 != (ReanimationID)0 )
-  {
-    mApp->RemoveReanimation(mPreviewReanimID3);
-    mPreviewReanimID3 = (ReanimationID)0;
-  }
+    Reanimation *aPreviewReanim4 = mApp->ReanimationTryToGet(mPreviewReanimID4);
+    if (aPreviewReanim4 != nullptr)
+    {
+        aPreviewReanim4->ReanimationDie();
+        mPreviewReanimID4 = (ReanimationID)0;
+    }
+    if (mPreviewReanimID3 != (ReanimationID)0)
+    {
+        mApp->RemoveReanimation(mPreviewReanimID3);
+        mPreviewReanimID3 = (ReanimationID)0;
+    }
 }
 
 // ==========================================================================
@@ -178,170 +174,170 @@ void GamepadControls::InvalidatePreviewReanim()
 // graphics translation is shifted by half a cell for the draw and then put
 // back. U is a 1-wide window starting at -(phase * 0.25); V is 1 on the inner
 // edge and 0 on the outer edge.
-int GamepadControls::DrawHighlightPolys(Sexy::Graphics * aGraphics)
+int GamepadControls::DrawHighlightPolys(Sexy::Graphics *aGraphics)
 {
-  int aGridX = mBoard->PixelToGridXKeepOnBoard((int)mCursorPositionX, (int)mCursorPositionY);
-  int aGridY = mBoard->PixelToGridYKeepOnBoard((int)mCursorPositionX, (int)mCursorPositionY);
-  int aCellWidth = mBoard->GridCellWidth(aGridX, aGridY);
-  int aCellHeight = mBoard->GridCellHeight(aGridX, aGridY);
-  // Integer half, then converted. Not half of the float width: an odd cell
-  // truncates before the convert.
-  float aHalfWidth = (float)(aCellWidth / 2);
-  float aHalfHeight = (float)(aCellHeight / 2);
-  // 8px inset from the cell edge, truncated toward zero.
-  int aLeft = (int)((float)(-aCellWidth) * 0.5f + 8.0f);
-  int aRight = (int)((float)aCellWidth * 0.5f - 8.0f);
-  int aTop = (int)((float)(-aCellHeight) * 0.5f + 8.0f);
-  int aBottom = (int)((float)aCellHeight * 0.5f - 8.0f);
+    int aGridX = mBoard->PixelToGridXKeepOnBoard((int)mCursorPositionX, (int)mCursorPositionY);
+    int aGridY = mBoard->PixelToGridYKeepOnBoard((int)mCursorPositionX, (int)mCursorPositionY);
+    int aCellWidth = mBoard->GridCellWidth(aGridX, aGridY);
+    int aCellHeight = mBoard->GridCellHeight(aGridX, aGridY);
+    // Integer half, then converted. Not half of the float width: an odd cell
+    // truncates before the convert.
+    float aHalfWidth = (float)(aCellWidth / 2);
+    float aHalfHeight = (float)(aCellHeight / 2);
+    // 8px inset from the cell edge, truncated toward zero.
+    int aLeft = (int)((float)(-aCellWidth) * 0.5f + 8.0f);
+    int aRight = (int)((float)aCellWidth * 0.5f - 8.0f);
+    int aTop = (int)((float)(-aCellHeight) * 0.5f + 8.0f);
+    int aBottom = (int)((float)aCellHeight * 0.5f - 8.0f);
 
-  aGraphics->mTransX += aHalfWidth;
-  aGraphics->mTransY += aHalfHeight;
+    aGraphics->mTransX += aHalfWidth;
+    aGraphics->mTransY += aHalfHeight;
 
-  // A pool square drops the frame: this square pushes the top down 20 and the
-  // bottom down 10; a pool square above pushes only the top.
-  if ( mBoard->IsPoolSquare(aGridX, aGridY) )
-  {
-    aTop += 20;
-    aBottom += 10;
-  }
-  else if ( aGridY > 0 && mBoard->IsPoolSquare(aGridX, aGridY - 1) )
-  {
-    aTop += 20;
-  }
+    // A pool square drops the frame: this square pushes the top down 20 and the
+    // bottom down 10; a pool square above pushes only the top.
+    if (mBoard->IsPoolSquare(aGridX, aGridY))
+    {
+        aTop += 20;
+        aBottom += 10;
+    }
+    else if (aGridY > 0 && mBoard->IsPoolSquare(aGridX, aGridY - 1))
+    {
+        aTop += 20;
+    }
 
-  float aLeftX = (float)aLeft;
-  float aRightX = (float)aRight;
-  float aTopInner = (float)(aTop + 4);
-  float aTopOuter = (float)(aTop - 10);
-  float aSideBottom = (float)(aBottom - 4);
-  float aBottomY = (float)aBottom;
-  float aSideOuter = (float)(aBottom + 10);
-  float aBottomOuter = (float)(aBottom + 20);
-  float aLeftOuter = (float)(aLeft - 20);
-  float aLeftBevel = (float)(aLeft - 10);
-  float aLeftInner = (float)(aLeft + 4);
-  float aRightInner = (float)(aRight - 4);
-  float aRightBevel = (float)(aRight + 10);
-  float aRightOuter = (float)(aRight + 20);
-  float aU0 = -(mCursorHighlightAnimPhase * 0.25f);
-  float aU1 = aU0 + 1.0f;
+    float aLeftX = (float)aLeft;
+    float aRightX = (float)aRight;
+    float aTopInner = (float)(aTop + 4);
+    float aTopOuter = (float)(aTop - 10);
+    float aSideBottom = (float)(aBottom - 4);
+    float aBottomY = (float)aBottom;
+    float aSideOuter = (float)(aBottom + 10);
+    float aBottomOuter = (float)(aBottom + 20);
+    float aLeftOuter = (float)(aLeft - 20);
+    float aLeftBevel = (float)(aLeft - 10);
+    float aLeftInner = (float)(aLeft + 4);
+    float aRightInner = (float)(aRight - 4);
+    float aRightBevel = (float)(aRight + 10);
+    float aRightOuter = (float)(aRight + 20);
+    float aU0 = -(mCursorHighlightAnimPhase * 0.25f);
+    float aU1 = aU0 + 1.0f;
 
-  // The binary vertex is eight words and the fill first clears the words the
-  // batcher ignores (and color). SexyVertex2D names the five it keeps; every
-  // position and UV below is written, and color stays 0.
-  SexyVertex2D aTriangles[10][3];
-  auto aVert = [](SexyVertex2D &aVertex, float aX, float aY, float aU, float aV)
-  {
-    aVertex.mX = aX;
-    aVertex.mY = aY;
-    aVertex.mU = aU;
-    aVertex.mV = aV;
-    aVertex.mColor = 0;
-  };
+    // The binary vertex is eight words and the fill first clears the words the
+    // batcher ignores (and color). SexyVertex2D names the five it keeps; every
+    // position and UV below is written, and color stays 0.
+    SexyVertex2D aTriangles[10][3];
+    auto aVert = [](SexyVertex2D &aVertex, float aX, float aY, float aU, float aV)
+    {
+        aVertex.mX = aX;
+        aVertex.mY = aY;
+        aVertex.mU = aU;
+        aVertex.mV = aV;
+        aVertex.mColor = 0;
+    };
 
-  // Left bar.
-  aVert(aTriangles[0][0], aLeftX, aTopInner, aU1, 1.0f);
-  aVert(aTriangles[0][1], aLeftX, aSideBottom, aU0, 1.0f);
-  aVert(aTriangles[0][2], aLeftOuter, aTopOuter, aU1, 0.0f);
-  aVert(aTriangles[1][0], aLeftOuter, aSideOuter, aU0, 0.0f);
-  aVert(aTriangles[1][1], aLeftOuter, aTopOuter, aU1, 0.0f);
-  aVert(aTriangles[1][2], aLeftX, aSideBottom, aU0, 1.0f);
-  // Lower-left bevel.
-  aVert(aTriangles[2][0], aLeftX, aSideBottom, aU1, 1.0f);
-  aVert(aTriangles[2][1], aLeftOuter, aSideOuter, aU1, 0.0f);
-  aVert(aTriangles[2][2], aLeftInner, aBottomY, aU0, 1.0f);
-  aVert(aTriangles[3][0], aLeftInner, aBottomY, aU0, 1.0f);
-  aVert(aTriangles[3][1], aLeftOuter, aSideOuter, aU1, 0.0f);
-  aVert(aTriangles[3][2], aLeftBevel, aBottomOuter, aU0, 0.0f);
-  // Bottom bar.
-  aVert(aTriangles[4][0], aLeftInner, aBottomY, aU1, 1.0f);
-  aVert(aTriangles[4][1], aRightInner, aBottomY, aU0, 1.0f);
-  aVert(aTriangles[4][2], aRightBevel, aBottomOuter, aU0, 0.0f);
-  aVert(aTriangles[5][0], aLeftBevel, aBottomOuter, aU1, 0.0f);
-  aVert(aTriangles[5][1], aLeftInner, aBottomY, aU1, 1.0f);
-  aVert(aTriangles[5][2], aRightBevel, aBottomOuter, aU0, 0.0f);
-  // Lower-right bevel.
-  aVert(aTriangles[6][0], aRightInner, aBottomY, aU0, 1.0f);
-  aVert(aTriangles[6][1], aRightX, aSideBottom, aU1, 1.0f);
-  aVert(aTriangles[6][2], aRightBevel, aBottomOuter, aU0, 0.0f);
-  aVert(aTriangles[7][0], aRightX, aSideBottom, aU1, 1.0f);
-  aVert(aTriangles[7][1], aRightOuter, aSideOuter, aU1, 0.0f);
-  aVert(aTriangles[7][2], aRightBevel, aBottomOuter, aU0, 0.0f);
-  // Right bar.
-  aVert(aTriangles[8][0], aRightX, aSideBottom, aU0, 1.0f);
-  aVert(aTriangles[8][1], aRightX, aTopInner, aU1, 1.0f);
-  aVert(aTriangles[8][2], aRightOuter, aTopOuter, aU1, 0.0f);
-  aVert(aTriangles[9][0], aRightOuter, aTopOuter, aU1, 0.0f);
-  aVert(aTriangles[9][1], aRightOuter, aSideOuter, aU0, 0.0f);
-  aVert(aTriangles[9][2], aRightX, aSideBottom, aU0, 1.0f);
+    // Left bar.
+    aVert(aTriangles[0][0], aLeftX, aTopInner, aU1, 1.0f);
+    aVert(aTriangles[0][1], aLeftX, aSideBottom, aU0, 1.0f);
+    aVert(aTriangles[0][2], aLeftOuter, aTopOuter, aU1, 0.0f);
+    aVert(aTriangles[1][0], aLeftOuter, aSideOuter, aU0, 0.0f);
+    aVert(aTriangles[1][1], aLeftOuter, aTopOuter, aU1, 0.0f);
+    aVert(aTriangles[1][2], aLeftX, aSideBottom, aU0, 1.0f);
+    // Lower-left bevel.
+    aVert(aTriangles[2][0], aLeftX, aSideBottom, aU1, 1.0f);
+    aVert(aTriangles[2][1], aLeftOuter, aSideOuter, aU1, 0.0f);
+    aVert(aTriangles[2][2], aLeftInner, aBottomY, aU0, 1.0f);
+    aVert(aTriangles[3][0], aLeftInner, aBottomY, aU0, 1.0f);
+    aVert(aTriangles[3][1], aLeftOuter, aSideOuter, aU1, 0.0f);
+    aVert(aTriangles[3][2], aLeftBevel, aBottomOuter, aU0, 0.0f);
+    // Bottom bar.
+    aVert(aTriangles[4][0], aLeftInner, aBottomY, aU1, 1.0f);
+    aVert(aTriangles[4][1], aRightInner, aBottomY, aU0, 1.0f);
+    aVert(aTriangles[4][2], aRightBevel, aBottomOuter, aU0, 0.0f);
+    aVert(aTriangles[5][0], aLeftBevel, aBottomOuter, aU1, 0.0f);
+    aVert(aTriangles[5][1], aLeftInner, aBottomY, aU1, 1.0f);
+    aVert(aTriangles[5][2], aRightBevel, aBottomOuter, aU0, 0.0f);
+    // Lower-right bevel.
+    aVert(aTriangles[6][0], aRightInner, aBottomY, aU0, 1.0f);
+    aVert(aTriangles[6][1], aRightX, aSideBottom, aU1, 1.0f);
+    aVert(aTriangles[6][2], aRightBevel, aBottomOuter, aU0, 0.0f);
+    aVert(aTriangles[7][0], aRightX, aSideBottom, aU1, 1.0f);
+    aVert(aTriangles[7][1], aRightOuter, aSideOuter, aU1, 0.0f);
+    aVert(aTriangles[7][2], aRightBevel, aBottomOuter, aU0, 0.0f);
+    // Right bar.
+    aVert(aTriangles[8][0], aRightX, aSideBottom, aU0, 1.0f);
+    aVert(aTriangles[8][1], aRightX, aTopInner, aU1, 1.0f);
+    aVert(aTriangles[8][2], aRightOuter, aTopOuter, aU1, 0.0f);
+    aVert(aTriangles[9][0], aRightOuter, aTopOuter, aU1, 0.0f);
+    aVert(aTriangles[9][1], aRightOuter, aSideOuter, aU0, 0.0f);
+    aVert(aTriangles[9][2], aRightX, aSideBottom, aU0, 1.0f);
 
-  Sexy::Graphics3D *aGraphics3D = aGraphics->Get3D();
-  if ( aGraphics3D != nullptr )
-  {
-    aGraphics3D->SetTextureWrap(0, true, false);
-  }
-  Sexy::Image *aTexture;
-  if ( mIsZombie != 0 )
-  {
-    aTexture = IMAGE_SQUARE_TEXTURE_ZOMBIE;
-  }
-  else
-  {
-    aTexture = IMAGE_SQUARE_TEXTURE;
-  }
-  if ( aGraphics3D != nullptr )
-  {
-    aGraphics->DrawTrianglesTex(aTexture, aTriangles, 10);
-    aGraphics3D->SetTextureWrap(0, false, false);
-  }
-  else
-  {
-    aTexture->SetWrapMode(1, 0);
-    aGraphics->DrawTrianglesTex(aTexture, aTriangles, 10);
-    aTexture->SetWrapMode(0, 0);
-  }
-  aGraphics->SetDrawMode(0);
-  aGraphics->mTransX -= aHalfWidth;
-  aGraphics->mTransY -= aHalfHeight;
-  return 0;
+    Sexy::Graphics3D *aGraphics3D = aGraphics->Get3D();
+    if (aGraphics3D != nullptr)
+    {
+        aGraphics3D->SetTextureWrap(0, true, false);
+    }
+    Sexy::Image *aTexture;
+    if (mIsZombie != 0)
+    {
+        aTexture = IMAGE_SQUARE_TEXTURE_ZOMBIE;
+    }
+    else
+    {
+        aTexture = IMAGE_SQUARE_TEXTURE;
+    }
+    if (aGraphics3D != nullptr)
+    {
+        aGraphics->DrawTrianglesTex(aTexture, aTriangles, 10);
+        aGraphics3D->SetTextureWrap(0, false, false);
+    }
+    else
+    {
+        aTexture->SetWrapMode(1, 0);
+        aGraphics->DrawTrianglesTex(aTexture, aTriangles, 10);
+        aTexture->SetWrapMode(0, 0);
+    }
+    aGraphics->SetDrawMode(0);
+    aGraphics->mTransX -= aHalfWidth;
+    aGraphics->mTransY -= aHalfHeight;
+    return 0;
 }
 
 // ==========================================================================
 // GamepadControls::DrawReticuleHorizontal(Sexy::Graphics *,int,int)
 // @001BF96C  144 bytes
 // ==========================================================================
-float GamepadControls::DrawReticuleHorizontal(Sexy::Graphics * aGraphics, int aX, int aY)
+float GamepadControls::DrawReticuleHorizontal(Sexy::Graphics *aGraphics, int aX, int aY)
 {
-  // MOVT immediates 0x447A0000 and 0x41F00000; curve id 1 is CURVE_LINEAR.
-  float aCurve = TodAnimateCurveFloat(0, 20, mCobCannonAnimCounter, 1000.0f, 30.0f, CURVE_LINEAR);
-  int aOffset = (int)aCurve;
-  int aDrawY = aY - 30;
-  int aLastDraw = 0;
-  bool aDrew = false;
+    // MOVT immediates 0x447A0000 and 0x41F00000; curve id 1 is CURVE_LINEAR.
+    float aCurve = TodAnimateCurveFloat(0, 20, mCobCannonAnimCounter, 1000.0f, 30.0f, CURVE_LINEAR);
+    int aOffset = (int)aCurve;
+    int aDrawY = aY - 30;
+    int aLastDraw = 0;
+    bool aDrew = false;
 
-  // CMN x, #0xEF / BLT: skip when x < -239. The 90px step is before DrawImage,
-  // so the last tile can sit below -239.
-  for (int aTileX = aX - aOffset; aTileX >= -239; )
-  {
-    aTileX -= 90;
-    aGraphics->DrawImage(IMAGE_PERISCOPE_RETICULE, aTileX, aDrawY);
-    aDrew = true;
-  }
-  // CMP #0x500: draw while x < 1280, then step +90. Mirror flag is the constant 1.
-  for (int aTileX = aOffset + aX; aTileX < 1280; )
-  {
-    aGraphics->DrawImageMirror(IMAGE_PERISCOPE_RETICULE, aTileX, aDrawY, true);
-    aTileX += 90;
-    aDrew = true;
-  }
+    // CMN x, #0xEF / BLT: skip when x < -239. The 90px step is before DrawImage,
+    // so the last tile can sit below -239.
+    for (int aTileX = aX - aOffset; aTileX >= -239;)
+    {
+        aTileX -= 90;
+        aGraphics->DrawImage(IMAGE_PERISCOPE_RETICULE, aTileX, aDrawY);
+        aDrew = true;
+    }
+    // CMP #0x500: draw while x < 1280, then step +90. Mirror flag is the constant 1.
+    for (int aTileX = aOffset + aX; aTileX < 1280;)
+    {
+        aGraphics->DrawImageMirror(IMAGE_PERISCOPE_RETICULE, aTileX, aDrawY, true);
+        aTileX += 90;
+        aDrew = true;
+    }
 
-  // Neither loop reads the draw return. POP leaves r0 as the last BL, a
-  // soft-float result: those int bits if a tile was drawn, else the curve.
-  if (!aDrew)
-    return aCurve;
-  float aResult;
-  std::memcpy(&aResult, &aLastDraw, sizeof(aResult));
-  return aResult;
+    // Neither loop reads the draw return. POP leaves r0 as the last BL, a
+    // soft-float result: those int bits if a tile was drawn, else the curve.
+    if (!aDrew)
+        return aCurve;
+    float aResult;
+    std::memcpy(&aResult, &aLastDraw, sizeof(aResult));
+    return aResult;
 }
 
 // ==========================================================================
@@ -350,31 +346,31 @@ float GamepadControls::DrawReticuleHorizontal(Sexy::Graphics * aGraphics, int aX
 // ==========================================================================
 int GamepadControls::DrawReticuleVertical(Sexy::Graphics *theGraphics, int theX, int theY)
 {
-  int aReticuleOffset = (int)TodAnimateCurveFloat(0, 20, mCobCannonAnimCounter, 1000.0f, 10.0f, CURVE_LINEAR);
-  int aRowMargin;
-  if ( mBoard->StageHas6Rows() )
-    aRowMargin = 50;
-  else
-    aRowMargin = 70;
-  int aResult = aRowMargin;
-  for ( int i = aRowMargin + theY + aReticuleOffset; i < 720; )
-  {
-    int aDrawY = i;
-    i += 90;
-    SexyTransform2D aTransform;
-    aTransform.RotateDeg(90.0f);
-    aTransform.Translate((float)theX, (float)aDrawY);
-    theGraphics->DrawImageMatrix(IMAGE_PERISCOPE_RETICULE, aTransform, 0.0f, 0.0f, true);
-  }
-  for ( int j = theY - aReticuleOffset; j >= -79; )
-  {
-    j -= 90;
-    SexyTransform2D aTransform;
-    aTransform.RotateDeg(-90.0f);
-    aTransform.Translate((float)theX, (float)j);
-    theGraphics->DrawImageMatrix(IMAGE_PERISCOPE_RETICULE, aTransform, 0.0f, 0.0f, true);
-  }
-  return aResult;
+    int aReticuleOffset = (int)TodAnimateCurveFloat(0, 20, mCobCannonAnimCounter, 1000.0f, 10.0f, CURVE_LINEAR);
+    int aRowMargin;
+    if (mBoard->StageHas6Rows())
+        aRowMargin = 50;
+    else
+        aRowMargin = 70;
+    int aResult = aRowMargin;
+    for (int i = aRowMargin + theY + aReticuleOffset; i < 720;)
+    {
+        int aDrawY = i;
+        i += 90;
+        SexyTransform2D aTransform;
+        aTransform.RotateDeg(90.0f);
+        aTransform.Translate((float)theX, (float)aDrawY);
+        theGraphics->DrawImageMatrix(IMAGE_PERISCOPE_RETICULE, aTransform, 0.0f, 0.0f, true);
+    }
+    for (int j = theY - aReticuleOffset; j >= -79;)
+    {
+        j -= 90;
+        SexyTransform2D aTransform;
+        aTransform.RotateDeg(-90.0f);
+        aTransform.Translate((float)theX, (float)j);
+        theGraphics->DrawImageMatrix(IMAGE_PERISCOPE_RETICULE, aTransform, 0.0f, 0.0f, true);
+    }
+    return aResult;
 }
 
 // ==========================================================================
@@ -383,80 +379,80 @@ int GamepadControls::DrawReticuleVertical(Sexy::Graphics *theGraphics, int theX,
 // ==========================================================================
 void GamepadControls::DrawDigIndicator(Sexy::Graphics *theGraphics, float theX, float theY, float theProgress)
 {
-  SexyVertex2D aVerts[100][3]{};
-  theGraphics->mTransX += theX;
-  theGraphics->mTransY += theY;
-  int aSliceCount = (int)(theProgress * 100.0f);
-  if ( aSliceCount <= 0 )
-  {
-    aSliceCount = 0;
-  }
-  else
-  {
-    if (aSliceCount > 100)
-      aSliceCount = 100;
-    for ( int aStep = 0; aStep < aSliceCount; ++aStep )
+    SexyVertex2D aVerts[100][3]{};
+    theGraphics->mTransX += theX;
+    theGraphics->mTransY += theY;
+    int aSliceCount = (int)(theProgress * 100.0f);
+    if (aSliceCount <= 0)
     {
-      float aAngle = (float)(aStep * 2) * 0.031416f;
-      float aNextAngle = aAngle + 0.062832f;
-      float aCos = cosf(aAngle);
-      float aSin = sinf(aAngle);
-      float aNextCos = cosf(aNextAngle);
-      float aNextSin = sinf(aNextAngle);
-      aVerts[aStep][0].mX = 23.0f;
-      aVerts[aStep][0].mY = 23.0f;
-      // @0x1BFC3C / @0x1BFC40 store the texture centre for the fan centre.
-      aVerts[aStep][0].mU = 0.5f;
-      aVerts[aStep][0].mV = 0.5f;
-      aVerts[aStep][0].mColor = 0;
-      aVerts[aStep][1].mX = aCos * 22.0f + 23.0f;
-      aVerts[aStep][1].mY = aSin * 22.0f + 23.0f;
-      aVerts[aStep][1].mU = aCos * 0.47826f + 0.5f;
-      aVerts[aStep][1].mV = aSin * 0.47826f + 0.5f;
-      aVerts[aStep][1].mColor = 0;
-      aVerts[aStep][2].mX = aNextCos * 22.0f + 23.0f;
-      aVerts[aStep][2].mY = aNextSin * 22.0f + 23.0f;
-      aVerts[aStep][2].mU = aNextCos * 0.47826f + 0.5f;
-      aVerts[aStep][2].mV = aNextSin * 0.47826f + 0.5f;
-      aVerts[aStep][2].mColor = 0;
+        aSliceCount = 0;
     }
-  }
-  theGraphics->DrawImage(IMAGE_SHOVELMETER_EMTY, 0, 0);
-  Sexy::Graphics3D *aGraphics3D = theGraphics->Get3D();
-  if ( aGraphics3D != nullptr )
-  {
-    aGraphics3D->SetTextureWrap(0, true, false);
-    theGraphics->DrawTrianglesTex(IMAGE_SHOVELMETER_FULL, aVerts, aSliceCount);
-    aGraphics3D->SetTextureWrap(0, false, false);
-  }
-  else
-  {
-    IMAGE_SHOVELMETER_FULL->SetWrapMode(1, 0);
-    theGraphics->DrawTrianglesTex(IMAGE_SHOVELMETER_FULL, aVerts, aSliceCount);
-    IMAGE_SHOVELMETER_FULL->SetWrapMode(0, 0);
-  }
-  theGraphics->SetDrawMode(0);
-  theGraphics->mTransX -= theX;
-  theGraphics->mTransY -= theY;
+    else
+    {
+        if (aSliceCount > 100)
+            aSliceCount = 100;
+        for (int aStep = 0; aStep < aSliceCount; ++aStep)
+        {
+            float aAngle = (float)(aStep * 2) * 0.031416f;
+            float aNextAngle = aAngle + 0.062832f;
+            float aCos = cosf(aAngle);
+            float aSin = sinf(aAngle);
+            float aNextCos = cosf(aNextAngle);
+            float aNextSin = sinf(aNextAngle);
+            aVerts[aStep][0].mX = 23.0f;
+            aVerts[aStep][0].mY = 23.0f;
+            // @0x1BFC3C / @0x1BFC40 store the texture centre for the fan centre.
+            aVerts[aStep][0].mU = 0.5f;
+            aVerts[aStep][0].mV = 0.5f;
+            aVerts[aStep][0].mColor = 0;
+            aVerts[aStep][1].mX = aCos * 22.0f + 23.0f;
+            aVerts[aStep][1].mY = aSin * 22.0f + 23.0f;
+            aVerts[aStep][1].mU = aCos * 0.47826f + 0.5f;
+            aVerts[aStep][1].mV = aSin * 0.47826f + 0.5f;
+            aVerts[aStep][1].mColor = 0;
+            aVerts[aStep][2].mX = aNextCos * 22.0f + 23.0f;
+            aVerts[aStep][2].mY = aNextSin * 22.0f + 23.0f;
+            aVerts[aStep][2].mU = aNextCos * 0.47826f + 0.5f;
+            aVerts[aStep][2].mV = aNextSin * 0.47826f + 0.5f;
+            aVerts[aStep][2].mColor = 0;
+        }
+    }
+    theGraphics->DrawImage(IMAGE_SHOVELMETER_EMTY, 0, 0);
+    Sexy::Graphics3D *aGraphics3D = theGraphics->Get3D();
+    if (aGraphics3D != nullptr)
+    {
+        aGraphics3D->SetTextureWrap(0, true, false);
+        theGraphics->DrawTrianglesTex(IMAGE_SHOVELMETER_FULL, aVerts, aSliceCount);
+        aGraphics3D->SetTextureWrap(0, false, false);
+    }
+    else
+    {
+        IMAGE_SHOVELMETER_FULL->SetWrapMode(1, 0);
+        theGraphics->DrawTrianglesTex(IMAGE_SHOVELMETER_FULL, aVerts, aSliceCount);
+        IMAGE_SHOVELMETER_FULL->SetWrapMode(0, 0);
+    }
+    theGraphics->SetDrawMode(0);
+    theGraphics->mTransX -= theX;
+    theGraphics->mTransY -= theY;
 }
 
 // ==========================================================================
 // GamepadControls::GetSeedBank()
 // @001BFDD4  50 bytes
 // ==========================================================================
-SeedBank * GamepadControls::GetSeedBank()
+SeedBank *GamepadControls::GetSeedBank()
 {
-  // The zombie player always draws from the second bank; everyone else uses the
-  // first, except in co-op where the bank is picked by player index.
-  if ( mIsZombie != 0 )
-  {
-    SeedBank *aZombieBank = mBoard->mSeedBank[1];
-    if ( aZombieBank != nullptr )
-      return aZombieBank;
-  }
-  if ( mApp->IsCoopMode() )
-    return mBoard->mSeedBank[mPlayerIndex];
-  return mBoard->mSeedBank[0];
+    // The zombie player always draws from the second bank; everyone else uses the
+    // first, except in co-op where the bank is picked by player index.
+    if (mIsZombie != 0)
+    {
+        SeedBank *aZombieBank = mBoard->mSeedBank[1];
+        if (aZombieBank != nullptr)
+            return aZombieBank;
+    }
+    if (mApp->IsCoopMode())
+        return mBoard->mSeedBank[mPlayerIndex];
+    return mBoard->mSeedBank[0];
 }
 
 // ==========================================================================
@@ -465,62 +461,62 @@ SeedBank * GamepadControls::GetSeedBank()
 // ==========================================================================
 int GamepadControls::PlantShopPacket()
 {
-  if ( !mApp->CanShopLevel() )
-    return 0;
+    if (!mApp->CanShopLevel())
+        return 0;
 
-  unsigned int aIndex = mSelectedShopSeedIndex;
-  if ( aIndex > 6 )
-    return 0;
-  if ( aIndex - 1 <= 1 )
-  {
-    if ( mBoard->HasConveyorBeltSeedBank(false) )
-      return 0;
-    mApp->PlayFoley(FOLEY_SPAWN_SUN);
-    int aCoinCount;
-    int aSunTotal;
-    if ( aIndex == 1 )
+    unsigned int aIndex = mSelectedShopSeedIndex;
+    if (aIndex > 6)
+        return 0;
+    if (aIndex - 1 <= 1)
     {
-      aCoinCount = 4;
-      aSunTotal = 500;
+        if (mBoard->HasConveyorBeltSeedBank(false))
+            return 0;
+        mApp->PlayFoley(FOLEY_SPAWN_SUN);
+        int aCoinCount;
+        int aSunTotal;
+        if (aIndex == 1)
+        {
+            aCoinCount = 4;
+            aSunTotal = 500;
+        }
+        else
+        {
+            aCoinCount = 8;
+            aSunTotal = 1000;
+        }
+        // GameObject is the second base, at +4, so the word at object +0x24 is
+        // GameObject::mWidth. The divide is the compiler's multiply by 0x55555556.
+        int aWidth = mWidth;
+        for (int i = 0; i < aCoinCount; ++i)
+        {
+            int aCoinX = aWidth / 3 + Rand(160) - 80;
+            int aCoinY = Rand(10) + 50;
+            Coin *aCoin = mBoard->AddCoin(aCoinX, aCoinY, COIN_SUN, (CoinMotion)0);
+            aCoin->SetSunValue(aSunTotal / aCoinCount);
+            aCoin->SetAutoCollect(true, Rand(40) + 60);
+        }
+        return 1;
     }
-    else
+    if (aIndex == 0)
     {
-      aCoinCount = 8;
-      aSunTotal = 1000;
+        int aRowCount = 6;
+        if (mApp->mGameMode == GAMEMODE_ADVENTURE)
+        {
+            unsigned int aLevel = (unsigned int)(mBoard->mLevel - 20);
+            if (aLevel > 0x14)
+                aRowCount = 5;
+        }
+        for (int aRow = 0; aRow < aRowCount; ++aRow)
+        {
+            for (int aCol = 0; aCol < 9; ++aCol)
+                mBoard->AddPlant(aCol, aRow, SEED_CHERRYBOMB, SEED_NONE, mPlayerIndex, true);
+        }
+        return 1;
     }
-    // GameObject is the second base, at +4, so the word at object +0x24 is
-    // GameObject::mWidth. The divide is the compiler's multiply by 0x55555556.
-    int aWidth = mWidth;
-    for ( int i = 0; i < aCoinCount; ++i )
-    {
-      int aCoinX = aWidth / 3 + Rand(160) - 80;
-      int aCoinY = Rand(10) + 50;
-      Coin *aCoin = mBoard->AddCoin(aCoinX, aCoinY, COIN_SUN, (CoinMotion)0);
-      aCoin->SetSunValue(aSunTotal / aCoinCount);
-      aCoin->SetAutoCollect(true, Rand(40) + 60);
-    }
+    if (aIndex != 3 || mBoard->HasConveyorBeltSeedBank(false))
+        return 0;
+    GetSeedBank()->RefreshAllPackets();
     return 1;
-  }
-  if ( aIndex == 0 )
-  {
-    int aRowCount = 6;
-    if ( mApp->mGameMode == GAMEMODE_ADVENTURE )
-    {
-      unsigned int aLevel = (unsigned int)(mBoard->mLevel - 20);
-      if ( aLevel > 0x14 )
-        aRowCount = 5;
-    }
-    for ( int aRow = 0; aRow < aRowCount; ++aRow )
-    {
-      for ( int aCol = 0; aCol < 9; ++aCol )
-        mBoard->AddPlant(aCol, aRow, SEED_CHERRYBOMB, SEED_NONE, mPlayerIndex, true);
-    }
-    return 1;
-  }
-  if ( aIndex != 3 || mBoard->HasConveyorBeltSeedBank(false) )
-    return 0;
-  GetSeedBank()->RefreshAllPackets();
-  return 1;
 }
 
 // ==========================================================================
@@ -529,466 +525,455 @@ int GamepadControls::PlantShopPacket()
 // ==========================================================================
 int GamepadControls::FreeUseShopPacketAndBack()
 {
-  PlantShopPacket();
-  return GotoState(MOVEMENT_STATE_NORMAL);
+    PlantShopPacket();
+    return GotoState(MOVEMENT_STATE_NORMAL);
 }
 
 // ==========================================================================
 // GamepadControls::DrawPreview(Sexy::Graphics *)
 // @001BFF4C  1252 bytes
 // ==========================================================================
-void GamepadControls::DrawPreview(Sexy::Graphics * g)
+void GamepadControls::DrawPreview(Sexy::Graphics *g)
 {
-  int aGridX = mBoard->PixelToGridXKeepOnBoard((int)mCursorPositionX, (int)mCursorPositionY);
-  int aGridY = mBoard->PixelToGridYKeepOnBoard((int)mCursorPositionX, (int)mCursorPositionY);
+    int aGridX = mBoard->PixelToGridXKeepOnBoard((int)mCursorPositionX, (int)mCursorPositionY);
+    int aGridY = mBoard->PixelToGridYKeepOnBoard((int)mCursorPositionX, (int)mCursorPositionY);
 
-  // Slot machine with nothing in hand never shows a preview.
-  if ( mApp->mGameMode == GAMEMODE_CHALLENGE_SLOT_MACHINE && mCanPickUp == 0 )
-    return;
-  // No pad attached, and one of the two pad flags is off: only Scary Potter,
-  // the slot machine, and the plant-cursor state still preview.
-  if ( !mApp->HasGamepad()
-    && (mApp->mGamePad1IsOn == 0 || mApp->mGamePad2IsOn == 0)
-    && mApp->IsScaryPotterLevel() == 0
-    && mApp->mGameMode != GAMEMODE_CHALLENGE_SLOT_MACHINE
-    && mGamepadState != MOVEMENT_STATE_PLANT_CURSOR )
-  {
-    return;
-  }
+    // Slot machine with nothing in hand never shows a preview.
+    if (mApp->mGameMode == GAMEMODE_CHALLENGE_SLOT_MACHINE && mCanPickUp == 0)
+        return;
+    // No pad attached, and one of the two pad flags is off: only Scary Potter,
+    // the slot machine, and the plant-cursor state still preview.
+    if (!mApp->HasGamepad() && (mApp->mGamePad1IsOn == 0 || mApp->mGamePad2IsOn == 0) &&
+        mApp->IsScaryPotterLevel() == 0 && mApp->mGameMode != GAMEMODE_CHALLENGE_SLOT_MACHINE &&
+        mGamepadState != MOVEMENT_STATE_PLANT_CURSOR)
+    {
+        return;
+    }
 
-  SeedType aSeedType = mSelectedSeedType;
-  SeedBank *aSeedBank = GetSeedBank();
-  if ( aSeedType == SEED_NONE )
-    return;
+    SeedType aSeedType = mSelectedSeedType;
+    SeedBank *aSeedBank = GetSeedBank();
+    if (aSeedType == SEED_NONE)
+        return;
 
-  // Hide blocked plant overlaps, while keeping legal layers and upgrades.
-  if ( !mIsZombie && !mApp->IsIZombieLevel()
-    && mBoard->CanPlantAt(aGridX, aGridY, aSeedType) != PLANTING_OK )
-  {
-    PlantsOnLawn aPlants;
-    mBoard->GetPlantsOnLawn(aGridX, aGridY, &aPlants);
-    if ( aPlants.mNormalPlant != nullptr || aPlants.mUnderPlant != nullptr
-      || aPlants.mPumpkinPlant != nullptr || aPlants.mFlyingPlant != nullptr )
-      return;
-  }
+    // Hide blocked plant overlaps, while keeping legal layers and upgrades.
+    if (!mIsZombie && !mApp->IsIZombieLevel() && mBoard->CanPlantAt(aGridX, aGridY, aSeedType) != PLANTING_OK)
+    {
+        PlantsOnLawn aPlants;
+        mBoard->GetPlantsOnLawn(aGridX, aGridY, &aPlants);
+        if (aPlants.mNormalPlant != nullptr || aPlants.mUnderPlant != nullptr || aPlants.mPumpkinPlant != nullptr ||
+            aPlants.mFlyingPlant != nullptr)
+            return;
+    }
 
-  g->SetColorizeImages(true);
-  if ( mCanPickUp != 0 )
-  {
-    g->SetColor(Sexy::Color(255, 255, 255, 125));
-  }
-  else
-  {
-    SeedPacket *aPacket = &aSeedBank->mSeedPackets[mSelectedSeedIndex];
-    int aGrey;
-    if ( aPacket->mRefreshing && aPacket->mRefreshTime > 0 )
-      aGrey = (int)((float)aPacket->mRefreshCounter / (float)aPacket->mRefreshTime * 40.0f + 20.0f);
+    g->SetColorizeImages(true);
+    if (mCanPickUp != 0)
+    {
+        g->SetColor(Sexy::Color(255, 255, 255, 125));
+    }
     else
-      aGrey = 60;
-    g->SetColor(Sexy::Color(aGrey, aGrey, aGrey, 125));
-  }
-
-  if ( mIsZombie != 0 )
-  {
-    aSeedType = aSeedBank->mSeedPackets[mSelectedSeedIndex].mPacketType;
-    if ( aSeedType == SEED_ZOMBIE_GRAVESTONE )
     {
-      Sexy::TRect<int> aCel(0, 0, IMAGE_MP_TOMBSTONE->GetCelWidth(), IMAGE_MP_TOMBSTONE->GetCelHeight());
-      g->DrawImage(IMAGE_MP_TOMBSTONE, 0, 0, aCel);
-      return;
-    }
-  }
-
-  // Unavailable seeds use the static plant cache, keeping the ready preview animated.
-  if ( mApp->mGameMode == GAMEMODE_CHALLENGE_COLUMN || !mCanPickUp )
-  {
-    // Same pad check as the entry, but here a missing pad just drops the
-    // colorize flag and returns. The two pad loads are OR, not AND.
-    if ( mApp->mGameMode == GAMEMODE_CHALLENGE_COLUMN
-      && !mApp->HasGamepad() && (mApp->mGamePad1IsOn == 0 || mApp->mGamePad2IsOn == 0) )
-    {
-      g->SetColorizeImages(false);
-      return;
+        SeedPacket *aPacket = &aSeedBank->mSeedPackets[mSelectedSeedIndex];
+        int aGrey;
+        if (aPacket->mRefreshing && aPacket->mRefreshTime > 0)
+            aGrey = (int)((float)aPacket->mRefreshCounter / (float)aPacket->mRefreshTime * 40.0f + 20.0f);
+        else
+            aGrey = 60;
+        g->SetColor(Sexy::Color(aGrey, aGrey, aGrey, 125));
     }
 
-    CursorObject *aCursor = mBoard->mCursorObject[mPlayerIndex];
-    CursorType aCursorType = aCursor->mCursorType;
-    bool aDrewPot = false;
-    if ( aCursorType == CURSOR_TYPE_WHEEELBARROW || aCursorType == CURSOR_TYPE_PLANT_FROM_WHEEL_BARROW
-      || aCursorType == CURSOR_TYPE_PLANT_FROM_GLOVE )
+    if (mIsZombie != 0)
     {
-      PottedPlant *aPottedPlant = nullptr;
-      if ( aCursorType == CURSOR_TYPE_PLANT_FROM_GLOVE )
-      {
-        Plant *aGlovePlant = mBoard->mPlants.DataArrayTryToGet(aCursor->mGlovePlantID);
-        if (aGlovePlant == nullptr || aGlovePlant->mPottedPlantIndex < 0
-            || aGlovePlant->mPottedPlantIndex >= mApp->mPlayerInfo->mNumPottedPlants)
+        aSeedType = aSeedBank->mSeedPackets[mSelectedSeedIndex].mPacketType;
+        if (aSeedType == SEED_ZOMBIE_GRAVESTONE)
         {
-          g->SetColorizeImages(false);
-          return;
+            Sexy::TRect<int> aCel(0, 0, IMAGE_MP_TOMBSTONE->GetCelWidth(), IMAGE_MP_TOMBSTONE->GetCelHeight());
+            g->DrawImage(IMAGE_MP_TOMBSTONE, 0, 0, aCel);
+            return;
         }
-        aPottedPlant = mApp->GetPottedPlantByIndex(aGlovePlant->mPottedPlantIndex);
-      }
-      else
-      {
-        aPottedPlant = mApp->mZenGarden->GetPottedPlantInWheelbarrow();
-      }
-      if ( aPottedPlant != nullptr )
-      {
-        // Mushroom garden and the aquarium already draw their own pot.
-        bool aGardenBackground = mBoard->mBackground == BACKGROUND_MUSHROOM_GARDEN
-                              || mBoard->mBackground == BACKGROUND_ZOMBIQUARIUM;
-        mApp->mZenGarden->DrawPottedPlant(g, 0.0f, 0.0f, aPottedPlant, 1.0f, !aGardenBackground);
-        aDrewPot = true;
-      }
     }
 
-    if ( !aDrewPot )
+    // Unavailable seeds use the static plant cache, keeping the ready preview animated.
+    if (mApp->mGameMode == GAMEMODE_CHALLENGE_COLUMN || !mCanPickUp)
     {
-      if ( mApp->IsIZombieLevel() || mIsZombie != 0 )
-      {
-        // Both branches pass a null Plant*. The byte in r7 is only the
-        // second argument on the non-zombie path below.
-        float aHeight = PlantDrawHeightOffset(mBoard, nullptr, aSeedType, aGridX, aGridY);
-        float aOffsetX = 0.0f;
-        if ( aSeedType == SEED_ZOMBIE_GARGANTUAR )
+        // Same pad check as the entry, but here a missing pad just drops the
+        // colorize flag and returns. The two pad loads are OR, not AND.
+        if (mApp->mGameMode == GAMEMODE_CHALLENGE_COLUMN && !mApp->HasGamepad() &&
+            (mApp->mGamePad1IsOn == 0 || mApp->mGamePad2IsOn == 0))
         {
-          aHeight -= 30.0f;
+            g->SetColorizeImages(false);
+            return;
         }
-        else if ( aSeedType == SEED_ZOMBIE_GRAVESTONE )
+
+        CursorObject *aCursor = mBoard->mCursorObject[mPlayerIndex];
+        CursorType aCursorType = aCursor->mCursorType;
+        bool aDrewPot = false;
+        if (aCursorType == CURSOR_TYPE_WHEEELBARROW || aCursorType == CURSOR_TYPE_PLANT_FROM_WHEEL_BARROW ||
+            aCursorType == CURSOR_TYPE_PLANT_FROM_GLOVE)
         {
-          aOffsetX = 49.0f;
-          aHeight += 78.0f;
+            PottedPlant *aPottedPlant = nullptr;
+            if (aCursorType == CURSOR_TYPE_PLANT_FROM_GLOVE)
+            {
+                Plant *aGlovePlant = mBoard->mPlants.DataArrayTryToGet(aCursor->mGlovePlantID);
+                if (aGlovePlant == nullptr || aGlovePlant->mPottedPlantIndex < 0 ||
+                    aGlovePlant->mPottedPlantIndex >= mApp->mPlayerInfo->mNumPottedPlants)
+                {
+                    g->SetColorizeImages(false);
+                    return;
+                }
+                aPottedPlant = mApp->GetPottedPlantByIndex(aGlovePlant->mPottedPlantIndex);
+            }
+            else
+            {
+                aPottedPlant = mApp->mZenGarden->GetPottedPlantInWheelbarrow();
+            }
+            if (aPottedPlant != nullptr)
+            {
+                // Mushroom garden and the aquarium already draw their own pot.
+                bool aGardenBackground =
+                    mBoard->mBackground == BACKGROUND_MUSHROOM_GARDEN || mBoard->mBackground == BACKGROUND_ZOMBIQUARIUM;
+                mApp->mZenGarden->DrawPottedPlant(g, 0.0f, 0.0f, aPottedPlant, 1.0f, !aGardenBackground);
+                aDrewPot = true;
+            }
         }
-        else if ( aSeedType == SEED_ZOMBONI )
+
+        if (!aDrewPot)
         {
-          aOffsetX = -100.0f;
+            if (mApp->IsIZombieLevel() || mIsZombie != 0)
+            {
+                // Both branches pass a null Plant*. The byte in r7 is only the
+                // second argument on the non-zombie path below.
+                float aHeight = PlantDrawHeightOffset(mBoard, nullptr, aSeedType, aGridX, aGridY);
+                float aOffsetX = 0.0f;
+                if (aSeedType == SEED_ZOMBIE_GARGANTUAR)
+                {
+                    aHeight -= 30.0f;
+                }
+                else if (aSeedType == SEED_ZOMBIE_GRAVESTONE)
+                {
+                    aOffsetX = 49.0f;
+                    aHeight += 78.0f;
+                }
+                else if (aSeedType == SEED_ZOMBONI)
+                {
+                    aOffsetX = -100.0f;
+                }
+                Plant::DrawSeedType(
+                    g, aSeedType, aCursor->mImitaterType, VARIATION_NORMAL, aOffsetX - 49.0f, aHeight - 78.0f);
+            }
+            else if (aSeedType <= SEED_LEFTPEATER)
+            {
+                float aHeight = PlantDrawHeightOffset(mBoard, nullptr, aSeedType, aGridX, aGridY);
+                // An imitater cursor uses variation 1. Otherwise the variation is
+                // mIsZombie, which this branch already proved is 0.
+                DrawVariation aVariation = VARIATION_NORMAL;
+                if (aCursor->mType == SEED_IMITATER)
+                    aVariation = VARIATION_IMITATER;
+                Plant::DrawSeedType(g, aSeedType, aCursor->mImitaterType, aVariation, 0.0f, aHeight);
+            }
         }
-        Plant::DrawSeedType(g, aSeedType, aCursor->mImitaterType, VARIATION_NORMAL,
-                            aOffsetX - 49.0f, aHeight - 78.0f);
-      }
-      else if ( aSeedType <= SEED_LEFTPEATER )
-      {
-        float aHeight = PlantDrawHeightOffset(mBoard, nullptr, aSeedType, aGridX, aGridY);
-        // An imitater cursor uses variation 1. Otherwise the variation is
-        // mIsZombie, which this branch already proved is 0.
-        DrawVariation aVariation = VARIATION_NORMAL;
-        if ( aCursor->mType == SEED_IMITATER )
-          aVariation = VARIATION_IMITATER;
-        Plant::DrawSeedType(g, aSeedType, aCursor->mImitaterType, aVariation, 0.0f, aHeight);
-      }
+
+        // The mode word is re-read here. It is still column on this path; the
+        // check is what the binary does before the six-row ghost loop.
+        if (mApp->mGameMode == GAMEMODE_CHALLENGE_COLUMN)
+        {
+            for (int aRow = 0; aRow != 6; ++aRow)
+            {
+                if (aRow != aGridY && mBoard->CanPlantAt(aGridX, aRow, aSeedType) == PLANTING_OK &&
+                    aSeedType != SEED_NONE)
+                {
+                    float aRowHeight = PlantDrawHeightOffset(mBoard, nullptr, aSeedType, aGridX, aRow);
+                    float aRowY = aRowHeight + (float)(aRow - aGridY) * 85.0f;
+                    Plant::DrawSeedType(g,
+                        aSeedType,
+                        mBoard->mCursorObject[mPlayerIndex]->mImitaterType,
+                        VARIATION_NORMAL,
+                        0.0f,
+                        aRowY);
+                }
+            }
+        }
+        g->SetColorizeImages(false);
+        return;
     }
 
-    // The mode word is re-read here. It is still column on this path; the
-    // check is what the binary does before the six-row ghost loop.
-    if ( mApp->mGameMode == GAMEMODE_CHALLENGE_COLUMN )
+    g->PushState();
+    g->SetColorizeImages(true);
+    // The available preview uses its animated cache; unavailable seeds returned above.
+    if (mCanPickUp && mSelectedSeedType == SEED_EXPLODE_O_NUT)
+        g->SetColor(Sexy::Color(255, 16, 16, 125));
+    // These compares use the seed that may have been replaced by the packet type.
+    if (aSeedType == SEED_LEFTPEATER)
     {
-      for ( int aRow = 0; aRow != 6; ++aRow )
-      {
-        if ( aRow != aGridY
-          && mBoard->CanPlantAt(aGridX, aRow, aSeedType) == PLANTING_OK
-          && aSeedType != SEED_NONE )
-        {
-          float aRowHeight = PlantDrawHeightOffset(mBoard, nullptr, aSeedType, aGridX, aRow);
-          float aRowY = aRowHeight + (float)(aRow - aGridY) * 85.0f;
-          Plant::DrawSeedType(g, aSeedType,
-                              mBoard->mCursorObject[mPlayerIndex]->mImitaterType,
-                              VARIATION_NORMAL, 0.0f, aRowY);
-        }
-      }
+        g->Translate(-176, -256);
+        g->DrawImageMirror(mPreviewImage, 0, 0, true);
     }
+    else
+    {
+        if (aSeedType == SEED_GIANT_WALLNUT)
+        {
+            // MOVW #0xFEC4 / MOVT #0xFFFF is -316; the other immediate is -331.
+            g->Translate(-331, -316);
+            g->SetScale(2.0f, 2.0f, 256.0f, 256.0f);
+        }
+        else
+        {
+            g->Translate(-256, -256);
+        }
+        g->DrawImage(mPreviewImage, 0, 0);
+    }
+    g->SetColor(Sexy::Color::White);
     g->SetColorizeImages(false);
-    return;
-  }
-
-  g->PushState();
-  g->SetColorizeImages(true);
-  // The available preview uses its animated cache; unavailable seeds returned above.
-  if ( mCanPickUp && mSelectedSeedType == SEED_EXPLODE_O_NUT )
-    g->SetColor(Sexy::Color(255, 16, 16, 125));
-  // These compares use the seed that may have been replaced by the packet type.
-  if ( aSeedType == SEED_LEFTPEATER )
-  {
-    g->Translate(-176, -256);
-    g->DrawImageMirror(mPreviewImage, 0, 0, true);
-  }
-  else
-  {
-    if ( aSeedType == SEED_GIANT_WALLNUT )
-    {
-      // MOVW #0xFEC4 / MOVT #0xFFFF is -316; the other immediate is -331.
-      g->Translate(-331, -316);
-      g->SetScale(2.0f, 2.0f, 256.0f, 256.0f);
-    }
-    else
-    {
-      g->Translate(-256, -256);
-    }
-    g->DrawImage(mPreviewImage, 0, 0);
-  }
-  g->SetColor(Sexy::Color::White);
-  g->SetColorizeImages(false);
-  g->PopState();
+    g->PopState();
 }
 
 // ==========================================================================
 // GamepadControls::Draw(Sexy::Graphics *)
 // @001C0444  1800 bytes
 // ==========================================================================
-void GamepadControls::Draw(Sexy::Graphics * g)
+void GamepadControls::Draw(Sexy::Graphics *g)
 {
-  // gCobCannonTargetFrame is the cob-cannon target frame. OnButtonDown
-  // advances it with `(frame + 1) % 4`; this switch consumes that same word.
+    // gCobCannonTargetFrame is the cob-cannon target frame. OnButtonDown
+    // advances it with `(frame + 1) % 4`; this switch consumes that same word.
 
-  if ( mGamepadIndex == -1 )
-    return;
-  GameMode aGameMode = mBoard->mApp->mGameMode;
-  if ( aGameMode == GAMEMODE_CHALLENGE_BEGHOULED_TWIST || aGameMode == GAMEMODE_CHALLENGE_HEAVY_WEAPON )
-    return;
+    if (mGamepadIndex == -1)
+        return;
+    GameMode aGameMode = mBoard->mApp->mGameMode;
+    if (aGameMode == GAMEMODE_CHALLENGE_BEGHOULED_TWIST || aGameMode == GAMEMODE_CHALLENGE_HEAVY_WEAPON)
+        return;
 
-  CursorObject *aCursor = mBoard->mCursorObject[mPlayerIndex];
-  // Mouse input has no persistent gamepad target while its hand is empty.
-  if (mBoard->mMouseInputActive[mPlayerIndex]
-      && aCursor->mCursorType == CURSOR_TYPE_NORMAL
-      && !mIsCobCannonSelected)
-    return;
-  if ( aCursor->mCursorType == CURSOR_TYPE_HAMMER
-      || (mBoard->mMouseInputActive[mPlayerIndex] && aCursor->mCursorType == CURSOR_TYPE_SHOVEL) )
-  {
-    // BeginDraw is GameObject's virtual at slot 2. A false result skips the
-    // hammer draw and falls out of the function; it does not fall through.
-    if ( aCursor->BeginDraw(g) )
+    CursorObject *aCursor = mBoard->mCursorObject[mPlayerIndex];
+    // Mouse input has no persistent gamepad target while its hand is empty.
+    if (mBoard->mMouseInputActive[mPlayerIndex] && aCursor->mCursorType == CURSOR_TYPE_NORMAL && !mIsCobCannonSelected)
+        return;
+    if (aCursor->mCursorType == CURSOR_TYPE_HAMMER ||
+        (mBoard->mMouseInputActive[mPlayerIndex] && aCursor->mCursorType == CURSOR_TYPE_SHOVEL))
     {
-      aCursor->Draw(g);
-      aCursor->EndDraw(g);
+        // BeginDraw is GameObject's virtual at slot 2. A false result skips the
+        // hammer draw and falls out of the function; it does not fall through.
+        if (aCursor->BeginDraw(g))
+        {
+            aCursor->Draw(g);
+            aCursor->EndDraw(g);
+        }
+        return;
     }
-    return;
-  }
 
-  int aGridX = mBoard->PixelToGridXKeepOnBoard((int)mCursorPositionX, (int)mCursorPositionY);
-  int aGridY = mBoard->PixelToGridYKeepOnBoard((int)mCursorPositionX, (int)mCursorPositionY);
-  float aCursorPulse = sinf(mCursorHighlightAnimPhase * 5.0f);
-  if ( mIsCobCannonSelected != 0 )
-  {
-    // Hex-Rays draws this and then falls into the cursor. The TBH cases
-    // each end in POP {R4-R11,PC}: the target is the whole draw.
-    ++mCobCannonAnimCounter;
-    Sexy::Image *aTarget = nullptr;
-    switch ( gCobCannonTargetFrame )
+    int aGridX = mBoard->PixelToGridXKeepOnBoard((int)mCursorPositionX, (int)mCursorPositionY);
+    int aGridY = mBoard->PixelToGridYKeepOnBoard((int)mCursorPositionX, (int)mCursorPositionY);
+    float aCursorPulse = sinf(mCursorHighlightAnimPhase * 5.0f);
+    if (mIsCobCannonSelected != 0)
     {
-      case 0:
-        aTarget = IMAGE_COBCANNON_TARGET_1;
-        break;
-      case 1:
-        aTarget = IMAGE_COBCANNON_TARGET_2;
-        break;
-      case 2:
-        aTarget = IMAGE_COBCANNON_TARGET_3;
-        break;
-      case 3:
-        aTarget = IMAGE_COBCANNON_TARGET_4;
-        break;
-      default:
-        break;
+        // Hex-Rays draws this and then falls into the cursor. The TBH cases
+        // each end in POP {R4-R11,PC}: the target is the whole draw.
+        ++mCobCannonAnimCounter;
+        Sexy::Image *aTarget = nullptr;
+        switch (gCobCannonTargetFrame)
+        {
+            case 0:
+                aTarget = IMAGE_COBCANNON_TARGET_1;
+                break;
+            case 1:
+                aTarget = IMAGE_COBCANNON_TARGET_2;
+                break;
+            case 2:
+                aTarget = IMAGE_COBCANNON_TARGET_3;
+                break;
+            case 3:
+                aTarget = IMAGE_COBCANNON_TARGET_4;
+                break;
+            default:
+                break;
+        }
+        // Width/height are signed; the binary rounds toward zero after adding
+        // the sign bit, which is the same as an arithmetic half.
+        float aHalfWidth = (float)(aTarget->mWidth / 2);
+        float aHalfHeight = (float)(aTarget->mHeight / 2);
+        g->DrawImageF(aTarget, mCursorPositionX - aHalfWidth, mCursorPositionYJitter + mCursorPositionY - aHalfHeight);
+        return;
     }
-    // Width/height are signed; the binary rounds toward zero after adding
-    // the sign bit, which is the same as an arithmetic half.
-    float aHalfWidth = (float)(aTarget->mWidth / 2);
-    float aHalfHeight = (float)(aTarget->mHeight / 2);
-    g->DrawImageF(aTarget,
-                   mCursorPositionX - aHalfWidth,
-                   mCursorPositionYJitter + mCursorPositionY - aHalfHeight);
-    return;
-  }
 
-  int aPixelX = mBoard->GridToPixelX(aGridX, aGridY);
-  int aPixelY = mBoard->GridToPixelY(aGridX, aGridY);
-  g->mTransX += (float)aPixelX;
-  g->mTransY += (float)aPixelY;
-  SeedBank *aSeedBank = GetSeedBank();
-  if ( mIsCobCannonSelected == 0 )
-  {
-    GameMode aPreviewMode = mApp->mGameMode;
-    bool aSkipPreview = aPreviewMode == GAMEMODE_CHALLENGE_BEGHOULED
-                     || aPreviewMode == GAMEMODE_CHALLENGE_ZOMBIQUARIUM
-                     || aPreviewMode == GAMEMODE_CHALLENGE_BEGHOULED_TWIST;
-    if ( !aSkipPreview )
+    int aPixelX = mBoard->GridToPixelX(aGridX, aGridY);
+    int aPixelY = mBoard->GridToPixelY(aGridX, aGridY);
+    g->mTransX += (float)aPixelX;
+    g->mTransY += (float)aPixelY;
+    SeedBank *aSeedBank = GetSeedBank();
+    if (mIsCobCannonSelected == 0)
     {
-      // The bool argument is the byte still in r1, which is mIsCobCannonSelected
-      // (just tested zero), not a literal false.
-      if ( mBoard->HasConveyorBeltSeedBank(mIsCobCannonSelected) == 0 )
-      {
-        DrawPreview(g);
-      }
-      else if ( aSeedBank->mSeedPackets[mSelectedSeedIndex].mOffsetY < 496 )
-      {
-        // bank + 0x74*index + 0x88 is packet N's word at +0x40, mOffsetY.
-        // A conveyor packet already past 496 does not get a preview.
-        DrawPreview(g);
-      }
+        GameMode aPreviewMode = mApp->mGameMode;
+        bool aSkipPreview = aPreviewMode == GAMEMODE_CHALLENGE_BEGHOULED ||
+            aPreviewMode == GAMEMODE_CHALLENGE_ZOMBIQUARIUM || aPreviewMode == GAMEMODE_CHALLENGE_BEGHOULED_TWIST;
+        if (!aSkipPreview)
+        {
+            // The bool argument is the byte still in r1, which is mIsCobCannonSelected
+            // (just tested zero), not a literal false.
+            if (mBoard->HasConveyorBeltSeedBank(mIsCobCannonSelected) == 0)
+            {
+                DrawPreview(g);
+            }
+            else if (aSeedBank->mSeedPackets[mSelectedSeedIndex].mOffsetY < 496)
+            {
+                // bank + 0x74*index + 0x88 is packet N's word at +0x40, mOffsetY.
+                // A conveyor packet already past 496 does not get a preview.
+                DrawPreview(g);
+            }
+        }
     }
-  }
-  g->mTransX -= (float)aPixelX;
-  g->mTransY -= (float)aPixelY;
-  // The mouse keeps the held plant preview, without a gamepad arrow or label.
-  if (mBoard->mMouseInputActive[mPlayerIndex])
-    return;
-  // Both results are discarded. The calls are still made.
-  mBoard->GridToPixelX(aGridX, aGridY);
-  mBoard->GridToPixelY(aGridX, aGridY);
+    g->mTransX -= (float)aPixelX;
+    g->mTransY -= (float)aPixelY;
+    // The mouse keeps the held plant preview, without a gamepad arrow or label.
+    if (mBoard->mMouseInputActive[mPlayerIndex])
+        return;
+    // Both results are discarded. The calls are still made.
+    mBoard->GridToPixelX(aGridX, aGridY);
+    mBoard->GridToPixelY(aGridX, aGridY);
 
-  if ( mIsCobCannonSelected == 0 && mGamepadState != MOVEMENT_STATE_DIG_HOLD )
-  {
-    float aPulseScale = (1.0f - aCursorPulse) * 0.15f + 0.85f;
-    g->SetColor(Sexy::Color(255, 255, 255, 255));
-    if ( mApp->IsTwoPlayerGame() != 0 )
+    if (mIsCobCannonSelected == 0 && mGamepadState != MOVEMENT_STATE_DIG_HOLD)
     {
-      Sexy::Image *aArrow;
-      Sexy::Image *aLabel;
-      if ( mPlayerIndex != 0 )
-      {
-        aArrow = IMAGE_CURSOR_ARROW_P2;
-        aLabel = IMAGE_CURSOR_P2_TEXT;
-      }
-      else
-      {
-        aArrow = IMAGE_CURSOR_ARROW_P1;
-        aLabel = IMAGE_CURSOR_P1_TEXT;
-      }
-      Sexy::SexyTransform2D aShadow;
-      aShadow.Scale(aPulseScale, aPulseScale);
-      aShadow.Translate(mCursorPositionX, mCursorPositionY + 15.0f);
-      g->DrawImageMatrix(IMAGE_GAMEPAD_CURSOR_SHADOW, aShadow, 0.0f, 0.0f, true);
+        float aPulseScale = (1.0f - aCursorPulse) * 0.15f + 0.85f;
+        g->SetColor(Sexy::Color(255, 255, 255, 255));
+        if (mApp->IsTwoPlayerGame() != 0)
+        {
+            Sexy::Image *aArrow;
+            Sexy::Image *aLabel;
+            if (mPlayerIndex != 0)
+            {
+                aArrow = IMAGE_CURSOR_ARROW_P2;
+                aLabel = IMAGE_CURSOR_P2_TEXT;
+            }
+            else
+            {
+                aArrow = IMAGE_CURSOR_ARROW_P1;
+                aLabel = IMAGE_CURSOR_P1_TEXT;
+            }
+            Sexy::SexyTransform2D aShadow;
+            aShadow.Scale(aPulseScale, aPulseScale);
+            aShadow.Translate(mCursorPositionX, mCursorPositionY + 15.0f);
+            g->DrawImageMatrix(IMAGE_GAMEPAD_CURSOR_SHADOW, aShadow, 0.0f, 0.0f, true);
 
-      Sexy::SexyTransform2D aArrowTransform;
-      aArrowTransform.Scale(1.5f, 1.5f);
-      aArrowTransform.Translate(mCursorPositionX - 5.0f,
-                                mCursorPositionY - (aCursorPulse + aCursorPulse) - mCursorLabelLiftOffset - 10.0f);
-      g->DrawImageMatrix(aArrow, aArrowTransform, 0.0f, 0.0f, true);
+            Sexy::SexyTransform2D aArrowTransform;
+            aArrowTransform.Scale(1.5f, 1.5f);
+            aArrowTransform.Translate(mCursorPositionX - 5.0f,
+                mCursorPositionY - (aCursorPulse + aCursorPulse) - mCursorLabelLiftOffset - 10.0f);
+            g->DrawImageMatrix(aArrow, aArrowTransform, 0.0f, 0.0f, true);
 
-      Sexy::SexyTransform2D aLabelTransform;
-      aLabelTransform.Translate(mCursorPositionX - 5.0f,
-                                mCursorPositionY - mCursorLabelLiftOffset - 28.0f);
-      g->DrawImageMatrix(aLabel, aLabelTransform, 0.0f, 0.0f, true);
+            Sexy::SexyTransform2D aLabelTransform;
+            aLabelTransform.Translate(mCursorPositionX - 5.0f, mCursorPositionY - mCursorLabelLiftOffset - 28.0f);
+            g->DrawImageMatrix(aLabel, aLabelTransform, 0.0f, 0.0f, true);
+        }
+        else
+        {
+            Sexy::Image *aArrow = mPlayerIndex != 0 ? IMAGE_CURSOR_ARROW_P2 : IMAGE_CURSOR_ARROW_P1;
+            Sexy::SexyTransform2D aShadow;
+            aShadow.Scale(aPulseScale, aPulseScale);
+            aShadow.Translate(mCursorPositionX, mCursorPositionY + 15.0f);
+            g->DrawImageMatrix(IMAGE_GAMEPAD_CURSOR_SHADOW, aShadow, 0.0f, 0.0f, true);
+
+            Sexy::SexyTransform2D aArrowTransform;
+            aArrowTransform.Scale(1.5f, 1.5f);
+            // Single-player subtracts the immediate 5.0, not the reused register
+            // from the two-player path, and the trailing constant is 23, not 10.
+            aArrowTransform.Translate(mCursorPositionX - 5.0f,
+                mCursorPositionY - (aCursorPulse + aCursorPulse) - mCursorLabelLiftOffset - 23.0f);
+            g->DrawImageMatrix(aArrow, aArrowTransform, 0.0f, 0.0f, true);
+        }
     }
-    else
+
+    if (mIsZombie != 0)
+        return;
+    if (mGamepadState == MOVEMENT_STATE_DIG_HOLD)
     {
-      Sexy::Image *aArrow = mPlayerIndex != 0 ? IMAGE_CURSOR_ARROW_P2 : IMAGE_CURSOR_ARROW_P1;
-      Sexy::SexyTransform2D aShadow;
-      aShadow.Scale(aPulseScale, aPulseScale);
-      aShadow.Translate(mCursorPositionX, mCursorPositionY + 15.0f);
-      g->DrawImageMatrix(IMAGE_GAMEPAD_CURSOR_SHADOW, aShadow, 0.0f, 0.0f, true);
-
-      Sexy::SexyTransform2D aArrowTransform;
-      aArrowTransform.Scale(1.5f, 1.5f);
-      // Single-player subtracts the immediate 5.0, not the reused register
-      // from the two-player path, and the trailing constant is 23, not 10.
-      aArrowTransform.Translate(mCursorPositionX - 5.0f,
-                                mCursorPositionY - (aCursorPulse + aCursorPulse) - mCursorLabelLiftOffset - 23.0f);
-      g->DrawImageMatrix(aArrow, aArrowTransform, 0.0f, 0.0f, true);
-    }
-  }
-
-  if ( mIsZombie != 0 )
-    return;
-  if ( mGamepadState == MOVEMENT_STATE_DIG_HOLD )
-  {
-    g->mTransX += mCursorPositionX;
-    g->mTransY += mCursorPositionY;
-    HitResult aHit;
-    HitResult aHitAhead;
-    // The last argument is the mIsZombie byte, which this branch proved is 0.
-    mBoard->MouseHitTest((int)mCursorPositionX, (int)mCursorPositionY, &aHit, mIsZombie);
-    mBoard->MouseHitTest((int)(mCursorPositionX + 50.0f), (int)mCursorPositionY, &aHitAhead, mIsZombie);
-    // MOVT R2, #0x428C with the low half cleared is 70.0f. It is the x
-    // argument only when both hits are the same plant and the cursor is
-    // left of 650.
-    float aIndicatorX = 0.0f;
-    if ( aHit.mObjectType == OBJECT_TYPE_PLANT
-      && aHitAhead.mObjectType == OBJECT_TYPE_PLANT
-      && mCursorPositionX < 650.0f
-      && aHit.mObject == aHitAhead.mObject )
-    {
-      aIndicatorX = 70.0f;
-    }
-    float aIndicatorAmount = mDigIndicatorPercentage * 0.76923f;
-    if ( aIndicatorAmount > 1.0f )
-      aIndicatorAmount = 1.0f;
-    if ( aIndicatorAmount < 0.0f )
-      aIndicatorAmount = 0.0f;
-    DrawDigIndicator(g, aIndicatorX, 0.0f, aIndicatorAmount);
-    g->mTransX -= mCursorPositionX;
-    g->mTransY -= mCursorPositionY;
-  }
-  else
-  {
-    // The result is discarded. The call is what the binary does.
-    mApp->IsScaryPotterLevel();
-  }
-
-  if ( mIsCobCannonSelected != 0 )
-    return;
-  // Both pad flags must be on. Either one off, with no gamepad, returns.
-  if ( !mApp->HasGamepad() && (mApp->mGamePad1IsOn == 0 || mApp->mGamePad2IsOn == 0) )
-    return;
-
-  // Player 0 reads the other pad's controls (index 0x8D); player 1 reads
-  // player 0's (index 0x8C). 0x8C * 4 is mGamepadControls[0].
-  GamepadControls *aOther = mPlayerIndex != 0
-      ? mBoard->mGamepadControls[0]
-      : mBoard->mGamepadControls[1];
-  Plant *aSelectedCob = nullptr;
-  if ( aOther->mGamepadIndex != -1 )
-  {
-    if ( aOther->mIsCobCannonSelected == 0 || aOther->mCobCannonPlantIndexInList == 0 )
-    {
-      // The byte (or the zero index) is passed through as the "plant"
-      // pointer. Both are null, so the later pointer compare cannot match.
-      aSelectedCob = nullptr;
+        g->mTransX += mCursorPositionX;
+        g->mTransY += mCursorPositionY;
+        HitResult aHit;
+        HitResult aHitAhead;
+        // The last argument is the mIsZombie byte, which this branch proved is 0.
+        mBoard->MouseHitTest((int)mCursorPositionX, (int)mCursorPositionY, &aHit, mIsZombie);
+        mBoard->MouseHitTest((int)(mCursorPositionX + 50.0f), (int)mCursorPositionY, &aHitAhead, mIsZombie);
+        // MOVT R2, #0x428C with the low half cleared is 70.0f. It is the x
+        // argument only when both hits are the same plant and the cursor is
+        // left of 650.
+        float aIndicatorX = 0.0f;
+        if (aHit.mObjectType == OBJECT_TYPE_PLANT && aHitAhead.mObjectType == OBJECT_TYPE_PLANT &&
+            mCursorPositionX < 650.0f && aHit.mObject == aHitAhead.mObject)
+        {
+            aIndicatorX = 70.0f;
+        }
+        float aIndicatorAmount = mDigIndicatorPercentage * 0.76923f;
+        if (aIndicatorAmount > 1.0f)
+            aIndicatorAmount = 1.0f;
+        if (aIndicatorAmount < 0.0f)
+            aIndicatorAmount = 0.0f;
+        DrawDigIndicator(g, aIndicatorX, 0.0f, aIndicatorAmount);
+        g->mTransX -= mCursorPositionX;
+        g->mTransY -= mCursorPositionY;
     }
     else
     {
-      // UXTH: only the low halfword is the slot index. The full word is
-      // what gets compared against the slot's id.
-      unsigned int aIndex = (unsigned short)aOther->mCobCannonPlantIndexInList;
-      if ( aIndex >= mBoard->mPlants.mMaxUsedCount )
-      {
-        aSelectedCob = nullptr;
-      }
-      else
-      {
-        // DataArray item is Plant (0x15C) plus the 4-byte id at +0x15C.
-        PlantSlot *aSlots = mBoard->mPlants.mBlock;
-        if ( aOther->mCobCannonPlantIndexInList == (int)aSlots[aIndex].mID )
-          aSelectedCob = &aSlots[aIndex].mItem;
-      }
+        // The result is discarded. The call is what the binary does.
+        mApp->IsScaryPotterLevel();
     }
-  }
 
-  // The out pointer is the HitResult slot at sp+0x64, not the plant-pointer
-  // slot Hex-Rays named. mNormalPlant is the fourth word, at +0x0C of that.
-  PlantsOnLawn aPlants;
-  mBoard->GetPlantsOnLawn((unsigned int)aGridX, (unsigned int)aGridY, &aPlants);
-  Plant *aNormal = aPlants.mNormalPlant;
-  if ( aNormal == nullptr )
-    return;
-  if ( aNormal->mSeedType != SEED_COBCANNON || aNormal->mState != STATE_COBCANNON_READY )
-    return;
-  if ( aSelectedCob == aNormal )
-    return;
+    if (mIsCobCannonSelected != 0)
+        return;
+    // Both pad flags must be on. Either one off, with no gamepad, returns.
+    if (!mApp->HasGamepad() && (mApp->mGamePad1IsOn == 0 || mApp->mGamePad2IsOn == 0))
+        return;
 
-  // Both grid conversions are called and their results discarded.
-  mBoard->PixelToGridX(aNormal->mX, aNormal->mY);
-  mBoard->PixelToGridY(aNormal->mX, aNormal->mY);
-  float aDrawX = (float)(aNormal->mX + 80);
-  float aDrawY = (float)(aNormal->mY + 80);
-  g->mTransX += -25.0f + aDrawX;
-  g->mTransY += -40.0f + aDrawY;
-  Reanimation *aCobReanim = mApp->ReanimationTryToGet(mCobCannonReanimID);
-  if ( aCobReanim != nullptr )
-    aCobReanim->Draw(g);
-  g->mTransX += 25.0f - aDrawX;
-  g->mTransY += 40.0f - aDrawY;
+    // Player 0 reads the other pad's controls (index 0x8D); player 1 reads
+    // player 0's (index 0x8C). 0x8C * 4 is mGamepadControls[0].
+    GamepadControls *aOther = mPlayerIndex != 0 ? mBoard->mGamepadControls[0] : mBoard->mGamepadControls[1];
+    Plant *aSelectedCob = nullptr;
+    if (aOther->mGamepadIndex != -1)
+    {
+        if (aOther->mIsCobCannonSelected == 0 || aOther->mCobCannonPlantIndexInList == 0)
+        {
+            // The byte (or the zero index) is passed through as the "plant"
+            // pointer. Both are null, so the later pointer compare cannot match.
+            aSelectedCob = nullptr;
+        }
+        else
+        {
+            // UXTH: only the low halfword is the slot index. The full word is
+            // what gets compared against the slot's id.
+            unsigned int aIndex = (unsigned short)aOther->mCobCannonPlantIndexInList;
+            if (aIndex >= mBoard->mPlants.mMaxUsedCount)
+            {
+                aSelectedCob = nullptr;
+            }
+            else
+            {
+                // DataArray item is Plant (0x15C) plus the 4-byte id at +0x15C.
+                PlantSlot *aSlots = mBoard->mPlants.mBlock;
+                if (aOther->mCobCannonPlantIndexInList == (int)aSlots[aIndex].mID)
+                    aSelectedCob = &aSlots[aIndex].mItem;
+            }
+        }
+    }
+
+    // The out pointer is the HitResult slot at sp+0x64, not the plant-pointer
+    // slot Hex-Rays named. mNormalPlant is the fourth word, at +0x0C of that.
+    PlantsOnLawn aPlants;
+    mBoard->GetPlantsOnLawn((unsigned int)aGridX, (unsigned int)aGridY, &aPlants);
+    Plant *aNormal = aPlants.mNormalPlant;
+    if (aNormal == nullptr)
+        return;
+    if (aNormal->mSeedType != SEED_COBCANNON || aNormal->mState != STATE_COBCANNON_READY)
+        return;
+    if (aSelectedCob == aNormal)
+        return;
+
+    // Both grid conversions are called and their results discarded.
+    mBoard->PixelToGridX(aNormal->mX, aNormal->mY);
+    mBoard->PixelToGridY(aNormal->mX, aNormal->mY);
+    float aDrawX = (float)(aNormal->mX + 80);
+    float aDrawY = (float)(aNormal->mY + 80);
+    g->mTransX += -25.0f + aDrawX;
+    g->mTransY += -40.0f + aDrawY;
+    Reanimation *aCobReanim = mApp->ReanimationTryToGet(mCobCannonReanimID);
+    if (aCobReanim != nullptr)
+        aCobReanim->Draw(g);
+    g->mTransX += 25.0f - aDrawX;
+    g->mTransY += 40.0f - aDrawY;
 }
 
 // ==========================================================================
@@ -997,96 +982,96 @@ void GamepadControls::Draw(Sexy::Graphics * g)
 // ==========================================================================
 int GamepadControls::UpdateSeedSelect(float /*theDeltaTime*/)
 {
-  // @0x1C0B9C. theDeltaTime is never read. The stick is mInputLeftStickX/Y.
-  // A zero-length stick falls through; callers do not read the result.
-  float aStickX = mInputLeftStickX;
-  float aStickY = mInputLeftStickY;
-  float aLengthSq = aStickX * aStickX + aStickY * aStickY;
-  float aLength = sqrtf(aLengthSq);
-  if ( aLength != 0.0f )
-  {
-    aStickX = aStickX / aLength;
-    aStickY = aStickY / aLength;
-    aLengthSq = aStickX * aStickX + aStickY * aStickY;
-  }
-  if ( aLengthSq == 0.0f )
-    return 0;
-
-  // acosf of the normalized X, negated when Y is negative, then wrapped into
-  // [0, 2*pi). The packet count is seed bank 0's mNumPackets (board+0x20C,
-  // then +0x34), not the word walk Hex-Rays printed.
-  const float aTwoPi = 6.2832f;
-  float aAngle = acosf(aStickX);
-  Board *aBoard = mBoard;
-  int aPacketCount = aBoard->mSeedBank[0]->mNumPackets;
-  if ( aStickY < 0.0f )
-    aAngle = -aAngle;
-  if ( aAngle > aTwoPi )
-    aAngle = aAngle - aTwoPi;
-  float aStep = aTwoPi / (float)aPacketCount;
-  if ( aAngle < 0.0f )
-    aAngle = aAngle + aTwoPi;
-
-  // Sector i is [base + i*step, base + (i+1)*step], with base = pi/2 - step/2.
-  // Both ends are wrapped, then the end is walked up until it is past the
-  // start, then the angle is walked up while it sits strictly inside the
-  // still-unwrapped gap (start > angle AND angle < end).
-  float aBase = 1.5708f - aStep * 0.5f;
-  int aIndex = 0;
-  if ( aPacketCount > 0 )
-  {
-    while ( 1 )
+    // @0x1C0B9C. theDeltaTime is never read. The stick is mInputLeftStickX/Y.
+    // A zero-length stick falls through; callers do not read the result.
+    float aStickX = mInputLeftStickX;
+    float aStickY = mInputLeftStickY;
+    float aLengthSq = aStickX * aStickX + aStickY * aStickY;
+    float aLength = sqrtf(aLengthSq);
+    if (aLength != 0.0f)
     {
-      float aStart = aBase + (float)aIndex * aStep;
-      float aEnd = aStart + aStep;
-      if ( aStart < 0.0f )
-        aStart = aStart + aTwoPi;
-      if ( aEnd < 0.0f )
-        aEnd = aEnd + aTwoPi;
-      if ( aStart > aTwoPi )
-        aStart = aStart - aTwoPi;
-      if ( aEnd > aTwoPi )
-        aEnd = aEnd - aTwoPi;
-      while ( aStart > aEnd )
-        aEnd = aEnd + aTwoPi;
-      while ( aStart > aAngle && aAngle < aEnd )
-        aAngle = aAngle + aTwoPi;
-      if ( aAngle >= aStart && aAngle <= aEnd )
-        break;
-      if ( ++aIndex == aPacketCount )
-      {
-        aIndex = 0;
-        break;
-      }
+        aStickX = aStickX / aLength;
+        aStickY = aStickY / aLength;
+        aLengthSq = aStickX * aStickX + aStickY * aStickY;
     }
-  }
+    if (aLengthSq == 0.0f)
+        return 0;
 
-  mSelectedSeedIndex = aIndex;
-  mRightPositionX = cosf(aAngle) * 120.0f;
-  mRightPositionY = -(120.0f * sinf(aAngle));
+    // acosf of the normalized X, negated when Y is negative, then wrapped into
+    // [0, 2*pi). The packet count is seed bank 0's mNumPackets (board+0x20C,
+    // then +0x34), not the word walk Hex-Rays printed.
+    const float aTwoPi = 6.2832f;
+    float aAngle = acosf(aStickX);
+    Board *aBoard = mBoard;
+    int aPacketCount = aBoard->mSeedBank[0]->mNumPackets;
+    if (aStickY < 0.0f)
+        aAngle = -aAngle;
+    if (aAngle > aTwoPi)
+        aAngle = aAngle - aTwoPi;
+    float aStep = aTwoPi / (float)aPacketCount;
+    if (aAngle < 0.0f)
+        aAngle = aAngle + aTwoPi;
 
-  // +0x90 words from the board is mCursorPreview[0]. The byte at +0x28 is
-  // GameObject::mVisible; the word at +0x34 is CursorPreview::mGridX.
-  CursorPreview *aPreview = aBoard->mCursorPreview[mPlayerIndex];
-  if ( !aPreview->mVisible )
-    aPreview->mVisible = true;
-  int aPixelX = (int)mCursorPositionX;
-  int aPixelY = (int)mCursorPositionY;
-  aPreview->mGridX = aBoard->PixelToGridXKeepOnBoard(aPixelX, aPixelY);
+    // Sector i is [base + i*step, base + (i+1)*step], with base = pi/2 - step/2.
+    // Both ends are wrapped, then the end is walked up until it is past the
+    // start, then the angle is walked up while it sits strictly inside the
+    // still-unwrapped gap (start > angle AND angle < end).
+    float aBase = 1.5708f - aStep * 0.5f;
+    int aIndex = 0;
+    if (aPacketCount > 0)
+    {
+        while (1)
+        {
+            float aStart = aBase + (float)aIndex * aStep;
+            float aEnd = aStart + aStep;
+            if (aStart < 0.0f)
+                aStart = aStart + aTwoPi;
+            if (aEnd < 0.0f)
+                aEnd = aEnd + aTwoPi;
+            if (aStart > aTwoPi)
+                aStart = aStart - aTwoPi;
+            if (aEnd > aTwoPi)
+                aEnd = aEnd - aTwoPi;
+            while (aStart > aEnd)
+                aEnd = aEnd + aTwoPi;
+            while (aStart > aAngle && aAngle < aEnd)
+                aAngle = aAngle + aTwoPi;
+            if (aAngle >= aStart && aAngle <= aEnd)
+                break;
+            if (++aIndex == aPacketCount)
+            {
+                aIndex = 0;
+                break;
+            }
+        }
+    }
 
-  // Reloaded: PixelToGridX clobbers the board register. Same preview; the
-  // Y result is mGridY (+0x38), not the cursor object's mType.
-  aBoard = mBoard;
-  aPreview = aBoard->mCursorPreview[mPlayerIndex];
-  aPreview->mGridY = aBoard->PixelToGridYKeepOnBoard(aPixelX, aPixelY);
+    mSelectedSeedIndex = aIndex;
+    mRightPositionX = cosf(aAngle) * 120.0f;
+    mRightPositionY = -(120.0f * sinf(aAngle));
 
-  CursorObject *aCursor = mBoard->mCursorObject[mPlayerIndex];
-  aCursor->mVisible = false;
-  aCursor->mSelectedIndex = mSelectedSeedIndex;
-  aCursor->mCursorType = CURSOR_TYPE_PLANT_FROM_BANK;
-  SeedBank *aSeedBank = GetSeedBank();
-  aCursor->mType = aSeedBank->mSeedPackets[mSelectedSeedIndex].mPacketType;
-  return 0;
+    // +0x90 words from the board is mCursorPreview[0]. The byte at +0x28 is
+    // GameObject::mVisible; the word at +0x34 is CursorPreview::mGridX.
+    CursorPreview *aPreview = aBoard->mCursorPreview[mPlayerIndex];
+    if (!aPreview->mVisible)
+        aPreview->mVisible = true;
+    int aPixelX = (int)mCursorPositionX;
+    int aPixelY = (int)mCursorPositionY;
+    aPreview->mGridX = aBoard->PixelToGridXKeepOnBoard(aPixelX, aPixelY);
+
+    // Reloaded: PixelToGridX clobbers the board register. Same preview; the
+    // Y result is mGridY (+0x38), not the cursor object's mType.
+    aBoard = mBoard;
+    aPreview = aBoard->mCursorPreview[mPlayerIndex];
+    aPreview->mGridY = aBoard->PixelToGridYKeepOnBoard(aPixelX, aPixelY);
+
+    CursorObject *aCursor = mBoard->mCursorObject[mPlayerIndex];
+    aCursor->mVisible = false;
+    aCursor->mSelectedIndex = mSelectedSeedIndex;
+    aCursor->mCursorType = CURSOR_TYPE_PLANT_FROM_BANK;
+    SeedBank *aSeedBank = GetSeedBank();
+    aCursor->mType = aSeedBank->mSeedPackets[mSelectedSeedIndex].mPacketType;
+    return 0;
 }
 
 // ==========================================================================
@@ -1095,38 +1080,38 @@ int GamepadControls::UpdateSeedSelect(float /*theDeltaTime*/)
 // ==========================================================================
 int GamepadControls::UpdateStates(float theDeltaTime)
 {
-  // State 4 also belongs to Beghouled's drag cursor. Cooperative butter has
-  // finished on release and must return to the ordinary movement states.
-  if (mGamepadState == MOVEMENT_STATE_BUTTER_RELEASED
-      && (mApp->IsCoopMode() || (mApp->IsAdventureMode() && mApp->IsTwoPlayerGame())))
-    GotoState(MOVEMENT_STATE_NORMAL);
+    // State 4 also belongs to Beghouled's drag cursor. Cooperative butter has
+    // finished on release and must return to the ordinary movement states.
+    if (mGamepadState == MOVEMENT_STATE_BUTTER_RELEASED &&
+        (mApp->IsCoopMode() || (mApp->IsAdventureMode() && mApp->IsTwoPlayerGame())))
+        GotoState(MOVEMENT_STATE_NORMAL);
 
-  // Direct base call. A cast does not suppress virtual dispatch, and slot 12
-  // of a GamepadControls is this function, so the cast form recursed.
-  int aResult = BaseGamepadControls::UpdateStates(theDeltaTime);
-  if ( mGamepadState != MOVEMENT_STATE_SELECT_SEED && mGamepadState != MOVEMENT_STATE_DIG_HOLD )
-    return aResult;
+    // Direct base call. A cast does not suppress virtual dispatch, and slot 12
+    // of a GamepadControls is this function, so the cast form recursed.
+    int aResult = BaseGamepadControls::UpdateStates(theDeltaTime);
+    if (mGamepadState != MOVEMENT_STATE_SELECT_SEED && mGamepadState != MOVEMENT_STATE_DIG_HOLD)
+        return aResult;
 
-  aResult = UpdateSeedSelect(theDeltaTime);
-  float aDeltaX = mGridCenterPositionX - mCursorPositionX;
-  float aDeltaY = mGridCenterPositionY - mCursorPositionY;
-  float aDistance = sqrtf(aDeltaX * aDeltaX + aDeltaY * aDeltaY);
-  if ( aDistance < 3.0f )
-  {
-    mGamepadVelocityLeftX = 0.0f;
-    mGamepadVelocityLeftY = 0.0f;
-    mCursorPositionX = mGridCenterPositionX;
-    mCursorPositionY = mGridCenterPositionY;
+    aResult = UpdateSeedSelect(theDeltaTime);
+    float aDeltaX = mGridCenterPositionX - mCursorPositionX;
+    float aDeltaY = mGridCenterPositionY - mCursorPositionY;
+    float aDistance = sqrtf(aDeltaX * aDeltaX + aDeltaY * aDeltaY);
+    if (aDistance < 3.0f)
+    {
+        mGamepadVelocityLeftX = 0.0f;
+        mGamepadVelocityLeftY = 0.0f;
+        mCursorPositionX = mGridCenterPositionX;
+        mCursorPositionY = mGridCenterPositionY;
+        return aResult;
+    }
+    if (aDistance != 0.0f)
+    {
+        aDeltaX /= aDistance;
+        aDeltaY /= aDistance;
+    }
+    mGamepadVelocityLeftX = aDeltaX * 250.0f;
+    mGamepadVelocityLeftY = aDeltaY * 250.0f;
     return aResult;
-  }
-  if ( aDistance != 0.0f )
-  {
-    aDeltaX /= aDistance;
-    aDeltaY /= aDistance;
-  }
-  mGamepadVelocityLeftX = aDeltaX * 250.0f;
-  mGamepadVelocityLeftY = aDeltaY * 250.0f;
-  return aResult;
 }
 
 // ==========================================================================
@@ -1135,16 +1120,16 @@ int GamepadControls::UpdateStates(float theDeltaTime)
 // ==========================================================================
 int GamepadControls::IsMagnetized(CoinType theCoinType)
 {
-  // The shoulder triggers magnetize a coin so the cursor can pull it in. Each
-  // player's gamepad only attracts its own side's coin: the zombie player's
-  // brain, and everyone else's everything-but-the-brain.
-  Sexy::Gamepad *aGamepad = mApp->mGamepads[mGamepadIndex];
-  if ( !aGamepad->IsButtonDown(GAMEPAD_BUTTON_TL2) && !aGamepad->IsButtonDown(GAMEPAD_BUTTON_TR2) )
-    return 0;
+    // The shoulder triggers magnetize a coin so the cursor can pull it in. Each
+    // player's gamepad only attracts its own side's coin: the zombie player's
+    // brain, and everyone else's everything-but-the-brain.
+    Sexy::Gamepad *aGamepad = mApp->mGamepads[mGamepadIndex];
+    if (!aGamepad->IsButtonDown(GAMEPAD_BUTTON_TL2) && !aGamepad->IsButtonDown(GAMEPAD_BUTTON_TR2))
+        return 0;
 
-  if ( mIsZombie )
-    return theCoinType == COIN_VS_ZOMBIE_BRAIN;
-  return theCoinType != COIN_VS_ZOMBIE_BRAIN;
+    if (mIsZombie)
+        return theCoinType == COIN_VS_ZOMBIE_BRAIN;
+    return theCoinType != COIN_VS_ZOMBIE_BRAIN;
 }
 
 // ==========================================================================
@@ -1153,20 +1138,19 @@ int GamepadControls::IsMagnetized(CoinType theCoinType)
 // ==========================================================================
 int GamepadControls::AddSelectorParticle(int theSeedIndex)
 {
-  // ParticleTryToGet is declared int. The pointer comes back in r0.
-  TodParticleSystem *aOld =
-      mApp->ParticleTryToGet(mSelectorParticleID);
-  if ( aOld != nullptr )
-    aOld->ParticleSystemDie();
-  mSelectorParticleID = ParticleSystemID(0);
+    // ParticleTryToGet is declared int. The pointer comes back in r0.
+    TodParticleSystem *aOld = mApp->ParticleTryToGet(mSelectorParticleID);
+    if (aOld != nullptr)
+        aOld->ParticleSystemDie();
+    mSelectorParticleID = ParticleSystemID(0);
 
-  // The selector sparkle sits just inside the packet, on the top UI layer.
-  SeedPacket *aPacket = &GetSeedBank()->mSeedPackets[theSeedIndex];
-  TodParticleSystem *aParticle = mApp->AddTodParticle(
-      (float)(aPacket->mX + 10), (float)aPacket->mY, RenderLayer::RENDER_LAYER_UI_TOP, ParticleEffect(57));
-  ParticleSystemID aResult = mApp->ParticleGetID(aParticle);
-  mSelectorParticleID = aResult;
-  return aResult;
+    // The selector sparkle sits just inside the packet, on the top UI layer.
+    SeedPacket *aPacket = &GetSeedBank()->mSeedPackets[theSeedIndex];
+    TodParticleSystem *aParticle = mApp->AddTodParticle(
+        (float)(aPacket->mX + 10), (float)aPacket->mY, RenderLayer::RENDER_LAYER_UI_TOP, ParticleEffect(57));
+    ParticleSystemID aResult = mApp->ParticleGetID(aParticle);
+    mSelectorParticleID = aResult;
+    return aResult;
 }
 
 // ==========================================================================
@@ -1175,39 +1159,38 @@ int GamepadControls::AddSelectorParticle(int theSeedIndex)
 // ==========================================================================
 unsigned int GamepadControls::IncSelectedSeed()
 {
-  // CMP #0 / BNE, then CMP #2 / BEQ. Both leave IsSlotMachineLevel's r0.
-  unsigned int aResult = mApp->IsSlotMachineLevel();
-  if ( aResult != 0
-    || mBoard->mCursorObject[mPlayerIndex]->mCursorType == CURSOR_TYPE_PLANT_FROM_USABLE_COIN )
-    return aResult;
+    // CMP #0 / BNE, then CMP #2 / BEQ. Both leave IsSlotMachineLevel's r0.
+    unsigned int aResult = mApp->IsSlotMachineLevel();
+    if (aResult != 0 || mBoard->mCursorObject[mPlayerIndex]->mCursorType == CURSOR_TYPE_PLANT_FROM_USABLE_COIN)
+        return aResult;
 
-  // STR.W of 0 at SeedBank + 0x74*index + 0xAC: float mLastSelectedTime.
-  SeedBank *aSeedBank = GetSeedBank();
-  aSeedBank->mSeedPackets[mSelectedSeedIndex].mLastSelectedTime = 0;
-  ++mSelectedSeedIndex;
+    // STR.W of 0 at SeedBank + 0x74*index + 0xAC: float mLastSelectedTime.
+    SeedBank *aSeedBank = GetSeedBank();
+    aSeedBank->mSeedPackets[mSelectedSeedIndex].mLastSelectedTime = 0;
+    ++mSelectedSeedIndex;
 
-  aSeedBank = GetSeedBank();
-  int aNumPackets = aSeedBank->mNumPackets;
-  if ( mBoard->HasConveyorBeltSeedBank(false) != 0 )
-    aNumPackets = aSeedBank->GetNumVisibleSeedsOnConveyorBelt();
-  // CMP #0 / BLE is signed. Remainder is __aeabi_idivmod.
-  if ( aNumPackets > 0 )
-    mSelectedSeedIndex = mSelectedSeedIndex % aNumPackets;
-  else
-    mSelectedSeedIndex = 0;
+    aSeedBank = GetSeedBank();
+    int aNumPackets = aSeedBank->mNumPackets;
+    if (mBoard->HasConveyorBeltSeedBank(false) != 0)
+        aNumPackets = aSeedBank->GetNumVisibleSeedsOnConveyorBelt();
+    // CMP #0 / BLE is signed. Remainder is __aeabi_idivmod.
+    if (aNumPackets > 0)
+        mSelectedSeedIndex = mSelectedSeedIndex % aNumPackets;
+    else
+        mSelectedSeedIndex = 0;
 
-  GetSeedBank()->mSeedPackets[mSelectedSeedIndex].mLastSelectedTime = 0;
+    GetSeedBank()->mSeedPackets[mSelectedSeedIndex].mLastSelectedTime = 0;
 
-  // mDuration: CMP #0 / BLE, so the test is signed > 0. ClearAdvice when
-  // mHelpIndex is in [6,12] or [24,27], or is 29. CMP (help-24),#3 / HI then
-  // CMPHI (help-6),#6 / BHI is unsigned; a negative index stays up.
-  if ( mBoard->mAdvice->mDuration > 0 )
-  {
-    unsigned int aHelpIndex = (unsigned int)mBoard->mHelpIndex;
-    if ( aHelpIndex - 24 <= 3 || aHelpIndex - 6 <= 6 || aHelpIndex == 29 )
-      return mBoard->ClearAdvice(mBoard->mHelpIndex);
-  }
-  return 0;
+    // mDuration: CMP #0 / BLE, so the test is signed > 0. ClearAdvice when
+    // mHelpIndex is in [6,12] or [24,27], or is 29. CMP (help-24),#3 / HI then
+    // CMPHI (help-6),#6 / BHI is unsigned; a negative index stays up.
+    if (mBoard->mAdvice->mDuration > 0)
+    {
+        unsigned int aHelpIndex = (unsigned int)mBoard->mHelpIndex;
+        if (aHelpIndex - 24 <= 3 || aHelpIndex - 6 <= 6 || aHelpIndex == 29)
+            return mBoard->ClearAdvice(mBoard->mHelpIndex);
+    }
+    return 0;
 }
 
 // ==========================================================================
@@ -1216,45 +1199,44 @@ unsigned int GamepadControls::IncSelectedSeed()
 // ==========================================================================
 unsigned int GamepadControls::DecSelectedSeed()
 {
-  // CMP #0 / BNE, then CMP #2 / BEQ. Both leave IsSlotMachineLevel's r0.
-  unsigned int aResult = mApp->IsSlotMachineLevel();
-  if ( aResult != 0
-    || mBoard->mCursorObject[mPlayerIndex]->mCursorType == CURSOR_TYPE_PLANT_FROM_USABLE_COIN )
-    return aResult;
+    // CMP #0 / BNE, then CMP #2 / BEQ. Both leave IsSlotMachineLevel's r0.
+    unsigned int aResult = mApp->IsSlotMachineLevel();
+    if (aResult != 0 || mBoard->mCursorObject[mPlayerIndex]->mCursorType == CURSOR_TYPE_PLANT_FROM_USABLE_COIN)
+        return aResult;
 
-  // STR.W of 0 at SeedBank + 0x74*index + 0xAC: float mLastSelectedTime.
-  SeedBank *aSeedBank = GetSeedBank();
-  aSeedBank->mSeedPackets[mSelectedSeedIndex].mLastSelectedTime = 0;
-  --mSelectedSeedIndex;
+    // STR.W of 0 at SeedBank + 0x74*index + 0xAC: float mLastSelectedTime.
+    SeedBank *aSeedBank = GetSeedBank();
+    aSeedBank->mSeedPackets[mSelectedSeedIndex].mLastSelectedTime = 0;
+    --mSelectedSeedIndex;
 
-  aSeedBank = GetSeedBank();
-  int aNumPackets = aSeedBank->mNumPackets;
-  if ( mBoard->HasConveyorBeltSeedBank(false) != 0 )
-    aNumPackets = aSeedBank->GetNumVisibleSeedsOnConveyorBelt();
-  // CMP #0 / BLE and BGT are signed. No idivmod: only a negative index wraps
-  // (CMP / ITT LT), otherwise the decremented index is left as-is.
-  if ( aNumPackets > 0 )
-  {
-    if ( mSelectedSeedIndex < 0 )
-      mSelectedSeedIndex = aNumPackets - 1;
-  }
-  else
-  {
-    mSelectedSeedIndex = 0;
-  }
+    aSeedBank = GetSeedBank();
+    int aNumPackets = aSeedBank->mNumPackets;
+    if (mBoard->HasConveyorBeltSeedBank(false) != 0)
+        aNumPackets = aSeedBank->GetNumVisibleSeedsOnConveyorBelt();
+    // CMP #0 / BLE and BGT are signed. No idivmod: only a negative index wraps
+    // (CMP / ITT LT), otherwise the decremented index is left as-is.
+    if (aNumPackets > 0)
+    {
+        if (mSelectedSeedIndex < 0)
+            mSelectedSeedIndex = aNumPackets - 1;
+    }
+    else
+    {
+        mSelectedSeedIndex = 0;
+    }
 
-  GetSeedBank()->mSeedPackets[mSelectedSeedIndex].mLastSelectedTime = 0;
+    GetSeedBank()->mSeedPackets[mSelectedSeedIndex].mLastSelectedTime = 0;
 
-  // mDuration: CMP #0 / BLE, so the test is signed > 0. ClearAdvice when
-  // mHelpIndex is in [6,12] or [24,27], or is 29. CMP (help-24),#3 / HI then
-  // CMPHI (help-6),#6 / BHI is unsigned; a negative index stays up.
-  if ( mBoard->mAdvice->mDuration > 0 )
-  {
-    unsigned int aHelpIndex = (unsigned int)mBoard->mHelpIndex;
-    if ( aHelpIndex - 24 <= 3 || aHelpIndex - 6 <= 6 || aHelpIndex == 29 )
-      return mBoard->ClearAdvice(mBoard->mHelpIndex);
-  }
-  return 0;
+    // mDuration: CMP #0 / BLE, so the test is signed > 0. ClearAdvice when
+    // mHelpIndex is in [6,12] or [24,27], or is 29. CMP (help-24),#3 / HI then
+    // CMPHI (help-6),#6 / BHI is unsigned; a negative index stays up.
+    if (mBoard->mAdvice->mDuration > 0)
+    {
+        unsigned int aHelpIndex = (unsigned int)mBoard->mHelpIndex;
+        if (aHelpIndex - 24 <= 3 || aHelpIndex - 6 <= 6 || aHelpIndex == 29)
+            return mBoard->ClearAdvice(mBoard->mHelpIndex);
+    }
+    return 0;
 }
 
 // ==========================================================================
@@ -1263,12 +1245,12 @@ unsigned int GamepadControls::DecSelectedSeed()
 // ==========================================================================
 void GamepadControls::IncShopSeed()
 {
-  // LDR.W/STR.W of the int at +0xF8. CMP #6 / MOVGT clamps; BX LR leaves this in r0.
-  int aIndex = mSelectedShopSeedIndex + 1;
-  if ( aIndex > 6 )
-    aIndex = 6;
-  mSelectedShopSeedIndex = aIndex;
-  return;
+    // LDR.W/STR.W of the int at +0xF8. CMP #6 / MOVGT clamps; BX LR leaves this in r0.
+    int aIndex = mSelectedShopSeedIndex + 1;
+    if (aIndex > 6)
+        aIndex = 6;
+    mSelectedShopSeedIndex = aIndex;
+    return;
 }
 
 // ==========================================================================
@@ -1277,12 +1259,12 @@ void GamepadControls::IncShopSeed()
 // ==========================================================================
 void GamepadControls::DecShopSeed()
 {
-  // LDR.W/STR.W of the int at +0xF8. SUBS #1 / IT MI / MOVMI clamps at 0; BX LR leaves this in r0.
-  int aIndex = mSelectedShopSeedIndex - 1;
-  if ( aIndex < 0 )
-    aIndex = 0;
-  mSelectedShopSeedIndex = aIndex;
-  return;
+    // LDR.W/STR.W of the int at +0xF8. SUBS #1 / IT MI / MOVMI clamps at 0; BX LR leaves this in r0.
+    int aIndex = mSelectedShopSeedIndex - 1;
+    if (aIndex < 0)
+        aIndex = 0;
+    mSelectedShopSeedIndex = aIndex;
+    return;
 }
 
 // ==========================================================================
@@ -1291,7 +1273,7 @@ void GamepadControls::DecShopSeed()
 // ==========================================================================
 void GamepadControls::otherPlayerDownSelectedSeed()
 {
-  DownSelectedSeed();
+    DownSelectedSeed();
 }
 
 // ==========================================================================
@@ -1300,23 +1282,23 @@ void GamepadControls::otherPlayerDownSelectedSeed()
 // ==========================================================================
 void GamepadControls::DownSelectedSeed()
 {
-  if ( !mApp->CanShopLevel() || mIsInShopSeedBank )
-    return;
+    if (!mApp->CanShopLevel() || mIsInShopSeedBank)
+        return;
 
-  // STRB #1 at +0xF5, then signed % 7 (magic 0x92492493) of +0xB4 into +0xF8.
-  mIsInShopSeedBank = true;
-  mSelectedShopSeedIndex = mSelectedSeedIndex % 7;
+    // STRB #1 at +0xF5, then signed % 7 (magic 0x92492493) of +0xB4 into +0xF8.
+    mIsInShopSeedBank = true;
+    mSelectedShopSeedIndex = mSelectedSeedIndex % 7;
 
-  int aTwoPlayer = mApp->IsTwoPlayerGame();
-  if ( aTwoPlayer == 0 )
-    return;
+    int aTwoPlayer = mApp->IsTwoPlayerGame();
+    if (aTwoPlayer == 0)
+        return;
 
-  // Word 0x8D - mPlayerIndex is the other mGamepadControls slot (+0x230).
-  // +0x98 == -1 returns that pointer (or null); otherwise tail-call on it.
-  GamepadControls *aOther = mBoard->mGamepadControls[1 - mPlayerIndex];
-  if ( aOther == 0 || aOther->mGamepadIndex == -1 )
-    return;
-  aOther->otherPlayerDownSelectedSeed();
+    // Word 0x8D - mPlayerIndex is the other mGamepadControls slot (+0x230).
+    // +0x98 == -1 returns that pointer (or null); otherwise tail-call on it.
+    GamepadControls *aOther = mBoard->mGamepadControls[1 - mPlayerIndex];
+    if (aOther == 0 || aOther->mGamepadIndex == -1)
+        return;
+    aOther->otherPlayerDownSelectedSeed();
 }
 
 // ==========================================================================
@@ -1325,7 +1307,7 @@ void GamepadControls::DownSelectedSeed()
 // ==========================================================================
 void GamepadControls::otherPlayerUpSelectedSeed()
 {
-  UpSelectedSeed();
+    UpSelectedSeed();
 }
 
 // ==========================================================================
@@ -1334,24 +1316,24 @@ void GamepadControls::otherPlayerUpSelectedSeed()
 // ==========================================================================
 void GamepadControls::UpSelectedSeed()
 {
-  if (mIsInShopSeedBank == 0)
-    return;
+    if (mIsInShopSeedBank == 0)
+        return;
 
-  mIsInShopSeedBank = false;
-  SeedBank *aBank = GetSeedBank();
-  int aCount = aBank->mNumPackets;
-  if (mBoard->HasConveyorBeltSeedBank(false) != 0)
-    aCount = aBank->GetNumVisibleSeedsOnConveyorBelt();
-  mSelectedSeedIndex = aCount > 0 ? mSelectedShopSeedIndex % aCount : 0;
+    mIsInShopSeedBank = false;
+    SeedBank *aBank = GetSeedBank();
+    int aCount = aBank->mNumPackets;
+    if (mBoard->HasConveyorBeltSeedBank(false) != 0)
+        aCount = aBank->GetNumVisibleSeedsOnConveyorBelt();
+    mSelectedSeedIndex = aCount > 0 ? mSelectedShopSeedIndex % aCount : 0;
 
-  int aTwoPlayer = mApp->IsTwoPlayerGame();
-  if (aTwoPlayer == 0)
-    return;
+    int aTwoPlayer = mApp->IsTwoPlayerGame();
+    if (aTwoPlayer == 0)
+        return;
 
-  GamepadControls *aOther = mBoard->mGamepadControls[1 - mPlayerIndex];
-  if (aOther == 0 || aOther->mGamepadIndex == -1)
-    return;
-  aOther->otherPlayerUpSelectedSeed();
+    GamepadControls *aOther = mBoard->mGamepadControls[1 - mPlayerIndex];
+    if (aOther == 0 || aOther->mGamepadIndex == -1)
+        return;
+    aOther->otherPlayerUpSelectedSeed();
 }
 
 // ==========================================================================
@@ -1360,93 +1342,93 @@ void GamepadControls::UpSelectedSeed()
 // ==========================================================================
 SnapToGridPosition GamepadControls::GetNextGridDirection(int theDirection, int theX, int theY)
 {
-  int aGridX = mBoard->PixelToGridXKeepOnBoard(theX, theY);
-  int aGridY = mBoard->PixelToGridYKeepOnBoard(theX, theY);
+    int aGridX = mBoard->PixelToGridXKeepOnBoard(theX, theY);
+    int aGridY = mBoard->PixelToGridYKeepOnBoard(theX, theY);
 
-  // theDirection is the D-pad direction; 37..40 are the same four directions as the input
-  // layer reports them for the analog stick. The result is the direction scaled
-  // to a 700-units-per-step cursor velocity, so the raw triple below is
-  // (numeratorX, squaredLength, numeratorY) and both components are divided by
-  // sqrt(squaredLength) before the scale.
-  float vNumeratorX = 0.0f;
-  float vNumeratorY = 0.0f;
-  float vSquaredLength = 0.0f;
-  bool  aHasDirection = false;
+    // theDirection is the D-pad direction; 37..40 are the same four directions as the input
+    // layer reports them for the analog stick. The result is the direction scaled
+    // to a 700-units-per-step cursor velocity, so the raw triple below is
+    // (numeratorX, squaredLength, numeratorY) and both components are divided by
+    // sqrt(squaredLength) before the scale.
+    float vNumeratorX = 0.0f;
+    float vNumeratorY = 0.0f;
+    float vSquaredLength = 0.0f;
+    bool aHasDirection = false;
 
-  switch ( theDirection )
-  {
-    case GAMEPAD_BUTTON_DPAD_UP:
-    case 38:
-      // Beghouled Twist refuses the up step on the top row.
-      if ( mApp->mGameMode != GAMEMODE_CHALLENGE_BEGHOULED_TWIST || aGridY != 0 )
-      {
-        vNumeratorX = 0.0f;
-        vSquaredLength = 1.0f;
-        vNumeratorY = -1.0f;
-        aHasDirection = true;
-      }
-      break;
-    case GAMEPAD_BUTTON_DPAD_DOWN:
-    case 40:
-      if ( mApp->mGameMode != GAMEMODE_CHALLENGE_BEGHOULED_TWIST || aGridY != 3 )
-      {
-        vNumeratorX = 0.0f;
-        vSquaredLength = 1.0f;
-        vNumeratorY = 1.0f;
-        aHasDirection = true;
-      }
-      break;
-    case GAMEPAD_BUTTON_DPAD_LEFT:
-    case 37:
-      if ( mApp->mGameMode != GAMEMODE_CHALLENGE_BEGHOULED_TWIST || aGridX != 0 )
-      {
-        // On the roof the left step slants up over the first five columns.
-        if ( mBoard->StageHasRoof() && mBoard->PixelToGridX(theX, theY) <= 4 )
-        {
-          vNumeratorX = -80.0f;
-          vSquaredLength = 6800.0f;
-          vNumeratorY = 20.0f;
-        }
-        else
-        {
-          vNumeratorX = -80.0f;
-          vSquaredLength = 6400.0f;
-          vNumeratorY = 0.0f;
-        }
-        aHasDirection = true;
-      }
-      break;
-    case GAMEPAD_BUTTON_DPAD_RIGHT:
-    case 39:
-      if ( mApp->mGameMode != GAMEMODE_CHALLENGE_BEGHOULED_TWIST || aGridX != 6 )
-      {
-        if ( mBoard->StageHasRoof() && mBoard->PixelToGridX(theX, theY) <= 4 )
-        {
-          vNumeratorX = 80.0f;
-          vSquaredLength = 6800.0f;
-          vNumeratorY = -20.0f;
-        }
-        else
-        {
-          vNumeratorX = 80.0f;
-          vSquaredLength = 6400.0f;
-          vNumeratorY = 0.0f;
-        }
-        aHasDirection = true;
-      }
-      break;
-    default:
-      break;
-  }
+    switch (theDirection)
+    {
+        case GAMEPAD_BUTTON_DPAD_UP:
+        case 38:
+            // Beghouled Twist refuses the up step on the top row.
+            if (mApp->mGameMode != GAMEMODE_CHALLENGE_BEGHOULED_TWIST || aGridY != 0)
+            {
+                vNumeratorX = 0.0f;
+                vSquaredLength = 1.0f;
+                vNumeratorY = -1.0f;
+                aHasDirection = true;
+            }
+            break;
+        case GAMEPAD_BUTTON_DPAD_DOWN:
+        case 40:
+            if (mApp->mGameMode != GAMEMODE_CHALLENGE_BEGHOULED_TWIST || aGridY != 3)
+            {
+                vNumeratorX = 0.0f;
+                vSquaredLength = 1.0f;
+                vNumeratorY = 1.0f;
+                aHasDirection = true;
+            }
+            break;
+        case GAMEPAD_BUTTON_DPAD_LEFT:
+        case 37:
+            if (mApp->mGameMode != GAMEMODE_CHALLENGE_BEGHOULED_TWIST || aGridX != 0)
+            {
+                // On the roof the left step slants up over the first five columns.
+                if (mBoard->StageHasRoof() && mBoard->PixelToGridX(theX, theY) <= 4)
+                {
+                    vNumeratorX = -80.0f;
+                    vSquaredLength = 6800.0f;
+                    vNumeratorY = 20.0f;
+                }
+                else
+                {
+                    vNumeratorX = -80.0f;
+                    vSquaredLength = 6400.0f;
+                    vNumeratorY = 0.0f;
+                }
+                aHasDirection = true;
+            }
+            break;
+        case GAMEPAD_BUTTON_DPAD_RIGHT:
+        case 39:
+            if (mApp->mGameMode != GAMEMODE_CHALLENGE_BEGHOULED_TWIST || aGridX != 6)
+            {
+                if (mBoard->StageHasRoof() && mBoard->PixelToGridX(theX, theY) <= 4)
+                {
+                    vNumeratorX = 80.0f;
+                    vSquaredLength = 6800.0f;
+                    vNumeratorY = -20.0f;
+                }
+                else
+                {
+                    vNumeratorX = 80.0f;
+                    vSquaredLength = 6400.0f;
+                    vNumeratorY = 0.0f;
+                }
+                aHasDirection = true;
+            }
+            break;
+        default:
+            break;
+    }
 
-  SnapToGridPosition aDirection = { 0.0f, 0.0f };
-  if ( aHasDirection )
-  {
-    float vLength = sqrtf(vSquaredLength);
-    aDirection.mX = vNumeratorX / vLength * 700.0f;
-    aDirection.mY = vNumeratorY / vLength * 700.0f;
-  }
-  return aDirection;
+    SnapToGridPosition aDirection = {0.0f, 0.0f};
+    if (aHasDirection)
+    {
+        float vLength = sqrtf(vSquaredLength);
+        aDirection.mX = vNumeratorX / vLength * 700.0f;
+        aDirection.mY = vNumeratorY / vLength * 700.0f;
+    }
+    return aDirection;
 }
 
 // ==========================================================================
@@ -1455,71 +1437,69 @@ SnapToGridPosition GamepadControls::GetNextGridDirection(int theDirection, int t
 // ==========================================================================
 int GamepadControls::ButtonDownPlantTest(int theButton, int thePlayerIndex, unsigned int theFlags)
 {
-  (void)thePlayerIndex;
-  (void)theFlags;
-  // 6 is GAMEPAD_BUTTON_A, 13 is GAMEPAD_BUTTON_TR2 (also KEYCODE_RETURN).
-  if ( theButton != GAMEPAD_BUTTON_A && theButton != GAMEPAD_BUTTON_TR2 )
-    return 0;
+    (void)thePlayerIndex;
+    (void)theFlags;
+    // 6 is GAMEPAD_BUTTON_A, 13 is GAMEPAD_BUTTON_TR2 (also KEYCODE_RETURN).
+    if (theButton != GAMEPAD_BUTTON_A && theButton != GAMEPAD_BUTTON_TR2)
+        return 0;
 
-  HitResult aHit;
-  mBoard->MouseHitTest((int)mCursorPositionX, (int)mCursorPositionY, &aHit, 0);
-  if ( aHit.mObjectType != OBJECT_TYPE_PLANT )
-    return 0;
+    HitResult aHit;
+    mBoard->MouseHitTest((int)mCursorPositionX, (int)mCursorPositionY, &aHit, 0);
+    if (aHit.mObjectType != OBJECT_TYPE_PLANT)
+        return 0;
 
-  // Player 0 reads the other pad (word 0x8D); player 1 reads pad 0 (word 0x8C).
-  GamepadControls *aOther = mPlayerIndex != 0
-      ? mBoard->mGamepadControls[0]
-      : mBoard->mGamepadControls[1];
+    // Player 0 reads the other pad (word 0x8D); player 1 reads pad 0 (word 0x8C).
+    GamepadControls *aOther = mPlayerIndex != 0 ? mBoard->mGamepadControls[0] : mBoard->mGamepadControls[1];
 
-  // DataArray item is Plant (0x15C) plus the id word the binary loads at +0x15C.
+    // DataArray item is Plant (0x15C) plus the id word the binary loads at +0x15C.
 
-  Plant *aSelectedCob = nullptr;
-  if ( aOther->mGamepadIndex != -1 && aOther->mIsCobCannonSelected != 0 )
-  {
-    int aIndexWord = aOther->mCobCannonPlantIndexInList;
-    if ( aIndexWord != 0 )
+    Plant *aSelectedCob = nullptr;
+    if (aOther->mGamepadIndex != -1 && aOther->mIsCobCannonSelected != 0)
     {
-      // UXTH: only the low halfword indexes the slot. The full word is what
-      // gets compared with the slot id. The bound is mMaxSize (board+0x13C).
-      unsigned int aIndex = (unsigned short)aIndexWord;
-      if ( aIndex < mBoard->mPlants.mMaxSize )
-      {
-        PlantSlot *aSlots = mBoard->mPlants.mBlock;
-        PlantSlot *aSlot = &aSlots[aIndex];
-        if ( static_cast<unsigned int>(aIndexWord) == aSlot->mID )
-          aSelectedCob = &aSlot->mItem;
-      }
+        int aIndexWord = aOther->mCobCannonPlantIndexInList;
+        if (aIndexWord != 0)
+        {
+            // UXTH: only the low halfword indexes the slot. The full word is what
+            // gets compared with the slot id. The bound is mMaxSize (board+0x13C).
+            unsigned int aIndex = (unsigned short)aIndexWord;
+            if (aIndex < mBoard->mPlants.mMaxSize)
+            {
+                PlantSlot *aSlots = mBoard->mPlants.mBlock;
+                PlantSlot *aSlot = &aSlots[aIndex];
+                if (static_cast<unsigned int>(aIndexWord) == aSlot->mID)
+                    aSelectedCob = &aSlot->mItem;
+            }
+        }
     }
-  }
 
-  Plant *aPlant = static_cast<Plant *>(aHit.mObject);
-  if ( aPlant == aSelectedCob )
-    return 0;
-  if ( aPlant->mState != STATE_COBCANNON_READY )
-    return 0;
-  if ( mGamepadState == MOVEMENT_STATE_DIG_HOLD )
-    return 0;
-  if ( mIsCobCannonSelected != 0 )
-    return 0;
+    Plant *aPlant = static_cast<Plant *>(aHit.mObject);
+    if (aPlant == aSelectedCob)
+        return 0;
+    if (aPlant->mState != STATE_COBCANNON_READY)
+        return 0;
+    if (mGamepadState == MOVEMENT_STATE_DIG_HOLD)
+        return 0;
+    if (mIsCobCannonSelected != 0)
+        return 0;
 
-  mBoard->ClearCursor(mPlayerIndex);
-  mBoard->mCobCannonCursorDelayCounter = 30;
-  // VCVT.S32.F32 truncates the cursor floats; those ints are stored as-is.
-  mBoard->mCobCannonMouseX = (int)mCursorPositionX;
-  mBoard->mCobCannonMouseY = (int)mCursorPositionY;
-  mCobCannonPlantIndexInList = 0;
-  PlantSlot *aPlantSlots = mBoard->mPlants.mBlock;
-  for (unsigned int anIndex = 0; anIndex < mBoard->mPlants.mMaxSize; ++anIndex)
-  {
-    if (&aPlantSlots[anIndex].mItem == aPlant)
+    mBoard->ClearCursor(mPlayerIndex);
+    mBoard->mCobCannonCursorDelayCounter = 30;
+    // VCVT.S32.F32 truncates the cursor floats; those ints are stored as-is.
+    mBoard->mCobCannonMouseX = (int)mCursorPositionX;
+    mBoard->mCobCannonMouseY = (int)mCursorPositionY;
+    mCobCannonPlantIndexInList = 0;
+    PlantSlot *aPlantSlots = mBoard->mPlants.mBlock;
+    for (unsigned int anIndex = 0; anIndex < mBoard->mPlants.mMaxSize; ++anIndex)
     {
-      mCobCannonPlantIndexInList = aPlantSlots[anIndex].mID;
-      break;
+        if (&aPlantSlots[anIndex].mItem == aPlant)
+        {
+            mCobCannonPlantIndexInList = aPlantSlots[anIndex].mID;
+            break;
+        }
     }
-  }
-  mCobCannonAnimCounter = 0;
-  mIsCobCannonSelected = 1;
-  return 1;
+    mCobCannonAnimCounter = 0;
+    mIsCobCannonSelected = 1;
+    return 1;
 }
 
 // ==========================================================================
@@ -1528,52 +1508,51 @@ int GamepadControls::ButtonDownPlantTest(int theButton, int thePlayerIndex, unsi
 // ==========================================================================
 int GamepadControls::ButtonDownFireCobcannonTest()
 {
-  int aSelected = mIsCobCannonSelected;
-  if ( aSelected == 0 )
-    return 0;
-  if ( mGamepadState == MOVEMENT_STATE_DIG_HOLD )
-    return 0;
+    int aSelected = mIsCobCannonSelected;
+    if (aSelected == 0)
+        return 0;
+    if (mGamepadState == MOVEMENT_STATE_DIG_HOLD)
+        return 0;
 
-  HitResult aHit;
-  mBoard->MouseHitTest((int)mCursorPositionX, (int)mCursorPositionY, &aHit, 0);
+    HitResult aHit;
+    mBoard->MouseHitTest((int)mCursorPositionX, (int)mCursorPositionY, &aHit, 0);
 
-  if ( mCursorPositionY < 80.0f )
-  {
-    mBoard->ClearCursor(mPlayerIndex);
-    return 0;
-  }
-
-  float aDx = (float)mBoard->mCobCannonMouseX - mCursorPositionX;
-  float aDy = (float)mBoard->mCobCannonMouseY - mCursorPositionY;
-  float aDist = sqrtf(aDx * aDx + aDy * aDy);
-  if ( mBoard->mCobCannonCursorDelayCounter > 0 && aDist < 100.0f )
-    return 0;
-
-
-  Plant *aPlant = nullptr;
-  int aIndexWord = mCobCannonPlantIndexInList;
-  if ( aIndexWord != 0 )
-  {
-    unsigned int aIndex = (unsigned short)aIndexWord;
-    if ( aIndex < mBoard->mPlants.mMaxSize )
+    if (mCursorPositionY < 80.0f)
     {
-      PlantSlot *aSlots = mBoard->mPlants.mBlock;
-      PlantSlot *aSlot = &aSlots[aIndex];
-      if ( static_cast<unsigned int>(aIndexWord) == aSlot->mID )
-        aPlant = &aSlot->mItem;
+        mBoard->ClearCursor(mPlayerIndex);
+        return 0;
     }
-  }
-  if ( aPlant == nullptr )
-  {
-    mBoard->ClearCursor(mPlayerIndex);
-    return 0;
-  }
 
-  aPlant->CobCannonFire((int)mCursorPositionX, (int)mCursorPositionY);
-  mBoard->ClearCursor(mPlayerIndex);
-  mIsCobCannonSelected = false;
-  mCobCannonPlantIndexInList = 0;
-  return aSelected;
+    float aDx = (float)mBoard->mCobCannonMouseX - mCursorPositionX;
+    float aDy = (float)mBoard->mCobCannonMouseY - mCursorPositionY;
+    float aDist = sqrtf(aDx * aDx + aDy * aDy);
+    if (mBoard->mCobCannonCursorDelayCounter > 0 && aDist < 100.0f)
+        return 0;
+
+    Plant *aPlant = nullptr;
+    int aIndexWord = mCobCannonPlantIndexInList;
+    if (aIndexWord != 0)
+    {
+        unsigned int aIndex = (unsigned short)aIndexWord;
+        if (aIndex < mBoard->mPlants.mMaxSize)
+        {
+            PlantSlot *aSlots = mBoard->mPlants.mBlock;
+            PlantSlot *aSlot = &aSlots[aIndex];
+            if (static_cast<unsigned int>(aIndexWord) == aSlot->mID)
+                aPlant = &aSlot->mItem;
+        }
+    }
+    if (aPlant == nullptr)
+    {
+        mBoard->ClearCursor(mPlayerIndex);
+        return 0;
+    }
+
+    aPlant->CobCannonFire((int)mCursorPositionX, (int)mCursorPositionY);
+    mBoard->ClearCursor(mPlayerIndex);
+    mIsCobCannonSelected = false;
+    mCobCannonPlantIndexInList = 0;
+    return aSelected;
 }
 
 // ==========================================================================
@@ -1582,391 +1561,387 @@ int GamepadControls::ButtonDownFireCobcannonTest()
 // ==========================================================================
 bool GamepadControls::OnKeyDown(Sexy::KeyCode theKey, unsigned int theFlags)
 {
-  if (mIsInShopSeedBank && !mApp->CanShopLevel())
-  {
-    UpSelectedSeed();
-    mBoard->ClearCursor(mPlayerIndex);
-    GotoState(MOVEMENT_STATE_NORMAL);
-    return true;
-  }
-
-  // Direct BL, not the vtable. A nonzero result branches to 0x1C1798, which is
-  // MOVS R5,#1 and the epilogue — return true, not the base result.
-  if ( BaseGamepadControls::OnKeyDown(theKey, theFlags) != 0 )
-    return true;
-
-  // Cutscene null (board+0x250) or a nonzero mGameMode (mApp+0x8FC) skips the
-  // level gate and falls into GetSeedBank. Adventure is 0, so the gate runs
-  // only then. level % 5 != 0 is the 0x66666667 signed divide; that branch is
-  // ShopPadCanShow at 0x1C180C, and only a zero result returns true.
-  if ( mBoard->mCutScene != nullptr && mApp->mGameMode == GAMEMODE_ADVENTURE
-      && mBoard->mLevel % 5 != 0 && mApp->ShopPadCanShow() == 0 )
-    return true;
-
-  SeedBank *aSeedBank = GetSeedBank();
-  const bool aHasPackets = aSeedBank != nullptr && aSeedBank->mNumPackets > 0;
-  // Loaded once. The return-key plant path reloads mGamepadState later.
-  const MovementState aState = mGamepadState;
-
-  // 0x1C158C. Quick-dig, shovel escape, whack/potter, then the return-key plant.
-  // Paths that fall into 0x1C179A still hold the base result (0) and return false.
-  auto aDispatchAction = [&]() -> bool
-  {
-    if ( QuickDigKeyCodeDown(theKey) != 0 )
+    if (mIsInShopSeedBank && !mApp->CanShopLevel())
     {
-      int aGridX = mBoard->PixelToGridXKeepOnBoard((int)mCursorPositionX, (int)mCursorPositionY);
-      int aGridY = mBoard->PixelToGridYKeepOnBoard((int)mCursorPositionX, (int)mCursorPositionY);
-      if ( mBoard->GetTopPlantAt(aGridX, aGridY, TOPPLANT_CATAPULT_ORDER) != nullptr
-          && mBoard->mShowShovel != 0 )
-      {
-        if ( mBoard->mCursorObject[mPlayerIndex]->mCursorType == CURSOR_TYPE_PLANT_FROM_USABLE_COIN )
-        {
-          mBoard->RefreshSeedPacketFromCursor(mPlayerIndex);
-          mBoard->ClearCursor(mPlayerIndex);
-        }
-        GotoState(MOVEMENT_STATE_DIG_INDICATOR_WAIT);
-        GotoState(MOVEMENT_STATE_DIG_HOLD);
-        mDigIndicatorPercentage += 2.3f;
+        UpSelectedSeed();
+        mBoard->ClearCursor(mPlayerIndex);
         GotoState(MOVEMENT_STATE_NORMAL);
-        mIsShowingDigIndicator = true;
         return true;
-      }
     }
 
-    if ( theKey == Sexy::KEYCODE_ESCAPE )
-    {
-      if ( (theFlags & 0x80) != 0 )
+    // Direct BL, not the vtable. A nonzero result branches to 0x1C1798, which is
+    // MOVS R5,#1 and the epilogue — return true, not the base result.
+    if (BaseGamepadControls::OnKeyDown(theKey, theFlags) != 0)
         return true;
-      if ( mIsZombie == 0 )
-      {
-        int aGridX = mBoard->PixelToGridXKeepOnBoard((int)mCursorPositionX, (int)mCursorPositionY);
-        int aGridY = mBoard->PixelToGridYKeepOnBoard((int)mCursorPositionX, (int)mCursorPositionY);
-        if ( mBoard->GetTopPlantAt(aGridX, aGridY, TOPPLANT_CATAPULT_ORDER) != nullptr
-            && mBoard->mShowShovel != 0 )
+
+    // Cutscene null (board+0x250) or a nonzero mGameMode (mApp+0x8FC) skips the
+    // level gate and falls into GetSeedBank. Adventure is 0, so the gate runs
+    // only then. level % 5 != 0 is the 0x66666667 signed divide; that branch is
+    // ShopPadCanShow at 0x1C180C, and only a zero result returns true.
+    if (mBoard->mCutScene != nullptr && mApp->mGameMode == GAMEMODE_ADVENTURE && mBoard->mLevel % 5 != 0 &&
+        mApp->ShopPadCanShow() == 0)
+        return true;
+
+    SeedBank *aSeedBank = GetSeedBank();
+    const bool aHasPackets = aSeedBank != nullptr && aSeedBank->mNumPackets > 0;
+    // Loaded once. The return-key plant path reloads mGamepadState later.
+    const MovementState aState = mGamepadState;
+
+    // 0x1C158C. Quick-dig, shovel escape, whack/potter, then the return-key plant.
+    // Paths that fall into 0x1C179A still hold the base result (0) and return false.
+    auto aDispatchAction = [&]() -> bool
+    {
+        if (QuickDigKeyCodeDown(theKey) != 0)
         {
-          if ( mBoard->mCursorObject[mPlayerIndex]->mCursorType == CURSOR_TYPE_PLANT_FROM_USABLE_COIN )
-          {
-            mBoard->RefreshSeedPacketFromCursor(mPlayerIndex);
+            int aGridX = mBoard->PixelToGridXKeepOnBoard((int)mCursorPositionX, (int)mCursorPositionY);
+            int aGridY = mBoard->PixelToGridYKeepOnBoard((int)mCursorPositionX, (int)mCursorPositionY);
+            if (mBoard->GetTopPlantAt(aGridX, aGridY, TOPPLANT_CATAPULT_ORDER) != nullptr && mBoard->mShowShovel != 0)
+            {
+                if (mBoard->mCursorObject[mPlayerIndex]->mCursorType == CURSOR_TYPE_PLANT_FROM_USABLE_COIN)
+                {
+                    mBoard->RefreshSeedPacketFromCursor(mPlayerIndex);
+                    mBoard->ClearCursor(mPlayerIndex);
+                }
+                GotoState(MOVEMENT_STATE_DIG_INDICATOR_WAIT);
+                GotoState(MOVEMENT_STATE_DIG_HOLD);
+                mDigIndicatorPercentage += 2.3f;
+                GotoState(MOVEMENT_STATE_NORMAL);
+                mIsShowingDigIndicator = true;
+                return true;
+            }
+        }
+
+        if (theKey == Sexy::KEYCODE_ESCAPE)
+        {
+            if ((theFlags & 0x80) != 0)
+                return true;
+            if (mIsZombie == 0)
+            {
+                int aGridX = mBoard->PixelToGridXKeepOnBoard((int)mCursorPositionX, (int)mCursorPositionY);
+                int aGridY = mBoard->PixelToGridYKeepOnBoard((int)mCursorPositionX, (int)mCursorPositionY);
+                if (mBoard->GetTopPlantAt(aGridX, aGridY, TOPPLANT_CATAPULT_ORDER) != nullptr &&
+                    mBoard->mShowShovel != 0)
+                {
+                    if (mBoard->mCursorObject[mPlayerIndex]->mCursorType == CURSOR_TYPE_PLANT_FROM_USABLE_COIN)
+                    {
+                        mBoard->RefreshSeedPacketFromCursor(mPlayerIndex);
+                        mBoard->ClearCursor(mPlayerIndex);
+                    }
+                    GotoState(MOVEMENT_STATE_DIG_INDICATOR_WAIT);
+                    mDigIndicatorStartCounter = mGamepadFrameCounter;
+                    return true;
+                }
+                if (mBoard->mCursorObject[mPlayerIndex]->mCursorType == CURSOR_TYPE_PLANT_FROM_USABLE_COIN)
+                {
+                    mApp->PlayFoley(FOLEY_DROP);
+                    mBoard->RefreshSeedPacketFromCursor(mPlayerIndex);
+                    mBoard->ClearCursor(mPlayerIndex);
+                    return true;
+                }
+                return false;
+            }
+        }
+
+        if (XButtonKeyCodeDown(theKey) != 0 &&
+            (mApp->IsWhackAZombieLevel() != 0 || mApp->mGameMode == GAMEMODE_CHALLENGE_ZOMBIQUARIUM ||
+                mApp->IsScaryPotterLevel() != 0))
+        {
+            HitResult aHit;
+            mBoard->MouseHitTest((int)mCursorPositionX, (int)mCursorPositionY, &aHit, 0);
+            if (mBoard->mChallenge->MouseDown((int)mCursorPositionX, (int)mCursorPositionY, 0, &aHit, mPlayerIndex))
+                return true;
+        }
+
+        if (ButtonDownPlantTest(theKey, 0, theFlags) != 0)
+            return true;
+        if (theKey != Sexy::KEYCODE_RETURN)
+            return false;
+        if ((theFlags & 0x80) == 0 && ButtonDownFireCobcannonTest() != 0)
+            return true;
+        // Reloaded here; the entry state is not reused.
+        if (mGamepadState == MOVEMENT_STATE_DIG_HOLD)
+            return true;
+
+        if (mBoard->mCursorObject[mPlayerIndex]->mCursorType == CURSOR_TYPE_PLANT_FROM_USABLE_COIN)
+        {
+            mBoard->MouseDownWithPlant((int)mCursorPositionX, (int)mCursorPositionY, 1, mPlayerIndex);
+            // Reloaded after MouseDownWithPlant; that call can replace the cursor.
+            // This path returns 0, not the shared return-true.
+            CursorObject *aCursor = mBoard->mCursorObject[mPlayerIndex];
+            aCursor->mCursorType = CURSOR_TYPE_NORMAL;
+            aCursor->mType = SEED_NONE;
+            mSelectedSeedType = SEED_NONE;
+            GotoState(MOVEMENT_STATE_NORMAL);
+            return false;
+        }
+
+        // SeedBank+0x1C is GameObject::mY. Negative Y, or a fade-out already
+        // running, leaves the base result (false) in place.
+        if (aSeedBank == nullptr || aSeedBank->mY < 0 || mBoard->mBoardFadeOutCounter > 0)
+            return false;
+
+        bool aCanPick = false;
+        if (aSeedBank->mNumPackets > 0)
+        {
+            for (int aIndex = 0; aIndex < aSeedBank->mNumPackets; ++aIndex)
+            {
+                if (aSeedBank->mSeedPackets[aIndex].CanPickUp() != 0)
+                {
+                    aCanPick = true;
+                    break;
+                }
+            }
+        }
+
+        // State is the value after the scan, then a negative index is clamped.
+        MovementState aPlantState = mGamepadState;
+        if (mSelectedSeedIndex < 0)
+            mSelectedSeedIndex = 0;
+        if (aPlantState != MOVEMENT_STATE_SELECT_SEED && aPlantState != MOVEMENT_STATE_PLANT_CURSOR)
+        {
+            GotoState(MOVEMENT_STATE_SELECT_SEED);
+            return true;
+        }
+
+        if (aPlantState != MOVEMENT_STATE_SELECT_SEED)
+        {
+            if (mIsInShopSeedBank != 0)
+            {
+                if (mSelectedShopSeedIndex == 6)
+                {
+                    ActivateShopRecharge();
+                    return true;
+                }
+                if (mSelectedShopSeedIndex < 4 || mSelectedShopSeedIndex > 5)
+                {
+                    PlantShopPacket();
+                    mBoard->ClearCursor(mPlayerIndex);
+                    GotoState(MOVEMENT_STATE_NORMAL);
+                    return true;
+                }
+                // Fresh GetSeedBank, not the pointer captured on entry. Shop packet
+                // stride is 0x54 and mSeedType sits at +0x4C.
+                SeedBank *aShopBank = GetSeedBank();
+                SeedType aShopSeed = aShopBank->mShopSeedPackets[mSelectedShopSeedIndex].mSeedType;
+                int aGridX = mBoard->PlantingPixelToGridX((int)mCursorPositionX, (int)mCursorPositionY, aShopSeed);
+                int aGridY = mBoard->PlantingPixelToGridY((int)mCursorPositionX, (int)mCursorPositionY, aShopSeed);
+                if (mBoard->CanPlantAt(aGridX, aGridY, aShopSeed) != PLANTING_OK)
+                    return true;
+                CursorObject *aCursor = mBoard->mCursorObject[mPlayerIndex];
+                aCursor->mCursorType = CURSOR_TYPE_PLANT_FROM_BANK;
+                aCursor->mSelectedIndex = mSelectedShopSeedIndex;
+                aCursor->mType = aShopSeed;
+                aCursor->mImitaterType = SEED_NONE;
+                mSelectedSeedType = aShopSeed;
+                mApp->PlaySample(SOUND_SEEDLIFT, true);
+                mBoard->MouseDownWithPlant((int)mCursorPositionX, (int)mCursorPositionY, 1, mPlayerIndex);
+                mBoard->ClearCursor(mPlayerIndex);
+                GotoState(MOVEMENT_STATE_NORMAL);
+                return true;
+            }
+
+            if (aCanPick == 0)
+            {
+                mBoard->mCursorPreview[mPlayerIndex]->mVisible = false;
+                mBoard->ClearCursor(mPlayerIndex);
+                if (mApp->mGameScene == SCENE_PLAYING)
+                    mApp->PlaySample(SOUND_BUZZER, true);
+                return true;
+            }
+
+            SeedPacket *aPacket = &aSeedBank->mSeedPackets[mSelectedSeedIndex];
+            if (aPacket->CanPickUp() == 0)
+                return true;
+
+            int aGridX =
+                mBoard->PlantingPixelToGridX((int)mCursorPositionX, (int)mCursorPositionY, aPacket->mPacketType);
+            int aGridY =
+                mBoard->PlantingPixelToGridY((int)mCursorPositionX, (int)mCursorPositionY, aPacket->mPacketType);
+            // Imitater (48) tests mImitaterType first. CanPlantAt == 0 is PLANTING_OK
+            // and that success does not also test the packet type. Otherwise the
+            // packet type is tested alone. MouseDown runs only on a success.
+            bool aPlanted = false;
+            if (aPacket->mPacketType == SEED_IMITATER &&
+                mBoard->CanPlantAt(aGridX, aGridY, aPacket->mImitaterType) == PLANTING_OK)
+            {
+                aPacket->MouseDown(0, 0, 1, mPlayerIndex);
+                aPlanted = true;
+            }
+            else if (mBoard->CanPlantAt(aGridX, aGridY, aPacket->mPacketType) == PLANTING_OK)
+            {
+                aPacket->MouseDown(0, 0, 1, mPlayerIndex);
+                aPlanted = true;
+            }
+
+            mBoard->MouseDownWithPlant((int)mCursorPositionX, (int)mCursorPositionY, 1, mPlayerIndex);
+            if (mBoard->HasConveyorBeltSeedBank(false) != 0 && mSelectedSeedIndex > 0)
+            {
+                if (aPlanted == 0)
+                    return true;
+                --mSelectedSeedIndex;
+            }
+            else if (aPlanted == 0)
+            {
+                return true;
+            }
             mBoard->ClearCursor(mPlayerIndex);
-          }
-          GotoState(MOVEMENT_STATE_DIG_INDICATOR_WAIT);
-          mDigIndicatorStartCounter = mGamepadFrameCounter;
-          return true;
+            GotoState(MOVEMENT_STATE_NORMAL);
+            return true;
         }
-        if ( mBoard->mCursorObject[mPlayerIndex]->mCursorType == CURSOR_TYPE_PLANT_FROM_USABLE_COIN )
+
+        if (mIsInShopSeedBank != 0)
         {
-          mApp->PlayFoley(FOLEY_DROP);
-          mBoard->RefreshSeedPacketFromCursor(mPlayerIndex);
-          mBoard->ClearCursor(mPlayerIndex);
-          return true;
+            if (mSelectedShopSeedIndex == 6)
+            {
+                ActivateShopRecharge();
+                return true;
+            }
+            // 0x1C1BB6 branches unconditionally over GotoBuyTool. The second copy
+            // at 0x1C1D1E is skipped the same way. Both calls are dead.
+            if (PlantShopPacket() != 0)
+            {
+                GotoState(MOVEMENT_STATE_NORMAL);
+                return true;
+            }
         }
-        return false;
-      }
-    }
-
-    if ( XButtonKeyCodeDown(theKey) != 0
-        && (mApp->IsWhackAZombieLevel() != 0
-            || mApp->mGameMode == GAMEMODE_CHALLENGE_ZOMBIQUARIUM
-            || mApp->IsScaryPotterLevel() != 0) )
-    {
-      HitResult aHit;
-      mBoard->MouseHitTest((int)mCursorPositionX, (int)mCursorPositionY, &aHit, 0);
-      if ( mBoard->mChallenge->MouseDown(
-              (int)mCursorPositionX, (int)mCursorPositionY, 0, &aHit, mPlayerIndex) )
-        return true;
-    }
-
-    if ( ButtonDownPlantTest(theKey, 0, theFlags) != 0 )
-      return true;
-    if ( theKey != Sexy::KEYCODE_RETURN )
-      return false;
-    if ( (theFlags & 0x80) == 0 && ButtonDownFireCobcannonTest() != 0 )
-      return true;
-    // Reloaded here; the entry state is not reused.
-    if ( mGamepadState == MOVEMENT_STATE_DIG_HOLD )
-      return true;
-
-    if ( mBoard->mCursorObject[mPlayerIndex]->mCursorType == CURSOR_TYPE_PLANT_FROM_USABLE_COIN )
-    {
-      mBoard->MouseDownWithPlant((int)mCursorPositionX, (int)mCursorPositionY, 1, mPlayerIndex);
-      // Reloaded after MouseDownWithPlant; that call can replace the cursor.
-      // This path returns 0, not the shared return-true.
-      CursorObject *aCursor = mBoard->mCursorObject[mPlayerIndex];
-      aCursor->mCursorType = CURSOR_TYPE_NORMAL;
-      aCursor->mType = SEED_NONE;
-      mSelectedSeedType = SEED_NONE;
-      GotoState(MOVEMENT_STATE_NORMAL);
-      return false;
-    }
-
-    // SeedBank+0x1C is GameObject::mY. Negative Y, or a fade-out already
-    // running, leaves the base result (false) in place.
-    if ( aSeedBank == nullptr || aSeedBank->mY < 0 || mBoard->mBoardFadeOutCounter > 0 )
-      return false;
-
-    bool aCanPick = false;
-    if ( aSeedBank->mNumPackets > 0 )
-    {
-      for ( int aIndex = 0; aIndex < aSeedBank->mNumPackets; ++aIndex )
-      {
-        if ( aSeedBank->mSeedPackets[aIndex].CanPickUp() != 0 )
+        else
         {
-          aCanPick = true;
-          break;
+            if (aCanPick == 0)
+                return true;
+            SeedPacket *aPacket = &aSeedBank->mSeedPackets[mSelectedSeedIndex];
+            if (aPacket->CanPickUp() == 0)
+                return true;
+            if (mApp->mGameMode == GAMEMODE_CHALLENGE_HEAVY_WEAPON)
+            {
+                aPacket->MouseDown(0, 0, 1, mPlayerIndex);
+                mApp->PlaySample(SOUND_SEEDLIFT, true);
+                mBoard->MouseDownWithPlant((int)mCursorPositionX, (int)mCursorPositionY, 1, mPlayerIndex);
+                mBoard->ClearCursor(mPlayerIndex);
+                GotoState(MOVEMENT_STATE_NORMAL);
+                return true;
+            }
+            // Beghouled is this pad's mode. Twist is board+0x114's mode, not mApp's.
+            if (mApp->mGameMode == GAMEMODE_CHALLENGE_BEGHOULED ||
+                mBoard->mApp->mGameMode == GAMEMODE_CHALLENGE_BEGHOULED_TWIST)
+            {
+                if (aPacket->mPacketType == SEED_NONE)
+                    return true;
+                mBoard->mChallenge->BeghouledPacketClicked(aPacket);
+                return true;
+            }
         }
-      }
-    }
 
-    // State is the value after the scan, then a negative index is clamped.
-    MovementState aPlantState = mGamepadState;
-    if ( mSelectedSeedIndex < 0 )
-      mSelectedSeedIndex = 0;
-    if ( aPlantState != MOVEMENT_STATE_SELECT_SEED && aPlantState != MOVEMENT_STATE_PLANT_CURSOR )
-    {
-      GotoState(MOVEMENT_STATE_SELECT_SEED);
-      return true;
-    }
-
-    if ( aPlantState != MOVEMENT_STATE_SELECT_SEED )
-    {
-      if ( mIsInShopSeedBank != 0 )
-      {
-        if (mSelectedShopSeedIndex == 6)
-        {
-          ActivateShopRecharge();
-          return true;
-        }
-        if (mSelectedShopSeedIndex < 4 || mSelectedShopSeedIndex > 5)
-        {
-          PlantShopPacket();
-          mBoard->ClearCursor(mPlayerIndex);
-          GotoState(MOVEMENT_STATE_NORMAL);
-          return true;
-        }
-        // Fresh GetSeedBank, not the pointer captured on entry. Shop packet
-        // stride is 0x54 and mSeedType sits at +0x4C.
-        SeedBank *aShopBank = GetSeedBank();
-        SeedType aShopSeed = aShopBank->mShopSeedPackets[mSelectedShopSeedIndex].mSeedType;
-        int aGridX = mBoard->PlantingPixelToGridX((int)mCursorPositionX, (int)mCursorPositionY, aShopSeed);
-        int aGridY = mBoard->PlantingPixelToGridY((int)mCursorPositionX, (int)mCursorPositionY, aShopSeed);
-        if ( mBoard->CanPlantAt(aGridX, aGridY, aShopSeed) != PLANTING_OK )
-          return true;
-        CursorObject *aCursor = mBoard->mCursorObject[mPlayerIndex];
-        aCursor->mCursorType = CURSOR_TYPE_PLANT_FROM_BANK;
-        aCursor->mSelectedIndex = mSelectedShopSeedIndex;
-        aCursor->mType = aShopSeed;
-        aCursor->mImitaterType = SEED_NONE;
-        mSelectedSeedType = aShopSeed;
-        mApp->PlaySample(SOUND_SEEDLIFT, true);
-        mBoard->MouseDownWithPlant((int)mCursorPositionX, (int)mCursorPositionY, 1, mPlayerIndex);
-        mBoard->ClearCursor(mPlayerIndex);
-        GotoState(MOVEMENT_STATE_NORMAL);
-        return true;
-      }
-
-      if ( aCanPick == 0 )
-      {
-        mBoard->mCursorPreview[mPlayerIndex]->mVisible = false;
-        mBoard->ClearCursor(mPlayerIndex);
-        if ( mApp->mGameScene == SCENE_PLAYING )
-          mApp->PlaySample(SOUND_BUZZER, true);
-        return true;
-      }
-
-      SeedPacket *aPacket = &aSeedBank->mSeedPackets[mSelectedSeedIndex];
-      if ( aPacket->CanPickUp() == 0 )
-        return true;
-
-      int aGridX = mBoard->PlantingPixelToGridX(
-          (int)mCursorPositionX, (int)mCursorPositionY, aPacket->mPacketType);
-      int aGridY = mBoard->PlantingPixelToGridY(
-          (int)mCursorPositionX, (int)mCursorPositionY, aPacket->mPacketType);
-      // Imitater (48) tests mImitaterType first. CanPlantAt == 0 is PLANTING_OK
-      // and that success does not also test the packet type. Otherwise the
-      // packet type is tested alone. MouseDown runs only on a success.
-      bool aPlanted = false;
-      if ( aPacket->mPacketType == SEED_IMITATER
-          && mBoard->CanPlantAt(aGridX, aGridY, aPacket->mImitaterType) == PLANTING_OK )
-      {
-        aPacket->MouseDown(0, 0, 1, mPlayerIndex);
-        aPlanted = true;
-      }
-      else if ( mBoard->CanPlantAt(aGridX, aGridY, aPacket->mPacketType) == PLANTING_OK )
-      {
-        aPacket->MouseDown(0, 0, 1, mPlayerIndex);
-        aPlanted = true;
-      }
-
-      mBoard->MouseDownWithPlant((int)mCursorPositionX, (int)mCursorPositionY, 1, mPlayerIndex);
-      if ( mBoard->HasConveyorBeltSeedBank(false) != 0 && mSelectedSeedIndex > 0 )
-      {
-        if ( aPlanted == 0 )
-          return true;
-        --mSelectedSeedIndex;
-      }
-      else if ( aPlanted == 0 )
-      {
-        return true;
-      }
-      mBoard->ClearCursor(mPlayerIndex);
-      GotoState(MOVEMENT_STATE_NORMAL);
-      return true;
-    }
-
-    if ( mIsInShopSeedBank != 0 )
-    {
-      if ( mSelectedShopSeedIndex == 6 )
-      {
-        ActivateShopRecharge();
-        return true;
-      }
-      // 0x1C1BB6 branches unconditionally over GotoBuyTool. The second copy
-      // at 0x1C1D1E is skipped the same way. Both calls are dead.
-      if ( PlantShopPacket() != 0 )
-      {
-        GotoState(MOVEMENT_STATE_NORMAL);
-        return true;
-      }
-    }
-    else
-    {
-      if ( aCanPick == 0 )
-        return true;
-      SeedPacket *aPacket = &aSeedBank->mSeedPackets[mSelectedSeedIndex];
-      if ( aPacket->CanPickUp() == 0 )
-        return true;
-      if ( mApp->mGameMode == GAMEMODE_CHALLENGE_HEAVY_WEAPON )
-      {
-        aPacket->MouseDown(0, 0, 1, mPlayerIndex);
-        mApp->PlaySample(SOUND_SEEDLIFT, true);
-        mBoard->MouseDownWithPlant((int)mCursorPositionX, (int)mCursorPositionY, 1, mPlayerIndex);
-        mBoard->ClearCursor(mPlayerIndex);
-        GotoState(MOVEMENT_STATE_NORMAL);
-        return true;
-      }
-      // Beghouled is this pad's mode. Twist is board+0x114's mode, not mApp's.
-      if ( mApp->mGameMode == GAMEMODE_CHALLENGE_BEGHOULED
-          || mBoard->mApp->mGameMode == GAMEMODE_CHALLENGE_BEGHOULED_TWIST )
-      {
-        if ( aPacket->mPacketType == SEED_NONE )
-          return true;
-        mBoard->mChallenge->BeghouledPacketClicked(aPacket);
-        return true;
-      }
-    }
-
-    GotoState(MOVEMENT_STATE_PLANT_CURSOR);
-    return true;
-  };
-
-  // 0x1C157E. Escape with a cob selected cancels it; otherwise the action tail.
-  auto aDispatchKey = [&]() -> bool
-  {
-    if ( theKey == Sexy::KEYCODE_ESCAPE && mIsCobCannonSelected != 0 )
-    {
-      mIsCobCannonSelected = false;
-      mBoard->ClearCursor(mPlayerIndex);
-      mBoard->mCobCannonCursorDelayCounter = 0;
-      mCobCannonAnimCounter = 0;
-      mCobCannonPlantIndexInList = 0;
-      return true;
-    }
-    return aDispatchAction();
-  };
-
-  // 0x1C17F8. Arrows step the grid. State 7 restores the plant cursor after
-  // the step (0x1C1A3A); every other state stops at NORMAL (0x1C185A).
-  auto aDispatchDirection = [&]() -> bool
-  {
-    if ( (unsigned int)(theKey - Sexy::KEYCODE_LEFT) <= 3 )
-    {
-      SnapToGridPosition aStep = GetNextGridDirection(
-          theKey, (int)mCursorPositionX, (int)mCursorPositionY);
-      mGamepadVelocityLeftX = aStep.mX;
-      mGamepadVelocityLeftY = aStep.mY;
-      GotoState(MOVEMENT_STATE_GRID_STEP);
-      GotoState(MOVEMENT_STATE_NORMAL);
-      if ( aState == MOVEMENT_STATE_PLANT_CURSOR )
         GotoState(MOVEMENT_STATE_PLANT_CURSOR);
-      return true;
-    }
+        return true;
+    };
 
-    if ( aState == MOVEMENT_STATE_PLANT_CURSOR )
+    // 0x1C157E. Escape with a cob selected cancels it; otherwise the action tail.
+    auto aDispatchKey = [&]() -> bool
     {
-      if ( theKey != Sexy::KEYCODE_ESCAPE )
+        if (theKey == Sexy::KEYCODE_ESCAPE && mIsCobCannonSelected != 0)
+        {
+            mIsCobCannonSelected = false;
+            mBoard->ClearCursor(mPlayerIndex);
+            mBoard->mCobCannonCursorDelayCounter = 0;
+            mCobCannonAnimCounter = 0;
+            mCobCannonPlantIndexInList = 0;
+            return true;
+        }
         return aDispatchAction();
-      mBoard->mCursorObject[mPlayerIndex]->mType = SEED_NONE;
-      mSelectedSeedType = SEED_NONE;
-      GotoState(MOVEMENT_STATE_NORMAL);
-      return true;
+    };
+
+    // 0x1C17F8. Arrows step the grid. State 7 restores the plant cursor after
+    // the step (0x1C1A3A); every other state stops at NORMAL (0x1C185A).
+    auto aDispatchDirection = [&]() -> bool
+    {
+        if ((unsigned int)(theKey - Sexy::KEYCODE_LEFT) <= 3)
+        {
+            SnapToGridPosition aStep = GetNextGridDirection(theKey, (int)mCursorPositionX, (int)mCursorPositionY);
+            mGamepadVelocityLeftX = aStep.mX;
+            mGamepadVelocityLeftY = aStep.mY;
+            GotoState(MOVEMENT_STATE_GRID_STEP);
+            GotoState(MOVEMENT_STATE_NORMAL);
+            if (aState == MOVEMENT_STATE_PLANT_CURSOR)
+                GotoState(MOVEMENT_STATE_PLANT_CURSOR);
+            return true;
+        }
+
+        if (aState == MOVEMENT_STATE_PLANT_CURSOR)
+        {
+            if (theKey != Sexy::KEYCODE_ESCAPE)
+                return aDispatchAction();
+            mBoard->mCursorObject[mPlayerIndex]->mType = SEED_NONE;
+            mSelectedSeedType = SEED_NONE;
+            GotoState(MOVEMENT_STATE_NORMAL);
+            return true;
+        }
+
+        if (aState != MOVEMENT_STATE_BUTTER_RELEASED)
+            return aDispatchKey();
+        if (theKey != Sexy::KEYCODE_ESCAPE)
+            return aDispatchAction();
+        mBoard->mChallenge->BeghouledDragCancel();
+        GotoState(MOVEMENT_STATE_NORMAL);
+        return true;
+    };
+
+    // Packets and state 6 take the seed-bank arrows (0x1C1886). No packets with
+    // state 6 falls through to the cob check, matching 0x1C17A2 -> 0x1C1570.
+    if (aHasPackets && aState == MOVEMENT_STATE_SELECT_SEED)
+    {
+        switch (theKey)
+        {
+            case Sexy::KEYCODE_LEFT:
+                if (mIsInShopSeedBank != 0)
+                    DecShopSeed();
+                else
+                    DecSelectedSeed();
+                return true;
+            case Sexy::KEYCODE_RIGHT:
+                if (mIsInShopSeedBank != 0)
+                    IncShopSeed();
+                else
+                    IncSelectedSeed();
+                return true;
+            case Sexy::KEYCODE_UP:
+                if (mApp->CanShopLevel() != 0)
+                    UpSelectedSeed();
+                return true;
+            case Sexy::KEYCODE_DOWN:
+                if (mApp->CanShopLevel() != 0)
+                    DownSelectedSeed();
+                return true;
+            default:
+                break;
+        }
+        if (theKey == Sexy::KEYCODE_ESCAPE)
+        {
+            mBoard->mCursorObject[mPlayerIndex]->mType = SEED_NONE;
+            mSelectedSeedType = SEED_NONE;
+            GotoState(MOVEMENT_STATE_NORMAL);
+            return true;
+        }
+    }
+    else if (aState == MOVEMENT_STATE_GRID_STEP)
+    {
+        // Sqrt always runs. Mode 25 snaps regardless of distance; otherwise only
+        // a distance strictly under 3 snaps (BPL on >= 3.0 stays on the cob path).
+        float aDx = mGridCenterPositionX - mCursorPositionX;
+        float aDy = mGridCenterPositionY - mCursorPositionY;
+        float aDist = sqrtf(aDx * aDx + aDy * aDy);
+        if (mApp->mGameMode == GAMEMODE_CHALLENGE_BEGHOULED_TWIST || aDist < 3.0f)
+        {
+            mCursorPositionX = mGridCenterPositionX;
+            mCursorPositionY = mGridCenterPositionY;
+            return aDispatchDirection();
+        }
+    }
+    else if (aState != MOVEMENT_STATE_SELECT_SEED && aState != MOVEMENT_STATE_BUTTER_HELD)
+    {
+        return aDispatchDirection();
     }
 
-    if ( aState != MOVEMENT_STATE_BUTTER_RELEASED )
-      return aDispatchKey();
-    if ( theKey != Sexy::KEYCODE_ESCAPE )
-      return aDispatchAction();
-    mBoard->mChallenge->BeghouledDragCancel();
-    GotoState(MOVEMENT_STATE_NORMAL);
-    return true;
-  };
-
-  // Packets and state 6 take the seed-bank arrows (0x1C1886). No packets with
-  // state 6 falls through to the cob check, matching 0x1C17A2 -> 0x1C1570.
-  if ( aHasPackets && aState == MOVEMENT_STATE_SELECT_SEED )
-  {
-    switch ( theKey )
-    {
-      case Sexy::KEYCODE_LEFT:
-        if ( mIsInShopSeedBank != 0 )
-          DecShopSeed();
-        else
-          DecSelectedSeed();
-        return true;
-      case Sexy::KEYCODE_RIGHT:
-        if ( mIsInShopSeedBank != 0 )
-          IncShopSeed();
-        else
-          IncSelectedSeed();
-        return true;
-      case Sexy::KEYCODE_UP:
-        if ( mApp->CanShopLevel() != 0 )
-          UpSelectedSeed();
-        return true;
-      case Sexy::KEYCODE_DOWN:
-        if ( mApp->CanShopLevel() != 0 )
-          DownSelectedSeed();
-        return true;
-      default:
-        break;
-    }
-    if ( theKey == Sexy::KEYCODE_ESCAPE )
-    {
-      mBoard->mCursorObject[mPlayerIndex]->mType = SEED_NONE;
-      mSelectedSeedType = SEED_NONE;
-      GotoState(MOVEMENT_STATE_NORMAL);
-      return true;
-    }
-  }
-  else if ( aState == MOVEMENT_STATE_GRID_STEP )
-  {
-    // Sqrt always runs. Mode 25 snaps regardless of distance; otherwise only
-    // a distance strictly under 3 snaps (BPL on >= 3.0 stays on the cob path).
-    float aDx = mGridCenterPositionX - mCursorPositionX;
-    float aDy = mGridCenterPositionY - mCursorPositionY;
-    float aDist = sqrtf(aDx * aDx + aDy * aDy);
-    if ( mApp->mGameMode == GAMEMODE_CHALLENGE_BEGHOULED_TWIST || aDist < 3.0f )
-    {
-      mCursorPositionX = mGridCenterPositionX;
-      mCursorPositionY = mGridCenterPositionY;
-      return aDispatchDirection();
-    }
-  }
-  else if ( aState != MOVEMENT_STATE_SELECT_SEED && aState != MOVEMENT_STATE_BUTTER_HELD )
-  {
-    return aDispatchDirection();
-  }
-
-  return aDispatchKey();
+    return aDispatchKey();
 }
 
 // ==========================================================================
@@ -1987,15 +1962,9 @@ bool IsPoolEntryZombie(ZombieType theType)
 
 bool IsGraveRiseZombie(ZombieType theType)
 {
-    return theType == ZOMBIE_ZAMBONI
-        || theType == ZOMBIE_JACK_IN_THE_BOX
-        || theType == ZOMBIE_DIGGER
-        || theType == ZOMBIE_POGO
-        || theType == ZOMBIE_LADDER
-        || theType == ZOMBIE_GARGANTUAR
-        || theType == ZOMBIE_IMP
-        || theType == ZOMBIE_BOSS
-        || theType == ZOMBIE_TRASHCAN;
+    return theType == ZOMBIE_ZAMBONI || theType == ZOMBIE_JACK_IN_THE_BOX || theType == ZOMBIE_DIGGER ||
+        theType == ZOMBIE_POGO || theType == ZOMBIE_LADDER || theType == ZOMBIE_GARGANTUAR || theType == ZOMBIE_IMP ||
+        theType == ZOMBIE_BOSS || theType == ZOMBIE_TRASHCAN;
 }
 
 bool IsDirectRowZombie(ZombieType theType)
@@ -2052,23 +2021,20 @@ void GamepadControls::HandleCancelButton()
 
 void GamepadControls::HandleButterButton()
 {
-    if (mApp->IsWhackAZombieLevel() != 0
-        || mApp->mGameMode == GAMEMODE_CHALLENGE_ZOMBIQUARIUM
-        || mApp->IsScaryPotterLevel() != 0)
+    if (mApp->IsWhackAZombieLevel() != 0 || mApp->mGameMode == GAMEMODE_CHALLENGE_ZOMBIQUARIUM ||
+        mApp->IsScaryPotterLevel() != 0)
     {
         HitResult aWhackHit;
         mBoard->MouseHitTest((int)mCursorPositionX, (int)mCursorPositionY, &aWhackHit, 0);
-        if (mBoard->mChallenge->MouseDown((int)mCursorPositionX,
-                (int)mCursorPositionY, 0, &aWhackHit, mPlayerIndex) != 0)
+        if (mBoard->mChallenge->MouseDown((int)mCursorPositionX, (int)mCursorPositionY, 0, &aWhackHit, mPlayerIndex) !=
+            0)
             return;
     }
     if (mApp->IsWhackAZombieLevel() != 0)
         return;
 
-    bool aBothPadsLive = mBoard->mGamepadControls[0] != nullptr
-        && mBoard->mGamepadControls[0]->mGamepadIndex != -1
-        && mBoard->mGamepadControls[1] != nullptr
-        && mBoard->mGamepadControls[1]->mGamepadIndex != -1;
+    bool aBothPadsLive = mBoard->mGamepadControls[0] != nullptr && mBoard->mGamepadControls[0]->mGamepadIndex != -1 &&
+        mBoard->mGamepadControls[1] != nullptr && mBoard->mGamepadControls[1]->mGamepadIndex != -1;
     if (!mApp->IsCoopMode() && !(mApp->IsAdventureMode() && aBothPadsLive))
         return;
 
@@ -2136,8 +2102,7 @@ void GamepadControls::MagnetizeNearbyCoins()
         if (aCoin->mCoinMotion == COIN_MOTION_FROM_NEAR_CURSOR)
             continue;
         bool aTakeSun = !mIsZombie && aCoin->IsSun();
-        bool aTakeDeath = aCoin->IsDeath()
-            || (mIsZombie && aCoin->IsSun() && mApp->IsIZombieLevel());
+        bool aTakeDeath = aCoin->IsDeath() || (mIsZombie && aCoin->IsSun() && mApp->IsIZombieLevel());
         if (!mIsZombie && !aTakeSun)
             continue;
         if (mIsZombie && !aTakeDeath && !aTakeSun)
@@ -2170,10 +2135,8 @@ bool GamepadControls::HandleVersusZombiePlant(int thePlantAccepted)
         if (Challenge::gVSZombieSpawnMode != 1)
             return true;
         SeedType aSeed = aPacket->mPacketType;
-        bool aFreePlacement = aSeed == SEED_ZOMBIE_GRAVESTONE
-            || aSeed == SEED_ZOMBIE_SNORKEL
-            || aSeed == SEED_ZOMBIE_DOLPHIN_RIDER
-            || aSeed == SEED_ZOMBIE_BUNGEE;
+        bool aFreePlacement = aSeed == SEED_ZOMBIE_GRAVESTONE || aSeed == SEED_ZOMBIE_SNORKEL ||
+            aSeed == SEED_ZOMBIE_DOLPHIN_RIDER || aSeed == SEED_ZOMBIE_BUNGEE;
         if (!aFreePlacement && mBoard->GetGraveStoneAt(aGridX, aGridY) == nullptr)
             return true;
     }
@@ -2236,12 +2199,12 @@ bool GamepadControls::HandleVersusZombiePlant(int thePlantAccepted)
     {
         int aCellX = mBoard->PixelToGridXKeepOnBoard((int)mCursorPositionX, (int)mCursorPositionY);
         int aCellY = mBoard->PixelToGridYKeepOnBoard((int)mCursorPositionX, (int)mCursorPositionY);
-        if (mBoard->CanPlantAt(aCellX, aCellY, aPacket->mPacketType) == PLANTING_OK
-            && mBoard->TakeDeathMoney(aCost) != 0)
+        if (mBoard->CanPlantAt(aCellX, aCellY, aPacket->mPacketType) == PLANTING_OK &&
+            mBoard->TakeDeathMoney(aCost) != 0)
         {
             if (aZombieType == ZOMBIE_BUNGEE)
             {
-                Zombie* aDropped = mBoard->AddZombieInRow(aZombieType, aCellY, 0, true);
+                Zombie *aDropped = mBoard->AddZombieInRow(aZombieType, aCellY, 0, true);
                 if (aDropped != nullptr)
                 {
                     aDropped->mRow = aCellX;
@@ -2356,10 +2319,8 @@ bool GamepadControls::HandleNormalPlant(int thePlantAccepted)
         else if (mSelectedShopSeedIndex == 4 || mSelectedShopSeedIndex == 5)
         {
             ShopSeedPacket *aShop = &aBank->mShopSeedPackets[mSelectedShopSeedIndex];
-            int aGridX = mBoard->PlantingPixelToGridX(
-                (int)mCursorPositionX, (int)mCursorPositionY, aShop->mSeedType);
-            int aGridY = mBoard->PlantingPixelToGridY(
-                (int)mCursorPositionX, (int)mCursorPositionY, aShop->mSeedType);
+            int aGridX = mBoard->PlantingPixelToGridX((int)mCursorPositionX, (int)mCursorPositionY, aShop->mSeedType);
+            int aGridY = mBoard->PlantingPixelToGridY((int)mCursorPositionX, (int)mCursorPositionY, aShop->mSeedType);
             if (mBoard->CanPlantAt(aGridX, aGridY, aShop->mSeedType) != PLANTING_OK)
                 return false;
             // Input can switch shop slots before the next Update fills the cursor.
@@ -2371,8 +2332,7 @@ bool GamepadControls::HandleNormalPlant(int thePlantAccepted)
             mSelectedSeedType = aShop->mSeedType;
             mApp->PlaySample(SOUND_SEEDLIFT, true);
             if (mApp->GotoBuyTool((E_SHOP_PACKET)mSelectedShopSeedIndex) != 0)
-                mBoard->MouseDownWithPlant(
-                    (int)mCursorPositionX, (int)mCursorPositionY, 1, mPlayerIndex);
+                mBoard->MouseDownWithPlant((int)mCursorPositionX, (int)mCursorPositionY, 1, mPlayerIndex);
         }
         else if (mApp->GotoBuyTool((E_SHOP_PACKET)mSelectedShopSeedIndex) != 0)
         {
@@ -2396,10 +2356,8 @@ bool GamepadControls::HandleNormalPlant(int thePlantAccepted)
 
     if (mSelectedSeedIndex < 0)
         mSelectedSeedIndex = 0;
-    int aGridX = mBoard->PlantingPixelToGridX(
-        (int)mCursorPositionX, (int)mCursorPositionY, aPacket->mPacketType);
-    int aGridY = mBoard->PlantingPixelToGridY(
-        (int)mCursorPositionX, (int)mCursorPositionY, aPacket->mPacketType);
+    int aGridX = mBoard->PlantingPixelToGridX((int)mCursorPositionX, (int)mCursorPositionY, aPacket->mPacketType);
+    int aGridY = mBoard->PlantingPixelToGridY((int)mCursorPositionX, (int)mCursorPositionY, aPacket->mPacketType);
     bool aCanPlant = false;
     if (aPacket->mPacketType == SEED_IMITATER)
         aCanPlant = mBoard->CanPlantAt(aGridX, aGridY, aPacket->mImitaterType) == PLANTING_OK;
@@ -2488,21 +2446,18 @@ void GamepadControls::OnButtonDown(int theButton, int thePlayerIndex, unsigned i
         else if ((theButton & ~0x10) == 3)
             IncSelectedSeed();
     }
-    else if (mGamepadState != MOVEMENT_STATE_BUTTER_HELD
-        && theButton >= GAMEPAD_BUTTON_DPAD_UP
-        && theButton <= GAMEPAD_BUTTON_DPAD_RIGHT)
+    else if (mGamepadState != MOVEMENT_STATE_BUTTER_HELD && theButton >= GAMEPAD_BUTTON_DPAD_UP &&
+        theButton <= GAMEPAD_BUTTON_DPAD_RIGHT)
     {
-        SnapToGridPosition aStep = GetNextGridDirection(
-            theButton, (int)mCursorPositionX, (int)mCursorPositionY);
+        SnapToGridPosition aStep = GetNextGridDirection(theButton, (int)mCursorPositionX, (int)mCursorPositionY);
         mGamepadVelocityLeftX = aStep.mX;
         mGamepadVelocityLeftY = aStep.mY;
         GotoState(MOVEMENT_STATE_GRID_STEP);
         GotoState(MOVEMENT_STATE_NORMAL);
     }
 
-    if ((unsigned int)(theButton - GAMEPAD_BUTTON_TL2) <= 3
-        && (theFlags & 1) == 0
-        && mApp->mGameMode != GAMEMODE_CHALLENGE_HEAVY_WEAPON)
+    if ((unsigned int)(theButton - GAMEPAD_BUTTON_TL2) <= 3 && (theFlags & 1) == 0 &&
+        mApp->mGameMode != GAMEMODE_CHALLENGE_HEAVY_WEAPON)
         MagnetizeNearbyCoins();
 
     int aPlantAccepted = ButtonDownPlantTest(theButton, mGamepadIndex, theFlags);
@@ -2526,14 +2481,12 @@ void GamepadControls::OnButtonDown(int theButton, int thePlayerIndex, unsigned i
             mApp->PlaySample(SOUND_BUZZER, true);
             return;
         }
-        if (mBoard->mChallenge->IsMPSuddenDeath()
-            && (unsigned int)Challenge::gVSSuddenDeathMode <= 1)
+        if (mBoard->mChallenge->IsMPSuddenDeath() && (unsigned int)Challenge::gVSSuddenDeathMode <= 1)
         {
             SeedBank *aVsBank = GetSeedBank();
             SeedPacket *aPacket = &aVsBank->mSeedPackets[mSelectedSeedIndex];
-            if (Challenge::IsMPResourceProducer(aPacket->mPacketType)
-                || mBoard->mChallenge->ISMPSeedSuddenDeathDisabled(
-                    aVsBank->mIsZombie, aPacket->mPacketType))
+            if (Challenge::IsMPResourceProducer(aPacket->mPacketType) ||
+                mBoard->mChallenge->ISMPSeedSuddenDeathDisabled(aVsBank->mIsZombie, aPacket->mPacketType))
             {
                 mApp->PlaySample(SOUND_BUZZER, true);
                 return;
@@ -2554,9 +2507,8 @@ void GamepadControls::OnButtonDown(int theButton, int thePlayerIndex, unsigned i
     else if (theButton == GAMEPAD_BUTTON_Y)
     {
         Sexy::Gamepad *aPad = mApp->mGamepads[mGamepadIndex];
-        if (aPad != nullptr
-            && aPad->IsButtonDown(GAMEPAD_BUTTON_SELECT) != 0
-            && aPad->IsButtonDown(GAMEPAD_BUTTON_TL2) != 0)
+        if (aPad != nullptr && aPad->IsButtonDown(GAMEPAD_BUTTON_SELECT) != 0 &&
+            aPad->IsButtonDown(GAMEPAD_BUTTON_TL2) != 0)
             gCobCannonTargetFrame = (gCobCannonTargetFrame + 1) % 4;
     }
 }
@@ -2567,7 +2519,7 @@ void GamepadControls::OnButtonDown(int theButton, int thePlayerIndex, unsigned i
 // ==========================================================================
 void GamepadControls::UpdateCursorReanims()
 {
-  ;
+    ;
 }
 
 // ==========================================================================
@@ -2576,111 +2528,109 @@ void GamepadControls::UpdateCursorReanims()
 // ==========================================================================
 void GamepadControls::AddCursorReanim()
 {
-  ;
+    ;
 }
 
 // ==========================================================================
 // GamepadControls::PickupUsableSeedPacket(Coin *)
 // @001C2D34  66 bytes
 // ==========================================================================
-int GamepadControls::PickupUsableSeedPacket(Coin * theCoin)
+int GamepadControls::PickupUsableSeedPacket(Coin *theCoin)
 {
-  // A cursor already holding a plant packet puts that packet back first.
-  CursorObject *aCursor = mBoard->mCursorObject[mPlayerIndex];
-  if ( aCursor->mCursorType == 2 )
-    mBoard->RefreshSeedPacketFromCursor(mPlayerIndex);
+    // A cursor already holding a plant packet puts that packet back first.
+    CursorObject *aCursor = mBoard->mCursorObject[mPlayerIndex];
+    if (aCursor->mCursorType == 2)
+        mBoard->RefreshSeedPacketFromCursor(mPlayerIndex);
 
-  aCursor = mBoard->mCursorObject[mPlayerIndex];
-  aCursor->mType = theCoin->mUsableSeedType;
-  mSelectedSeedType = theCoin->mUsableSeedType;
-  // The coin id sits in the DataArray slot that owns this coin.
-  int aCoinId = 0;
-  CoinSlot *aCoinSlots = mBoard->mCoins.mBlock;
-  for (unsigned int anIndex = 0; anIndex < mBoard->mCoins.mMaxSize; ++anIndex)
-  {
-    if (&aCoinSlots[anIndex].mItem == theCoin)
+    aCursor = mBoard->mCursorObject[mPlayerIndex];
+    aCursor->mType = theCoin->mUsableSeedType;
+    mSelectedSeedType = theCoin->mUsableSeedType;
+    // The coin id sits in the DataArray slot that owns this coin.
+    int aCoinId = 0;
+    CoinSlot *aCoinSlots = mBoard->mCoins.mBlock;
+    for (unsigned int anIndex = 0; anIndex < mBoard->mCoins.mMaxSize; ++anIndex)
     {
-      aCoinId = (int)aCoinSlots[anIndex].mID;
-      break;
+        if (&aCoinSlots[anIndex].mItem == theCoin)
+        {
+            aCoinId = (int)aCoinSlots[anIndex].mID;
+            break;
+        }
     }
-  }
-  aCursor->mCoinID = aCoinId;
-  aCursor->mCursorType = CURSOR_TYPE_PLANT_FROM_USABLE_COIN;
-  return aCoinId;
+    aCursor->mCoinID = aCoinId;
+    aCursor->mCursorType = CURSOR_TYPE_PLANT_FROM_USABLE_COIN;
+    return aCoinId;
 }
 
 // ==========================================================================
 // GamepadControls::GamepadControls(Board *,int,int)
 // @001C2E9C  468 bytes
 // ==========================================================================
-GamepadControls::GamepadControls(Board *theBoard, int thePlayerIndex, int theGamepadIndex)
-  : BaseGamepadControls(theBoard, thePlayerIndex, theGamepadIndex)
+GamepadControls::GamepadControls(Board *theBoard, int thePlayerIndex, int theGamepadIndex) :
+    BaseGamepadControls(theBoard, thePlayerIndex, theGamepadIndex)
 {
-  // The base constructor has already run.
+    // The base constructor has already run.
 
-  // The 64-byte state block starting at mDerivedSyncBlockPadding (+0xA8) is
-  // registered as one sync block and then zero-filled. libstdcxx::vector's own
-  // default constructor has already initialised mSyncBlocks, so only the push is
-  // written out here.
-  SyncBlockInfo aBlock = MakeSyncBlock(mDerivedSyncBlockPadding, mPreviewingSeedType);
-  mSyncBlocks.push_back(aBlock);
-  memset(aBlock.mData, 0, aBlock.mSize);
+    // The 64-byte state block starting at mDerivedSyncBlockPadding (+0xA8) is
+    // registered as one sync block and then zero-filled. libstdcxx::vector's own
+    // default constructor has already initialised mSyncBlocks, so only the push is
+    // written out here.
+    SyncBlockInfo aBlock = MakeSyncBlock(mDerivedSyncBlockPadding, mPreviewingSeedType);
+    mSyncBlocks.push_back(aBlock);
+    memset(aBlock.mData, 0, aBlock.mSize);
 
-  mSelectedSeedType = SEED_NONE;
-  mPreviewingSeedType = SEED_NONE;
-  GotoState(MOVEMENT_STATE_NORMAL);
+    mSelectedSeedType = SEED_NONE;
+    mPreviewingSeedType = SEED_NONE;
+    GotoState(MOVEMENT_STATE_NORMAL);
 
-  // TV 0x1C2E9C tests the player index, independently of the assigned pad.
-  // The second player starts in column 8 even before a controller has joined.
-  if (thePlayerIndex == 1)
-  {
-    if ( mApp->IsCoopMode() )
-      mSelectedSeedIndex = 0;
-    mCursorPositionX = (float)mBoard->GridToPixelX(8, 0);
-    mCursorPositionY = (float)mBoard->GridToPixelY(8, 0);
-  }
-  else if ( mApp->mGameMode == GAMEMODE_ADVENTURE )
-  {
-    mCursorPositionX = (float)mBoard->GridToPixelX(0, 2);
-    mCursorPositionY = (float)mBoard->GridToPixelY(0, 2);
-  }
-  else
-  {
-    mCursorPositionX = (float)mBoard->GridToPixelX(0, 0);
-    mCursorPositionY = (float)mBoard->GridToPixelY(0, 0);
-  }
+    // TV 0x1C2E9C tests the player index, independently of the assigned pad.
+    // The second player starts in column 8 even before a controller has joined.
+    if (thePlayerIndex == 1)
+    {
+        if (mApp->IsCoopMode())
+            mSelectedSeedIndex = 0;
+        mCursorPositionX = (float)mBoard->GridToPixelX(8, 0);
+        mCursorPositionY = (float)mBoard->GridToPixelY(8, 0);
+    }
+    else if (mApp->mGameMode == GAMEMODE_ADVENTURE)
+    {
+        mCursorPositionX = (float)mBoard->GridToPixelX(0, 2);
+        mCursorPositionY = (float)mBoard->GridToPixelY(0, 2);
+    }
+    else
+    {
+        mCursorPositionX = (float)mBoard->GridToPixelX(0, 0);
+        mCursorPositionY = (float)mBoard->GridToPixelY(0, 0);
+    }
 
-  // The preview surface is a DeviceImage only when the platform driver hands
-  // back a 3D render device whose capability word has bit 3 set; otherwise it is
-  // a plain MemoryImage. A DeviceImage also marks itself as a device-backed
-  // surface, which DeviceImage::LockSurface reads back.
-  Sexy::IGraphicsDriver *aDriver = mApp->mDDInterface;
-  Sexy::MemoryImage *aPreviewImage;
-  if ( aDriver != nullptr
-    && mApp->Is3DAccelerated()
-    && aDriver->GetRenderDevice3D() != nullptr
-    && (aDriver->GetRenderDevice3D()->GetCapsFlags() & 8) != 0 )
-  {
-    DeviceImage *aDeviceImage = new DeviceImage();
-    aDeviceImage->mCreateFlags |= 0x10;
-    aPreviewImage = aDeviceImage;
-  }
-  else
-  {
-    aPreviewImage = new Sexy::MemoryImage();
-  }
-  mPreviewImage = aPreviewImage;
-  aPreviewImage->Create(512, 512);
-  aPreviewImage->SetVolatile(true);
-  aPreviewImage->SetImageMode(true, true);
+    // The preview surface is a DeviceImage only when the platform driver hands
+    // back a 3D render device whose capability word has bit 3 set; otherwise it is
+    // a plain MemoryImage. A DeviceImage also marks itself as a device-backed
+    // surface, which DeviceImage::LockSurface reads back.
+    Sexy::IGraphicsDriver *aDriver = mApp->mDDInterface;
+    Sexy::MemoryImage *aPreviewImage;
+    if (aDriver != nullptr && mApp->Is3DAccelerated() && aDriver->GetRenderDevice3D() != nullptr &&
+        (aDriver->GetRenderDevice3D()->GetCapsFlags() & 8) != 0)
+    {
+        DeviceImage *aDeviceImage = new DeviceImage();
+        aDeviceImage->mCreateFlags |= 0x10;
+        aPreviewImage = aDeviceImage;
+    }
+    else
+    {
+        aPreviewImage = new Sexy::MemoryImage();
+    }
+    mPreviewImage = aPreviewImage;
+    aPreviewImage->Create(512, 512);
+    aPreviewImage->SetVolatile(true);
+    aPreviewImage->SetImageMode(true, true);
 
-  mCobCannonReanimID = (ReanimationID)0;
-  mPreviewReanimID3 = (ReanimationID)0;
-  mButterZombieID = ZOMBIEID_NULL;
-  mIsShowingDigIndicator = false;
-  mDigIndicatorStartCounter = 0;
-  mIsInShopSeedBank = false;
-  mSelectedShopSeedIndex = 0;
+    mCobCannonReanimID = (ReanimationID)0;
+    mPreviewReanimID3 = (ReanimationID)0;
+    mButterZombieID = ZOMBIEID_NULL;
+    mIsShowingDigIndicator = false;
+    mDigIndicatorStartCounter = 0;
+    mIsInShopSeedBank = false;
+    mSelectedShopSeedIndex = 0;
 }
 
 // ==========================================================================
@@ -2689,165 +2639,165 @@ GamepadControls::GamepadControls(Board *theBoard, int thePlayerIndex, int theGam
 // ==========================================================================
 void GamepadControls::UpdatePreviewReanim()
 {
-  // The seed under the cursor is what the preview reanim shows. An imitater
-  // previews the plant it is copying, and a zombie bank previews the packet
-  // type rather than the cursor type. The same seed keeps the reanim already
-  // built; a different seed throws that reanim away and builds a new one.
-  CursorObject *aCursor = mBoard->mCursorObject[mPlayerIndex];
-  SeedBank *aSeedBank = GetSeedBank();
-  SeedType aSeedType = aCursor->mType;
-  if ( mIsZombie )
-    aSeedType = aSeedBank->mSeedPackets[mSelectedSeedIndex].mPacketType;
+    // The seed under the cursor is what the preview reanim shows. An imitater
+    // previews the plant it is copying, and a zombie bank previews the packet
+    // type rather than the cursor type. The same seed keeps the reanim already
+    // built; a different seed throws that reanim away and builds a new one.
+    CursorObject *aCursor = mBoard->mCursorObject[mPlayerIndex];
+    SeedBank *aSeedBank = GetSeedBank();
+    SeedType aSeedType = aCursor->mType;
+    if (mIsZombie)
+        aSeedType = aSeedBank->mSeedPackets[mSelectedSeedIndex].mPacketType;
 
-  bool aUseImitaterFilter = false;
-  if ( aSeedType == SEED_IMITATER )
-  {
-    aSeedType = aCursor->mImitaterType;
-    aUseImitaterFilter = true;
-  }
-
-  int aGridX = mBoard->PixelToGridXKeepOnBoard((int)mCursorPositionX, (int)mCursorPositionY);
-  int aGridY = mBoard->PixelToGridYKeepOnBoard((int)mCursorPositionX, (int)mCursorPositionY);
-
-  ReanimationID aPreviewId = mPreviewReanimID4;
-  bool aCreatedPreview = false;
-  if ( mPreviewingSeedType != aSeedType && aSeedType != SEED_NONE )
-  {
-    InvalidatePreviewReanim();
-    RenderLayer aLayer = mIsZombie ? RenderLayer::RENDER_LAYER_ZOMBIE : RenderLayer::RENDER_LAYER_PLANT;
-    int aRenderOrder = mBoard->MakeRenderOrder(aLayer, aGridY, 100);
-    float aHeightOffset = PlantDrawHeightOffset(mBoard, nullptr, aSeedType, aGridX, aGridY);
-
-    Reanimation *aBody = nullptr;
-    if ( !mIsZombie )
+    bool aUseImitaterFilter = false;
+    if (aSeedType == SEED_IMITATER)
     {
-      bool aHasStemHead = aSeedType == SEED_PEASHOOTER || aSeedType == SEED_SNOWPEA
-                       || aSeedType == SEED_REPEATER || aSeedType == SEED_LEFTPEATER
-                       || aSeedType == SEED_GATLINGPEA;
-      if ( aSeedType <= SEED_IMITATER || aSeedType == SEED_LEFTPEATER )
-      {
-        PlantDefinition *aPlantDef = GetPlantDefinition(aSeedType);
-        aBody = mApp->AddReanimation(0.0f, aHeightOffset, aRenderOrder + 2, aPlantDef->mReanimationType);
-        // A shooter preview is the body plus one head reanim per barrel, locked
-        // to that barrel's idle layer and parented onto the stem (or idle).
-        auto aAttachHead = [&](const char *theHeadLayer, const char *theParentTrack, float theY)
-        {
-          Reanimation *aHead = mApp->AddReanimation(0.0f, theY, aRenderOrder + 3, aPlantDef->mReanimationType);
-          aHead->mLoopType = REANIM_LOOP;
-          aHead->SetAnimRate(aBody->mAnimRate);
-          aHead->SetFramesForLayer(theHeadLayer);
-          const char *aTrack = theParentTrack;
-          if ( !aBody->TrackExists(aTrack) )
-          {
-            aTrack = "anim_idle";
-            if ( !aBody->TrackExists(aTrack) )
-              return;
-          }
-          aHead->AttachToAnotherReanimation(aBody, aTrack);
-        };
-        aBody->mIsAttachment = true;
-        aBody->PlayReanim("anim_idle", REANIM_LOOP, 0, 12.0f);
-        if ( aHasStemHead )
-          aAttachHead("anim_head_idle", "anim_stem", aHeightOffset);
-        else if ( aSeedType == SEED_SPLITPEA )
-        {
-          aAttachHead("anim_head_idle", "anim_idle", 0.0f);
-          aAttachHead("anim_splitpea_idle", "anim_idle", 0.0f);
-        }
-        else if ( aSeedType == SEED_THREEPEATER )
-        {
-          aBody->SetAnimRate(RandRangeFloat(15.0f, 20.0f));
-          aAttachHead("anim_head_idle1", "anim_head1", 0.0f);
-          aAttachHead("anim_head_idle2", "anim_head2", 0.0f);
-          aAttachHead("anim_head_idle3", "anim_head3", 0.0f);
-        }
-      }
-      else if ( aSeedType == SEED_EXPLODE_O_NUT )
-      {
-        PlantDefinition *aExplodeDef = GetPlantDefinition(SEED_EXPLODE_O_NUT);
-        aBody = mApp->AddReanimation(0.0f, aHeightOffset, aRenderOrder + 2, aExplodeDef->mReanimationType);
-        aBody->mIsAttachment = true;
-        aBody->PlayReanim("anim_idle", REANIM_LOOP, 0, 12.0f);
-      }
-      else
-      {
-        mPreviewingSeedType = aSeedType;
-      }
+        aSeedType = aCursor->mImitaterType;
+        aUseImitaterFilter = true;
     }
-    else
+
+    int aGridX = mBoard->PixelToGridXKeepOnBoard((int)mCursorPositionX, (int)mCursorPositionY);
+    int aGridY = mBoard->PixelToGridYKeepOnBoard((int)mCursorPositionX, (int)mCursorPositionY);
+
+    ReanimationID aPreviewId = mPreviewReanimID4;
+    bool aCreatedPreview = false;
+    if (mPreviewingSeedType != aSeedType && aSeedType != SEED_NONE)
     {
-      ZombieType aZombieType = Challenge::IZombieSeedTypeToZombieType(aSeedType);
-      if ( aZombieType == ZOMBIE_INVALID )
-      {
-        mPreviewingSeedType = aSeedType;
+        InvalidatePreviewReanim();
+        RenderLayer aLayer = mIsZombie ? RenderLayer::RENDER_LAYER_ZOMBIE : RenderLayer::RENDER_LAYER_PLANT;
+        int aRenderOrder = mBoard->MakeRenderOrder(aLayer, aGridY, 100);
+        float aHeightOffset = PlantDrawHeightOffset(mBoard, nullptr, aSeedType, aGridX, aGridY);
+
+        Reanimation *aBody = nullptr;
+        if (!mIsZombie)
+        {
+            bool aHasStemHead = aSeedType == SEED_PEASHOOTER || aSeedType == SEED_SNOWPEA ||
+                aSeedType == SEED_REPEATER || aSeedType == SEED_LEFTPEATER || aSeedType == SEED_GATLINGPEA;
+            if (aSeedType <= SEED_IMITATER || aSeedType == SEED_LEFTPEATER)
+            {
+                PlantDefinition *aPlantDef = GetPlantDefinition(aSeedType);
+                aBody = mApp->AddReanimation(0.0f, aHeightOffset, aRenderOrder + 2, aPlantDef->mReanimationType);
+                // A shooter preview is the body plus one head reanim per barrel, locked
+                // to that barrel's idle layer and parented onto the stem (or idle).
+                auto aAttachHead = [&](const char *theHeadLayer, const char *theParentTrack, float theY)
+                {
+                    Reanimation *aHead =
+                        mApp->AddReanimation(0.0f, theY, aRenderOrder + 3, aPlantDef->mReanimationType);
+                    aHead->mLoopType = REANIM_LOOP;
+                    aHead->SetAnimRate(aBody->mAnimRate);
+                    aHead->SetFramesForLayer(theHeadLayer);
+                    const char *aTrack = theParentTrack;
+                    if (!aBody->TrackExists(aTrack))
+                    {
+                        aTrack = "anim_idle";
+                        if (!aBody->TrackExists(aTrack))
+                            return;
+                    }
+                    aHead->AttachToAnotherReanimation(aBody, aTrack);
+                };
+                aBody->mIsAttachment = true;
+                aBody->PlayReanim("anim_idle", REANIM_LOOP, 0, 12.0f);
+                if (aHasStemHead)
+                    aAttachHead("anim_head_idle", "anim_stem", aHeightOffset);
+                else if (aSeedType == SEED_SPLITPEA)
+                {
+                    aAttachHead("anim_head_idle", "anim_idle", 0.0f);
+                    aAttachHead("anim_splitpea_idle", "anim_idle", 0.0f);
+                }
+                else if (aSeedType == SEED_THREEPEATER)
+                {
+                    aBody->SetAnimRate(RandRangeFloat(15.0f, 20.0f));
+                    aAttachHead("anim_head_idle1", "anim_head1", 0.0f);
+                    aAttachHead("anim_head_idle2", "anim_head2", 0.0f);
+                    aAttachHead("anim_head_idle3", "anim_head3", 0.0f);
+                }
+            }
+            else if (aSeedType == SEED_EXPLODE_O_NUT)
+            {
+                PlantDefinition *aExplodeDef = GetPlantDefinition(SEED_EXPLODE_O_NUT);
+                aBody = mApp->AddReanimation(0.0f, aHeightOffset, aRenderOrder + 2, aExplodeDef->mReanimationType);
+                aBody->mIsAttachment = true;
+                aBody->PlayReanim("anim_idle", REANIM_LOOP, 0, 12.0f);
+            }
+            else
+            {
+                mPreviewingSeedType = aSeedType;
+            }
+        }
+        else
+        {
+            ZombieType aZombieType = Challenge::IZombieSeedTypeToZombieType(aSeedType);
+            if (aZombieType == ZOMBIE_INVALID)
+            {
+                mPreviewingSeedType = aSeedType;
+                return;
+            }
+            // Gargantuar and polevaulter sit lower in the preview than the other bodies.
+            if (aZombieType == ZOMBIE_GARGANTUAR)
+                aHeightOffset += 30.0f;
+            else if (aZombieType == ZOMBIE_POLEVAULTER)
+                aHeightOffset += 15.0f;
+            ZombieDefinition *aZombieDef = GetZombieDefinition(aZombieType);
+            aBody =
+                mApp->AddReanimation(-20.0f, -35.0f - aHeightOffset, aRenderOrder + 1, aZombieDef->mReanimationType);
+            Zombie::SetupReanimLayers(aBody, aZombieType);
+            // Newspaper and screen door share the low five bits; trashcan is its own case.
+            if (aZombieType == ZOMBIE_DOOR || aZombieType == ZOMBIE_TRASHCAN ||
+                (aZombieType & ~0x10) == ZOMBIE_NEWSPAPER)
+                Zombie::SetupShieldReanims(aZombieType, aBody);
+            aBody->mIsAttachment = true;
+            if (aZombieType == ZOMBIE_POGO)
+                aBody->PlayReanim("anim_pogo", REANIM_LOOP, 0, 12.0f);
+            else if (aZombieType == ZOMBIE_DANCER)
+                aBody->PlayReanim("anim_armraise", REANIM_LOOP, 0, 12.0f);
+            else if (aZombieType == ZOMBIE_ZAMBONI)
+                aBody->PlayReanim("anim_drive", REANIM_LOOP, 0, 12.0f);
+            else
+            {
+                if (aZombieType == ZOMBIE_FLAG)
+                {
+                    // 141 is REANIM_ZOMBIE_FLAGPOLE. The flag is a second reanim held in the hand.
+                    Reanimation *aFlag = mApp->AddReanimation(0.0f, 0.0f, 0, REANIM_FLAG);
+                    aFlag->PlayReanim("Zombie_flag", REANIM_LOOP, 0, 15.0f);
+                    mPreviewReanimID3 = mApp->ReanimationGetID(aFlag);
+                    ReanimatorTrackInstance *aFlagHand = aBody->GetTrackInstanceByName("Zombie_flaghand");
+                    AttachReanim(aFlagHand->mAttachmentID, aFlag, 0.0f, 0.0f);
+                    aBody->mFrameBasePose = 0;
+                }
+                aBody->PlayReanim("anim_idle", REANIM_LOOP, 0, 12.0f);
+            }
+        }
+
+        if (aBody != nullptr)
+        {
+            aPreviewId = mApp->ReanimationGetID(aBody);
+            mPreviewingSeedType = aSeedType;
+            mPreviewReanimID4 = aPreviewId;
+            aCreatedPreview = true;
+        }
+    }
+
+    Reanimation *aPreview = mApp->ReanimationTryToGet(aPreviewId);
+    if (aPreview == nullptr)
         return;
-      }
-      // Gargantuar and polevaulter sit lower in the preview than the other bodies.
-      if ( aZombieType == ZOMBIE_GARGANTUAR )
-        aHeightOffset += 30.0f;
-      else if ( aZombieType == ZOMBIE_POLEVAULTER )
-        aHeightOffset += 15.0f;
-      ZombieDefinition *aZombieDef = GetZombieDefinition(aZombieType);
-      aBody = mApp->AddReanimation(-20.0f, -35.0f - aHeightOffset, aRenderOrder + 1,
-                                   aZombieDef->mReanimationType);
-      Zombie::SetupReanimLayers(aBody, aZombieType);
-      // Newspaper and screen door share the low five bits; trashcan is its own case.
-      if ( aZombieType == ZOMBIE_DOOR || aZombieType == ZOMBIE_TRASHCAN
-        || (aZombieType & ~0x10) == ZOMBIE_NEWSPAPER )
-        Zombie::SetupShieldReanims(aZombieType, aBody);
-      aBody->mIsAttachment = true;
-      if ( aZombieType == ZOMBIE_POGO )
-        aBody->PlayReanim("anim_pogo", REANIM_LOOP, 0, 12.0f);
-      else if ( aZombieType == ZOMBIE_DANCER )
-        aBody->PlayReanim("anim_armraise", REANIM_LOOP, 0, 12.0f);
-      else if ( aZombieType == ZOMBIE_ZAMBONI )
-        aBody->PlayReanim("anim_drive", REANIM_LOOP, 0, 12.0f);
-      else
-      {
-        if ( aZombieType == ZOMBIE_FLAG )
-        {
-          // 141 is REANIM_ZOMBIE_FLAGPOLE. The flag is a second reanim held in the hand.
-          Reanimation *aFlag = mApp->AddReanimation(0.0f, 0.0f, 0, REANIM_FLAG);
-          aFlag->PlayReanim("Zombie_flag", REANIM_LOOP, 0, 15.0f);
-          mPreviewReanimID3 = mApp->ReanimationGetID(aFlag);
-          ReanimatorTrackInstance *aFlagHand = aBody->GetTrackInstanceByName("Zombie_flaghand");
-          AttachReanim(aFlagHand->mAttachmentID, aFlag, 0.0f, 0.0f);
-          aBody->mFrameBasePose = 0;
-        }
-        aBody->PlayReanim("anim_idle", REANIM_LOOP, 0, 12.0f);
-      }
-    }
+    if (aUseImitaterFilter)
+        aPreview->SetFilterEffectShader(FilterEffect(-1));
 
-    if ( aBody != nullptr )
+    // Console previews animate when available and hold their pose during cooldown.
+    SeedPacket *aSelectedPacket = &aSeedBank->mSeedPackets[mSelectedSeedIndex];
+    bool aCooling = !mIsInShopSeedBank && aSelectedPacket->mRefreshing &&
+        aCursor->mCursorType != CURSOR_TYPE_PLANT_FROM_USABLE_COIN;
+    if (aCreatedPreview || !aCooling || mApp->mEasyPlantingCheat)
+        aPreview->Update();
     {
-      aPreviewId = mApp->ReanimationGetID(aBody);
-      mPreviewingSeedType = aSeedType;
-      mPreviewReanimID4 = aPreviewId;
-      aCreatedPreview = true;
+        Sexy::Graphics aGraphics(mPreviewImage);
+        aGraphics.ClearRect(0, 0, mPreviewImage->mWidth, mPreviewImage->mHeight);
+        aGraphics.Translate(256, 256);
+        aPreview->Draw(&aGraphics);
+        aPreview->DrawRenderGroup(&aGraphics, 2);
+        aPreview->DrawRenderGroup(&aGraphics, 1);
+        aPreview->DrawRenderGroup(&aGraphics, 3);
     }
-  }
-
-  Reanimation *aPreview = mApp->ReanimationTryToGet(aPreviewId);
-  if ( aPreview == nullptr )
-    return;
-  if ( aUseImitaterFilter )
-    aPreview->SetFilterEffectShader(FilterEffect(-1));
-
-  // Console previews animate when available and hold their pose during cooldown.
-  SeedPacket *aSelectedPacket = &aSeedBank->mSeedPackets[mSelectedSeedIndex];
-  bool aCooling = !mIsInShopSeedBank && aSelectedPacket->mRefreshing
-    && aCursor->mCursorType != CURSOR_TYPE_PLANT_FROM_USABLE_COIN;
-  if ( aCreatedPreview || !aCooling || mApp->mEasyPlantingCheat )
-    aPreview->Update();
-  {
-    Sexy::Graphics aGraphics(mPreviewImage);
-    aGraphics.ClearRect(0, 0, mPreviewImage->mWidth, mPreviewImage->mHeight);
-    aGraphics.Translate(256, 256);
-    aPreview->Draw(&aGraphics);
-    aPreview->DrawRenderGroup(&aGraphics, 2);
-    aPreview->DrawRenderGroup(&aGraphics, 1);
-    aPreview->DrawRenderGroup(&aGraphics, 3);
-  }
 }
 
 // ==========================================================================
@@ -2856,368 +2806,364 @@ void GamepadControls::UpdatePreviewReanim()
 // ==========================================================================
 int GamepadControls::Update(float theDeltaTime)
 {
-  // A pad that was never attached has nothing to move.
-  if ( mGamepadIndex == -1 )
-    return 0;
+    // A pad that was never attached has nothing to move.
+    if (mGamepadIndex == -1)
+        return 0;
 
-  // A live pad releases a held dig or a held butter the moment the button
-  // comes up. Without a pad, the same release is the keyboard shovel key,
-  // which the widget manager records under key 27.
-  const bool mouseInput = mBoard->mMouseInputActive[mPlayerIndex];
-  bool aPadLive = mApp->HasGamepad() != 0 || (mApp->mGamePad1IsOn && mApp->mGamePad2IsOn);
-  if ( aPadLive )
-  {
-    if ( mGamepadState == MOVEMENT_STATE_DIG_INDICATOR_WAIT )
+    // A live pad releases a held dig or a held butter the moment the button
+    // comes up. Without a pad, the same release is the keyboard shovel key,
+    // which the widget manager records under key 27.
+    const bool mouseInput = mBoard->mMouseInputActive[mPlayerIndex];
+    bool aPadLive = mApp->HasGamepad() != 0 || (mApp->mGamePad1IsOn && mApp->mGamePad2IsOn);
+    if (aPadLive)
     {
-      GotoState(MOVEMENT_STATE_NORMAL);
-      mIsShowingDigIndicator = false;
-    }
-    Sexy::Gamepad *aPad = mApp->mGamepads[mGamepadIndex];
-    if ( aPad != nullptr && !aPad->IsButtonDown(GAMEPAD_BUTTON_B)
-      && mGamepadState == MOVEMENT_STATE_DIG_HOLD )
-      GotoState(MOVEMENT_STATE_NORMAL);
-    if ( !mouseInput && aPad != nullptr && !aPad->IsButtonDown(GAMEPAD_BUTTON_X)
-      && mGamepadState == MOVEMENT_STATE_BUTTER_HELD )
-      ReleaseButter();
-  }
-  else
-  {
-    // Key 27 is the keyboard shovel. Get inserts a not-held record when the
-    // key has never been seen, which is the tree walk the binary does itself.
-    bool aShovelHeld = mApp->mWidgetManager->mKeyDown.Get(27)->mDown;
-    if ( aShovelHeld && mGamepadState == MOVEMENT_STATE_DIG_INDICATOR_WAIT
-      && mGamepadFrameCounter - mDigIndicatorStartCounter > 20 )
-    {
-      GotoState(MOVEMENT_STATE_DIG_HOLD);
-      mIsShowingDigIndicator = true;
-    }
-    if ( !aShovelHeld && mGamepadState == MOVEMENT_STATE_DIG_HOLD )
-      GotoState(MOVEMENT_STATE_NORMAL);
-  }
-
-  // The cob cannon cursor is a reanim that depresses while A is held and
-  // otherwise bounces. It is built the first time a pad is attached.
-  if ( mCobCannonReanimID == (ReanimationID)0 && mGamepadIndex != -1 )
-  {
-    Reanimation *aCob = mApp->AddReanimation(0.0f, 0.0f, RenderLayer::RENDER_LAYER_BOSS, REANIM_A_BUTTON_BOUNCE);
-    aCob->PlayReanim("anim_idle", REANIM_PLAY_ONCE_AND_HOLD, 0, 12.0f);
-    aCob->mIsAttachment = true;
-    mCobCannonReanimID = mApp->ReanimationGetID(aCob);
-  }
-  if ( mGamepadIndex != -1 )
-  {
-    Reanimation *aCob = mApp->ReanimationTryToGet(mCobCannonReanimID);
-    if ( aCob != nullptr )
-    {
-      Sexy::Gamepad *aPad = mBoard->mApp->mGamepads[mGamepadIndex];
-      if ( aPad != nullptr && aPad->IsButtonDown(GAMEPAD_BUTTON_A) )
-        aCob->PlayReanim("anim_depressed", REANIM_LOOP, 0, 12.0f);
-      else if ( !aCob->IsAnimPlaying("anim_bounce") )
-        aCob->PlayReanim("anim_bounce", REANIM_LOOP, 0, 12.0f);
-      aCob->Update();
-    }
-  }
-
-  // The seed preview follows the cell under the cursor.
-  Reanimation *aPreview = mApp->ReanimationTryToGet(mPreviewReanimID1);
-  int aGridX = mBoard->PixelToGridXKeepOnBoard((int)mCursorPositionX, (int)mCursorPositionY);
-  int aGridY = mBoard->PixelToGridYKeepOnBoard((int)mCursorPositionX, (int)mCursorPositionY);
-  if ( aPreview != nullptr )
-    aPreview->mRenderOrder = Board::MakeRenderOrder(RenderLayer::RENDER_LAYER_PLANT, aGridY, 100);
-
-  BaseGamepadControls::Update(theDeltaTime);
-
-  // A cob cannon that is armed remembers where the cursor was, so the shot
-  // lands on the cell the player was pointing at.
-  if ( mIsCobCannonSelected )
-  {
-    mBoard->mCobCannonMouseX = (int)mCursorPositionX;
-    mBoard->mCobCannonMouseY = (int)mCursorPositionY;
-  }
-
-  SeedBank *aSeedBank = GetSeedBank();
-  SeedPacket *aPacket = &aSeedBank->mSeedPackets[mSelectedSeedIndex];
-  // An imitater packet is plantable only when the copied seed is.
-  SeedType aPlantSeed = aPacket->mPacketType == SEED_IMITATER ? aPacket->mImitaterType : aPacket->mPacketType;
-  mCanPickUp = mBoard->CanPlantAt(aGridX, aGridY, aPlantSeed) == PLANTING_OK && aPacket->CanPickUp();
-  SeedType aHeldSeed = aPacket->mPacketType == SEED_IMITATER ? aPacket->mImitaterType : aPacket->mPacketType;
-  if ( mIsZombie )
-    mCanPickUp = mBoard->CanPlantAt(aGridX, aGridY, aPacket->mPacketType) == PLANTING_OK && aPacket->CanPickUp();
-  if ( mIsInShopSeedBank )
-  {
-    ShopSeedPacket *aShopPacket = &aSeedBank->mShopSeedPackets[mSelectedShopSeedIndex];
-    mCanPickUp = mBoard->CanPlantAt(aGridX, aGridY, aShopPacket->mSeedType) == PLANTING_OK;
-    aHeldSeed = aShopPacket->mSeedType;
-  }
-
-  // Most frames also test what sits under the cursor. Frames whose counter
-  // shares bits with 0x19 skip that test and keep the upgrade hint as it was.
-  if ( (mGamepadFrameCounter & 0x19) == 0 )
-  {
-    HitResult aHit;
-    mBoard->MouseHitTest((int)mCursorPositionX, (int)mCursorPositionY, &aHit, mGamepadIndex);
-    if ( !mouseInput && aHit.mObjectType == OBJECT_TYPE_COIN )
-    {
-      Coin *aCoin = static_cast<Coin *>(aHit.mObject);
-      GameMode aMode = mApp->mGameMode;
-      if ( aMode == GAMEMODE_MP_VS_DEBUG || aMode == GAMEMODE_MP_VS )
-      {
-        // Versus picks up a brain or a trophy for the side that owns it.
-        bool aZombiePickup = mIsZombie && (aCoin->IsDeath() || aCoin->mType == COIN_VS_ZOMBIE_TROPHY);
-        bool aPlantPickup = !mIsZombie && (aCoin->IsSun() || aCoin->mType == COIN_VS_PLANT_TROPHY);
-        if ( aZombiePickup || aPlantPickup )
-          aCoin->MouseDown((int)mCursorPositionX, (int)mCursorPositionY, 1);
-      }
-      else if ( aMode != GAMEMODE_CHALLENGE_HEAVY_WEAPON
-             && mGamepadState != MOVEMENT_STATE_DIG_HOLD
-             && aCoin->mType == COIN_USABLE_SEED_PACKET )
-      {
-        mBoard->RefreshSeedPacketFromCursor(mPlayerIndex);
-        aCoin->GamepadCursorOver(mPlayerIndex);
-      }
-    }
-
-    mBoard->MouseHitTestPlant((int)mCursorPositionX, (int)mCursorPositionY, &aHit);
-    mSelectedUpgradableType = 0;
-    if ( aHit.mObjectType == OBJECT_TYPE_PLANT && aHit.mObject != nullptr )
-    {
-      Plant *aPlant = static_cast<Plant *>(aHit.mObject);
-      // A pot, a pumpkin, or a lily pad is the plant underneath it for the
-      // upgrade test. The shell itself stays the plant when the held seed is
-      // a pumpkin.
-      bool aLookUnder = aHeldSeed == SEED_FLOWERPOT && aPlant->mSeedType == SEED_PUMPKINSHELL;
-      if ( !aLookUnder && aPlant->mSeedType == SEED_FLOWERPOT )
-        aLookUnder = true;
-      if ( !aLookUnder && aHeldSeed != SEED_PUMPKINSHELL && aPlant->mSeedType == SEED_PUMPKINSHELL )
-        aLookUnder = true;
-      if ( !aLookUnder && aPlant->mSeedType == SEED_LILYPAD && aHeldSeed != SEED_LILYPAD )
-        aLookUnder = true;
-      if ( aLookUnder )
-      {
-        // Priority 6 is the plant sitting in the cell, under a pot or a shell.
-        Plant *aUnder = mBoard->GetTopPlantAt(aPlant->mPlantCol, aPlant->mRow, (PlantPriority)6);
-        if ( aUnder != nullptr )
-          aPlant = aUnder;
-      }
-      if ( aPlant->mSeedType != SEED_LILYPAD || aLookUnder )
-      {
-        if ( aPlant->IsUpgradableTo(mSelectedSeedType) )
-          mSelectedUpgradableType = 1;
-        else if ( aPlant->IsPartOfUpgradableTo(mSelectedSeedType) )
-          mSelectedUpgradableType = 2;
-        else if ( aHeldSeed == SEED_PUMPKINSHELL
-               && mBoard->GetTopPlantAt(aPlant->mPlantCol, aPlant->mRow, (PlantPriority)8) == nullptr
-               // Priority 8 is the pumpkin shell alone.
-               && mBoard->CanPlantAt(aGridX, aGridY, SEED_PUMPKINSHELL) == PLANTING_OK )
-          mSelectedUpgradableType = 3;
-        else if ( aPlant->mSeedType != SEED_LILYPAD || aPacket->mPacketType == SEED_LILYPAD )
-          mSelectedUpgradableType = 4;
-      }
-    }
-  }
-
-  // Coins near the cursor glow, except while a heavy-weapon shot or a dig is
-  // in progress. Versus only glows the pickup that belongs to this side.
-  if ( !mouseInput && mApp->mGameMode != GAMEMODE_CHALLENGE_HEAVY_WEAPON && mGamepadState != MOVEMENT_STATE_DIG_HOLD )
-  {
-    Coin *aCoin = nullptr;
-    while ( mBoard->IterateCoins(aCoin) != 0 )
-    {
-      if ( mApp->mGameMode == GAMEMODE_MP_VS )
-      {
-        bool aZombiePickup = mIsZombie && (aCoin->IsDeath() || aCoin->mType == COIN_VS_ZOMBIE_TROPHY);
-        bool aPlantPickup = !mIsZombie && (aCoin->IsSun() || aCoin->mType == COIN_VS_PLANT_TROPHY);
-        if ( !aZombiePickup && !aPlantPickup )
-          continue;
-      }
-      if ( aCoin->mIsBeingCollected || aCoin->mCoinMotion == COIN_MOTION_FROM_NEAR_CURSOR
-        || aCoin->mType == COIN_USABLE_SEED_PACKET )
-        continue;
-      float aDeltaX = mCursorPositionX - aCoin->mPosX;
-      float aDeltaY = mCursorPositionY - aCoin->mPosY;
-      if ( aDeltaX * aDeltaX + aDeltaY * aDeltaY >= 40000.0f )
-        continue;
-      aCoin->GamepadCursorOver(mPlayerIndex);
-    }
-  }
-
-  // The cursor object follows whichever packet the pad is holding. A usable
-  // coin and a hammer keep the type the cursor already has.
-  CursorObject *aCursor = mBoard->mCursorObject[mPlayerIndex];
-  CursorPreview *aCursorPreview = mBoard->mCursorPreview[mPlayerIndex];
-  if (mouseInput)
-  {
-    if (mGamepadState == MOVEMENT_STATE_PLANT_CURSOR && aCursor->mCursorType == CURSOR_TYPE_PLANT_FROM_BANK)
-    {
-      aCursor->mSelectedIndex = mIsInShopSeedBank ? mSelectedShopSeedIndex : mSelectedSeedIndex;
-      aCursor->mType = mIsInShopSeedBank ? aSeedBank->mShopSeedPackets[mSelectedShopSeedIndex].mSeedType : aPacket->mPacketType;
-      aCursor->mImitaterType = mIsInShopSeedBank ? SEED_NONE : aPacket->mImitaterType;
-    }
-    mSelectedSeedType = aCursor->mType == SEED_IMITATER ? aCursor->mImitaterType : aCursor->mType;
-    if (aCursor->mCursorType == CURSOR_TYPE_NORMAL || aCursor->mCursorType == CURSOR_TYPE_SHOVEL)
-      mSelectedSeedType = SEED_NONE;
-  }
-  if ( aCursor->mCursorType == CURSOR_TYPE_PLANT_FROM_USABLE_COIN )
-  {
-    aCursorPreview->mVisible = true;
-    mCanPickUp = true;
-  }
-  else if ( aCursor->mCursorType == CURSOR_TYPE_HAMMER )
-  {
-    aCursor->mVisible = true;
-    aCursor->mX = (int)(mCursorPositionX - 20.0f);
-    aCursor->mY = (int)(mCursorPositionY - 32.0f);
-  }
-  else if (!mouseInput)
-  {
-    aCursorPreview->mVisible = true;
-    aCursor->mCursorType = CURSOR_TYPE_PLANT_FROM_BANK;
-    if ( mIsInShopSeedBank )
-    {
-      aCursor->mSelectedIndex = mSelectedShopSeedIndex;
-      if ( mGamepadState == MOVEMENT_STATE_NORMAL
-        || mApp->IsChallengeWithoutSeedBank()
-        || (unsigned int)(mSelectedShopSeedIndex - 4) > 1 )
-      {
-        aCursor->mType = SEED_NONE;
-        mSelectedSeedType = SEED_NONE;
-      }
-      else
-      {
-        aCursor->mType = aSeedBank->mShopSeedPackets[mSelectedShopSeedIndex].mSeedType;
-        mSelectedSeedType = aCursor->mType;
-      }
+        if (mGamepadState == MOVEMENT_STATE_DIG_INDICATOR_WAIT)
+        {
+            GotoState(MOVEMENT_STATE_NORMAL);
+            mIsShowingDigIndicator = false;
+        }
+        Sexy::Gamepad *aPad = mApp->mGamepads[mGamepadIndex];
+        if (aPad != nullptr && !aPad->IsButtonDown(GAMEPAD_BUTTON_B) && mGamepadState == MOVEMENT_STATE_DIG_HOLD)
+            GotoState(MOVEMENT_STATE_NORMAL);
+        if (!mouseInput && aPad != nullptr && !aPad->IsButtonDown(GAMEPAD_BUTTON_X) &&
+            mGamepadState == MOVEMENT_STATE_BUTTER_HELD)
+            ReleaseButter();
     }
     else
     {
-      aCursor->mSelectedIndex = mSelectedSeedIndex;
-      if ( mApp->IsChallengeWithoutSeedBank() )
-      {
-        aCursor->mType = SEED_NONE;
-        mSelectedSeedType = SEED_NONE;
-      }
-      else
-      {
-        aCursor->mType = aPacket->mPacketType;
-        mSelectedSeedType = aPacket->mPacketType;
-        if ( aPacket->mPacketType == SEED_IMITATER )
+        // Key 27 is the keyboard shovel. Get inserts a not-held record when the
+        // key has never been seen, which is the tree walk the binary does itself.
+        bool aShovelHeld = mApp->mWidgetManager->mKeyDown.Get(27)->mDown;
+        if (aShovelHeld && mGamepadState == MOVEMENT_STATE_DIG_INDICATOR_WAIT &&
+            mGamepadFrameCounter - mDigIndicatorStartCounter > 20)
         {
-          mSelectedSeedType = aPacket->mImitaterType;
-          aCursor->mImitaterType = aPacket->mImitaterType;
+            GotoState(MOVEMENT_STATE_DIG_HOLD);
+            mIsShowingDigIndicator = true;
         }
-      }
+        if (!aShovelHeld && mGamepadState == MOVEMENT_STATE_DIG_HOLD)
+            GotoState(MOVEMENT_STATE_NORMAL);
     }
-  }
 
-  // A conveyor packet that has scrolled off the bank cannot be picked up.
-  if ( mBoard->HasConveyorBeltSeedBank(false) && aPacket->mRefreshCounter >= 466 )
-    mCanPickUp = false;
-
-  // The cursor highlight lifts while the packet can be planted, and the
-  // cursor jitters unless A is held or a zombie is buttered.
-  float aLift = mCursorLabelLiftOffset + theDeltaTime * 80.0f;
-  if ( aLift > 30.0f )
-    aLift = 30.0f;
-  if ( aLift < 0.0f )
-    aLift = 0.0f;
-  mCursorLabelLiftOffset = aLift;
-
-  float aJitter = 0.0f;
-  Sexy::Gamepad *aMovePad = mApp->mGamepads[mGamepadIndex];
-  if ( (aMovePad != nullptr && aMovePad->IsButtonDown(GAMEPAD_BUTTON_A)) || mButterZombieID != 0 )
-  {
-    aJitter = 3.0f;
-    mCursorJitterAnimPhase = 0.0f;
-  }
-  else
-  {
-    mCursorJitterAnimPhase += 0.016f;
-    aJitter = sinf(mCursorJitterAnimPhase * 3.0f);
-  }
-  // TV Update stores the vertical offset at +0x9C, separately from highlight time.
-  mCursorPositionYJitter = aJitter;
-
-  UpdateCursorReanims();
-  aCursorPreview->mVisible = true;
-  // TV Update @0x1C3B54 calls the movement state machine before integration.
-  UpdateStates(theDeltaTime);
-
-  // Stick velocity moves the cursor, then the accumulated stick is damped.
-  float aNextX = mCursorPositionX + theDeltaTime * mGamepadVelocityLeftX;
-  float aNextY = mCursorPositionY + theDeltaTime * mGamepadVelocityLeftY;
-  if ( aNextX > 770.0f )
-    aNextX = 770.0f;
-  if ( aNextX < 40.0f )
-    aNextX = 40.0f;
-  if ( aNextY > 580.0f )
-    aNextY = 580.0f;
-  if ( !mouseInput && aNextY < 80.0f )
-    aNextY = 80.0f;
-  if (!mouseInput)
-  {
-    mCursorPositionX = aNextX;
-    mCursorPositionY = aNextY;
-  }
-  mGamepadAccLeftX = (mGamepadVelocityLeftX + mGamepadAccLeftX * 3.0f) * 0.25f;
-  mGamepadAccLeftY = (mGamepadVelocityLeftY + mGamepadAccLeftY * 3.0f) * 0.25f;
-
-  // Beghouled Twist keeps the cursor inside the 7 by 4 play field.
-  if ( mApp->mGameMode == GAMEMODE_CHALLENGE_BEGHOULED_TWIST )
-  {
-    if ( aGridX > 6 )
-      aGridX = 6;
-    if ( aGridY > 3 )
-      aGridY = 3;
-    float aLimitX = (float)(mBoard->GridToPixelX(6, 3) + 40);
-    if ( mCursorPositionX <= 40.0f )
-      mCursorPositionX = 40.0f;
-    else if ( mCursorPositionX > aLimitX )
-      mCursorPositionX = aLimitX;
-    float aLimitY = (float)(mBoard->GridToPixelY(6, 3) + 50);
-    if ( mCursorPositionY <= 80.0f )
-      mCursorPositionY = 80.0f;
-    else if ( mCursorPositionY > aLimitY )
-      mCursorPositionY = aLimitY;
-  }
-
-  float aFade = mCanPickUp ? mCanPickUpFade + theDeltaTime : mCanPickUpFade - theDeltaTime * 2.0f;
-  if ( aFade > 1.0f )
-    aFade = 1.0f;
-  if ( aFade < 0.0f )
-    aFade = 0.0f;
-  mCanPickUpFade = aFade;
-
-  if ( aPreview != nullptr )
-  {
-    int aCellX = mBoard->GridToPixelX(aGridX, aGridY);
-    int aCellY = mBoard->GridToPixelY(aGridX, aGridY);
-    aPreview->SetPosition((float)(aCellX - 30), (float)(aCellY - 45));
-  }
-
-  // Beghouled draws its own preview. Every other mode refreshes the reanim.
-  if ( mApp->mGameMode != GAMEMODE_CHALLENGE_BEGHOULED
-    && mApp->mGameMode != GAMEMODE_CHALLENGE_BEGHOULED_TWIST )
-    UpdatePreviewReanim();
-
-  // A cob cannon that left the plant list drops the selection.
-  if ( mIsCobCannonSelected )
-  {
-    // A plant slot is the plant plus the id word that follows it. The id's
-    // low half is the slot index; a mismatch means the cob cannon is gone.
-    unsigned int aSlot = (unsigned short)mCobCannonPlantIndexInList;
-  
-    PlantSlot *aSlots = mBoard->mPlants.mBlock;
-    bool aGone = mCobCannonPlantIndexInList == 0
-              || aSlot >= mBoard->mPlants.mMaxUsedCount
-              || aSlots[aSlot].mID != (unsigned int)mCobCannonPlantIndexInList;
-    if ( aGone )
+    // The cob cannon cursor is a reanim that depresses while A is held and
+    // otherwise bounces. It is built the first time a pad is attached.
+    if (mCobCannonReanimID == (ReanimationID)0 && mGamepadIndex != -1)
     {
-      mIsCobCannonSelected = false;
-      mBoard->ClearCursor(mPlayerIndex);
-      mBoard->mCobCannonCursorDelayCounter = 0;
-      mCobCannonAnimCounter = 0;
-      mCobCannonPlantIndexInList = 0;
+        Reanimation *aCob = mApp->AddReanimation(0.0f, 0.0f, RenderLayer::RENDER_LAYER_BOSS, REANIM_A_BUTTON_BOUNCE);
+        aCob->PlayReanim("anim_idle", REANIM_PLAY_ONCE_AND_HOLD, 0, 12.0f);
+        aCob->mIsAttachment = true;
+        mCobCannonReanimID = mApp->ReanimationGetID(aCob);
     }
-  }
-  return 0;
+    if (mGamepadIndex != -1)
+    {
+        Reanimation *aCob = mApp->ReanimationTryToGet(mCobCannonReanimID);
+        if (aCob != nullptr)
+        {
+            Sexy::Gamepad *aPad = mBoard->mApp->mGamepads[mGamepadIndex];
+            if (aPad != nullptr && aPad->IsButtonDown(GAMEPAD_BUTTON_A))
+                aCob->PlayReanim("anim_depressed", REANIM_LOOP, 0, 12.0f);
+            else if (!aCob->IsAnimPlaying("anim_bounce"))
+                aCob->PlayReanim("anim_bounce", REANIM_LOOP, 0, 12.0f);
+            aCob->Update();
+        }
+    }
+
+    // The seed preview follows the cell under the cursor.
+    Reanimation *aPreview = mApp->ReanimationTryToGet(mPreviewReanimID1);
+    int aGridX = mBoard->PixelToGridXKeepOnBoard((int)mCursorPositionX, (int)mCursorPositionY);
+    int aGridY = mBoard->PixelToGridYKeepOnBoard((int)mCursorPositionX, (int)mCursorPositionY);
+    if (aPreview != nullptr)
+        aPreview->mRenderOrder = Board::MakeRenderOrder(RenderLayer::RENDER_LAYER_PLANT, aGridY, 100);
+
+    BaseGamepadControls::Update(theDeltaTime);
+
+    // A cob cannon that is armed remembers where the cursor was, so the shot
+    // lands on the cell the player was pointing at.
+    if (mIsCobCannonSelected)
+    {
+        mBoard->mCobCannonMouseX = (int)mCursorPositionX;
+        mBoard->mCobCannonMouseY = (int)mCursorPositionY;
+    }
+
+    SeedBank *aSeedBank = GetSeedBank();
+    SeedPacket *aPacket = &aSeedBank->mSeedPackets[mSelectedSeedIndex];
+    // An imitater packet is plantable only when the copied seed is.
+    SeedType aPlantSeed = aPacket->mPacketType == SEED_IMITATER ? aPacket->mImitaterType : aPacket->mPacketType;
+    mCanPickUp = mBoard->CanPlantAt(aGridX, aGridY, aPlantSeed) == PLANTING_OK && aPacket->CanPickUp();
+    SeedType aHeldSeed = aPacket->mPacketType == SEED_IMITATER ? aPacket->mImitaterType : aPacket->mPacketType;
+    if (mIsZombie)
+        mCanPickUp = mBoard->CanPlantAt(aGridX, aGridY, aPacket->mPacketType) == PLANTING_OK && aPacket->CanPickUp();
+    if (mIsInShopSeedBank)
+    {
+        ShopSeedPacket *aShopPacket = &aSeedBank->mShopSeedPackets[mSelectedShopSeedIndex];
+        mCanPickUp = mBoard->CanPlantAt(aGridX, aGridY, aShopPacket->mSeedType) == PLANTING_OK;
+        aHeldSeed = aShopPacket->mSeedType;
+    }
+
+    // Most frames also test what sits under the cursor. Frames whose counter
+    // shares bits with 0x19 skip that test and keep the upgrade hint as it was.
+    if ((mGamepadFrameCounter & 0x19) == 0)
+    {
+        HitResult aHit;
+        mBoard->MouseHitTest((int)mCursorPositionX, (int)mCursorPositionY, &aHit, mGamepadIndex);
+        if (!mouseInput && aHit.mObjectType == OBJECT_TYPE_COIN)
+        {
+            Coin *aCoin = static_cast<Coin *>(aHit.mObject);
+            GameMode aMode = mApp->mGameMode;
+            if (aMode == GAMEMODE_MP_VS_DEBUG || aMode == GAMEMODE_MP_VS)
+            {
+                // Versus picks up a brain or a trophy for the side that owns it.
+                bool aZombiePickup = mIsZombie && (aCoin->IsDeath() || aCoin->mType == COIN_VS_ZOMBIE_TROPHY);
+                bool aPlantPickup = !mIsZombie && (aCoin->IsSun() || aCoin->mType == COIN_VS_PLANT_TROPHY);
+                if (aZombiePickup || aPlantPickup)
+                    aCoin->MouseDown((int)mCursorPositionX, (int)mCursorPositionY, 1);
+            }
+            else if (aMode != GAMEMODE_CHALLENGE_HEAVY_WEAPON && mGamepadState != MOVEMENT_STATE_DIG_HOLD &&
+                aCoin->mType == COIN_USABLE_SEED_PACKET)
+            {
+                mBoard->RefreshSeedPacketFromCursor(mPlayerIndex);
+                aCoin->GamepadCursorOver(mPlayerIndex);
+            }
+        }
+
+        mBoard->MouseHitTestPlant((int)mCursorPositionX, (int)mCursorPositionY, &aHit);
+        mSelectedUpgradableType = 0;
+        if (aHit.mObjectType == OBJECT_TYPE_PLANT && aHit.mObject != nullptr)
+        {
+            Plant *aPlant = static_cast<Plant *>(aHit.mObject);
+            // A pot, a pumpkin, or a lily pad is the plant underneath it for the
+            // upgrade test. The shell itself stays the plant when the held seed is
+            // a pumpkin.
+            bool aLookUnder = aHeldSeed == SEED_FLOWERPOT && aPlant->mSeedType == SEED_PUMPKINSHELL;
+            if (!aLookUnder && aPlant->mSeedType == SEED_FLOWERPOT)
+                aLookUnder = true;
+            if (!aLookUnder && aHeldSeed != SEED_PUMPKINSHELL && aPlant->mSeedType == SEED_PUMPKINSHELL)
+                aLookUnder = true;
+            if (!aLookUnder && aPlant->mSeedType == SEED_LILYPAD && aHeldSeed != SEED_LILYPAD)
+                aLookUnder = true;
+            if (aLookUnder)
+            {
+                // Priority 6 is the plant sitting in the cell, under a pot or a shell.
+                Plant *aUnder = mBoard->GetTopPlantAt(aPlant->mPlantCol, aPlant->mRow, (PlantPriority)6);
+                if (aUnder != nullptr)
+                    aPlant = aUnder;
+            }
+            if (aPlant->mSeedType != SEED_LILYPAD || aLookUnder)
+            {
+                if (aPlant->IsUpgradableTo(mSelectedSeedType))
+                    mSelectedUpgradableType = 1;
+                else if (aPlant->IsPartOfUpgradableTo(mSelectedSeedType))
+                    mSelectedUpgradableType = 2;
+                else if (aHeldSeed == SEED_PUMPKINSHELL &&
+                    mBoard->GetTopPlantAt(aPlant->mPlantCol, aPlant->mRow, (PlantPriority)8) == nullptr
+                    // Priority 8 is the pumpkin shell alone.
+                    && mBoard->CanPlantAt(aGridX, aGridY, SEED_PUMPKINSHELL) == PLANTING_OK)
+                    mSelectedUpgradableType = 3;
+                else if (aPlant->mSeedType != SEED_LILYPAD || aPacket->mPacketType == SEED_LILYPAD)
+                    mSelectedUpgradableType = 4;
+            }
+        }
+    }
+
+    // Coins near the cursor glow, except while a heavy-weapon shot or a dig is
+    // in progress. Versus only glows the pickup that belongs to this side.
+    if (!mouseInput && mApp->mGameMode != GAMEMODE_CHALLENGE_HEAVY_WEAPON && mGamepadState != MOVEMENT_STATE_DIG_HOLD)
+    {
+        Coin *aCoin = nullptr;
+        while (mBoard->IterateCoins(aCoin) != 0)
+        {
+            if (mApp->mGameMode == GAMEMODE_MP_VS)
+            {
+                bool aZombiePickup = mIsZombie && (aCoin->IsDeath() || aCoin->mType == COIN_VS_ZOMBIE_TROPHY);
+                bool aPlantPickup = !mIsZombie && (aCoin->IsSun() || aCoin->mType == COIN_VS_PLANT_TROPHY);
+                if (!aZombiePickup && !aPlantPickup)
+                    continue;
+            }
+            if (aCoin->mIsBeingCollected || aCoin->mCoinMotion == COIN_MOTION_FROM_NEAR_CURSOR ||
+                aCoin->mType == COIN_USABLE_SEED_PACKET)
+                continue;
+            float aDeltaX = mCursorPositionX - aCoin->mPosX;
+            float aDeltaY = mCursorPositionY - aCoin->mPosY;
+            if (aDeltaX * aDeltaX + aDeltaY * aDeltaY >= 40000.0f)
+                continue;
+            aCoin->GamepadCursorOver(mPlayerIndex);
+        }
+    }
+
+    // The cursor object follows whichever packet the pad is holding. A usable
+    // coin and a hammer keep the type the cursor already has.
+    CursorObject *aCursor = mBoard->mCursorObject[mPlayerIndex];
+    CursorPreview *aCursorPreview = mBoard->mCursorPreview[mPlayerIndex];
+    if (mouseInput)
+    {
+        if (mGamepadState == MOVEMENT_STATE_PLANT_CURSOR && aCursor->mCursorType == CURSOR_TYPE_PLANT_FROM_BANK)
+        {
+            aCursor->mSelectedIndex = mIsInShopSeedBank ? mSelectedShopSeedIndex : mSelectedSeedIndex;
+            aCursor->mType = mIsInShopSeedBank ? aSeedBank->mShopSeedPackets[mSelectedShopSeedIndex].mSeedType
+                                               : aPacket->mPacketType;
+            aCursor->mImitaterType = mIsInShopSeedBank ? SEED_NONE : aPacket->mImitaterType;
+        }
+        mSelectedSeedType = aCursor->mType == SEED_IMITATER ? aCursor->mImitaterType : aCursor->mType;
+        if (aCursor->mCursorType == CURSOR_TYPE_NORMAL || aCursor->mCursorType == CURSOR_TYPE_SHOVEL)
+            mSelectedSeedType = SEED_NONE;
+    }
+    if (aCursor->mCursorType == CURSOR_TYPE_PLANT_FROM_USABLE_COIN)
+    {
+        aCursorPreview->mVisible = true;
+        mCanPickUp = true;
+    }
+    else if (aCursor->mCursorType == CURSOR_TYPE_HAMMER)
+    {
+        aCursor->mVisible = true;
+        aCursor->mX = (int)(mCursorPositionX - 20.0f);
+        aCursor->mY = (int)(mCursorPositionY - 32.0f);
+    }
+    else if (!mouseInput)
+    {
+        aCursorPreview->mVisible = true;
+        aCursor->mCursorType = CURSOR_TYPE_PLANT_FROM_BANK;
+        if (mIsInShopSeedBank)
+        {
+            aCursor->mSelectedIndex = mSelectedShopSeedIndex;
+            if (mGamepadState == MOVEMENT_STATE_NORMAL || mApp->IsChallengeWithoutSeedBank() ||
+                (unsigned int)(mSelectedShopSeedIndex - 4) > 1)
+            {
+                aCursor->mType = SEED_NONE;
+                mSelectedSeedType = SEED_NONE;
+            }
+            else
+            {
+                aCursor->mType = aSeedBank->mShopSeedPackets[mSelectedShopSeedIndex].mSeedType;
+                mSelectedSeedType = aCursor->mType;
+            }
+        }
+        else
+        {
+            aCursor->mSelectedIndex = mSelectedSeedIndex;
+            if (mApp->IsChallengeWithoutSeedBank())
+            {
+                aCursor->mType = SEED_NONE;
+                mSelectedSeedType = SEED_NONE;
+            }
+            else
+            {
+                aCursor->mType = aPacket->mPacketType;
+                mSelectedSeedType = aPacket->mPacketType;
+                if (aPacket->mPacketType == SEED_IMITATER)
+                {
+                    mSelectedSeedType = aPacket->mImitaterType;
+                    aCursor->mImitaterType = aPacket->mImitaterType;
+                }
+            }
+        }
+    }
+
+    // A conveyor packet that has scrolled off the bank cannot be picked up.
+    if (mBoard->HasConveyorBeltSeedBank(false) && aPacket->mRefreshCounter >= 466)
+        mCanPickUp = false;
+
+    // The cursor highlight lifts while the packet can be planted, and the
+    // cursor jitters unless A is held or a zombie is buttered.
+    float aLift = mCursorLabelLiftOffset + theDeltaTime * 80.0f;
+    if (aLift > 30.0f)
+        aLift = 30.0f;
+    if (aLift < 0.0f)
+        aLift = 0.0f;
+    mCursorLabelLiftOffset = aLift;
+
+    float aJitter = 0.0f;
+    Sexy::Gamepad *aMovePad = mApp->mGamepads[mGamepadIndex];
+    if ((aMovePad != nullptr && aMovePad->IsButtonDown(GAMEPAD_BUTTON_A)) || mButterZombieID != 0)
+    {
+        aJitter = 3.0f;
+        mCursorJitterAnimPhase = 0.0f;
+    }
+    else
+    {
+        mCursorJitterAnimPhase += 0.016f;
+        aJitter = sinf(mCursorJitterAnimPhase * 3.0f);
+    }
+    // TV Update stores the vertical offset at +0x9C, separately from highlight time.
+    mCursorPositionYJitter = aJitter;
+
+    UpdateCursorReanims();
+    aCursorPreview->mVisible = true;
+    // TV Update @0x1C3B54 calls the movement state machine before integration.
+    UpdateStates(theDeltaTime);
+
+    // Stick velocity moves the cursor, then the accumulated stick is damped.
+    float aNextX = mCursorPositionX + theDeltaTime * mGamepadVelocityLeftX;
+    float aNextY = mCursorPositionY + theDeltaTime * mGamepadVelocityLeftY;
+    if (aNextX > 770.0f)
+        aNextX = 770.0f;
+    if (aNextX < 40.0f)
+        aNextX = 40.0f;
+    if (aNextY > 580.0f)
+        aNextY = 580.0f;
+    if (!mouseInput && aNextY < 80.0f)
+        aNextY = 80.0f;
+    if (!mouseInput)
+    {
+        mCursorPositionX = aNextX;
+        mCursorPositionY = aNextY;
+    }
+    mGamepadAccLeftX = (mGamepadVelocityLeftX + mGamepadAccLeftX * 3.0f) * 0.25f;
+    mGamepadAccLeftY = (mGamepadVelocityLeftY + mGamepadAccLeftY * 3.0f) * 0.25f;
+
+    // Beghouled Twist keeps the cursor inside the 7 by 4 play field.
+    if (mApp->mGameMode == GAMEMODE_CHALLENGE_BEGHOULED_TWIST)
+    {
+        if (aGridX > 6)
+            aGridX = 6;
+        if (aGridY > 3)
+            aGridY = 3;
+        float aLimitX = (float)(mBoard->GridToPixelX(6, 3) + 40);
+        if (mCursorPositionX <= 40.0f)
+            mCursorPositionX = 40.0f;
+        else if (mCursorPositionX > aLimitX)
+            mCursorPositionX = aLimitX;
+        float aLimitY = (float)(mBoard->GridToPixelY(6, 3) + 50);
+        if (mCursorPositionY <= 80.0f)
+            mCursorPositionY = 80.0f;
+        else if (mCursorPositionY > aLimitY)
+            mCursorPositionY = aLimitY;
+    }
+
+    float aFade = mCanPickUp ? mCanPickUpFade + theDeltaTime : mCanPickUpFade - theDeltaTime * 2.0f;
+    if (aFade > 1.0f)
+        aFade = 1.0f;
+    if (aFade < 0.0f)
+        aFade = 0.0f;
+    mCanPickUpFade = aFade;
+
+    if (aPreview != nullptr)
+    {
+        int aCellX = mBoard->GridToPixelX(aGridX, aGridY);
+        int aCellY = mBoard->GridToPixelY(aGridX, aGridY);
+        aPreview->SetPosition((float)(aCellX - 30), (float)(aCellY - 45));
+    }
+
+    // Beghouled draws its own preview. Every other mode refreshes the reanim.
+    if (mApp->mGameMode != GAMEMODE_CHALLENGE_BEGHOULED && mApp->mGameMode != GAMEMODE_CHALLENGE_BEGHOULED_TWIST)
+        UpdatePreviewReanim();
+
+    // A cob cannon that left the plant list drops the selection.
+    if (mIsCobCannonSelected)
+    {
+        // A plant slot is the plant plus the id word that follows it. The id's
+        // low half is the slot index; a mismatch means the cob cannon is gone.
+        unsigned int aSlot = (unsigned short)mCobCannonPlantIndexInList;
+
+        PlantSlot *aSlots = mBoard->mPlants.mBlock;
+        bool aGone = mCobCannonPlantIndexInList == 0 || aSlot >= mBoard->mPlants.mMaxUsedCount ||
+            aSlots[aSlot].mID != (unsigned int)mCobCannonPlantIndexInList;
+        if (aGone)
+        {
+            mIsCobCannonSelected = false;
+            mBoard->ClearCursor(mPlayerIndex);
+            mBoard->mCobCannonCursorDelayCounter = 0;
+            mCobCannonAnimCounter = 0;
+            mCobCannonPlantIndexInList = 0;
+        }
+    }
+    return 0;
 }

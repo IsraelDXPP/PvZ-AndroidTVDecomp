@@ -1,4 +1,5 @@
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_CREDITSTIMING_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_CREDITSTIMING_H
 
 enum CreditWordType
 {
@@ -30,3 +31,5 @@ struct CreditsTiming
 
 extern const CreditsTiming gCreditsTiming[];
 extern const int gCreditsTimingCount;
+
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_CREDITSTIMING_H

@@ -35,20 +35,20 @@ namespace
 
 struct SDLAppDriver : Sexy::IAppDriver
 {
-    Sexy::SexyAppBase*       mApp;           // the application, may be null
-    Sexy::SDLWindow*         mWindow;        // the display, may be null
-    bool                    mOwnsWindow;    // false when an outer owner made it
-    Sexy::IGraphicsBackend* mGraphics;
-    int                     mWidth;
-    int                     mHeight;
-    double                  mLastUpdateTime = -1.0;
+    Sexy::SexyAppBase *mApp; // the application, may be null
+    Sexy::SDLWindow *mWindow; // the display, may be null
+    bool mOwnsWindow; // false when an outer owner made it
+    Sexy::IGraphicsBackend *mGraphics;
+    int mWidth;
+    int mHeight;
+    double mLastUpdateTime = -1.0;
 
     int InitAppDriver() override;
     int Startup() override;
     int Terminate() override;
     int Start() override;
     int Init() override;
-    int UpdateAppStep(bool* theContinue) override;
+    int UpdateAppStep(bool *theContinue) override;
     int DrawDirtyStuff(bool theForce) override;
     int Shutdown() override;
     int StartLoadingThread() override;
@@ -61,13 +61,13 @@ struct SDLAppDriver : Sexy::IAppDriver
     int Is3DAccelerationSupported() override;
     int Is3DAccelerationRecommended() override;
     int PreDrawScreen() override;
-    int ReadBufferFromFile(const Sexy::String& theFileName, Sexy::Buffer* theBuffer, bool theIsCompressed) override;
-    bool WriteBufferToFile(const Sexy::String& theFileName, const Sexy::Buffer* theBuffer) override;
-    bool WriteBytesToFile(const Sexy::String& theFileName, const void* theData, unsigned long theLength) override;
+    int ReadBufferFromFile(const Sexy::String &theFileName, Sexy::Buffer *theBuffer, bool theIsCompressed) override;
+    bool WriteBufferToFile(const Sexy::String &theFileName, const Sexy::Buffer *theBuffer) override;
+    bool WriteBytesToFile(const Sexy::String &theFileName, const void *theData, unsigned long theLength) override;
     int ShouldPauseUpdates() override;
     int RehupFocus() override;
-    int GetMemoryInfo(void* theMemoryInfo) override;
-    int TakeScreenshot(Sexy::MemoryImage* theImage) override;
+    int GetMemoryInfo(void *theMemoryInfo) override;
+    int TakeScreenshot(Sexy::MemoryImage *theImage) override;
     int DoMainLoop() override;
     int DoUpdateFramesF(float theFTime) override;
     int DoUpdateFrames() override;
@@ -78,10 +78,18 @@ struct SDLAppDriver : Sexy::IAppDriver
     int UpdateInput() override;
 };
 
-struct SDLResStreamsDriver : Sexy::IResStreamsDriver {};
-struct SDLAudioDriver : Sexy::IAudioDriver {};
-struct SDLHttpDriver : Sexy::IHttpDriver {};
-struct SDLFileDriver : Sexy::IFileDriver {};
+struct SDLResStreamsDriver : Sexy::IResStreamsDriver
+{
+};
+struct SDLAudioDriver : Sexy::IAudioDriver
+{
+};
+struct SDLHttpDriver : Sexy::IHttpDriver
+{
+};
+struct SDLFileDriver : Sexy::IFileDriver
+{
+};
 
 const int kDefaultWidth = 800;
 const int kDefaultHeight = 600;
@@ -91,7 +99,7 @@ const int kDefaultHeight = 600;
 // ---------------------------------------------------------------------------
 
 // Read the application's requested stage size through its actual fields.
-void AppDriver_ReadAppSize(const Sexy::SexyAppBase* app, int& width, int& height)
+void AppDriver_ReadAppSize(const Sexy::SexyAppBase *app, int &width, int &height)
 {
     width = app && app->mWidth > 0 ? app->mWidth : kDefaultWidth;
     height = app && app->mHeight > 0 ? app->mHeight : kDefaultHeight;
@@ -103,9 +111,9 @@ void AppDriver_ReadAppSize(const Sexy::SexyAppBase* app, int& width, int& height
 // creates a SDLWindow before LawnApp) already owns the display, and opening a
 // second window would create a separate display. In that
 // case the driver records the size and reuses that window.
-void AppDriver_CenterScreen(SDLAppDriver* theSelf);
+void AppDriver_CenterScreen(SDLAppDriver *theSelf);
 
-bool AppDriver_EnsureWindow(SDLAppDriver* theSelf)
+bool AppDriver_EnsureWindow(SDLAppDriver *theSelf)
 {
     if (!theSelf)
         return false;
@@ -114,7 +122,7 @@ bool AppDriver_EnsureWindow(SDLAppDriver* theSelf)
 
     AppDriver_ReadAppSize(theSelf->mApp, theSelf->mWidth, theSelf->mHeight);
 
-    if (Sexy::SDLWindow* active = Sexy::ActiveWindow())
+    if (Sexy::SDLWindow *active = Sexy::ActiveWindow())
     {
         theSelf->mWindow = active;
         theSelf->mOwnsWindow = false;
@@ -123,13 +131,10 @@ bool AppDriver_EnsureWindow(SDLAppDriver* theSelf)
         return true;
     }
 
-    Sexy::SDLWindow* aWindow = new Sexy::SDLWindow();
-    if (!aWindow->Create("Plants vs. Zombies TV",
-                         theSelf->mWidth, theSelf->mHeight,
-                         true, true, true))
+    Sexy::SDLWindow *aWindow = new Sexy::SDLWindow();
+    if (!aWindow->Create("Plants vs. Zombies TV", theSelf->mWidth, theSelf->mHeight, true, true, true))
     {
-        TOD_ERROR("SDLAppDriver: SDLWindow::Create(%dx%d) failed",
-                  theSelf->mWidth, theSelf->mHeight);
+        TOD_ERROR("SDLAppDriver: SDLWindow::Create(%dx%d) failed", theSelf->mWidth, theSelf->mHeight);
         delete aWindow;
         return false;
     }
@@ -151,12 +156,12 @@ bool AppDriver_EnsureWindow(SDLAppDriver* theSelf)
 //
 // On a 1280 window and an 800 stage that origin is -240. DrawScreen
 // translates by its negative, which is the centering shift.
-void AppDriver_CenterScreen(SDLAppDriver* theSelf)
+void AppDriver_CenterScreen(SDLAppDriver *theSelf)
 {
     if (theSelf == nullptr || theSelf->mApp == nullptr)
         return;
 
-    Sexy::SexyAppBase* anApp = theSelf->mApp;
+    Sexy::SexyAppBase *anApp = theSelf->mApp;
     if (anApp->mWidgetManager == nullptr)
         return;
 
@@ -182,7 +187,7 @@ void AppDriver_CenterScreen(SDLAppDriver* theSelf)
     anApp->mWidgetManager->SetAllowFullKeyboardMode(anApp->mRuntimeFlags[1]);
 }
 
-void AppDriver_DestroyWindow(SDLAppDriver* theSelf)
+void AppDriver_DestroyWindow(SDLAppDriver *theSelf)
 {
     if (!theSelf || !theSelf->mWindow)
         return;
@@ -201,18 +206,17 @@ void AppDriver_DestroyWindow(SDLAppDriver* theSelf)
 // ---------------------------------------------------------------------------
 // Graphics backend
 // ---------------------------------------------------------------------------
-void AppDriver_CreateGraphics(SDLAppDriver* theSelf)
+void AppDriver_CreateGraphics(SDLAppDriver *theSelf)
 {
     if (!theSelf || theSelf->mGraphics)
         return;
 
     // The binary picks its video driver through the same registry, reading
     // SEXY_VIDEO_DRIVER (BaseAppDriver::CreateGraphics @0x3f4384).
-    theSelf->mGraphics =
-        Sexy::GraphicsBackendFactory::Create(Sexy::GraphicsBackendFactory::GetRequestedName());
+    theSelf->mGraphics = Sexy::GraphicsBackendFactory::Create(Sexy::GraphicsBackendFactory::GetRequestedName());
 }
 
-bool AppDriver_InitGraphics(SDLAppDriver* theSelf)
+bool AppDriver_InitGraphics(SDLAppDriver *theSelf)
 {
     if (!theSelf)
         return false;
@@ -220,7 +224,6 @@ bool AppDriver_InitGraphics(SDLAppDriver* theSelf)
     AppDriver_CreateGraphics(theSelf);
     if (!theSelf->mGraphics)
         return false;
-
 
     bool anOk = theSelf->mGraphics->Init(theSelf->mWidth, theSelf->mHeight);
     if (!anOk)
@@ -231,7 +234,7 @@ bool AppDriver_InitGraphics(SDLAppDriver* theSelf)
     return anOk;
 }
 
-void AppDriver_DestroyGraphics(SDLAppDriver* theSelf)
+void AppDriver_DestroyGraphics(SDLAppDriver *theSelf)
 {
     if (!theSelf || !theSelf->mGraphics)
         return;
@@ -257,7 +260,7 @@ int SDLAppDriver::InitAppDriver()
 // are performed here rather than left to the caller.
 int SDLAppDriver::Startup()
 {
-    SDLAppDriver* self = this;
+    SDLAppDriver *self = this;
     if (!self)
         return 0;
 
@@ -273,7 +276,7 @@ int SDLAppDriver::Startup()
 // [4] Terminate()
 int SDLAppDriver::Terminate()
 {
-    SDLAppDriver* self = this;
+    SDLAppDriver *self = this;
     if (!self)
         return 0;
     AppDriver_DestroyGraphics(self);
@@ -284,11 +287,11 @@ int SDLAppDriver::Terminate()
 // BaseAppDriver::Start initializes the application.
 int SDLAppDriver::Start()
 {
-    SDLAppDriver* self = this;
+    SDLAppDriver *self = this;
     if (!self || self->mApp == nullptr)
         return 0;
 
-    static_cast<LawnApp*>(self->mApp)->Init();
+    static_cast<LawnApp *>(self->mApp)->Init();
     return 1;
 }
 
@@ -311,14 +314,14 @@ int SDLAppDriver::Init()
     // the members stay null, which is the state every transcribed body already
     // guards for (`if (mSoundManager == nullptr) return;`), so a machine with no
     // sound card still runs.
-    SDLAppDriver* self = this;
+    SDLAppDriver *self = this;
     if (self && self->mApp)
     {
-        Sexy::SexyAppBase* anApp = self->mApp;
+        Sexy::SexyAppBase *anApp = self->mApp;
 
         if (anApp->mSoundManager == nullptr)
         {
-            Sexy::SDLSoundManager* aSoundManager = new Sexy::SDLSoundManager;
+            Sexy::SDLSoundManager *aSoundManager = new Sexy::SDLSoundManager;
             if (aSoundManager->Init())
             {
                 anApp->mSoundManager = aSoundManager;
@@ -346,21 +349,21 @@ int SDLAppDriver::Init()
 // and then calls UpdateApp (vtable +520). State 1 runs one update, the
 // fractional update, and DrawDirtyStuff. Logic advances in mFrameTime-sized
 // steps independently of presentation and its frame cap.
-int SDLAppDriver::UpdateAppStep(bool* theContinue)
+int SDLAppDriver::UpdateAppStep(bool *theContinue)
 {
-    SDLAppDriver* self = this;
+    SDLAppDriver *self = this;
     if (theContinue)
         *theContinue = false;
     if (!self || !self->mApp)
         return 0;
 
-    LawnApp* anApp = static_cast<LawnApp*>(self->mApp);
+    LawnApp *anApp = static_cast<LawnApp *>(self->mApp);
     // Leave destruction to the outer frame loop after callbacks and modal
     // waits have returned. Quit only requests this transition.
     if (anApp->mShutDown || (anApp->mExitToTop && anApp->mUpdateDepth == 0))
         return 0;
 
-    Sexy::SDLWindow* aWindow = self->mWindow != nullptr ? self->mWindow : Sexy::ActiveWindow();
+    Sexy::SDLWindow *aWindow = self->mWindow != nullptr ? self->mWindow : Sexy::ActiveWindow();
     bool aModalWait = anApp->mUpdateDepth > 0;
     double frameStart = aWindow != nullptr ? aWindow->GetTime() : 0.0;
     if (aModalWait && aWindow != nullptr)
@@ -389,8 +392,8 @@ int SDLAppDriver::UpdateAppStep(bool* theContinue)
         int anUpdateCount = anApp->mUpdateCount;
         double aStepSeconds = std::max(anApp->mFrameTime, 1) * 0.001;
         double aNow = (SDL_GetTicksNS() / 1000000000.0);
-        double anElapsed = self->mLastUpdateTime < 0.0
-            ? aStepSeconds : std::clamp(aNow - self->mLastUpdateTime, 0.0, 0.25);
+        double anElapsed =
+            self->mLastUpdateTime < 0.0 ? aStepSeconds : std::clamp(aNow - self->mLastUpdateTime, 0.0, 0.25);
         self->mLastUpdateTime = aNow;
         anApp->mPendingUpdatesAcc += anElapsed * anApp->mUpdateMultiplier;
         // Resource loading may run synchronously in TitleScreen::Update.
@@ -404,7 +407,7 @@ int SDLAppDriver::UpdateAppStep(bool* theContinue)
             if (anApp->mShutDown || anApp->mExitToTop)
                 break;
         }
-        self->DoUpdateFramesF( static_cast<float>(anElapsed / aStepSeconds));
+        self->DoUpdateFramesF(static_cast<float>(anElapsed / aStepSeconds));
         anApp->DrawDirtyStuff();
         if (theContinue)
             *theContinue = anApp->mUpdateCount != anUpdateCount;
@@ -431,10 +434,10 @@ int SDLAppDriver::UpdateAppStep(bool* theContinue)
 // when v-sync updates are on and the window is not minimized.
 int SDLAppDriver::DoUpdateFramesF(float theFrac)
 {
-    SDLAppDriver* self = this;
+    SDLAppDriver *self = this;
     if (!self || !self->mApp)
         return 0;
-    LawnApp* anApp = static_cast<LawnApp*>(self->mApp);
+    LawnApp *anApp = static_cast<LawnApp *>(self->mApp);
     if (anApp->mVSyncUpdates && !anApp->mMinimized && anApp->mWidgetManager != nullptr)
         anApp->mWidgetManager->UpdateFrameF(theFrac);
     return 1;
@@ -446,10 +449,10 @@ int SDLAppDriver::DoUpdateFramesF(float theFrac)
 // recorded-playback path; a live run takes the other one and calls UpdateFrames.
 int SDLAppDriver::DoUpdateFrames()
 {
-    SDLAppDriver* self = this;
+    SDLAppDriver *self = this;
     if (!self || !self->mApp)
         return 0;
-    LawnApp* anApp = static_cast<LawnApp*>(self->mApp);
+    LawnApp *anApp = static_cast<LawnApp *>(self->mApp);
 
     if (anApp->mPlayingDemoBuffer)
     {
@@ -484,16 +487,15 @@ int SDLAppDriver::DoUpdateFrames()
 int SDLAppDriver::DrawDirtyStuff(bool theForce)
 {
     (void)theForce;
-    SDLAppDriver* self = this;
+    SDLAppDriver *self = this;
     if (!self)
         return 0;
 
-    LawnApp* anApp = static_cast<LawnApp*>(self->mApp);
+    LawnApp *anApp = static_cast<LawnApp *>(self->mApp);
     if (anApp == nullptr || anApp->mWidgetManager == nullptr)
         return 0;
 
-
-    Sexy::WidgetManager* aManager = anApp->mWidgetManager;
+    Sexy::WidgetManager *aManager = anApp->mWidgetManager;
     // DrawDirtyStuff @0x3F4628 presents the manager image as drawn.
     // Resize stores mWidth as dest.mWidth + 2*dest.mX, which is the
     // stage width, not the window. The image has to be the display.
@@ -509,7 +511,7 @@ int SDLAppDriver::DrawDirtyStuff(bool theForce)
     // the device's current draw target; every other image stays on the
     // software rasterizer. That is the split in GLImage::Blt @0x475888.
     bool aHardware = Sexy::BgfxRenderDevice::sCurrent != nullptr;
-    bool aScreenIsHardware = dynamic_cast<Sexy::GLImage*>(aManager->mImage) != nullptr;
+    bool aScreenIsHardware = dynamic_cast<Sexy::GLImage *>(aManager->mImage) != nullptr;
     if (aManager->mImage == nullptr || aHardware != aScreenIsHardware)
     {
         delete aManager->mImage;
@@ -550,7 +552,7 @@ int SDLAppDriver::DrawDirtyStuff(bool theForce)
 // [12] Shutdown()
 int SDLAppDriver::Shutdown()
 {
-    SDLAppDriver* self = this;
+    SDLAppDriver *self = this;
     if (!self)
         return 0;
     AppDriver_DestroyGraphics(self);
@@ -562,13 +564,12 @@ int SDLAppDriver::Shutdown()
 // reads SEXY_LOADING_THREAD. Android and web leave it off; this desktop
 // build turns it on in setup.env.
 int gLoadingThreadMode = -1;
-SDL_Thread* gLoadingThread = nullptr;
+SDL_Thread *gLoadingThread = nullptr;
 
-int SDLCALL LoadingThreadMain(void* theArg)
+int SDLCALL LoadingThreadMain(void *theArg)
 {
-    LawnApp* anApp = static_cast<LawnApp*>(theArg);
-    while (anApp != nullptr && !anApp->mShutDown && !anApp->mCloseRequest
-           && !anApp->mLoadingThreadCompleted)
+    LawnApp *anApp = static_cast<LawnApp *>(theArg);
+    while (anApp != nullptr && !anApp->mShutDown && !anApp->mCloseRequest && !anApp->mLoadingThreadCompleted)
     {
         anApp->LoadingThreadProc();
         // One slice just ran. Yield so the main thread can paint the bar
@@ -586,11 +587,11 @@ int SDLCALL LoadingThreadMain(void* theArg)
 // while images, fonts and sounds come in.
 int SDLAppDriver::StartLoadingThread()
 {
-    SDLAppDriver* self = this;
+    SDLAppDriver *self = this;
     if (!self || !self->mApp)
         return 0;
 
-    LawnApp* anApp = static_cast<LawnApp*>(self->mApp);
+    LawnApp *anApp = static_cast<LawnApp *>(self->mApp);
     if (anApp->mLoadingThreadCompleted)
         return 1;
 
@@ -634,7 +635,7 @@ int SDLAppDriver::WaitForLoadingThread()
 // loading thread counted. Both live on the app, at the offsets the binary uses.
 double SDLAppDriver::GetLoadingThreadProgress()
 {
-    SDLAppDriver* aDriver = this;
+    SDLAppDriver *aDriver = this;
     if (aDriver == nullptr || aDriver->mApp == nullptr)
         return 0.0;
     return aDriver->mApp->GetLoadingThreadProgress();
@@ -685,19 +686,18 @@ int SDLAppDriver::PreDrawScreen()
 }
 
 // Read logical resources through p_fopen, including mounted pak files.
-int SDLAppDriver::ReadBufferFromFile(const Sexy::String& thePath,
-                                    Sexy::Buffer* theBuffer, bool theFlag)
+int SDLAppDriver::ReadBufferFromFile(const Sexy::String &thePath, Sexy::Buffer *theBuffer, bool theFlag)
 {
     (void)theFlag;
 
     if (theBuffer == nullptr)
         return 0;
 
-    const char* aName = thePath.c_str();
+    const char *aName = thePath.c_str();
     if (aName == nullptr || aName[0] == '\0')
         return 0;
 
-    SDL_IOStream* aStream = p_fopen(aName, "rb");
+    SDL_IOStream *aStream = p_fopen(aName, "rb");
     if (aStream == nullptr)
         return 0;
 
@@ -740,7 +740,7 @@ int SDLAppDriver::RehupFocus()
 // with no MemoryInfo type anywhere in the tree, and the call site passes only
 // `this`, so there is no out-parameter to fill. 0 = "unknown"; the callers
 // already tolerate it.
-int SDLAppDriver::GetMemoryInfo(void* theMemoryInfo)
+int SDLAppDriver::GetMemoryInfo(void *theMemoryInfo)
 {
     (void)theMemoryInfo;
     return 0;
@@ -749,7 +749,7 @@ int SDLAppDriver::GetMemoryInfo(void* theMemoryInfo)
 // [87] TakeScreenshot(MemoryImage&)
 //
 // Captures the supplied offscreen image.
-int SDLAppDriver::TakeScreenshot(Sexy::MemoryImage* theImage)
+int SDLAppDriver::TakeScreenshot(Sexy::MemoryImage *theImage)
 {
     if (!theImage)
         return 0;
@@ -769,7 +769,7 @@ int SDLAppDriver::DoMainLoop()
 // [92] MakeWindow()
 int SDLAppDriver::MakeWindow()
 {
-    SDLAppDriver* self = this;
+    SDLAppDriver *self = this;
     if (!self)
         return 0;
     return AppDriver_EnsureWindow(self) ? 1 : 0;
@@ -778,7 +778,7 @@ int SDLAppDriver::MakeWindow()
 // [93] CreateGraphics()
 int SDLAppDriver::CreateGraphics()
 {
-    SDLAppDriver* self = this;
+    SDLAppDriver *self = this;
     if (!self)
         return 0;
     AppDriver_CreateGraphics(self);
@@ -801,13 +801,13 @@ int SDLAppDriver::DestroyGraphics()
 // [96] UpdateInput()
 int SDLAppDriver::UpdateInput()
 {
-    SDLAppDriver* self = this;
+    SDLAppDriver *self = this;
     if (self && self->mWindow)
         self->mWindow->ProcessEvents();
     return 1;
 }
 
-bool SDLAppDriver::WriteBufferToFile(const Sexy::String& theFileName, const Sexy::Buffer* theBuffer)
+bool SDLAppDriver::WriteBufferToFile(const Sexy::String &theFileName, const Sexy::Buffer *theBuffer)
 {
     if (theBuffer == nullptr)
         return false;
@@ -815,26 +815,28 @@ bool SDLAppDriver::WriteBufferToFile(const Sexy::String& theFileName, const Sexy
     if (dataLength < 0 || static_cast<size_t>(dataLength) != theBuffer->mData.size())
     {
         logfe("Invalid output buffer: path=%s, bytes=%d, allocated=%zu",
-              theFileName.c_str(), dataLength, theBuffer->mData.size());
+            theFileName.c_str(),
+            dataLength,
+            theBuffer->mData.size());
         return false;
     }
     return WriteBytesToFile(theFileName, theBuffer->GetDataPtr(), dataLength);
 }
-bool SDLAppDriver::WriteBytesToFile(const Sexy::String& theFileName, const void* theData, unsigned long theLength)
+bool SDLAppDriver::WriteBytesToFile(const Sexy::String &theFileName, const void *theData, unsigned long theLength)
 {
     // BaseAppDriver::WriteBytesToFile @0x3f4548 writes the supplied path.
     // Saves must use the output path, without asset-root redirection.
     return Sexy::SDLFile::WriteOutputFile(theFileName.c_str(), theData, theLength);
 }
-SDLAppDriver* MakeAppDriver(Sexy::SexyAppBase* theApp)
+SDLAppDriver *MakeAppDriver(Sexy::SexyAppBase *theApp)
 {
-    SDLAppDriver* aDriver = new SDLAppDriver();
-    aDriver->mApp        = theApp;
-    aDriver->mWindow     = nullptr;
+    SDLAppDriver *aDriver = new SDLAppDriver();
+    aDriver->mApp = theApp;
+    aDriver->mWindow = nullptr;
     aDriver->mOwnsWindow = false;
-    aDriver->mGraphics   = nullptr;
-    aDriver->mWidth      = kDefaultWidth;
-    aDriver->mHeight     = kDefaultHeight;
+    aDriver->mGraphics = nullptr;
+    aDriver->mWidth = kDefaultWidth;
+    aDriver->mHeight = kDefaultHeight;
     return aDriver;
 }
 
@@ -848,29 +850,29 @@ SDLAppDriver* MakeAppDriver(Sexy::SexyAppBase* theApp)
 // transcribed Cleanup dispatches through the deleting-destructor slot without
 // freeing anything.
 // ---------------------------------------------------------------------------
-extern "C" Sexy::IAppDriver* Lawn_CreateAppDriver(Sexy::SexyAppBase* theApp)
+extern "C" Sexy::IAppDriver *Lawn_CreateAppDriver(Sexy::SexyAppBase *theApp)
 {
     return MakeAppDriver(theApp);
 }
 
-extern "C" Sexy::IResStreamsDriver* Lawn_CreateResStreamsDriver()
+extern "C" Sexy::IResStreamsDriver *Lawn_CreateResStreamsDriver()
 {
     return new SDLResStreamsDriver();
 }
 
-extern "C" Sexy::IAudioDriver* Lawn_CreateAudioDriver(Sexy::SexyAppBase* theApp)
+extern "C" Sexy::IAudioDriver *Lawn_CreateAudioDriver(Sexy::SexyAppBase *theApp)
 {
     (void)theApp;
     return new SDLAudioDriver();
 }
 
-extern "C" Sexy::IHttpDriver* Lawn_CreateHttpDriver(Sexy::SexyAppBase* theApp)
+extern "C" Sexy::IHttpDriver *Lawn_CreateHttpDriver(Sexy::SexyAppBase *theApp)
 {
     (void)theApp;
     return new SDLHttpDriver();
 }
 
-extern "C" Sexy::IFileDriver* Lawn_CreateFileDriver(Sexy::SexyAppBase* theApp)
+extern "C" Sexy::IFileDriver *Lawn_CreateFileDriver(Sexy::SexyAppBase *theApp)
 {
     (void)theApp;
     return new SDLFileDriver();

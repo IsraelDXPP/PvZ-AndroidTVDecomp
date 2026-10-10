@@ -1,7 +1,7 @@
 #include "Driver.h"
 
-Sexy::Driver::Driver(Sexy::String theName, int thePriority)
-    : mName(theName)
+Sexy::Driver::Driver(Sexy::String theName, int thePriority) :
+    mName(theName)
 {
     mPriority = thePriority;
     mDisabled = false;
@@ -31,8 +31,8 @@ int PakLib::Driver::GetPriority()
     return mPriority;
 }
 
-PakLib::Driver::Driver(Sexy::String theName, int thePriority)
-    : mName(theName)
+PakLib::Driver::Driver(Sexy::String theName, int thePriority) :
+    mName(theName)
 {
     mPriority = thePriority;
 }

@@ -12,25 +12,26 @@
 #include <string>
 #include <vector>
 
-namespace Sexy {
+namespace Sexy
+{
 
 class CommonAuthManager : public AuthManager
 {
 public:
-    CommonAuthManager(SexyAppBase* theApp);
+    CommonAuthManager(SexyAppBase *theApp);
 };
 
 // The constructor has to live with this class. A same-named stub in another
 // file does not inherit AuthManager, so its empty body never writes the vtable.
-CommonAuthManager::CommonAuthManager(SexyAppBase* theApp)
-    : AuthManager(theApp)
+CommonAuthManager::CommonAuthManager(SexyAppBase *theApp) :
+    AuthManager(theApp)
 {
 }
 
 class PlatformIntegration
 {
 public:
-    PlatformIntegration(SexyAppBase* theApp);
+    PlatformIntegration(SexyAppBase *theApp);
     virtual ~PlatformIntegration();
     virtual void Init();
     virtual void Cleanup();
@@ -41,7 +42,7 @@ public:
     virtual Sexy::String GetRechargeLimit();
 
     Sexy::String mChannel;
-    SexyAppBase* mApp;
+    SexyAppBase *mApp;
 };
 
 class UpdateRemoteListener : public InputDeviceListener
@@ -49,38 +50,34 @@ class UpdateRemoteListener : public InputDeviceListener
 public:
     UpdateRemoteListener();
     virtual ~UpdateRemoteListener();
-    virtual void DeviceEventGenerated(IInputDriver* theDriver, Event* theEvent);
+    virtual void DeviceEventGenerated(IInputDriver *theDriver, Event *theEvent);
     Sexy::String mName;
 };
 
-UpdateRemoteListener::UpdateRemoteListener()
-    : mName("unknownRemote")
+UpdateRemoteListener::UpdateRemoteListener() :
+    mName("unknownRemote")
 {
 }
 
-UpdateRemoteListener::~UpdateRemoteListener()
-{
-}
+UpdateRemoteListener::~UpdateRemoteListener() {}
 
-void UpdateRemoteListener::DeviceEventGenerated(IInputDriver*, Event*)
-{
-}
+void UpdateRemoteListener::DeviceEventGenerated(IInputDriver *, Event *) {}
 
 class TrialTimeCheck
 {
 public:
-    TrialTimeCheck(SexyCommonApp*, unsigned int theStartTick)
-        : mStartTick(theStartTick)
+    TrialTimeCheck(SexyCommonApp *, std::uint64_t theStartTick) :
+        mStartTick(theStartTick)
     {
     }
-    void Step(unsigned int) {}
-    unsigned int mStartTick;
+    void Step(std::uint64_t) {}
+    std::uint64_t mStartTick;
 };
 
 class IShareManager
 {
 public:
-    static void* Create(SexyCommonApp* theApp);
+    static void *Create(SexyCommonApp *theApp);
     virtual ~IShareManager() {}
     virtual void Init() {}
     virtual void Pause() {}
@@ -91,7 +88,7 @@ public:
 class INotificationManager
 {
 public:
-    static void* Create(SexyCommonApp* theApp);
+    static void *Create(SexyCommonApp *theApp);
     virtual ~INotificationManager() {}
     virtual void Pause() {}
     virtual void Resume() {}
@@ -131,12 +128,13 @@ int j_AGPostData(...);
 int j_AGPostXMLFileData(...);
 int j_AGShowMessageBox(...);
 
-namespace {
+namespace
+{
 
-Sexy::String HashText(const Sexy::String& theText)
+Sexy::String HashText(const Sexy::String &theText)
 {
     int aHash = 0;
-    const char* aBytes = theText.c_str();
+    const char *aBytes = theText.c_str();
     unsigned int aLength = theText.size();
     for (unsigned int aIndex = 0; aIndex < aLength; ++aIndex)
         aHash = 31 * aHash + (unsigned char)aBytes[aIndex];
@@ -146,43 +144,37 @@ Sexy::String HashText(const Sexy::String& theText)
     return Sexy::String(aDigits);
 }
 
-bool NameIs(const Sexy::String& theName, const char* theLiteral)
+bool NameIs(const Sexy::String &theName, const char *theLiteral)
 {
     return theName == theLiteral;
 }
 
 } // namespace
 
-Sexy::ConnectionManager::ConnectionManager()
-    : mMulti(nullptr)
+Sexy::ConnectionManager::ConnectionManager() :
+    mMulti(nullptr)
 {
 }
 
-Sexy::ConnectionManager::~ConnectionManager()
-{
-}
+Sexy::ConnectionManager::~ConnectionManager() {}
 
 int Sexy::ConnectionManager::Update(int)
 {
     return 0;
 }
 
-void Sexy::SexyCommonApp::setErrorCode()
+void Sexy::SexyCommonApp::setErrorCode() {}
+
+void Sexy::SexyCommonApp::showRechargeBoard() {}
+
+int Sexy::SexyCommonApp::FullVersionHandle(bool theFull, void *theApp)
 {
+    return static_cast<SexyCommonApp *>(theApp)->setFullVersion(theFull);
 }
 
-void Sexy::SexyCommonApp::showRechargeBoard()
+int Sexy::SexyCommonApp::MessageBoxHandle(int theResult, void *theApp)
 {
-}
-
-int Sexy::SexyCommonApp::FullVersionHandle(bool theFull, void* theApp)
-{
-    return static_cast<SexyCommonApp*>(theApp)->setFullVersion(theFull);
-}
-
-int Sexy::SexyCommonApp::MessageBoxHandle(int theResult, void* theApp)
-{
-    return static_cast<SexyCommonApp*>(theApp)->messageBoxRes(theResult);
+    return static_cast<SexyCommonApp *>(theApp)->messageBoxRes(theResult);
 }
 
 void Sexy::SexyCommonApp::AppEnteredBackground()
@@ -205,29 +197,17 @@ void Sexy::SexyCommonApp::AppEnteredForeground()
         mNotificationManager->Resume();
 }
 
-void Sexy::SexyCommonApp::DoGameTrialDialog(const SPayGameInfo&)
-{
-}
+void Sexy::SexyCommonApp::DoGameTrialDialog(const SPayGameInfo &) {}
 
-void Sexy::SexyCommonApp::CreateGameTrialDialog()
-{
-}
+void Sexy::SexyCommonApp::CreateGameTrialDialog() {}
 
-void Sexy::SexyCommonApp::CreateGotoBuyResultDialog()
-{
-}
+void Sexy::SexyCommonApp::CreateGotoBuyResultDialog() {}
 
-void Sexy::SexyCommonApp::CreateWaitResultDialog()
-{
-}
+void Sexy::SexyCommonApp::CreateWaitResultDialog() {}
 
-void Sexy::SexyCommonApp::CreateWaitMessageDialog()
-{
-}
+void Sexy::SexyCommonApp::CreateWaitMessageDialog() {}
 
-void Sexy::SexyCommonApp::CreateNetworkFaultDialog()
-{
-}
+void Sexy::SexyCommonApp::CreateNetworkFaultDialog() {}
 
 int Sexy::SexyCommonApp::setOfferRes(bool theResult)
 {
@@ -244,7 +224,7 @@ int Sexy::SexyCommonApp::setFullVersion(bool theFull)
     return logfd("setFullVersion: %d\n", theFull ? 1 : 0);
 }
 
-int Sexy::SexyCommonApp::setPayItemsRes(bool theResult, const char* theItemId, int theCount, const char* theChannel)
+int Sexy::SexyCommonApp::setPayItemsRes(bool theResult, const char *theItemId, int theCount, const char *theChannel)
 {
     return logfd("setPayItemsRes: %d %s %d %s\n", theResult ? 1 : 0, theItemId, theCount, theChannel);
 }
@@ -259,7 +239,7 @@ int Sexy::SexyCommonApp::adBarClick()
     return logfd("@@@@@@@@@@@@@adBarClick\n");
 }
 
-int Sexy::SexyCommonApp::setLoginRes(bool theResult, const char* theUser)
+int Sexy::SexyCommonApp::setLoginRes(bool theResult, const char *theUser)
 {
     return logfd("setLoginResRes: %d %s \n", theResult ? 1 : 0, theUser);
 }
@@ -302,40 +282,40 @@ void Sexy::SexyCommonApp::Init()
     SexyAppBase::Init();
 }
 
-Sexy::SexyCommonApp::SexyCommonApp()
-    : mPlatformIntegration(nullptr),
-      mGamePaidQueryStartTick(0),
-      mPaymentManager(nullptr),
-      mTrialTimeCheck(nullptr),
-      mAdProvider(nullptr),
-      mUpdateRemoteListener(nullptr),
-      mSoundControllerWidget(nullptr),
-      mGameCenter(nullptr),
-      mShareManager(nullptr),
-      mNotificationManager(nullptr),
-      mAuthenticated(true),
-      mAuthId(-1),
-      mMarketOrAuthMode(2),
-      mTestAdRecallMode(0),
-      mTestAdRecallResult(false),
-      mTestAdRecallCounter(0),
-      mTestAdPayItemId("1"),
-      mTestAdPayItemCount(2),
-      mTestAdPayChannel("alipay"),
-      mTrialCheckStarted(false),
-      mTrialCheckDelayPassed(false)
+Sexy::SexyCommonApp::SexyCommonApp() :
+    mPlatformIntegration(nullptr),
+    mGamePaidQueryStartTick(0),
+    mPaymentManager(nullptr),
+    mTrialTimeCheck(nullptr),
+    mAdProvider(nullptr),
+    mUpdateRemoteListener(nullptr),
+    mSoundControllerWidget(nullptr),
+    mGameCenter(nullptr),
+    mShareManager(nullptr),
+    mNotificationManager(nullptr),
+    mAuthenticated(true),
+    mAuthId(-1),
+    mMarketOrAuthMode(2),
+    mTestAdRecallMode(0),
+    mTestAdRecallResult(false),
+    mTestAdRecallCounter(0),
+    mTestAdPayItemId("1"),
+    mTestAdPayItemCount(2),
+    mTestAdPayChannel("alipay"),
+    mTrialCheckStarted(false),
+    mTrialCheckDelayPassed(false)
 {
     if (mAuthManager != nullptr)
         delete mAuthManager;
     mAuthManager = new CommonAuthManager(this);
-    mGameCenter = static_cast<IGameCenter*>(IGameCenter::Create(this));
-    mShareManager = static_cast<IShareManager*>(IShareManager::Create(this));
-    mNotificationManager = static_cast<INotificationManager*>(INotificationManager::Create(this));
+    mGameCenter = static_cast<IGameCenter *>(IGameCenter::Create(this));
+    mShareManager = static_cast<IShareManager *>(IShareManager::Create(this));
+    mNotificationManager = static_cast<INotificationManager *>(INotificationManager::Create(this));
     mPlatformIntegration = new PlatformIntegration(this);
     AGSetFullVersionListener(&SexyCommonApp::FullVersionHandle, this);
     AGSetMessageBoxListener(&SexyCommonApp::MessageBoxHandle, this);
 
-    UpdateRemoteListener* aRemote = new UpdateRemoteListener();
+    UpdateRemoteListener *aRemote = new UpdateRemoteListener();
     mUpdateRemoteListener = aRemote;
     if (mInputManager != nullptr)
         mInputManager->AddListener(aRemote);
@@ -344,22 +324,22 @@ Sexy::SexyCommonApp::SexyCommonApp()
     mSoundControllerWidget->mZOrder = 1;
 }
 
-Sexy::IGameCenter* Sexy::SexyCommonApp::GetGameCenter()
+Sexy::IGameCenter *Sexy::SexyCommonApp::GetGameCenter()
 {
     return mGameCenter;
 }
 
-Sexy::IShareManager* Sexy::SexyCommonApp::GetShareManager()
+Sexy::IShareManager *Sexy::SexyCommonApp::GetShareManager()
 {
     return mShareManager;
 }
 
-Sexy::INotificationManager* Sexy::SexyCommonApp::GetNotificationManager()
+Sexy::INotificationManager *Sexy::SexyCommonApp::GetNotificationManager()
 {
     return mNotificationManager;
 }
 
-Sexy::PlatformIntegration* Sexy::SexyCommonApp::GetPlatformIntegration()
+Sexy::PlatformIntegration *Sexy::SexyCommonApp::GetPlatformIntegration()
 {
     return mPlatformIntegration;
 }
@@ -404,7 +384,8 @@ int Sexy::SexyCommonApp::setTestAdRecall(SexyCommonApp_E_TESTAD_MODE theMode, bo
     return aLogged;
 }
 
-void Sexy::SexyCommonApp::setTestAdPayItemsRecall(bool theResult, Sexy::String theItemId, int theCount, Sexy::String theChannel)
+void Sexy::SexyCommonApp::setTestAdPayItemsRecall(
+    bool theResult, Sexy::String theItemId, int theCount, Sexy::String theChannel)
 {
     logfi("setTestAdPayItemsRecall: %d %s %d %s", theResult ? 1 : 0, theItemId.c_str(), theCount, theChannel.c_str());
     mTestAdRecallResult = theResult;
@@ -424,20 +405,21 @@ int Sexy::SexyCommonApp::updateTestRecall()
 
     switch (mTestAdRecallMode)
     {
-    case 1:
-        setOfferRes(mTestAdRecallResult);
-        break;
-    case 2:
-        setOfferFullOpenRes(mTestAdRecallResult);
-        break;
-    case 3:
-        setPayItemsRes(mTestAdRecallResult, mTestAdPayItemId.c_str(), mTestAdPayItemCount, mTestAdPayChannel.c_str());
-        break;
-    case 4:
-        setFullVersion(mTestAdRecallResult);
-        break;
-    default:
-        break;
+        case 1:
+            setOfferRes(mTestAdRecallResult);
+            break;
+        case 2:
+            setOfferFullOpenRes(mTestAdRecallResult);
+            break;
+        case 3:
+            setPayItemsRes(
+                mTestAdRecallResult, mTestAdPayItemId.c_str(), mTestAdPayItemCount, mTestAdPayChannel.c_str());
+            break;
+        case 4:
+            setFullVersion(mTestAdRecallResult);
+            break;
+        default:
+            break;
     }
     mTestAdRecallCounter = 0;
     mTestAdRecallMode = 0;
@@ -451,9 +433,7 @@ int Sexy::SexyCommonApp::showMoreGame()
     return j_AGShowMoreGame();
 }
 
-void Sexy::SexyCommonApp::showRecommendGames()
-{
-}
+void Sexy::SexyCommonApp::showRecommendGames() {}
 
 void Sexy::SexyCommonApp::Cleanup()
 {
@@ -502,7 +482,7 @@ int Sexy::SexyCommonApp::postData(Sexy::String theKind, Sexy::String theBody)
 
 void Sexy::SexyCommonApp::postData(SexyCommonApp_POST_TYPE theKind, Sexy::String theBody)
 {
-    const char* aKind = "game";
+    const char *aKind = "game";
     if ((int)theKind == 1)
         aKind = "ad";
     postData(Sexy::String(aKind), theBody);
@@ -513,7 +493,8 @@ int Sexy::SexyCommonApp::postXMLFileData(Sexy::String thePath)
     return j_AGPostXMLFileData(thePath.c_str());
 }
 
-int Sexy::SexyCommonApp::showMessageBox(Sexy::String theText, Sexy::String theTitle, SexyCommonApp_E_MESSAGEBOX_TYPE theType, int theFlags)
+int Sexy::SexyCommonApp::showMessageBox(
+    Sexy::String theText, Sexy::String theTitle, SexyCommonApp_E_MESSAGEBOX_TYPE theType, int theFlags)
 {
     return j_AGShowMessageBox(theText.c_str(), theTitle.c_str(), (int)theType, theFlags);
 }
@@ -548,7 +529,7 @@ Sexy::String Sexy::SexyCommonApp::getRechargeLimit()
 
 int Sexy::SexyCommonApp::IsRemoteControllerEnabled()
 {
-    DriverFactory* aFactory = InputDriverFactory::GetInputDriverFactory();
+    DriverFactory *aFactory = InputDriverFactory::GetInputDriverFactory();
     if (aFactory == nullptr)
         return 0;
     return aFactory->Find("RemoteInputInterface") != nullptr ? 1 : 0;
@@ -558,7 +539,7 @@ Sexy::String Sexy::SexyCommonApp::getCurrentRemoteName()
 {
     if (mUpdateRemoteListener == nullptr)
         return Sexy::String("unknownRemote");
-    return static_cast<UpdateRemoteListener*>(mUpdateRemoteListener)->mName;
+    return static_cast<UpdateRemoteListener *>(mUpdateRemoteListener)->mName;
 }
 
 Sexy::SexyCommonApp::GameInfoRecord Sexy::SexyCommonApp::getGameInfo()
@@ -583,7 +564,7 @@ void Sexy::SexyCommonApp::CreateTrialDialog()
     DoGameTrialDialog(aRecord);
 }
 
-void Sexy::SexyCommonApp::HandleCmdLineParam(const Sexy::String& theName, const Sexy::String& theValue)
+void Sexy::SexyCommonApp::HandleCmdLineParam(const Sexy::String &theName, const Sexy::String &theValue)
 {
     if (NameIs(theName, "-user") || NameIs(theName, "-n") || NameIs(theName, "-userid"))
     {
@@ -634,60 +615,60 @@ void Sexy::SexyCommonApp::HandleCmdLineParam(const Sexy::String& theName, const 
     SexyAppBase::HandleCmdLineParam(theName, theValue);
 }
 
-int Sexy::SexyCommonApp::OfferResHandle(bool theResult, void* theApp)
+int Sexy::SexyCommonApp::OfferResHandle(bool theResult, void *theApp)
 {
-    return static_cast<SexyCommonApp*>(theApp)->setOfferRes(theResult);
+    return static_cast<SexyCommonApp *>(theApp)->setOfferRes(theResult);
 }
 
-int Sexy::SexyCommonApp::OfferFullOpenResHandle(bool theResult, void* theApp)
+int Sexy::SexyCommonApp::OfferFullOpenResHandle(bool theResult, void *theApp)
 {
-    return static_cast<SexyCommonApp*>(theApp)->setOfferFullOpenRes(theResult);
+    return static_cast<SexyCommonApp *>(theApp)->setOfferFullOpenRes(theResult);
 }
 
-int Sexy::SexyCommonApp::PayItemsResHandle(bool theResult, const char* theItemId, int theCount, const char* theChannel, void* theApp)
+int Sexy::SexyCommonApp::PayItemsResHandle(
+    bool theResult, const char *theItemId, int theCount, const char *theChannel, void *theApp)
 {
-    return static_cast<SexyCommonApp*>(theApp)->setPayItemsRes(theResult, theItemId, theCount, theChannel);
+    return static_cast<SexyCommonApp *>(theApp)->setPayItemsRes(theResult, theItemId, theCount, theChannel);
 }
 
-int Sexy::SexyCommonApp::QueryBalanceResHandle(bool theResult, int theBalance, void* theApp)
+int Sexy::SexyCommonApp::QueryBalanceResHandle(bool theResult, int theBalance, void *theApp)
 {
-    return static_cast<SexyCommonApp*>(theApp)->setQueryBalanceRes(theResult, theBalance);
+    return static_cast<SexyCommonApp *>(theApp)->setQueryBalanceRes(theResult, theBalance);
 }
 
-int Sexy::SexyCommonApp::AdBarClickHandle(void* theApp)
+int Sexy::SexyCommonApp::AdBarClickHandle(void *theApp)
 {
-    return static_cast<SexyCommonApp*>(theApp)->adBarClick();
+    return static_cast<SexyCommonApp *>(theApp)->adBarClick();
 }
 
-int Sexy::SexyCommonApp::LoginResHandle(bool theResult, const char* theUser, void* theApp)
+int Sexy::SexyCommonApp::LoginResHandle(bool theResult, const char *theUser, void *theApp)
 {
-    return static_cast<SexyCommonApp*>(theApp)->setLoginRes(theResult, theUser);
+    return static_cast<SexyCommonApp *>(theApp)->setLoginRes(theResult, theUser);
 }
 
 void Sexy::SexyCommonApp::UpdateFrames()
 {
+    const auto aCurrentTick = SDL_GetTicks();
     if (mPaymentManager != nullptr)
     {
         int aPaidState = mPaymentManager->GetStatus();
         if (aPaidState == 3 && mTrialTimeCheck == nullptr)
         {
             mTrialCheckStarted = true;
-            mTrialTimeCheck = new TrialTimeCheck(this, GetTickCount());
+            mTrialTimeCheck = new TrialTimeCheck(this, aCurrentTick);
             logfd("The game is a trial version.\n");
         }
-        else if (aPaidState == 2 &&
-                 GetTickCount() >= mGamePaidQueryStartTick + 10000 &&
-                 !mTrialCheckDelayPassed &&
-                 mTrialTimeCheck == nullptr)
+        else if (aPaidState == 2 && aCurrentTick >= mGamePaidQueryStartTick + 10000 && !mTrialCheckDelayPassed &&
+            mTrialTimeCheck == nullptr)
         {
             mTrialCheckStarted = true;
-            mTrialTimeCheck = new TrialTimeCheck(this, GetTickCount());
+            mTrialTimeCheck = new TrialTimeCheck(this, aCurrentTick);
             logfd("Failed to query game paid information from server.\n");
         }
         else if (aPaidState == 1 && mTrialTimeCheck == nullptr)
         {
             mTrialCheckStarted = true;
-            mTrialTimeCheck = new TrialTimeCheck(this, GetTickCount());
+            mTrialTimeCheck = new TrialTimeCheck(this, aCurrentTick);
             logfd("The game isn't paid.\n");
         }
         else if (aPaidState == 0)
@@ -700,7 +681,7 @@ void Sexy::SexyCommonApp::UpdateFrames()
         }
 
         if (mTrialTimeCheck != nullptr)
-            mTrialTimeCheck->Step(GetTickCount());
+            mTrialTimeCheck->Step(aCurrentTick);
     }
 
     SexyAppBase::UpdateFrames();

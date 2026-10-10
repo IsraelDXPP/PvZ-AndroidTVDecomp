@@ -5,11 +5,12 @@
 #include "AuthManager.h"
 #include "SexyAppBase.h"
 
-namespace {
-
-void AuthorizeProcThunk(void* theArg)
+namespace
 {
-    static_cast<Sexy::AuthManager*>(theArg)->AuthorizeProc(theArg);
+
+void AuthorizeProcThunk(void *theArg)
+{
+    static_cast<Sexy::AuthManager *>(theArg)->AuthorizeProc(theArg);
 }
 
 } // namespace
@@ -21,7 +22,7 @@ int Sexy::AuthManager::DoAuthenticate()
     return 1;
 }
 
-int Sexy::AuthManager::AuthorizeProc(void* theArg)
+int Sexy::AuthManager::AuthorizeProc(void *theArg)
 {
     (void)theArg;
     return DoAuthenticate();
@@ -34,7 +35,7 @@ int Sexy::AuthManager::Handled()
     return 1;
 }
 
-int Sexy::AuthManager::HandleCmdLineParam(Sexy::String const& theName, Sexy::String const& theValue)
+int Sexy::AuthManager::HandleCmdLineParam(Sexy::String const &theName, Sexy::String const &theValue)
 {
     if (theName.compare("-sn") != 0)
         return 0;
@@ -58,13 +59,13 @@ void Sexy::AuthManager::Start()
     mAuthState = 2;
 }
 
-Sexy::AuthManager::AuthManager(Sexy::SexyAppBase* theApp)
-    : mApp(theApp)
-    , mAuthenticated(true)
-    , mAuthId(-1)
-    , mAuthAction(2)
-    , mAuthMode(1)
-    , mAuthState(0)
+Sexy::AuthManager::AuthManager(Sexy::SexyAppBase *theApp) :
+    mApp(theApp),
+    mAuthenticated(true),
+    mAuthId(-1),
+    mAuthAction(2),
+    mAuthMode(1),
+    mAuthState(0)
 {
     mName = "Default";
 }
@@ -74,7 +75,7 @@ Sexy::AuthManager::~AuthManager()
     mThread.Join();
 }
 
-Sexy::String* Sexy::AuthManager::GetName()
+Sexy::String *Sexy::AuthManager::GetName()
 {
     return &mName;
 }
@@ -123,7 +124,7 @@ int Sexy::AuthManager::GetAuthState()
     return mAuthState;
 }
 
-int Sexy::AuthManager::SetAuthSerialNumber(Sexy::String const& theSerial)
+int Sexy::AuthManager::SetAuthSerialNumber(Sexy::String const &theSerial)
 {
     mAuthSerialNumber = theSerial;
     return 1;

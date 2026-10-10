@@ -27,9 +27,7 @@ int WaitForLeaderboardsDialog::GetStatus()
 // `Sexy::ButtonListener` sub-object at +0x100 (Widget is 0x100 bytes, see
 // Dialog.h). A real base class makes the compiler emit both, and the explicit
 // `~Dialog()` call is likewise the base destructor the compiler already runs.
-WaitForLeaderboardsDialog::~WaitForLeaderboardsDialog()
-{
-}
+WaitForLeaderboardsDialog::~WaitForLeaderboardsDialog() {}
 
 // ==========================================================================
 // WaitForLeaderboardsDialog::WaitForLeaderboardsDialog(LawnApp *)
@@ -39,7 +37,7 @@ WaitForLeaderboardsDialog::~WaitForLeaderboardsDialog()
 // constructor as the 5th argument and then releases the temporary; that whole
 // dance is what the `SavingDingusDialog` parameter list already expresses, so
 // the body is the constructor's initializer list.
-WaitForLeaderboardsDialog::WaitForLeaderboardsDialog(LawnApp *theApp)
-    : SavingDingusDialog(theApp, true, 57, Sexy::String("[LEADERBOARDS_DIALOG]"), 1.0f, true)
+WaitForLeaderboardsDialog::WaitForLeaderboardsDialog(LawnApp *theApp) :
+    SavingDingusDialog(theApp, true, 57, Sexy::String("[LEADERBOARDS_DIALOG]"), 1.0f, true)
 {
 }

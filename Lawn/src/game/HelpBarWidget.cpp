@@ -33,34 +33,62 @@
 Sexy::TPoint<float> HelpBarWidget::DEFAULT_POS(-240.0f, 512.0f);
 const Sexy::TPoint<float> HelpBarWidget::OFFSCREEN_POS(-240.0f, 816.0f);
 
-namespace {
+namespace
+{
 
 Sexy::String HelpButtonTag(Sexy::GamepadButton theButton)
 {
-    const char* tag = "";
+    const char *tag = "";
     switch (theButton)
     {
-    case GAMEPAD_BUTTON_UP:
-    case GAMEPAD_BUTTON_DOWN:
-    case GAMEPAD_BUTTON_LEFT:
-    case GAMEPAD_BUTTON_RIGHT:
-    case GAMEPAD_BUTTON_DPAD_UP:
-    case GAMEPAD_BUTTON_DPAD_DOWN:
-    case GAMEPAD_BUTTON_DPAD_LEFT:
-    case GAMEPAD_BUTTON_DPAD_RIGHT: tag = "<D>"; break;
-    case GAMEPAD_BUTTON_SELECT: tag = "<b>"; break;
-    case GAMEPAD_BUTTON_START: tag = "<S>"; break;
-    case GAMEPAD_BUTTON_A: tag = "<A>"; break;
-    case GAMEPAD_BUTTON_B: tag = "<B>"; break;
-    case GAMEPAD_BUTTON_X: tag = "<X>"; break;
-    case GAMEPAD_BUTTON_Y: tag = "<Y>"; break;
-    case GAMEPAD_BUTTON_TL: tag = "<L>"; break;
-    case GAMEPAD_BUTTON_TR: tag = "<R>"; break;
-    case GAMEPAD_BUTTON_TL2: tag = "<LT>"; break;
-    case GAMEPAD_BUTTON_TR2: tag = "<RT>"; break;
-    case GAMEPAD_BUTTON_THUMBL: tag = "<l>"; break;
-    case GAMEPAD_BUTTON_THUMBR: tag = "<r>"; break;
-    default: break;
+        case GAMEPAD_BUTTON_UP:
+        case GAMEPAD_BUTTON_DOWN:
+        case GAMEPAD_BUTTON_LEFT:
+        case GAMEPAD_BUTTON_RIGHT:
+        case GAMEPAD_BUTTON_DPAD_UP:
+        case GAMEPAD_BUTTON_DPAD_DOWN:
+        case GAMEPAD_BUTTON_DPAD_LEFT:
+        case GAMEPAD_BUTTON_DPAD_RIGHT:
+            tag = "<D>";
+            break;
+        case GAMEPAD_BUTTON_SELECT:
+            tag = "<b>";
+            break;
+        case GAMEPAD_BUTTON_START:
+            tag = "<S>";
+            break;
+        case GAMEPAD_BUTTON_A:
+            tag = "<A>";
+            break;
+        case GAMEPAD_BUTTON_B:
+            tag = "<B>";
+            break;
+        case GAMEPAD_BUTTON_X:
+            tag = "<X>";
+            break;
+        case GAMEPAD_BUTTON_Y:
+            tag = "<Y>";
+            break;
+        case GAMEPAD_BUTTON_TL:
+            tag = "<L>";
+            break;
+        case GAMEPAD_BUTTON_TR:
+            tag = "<R>";
+            break;
+        case GAMEPAD_BUTTON_TL2:
+            tag = "<LT>";
+            break;
+        case GAMEPAD_BUTTON_TR2:
+            tag = "<RT>";
+            break;
+        case GAMEPAD_BUTTON_THUMBL:
+            tag = "<l>";
+            break;
+        case GAMEPAD_BUTTON_THUMBR:
+            tag = "<r>";
+            break;
+        default:
+            break;
     }
     // The help bar draws gamepad controls. OEM remote captions replace <X>
     // and <l> with words, losing the button identity before glyph lookup.
@@ -78,7 +106,7 @@ Sexy::GamepadButton HelpBarWidget::HitTestButton(int x, int y) const
     const int spaceWidth = mFontId->StringWidth(Sexy::String(" "));
     const int slide = TodAnimateCurve(0, 10, mAnimCounter, 0, 20, CURVE_EASE_IN_OUT);
     int nextRow[2] = {0, 0};
-    for (const ButtonDef& button : mButtons)
+    for (const ButtonDef &button : mButtons)
     {
         if (button.mButton == NUM_GAMEPAD_BUTTONS)
             continue;
@@ -89,8 +117,8 @@ Sexy::GamepadButton HelpBarWidget::HitTestButton(int x, int y) const
         int glyphX = right ? (wideScreen ? 1156 : 1036) - glyphWidth : (wideScreen ? 124 : 244);
         if (button.mAnimating && mAlpha < 1.0f)
         {
-            const float offscreenX = float(right ? LawnApp::FULLSCREEN_RECT.mWidth + 256
-                                                : LawnApp::FULLSCREEN_RECT.mX - 256);
+            const float offscreenX =
+                float(right ? LawnApp::FULLSCREEN_RECT.mWidth + 256 : LawnApp::FULLSCREEN_RECT.mX - 256);
             glyphX = int(TodAnimateCurveFloatTime(0.4f, 1.0f, mAlpha, offscreenX, float(glyphX), CURVE_EASE_IN));
         }
         const int labelWidth = mFontId->StringWidth(button.mLabel);
@@ -109,26 +137,25 @@ bool HelpBarWidget::IsPointVisible(int x, int y)
 
 void HelpBarWidget::MouseDown(int x, int y, int theClickCount)
 {
-    mMousePressedButton = theClickCount > 0 && theClickCount != 3
-        ? HitTestButton(x, y) : GAMEPAD_BUTTON_NONE;
+    mMousePressedButton = theClickCount > 0 && theClickCount != 3 ? HitTestButton(x, y) : GAMEPAD_BUTTON_NONE;
 }
 
 void HelpBarWidget::MouseUp(int x, int y, int theClickCount)
 {
     const Sexy::GamepadButton button = mMousePressedButton;
     mMousePressedButton = GAMEPAD_BUTTON_NONE;
-    if (button == GAMEPAD_BUTTON_NONE || theClickCount <= 0 || theClickCount == 3
-        || HitTestButton(x, y) != button || mWidgetManager == nullptr)
+    if (button == GAMEPAD_BUTTON_NONE || theClickCount <= 0 || theClickCount == 3 || HitTestButton(x, y) != button ||
+        mWidgetManager == nullptr)
         return;
-    Sexy::Widget* target = mWidgetManager->mFocusWidget;
+    Sexy::Widget *target = mWidgetManager->mFocusWidget;
     if (target == nullptr || target == this)
         return;
-    if (CreditScreen* credits = dynamic_cast<CreditScreen*>(target))
+    if (CreditScreen *credits = dynamic_cast<CreditScreen *>(target))
     {
         credits->GameButtonDown(button, 0, 0);
         return;
     }
-    if (Board* board = dynamic_cast<Board*>(target))
+    if (Board *board = dynamic_cast<Board *>(target))
     {
         if (button == GAMEPAD_BUTTON_Y && board->mApp->CanShopLevel())
         {
@@ -159,22 +186,22 @@ void HelpBarWidget::MouseUp(int x, int y, int theClickCount)
             return;
         }
     }
-    if (HouseChooserDialog* chooser = dynamic_cast<HouseChooserDialog*>(target))
+    if (HouseChooserDialog *chooser = dynamic_cast<HouseChooserDialog *>(target))
     {
         chooser->GameButtonDown(button, 0, 0);
         return;
     }
-    if (LeaderboardsWidget* house = dynamic_cast<LeaderboardsWidget*>(target))
+    if (LeaderboardsWidget *house = dynamic_cast<LeaderboardsWidget *>(target))
     {
         house->GameButtonDown(button, 0, 0);
         return;
     }
-    if (VSSetupMenu* menu = dynamic_cast<VSSetupMenu*>(target))
+    if (VSSetupMenu *menu = dynamic_cast<VSSetupMenu *>(target))
     {
         menu->GameButtonDown(button, menu->mControllerIndex[0], 0);
         return;
     }
-    if (SeedChooserScreen* chooser = dynamic_cast<SeedChooserScreen*>(target))
+    if (SeedChooserScreen *chooser = dynamic_cast<SeedChooserScreen *>(target))
     {
         if (button == GAMEPAD_BUTTON_X)
             chooser->ButtonDepress(SeedChooserScreen::SeedChooserScreen_Store);
@@ -188,7 +215,7 @@ void HelpBarWidget::MouseUp(int x, int y, int theClickCount)
             chooser->GameButtonDown(button, chooser->mPlayerIndex, 0);
         return;
     }
-    if (HelpTextScreen* help = dynamic_cast<HelpTextScreen*>(target))
+    if (HelpTextScreen *help = dynamic_cast<HelpTextScreen *>(target))
     {
         if (button == GAMEPAD_BUTTON_UP)
             help->GameButtonDown(help->mScrollTo > 15.0f ? GAMEPAD_BUTTON_LEFT : GAMEPAD_BUTTON_RIGHT, 0, 0);
@@ -199,53 +226,73 @@ void HelpBarWidget::MouseUp(int x, int y, int theClickCount)
     Sexy::KeyCode key = Sexy::KEYCODE_UNKNOWN;
     switch (button)
     {
-    case GAMEPAD_BUTTON_A: key = Sexy::KEYCODE_RETURN; break;
-    case GAMEPAD_BUTTON_B:
-    case GAMEPAD_BUTTON_SELECT: key = Sexy::KEYCODE_ESCAPE; break;
-    case GAMEPAD_BUTTON_X: key = Sexy::KEYCODE_GAMEPAD_X; break;
-    case GAMEPAD_BUTTON_Y: key = Sexy::KEYCODE_GAMEPAD_Y; break;
-    case GAMEPAD_BUTTON_START: key = Sexy::KEYCODE_GAMEPAD_START; break;
-    case GAMEPAD_BUTTON_LEFT:
-    case GAMEPAD_BUTTON_DPAD_LEFT: key = Sexy::KEYCODE_LEFT; break;
-    case GAMEPAD_BUTTON_RIGHT:
-    case GAMEPAD_BUTTON_DPAD_RIGHT: key = Sexy::KEYCODE_RIGHT; break;
-    case GAMEPAD_BUTTON_UP:
-    case GAMEPAD_BUTTON_DPAD_UP: key = Sexy::KEYCODE_UP; break;
-    case GAMEPAD_BUTTON_DOWN:
-    case GAMEPAD_BUTTON_DPAD_DOWN: key = Sexy::KEYCODE_DOWN; break;
-    default: return;
+        case GAMEPAD_BUTTON_A:
+            key = Sexy::KEYCODE_RETURN;
+            break;
+        case GAMEPAD_BUTTON_B:
+        case GAMEPAD_BUTTON_SELECT:
+            key = Sexy::KEYCODE_ESCAPE;
+            break;
+        case GAMEPAD_BUTTON_X:
+            key = Sexy::KEYCODE_GAMEPAD_X;
+            break;
+        case GAMEPAD_BUTTON_Y:
+            key = Sexy::KEYCODE_GAMEPAD_Y;
+            break;
+        case GAMEPAD_BUTTON_START:
+            key = Sexy::KEYCODE_GAMEPAD_START;
+            break;
+        case GAMEPAD_BUTTON_LEFT:
+        case GAMEPAD_BUTTON_DPAD_LEFT:
+            key = Sexy::KEYCODE_LEFT;
+            break;
+        case GAMEPAD_BUTTON_RIGHT:
+        case GAMEPAD_BUTTON_DPAD_RIGHT:
+            key = Sexy::KEYCODE_RIGHT;
+            break;
+        case GAMEPAD_BUTTON_UP:
+        case GAMEPAD_BUTTON_DPAD_UP:
+            key = Sexy::KEYCODE_UP;
+            break;
+        case GAMEPAD_BUTTON_DOWN:
+        case GAMEPAD_BUTTON_DPAD_DOWN:
+            key = Sexy::KEYCODE_DOWN;
+            break;
+        default:
+            return;
     }
     target->KeyDown(key);
 }
 
 // @0x1470BC: two columns, 42-pixel rows, with sliding/fading page hints.
-void HelpBarWidget::DrawButtons(Sexy::Graphics* theGraphics, std::vector<ButtonDef>& theButtons,
-                                bool theIncoming, float theAlpha)
+void HelpBarWidget::DrawButtons(
+    Sexy::Graphics *theGraphics, std::vector<ButtonDef> &theButtons, bool theIncoming, float theAlpha)
 {
     if (mFontId == nullptr || IMAGE_HELP_BUTTONS == nullptr)
         return;
     int nextRow[2] = {0, 0};
     bool wideScreen = gLawnApp->mPlatformDriverOrQueue->mWideScreen;
     int spaceWidth = mFontId->StringWidth(Sexy::String(" "));
-    for (ButtonDef& button : theButtons)
+    for (ButtonDef &button : theButtons)
     {
         Sexy::String buttonTag = HelpButtonTag(button.mButton);
         int glyphCel = ButtonGlyphCel(buttonTag.c_str(), static_cast<int>(buttonTag.size()));
         int captionWidth = IMAGE_HELP_BUTTONS->GetCelWidth();
-        int buttonX = button.mAlign == HELP_ALIGN_LEFT ? (wideScreen ? 124 : 244)
-                                                      : (wideScreen ? 1156 : 1036) - captionWidth;
+        int buttonX =
+            button.mAlign == HELP_ALIGN_LEFT ? (wideScreen ? 124 : 244) : (wideScreen ? 1156 : 1036) - captionWidth;
         Sexy::Color color = Sexy::Color::White;
         if (button.mAnimating)
         {
             color.mAlpha = static_cast<int>(theAlpha * 255.0f);
-            float offscreenX = static_cast<float>(button.mAlign == HELP_ALIGN_LEFT
-                ? LawnApp::FULLSCREEN_RECT.mX - 256 : LawnApp::FULLSCREEN_RECT.mWidth + 256);
+            float offscreenX =
+                static_cast<float>(button.mAlign == HELP_ALIGN_LEFT ? LawnApp::FULLSCREEN_RECT.mX - 256
+                                                                    : LawnApp::FULLSCREEN_RECT.mWidth + 256);
             if (theIncoming && theAlpha < 1.0f)
-                buttonX = static_cast<int>(TodAnimateCurveFloatTime(0.4f, 1.0f, theAlpha, offscreenX,
-                                            static_cast<float>(buttonX), CURVE_EASE_IN));
+                buttonX = static_cast<int>(TodAnimateCurveFloatTime(
+                    0.4f, 1.0f, theAlpha, offscreenX, static_cast<float>(buttonX), CURVE_EASE_IN));
             else if (!theIncoming && theAlpha > 0.0f)
-                buttonX = static_cast<int>(TodAnimateCurveFloatTime(1.0f, 0.6f, theAlpha,
-                                            static_cast<float>(buttonX), offscreenX, CURVE_EASE_IN));
+                buttonX = static_cast<int>(TodAnimateCurveFloatTime(
+                    1.0f, 0.6f, theAlpha, static_cast<float>(buttonX), offscreenX, CURVE_EASE_IN));
             else
                 button.mAnimating = false;
         }
@@ -263,13 +310,17 @@ void HelpBarWidget::DrawButtons(Sexy::Graphics* theGraphics, std::vector<ButtonD
         }
         else
             TodDrawString(theGraphics, buttonTag, buttonX, baseline, mFontId, color, 3);
-        int textX = button.mAlign == HELP_ALIGN_RIGHT ? buttonX - spaceWidth
-                                                     : buttonX + captionWidth + spaceWidth;
+        int textX = button.mAlign == HELP_ALIGN_RIGHT ? buttonX - spaceWidth : buttonX + captionWidth + spaceWidth;
         if (mOutlineFont != nullptr)
-            TodDrawString(theGraphics, button.mLabel, textX, baseline, mOutlineFont.get(), color,
-                          button.mAlign == HELP_ALIGN_RIGHT ? 4 : 3);
-        TodDrawString(theGraphics, button.mLabel, textX, baseline, mFontId, color,
-                      button.mAlign == HELP_ALIGN_RIGHT ? 4 : 3);
+            TodDrawString(theGraphics,
+                button.mLabel,
+                textX,
+                baseline,
+                mOutlineFont.get(),
+                color,
+                button.mAlign == HELP_ALIGN_RIGHT ? 4 : 3);
+        TodDrawString(
+            theGraphics, button.mLabel, textX, baseline, mFontId, color, button.mAlign == HELP_ALIGN_RIGHT ? 4 : 3);
     }
 }
 
@@ -277,14 +328,14 @@ void HelpBarWidget::DrawButtons(Sexy::Graphics* theGraphics, std::vector<ButtonD
 // HelpBarWidget::Draw(Sexy::Graphics *)
 // @00148608  356 bytes
 // ==========================================================================
-void HelpBarWidget::Draw(Sexy::Graphics * theGraphics)
+void HelpBarWidget::Draw(Sexy::Graphics *theGraphics)
 {
     if (mFontId == nullptr)
     {
         // SexyAppBase::GetLocale() @0x33A2E8 is exactly
         // `Sexy::String(Sexy::setLocale(0, 0))`; the recon tree declares the
         // free function but not the accessor, so the check goes through it.
-        const char * aLocale = Sexy::setLocale(nullptr, nullptr);
+        const char *aLocale = Sexy::setLocale(nullptr, nullptr);
         if (aLocale != nullptr && Sexy::String(aLocale) == "zh_CN")
         {
             mFontId = FONT_HOUSEOFTERROR20;
@@ -309,9 +360,8 @@ void HelpBarWidget::Draw(Sexy::Graphics * theGraphics)
 
     // gLawnApp is the game's LawnApp, whose GamepadApp base owns the gamepad
     // state at +0x839/+0x895.
-    Sexy::GamepadApp* anApp = gLawnApp;
-    if (anApp->HasGamepad() != 0 || (anApp->mGamePad1IsOn && anApp->mGamePad2IsOn)
-        || mMouseVisible)
+    Sexy::GamepadApp *anApp = gLawnApp;
+    if (anApp->HasGamepad() != 0 || (anApp->mGamePad1IsOn && anApp->mGamePad2IsOn) || mMouseVisible)
     {
         int aSlide = TodAnimateCurve(0, 10, mAnimCounter, 0, 20, CURVE_EASE_IN_OUT);
 
@@ -487,7 +537,7 @@ void HelpBarWidget::Update()
 // HelpBarWidget::AddedToManager(Sexy::WidgetManager *)
 // @00149048  4 bytes
 // ==========================================================================
-void HelpBarWidget::AddedToManager(Sexy::WidgetManager * theWidgetManager)
+void HelpBarWidget::AddedToManager(Sexy::WidgetManager *theWidgetManager)
 {
     // Four bytes in the binary: an unconditional tail call to the base.
     Sexy::WidgetContainer::AddedToManager(theWidgetManager);
@@ -497,7 +547,7 @@ void HelpBarWidget::AddedToManager(Sexy::WidgetManager * theWidgetManager)
 // HelpBarWidget::RemovedFromManager(Sexy::WidgetManager *)
 // @0014904C  4 bytes
 // ==========================================================================
-void HelpBarWidget::RemovedFromManager(Sexy::WidgetManager * theWidgetManager)
+void HelpBarWidget::RemovedFromManager(Sexy::WidgetManager *theWidgetManager)
 {
     Sexy::WidgetContainer::RemovedFromManager(theWidgetManager);
 }
@@ -506,6 +556,4 @@ void HelpBarWidget::RemovedFromManager(Sexy::WidgetManager * theWidgetManager)
 // HelpBarWidget::~HelpBarWidget()
 // @00146E90  252 bytes
 // ==========================================================================
-HelpBarWidget::~HelpBarWidget()
-{
-}
+HelpBarWidget::~HelpBarWidget() {}

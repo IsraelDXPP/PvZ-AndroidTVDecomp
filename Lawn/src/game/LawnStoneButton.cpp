@@ -16,12 +16,10 @@
 // LawnStoneButton::~LawnStoneButton()
 // @001A221C  24 bytes
 // ==========================================================================
-LawnStoneButton::~LawnStoneButton()
-{
-}
+LawnStoneButton::~LawnStoneButton() {}
 
-LawnStoneButton::LawnStoneButton(int theId, Sexy::ButtonListener* theListener)
-    : GameButton(theId, theListener)
+LawnStoneButton::LawnStoneButton(int theId, Sexy::ButtonListener *theListener) :
+    GameButton(theId, theListener)
 {
 }
 
@@ -29,11 +27,11 @@ LawnStoneButton::LawnStoneButton(int theId, Sexy::ButtonListener* theListener)
 // LawnStoneButton::SetLabel(Sexy::String const&)
 // @001A2810  82 bytes
 // ==========================================================================
-void LawnStoneButton::SetLabel(const Sexy::String& theLabel)
+void LawnStoneButton::SetLabel(const Sexy::String &theLabel)
 {
-  Sexy::String aTranslatedLabel;
-  TodStringTranslate(&aTranslatedLabel, theLabel);
-  mLabel = aTranslatedLabel;
+    Sexy::String aTranslatedLabel;
+    TodStringTranslate(&aTranslatedLabel, theLabel);
+    mLabel = aTranslatedLabel;
 }
 
 // ==========================================================================
@@ -42,5 +40,5 @@ void LawnStoneButton::SetLabel(const Sexy::String& theLabel)
 // ==========================================================================
 void LawnStoneButton::Draw(Sexy::Graphics *theGraphics)
 {
-  GameButton::Draw(theGraphics);
+    GameButton::Draw(theGraphics);
 }

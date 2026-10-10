@@ -17,7 +17,8 @@
 //   [ 81] 0x13eac0  BuySunMoneyDialog::MouseDrag
 //   [129] 0x13ee58  BuySunMoneyDialog::ButtonDepress
 
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_BUYSUNMONEYDIALOG_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_BUYSUNMONEYDIALOG_H
 
 #include "ReconTypes.h"
 // The base class, plus the classes this one calls a method on: the call needs the
@@ -33,11 +34,11 @@ public:
     virtual ~BuySunMoneyDialog();
 
     // Overrides of base slots.
-    virtual void AddedToManager(Sexy::WidgetManager *theWidgetManager);   // [ 29] 0x14115c
+    virtual void AddedToManager(Sexy::WidgetManager *theWidgetManager); // [ 29] 0x14115c
     virtual void RemovedFromManager(Sexy::WidgetManager *theWidgetManager); // [ 30] 0x1412b4
-    virtual void GotFocus();                                             // [ 61] 0x13ea68
-    virtual void MouseDrag(int x, int y);                                // [ 81] 0x13eac0
-    virtual void ButtonDepress(int theId);                               // [129] 0x13ee58
+    virtual void GotFocus(); // [ 61] 0x13ea68
+    virtual void MouseDrag(int x, int y); // [ 81] 0x13eac0
+    virtual void ButtonDepress(int theId); // [129] 0x13ee58
 
     // Not a vtable slot; the signature is the one the transcribed body defines.
     BuySunMoneyDialog(Zombie *theZombie, int theSunAmount);
@@ -49,3 +50,5 @@ public:
     Zombie *mZombie; // +0x2FC
     // size 0x300, allocation 0x300
 };
+
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_BUYSUNMONEYDIALOG_H

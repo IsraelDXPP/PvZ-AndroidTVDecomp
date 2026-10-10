@@ -4,13 +4,15 @@
 // counter. Update advances that counter. IsCompleted is pure; HideOnCompletion
 // returns the flag Init wrote.
 
-#pragma once
+#ifndef LAWNPROJECTTV_SEXY_INCLUDE_WIDGETANIMATOR_H
+#define LAWNPROJECTTV_SEXY_INCLUDE_WIDGETANIMATOR_H
 
 #include "ReconTypes.h"
 #include "RefCount.h"
 #include "Widget.h"
 
-namespace Sexy {
+namespace Sexy
+{
 
 class WidgetAnimator : public Sexy::RefCount
 {
@@ -21,12 +23,14 @@ public:
     virtual bool IsCompleted() = 0;
     virtual bool HideOnCompletion();
 
-    int mBlendTicks;           // +0x08  fade-in length the curve animator reads
-    Sexy::Widget *mWidget;     // +0x0C
-    int mUpdateCounter;        // +0x10
-    bool mHideOnCompletion;    // +0x14
+    int mBlendTicks; // +0x08  fade-in length the curve animator reads
+    Sexy::Widget *mWidget; // +0x0C
+    int mUpdateCounter; // +0x10
+    bool mHideOnCompletion; // +0x14
 };
 
 } // namespace Sexy
 
 using Sexy::WidgetAnimator;
+
+#endif // LAWNPROJECTTV_SEXY_INCLUDE_WIDGETANIMATOR_H

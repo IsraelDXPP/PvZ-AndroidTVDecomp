@@ -27,7 +27,8 @@
 // itself is still declared as 0x710 in this tree (another group owns it), so the
 // derived field below only lands at +0x2FC once that header is rebuilt.
 
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_UNLOCKDIALOG_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_UNLOCKDIALOG_H
 
 #include "ReconTypes.h"
 // These includes exist because the transcribed bodies call methods on complete
@@ -61,3 +62,5 @@ public:
 
     int mUnlockedItemId;
 };
+
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_UNLOCKDIALOG_H

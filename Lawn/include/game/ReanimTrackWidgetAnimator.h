@@ -19,7 +19,8 @@
 // MSVC x86 emits ONE slot for a virtual destructor where Itanium emits two, so
 // the declaration order below is one shorter and otherwise the same.
 
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_REANIMTRACKWIDGETANIMATOR_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_REANIMTRACKWIDGETANIMATOR_H
 
 #include "ReconTypes.h"
 // These includes exist because the transcribed bodies call methods on complete
@@ -58,20 +59,21 @@ public:
     // a C2555 instead of the required override.
     virtual bool IsCompleted();
 
-    LawnApp *mApp;                 // +0x18  (Update reads it and its +0x118 flag)
+    LawnApp *mApp; // +0x18  (Update reads it and its +0x118 flag)
     Sexy::Widget *mLawnMenuWidget; // +0x1C  (Update reads its +0x118 field)
     // The authoritative header types these three as `int *`, which is how the
     // decompiler renders a 4-byte COW string rep; the constructor takes them as
     // `Sexy::String` by value and the destructor releases them as string reps
     // (`*(*(this + 9) - 12)`), so they are declared as the string they are.
-    Sexy::String mTrackName1;      // +0x20
-    Sexy::String mTrackName2;      // +0x24
-    Sexy::String mTrackName3;      // +0x28
+    Sexy::String mTrackName1; // +0x20
+    Sexy::String mTrackName2; // +0x24
+    Sexy::String mTrackName3; // +0x28
     // Added to the track position when the widget is placed.
     float mOffsetX;
     float mOffsetY;
 
-    ReanimTrackWidgetAnimator(Sexy::Widget *theWidget, LawnMenuWidget *theMenu,
-                              Sexy::String theTrackName1, Sexy::String theTrackName2,
-                              Sexy::String theTrackName3);
+    ReanimTrackWidgetAnimator(Sexy::Widget *theWidget, LawnMenuWidget *theMenu, Sexy::String theTrackName1,
+        Sexy::String theTrackName2, Sexy::String theTrackName3);
 };
+
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_REANIMTRACKWIDGETANIMATOR_H

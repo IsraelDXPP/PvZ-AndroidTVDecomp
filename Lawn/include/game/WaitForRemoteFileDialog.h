@@ -27,7 +27,8 @@
 // and no body reaches anything higher. The base has not been refactored yet, so
 // that absolute offset only holds once SavingDingusDialog's own size is right.
 
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_WAITFORREMOTEFILEDIALOG_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_WAITFORREMOTEFILEDIALOG_H
 
 #include "ReconTypes.h"
 // The transcribed bodies call methods on these, so the includes stay.
@@ -44,3 +45,5 @@ public:
     virtual int GetStatus();
     WaitForRemoteFileDialog(int theRequestId, LawnApp *theApp, bool theModal);
 };
+
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_WAITFORREMOTEFILEDIALOG_H

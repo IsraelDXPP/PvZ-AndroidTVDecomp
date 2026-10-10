@@ -15,7 +15,8 @@
 #include <map>
 #include <vector>
 
-namespace {
+namespace
+{
 
 int EventWord(const TMLongCard &theCard)
 {
@@ -137,9 +138,8 @@ Sexy::Widget *FirstChild(Sexy::WidgetContainer *theContainer)
 
 Sexy::Widget *FirstFocusableChild(Sexy::WidgetContainer *theContainer)
 {
-    for (Sexy::WidgetListLink *aNode = theContainer->mWidgets.mNext;
-         aNode != &theContainer->mWidgets;
-         aNode = aNode->mNext)
+    for (Sexy::WidgetListLink *aNode = theContainer->mWidgets.mNext; aNode != &theContainer->mWidgets;
+        aNode = aNode->mNext)
     {
         Sexy::Widget *aWidget = static_cast<Sexy::WidgetListNode *>(aNode)->mWidget;
         if (aWidget->IsFocusable())
@@ -166,27 +166,27 @@ Sexy::Widget *KeyTarget(Sexy::WidgetManager *theManager)
 
 } // namespace
 
-Sexy::TouchSample::TouchSample()
-    : mModifiers(0)
-    , mModifierMask(0)
-    , mDevice(0)
-    , mEventType(0)
-    , mEventCode(-1)
-    , mEventCodeMask(0)
-    , mMatchEvent(2)
-    , mStandard(0)
-    , mScaleDivisorX(0)
-    , mScaleDivisorY(0)
-    , mSavedModifierMask(0)
-    , mSavedEventCodeMask(0)
-    , mSavedMatchEvent(0)
+Sexy::TouchSample::TouchSample() :
+    mModifiers(0),
+    mModifierMask(0),
+    mDevice(0),
+    mEventType(0),
+    mEventCode(-1),
+    mEventCodeMask(0),
+    mMatchEvent(2),
+    mStandard(0),
+    mScaleDivisorX(0),
+    mScaleDivisorY(0),
+    mSavedModifierMask(0),
+    mSavedEventCodeMask(0),
+    mSavedMatchEvent(0)
 {
 }
 
-Sexy::TouchInfo::TouchInfo()
-    : mCurrent()
-    , mPrevious()
-    , mBegin()
+Sexy::TouchInfo::TouchInfo() :
+    mCurrent(),
+    mPrevious(),
+    mBegin()
 {
 }
 
@@ -373,12 +373,10 @@ int Sexy::WidgetManager::RemapMouse(int &theX, int &theY)
 
 Sexy::WidgetManager *Sexy::WidgetManager::RemapMouse(float &theX, float &theY)
 {
-    theX = ((theX - (float)mMouseSourceRect.mX) * (float)mMouseDestRect.mWidth)
-             / (float)mMouseSourceRect.mWidth
-         + (float)mMouseDestRect.mX;
-    theY = ((theY - (float)mMouseSourceRect.mY) * (float)mMouseDestRect.mHeight)
-             / (float)mMouseSourceRect.mHeight
-         + (float)mMouseDestRect.mY;
+    theX = ((theX - (float)mMouseSourceRect.mX) * (float)mMouseDestRect.mWidth) / (float)mMouseSourceRect.mWidth +
+        (float)mMouseDestRect.mX;
+    theY = ((theY - (float)mMouseSourceRect.mY) * (float)mMouseDestRect.mHeight) / (float)mMouseSourceRect.mHeight +
+        (float)mMouseDestRect.mY;
     return this;
 }
 
@@ -917,8 +915,8 @@ void Sexy::WidgetManager::TouchCancel(const std::vector<Sexy::Event> &theEvents)
     FinishTouchRelease(this);
 }
 
-void Sexy::WidgetManager::ConvertTouchEvents(const std::vector<Sexy::Event> &theEvents,
-                                             std::vector<Sexy::Touch> &theTouches)
+void Sexy::WidgetManager::ConvertTouchEvents(
+    const std::vector<Sexy::Event> &theEvents, std::vector<Sexy::Touch> &theTouches)
 {
     theTouches.clear();
     for (unsigned int i = 0; i < theEvents.size(); ++i)
@@ -949,11 +947,20 @@ void Sexy::WidgetManager::ConvertTouchEvents(const std::vector<Sexy::Event> &the
 
         switch (anEvent.modifiers)
         {
-        case 0: aTouch.mPhase = 0; break;
-        case 1: aTouch.mPhase = 1; break;
-        case 2: aTouch.mPhase = 3; break;
-        case 3: aTouch.mPhase = 4; break;
-        default: break;
+            case 0:
+                aTouch.mPhase = 0;
+                break;
+            case 1:
+                aTouch.mPhase = 1;
+                break;
+            case 2:
+                aTouch.mPhase = 3;
+                break;
+            case 3:
+                aTouch.mPhase = 4;
+                break;
+            default:
+                break;
         }
         theTouches.push_back(aTouch);
     }
@@ -1150,9 +1157,8 @@ void Sexy::WidgetManager::LostFocus()
 
     mActualDownButtons = 0;
     bool aReleased = false;
-    for (std::map<int, KeyState>::iterator aKey = mKeyDown.mDown.begin();
-         aKey != mKeyDown.mDown.end() && !aReleased;
-         ++aKey)
+    for (std::map<int, KeyState>::iterator aKey = mKeyDown.mDown.begin(); aKey != mKeyDown.mDown.end() && !aReleased;
+        ++aKey)
     {
         while (aKey != mKeyDown.mDown.end() && !aKey->second.mDown)
             ++aKey;
@@ -1336,7 +1342,7 @@ void Sexy::WidgetManager::DrawWidgetsTo(Sexy::Graphics *g)
     Sexy::Graphics aGraphics(*g);
     mCurG = &aGraphics;
 
-    std::vector<std::pair<Sexy::Widget *, int> > aSaved = mDeferredOverlayWidgets;
+    std::vector<std::pair<Sexy::Widget *, int>> aSaved = mDeferredOverlayWidgets;
     mDeferredOverlayWidgets.clear();
 
     Sexy::ModalFlags aFlags;
@@ -1432,9 +1438,9 @@ int Sexy::WidgetManager::DrawScreen()
         aDirty = FlushDeferredOverlayWidgets(0x7FFFFFFF) | (aDrewWidget ? 1 : 0);
         aGraphics.Translate(mMouseDestRect.mX, mMouseDestRect.mY);
 
-        bool aInside = !mClip
-            || (aCursorX >= aClip.mX && aCursorX < aClip.mX + aClip.mWidth
-                && aCursorY >= aClip.mY && aCursorY < aClip.mY + aClip.mHeight);
+        bool aInside = !mClip ||
+            (aCursorX >= aClip.mX && aCursorX < aClip.mX + aClip.mWidth && aCursorY >= aClip.mY &&
+                aCursorY < aClip.mY + aClip.mHeight);
         if (aDirty != 0 && aInside && !mApp->mYieldMainThread)
             mApp->mPlatformDriverOrQueue->DrawCursor(&aGraphics);
         mCurG = nullptr;

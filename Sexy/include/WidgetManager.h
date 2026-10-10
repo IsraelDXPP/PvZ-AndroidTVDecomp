@@ -4,7 +4,8 @@
 // under the pointer or the focused widget. The four touch methods update the
 // per-finger records and then hand the batch to the held widget.
 
-#pragma once
+#ifndef LAWNPROJECTTV_SEXY_INCLUDE_WIDGETMANAGER_H
+#define LAWNPROJECTTV_SEXY_INCLUDE_WIDGETMANAGER_H
 
 #include "Graphics.h"
 #include "Graphics3D.h"
@@ -14,14 +15,18 @@
 #include <map>
 #include <vector>
 
-namespace Sexy {
+namespace Sexy
+{
 
 // One held-key record. Callers read and write it as Get(theKey)->mDown.
 struct KeyState
 {
     bool mDown;
 
-    KeyState() : mDown(false) {}
+    KeyState() :
+        mDown(false)
+    {
+    }
 };
 
 // Which key codes are currently held. Get inserts a not-held record for a missing key.
@@ -64,8 +69,14 @@ struct TouchInfo
 
     TouchInfo();
 
-    int &State() { return mBegin.mMatchEvent; }
-    int State() const { return mBegin.mMatchEvent; }
+    int &State()
+    {
+        return mBegin.mMatchEvent;
+    }
+    int State() const
+    {
+        return mBegin.mMatchEvent;
+    }
 };
 
 class TouchInfoMap
@@ -112,7 +123,7 @@ public:
     MemoryImage *mTransientImage;
     bool mLastHadTransients;
     Widget *mPopupCommandWidget;
-    std::vector<std::pair<Sexy::Widget *, int> > mDeferredOverlayWidgets;
+    std::vector<std::pair<Sexy::Widget *, int>> mDeferredOverlayWidgets;
     int mMinDeferredOverlayPriority;
     bool mHasFocus;
     Widget *mFocusWidget;
@@ -183,8 +194,7 @@ public:
     void TouchUp(const std::vector<Sexy::Event> &theEvents);
     void TouchCancel(const std::vector<Sexy::Event> &theEvents);
     Sexy::WidgetManager *UpdateTouchInfo(const std::vector<Sexy::Event> &theEvents);
-    void ConvertTouchEvents(const std::vector<Sexy::Event> &theEvents,
-                            std::vector<Sexy::Touch> &theTouches);
+    void ConvertTouchEvents(const std::vector<Sexy::Event> &theEvents, std::vector<Sexy::Touch> &theTouches);
     void AxisMoved(Sexy::Event const &theEvent);
     int UserEvent(Sexy::Event const &theEvent);
     int GetInteractiveMethod();
@@ -212,3 +222,5 @@ public:
 } // namespace Sexy
 
 using Sexy::WidgetManager;
+
+#endif // LAWNPROJECTTV_SEXY_INCLUDE_WIDGETMANAGER_H

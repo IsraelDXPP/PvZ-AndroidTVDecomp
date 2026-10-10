@@ -45,7 +45,8 @@
 // Name evidence for the last one is the field name only; the getter/setter pair
 // the other three have does not exist for it.
 
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_DRRPCENGINE_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_DRRPCENGINE_H
 
 #include "ReconTypes.h"
 // Declares the DrCurlEngine base class and the DrDataEncoder member type.
@@ -92,8 +93,8 @@
 // "sRetMsg" text.
 struct DrRpcResCommon
 {
-    int          mRet;      // +0x00  "iRet"; its low byte is the ok flag
-    Sexy::String mRetMsg;   // +0x04  "sRetMsg"
+    int mRet; // +0x00  "iRet"; its low byte is the ok flag
+    Sexy::String mRetMsg; // +0x04  "sRetMsg"
 };
 
 // The three-word results: an extra word at +0x08. DrRpcResOfQueryCoin,
@@ -104,15 +105,15 @@ struct DrRpcResCommon
 // call_QueryCoin fills it from the "iCoin" node the same way.
 struct DrRpcResWithText
 {
-    int          mRet;      // +0x00
-    Sexy::String mRetMsg;   // +0x04
-    int          mText;     // +0x08
+    int mRet; // +0x00
+    Sexy::String mRetMsg; // +0x04
+    int mText; // +0x08
 };
 
 // call_DebugAddMoney and call_UseTool store a string in the third word.
 struct DrRpcResWithString
 {
-    int          mRet;
+    int mRet;
     Sexy::String mRetMsg;
     Sexy::String mText;
 };
@@ -124,36 +125,36 @@ struct DrRpcResWithString
 //   word 3  the parsed "list" node
 struct DrRpcRes
 {
-    int               mRet;      // +0x00
-    int               mStatus;   // +0x04
-    Sexy::String      mRetMsg;   // +0x08
-    internalJSONNode *mList;     // +0x0C
+    int mRet; // +0x00
+    int mStatus; // +0x04
+    Sexy::String mRetMsg; // +0x08
+    internalJSONNode *mList; // +0x0C
 };
 
 // call_Loggin's result: five words, the last three Strings.
 struct DrRpcResOfLoggin
 {
-    int          mRet;      // +0x00
-    Sexy::String mRetMsg;   // +0x04
-    Sexy::String mText1;    // +0x08
-    Sexy::String mText2;    // +0x0C
-    Sexy::String mText3;    // +0x10
+    int mRet; // +0x00
+    Sexy::String mRetMsg; // +0x04
+    Sexy::String mText1; // +0x08
+    Sexy::String mText2; // +0x0C
+    Sexy::String mText3; // +0x10
 };
 
 // call_QueryCoinList's result. The coin tiers are an ordinary vector.
 struct DrRpcResOfCoinList
 {
-    int                       mRet;     // +0x00
-    Sexy::String              mRetMsg;  // +0x04
-    std::vector<SCoinItem>    mList;    // +0x08
+    int mRet; // +0x00
+    Sexy::String mRetMsg; // +0x04
+    std::vector<SCoinItem> mList; // +0x08
 };
 
 // call_QueryAllItems' result: an int-keyed red-black tree at +0x08, whose
 // MapStorage is the comparator word, the header node and the element count.
 struct DrRpcResOfAllItems
 {
-    int                 mRet;     // +0x00
-    Sexy::String        mRetMsg;  // +0x04
+    int mRet; // +0x00
+    Sexy::String mRetMsg; // +0x04
     Sexy::RbTree::MapStorage mList; // +0x08
 };
 
@@ -161,34 +162,35 @@ class DrRpcEngine : public DrCurlEngine
 {
 public:
     DrRpcEngine();
-    static void * getRpcEngine();
-    int setDefaultUrl(Sexy::String const& theUrl);
+    static void *getRpcEngine();
+    int setDefaultUrl(Sexy::String const &theUrl);
     // `STRB.W R1, [R0,#0x20C] / BX LR` @0x1ee0e4 -- a plain store, no result, and
     // the only call site (LawnApp.cpp:6383) discards it.
     void setDataEncryption(bool theEnabled);
-    Sexy::String escapeUrl(Sexy::String const& theUrl);
-    Sexy::String unescapeUrl(Sexy::String const& theUrl);
-    DrRpcRes parseResponse(Sexy::String const& theBody);
-    bool decodeResponseString(Sexy::String & theBody);
-    Sexy::String encodeRequesArgs(DrCurlRequest const& theRequest);
-    DrRpcRes perform(DrCurlRequest const& theRequest);
-    DrRpcResCommon call_Logout(Sexy::String const& theToken);
-    DrRpcResWithText call_QueryCoin(Sexy::String const& theToken);
-    DrRpcResWithText call_GetKeyValue(Sexy::String const& theToken, Sexy::String const& theKey);
-    DrRpcResCommon call_Recharge(Sexy::String const& theToken, int theAmount);
-    DrRpcResCommon call_SetKeyValue(Sexy::String const& theToken, Sexy::String const& theKey, int theValue);
-    DrRpcResWithString call_DebugAddMoney(Sexy::String const& theToken, int theAmount);
-    DrRpcResWithString call_UseTool(Sexy::String const& theToken, int theTool);
-    DrRpcResOfLoggin call_Loggin(Sexy::String const& theAccount, Sexy::String const& thePassword, Sexy::String const& theExtra);
+    Sexy::String escapeUrl(Sexy::String const &theUrl);
+    Sexy::String unescapeUrl(Sexy::String const &theUrl);
+    DrRpcRes parseResponse(Sexy::String const &theBody);
+    bool decodeResponseString(Sexy::String &theBody);
+    Sexy::String encodeRequesArgs(DrCurlRequest const &theRequest);
+    DrRpcRes perform(DrCurlRequest const &theRequest);
+    DrRpcResCommon call_Logout(Sexy::String const &theToken);
+    DrRpcResWithText call_QueryCoin(Sexy::String const &theToken);
+    DrRpcResWithText call_GetKeyValue(Sexy::String const &theToken, Sexy::String const &theKey);
+    DrRpcResCommon call_Recharge(Sexy::String const &theToken, int theAmount);
+    DrRpcResCommon call_SetKeyValue(Sexy::String const &theToken, Sexy::String const &theKey, int theValue);
+    DrRpcResWithString call_DebugAddMoney(Sexy::String const &theToken, int theAmount);
+    DrRpcResWithString call_UseTool(Sexy::String const &theToken, int theTool);
+    DrRpcResOfLoggin call_Loggin(
+        Sexy::String const &theAccount, Sexy::String const &thePassword, Sexy::String const &theExtra);
     DrRpcResOfCoinList call_QueryCoinList();
-    DrRpcResOfAllItems call_QueryAllItems(Sexy::String const& theToken);
+    DrRpcResOfAllItems call_QueryAllItems(Sexy::String const &theToken);
 
-    Sexy::String mDefaultUrl;    // +0x204
-    DrDataEncoder mDataEncoder;  // +0x208 -- one Sexy::String (the key) in the binary;
-                                 //           this tree's DrDataEncoder stub is empty,
-                                 //           see the TODO above
-    bool mDataEncryption;        // +0x20C
-    Sexy::String mOemTarget;     // +0x210
+    Sexy::String mDefaultUrl; // +0x204
+    DrDataEncoder mDataEncoder; // +0x208 -- one Sexy::String (the key) in the binary;
+    //           this tree's DrDataEncoder stub is empty,
+    //           see the TODO above
+    bool mDataEncryption; // +0x20C
+    Sexy::String mOemTarget; // +0x210
 
     // DrRpcEngine::kNotDone -- a class-scope result sentinel
     // (_ZN11DrRpcEngine8kNotDoneE @0x69fbec, data is all 0xFF), i.e. -1.
@@ -202,3 +204,5 @@ public:
 // No static_assert: the class has a base class, and the stub DrCurlEngine of
 // ReconFreeFunctions.h is 1 byte where the binary's is 0x204, so sizeof here is
 // not the binary's 0x214 yet.
+
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_DRRPCENGINE_H

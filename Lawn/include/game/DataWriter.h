@@ -18,7 +18,8 @@
 //     +0x0C mBufferPos   byte count written so far (this+12)
 //     +0x10 mBufferSize  allocated capacity, doubled by EnsureCapacity (this+16)
 
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_DATAWRITER_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_DATAWRITER_H
 
 #include "ReconTypes.h"
 #include <string>
@@ -55,8 +56,10 @@ public:
 
     // The constructor writes the vptr and these four words. The three unread
     // padding words that used to follow them are gone.
-    SDL_IOStream* mFile;     // +0x04
-    unsigned char *mBuffer;  // +0x08
-    unsigned long mBufferPos;  // +0x0C
+    SDL_IOStream *mFile; // +0x04
+    unsigned char *mBuffer; // +0x08
+    unsigned long mBufferPos; // +0x0C
     unsigned long mBufferSize; // +0x10
 };
+
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_DATAWRITER_H

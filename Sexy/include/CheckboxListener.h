@@ -6,11 +6,13 @@
 //
 // Consumer: VSResultsMenu's VSResultsCheckboxController.
 
-#pragma once
+#ifndef LAWNPROJECTTV_SEXY_INCLUDE_CHECKBOXLISTENER_H
+#define LAWNPROJECTTV_SEXY_INCLUDE_CHECKBOXLISTENER_H
 
 #include "ReconTypes.h"
 
-namespace Sexy {
+namespace Sexy
+{
 
 class CheckboxListener
 {
@@ -19,3 +21,5 @@ public:
 };
 
 } // namespace Sexy
+
+#endif // LAWNPROJECTTV_SEXY_INCLUDE_CHECKBOXLISTENER_H

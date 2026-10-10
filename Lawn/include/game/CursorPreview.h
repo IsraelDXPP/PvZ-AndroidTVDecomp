@@ -16,7 +16,8 @@
 // Slots 2/3/4 point at GameObject's own implementations, so this class does not
 // override them. Update/Draw are not virtual in the binary.
 
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_CURSORPREVIEW_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_CURSORPREVIEW_H
 
 #include "ReconTypes.h"
 // These includes exist because the transcribed bodies call methods on complete
@@ -41,13 +42,15 @@ public:
     CursorPreview(int thePlayerIndex);
 
     unsigned int Update();
-    int Draw(Sexy::Graphics * g);
+    int Draw(Sexy::Graphics *g);
 
     // Derived member area +0x34..+0x3F (12 bytes); the constructor registers the
     // whole block as one sync block.
-    int mGridX;       // +0x34
-    int mGridY;       // +0x38
+    int mGridX; // +0x34
+    int mGridY; // +0x38
     int mPlayerIndex; // +0x3C
 };
 
 // Layout check: 0x34 (GameObject) + 3 four-byte members.
+
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_CURSORPREVIEW_H

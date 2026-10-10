@@ -29,7 +29,7 @@
 #include <string>
 #include <vector>
 
-static void LogLine(const char* format, ...)
+static void LogLine(const char *format, ...)
 {
     char buffer[1024];
     va_list args;
@@ -63,7 +63,7 @@ struct ApplicationState
     std::atomic<bool> success{true};
 };
 
-static bool TakeValue(const std::vector<std::string>& args, size_t& index, std::string& value)
+static bool TakeValue(const std::vector<std::string> &args, size_t &index, std::string &value)
 {
     if (index + 1 >= args.size())
         return false;
@@ -71,14 +71,14 @@ static bool TakeValue(const std::vector<std::string>& args, size_t& index, std::
     return true;
 }
 
-static LaunchOptions ParseCommandLine(int argc, char** argv)
+static LaunchOptions ParseCommandLine(int argc, char **argv)
 {
     LaunchOptions options;
     std::vector<std::string> args(argv, argv + argc);
 
     for (size_t i = 1; i < args.size(); ++i)
     {
-        const std::string& arg = args[i];
+        const std::string &arg = args[i];
         std::string value;
         if (arg == "--assets" && TakeValue(args, i, value))
             options.assetRoot = value;
@@ -107,11 +107,11 @@ static LaunchOptions ParseCommandLine(int argc, char** argv)
 // directory, and a debugger all resolve the same files.
 static std::string ExecutableDirectory()
 {
-    const char* directory = SDL_GetBasePath();
+    const char *directory = SDL_GetBasePath();
     return directory ? directory : "";
 }
 
-static void ResolveAssetRoot(LaunchOptions& options)
+static void ResolveAssetRoot(LaunchOptions &options)
 {
     if (options.assetRoot != "assets")
         return;
@@ -125,13 +125,12 @@ static void ResolveAssetRoot(LaunchOptions& options)
 #endif
 }
 
-static bool PresentFrame(Sexy::SDLWindow& window, Sexy::BgfxRenderDevice& device,
-                         Sexy::MemoryImage& capture, const LaunchOptions& options, int frameIndex)
+static bool PresentFrame(Sexy::SDLWindow &window, Sexy::BgfxRenderDevice &device, Sexy::MemoryImage &capture,
+    const LaunchOptions &options, int frameIndex)
 {
     bool screenshotKeyDown = window.IsKeyDown(KEYCODE_F12);
     bool hotkeyCapture = Sexy::ScreenshotHotkey::IsCaptureRequested(screenshotKeyDown);
-    bool finalCapture = !options.screenshotPath.empty() &&
-        (options.frames <= 0 || frameIndex + 1 >= options.frames);
+    bool finalCapture = !options.screenshotPath.empty() && (options.frames <= 0 || frameIndex + 1 >= options.frames);
     // Readback synchronizes the GPU and copies the whole frame. Presentation
     // can use the FBO directly; only an actual screenshot needs CPU pixels.
     bool captured = (hotkeyCapture || finalCapture) && device.ReadPixels(capture);
@@ -142,16 +141,17 @@ static bool PresentFrame(Sexy::SDLWindow& window, Sexy::BgfxRenderDevice& device
         bool saved = Sexy::Screenshot::Save(&capture, options.screenshotPath);
         success = saved;
         LogLine("screenshot: %s (%dx%d) -> %s",
-                saved ? "wrote" : "failed",
-                capture.mWidth, capture.mHeight,
-                options.screenshotPath.c_str());
+            saved ? "wrote" : "failed",
+            capture.mWidth,
+            capture.mHeight,
+            options.screenshotPath.c_str());
     }
 
     device.Present();
     return success;
 }
 
-static void UpdateCallbackRate(ApplicationState& state)
+static void UpdateCallbackRate(ApplicationState &state)
 {
     int maxFPS = MpegVideoIsPlaying() != 0 ? 30 : state.app->mMaxFPS;
     if (maxFPS < 0)
@@ -166,28 +166,27 @@ static void UpdateCallbackRate(ApplicationState& state)
     }
 }
 
-SDL_AppResult SDLCALL SDL_AppInit(void** appstate, int argc, char** argv)
+SDL_AppResult SDLCALL SDL_AppInit(void **appstate, int argc, char **argv)
 {
-    ApplicationState* application = new ApplicationState();
+    ApplicationState *application = new ApplicationState();
     // SDL_AppQuit is also called when initialization fails. Transfer ownership
     // before acquiring resources so every exit uses the same cleanup path.
     *appstate = application;
 
     application->options = ParseCommandLine(argc, argv);
-    LaunchOptions& options = application->options;
+    LaunchOptions &options = application->options;
     ResolveAssetRoot(options);
     Sexy::SDLFile::SetAssetRoot(options.assetRoot);
     LogLine("Lawn: asset root = %s", Sexy::SDLFile::GetAssetRoot().c_str());
 
-    if (!application->window.Create("Plants vs. Zombies", options.width, options.height,
-                                    true, true, !options.headless))
+    if (!application->window.Create("Plants vs. Zombies", options.width, options.height, true, true, !options.headless))
     {
         LogLine("Lawn: failed to create the window: %s", SDL_GetError());
         return SDL_APP_FAILURE;
     }
 
     application->app = std::make_unique<LawnApp>();
-    LawnApp& app = *application->app;
+    LawnApp &app = *application->app;
     if (options.debugKeys)
         app.HandleCmdLineParam("-tod", "");
     app.HardwareInit();
@@ -204,9 +203,9 @@ SDL_AppResult SDLCALL SDL_AppInit(void** appstate, int argc, char** argv)
     return SDL_APP_CONTINUE;
 }
 
-SDL_AppResult SDLCALL SDL_AppIterate(void* appstate)
+SDL_AppResult SDLCALL SDL_AppIterate(void *appstate)
 {
-    ApplicationState& state = *static_cast<ApplicationState*>(appstate);
+    ApplicationState &state = *static_cast<ApplicationState *>(appstate);
     if (state.window.mClosed)
         return state.success ? SDL_APP_SUCCESS : SDL_APP_FAILURE;
 
@@ -217,8 +216,10 @@ SDL_AppResult SDLCALL SDL_AppIterate(void* appstate)
         return state.success ? SDL_APP_SUCCESS : SDL_APP_FAILURE;
 
     if (Sexy::BgfxRenderDevice::sCurrent != nullptr)
-        state.success = PresentFrame(state.window, *Sexy::BgfxRenderDevice::sCurrent,
-                                     *state.capture, state.options, state.frameCount) && state.success;
+        state.success =
+            PresentFrame(
+                state.window, *Sexy::BgfxRenderDevice::sCurrent, *state.capture, state.options, state.frameCount) &&
+            state.success;
 
     ++state.frameCount;
     if (state.options.frames > 0 && state.frameCount >= state.options.frames)
@@ -228,18 +229,18 @@ SDL_AppResult SDLCALL SDL_AppIterate(void* appstate)
     return SDL_APP_CONTINUE;
 }
 
-SDL_AppResult SDLCALL SDL_AppEvent(void* appstate, SDL_Event* event)
+SDL_AppResult SDLCALL SDL_AppEvent(void *appstate, SDL_Event *event)
 {
-    ApplicationState& state = *static_cast<ApplicationState*>(appstate);
+    ApplicationState &state = *static_cast<ApplicationState *>(appstate);
     state.window.ProcessEvent(*event);
     if (state.window.mClosed)
         return state.success ? SDL_APP_SUCCESS : SDL_APP_FAILURE;
     return SDL_APP_CONTINUE;
 }
 
-void SDLCALL SDL_AppQuit(void* appstate, SDL_AppResult)
+void SDLCALL SDL_AppQuit(void *appstate, SDL_AppResult)
 {
-    std::unique_ptr<ApplicationState> state(static_cast<ApplicationState*>(appstate));
+    std::unique_ptr<ApplicationState> state(static_cast<ApplicationState *>(appstate));
     if (!state)
         return;
 

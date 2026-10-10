@@ -1,12 +1,14 @@
 // One connected gamepad: button bits, six axes, and a connect/idle/active
 // status. The TV build does not keep a weight table or a pad scale.
 
-#pragma once
+#ifndef LAWNPROJECTTV_SEXY_INCLUDE_GAMEPAD_H
+#define LAWNPROJECTTV_SEXY_INCLUDE_GAMEPAD_H
 
 #include "ReconTypes.h"
 #include "InputManager.h"
 
-namespace Sexy {
+namespace Sexy
+{
 
 class Gamepad
 {
@@ -76,3 +78,5 @@ public:
 };
 
 } // namespace Sexy
+
+#endif // LAWNPROJECTTV_SEXY_INCLUDE_GAMEPAD_H

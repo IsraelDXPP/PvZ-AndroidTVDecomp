@@ -7,23 +7,23 @@
 
 Sexy::ListDataElement::~ListDataElement()
 {
-  for (unsigned int i = 0; i < mDataElements.size(); ++i)
-    delete mDataElements[i];
+    for (unsigned int i = 0; i < mDataElements.size(); ++i)
+        delete mDataElements[i];
 }
 
 Sexy::ListDataElement::ListDataElement()
 {
-  mElementKind = 1;
+    mElementKind = 1;
 }
 
-Sexy::ListDataElement::ListDataElement(Sexy::ListDataElement const& theOther)
+Sexy::ListDataElement::ListDataElement(Sexy::ListDataElement const &theOther)
 {
-  mElementKind = 1;
-  for (unsigned int i = 0; i < theOther.mDataElements.size(); ++i)
-    mDataElements.push_back(theOther.mDataElements[i]->Duplicate());
+    mElementKind = 1;
+    for (unsigned int i = 0; i < theOther.mDataElements.size(); ++i)
+        mDataElements.push_back(theOther.mDataElements[i]->Duplicate());
 }
 
-Sexy::ListDataElement * Sexy::ListDataElement::Duplicate()
+Sexy::ListDataElement *Sexy::ListDataElement::Duplicate()
 {
-  return new ListDataElement(*this);
+    return new ListDataElement(*this);
 }

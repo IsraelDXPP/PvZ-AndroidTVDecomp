@@ -3,7 +3,8 @@
 // virtuals sit at the front, in the binary's order: GetImage, SetImageOpts,
 // WriteImage. There is no virtual destructor.
 
-#pragma once
+#ifndef LAWNPROJECTTV_SEXY_INCLUDE_PIEFFECT_H
+#define LAWNPROJECTTV_SEXY_INCLUDE_PIEFFECT_H
 
 #include "ReconTypes.h"
 #include "Bezier.h"
@@ -31,7 +32,8 @@
 #include <map>
 #include <vector>
 
-namespace Sexy {
+namespace Sexy
+{
 
 class PIParticleDef;
 
@@ -48,8 +50,12 @@ struct PITextureData
     int mImageCount;
     bool mAtlas;
 
-    PITextureData()
-        : mName(), mRefs(), mImage(), mImageCount(0), mAtlas(false)
+    PITextureData() :
+        mName(),
+        mRefs(),
+        mImage(),
+        mImageCount(0),
+        mAtlas(false)
     {
     }
 };
@@ -65,8 +71,12 @@ struct PIParticleGroup
     unsigned char mSkipAttach;
     unsigned char mUseEmitter;
 
-    PIParticleGroup()
-        : mHead(nullptr), mTail(nullptr), mCount(0), mSkipAttach(0), mUseEmitter(0)
+    PIParticleGroup() :
+        mHead(nullptr),
+        mTail(nullptr),
+        mCount(0),
+        mSkipAttach(0),
+        mUseEmitter(0)
     {
     }
 };
@@ -126,19 +136,54 @@ struct PIParticle
     unsigned char mFlagFC;
     unsigned char mFlagFD;
 
-    PIParticle()
-        : mPrev(nullptr), mNext(nullptr), mType(nullptr), mEmitter(nullptr),
-          mSpawnIndex(0), mParent(nullptr), mPosX(0.0f), mPosY(0.0f),
-          mLaunchPosX(0.0f), mLaunchPosY(0.0f), mScaleX(0.0f), mScaleY(0.0f),
-          mVelX(0.0f), mVelY(0.0f), mSpinX(0.0f), mSpinY(0.0f), mSize(0.0f),
-          mVarLife(0.0f), mVarSpin(0.0f), mVarSpin2(0.0f), mVarLaunch(0.0f),
-          mVarGravity(0.0f), mVarSpinRate(0.0f), mVarJitter(0.0f), mVarBounce(0.0f),
-          mVarUnused(0.0f), mAngle(0.0f), mSpinScaleX(0.0f), mSpinScaleY(0.0f),
-          mKeyParam(0.0f), mLaunchAngle(0.0f), mFrame(0), mTransform(),
-          mArea(1.0f), mFrameIndex(0), mEmitterTime(0.0f), mLife(0.0f),
-          mLifePct(0.0f), mAge(0.0f), mDead(0), mColor(0xFFFFFFFFu),
-          mSpawnRecords(), mChildren(nullptr), mChildTail(nullptr),
-          mChildCount(0), mFlagFC(0), mFlagFD(0)
+    PIParticle() :
+        mPrev(nullptr),
+        mNext(nullptr),
+        mType(nullptr),
+        mEmitter(nullptr),
+        mSpawnIndex(0),
+        mParent(nullptr),
+        mPosX(0.0f),
+        mPosY(0.0f),
+        mLaunchPosX(0.0f),
+        mLaunchPosY(0.0f),
+        mScaleX(0.0f),
+        mScaleY(0.0f),
+        mVelX(0.0f),
+        mVelY(0.0f),
+        mSpinX(0.0f),
+        mSpinY(0.0f),
+        mSize(0.0f),
+        mVarLife(0.0f),
+        mVarSpin(0.0f),
+        mVarSpin2(0.0f),
+        mVarLaunch(0.0f),
+        mVarGravity(0.0f),
+        mVarSpinRate(0.0f),
+        mVarJitter(0.0f),
+        mVarBounce(0.0f),
+        mVarUnused(0.0f),
+        mAngle(0.0f),
+        mSpinScaleX(0.0f),
+        mSpinScaleY(0.0f),
+        mKeyParam(0.0f),
+        mLaunchAngle(0.0f),
+        mFrame(0),
+        mTransform(),
+        mArea(1.0f),
+        mFrameIndex(0),
+        mEmitterTime(0.0f),
+        mLife(0.0f),
+        mLifePct(0.0f),
+        mAge(0.0f),
+        mDead(0),
+        mColor(0xFFFFFFFFu),
+        mSpawnRecords(),
+        mChildren(nullptr),
+        mChildTail(nullptr),
+        mChildCount(0),
+        mFlagFC(0),
+        mFlagFD(0)
     {
         mPadDD[0] = 0;
         mPadDD[1] = 0;
@@ -196,17 +241,41 @@ struct PIParticleType
     Sexy::PIInterpolator mAlphaKeys;
     Sexy::PIParticleDef *mPublished;
 
-    PIParticleType()
-        : mUnusedWord(0), mName(), mImageIndex(0), mPivotX(0.0f), mPivotY(0.0f),
-          mLockSpin(false), mAdditive(false), mSuperEmitter(false),
-          mAdditiveSecond(false), mAttachToParent(false), mAnimLength(0),
-          mRandomFrame(false), mAttachWeight(0.0f), mFlipX(false), mFlipY(false),
-          mColorRepeat(0), mAlphaRepeat(0), mUseColorKeys(false),
-          mUseSpawnColor(false), mSampleColor(false), mSampleAlpha(false),
-          mKeepAlpha(false), mForceAlpha(false), mColorStride(0),
-          mAlignToPath(false), mAlignToVelocity(false), mUseOwnAngle(false),
-          mAngleOffset(0), mFixedAngle(0), mAngleSpread(0), mAngleSpreadRange(0),
-          mColorKeys(), mAlphaKeys(), mPublished(nullptr)
+    PIParticleType() :
+        mUnusedWord(0),
+        mName(),
+        mImageIndex(0),
+        mPivotX(0.0f),
+        mPivotY(0.0f),
+        mLockSpin(false),
+        mAdditive(false),
+        mSuperEmitter(false),
+        mAdditiveSecond(false),
+        mAttachToParent(false),
+        mAnimLength(0),
+        mRandomFrame(false),
+        mAttachWeight(0.0f),
+        mFlipX(false),
+        mFlipY(false),
+        mColorRepeat(0),
+        mAlphaRepeat(0),
+        mUseColorKeys(false),
+        mUseSpawnColor(false),
+        mSampleColor(false),
+        mSampleAlpha(false),
+        mKeepAlpha(false),
+        mForceAlpha(false),
+        mColorStride(0),
+        mAlignToPath(false),
+        mAlignToVelocity(false),
+        mUseOwnAngle(false),
+        mAngleOffset(0),
+        mFixedAngle(0),
+        mAngleSpread(0),
+        mAngleSpreadRange(0),
+        mColorKeys(),
+        mAlphaKeys(),
+        mPublished(nullptr)
     {
     }
 };
@@ -243,13 +312,32 @@ struct PILiveEmitter
     PIParticleGroup mFree;
     PIParticleGroup mTrail;
 
-    PILiveEmitter()
-        : mDef(nullptr), mEmitter(nullptr), mName(), mLifeBias(0), mEmitterType(0),
-          mShape(0), mHeadingLock(false), mHeadingRandom(false), mCount(0),
-          mRows(0), mFreeEmitters(false), mMaskCompare(false), mEmitting(false),
-          mKeepSpawn(false), mActive(true), mOffsetX(0.0f), mOffsetY(0.0f),
-          mRateScale(1.0f), mTint(Sexy::Color::White), mImage(), mTransform(),
-          mFreeSpawns(), mDefSpawns(), mFree(), mTrail()
+    PILiveEmitter() :
+        mDef(nullptr),
+        mEmitter(nullptr),
+        mName(),
+        mLifeBias(0),
+        mEmitterType(0),
+        mShape(0),
+        mHeadingLock(false),
+        mHeadingRandom(false),
+        mCount(0),
+        mRows(0),
+        mFreeEmitters(false),
+        mMaskCompare(false),
+        mEmitting(false),
+        mKeepSpawn(false),
+        mActive(true),
+        mOffsetX(0.0f),
+        mOffsetY(0.0f),
+        mRateScale(1.0f),
+        mTint(Sexy::Color::White),
+        mImage(),
+        mTransform(),
+        mFreeSpawns(),
+        mDefSpawns(),
+        mFree(),
+        mTrail()
     {
         mFree.mSkipAttach = 1;
         mTrail.mSkipAttach = 0;
@@ -265,7 +353,12 @@ struct PILiveLayer
     Sexy::PILayer *mPublic;
     std::vector<PILiveEmitter> mEmitters;
 
-    PILiveLayer() : mDef(nullptr), mPublic(nullptr), mEmitters() {}
+    PILiveLayer() :
+        mDef(nullptr),
+        mPublic(nullptr),
+        mEmitters()
+    {
+    }
 };
 
 // The shared, reference-counted definition. Duplicate shares the pointer and
@@ -279,8 +372,13 @@ struct PIEffectDef
     std::vector<Sexy::PILayerDef> mLayerDefs;
     std::map<int, int> mEmitterIndex;
 
-    PIEffectDef()
-        : mRefCount(1), mEmitters(), mTypes(), mImages(), mLayerDefs(), mEmitterIndex()
+    PIEffectDef() :
+        mRefCount(1),
+        mEmitters(),
+        mTypes(),
+        mImages(),
+        mLayerDefs(),
+        mEmitterIndex()
     {
     }
 };
@@ -288,14 +386,13 @@ struct PIEffectDef
 class PIEffect
 {
 public:
-    virtual Sexy::SharedImageRef GetImage(Sexy::String const& unusedName,
-                                          Sexy::String const& theImageName);
-    virtual void SetImageOpts(Sexy::DeviceImage * theImage);
-    virtual int WriteImage(Sexy::String const& unusedResult, int theFrame,
-                           Sexy::DeviceImage * theImage, bool * theResult);
+    virtual Sexy::SharedImageRef GetImage(Sexy::String const &unusedName, Sexy::String const &theImageName);
+    virtual void SetImageOpts(Sexy::DeviceImage *theImage);
+    virtual int WriteImage(
+        Sexy::String const &unusedResult, int theFrame, Sexy::DeviceImage *theImage, bool *theResult);
 
     int Update();
-    int Fail(Sexy::String const& theMessage);
+    int Fail(Sexy::String const &theMessage);
     float GetRandFloat();
     float GetRandFloatU();
     float GetRandSign();
@@ -307,23 +404,23 @@ public:
     size_t WriteShort(short theValue);
     size_t WriteFloat(float theValue);
     size_t WriteBool(bool theValue);
-    const void * WriteString(const Sexy::String *theText);
-    size_t WriteValue2D(Sexy::PIValue2D * theCurve);
-    size_t WriteEPoint(Sexy::PIValue2D * theCurve);
-    size_t WriteValue(Sexy::PIValue * theCurve);
-    size_t WriteEmitterType(Sexy::PIEmitter * theEmitter);
-    int SaveParticleDefInstance(Sexy::Buffer & theBuffer, Sexy::PIParticleDefInstance *theRecord);
-    int SaveParticle(Sexy::Buffer & theBuffer, Sexy::PILayer * theLayer, PIParticle *theParticle);
-    int LoadParticleDefInstance(Sexy::Buffer const& theBuffer, Sexy::PIParticleDefInstance *theRecord);
-    int LoadParticle(Sexy::Buffer const& theBuffer, Sexy::PILayer * theLayer, PIParticle *theParticle);
+    const void *WriteString(const Sexy::String *theText);
+    size_t WriteValue2D(Sexy::PIValue2D *theCurve);
+    size_t WriteEPoint(Sexy::PIValue2D *theCurve);
+    size_t WriteValue(Sexy::PIValue *theCurve);
+    size_t WriteEmitterType(Sexy::PIEmitter *theEmitter);
+    int SaveParticleDefInstance(Sexy::Buffer &theBuffer, Sexy::PIParticleDefInstance *theRecord);
+    int SaveParticle(Sexy::Buffer &theBuffer, Sexy::PILayer *theLayer, PIParticle *theParticle);
+    int LoadParticleDefInstance(Sexy::Buffer const &theBuffer, Sexy::PIParticleDefInstance *theRecord);
+    int LoadParticle(Sexy::Buffer const &theBuffer, Sexy::PILayer *theLayer, PIParticle *theParticle);
     int ResetAnim();
-    Sexy::PILayer * GetLayer(int theIndex);
-    Sexy::PILayer * GetLayer(Sexy::String const& theName);
-    Sexy::TPoint<float> GetEmitterPos(Sexy::PIEmitterInstance * theInstance, bool theTransform);
+    Sexy::PILayer *GetLayer(int theIndex);
+    Sexy::PILayer *GetLayer(Sexy::String const &theName);
+    Sexy::TPoint<float> GetEmitterPos(Sexy::PIEmitterInstance *theInstance, bool theTransform);
     int CountParticles(PIParticle *theHead);
     bool HasTimelineExpired();
     int IsActive();
-    Sexy::String GetNotesParam(Sexy::String const& theKey, Sexy::String const& theDefault);
+    Sexy::String GetNotesParam(Sexy::String const &theKey, Sexy::String const &theDefault);
     int CheckCache();
     int SetCacheUpToDate();
     void WriteToCache();
@@ -332,38 +429,31 @@ public:
     PIEffect();
     ~PIEffect();
     Sexy::String ReadStringS();
-    int ExpectCmd(Sexy::String const& theExpected);
-    void ReadValue2D(Sexy::PIValue2D * theCurve);
-    int ReadEPoint(Sexy::PIValue2D * theCurve);
-    Sexy::TPoint<float> GetGeomPos(Sexy::PIEmitterInstance * theInstance,
-                                   PIParticle * theParticle,
-                                   float * theAngleOut,
-                                   bool * theMask);
-    int CalcParticleTransform(Sexy::PILayer * theLayer, Sexy::PIEmitterInstance * theInstance,
-                              Sexy::PIEmitter * theEmitter, Sexy::PIParticleDef * theDef,
-                              PIParticleGroup * theGroup, PIParticle * theParticle);
-    void UpdateParticleGroup(Sexy::PILayer * theLayer, Sexy::PIEmitterInstance * theInstance,
-                             PIParticleGroup * theGroup);
-    Color * DrawParticleGroup(Sexy::Graphics *theGraphics, Sexy::PILayer *theLayer,
-                              Sexy::PIEmitterInstance *theInstance, PIParticleGroup *theGroup,
-                              unsigned char theAdditivePass);
-    int DrawLayer(Sexy::Graphics * theGraphics, Sexy::PILayer * theLayer);
-    float Draw(Sexy::Graphics * theGraphics);
-    PIParticleDefInstance * UpdateParticleDef(Sexy::PILayer * theLayer, Sexy::PIEmitter * theEmitter,
-                                              Sexy::PIEmitterInstance * theInstance,
-                                              Sexy::PIParticleDef * theDef,
-                                              PIParticleDefInstance *theAccum,
-                                              PIParticleGroup * theGroup, PIParticle *theParent);
-    void ReadValue(Sexy::PIValue * theCurve);
-    int SaveState(Sexy::Buffer & theBuffer, bool theCompact);
-    int ReadEmitterType(Sexy::PIEmitter * theEmitter);
-    PIEffect(Sexy::PIEffect const& theOther);
-    Sexy::PIEffect * Duplicate();
-    int LoadEffect(Sexy::String const& thePath);
-    int LoadState(Sexy::Buffer const& theBuffer, bool theCompact);
+    int ExpectCmd(Sexy::String const &theExpected);
+    void ReadValue2D(Sexy::PIValue2D *theCurve);
+    int ReadEPoint(Sexy::PIValue2D *theCurve);
+    Sexy::TPoint<float> GetGeomPos(
+        Sexy::PIEmitterInstance *theInstance, PIParticle *theParticle, float *theAngleOut, bool *theMask);
+    int CalcParticleTransform(Sexy::PILayer *theLayer, Sexy::PIEmitterInstance *theInstance,
+        Sexy::PIEmitter *theEmitter, Sexy::PIParticleDef *theDef, PIParticleGroup *theGroup, PIParticle *theParticle);
+    void UpdateParticleGroup(Sexy::PILayer *theLayer, Sexy::PIEmitterInstance *theInstance, PIParticleGroup *theGroup);
+    Color *DrawParticleGroup(Sexy::Graphics *theGraphics, Sexy::PILayer *theLayer, Sexy::PIEmitterInstance *theInstance,
+        PIParticleGroup *theGroup, unsigned char theAdditivePass);
+    int DrawLayer(Sexy::Graphics *theGraphics, Sexy::PILayer *theLayer);
+    float Draw(Sexy::Graphics *theGraphics);
+    PIParticleDefInstance *UpdateParticleDef(Sexy::PILayer *theLayer, Sexy::PIEmitter *theEmitter,
+        Sexy::PIEmitterInstance *theInstance, Sexy::PIParticleDef *theDef, PIParticleDefInstance *theAccum,
+        PIParticleGroup *theGroup, PIParticle *theParent);
+    void ReadValue(Sexy::PIValue *theCurve);
+    int SaveState(Sexy::Buffer &theBuffer, bool theCompact);
+    int ReadEmitterType(Sexy::PIEmitter *theEmitter);
+    PIEffect(Sexy::PIEffect const &theOther);
+    Sexy::PIEffect *Duplicate();
+    int LoadEffect(Sexy::String const &thePath);
+    int LoadState(Sexy::Buffer const &theBuffer, bool theCompact);
 
-    SDL_IOStream* mReadFile;
-    SDL_IOStream* mWriteFile;
+    SDL_IOStream *mReadFile;
+    SDL_IOStream *mWriteFile;
     unsigned int mChecksum;
     bool mWideBooleans;
     bool mLoadedFlag;
@@ -390,7 +480,7 @@ public:
     int mTimelineEnd;
     int mUnusedE40;
     std::map<Sexy::String, Sexy::String> mNotes;
-    PIEffectDef * mDef;
+    PIEffectDef *mDef;
     std::vector<Sexy::PILayer> mLayers;
     std::vector<PILiveLayer> mLive;
     Sexy::String mError;
@@ -420,10 +510,12 @@ public:
     SexyTransform2D mTransform;
     SexyTransform2D mWorldTransform;
 
-    PILiveEmitter* FindLive(Sexy::PIEmitterInstance * theInstance);
-    PIParticleType* FindType(Sexy::PIParticleDef * theDef);
+    PILiveEmitter *FindLive(Sexy::PIEmitterInstance *theInstance);
+    PIParticleType *FindType(Sexy::PIParticleDef *theDef);
 };
 
 } // namespace Sexy
 
 using Sexy::PIEffect;
+
+#endif // LAWNPROJECTTV_SEXY_INCLUDE_PIEFFECT_H

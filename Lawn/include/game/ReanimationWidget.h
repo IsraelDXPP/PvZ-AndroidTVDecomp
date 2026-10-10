@@ -1,4 +1,5 @@
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_REANIMATIONWIDGET_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_REANIMATIONWIDGET_H
 
 #include "ReconTypes.h"
 #include "Reanimation.h"
@@ -26,3 +27,5 @@ public:
     void AddReanimation(float x, float y, ReanimationType theReanimationType);
     void Dispose();
 };
+
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_REANIMATIONWIDGET_H

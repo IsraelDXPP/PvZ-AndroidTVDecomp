@@ -24,7 +24,8 @@
 // (`*(_DWORD *)this = &off_XXXX;`) has to go -- it would overwrite the pointer
 // the compiler wrote.
 
-#pragma once
+#ifndef LAWNPROJECTTV_TODLIB_INCLUDE_SYNCOBJECT_H
+#define LAWNPROJECTTV_TODLIB_INCLUDE_SYNCOBJECT_H
 
 #include "ReconTypes.h"
 
@@ -39,3 +40,5 @@ public:
 };
 
 // Layout check: the vtable pointer plus the vector's three pointers.
+
+#endif // LAWNPROJECTTV_TODLIB_INCLUDE_SYNCOBJECT_H

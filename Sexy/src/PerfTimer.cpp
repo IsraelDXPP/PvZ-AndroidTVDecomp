@@ -19,14 +19,14 @@
 // The padding at +0x14 is cleared here as well, so that no member is ever
 // indeterminate; the binary leaves those bytes alone.
 // ---------------------------------------------------------------------------
-Sexy::PerfTimer::PerfTimer()
-    : mStartSec(0)
-    , mStartUsec(0)
-    , mDuration(0.0)
-    , mRunning(0)
-    , mPad14(0)
-    , mPad18(0)
-    , mPad1C(0)
+Sexy::PerfTimer::PerfTimer() :
+    mStartSec(0),
+    mStartUsec(0),
+    mDuration(0.0),
+    mRunning(0),
+    mPad14(0),
+    mPad18(0),
+    mPad1C(0)
 {
 }
 
@@ -43,9 +43,7 @@ int64_t Sexy::PerfTimer::CalcDuration()
     PlatformTimeval aNow;
 
     PlatformGetTimeOfDay(&aNow, nullptr);
-    mDuration =
-        (double)((aNow.tv_usec - mStartUsec) / 1000)
-        + (double)(1000 * (aNow.tv_sec - mStartSec));
+    mDuration = (double)((aNow.tv_usec - mStartUsec) / 1000) + (double)(1000 * (aNow.tv_sec - mStartSec));
     // The binary's r0 is the raw clock reading, not the duration it just
     // computed, so the return value is tv_sec.
     return aNow.tv_sec;
@@ -76,9 +74,9 @@ int Sexy::PerfTimer::Start()
 //
 // Only a running timer measures; either way the object is handed back.
 // ---------------------------------------------------------------------------
-Sexy::PerfTimer* Sexy::PerfTimer::Stop()
+Sexy::PerfTimer *Sexy::PerfTimer::Stop()
 {
-    if ( mRunning != 0 )
+    if (mRunning != 0)
     {
         CalcDuration();
         mRunning = 0;
@@ -94,7 +92,7 @@ Sexy::PerfTimer* Sexy::PerfTimer::Stop()
 // ---------------------------------------------------------------------------
 double Sexy::PerfTimer::GetDuration()
 {
-    if ( mRunning != 0 )
+    if (mRunning != 0)
         CalcDuration();
     return mDuration;
 }

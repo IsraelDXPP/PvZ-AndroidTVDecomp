@@ -9,76 +9,66 @@
 #include "DataWriter.h"
 #include <cstring>
 
-namespace {
+namespace
+{
 
-template <class T>
-int ReadInto(DataReader *theReader, T &theNum)
+template <class T> int ReadInto(DataReader *theReader, T &theNum)
 {
     theNum = static_cast<T>(theReader->ReadLongLong());
     return static_cast<int>(theNum);
 }
 
-template <class T>
-int WriteWide(DataWriter *theWriter, T theNum)
+template <class T> int WriteWide(DataWriter *theWriter, T theNum)
 {
     return theWriter->WriteLongLong(static_cast<unsigned long long>(theNum));
 }
 
 // A signed byte is widened through unsigned char, the same as the other narrow
 // stores: the extra bits are the value's own, not a sign extension.
-template <class T>
-int WriteWideByte(DataWriter *theWriter, T theNum)
+template <class T> int WriteWideByte(DataWriter *theWriter, T theNum)
 {
     return theWriter->WriteLongLong(static_cast<unsigned char>(theNum));
 }
 
-template <class T>
-int ReadLongInto(DataReader *theReader, T &theNum)
+template <class T> int ReadLongInto(DataReader *theReader, T &theNum)
 {
     theNum = static_cast<T>(theReader->ReadLong());
     return static_cast<int>(theNum);
 }
 
-template <class T>
-int WriteLongOf(DataWriter *theWriter, T theNum)
+template <class T> int WriteLongOf(DataWriter *theWriter, T theNum)
 {
     return theWriter->WriteLong(static_cast<unsigned long>(theNum));
 }
 
-template <class T>
-int WriteLongOfByte(DataWriter *theWriter, T theNum)
+template <class T> int WriteLongOfByte(DataWriter *theWriter, T theNum)
 {
     return theWriter->WriteLong(static_cast<unsigned char>(theNum));
 }
 
-template <class T>
-int ReadShortInto(DataReader *theReader, T &theNum)
+template <class T> int ReadShortInto(DataReader *theReader, T &theNum)
 {
     theNum = static_cast<T>(theReader->ReadShort());
     return static_cast<int>(theNum);
 }
 
-template <class T>
-int WriteShortOf(DataWriter *theWriter, T theNum)
+template <class T> int WriteShortOf(DataWriter *theWriter, T theNum)
 {
     return theWriter->WriteShort(static_cast<unsigned short>(theNum));
 }
 
-template <class T>
-int WriteShortOfByte(DataWriter *theWriter, T theNum)
+template <class T> int WriteShortOfByte(DataWriter *theWriter, T theNum)
 {
     return theWriter->WriteShort(static_cast<unsigned char>(theNum));
 }
 
-template <class T>
-int ReadByteInto(DataReader *theReader, T &theNum)
+template <class T> int ReadByteInto(DataReader *theReader, T &theNum)
 {
     theNum = static_cast<T>(theReader->ReadByte());
     return static_cast<int>(theNum);
 }
 
-template <class T>
-int WriteByteOf(DataWriter *theWriter, T theNum)
+template <class T> int WriteByteOf(DataWriter *theWriter, T theNum)
 {
     return theWriter->WriteByte(static_cast<unsigned char>(theNum));
 }

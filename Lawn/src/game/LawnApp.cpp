@@ -14,7 +14,10 @@
 // any header forward-declares TM::LogComposer, so the qualified member calls in
 // this file name the same class.
 class LogComposer;
-namespace TM { using ::LogComposer; }
+namespace TM
+{
+using ::LogComposer;
+}
 
 #include "LawnApp.h"
 #include "NativeDisplay.h"
@@ -145,7 +148,8 @@ extern unsigned char gStep;
 // same view, so Gamepad::HandleButtonDown can reach this class's override.
 // TODO(recon): move the interface to Sexy\GamepadListener.h, make
 // Gamepad::mListener that type, and delete this declaration.
-namespace {
+namespace
+{
 class GamepadListenerView
 {
 public:
@@ -162,7 +166,6 @@ public:
 // shift of -mScreenBounds then puts the 1280-wide cover over the window.
 Sexy::TRect<int> LawnApp::FULLSCREEN_RECT(-240, -60, 1280, 720);
 
-
 // The challenge table's page enumerators, from the authoritative
 // PvZ\Lawn\Common\ConstEnums.h. Sexy\ReconTypes.h carries ChallengePage as a
 // one-int surrogate with no enumerators of its own, so the three pages
@@ -178,47 +181,43 @@ static int gGuard_user_2 = 0;
 // Linker symbols IDA printed verbatim; each becomes a stub whose
 // address is what the original code compares or reads.
 static int gGuardVar_1 = 0;
-static void* gVtable_1[16] = {};
-static void* gVtable_2[16] = {};
+static void *gVtable_1[16] = {};
+static void *gVtable_2[16] = {};
 
 // The exception-cleanup registration RegisterAtExit wants a plain function pointer,
 // which a destructor's address is not under MSVC; the same thunk the other
 // callers of gGuard_getCurUser__user_1 use (see game/LawnUser.cpp).
-static void LawnUserDtorThunk(LawnUser *theObject) { theObject->~LawnUser(); }
-
+static void LawnUserDtorThunk(LawnUser *theObject)
+{
+    theObject->~LawnUser();
+}
 
 // ==========================================================================
 // LawnApp::GotFocus()
 // @002B2610  2 bytes
 // ==========================================================================
-void LawnApp::GotFocus()
-{
-}
+void LawnApp::GotFocus() {}
 
 // ==========================================================================
 // LawnApp::ModalClose()
 // @002B2614  2 bytes
 // ==========================================================================
-void LawnApp::ModalClose()
-{
-}
+void LawnApp::ModalClose() {}
 
 // ==========================================================================
 // LawnApp::ChangeDirHook(char const*)
 // @002B2618  4 bytes
 // ==========================================================================
-bool LawnApp::ChangeDirHook(char const* theIntendedPath)
+bool LawnApp::ChangeDirHook(char const *theIntendedPath)
 {
-  return false;
+    return false;
 }
 
 // ==========================================================================
 // LawnApp::ButtonPress(int)
 // @002B261C  2 bytes
 // ==========================================================================
-void LawnApp::ButtonPress(int theId)
-{
-}
+void LawnApp::ButtonPress(int theId) {}
 
 // ==========================================================================
 // LawnApp::CloseRequestAsync()
@@ -226,17 +225,15 @@ void LawnApp::ButtonPress(int theId)
 // ==========================================================================
 void LawnApp::CloseRequestAsync()
 {
-  mCloseRequested = true;
-  mCloseRequest = 1;
+    mCloseRequested = true;
+    mCloseRequest = 1;
 }
 
 // ==========================================================================
 // LawnApp::InitHook()
 // @002B262C  2 bytes
 // ==========================================================================
-void LawnApp::InitHook()
-{
-}
+void LawnApp::InitHook() {}
 
 // ==========================================================================
 // LawnApp::GetProfileVersion()
@@ -244,16 +241,16 @@ void LawnApp::InitHook()
 // ==========================================================================
 int LawnApp::GetProfileVersion()
 {
-  return gUserVersion;
+    return gUserVersion;
 }
 
 // ==========================================================================
 // LawnApp::NotifyProfileChanged(Sexy::PlayerInfo *)
 // @002B2640  2 bytes
 // ==========================================================================
-void LawnApp::NotifyProfileChanged(Sexy::PlayerInfo * theProfile)
+void LawnApp::NotifyProfileChanged(Sexy::PlayerInfo *theProfile)
 {
-  ;
+    ;
 }
 
 // ==========================================================================
@@ -262,32 +259,26 @@ void LawnApp::NotifyProfileChanged(Sexy::PlayerInfo * theProfile)
 // ==========================================================================
 void LawnApp::PreDrawScreen()
 {
-  mDialogFadeDrawn = false;
+    mDialogFadeDrawn = false;
 }
 
 // ==========================================================================
 // LawnApp::DrawPost()
 // @002B2658  2 bytes
 // ==========================================================================
-void LawnApp::DrawPost()
-{
-}
+void LawnApp::DrawPost() {}
 
 // ==========================================================================
 // LawnApp::GamepadConnected()
 // @002B265C  2 bytes
 // ==========================================================================
-void LawnApp::GamepadConnected()
-{
-}
+void LawnApp::GamepadConnected() {}
 
 // ==========================================================================
 // LawnApp::GamepadDisconnected()
 // @002B2660  2 bytes
 // ==========================================================================
-void LawnApp::GamepadDisconnected()
-{
-}
+void LawnApp::GamepadDisconnected() {}
 
 // ==========================================================================
 // LawnApp::ShowResourceError(bool)
@@ -295,7 +286,7 @@ void LawnApp::GamepadDisconnected()
 // ==========================================================================
 void LawnApp::ShowResourceError(bool theExit)
 {
-  SexyAppBase::ShowResourceError(theExit);
+    SexyAppBase::ShowResourceError(theExit);
 }
 
 // ==========================================================================
@@ -304,11 +295,11 @@ void LawnApp::ShowResourceError(bool theExit)
 // ==========================================================================
 void LawnApp::PlaySample(int theSoundId, bool theLoop)
 {
-  // The binary's symbol for the two-argument base slot is
-  // `Sexy::SexyAppBase::PlaySample(int, int)`; this tree names that slot
-  // PlaySampleWithPan (SexyAppBase.h:311).
-  if ( !mMuteSoundsForCutscene )
-    SexyAppBase::PlaySampleWithPan(theSoundId, theLoop);
+    // The binary's symbol for the two-argument base slot is
+    // `Sexy::SexyAppBase::PlaySample(int, int)`; this tree names that slot
+    // PlaySampleWithPan (SexyAppBase.h:311).
+    if (!mMuteSoundsForCutscene)
+        SexyAppBase::PlaySampleWithPan(theSoundId, theLoop);
 }
 
 // ==========================================================================
@@ -317,7 +308,7 @@ void LawnApp::PlaySample(int theSoundId, bool theLoop)
 // ==========================================================================
 LawnPlayerInfo *LawnApp::CreatePlayerInfo()
 {
-  return new LawnPlayerInfo(mProfileMgr);
+    return new LawnPlayerInfo(mProfileMgr);
 }
 
 // ==========================================================================
@@ -326,41 +317,41 @@ LawnPlayerInfo *LawnApp::CreatePlayerInfo()
 // ==========================================================================
 void LawnApp::LoadingThreadCompleted()
 {
-  if ( mShutDown )
-    return;
+    if (mShutDown)
+        return;
 
-  Sexy::PerfTimer aTimer;
-  aTimer.Start();
+    Sexy::PerfTimer aTimer;
+    aTimer.Start();
 
-  // Pre-render every plant and zombie frame the almanac and the seed bank need,
-  // so the first level does not stall on the reanimator cache.
-  for ( int aSeedType = 0; aSeedType < NUM_SEED_TYPES; ++aSeedType )
-  {
-    if ( aSeedType != NUM_SEEDS_IN_CHOOSER )
-      mReanimatorCache->MakeCachedPlantFrame((SeedType)aSeedType, DrawVariation(0));
-  }
+    // Pre-render every plant and zombie frame the almanac and the seed bank need,
+    // so the first level does not stall on the reanimator cache.
+    for (int aSeedType = 0; aSeedType < NUM_SEED_TYPES; ++aSeedType)
+    {
+        if (aSeedType != NUM_SEEDS_IN_CHOOSER)
+            mReanimatorCache->MakeCachedPlantFrame((SeedType)aSeedType, DrawVariation(0));
+    }
 
-  for ( int aZombieType = 0; aZombieType < NUM_CACHED_ZOMBIE_TYPES; ++aZombieType )
-  {
-    if ( aZombieType != NUM_ZOMBIE_TYPES )
-      mReanimatorCache->MakeCachedZombieFrame((ZombieType)aZombieType);
-  }
+    for (int aZombieType = 0; aZombieType < NUM_CACHED_ZOMBIE_TYPES; ++aZombieType)
+    {
+        if (aZombieType != NUM_ZOMBIE_TYPES)
+            mReanimatorCache->MakeCachedZombieFrame((ZombieType)aZombieType);
+    }
 
-  for ( int aMowerType = 0; aMowerType < 4; ++aMowerType )
-    mReanimatorCache->MakeCachedMowerFrame((LawnMowerType)aMowerType);
+    for (int aMowerType = 0; aMowerType < 4; ++aMowerType)
+        mReanimatorCache->MakeCachedMowerFrame((LawnMowerType)aMowerType);
 
-  mReanimatorCache->MakeCachedPlantFrame(SEED_FLOWERPOT, VARIATION_ZEN_GARDEN);
-  mReanimatorCache->MakeCachedPlantFrame(SEED_FLOWERPOT, VARIATION_ZEN_GARDEN_WATER);
-  mReanimatorCache->MakeCachedPlantFrame(SEED_SPROUT, DrawVariation(0));
-  mReanimatorCache->MakeCachedPlantFrame(SEED_SPROUT, VARIATION_SPROUT_NO_FLOWER);
-  mReanimatorCache->MakeCachedPlantFrame(SEED_TANGLEKELP, VARIATION_AQUARIUM);
-  mReanimatorCache->MakeCachedPlantFrame(SEED_SEASHROOM, VARIATION_AQUARIUM);
-  mReanimatorCache->MakeCachedPlantFrame(SEED_SUNSHROOM, DrawVariation(18));
+    mReanimatorCache->MakeCachedPlantFrame(SEED_FLOWERPOT, VARIATION_ZEN_GARDEN);
+    mReanimatorCache->MakeCachedPlantFrame(SEED_FLOWERPOT, VARIATION_ZEN_GARDEN_WATER);
+    mReanimatorCache->MakeCachedPlantFrame(SEED_SPROUT, DrawVariation(0));
+    mReanimatorCache->MakeCachedPlantFrame(SEED_SPROUT, VARIATION_SPROUT_NO_FLOWER);
+    mReanimatorCache->MakeCachedPlantFrame(SEED_TANGLEKELP, VARIATION_AQUARIUM);
+    mReanimatorCache->MakeCachedPlantFrame(SEED_SEASHROOM, VARIATION_AQUARIUM);
+    mReanimatorCache->MakeCachedPlantFrame(SEED_SUNSHROOM, DrawVariation(18));
 
-  for ( int aVariation = 2; aVariation < 13; ++aVariation )
-    mReanimatorCache->MakeCachedPlantFrame(SEED_MARIGOLD, DrawVariation(aVariation));
+    for (int aVariation = 2; aVariation < 13; ++aVariation)
+        mReanimatorCache->MakeCachedPlantFrame(SEED_MARIGOLD, DrawVariation(aVariation));
 
-  aTimer.GetDuration();
+    aTimer.GetDuration();
 }
 
 // ==========================================================================
@@ -369,15 +360,15 @@ void LawnApp::LoadingThreadCompleted()
 // ==========================================================================
 void LawnApp::OnButtonDown(int theButton, int thePlayerIndex, unsigned int theFlags)
 {
-  // The binary returns the widget the search ended in; the authoritative
-  // signature is `void`, so the value is dropped here.
-  LawnPlayerInfo *aPlayerInfo = mPlayerInfo;
-  if ( (aPlayerInfo == nullptr || aPlayerInfo->GetId() != thePlayerIndex) && mGameScene == SCENE_MENU )
-  {
-    MainMenu *aMenu = mGameSelector;
-    if ( aMenu != nullptr && aMenu == mWidgetManager->mFocusWidget )
-      aMenu->InTransition();
-  }
+    // The binary returns the widget the search ended in; the authoritative
+    // signature is `void`, so the value is dropped here.
+    LawnPlayerInfo *aPlayerInfo = mPlayerInfo;
+    if ((aPlayerInfo == nullptr || aPlayerInfo->GetId() != thePlayerIndex) && mGameScene == SCENE_MENU)
+    {
+        MainMenu *aMenu = mGameSelector;
+        if (aMenu != nullptr && aMenu == mWidgetManager->mFocusWidget)
+            aMenu->InTransition();
+    }
 }
 
 // ==========================================================================
@@ -386,7 +377,7 @@ void LawnApp::OnButtonDown(int theButton, int thePlayerIndex, unsigned int theFl
 // ==========================================================================
 void LawnApp::BetaSubmit(bool theAskForComments)
 {
-  ;
+    ;
 }
 
 // ==========================================================================
@@ -395,24 +386,20 @@ void LawnApp::BetaSubmit(bool theAskForComments)
 // ==========================================================================
 int LawnApp::NeedRegister()
 {
-  return 0;
+    return 0;
 }
 
 // ==========================================================================
 // LawnApp::UpdateRegisterInfo()
 // @002B30BC  2 bytes
 // ==========================================================================
-void LawnApp::UpdateRegisterInfo()
-{
-}
+void LawnApp::UpdateRegisterInfo() {}
 
 // ==========================================================================
 // LawnApp::BetaRecordLevelStats()
 // @002B30C0  2 bytes
 // ==========================================================================
-void LawnApp::BetaRecordLevelStats()
-{
-}
+void LawnApp::BetaRecordLevelStats() {}
 
 // ==========================================================================
 // LawnApp::CanPauseNow()
@@ -420,17 +407,17 @@ void LawnApp::BetaRecordLevelStats()
 // ==========================================================================
 bool LawnApp::CanPauseNow()
 {
-  if ( mBoard == nullptr )
-    return false;
-  if ( mSeedChooserScreen != nullptr && mSeedChooserScreen->mMouseVisible )
-    return false;
-  if ( mBoard->mBoardFadeOutCounter >= 0 )
-    return false;
-  if ( mCrazyDaveState != CRAZY_DAVE_OFF )
-    return false;
-  if ( mGameMode == GAMEMODE_CHALLENGE_ZEN_GARDEN || mGameMode == GAMEMODE_TREE_OF_WISDOM )
-    return false;
-  return GetDialogCount() <= 0;
+    if (mBoard == nullptr)
+        return false;
+    if (mSeedChooserScreen != nullptr && mSeedChooserScreen->mMouseVisible)
+        return false;
+    if (mBoard->mBoardFadeOutCounter >= 0)
+        return false;
+    if (mCrazyDaveState != CRAZY_DAVE_OFF)
+        return false;
+    if (mGameMode == GAMEMODE_CHALLENGE_ZEN_GARDEN || mGameMode == GAMEMODE_TREE_OF_WISDOM)
+        return false;
+    return GetDialogCount() <= 0;
 }
 
 // ==========================================================================
@@ -439,11 +426,9 @@ bool LawnApp::CanPauseNow()
 // ==========================================================================
 int LawnApp::getLevelForPost()
 {
-  LawnPlayerInfo *aPlayerInfo = mPlayerInfo;
-  bool aFlag = aPlayerInfo->GetFlag(PlayerFlags(1));
-  return aPlayerInfo->GetLevel()
-       + 100 * (aPlayerInfo->GetFlag(PlayerFlags(0x8000)) + aFlag)
-       + 10000 * mGameMode;
+    LawnPlayerInfo *aPlayerInfo = mPlayerInfo;
+    bool aFlag = aPlayerInfo->GetFlag(PlayerFlags(1));
+    return aPlayerInfo->GetLevel() + 100 * (aPlayerInfo->GetFlag(PlayerFlags(0x8000)) + aFlag) + 10000 * mGameMode;
 }
 
 // ==========================================================================
@@ -452,32 +437,26 @@ int LawnApp::getLevelForPost()
 // ==========================================================================
 void LawnApp::PostEnterLevel()
 {
-  // Publisher telemetry is disabled in the local SDL port.
+    // Publisher telemetry is disabled in the local SDL port.
 }
 
 // ==========================================================================
 // LawnApp::PostLeaveLevel()
 // @002B3220  110 bytes
 // ==========================================================================
-void LawnApp::PostLeaveLevel()
-{
-}
+void LawnApp::PostLeaveLevel() {}
 
 // ==========================================================================
 // LawnApp::PostLevelSuccess()
 // @002B32A8  110 bytes
 // ==========================================================================
-void LawnApp::PostLevelSuccess()
-{
-}
+void LawnApp::PostLevelSuccess() {}
 
 // ==========================================================================
 // LawnApp::PostLevelFailed()
 // @002B3330  110 bytes
 // ==========================================================================
-void LawnApp::PostLevelFailed()
-{
-}
+void LawnApp::PostLevelFailed() {}
 
 // ==========================================================================
 // LawnApp::SaveFileExists()
@@ -485,12 +464,12 @@ void LawnApp::PostLevelFailed()
 // ==========================================================================
 int LawnApp::SaveFileExists()
 {
-  // @0x2B33B8 builds the saved-game name from the current profile's two ids and
-  // asks the file driver whether that file exists. The name's buffer is a
-  // temporary, so its release is the local's destructor.
-  Sexy::String aName;
-  GetSavedGameName(&aName, GAMEMODE_ADVENTURE, mPlayerInfo->GetProfileId(), mPlayerInfo->GetId());
-  return SexyAppBase::FileExists(aName);
+    // @0x2B33B8 builds the saved-game name from the current profile's two ids and
+    // asks the file driver whether that file exists. The name's buffer is a
+    // temporary, so its release is the local's destructor.
+    Sexy::String aName;
+    GetSavedGameName(&aName, GAMEMODE_ADVENTURE, mPlayerInfo->GetProfileId(), mPlayerInfo->GetId());
+    return SexyAppBase::FileExists(aName);
 }
 
 // ==========================================================================
@@ -499,7 +478,7 @@ int LawnApp::SaveFileExists()
 // ==========================================================================
 int LawnApp::IsIceDemo()
 {
-  return 0;
+    return 0;
 }
 
 // ==========================================================================
@@ -508,10 +487,10 @@ int LawnApp::IsIceDemo()
 // ==========================================================================
 void LawnApp::TransitionToHouseScreen()
 {
-  if (mGameSelector != nullptr)
-    mGameSelector->ButtonDepress(MainMenu::HOUSE_BUTTON);
-  else
-    ShowHouseScreen();
+    if (mGameSelector != nullptr)
+        mGameSelector->ButtonDepress(MainMenu::HOUSE_BUTTON);
+    else
+        ShowHouseScreen();
 }
 
 // ==========================================================================
@@ -520,7 +499,7 @@ void LawnApp::TransitionToHouseScreen()
 // ==========================================================================
 void LawnApp::ShowLeaderboardScreen()
 {
-  TransitionToHouseScreen();
+    TransitionToHouseScreen();
 }
 
 // ==========================================================================
@@ -529,14 +508,14 @@ void LawnApp::ShowLeaderboardScreen()
 // ==========================================================================
 void LawnApp::ShowHouseScreen()
 {
-  if (mPlayerInfo == nullptr || mLeaderboardScreen != nullptr)
-    return;
-  KillGameSelector();
-  ForceHideHelpBarWidget();
-  KillNewOptionsDialog();
-  mLeaderboardScreen = new LeaderboardsWidget(this, false);
-  mWidgetManager->AddWidget(mLeaderboardScreen);
-  mWidgetManager->SetFocus(mLeaderboardScreen);
+    if (mPlayerInfo == nullptr || mLeaderboardScreen != nullptr)
+        return;
+    KillGameSelector();
+    ForceHideHelpBarWidget();
+    KillNewOptionsDialog();
+    mLeaderboardScreen = new LeaderboardsWidget(this, false);
+    mWidgetManager->AddWidget(mLeaderboardScreen);
+    mWidgetManager->SetFocus(mLeaderboardScreen);
 }
 
 // ==========================================================================
@@ -545,7 +524,7 @@ void LawnApp::ShowHouseScreen()
 // ==========================================================================
 void LawnApp::KillHouseScreenFromGame()
 {
-  KillLeaderboardScreen();
+    KillLeaderboardScreen();
 }
 
 // ==========================================================================
@@ -554,34 +533,34 @@ void LawnApp::KillHouseScreenFromGame()
 // ==========================================================================
 void LawnApp::ShowHouseScreenFromGame()
 {
-  if (mPlayerInfo == nullptr || mLeaderboardScreen != nullptr)
-    return;
-  mLeaderboardScreen = new LeaderboardsWidget(this, true);
-  mWidgetManager->AddWidget(mLeaderboardScreen);
-  mWidgetManager->SetFocus(mLeaderboardScreen);
+    if (mPlayerInfo == nullptr || mLeaderboardScreen != nullptr)
+        return;
+    mLeaderboardScreen = new LeaderboardsWidget(this, true);
+    mWidgetManager->AddWidget(mLeaderboardScreen);
+    mWidgetManager->SetFocus(mLeaderboardScreen);
 }
 
 void LawnApp::ShowAchievementsScreen(bool theFromGame)
 {
-  if (mPlayerInfo == nullptr || mAchievementsScreen != nullptr)
-    return;
-  if (!theFromGame)
-  {
-    KillNewOptionsDialog();
-  }
-  mAchievementsScreen = new AchievementsWidget(this, theFromGame);
-  mWidgetManager->AddWidget(mAchievementsScreen);
-  mWidgetManager->SetFocus(mAchievementsScreen);
+    if (mPlayerInfo == nullptr || mAchievementsScreen != nullptr)
+        return;
+    if (!theFromGame)
+    {
+        KillNewOptionsDialog();
+    }
+    mAchievementsScreen = new AchievementsWidget(this, theFromGame);
+    mWidgetManager->AddWidget(mAchievementsScreen);
+    mWidgetManager->SetFocus(mAchievementsScreen);
 }
 
 void LawnApp::KillAchievementsScreen()
 {
-  if (mAchievementsScreen == nullptr)
-    return;
-  mWidgetManager->RemoveWidget(mAchievementsScreen);
-  SafeDeleteWidget(mAchievementsScreen);
-  mAchievementsScreen = nullptr;
-  ForceHideHelpBarWidget();
+    if (mAchievementsScreen == nullptr)
+        return;
+    mWidgetManager->RemoveWidget(mAchievementsScreen);
+    SafeDeleteWidget(mAchievementsScreen);
+    mAchievementsScreen = nullptr;
+    ForceHideHelpBarWidget();
 }
 
 // ==========================================================================
@@ -590,7 +569,7 @@ void LawnApp::KillAchievementsScreen()
 // ==========================================================================
 void LawnApp::KillTitleScreen()
 {
-  ;
+    ;
 }
 
 // ==========================================================================
@@ -599,15 +578,15 @@ void LawnApp::KillTitleScreen()
 // ==========================================================================
 int LawnApp::KillMainMenu()
 {
-  if ( mGameSelector != nullptr )
-  {
-    if ( !mGameSelector->mIsFading )
-      mWidgetManager->RemoveWidget(mGameSelector);
+    if (mGameSelector != nullptr)
+    {
+        if (!mGameSelector->mIsFading)
+            mWidgetManager->RemoveWidget(mGameSelector);
 
-    SafeDeleteWidget(mGameSelector);
-    mGameSelector = nullptr;
-  }
-  return 0;
+        SafeDeleteWidget(mGameSelector);
+        mGameSelector = nullptr;
+    }
+    return 0;
 }
 
 // ==========================================================================
@@ -616,27 +595,27 @@ int LawnApp::KillMainMenu()
 // ==========================================================================
 int LawnApp::KillGameSelector()
 {
-  return KillMainMenu();
+    return KillMainMenu();
 }
 
 // ==========================================================================
 // LawnApp::ShowHelpTextScreen(int)
 // @002B3494  90 bytes
 // ==========================================================================
-Board * LawnApp::ShowHelpTextScreen(int theHelpIndex)
+Board *LawnApp::ShowHelpTextScreen(int theHelpIndex)
 {
-  if ( mBoard != nullptr )
-    mBoard->Pause(true);
+    if (mBoard != nullptr)
+        mBoard->Pause(true);
 
-  if ( mHelpTextScreen == nullptr )
-  {
-    HelpTextScreen *aScreen = new HelpTextScreen(this, theHelpIndex);
-    mHelpTextScreen = aScreen;
-    mWidgetManager->AddWidget(aScreen);
-    mWidgetManager->SetFocus(aScreen);
-    mWidgetManager->BringToFront(aScreen);
-  }
-  return nullptr;
+    if (mHelpTextScreen == nullptr)
+    {
+        HelpTextScreen *aScreen = new HelpTextScreen(this, theHelpIndex);
+        mHelpTextScreen = aScreen;
+        mWidgetManager->AddWidget(aScreen);
+        mWidgetManager->SetFocus(aScreen);
+        mWidgetManager->BringToFront(aScreen);
+    }
+    return nullptr;
 }
 
 // ==========================================================================
@@ -645,60 +624,60 @@ Board * LawnApp::ShowHelpTextScreen(int theHelpIndex)
 // ==========================================================================
 void LawnApp::KillHelpTextScreen()
 {
-  if ( mHelpTextScreen == nullptr )
-    return;
+    if (mHelpTextScreen == nullptr)
+        return;
 
-  mWidgetManager->RemoveWidget(mHelpTextScreen);
-  SafeDeleteWidget(mHelpTextScreen);
-  mHelpTextScreen = nullptr;
+    mWidgetManager->RemoveWidget(mHelpTextScreen);
+    SafeDeleteWidget(mHelpTextScreen);
+    mHelpTextScreen = nullptr;
 
-  // Removing help clears focus. GotFocus rebuilds the chooser's own hints.
-  if ( mSeedChooserScreen != nullptr )
-  {
-    mBoard->Pause(false);
-    mWidgetManager->SetFocus(mSeedChooserScreen);
-    return;
-  }
-  if ( mZombieChooserScreen != nullptr )
-  {
-    mBoard->Pause(false);
-    mWidgetManager->SetFocus(mZombieChooserScreen);
-    return;
-  }
-  if ( mVSSetupMenu != nullptr )
-  {
-    mBoard->Pause(false);
-    mWidgetManager->SetFocus(mVSSetupMenu);
-    return;
-  }
-  if ( GetDialog(3) != nullptr )
-  {
-    mWidgetManager->SetFocus(GetDialog(3));
-    return;
-  }
-  if ( mBoard != nullptr )
-  {
-    mBoard->Pause(false);
-    mWidgetManager->SetFocus(mBoard);
-    return;
-  }
-  if ( Sexy::Dialog* dialog = GetDialog(60) )
-    mWidgetManager->SetFocus(dialog);
+    // Removing help clears focus. GotFocus rebuilds the chooser's own hints.
+    if (mSeedChooserScreen != nullptr)
+    {
+        mBoard->Pause(false);
+        mWidgetManager->SetFocus(mSeedChooserScreen);
+        return;
+    }
+    if (mZombieChooserScreen != nullptr)
+    {
+        mBoard->Pause(false);
+        mWidgetManager->SetFocus(mZombieChooserScreen);
+        return;
+    }
+    if (mVSSetupMenu != nullptr)
+    {
+        mBoard->Pause(false);
+        mWidgetManager->SetFocus(mVSSetupMenu);
+        return;
+    }
+    if (GetDialog(3) != nullptr)
+    {
+        mWidgetManager->SetFocus(GetDialog(3));
+        return;
+    }
+    if (mBoard != nullptr)
+    {
+        mBoard->Pause(false);
+        mWidgetManager->SetFocus(mBoard);
+        return;
+    }
+    if (Sexy::Dialog *dialog = GetDialog(60))
+        mWidgetManager->SetFocus(dialog);
 }
 
 // ==========================================================================
 // LawnApp::TryHelpTextScreen(int)
 // @002B359C  26 bytes
 // ==========================================================================
-Board * LawnApp::TryHelpTextScreen(int theHelpIndex)
+Board *LawnApp::TryHelpTextScreen(int theHelpIndex)
 {
-  LawnPlayerInfo *aPlayerInfo = mPlayerInfo;
-  if ( aPlayerInfo != nullptr && !aPlayerInfo->mHelpTextSeen[theHelpIndex] )
-  {
-    aPlayerInfo->mHelpTextSeen[theHelpIndex] = true;
-    return ShowHelpTextScreen(theHelpIndex);
-  }
-  return nullptr;
+    LawnPlayerInfo *aPlayerInfo = mPlayerInfo;
+    if (aPlayerInfo != nullptr && !aPlayerInfo->mHelpTextSeen[theHelpIndex])
+    {
+        aPlayerInfo->mHelpTextSeen[theHelpIndex] = true;
+        return ShowHelpTextScreen(theHelpIndex);
+    }
+    return nullptr;
 }
 
 // ==========================================================================
@@ -707,12 +686,12 @@ Board * LawnApp::TryHelpTextScreen(int theHelpIndex)
 // ==========================================================================
 void LawnApp::KillLeaderboardScreen()
 {
-  if (mLeaderboardScreen == nullptr)
-    return;
-  mWidgetManager->RemoveWidget(mLeaderboardScreen);
-  SafeDeleteWidget(mLeaderboardScreen);
-  mLeaderboardScreen = nullptr;
-  ForceHideHelpBarWidget();
+    if (mLeaderboardScreen == nullptr)
+        return;
+    mWidgetManager->RemoveWidget(mLeaderboardScreen);
+    SafeDeleteWidget(mLeaderboardScreen);
+    mLeaderboardScreen = nullptr;
+    ForceHideHelpBarWidget();
 }
 
 // ==========================================================================
@@ -721,7 +700,7 @@ void LawnApp::KillLeaderboardScreen()
 // ==========================================================================
 void LawnApp::KillHouseScreen()
 {
-  KillLeaderboardScreen();
+    KillLeaderboardScreen();
 }
 
 // ==========================================================================
@@ -730,14 +709,14 @@ void LawnApp::KillHouseScreen()
 // ==========================================================================
 int LawnApp::ShowAwardScreen(AwardType theAwardType)
 {
-  mGameScene = SCENE_AWARD;
-  AwardScreen *aScreen = new AwardScreen(this, theAwardType);
-  mAwardScreen = aScreen;
-  aScreen->Resize(0, 0, mWidth, mHeight);
-  mWidgetManager->AddWidget(aScreen);
-  mWidgetManager->BringToBack(aScreen);
-  mWidgetManager->SetFocus(aScreen);
-  return 0;
+    mGameScene = SCENE_AWARD;
+    AwardScreen *aScreen = new AwardScreen(this, theAwardType);
+    mAwardScreen = aScreen;
+    aScreen->Resize(0, 0, mWidth, mHeight);
+    mWidgetManager->AddWidget(aScreen);
+    mWidgetManager->BringToBack(aScreen);
+    mWidgetManager->SetFocus(aScreen);
+    return 0;
 }
 
 // ==========================================================================
@@ -746,13 +725,13 @@ int LawnApp::ShowAwardScreen(AwardType theAwardType)
 // ==========================================================================
 int LawnApp::KillAwardScreen()
 {
-  if ( mAwardScreen != nullptr )
-  {
-    mWidgetManager->RemoveWidget(mAwardScreen);
-    SafeDeleteWidget(mAwardScreen);
-    mAwardScreen = nullptr;
-  }
-  return 0;
+    if (mAwardScreen != nullptr)
+    {
+        mWidgetManager->RemoveWidget(mAwardScreen);
+        SafeDeleteWidget(mAwardScreen);
+        mAwardScreen = nullptr;
+    }
+    return 0;
 }
 
 // ==========================================================================
@@ -761,14 +740,14 @@ int LawnApp::KillAwardScreen()
 // ==========================================================================
 int LawnApp::ShowCreditScreen(bool theFromMainMenu)
 {
-  mGameScene = SCENE_CREDIT;
-  CreditScreen *aScreen = new CreditScreen(this, theFromMainMenu);
-  mCreditScreen = aScreen;
-  aScreen->Resize(0, 0, mWidth, mHeight);
-  mWidgetManager->AddWidget(aScreen);
-  mWidgetManager->BringToBack(aScreen);
-  mWidgetManager->SetFocus(aScreen);
-  return 0;
+    mGameScene = SCENE_CREDIT;
+    CreditScreen *aScreen = new CreditScreen(this, theFromMainMenu);
+    mCreditScreen = aScreen;
+    aScreen->Resize(0, 0, mWidth, mHeight);
+    mWidgetManager->AddWidget(aScreen);
+    mWidgetManager->BringToBack(aScreen);
+    mWidgetManager->SetFocus(aScreen);
+    return 0;
 }
 
 // ==========================================================================
@@ -777,14 +756,14 @@ int LawnApp::ShowCreditScreen(bool theFromMainMenu)
 // ==========================================================================
 int LawnApp::KillCreditScreen()
 {
-  if ( mCreditScreen != nullptr )
-  {
-    mWidgetManager->RemoveWidget(mCreditScreen);
-    SafeDeleteWidget(mCreditScreen);
-    mCreditScreen = nullptr;
-    ForceHideHelpBarWidget();
-  }
-  return 0;
+    if (mCreditScreen != nullptr)
+    {
+        mWidgetManager->RemoveWidget(mCreditScreen);
+        SafeDeleteWidget(mCreditScreen);
+        mCreditScreen = nullptr;
+        ForceHideHelpBarWidget();
+    }
+    return 0;
 }
 
 // ==========================================================================
@@ -793,15 +772,15 @@ int LawnApp::KillCreditScreen()
 // ==========================================================================
 int LawnApp::ShowChallengeScreen(ChallengePage thePage)
 {
-  mGameScene = SCENE_CHALLENGE;
-  unsigned int aPlayerId = mPlayerInfo->GetId();
-  ChallengeScreen *aScreen = new ChallengeScreen(this, thePage, aPlayerId);
-  mChallengeScreen = aScreen;
-  aScreen->Resize(0, 0, mWidth, mHeight);
-  mWidgetManager->AddWidget(aScreen);
-  mWidgetManager->BringToBack(aScreen);
-  mWidgetManager->SetFocus(aScreen);
-  return 0;
+    mGameScene = SCENE_CHALLENGE;
+    unsigned int aPlayerId = mPlayerInfo->GetId();
+    ChallengeScreen *aScreen = new ChallengeScreen(this, thePage, aPlayerId);
+    mChallengeScreen = aScreen;
+    aScreen->Resize(0, 0, mWidth, mHeight);
+    mWidgetManager->AddWidget(aScreen);
+    mWidgetManager->BringToBack(aScreen);
+    mWidgetManager->SetFocus(aScreen);
+    return 0;
 }
 
 // ==========================================================================
@@ -810,13 +789,13 @@ int LawnApp::ShowChallengeScreen(ChallengePage thePage)
 // ==========================================================================
 int LawnApp::KillChallengeScreen()
 {
-  if ( mChallengeScreen != nullptr )
-  {
-    mWidgetManager->RemoveWidget(mChallengeScreen);
-    SafeDeleteWidget(mChallengeScreen);
-    mChallengeScreen = nullptr;
-  }
-  return 0;
+    if (mChallengeScreen != nullptr)
+    {
+        mWidgetManager->RemoveWidget(mChallengeScreen);
+        SafeDeleteWidget(mChallengeScreen);
+        mChallengeScreen = nullptr;
+    }
+    return 0;
 }
 
 // ==========================================================================
@@ -825,10 +804,10 @@ int LawnApp::KillChallengeScreen()
 // ==========================================================================
 int LawnApp::KillStoreScreen()
 {
-  if ( GetDialog(6) == nullptr )
-    return 0;
-  KillDialog(6);
-  return SexyAppBase::ClearUpdateBacklog(false);
+    if (GetDialog(6) == nullptr)
+        return 0;
+    KillDialog(6);
+    return SexyAppBase::ClearUpdateBacklog(false);
 }
 
 // ==========================================================================
@@ -837,13 +816,13 @@ int LawnApp::KillStoreScreen()
 // ==========================================================================
 int LawnApp::ShowVSSetupScreen()
 {
-  VSSetupMenu *aScreen = new VSSetupMenu();
-  mVSSetupMenu = aScreen;
-  aScreen->Resize(0, 0, mWidth, mHeight);
-  mWidgetManager->AddWidget(aScreen);
-  mWidgetManager->BringToFront(aScreen);
-  mWidgetManager->SetFocus(aScreen);
-  return 0;
+    VSSetupMenu *aScreen = new VSSetupMenu();
+    mVSSetupMenu = aScreen;
+    aScreen->Resize(0, 0, mWidth, mHeight);
+    mWidgetManager->AddWidget(aScreen);
+    mWidgetManager->BringToFront(aScreen);
+    mWidgetManager->SetFocus(aScreen);
+    return 0;
 }
 
 // ==========================================================================
@@ -852,13 +831,13 @@ int LawnApp::ShowVSSetupScreen()
 // ==========================================================================
 int LawnApp::KillVSSetupScreen()
 {
-  if ( mVSSetupMenu != nullptr )
-  {
-    mWidgetManager->RemoveWidget(mVSSetupMenu);
-    SafeDeleteWidget(mVSSetupMenu);
-    mVSSetupMenu = nullptr;
-  }
-  return 0;
+    if (mVSSetupMenu != nullptr)
+    {
+        mWidgetManager->RemoveWidget(mVSSetupMenu);
+        SafeDeleteWidget(mVSSetupMenu);
+        mVSSetupMenu = nullptr;
+    }
+    return 0;
 }
 
 // ==========================================================================
@@ -867,13 +846,13 @@ int LawnApp::KillVSSetupScreen()
 // ==========================================================================
 int LawnApp::ShowVSResultsScreen()
 {
-  VSResultsMenu *aScreen = new VSResultsMenu();
-  mVSResultsMenu = aScreen;
-  aScreen->Resize(0, 0, mWidth, mHeight);
-  mWidgetManager->AddWidget(aScreen);
-  mWidgetManager->BringToBack(aScreen);
-  mWidgetManager->SetFocus(aScreen);
-  return 0;
+    VSResultsMenu *aScreen = new VSResultsMenu();
+    mVSResultsMenu = aScreen;
+    aScreen->Resize(0, 0, mWidth, mHeight);
+    mWidgetManager->AddWidget(aScreen);
+    mWidgetManager->BringToBack(aScreen);
+    mWidgetManager->SetFocus(aScreen);
+    return 0;
 }
 
 // ==========================================================================
@@ -882,15 +861,15 @@ int LawnApp::ShowVSResultsScreen()
 // ==========================================================================
 int LawnApp::KillVSResultsScreen()
 {
-  if ( mVSResultsMenu != nullptr )
-  {
-    if ( !mVSResultsMenu->mIsFading )
-      mWidgetManager->RemoveWidget(mVSResultsMenu);
+    if (mVSResultsMenu != nullptr)
+    {
+        if (!mVSResultsMenu->mIsFading)
+            mWidgetManager->RemoveWidget(mVSResultsMenu);
 
-    SafeDeleteWidget(mVSResultsMenu);
-    mVSResultsMenu = nullptr;
-  }
-  return 0;
+        SafeDeleteWidget(mVSResultsMenu);
+        mVSResultsMenu = nullptr;
+    }
+    return 0;
 }
 
 // ==========================================================================
@@ -899,13 +878,12 @@ int LawnApp::KillVSResultsScreen()
 // ==========================================================================
 int LawnApp::ShowSeedChooserScreen()
 {
-  SeedChooserScreen *aScreen = new SeedChooserScreen(0);
-  mSeedChooserScreen = aScreen;
-  aScreen->Resize(0, 0, (IMAGE_SEEDCHOOSER_BACKGROUND)->mWidth,
-                  (IMAGE_SEEDCHOOSER_BACKGROUND)->mHeight);
-  mWidgetManager->AddWidget(aScreen);
-  mWidgetManager->BringToFront(aScreen);
-  return 0;
+    SeedChooserScreen *aScreen = new SeedChooserScreen(0);
+    mSeedChooserScreen = aScreen;
+    aScreen->Resize(0, 0, (IMAGE_SEEDCHOOSER_BACKGROUND)->mWidth, (IMAGE_SEEDCHOOSER_BACKGROUND)->mHeight);
+    mWidgetManager->AddWidget(aScreen);
+    mWidgetManager->BringToFront(aScreen);
+    return 0;
 }
 
 // ==========================================================================
@@ -914,13 +892,13 @@ int LawnApp::ShowSeedChooserScreen()
 // ==========================================================================
 int LawnApp::KillSeedChooserScreen()
 {
-  if ( mSeedChooserScreen != nullptr )
-  {
-    mWidgetManager->RemoveWidget(mSeedChooserScreen);
-    SafeDeleteWidget(mSeedChooserScreen);
-    mSeedChooserScreen = nullptr;
-  }
-  return 0;
+    if (mSeedChooserScreen != nullptr)
+    {
+        mWidgetManager->RemoveWidget(mSeedChooserScreen);
+        SafeDeleteWidget(mSeedChooserScreen);
+        mSeedChooserScreen = nullptr;
+    }
+    return 0;
 }
 
 // ==========================================================================
@@ -929,14 +907,15 @@ int LawnApp::KillSeedChooserScreen()
 // ==========================================================================
 int LawnApp::ShowZombieChooserScreen()
 { // TODO FAIL
-  SeedChooserScreen *aScreen = new SeedChooserScreen(1);
-  mZombieChooserScreen = aScreen;
-  aScreen->Resize(800 - (IMAGE_SEEDCHOOSER_BACKGROUND2)->mWidth, 0,
-                  (IMAGE_SEEDCHOOSER_BACKGROUND2)->mWidth,
-                  (IMAGE_SEEDCHOOSER_BACKGROUND2)->mHeight);
-  mWidgetManager->AddWidget(aScreen);
-  mWidgetManager->BringToFront(aScreen);
-  return 0;
+    SeedChooserScreen *aScreen = new SeedChooserScreen(1);
+    mZombieChooserScreen = aScreen;
+    aScreen->Resize(800 - (IMAGE_SEEDCHOOSER_BACKGROUND2)->mWidth,
+        0,
+        (IMAGE_SEEDCHOOSER_BACKGROUND2)->mWidth,
+        (IMAGE_SEEDCHOOSER_BACKGROUND2)->mHeight);
+    mWidgetManager->AddWidget(aScreen);
+    mWidgetManager->BringToFront(aScreen);
+    return 0;
 }
 
 // ==========================================================================
@@ -945,13 +924,13 @@ int LawnApp::ShowZombieChooserScreen()
 // ==========================================================================
 int LawnApp::KillZombieChooserScreen()
 {
-  if ( mZombieChooserScreen != nullptr )
-  {
-    mWidgetManager->RemoveWidget(mZombieChooserScreen);
-    SafeDeleteWidget(mZombieChooserScreen);
-    mZombieChooserScreen = nullptr;
-  }
-  return 0;
+    if (mZombieChooserScreen != nullptr)
+    {
+        mWidgetManager->RemoveWidget(mZombieChooserScreen);
+        SafeDeleteWidget(mZombieChooserScreen);
+        mZombieChooserScreen = nullptr;
+    }
+    return 0;
 }
 
 // ==========================================================================
@@ -960,66 +939,67 @@ int LawnApp::KillZombieChooserScreen()
 // ==========================================================================
 int LawnApp::StartPlaying()
 {
-  KillSeedChooserScreen();
-  KillZombieChooserScreen();
-  KillVSSetupScreen();
-  mBoard->StartLevel();
-  mGameScene = SCENE_PLAYING;
-  if (!mSaveGameToReplace.empty())
-  {
-    if (mBoard->NeedSaveGame())
+    KillSeedChooserScreen();
+    KillZombieChooserScreen();
+    KillVSSetupScreen();
+    mBoard->StartLevel();
+    mGameScene = SCENE_PLAYING;
+    if (!mSaveGameToReplace.empty())
     {
-      if (!mBoard->SaveGame(mSaveGameToReplace))
-        logfe("Failed to replace incompatible save: %s", mSaveGameToReplace.c_str());
+        if (mBoard->NeedSaveGame())
+        {
+            if (!mBoard->SaveGame(mSaveGameToReplace))
+                logfe("Failed to replace incompatible save: %s", mSaveGameToReplace.c_str());
+        }
+        else
+            EraseFile(mSaveGameToReplace);
+        mSaveGameToReplace.clear();
     }
-    else
-      EraseFile(mSaveGameToReplace);
-    mSaveGameToReplace.clear();
-  }
-  mBoard->RebuildHelpBar();
-  mHelpIndex = 0;
-  return 0;
+    mBoard->RebuildHelpBar();
+    mHelpIndex = 0;
+    return 0;
 }
 
 // ==========================================================================
 // LawnApp::DoConfirmBackToMain(bool)
 // @002B3A5C  52 bytes
 // ==========================================================================
-ConfirmBackToMainDialog * LawnApp::DoConfirmBackToMain(bool theSaveGame)
+ConfirmBackToMainDialog *LawnApp::DoConfirmBackToMain(bool theSaveGame)
 {
-  // Garden progress lives in the profile. Returning from it has no level to
-  // restart or resume, so request the board's deferred exit instead of a prompt.
-  if (mBoard != nullptr
-      && (mGameMode == GAMEMODE_CHALLENGE_ZEN_GARDEN || mGameMode == GAMEMODE_TREE_OF_WISDOM))
-  {
-    if (!mBoard->mExitRequested)
+    // Garden progress lives in the profile. Returning from it has no level to
+    // restart or resume, so request the board's deferred exit instead of a prompt.
+    if (mBoard != nullptr && (mGameMode == GAMEMODE_CHALLENGE_ZEN_GARDEN || mGameMode == GAMEMODE_TREE_OF_WISDOM))
     {
-      PostLeaveLevel();
-      SetBoardResult(BOARDRESULT_QUIT);
-      mBoard->TryToExit();
+        if (!mBoard->mExitRequested)
+        {
+            PostLeaveLevel();
+            SetBoardResult(BOARDRESULT_QUIT);
+            mBoard->TryToExit();
+        }
+        return nullptr;
     }
-    return nullptr;
-  }
 
-  // The confirmation says the game is saved. Write its snapshot before showing it.
-  if (theSaveGame && mBoard != nullptr && !mBoard->TryToSaveGame())
-    return nullptr;
+    // The confirmation says the game is saved. Write its snapshot before showing it.
+    if (theSaveGame && mBoard != nullptr && !mBoard->TryToSaveGame())
+        return nullptr;
 
-  ConfirmBackToMainDialog *aDialog = new ConfirmBackToMainDialog(theSaveGame);
-  AddDialogWithId(23, aDialog);
-  mWidgetManager->SetFocus(aDialog);
-  return aDialog;
+    ConfirmBackToMainDialog *aDialog = new ConfirmBackToMainDialog(theSaveGame);
+    AddDialogWithId(23, aDialog);
+    mWidgetManager->SetFocus(aDialog);
+    return aDialog;
 }
 
 // ==========================================================================
 // LawnApp::NewDialog(int,bool,Sexy::String const&,Sexy::String const&,Sexy::String const&,int)
 // @002B3AC4  68 bytes
 // ==========================================================================
-LawnDialog * LawnApp::NewDialog(int theDialogId, bool theModal, Sexy::String const& theHeader, Sexy::String const& theLines, Sexy::String const& theFooter, int theButtonMode)
+LawnDialog *LawnApp::NewDialog(int theDialogId, bool theModal, Sexy::String const &theHeader,
+    Sexy::String const &theLines, Sexy::String const &theFooter, int theButtonMode)
 {
-  LawnDialog *aDialog = new LawnDialog(this, nullptr, theDialogId, theModal, theHeader, theLines, theFooter, theButtonMode);
-  CenterDialog(aDialog, aDialog->mWidth, aDialog->mHeight);// TODO FAIL
-  return aDialog;
+    LawnDialog *aDialog =
+        new LawnDialog(this, nullptr, theDialogId, theModal, theHeader, theLines, theFooter, theButtonMode);
+    CenterDialog(aDialog, aDialog->mWidth, aDialog->mHeight); // TODO FAIL
+    return aDialog;
 }
 
 // ==========================================================================
@@ -1028,11 +1008,11 @@ LawnDialog * LawnApp::NewDialog(int theDialogId, bool theModal, Sexy::String con
 // ==========================================================================
 int LawnApp::DoContinueDialog()
 {
-  ContinueDialog *aDialog = new ContinueDialog(this);
-  CenterDialog(aDialog, aDialog->mWidth, aDialog->mHeight);// TODO FAIL
-  AddDialogWithId(39, aDialog);
-  mWidgetManager->SetFocus(aDialog);
-  return 0;
+    ContinueDialog *aDialog = new ContinueDialog(this);
+    CenterDialog(aDialog, aDialog->mWidth, aDialog->mHeight); // TODO FAIL
+    AddDialogWithId(39, aDialog);
+    mWidgetManager->SetFocus(aDialog);
+    return 0;
 }
 
 // ==========================================================================
@@ -1041,16 +1021,14 @@ int LawnApp::DoContinueDialog()
 // ==========================================================================
 int LawnApp::FinishTimesUpDialog()
 {
-  return KillDialog(44);
+    return KillDialog(44);
 }
 
 // ==========================================================================
 // LawnApp::FinishModelessDialogs()
 // @002B3B68  2 bytes
 // ==========================================================================
-void LawnApp::FinishModelessDialogs()
-{
-}
+void LawnApp::FinishModelessDialogs() {}
 
 // ==========================================================================
 // LawnApp::KillBoard()
@@ -1058,20 +1036,20 @@ void LawnApp::FinishModelessDialogs()
 // ==========================================================================
 int LawnApp::KillBoard()
 {
-  mGameScene = SCENE_LEVEL_INTRO;
-  FinishModelessDialogs();
-  KillSeedChooserScreen();
-  KillZombieChooserScreen();
-  KillVSSetupScreen();
-  if ( mBoard != nullptr )
-  {
-    BetaRecordLevelStats();
-    mBoard->DisposeBoard();
-    mWidgetManager->RemoveWidget(mBoard);
-    SafeDeleteWidget(mBoard);
-    mBoard = nullptr;
-  }
-  return SexyAppBase::SetCursor(0);
+    mGameScene = SCENE_LEVEL_INTRO;
+    FinishModelessDialogs();
+    KillSeedChooserScreen();
+    KillZombieChooserScreen();
+    KillVSSetupScreen();
+    if (mBoard != nullptr)
+    {
+        BetaRecordLevelStats();
+        mBoard->DisposeBoard();
+        mWidgetManager->RemoveWidget(mBoard);
+        SafeDeleteWidget(mBoard);
+        mBoard = nullptr;
+    }
+    return SexyAppBase::SetCursor(0);
 }
 
 // ==========================================================================
@@ -1080,20 +1058,20 @@ int LawnApp::KillBoard()
 // ==========================================================================
 int LawnApp::MakeNewBoard()
 {
-  KillBoard();
-  Board *aBoard = new Board(this);
-  mBoard = aBoard;
-  aBoard->Resize(0, 0, mWidth, mHeight);
-  mWidgetManager->AddWidget(aBoard);
-  mWidgetManager->BringToBack(aBoard);
+    KillBoard();
+    Board *aBoard = new Board(this);
+    mBoard = aBoard;
+    aBoard->Resize(0, 0, mWidth, mHeight);
+    mWidgetManager->AddWidget(aBoard);
+    mWidgetManager->BringToBack(aBoard);
 
-  int result = GetDialogCount();
-  if ( result == 0 )
-  {
-    mWidgetManager->SetFocus(aBoard);
-    return 0;
-  }
-  return result;
+    int result = GetDialogCount();
+    if (result == 0)
+    {
+        mWidgetManager->SetFocus(aBoard);
+        return 0;
+    }
+    return result;
 }
 
 // ==========================================================================
@@ -1102,43 +1080,43 @@ int LawnApp::MakeNewBoard()
 // ==========================================================================
 int LawnApp::NewGame()
 {
-  mSaveGameToReplace.clear();
-  mFirstTimeGameSelector = false;
-  MakeNewBoard();
-  mBoard->InitLevel();
-  GameMode aGameMode = mGameMode;
-  mBoardResult = BOARDRESULT_NONE;
-  mGameScene = SCENE_LEVEL_INTRO;
-  if ( aGameMode == GAMEMODE_MULTI_PLAYER )
-  {
-    ShowSeedChooserScreen();
-    ShowZombieChooserScreen();
-  }
-  else
-  {
-    if ( aGameMode == GAMEMODE_MP_VS )
+    mSaveGameToReplace.clear();
+    mFirstTimeGameSelector = false;
+    MakeNewBoard();
+    mBoard->InitLevel();
+    GameMode aGameMode = mGameMode;
+    mBoardResult = BOARDRESULT_NONE;
+    mGameScene = SCENE_LEVEL_INTRO;
+    if (aGameMode == GAMEMODE_MULTI_PLAYER)
     {
-      ShowVSSetupScreen();
-      mBoard->mCutScene->StartLevelIntro();
-      return 0;
+        ShowSeedChooserScreen();
+        ShowZombieChooserScreen();
     }
-    ShowSeedChooserScreen();
-  }
-  mBoard->mCutScene->StartLevelIntro();
-  return 0;
+    else
+    {
+        if (aGameMode == GAMEMODE_MP_VS)
+        {
+            ShowVSSetupScreen();
+            mBoard->mCutScene->StartLevelIntro();
+            return 0;
+        }
+        ShowSeedChooserScreen();
+    }
+    mBoard->mCutScene->StartLevelIntro();
+    return 0;
 }
 
 // ==========================================================================
 // LawnApp::ShowStoreScreen()
 // @002B3CAC  54 bytes
 // ==========================================================================
-StoreScreen * LawnApp::ShowStoreScreen()
+StoreScreen *LawnApp::ShowStoreScreen()
 {
-  FinishModelessDialogs();
-  StoreScreen *aScreen = new StoreScreen(this);
-  AddDialogWithId(6, aScreen);
-  mWidgetManager->SetFocus(aScreen);
-  return aScreen;
+    FinishModelessDialogs();
+    StoreScreen *aScreen = new StoreScreen(this);
+    AddDialogWithId(6, aScreen);
+    mWidgetManager->SetFocus(aScreen);
+    return aScreen;
 }
 
 // ==========================================================================
@@ -1147,40 +1125,40 @@ StoreScreen * LawnApp::ShowStoreScreen()
 // ==========================================================================
 int LawnApp::DoNewOptions(bool theFromGameSelector, unsigned int thePlayerIndex)
 {
-  FinishModelessDialogs();
-  NewOptionsDialog *aDialog = new NewOptionsDialog(this, theFromGameSelector, thePlayerIndex);
-  CenterDialog(aDialog, 413, 585);
-  AddDialogWithId(2, aDialog);
-  mWidgetManager->SetFocus(aDialog);
-  return 0;
+    FinishModelessDialogs();
+    NewOptionsDialog *aDialog = new NewOptionsDialog(this, theFromGameSelector, thePlayerIndex);
+    CenterDialog(aDialog, 413, 585);
+    AddDialogWithId(2, aDialog);
+    mWidgetManager->SetFocus(aDialog);
+    return 0;
 }
 
 // ==========================================================================
 // LawnApp::DoAlmanacDialog(SeedType,ZombieType)
 // @002B3D40  114 bytes
 // ==========================================================================
-AlmanacDialog * LawnApp::DoAlmanacDialog(SeedType theSeedType, ZombieType theZombieType)
+AlmanacDialog *LawnApp::DoAlmanacDialog(SeedType theSeedType, ZombieType theZombieType)
 {
-  Sexy::PerfTimer aTimer;
-  aTimer.Start();
+    Sexy::PerfTimer aTimer;
+    aTimer.Start();
 
-  FinishModelessDialogs();
-  AlmanacDialog *aDialog = new AlmanacDialog(this);
-  AddDialogWithId(5, aDialog);
-  mWidgetManager->SetFocus(aDialog);
+    FinishModelessDialogs();
+    AlmanacDialog *aDialog = new AlmanacDialog(this);
+    AddDialogWithId(5, aDialog);
+    mWidgetManager->SetFocus(aDialog);
 
-  if ( theSeedType == -1 )
-  {
-    if ( theZombieType != -1 )
-      aDialog->ShowZombie(theZombieType);
-  }
-  else
-  {
-    aDialog->ShowPlant(theSeedType);
-  }
+    if (theSeedType == -1)
+    {
+        if (theZombieType != -1)
+            aDialog->ShowZombie(theZombieType);
+    }
+    else
+    {
+        aDialog->ShowPlant(theSeedType);
+    }
 
-  aTimer.GetDuration();
-  return aDialog;
+    aTimer.GetDuration();
+    return aDialog;
 }
 
 // ==========================================================================
@@ -1189,25 +1167,24 @@ AlmanacDialog * LawnApp::DoAlmanacDialog(SeedType theSeedType, ZombieType theZom
 // ==========================================================================
 void LawnApp::DoPauseDialog()
 {
-  if ( mBoard != nullptr )
-    mBoard->Pause(true);
+    if (mBoard != nullptr)
+        mBoard->Pause(true);
 
-  FinishModelessDialogs();
+    FinishModelessDialogs();
 
-  // The three keys are copied as-is. DoDialog (vtable +0x198) translates them;
-  // these locals release through their own destructors.
-  Sexy::String aHeader("[GAME_PAUSED]");
-  Sexy::String aLines("[CLICK_TO_RESUME]");
-  Sexy::String aFooter("[RESUME_GAME]");
-  LawnDialog *aDialog = static_cast<LawnDialog *>(
-      DoDialog(20, true, aHeader, aLines, aFooter, 3));
+    // The three keys are copied as-is. DoDialog (vtable +0x198) translates them;
+    // these locals release through their own destructors.
+    Sexy::String aHeader("[GAME_PAUSED]");
+    Sexy::String aLines("[CLICK_TO_RESUME]");
+    Sexy::String aFooter("[RESUME_GAME]");
+    LawnDialog *aDialog = static_cast<LawnDialog *>(DoDialog(20, true, aHeader, aLines, aFooter, 3));
 
-  // 5.0f and 42.0f are the two float immediates. Type 30 and the 155-pixel
-  // gap under the header are immediates too; CalcSize sees the width test.
-  aDialog->mReanimationWidget->AddReanimation(5.0f, 42.0f, REANIM_ZOMBIE_NEWSPAPER);
-  aDialog->mSpaceAfterHeader = 155;
-  aDialog->CalcSize(0, 10, aDialog->mWidth < 500);
-  CenterDialog(aDialog, aDialog->mWidth, aDialog->mHeight);
+    // 5.0f and 42.0f are the two float immediates. Type 30 and the 155-pixel
+    // gap under the header are immediates too; CalcSize sees the width test.
+    aDialog->mReanimationWidget->AddReanimation(5.0f, 42.0f, REANIM_ZOMBIE_NEWSPAPER);
+    aDialog->mSpaceAfterHeader = 155;
+    aDialog->CalcSize(0, 10, aDialog->mWidth < 500);
+    CenterDialog(aDialog, aDialog->mWidth, aDialog->mHeight);
 }
 // ==========================================================================
 // LawnApp::LostFocus()
@@ -1215,62 +1192,62 @@ void LawnApp::DoPauseDialog()
 // ==========================================================================
 void LawnApp::LostFocus()
 {
-  if ( !mTodCheatKeys && CanPauseNow() )
-    DoPauseDialog();
+    if (!mTodCheatKeys && CanPauseNow())
+        DoPauseDialog();
 }
 
 // ==========================================================================
 // LawnApp::LawnMessageBox(int,char const*,char const*,char const*,char const*,int)
 // @002B3F5C  296 bytes
 // ==========================================================================
-int LawnApp::LawnMessageBox(int theDialogId, char const* theHeader, char const* theLines, char const* theButton1, char const* theButton2, int theButtonMode)
+int LawnApp::LawnMessageBox(int theDialogId, char const *theHeader, char const *theLines, char const *theButton1,
+    char const *theButton2, int theButtonMode)
 {
-  // Saved from WidgetManager::mFocusWidget (+0xA0) and restored after the box.
-  Sexy::Widget *aOldFocus = mWidgetManager->mFocusWidget;
+    // Saved from WidgetManager::mFocusWidget (+0xA0) and restored after the box.
+    Sexy::Widget *aOldFocus = mWidgetManager->mFocusWidget;
 
-  // DoDialog is vtable +0x198. The three keys are copied as-is; these locals
-  // release through their own destructors, immediately after the call.
-  LawnDialog *aDialog;
-  {
-    Sexy::String aHeader(theHeader);
-    Sexy::String aLines(theLines);
-    Sexy::String aFooter(theButton1);
-    aDialog = static_cast<LawnDialog *>(
-        DoDialog(theDialogId, true, aHeader, aLines, aFooter, theButtonMode));
-  }
+    // DoDialog is vtable +0x198. The three keys are copied as-is; these locals
+    // release through their own destructors, immediately after the call.
+    LawnDialog *aDialog;
+    {
+        Sexy::String aHeader(theHeader);
+        Sexy::String aLines(theLines);
+        Sexy::String aFooter(theButton1);
+        aDialog = static_cast<LawnDialog *>(DoDialog(theDialogId, true, aHeader, aLines, aFooter, theButtonMode));
+    }
 
-  // Remove-then-add uses the dialog's own manager (+0x18). 99 is the z-order.
-  Sexy::WidgetManager* aDialogManager = aDialog->mWidgetManager;
-  aDialogManager->RemoveWidget(aDialog);
-  aDialog->mZOrder = 99;
-  aDialogManager->AddWidget(aDialog);
+    // Remove-then-add uses the dialog's own manager (+0x18). 99 is the z-order.
+    Sexy::WidgetManager *aDialogManager = aDialog->mWidgetManager;
+    aDialogManager->RemoveWidget(aDialog);
+    aDialog->mZOrder = 99;
+    aDialogManager->AddWidget(aDialog);
 
-  // Direct mLabel assign, not SetLabel: SetLabel would translate again.
-  if ( aDialog->mLawnYesButton != nullptr )
-  {
-    Sexy::String aText;
-    TodStringTranslate(&aText, theButton1);
-    aDialog->mLawnYesButton->mLabel = aText;
-  }
+    // Direct mLabel assign, not SetLabel: SetLabel would translate again.
+    if (aDialog->mLawnYesButton != nullptr)
+    {
+        Sexy::String aText;
+        TodStringTranslate(&aText, theButton1);
+        aDialog->mLawnYesButton->mLabel = aText;
+    }
 
-  if ( aDialog->mLawnNoButton != nullptr )
-  {
-    Sexy::String aText;
-    TodStringTranslate(&aText, theButton2);
-    aDialog->mLawnNoButton->mLabel = aText;
-  }
+    if (aDialog->mLawnNoButton != nullptr)
+    {
+        Sexy::String aText;
+        TodStringTranslate(&aText, theButton2);
+        aDialog->mLawnNoButton->mLabel = aText;
+    }
 
-  // App manager SetFocus (vtable +0x30) is after the labels. Dialog slot 57
-  // (vtable +0xE4) focuses the yes button, or the no button when yes is null.
-  mWidgetManager->SetFocus(aDialog);
-  GameButton *aDefaultButton = aDialog->mLawnYesButton;
-  if ( aDefaultButton == nullptr )
-    aDefaultButton = aDialog->mLawnNoButton;
-  aDialog->SetFocus(aDefaultButton, true);
+    // App manager SetFocus (vtable +0x30) is after the labels. Dialog slot 57
+    // (vtable +0xE4) focuses the yes button, or the no button when yes is null.
+    mWidgetManager->SetFocus(aDialog);
+    GameButton *aDefaultButton = aDialog->mLawnYesButton;
+    if (aDefaultButton == nullptr)
+        aDefaultButton = aDialog->mLawnNoButton;
+    aDialog->SetFocus(aDefaultButton, true);
 
-  int aResult = aDialog->WaitForResult(true);
-  mWidgetManager->SetFocus(aOldFocus);
-  return aResult;
+    int aResult = aDialog->WaitForResult(true);
+    mWidgetManager->SetFocus(aOldFocus);
+    return aResult;
 }
 // ==========================================================================
 // LawnApp::showRechargeBoard(Sexy::String)
@@ -1278,26 +1255,27 @@ int LawnApp::LawnMessageBox(int theDialogId, char const* theHeader, char const* 
 // ==========================================================================
 int LawnApp::showRechargeBoard(Sexy::String theAmount)
 {
-  if ( LawnMessageBox(51, "[NOVEL_RECHARGE_HEADER]", theAmount.c_str(),
-                      "[DIALOG_BUTTON_OK]", "[DIALOG_BUTTON_CANCEL]", 1) == 1000 )
-  {
-    mAdProvider->recharge();
-    return 0;
-  }
+    if (LawnMessageBox(
+            51, "[NOVEL_RECHARGE_HEADER]", theAmount.c_str(), "[DIALOG_BUTTON_OK]", "[DIALOG_BUTTON_CANCEL]", 1) ==
+        1000)
+    {
+        mAdProvider->recharge();
+        return 0;
+    }
 
-  // The cancel path re-enters the purchase flow with an empty item id.
-  setPayItemsRes(false, "", 0, "");
-  return 0;
+    // The cancel path re-enters the purchase flow with an empty item id.
+    setPayItemsRes(false, "", 0, "");
+    return 0;
 }
 // ==========================================================================
 // LawnApp::DoDialogDelay(int,bool,Sexy::String const&,Sexy::String const&,Sexy::String const&,int)
 // @002B4120  42 bytes
 // ==========================================================================
-Sexy::Dialog* LawnApp::DoDialogDelay(int theDialogId)
+Sexy::Dialog *LawnApp::DoDialogDelay(int theDialogId)
 {
-  Sexy::Dialog* aDialog = GetDialog(theDialogId);
-  KillDialog(30);
-  return aDialog;
+    Sexy::Dialog *aDialog = GetDialog(theDialogId);
+    KillDialog(30);
+    return aDialog;
 }
 
 // ==========================================================================
@@ -1306,12 +1284,12 @@ Sexy::Dialog* LawnApp::DoDialogDelay(int theDialogId)
 // ==========================================================================
 int LawnApp::DoUserDialog()
 {
-  KillDialog(30);
-  UserDialog *aDialog = new UserDialog(this);
-  CenterDialog(aDialog, aDialog->mWidth, aDialog->mHeight);
-  AddDialogWithId(30, aDialog);
-  mWidgetManager->SetFocus(aDialog);
-  return 0;
+    KillDialog(30);
+    UserDialog *aDialog = new UserDialog(this);
+    CenterDialog(aDialog, aDialog->mWidth, aDialog->mHeight);
+    AddDialogWithId(30, aDialog);
+    mWidgetManager->SetFocus(aDialog);
+    return 0;
 }
 
 // ==========================================================================
@@ -1320,23 +1298,23 @@ int LawnApp::DoUserDialog()
 // ==========================================================================
 int LawnApp::FinishUserDialog(bool theYes)
 {
-  UserDialog *aUserDialog = static_cast<UserDialog *>(GetDialog(30));
-  if ( aUserDialog == nullptr )
-    return 0;
+    UserDialog *aUserDialog = static_cast<UserDialog *>(GetDialog(30));
+    if (aUserDialog == nullptr)
+        return 0;
 
-  if ( theYes != 0 )
-  {
-    Sexy::String aName = aUserDialog->GetSelName();
-    Sexy::PlayerInfo *aProfile = mProfileMgr->GetProfile(aName);
-    if ( aProfile != nullptr )
+    if (theYes != 0)
     {
-      mPlayerInfo = static_cast<LawnPlayerInfo *>(aProfile);
-      mWidgetManager->MarkAllDirty();
-      if ( mGameSelector != nullptr )
-        mGameSelector->SyncProfile(false);
+        Sexy::String aName = aUserDialog->GetSelName();
+        Sexy::PlayerInfo *aProfile = mProfileMgr->GetProfile(aName);
+        if (aProfile != nullptr)
+        {
+            mPlayerInfo = static_cast<LawnPlayerInfo *>(aProfile);
+            mWidgetManager->MarkAllDirty();
+            if (mGameSelector != nullptr)
+                mGameSelector->SyncProfile(false);
+        }
     }
-  }
-  return KillDialog(30);
+    return KillDialog(30);
 }
 
 // ==========================================================================
@@ -1345,27 +1323,23 @@ int LawnApp::FinishUserDialog(bool theYes)
 // ==========================================================================
 int LawnApp::DoBuyMoneyDialog(const Sexy::String &theMessage)
 {
-  int result; // r0
+    int result; // r0
 
-  KillDialog(82);
-  if ( mCanDoBuyMoneyDialog )
-  {
-    BuyMoneyDialog *aDialog = new BuyMoneyDialog(this, theMessage);
-    CenterDialog(aDialog, aDialog->mWidth, aDialog->mHeight);
-    AddDialogWithId(82, aDialog);
-    mWidgetManager->SetFocus(aDialog);
-    return 0;
-  }
+    KillDialog(82);
+    if (mCanDoBuyMoneyDialog)
+    {
+        BuyMoneyDialog *aDialog = new BuyMoneyDialog(this, theMessage);
+        CenterDialog(aDialog, aDialog->mWidth, aDialog->mHeight);
+        AddDialogWithId(82, aDialog);
+        mWidgetManager->SetFocus(aDialog);
+        return 0;
+    }
 
-  result = LawnMessageBox(51,
-             "[LOGIN_FAILED_HEADER]",
-             "[LOGIN_FAILED_CANNOT_RECHARGE_MSG]",
-             "[DIALOG_BUTTON_OK]",
-             gEmptyCString,
-             3);
-  if ( result == 1000 )
-    return KillDialog(51);
-  return result;
+    result = LawnMessageBox(
+        51, "[LOGIN_FAILED_HEADER]", "[LOGIN_FAILED_CANNOT_RECHARGE_MSG]", "[DIALOG_BUTTON_OK]", gEmptyCString, 3);
+    if (result == 1000)
+        return KillDialog(51);
+    return result;
 }
 
 // ==========================================================================
@@ -1374,9 +1348,9 @@ int LawnApp::DoBuyMoneyDialog(const Sexy::String &theMessage)
 // ==========================================================================
 int LawnApp::FinishBuyMoneyDialog(bool theYes)
 {
-  if ( GetDialog(82) == nullptr )
-    return 0;
-  return KillDialog(82);
+    if (GetDialog(82) == nullptr)
+        return 0;
+    return KillDialog(82);
 }
 
 // ==========================================================================
@@ -1385,11 +1359,11 @@ int LawnApp::FinishBuyMoneyDialog(bool theYes)
 // ==========================================================================
 int LawnApp::DoCreateUserDialog()
 {
-  KillDialog(31);
-  NewUserDialog *aDialog = new NewUserDialog(this, false);
-  CenterDialog(aDialog, aDialog->mWidth, aDialog->mHeight);
-  AddDialogWithId(31, aDialog);
-  return 0;
+    KillDialog(31);
+    NewUserDialog *aDialog = new NewUserDialog(this, false);
+    CenterDialog(aDialog, aDialog->mWidth, aDialog->mHeight);
+    AddDialogWithId(31, aDialog);
+    return 0;
 }
 
 // ==========================================================================
@@ -1398,62 +1372,65 @@ int LawnApp::DoCreateUserDialog()
 // ==========================================================================
 void LawnApp::FinishCreateUserDialog(bool theYes)
 {
-  NewUserDialog *aDialog = static_cast<NewUserDialog *>(GetDialog(31));
-  if ( aDialog == nullptr )
-    return;
+    NewUserDialog *aDialog = static_cast<NewUserDialog *>(GetDialog(31));
+    if (aDialog == nullptr)
+        return;
 
-  // NewUserDialog::GetName returns its Sexy::String by value; the ARM's r0 is
-  // the result buffer, so the receiver is the dialog.
-  Sexy::String aName = aDialog->GetName();
+    // NewUserDialog::GetName returns its Sexy::String by value; the ARM's r0 is
+    // the result buffer, so the receiver is the dialog.
+    Sexy::String aName = aDialog->GetName();
 
-  if ( !theYes )
-  {
-    // Cancelled: with a player already loaded the dialog just goes away,
-    // otherwise the create-user prompt comes back.
-    if ( mPlayerInfo != nullptr )
+    if (!theYes)
     {
-      KillDialog(31);
+        // Cancelled: with a player already loaded the dialog just goes away,
+        // otherwise the create-user prompt comes back.
+        if (mPlayerInfo != nullptr)
+        {
+            KillDialog(31);
+        }
+        else
+        {
+            DoDialog(34,
+                true,
+                Sexy::String("[ENTER_YOUR_NAME]"),
+                Sexy::String("[USER_ERROR_MESSAGE]"),
+                Sexy::String("[DIALOG_BUTTON_OK]"),
+                3);
+        }
+        return;
     }
-    else
+
+    if (aName.size() == 0)
     {
-      DoDialog(34, true,
-               Sexy::String("[ENTER_YOUR_NAME]"),
-               Sexy::String("[USER_ERROR_MESSAGE]"),
-               Sexy::String("[DIALOG_BUTTON_OK]"),
-               3);
+        DoDialog(34,
+            true,
+            Sexy::String("[ENTER_YOUR_NAME]"),
+            Sexy::String("[USER_ERROR_MESSAGE]"),
+            Sexy::String("[DIALOG_BUTTON_OK]"),
+            3);
+        return;
     }
-    return;
-  }
 
-  if ( aName.size() == 0 )
-  {
-    DoDialog(34, true,
-             Sexy::String("[ENTER_YOUR_NAME]"),
-             Sexy::String("[USER_ERROR_MESSAGE]"),
-             Sexy::String("[DIALOG_BUTTON_OK]"),
-             3);
-    return;
-  }
+    // AddProfile rejects a name another profile already carries.
+    LawnPlayerInfo *aPlayerInfo = static_cast<LawnPlayerInfo *>(mProfileMgr->AddProfile(aName));
+    if (aPlayerInfo == nullptr)
+    {
+        DoDialog(34,
+            true,
+            Sexy::String("[NAME_CONFLICT]"),
+            Sexy::String("[ENTER_UNIQUE_PLAYER_NAME]"),
+            Sexy::String("[DIALOG_BUTTON_OK]"),
+            3);
+        return;
+    }
 
-  // AddProfile rejects a name another profile already carries.
-  LawnPlayerInfo *aPlayerInfo = static_cast<LawnPlayerInfo *>(mProfileMgr->AddProfile(aName));
-  if ( aPlayerInfo == nullptr )
-  {
-    DoDialog(34, true,
-             Sexy::String("[NAME_CONFLICT]"),
-             Sexy::String("[ENTER_UNIQUE_PLAYER_NAME]"),
-             Sexy::String("[DIALOG_BUTTON_OK]"),
-             3);
-    return;
-  }
-
-  mProfileMgr->Save();
-  mPlayerInfo = aPlayerInfo;
-  KillDialog(30);
-  KillDialog(31);
-  mWidgetManager->MarkAllDirty();
-  if ( mGameSelector != nullptr )
-    mGameSelector->SyncProfile(false);
+    mProfileMgr->Save();
+    mPlayerInfo = aPlayerInfo;
+    KillDialog(30);
+    KillDialog(31);
+    mWidgetManager->MarkAllDirty();
+    if (mGameSelector != nullptr)
+        mGameSelector->SyncProfile(false);
 }
 // ==========================================================================
 // LawnApp::DoCheatDialog()
@@ -1461,13 +1438,13 @@ void LawnApp::FinishCreateUserDialog(bool theYes)
 // ==========================================================================
 int LawnApp::DoCheatDialog()
 {
-  if (!mDebugKeysEnabled || gDisableDebugKeys)
+    if (!mDebugKeysEnabled || gDisableDebugKeys)
+        return 0;
+    KillDialog(36);
+    CheatDialog *aDialog = new CheatDialog(this);
+    CenterDialog(aDialog, aDialog->mWidth, aDialog->mHeight);
+    AddDialogWithId(36, aDialog);
     return 0;
-  KillDialog(36);
-  CheatDialog *aDialog = new CheatDialog(this);
-  CenterDialog(aDialog, aDialog->mWidth, aDialog->mHeight);
-  AddDialogWithId(36, aDialog);
-  return 0;
 }
 
 // ==========================================================================
@@ -1476,11 +1453,11 @@ int LawnApp::DoCheatDialog()
 // ==========================================================================
 int LawnApp::DoCheatCodeDialog()
 {
-  KillDialog(37);
-  CheatCodeDialog *aDialog = new CheatCodeDialog(this);
-  CenterDialog(aDialog, aDialog->mWidth, aDialog->mHeight); // TODO FAIL
-  AddDialogWithId(37, aDialog);
-  return 0;
+    KillDialog(37);
+    CheatCodeDialog *aDialog = new CheatCodeDialog(this);
+    CenterDialog(aDialog, aDialog->mWidth, aDialog->mHeight); // TODO FAIL
+    AddDialogWithId(37, aDialog);
+    return 0;
 }
 
 // ==========================================================================
@@ -1489,142 +1466,142 @@ int LawnApp::DoCheatCodeDialog()
 // ==========================================================================
 bool LawnApp::FinishCheatCodeDialog(bool theYes)
 {
-  CheatCodeDialog *aDialog = static_cast<CheatCodeDialog *>(GetDialog(37));
-  if ( aDialog == nullptr )
-    return false;
-  if ( theYes == 0 || aDialog->ApplyCheat() != 0 )
-  {
-    KillDialog(37);
-    return false;
-  }
-  return true;
+    CheatCodeDialog *aDialog = static_cast<CheatCodeDialog *>(GetDialog(37));
+    if (aDialog == nullptr)
+        return false;
+    if (theYes == 0 || aDialog->ApplyCheat() != 0)
+    {
+        KillDialog(37);
+        return false;
+    }
+    return true;
 }
 
 // ==========================================================================
 // LawnApp::DoConfirmDeleteUserDialog(Sexy::String const&)
 // @002B46C8  294 bytes
 // ==========================================================================
-void LawnApp::DoConfirmDeleteUserDialog(Sexy::String const& theName)
+void LawnApp::DoConfirmDeleteUserDialog(Sexy::String const &theName)
 {
-  // Slot 107 kills the dialog already carrying id 32, then slot 102 opens the
-  // confirmation with the warning text and the name to delete formatted into it.
-  KillDialog(32);
+    // Slot 107 kills the dialog already carrying id 32, then slot 102 opens the
+    // confirmation with the warning text and the name to delete formatted into it.
+    KillDialog(32);
 
-  Sexy::String aTitle;
-  TodStringTranslate(&aTitle, "[ARE_YOU_SURE]");
-  Sexy::String aWarning;
-  TodStringTranslate(&aWarning, "[DELETE_USER_WARNING]");
-  Sexy::String aMessage;
-  StrFormat(&aMessage, aWarning.c_str(), theName.c_str());
-  Sexy::String aEmpty(gEmptyCString);
+    Sexy::String aTitle;
+    TodStringTranslate(&aTitle, "[ARE_YOU_SURE]");
+    Sexy::String aWarning;
+    TodStringTranslate(&aWarning, "[DELETE_USER_WARNING]");
+    Sexy::String aMessage;
+    StrFormat(&aMessage, aWarning.c_str(), theName.c_str());
+    Sexy::String aEmpty(gEmptyCString);
 
-  DoDialog(32, true, aTitle, aMessage, aEmpty, 1);
+    DoDialog(32, true, aTitle, aMessage, aEmpty, 1);
 }
 
 // ==========================================================================
 // LawnApp::FinishConfirmDeleteUserDialog(bool)
 // @002B483C  276 bytes
 // ==========================================================================
-UserDialog * LawnApp::FinishConfirmDeleteUserDialog(bool theYes)
+UserDialog *LawnApp::FinishConfirmDeleteUserDialog(bool theYes)
 {
-  KillDialog(32);
+    KillDialog(32);
 
-  UserDialog *aUserDialog = static_cast<UserDialog *>(GetDialog(30));
-  if (aUserDialog == nullptr)
-    return nullptr;
+    UserDialog *aUserDialog = static_cast<UserDialog *>(GetDialog(30));
+    if (aUserDialog == nullptr)
+        return nullptr;
 
-  mWidgetManager->SetFocus(aUserDialog);
-  if (theYes == 0)
-    return aUserDialog;
+    mWidgetManager->SetFocus(aUserDialog);
+    if (theYes == 0)
+        return aUserDialog;
 
-  // The profile the deletion is about. When there is no player loaded the name
-  // is empty, which is what makes the comparison below fail and the current
-  // player survive the delete.
-  Sexy::String aOldName = mPlayerInfo != nullptr ? mPlayerInfo->GetName()
-                                                 : Sexy::String(gEmptyCString);
-  Sexy::String aSelName = aUserDialog->GetSelName();
-  if (aSelName == aOldName)
-    mPlayerInfo = nullptr;
+    // The profile the deletion is about. When there is no player loaded the name
+    // is empty, which is what makes the comparison below fail and the current
+    // player survive the delete.
+    Sexy::String aOldName = mPlayerInfo != nullptr ? mPlayerInfo->GetName() : Sexy::String(gEmptyCString);
+    Sexy::String aSelName = aUserDialog->GetSelName();
+    if (aSelName == aOldName)
+        mPlayerInfo = nullptr;
 
-  mProfileMgr->DeleteProfile(aSelName);
-  aUserDialog->FinishDeleteUser();
+    mProfileMgr->DeleteProfile(aSelName);
+    aUserDialog->FinishDeleteUser();
 
-  if (mPlayerInfo == nullptr)
-  {
-    mPlayerInfo = static_cast<LawnPlayerInfo *>(mProfileMgr->GetProfile(aUserDialog->GetSelName()));
     if (mPlayerInfo == nullptr)
-      mPlayerInfo = static_cast<LawnPlayerInfo *>(mProfileMgr->GetAnyProfile());
-  }
+    {
+        mPlayerInfo = static_cast<LawnPlayerInfo *>(mProfileMgr->GetProfile(aUserDialog->GetSelName()));
+        if (mPlayerInfo == nullptr)
+            mPlayerInfo = static_cast<LawnPlayerInfo *>(mProfileMgr->GetAnyProfile());
+    }
 
-  mProfileMgr->Save();
-  if (mPlayerInfo == nullptr)
-    DoCreateUserDialog();
+    mProfileMgr->Save();
+    if (mPlayerInfo == nullptr)
+        DoCreateUserDialog();
 
-  mWidgetManager->MarkAllDirty();
-  return aUserDialog;
+    mWidgetManager->MarkAllDirty();
+    return aUserDialog;
 }
 
 // ==========================================================================
 // LawnApp::DoRenameUserDialog(Sexy::String const&)
 // @002B497C  68 bytes
 // ==========================================================================
-int LawnApp::DoRenameUserDialog(Sexy::String const& theName)
+int LawnApp::DoRenameUserDialog(Sexy::String const &theName)
 {
-  KillDialog(33);
-  NewUserDialog *aDialog = new NewUserDialog(this, true);
-  CenterDialog(aDialog, aDialog->mWidth, aDialog->mHeight);
-  aDialog->SetName(theName);
-  AddDialogWithId(33, aDialog);
-  return 0;
+    KillDialog(33);
+    NewUserDialog *aDialog = new NewUserDialog(this, true);
+    CenterDialog(aDialog, aDialog->mWidth, aDialog->mHeight);
+    aDialog->SetName(theName);
+    AddDialogWithId(33, aDialog);
+    return 0;
 }
 
 // ==========================================================================
 // LawnApp::FinishRenameUserDialog(bool)
 // @002B49CC  358 bytes
 // ==========================================================================
-UserDialog * LawnApp::FinishRenameUserDialog(bool theYes)
+UserDialog *LawnApp::FinishRenameUserDialog(bool theYes)
 {
-  UserDialog *aUserDialog = static_cast<UserDialog *>(GetDialog(30));
-  if ( !theYes )
-  {
+    UserDialog *aUserDialog = static_cast<UserDialog *>(GetDialog(30));
+    if (!theYes)
+    {
+        KillDialog(33);
+        mWidgetManager->SetFocus(aUserDialog);
+        return aUserDialog;
+    }
+
+    NewUserDialog *aRenameDialog = static_cast<NewUserDialog *>(GetDialog(33));
+    if (aUserDialog == nullptr || aRenameDialog == nullptr)
+        return nullptr;
+
+    Sexy::String aOldName = aUserDialog->GetSelName();
+    Sexy::String aNewName = aRenameDialog->GetName();
+    if (aNewName.size() == 0)
+        return nullptr;
+
+    // RenameProfile rejects a name another profile already carries. The player the
+    // manager was pointing at is compared by address, so that renaming the profile
+    // currently in use re-resolves it to the record under its new name.
+    LawnPlayerInfo *aOldPlayerInfo = static_cast<LawnPlayerInfo *>(mProfileMgr->GetProfile(aOldName));
+    LawnPlayerInfo *aPlayerInfo = mPlayerInfo;
+    if (mProfileMgr->RenameProfile(aOldName, aNewName) == 0)
+    {
+        DoDialog(35,
+            true,
+            Sexy::String("[NAME_CONFLICT]"),
+            Sexy::String("[ENTER_UNIQUE_PLAYER_NAME]"),
+            Sexy::String("[DIALOG_BUTTON_OK]"),
+            3);
+        return nullptr;
+    }
+
+    mProfileMgr->Save();
+    if (aOldPlayerInfo == aPlayerInfo)
+        mPlayerInfo = static_cast<LawnPlayerInfo *>(mProfileMgr->GetProfile(aNewName));
+
+    aUserDialog->FinishRenameUser(aNewName);
+    mWidgetManager->MarkAllDirty();
     KillDialog(33);
     mWidgetManager->SetFocus(aUserDialog);
     return aUserDialog;
-  }
-
-  NewUserDialog *aRenameDialog = static_cast<NewUserDialog *>(GetDialog(33));
-  if ( aUserDialog == nullptr || aRenameDialog == nullptr )
-    return nullptr;
-
-  Sexy::String aOldName = aUserDialog->GetSelName();
-  Sexy::String aNewName = aRenameDialog->GetName();
-  if ( aNewName.size() == 0 )
-    return nullptr;
-
-  // RenameProfile rejects a name another profile already carries. The player the
-  // manager was pointing at is compared by address, so that renaming the profile
-  // currently in use re-resolves it to the record under its new name.
-  LawnPlayerInfo *aOldPlayerInfo = static_cast<LawnPlayerInfo *>(mProfileMgr->GetProfile(aOldName));
-  LawnPlayerInfo *aPlayerInfo = mPlayerInfo;
-  if ( mProfileMgr->RenameProfile(aOldName, aNewName) == 0 )
-  {
-    DoDialog(35, true,
-             Sexy::String("[NAME_CONFLICT]"),
-             Sexy::String("[ENTER_UNIQUE_PLAYER_NAME]"),
-             Sexy::String("[DIALOG_BUTTON_OK]"),
-             3);
-    return nullptr;
-  }
-
-  mProfileMgr->Save();
-  if ( aOldPlayerInfo == aPlayerInfo )
-    mPlayerInfo = static_cast<LawnPlayerInfo *>(mProfileMgr->GetProfile(aNewName));
-
-  aUserDialog->FinishRenameUser(aNewName);
-  mWidgetManager->MarkAllDirty();
-  KillDialog(33);
-  mWidgetManager->SetFocus(aUserDialog);
-  return aUserDialog;
 }
 // ==========================================================================
 // LawnApp::FinishNameError(int)
@@ -1632,17 +1609,17 @@ UserDialog * LawnApp::FinishRenameUserDialog(bool theYes)
 // ==========================================================================
 int LawnApp::FinishNameError(int theId)
 {
-  // The name-error dialog belongs to the user dialog that raised it: 31 for the
-  // create-user dialog, 33 for the rename one. The dialog id is still in r1 at
-  // the first call, so KillDialog takes theId itself.
-  KillDialog(theId);
+    // The name-error dialog belongs to the user dialog that raised it: 31 for the
+    // create-user dialog, 33 for the rename one. The dialog id is still in r1 at
+    // the first call, so KillDialog takes theId itself.
+    KillDialog(theId);
 
-  NewUserDialog *aDialog = static_cast<NewUserDialog *>(GetDialog(theId == 34 ? 31 : 33));
-  if (aDialog == nullptr)
+    NewUserDialog *aDialog = static_cast<NewUserDialog *>(GetDialog(theId == 34 ? 31 : 33));
+    if (aDialog == nullptr)
+        return 0;
+
+    mWidgetManager->SetFocus(aDialog->mEditWidget);
     return 0;
-
-  mWidgetManager->SetFocus(aDialog->mEditWidget);
-  return 0;
 }
 
 // ==========================================================================
@@ -1651,12 +1628,12 @@ int LawnApp::FinishNameError(int theId)
 // ==========================================================================
 int LawnApp::KillNewOptionsDialog()
 {
-  if (GetDialog(2) == nullptr)
-    return 0;
+    if (GetDialog(2) == nullptr)
+        return 0;
 
-  KillDialog(2);
-  ClearUpdateBacklog(false);
-  return 1;
+    KillDialog(2);
+    ClearUpdateBacklog(false);
+    return 1;
 }
 
 // ==========================================================================
@@ -1665,43 +1642,43 @@ int LawnApp::KillNewOptionsDialog()
 // ==========================================================================
 int LawnApp::KillAlmanacDialog()
 {
-  if (GetDialog(5) == nullptr)
-    return 0;
+    if (GetDialog(5) == nullptr)
+        return 0;
 
-  KillDialog(5);
-  ClearUpdateBacklog(false);
-  return 1;
+    KillDialog(5);
+    ClearUpdateBacklog(false);
+    return 1;
 }
 
 // ==========================================================================
 // LawnApp::KillAll()
 // @002B4C0C  114 bytes
 // ==========================================================================
-EffectSystem * LawnApp::KillAll()
+EffectSystem *LawnApp::KillAll()
 {
-  KillBoard();
-  KillTitleScreen();
-  KillGameSelector();
-  KillChallengeScreen();
-  KillNewOptionsDialog();
-  KillCreditScreen();
-  KillAwardScreen();
-  KillAlmanacDialog();
-  KillSeedChooserScreen();
-  KillZombieChooserScreen();
-  KillVSSetupScreen();
-  KillVSResultsScreen();
-  KillMainMenu();
-  KillLeaderboardScreen();
-  KillHouseScreen();
-  KillAchievementsScreen();
-  KillHelpTextScreen();
-  if ( mEffectSystem != nullptr )
-  {
-    mEffectSystem->EffectSystemFreeAll();
-    return mEffectSystem;
-  }
-  return nullptr;
+    KillBoard();
+    KillTitleScreen();
+    KillGameSelector();
+    KillChallengeScreen();
+    KillNewOptionsDialog();
+    KillCreditScreen();
+    KillAwardScreen();
+    KillAlmanacDialog();
+    KillSeedChooserScreen();
+    KillZombieChooserScreen();
+    KillVSSetupScreen();
+    KillVSResultsScreen();
+    KillMainMenu();
+    KillLeaderboardScreen();
+    KillHouseScreen();
+    KillAchievementsScreen();
+    KillHelpTextScreen();
+    if (mEffectSystem != nullptr)
+    {
+        mEffectSystem->EffectSystemFreeAll();
+        return mEffectSystem;
+    }
+    return nullptr;
 }
 
 // ==========================================================================
@@ -1710,24 +1687,23 @@ EffectSystem * LawnApp::KillAll()
 // ==========================================================================
 bool LawnApp::NeedPauseGame()
 {
-  if ( mDialogList.empty() )
-    return false;
+    if (mDialogList.empty())
+        return false;
 
-  int aCount = (int)mDialogList.size();
+    int aCount = (int)mDialogList.size();
 
-  if ( aCount == 1 )
-  {
-    // 29 is DIALOG_CHOOSER_WARNING, 52 DIALOG_IMITATER and 53
-    // DIALOG_PURCHASE_PACKET_SLOT: none of them pauses the board.
-    int aDialogId = mDialogList.front()->mId;
-    if ( aDialogId != 0 && (aDialogId == 29 || (unsigned int)(aDialogId - 52) <= 1) )
-      return false;
-  }
+    if (aCount == 1)
+    {
+        // 29 is DIALOG_CHOOSER_WARNING, 52 DIALOG_IMITATER and 53
+        // DIALOG_PURCHASE_PACKET_SLOT: none of them pauses the board.
+        int aDialogId = mDialogList.front()->mId;
+        if (aDialogId != 0 && (aDialogId == 29 || (unsigned int)(aDialogId - 52) <= 1))
+            return false;
+    }
 
-  // 44 is GAMEMODE_CHALLENGE_ZEN_GARDEN and 51 GAMEMODE_TREE_OF_WISDOM; neither
-  // has a board that pauses.
-  return mBoard == nullptr
-      || (mGameMode != GAMEMODE_CHALLENGE_ZEN_GARDEN && mGameMode != GAMEMODE_TREE_OF_WISDOM);
+    // 44 is GAMEMODE_CHALLENGE_ZEN_GARDEN and 51 GAMEMODE_TREE_OF_WISDOM; neither
+    // has a board that pauses.
+    return mBoard == nullptr || (mGameMode != GAMEMODE_CHALLENGE_ZEN_GARDEN && mGameMode != GAMEMODE_TREE_OF_WISDOM);
 }
 
 // ==========================================================================
@@ -1736,10 +1712,10 @@ bool LawnApp::NeedPauseGame()
 // ==========================================================================
 void LawnApp::ModalOpen()
 {
-  // Board::Pause is void, so the pointer the binary leaves in r0 is not this
-  // function's return value; the declaration is void.
-  if ( mBoard != nullptr && NeedPauseGame() )
-    mBoard->Pause(true);
+    // Board::Pause is void, so the pointer the binary leaves in r0 is not this
+    // function's return value; the declaration is void.
+    if (mBoard != nullptr && NeedPauseGame())
+        mBoard->Pause(true);
 }
 
 // ==========================================================================
@@ -1748,7 +1724,7 @@ void LawnApp::ModalOpen()
 // ==========================================================================
 int LawnApp::NeedShowQRCode()
 {
-  return 1;
+    return 1;
 }
 
 // ==========================================================================
@@ -1757,7 +1733,7 @@ int LawnApp::NeedShowQRCode()
 // ==========================================================================
 void LawnApp::StepAdvance()
 {
-  gStepReady = 1;
+    gStepReady = 1;
 }
 
 // ==========================================================================
@@ -1766,10 +1742,10 @@ void LawnApp::StepAdvance()
 // ==========================================================================
 int LawnApp::ToggleSlowMo()
 {
-  gSlowMoFrame = 0;
-  gSlowMo ^= 1u;
-  gFastMo = 0;
-  return -3276;
+    gSlowMoFrame = 0;
+    gSlowMo ^= 1u;
+    gFastMo = 0;
+    return -3276;
 }
 
 // ==========================================================================
@@ -1778,9 +1754,9 @@ int LawnApp::ToggleSlowMo()
 // ==========================================================================
 int LawnApp::ToggleFastMo()
 {
-  gSlowMo = 0;
-  gFastMo ^= 1u;
-  return -3276;
+    gSlowMo = 0;
+    gFastMo ^= 1u;
+    return -3276;
 }
 
 // ==========================================================================
@@ -1789,10 +1765,10 @@ int LawnApp::ToggleFastMo()
 // ==========================================================================
 int LawnApp::ToggleStep()
 {
-  gSlowMo = 0;
-  gStep ^= 1u;
-  gFastMo = 0;
-  return -3276;
+    gSlowMo = 0;
+    gStep ^= 1u;
+    gFastMo = 0;
+    return -3276;
 }
 
 // ==========================================================================
@@ -1801,88 +1777,88 @@ int LawnApp::ToggleStep()
 // ==========================================================================
 void LawnApp::UpdatePlayTimeStats()
 {
-  ;
+    ;
 }
 
 // ==========================================================================
 // LawnApp::TraceLoadGroup(char const*,int,int,int)
 // @002B4DA8  2 bytes
 // ==========================================================================
-void LawnApp::TraceLoadGroup(char const* theGroupName, int theGroupTime, int theTotalGroupWeight, int theTaskWeight)
+void LawnApp::TraceLoadGroup(char const *theGroupName, int theGroupTime, int theTotalGroupWeight, int theTaskWeight)
 {
-  ;
+    ;
 }
 
 // ==========================================================================
 // LawnApp::LoadGroup(char const*,int)
 // @002B4DAC  282 bytes
 // ==========================================================================
-void LawnApp::LoadGroup(char const* theGroupName, int theGroupAveMsToLoad)
+void LawnApp::LoadGroup(char const *theGroupName, int theGroupAveMsToLoad)
 {
-  Sexy::PerfTimer aTimer;
-  aTimer.Start();
+    Sexy::PerfTimer aTimer;
+    aTimer.Start();
 
-  // StartLoadResources(String const&, bool) is ResourceManager slot 24; the
-  // tree's ResourceManager.h models it as a plain method.
-  Sexy::String aGroupName(theGroupName);
-  mResourceManager->StartLoadResources(aGroupName, false);
+    // StartLoadResources(String const&, bool) is ResourceManager slot 24; the
+    // tree's ResourceManager.h models it as a plain method.
+    Sexy::String aGroupName(theGroupName);
+    mResourceManager->StartLoadResources(aGroupName, false);
 
-  if ( mShutDown )
-    return;
+    if (mShutDown)
+        return;
 
-  while ( !mCloseRequest )
-  {
-    if ( mLoadingFailed )
-      break;
-    if ( mResourceManager->LoadNextResource() == 0 )
-      break;
+    while (!mCloseRequest)
+    {
+        if (mLoadingFailed)
+            break;
+        if (mResourceManager->LoadNextResource() == 0)
+            break;
 
-    bool aShutDown = mShutDown;
-    mCompletedLoadingThreadTasks += theGroupAveMsToLoad;
-    if ( aShutDown )
-      return;
-  }
+        bool aShutDown = mShutDown;
+        mCompletedLoadingThreadTasks += theGroupAveMsToLoad;
+        if (aShutDown)
+            return;
+    }
 
-  if ( mShutDown || mCloseRequest )
-    return;
+    if (mShutDown || mCloseRequest)
+        return;
 
-  // Publish loaded images before the error check. HadError used to skip the
-  // extract, so a single missing file left every decoded image unpublished.
-  bool aPublished = Sexy::ExtractResourcesByName(mResourceManager, theGroupName);
-  if ( mResourceManager->HadError() || !aPublished )
-  {
-    ShowResourceError(false);
-    mLoadingFailed = true;
-    return;
-  }
+    // Publish loaded images before the error check. HadError used to skip the
+    // extract, so a single missing file left every decoded image unpublished.
+    bool aPublished = Sexy::ExtractResourcesByName(mResourceManager, theGroupName);
+    if (mResourceManager->HadError() || !aPublished)
+    {
+        ShowResourceError(false);
+        mLoadingFailed = true;
+        return;
+    }
 
-  Sexy::String aGroupName2(theGroupName);
-  int aNumResources = mResourceManager->GetNumResources(aGroupName2, true, true) * theGroupAveMsToLoad;
-  int aDuration = (int)aTimer.GetDuration();
-  TraceLoadGroup(theGroupName, aDuration < 0 ? 0 : aDuration, aNumResources, theGroupAveMsToLoad);
+    Sexy::String aGroupName2(theGroupName);
+    int aNumResources = mResourceManager->GetNumResources(aGroupName2, true, true) * theGroupAveMsToLoad;
+    int aDuration = (int)aTimer.GetDuration();
+    TraceLoadGroup(theGroupName, aDuration < 0 ? 0 : aDuration, aNumResources, theGroupAveMsToLoad);
 }
 // ==========================================================================
 // LawnApp::ConfirmQuit()
 // @002B4EE4  322 bytes
 // ==========================================================================
-Sexy::Dialog * LawnApp::ConfirmQuit()
+Sexy::Dialog *LawnApp::ConfirmQuit()
 {
-  // vtable+0x198 is DoDialog. The footer is the empty C string at gEmptyCString.
-  // The yes caption is translated after the call and assigned into mLabel;
-  // GameButton::SetLabel would translate again and rewrite gamepad captions.
-  Sexy::String aMessage;
-  TodStringTranslate(&aMessage, "[QUIT_MESSAGE]");
-  Sexy::String aHeader;
-  TodStringTranslate(&aHeader, "[QUIT_HEADER]");
+    // vtable+0x198 is DoDialog. The footer is the empty C string at gEmptyCString.
+    // The yes caption is translated after the call and assigned into mLabel;
+    // GameButton::SetLabel would translate again and rewrite gamepad captions.
+    Sexy::String aMessage;
+    TodStringTranslate(&aMessage, "[QUIT_MESSAGE]");
+    Sexy::String aHeader;
+    TodStringTranslate(&aHeader, "[QUIT_HEADER]");
 
-  LawnDialog *aDialog = static_cast<LawnDialog *>(
-      DoDialog(13, true, aHeader, aMessage, Sexy::String(gEmptyCString), 2));
+    LawnDialog *aDialog =
+        static_cast<LawnDialog *>(DoDialog(13, true, aHeader, aMessage, Sexy::String(gEmptyCString), 2));
 
-  Sexy::String aButtonText;
-  TodStringTranslate(&aButtonText, "[QUIT_BUTTON]");
-  aDialog->mLawnYesButton->mLabel = aButtonText;
-  CenterDialog(aDialog, aDialog->mWidth, aDialog->mHeight);
-  return aDialog;
+    Sexy::String aButtonText;
+    TodStringTranslate(&aButtonText, "[QUIT_BUTTON]");
+    aDialog->mLawnYesButton->mLabel = aButtonText;
+    CenterDialog(aDialog, aDialog->mWidth, aDialog->mHeight);
+    return aDialog;
 }
 
 // ==========================================================================
@@ -1891,7 +1867,7 @@ Sexy::Dialog * LawnApp::ConfirmQuit()
 // ==========================================================================
 void LawnApp::ConfirmCheckForUpdates()
 {
-  ;
+    ;
 }
 
 // ==========================================================================
@@ -1900,29 +1876,29 @@ void LawnApp::ConfirmCheckForUpdates()
 // ==========================================================================
 void LawnApp::CheckForUpdates()
 {
-  ;
+    ;
 }
 
 // ==========================================================================
 // LawnApp::PlayFoley(FoleyType)
 // @002B507C  16 bytes
 // ==========================================================================
-FoleyTypeDataElement* LawnApp::PlayFoley(FoleyType theFoley)
+FoleyTypeDataElement *LawnApp::PlayFoley(FoleyType theFoley)
 {
-  if ( mMuteSoundsForCutscene || mSoundSystem == nullptr )
-    return nullptr;
-  return mSoundSystem->PlayFoley(theFoley);
+    if (mMuteSoundsForCutscene || mSoundSystem == nullptr)
+        return nullptr;
+    return mSoundSystem->PlayFoley(theFoley);
 }
 
 // ==========================================================================
 // LawnApp::PlayFoleyPitch(FoleyType,float)
 // @002B508C  16 bytes
 // ==========================================================================
-FoleyTypeDataElement* LawnApp::PlayFoleyPitch(FoleyType theFoley, float thePitch)
+FoleyTypeDataElement *LawnApp::PlayFoleyPitch(FoleyType theFoley, float thePitch)
 {
-  if ( mMuteSoundsForCutscene || mSoundSystem == nullptr )
-    return nullptr;
-  return mSoundSystem->PlayFoleyPitch(theFoley, thePitch);
+    if (mMuteSoundsForCutscene || mSoundSystem == nullptr)
+        return nullptr;
+    return mSoundSystem->PlayFoleyPitch(theFoley, thePitch);
 }
 
 // ==========================================================================
@@ -1931,17 +1907,17 @@ FoleyTypeDataElement* LawnApp::PlayFoleyPitch(FoleyType theFoley, float thePitch
 // ==========================================================================
 Sexy::String LawnApp::GetStageString(int theLevel)
 {
-  // (level - 1) / 10 is the 0x66666667 multiply. Area is that plus one, then
-  // the BLE/BGT clamps it to 1..6; the sub-level is level - (area - 1) * 10.
-  int aArea = (theLevel - 1) / 10 + 1;
-  if (aArea <= 1)
-    aArea = 1;
-  else if (aArea > 5)
-    aArea = 6;
+    // (level - 1) / 10 is the 0x66666667 multiply. Area is that plus one, then
+    // the BLE/BGT clamps it to 1..6; the sub-level is level - (area - 1) * 10.
+    int aArea = (theLevel - 1) / 10 + 1;
+    if (aArea <= 1)
+        aArea = 1;
+    else if (aArea > 5)
+        aArea = 6;
 
-  Sexy::String aResult;
-  StrFormat(&aResult, "%d-%d", aArea, theLevel - (aArea - 1) * 10);
-  return aResult;
+    Sexy::String aResult;
+    StrFormat(&aResult, "%d-%d", aArea, theLevel - (aArea - 1) * 10);
+    return aResult;
 }
 
 // ==========================================================================
@@ -1950,16 +1926,16 @@ Sexy::String LawnApp::GetStageString(int theLevel)
 // ==========================================================================
 int LawnApp::GetCurrentChallengeIndex()
 {
-  return mGameMode - GAMEMODE_SURVIVAL_NORMAL_STAGE_1;
+    return mGameMode - GAMEMODE_SURVIVAL_NORMAL_STAGE_1;
 }
 
 // ==========================================================================
 // LawnApp::GetCurrentChallengeDef()
 // @002B50F4  14 bytes
 // ==========================================================================
-const ChallengeDefinition* LawnApp::GetCurrentChallengeDef()
+const ChallengeDefinition *LawnApp::GetCurrentChallengeDef()
 {
-  return GetChallengeDefinition(GetCurrentChallengeIndex());
+    return GetChallengeDefinition(GetCurrentChallengeIndex());
 }
 
 // ==========================================================================
@@ -1968,7 +1944,7 @@ const ChallengeDefinition* LawnApp::GetCurrentChallengeDef()
 // ==========================================================================
 bool LawnApp::IsAdventureMode()
 {
-  return mGameMode <= GAMEMODE_ADVENTURE_TWO_PLAYER;
+    return mGameMode <= GAMEMODE_ADVENTURE_TWO_PLAYER;
 }
 
 // ==========================================================================
@@ -1977,10 +1953,10 @@ bool LawnApp::IsAdventureMode()
 // ==========================================================================
 int LawnApp::EndLevel()
 {
-  KillBoard();
-  if ( IsAdventureMode() )
-    NewGame();
-  return NewGame();
+    KillBoard();
+    if (IsAdventureMode())
+        NewGame();
+    return NewGame();
 }
 
 // ==========================================================================
@@ -1989,12 +1965,12 @@ int LawnApp::EndLevel()
 // ==========================================================================
 bool LawnApp::IsSurvivalMode()
 {
-  // The binary computes this branchlessly as
-  //   (mGameMode - 2) <= 14 || (mGameMode - 84) <= 2 || mGameMode == 89
-  // which is the two survival ranges plus the two-player endless mode.
-  return (mGameMode >= GAMEMODE_SURVIVAL_NORMAL_STAGE_1 && mGameMode <= GAMEMODE_SURVIVAL_ENDLESS_STAGE_5)
-      || (mGameMode >= GAMEMODE_TWO_PLAYER_COOP_DAY_HARD && mGameMode <= GAMEMODE_TWO_PLAYER_COOP_ROOF_HARD)
-      || mGameMode == GAMEMODE_TWO_PLAYER_COOP_ENDLESS;
+    // The binary computes this branchlessly as
+    //   (mGameMode - 2) <= 14 || (mGameMode - 84) <= 2 || mGameMode == 89
+    // which is the two survival ranges plus the two-player endless mode.
+    return (mGameMode >= GAMEMODE_SURVIVAL_NORMAL_STAGE_1 && mGameMode <= GAMEMODE_SURVIVAL_ENDLESS_STAGE_5) ||
+        (mGameMode >= GAMEMODE_TWO_PLAYER_COOP_DAY_HARD && mGameMode <= GAMEMODE_TWO_PLAYER_COOP_ROOF_HARD) ||
+        mGameMode == GAMEMODE_TWO_PLAYER_COOP_ENDLESS;
 }
 
 // ==========================================================================
@@ -2003,7 +1979,7 @@ bool LawnApp::IsSurvivalMode()
 // ==========================================================================
 bool LawnApp::IsCoopMode()
 {
-  return mGameMode >= GAMEMODE_MP_VS_COOP && mGameMode <= GAMEMODE_TWO_PLAYER_COOP_ENDLESS;
+    return mGameMode >= GAMEMODE_MP_VS_COOP && mGameMode <= GAMEMODE_TWO_PLAYER_COOP_ENDLESS;
 }
 
 // ==========================================================================
@@ -2012,12 +1988,11 @@ bool LawnApp::IsCoopMode()
 // ==========================================================================
 int LawnApp::IsTwoPlayerGame()
 {
-  // Board +0x230/+0x234 are mGamepadControls[0]/[1] and +0x98 inside each is
-  // GamepadControls::mGamepadIndex; -1 means no gamepad is bound.
-  if ( mBoard == nullptr )
-    return 0;
-  return mBoard->mGamepadControls[0]->mGamepadIndex != -1
-      && mBoard->mGamepadControls[1]->mGamepadIndex != -1;
+    // Board +0x230/+0x234 are mGamepadControls[0]/[1] and +0x98 inside each is
+    // GamepadControls::mGamepadIndex; -1 means no gamepad is bound.
+    if (mBoard == nullptr)
+        return 0;
+    return mBoard->mGamepadControls[0]->mGamepadIndex != -1 && mBoard->mGamepadControls[1]->mGamepadIndex != -1;
 }
 
 // ==========================================================================
@@ -2026,7 +2001,7 @@ int LawnApp::IsTwoPlayerGame()
 // ==========================================================================
 bool LawnApp::IsTwinSunbankMode()
 {
-  return IsCoopMode();
+    return IsCoopMode();
 }
 
 // ==========================================================================
@@ -2035,8 +2010,8 @@ bool LawnApp::IsTwinSunbankMode()
 // ==========================================================================
 bool LawnApp::IsPuzzleMode()
 {
-  // 52..71 is GAMEMODE_SCARY_POTTER_1 .. GAMEMODE_PUZZLE_I_ZOMBIE_ENDLESS.
-  return mGameMode >= GAMEMODE_SCARY_POTTER_1 && mGameMode <= GAMEMODE_PUZZLE_I_ZOMBIE_ENDLESS;
+    // 52..71 is GAMEMODE_SCARY_POTTER_1 .. GAMEMODE_PUZZLE_I_ZOMBIE_ENDLESS.
+    return mGameMode >= GAMEMODE_SCARY_POTTER_1 && mGameMode <= GAMEMODE_PUZZLE_I_ZOMBIE_ENDLESS;
 }
 
 // ==========================================================================
@@ -2045,7 +2020,7 @@ bool LawnApp::IsPuzzleMode()
 // ==========================================================================
 bool LawnApp::IsChallengeMode()
 {
-  return !IsAdventureMode() && !IsPuzzleMode() && !IsSurvivalMode();
+    return !IsAdventureMode() && !IsPuzzleMode() && !IsSurvivalMode();
 }
 
 // ==========================================================================
@@ -2054,13 +2029,12 @@ bool LawnApp::IsChallengeMode()
 // ==========================================================================
 int LawnApp::IsArtChallenge()
 {
-  if ( mBoard == nullptr )
-    return 0;
-  // 41 is GAMEMODE_CHALLENGE_ART_CHALLENGE_SUNFLOWER, 37 the wallnut one and
-  // 23 GAMEMODE_CHALLENGE_SEEING_STARS.
-  return mGameMode == GAMEMODE_CHALLENGE_ART_CHALLENGE_SUNFLOWER
-      || mGameMode == GAMEMODE_CHALLENGE_ART_CHALLENGE_WALLNUT
-      || mGameMode == GAMEMODE_CHALLENGE_SEEING_STARS;
+    if (mBoard == nullptr)
+        return 0;
+    // 41 is GAMEMODE_CHALLENGE_ART_CHALLENGE_SUNFLOWER, 37 the wallnut one and
+    // 23 GAMEMODE_CHALLENGE_SEEING_STARS.
+    return mGameMode == GAMEMODE_CHALLENGE_ART_CHALLENGE_SUNFLOWER ||
+        mGameMode == GAMEMODE_CHALLENGE_ART_CHALLENGE_WALLNUT || mGameMode == GAMEMODE_CHALLENGE_SEEING_STARS;
 }
 
 // ==========================================================================
@@ -2069,7 +2043,7 @@ int LawnApp::IsArtChallenge()
 // ==========================================================================
 bool LawnApp::IsSquirrelLevel()
 {
-  return mBoard != nullptr && mGameMode == GAMEMODE_CHALLENGE_SQUIRREL;
+    return mBoard != nullptr && mGameMode == GAMEMODE_CHALLENGE_SQUIRREL;
 }
 
 // ==========================================================================
@@ -2078,13 +2052,11 @@ bool LawnApp::IsSquirrelLevel()
 // ==========================================================================
 bool LawnApp::IsIZombieLevel()
 {
-  if ( mBoard == nullptr )
-    return false;
-  // The binary tests three bit masks rather than a range, and the set they
-  // admit is {53, 55, 57, 59, 61, 63, 65, 67, 73, 75}.
-  return ((int)mGameMode & ~0x0A) == 0x35
-      || ((int)mGameMode & ~0x02) == 0x39
-      || ((int)mGameMode & ~0x06) == 0x41;
+    if (mBoard == nullptr)
+        return false;
+    // The binary tests three bit masks rather than a range, and the set they
+    // admit is {53, 55, 57, 59, 61, 63, 65, 67, 73, 75}.
+    return ((int)mGameMode & ~0x0A) == 0x35 || ((int)mGameMode & ~0x02) == 0x39 || ((int)mGameMode & ~0x06) == 0x41;
 }
 
 // ==========================================================================
@@ -2093,7 +2065,7 @@ bool LawnApp::IsIZombieLevel()
 // ==========================================================================
 bool LawnApp::IsShovelLevel()
 {
-  return mBoard != nullptr && mGameMode == GAMEMODE_CHALLENGE_SHOVEL;
+    return mBoard != nullptr && mGameMode == GAMEMODE_CHALLENGE_SHOVEL;
 }
 
 // ==========================================================================
@@ -2102,18 +2074,17 @@ bool LawnApp::IsShovelLevel()
 // ==========================================================================
 int LawnApp::IsWallnutBowlingLevel()
 {
-  if ( mBoard == nullptr )
-    return 0;
-  // 18/34 are GAMEMODE_CHALLENGE_WALLNUT_BOWLING and ..._2, 83 is
-  // GAMEMODE_TWO_PLAYER_COOP_BOWLING.
-  if ( mGameMode == GAMEMODE_CHALLENGE_WALLNUT_BOWLING_2
-    || mGameMode == GAMEMODE_CHALLENGE_WALLNUT_BOWLING
-    || mGameMode == GAMEMODE_TWO_PLAYER_COOP_BOWLING )
-    return 1;
+    if (mBoard == nullptr)
+        return 0;
+    // 18/34 are GAMEMODE_CHALLENGE_WALLNUT_BOWLING and ..._2, 83 is
+    // GAMEMODE_TWO_PLAYER_COOP_BOWLING.
+    if (mGameMode == GAMEMODE_CHALLENGE_WALLNUT_BOWLING_2 || mGameMode == GAMEMODE_CHALLENGE_WALLNUT_BOWLING ||
+        mGameMode == GAMEMODE_TWO_PLAYER_COOP_BOWLING)
+        return 1;
 
-  if ( !IsAdventureMode() )
-    return 0;
-  return mPlayerInfo->mLevel == 5;
+    if (!IsAdventureMode())
+        return 0;
+    return mPlayerInfo->mLevel == 5;
 }
 
 // ==========================================================================
@@ -2122,7 +2093,7 @@ int LawnApp::IsWallnutBowlingLevel()
 // ==========================================================================
 bool LawnApp::IsSlotMachineLevel()
 {
-  return mBoard != nullptr && mGameMode == GAMEMODE_CHALLENGE_SLOT_MACHINE;
+    return mBoard != nullptr && mGameMode == GAMEMODE_CHALLENGE_SLOT_MACHINE;
 }
 
 // ==========================================================================
@@ -2131,13 +2102,13 @@ bool LawnApp::IsSlotMachineLevel()
 // ==========================================================================
 int LawnApp::IsWhackAZombieLevel()
 {
-  if ( mBoard == nullptr )
-    return 0;
-  if ( mGameMode == GAMEMODE_CHALLENGE_WHACK_A_ZOMBIE )
-    return 1;
-  if ( !IsAdventureMode() )
-    return 0;
-  return mPlayerInfo->mLevel == 15;
+    if (mBoard == nullptr)
+        return 0;
+    if (mGameMode == GAMEMODE_CHALLENGE_WHACK_A_ZOMBIE)
+        return 1;
+    if (!IsAdventureMode())
+        return 0;
+    return mPlayerInfo->mLevel == 15;
 }
 
 // ==========================================================================
@@ -2146,13 +2117,13 @@ int LawnApp::IsWhackAZombieLevel()
 // ==========================================================================
 bool LawnApp::IsLittleTroubleLevel()
 {
-  if ( mBoard == nullptr )
-    return false;
-  if ( mGameMode == GAMEMODE_CHALLENGE_LITTLE_TROUBLE )
-    return true;
-  if ( !IsAdventureMode() )
-    return false;
-  return mPlayerInfo->mLevel == 25;
+    if (mBoard == nullptr)
+        return false;
+    if (mGameMode == GAMEMODE_CHALLENGE_LITTLE_TROUBLE)
+        return true;
+    if (!IsAdventureMode())
+        return false;
+    return mPlayerInfo->mLevel == 25;
 }
 
 // ==========================================================================
@@ -2161,17 +2132,15 @@ bool LawnApp::IsLittleTroubleLevel()
 // ==========================================================================
 int LawnApp::IsScaryPotterLevel()
 {
-  // Same three-mask shape as IsIZombieLevel; the admitted set is
-  // {52, 54, 56, 58, 60, 62, 64, 66, 72, 74}, the Scary Potter levels plus 72
-  // and 74.
-  if ( (((int)mGameMode & ~0x0A) == 0x34)
-    || (((int)mGameMode & ~0x02) == 0x38)
-    || (((int)mGameMode & ~0x06) == 0x40) )
-    return 1;
+    // Same three-mask shape as IsIZombieLevel; the admitted set is
+    // {52, 54, 56, 58, 60, 62, 64, 66, 72, 74}, the Scary Potter levels plus 72
+    // and 74.
+    if ((((int)mGameMode & ~0x0A) == 0x34) || (((int)mGameMode & ~0x02) == 0x38) || (((int)mGameMode & ~0x06) == 0x40))
+        return 1;
 
-  if ( !IsAdventureMode() )
-    return 0;
-  return mPlayerInfo->mLevel == 35;
+    if (!IsAdventureMode())
+        return 0;
+    return mPlayerInfo->mLevel == 35;
 }
 
 // ==========================================================================
@@ -2180,26 +2149,20 @@ int LawnApp::IsScaryPotterLevel()
 // ==========================================================================
 bool LawnApp::IsSeedPlantingLevel()
 {
-  if ( IsWallnutBowlingLevel() != 0
-    || mGameMode == GAMEMODE_CHALLENGE_HEAVY_WEAPON
-    || IsWhackAZombieLevel() != 0
-    || mGameMode == GAMEMODE_MP_VS
-    || IsArtChallenge() != 0 )
-    return false;
+    if (IsWallnutBowlingLevel() != 0 || mGameMode == GAMEMODE_CHALLENGE_HEAVY_WEAPON || IsWhackAZombieLevel() != 0 ||
+        mGameMode == GAMEMODE_MP_VS || IsArtChallenge() != 0)
+        return false;
 
-  // 51 GAMEMODE_TREE_OF_WISDOM, 44 GAMEMODE_CHALLENGE_ZEN_GARDEN,
-  // 72/73 GAMEMODE_UPSELL/GAMEMODE_INTRO, 24 GAMEMODE_CHALLENGE_ZOMBIQUARIUM,
-  // 21/25 GAMEMODE_CHALLENGE_BEGHOULED and ..._TWIST.
-  if ( mGameMode == GAMEMODE_TREE_OF_WISDOM
-    || mGameMode == GAMEMODE_CHALLENGE_ZEN_GARDEN
-    || (unsigned int)(mGameMode - GAMEMODE_UPSELL) <= 1
-    || mGameMode == GAMEMODE_CHALLENGE_ZOMBIQUARIUM
-    || IsIZombieLevel() )
-    return false;
+    // 51 GAMEMODE_TREE_OF_WISDOM, 44 GAMEMODE_CHALLENGE_ZEN_GARDEN,
+    // 72/73 GAMEMODE_UPSELL/GAMEMODE_INTRO, 24 GAMEMODE_CHALLENGE_ZOMBIQUARIUM,
+    // 21/25 GAMEMODE_CHALLENGE_BEGHOULED and ..._TWIST.
+    if (mGameMode == GAMEMODE_TREE_OF_WISDOM || mGameMode == GAMEMODE_CHALLENGE_ZEN_GARDEN ||
+        (unsigned int)(mGameMode - GAMEMODE_UPSELL) <= 1 || mGameMode == GAMEMODE_CHALLENGE_ZOMBIQUARIUM ||
+        IsIZombieLevel())
+        return false;
 
-  return mGameMode != GAMEMODE_CHALLENGE_BEGHOULED
-      && mGameMode != GAMEMODE_CHALLENGE_BEGHOULED_TWIST
-      && IsScaryPotterLevel() == 0;
+    return mGameMode != GAMEMODE_CHALLENGE_BEGHOULED && mGameMode != GAMEMODE_CHALLENGE_BEGHOULED_TWIST &&
+        IsScaryPotterLevel() == 0;
 }
 
 // ==========================================================================
@@ -2208,28 +2171,26 @@ bool LawnApp::IsSeedPlantingLevel()
 // ==========================================================================
 int LawnApp::SetBoardResult(BoardResult theResult)
 {
-  mBoardResult = theResult;
+    mBoardResult = theResult;
 
-  if ( theResult == 1 && mBoard != nullptr )
-  {
-    Board *aBoard = mBoard;
-    if ( !aBoard->mPeaShooterUsed
-      && (unsigned int)(aBoard->mBackground - 2) <= 2
-      && mGameMode == GAMEMODE_ADVENTURE )
-      mPlayerInfo->mProgress[0] = (mPlayerInfo->mProgress[0] & ~0x00FF0000) | 0x00010000;
-
-    if ( !aBoard->mCatapultPlantsUsed && IsSeedPlantingLevel() )
+    if (theResult == 1 && mBoard != nullptr)
     {
-      int aSecondPlayer = mSecondPlayerGamepadIndex + 1;
-      mPlayerInfo->mProgressFlags[1] = 1;
-      if ( aSecondPlayer != 0 && mPlayer2Info != nullptr )
-        mPlayer2Info->mProgressFlags[1] = 1;
-    }
-  }
+        Board *aBoard = mBoard;
+        if (!aBoard->mPeaShooterUsed && (unsigned int)(aBoard->mBackground - 2) <= 2 && mGameMode == GAMEMODE_ADVENTURE)
+            mPlayerInfo->mProgress[0] = (mPlayerInfo->mProgress[0] & ~0x00FF0000) | 0x00010000;
 
-  // The binary leaves whatever r0 held; the declaration's `int` has no value to
-  // return. TODO(recon): LawnApp.h should declare SetBoardResult void.
-  return 0;
+        if (!aBoard->mCatapultPlantsUsed && IsSeedPlantingLevel())
+        {
+            int aSecondPlayer = mSecondPlayerGamepadIndex + 1;
+            mPlayerInfo->mProgressFlags[1] = 1;
+            if (aSecondPlayer != 0 && mPlayer2Info != nullptr)
+                mPlayer2Info->mProgressFlags[1] = 1;
+        }
+    }
+
+    // The binary leaves whatever r0 held; the declaration's `int` has no value to
+    // return. TODO(recon): LawnApp.h should declare SetBoardResult void.
+    return 0;
 }
 
 // ==========================================================================
@@ -2238,13 +2199,13 @@ int LawnApp::SetBoardResult(BoardResult theResult)
 // ==========================================================================
 bool LawnApp::IsStormyNightLevel()
 {
-  if ( mBoard == nullptr )
-    return false;
-  if ( mGameMode == GAMEMODE_CHALLENGE_STORMY_NIGHT )
-    return true;
-  if ( !IsAdventureMode() )
-    return false;
-  return mPlayerInfo->mLevel == 40;
+    if (mBoard == nullptr)
+        return false;
+    if (mGameMode == GAMEMODE_CHALLENGE_STORMY_NIGHT)
+        return true;
+    if (!IsAdventureMode())
+        return false;
+    return mPlayerInfo->mLevel == 40;
 }
 
 // ==========================================================================
@@ -2253,13 +2214,13 @@ bool LawnApp::IsStormyNightLevel()
 // ==========================================================================
 bool LawnApp::IsBungeeBlitzLevel()
 {
-  if ( mBoard == nullptr )
-    return false;
-  if ( mGameMode == GAMEMODE_CHALLENGE_BUNGEE_BLITZ )
-    return true;
-  if ( !IsAdventureMode() )
-    return false;
-  return mPlayerInfo->mLevel == 45;
+    if (mBoard == nullptr)
+        return false;
+    if (mGameMode == GAMEMODE_CHALLENGE_BUNGEE_BLITZ)
+        return true;
+    if (!IsAdventureMode())
+        return false;
+    return mPlayerInfo->mLevel == 45;
 }
 
 // ==========================================================================
@@ -2268,11 +2229,11 @@ bool LawnApp::IsBungeeBlitzLevel()
 // ==========================================================================
 bool LawnApp::IsMiniBossLevel()
 {
-  if ( mBoard == nullptr )
-    return false;
-  if ( !IsAdventureMode() )
-    return false;
-  return mPlayerInfo->mLevel == 10 || mPlayerInfo->mLevel == 20 || mPlayerInfo->mLevel == 30;
+    if (mBoard == nullptr)
+        return false;
+    if (!IsAdventureMode())
+        return false;
+    return mPlayerInfo->mLevel == 10 || mPlayerInfo->mLevel == 20 || mPlayerInfo->mLevel == 30;
 }
 
 // ==========================================================================
@@ -2281,14 +2242,14 @@ bool LawnApp::IsMiniBossLevel()
 // ==========================================================================
 bool LawnApp::IsFinalBossLevel()
 {
-  if ( mBoard == nullptr )
-    return false;
-  // 36 is GAMEMODE_CHALLENGE_FINAL_BOSS and 88 GAMEMODE_TWO_PLAYER_COOP_BOSS.
-  if ( mGameMode == GAMEMODE_CHALLENGE_FINAL_BOSS || mGameMode == GAMEMODE_TWO_PLAYER_COOP_BOSS )
-    return true;
-  if ( !IsAdventureMode() )
-    return false;
-  return mPlayerInfo->mLevel == 50;
+    if (mBoard == nullptr)
+        return false;
+    // 36 is GAMEMODE_CHALLENGE_FINAL_BOSS and 88 GAMEMODE_TWO_PLAYER_COOP_BOSS.
+    if (mGameMode == GAMEMODE_CHALLENGE_FINAL_BOSS || mGameMode == GAMEMODE_TWO_PLAYER_COOP_BOSS)
+        return true;
+    if (!IsAdventureMode())
+        return false;
+    return mPlayerInfo->mLevel == 50;
 }
 
 // ==========================================================================
@@ -2297,17 +2258,16 @@ bool LawnApp::IsFinalBossLevel()
 // ==========================================================================
 bool LawnApp::IsContinuousChallenge()
 {
-  if ( IsArtChallenge() != 0 )
-    return true;
-  if ( IsSlotMachineLevel() )
-    return true;
-  if ( IsFinalBossLevel() )
-    return true;
-  // 21/25 are GAMEMODE_CHALLENGE_BEGHOULED and ..._TWIST, 72/73
-  // GAMEMODE_UPSELL and GAMEMODE_INTRO.
-  return mGameMode == GAMEMODE_CHALLENGE_BEGHOULED
-      || (unsigned int)(mGameMode - GAMEMODE_UPSELL) <= 1
-      || mGameMode == GAMEMODE_CHALLENGE_BEGHOULED_TWIST;
+    if (IsArtChallenge() != 0)
+        return true;
+    if (IsSlotMachineLevel())
+        return true;
+    if (IsFinalBossLevel())
+        return true;
+    // 21/25 are GAMEMODE_CHALLENGE_BEGHOULED and ..._TWIST, 72/73
+    // GAMEMODE_UPSELL and GAMEMODE_INTRO.
+    return mGameMode == GAMEMODE_CHALLENGE_BEGHOULED || (unsigned int)(mGameMode - GAMEMODE_UPSELL) <= 1 ||
+        mGameMode == GAMEMODE_CHALLENGE_BEGHOULED_TWIST;
 }
 
 // ==========================================================================
@@ -2316,21 +2276,20 @@ bool LawnApp::IsContinuousChallenge()
 // ==========================================================================
 int LawnApp::IsChallengeWithoutSeedBank()
 {
-  // 72/73 are GAMEMODE_UPSELL and GAMEMODE_INTRO, 90
-  // GAMEMODE_CHALLENGE_RAINING_SEEDS.
-  if ( mGameMode == GAMEMODE_CHALLENGE_RAINING_SEEDS
-    || (unsigned int)(mGameMode - GAMEMODE_UPSELL) <= 1 )
-    return 1;
-  if ( IsWhackAZombieLevel() != 0 )
-    return 1;
-  if ( IsSquirrelLevel() )
-    return 1;
-  if ( IsScaryPotterLevel() != 0 )
-    return 1;
-  // 44 is GAMEMODE_CHALLENGE_ZEN_GARDEN and 51 GAMEMODE_TREE_OF_WISDOM.
-  if ( mGameMode == GAMEMODE_CHALLENGE_ZEN_GARDEN || mGameMode == GAMEMODE_TREE_OF_WISDOM )
-    return 1;
-  return 0;
+    // 72/73 are GAMEMODE_UPSELL and GAMEMODE_INTRO, 90
+    // GAMEMODE_CHALLENGE_RAINING_SEEDS.
+    if (mGameMode == GAMEMODE_CHALLENGE_RAINING_SEEDS || (unsigned int)(mGameMode - GAMEMODE_UPSELL) <= 1)
+        return 1;
+    if (IsWhackAZombieLevel() != 0)
+        return 1;
+    if (IsSquirrelLevel())
+        return 1;
+    if (IsScaryPotterLevel() != 0)
+        return 1;
+    // 44 is GAMEMODE_CHALLENGE_ZEN_GARDEN and 51 GAMEMODE_TREE_OF_WISDOM.
+    if (mGameMode == GAMEMODE_CHALLENGE_ZEN_GARDEN || mGameMode == GAMEMODE_TREE_OF_WISDOM)
+        return 1;
+    return 0;
 }
 
 // ==========================================================================
@@ -2347,9 +2306,9 @@ int LawnApp::IsChallengeWithoutSeedBank()
 //  mSession.StartTask(aTask);`. Everything else below is already named.
 int LawnApp::SrvLogoutFromServer()
 {
-  if ( !mLoginToServer )
+    if (!mLoginToServer)
+        return 0;
     return 0;
-  return 0;
 }
 
 // ==========================================================================
@@ -2364,8 +2323,8 @@ int LawnApp::SrvLogoutFromServer()
 //  mSession.StartTask(aTask);`.
 int LawnApp::SrvQueryCoin()
 {
-  mSessionTaskType = 7;
-  return 1;
+    mSessionTaskType = 7;
+    return 1;
 }
 // ==========================================================================
 // LawnApp::onPay(int)
@@ -2373,40 +2332,42 @@ int LawnApp::SrvQueryCoin()
 // ==========================================================================
 void LawnApp::onPay(int theResult)
 {
-  if ( theResult == 0 && dynamic_cast<Sexy::LocalGameCenter*>(mGameCenter) != nullptr )
-  {
-    mQueryCoinState.mPending = false;
-    int aBalance = atoi(LawnUser::getCurUser()->mCoinText.c_str());
-    Sexy::String aMessage;
-    StrFormat(&aMessage, u8"已到账 %d V币，当前余额 %d V币。\n仅用于本地测试，不涉及真实付款。",
-              aBalance - mQueryCoinState.mPreviousBalance, aBalance);
-    Sexy::Dialog* aRechargeDialog = GetDialog(82);
-    if ( aRechargeDialog != nullptr )
-      aRechargeDialog->mResult = 1000;
-    FinishBuyMoneyDialog(true);
-    DoDialog(51, true, "[RECHARGE_SUCCEED]", aMessage, "[DIALOG_BUTTON_OK]", 3);
-    return;
-  }
+    if (theResult == 0 && dynamic_cast<Sexy::LocalGameCenter *>(mGameCenter) != nullptr)
+    {
+        mQueryCoinState.mPending = false;
+        int aBalance = atoi(LawnUser::getCurUser()->mCoinText.c_str());
+        Sexy::String aMessage;
+        StrFormat(&aMessage,
+            u8"已到账 %d V币，当前余额 %d V币。\n仅用于本地测试，不涉及真实付款。",
+            aBalance - mQueryCoinState.mPreviousBalance,
+            aBalance);
+        Sexy::Dialog *aRechargeDialog = GetDialog(82);
+        if (aRechargeDialog != nullptr)
+            aRechargeDialog->mResult = 1000;
+        FinishBuyMoneyDialog(true);
+        DoDialog(51, true, "[RECHARGE_SUCCEED]", aMessage, "[DIALOG_BUTTON_OK]", 3);
+        return;
+    }
 
-  if ( theResult != 0 )
-  {
-    if ( theResult == 1 )
-      logfi("MobileCMGCHOME: on pay failed");
+    if (theResult != 0)
+    {
+        if (theResult == 1)
+            logfi("MobileCMGCHOME: on pay failed");
+        else
+            logfi("MobileCMGCHOME: on pay cancelled");
+
+        // The app answers a failed or cancelled payment by putting the item list
+        // back. The fourth argument is the empty string the ARM loads into r3.
+        setPayItemsRes(false, gEmptyCString, 0, gEmptyCString);
+    }
     else
-      logfi("MobileCMGCHOME: on pay cancelled");
-
-    // The app answers a failed or cancelled payment by putting the item list
-    // back. The fourth argument is the empty string the ARM loads into r3.
-    setPayItemsRes(false, gEmptyCString, 0, gEmptyCString);
-  }
-  else
-  {
-    logfi("MobileCMGCHOME: on pay success");
-    mQueryCoinState.mPending = true;
-    mQueryCoinState.mLastRequestTime = Sexy::GetTickCount();
-    mQueryCoinState.mRequestCount = 0;
-    SrvQueryCoin();
-  }
+    {
+        logfi("MobileCMGCHOME: on pay success");
+        mQueryCoinState.mPending = true;
+        mQueryCoinState.mLastRequestTime = Sexy::GetTickCount();
+        mQueryCoinState.mRequestCount = 0;
+        SrvQueryCoin();
+    }
 }
 
 // ==========================================================================
@@ -2415,9 +2376,9 @@ void LawnApp::onPay(int theResult)
 // ==========================================================================
 void LawnApp::OnSessionTaskFailed(int theTask, Sexy::String theMessage)
 {
-  // The binary's whole body is the release of the by-value theMessage's libstdc++ rep,
-  // which is what the copy the caller hands in needs and which the compiler now
-  // emits for the parameter's own destructor. theTask -- the task id -- is never read.
+    // The binary's whole body is the release of the by-value theMessage's libstdc++ rep,
+    // which is what the copy the caller hands in needs and which the compiler now
+    // emits for the parameter's own destructor. theTask -- the task id -- is never read.
 }
 
 // ==========================================================================
@@ -2426,36 +2387,36 @@ void LawnApp::OnSessionTaskFailed(int theTask, Sexy::String theMessage)
 // ==========================================================================
 int LawnApp::OnSessionTaskSucceed()
 {
-  // vtable byte 428 is the by-id KillDialog; the named forwarder is what the
-  // rest of the tree calls it through today.
-  int result = LawnMessageBox(51, "[RECHARGE_SUCCEED]", gEmptyCString, "[DIALOG_BUTTON_OK]", gEmptyCString, 3);
-  if ( result == 1000 )
-  {
-    KillDialog(51);
-    return 1000;
-  }
-  return result;
+    // vtable byte 428 is the by-id KillDialog; the named forwarder is what the
+    // rest of the tree calls it through today.
+    int result = LawnMessageBox(51, "[RECHARGE_SUCCEED]", gEmptyCString, "[DIALOG_BUTTON_OK]", gEmptyCString, 3);
+    if (result == 1000)
+    {
+        KillDialog(51);
+        return 1000;
+    }
+    return result;
 }
 
 // ==========================================================================
 // LawnApp::DoSessionWaitDialog()
 // @002B58E4  94 bytes
 // ==========================================================================
-SessionWaitingDialog * LawnApp::DoSessionWaitDialog()
+SessionWaitingDialog *LawnApp::DoSessionWaitDialog()
 {
-  if ( CanPauseNow() )
-    mBoard->Pause(true);
+    if (CanPauseNow())
+        mBoard->Pause(true);
 
-  FinishModelessDialogs();
-  KillDialog(81);
+    FinishModelessDialogs();
+    KillDialog(81);
 
-  SessionWaitingDialog *aDialog = new SessionWaitingDialog(this, 81);
-  AddDialogWithId(81, aDialog);
+    SessionWaitingDialog *aDialog = new SessionWaitingDialog(this, 81);
+    AddDialogWithId(81, aDialog);
 
-  // The wait dialog is only focused if nothing else holds the focus.
-  if ( mWidgetManager->mFocusWidget == nullptr )
-    mWidgetManager->SetFocus(aDialog);
-  return aDialog;
+    // The wait dialog is only focused if nothing else holds the focus.
+    if (mWidgetManager->mFocusWidget == nullptr)
+        mWidgetManager->SetFocus(aDialog);
+    return aDialog;
 }
 
 // ==========================================================================
@@ -2471,14 +2432,14 @@ SessionWaitingDialog * LawnApp::DoSessionWaitDialog()
 //  mSession.StartTask(aTask);` once that header exists.
 bool LawnApp::SrvBuyTool(E_SHOP_PACKET thePacket)
 {
-  if ( dynamic_cast<Sexy::LocalGameCenter*>(mGameCenter) != nullptr )
-    return buyToolForDemo(thePacket);
+    if (dynamic_cast<Sexy::LocalGameCenter *>(mGameCenter) != nullptr)
+        return buyToolForDemo(thePacket);
 
-  mPendingBuyToolId = thePacket;
-  mSessionTaskType = 5;
+    mPendingBuyToolId = thePacket;
+    mSessionTaskType = 5;
 
-  SessionWaitingDialog *aDialog = DoSessionWaitDialog();
-  return aDialog == nullptr || aDialog->WaitForResult(true) == 0;
+    SessionWaitingDialog *aDialog = DoSessionWaitDialog();
+    return aDialog == nullptr || aDialog->WaitForResult(true) == 0;
 }
 // ==========================================================================
 // LawnApp::SrvDebugAddMoney(int)
@@ -2490,11 +2451,11 @@ bool LawnApp::SrvBuyTool(E_SHOP_PACKET thePacket)
 // dialog 81. The member write below is the one this tree can name.
 bool LawnApp::SrvDebugAddMoney(int theAmount)
 {
-  mSessionTaskType = 6;
+    mSessionTaskType = 6;
 
-  DoSessionWaitDialog();
-  Sexy::Dialog *aDialog = GetDialog(81);
-  return aDialog == nullptr || aDialog->WaitForResult(true) == 0;
+    DoSessionWaitDialog();
+    Sexy::Dialog *aDialog = GetDialog(81);
+    return aDialog == nullptr || aDialog->WaitForResult(true) == 0;
 }
 // ==========================================================================
 // LawnApp::writeCoinNum(int)
@@ -2506,14 +2467,14 @@ bool LawnApp::SrvDebugAddMoney(int theAmount)
 // ==========================================================================
 void LawnApp::writeCoinNum(int theCoinNum)
 {
-  Sexy::String aPath;
-  GetAppDataFolder(&aPath);
-  MkDir(aPath);
-  aPath += "/CoinFile";
+    Sexy::String aPath;
+    GetAppDataFolder(&aPath);
+    MkDir(aPath);
+    aPath += "/CoinFile";
 
-  const std::string aText = std::to_string(theCoinNum);
-  if (!Sexy::SDLFile::WriteOutputFile(aPath.c_str(), aText.data(), aText.size()))
-    puts("CoinFile write failed!");
+    const std::string aText = std::to_string(theCoinNum);
+    if (!Sexy::SDLFile::WriteOutputFile(aPath.c_str(), aText.data(), aText.size()))
+        puts("CoinFile write failed!");
 }
 
 // ==========================================================================
@@ -2527,12 +2488,12 @@ void LawnApp::writeCoinNum(int theCoinNum)
 // ==========================================================================
 Sexy::String LawnApp::GetUserName()
 {
-  Sexy::String aName = getUserIdentifier();
-  if (!aName.empty())
+    Sexy::String aName = getUserIdentifier();
+    if (!aName.empty())
+        return aName;
+    aName.assign("transmension", 12);
+    mCanDoBuyMoneyDialog = false;
     return aName;
-  aName.assign("transmension", 12);
-  mCanDoBuyMoneyDialog = false;
-  return aName;
 }
 
 // ==========================================================================
@@ -2541,9 +2502,9 @@ Sexy::String LawnApp::GetUserName()
 // ==========================================================================
 bool LawnApp::judgeDoTransRecharge()
 {
-  // The recharge flow is only offered when the ad provider reports the type the
-  // ARM compares against 7 (AdProvider::getADType, table byte 0x14).
-  return mAdProvider != nullptr && mAdProvider->getADType() == 7;
+    // The recharge flow is only offered when the ad provider reports the type the
+    // ARM compares against 7 (AdProvider::getADType, table byte 0x14).
+    return mAdProvider != nullptr && mAdProvider->getADType() == 7;
 }
 
 // ==========================================================================
@@ -2552,11 +2513,11 @@ bool LawnApp::judgeDoTransRecharge()
 // ==========================================================================
 int LawnApp::showPurchaseLimitDialog(int theLimit)
 {
-  PurchaseLimitDialog *aDialog = new PurchaseLimitDialog(this, theLimit);
-  CenterDialog(aDialog, aDialog->mWidth, aDialog->mHeight);
-  AddDialogWithId(aDialog->mId, aDialog);
-  mWidgetManager->SetFocus(aDialog);
-  return 0;
+    PurchaseLimitDialog *aDialog = new PurchaseLimitDialog(this, theLimit);
+    CenterDialog(aDialog, aDialog->mWidth, aDialog->mHeight);
+    AddDialogWithId(aDialog->mId, aDialog);
+    mWidgetManager->SetFocus(aDialog);
+    return 0;
 }
 
 // ==========================================================================
@@ -2565,159 +2526,156 @@ int LawnApp::showPurchaseLimitDialog(int theLimit)
 // ==========================================================================
 int LawnApp::GetAwardSeedForLevel(int theLevel)
 {
-  // Ten levels make an area, and each area awards eight seeds. The tenth level
-  // of an area repeats the eighth award; levels 6 through 9 shift back by one.
-  int aLevelInArea = (theLevel - 1) % 10 + 1;
-  int aBase = 8 * ((theLevel - 1) / 10);
-  int aSeed = aBase + aLevelInArea;
-  if ( aLevelInArea == 10 )
-    aSeed = aBase + 8;
-  else if ( aLevelInArea > 4 )
-    aSeed -= 1;
-  if ( aSeed >= 40 )
-    return 40;
-  return aSeed;
+    // Ten levels make an area, and each area awards eight seeds. The tenth level
+    // of an area repeats the eighth award; levels 6 through 9 shift back by one.
+    int aLevelInArea = (theLevel - 1) % 10 + 1;
+    int aBase = 8 * ((theLevel - 1) / 10);
+    int aSeed = aBase + aLevelInArea;
+    if (aLevelInArea == 10)
+        aSeed = aBase + 8;
+    else if (aLevelInArea > 4)
+        aSeed -= 1;
+    if (aSeed >= 40)
+        return 40;
+    return aSeed;
 }
 
 // ==========================================================================
 // LawnApp::AddReanimation(float,float,int,ReanimationType)
 // @002B60DC  10 bytes
 // ==========================================================================
-Reanimation * LawnApp::AddReanimation(float theX, float theY, int theRenderOrder, ReanimationType theType)
+Reanimation *LawnApp::AddReanimation(float theX, float theY, int theRenderOrder, ReanimationType theType)
 {
-  // @0x2B60DC: LDR mEffectSystem, LDR holder, B.W AllocReanimation. R0 is that pointer.
-  return mEffectSystem->mReanimationHolder->AllocReanimation(theX, theY, theRenderOrder, theType);
+    // @0x2B60DC: LDR mEffectSystem, LDR holder, B.W AllocReanimation. R0 is that pointer.
+    return mEffectSystem->mReanimationHolder->AllocReanimation(theX, theY, theRenderOrder, theType);
 }
 
 // ==========================================================================
 // LawnApp::AddTodParticle(float,float,int,ParticleEffect)
 // @002B60E8  10 bytes
 // ==========================================================================
-TodParticleSystem* LawnApp::AddTodParticle(float theX, float theY, int theLayer, ParticleEffect theEffect)
+TodParticleSystem *LawnApp::AddTodParticle(float theX, float theY, int theLayer, ParticleEffect theEffect)
 {
-  return mEffectSystem->mParticleHolder->AllocParticleSystem(theX, theY, theLayer, theEffect);
+    return mEffectSystem->mParticleHolder->AllocParticleSystem(theX, theY, theLayer, theEffect);
 }
 
 // ==========================================================================
 // LawnApp::ReanimationGetID(Reanimation *)
 // @002B60F4  6 bytes
 // ==========================================================================
-ReanimationID LawnApp::ReanimationGetID(Reanimation * theReanimation)
+ReanimationID LawnApp::ReanimationGetID(Reanimation *theReanimation)
 {
-  ReanimationHolder *aHolder = mEffectSystem->mReanimationHolder;
-  ReanimationSlot *aSlots = aHolder->mBlock;
-  for (unsigned int anIndex = 0; anIndex < aHolder->mMaxSize; ++anIndex)
-  {
-    if (&aSlots[anIndex].mItem == theReanimation)
-      return ReanimationID(aSlots[anIndex].mID);
-  }
-  return REANIMATIONID_NULL;
+    ReanimationHolder *aHolder = mEffectSystem->mReanimationHolder;
+    ReanimationSlot *aSlots = aHolder->mBlock;
+    for (unsigned int anIndex = 0; anIndex < aHolder->mMaxSize; ++anIndex)
+    {
+        if (&aSlots[anIndex].mItem == theReanimation)
+            return ReanimationID(aSlots[anIndex].mID);
+    }
+    return REANIMATIONID_NULL;
 }
 
 // ==========================================================================
 // LawnApp::ReanimationGet(ReanimationID)
 // @002B60FC  18 bytes
 // ==========================================================================
-Reanimation * LawnApp::ReanimationGet(ReanimationID theReanimationId)
+Reanimation *LawnApp::ReanimationGet(ReanimationID theReanimationId)
 {
-  // @0x2B60FC: UXTH the id, then block + index * 0xDC. No bounds check.
-  ReanimationSlot *aSlots = mEffectSystem->mReanimationHolder->mBlock;
-  return &aSlots[(unsigned short)theReanimationId].mItem;
+    // @0x2B60FC: UXTH the id, then block + index * 0xDC. No bounds check.
+    ReanimationSlot *aSlots = mEffectSystem->mReanimationHolder->mBlock;
+    return &aSlots[(unsigned short)theReanimationId].mItem;
 }
 
 // ==========================================================================
 // LawnApp::ReanimationTryToGet(ReanimationID)
 // @002B6110  48 bytes
 // ==========================================================================
-Reanimation * LawnApp::ReanimationTryToGet(ReanimationID theReanimationId)
+Reanimation *LawnApp::ReanimationTryToGet(ReanimationID theReanimationId)
 {
-  if ( mEffectSystem == nullptr || theReanimationId == 0 )
-    return nullptr;
+    if (mEffectSystem == nullptr || theReanimationId == 0)
+        return nullptr;
 
-  ReanimationHolder *aHolder = mEffectSystem->mReanimationHolder;
-  if ( (unsigned int)(std::uint16_t)theReanimationId >= aHolder->mMaxSize )
-    return nullptr;
+    ReanimationHolder *aHolder = mEffectSystem->mReanimationHolder;
+    if ((unsigned int)(std::uint16_t)theReanimationId >= aHolder->mMaxSize)
+        return nullptr;
 
-  ReanimationSlot *aSlots = aHolder->mBlock;
-  if ( theReanimationId != aSlots[(std::uint16_t)theReanimationId].mID )
-    return nullptr;
-  return &aSlots[(std::uint16_t)theReanimationId].mItem;
+    ReanimationSlot *aSlots = aHolder->mBlock;
+    if (theReanimationId != aSlots[(std::uint16_t)theReanimationId].mID)
+        return nullptr;
+    return &aSlots[(std::uint16_t)theReanimationId].mItem;
 }
 
 // ==========================================================================
 // LawnApp::ParticleGetID(TodParticleSystem *)
 // @002B6140  4 bytes
 // ==========================================================================
-ParticleSystemID LawnApp::ParticleGetID(TodParticleSystem * theParticle)
+ParticleSystemID LawnApp::ParticleGetID(TodParticleSystem *theParticle)
 {
-  // The id word sits in the slot that owns this system.
-  DataArray<TodParticleSystem, ParticleSystemSlot> *aArray =
-      &mEffectSystem->mParticleHolder->mParticleSystems;
-  ParticleSystemSlot *aSlots = aArray->mBlock;
-  for (unsigned int anIndex = 0; anIndex < aArray->mMaxSize; ++anIndex)
-  {
-    if (&aSlots[anIndex].mItem == theParticle)
-      return ParticleSystemID(aSlots[anIndex].mID);
-  }
-  return ParticleSystemID(0);
+    // The id word sits in the slot that owns this system.
+    DataArray<TodParticleSystem, ParticleSystemSlot> *aArray = &mEffectSystem->mParticleHolder->mParticleSystems;
+    ParticleSystemSlot *aSlots = aArray->mBlock;
+    for (unsigned int anIndex = 0; anIndex < aArray->mMaxSize; ++anIndex)
+    {
+        if (&aSlots[anIndex].mItem == theParticle)
+            return ParticleSystemID(aSlots[anIndex].mID);
+    }
+    return ParticleSystemID(0);
 }
 
 // ==========================================================================
 // LawnApp::ParticleGet(ParticleSystemID)
 // @002B6144  20 bytes
 // ==========================================================================
-TodParticleSystem* LawnApp::ParticleGet(ParticleSystemID theId)
+TodParticleSystem *LawnApp::ParticleGet(ParticleSystemID theId)
 {
-  ParticleSystemSlot *aSlots =
-      mEffectSystem->mParticleHolder->mParticleSystems.mBlock;
-  return &aSlots[(unsigned short)theId].mItem;
+    ParticleSystemSlot *aSlots = mEffectSystem->mParticleHolder->mParticleSystems.mBlock;
+    return &aSlots[(unsigned short)theId].mItem;
 }
 
 // ==========================================================================
 // LawnApp::ParticleTryToGet(ParticleSystemID)
 // @002B6158  46 bytes
 // ==========================================================================
-TodParticleSystem* LawnApp::ParticleTryToGet(ParticleSystemID theId)
+TodParticleSystem *LawnApp::ParticleTryToGet(ParticleSystemID theId)
 {
-  // A zero id is never a live system. The index is the low half of the id,
-  // and it has to match the id stored with that slot.
-  if ( theId == 0 )
-    return nullptr;
+    // A zero id is never a live system. The index is the low half of the id,
+    // and it has to match the id stored with that slot.
+    if (theId == 0)
+        return nullptr;
 
-  DataArray<TodParticleSystem, ParticleSystemSlot> *aArray =
-      &mEffectSystem->mParticleHolder->mParticleSystems;
-  unsigned int aIndex = (unsigned short)theId;
-  if ( aIndex >= aArray->mMaxSize )
-    return nullptr;
+    DataArray<TodParticleSystem, ParticleSystemSlot> *aArray = &mEffectSystem->mParticleHolder->mParticleSystems;
+    unsigned int aIndex = (unsigned short)theId;
+    if (aIndex >= aArray->mMaxSize)
+        return nullptr;
 
-  ParticleSystemSlot *aSlots = aArray->mBlock;
-  if ( theId != aSlots[aIndex].mID )
-    return nullptr;
-  return &aSlots[aIndex].mItem;
+    ParticleSystemSlot *aSlots = aArray->mBlock;
+    if (theId != aSlots[aIndex].mID)
+        return nullptr;
+    return &aSlots[aIndex].mItem;
 }
 
 // ==========================================================================
 // LawnApp::RemoveReanimation(ReanimationID)
 // @002B6188  18 bytes
 // ==========================================================================
-Reanimation * LawnApp::RemoveReanimation(ReanimationID theReanimationId)
+Reanimation *LawnApp::RemoveReanimation(ReanimationID theReanimationId)
 {
-  Reanimation *aReanimation = ReanimationTryToGet(theReanimationId);
-  if ( aReanimation != nullptr )
-    aReanimation->ReanimationDie();
-  return aReanimation;
+    Reanimation *aReanimation = ReanimationTryToGet(theReanimationId);
+    if (aReanimation != nullptr)
+        aReanimation->ReanimationDie();
+    return aReanimation;
 }
 
 // ==========================================================================
 // LawnApp::RemoveParticle(ParticleSystemID)
 // @002B619C  18 bytes
 // ==========================================================================
-TodParticleSystem * LawnApp::RemoveParticle(ParticleSystemID theParticleId)
+TodParticleSystem *LawnApp::RemoveParticle(ParticleSystemID theParticleId)
 {
-  TodParticleSystem *aParticle = ParticleTryToGet(theParticleId);
-  if ( aParticle != nullptr )
-    aParticle->ParticleSystemDie();
-  return aParticle;
+    TodParticleSystem *aParticle = ParticleTryToGet(theParticleId);
+    if (aParticle != nullptr)
+        aParticle->ParticleSystemDie();
+    return aParticle;
 }
 
 // ==========================================================================
@@ -2726,17 +2684,15 @@ TodParticleSystem * LawnApp::RemoveParticle(ParticleSystemID theParticleId)
 // ==========================================================================
 int LawnApp::IsNight()
 {
-  if ( IsIceDemo() != 0 )
-    return 0;
-  if ( mPlayerInfo == nullptr )
-    return 0;
+    if (IsIceDemo() != 0)
+        return 0;
+    if (mPlayerInfo == nullptr)
+        return 0;
 
-  // 11..20 and 31..40 are the night levels of the day and pool stages, 50 is
-  // level 5-10, the roof night level.
-  int aLevel = mPlayerInfo->mLevel;
-  return (unsigned int)(aLevel - 11) <= 9
-      || (unsigned int)(aLevel - 31) <= 9
-      || aLevel == 50;
+    // 11..20 and 31..40 are the night levels of the day and pool stages, 50 is
+    // level 5-10, the roof night level.
+    int aLevel = mPlayerInfo->mLevel;
+    return (unsigned int)(aLevel - 11) <= 9 || (unsigned int)(aLevel - 31) <= 9 || aLevel == 50;
 }
 
 // ==========================================================================
@@ -2745,7 +2701,7 @@ int LawnApp::IsNight()
 // ==========================================================================
 bool LawnApp::IsSurvivalNormal(GameMode theGameMode)
 {
-  return (unsigned int)(theGameMode - 2) <= 4;
+    return (unsigned int)(theGameMode - 2) <= 4;
 }
 
 // ==========================================================================
@@ -2754,7 +2710,7 @@ bool LawnApp::IsSurvivalNormal(GameMode theGameMode)
 // ==========================================================================
 bool LawnApp::IsSurvivalHard(GameMode theGameMode)
 {
-  return (unsigned int)(theGameMode - 7) <= 4 || (unsigned int)(theGameMode - 84) <= 3;
+    return (unsigned int)(theGameMode - 7) <= 4 || (unsigned int)(theGameMode - 84) <= 3;
 }
 
 // ==========================================================================
@@ -2763,10 +2719,10 @@ bool LawnApp::IsSurvivalHard(GameMode theGameMode)
 // ==========================================================================
 bool LawnApp::IsSurvivalEndless(GameMode theGameMode)
 {
-  // 12..16 are GAMEMODE_SURVIVAL_ENDLESS_STAGE_1 .. _5 and 89 is
-  // GAMEMODE_TWO_PLAYER_COOP_ENDLESS.
-  return theGameMode >= GAMEMODE_SURVIVAL_ENDLESS_STAGE_1 && theGameMode <= GAMEMODE_SURVIVAL_ENDLESS_STAGE_5
-      || theGameMode == GAMEMODE_TWO_PLAYER_COOP_ENDLESS;
+    // 12..16 are GAMEMODE_SURVIVAL_ENDLESS_STAGE_1 .. _5 and 89 is
+    // GAMEMODE_TWO_PLAYER_COOP_ENDLESS.
+    return theGameMode >= GAMEMODE_SURVIVAL_ENDLESS_STAGE_1 && theGameMode <= GAMEMODE_SURVIVAL_ENDLESS_STAGE_5 ||
+        theGameMode == GAMEMODE_TWO_PLAYER_COOP_ENDLESS;
 }
 
 // ==========================================================================
@@ -2775,7 +2731,7 @@ bool LawnApp::IsSurvivalEndless(GameMode theGameMode)
 // ==========================================================================
 bool LawnApp::IsEndlessScaryPotter(GameMode theGameMode)
 {
-  return theGameMode == 70;
+    return theGameMode == 70;
 }
 
 // ==========================================================================
@@ -2784,7 +2740,7 @@ bool LawnApp::IsEndlessScaryPotter(GameMode theGameMode)
 // ==========================================================================
 bool LawnApp::IsEndlessIZombie(GameMode theGameMode)
 {
-  return theGameMode == 71;
+    return theGameMode == 71;
 }
 
 // ==========================================================================
@@ -2793,28 +2749,28 @@ bool LawnApp::IsEndlessIZombie(GameMode theGameMode)
 // ==========================================================================
 bool LawnApp::HasBeatenChallenge(GameMode theGameMode)
 {
-  if ( mPlayerInfo == nullptr )
-    return false;
+    if (mPlayerInfo == nullptr)
+        return false;
 
-  // mChallengeRecords is indexed by challenge number, which is the game mode
-  // minus GAMEMODE_SURVIVAL_NORMAL_STAGE_1.
-  int aWins = mPlayerInfo->mChallengeRecords[theGameMode - GAMEMODE_SURVIVAL_NORMAL_STAGE_1];
-  if ( IsSurvivalNormal(theGameMode) )
-    return aWins > 4;
-  if ( IsSurvivalHard(theGameMode) )
-    return aWins > 9;
-  if ( IsSurvivalEndless(theGameMode) || IsEndlessScaryPotter(theGameMode) || IsEndlessIZombie(theGameMode) )
-    return false;
-  return aWins > 0;
+    // mChallengeRecords is indexed by challenge number, which is the game mode
+    // minus GAMEMODE_SURVIVAL_NORMAL_STAGE_1.
+    int aWins = mPlayerInfo->mChallengeRecords[theGameMode - GAMEMODE_SURVIVAL_NORMAL_STAGE_1];
+    if (IsSurvivalNormal(theGameMode))
+        return aWins > 4;
+    if (IsSurvivalHard(theGameMode))
+        return aWins > 9;
+    if (IsSurvivalEndless(theGameMode) || IsEndlessScaryPotter(theGameMode) || IsEndlessIZombie(theGameMode))
+        return false;
+    return aWins > 0;
 }
 
 // ==========================================================================
 // LawnApp::GetPottedPlantByIndex(int)
 // @002B62B0  18 bytes
 // ==========================================================================
-PottedPlant* LawnApp::GetPottedPlantByIndex(int theIndex)
+PottedPlant *LawnApp::GetPottedPlantByIndex(int theIndex)
 {
-  return &mPlayerInfo->mPottedPlants[theIndex];
+    return &mPlayerInfo->mPottedPlants[theIndex];
 }
 
 // ==========================================================================
@@ -2823,9 +2779,9 @@ PottedPlant* LawnApp::GetPottedPlantByIndex(int theIndex)
 // ==========================================================================
 bool LawnApp::HasFinishedAdventure()
 {
-  if ( mPlayerInfo == nullptr )
-    return false;
-  return mPlayerInfo->GetFlag(PlayerFlags(1)) || mPlayerInfo->GetFlag(PlayerFlags(0x8000));
+    if (mPlayerInfo == nullptr)
+        return false;
+    return mPlayerInfo->GetFlag(PlayerFlags(1)) || mPlayerInfo->GetFlag(PlayerFlags(0x8000));
 }
 
 // ==========================================================================
@@ -2834,13 +2790,13 @@ bool LawnApp::HasFinishedAdventure()
 // ==========================================================================
 int LawnApp::CanShowAlmanac()
 {
-  if ( IsIceDemo() != 0 )
-    return 0;
-  if ( mPlayerInfo == nullptr )
-    return 0;
-  if ( HasFinishedAdventure() )
-    return 1;
-  return mPlayerInfo->mLevel > 14;
+    if (IsIceDemo() != 0)
+        return 0;
+    if (mPlayerInfo == nullptr)
+        return 0;
+    if (HasFinishedAdventure())
+        return 1;
+    return mPlayerInfo->mLevel > 14;
 }
 
 // ==========================================================================
@@ -2849,20 +2805,18 @@ int LawnApp::CanShowAlmanac()
 // ==========================================================================
 bool LawnApp::CanShowStore()
 {
-  if ( IsIceDemo() != 0 || mPlayerInfo == nullptr )
-    return false;
-  if ( HasFinishedAdventure() )
-    return true;
-  if ( mGameMode != GAMEMODE_CHALLENGE_ZEN_GARDEN )
-    return mPlayerInfo->mLevel > 24;
+    if (IsIceDemo() != 0 || mPlayerInfo == nullptr)
+        return false;
+    if (HasFinishedAdventure())
+        return true;
+    if (mGameMode != GAMEMODE_CHALLENGE_ZEN_GARDEN)
+        return mPlayerInfo->mLevel > 24;
 
-  // Crazy Dave on screen hides the store; in the Zen Garden the tutorial state
-  // decides instead.
-  if ( mCrazyDaveState != CRAZY_DAVE_OFF )
-    return false;
-  return mBoard == nullptr
-      || mBoard->mTutorialState == TUTORIAL_OFF
-      || mBoard->mTutorialState > 24;
+    // Crazy Dave on screen hides the store; in the Zen Garden the tutorial state
+    // decides instead.
+    if (mCrazyDaveState != CRAZY_DAVE_OFF)
+        return false;
+    return mBoard == nullptr || mBoard->mTutorialState == TUTORIAL_OFF || mBoard->mTutorialState > 24;
 }
 
 // ==========================================================================
@@ -2871,37 +2825,36 @@ bool LawnApp::CanShowStore()
 // ==========================================================================
 int LawnApp::GetSeedsAvailable(bool theIncludeImitater)
 {
-  // @0x2B636C. Adventure finished returns 80 or 49. Versus mode walks seed
-  // types 65..79 and keeps the last one whose zombie is unlocked.
-  int aLevel = mPlayerInfo->GetLevel();
-  if ( theIncludeImitater != 0 )
-  {
-    if ( HasFinishedAdventure() != 0 )
-      return 80;
-    if ( mGameMode == GAMEMODE_MP_VS )
+    // @0x2B636C. Adventure finished returns 80 or 49. Versus mode walks seed
+    // types 65..79 and keeps the last one whose zombie is unlocked.
+    int aLevel = mPlayerInfo->GetLevel();
+    if (theIncludeImitater != 0)
     {
-      int aSeedType = 65;
-      int aBest = 65;
-      do
-      {
-        ZombieType aZombieType = Challenge::IZombieSeedTypeToZombieType((SeedType)aSeedType);
-        if ( aLevel >= GetZombieDefinition(aZombieType)->mStartingLevel )
-          aBest = aSeedType;
-        ++aSeedType;
-      }
-      while ( aSeedType != 80 );
-      return aBest;
+        if (HasFinishedAdventure() != 0)
+            return 80;
+        if (mGameMode == GAMEMODE_MP_VS)
+        {
+            int aSeedType = 65;
+            int aBest = 65;
+            do
+            {
+                ZombieType aZombieType = Challenge::IZombieSeedTypeToZombieType((SeedType)aSeedType);
+                if (aLevel >= GetZombieDefinition(aZombieType)->mStartingLevel)
+                    aBest = aSeedType;
+                ++aSeedType;
+            } while (aSeedType != 80);
+            return aBest;
+        }
     }
-  }
-  else if ( HasFinishedAdventure() != 0 || aLevel > 50 )
-  {
-    return 49;
-  }
+    else if (HasFinishedAdventure() != 0 || aLevel > 50)
+    {
+        return 49;
+    }
 
-  int aResult = GetAwardSeedForLevel(aLevel);
-  if ( aResult >= 49 )
-    return 49;
-  return aResult;
+    int aResult = GetAwardSeedForLevel(aLevel);
+    if (aResult >= 49)
+        return 49;
+    return aResult;
 }
 
 // ==========================================================================
@@ -2910,7 +2863,7 @@ int LawnApp::GetSeedsAvailable(bool theIncludeImitater)
 // ==========================================================================
 bool LawnApp::IsFirstTimeAdventureMode()
 {
-  return IsAdventureMode() && !HasFinishedAdventure();
+    return IsAdventureMode() && !HasFinishedAdventure();
 }
 
 // ==========================================================================
@@ -2919,13 +2872,13 @@ bool LawnApp::IsFirstTimeAdventureMode()
 // ==========================================================================
 bool LawnApp::CanSpawnYetis()
 {
-  // ZombieDefinition's third word is the level the yeti first appears on.
-  int aZombieLevel = GetZombieDefinition(ZOMBIE_YETI)->mStartingLevel;
-  if ( !HasFinishedAdventure() )
-    return false;
-  if ( mPlayerInfo->GetFlag(PlayerFlags(0x8000)) )
-    return true;
-  return mPlayerInfo->mLevel >= aZombieLevel;
+    // ZombieDefinition's third word is the level the yeti first appears on.
+    int aZombieLevel = GetZombieDefinition(ZOMBIE_YETI)->mStartingLevel;
+    if (!HasFinishedAdventure())
+        return false;
+    if (mPlayerInfo->GetFlag(PlayerFlags(0x8000)))
+        return true;
+    return mPlayerInfo->mLevel >= aZombieLevel;
 }
 
 // ==========================================================================
@@ -2934,22 +2887,22 @@ bool LawnApp::CanSpawnYetis()
 // ==========================================================================
 int LawnApp::CrazyDaveEnter()
 {
-  Reanimation *aDave = AddReanimation(0, 0, 0, REANIM_CRAZY_DAVE);
-  aDave->mIsAttachment = true;
-  aDave->SetBasePoseFromAnim("anim_idle_handing");
-  mCrazyDaveReanimID = ReanimationGetID(aDave);
-  aDave->PlayReanim("anim_enter", REANIM_PLAY_ONCE_AND_HOLD, 0, 24.0);
+    Reanimation *aDave = AddReanimation(0, 0, 0, REANIM_CRAZY_DAVE);
+    aDave->mIsAttachment = true;
+    aDave->SetBasePoseFromAnim("anim_idle_handing");
+    mCrazyDaveReanimID = ReanimationGetID(aDave);
+    aDave->PlayReanim("anim_enter", REANIM_PLAY_ONCE_AND_HOLD, 0, 24.0);
 
-  // The text the previous line-up left behind is dropped.
-  mCrazyDaveMessageIndex = -1;
-  mCrazyDaveState = CRAZY_DAVE_ENTERING;
-  mCrazyDaveMessageText->clear();
+    // The text the previous line-up left behind is dropped.
+    mCrazyDaveMessageIndex = -1;
+    mCrazyDaveState = CRAZY_DAVE_ENTERING;
+    mCrazyDaveMessageText->clear();
 
-  int aBlinkDelay = RandRangeInt(400, 800);
-  mCrazyDaveBlinkCounter = aBlinkDelay;
-  if ( mGameScene == SCENE_LEVEL_INTRO && IsStormyNightLevel() != 0 )
-    aDave->mColorOverride = Sexy::Color(64, 64, 64);
-  return aBlinkDelay;
+    int aBlinkDelay = RandRangeInt(400, 800);
+    mCrazyDaveBlinkCounter = aBlinkDelay;
+    if (mGameScene == SCENE_LEVEL_INTRO && IsStormyNightLevel() != 0)
+        aDave->mColorOverride = Sexy::Color(64, 64, 64);
+    return aBlinkDelay;
 }
 
 // ==========================================================================
@@ -2958,10 +2911,10 @@ int LawnApp::CrazyDaveEnter()
 // ==========================================================================
 void LawnApp::CrazyDaveDoneHanding()
 {
-  Reanimation *aDave = ReanimationGet(mCrazyDaveReanimID);
-  ReanimatorTrackInstance *aHand = aDave->GetTrackInstanceByName("Dave_handinghand");
-  if ( aHand != nullptr )
-    AttachmentDie(aHand->mAttachmentID);
+    Reanimation *aDave = ReanimationGet(mCrazyDaveReanimID);
+    ReanimatorTrackInstance *aHand = aDave->GetTrackInstanceByName("Dave_handinghand");
+    if (aHand != nullptr)
+        AttachmentDie(aHand->mAttachmentID);
 }
 
 // ==========================================================================
@@ -2970,30 +2923,30 @@ void LawnApp::CrazyDaveDoneHanding()
 // ==========================================================================
 void LawnApp::CrazyDaveStopSound()
 {
-  mSoundSystem->StopFoley(FOLEY_CRAZY_DAVE_SHORT);
-  mSoundSystem->StopFoley(FOLEY_CRAZY_DAVE_LONG);
-  mSoundSystem->StopFoley(FOLEY_CRAZY_DAVE_EXTRA_LONG);
-  mSoundSystem->StopFoley(FOLEY_CRAZY_DAVE_CRAZY);
+    mSoundSystem->StopFoley(FOLEY_CRAZY_DAVE_SHORT);
+    mSoundSystem->StopFoley(FOLEY_CRAZY_DAVE_LONG);
+    mSoundSystem->StopFoley(FOLEY_CRAZY_DAVE_EXTRA_LONG);
+    mSoundSystem->StopFoley(FOLEY_CRAZY_DAVE_CRAZY);
 }
 
 // ==========================================================================
 // LawnApp::CrazyDaveDie()
 // @002B6670  68 bytes
 // ==========================================================================
-Reanimation * LawnApp::CrazyDaveDie()
+Reanimation *LawnApp::CrazyDaveDie()
 {
-  Reanimation *aDave = ReanimationTryToGet(mCrazyDaveReanimID);
-  if ( aDave != nullptr )
-  {
-    aDave->ReanimationDie();
-    mCrazyDaveState = CRAZY_DAVE_OFF;
-    mCrazyDaveReanimID = REANIMATIONID_NULL;
-    mCrazyDaveMessageIndex = -1;
-    mCrazyDaveMessageText->clear();
-    CrazyDaveStopSound();
+    Reanimation *aDave = ReanimationTryToGet(mCrazyDaveReanimID);
+    if (aDave != nullptr)
+    {
+        aDave->ReanimationDie();
+        mCrazyDaveState = CRAZY_DAVE_OFF;
+        mCrazyDaveReanimID = REANIMATIONID_NULL;
+        mCrazyDaveMessageIndex = -1;
+        mCrazyDaveMessageText->clear();
+        CrazyDaveStopSound();
+        return aDave;
+    }
     return aDave;
-  }
-  return aDave;
 }
 
 // ==========================================================================
@@ -3002,255 +2955,249 @@ Reanimation * LawnApp::CrazyDaveDie()
 // ==========================================================================
 void LawnApp::CrazyDaveLeave()
 {
-  Reanimation *aDave = ReanimationTryToGet(mCrazyDaveReanimID);
-  if ( aDave == nullptr )
-    return;
+    Reanimation *aDave = ReanimationTryToGet(mCrazyDaveReanimID);
+    if (aDave == nullptr)
+        return;
 
-  // The two handing states have an attachment that has to come off first.
-  if ( mCrazyDaveState == CRAZY_DAVE_HANDING_TALKING
-       || mCrazyDaveState == CRAZY_DAVE_HANDING_IDLING )
-    CrazyDaveDoneHanding();
+    // The two handing states have an attachment that has to come off first.
+    if (mCrazyDaveState == CRAZY_DAVE_HANDING_TALKING || mCrazyDaveState == CRAZY_DAVE_HANDING_IDLING)
+        CrazyDaveDoneHanding();
 
-  aDave->PlayReanim("anim_leave", REANIM_PLAY_ONCE_AND_HOLD, 20, 24.0);
-  aDave->SetImageOverride("Dave_mouths", nullptr);
+    aDave->PlayReanim("anim_leave", REANIM_PLAY_ONCE_AND_HOLD, 20, 24.0);
+    aDave->SetImageOverride("Dave_mouths", nullptr);
 
-  mCrazyDaveState = CRAZY_DAVE_LEAVING;
-  mCrazyDaveMessageIndex = -1;
-  mCrazyDaveMessageText->clear();
-  CrazyDaveStopSound();
+    mCrazyDaveState = CRAZY_DAVE_LEAVING;
+    mCrazyDaveMessageIndex = -1;
+    mCrazyDaveMessageText->clear();
+    CrazyDaveStopSound();
 }
 
 // ==========================================================================
 // LawnApp::CrazyDaveTalkMessage(Sexy::String const&)
 // @002B6734  1298 bytes
 // ==========================================================================
-void LawnApp::CrazyDaveTalkMessage(Sexy::String const& theMessage)
+void LawnApp::CrazyDaveTalkMessage(Sexy::String const &theMessage)
 {
-  // A marker such as {NO_SOUND} selects the pose and the voice. The characters
-  // inside braces do not count toward the line length that picks the talk pose.
-  Reanimation *aDave = ReanimationTryToGet(mCrazyDaveReanimID);
-  if ( aDave == nullptr )
-    return;
+    // A marker such as {NO_SOUND} selects the pose and the voice. The characters
+    // inside braces do not count toward the line length that picks the talk pose.
+    Reanimation *aDave = ReanimationTryToGet(mCrazyDaveReanimID);
+    if (aDave == nullptr)
+        return;
 
-  const char *aText = theMessage.c_str();
-  auto aHasMarker = [&](const char *theMarker) {
-    return strstr(aText, theMarker) != nullptr;
-  };
+    const char *aText = theMessage.c_str();
+    auto aHasMarker = [&](const char *theMarker) { return strstr(aText, theMarker) != nullptr; };
 
-  bool aHanding = aHasMarker("{HANDING}");
-  if ( !aHanding
-       && (mCrazyDaveState == CRAZY_DAVE_HANDING_TALKING
-           || mCrazyDaveState == CRAZY_DAVE_HANDING_IDLING) )
-    CrazyDaveDoneHanding();
+    bool aHanding = aHasMarker("{HANDING}");
+    if (!aHanding && (mCrazyDaveState == CRAZY_DAVE_HANDING_TALKING || mCrazyDaveState == CRAZY_DAVE_HANDING_IDLING))
+        CrazyDaveDoneHanding();
 
-  bool aPlayVoice = !aHasMarker("{NO_SOUND}");
-  if ( aPlayVoice )
-    CrazyDaveStopSound();
+    bool aPlayVoice = !aHasMarker("{NO_SOUND}");
+    if (aPlayVoice)
+        CrazyDaveStopSound();
 
-  int aTextLength = 0;
-  bool aInTag = false;
-  for ( const char *aChar = aText; *aChar != '\0'; ++aChar )
-  {
-    if ( *aChar == '{' )
-      aInTag = true;
-    else if ( *aChar == '}' )
-      aInTag = false;
-    else if ( !aInTag )
-      ++aTextLength;
-  }
-
-  aDave->SetImageOverride("Dave_mouths", nullptr);
-  *mCrazyDaveMessageText = theMessage;
-
-  if ( mCrazyDaveState == CRAZY_DAVE_TALKING && !aPlayVoice )
-    return;
-
-  if ( aHanding )
-  {
-    aDave->PlayReanim("anim_talk_handing", REANIM_LOOP, 50, 12.0f);
-    if ( aPlayVoice )
+    int aTextLength = 0;
+    bool aInTag = false;
+    for (const char *aChar = aText; *aChar != '\0'; ++aChar)
     {
-      if ( aHasMarker("{SHORT_SOUND}") )
-        PlayFoley(FOLEY_CRAZY_DAVE_SHORT);
-      else if ( aHasMarker("{SCREAM}") )
-        PlayFoley(FOLEY_CRAZY_DAVE_SCREAM);
-      else
-        PlayFoley(FOLEY_CRAZY_DAVE_LONG);
-    }
-    mCrazyDaveState = CRAZY_DAVE_HANDING_TALKING;
-    return;
-  }
-
-  if ( aHasMarker("{SHAKE}") )
-  {
-    aDave->PlayReanim("anim_crazy", REANIM_PLAY_ONCE_AND_HOLD, 50, 12.0f);
-    if ( aPlayVoice )
-      PlayFoley(FOLEY_CRAZY_DAVE_CRAZY);
-  }
-  else if ( aHasMarker("{SCREAM}") )
-  {
-    aDave->PlayReanim("anim_smalltalk", REANIM_PLAY_ONCE_AND_HOLD, 50, 12.0f);
-    if ( aPlayVoice )
-      PlayFoley(FOLEY_CRAZY_DAVE_SCREAM);
-  }
-  else if ( aHasMarker("{SCREAM2}") )
-  {
-    aDave->PlayReanim("anim_mediumtalk", REANIM_PLAY_ONCE_AND_HOLD, 50, 12.0f);
-    if ( aPlayVoice )
-      PlayFoley(FOLEY_CRAZY_DAVE_SCREAM_2);
-  }
-  else if ( aHasMarker("{SHOW_WALLNUT}") || aHasMarker("{SHOW_HAMMER}")
-            || aHasMarker("{SHOW_FERTILIZER}") || aHasMarker("{SHOW_TREE_FOOD}")
-            || aHasMarker("{SHOW_MONEYBAG}") )
-  {
-    aDave->PlayReanim("anim_talk_handing", REANIM_LOOP, 50, 12.0f);
-    ReanimationType aPropType = REANIM_WALLNUT;
-    const char *aPropAnim = "anim_idle";
-    ReanimLoopType aPropLoop = REANIM_LOOP;
-    float aPropRate = 12.0f;
-    float aOffsetX = 100.0f;
-    float aOffsetY = 393.0f;
-    float aScale = 1.2f;
-    FoleyType aVoice = FOLEY_CRAZY_DAVE_SCREAM_2;
-    bool aFreeze = false;
-    Sexy::Image *aBagImage = nullptr;
-    if ( aHasMarker("{SHOW_HAMMER}") )
-    {
-      aPropType = REANIM_HAMMER;
-      aPropAnim = "anim_whack_zombie";
-      aPropLoop = REANIM_PLAY_ONCE_AND_HOLD;
-      aPropRate = 24.0f;
-      aOffsetX = 62.0f;
-      aOffsetY = 445.0f;
-      aScale = 1.5f;
-      aVoice = FOLEY_CRAZY_DAVE_LONG;
-      aFreeze = true;
-    }
-    else if ( aHasMarker("{SHOW_FERTILIZER}") )
-    {
-      aPropType = REANIM_ZENGARDEN_FERTILIZER;
-      aPropAnim = "bag";
-      aPropLoop = REANIM_PLAY_ONCE_AND_HOLD;
-      aPropRate = 24.0f;
-      aOffsetX = 102.0f;
-      aOffsetY = 412.0f;
-      aScale = 1.0f;
-      aVoice = FOLEY_CRAZY_DAVE_LONG;
-      aFreeze = true;
-    }
-    else if ( aHasMarker("{SHOW_TREE_FOOD}") )
-    {
-      aPropType = REANIM_TREEOFWISDOM_TREEFOOD;
-      aPropAnim = "bag";
-      aPropLoop = REANIM_PLAY_ONCE_AND_HOLD;
-      aPropRate = 24.0f;
-      aOffsetX = 102.0f;
-      aOffsetY = 412.0f;
-      aScale = 1.0f;
-      aVoice = FOLEY_CRAZY_DAVE_LONG;
-      aFreeze = true;
-    }
-    else if ( aHasMarker("{SHOW_MONEYBAG}") )
-    {
-      aPropType = REANIM_ZENGARDEN_FERTILIZER;
-      aPropAnim = "bag";
-      aPropLoop = REANIM_PLAY_ONCE_AND_HOLD;
-      aPropRate = 24.0f;
-      aOffsetX = 90.0f;
-      aOffsetY = 405.0f;
-      aScale = 1.0f;
-      aVoice = FOLEY_CRAZY_DAVE_LONG;
-      aFreeze = true;
-      aBagImage = IMAGE_MONEYBAG;
+        if (*aChar == '{')
+            aInTag = true;
+        else if (*aChar == '}')
+            aInTag = false;
+        else if (!aInTag)
+            ++aTextLength;
     }
 
-    Reanimation *aProp = AddReanimation(0, 0, 0, aPropType);
-    aProp->PlayReanim(aPropAnim, aPropLoop, 0, aPropRate);
-    if ( aFreeze )
-    {
-      aProp->SetAnimRate(0.0f);
-      if ( aHasMarker("{SHOW_HAMMER}") )
-        aProp->mAnimTime = 1.0f;
-    }
-    if ( aBagImage != nullptr )
-      aProp->SetImageOverride("bag", aBagImage);
-    ReanimatorTrackInstance *aHand = aDave->GetTrackInstanceByName("Dave_handinghand");
-    AttachEffect *aEffect = AttachReanim(aHand->mAttachmentID, aProp, aOffsetX, aOffsetY);
-    if ( aEffect != nullptr && aScale != 1.0f )
-    {
-      aEffect->mOffset.m00 = aScale;
-      aEffect->mOffset.m11 = aScale;
-    }
-    aDave->Update();
-    if ( aPlayVoice )
-      PlayFoley(aVoice);
-    mCrazyDaveState = CRAZY_DAVE_HANDING_TALKING;
-    return;
-  }
-  else if ( aTextLength <= 22 )
-  {
-    aDave->PlayReanim("anim_smalltalk", REANIM_PLAY_ONCE_AND_HOLD, 50, 12.0f);
-    if ( aPlayVoice )
-      PlayFoley(FOLEY_CRAZY_DAVE_SHORT);
-  }
-  else if ( aTextLength > 51 )
-  {
-    aDave->PlayReanim("anim_blahblah", REANIM_PLAY_ONCE_AND_HOLD, 50, 12.0f);
-    if ( aPlayVoice )
-      PlayFoley(FOLEY_CRAZY_DAVE_EXTRA_LONG);
-  }
-  else
-  {
-    aDave->PlayReanim("anim_mediumtalk", REANIM_PLAY_ONCE_AND_HOLD, 50, 12.0f);
-    if ( aPlayVoice )
-      PlayFoley(FOLEY_CRAZY_DAVE_LONG);
-  }
+    aDave->SetImageOverride("Dave_mouths", nullptr);
+    *mCrazyDaveMessageText = theMessage;
 
-  mCrazyDaveState = CRAZY_DAVE_TALKING;
+    if (mCrazyDaveState == CRAZY_DAVE_TALKING && !aPlayVoice)
+        return;
+
+    if (aHanding)
+    {
+        aDave->PlayReanim("anim_talk_handing", REANIM_LOOP, 50, 12.0f);
+        if (aPlayVoice)
+        {
+            if (aHasMarker("{SHORT_SOUND}"))
+                PlayFoley(FOLEY_CRAZY_DAVE_SHORT);
+            else if (aHasMarker("{SCREAM}"))
+                PlayFoley(FOLEY_CRAZY_DAVE_SCREAM);
+            else
+                PlayFoley(FOLEY_CRAZY_DAVE_LONG);
+        }
+        mCrazyDaveState = CRAZY_DAVE_HANDING_TALKING;
+        return;
+    }
+
+    if (aHasMarker("{SHAKE}"))
+    {
+        aDave->PlayReanim("anim_crazy", REANIM_PLAY_ONCE_AND_HOLD, 50, 12.0f);
+        if (aPlayVoice)
+            PlayFoley(FOLEY_CRAZY_DAVE_CRAZY);
+    }
+    else if (aHasMarker("{SCREAM}"))
+    {
+        aDave->PlayReanim("anim_smalltalk", REANIM_PLAY_ONCE_AND_HOLD, 50, 12.0f);
+        if (aPlayVoice)
+            PlayFoley(FOLEY_CRAZY_DAVE_SCREAM);
+    }
+    else if (aHasMarker("{SCREAM2}"))
+    {
+        aDave->PlayReanim("anim_mediumtalk", REANIM_PLAY_ONCE_AND_HOLD, 50, 12.0f);
+        if (aPlayVoice)
+            PlayFoley(FOLEY_CRAZY_DAVE_SCREAM_2);
+    }
+    else if (aHasMarker("{SHOW_WALLNUT}") || aHasMarker("{SHOW_HAMMER}") || aHasMarker("{SHOW_FERTILIZER}") ||
+        aHasMarker("{SHOW_TREE_FOOD}") || aHasMarker("{SHOW_MONEYBAG}"))
+    {
+        aDave->PlayReanim("anim_talk_handing", REANIM_LOOP, 50, 12.0f);
+        ReanimationType aPropType = REANIM_WALLNUT;
+        const char *aPropAnim = "anim_idle";
+        ReanimLoopType aPropLoop = REANIM_LOOP;
+        float aPropRate = 12.0f;
+        float aOffsetX = 100.0f;
+        float aOffsetY = 393.0f;
+        float aScale = 1.2f;
+        FoleyType aVoice = FOLEY_CRAZY_DAVE_SCREAM_2;
+        bool aFreeze = false;
+        Sexy::Image *aBagImage = nullptr;
+        if (aHasMarker("{SHOW_HAMMER}"))
+        {
+            aPropType = REANIM_HAMMER;
+            aPropAnim = "anim_whack_zombie";
+            aPropLoop = REANIM_PLAY_ONCE_AND_HOLD;
+            aPropRate = 24.0f;
+            aOffsetX = 62.0f;
+            aOffsetY = 445.0f;
+            aScale = 1.5f;
+            aVoice = FOLEY_CRAZY_DAVE_LONG;
+            aFreeze = true;
+        }
+        else if (aHasMarker("{SHOW_FERTILIZER}"))
+        {
+            aPropType = REANIM_ZENGARDEN_FERTILIZER;
+            aPropAnim = "bag";
+            aPropLoop = REANIM_PLAY_ONCE_AND_HOLD;
+            aPropRate = 24.0f;
+            aOffsetX = 102.0f;
+            aOffsetY = 412.0f;
+            aScale = 1.0f;
+            aVoice = FOLEY_CRAZY_DAVE_LONG;
+            aFreeze = true;
+        }
+        else if (aHasMarker("{SHOW_TREE_FOOD}"))
+        {
+            aPropType = REANIM_TREEOFWISDOM_TREEFOOD;
+            aPropAnim = "bag";
+            aPropLoop = REANIM_PLAY_ONCE_AND_HOLD;
+            aPropRate = 24.0f;
+            aOffsetX = 102.0f;
+            aOffsetY = 412.0f;
+            aScale = 1.0f;
+            aVoice = FOLEY_CRAZY_DAVE_LONG;
+            aFreeze = true;
+        }
+        else if (aHasMarker("{SHOW_MONEYBAG}"))
+        {
+            aPropType = REANIM_ZENGARDEN_FERTILIZER;
+            aPropAnim = "bag";
+            aPropLoop = REANIM_PLAY_ONCE_AND_HOLD;
+            aPropRate = 24.0f;
+            aOffsetX = 90.0f;
+            aOffsetY = 405.0f;
+            aScale = 1.0f;
+            aVoice = FOLEY_CRAZY_DAVE_LONG;
+            aFreeze = true;
+            aBagImage = IMAGE_MONEYBAG;
+        }
+
+        Reanimation *aProp = AddReanimation(0, 0, 0, aPropType);
+        aProp->PlayReanim(aPropAnim, aPropLoop, 0, aPropRate);
+        if (aFreeze)
+        {
+            aProp->SetAnimRate(0.0f);
+            if (aHasMarker("{SHOW_HAMMER}"))
+                aProp->mAnimTime = 1.0f;
+        }
+        if (aBagImage != nullptr)
+            aProp->SetImageOverride("bag", aBagImage);
+        ReanimatorTrackInstance *aHand = aDave->GetTrackInstanceByName("Dave_handinghand");
+        AttachEffect *aEffect = AttachReanim(aHand->mAttachmentID, aProp, aOffsetX, aOffsetY);
+        if (aEffect != nullptr && aScale != 1.0f)
+        {
+            aEffect->mOffset.m00 = aScale;
+            aEffect->mOffset.m11 = aScale;
+        }
+        aDave->Update();
+        if (aPlayVoice)
+            PlayFoley(aVoice);
+        mCrazyDaveState = CRAZY_DAVE_HANDING_TALKING;
+        return;
+    }
+    else if (aTextLength <= 22)
+    {
+        aDave->PlayReanim("anim_smalltalk", REANIM_PLAY_ONCE_AND_HOLD, 50, 12.0f);
+        if (aPlayVoice)
+            PlayFoley(FOLEY_CRAZY_DAVE_SHORT);
+    }
+    else if (aTextLength > 51)
+    {
+        aDave->PlayReanim("anim_blahblah", REANIM_PLAY_ONCE_AND_HOLD, 50, 12.0f);
+        if (aPlayVoice)
+            PlayFoley(FOLEY_CRAZY_DAVE_EXTRA_LONG);
+    }
+    else
+    {
+        aDave->PlayReanim("anim_mediumtalk", REANIM_PLAY_ONCE_AND_HOLD, 50, 12.0f);
+        if (aPlayVoice)
+            PlayFoley(FOLEY_CRAZY_DAVE_LONG);
+    }
+
+    mCrazyDaveState = CRAZY_DAVE_TALKING;
 }
 // ==========================================================================
 // LawnApp::CrazyDaveStopTalking()
 // @002B6CDC  182 bytes
 // ==========================================================================
-Reanimation * LawnApp::CrazyDaveStopTalking()
+Reanimation *LawnApp::CrazyDaveStopTalking()
 {
-  // GAMEMODE_UPSELL keeps Dave handing rather than putting him back to the
-  // plain idle pose.
-  bool aKeepHanding = mGameMode == GAMEMODE_UPSELL;
-  if ( !aKeepHanding && mCrazyDaveState == CRAZY_DAVE_HANDING_TALKING )
-    CrazyDaveDoneHanding();
+    // GAMEMODE_UPSELL keeps Dave handing rather than putting him back to the
+    // plain idle pose.
+    bool aKeepHanding = mGameMode == GAMEMODE_UPSELL;
+    if (!aKeepHanding && mCrazyDaveState == CRAZY_DAVE_HANDING_TALKING)
+        CrazyDaveDoneHanding();
 
-  Reanimation *aDave = ReanimationTryToGet(mCrazyDaveReanimID);
-  if ( aDave == nullptr )
+    Reanimation *aDave = ReanimationTryToGet(mCrazyDaveReanimID);
+    if (aDave == nullptr)
+        return aDave;
+
+    aDave->SetImageOverride("Dave_mouths", nullptr);
+
+    // The handing states go back to the handing idle, the rest to the plain one.
+    if (mCrazyDaveState == CRAZY_DAVE_HANDING_TALKING)
+    {
+        if (!aKeepHanding)
+        {
+            aDave->PlayReanim("anim_idle_handing", REANIM_LOOP, 20, 12.0);
+            mCrazyDaveState = CRAZY_DAVE_HANDING_IDLING;
+        }
+        else
+        {
+            aDave->PlayReanim("anim_idle", REANIM_LOOP, 20, 12.0);
+            mCrazyDaveState = CRAZY_DAVE_IDLING;
+        }
+    }
+    else if ((unsigned int)(mCrazyDaveState - CRAZY_DAVE_TALKING) > 1)
+    {
+        aDave->PlayReanim("anim_idle", REANIM_LOOP, 20, 12.0);
+        mCrazyDaveState = CRAZY_DAVE_IDLING;
+    }
+
+    // The line that was being spoken goes away with the voice.
+    mCrazyDaveMessageIndex = -1;
+    mCrazyDaveMessageText->clear();
+    CrazyDaveStopSound();
     return aDave;
-
-  aDave->SetImageOverride("Dave_mouths", nullptr);
-
-  // The handing states go back to the handing idle, the rest to the plain one.
-  if ( mCrazyDaveState == CRAZY_DAVE_HANDING_TALKING )
-  {
-    if ( !aKeepHanding )
-    {
-      aDave->PlayReanim("anim_idle_handing", REANIM_LOOP, 20, 12.0);
-      mCrazyDaveState = CRAZY_DAVE_HANDING_IDLING;
-    }
-    else
-    {
-      aDave->PlayReanim("anim_idle", REANIM_LOOP, 20, 12.0);
-      mCrazyDaveState = CRAZY_DAVE_IDLING;
-    }
-  }
-  else if ( (unsigned int)(mCrazyDaveState - CRAZY_DAVE_TALKING) > 1 )
-  {
-    aDave->PlayReanim("anim_idle", REANIM_LOOP, 20, 12.0);
-    mCrazyDaveState = CRAZY_DAVE_IDLING;
-  }
-
-  // The line that was being spoken goes away with the voice.
-  mCrazyDaveMessageIndex = -1;
-  mCrazyDaveMessageText->clear();
-  CrazyDaveStopSound();
-  return aDave;
 }
 // ==========================================================================
 // LawnApp::UpdateCrazyDave()
@@ -3258,200 +3205,198 @@ Reanimation * LawnApp::CrazyDaveStopTalking()
 // ==========================================================================
 void LawnApp::UpdateCrazyDave()
 {
-  Reanimation *aDave = ReanimationTryToGet(mCrazyDaveReanimID);
-  if ( aDave == nullptr )
-  {
-    mCrazyDaveState = CRAZY_DAVE_OFF;
-    return;
-  }
-
-  // Entering and talking settle into an idle pose once the animation has played
-  // through, which is what mLoopCount counts. The mouth image and the blink are
-  // then steps of their own, and both are skipped for a Dave who is leaving.
-  bool aShowMouth = false;
-  bool aShouldBlink = false;
-  if ( mCrazyDaveState == CRAZY_DAVE_ENTERING || mCrazyDaveState == CRAZY_DAVE_TALKING )
-  {
-    if ( aDave->mLoopCount > 0 )
+    Reanimation *aDave = ReanimationTryToGet(mCrazyDaveReanimID);
+    if (aDave == nullptr)
     {
-      aDave->PlayReanim("anim_idle", REANIM_LOOP, 20, 12.0);
-      mCrazyDaveState = CRAZY_DAVE_IDLING;
-      aShowMouth = true;
+        mCrazyDaveState = CRAZY_DAVE_OFF;
+        return;
     }
-    aShouldBlink = true;
-  }
-  else if ( mCrazyDaveState == CRAZY_DAVE_HANDING_TALKING )
-  {
-    if ( aDave->mLoopCount > 0 )
+
+    // Entering and talking settle into an idle pose once the animation has played
+    // through, which is what mLoopCount counts. The mouth image and the blink are
+    // then steps of their own, and both are skipped for a Dave who is leaving.
+    bool aShowMouth = false;
+    bool aShouldBlink = false;
+    if (mCrazyDaveState == CRAZY_DAVE_ENTERING || mCrazyDaveState == CRAZY_DAVE_TALKING)
     {
-      aDave->PlayReanim("anim_idle_handing", REANIM_LOOP, 20, 12.0);
-      mCrazyDaveState = CRAZY_DAVE_HANDING_IDLING;
-      aShowMouth = true;
+        if (aDave->mLoopCount > 0)
+        {
+            aDave->PlayReanim("anim_idle", REANIM_LOOP, 20, 12.0);
+            mCrazyDaveState = CRAZY_DAVE_IDLING;
+            aShowMouth = true;
+        }
+        aShouldBlink = true;
     }
-    aShouldBlink = true;
-  }
-  else if ( mCrazyDaveState == CRAZY_DAVE_LEAVING )
-  {
-    // CrazyDaveDie leaves the state at CRAZY_DAVE_OFF, which is not an idle
-    // state, so the mouth and blink steps are both skipped after it.
-    if ( aDave->mLoopCount > 0 )
-      CrazyDaveDie();
-  }
-  else if ( mCrazyDaveState == CRAZY_DAVE_IDLING || mCrazyDaveState == CRAZY_DAVE_HANDING_IDLING )
-  {
-    aShowMouth = true;
-    aShouldBlink = true;
-  }
+    else if (mCrazyDaveState == CRAZY_DAVE_HANDING_TALKING)
+    {
+        if (aDave->mLoopCount > 0)
+        {
+            aDave->PlayReanim("anim_idle_handing", REANIM_LOOP, 20, 12.0);
+            mCrazyDaveState = CRAZY_DAVE_HANDING_IDLING;
+            aShowMouth = true;
+        }
+        aShouldBlink = true;
+    }
+    else if (mCrazyDaveState == CRAZY_DAVE_LEAVING)
+    {
+        // CrazyDaveDie leaves the state at CRAZY_DAVE_OFF, which is not an idle
+        // state, so the mouth and blink steps are both skipped after it.
+        if (aDave->mLoopCount > 0)
+            CrazyDaveDie();
+    }
+    else if (mCrazyDaveState == CRAZY_DAVE_IDLING || mCrazyDaveState == CRAZY_DAVE_HANDING_IDLING)
+    {
+        aShowMouth = true;
+        aShouldBlink = true;
+    }
 
-  if ( aShowMouth )
-  {
-    // The mouth image is whichever marker the current line carries.
-    if ( StringFind(mCrazyDaveMessageText, "{MOUTH_BIG_SMILE}", 0, 17) != (unsigned int)-1 )
-      aDave->SetImageOverride("Dave_mouths", IMAGE_REANIM_CRAZYDAVE_MOUTH1);
-    else if ( StringFind(mCrazyDaveMessageText, "{MOUTH_SMALL_SMILE}", 0, 19) != (unsigned int)-1 )
-      aDave->SetImageOverride("Dave_mouths", IMAGE_REANIM_CRAZYDAVE_MOUTH5);
-    else if ( StringFind(mCrazyDaveMessageText, "{MOUTH_BIG_OH}", 0, 14) != (unsigned int)-1 )
-      aDave->SetImageOverride("Dave_mouths", IMAGE_REANIM_CRAZYDAVE_MOUTH4);
-    else if ( StringFindText(mCrazyDaveMessageText, "{MOUTH_SMALL_OH}", 0) != (unsigned int)-1 )
-      aDave->SetImageOverride("Dave_mouths", IMAGE_REANIM_CRAZYDAVE_MOUTH6);
-  }
+    if (aShowMouth)
+    {
+        // The mouth image is whichever marker the current line carries.
+        if (StringFind(mCrazyDaveMessageText, "{MOUTH_BIG_SMILE}", 0, 17) != (unsigned int)-1)
+            aDave->SetImageOverride("Dave_mouths", IMAGE_REANIM_CRAZYDAVE_MOUTH1);
+        else if (StringFind(mCrazyDaveMessageText, "{MOUTH_SMALL_SMILE}", 0, 19) != (unsigned int)-1)
+            aDave->SetImageOverride("Dave_mouths", IMAGE_REANIM_CRAZYDAVE_MOUTH5);
+        else if (StringFind(mCrazyDaveMessageText, "{MOUTH_BIG_OH}", 0, 14) != (unsigned int)-1)
+            aDave->SetImageOverride("Dave_mouths", IMAGE_REANIM_CRAZYDAVE_MOUTH4);
+        else if (StringFindText(mCrazyDaveMessageText, "{MOUTH_SMALL_OH}", 0) != (unsigned int)-1)
+            aDave->SetImageOverride("Dave_mouths", IMAGE_REANIM_CRAZYDAVE_MOUTH6);
+    }
 
-  if ( aShouldBlink && --mCrazyDaveBlinkCounter <= 0 )
-  {
-    mCrazyDaveBlinkCounter = RandRangeInt(400, 800);
+    if (aShouldBlink && --mCrazyDaveBlinkCounter <= 0)
+    {
+        mCrazyDaveBlinkCounter = RandRangeInt(400, 800);
 
-    // The blink is a second Crazy Dave whose eye group takes over the head.
-    Reanimation *aBlink = AddReanimation(0, 0, 0, REANIM_CRAZY_DAVE);
-    aBlink->SetFramesForLayer("anim_blink");
-    aBlink->mLoopType = REANIM_PLAY_ONCE_FULL_LAST_FRAME_AND_HOLD;
-    aBlink->SetAnimRate(15.0);
-    aBlink->AttachToAnotherReanimation(aDave, "Dave_head");
-    aBlink->mColorOverride = aDave->mColorOverride;
-    aDave->AssignRenderGroupToTrack("Dave_eye", -1);
-    mCrazyDaveBlinkReanimID = ReanimationGetID(aBlink);
-  }
+        // The blink is a second Crazy Dave whose eye group takes over the head.
+        Reanimation *aBlink = AddReanimation(0, 0, 0, REANIM_CRAZY_DAVE);
+        aBlink->SetFramesForLayer("anim_blink");
+        aBlink->mLoopType = REANIM_PLAY_ONCE_FULL_LAST_FRAME_AND_HOLD;
+        aBlink->SetAnimRate(15.0);
+        aBlink->AttachToAnotherReanimation(aDave, "Dave_head");
+        aBlink->mColorOverride = aDave->mColorOverride;
+        aDave->AssignRenderGroupToTrack("Dave_eye", -1);
+        mCrazyDaveBlinkReanimID = ReanimationGetID(aBlink);
+    }
 
-  // The eye render group comes back once the blink has finished.
-  Reanimation *aBlink = ReanimationTryToGet(mCrazyDaveBlinkReanimID);
-  if ( aBlink != nullptr && aBlink->mLoopCount > 0 )
-  {
-    aDave->AssignRenderGroupToTrack("Dave_eye", 0);
-    RemoveReanimation(mCrazyDaveBlinkReanimID);
-    mCrazyDaveBlinkReanimID = REANIMATIONID_NULL;
-  }
+    // The eye render group comes back once the blink has finished.
+    Reanimation *aBlink = ReanimationTryToGet(mCrazyDaveBlinkReanimID);
+    if (aBlink != nullptr && aBlink->mLoopCount > 0)
+    {
+        aDave->AssignRenderGroupToTrack("Dave_eye", 0);
+        RemoveReanimation(mCrazyDaveBlinkReanimID);
+        mCrazyDaveBlinkReanimID = REANIMATIONID_NULL;
+    }
 
-  aDave->Update();
+    aDave->Update();
 }
 // ==========================================================================
 // LawnApp::DrawCrazyDave(Sexy::Graphics *)
 // @002B6FFC  772 bytes
 // ==========================================================================
-void LawnApp::DrawCrazyDave(Sexy::Graphics * g)
+void LawnApp::DrawCrazyDave(Sexy::Graphics *g)
 {
-  Reanimation *aDave = ReanimationTryToGet(mCrazyDaveReanimID);
-  if ( aDave == nullptr )
-    return;
+    Reanimation *aDave = ReanimationTryToGet(mCrazyDaveReanimID);
+    if (aDave == nullptr)
+        return;
 
-  // Nothing to say: Dave is just drawn.
-  if ( mCrazyDaveMessageText == nullptr || mCrazyDaveMessageText->size() == 0 )
-  {
-    aDave->Draw(g);
-    return;
-  }
-
-  // The speech bubble follows the store screen: DIALOG_STORE gives it one
-  // position, the rest of the game another, and GAMEMODE_UPSELL a third.
-  Sexy::Image *aBubble = IMAGE_STORE_SPEECHBUBBLE2;
-  int aBubbleX;
-  int aBubbleY;
-  int aTextX;
-  int aTextY;
-  if ( GetDialog(6) != nullptr )
-  {
-    aBubbleX = 105;
-    aBubbleY = -58;
-    aTextX = 130;
-    aTextY = -52;
-    aBubble = IMAGE_STORE_SPEECHBUBBLE;
-  }
-  else if ( mGameMode == GAMEMODE_UPSELL )
-  {
-    aBubbleX = 415;
-    aBubbleY = 90;
-    aTextX = 440;
-    aTextY = 96;
-  }
-  else
-  {
-    aBubbleX = 285;
-    aBubbleY = 20;
-    aTextX = 310;
-    aTextY = 26;
-  }
-
-  g->DrawImage(aBubble, aBubbleX, aBubbleY);
-
-  Sexy::String aText = *mCrazyDaveMessageText;
-  Sexy::TRect<int> aRect(aTextX, aTextY, 233, 144);
-
-  // {SHAKE} makes the bubble jitter by a pixel or two.
-  if ( StringFind(&aText, "{SHAKE}", 0, 7) != (unsigned int)-1 )
-  {
-    Sexy::String aReplacement;
-    Sexy::String aEmpty;
-    TodReplaceString(&aReplacement, &aText, "{SHAKE}", &aEmpty);
-    aText = aReplacement;
-    aRect.mX += PlatformRandomLong() % 2;
-    aRect.mY += PlatformRandomLong() % 2;
-  }
-
-  // {NO_CLICK} and {CHOOSE_HOUSE} are the two markers that suppress the
-  // "[CLICK_TO_CONTINUE]" hint; the rest of the game shows it.
-  bool aShowChooseHouse = false;
-  bool aShowClickToContinue = false;
-  if ( mGameMode != GAMEMODE_UPSELL )
-  {
-    if ( StringFind(&aText, "{NO_CLICK}", 0, 10) == (unsigned int)-1 )
+    // Nothing to say: Dave is just drawn.
+    if (mCrazyDaveMessageText == nullptr || mCrazyDaveMessageText->size() == 0)
     {
-      if ( StringFind(&aText, "{CHOOSE_HOUSE}", 0, 14) == (unsigned int)-1 )
-      {
-        aShowClickToContinue = true;
-        aRect.mY -= 10;
-      }
-      else
-      {
-        // The marker is taken out of the line and the hint takes its place.
+        aDave->Draw(g);
+        return;
+    }
+
+    // The speech bubble follows the store screen: DIALOG_STORE gives it one
+    // position, the rest of the game another, and GAMEMODE_UPSELL a third.
+    Sexy::Image *aBubble = IMAGE_STORE_SPEECHBUBBLE2;
+    int aBubbleX;
+    int aBubbleY;
+    int aTextX;
+    int aTextY;
+    if (GetDialog(6) != nullptr)
+    {
+        aBubbleX = 105;
+        aBubbleY = -58;
+        aTextX = 130;
+        aTextY = -52;
+        aBubble = IMAGE_STORE_SPEECHBUBBLE;
+    }
+    else if (mGameMode == GAMEMODE_UPSELL)
+    {
+        aBubbleX = 415;
+        aBubbleY = 90;
+        aTextX = 440;
+        aTextY = 96;
+    }
+    else
+    {
+        aBubbleX = 285;
+        aBubbleY = 20;
+        aTextX = 310;
+        aTextY = 26;
+    }
+
+    g->DrawImage(aBubble, aBubbleX, aBubbleY);
+
+    Sexy::String aText = *mCrazyDaveMessageText;
+    Sexy::TRect<int> aRect(aTextX, aTextY, 233, 144);
+
+    // {SHAKE} makes the bubble jitter by a pixel or two.
+    if (StringFind(&aText, "{SHAKE}", 0, 7) != (unsigned int)-1)
+    {
         Sexy::String aReplacement;
         Sexy::String aEmpty;
-        TodReplaceString(&aReplacement, &aText, "{NO_CLICK}", &aEmpty);
+        TodReplaceString(&aReplacement, &aText, "{SHAKE}", &aEmpty);
         aText = aReplacement;
-        aShowChooseHouse = true;
-      }
+        aRect.mX += PlatformRandomLong() % 2;
+        aRect.mY += PlatformRandomLong() % 2;
     }
-  }
 
-  TodDrawStringWrapped(g, aText, aRect, FONT_BRIANNETOD16, Sexy::Color::Black, 5, 0);
+    // {NO_CLICK} and {CHOOSE_HOUSE} are the two markers that suppress the
+    // "[CLICK_TO_CONTINUE]" hint; the rest of the game shows it.
+    bool aShowChooseHouse = false;
+    bool aShowClickToContinue = false;
+    if (mGameMode != GAMEMODE_UPSELL)
+    {
+        if (StringFind(&aText, "{NO_CLICK}", 0, 10) == (unsigned int)-1)
+        {
+            if (StringFind(&aText, "{CHOOSE_HOUSE}", 0, 14) == (unsigned int)-1)
+            {
+                aShowClickToContinue = true;
+                aRect.mY -= 10;
+            }
+            else
+            {
+                // The marker is taken out of the line and the hint takes its place.
+                Sexy::String aReplacement;
+                Sexy::String aEmpty;
+                TodReplaceString(&aReplacement, &aText, "{NO_CLICK}", &aEmpty);
+                aText = aReplacement;
+                aShowChooseHouse = true;
+            }
+        }
+    }
 
-  // The hint is drawn in the wide font only under a Chinese locale.
-  Sexy::Font *aHintFont = FONT_DWARVENTODCRAFT12;
-  if ( GetLocale() == "zh_CN" )
-    aHintFont = FONT_BRIANNETOD16;
+    TodDrawStringWrapped(g, aText, aRect, FONT_BRIANNETOD16, Sexy::Color::Black, 5, 0);
 
-  if ( aShowClickToContinue )
-  {
-    Sexy::String aHint("[CLICK_TO_CONTINUE]");
-    TodDrawString(g, aHint, aBubbleX + 139, aBubbleY + 140, aHintFont,
-                  Sexy::Color::Black, 2);
-  }
+    // The hint is drawn in the wide font only under a Chinese locale.
+    Sexy::Font *aHintFont = FONT_DWARVENTODCRAFT12;
+    if (GetLocale() == "zh_CN")
+        aHintFont = FONT_BRIANNETOD16;
 
-  if ( aShowChooseHouse )
-  {
-    Sexy::String aHint("[CHOOSE_HOUSE]");
-    TodDrawString(g, aHint, aBubbleX + 139, aBubbleY + 140, aHintFont,
-                  Sexy::Color::Black, 2);
-  }
+    if (aShowClickToContinue)
+    {
+        Sexy::String aHint("[CLICK_TO_CONTINUE]");
+        TodDrawString(g, aHint, aBubbleX + 139, aBubbleY + 140, aHintFont, Sexy::Color::Black, 2);
+    }
 
-  aDave->Draw(g);
+    if (aShowChooseHouse)
+    {
+        Sexy::String aHint("[CHOOSE_HOUSE]");
+        TodDrawString(g, aHint, aBubbleX + 139, aBubbleY + 140, aHintFont, Sexy::Color::Black, 2);
+    }
+
+    aDave->Draw(g);
 }
 // ==========================================================================
 // LawnApp::Pluralize(int,char const*,char const*)
@@ -3461,12 +3406,12 @@ void LawnApp::DrawCrazyDave(Sexy::Graphics * g)
 // the caller's Sexy::String buffer -- which is also why the body never reads r1.
 // The count is r2, the singular text r3 and the plural text the stack argument,
 // so the signature below is the mangled `PluralizeEiPKcS1_` one.
-Sexy::String LawnApp::Pluralize(int theCount, char const* theSingular, char const* thePlural)
+Sexy::String LawnApp::Pluralize(int theCount, char const *theSingular, char const *thePlural)
 {
-  Sexy::String aSource(theCount == 1 ? theSingular : thePlural);
-  Sexy::String aResult;
-  TodReplaceNumberString(&aResult, &aSource, "{COUNT}", theCount);
-  return aResult;
+    Sexy::String aSource(theCount == 1 ? theSingular : thePlural);
+    Sexy::String aResult;
+    TodReplaceNumberString(&aResult, &aSource, "{COUNT}", theCount);
+    return aResult;
 }
 // ==========================================================================
 // LawnApp::GetNumTrophies(ChallengePage)
@@ -3474,16 +3419,15 @@ Sexy::String LawnApp::Pluralize(int theCount, char const* theSingular, char cons
 // ==========================================================================
 int LawnApp::GetNumTrophies(ChallengePage thePage)
 {
-  // Records 0 through 93. A beaten challenge on this page is a trophy.
-  int aTrophies = 0;
-  for ( int aIndex = 0; aIndex < 94; ++aIndex )
-  {
-    const ChallengeDefinition *aDef = GetChallengeDefinition(aIndex);
-    if ( aDef != nullptr && aDef->mPage == (int)thePage
-         && HasBeatenChallenge(aDef->mChallengeMode) != 0 )
-      ++aTrophies;
-  }
-  return aTrophies;
+    // Records 0 through 93. A beaten challenge on this page is a trophy.
+    int aTrophies = 0;
+    for (int aIndex = 0; aIndex < 94; ++aIndex)
+    {
+        const ChallengeDefinition *aDef = GetChallengeDefinition(aIndex);
+        if (aDef != nullptr && aDef->mPage == (int)thePage && HasBeatenChallenge(aDef->mChallengeMode) != 0)
+            ++aTrophies;
+    }
+    return aTrophies;
 }
 
 // ==========================================================================
@@ -3492,11 +3436,11 @@ int LawnApp::GetNumTrophies(ChallengePage thePage)
 // ==========================================================================
 int LawnApp::TrophiesNeedForGoldSunflower()
 {
-  // The gold sunflower needs 30 survival, 18 puzzle and 12 challenge trophies.
-  int aMissing = 30 - GetNumTrophies(CHALLENGE_PAGE_SURVIVAL);
-  aMissing += 18 - GetNumTrophies(CHALLENGE_PAGE_PUZZLE);
-  aMissing += 12 - GetNumTrophies(CHALLENGE_PAGE_CHALLENGE);
-  return aMissing;
+    // The gold sunflower needs 30 survival, 18 puzzle and 12 challenge trophies.
+    int aMissing = 30 - GetNumTrophies(CHALLENGE_PAGE_SURVIVAL);
+    aMissing += 18 - GetNumTrophies(CHALLENGE_PAGE_PUZZLE);
+    aMissing += 12 - GetNumTrophies(CHALLENGE_PAGE_CHALLENGE);
+    return aMissing;
 }
 
 // ==========================================================================
@@ -3505,9 +3449,9 @@ int LawnApp::TrophiesNeedForGoldSunflower()
 // ==========================================================================
 bool LawnApp::EarnedGoldTrophy()
 {
-  if ( !HasFinishedAdventure() )
-    return false;
-  return TrophiesNeedForGoldSunflower() <= 0;
+    if (!HasFinishedAdventure())
+        return false;
+    return TrophiesNeedForGoldSunflower() <= 0;
 }
 
 // ==========================================================================
@@ -3516,16 +3460,14 @@ bool LawnApp::EarnedGoldTrophy()
 // ==========================================================================
 int LawnApp::IsRegistered()
 {
-  return 0;
+    return 0;
 }
 
 // ==========================================================================
 // LawnApp::BuyFullVersion()
 // @002B7538  2 bytes
 // ==========================================================================
-void LawnApp::BuyFullVersion()
-{
-}
+void LawnApp::BuyFullVersion() {}
 
 // ==========================================================================
 // LawnApp::IsTrialStageLocked()
@@ -3533,7 +3475,7 @@ void LawnApp::BuyFullVersion()
 // ==========================================================================
 int LawnApp::IsTrialStageLocked()
 {
-  return 0;
+    return 0;
 }
 
 // ==========================================================================
@@ -3542,11 +3484,11 @@ int LawnApp::IsTrialStageLocked()
 // ==========================================================================
 bool LawnApp::CanShowZenGarden()
 {
-  if ( mPlayerInfo == nullptr || IsTrialStageLocked() != 0 )
-    return false;
-  if ( !HasFinishedAdventure() )
-    return mPlayerInfo->mLevel > 44;
-  return true;
+    if (mPlayerInfo == nullptr || IsTrialStageLocked() != 0)
+        return false;
+    if (!HasFinishedAdventure())
+        return mPlayerInfo->mLevel > 44;
+    return true;
 }
 
 // ==========================================================================
@@ -3555,42 +3497,42 @@ bool LawnApp::CanShowZenGarden()
 // ==========================================================================
 bool LawnApp::HasSeedType(SeedType theSeedType, bool theIncludeImitater)
 {
-  // @0x2B756C: these reads are the nine plant purchase slots, the same slots
-  // StoreScreen::PurchaseItem writes. Seed ids and store item ids differ.
-  if ( theSeedType == SEED_GATLINGPEA )
-    return mPlayerInfo->mPurchases[STORE_ITEM_PLANT_GATLINGPEA] > 0;
-  if ( IsTrialStageLocked() != 0 )
-  {
-    // The trial build only has the first twenty seeds.
-    if ( theSeedType > SEED_TANGLEKELP )
-      return false;
-  }
-  else
-  {
-    if ( theSeedType == SEED_TWINSUNFLOWER )
-      return mPlayerInfo->mPurchases[STORE_ITEM_PLANT_TWINSUNFLOWER] > 0;
-    if ( theSeedType == SEED_GLOOMSHROOM )
-      return mPlayerInfo->mPurchases[STORE_ITEM_PLANT_GLOOMSHROOM] > 0;
-  }
+    // @0x2B756C: these reads are the nine plant purchase slots, the same slots
+    // StoreScreen::PurchaseItem writes. Seed ids and store item ids differ.
+    if (theSeedType == SEED_GATLINGPEA)
+        return mPlayerInfo->mPurchases[STORE_ITEM_PLANT_GATLINGPEA] > 0;
+    if (IsTrialStageLocked() != 0)
+    {
+        // The trial build only has the first twenty seeds.
+        if (theSeedType > SEED_TANGLEKELP)
+            return false;
+    }
+    else
+    {
+        if (theSeedType == SEED_TWINSUNFLOWER)
+            return mPlayerInfo->mPurchases[STORE_ITEM_PLANT_TWINSUNFLOWER] > 0;
+        if (theSeedType == SEED_GLOOMSHROOM)
+            return mPlayerInfo->mPurchases[STORE_ITEM_PLANT_GLOOMSHROOM] > 0;
+    }
 
-  switch ( theSeedType )
-  {
-    case SEED_CATTAIL:
-      return mPlayerInfo->mPurchases[STORE_ITEM_PLANT_CATTAIL] > 0;
-    case SEED_WINTERMELON:
-      return mPlayerInfo->mPurchases[STORE_ITEM_PLANT_WINTERMELON] > 0;
-    case SEED_GOLD_MAGNET:
-      return mPlayerInfo->mPurchases[STORE_ITEM_PLANT_GOLD_MAGNET] > 0;
-    case SEED_SPIKEROCK:
-      return mPlayerInfo->mPurchases[STORE_ITEM_PLANT_SPIKEROCK] > 0;
-    case SEED_COBCANNON:
-      return mPlayerInfo->mPurchases[STORE_ITEM_PLANT_COBCANNON] > 0;
-    case SEED_IMITATER:
-      return mPlayerInfo->mPurchases[STORE_ITEM_PLANT_IMITATER] > 0;
-    default:
-      break;
-  }
-  return theSeedType < GetSeedsAvailable(theIncludeImitater);
+    switch (theSeedType)
+    {
+        case SEED_CATTAIL:
+            return mPlayerInfo->mPurchases[STORE_ITEM_PLANT_CATTAIL] > 0;
+        case SEED_WINTERMELON:
+            return mPlayerInfo->mPurchases[STORE_ITEM_PLANT_WINTERMELON] > 0;
+        case SEED_GOLD_MAGNET:
+            return mPlayerInfo->mPurchases[STORE_ITEM_PLANT_GOLD_MAGNET] > 0;
+        case SEED_SPIKEROCK:
+            return mPlayerInfo->mPurchases[STORE_ITEM_PLANT_SPIKEROCK] > 0;
+        case SEED_COBCANNON:
+            return mPlayerInfo->mPurchases[STORE_ITEM_PLANT_COBCANNON] > 0;
+        case SEED_IMITATER:
+            return mPlayerInfo->mPurchases[STORE_ITEM_PLANT_IMITATER] > 0;
+        default:
+            break;
+    }
+    return theSeedType < GetSeedsAvailable(theIncludeImitater);
 }
 // ==========================================================================
 // LawnApp::GetNumPreloadingTasks()
@@ -3598,36 +3540,34 @@ bool LawnApp::HasSeedType(SeedType theSeedType, bool theIncludeImitater)
 // ==========================================================================
 int LawnApp::GetNumPreloadingTasks()
 {
-  // Ten seed groups of 136 units. The per-seed walk below reads zombie
-  // definitions. Until that table is filled, GetZombieDefinition is empty and
-  // the bar is sized with this figure.
-  if ( mPlayerInfo == nullptr || GetZombieDefinition(0) == nullptr )
-    return 1360;
+    // Ten seed groups of 136 units. The per-seed walk below reads zombie
+    // definitions. Until that table is filled, GetZombieDefinition is empty and
+    // the bar is sized with this figure.
+    if (mPlayerInfo == nullptr || GetZombieDefinition(0) == nullptr)
+        return 1360;
 
-  // One group per seed the profile has, plus one more when the adventure is
-  // finished and every seed is therefore available.
-  int aNumGroups = 10;
-  for ( int aSeedType = 0; aSeedType != 54; ++aSeedType )
-  {
-    if ( HasSeedType((SeedType)aSeedType, false) || HasFinishedAdventure() )
-      ++aNumGroups;
-  }
+    // One group per seed the profile has, plus one more when the adventure is
+    // finished and every seed is therefore available.
+    int aNumGroups = 10;
+    for (int aSeedType = 0; aSeedType != 54; ++aSeedType)
+    {
+        if (HasSeedType((SeedType)aSeedType, false) || HasFinishedAdventure())
+            ++aNumGroups;
+    }
 
-  // One group per zombie whose starting level the profile has already reached.
-  // Types 12, 17, 22, 23 and 25 have no definition of their own, so they add
-  // no group. The walk stops at type 33, which is the 34th count.
-  int aZombieGroups = 0;
-  for ( int aIndex = 0; aIndex < 34; ++aIndex )
-  {
-    bool aReached = HasFinishedAdventure()
-        || mPlayerInfo->mLevel >= GetZombieDefinition((ZombieType)aIndex)->mStartingLevel;
-    bool aHasDefinition = (unsigned int)(aIndex - 22) > 1
-        && (aIndex & 0xFFFFFFF7) != 0x11
-        && aIndex != 12;
-    if ( aReached && aHasDefinition )
-      ++aZombieGroups;
-  }
-  return 136 * (aNumGroups + aZombieGroups);
+    // One group per zombie whose starting level the profile has already reached.
+    // Types 12, 17, 22, 23 and 25 have no definition of their own, so they add
+    // no group. The walk stops at type 33, which is the 34th count.
+    int aZombieGroups = 0;
+    for (int aIndex = 0; aIndex < 34; ++aIndex)
+    {
+        bool aReached =
+            HasFinishedAdventure() || mPlayerInfo->mLevel >= GetZombieDefinition((ZombieType)aIndex)->mStartingLevel;
+        bool aHasDefinition = (unsigned int)(aIndex - 22) > 1 && (aIndex & 0xFFFFFFF7) != 0x11 && aIndex != 12;
+        if (aReached && aHasDefinition)
+            ++aZombieGroups;
+    }
+    return 136 * (aNumGroups + aZombieGroups);
 }
 // ==========================================================================
 // LawnApp::PreloadForUser()
@@ -3635,77 +3575,77 @@ int LawnApp::GetNumPreloadingTasks()
 // ==========================================================================
 int LawnApp::PreloadForUser()
 {
-  int aStartTasks = mCompletedLoadingThreadTasks;
-  unsigned int aSeedType = 0;
-  int aTotalTasks = aStartTasks + GetNumPreloadingTasks();
+    int aStartTasks = mCompletedLoadingThreadTasks;
+    unsigned int aSeedType = 0;
+    int aTotalTasks = aStartTasks + GetNumPreloadingTasks();
 
-  // Each reanimation group is worth one 136-unit step of the progress bar, and
-  // the prologue books them unconditionally -- only the two loops below clamp.
-  ReanimatorEnsureDefinitionLoaded(REANIM_PUFF, true);
-  ReanimatorEnsureDefinitionLoaded(REANIM_LAWN_MOWERED_ZOMBIE, true);
-  ReanimatorEnsureDefinitionLoaded(REANIM_READYSETPLANT, true);
-  mCompletedLoadingThreadTasks += 136;
-  ReanimatorEnsureDefinitionLoaded(REANIM_FINAL_WAVE, true);
-  ReanimatorEnsureDefinitionLoaded(REANIM_SUN, true);
-  ReanimatorEnsureDefinitionLoaded(REANIM_TEXT_FADE_ON, true);
-  mCompletedLoadingThreadTasks += 136;
-  ReanimatorEnsureDefinitionLoaded(REANIM_ZOMBIE, true);
-  mCompletedLoadingThreadTasks += 136;
-  ReanimatorEnsureDefinitionLoaded(REANIM_ZOMBIE_NEWSPAPER, true);
-  mCompletedLoadingThreadTasks += 136;
-  ReanimatorEnsureDefinitionLoaded(REANIM_ZOMBIE_HAND, true);
-  mCompletedLoadingThreadTasks += 136;
-  ReanimatorEnsureDefinitionLoaded(REANIM_MAINMENU_SKY, true);
-  mCompletedLoadingThreadTasks += 136;
-  ReanimatorEnsureDefinitionLoaded(REANIM_MAINMENU_SKY2, true);
-  mCompletedLoadingThreadTasks += 136;
-  ReanimatorEnsureDefinitionLoaded(REANIM_MAINMENU, true);
-  mCompletedLoadingThreadTasks += 136;
-  ReanimatorEnsureDefinitionLoaded(REANIM_CROW, true);
-  mCompletedLoadingThreadTasks += 136;
-  ReanimatorEnsureDefinitionLoaded(REANIM_FALLING_LEAVES, true);
-  mCompletedLoadingThreadTasks += 136;
-  ReanimatorEnsureDefinitionLoaded(REANIM_BUTTERFLY, true);
-  mCompletedLoadingThreadTasks += 136;
+    // Each reanimation group is worth one 136-unit step of the progress bar, and
+    // the prologue books them unconditionally -- only the two loops below clamp.
+    ReanimatorEnsureDefinitionLoaded(REANIM_PUFF, true);
+    ReanimatorEnsureDefinitionLoaded(REANIM_LAWN_MOWERED_ZOMBIE, true);
+    ReanimatorEnsureDefinitionLoaded(REANIM_READYSETPLANT, true);
+    mCompletedLoadingThreadTasks += 136;
+    ReanimatorEnsureDefinitionLoaded(REANIM_FINAL_WAVE, true);
+    ReanimatorEnsureDefinitionLoaded(REANIM_SUN, true);
+    ReanimatorEnsureDefinitionLoaded(REANIM_TEXT_FADE_ON, true);
+    mCompletedLoadingThreadTasks += 136;
+    ReanimatorEnsureDefinitionLoaded(REANIM_ZOMBIE, true);
+    mCompletedLoadingThreadTasks += 136;
+    ReanimatorEnsureDefinitionLoaded(REANIM_ZOMBIE_NEWSPAPER, true);
+    mCompletedLoadingThreadTasks += 136;
+    ReanimatorEnsureDefinitionLoaded(REANIM_ZOMBIE_HAND, true);
+    mCompletedLoadingThreadTasks += 136;
+    ReanimatorEnsureDefinitionLoaded(REANIM_MAINMENU_SKY, true);
+    mCompletedLoadingThreadTasks += 136;
+    ReanimatorEnsureDefinitionLoaded(REANIM_MAINMENU_SKY2, true);
+    mCompletedLoadingThreadTasks += 136;
+    ReanimatorEnsureDefinitionLoaded(REANIM_MAINMENU, true);
+    mCompletedLoadingThreadTasks += 136;
+    ReanimatorEnsureDefinitionLoaded(REANIM_CROW, true);
+    mCompletedLoadingThreadTasks += 136;
+    ReanimatorEnsureDefinitionLoaded(REANIM_FALLING_LEAVES, true);
+    mCompletedLoadingThreadTasks += 136;
+    ReanimatorEnsureDefinitionLoaded(REANIM_BUTTERFLY, true);
+    mCompletedLoadingThreadTasks += 136;
 
-  // The two walks below are the only ones that clamp: they run until the app is
-  // shutting down or a quit has been requested, and they never let the counter
-  // pass the total the pass is worth.
-  int aResult = 0;
-  for ( ;; )
-  {
-    unsigned int aCurrentSeed = aSeedType++;
-    aResult = Plant::PreloadPlantResources((SeedType)aCurrentSeed);
-    if ( mCompletedLoadingThreadTasks < aTotalTasks )
-      mCompletedLoadingThreadTasks += 136;
-    if ( mShutDown || mCloseRequest )
-      break;
-
-    if ( aSeedType == 54 )
+    // The two walks below are the only ones that clamp: they run until the app is
+    // shutting down or a quit has been requested, and they never let the counter
+    // pass the total the pass is worth.
+    int aResult = 0;
+    for (;;)
     {
-      // The zombie pass starts at the close-request flag, which the ARM reads
-      // as the loop's initial value; it is a zero byte by construction.
-      int aZombieType = mCloseRequest;
-      for ( ;; )
-      {
-        int aCurrentZombie = aZombieType++;
-        aResult = Zombie::PreloadZombieResources((ZombieType)aCurrentZombie);
-        if ( mCompletedLoadingThreadTasks < aTotalTasks )
-          mCompletedLoadingThreadTasks += 136;
-        if ( mShutDown || mCloseRequest )
-          break;
+        unsigned int aCurrentSeed = aSeedType++;
+        aResult = Plant::PreloadPlantResources((SeedType)aCurrentSeed);
+        if (mCompletedLoadingThreadTasks < aTotalTasks)
+            mCompletedLoadingThreadTasks += 136;
+        if (mShutDown || mCloseRequest)
+            break;
 
-        if ( aZombieType == 34 )
+        if (aSeedType == 54)
         {
-          if ( mCompletedLoadingThreadTasks != aTotalTasks )
-            mCompletedLoadingThreadTasks = aTotalTasks;
-          return aResult;
+            // The zombie pass starts at the close-request flag, which the ARM reads
+            // as the loop's initial value; it is a zero byte by construction.
+            int aZombieType = mCloseRequest;
+            for (;;)
+            {
+                int aCurrentZombie = aZombieType++;
+                aResult = Zombie::PreloadZombieResources((ZombieType)aCurrentZombie);
+                if (mCompletedLoadingThreadTasks < aTotalTasks)
+                    mCompletedLoadingThreadTasks += 136;
+                if (mShutDown || mCloseRequest)
+                    break;
+
+                if (aZombieType == 34)
+                {
+                    if (mCompletedLoadingThreadTasks != aTotalTasks)
+                        mCompletedLoadingThreadTasks = aTotalTasks;
+                    return aResult;
+                }
+            }
+            return aResult;
         }
-      }
-      return aResult;
     }
-  }
-  return aResult;
+    return aResult;
 }
 // ==========================================================================
 // LawnApp::IsDRMConnected()
@@ -3713,7 +3653,7 @@ int LawnApp::PreloadForUser()
 // ==========================================================================
 int LawnApp::IsDRMConnected()
 {
-  return 0;
+    return 0;
 }
 
 // ==========================================================================
@@ -3725,18 +3665,18 @@ int LawnApp::IsDRMConnected()
 // (ADD R2,R2,LSL#2 then LSL#1). The receiver is not read.
 Sexy::String LawnApp::GetMoneyString(int theAmount)
 {
-  Sexy::String aTemplate;
-  TodStringTranslate(&aTemplate, "[CURRENCY_STRING]");
-  Sexy::String aSymbol;
-  TodStringTranslate(&aSymbol, "[CURRENCY_SYMBOL]");
+    Sexy::String aTemplate;
+    TodStringTranslate(&aTemplate, "[CURRENCY_STRING]");
+    Sexy::String aSymbol;
+    TodStringTranslate(&aSymbol, "[CURRENCY_SYMBOL]");
 
-  Sexy::String aText;
-  TodReplaceString(&aText, &aTemplate, "{CURRENCY_SYMBOL}", &aSymbol);
+    Sexy::String aText;
+    TodReplaceString(&aText, &aTemplate, "{CURRENCY_SYMBOL}", &aSymbol);
 
-  Sexy::String aAmount = CommaSeperate(theAmount * 10);
-  Sexy::String aResult;
-  TodReplaceString(&aResult, &aText, "{AMOUNT}", &aAmount);
-  return aResult;
+    Sexy::String aAmount = CommaSeperate(theAmount * 10);
+    Sexy::String aResult;
+    TodReplaceString(&aResult, &aText, "{AMOUNT}", &aAmount);
+    return aResult;
 }
 // ==========================================================================
 // LawnApp::GetCrazyDaveText(int)
@@ -3747,21 +3687,21 @@ Sexy::String LawnApp::GetMoneyString(int theAmount)
 // StoreItem 0x15.
 Sexy::String LawnApp::GetCrazyDaveText(int theIndex)
 {
-  Sexy::String aLine;
-  StrFormat(&aLine, "[CRAZY_DAVE_%d]", theIndex);
+    Sexy::String aLine;
+    StrFormat(&aLine, "[CRAZY_DAVE_%d]", theIndex);
 
-  Sexy::String aName = mPlayerInfo->GetName();
-  Sexy::String aWithName;
-  TodReplaceString(&aWithName, &aLine, "{PLAYER_NAME}", &aName);
+    Sexy::String aName = mPlayerInfo->GetName();
+    Sexy::String aWithName;
+    TodReplaceString(&aWithName, &aLine, "{PLAYER_NAME}", &aName);
 
-  Sexy::String aMoney = GetMoneyString(mPlayerInfo->mCoins);
-  Sexy::String aWithMoney;
-  TodReplaceString(&aWithMoney, &aWithName, "{MONEY}", &aMoney);
+    Sexy::String aMoney = GetMoneyString(mPlayerInfo->mCoins);
+    Sexy::String aWithMoney;
+    TodReplaceString(&aWithMoney, &aWithName, "{MONEY}", &aMoney);
 
-  Sexy::String aCost = GetMoneyString(StoreScreen::GetItemCost((StoreItem)0x15));
-  Sexy::String aResult;
-  TodReplaceString(&aResult, &aWithMoney, "{UPGRADE_COST}", &aCost);
-  return aResult;
+    Sexy::String aCost = GetMoneyString(StoreScreen::GetItemCost((StoreItem)0x15));
+    Sexy::String aResult;
+    TodReplaceString(&aResult, &aWithMoney, "{UPGRADE_COST}", &aCost);
+    return aResult;
 }
 // ==========================================================================
 // LawnApp::CrazyDaveTalkIndex(int)
@@ -3769,8 +3709,8 @@ Sexy::String LawnApp::GetCrazyDaveText(int theIndex)
 // ==========================================================================
 void LawnApp::CrazyDaveTalkIndex(int theMessageIndex)
 {
-  mCrazyDaveMessageIndex = theMessageIndex;
-  CrazyDaveTalkMessage(GetCrazyDaveText(theMessageIndex));
+    mCrazyDaveMessageIndex = theMessageIndex;
+    CrazyDaveTalkMessage(GetCrazyDaveText(theMessageIndex));
 }
 // ==========================================================================
 // LawnApp::AdvanceCrazyDaveText()
@@ -3778,15 +3718,15 @@ void LawnApp::CrazyDaveTalkIndex(int theMessageIndex)
 // ==========================================================================
 int LawnApp::AdvanceCrazyDaveText()
 {
-  int aNextIndex = mCrazyDaveMessageIndex + 1;
+    int aNextIndex = mCrazyDaveMessageIndex + 1;
 
-  Sexy::String aLine;
-  StrFormat(&aLine, "[CRAZY_DAVE_%d]", aNextIndex);
+    Sexy::String aLine;
+    StrFormat(&aLine, "[CRAZY_DAVE_%d]", aNextIndex);
 
-  int aExists = TodStringListExists(aLine);
-  if ( aExists != 0 )
-    CrazyDaveTalkIndex(aNextIndex);
-  return aExists;
+    int aExists = TodStringListExists(aLine);
+    if (aExists != 0)
+        CrazyDaveTalkIndex(aNextIndex);
+    return aExists;
 }
 // ==========================================================================
 // LawnApp::CanDoPinataMode()
@@ -3794,10 +3734,10 @@ int LawnApp::AdvanceCrazyDaveText()
 // ==========================================================================
 int LawnApp::CanDoPinataMode()
 {
-  // The 1000-coin record lives in the player profile.
-  if ( mPlayerInfo == nullptr )
-    return 0;
-  return mPlayerInfo->mCoins >= 1000;
+    // The 1000-coin record lives in the player profile.
+    if (mPlayerInfo == nullptr)
+        return 0;
+    return mPlayerInfo->mCoins >= 1000;
 }
 // ==========================================================================
 // LawnApp::CanDoDanceMode()
@@ -3805,9 +3745,9 @@ int LawnApp::CanDoPinataMode()
 // ==========================================================================
 int LawnApp::CanDoDanceMode()
 {
-  if ( mPlayerInfo == nullptr )
-    return 0;
-  return mPlayerInfo->mCoins >= 500;
+    if (mPlayerInfo == nullptr)
+        return 0;
+    return mPlayerInfo->mCoins >= 500;
 }
 // ==========================================================================
 // LawnApp::CanDoDaisyMode()
@@ -3815,9 +3755,9 @@ int LawnApp::CanDoDanceMode()
 // ==========================================================================
 int LawnApp::CanDoDaisyMode()
 {
-  if ( mPlayerInfo == nullptr )
-    return 0;
-  return mPlayerInfo->mCoins > 99;
+    if (mPlayerInfo == nullptr)
+        return 0;
+    return mPlayerInfo->mCoins > 99;
 }
 // ==========================================================================
 // LawnApp::IsOptionsScreenActive()
@@ -3825,8 +3765,8 @@ int LawnApp::CanDoDaisyMode()
 // ==========================================================================
 bool LawnApp::IsOptionsScreenActive()
 {
-  // Dialog id 2 is the options screen.
-  return GetDialog(2) != nullptr;
+    // Dialog id 2 is the options screen.
+    return GetDialog(2) != nullptr;
 }
 
 // ==========================================================================
@@ -3835,7 +3775,7 @@ bool LawnApp::IsOptionsScreenActive()
 // ==========================================================================
 int LawnApp::GetTitleID()
 {
-  return -1;
+    return -1;
 }
 
 // ==========================================================================
@@ -3844,7 +3784,7 @@ int LawnApp::GetTitleID()
 // ==========================================================================
 void LawnApp::WriteLeaderboards()
 {
-  ;
+    ;
 }
 
 // ==========================================================================
@@ -3853,13 +3793,13 @@ void LawnApp::WriteLeaderboards()
 // ==========================================================================
 void LawnApp::WriteHouse(bool theForce)
 {
-  if (mPlayerInfo == nullptr)
-    return;
-  mPlayerInfo->UpdateHouseData();
-  if (mGameSelector != nullptr)
-    SetHouseReanim(ReanimationTryToGet(mGameSelector->mHouseReanimID));
-  if (theForce)
-    TryToSaveProfile();
+    if (mPlayerInfo == nullptr)
+        return;
+    mPlayerInfo->UpdateHouseData();
+    if (mGameSelector != nullptr)
+        SetHouseReanim(ReanimationTryToGet(mGameSelector->mHouseReanimID));
+    if (theForce)
+        TryToSaveProfile();
 }
 
 // ==========================================================================
@@ -3868,7 +3808,7 @@ void LawnApp::WriteHouse(bool theForce)
 // ==========================================================================
 int LawnApp::ShowNetError()
 {
-  return 0;
+    return 0;
 }
 
 // ==========================================================================
@@ -3877,9 +3817,9 @@ int LawnApp::ShowNetError()
 // ==========================================================================
 Sexy::String LawnApp::GetLeaderboardName(unsigned int theId)
 {
-  // @0x2B7DB0 stores dword_71BB54+0xC into the sret word. theId is never read.
-  (void)theId;
-  return Sexy::String();
+    // @0x2B7DB0 stores dword_71BB54+0xC into the sret word. theId is never read.
+    (void)theId;
+    return Sexy::String();
 }
 
 // ==========================================================================
@@ -3888,7 +3828,7 @@ Sexy::String LawnApp::GetLeaderboardName(unsigned int theId)
 // ==========================================================================
 int LawnApp::HasReplays(unsigned int theId)
 {
-  return 0;
+    return 0;
 }
 
 // ==========================================================================
@@ -3897,7 +3837,7 @@ int LawnApp::HasReplays(unsigned int theId)
 // ==========================================================================
 int LawnApp::NumReplays(unsigned int theId)
 {
-  return 0;
+    return 0;
 }
 
 // ==========================================================================
@@ -3906,15 +3846,15 @@ int LawnApp::NumReplays(unsigned int theId)
 // ==========================================================================
 void LawnApp::HandleCorruptedGameFile()
 {
-  // The save-file error dialogs all share this shape: build the three texts,
-  // put the dialog up, then pause the board behind it.
-  Sexy::String aHeader("[CORRUPTED_SAVEGAME_HEADER]");
-  Sexy::String aText("[CORRUPTED_SAVEGAME_TEXT]");
-  Sexy::String aButton(gEmptyCString);
-  Sexy::Dialog *aDialog = DoDialog(63, true, aHeader, aText, aButton, 1);
-  mWidgetManager->SetFocus(aDialog);
-  if ( mBoard != nullptr )
-    mBoard->Pause(true);
+    // The save-file error dialogs all share this shape: build the three texts,
+    // put the dialog up, then pause the board behind it.
+    Sexy::String aHeader("[CORRUPTED_SAVEGAME_HEADER]");
+    Sexy::String aText("[CORRUPTED_SAVEGAME_TEXT]");
+    Sexy::String aButton(gEmptyCString);
+    Sexy::Dialog *aDialog = DoDialog(63, true, aHeader, aText, aButton, 1);
+    mWidgetManager->SetFocus(aDialog);
+    if (mBoard != nullptr)
+        mBoard->Pause(true);
 }
 
 // ==========================================================================
@@ -3923,13 +3863,13 @@ void LawnApp::HandleCorruptedGameFile()
 // ==========================================================================
 void LawnApp::HandleOldGameFile()
 {
-  Sexy::String aHeader("[OLD_SAVEGAME_HEADER]");
-  Sexy::String aText("[OLD_SAVEGAME_TEXT]");
-  Sexy::String aButton("[DIALOG_BUTTON_OK]");
-  Sexy::Dialog *aDialog = DoDialog(63, true, aHeader, aText, aButton, 3);
-  mWidgetManager->SetFocus(aDialog);
-  if ( mBoard != nullptr )
-    mBoard->Pause(true);
+    Sexy::String aHeader("[OLD_SAVEGAME_HEADER]");
+    Sexy::String aText("[OLD_SAVEGAME_TEXT]");
+    Sexy::String aButton("[DIALOG_BUTTON_OK]");
+    Sexy::Dialog *aDialog = DoDialog(63, true, aHeader, aText, aButton, 3);
+    mWidgetManager->SetFocus(aDialog);
+    if (mBoard != nullptr)
+        mBoard->Pause(true);
 }
 
 // ==========================================================================
@@ -3938,13 +3878,13 @@ void LawnApp::HandleOldGameFile()
 // ==========================================================================
 void LawnApp::HandleNoDevice()
 {
-  Sexy::String aHeader("[NO_DEVICE_SELECTED_HEADER]");
-  Sexy::String aText("[NO_DEVICE_SELECTED]");
-  Sexy::String aButton(gEmptyCString);
-  Sexy::Dialog *aDialog = DoDialog(64, true, aHeader, aText, aButton, 1);
-  mWidgetManager->SetFocus(aDialog);
-  if ( mBoard != nullptr )
-    mBoard->Pause(true);
+    Sexy::String aHeader("[NO_DEVICE_SELECTED_HEADER]");
+    Sexy::String aText("[NO_DEVICE_SELECTED]");
+    Sexy::String aButton(gEmptyCString);
+    Sexy::Dialog *aDialog = DoDialog(64, true, aHeader, aText, aButton, 1);
+    mWidgetManager->SetFocus(aDialog);
+    if (mBoard != nullptr)
+        mBoard->Pause(true);
 }
 
 // ==========================================================================
@@ -3953,13 +3893,13 @@ void LawnApp::HandleNoDevice()
 // ==========================================================================
 void LawnApp::HandleInvalidLevel()
 {
-  Sexy::String aHeader("[INVALID_LEVEL_HEADER]");
-  Sexy::String aText("[INVALID_LEVEL]");
-  Sexy::String aButton("[DIALOG_BUTTON_OK]");
-  Sexy::Dialog *aDialog = DoDialog(65, true, aHeader, aText, aButton, 3);
-  mWidgetManager->SetFocus(aDialog);
-  if ( mBoard != nullptr )
-    mBoard->Pause(true);
+    Sexy::String aHeader("[INVALID_LEVEL_HEADER]");
+    Sexy::String aText("[INVALID_LEVEL]");
+    Sexy::String aButton("[DIALOG_BUTTON_OK]");
+    Sexy::Dialog *aDialog = DoDialog(65, true, aHeader, aText, aButton, 3);
+    mWidgetManager->SetFocus(aDialog);
+    if (mBoard != nullptr)
+        mBoard->Pause(true);
 }
 // ==========================================================================
 // LawnApp::DoProfileLoadErrorDialog()
@@ -3967,20 +3907,21 @@ void LawnApp::HandleInvalidLevel()
 // ==========================================================================
 bool LawnApp::DoProfileLoadErrorDialog()
 {
-  if ( GetDialog(0x42) != nullptr )
-    KillDialog(0x42);
+    if (GetDialog(0x42) != nullptr)
+        KillDialog(0x42);
 
-  // DoDialog (vtable +0x198) returns Dialog *. LawnDialog is the derived type.
-  LawnDialog *aDialog = static_cast<LawnDialog *>(DoDialog(0x42, true,
-      Sexy::String("[PROFILE_LOAD_ERROR_TITLE]"),
-      Sexy::String("[PROFILE_LOAD_ERROR]"),
-      Sexy::String(gEmptyCString),
-      1));
+    // DoDialog (vtable +0x198) returns Dialog *. LawnDialog is the derived type.
+    LawnDialog *aDialog = static_cast<LawnDialog *>(DoDialog(0x42,
+        true,
+        Sexy::String("[PROFILE_LOAD_ERROR_TITLE]"),
+        Sexy::String("[PROFILE_LOAD_ERROR]"),
+        Sexy::String(gEmptyCString),
+        1));
 
-  // WidgetManager::SetFocus is vtable +0x30. Success is WaitForResult == 1000
-  // (SUBS #0x3E8, then the carry trick that yields 0 or 1).
-  mWidgetManager->SetFocus(aDialog);
-  return aDialog->WaitForResult(true) == 1000;
+    // WidgetManager::SetFocus is vtable +0x30. Success is WaitForResult == 1000
+    // (SUBS #0x3E8, then the carry trick that yields 0 or 1).
+    mWidgetManager->SetFocus(aDialog);
+    return aDialog->WaitForResult(true) == 1000;
 }
 // ==========================================================================
 // LawnApp::DoProfileSaveErrorDialog()
@@ -3988,26 +3929,27 @@ bool LawnApp::DoProfileLoadErrorDialog()
 // ==========================================================================
 int LawnApp::DoProfileSaveErrorDialog()
 {
-  if ( GetDialog(0x43) != nullptr )
-    KillDialog(0x43);
+    if (GetDialog(0x43) != nullptr)
+        KillDialog(0x43);
 
-  // STRB #0 at +0x968, which is mSkipProfileSaving, not the later
-  // mProfileSaveInProgress byte.
-  mSkipProfileSaving = false;
+    // STRB #0 at +0x968, which is mSkipProfileSaving, not the later
+    // mProfileSaveInProgress byte.
+    mSkipProfileSaving = false;
 
-  LawnDialog *aDialog = static_cast<LawnDialog *>(DoDialog(0x43, true,
-      Sexy::String("[PROFILE_SAVE_ERROR_TITLE]"),
-      Sexy::String("[PROFILE_SAVE_ERROR]"),
-      Sexy::String("[PROFILE_SAVE_ERROR_FOOTER]"),
-      1));
+    LawnDialog *aDialog = static_cast<LawnDialog *>(DoDialog(0x43,
+        true,
+        Sexy::String("[PROFILE_SAVE_ERROR_TITLE]"),
+        Sexy::String("[PROFILE_SAVE_ERROR]"),
+        Sexy::String("[PROFILE_SAVE_ERROR_FOOTER]"),
+        1));
 
-  mWidgetManager->SetFocus(aDialog);
-  if ( aDialog->WaitForResult(true) == 0x3E8 )
-    return 1;
+    mWidgetManager->SetFocus(aDialog);
+    if (aDialog->WaitForResult(true) == 0x3E8)
+        return 1;
 
-  KillDialog(0x4F);
-  mSkipProfileSaving = true;
-  return 0;
+    KillDialog(0x4F);
+    mSkipProfileSaving = true;
+    return 0;
 }
 
 // ==========================================================================
@@ -4016,22 +3958,22 @@ int LawnApp::DoProfileSaveErrorDialog()
 // ==========================================================================
 int LawnApp::On2PProfileLoadError()
 {
-  // Only the second player's profile matters here; the loop keeps re-prompting
-  // while the load keeps failing and the player has not asked to stop.
-  if ( mPlayer2Info == nullptr )
-    return 0;
+    // Only the second player's profile matters here; the loop keeps re-prompting
+    // while the load keeps failing and the player has not asked to stop.
+    if (mPlayer2Info == nullptr)
+        return 0;
 
-  for ( ;; )
-  {
-    if ( DoProfileLoadErrorDialog() == 0 )
-      return 0;
+    for (;;)
+    {
+        if (DoProfileLoadErrorDialog() == 0)
+            return 0;
 
-    if ( mPlayer2Info->IsLoaded() )
-      continue;
-    if ( mPlayer2Info->IsLoading() )
-      continue;
-    return 1;
-  }
+        if (mPlayer2Info->IsLoaded())
+            continue;
+        if (mPlayer2Info->IsLoading())
+            continue;
+        return 1;
+    }
 }
 // ==========================================================================
 // LawnApp::DoHelpDialog(bool)
@@ -4039,13 +3981,13 @@ int LawnApp::On2PProfileLoadError()
 // ==========================================================================
 int LawnApp::DoHelpDialog(bool theFromGameSelector)
 {
-  HelpOptionsDialog *aDialog = new HelpOptionsDialog(this);
-  AddDialog(aDialog);
-  CenterDialog(aDialog, 413, 535);
-  mWidgetManager->AddWidget(aDialog);
-  if ( theFromGameSelector != 0 )
-    return aDialog->WaitForResult(true);
-  return 0;
+    HelpOptionsDialog *aDialog = new HelpOptionsDialog(this);
+    AddDialog(aDialog);
+    CenterDialog(aDialog, 413, 535);
+    mWidgetManager->AddWidget(aDialog);
+    if (theFromGameSelector != 0)
+        return aDialog->WaitForResult(true);
+    return 0;
 }
 
 // ==========================================================================
@@ -4054,175 +3996,171 @@ int LawnApp::DoHelpDialog(bool theFromGameSelector)
 // ==========================================================================
 int LawnApp::DoSettingsDialog(bool theFromGameSelector)
 {
-  SettingsDialog *aDialog = new SettingsDialog(this);
-  AddDialog(aDialog);
-  CenterDialog(aDialog, 413, 535);
-  mWidgetManager->AddWidget(aDialog);
-  return aDialog->WaitForResult(true);
+    SettingsDialog *aDialog = new SettingsDialog(this);
+    AddDialog(aDialog);
+    CenterDialog(aDialog, 413, 535);
+    mWidgetManager->AddWidget(aDialog);
+    return aDialog->WaitForResult(true);
 }
 // ==========================================================================
 // LawnApp::DoConfirmRestartDialog()
 // @002B86A4  452 bytes
 // ==========================================================================
-LawnDialog * LawnApp::DoConfirmRestartDialog()
+LawnDialog *LawnApp::DoConfirmRestartDialog()
 {
-  // The header and body depend on which game the player is in.
-  Sexy::String aHeader;
-  Sexy::String aBody;
-  if ( IsPuzzleMode() )
-  {
-    aHeader = "[RESTART_PUZZLE_HEADER]";
-    aBody = "[RESTART_PUZZLE_BODY]";
-  }
-  else if ( mGameMode == GAMEMODE_MP_VS )
-  {
-    aHeader = "[CONCEDE_VS_HEADER]";
-    aBody = "[CONCEDE_VS_BODY]";
-  }
-  else if ( IsChallengeMode() )
-  {
-    aHeader = "[RESTART_CHALLENGE_HEADER]";
-    aBody = "[RESTART_CHALLENGE_BODY]";
-  }
-  else if ( IsSurvivalMode() )
-  {
-    aHeader = "[RESTART_SURVIVAL_HEADER]";
-    aBody = "[RESTART_SURVIVAL_BODY]";
-  }
-  else
-  {
-    aHeader = "[RESTART_LEVEL_HEADER]";
-    aBody = "[RESTART_LEVEL_BODY]";
-  }
+    // The header and body depend on which game the player is in.
+    Sexy::String aHeader;
+    Sexy::String aBody;
+    if (IsPuzzleMode())
+    {
+        aHeader = "[RESTART_PUZZLE_HEADER]";
+        aBody = "[RESTART_PUZZLE_BODY]";
+    }
+    else if (mGameMode == GAMEMODE_MP_VS)
+    {
+        aHeader = "[CONCEDE_VS_HEADER]";
+        aBody = "[CONCEDE_VS_BODY]";
+    }
+    else if (IsChallengeMode())
+    {
+        aHeader = "[RESTART_CHALLENGE_HEADER]";
+        aBody = "[RESTART_CHALLENGE_BODY]";
+    }
+    else if (IsSurvivalMode())
+    {
+        aHeader = "[RESTART_SURVIVAL_HEADER]";
+        aBody = "[RESTART_SURVIVAL_BODY]";
+    }
+    else
+    {
+        aHeader = "[RESTART_LEVEL_HEADER]";
+        aBody = "[RESTART_LEVEL_BODY]";
+    }
 
-  // Dialog id 0x18. The footer is the empty C string. Button labels are
-  // translated, then assigned into ButtonWidget::mLabel at button+0x120.
-  LawnDialog *aDialog = DoDialog(24, true, aHeader, aBody, Sexy::String(gEmptyCString), 1);
-  if ( mGameMode == GAMEMODE_MP_VS )
-  {
-    TodStringTranslate(&aDialog->mLawnYesButton->mLabel, "[CONCEDE_VS_LABEL]");
-    TodStringTranslate(&aDialog->mLawnNoButton->mLabel, "[DIALOG_BUTTON_CANCEL]");
-  }
-  else
-  {
-    TodStringTranslate(&aDialog->mLawnYesButton->mLabel, "[RESTART_LABEL]");
-    TodStringTranslate(&aDialog->mLawnNoButton->mLabel, "[DIALOG_BUTTON_CANCEL]");
-  }
-  return aDialog;
+    // Dialog id 0x18. The footer is the empty C string. Button labels are
+    // translated, then assigned into ButtonWidget::mLabel at button+0x120.
+    LawnDialog *aDialog = DoDialog(24, true, aHeader, aBody, Sexy::String(gEmptyCString), 1);
+    if (mGameMode == GAMEMODE_MP_VS)
+    {
+        TodStringTranslate(&aDialog->mLawnYesButton->mLabel, "[CONCEDE_VS_LABEL]");
+        TodStringTranslate(&aDialog->mLawnNoButton->mLabel, "[DIALOG_BUTTON_CANCEL]");
+    }
+    else
+    {
+        TodStringTranslate(&aDialog->mLawnYesButton->mLabel, "[RESTART_LABEL]");
+        TodStringTranslate(&aDialog->mLawnNoButton->mLabel, "[DIALOG_BUTTON_CANCEL]");
+    }
+    return aDialog;
 }
 // ==========================================================================
 // LawnApp::DoNotEnoughMoneyDialog()
 // @002B8904  234 bytes
 // ==========================================================================
-Sexy::Dialog * LawnApp::DoNotEnoughMoneyDialog()
+Sexy::Dialog *LawnApp::DoNotEnoughMoneyDialog()
 {
-  return DoDialog(26, true,
-                  Sexy::String("[NOT_ENOUGH_MONEY]"),
-                  Sexy::String("[CANNOT_AFFORD_ITEM]"),
-                  Sexy::String("[DIALOG_BUTTON_OK]"),
-                  3);
+    return DoDialog(26,
+        true,
+        Sexy::String("[NOT_ENOUGH_MONEY]"),
+        Sexy::String("[CANNOT_AFFORD_ITEM]"),
+        Sexy::String("[DIALOG_BUTTON_OK]"),
+        3);
 }
 
 // ==========================================================================
 // LawnApp::DoUpgradeDialog()
 // @002B8A30  298 bytes
 // ==========================================================================
-LawnDialog * LawnApp::DoUpgradeDialog()
+LawnDialog *LawnApp::DoUpgradeDialog()
 {
-  // TV formats the new bank size after recording the purchased upgrade.
-  Sexy::String aTemplate;
-  TodStringTranslate(&aTemplate, "[NOW_YOU_CAN_CHOOSE_X_SEEDS]");
-  Sexy::String aBody;
-  StrFormat(&aBody, aTemplate.c_str(), mPlayerInfo->mPurchases[STORE_ITEM_PACKET_UPGRADE] + 6);
+    // TV formats the new bank size after recording the purchased upgrade.
+    Sexy::String aTemplate;
+    TodStringTranslate(&aTemplate, "[NOW_YOU_CAN_CHOOSE_X_SEEDS]");
+    Sexy::String aBody;
+    StrFormat(&aBody, aTemplate.c_str(), mPlayerInfo->mPurchases[STORE_ITEM_PACKET_UPGRADE] + 6);
 
-  return DoDialog(27, true,
-                  Sexy::String("[MORE_SLOTS]"),
-                  aBody,
-                  Sexy::String("[DIALOG_BUTTON_OK]"),
-                  3);
+    return DoDialog(27, true, Sexy::String("[MORE_SLOTS]"), aBody, Sexy::String("[DIALOG_BUTTON_OK]"), 3);
 }
 
 // ==========================================================================
 // LawnApp::DoRestartConfirmDialog()
 // @002B8BA8  278 bytes
 // ==========================================================================
-Sexy::Dialog * LawnApp::DoRestartConfirmDialog()
+Sexy::Dialog *LawnApp::DoRestartConfirmDialog()
 {
-  Sexy::String aHeader;
-  Sexy::String aBody;
-  if ( IsAdventureMode() )
-  {
-    aHeader = "[RESTART_LEVEL_HEADER]";
-    aBody = "[RESTART_LEVEL]";
-  }
-  else
-  {
-    aHeader = "[NEW_GAME_HEADER]";
-    aBody = "[NEW_GAME]";
-  }
+    Sexy::String aHeader;
+    Sexy::String aBody;
+    if (IsAdventureMode())
+    {
+        aHeader = "[RESTART_LEVEL_HEADER]";
+        aBody = "[RESTART_LEVEL]";
+    }
+    else
+    {
+        aHeader = "[NEW_GAME_HEADER]";
+        aBody = "[NEW_GAME]";
+    }
 
-  // Dialog id 0x29, two buttons. The yes label is the translated
-  // "[RESTART_BUTTON]", assigned into ButtonWidget::mLabel.
-  LawnDialog *aDialog = static_cast<LawnDialog *>(DoDialog(0x29, true, aHeader, aBody, Sexy::String(gEmptyCString), 2));
-  TodStringTranslate(&aDialog->mLawnYesButton->mLabel, "[RESTART_BUTTON]");
-  return aDialog;
+    // Dialog id 0x29, two buttons. The yes label is the translated
+    // "[RESTART_BUTTON]", assigned into ButtonWidget::mLabel.
+    LawnDialog *aDialog =
+        static_cast<LawnDialog *>(DoDialog(0x29, true, aHeader, aBody, Sexy::String(gEmptyCString), 2));
+    TodStringTranslate(&aDialog->mLawnYesButton->mLabel, "[RESTART_BUTTON]");
+    return aDialog;
 }
 
 // ==========================================================================
 // LawnApp::DoTreeItemDialog()
 // @002B8D20  232 bytes
 // ==========================================================================
-LawnDialog * LawnApp::DoTreeItemDialog()
+LawnDialog *LawnApp::DoTreeItemDialog()
 {
-  return DoDialog(49, true,
-                  Sexy::String("[VISIT_TREE_HEADER]"),
-                  Sexy::String("[VISIT_TREE_BODY]"),
-                  Sexy::String(gEmptyCString),
-                  1);
+    return DoDialog(49,
+        true,
+        Sexy::String("[VISIT_TREE_HEADER]"),
+        Sexy::String("[VISIT_TREE_BODY]"),
+        Sexy::String(gEmptyCString),
+        1);
 }
 
 // ==========================================================================
 // LawnApp::DoStoreItemDialog()
 // @002B8E48  232 bytes
 // ==========================================================================
-LawnDialog * LawnApp::DoStoreItemDialog()
+LawnDialog *LawnApp::DoStoreItemDialog()
 {
-  return DoDialog(48, true,
-                  Sexy::String("[BUY_ITEM_HEADER]"),
-                  Sexy::String("[BUY_ITEM]"),
-                  Sexy::String(gEmptyCString),
-                  1);
+    return DoDialog(
+        48, true, Sexy::String("[BUY_ITEM_HEADER]"), Sexy::String("[BUY_ITEM]"), Sexy::String(gEmptyCString), 1);
 }
 
 // ==========================================================================
 // LawnApp::DoZenSellDialog()
 // @002B8F70  228 bytes
 // ==========================================================================
-Sexy::Dialog * LawnApp::DoZenSellDialog()
+Sexy::Dialog *LawnApp::DoZenSellDialog()
 {
-  Sexy::String aHeader;
-  TodStringTranslate(&aHeader, "[ZEN_SELL_HEADER]");
-  Sexy::String aBody;
-  TodStringTranslate(&aBody, "[ZEN_SELL_LINES]");
-  return DoDialog(50, true, aHeader, aBody, Sexy::String(gEmptyCString), 1);
+    Sexy::String aHeader;
+    TodStringTranslate(&aHeader, "[ZEN_SELL_HEADER]");
+    Sexy::String aBody;
+    TodStringTranslate(&aBody, "[ZEN_SELL_LINES]");
+    return DoDialog(50, true, aHeader, aBody, Sexy::String(gEmptyCString), 1);
 }
 
 // ==========================================================================
 // LawnApp::DoPacketPurchaseDialog(int,int)
 // @002B9094  300 bytes
 // ==========================================================================
-Sexy::Dialog * LawnApp::DoPacketPurchaseDialog(int theCost, int theCount)
+Sexy::Dialog *LawnApp::DoPacketPurchaseDialog(int theCost, int theCount)
 {
-  // The body is the "[UPGRADE_DIALOG_BODY]" text with {SLOTS} replaced by the
-  // second argument; the first argument is the price and only feeds the money
-  // string, so the dialog body itself does not mention it.
-  Sexy::String aTemplate;
-  TodStringTranslate(&aTemplate, "[UPGRADE_DIALOG_BODY]");
-  Sexy::String aBody;
-  TodReplaceNumberString(&aBody, &aTemplate, "{SLOTS}", theCount);
+    // The body is the "[UPGRADE_DIALOG_BODY]" text with {SLOTS} replaced by the
+    // second argument; the first argument is the price and only feeds the money
+    // string, so the dialog body itself does not mention it.
+    Sexy::String aTemplate;
+    TodStringTranslate(&aTemplate, "[UPGRADE_DIALOG_BODY]");
+    Sexy::String aBody;
+    TodReplaceNumberString(&aBody, &aTemplate, "{SLOTS}", theCount);
 
-  Sexy::String aPrice = GetMoneyString(theCost);
-  return DoDialog(53, true, aBody, aPrice, Sexy::String(gEmptyCString), 1);
+    Sexy::String aPrice = GetMoneyString(theCost);
+    return DoDialog(53, true, aBody, aPrice, Sexy::String(gEmptyCString), 1);
 }
 
 // ==========================================================================
@@ -4231,75 +4169,78 @@ Sexy::Dialog * LawnApp::DoPacketPurchaseDialog(int theCost, int theCount)
 // ==========================================================================
 void LawnApp::DoProfileChangeDialog()
 {
-  DoDialog(54, true,
-           Sexy::String("[PROFILE_CHANGE]"),
-           Sexy::String("[PROFILE_CHANGE_MSG]"),
-           Sexy::String("[DIALOG_BUTTON_OK]"),
-           3);
+    DoDialog(54,
+        true,
+        Sexy::String("[PROFILE_CHANGE]"),
+        Sexy::String("[PROFILE_CHANGE_MSG]"),
+        Sexy::String("[DIALOG_BUTTON_OK]"),
+        3);
 }
 
 // ==========================================================================
 // LawnApp::DoRetryLeaderboardDialog()
 // @002B9330  232 bytes
 // ==========================================================================
-Sexy::Dialog * LawnApp::DoRetryLeaderboardDialog()
+Sexy::Dialog *LawnApp::DoRetryLeaderboardDialog()
 {
-  return DoDialog(61, true,
-                  Sexy::String("[RETRY_LEADERBOARD_HEADER]"),
-                  Sexy::String("[RETRY_LEADERBOARD_BODY]"),
-                  Sexy::String(gEmptyCString),
-                  1);
+    return DoDialog(61,
+        true,
+        Sexy::String("[RETRY_LEADERBOARD_HEADER]"),
+        Sexy::String("[RETRY_LEADERBOARD_BODY]"),
+        Sexy::String(gEmptyCString),
+        1);
 }
 
 // ==========================================================================
 // LawnApp::DoRetryAchievementsDialog()
 // @002B9458  232 bytes
 // ==========================================================================
-Sexy::Dialog * LawnApp::DoRetryAchievementsDialog()
+Sexy::Dialog *LawnApp::DoRetryAchievementsDialog()
 {
-  return DoDialog(62, true,
-                  Sexy::String("[RETRY_ACHIEVEMENTS_HEADER]"),
-                  Sexy::String("[RETRY_ACHIEVEMENTS_TEXT]"),
-                  Sexy::String(gEmptyCString),
-                  1);
+    return DoDialog(62,
+        true,
+        Sexy::String("[RETRY_ACHIEVEMENTS_HEADER]"),
+        Sexy::String("[RETRY_ACHIEVEMENTS_TEXT]"),
+        Sexy::String(gEmptyCString),
+        1);
 }
 
 // ==========================================================================
 // LawnApp::DoContentSavingDialog()
 // @002B9580  142 bytes
 // ==========================================================================
-SavingFileDialog * LawnApp::DoContentSavingDialog()
+SavingFileDialog *LawnApp::DoContentSavingDialog()
 {
-  KillDialog(68);
-  SavingFileDialog *aDialog = new SavingFileDialog(this, true, Sexy::String("[SAVING_DIALOG]"));
-  AddDialogWithId(aDialog->mId, aDialog);
+    KillDialog(68);
+    SavingFileDialog *aDialog = new SavingFileDialog(this, true, Sexy::String("[SAVING_DIALOG]"));
+    AddDialogWithId(aDialog->mId, aDialog);
 
-  // The widget manager only takes the widget while no modal dialog is up.
-  if ( mWidgetManager->mFocusWidget == nullptr )
-    mWidgetManager->AddWidget(aDialog);
-  return aDialog;
+    // The widget manager only takes the widget while no modal dialog is up.
+    if (mWidgetManager->mFocusWidget == nullptr)
+        mWidgetManager->AddWidget(aDialog);
+    return aDialog;
 }
 
 // ==========================================================================
 // LawnApp::DoContentLoadingDialog()
 // @002B9630  142 bytes
 // ==========================================================================
-SavingFileDialog * LawnApp::DoContentLoadingDialog()
+SavingFileDialog *LawnApp::DoContentLoadingDialog()
 {
-  KillDialog(68);
-  SavingFileDialog *aDialog = new SavingFileDialog(this, true, Sexy::String("[LOADING]"));
-  AddDialogWithId(aDialog->mId, aDialog);
-  if ( mWidgetManager->mFocusWidget == nullptr )
-    mWidgetManager->AddWidget(aDialog);
-  return aDialog;
+    KillDialog(68);
+    SavingFileDialog *aDialog = new SavingFileDialog(this, true, Sexy::String("[LOADING]"));
+    AddDialogWithId(aDialog->mId, aDialog);
+    if (mWidgetManager->mFocusWidget == nullptr)
+        mWidgetManager->AddWidget(aDialog);
+    return aDialog;
 }
 // ==========================================================================
 // LawnApp::DoRepickWarningDialog(char const*)
 // @002B96E0  36 bytes
 // ==========================================================================
-int LawnApp::DoRepickWarningDialog(char const* theMessage)
+int LawnApp::DoRepickWarningDialog(char const *theMessage)
 {
-  return LawnMessageBox(29, "[DIALOG_WARNING]", theMessage, "[DIALOG_BUTTON_YES]", "[REPICK_BUTTON]", 1);
+    return LawnMessageBox(29, "[DIALOG_WARNING]", theMessage, "[DIALOG_BUTTON_YES]", "[REPICK_BUTTON]", 1);
 }
 
 // ==========================================================================
@@ -4308,16 +4249,16 @@ int LawnApp::DoRepickWarningDialog(char const* theMessage)
 // ==========================================================================
 int LawnApp::GamepadToPlayerIndex(unsigned int theGamepadIndex)
 {
-  if ( theGamepadIndex <= 3 )
-  {
-    // Player 1 is whichever gamepad the first profile is bound to (PlayerInfo's
-    // own GetId); player 2 is the pad recorded for the second player.
-    if ( mPlayerInfo != nullptr && theGamepadIndex == (unsigned int)mPlayerInfo->GetId() )
-      return 0;
-    if ( mSecondPlayerGamepadIndex != -1 && mSecondPlayerGamepadIndex == (int)theGamepadIndex )
-      return 1;
-  }
-  return -1;
+    if (theGamepadIndex <= 3)
+    {
+        // Player 1 is whichever gamepad the first profile is bound to (PlayerInfo's
+        // own GetId); player 2 is the pad recorded for the second player.
+        if (mPlayerInfo != nullptr && theGamepadIndex == (unsigned int)mPlayerInfo->GetId())
+            return 0;
+        if (mSecondPlayerGamepadIndex != -1 && mSecondPlayerGamepadIndex == (int)theGamepadIndex)
+            return 1;
+    }
+    return -1;
 }
 
 // ==========================================================================
@@ -4326,15 +4267,15 @@ int LawnApp::GamepadToPlayerIndex(unsigned int theGamepadIndex)
 // ==========================================================================
 int LawnApp::PlayerToGamepadIndex(int thePlayerIndex)
 {
-  if ( thePlayerIndex != 0 )
-  {
-    if ( thePlayerIndex == 1 )
-      return mSecondPlayerGamepadIndex;
-    return -1;
-  }
-  if ( mPlayerInfo == nullptr )
-    return -1;
-  return mPlayerInfo->GetId();
+    if (thePlayerIndex != 0)
+    {
+        if (thePlayerIndex == 1)
+            return mSecondPlayerGamepadIndex;
+        return -1;
+    }
+    if (mPlayerInfo == nullptr)
+        return -1;
+    return mPlayerInfo->GetId();
 }
 
 // ==========================================================================
@@ -4343,23 +4284,23 @@ int LawnApp::PlayerToGamepadIndex(int thePlayerIndex)
 // ==========================================================================
 int LawnApp::SetSecondPlayer(int theGamepadIndex)
 {
-  // The second player cannot be moved while the zen garden is up.
-  if ( mGameMode == GAMEMODE_CHALLENGE_ZEN_GARDEN )
+    // The second player cannot be moved while the zen garden is up.
+    if (mGameMode == GAMEMODE_CHALLENGE_ZEN_GARDEN)
+        return 0;
+
+    Board *aBoard = mBoard;
+    mSecondPlayerGamepadIndex = theGamepadIndex;
+    if (aBoard != nullptr)
+        aBoard->AddSecondPlayer(theGamepadIndex);
+
+    // Zen garden (mode 0x2C) returns without storing. Otherwise the pad index
+    // is written at +0xA7C, the board is told, and the profile manager's
+    // GetProfile (vtable +0x1C) looks the record up. LoadDetails is vtable +0x24.
+    Sexy::String aName = mPlayerInfo->GetName();
+    mPlayer2Info = dynamic_cast<LawnPlayerInfo *>(mProfileMgr->GetProfile(aName, theGamepadIndex));
+    if (mPlayer2Info != nullptr)
+        mPlayer2Info->LoadDetails();
     return 0;
-
-  Board *aBoard = mBoard;
-  mSecondPlayerGamepadIndex = theGamepadIndex;
-  if ( aBoard != nullptr )
-    aBoard->AddSecondPlayer(theGamepadIndex);
-
-  // Zen garden (mode 0x2C) returns without storing. Otherwise the pad index
-  // is written at +0xA7C, the board is told, and the profile manager's
-  // GetProfile (vtable +0x1C) looks the record up. LoadDetails is vtable +0x24.
-  Sexy::String aName = mPlayerInfo->GetName();
-  mPlayer2Info = dynamic_cast<LawnPlayerInfo *>(mProfileMgr->GetProfile(aName, theGamepadIndex));
-  if (mPlayer2Info != nullptr)
-    mPlayer2Info->LoadDetails();
-  return 0;
 }
 // ==========================================================================
 // LawnApp::CheckFullVersion(bool)
@@ -4367,7 +4308,7 @@ int LawnApp::SetSecondPlayer(int theGamepadIndex)
 // ==========================================================================
 int LawnApp::CheckFullVersion(bool thePrompt)
 {
-  return 1;
+    return 1;
 }
 
 // ==========================================================================
@@ -4376,7 +4317,7 @@ int LawnApp::CheckFullVersion(bool thePrompt)
 // ==========================================================================
 int LawnApp::IsFullVersion()
 {
-  return mIsFullVersion;
+    return mIsFullVersion;
 }
 // ==========================================================================
 // LawnApp::WriteCurrentUserConfig()
@@ -4384,13 +4325,13 @@ int LawnApp::IsFullVersion()
 // ==========================================================================
 int LawnApp::WriteCurrentUserConfig()
 {
-  if ( IsFullVersion() == 0 )
-    return 1;
-  OutputDebug("((LawnApp*))->WriteCurrentUserConfig() ...\n");
-  // The original vtable call at byte 44 is PlayerInfo::IsSaving.
-  if ( mPlayerInfo == nullptr || mPlayerInfo->IsSaving() )
-    return 0;
-  return mPlayerInfo->SaveDetails();
+    if (IsFullVersion() == 0)
+        return 1;
+    OutputDebug("((LawnApp*))->WriteCurrentUserConfig() ...\n");
+    // The original vtable call at byte 44 is PlayerInfo::IsSaving.
+    if (mPlayerInfo == nullptr || mPlayerInfo->IsSaving())
+        return 0;
+    return mPlayerInfo->SaveDetails();
 }
 // ==========================================================================
 // LawnApp::WriteSecondUserConfig()
@@ -4398,58 +4339,57 @@ int LawnApp::WriteCurrentUserConfig()
 // ==========================================================================
 int LawnApp::WriteSecondUserConfig()
 {
-  if ( IsFullVersion() == 0 )
-    return 1;
-  OutputDebug("((LawnApp*))->WriteCurrentUserConfig() ...\n");
-  if ( mPlayer2Info == nullptr || mPlayer2Info->IsSaving() )
-    return 0;
-  return mPlayer2Info->SaveDetails();
+    if (IsFullVersion() == 0)
+        return 1;
+    OutputDebug("((LawnApp*))->WriteCurrentUserConfig() ...\n");
+    if (mPlayer2Info == nullptr || mPlayer2Info->IsSaving())
+        return 0;
+    return mPlayer2Info->SaveDetails();
 }
 // ==========================================================================
 // LawnApp::OnProfileSaveError(Sexy::PlayerInfo *)
 // @002B9888  128 bytes
 // ==========================================================================
-void LawnApp::OnProfileSaveError(Sexy::PlayerInfo * theProfile)
+void LawnApp::OnProfileSaveError(Sexy::PlayerInfo *theProfile)
 {
-  // The error only concerns the profile the manager is pointing at. Each of the
-  // two players is retried until the dialog reports success.
-  bool aSaved = false;
-  if ( mPlayerInfo == theProfile )
-  {
-    while ( true )
+    // The error only concerns the profile the manager is pointing at. Each of the
+    // two players is retried until the dialog reports success.
+    bool aSaved = false;
+    if (mPlayerInfo == theProfile)
     {
-      if ( !DoProfileSaveErrorDialog() )
-        break;
-      if ( WriteCurrentUserConfig() )
-      {
-        aSaved = true;
-        break;
-      }
+        while (true)
+        {
+            if (!DoProfileSaveErrorDialog())
+                break;
+            if (WriteCurrentUserConfig())
+            {
+                aSaved = true;
+                break;
+            }
+        }
     }
-  }
 
-  // The binary compares the two profile pointers directly.
-  if ( mSecondPlayerGamepadIndex != -1 && mPlayer2Info != nullptr
-    && theProfile == mPlayer2Info )
-  {
-    while ( true )
+    // The binary compares the two profile pointers directly.
+    if (mSecondPlayerGamepadIndex != -1 && mPlayer2Info != nullptr && theProfile == mPlayer2Info)
     {
-      if ( !DoProfileSaveErrorDialog() )
-        break;
-      if ( WriteSecondUserConfig() )
-      {
-        aSaved = true;
-        break;
-      }
+        while (true)
+        {
+            if (!DoProfileSaveErrorDialog())
+                break;
+            if (WriteSecondUserConfig())
+            {
+                aSaved = true;
+                break;
+            }
+        }
     }
-  }
 
-  if ( aSaved )
-  {
-    SavingProfileDialog *aDialog = new SavingProfileDialog(this, true);
-    AddDialogWithId(aDialog->mId, aDialog);
-    aDialog->WaitForResult(true);
-  }
+    if (aSaved)
+    {
+        SavingProfileDialog *aDialog = new SavingProfileDialog(this, true);
+        AddDialogWithId(aDialog->mId, aDialog);
+        aDialog->WaitForResult(true);
+    }
 }
 
 // ==========================================================================
@@ -4458,39 +4398,39 @@ void LawnApp::OnProfileSaveError(Sexy::PlayerInfo * theProfile)
 // ==========================================================================
 int LawnApp::TryToSaveProfile()
 {
-  // Only the full version has a profile file to write.
-  int result = IsFullVersion();
-  if ( result == 0 )
-    return result;
+    // Only the full version has a profile file to write.
+    int result = IsFullVersion();
+    if (result == 0)
+        return result;
 
-  // The flag stays up for as long as the write is in flight, which is what
-  // stops the saving dialog's own update from starting a second one.
-  mProfileSaveInProgress = true;
-  if ( WriteCurrentUserConfig() )
-  {
-    SavingProfileDialog *aDialog = new SavingProfileDialog(this, false);
-    AddDialogWithId(aDialog->mId, aDialog);
-    result = aDialog->WaitForResult(true);
-  }
-  else
-  {
-    // The write failed: retry until the player gives up on the error dialog.
-    while ( true )
+    // The flag stays up for as long as the write is in flight, which is what
+    // stops the saving dialog's own update from starting a second one.
+    mProfileSaveInProgress = true;
+    if (WriteCurrentUserConfig())
     {
-      result = DoProfileSaveErrorDialog();
-      if ( result == 0 )
-        break;
-      if ( WriteCurrentUserConfig() )
-      {
         SavingProfileDialog *aDialog = new SavingProfileDialog(this, false);
         AddDialogWithId(aDialog->mId, aDialog);
         result = aDialog->WaitForResult(true);
-        break;
-      }
     }
-  }
-  mProfileSaveInProgress = false;
-  return result;
+    else
+    {
+        // The write failed: retry until the player gives up on the error dialog.
+        while (true)
+        {
+            result = DoProfileSaveErrorDialog();
+            if (result == 0)
+                break;
+            if (WriteCurrentUserConfig())
+            {
+                SavingProfileDialog *aDialog = new SavingProfileDialog(this, false);
+                AddDialogWithId(aDialog->mId, aDialog);
+                result = aDialog->WaitForResult(true);
+                break;
+            }
+        }
+    }
+    mProfileSaveInProgress = false;
+    return result;
 }
 // ==========================================================================
 // LawnApp::UpdatePlayerProfileForFinishingLevel()
@@ -4498,96 +4438,96 @@ int LawnApp::TryToSaveProfile()
 // ==========================================================================
 int LawnApp::UpdatePlayerProfileForFinishingLevel()
 {
-  PostLevelSuccess();
+    PostLevelSuccess();
 
-  // Adventure: the level counter advances, and the three unlock flags follow
-  // from which level was just cleared.
-  if ( IsAdventureMode() )
-  {
-    int aLevel = mBoard->mLevel;
-    if ( aLevel == 50 )
+    // Adventure: the level counter advances, and the three unlock flags follow
+    // from which level was just cleared.
+    if (IsAdventureMode())
     {
-      mPlayerInfo->SetLevel(1);
-      if ( mPlayerInfo->GetFlag(PlayerFlags(1)) )
-        mPlayerInfo->SetFlag(0x8000, 1);
-      else
-        mPlayerInfo->SetFlag(1, 1);
-      if ( mPlayerInfo->GetFlag(PlayerFlags(1)) && !mPlayerInfo->GetFlag(PlayerFlags(0x8000)) )
-        mPlayerInfo->SetFlag(2048, 1);
-      HasFinishedAdventure();
+        int aLevel = mBoard->mLevel;
+        if (aLevel == 50)
+        {
+            mPlayerInfo->SetLevel(1);
+            if (mPlayerInfo->GetFlag(PlayerFlags(1)))
+                mPlayerInfo->SetFlag(0x8000, 1);
+            else
+                mPlayerInfo->SetFlag(1, 1);
+            if (mPlayerInfo->GetFlag(PlayerFlags(1)) && !mPlayerInfo->GetFlag(PlayerFlags(0x8000)))
+                mPlayerInfo->SetFlag(2048, 1);
+            HasFinishedAdventure();
+        }
+        else
+        {
+            mPlayerInfo->SetLevel(aLevel + 1);
+            if (!HasFinishedAdventure() && aLevel == 34)
+                mPlayerInfo->SetFlag(4096, 1);
+        }
+
+        if (!HasFinishedAdventure())
+        {
+            // The "level 15/31/45 cleared" markers the main menu reads. GameStats
+            // starts at +0x774, so the two words the body touches are its +0 and +4.
+            mPlayerInfo->mGameStats.mHouseType = BLUEPRINT_BLING;
+            int aMarker = mPlayerInfo->mGameStats.mHouseLevel;
+            bool aBelowOne = aMarker <= 0;
+            if (aLevel <= 15)
+                aBelowOne = false;
+            if (aBelowOne)
+                aMarker = 1;
+            else
+                aBelowOne = aMarker <= 1;
+            bool aBelowTwo = aLevel > 31 && aBelowOne;
+            int aResult = 0;
+            if (aBelowTwo)
+                aMarker = 2;
+            mPlayerInfo->mGameStats.mHouseLevel = aMarker;
+            TryToSaveProfile();
+            return aResult;
+        }
     }
-    else
+    else if (!IsSurvivalMode())
     {
-      mPlayerInfo->SetLevel(aLevel + 1);
-      if ( !HasFinishedAdventure() && aLevel == 34 )
-        mPlayerInfo->SetFlag(4096, 1);
+        if (!IsPuzzleMode())
+        {
+            // A challenge on a non-puzzle page: the record's win count is bumped and
+            // the "first win" flags are set once.
+            int aFirstWin = !HasBeatenChallenge(mGameMode);
+            int aIndex = GetCurrentChallengeIndex();
+            ++mPlayerInfo->mChallengeRecords[aIndex];
+            if (aFirstWin && HasFinishedAdventure() && GetNumTrophies(CHALLENGE_PAGE_CHALLENGE) <= 17)
+                mPlayerInfo->SetFlag(64, 1);
+            TryToSaveProfile();
+            return aFirstWin;
+        }
+
+        // Puzzle pages count their own records and set one of two unlock flags.
+        bool aBeaten = HasBeatenChallenge(mGameMode);
+        int aIndex = GetCurrentChallengeIndex();
+        ++mPlayerInfo->mChallengeRecords[aIndex];
+        if ((HasFinishedAdventure() || (unsigned int)(mGameMode - 56) > 1) && !aBeaten)
+        {
+            if (IsScaryPotterLevel() != 0)
+                mPlayerInfo->SetFlag(128, 1);
+            else
+                mPlayerInfo->SetFlag(256, 1);
+            TryToSaveProfile();
+            return 1;
+        }
+        TryToSaveProfile();
+        return 0;
     }
 
-    if ( !HasFinishedAdventure() )
+    // Survival: only the final stage of a run counts, and it saves the score.
+    if (mBoard->IsFinalSurvivalStage() == 0)
     {
-      // The "level 15/31/45 cleared" markers the main menu reads. GameStats
-      // starts at +0x774, so the two words the body touches are its +0 and +4.
-      mPlayerInfo->mGameStats.mHouseType = BLUEPRINT_BLING;
-      int aMarker = mPlayerInfo->mGameStats.mHouseLevel;
-      bool aBelowOne = aMarker <= 0;
-      if ( aLevel <= 15 )
-        aBelowOne = false;
-      if ( aBelowOne )
-        aMarker = 1;
-      else
-        aBelowOne = aMarker <= 1;
-      bool aBelowTwo = aLevel > 31 && aBelowOne;
-      int aResult = 0;
-      if ( aBelowTwo )
-        aMarker = 2;
-      mPlayerInfo->mGameStats.mHouseLevel = aMarker;
-      TryToSaveProfile();
-      return aResult;
+        TryToSaveProfile();
+        return 0;
     }
-  }
-  else if ( !IsSurvivalMode() )
-  {
-    if ( !IsPuzzleMode() )
-    {
-      // A challenge on a non-puzzle page: the record's win count is bumped and
-      // the "first win" flags are set once.
-      int aFirstWin = !HasBeatenChallenge(mGameMode);
-      int aIndex = GetCurrentChallengeIndex();
-      ++mPlayerInfo->mChallengeRecords[aIndex];
-      if ( aFirstWin && HasFinishedAdventure() && GetNumTrophies(CHALLENGE_PAGE_CHALLENGE) <= 17 )
-        mPlayerInfo->SetFlag(64, 1);
-      TryToSaveProfile();
-      return aFirstWin;
-    }
-
-    // Puzzle pages count their own records and set one of two unlock flags.
-    bool aBeaten = HasBeatenChallenge(mGameMode);
-    int aIndex = GetCurrentChallengeIndex();
-    ++mPlayerInfo->mChallengeRecords[aIndex];
-    if ( (HasFinishedAdventure() || (unsigned int)(mGameMode - 56) > 1) && !aBeaten )
-    {
-      if ( IsScaryPotterLevel() != 0 )
-        mPlayerInfo->SetFlag(128, 1);
-      else
-        mPlayerInfo->SetFlag(256, 1);
-      TryToSaveProfile();
-      return 1;
-    }
-    TryToSaveProfile();
-    return 0;
-  }
-
-  // Survival: only the final stage of a run counts, and it saves the score.
-  if ( mBoard->IsFinalSurvivalStage() == 0 )
-  {
-    TryToSaveProfile();
-    return 0;
-  }
-  int aFirstWin = !HasBeatenChallenge(mGameMode);
-  mBoard->SurvivalSaveScore();
-  if ( aFirstWin && HasFinishedAdventure() && (unsigned int)(GetNumTrophies(CHALLENGE_PAGE_SURVIVAL) - 8) > 1 )
-    mPlayerInfo->SetFlag(512, 1);
-  return aFirstWin;
+    int aFirstWin = !HasBeatenChallenge(mGameMode);
+    mBoard->SurvivalSaveScore();
+    if (aFirstWin && HasFinishedAdventure() && (unsigned int)(GetNumTrophies(CHALLENGE_PAGE_SURVIVAL) - 8) > 1)
+        mPlayerInfo->SetFlag(512, 1);
+    return aFirstWin;
 }
 // ==========================================================================
 // LawnApp::OnFullVersionLicenseChange()
@@ -4595,25 +4535,25 @@ int LawnApp::UpdatePlayerProfileForFinishingLevel()
 // ==========================================================================
 void LawnApp::OnFullVersionLicenseChange()
 {
-  if ( mIsFullVersion )
-    return;
+    if (mIsFullVersion)
+        return;
 
-  mIsFullVersion = true;
+    mIsFullVersion = true;
 
-  // A profile that is already loaded has to be re-read, because the licensing
-  // change alters what the loader is allowed to do.
-  if ( mPlayerInfo != nullptr && mPlayerInfo->IsLoaded() )
-  {
-    OutputDebug("Doing a forced profile reload...\n");
-    OutputDebug("Ret: %d\n", 1);
-  }
+    // A profile that is already loaded has to be re-read, because the licensing
+    // change alters what the loader is allowed to do.
+    if (mPlayerInfo != nullptr && mPlayerInfo->IsLoaded())
+    {
+        OutputDebug("Doing a forced profile reload...\n");
+        OutputDebug("Ret: %d\n", 1);
+    }
 
-  if ( mGameSelector != nullptr )
-    mGameSelector->OnFullVersionLicenseChange();
-  if ( mMailBox != nullptr )
-    mMailBox->RefreshMessages();
-  if ( mBoard != nullptr )
-    mBoard->OnFullVersionLicenseChange();
+    if (mGameSelector != nullptr)
+        mGameSelector->OnFullVersionLicenseChange();
+    if (mMailBox != nullptr)
+        mMailBox->RefreshMessages();
+    if (mBoard != nullptr)
+        mBoard->OnFullVersionLicenseChange();
 }
 // ==========================================================================
 // LawnApp::ShowHelpBarWidget()
@@ -4621,67 +4561,69 @@ void LawnApp::OnFullVersionLicenseChange()
 // ==========================================================================
 int LawnApp::ShowHelpBarWidget()
 {
-  // An unbuilt bar asks the widget manager to add it first.
-  if ( mHelpBarWidget->mWidgetManager == nullptr )
-    mWidgetManager->AddWidget(mHelpBarWidget);
+    // An unbuilt bar asks the widget manager to add it first.
+    if (mHelpBarWidget->mWidgetManager == nullptr)
+        mWidgetManager->AddWidget(mHelpBarWidget);
 
-  if ( !mHelpBarWidget->mVisible )
-  {
-    // Start off screen and slide in.
-    mHelpBarWidget->mDisabled = false;
-    mHelpBarWidget->mVisible = true;
-    mHelpBarWidget->Move(static_cast<int>(HelpBarWidget::OFFSCREEN_POS.mX),
-                        static_cast<int>(HelpBarWidget::OFFSCREEN_POS.mY));
-  }
+    if (!mHelpBarWidget->mVisible)
+    {
+        // Start off screen and slide in.
+        mHelpBarWidget->mDisabled = false;
+        mHelpBarWidget->mVisible = true;
+        mHelpBarWidget->Move(
+            static_cast<int>(HelpBarWidget::OFFSCREEN_POS.mX), static_cast<int>(HelpBarWidget::OFFSCREEN_POS.mY));
+    }
 
-  if ( mHelpBarWidget->mY == static_cast<int>(HelpBarWidget::DEFAULT_POS.mY) )
-  {
-    // Already at rest: no animation.
-    mHelpBarWidget->SetAnimator(nullptr);
-  }
-  else
-  {
-    mHelpBarWidget->Move(static_cast<int>(HelpBarWidget::DEFAULT_POS.mX),
-                        static_cast<int>(HelpBarWidget::DEFAULT_POS.mY));
-    SlideInOutWidgetAnimator *aAnimator = new SlideInOutWidgetAnimator(mHelpBarWidget, SlideInOutWidgetAnimator::SLIDE_FROM_BOTTOM, 0);
-    aAnimator->Init((Sexy::WidgetAnimationState)1);
-    mHelpBarWidget->SetAnimator(aAnimator);
-  }
-  mWidgetManager->BringToFront(mHelpBarWidget);
-  return 0;
+    if (mHelpBarWidget->mY == static_cast<int>(HelpBarWidget::DEFAULT_POS.mY))
+    {
+        // Already at rest: no animation.
+        mHelpBarWidget->SetAnimator(nullptr);
+    }
+    else
+    {
+        mHelpBarWidget->Move(
+            static_cast<int>(HelpBarWidget::DEFAULT_POS.mX), static_cast<int>(HelpBarWidget::DEFAULT_POS.mY));
+        SlideInOutWidgetAnimator *aAnimator =
+            new SlideInOutWidgetAnimator(mHelpBarWidget, SlideInOutWidgetAnimator::SLIDE_FROM_BOTTOM, 0);
+        aAnimator->Init((Sexy::WidgetAnimationState)1);
+        mHelpBarWidget->SetAnimator(aAnimator);
+    }
+    mWidgetManager->BringToFront(mHelpBarWidget);
+    return 0;
 }
 
 // ==========================================================================
 // LawnApp::HideHelpBarWidget()
 // @002B9CFC  102 bytes
 // ==========================================================================
-Sexy::WidgetAnimator * LawnApp::HideHelpBarWidget()
+Sexy::WidgetAnimator *LawnApp::HideHelpBarWidget()
 {
-  if ( !mHelpBarWidget->mVisible )
-    return nullptr;
+    if (!mHelpBarWidget->mVisible)
+        return nullptr;
 
-  mHelpBarWidget->Move(static_cast<int>(HelpBarWidget::DEFAULT_POS.mX),
-                      static_cast<int>(HelpBarWidget::DEFAULT_POS.mY));
-  SlideInOutWidgetAnimator *aAnimator = new SlideInOutWidgetAnimator(mHelpBarWidget, SlideInOutWidgetAnimator::SLIDE_FROM_BOTTOM, 0);
-  aAnimator->Init((Sexy::WidgetAnimationState)2);
-  return mHelpBarWidget->SetAnimator(aAnimator);
+    mHelpBarWidget->Move(
+        static_cast<int>(HelpBarWidget::DEFAULT_POS.mX), static_cast<int>(HelpBarWidget::DEFAULT_POS.mY));
+    SlideInOutWidgetAnimator *aAnimator =
+        new SlideInOutWidgetAnimator(mHelpBarWidget, SlideInOutWidgetAnimator::SLIDE_FROM_BOTTOM, 0);
+    aAnimator->Init((Sexy::WidgetAnimationState)2);
+    return mHelpBarWidget->SetAnimator(aAnimator);
 }
 
 // ==========================================================================
 // LawnApp::ForceHideHelpBarWidget()
 // @002B9D74  46 bytes
 // ==========================================================================
-Sexy::WidgetAnimator * LawnApp::ForceHideHelpBarWidget()
+Sexy::WidgetAnimator *LawnApp::ForceHideHelpBarWidget()
 {
-  if ( mHelpBarWidget == nullptr )
-    return nullptr;
+    if (mHelpBarWidget == nullptr)
+        return nullptr;
 
-  // mDrawShade is the "has buttons" flag the two ClearButtons calls take down.
-  mHelpBarWidget->mDrawShade = false;
-  mHelpBarWidget->ClearButtons(0);
-  mHelpBarWidget->ClearButtons(0);
-  HideHelpBarWidget();
-  return nullptr;
+    // mDrawShade is the "has buttons" flag the two ClearButtons calls take down.
+    mHelpBarWidget->mDrawShade = false;
+    mHelpBarWidget->ClearButtons(0);
+    mHelpBarWidget->ClearButtons(0);
+    HideHelpBarWidget();
+    return nullptr;
 }
 // ==========================================================================
 // LawnApp::CheckControllerConnections()
@@ -4689,7 +4631,7 @@ Sexy::WidgetAnimator * LawnApp::ForceHideHelpBarWidget()
 // ==========================================================================
 void LawnApp::CheckControllerConnections()
 {
-  ;
+    ;
 }
 
 // ==========================================================================
@@ -4698,12 +4640,12 @@ void LawnApp::CheckControllerConnections()
 // ==========================================================================
 int LawnApp::ClearSecondPlayer()
 {
-  mSecondPlayerGamepadIndex = -1;
-  mPlayer2Info = nullptr;
-  CheckControllerConnections();
-  // TODO(recon): the dump is `return CheckControllerConnections()`, handing back
-  // the word the void call leaves in r0.
-  return 0;
+    mSecondPlayerGamepadIndex = -1;
+    mPlayer2Info = nullptr;
+    CheckControllerConnections();
+    // TODO(recon): the dump is `return CheckControllerConnections()`, handing back
+    // the word the void call leaves in r0.
+    return 0;
 }
 
 // ==========================================================================
@@ -4712,17 +4654,17 @@ int LawnApp::ClearSecondPlayer()
 // ==========================================================================
 int LawnApp::ShowMainMenuScreen()
 {
-  ClearSecondPlayer();
-  VSResultsMenu::ClearPlayerRecords();
-  mGameScene = SCENE_MENU;
+    ClearSecondPlayer();
+    VSResultsMenu::ClearPlayerRecords();
+    mGameScene = SCENE_MENU;
 
-  MainMenu *aMenu = new MainMenu(this);
-  mGameSelector = aMenu;
-  aMenu->Resize(LawnApp::FULLSCREEN_RECT);
-  mWidgetManager->AddWidget(aMenu);
-  // ShowMainMenuScreen @0x2b9e0c calls WidgetManager::SetFocus (vtable byte 48).
-  mWidgetManager->SetFocus(aMenu);
-  return 0;
+    MainMenu *aMenu = new MainMenu(this);
+    mGameSelector = aMenu;
+    aMenu->Resize(LawnApp::FULLSCREEN_RECT);
+    mWidgetManager->AddWidget(aMenu);
+    // ShowMainMenuScreen @0x2b9e0c calls WidgetManager::SetFocus (vtable byte 48).
+    mWidgetManager->SetFocus(aMenu);
+    return 0;
 }
 
 // ==========================================================================
@@ -4731,10 +4673,10 @@ int LawnApp::ShowMainMenuScreen()
 // ==========================================================================
 int LawnApp::ShowGameSelector()
 {
-  KillBoard();
-  UpdateRegisterInfo();
-  mGameScene = SCENE_MENU;
-  return ShowMainMenuScreen();
+    KillBoard();
+    UpdateRegisterInfo();
+    mGameScene = SCENE_MENU;
+    return ShowMainMenuScreen();
 }
 
 // ==========================================================================
@@ -4743,19 +4685,19 @@ int LawnApp::ShowGameSelector()
 // ==========================================================================
 void LawnApp::LoadingCompleted()
 {
-  mWidgetManager->RemoveWidget(mTitleScreen);
-  SafeDeleteWidget(mTitleScreen);
-  mTitleScreen = nullptr;
+    mWidgetManager->RemoveWidget(mTitleScreen);
+    SafeDeleteWidget(mTitleScreen);
+    mTitleScreen = nullptr;
 
-  // The saved music and sound volumes are pushed back onto the app.
-  if ( mPlayerInfo != nullptr )
-  {
-    SetMusicVolume(mPlayerInfo->mMusicVolume);
-    SetSfxVolume(mPlayerInfo->mSoundVolume);
-  }
+    // The saved music and sound volumes are pushed back onto the app.
+    if (mPlayerInfo != nullptr)
+    {
+        SetMusicVolume(mPlayerInfo->mMusicVolume);
+        SetSfxVolume(mPlayerInfo->mSoundVolume);
+    }
 
-  ShowGameSelector();
-  mSoundSystem->RehookupSoundWithMusicVolume();
+    ShowGameSelector();
+    mSoundSystem->RehookupSoundWithMusicVolume();
 }
 // ==========================================================================
 // LawnApp::DoBackToMain()
@@ -4763,26 +4705,26 @@ void LawnApp::LoadingCompleted()
 // ==========================================================================
 int LawnApp::DoBackToMain()
 {
-  // The music is stopped, any paused foley released, then the whole board is
-  // torn down and the game selector comes back.
-  mMusic->StopAllMusic();
-  mSoundSystem->CancelPausedFoley();
-  if (mGameMode == GAMEMODE_CHALLENGE_ZEN_GARDEN || mGameMode == GAMEMODE_TREE_OF_WISDOM)
-  {
-    // DisposeBoard finishes garden tools, coins and Stinky's position. Save
-    // those profile changes after that cleanup, before opening the main menu.
-    KillNewOptionsDialog();
-    KillBoard();
-    TryToSaveProfile();
-  }
-  else
-  {
-    TryToSaveProfile();
-    KillNewOptionsDialog();
-    KillBoard();
-  }
-  ClearSecondPlayer();
-  return ShowGameSelector();
+    // The music is stopped, any paused foley released, then the whole board is
+    // torn down and the game selector comes back.
+    mMusic->StopAllMusic();
+    mSoundSystem->CancelPausedFoley();
+    if (mGameMode == GAMEMODE_CHALLENGE_ZEN_GARDEN || mGameMode == GAMEMODE_TREE_OF_WISDOM)
+    {
+        // DisposeBoard finishes garden tools, coins and Stinky's position. Save
+        // those profile changes after that cleanup, before opening the main menu.
+        KillNewOptionsDialog();
+        KillBoard();
+        TryToSaveProfile();
+    }
+    else
+    {
+        TryToSaveProfile();
+        KillNewOptionsDialog();
+        KillBoard();
+    }
+    ClearSecondPlayer();
+    return ShowGameSelector();
 }
 
 // ==========================================================================
@@ -4791,31 +4733,31 @@ int LawnApp::DoBackToMain()
 // ==========================================================================
 int LawnApp::ShowTitleScreen(bool theFromGame)
 {
-  KillAll();
+    KillAll();
 
-  mGameScene = SCENE_LOADING;
+    mGameScene = SCENE_LOADING;
 
-  TitleScreen *aTitleScreen = new TitleScreen(this);
-  mTitleScreen = aTitleScreen;
-  // +0x14C is cleared here and only here. The startup title screen keeps the
-  // constructor's true, so the logo and intro still play on a cold launch.
-  aTitleScreen->mNeedPlayLogo = false;
+    TitleScreen *aTitleScreen = new TitleScreen(this);
+    mTitleScreen = aTitleScreen;
+    // +0x14C is cleared here and only here. The startup title screen keeps the
+    // constructor's true, so the logo and intro still play on a cold launch.
+    aTitleScreen->mNeedPlayLogo = false;
 
-  // The title screen is laid out at the app's own size and then added to the
-  // widget manager and focused.
-  aTitleScreen->Resize(0, 0, mWidth, mHeight);
-  aTitleScreen->mNeedRegister = true;
-  aTitleScreen->mLoaderScreenIsLoaded = true;
-  mWidgetManager->AddWidget(aTitleScreen);
-  mWidgetManager->SetFocus(aTitleScreen);
+    // The title screen is laid out at the app's own size and then added to the
+    // widget manager and focused.
+    aTitleScreen->Resize(0, 0, mWidth, mHeight);
+    aTitleScreen->mNeedRegister = true;
+    aTitleScreen->mLoaderScreenIsLoaded = true;
+    mWidgetManager->AddWidget(aTitleScreen);
+    mWidgetManager->SetFocus(aTitleScreen);
 
-  int aResult = ClearSecondPlayer();
-  if ( theFromGame != 0 )
-  {
-    DoProfileChangeDialog();
-    return 0;
-  }
-  return aResult;
+    int aResult = ClearSecondPlayer();
+    if (theFromGame != 0)
+    {
+        DoProfileChangeDialog();
+        return 0;
+    }
+    return aResult;
 }
 // ==========================================================================
 // LawnApp::DrawDialogFade(Sexy::Graphics *)
@@ -4845,29 +4787,29 @@ void LawnApp::DrawDialogFade(Sexy::Graphics *g)
 // LawnApp::DrawQRCode(Sexy::Graphics *)
 // @002BA018  158 bytes
 // ==========================================================================
-int LawnApp::DrawQRCode(Sexy::Graphics * g)
+int LawnApp::DrawQRCode(Sexy::Graphics *g)
 {
-  Sexy::Image *aBackground = mQRCodeImageBackground;
+    Sexy::Image *aBackground = mQRCodeImageBackground;
 
-  float aSavedTransX = g->mTransX;
-  float aSavedTransY = g->mTransY;
+    float aSavedTransX = g->mTransX;
+    float aSavedTransY = g->mTransY;
 
-  // The code is centred in an 800-wide band, 73 in from its left edge and 500
-  // down; the background plate is the 90x90 cel at (+15, +525).
-  int aX = (800 - aBackground->mWidth) / 2;
-  g->mTransX = (float)(-mScreenBounds.mX);
-  g->mTransY = (float)(-mScreenBounds.mY);
+    // The code is centred in an 800-wide band, 73 in from its left edge and 500
+    // down; the background plate is the 90x90 cel at (+15, +525).
+    int aX = (800 - aBackground->mWidth) / 2;
+    g->mTransX = (float)(-mScreenBounds.mX);
+    g->mTransY = (float)(-mScreenBounds.mY);
 
-  Sexy::TRect<int> aDestRect(aX + 73, 525, 90, 90);
-  Sexy::TRect<int> aSrcRect(15, 15, 90, 90);
+    Sexy::TRect<int> aDestRect(aX + 73, 525, 90, 90);
+    Sexy::TRect<int> aSrcRect(15, 15, 90, 90);
 
-  g->DrawImage(aBackground, aX, 500);
-  g->DrawImage(mQRCodeImage, aDestRect, aSrcRect);
-  g->SetColor(Sexy::Color::White);
+    g->DrawImage(aBackground, aX, 500);
+    g->DrawImage(mQRCodeImage, aDestRect, aSrcRect);
+    g->SetColor(Sexy::Color::White);
 
-  g->mTransX = aSavedTransX;
-  g->mTransY = aSavedTransY;
-  return 0;
+    g->mTransX = aSavedTransX;
+    g->mTransY = aSavedTransY;
+    return 0;
 }
 // ==========================================================================
 // LawnApp::DoGameSaveErrorDialog()
@@ -4875,7 +4817,7 @@ int LawnApp::DrawQRCode(Sexy::Graphics * g)
 // ==========================================================================
 void LawnApp::DoGameSaveErrorDialog()
 {
-  ;
+    ;
 }
 
 // ==========================================================================
@@ -4884,132 +4826,132 @@ void LawnApp::DoGameSaveErrorDialog()
 // ==========================================================================
 int LawnApp::ShowSavingDingus()
 {
-  // The dingus is a Crazy Dave that slides up from the bottom; the two words at
-  // +0xAA0/+0xAA4 are the ends of its vertical animation.
-  if ( mSavingDingusReanimationID != 0 )
-  {
-    mSavingDingusAnimationTime = 0.0f;
-    mSavingDingusAnimationStartY = mSavingDingusCurrentY;
-    mSavingDingusAnimationEndY = 550.0f;
-  }
-  else
-  {
-    // A rare variant picks the Zombie instead of Crazy Dave; the wide-screen
-    // flag at +96 of mPlatformDriverOrQueue picks the start position.
-    float aStartY = mPlatformDriverOrQueue->mWideScreen ? 1000.0f : 700.0f;
-    Reanimation *aDingus;
-    if ( PlatformRandomLong() % 100 > 97 )
+    // The dingus is a Crazy Dave that slides up from the bottom; the two words at
+    // +0xAA0/+0xAA4 are the ends of its vertical animation.
+    if (mSavingDingusReanimationID != 0)
     {
-      aDingus = AddReanimation(aStartY, mSavingDingusCurrentY, 304000, REANIM_ZOMBIE);
-      Zombie::SetupReanimLayers(aDingus, (ZombieType)0);
+        mSavingDingusAnimationTime = 0.0f;
+        mSavingDingusAnimationStartY = mSavingDingusCurrentY;
+        mSavingDingusAnimationEndY = 550.0f;
     }
     else
     {
-      aDingus = AddReanimation(aStartY, mSavingDingusCurrentY, 304000, REANIM_SUNFLOWER);
+        // A rare variant picks the Zombie instead of Crazy Dave; the wide-screen
+        // flag at +96 of mPlatformDriverOrQueue picks the start position.
+        float aStartY = mPlatformDriverOrQueue->mWideScreen ? 1000.0f : 700.0f;
+        Reanimation *aDingus;
+        if (PlatformRandomLong() % 100 > 97)
+        {
+            aDingus = AddReanimation(aStartY, mSavingDingusCurrentY, 304000, REANIM_ZOMBIE);
+            Zombie::SetupReanimLayers(aDingus, (ZombieType)0);
+        }
+        else
+        {
+            aDingus = AddReanimation(aStartY, mSavingDingusCurrentY, 304000, REANIM_SUNFLOWER);
+        }
+        aDingus->PlayReanim("anim_idle", REANIM_LOOP, 0, 12.0);
+        aDingus->mIsAttachment = true;
+        mSavingDingusReanimationID = ReanimationGetID(aDingus);
+        mSavingDingusAnimationTime = 0.0f;
+        mSavingDingusAnimationStartY = 900.0f;
+        mSavingDingusAnimationEndY = 550.0f;
     }
-    aDingus->PlayReanim("anim_idle", REANIM_LOOP, 0, 12.0);
-    aDingus->mIsAttachment = true;
-    mSavingDingusReanimationID = ReanimationGetID(aDingus);
-    mSavingDingusAnimationTime = 0.0f;
-    mSavingDingusAnimationStartY = 900.0f;
-    mSavingDingusAnimationEndY = 550.0f;
-  }
 
-  ForceHideHelpBarWidget();
-  if ( mSavingDingusShowCount < 0 )
-    mSavingDingusShowCount = 1;
-  else
-    ++mSavingDingusShowCount;
-  return 0;
+    ForceHideHelpBarWidget();
+    if (mSavingDingusShowCount < 0)
+        mSavingDingusShowCount = 1;
+    else
+        ++mSavingDingusShowCount;
+    return 0;
 }
 
 // ==========================================================================
 // LawnApp::HideSavingDingus()
 // @002BA1F8  76 bytes
 // ==========================================================================
-int * LawnApp::HideSavingDingus()
+int *LawnApp::HideSavingDingus()
 {
-  if ( --mSavingDingusShowCount < 0 || mSavingDingusShowCount == 0 )
-  {
-    mSavingDingusAnimationTime = 0.0f;
-    mSavingDingusAnimationStartY = mSavingDingusCurrentY;
-    mSavingDingusAnimationEndY = 900.0f;
-
-    Reanimation *aDingus = ReanimationTryToGet(mSavingDingusReanimationID);
-    if ( aDingus != nullptr )
+    if (--mSavingDingusShowCount < 0 || mSavingDingusShowCount == 0)
     {
-      aDingus->ReanimationDie();
-      mSavingDingusReanimationID = REANIMATIONID_NULL;
+        mSavingDingusAnimationTime = 0.0f;
+        mSavingDingusAnimationStartY = mSavingDingusCurrentY;
+        mSavingDingusAnimationEndY = 900.0f;
+
+        Reanimation *aDingus = ReanimationTryToGet(mSavingDingusReanimationID);
+        if (aDingus != nullptr)
+        {
+            aDingus->ReanimationDie();
+            mSavingDingusReanimationID = REANIMATIONID_NULL;
+        }
     }
-  }
-  return nullptr;
+    return nullptr;
 }
 
 // ==========================================================================
 // LawnApp::DrawSavingDingus(Sexy::Graphics *)
 // @002BA244  512 bytes
 // ==========================================================================
-char ** LawnApp::DrawSavingDingus(Sexy::Graphics * g)
+char **LawnApp::DrawSavingDingus(Sexy::Graphics *g)
 {
-  int aTransX = (int)g->mTransX;
-  int aTransY = (int)g->mTransY;
-  g->mTransX = 0.0f;
-  g->mTransY = 0.0f;
+    int aTransX = (int)g->mTransX;
+    int aTransY = (int)g->mTransY;
+    g->mTransX = 0.0f;
+    g->mTransY = 0.0f;
 
-  Reanimation *aDingus = ReanimationTryToGet(mSavingDingusReanimationID);
+    Reanimation *aDingus = ReanimationTryToGet(mSavingDingusReanimationID);
 
-  // Which save/load screen is up decides the caption. 68/57/56/69 are the
-  // dialog ids the saving, leaderboard, live-saving and loading screens use.
-  if ( GetDialog(68) != nullptr )
-  {
-    if ( mNeedGoBackToMain )
-      mDingusText = "[SAVING_DIALOG]";
-    else if ( mNeedLoadGame )
-      mDingusText = "[LOADING]";
-  }
-  else if ( GetDialog(57) != nullptr )
-  {
-    mDingusText = "[LEADERBOARDS_DIALOG]";
-  }
-  else if ( GetDialog(56) != nullptr )
-  {
-    mDingusText = "[SAVING_LIVE_DIALOG]";
-  }
-  else if ( GetDialog(69) != nullptr )
-  {
-    mDingusText = "[LOADING]";
-  }
-
-  if ( aDingus != nullptr )
-  {
-    aDingus->Draw(g);
-
-    // The wide-screen flag at +96 of the platform object drops the caption.
-    int aTextY = mPlatformDriverOrQueue->mWideScreen ? 1045 : 745;
-    TodDrawString(g, mDingusText, aTextY, (int)(mSavingDingusCurrentY + 90.0f),
-                  FONT_HOUSEOFTERROR16, Sexy::Color::White, 2);
-  }
-  else if ( mSavingDingusShowCount > 0 )
-  {
-    float aStartY = mPlatformDriverOrQueue->mWideScreen ? 1000.0f : 700.0f;
-    Reanimation *aZombie;
-    if ( PlatformRandomLong() % 100 > 97 )
+    // Which save/load screen is up decides the caption. 68/57/56/69 are the
+    // dialog ids the saving, leaderboard, live-saving and loading screens use.
+    if (GetDialog(68) != nullptr)
     {
-      aZombie = AddReanimation(aStartY, mSavingDingusCurrentY, 304000, REANIM_ZOMBIE);
-      Zombie::SetupReanimLayers(aZombie, (ZombieType)0);
-      aZombie->PlayReanim("anim_idle", REANIM_LOOP, 0, 12.0);
+        if (mNeedGoBackToMain)
+            mDingusText = "[SAVING_DIALOG]";
+        else if (mNeedLoadGame)
+            mDingusText = "[LOADING]";
     }
-    else
+    else if (GetDialog(57) != nullptr)
     {
-      aZombie = AddReanimation(aStartY, mSavingDingusCurrentY, 304000, REANIM_SUNFLOWER);
+        mDingusText = "[LEADERBOARDS_DIALOG]";
     }
-    aZombie->Draw(g);
-    mSavingDingusReanimationID = ReanimationGetID(aZombie);
-  }
+    else if (GetDialog(56) != nullptr)
+    {
+        mDingusText = "[SAVING_LIVE_DIALOG]";
+    }
+    else if (GetDialog(69) != nullptr)
+    {
+        mDingusText = "[LOADING]";
+    }
 
-  g->mTransX = (float)aTransX;
-  g->mTransY = (float)aTransY;
-  return nullptr;
+    if (aDingus != nullptr)
+    {
+        aDingus->Draw(g);
+
+        // The wide-screen flag at +96 of the platform object drops the caption.
+        int aTextY = mPlatformDriverOrQueue->mWideScreen ? 1045 : 745;
+        TodDrawString(
+            g, mDingusText, aTextY, (int)(mSavingDingusCurrentY + 90.0f), FONT_HOUSEOFTERROR16, Sexy::Color::White, 2);
+    }
+    else if (mSavingDingusShowCount > 0)
+    {
+        float aStartY = mPlatformDriverOrQueue->mWideScreen ? 1000.0f : 700.0f;
+        Reanimation *aZombie;
+        if (PlatformRandomLong() % 100 > 97)
+        {
+            aZombie = AddReanimation(aStartY, mSavingDingusCurrentY, 304000, REANIM_ZOMBIE);
+            Zombie::SetupReanimLayers(aZombie, (ZombieType)0);
+            aZombie->PlayReanim("anim_idle", REANIM_LOOP, 0, 12.0);
+        }
+        else
+        {
+            aZombie = AddReanimation(aStartY, mSavingDingusCurrentY, 304000, REANIM_SUNFLOWER);
+        }
+        aZombie->Draw(g);
+        mSavingDingusReanimationID = ReanimationGetID(aZombie);
+    }
+
+    g->mTransX = (float)aTransX;
+    g->mTransY = (float)aTransY;
+    return nullptr;
 }
 // ==========================================================================
 // LawnApp::UpdateSavingDingus()
@@ -5017,35 +4959,35 @@ char ** LawnApp::DrawSavingDingus(Sexy::Graphics * g)
 // ==========================================================================
 int LawnApp::UpdateSavingDingus()
 {
-  Reanimation *aDingus = ReanimationTryToGet(mSavingDingusReanimationID);
-  if ( aDingus == nullptr )
-  {
-    mSavingDingusReanimationID = REANIMATIONID_NULL;
-    return 0;
-  }
+    Reanimation *aDingus = ReanimationTryToGet(mSavingDingusReanimationID);
+    if (aDingus == nullptr)
+    {
+        mSavingDingusReanimationID = REANIMATIONID_NULL;
+        return 0;
+    }
 
-  // The curve walks mSavingDingusCurrentY from the start to the end position
-  // over a second and a bit; the X is fixed by the wide-screen flag.
-  float aStartY = mSavingDingusAnimationStartY;
-  mSavingDingusAnimationTime += 0.01f;
-  float aTime = mSavingDingusAnimationTime;
-  mSavingDingusCurrentY = TodAnimateCurveFloatTime(0.0f, 0.4f, aTime,
-                                                   aStartY, mSavingDingusAnimationEndY, CURVE_LINEAR);
-  float aX = mPlatformDriverOrQueue->mWideScreen ? 1000.0f : 700.0f;
-  aDingus->SetPosition(aX, mSavingDingusCurrentY);
-  aDingus->Update();
-  return 0;
+    // The curve walks mSavingDingusCurrentY from the start to the end position
+    // over a second and a bit; the X is fixed by the wide-screen flag.
+    float aStartY = mSavingDingusAnimationStartY;
+    mSavingDingusAnimationTime += 0.01f;
+    float aTime = mSavingDingusAnimationTime;
+    mSavingDingusCurrentY =
+        TodAnimateCurveFloatTime(0.0f, 0.4f, aTime, aStartY, mSavingDingusAnimationEndY, CURVE_LINEAR);
+    float aX = mPlatformDriverOrQueue->mWideScreen ? 1000.0f : 700.0f;
+    aDingus->SetPosition(aX, mSavingDingusCurrentY);
+    aDingus->Update();
+    return 0;
 }
 // ==========================================================================
 // LawnApp::SetDingusText(Sexy::String &)
 // @002BA508  8 bytes
 // ==========================================================================
-int LawnApp::SetDingusText(Sexy::String & theText)
+int LawnApp::SetDingusText(Sexy::String &theText)
 {
-  // @0x2BA508 is an eight-byte tail call into basic_string::assign, and the
-  // destination is mDingusText at +0xAAC.
-  mDingusText = theText;
-  return 0;
+    // @0x2BA508 is an eight-byte tail call into basic_string::assign, and the
+    // destination is mDingusText at +0xAAC.
+    mDingusText = theText;
+    return 0;
 }
 
 // ==========================================================================
@@ -5054,11 +4996,11 @@ int LawnApp::SetDingusText(Sexy::String & theText)
 // ==========================================================================
 void LawnApp::DeleteSavedGame()
 {
-  // The saved-game file name is built from the game mode and the profile's two
-  // ids, then erased.
-  Sexy::String aName;
-  GetSavedGameName(&aName, mGameMode, mPlayerInfo->GetProfileId(), mPlayerInfo->GetId());
-  EraseFile(aName);
+    // The saved-game file name is built from the game mode and the profile's two
+    // ids, then erased.
+    Sexy::String aName;
+    GetSavedGameName(&aName, mGameMode, mPlayerInfo->GetProfileId(), mPlayerInfo->GetId());
+    EraseFile(aName);
 }
 
 // ==========================================================================
@@ -5067,30 +5009,26 @@ void LawnApp::DeleteSavedGame()
 // ==========================================================================
 bool LawnApp::CanShopLevel()
 {
-  // Multiplayer uses its selected decks without consumable shop tools.
-  if ( IsCoopMode() || mGameMode == GAMEMODE_MP_VS || mGameMode == GAMEMODE_MP_VS_DEBUG )
-    return false;
+    // Multiplayer uses its selected decks without consumable shop tools.
+    if (IsCoopMode() || mGameMode == GAMEMODE_MP_VS || mGameMode == GAMEMODE_MP_VS_DEBUG)
+        return false;
 
-  if ( mGameMode != GAMEMODE_ADVENTURE )
-  {
-    // 17..50 are the challenge modes and 51 is the tree of wisdom; neither gets
-    // a shop pad.
-    if ( mGameMode >= GAMEMODE_CHALLENGE_WAR_AND_PEAS
-      && mGameMode <= GAMEMODE_CHALLENGE_SQUIRREL )
-      return false;
-    if ( mGameMode == GAMEMODE_TREE_OF_WISDOM )
-      return false;
-  }
-  else if ( mBoard->mLevel % 5 == 0 )
-  {
-    return false;
-  }
+    if (mGameMode != GAMEMODE_ADVENTURE)
+    {
+        // 17..50 are the challenge modes and 51 is the tree of wisdom; neither gets
+        // a shop pad.
+        if (mGameMode >= GAMEMODE_CHALLENGE_WAR_AND_PEAS && mGameMode <= GAMEMODE_CHALLENGE_SQUIRREL)
+            return false;
+        if (mGameMode == GAMEMODE_TREE_OF_WISDOM)
+            return false;
+    }
+    else if (mBoard->mLevel % 5 == 0)
+    {
+        return false;
+    }
 
-  return IsSlotMachineLevel() == 0
-      && IsSquirrelLevel() == 0
-      && IsWallnutBowlingLevel() == 0
-      && IsIZombieLevel() == 0
-      && IsScaryPotterLevel() == 0;
+    return IsSlotMachineLevel() == 0 && IsSquirrelLevel() == 0 && IsWallnutBowlingLevel() == 0 &&
+        IsIZombieLevel() == 0 && IsScaryPotterLevel() == 0;
 }
 
 // ==========================================================================
@@ -5099,21 +5037,20 @@ bool LawnApp::CanShopLevel()
 // ==========================================================================
 bool LawnApp::ShopPadCanShow()
 {
-  if ( mBoard == nullptr )
-    return false;
+    if (mBoard == nullptr)
+        return false;
 
-  CutScene *aCutScene = mBoard->mCutScene;
-  if ( aCutScene == nullptr || mGameMode != GAMEMODE_ADVENTURE )
-    return false;
+    CutScene *aCutScene = mBoard->mCutScene;
+    if (aCutScene == nullptr || mGameMode != GAMEMODE_ADVENTURE)
+        return false;
 
-  if ( mBoard->mLevel % 5 == 0 )
-    return false;
+    if (mBoard->mLevel % 5 == 0)
+        return false;
 
-  // 0x2BA614 permits input after the cutscene phases, or once its timer is cleared.
-  int aIntroEnd = aCutScene->mGraveStoneTime + aCutScene->mLawnMowerTime + 6000
-                + aCutScene->mSodTime + aCutScene->mCrazyDaveTime
-                + aCutScene->mFogTime + aCutScene->mBossTime;
-  return aIntroEnd <= aCutScene->mCutsceneTime || aCutScene->mCutsceneTime <= 0;
+    // 0x2BA614 permits input after the cutscene phases, or once its timer is cleared.
+    int aIntroEnd = aCutScene->mGraveStoneTime + aCutScene->mLawnMowerTime + 6000 + aCutScene->mSodTime +
+        aCutScene->mCrazyDaveTime + aCutScene->mFogTime + aCutScene->mBossTime;
+    return aIntroEnd <= aCutScene->mCutsceneTime || aCutScene->mCutsceneTime <= 0;
 }
 
 // ==========================================================================
@@ -5122,9 +5059,9 @@ bool LawnApp::ShopPadCanShow()
 // ==========================================================================
 void LawnApp::StartHelp(int theHelpIndex)
 {
-  // @0x2BA67C. theHelpIndex > 1 returns this. The only caller ignores the return.
-  if ( theHelpIndex <= 1 )
-    mBoard->StartHelp(theHelpIndex);
+    // @0x2BA67C. theHelpIndex > 1 returns this. The only caller ignores the return.
+    if (theHelpIndex <= 1)
+        mBoard->StartHelp(theHelpIndex);
 }
 
 // ==========================================================================
@@ -5133,47 +5070,48 @@ void LawnApp::StartHelp(int theHelpIndex)
 // ==========================================================================
 void LawnApp::SdkExit()
 {
-  // logtfi takes its tag as an int, and the ARM passes the four-character
-  // "sdk" tag directly; the String the transcription built for it was the
-  // sret buffer of the call, not an argument.
-  Sexy::logtfi(0x6B6473, (char *)"LawnApp::SdkExit\n");
+    // logtfi takes its tag as an int, and the ARM passes the four-character
+    // "sdk" tag directly; the String the transcription built for it was the
+    // sret buffer of the call, not an argument.
+    Sexy::logtfi(0x6B6473, "LawnApp::SdkExit\n");
 
-  // The game centre only gets the exit page when it advertises the feature;
-  // otherwise the ordinary quit confirmation runs.
-  if ( mGameCenter->HasFeature(Sexy::IGameCenter::FEATURE_EXIT) )
-  {
-    mGameCenter->Show("Exit");
-    return;
-  }
+    // The game centre only gets the exit page when it advertises the feature;
+    // otherwise the ordinary quit confirmation runs.
+    if (mGameCenter->HasFeature(Sexy::IGameCenter::FEATURE_EXIT))
+    {
+        mGameCenter->Show("Exit");
+        return;
+    }
 
-  Sexy::Dialog *aDialog = ConfirmQuit();
-  if ( aDialog->WaitForResult(true) == 1000 )
-    Quit();
+    Sexy::Dialog *aDialog = ConfirmQuit();
+    if (aDialog->WaitForResult(true) == 1000)
+        Quit();
 }
-static int GuardedPreload(LawnApp* theApp);
+static int GuardedPreload(LawnApp *theApp);
 
 // Title-screen load. The binary runs this on a side thread and the bar reads
 // completed/total. One missing file used to return from the whole procedure,
 // so the later groups never started and the roll sat on a counter that never
 // finished. A miss is logged and skipped. The bar fills only after the last
 // step sets mLoadingThreadCompleted.
-namespace {
+namespace
+{
 
 enum TitleLoadPhase
 {
-  TitleLoad_NeedPrepare = 0,
-  TitleLoad_Images,
-  TitleLoad_Fonts,
-  TitleLoad_Music,
-  TitleLoad_Pool,
-  TitleLoad_Garden,
-  TitleLoad_Cache,
-  TitleLoad_Foley,
-  TitleLoad_Trails,
-  TitleLoad_Particles,
-  TitleLoad_Preload,
-  TitleLoad_Sounds,
-  TitleLoad_Done
+    TitleLoad_NeedPrepare = 0,
+    TitleLoad_Images,
+    TitleLoad_Fonts,
+    TitleLoad_Music,
+    TitleLoad_Pool,
+    TitleLoad_Garden,
+    TitleLoad_Cache,
+    TitleLoad_Foley,
+    TitleLoad_Trails,
+    TitleLoad_Particles,
+    TitleLoad_Preload,
+    TitleLoad_Sounds,
+    TitleLoad_Done
 };
 
 TitleLoadPhase gTitleLoadPhase = TitleLoad_NeedPrepare;
@@ -5181,88 +5119,85 @@ bool gTitleGroupOpen = false;
 int gTitleGroupPulled = 0;
 int gTitleGroupSkipped = 0;
 
-void ForgetGroupError(Sexy::ResourceManager* theManager)
+void ForgetGroupError(Sexy::ResourceManager *theManager)
 {
-  if (theManager == nullptr)
-    return;
-  theManager->mHasError = false;
-  theManager->mErrorText.clear();
+    if (theManager == nullptr)
+        return;
+    theManager->mHasError = false;
+    theManager->mErrorText.clear();
 }
 
-void CloseTitleGroup(LawnApp* theApp, const char* theGroup)
+void CloseTitleGroup(LawnApp *theApp, const char *theGroup)
 {
-  if (!gTitleGroupOpen)
-    return;
-  Sexy::ResourceManager* aManager = theApp->mResourceManager;
-  if (aManager != nullptr)
-  {
-    ForgetGroupError(aManager);
-    if (aManager->mCurResGroupList != nullptr
-        && aManager->mCurResGroupItr == aManager->mCurResGroupList->end())
-      aManager->LoadNextResource();
-    Sexy::ExtractResourcesByName(aManager, theGroup);
-  }
-  fprintf(stderr, "title load: %s pulled %d, skipped %d\n",
-          theGroup, gTitleGroupPulled, gTitleGroupSkipped);
-  fflush(stderr);
-  gTitleGroupOpen = false;
+    if (!gTitleGroupOpen)
+        return;
+    Sexy::ResourceManager *aManager = theApp->mResourceManager;
+    if (aManager != nullptr)
+    {
+        ForgetGroupError(aManager);
+        if (aManager->mCurResGroupList != nullptr && aManager->mCurResGroupItr == aManager->mCurResGroupList->end())
+            aManager->LoadNextResource();
+        Sexy::ExtractResourcesByName(aManager, theGroup);
+    }
+    fprintf(stderr, "title load: %s pulled %d, skipped %d\n", theGroup, gTitleGroupPulled, gTitleGroupSkipped);
+    fflush(stderr);
+    gTitleGroupOpen = false;
 }
 
 // Pull up to theBudget resources. Returns true while the group still has some.
-bool PullTitleGroup(LawnApp* theApp, const char* theGroup, int theWeight, int theBudget)
+bool PullTitleGroup(LawnApp *theApp, const char *theGroup, int theWeight, int theBudget)
 {
-  Sexy::ResourceManager* aManager = theApp->mResourceManager;
-  if (aManager == nullptr)
-    return false;
+    Sexy::ResourceManager *aManager = theApp->mResourceManager;
+    if (aManager == nullptr)
+        return false;
 
-  if (!gTitleGroupOpen)
-  {
-    ForgetGroupError(aManager);
-    aManager->mParentResGroupName.clear();
-    aManager->StartLoadResources(Sexy::String(theGroup), false);
-    gTitleGroupOpen = true;
-    gTitleGroupPulled = 0;
-    gTitleGroupSkipped = 0;
-    fprintf(stderr, "title load: start %s\n", theGroup);
-    fflush(stderr);
-  }
-
-  int aTaken = 0;
-  while (aTaken < theBudget && !theApp->mShutDown && !theApp->mCloseRequest)
-  {
-    if (aManager->mCurResGroupList == nullptr
-        || aManager->mCurResGroupItr == aManager->mCurResGroupList->end())
+    if (!gTitleGroupOpen)
     {
-      CloseTitleGroup(theApp, theGroup);
-      return false;
+        ForgetGroupError(aManager);
+        aManager->mParentResGroupName.clear();
+        aManager->StartLoadResources(Sexy::String(theGroup), false);
+        gTitleGroupOpen = true;
+        gTitleGroupPulled = 0;
+        gTitleGroupSkipped = 0;
+        fprintf(stderr, "title load: start %s\n", theGroup);
+        fflush(stderr);
     }
 
-    bool aLoaded = aManager->LoadNextResource();
-    if (!aLoaded && aManager->HadError())
+    int aTaken = 0;
+    while (aTaken < theBudget && !theApp->mShutDown && !theApp->mCloseRequest)
     {
-      ++gTitleGroupSkipped;
-      ForgetGroupError(aManager);
-    }
-    else if (aLoaded)
-    {
-      ++gTitleGroupPulled;
-    }
-    else if (aManager->mCurResGroupList == nullptr
-             || aManager->mCurResGroupItr == aManager->mCurResGroupList->end())
-    {
-      CloseTitleGroup(theApp, theGroup);
-      return false;
-    }
-    else
-    {
-      ++gTitleGroupSkipped;
-    }
+        if (aManager->mCurResGroupList == nullptr || aManager->mCurResGroupItr == aManager->mCurResGroupList->end())
+        {
+            CloseTitleGroup(theApp, theGroup);
+            return false;
+        }
 
-    if (theWeight > 0)
-      theApp->mCompletedLoadingThreadTasks += theWeight;
-    ++aTaken;
-  }
-  return true;
+        bool aLoaded = aManager->LoadNextResource();
+        if (!aLoaded && aManager->HadError())
+        {
+            ++gTitleGroupSkipped;
+            ForgetGroupError(aManager);
+        }
+        else if (aLoaded)
+        {
+            ++gTitleGroupPulled;
+        }
+        else if (aManager->mCurResGroupList == nullptr ||
+            aManager->mCurResGroupItr == aManager->mCurResGroupList->end())
+        {
+            CloseTitleGroup(theApp, theGroup);
+            return false;
+        }
+        else
+        {
+            ++gTitleGroupSkipped;
+        }
+
+        if (theWeight > 0)
+            theApp->mCompletedLoadingThreadTasks += theWeight;
+        ++aTaken;
+    }
+    return true;
 }
 
 } // namespace
@@ -5275,76 +5210,75 @@ bool PullTitleGroup(LawnApp* theApp, const char* theGroup, int theWeight, int th
 // ==========================================================================
 void LawnApp::PrepareTitleLoad()
 {
-  if (gTitleLoadPhase != TitleLoad_NeedPrepare)
-    return;
+    if (gTitleLoadPhase != TitleLoad_NeedPrepare)
+        return;
 
-  static const char* sGroupNames[3] = { "LoadingFonts", "LoadingImages", "LoadingSounds" };
-  static const int sGroupWeights[3] = { 54, 9, 108 };
+    static const char *sGroupNames[3] = {"LoadingFonts", "LoadingImages", "LoadingSounds"};
+    static const int sGroupWeights[3] = {54, 9, 108};
 
-  fprintf(stderr, "title load: prepare\n");
-  fflush(stderr);
-
-  if (mResourceManager != nullptr)
-  {
-    Sexy::String aGroupName("LoaderBar");
-    int aNumResources = mResourceManager->GetNumResources(aGroupName, true, true);
-    fprintf(stderr, "title load: LoaderBar has %d resources\n", aNumResources);
+    fprintf(stderr, "title load: prepare\n");
     fflush(stderr);
-    mNumLoadingThreadTasks += aNumResources;
-  }
 
-  ReanimatorEnsureDefinitionLoaded(REANIM_ZOMBIE_TARGET, true);
-  ReanimatorEnsureDefinitionLoaded(REANIM_LOADBAR_SPROUT, true);
-  ReanimatorEnsureDefinitionLoaded(REANIM_LOADBAR_ZOMBIEHEAD, true);
-
-  // Weight 0: these resources are the screen itself. They are in the task
-  // total, and the completion flag is what lets the bar cross them.
-  while (PullTitleGroup(this, "LoaderBar", 0, 64))
-    ;
-
-  Sexy::String aLocaleDir = Sexy::String("locale/") + GetLocale();
-  {
-    Sexy::String aPath = aLocaleDir;
-    aPath += "/properties/LawnStrings.txt";
-    if (TodStringListLoad(aPath.c_str()) == 0)
-      TodStringListLoad("properties/LawnStrings.txt");
-  }
-  {
-    Sexy::String aLayout("properties/Layout.xml");
-    fprintf(stderr, "title load: Layout.xml\n");
-    fflush(stderr);
-    LoadProperties(aLayout, true, false);
-  }
-
-  if (mTitleScreen != nullptr)
-  {
-    mTitleScreen->OnLoading();
-    mTitleScreen->mLoaderScreenIsLoaded = true;
-  }
-
-  if (mMusic != nullptr)
-    mMusic->MusicTitleScreenInit();
-
-  if (mResourceManager != nullptr)
-  {
-    for (int aGroup = 0; aGroup < 3; ++aGroup)
+    if (mResourceManager != nullptr)
     {
-      Sexy::String aGroupName(sGroupNames[aGroup]);
-      int aNumResources = mResourceManager->GetNumResources(aGroupName, true, true);
-      fprintf(stderr, "title load: %s has %d resources\n",
-              sGroupNames[aGroup], aNumResources);
-      fflush(stderr);
-      mNumLoadingThreadTasks += sGroupWeights[aGroup] * aNumResources;
+        Sexy::String aGroupName("LoaderBar");
+        int aNumResources = mResourceManager->GetNumResources(aGroupName, true, true);
+        fprintf(stderr, "title load: LoaderBar has %d resources\n", aNumResources);
+        fflush(stderr);
+        mNumLoadingThreadTasks += aNumResources;
     }
-  }
-  mNumLoadingThreadTasks += 648;
-  mNumLoadingThreadTasks += GetNumPreloadingTasks();
-  if (mMusic != nullptr)
-    mNumLoadingThreadTasks += mMusic->GetNumLoadingTasks();
 
-  fprintf(stderr, "title load: %d tasks, loader screen ready\n", mNumLoadingThreadTasks.load());
-  fflush(stderr);
-  gTitleLoadPhase = TitleLoad_Images;
+    ReanimatorEnsureDefinitionLoaded(REANIM_ZOMBIE_TARGET, true);
+    ReanimatorEnsureDefinitionLoaded(REANIM_LOADBAR_SPROUT, true);
+    ReanimatorEnsureDefinitionLoaded(REANIM_LOADBAR_ZOMBIEHEAD, true);
+
+    // Weight 0: these resources are the screen itself. They are in the task
+    // total, and the completion flag is what lets the bar cross them.
+    while (PullTitleGroup(this, "LoaderBar", 0, 64))
+        ;
+
+    Sexy::String aLocaleDir = Sexy::String("locale/") + GetLocale();
+    {
+        Sexy::String aPath = aLocaleDir;
+        aPath += "/properties/LawnStrings.txt";
+        if (TodStringListLoad(aPath.c_str()) == 0)
+            TodStringListLoad("properties/LawnStrings.txt");
+    }
+    {
+        Sexy::String aLayout("properties/Layout.xml");
+        fprintf(stderr, "title load: Layout.xml\n");
+        fflush(stderr);
+        LoadProperties(aLayout, true, false);
+    }
+
+    if (mTitleScreen != nullptr)
+    {
+        mTitleScreen->OnLoading();
+        mTitleScreen->mLoaderScreenIsLoaded = true;
+    }
+
+    if (mMusic != nullptr)
+        mMusic->MusicTitleScreenInit();
+
+    if (mResourceManager != nullptr)
+    {
+        for (int aGroup = 0; aGroup < 3; ++aGroup)
+        {
+            Sexy::String aGroupName(sGroupNames[aGroup]);
+            int aNumResources = mResourceManager->GetNumResources(aGroupName, true, true);
+            fprintf(stderr, "title load: %s has %d resources\n", sGroupNames[aGroup], aNumResources);
+            fflush(stderr);
+            mNumLoadingThreadTasks += sGroupWeights[aGroup] * aNumResources;
+        }
+    }
+    mNumLoadingThreadTasks += 648;
+    mNumLoadingThreadTasks += GetNumPreloadingTasks();
+    if (mMusic != nullptr)
+        mNumLoadingThreadTasks += mMusic->GetNumLoadingTasks();
+
+    fprintf(stderr, "title load: %d tasks, loader screen ready\n", mNumLoadingThreadTasks.load());
+    fflush(stderr);
+    gTitleLoadPhase = TitleLoad_Images;
 }
 
 // ==========================================================================
@@ -5355,121 +5289,123 @@ void LawnApp::PrepareTitleLoad()
 // ==========================================================================
 bool LawnApp::StepTitleLoad()
 {
-  if (gTitleLoadPhase == TitleLoad_NeedPrepare)
-    PrepareTitleLoad();
-  if (gTitleLoadPhase == TitleLoad_Done || mLoadingThreadCompleted)
-    return false;
-  if (mShutDown || mCloseRequest)
-  {
-    mLoadingThreadCompleted = true;
-    gTitleLoadPhase = TitleLoad_Done;
-    return false;
-  }
-
-  switch (gTitleLoadPhase)
-  {
-  case TitleLoad_Images:
-    if (PullTitleGroup(this, "LoadingImages", 9, 8))
-      return true;
-    gTitleLoadPhase = TitleLoad_Fonts;
-    return true;
-
-  case TitleLoad_Fonts:
-    if (PullTitleGroup(this, "LoadingFonts", 54, 4))
-      return true;
-    gTitleLoadPhase = TitleLoad_Music;
-    return true;
-
-  case TitleLoad_Music:
-    fprintf(stderr, "title load: music\n");
-    fflush(stderr);
-    if (mMusic != nullptr && mMusicInterface != nullptr)
-      mMusic->MusicInit();
-    else if (mMusic != nullptr)
-      mCompletedLoadingThreadTasks += mMusic->GetNumLoadingTasks();
-    gTitleLoadPhase = TitleLoad_Pool;
-    return true;
-
-  case TitleLoad_Pool:
-    fprintf(stderr, "title load: pool\n");
-    fflush(stderr);
-    mPoolEffect = new PoolEffect();
-    mPoolEffect->PoolEffectInitialize();
-    gTitleLoadPhase = TitleLoad_Garden;
-    return true;
-
-  case TitleLoad_Garden:
-    fprintf(stderr, "title load: garden\n");
-    fflush(stderr);
-    mZenGarden = new ZenGarden();
-    gTitleLoadPhase = TitleLoad_Cache;
-    return true;
-
-  case TitleLoad_Cache:
-    fprintf(stderr, "title load: reanimator cache\n");
-    fflush(stderr);
-    mReanimatorCache = new ReanimatorCache();
-    mReanimatorCache->ReanimatorCacheInitialize();
-    mReanimatorCache->LoadCachedImages();
-    gTitleLoadPhase = TitleLoad_Foley;
-    return true;
-
-  case TitleLoad_Foley:
-    fprintf(stderr, "title load: foley\n");
-    fflush(stderr);
-    TodFoleyInitialize(gLawnFoleyParamArray, NUM_FOLEY);
-    gTitleLoadPhase = TitleLoad_Trails;
-    return true;
-
-  case TitleLoad_Trails:
-    fprintf(stderr, "title load: trails\n");
-    fflush(stderr);
-    TrailLoadDefinitions(gLawnTrailArray, 1);
-    gTitleLoadPhase = TitleLoad_Particles;
-    return true;
-
-  case TitleLoad_Particles:
-    fprintf(stderr, "title load: particles\n");
-    fflush(stderr);
-    // Each definition adds 6 to the completed count, and 108 * 6 is the 648
-    // the task total reserved for particles.
-    TodParticleLoadDefinitions(gLawnParticleArray, NUM_PARTICLE_EFFECTS);
-    gTitleLoadPhase = TitleLoad_Preload;
-    return true;
-
-  case TitleLoad_Preload:
-    fprintf(stderr, "title load: preload\n");
-    fflush(stderr);
-    // The reanimator table this walk reads is still a stub in places. A fault
-    // here must not drop the sound group or leave the bar unfinished.
-    if (GuardedPreload(this) == 0)
+    if (gTitleLoadPhase == TitleLoad_NeedPrepare)
+        PrepareTitleLoad();
+    if (gTitleLoadPhase == TitleLoad_Done || mLoadingThreadCompleted)
+        return false;
+    if (mShutDown || mCloseRequest)
     {
-      fprintf(stderr, "title load: preload faulted; continuing\n");
-      fflush(stderr);
-      mCompletedLoadingThreadTasks += GetNumPreloadingTasks();
+        mLoadingThreadCompleted = true;
+        gTitleLoadPhase = TitleLoad_Done;
+        return false;
     }
-    gTitleLoadPhase = TitleLoad_Sounds;
-    return true;
 
-  case TitleLoad_Sounds:
-    if (PullTitleGroup(this, "LoadingSounds", 108, 8))
-      return true;
-    // TitleScreen::Update @0x1A7698 reads this byte, then writes its own
-    // mLoadingThreadComplete in the same breath as SetDisabled(false).
-    // Writing the screen flag here makes that check skip the enable.
-    fprintf(stderr, "title load: finished %d/%d\n",
-            mCompletedLoadingThreadTasks.load(), mNumLoadingThreadTasks.load());
-    fflush(stderr);
-    gTitleLoadPhase = TitleLoad_Done;
-    // The driver invokes LoadingThreadCompleted on the main thread. It owns
-    // cache rendering; doing it here as well races that callback and GL draws.
-    mLoadingThreadCompleted = true;
-    return false;
+    switch (gTitleLoadPhase)
+    {
+        case TitleLoad_Images:
+            if (PullTitleGroup(this, "LoadingImages", 9, 8))
+                return true;
+            gTitleLoadPhase = TitleLoad_Fonts;
+            return true;
 
-  default:
-    gTitleLoadPhase = TitleLoad_Done;
-    return false;
-  }
+        case TitleLoad_Fonts:
+            if (PullTitleGroup(this, "LoadingFonts", 54, 4))
+                return true;
+            gTitleLoadPhase = TitleLoad_Music;
+            return true;
+
+        case TitleLoad_Music:
+            fprintf(stderr, "title load: music\n");
+            fflush(stderr);
+            if (mMusic != nullptr && mMusicInterface != nullptr)
+                mMusic->MusicInit();
+            else if (mMusic != nullptr)
+                mCompletedLoadingThreadTasks += mMusic->GetNumLoadingTasks();
+            gTitleLoadPhase = TitleLoad_Pool;
+            return true;
+
+        case TitleLoad_Pool:
+            fprintf(stderr, "title load: pool\n");
+            fflush(stderr);
+            mPoolEffect = new PoolEffect();
+            mPoolEffect->PoolEffectInitialize();
+            gTitleLoadPhase = TitleLoad_Garden;
+            return true;
+
+        case TitleLoad_Garden:
+            fprintf(stderr, "title load: garden\n");
+            fflush(stderr);
+            mZenGarden = new ZenGarden();
+            gTitleLoadPhase = TitleLoad_Cache;
+            return true;
+
+        case TitleLoad_Cache:
+            fprintf(stderr, "title load: reanimator cache\n");
+            fflush(stderr);
+            mReanimatorCache = new ReanimatorCache();
+            mReanimatorCache->ReanimatorCacheInitialize();
+            mReanimatorCache->LoadCachedImages();
+            gTitleLoadPhase = TitleLoad_Foley;
+            return true;
+
+        case TitleLoad_Foley:
+            fprintf(stderr, "title load: foley\n");
+            fflush(stderr);
+            TodFoleyInitialize(gLawnFoleyParamArray, NUM_FOLEY);
+            gTitleLoadPhase = TitleLoad_Trails;
+            return true;
+
+        case TitleLoad_Trails:
+            fprintf(stderr, "title load: trails\n");
+            fflush(stderr);
+            TrailLoadDefinitions(gLawnTrailArray, 1);
+            gTitleLoadPhase = TitleLoad_Particles;
+            return true;
+
+        case TitleLoad_Particles:
+            fprintf(stderr, "title load: particles\n");
+            fflush(stderr);
+            // Each definition adds 6 to the completed count, and 108 * 6 is the 648
+            // the task total reserved for particles.
+            TodParticleLoadDefinitions(gLawnParticleArray, NUM_PARTICLE_EFFECTS);
+            gTitleLoadPhase = TitleLoad_Preload;
+            return true;
+
+        case TitleLoad_Preload:
+            fprintf(stderr, "title load: preload\n");
+            fflush(stderr);
+            // The reanimator table this walk reads is still a stub in places. A fault
+            // here must not drop the sound group or leave the bar unfinished.
+            if (GuardedPreload(this) == 0)
+            {
+                fprintf(stderr, "title load: preload faulted; continuing\n");
+                fflush(stderr);
+                mCompletedLoadingThreadTasks += GetNumPreloadingTasks();
+            }
+            gTitleLoadPhase = TitleLoad_Sounds;
+            return true;
+
+        case TitleLoad_Sounds:
+            if (PullTitleGroup(this, "LoadingSounds", 108, 8))
+                return true;
+            // TitleScreen::Update @0x1A7698 reads this byte, then writes its own
+            // mLoadingThreadComplete in the same breath as SetDisabled(false).
+            // Writing the screen flag here makes that check skip the enable.
+            fprintf(stderr,
+                "title load: finished %d/%d\n",
+                mCompletedLoadingThreadTasks.load(),
+                mNumLoadingThreadTasks.load());
+            fflush(stderr);
+            gTitleLoadPhase = TitleLoad_Done;
+            // The driver invokes LoadingThreadCompleted on the main thread. It owns
+            // cache rendering; doing it here as well races that callback and GL draws.
+            mLoadingThreadCompleted = true;
+            return false;
+
+        default:
+            gTitleLoadPhase = TitleLoad_Done;
+            return false;
+    }
 }
 
 // ==========================================================================
@@ -5478,9 +5414,9 @@ bool LawnApp::StepTitleLoad()
 // ==========================================================================
 void LawnApp::LoadingThreadProc()
 {
-  // One group per call. TitleScreen::Update asks for the thread once a frame,
-  // and the bar reads the fraction between those calls.
-  StepTitleLoad();
+    // One group per call. TitleScreen::Update asks for the thread once a frame,
+    // and the bar reads the fraction between those calls.
+    StepTitleLoad();
 }
 // LawnApp::setErrorCode(Sexy::String)
 // ==========================================================================
@@ -5489,20 +5425,19 @@ void LawnApp::LoadingThreadProc()
 // ==========================================================================
 void LawnApp::setErrorCode(Sexy::String theErrorCode)
 {
-  // @0x2BAD40 wraps the error code in brackets and shows it in dialog 51. The
-  // bracketed form is what the dialog displays; the translated form is the body.
-  Sexy::String aBracketed("[");
-  aBracketed += theErrorCode;
-  aBracketed += "]";
+    // @0x2BAD40 wraps the error code in brackets and shows it in dialog 51. The
+    // bracketed form is what the dialog displays; the translated form is the body.
+    Sexy::String aBracketed("[");
+    aBracketed += theErrorCode;
+    aBracketed += "]";
 
-  Sexy::String aMessage;
-  TodStringTranslate(&aMessage, theErrorCode.c_str());
-  int aResult = LawnMessageBox(51, "[LOGIN_FAILED_HEADER]", aMessage.c_str(),
-                               "[DIALOG_BUTTON_OK]", gEmptyCString, 3);
-  // 1000 is the OK button id. Slot 107 of the app's table is the by-id kill.
-  if ( aResult == 1000 )
-    KillDialogById(51);
-  (void)aBracketed;
+    Sexy::String aMessage;
+    TodStringTranslate(&aMessage, theErrorCode.c_str());
+    int aResult = LawnMessageBox(51, "[LOGIN_FAILED_HEADER]", aMessage.c_str(), "[DIALOG_BUTTON_OK]", gEmptyCString, 3);
+    // 1000 is the OK button id. Slot 107 of the app's table is the by-id kill.
+    if (aResult == 1000)
+        KillDialogById(51);
+    (void)aBracketed;
 }
 
 // ==========================================================================
@@ -5511,24 +5446,24 @@ void LawnApp::setErrorCode(Sexy::String theErrorCode)
 // ==========================================================================
 void LawnApp::doTransRecharge()
 {
-  // A recharge asks the ad provider to show a pay item, then waits for the
-  // result. With no provider there is nothing to show.
-  if ( mAdProvider == nullptr )
-    return;
+    // A recharge asks the ad provider to show a pay item, then waits for the
+    // result. With no provider there is nothing to show.
+    if (mAdProvider == nullptr)
+        return;
 
-  Sexy::String aProviderName;
-  mAdProvider->getUserName(aProviderName);
-  if ( aProviderName == "default" )
-    return;
+    Sexy::String aProviderName;
+    mAdProvider->getUserName(aProviderName);
+    if (aProviderName == "default")
+        return;
 
-  Sexy::String aUserName = getUserName();
-  Sexy::String aItem;
-  Sexy::String aEmpty;
-  mAdProvider->showItemPay(aUserName, 1, aItem, aEmpty, 0.0f, 1);
+    Sexy::String aUserName = getUserName();
+    Sexy::String aItem;
+    Sexy::String aEmpty;
+    mAdProvider->showItemPay(aUserName, 1, aItem, aEmpty, 0.0f, 1);
 
-  SessionWaitingDialog *aWait = DoSessionWaitDialog();
-  aWait->mDelay = 300;
-  aWait->WaitForResult(true);
+    SessionWaitingDialog *aWait = DoSessionWaitDialog();
+    aWait->mDelay = 300;
+    aWait->WaitForResult(true);
 }
 
 // ==========================================================================
@@ -5537,219 +5472,228 @@ void LawnApp::doTransRecharge()
 // ==========================================================================
 int LawnApp::SrvLoginToServer()
 {
-  // PLACEHOLDER: there is no server to log in to.
-  //
-  // The body below builds a LawnSessionTask out of the user name, the device
-  // identifier and the game name, then hands it to LawnSession::StartTask. Both
-  // halves are the online layer, and the objects they depend on are not built on
-  // this platform:
-  //
-  //   * LawnSession::Init used to hang forever here -- its thread joins a server
-  //     connection that never completes (fixed by the placeholder there);
-  //   * the user-name provider at app+1956 is an object whose vtable pointer is
-  //     null, so every virtual call through it lands on address 0x14.
-  //
-  // Six rounds went into that second one -- the fault moved a little each time
-  // but the path contributes nothing to a single-player game: it reads an account
-  // name from a server. The caller does not even look at the result:
-  //
-  //     LawnApp::Init:  SrvLoginToServer();
-  //
-  // so returning success is the equivalent behaviour, exactly as for the RPC
-  // engine and LawnSession::Init. That leaves Init free to run the part that
-  // matters -- LoadResourceManifest, TodLoadResources("Init") and the TitleScreen
-  // constructor, all of which sit after this call.
-  //
-  return 1;
+    // PLACEHOLDER: there is no server to log in to.
+    //
+    // The body below builds a LawnSessionTask out of the user name, the device
+    // identifier and the game name, then hands it to LawnSession::StartTask. Both
+    // halves are the online layer, and the objects they depend on are not built on
+    // this platform:
+    //
+    //   * LawnSession::Init used to hang forever here -- its thread joins a server
+    //     connection that never completes (fixed by the placeholder there);
+    //   * the user-name provider at app+1956 is an object whose vtable pointer is
+    //     null, so every virtual call through it lands on address 0x14.
+    //
+    // Six rounds went into that second one -- the fault moved a little each time
+    // but the path contributes nothing to a single-player game: it reads an account
+    // name from a server. The caller does not even look at the result:
+    //
+    //     LawnApp::Init:  SrvLoginToServer();
+    //
+    // so returning success is the equivalent behaviour, exactly as for the RPC
+    // engine and LawnSession::Init. That leaves Init free to run the part that
+    // matters -- LoadResourceManifest, TodLoadResources("Init") and the TitleScreen
+    // constructor, all of which sit after this call.
+    //
+    return 1;
 }
 
 // Runs the resource-group load under its own SEH frame, so a fault in the
 // transcribed loader is reported instead of ending startup.
-static int GuardedCall(Music* music, void (Music::*method)())
-{ (music->*method)(); return 1; }
+static int GuardedCall(Music *music, void (Music::*method)())
+{
+    (music->*method)();
+    return 1;
+}
 
-static int GuardedLoadGroup(const Sexy::String* group)
-{ TodLoadResources(*group); return 1; }
+static int GuardedLoadGroup(const Sexy::String *group)
+{
+    TodLoadResources(*group);
+    return 1;
+}
 
-static int GuardedPreload(LawnApp* app)
-{ app->PreloadForUser(); return 1; }
+static int GuardedPreload(LawnApp *app)
+{
+    app->PreloadForUser();
+    return 1;
+}
 
 void LawnApp::Init()
 {
-  // The first statement is a call through byte 248 of the VTABLE, i.e. slot 62,
-  // NOT through byte 248 of the object.
-  //
-  // The transcription multiplied the offset by four as well as applying it: 248
-  // is a vtable offset (slot 62) and 992 is 248 * 4. So instead of loading the
-  // vtable pointer and indexing 248 bytes into it, the old line read the
-  // object's own field at byte 992 -- which holds garbage, 0x100 in the observed
-  // run -- and then dereferenced that to find the function address:
-  //
-  //     InitFault: code=0xC0000005 instr=Lawn.exe+0x4516CC
-  //     InitFault:   info[0] = 0x00000000     <- a read
-  //     InitFault:   info[1] = 0x00000100     <- address 0x100
-  //
-  // 0x100 is below 64 KiB, which Windows never maps, so the read could only ever
-  // fault. The ARM at 0x2BB260 loads the vptr, indexes 0xF8 into it and calls
-  // through that; 0xF8 is slot 62 of LawnApp's table, whose entry is
-  // Sexy::SexyAppBase::DoParseCmdLine (0x338EE8), so that is the call below.
-  //
-  // This is the "offset multiplied by four" defect seen elsewhere in the tree
-  // (1510 sites of the plain form and 48 of the masked form were fixed earlier);
-  // this one was missed because the cast chain around it hid the shape.
-  DoParseCmdLine();
-  if ( mTodCheatKeys == 0 )
-    mOnlyAllowOneCopyToRun = true;
-  mSessionCounter[0] = 0;
-  mSessionCounter[1] = 0;
-  mBoardResult = BOARDRESULT_NONE;
-  mKilledYetiAndRestarted = false;
-  mSessionStartSeconds = Sexy::GetTickCount() / 0x3E8;
-  TodAssertInitForApp((void (*)())BetaSubmitFunc);
-  mPendingRechargeAmount = 0;
-  // Shop prices and profile data are handled by the local session. No
-  // publisher manifest or remote RPC endpoint is needed to initialize it.
-  if ( mSession.Init() == 0 )
-    DoExit(-1);
-  mSessionTaskType = 1;
-  mLoginToServer = false;
-  SrvLoginToServer();
-  // The local session uses the TV preset prices instead of a server response.
-  setItemToShopItems();
-  setItemToCoinItems();
-  if ( dynamic_cast<Sexy::LocalGameCenter*>(mGameCenter) != nullptr )
-    loadCoinNum();
-  Sexy::PerfTimer aTimer;
-  aTimer.Start();
-  // mProfileMgr is the Sexy::DefaultProfileMgr at +0x964. Its table's byte 12 is
-  // slot 3 Load, byte 16 slot 4 Save, byte 40 slot 10 GetAnyProfile, and byte 36
-  // slot 9 AddProfile(Sexy::String const&).
-  mProfileMgr->Load();
-  if ( mProfileMgr->GetAnyProfile() == nullptr )
-  {
-    Sexy::String aDefaultName("player");
-    mProfileMgr->AddProfile(aDefaultName);
-    mProfileMgr->Save();
-  }
-  // The CurUser registry read writes into an empty String.
-  Sexy::String aCurUser;
-  if ( mPlayerInfo == nullptr )
-  {
-    Sexy::String aCurUserKey("CurUser");
-    if ( RegistryReadString(aCurUserKey, &aCurUser) != 0 )
-      mPlayerInfo = (LawnPlayerInfo *)mProfileMgr->GetProfile(aCurUser);
-    if ( mPlayerInfo == nullptr )
+    // The first statement is a call through byte 248 of the VTABLE, i.e. slot 62,
+    // NOT through byte 248 of the object.
+    //
+    // The transcription multiplied the offset by four as well as applying it: 248
+    // is a vtable offset (slot 62) and 992 is 248 * 4. So instead of loading the
+    // vtable pointer and indexing 248 bytes into it, the old line read the
+    // object's own field at byte 992 -- which holds garbage, 0x100 in the observed
+    // run -- and then dereferenced that to find the function address:
+    //
+    //     InitFault: code=0xC0000005 instr=Lawn.exe+0x4516CC
+    //     InitFault:   info[0] = 0x00000000     <- a read
+    //     InitFault:   info[1] = 0x00000100     <- address 0x100
+    //
+    // 0x100 is below 64 KiB, which Windows never maps, so the read could only ever
+    // fault. The ARM at 0x2BB260 loads the vptr, indexes 0xF8 into it and calls
+    // through that; 0xF8 is slot 62 of LawnApp's table, whose entry is
+    // Sexy::SexyAppBase::DoParseCmdLine (0x338EE8), so that is the call below.
+    //
+    // This is the "offset multiplied by four" defect seen elsewhere in the tree
+    // (1510 sites of the plain form and 48 of the masked form were fixed earlier);
+    // this one was missed because the cast chain around it hid the shape.
+    DoParseCmdLine();
+    if (mTodCheatKeys == 0)
+        mOnlyAllowOneCopyToRun = true;
+    mSessionCounter[0] = 0;
+    mSessionCounter[1] = 0;
+    mBoardResult = BOARDRESULT_NONE;
+    mKilledYetiAndRestarted = false;
+    mSessionStartSeconds = Sexy::GetTickCount() / 0x3E8;
+    TodAssertInitForApp((void (*)())BetaSubmitFunc);
+    mPendingRechargeAmount = 0;
+    // Shop prices and profile data are handled by the local session. No
+    // publisher manifest or remote RPC endpoint is needed to initialize it.
+    if (mSession.Init() == 0)
+        DoExit(-1);
+    mSessionTaskType = 1;
+    mLoginToServer = false;
+    SrvLoginToServer();
+    // The local session uses the TV preset prices instead of a server response.
+    setItemToShopItems();
+    setItemToCoinItems();
+    if (dynamic_cast<Sexy::LocalGameCenter *>(mGameCenter) != nullptr)
+        loadCoinNum();
+    Sexy::PerfTimer aTimer;
+    aTimer.Start();
+    // mProfileMgr is the Sexy::DefaultProfileMgr at +0x964. Its table's byte 12 is
+    // slot 3 Load, byte 16 slot 4 Save, byte 40 slot 10 GetAnyProfile, and byte 36
+    // slot 9 AddProfile(Sexy::String const&).
+    mProfileMgr->Load();
+    if (mProfileMgr->GetAnyProfile() == nullptr)
     {
-      Sexy::String aPlayerKey("player");
-      mPlayerInfo = (LawnPlayerInfo *)mProfileMgr->GetProfile(aPlayerKey);
+        Sexy::String aDefaultName("player");
+        mProfileMgr->AddProfile(aDefaultName);
+        mProfileMgr->Save();
     }
-  }
-  if ( mPlayerInfo != nullptr )
-  {
-    // Byte 16 of the player info's table is slot 4, PlayerInfo::GetName, which
-    // returns its Sexy::String by value -- the ARM's r0 is the destination, so
-    // the call is spelled as the returning call it is and the String's own
-    // destructor performs the release the old tail call made by hand.
-    Sexy::String aPlayerName = mPlayerInfo->GetName();
-    logfi("Loaded player info for '%s'", aPlayerName.c_str());
-  }
-  Sexy::String aMaxExecutionsKey("MaxExecutions");
-  mMaxExecutions = GetInteger(aMaxExecutionsKey, 0);
-  Sexy::String aMaxPlaysKey("MaxPlays");
-  mMaxPlays = GetInteger(aMaxPlaysKey, 0);
-  Sexy::String aMaxTimeKey("MaxTime");
-  mMaxTime = GetInteger(aMaxTimeKey, 60);
-  // TEMPORARY TRACE: this block is the whole resource path.
-  //
-  // LoadResourceManifest is what parses properties/resources.xml -- the IDA
-  // xrefs put it in SexyAppBase::LoadResourceManifest (0x338848), calling
-  // ResourceManager::ParseResourcesFile, which calls DoParseResources. Neither
-  // TodLoadResources nor LoadingThreadProc calls it: both of their callee lists
-  // were checked and contain no parse step. That is why the group table is empty
-  // and StartLoadResources reports "pulled 0 resource(s)" -- it computes the
-  // resource count as (end - begin) / 12 over a list nobody filled.
-  //
-  // The line after it creates the title screen, so reaching here means both the
-  // manifest and the screen are in play.
-  LoadResourceManifest();
-  Sexy::String aInitGroup("Init");
-  fprintf(stderr, "step: before TodLoadResources(\"Init\")\n"); fflush(stderr);
-  // Load the initial resource group before constructing the title screen.
-  if (GuardedLoadGroup(&aInitGroup) == 0)
-  {
-    fprintf(stderr, "step: TodLoadResources(\"Init\") failed; continuing\n");
+    // The CurUser registry read writes into an empty String.
+    Sexy::String aCurUser;
+    if (mPlayerInfo == nullptr)
+    {
+        Sexy::String aCurUserKey("CurUser");
+        if (RegistryReadString(aCurUserKey, &aCurUser) != 0)
+            mPlayerInfo = (LawnPlayerInfo *)mProfileMgr->GetProfile(aCurUser);
+        if (mPlayerInfo == nullptr)
+        {
+            Sexy::String aPlayerKey("player");
+            mPlayerInfo = (LawnPlayerInfo *)mProfileMgr->GetProfile(aPlayerKey);
+        }
+    }
+    if (mPlayerInfo != nullptr)
+    {
+        // Byte 16 of the player info's table is slot 4, PlayerInfo::GetName, which
+        // returns its Sexy::String by value -- the ARM's r0 is the destination, so
+        // the call is spelled as the returning call it is and the String's own
+        // destructor performs the release the old tail call made by hand.
+        Sexy::String aPlayerName = mPlayerInfo->GetName();
+        logfi("Loaded player info for '%s'", aPlayerName.c_str());
+    }
+    Sexy::String aMaxExecutionsKey("MaxExecutions");
+    mMaxExecutions = GetInteger(aMaxExecutionsKey, 0);
+    Sexy::String aMaxPlaysKey("MaxPlays");
+    mMaxPlays = GetInteger(aMaxPlaysKey, 0);
+    Sexy::String aMaxTimeKey("MaxTime");
+    mMaxTime = GetInteger(aMaxTimeKey, 60);
+    // TEMPORARY TRACE: this block is the whole resource path.
+    //
+    // LoadResourceManifest is what parses properties/resources.xml -- the IDA
+    // xrefs put it in SexyAppBase::LoadResourceManifest (0x338848), calling
+    // ResourceManager::ParseResourcesFile, which calls DoParseResources. Neither
+    // TodLoadResources nor LoadingThreadProc calls it: both of their callee lists
+    // were checked and contain no parse step. That is why the group table is empty
+    // and StartLoadResources reports "pulled 0 resource(s)" -- it computes the
+    // resource count as (end - begin) / 12 over a list nobody filled.
+    //
+    // The line after it creates the title screen, so reaching here means both the
+    // manifest and the screen are in play.
+    LoadResourceManifest();
+    Sexy::String aInitGroup("Init");
+    fprintf(stderr, "step: before TodLoadResources(\"Init\")\n");
     fflush(stderr);
-  }
-  fprintf(stderr, "step: after TodLoadResources(\"Init\")\n"); fflush(stderr);
-  TitleScreen* aTitleScreen = new TitleScreen(this);
-  int aWidth = mWidth;
-  int aHeight = mHeight;
-  mTitleScreen = aTitleScreen;
-  // Init creates the first title screen and leaves the constructor's
-  // mNeedPlayLogo in place. ShowTitleScreen is the path that clears it,
-  // because that return is a menu, not another logo.
-  // Byte 200 of the TitleScreen table is slot 50, Sexy::Widget::Resize(int, int,
-  // int, int) -- the same call the raw dispatch made through the freshly read
-  // vptr.
-  aTitleScreen->Resize(0, 0, aWidth, aHeight);
-  // DrawScreen maps the cursor through these two rects. A zero size divides
-  // by zero the first time the screen is drawn. InitGraphics already stored
-  // the centered bounds; do not replace them with a 0,0 rect.
-  if (mWidgetManager->mMouseSourceRect.mWidth == 0
-      || mWidgetManager->mMouseSourceRect.mHeight == 0)
-  {
-    Sexy::TRect<int> aScreen(mScreenBounds.mX, mScreenBounds.mY,
-                             mScreenBounds.mWidth, mScreenBounds.mHeight);
-    if (aScreen.mWidth == 0 || aScreen.mHeight == 0)
-      aScreen = Sexy::TRect<int>(0, 0, aWidth, aHeight);
-    Sexy::TRect<int> aSource(0, 0, aScreen.mWidth, aScreen.mHeight);
-    mWidgetManager->Resize(aScreen, aSource);
-  }
-  // Byte 24 of mWidgetManager's table is slot 6 AddWidget and byte 48 slot 12
-  // SetFocus, both WidgetContainer's.
-  mWidgetManager->AddWidget(mTitleScreen);
-  mWidgetManager->SetFocus(mTitleScreen);
-  aTimer.GetDuration();
-  aTimer.Start();
-  mEffectSystem->EffectSystemInitialize();
-  FilterEffectInitForApp();
-  TypingCheck* aKonamiCheck = new TypingCheck();
-  mKonamiCheck = aKonamiCheck;
-  aKonamiCheck->AddChar(97);
-  mKonamiCheck->AddChar(97);
-  mKonamiCheck->AddChar(98);
-  mKonamiCheck->AddChar(98);
-  mKonamiCheck->AddChar(99);
-  mKonamiCheck->AddChar(100);
-  mKonamiCheck->AddChar(99);
-  mKonamiCheck->AddChar(100);
-  mKonamiCheck->AddChar(98);
-  mKonamiCheck->AddChar(97);
-  mMustacheCheck = new TypingCheck(Sexy::String("mustache"));
-  mMoustacheCheck = new TypingCheck(Sexy::String("moustache"));
-  mSuperMowerCheck = new TypingCheck(Sexy::String("trickedout"));
-  mSuperMowerCheck2 = new TypingCheck(Sexy::String("tricked out"));
-  mFutureCheck = new TypingCheck(Sexy::String("future"));
-  mPinataCheck = new TypingCheck(Sexy::String("pinata"));
-  mDanceCheck = new TypingCheck(Sexy::String("dance"));
-  mDaisyCheck = new TypingCheck(Sexy::String("daisies"));
-  mSukhbirCheck = new TypingCheck(Sexy::String("sukhbir"));
-  aTimer.GetDuration();
-  aTimer.Start();
-  ReanimatorLoadDefinitions(gLawnReanimationArray, NUM_REANIMS);
-  aTimer.GetDuration();
-  aTimer.Start();
-  // dword_715B18 holds the Sexy::Widget the constructor allocates and then
-  // re-points at the DaveWidget table at 0x687E40; byte 200 of that table is
-  // slot 50, Sexy::Widget::Resize(int, int, int, int).
-  gDaveWidget->Resize(0, 0, mWidth, mHeight);
-  mIsFullVersion = CheckFullVersion(true);
-  Sexy::Graphics aTrackState(nullptr);
-  aTrackState.SetTrackingDeviceState(false);
-  // mGameCenter is the Sexy::IGameCenter at +0x7C0; byte 172 (0xAC) of its table
-  // is IGameCenter::SetListener, and the argument is this object's
-  // IGameCenter::Listener sub-object at +0x89C.
-  mGameCenter->SetListener(static_cast<Sexy::IGameCenter::Listener *>(this));
+    // Load the initial resource group before constructing the title screen.
+    if (GuardedLoadGroup(&aInitGroup) == 0)
+    {
+        fprintf(stderr, "step: TodLoadResources(\"Init\") failed; continuing\n");
+        fflush(stderr);
+    }
+    fprintf(stderr, "step: after TodLoadResources(\"Init\")\n");
+    fflush(stderr);
+    TitleScreen *aTitleScreen = new TitleScreen(this);
+    int aWidth = mWidth;
+    int aHeight = mHeight;
+    mTitleScreen = aTitleScreen;
+    // Init creates the first title screen and leaves the constructor's
+    // mNeedPlayLogo in place. ShowTitleScreen is the path that clears it,
+    // because that return is a menu, not another logo.
+    // Byte 200 of the TitleScreen table is slot 50, Sexy::Widget::Resize(int, int,
+    // int, int) -- the same call the raw dispatch made through the freshly read
+    // vptr.
+    aTitleScreen->Resize(0, 0, aWidth, aHeight);
+    // DrawScreen maps the cursor through these two rects. A zero size divides
+    // by zero the first time the screen is drawn. InitGraphics already stored
+    // the centered bounds; do not replace them with a 0,0 rect.
+    if (mWidgetManager->mMouseSourceRect.mWidth == 0 || mWidgetManager->mMouseSourceRect.mHeight == 0)
+    {
+        Sexy::TRect<int> aScreen(mScreenBounds.mX, mScreenBounds.mY, mScreenBounds.mWidth, mScreenBounds.mHeight);
+        if (aScreen.mWidth == 0 || aScreen.mHeight == 0)
+            aScreen = Sexy::TRect<int>(0, 0, aWidth, aHeight);
+        Sexy::TRect<int> aSource(0, 0, aScreen.mWidth, aScreen.mHeight);
+        mWidgetManager->Resize(aScreen, aSource);
+    }
+    // Byte 24 of mWidgetManager's table is slot 6 AddWidget and byte 48 slot 12
+    // SetFocus, both WidgetContainer's.
+    mWidgetManager->AddWidget(mTitleScreen);
+    mWidgetManager->SetFocus(mTitleScreen);
+    aTimer.GetDuration();
+    aTimer.Start();
+    mEffectSystem->EffectSystemInitialize();
+    FilterEffectInitForApp();
+    TypingCheck *aKonamiCheck = new TypingCheck();
+    mKonamiCheck = aKonamiCheck;
+    aKonamiCheck->AddChar(97);
+    mKonamiCheck->AddChar(97);
+    mKonamiCheck->AddChar(98);
+    mKonamiCheck->AddChar(98);
+    mKonamiCheck->AddChar(99);
+    mKonamiCheck->AddChar(100);
+    mKonamiCheck->AddChar(99);
+    mKonamiCheck->AddChar(100);
+    mKonamiCheck->AddChar(98);
+    mKonamiCheck->AddChar(97);
+    mMustacheCheck = new TypingCheck(Sexy::String("mustache"));
+    mMoustacheCheck = new TypingCheck(Sexy::String("moustache"));
+    mSuperMowerCheck = new TypingCheck(Sexy::String("trickedout"));
+    mSuperMowerCheck2 = new TypingCheck(Sexy::String("tricked out"));
+    mFutureCheck = new TypingCheck(Sexy::String("future"));
+    mPinataCheck = new TypingCheck(Sexy::String("pinata"));
+    mDanceCheck = new TypingCheck(Sexy::String("dance"));
+    mDaisyCheck = new TypingCheck(Sexy::String("daisies"));
+    mSukhbirCheck = new TypingCheck(Sexy::String("sukhbir"));
+    aTimer.GetDuration();
+    aTimer.Start();
+    ReanimatorLoadDefinitions(gLawnReanimationArray, NUM_REANIMS);
+    aTimer.GetDuration();
+    aTimer.Start();
+    // dword_715B18 holds the Sexy::Widget the constructor allocates and then
+    // re-points at the DaveWidget table at 0x687E40; byte 200 of that table is
+    // slot 50, Sexy::Widget::Resize(int, int, int, int).
+    gDaveWidget->Resize(0, 0, mWidth, mHeight);
+    mIsFullVersion = CheckFullVersion(true);
+    Sexy::Graphics aTrackState(nullptr);
+    aTrackState.SetTrackingDeviceState(false);
+    // mGameCenter is the Sexy::IGameCenter at +0x7C0; byte 172 (0xAC) of its table
+    // is IGameCenter::SetListener, and the argument is this object's
+    // IGameCenter::Listener sub-object at +0x89C.
+    mGameCenter->SetListener(static_cast<Sexy::IGameCenter::Listener *>(this));
 }
 
 // LawnApp::loadCoinNum()
@@ -5759,92 +5703,91 @@ void LawnApp::Init()
 // ==========================================================================
 void LawnApp::loadCoinNum()
 {
-  // CoinFile lives in the app's data folder. Its first line is the coin count,
-  // which is stored on the current user. A missing or unreadable file leaves
-  // the count alone.
-  Sexy::String aFolder;
-  GetAppDataFolder(&aFolder);
-  Sexy::String aPath = aFolder + "/CoinFile";
+    // CoinFile lives in the app's data folder. Its first line is the coin count,
+    // which is stored on the current user. A missing or unreadable file leaves
+    // the count alone.
+    Sexy::String aFolder;
+    GetAppDataFolder(&aFolder);
+    Sexy::String aPath = aFolder + "/CoinFile";
 
-  SDL_IOStream* aFile = p_fopen(aPath.c_str(), "rb");
-  if (aFile == nullptr)
-  {
-    puts("CoinFile open failed!");
-    return;
-  }
-
-  char aLine[64] = {0};
-  if (p_fgets(aLine, (int)sizeof(aLine), aFile) != nullptr)
-  {
-    int aCoins = atoi(aLine);
-    LawnUser* aUser = LawnUser::getCurUser();
-    if (aUser != nullptr)
+    SDL_IOStream *aFile = p_fopen(aPath.c_str(), "rb");
+    if (aFile == nullptr)
     {
-      char aText[32];
-      sprintf(aText, "%d", aCoins);
-      aUser->mCoinText = Sexy::String(aText);
+        puts("CoinFile open failed!");
+        return;
     }
-  }
-  p_fclose(aFile);
-}
 
+    char aLine[64] = {0};
+    if (p_fgets(aLine, (int)sizeof(aLine), aFile) != nullptr)
+    {
+        int aCoins = atoi(aLine);
+        LawnUser *aUser = LawnUser::getCurUser();
+        if (aUser != nullptr)
+        {
+            char aText[32];
+            sprintf(aText, "%d", aCoins);
+            aUser->mCoinText = Sexy::String(aText);
+        }
+    }
+    p_fclose(aFile);
+}
 
 // LawnApp::BuyMoney(int)
 // @002BBE3C  1574 bytes
 // ==========================================================================
 void LawnApp::BuyMoney(int theTier)
 {
-  // The chosen tier says how much cash it costs and how many coins it grants.
-  // The signed-in user's coin count is what the later balance query checks.
-  LawnUser* aUser = LawnUser::getCurUser();
-  if ( theTier < 0 || theTier >= aUser->CoinTierCount() )
-    return;
-  const SCoinItem* aItems = aUser->mCoinItems.data();
-  int aPrice = aItems[theTier].mValue;
-  int aCoins = aItems[theTier].mGetCoin;
-  mQueryCoinState.mPreviousBalance = atoi(aUser->mCoinText.c_str());
+    // The chosen tier says how much cash it costs and how many coins it grants.
+    // The signed-in user's coin count is what the later balance query checks.
+    LawnUser *aUser = LawnUser::getCurUser();
+    if (theTier < 0 || theTier >= aUser->CoinTierCount())
+        return;
+    const SCoinItem *aItems = aUser->mCoinItems.data();
+    int aPrice = aItems[theTier].mValue;
+    int aCoins = aItems[theTier].mGetCoin;
+    mQueryCoinState.mPreviousBalance = atoi(aUser->mCoinText.c_str());
 
-  // A platform that sells through the game center builds a payment and stops.
-  if ( mGameCenter->HasFeature(Sexy::IGameCenter::FEATURE_PURCHASE) )
-  {
-    logfi("MobileCMGCHOME: BuyMoney", "");
-    static const char* sProductIds[3] = { "pvz50", "pvz100", "pvz200" };
-    Sexy::IGameCenter::Payment aPayment;
-    aPayment.mProductId = Sexy::String(sProductIds[theTier]);
-    aPayment.mPrice = (float)aPrice;
-    aPayment.mUserName = GetUserName();
-    aPayment.mAccount = GetUserName();
-    mGameCenter->Purchase(aPayment);
-    return;
-  }
+    // A platform that sells through the game center builds a payment and stops.
+    if (mGameCenter->HasFeature(Sexy::IGameCenter::FEATURE_PURCHASE))
+    {
+        logfi("MobileCMGCHOME: BuyMoney", "");
+        static const char *sProductIds[3] = {"pvz50", "pvz100", "pvz200"};
+        Sexy::IGameCenter::Payment aPayment;
+        aPayment.mProductId = Sexy::String(sProductIds[theTier]);
+        aPayment.mPrice = (float)aPrice;
+        aPayment.mUserName = GetUserName();
+        aPayment.mAccount = GetUserName();
+        mGameCenter->Purchase(aPayment);
+        return;
+    }
 
-  if ( mAdProvider == nullptr )
-  {
-    DoDialog(51, true, "[MONEY_NOT_ENOUGH_HEADER]",
-             u8"当前版本未接入支付服务，暂时无法充值。", "[DIALOG_BUTTON_OK]", 3);
-    return;
-  }
+    if (mAdProvider == nullptr)
+    {
+        DoDialog(
+            51, true, "[MONEY_NOT_ENOUGH_HEADER]", u8"当前版本未接入支付服务，暂时无法充值。", "[DIALOG_BUTTON_OK]", 3);
+        return;
+    }
 
-  // The "novel" channel names its products pvz50/pvz100/pvz200. Every other
-  // channel uses the translated coin count as the item name.
-  Sexy::String aUserName = GetUserName();
-  Sexy::String aItem;
-  if ( mAdProvider->mChannel == "novel" )
-  {
-    static const char* sProductIds[3] = { "pvz50", "pvz100", "pvz200" };
-    aItem = Sexy::String(sProductIds[theTier]);
-  }
-  else
-  {
-    char aText[32];
-    sprintf(aText, "%d", aCoins);
-    aItem = Sexy::String(aText);
-  }
-  Sexy::String aEmpty;
-  mAdProvider->showItemPay(aUserName, theTier, aEmpty, aItem, (float)aPrice, 1);
-  SessionWaitingDialog* aWait = DoSessionWaitDialog();
-  aWait->mDelay = 300;
-  aWait->WaitForResult(1);
+    // The "novel" channel names its products pvz50/pvz100/pvz200. Every other
+    // channel uses the translated coin count as the item name.
+    Sexy::String aUserName = GetUserName();
+    Sexy::String aItem;
+    if (mAdProvider->mChannel == "novel")
+    {
+        static const char *sProductIds[3] = {"pvz50", "pvz100", "pvz200"};
+        aItem = Sexy::String(sProductIds[theTier]);
+    }
+    else
+    {
+        char aText[32];
+        sprintf(aText, "%d", aCoins);
+        aItem = Sexy::String(aText);
+    }
+    Sexy::String aEmpty;
+    mAdProvider->showItemPay(aUserName, theTier, aEmpty, aItem, (float)aPrice, 1);
+    SessionWaitingDialog *aWait = DoSessionWaitDialog();
+    aWait->mDelay = 300;
+    aWait->WaitForResult(1);
 }
 
 // ==========================================================================
@@ -5853,17 +5796,17 @@ void LawnApp::BuyMoney(int theTier)
 // ==========================================================================
 void LawnApp::setQueryBalanceRes(bool theSucceeded, int theBalance)
 {
-  // A failed query leaves the stored balance alone. A successful one writes the
-  // new amount into the current user's balance string, creating that user the
-  // first time it is asked for.
-  if ( !theSucceeded )
-    return;
+    // A failed query leaves the stored balance alone. A successful one writes the
+    // new amount into the current user's balance string, creating that user the
+    // first time it is asked for.
+    if (!theSucceeded)
+        return;
 
-  char aText[32];
-  sprintf(aText, "%d", theBalance);
-  LawnUser* aUser = LawnUser::getCurUser();
-  if ( aUser != nullptr )
-    aUser->mCoinText = Sexy::String(aText);
+    char aText[32];
+    sprintf(aText, "%d", theBalance);
+    LawnUser *aUser = LawnUser::getCurUser();
+    if (aUser != nullptr)
+        aUser->mCoinText = Sexy::String(aText);
 }
 
 // LawnApp::setPayItemsRes(bool,char const*,int,char const*)
@@ -5871,37 +5814,37 @@ void LawnApp::setQueryBalanceRes(bool theSucceeded, int theBalance)
 // LawnApp::setPayItemsRes(bool,char const*,int,char const*)
 // @002BD6C4  998 bytes
 // ==========================================================================
-void LawnApp::setPayItemsRes(bool theSucceeded, char const* /*theOrder*/, int theTier, char const* /*theReceipt*/)
+void LawnApp::setPayItemsRes(bool theSucceeded, char const * /*theOrder*/, int theTier, char const * /*theReceipt*/)
 {
-  // Dialog 81 is the purchase wait. Either way the wait is over.
-  SessionWaitingDialog* aWait = dynamic_cast<SessionWaitingDialog*>(GetDialog(81));
-  if ( aWait != nullptr )
-    aWait->mResult = 0;
-  logfi("****OFFERRES***** : %d", theSucceeded);
-  if ( !theSucceeded )
-    return;
+    // Dialog 81 is the purchase wait. Either way the wait is over.
+    SessionWaitingDialog *aWait = dynamic_cast<SessionWaitingDialog *>(GetDialog(81));
+    if (aWait != nullptr)
+        aWait->mResult = 0;
+    logfi("****OFFERRES***** : %d", theSucceeded);
+    if (!theSucceeded)
+        return;
 
-  // Credit the coins the chosen tier grants.
-  LawnUser* aUser = LawnUser::getCurUser();
-  int aBalance = atoi(aUser->mCoinText.c_str());
-  int aGranted = 0;
-  int aPrice = 0;
-  if ( theTier >= 0 && theTier < aUser->CoinTierCount() )
-  {
-    aGranted = aUser->mCoinItems[theTier].mGetCoin;
-    aPrice = aUser->mCoinItems[theTier].mValue;
-  }
-  char aText[32];
-  sprintf(aText, "%d", aBalance + aGranted);
-  aUser->mCoinText = Sexy::String(aText);
-  printf("****buy money %d\n", aPrice);
+    // Credit the coins the chosen tier grants.
+    LawnUser *aUser = LawnUser::getCurUser();
+    int aBalance = atoi(aUser->mCoinText.c_str());
+    int aGranted = 0;
+    int aPrice = 0;
+    if (theTier >= 0 && theTier < aUser->CoinTierCount())
+    {
+        aGranted = aUser->mCoinItems[theTier].mGetCoin;
+        aPrice = aUser->mCoinItems[theTier].mValue;
+    }
+    char aText[32];
+    sprintf(aText, "%d", aBalance + aGranted);
+    aUser->mCoinText = Sexy::String(aText);
+    printf("****buy money %d\n", aPrice);
 
-  // Ad type 7 confirms the new balance with the provider.
-  if ( mAdProvider != nullptr && mAdProvider->getADType() == 7 )
-  {
-    Sexy::String aBalanceUser = getUserName();
-    mAdProvider->queryBalance(aBalanceUser);
-  }
+    // Ad type 7 confirms the new balance with the provider.
+    if (mAdProvider != nullptr && mAdProvider->getADType() == 7)
+    {
+        Sexy::String aBalanceUser = getUserName();
+        mAdProvider->queryBalance(aBalanceUser);
+    }
 }
 
 // ==========================================================================
@@ -5910,14 +5853,14 @@ void LawnApp::setPayItemsRes(bool theSucceeded, char const* /*theOrder*/, int th
 // ==========================================================================
 void LawnApp::setItemToCoinItems()
 {
-  // The three coin packs the buy dialog offers: cash price, coins granted.
-  static const SCoinItem sTiers[3] = {
-    { 50, 5 },
-    { 100, 10 },
-    { 200, 20 },
-  };
-  LawnUser* aUser = LawnUser::getCurUser();
-  aUser->mCoinItems.assign(std::begin(sTiers), std::end(sTiers));
+    // The three coin packs the buy dialog offers: cash price, coins granted.
+    static const SCoinItem sTiers[3] = {
+        {50, 5},
+        {100, 10},
+        {200, 20},
+    };
+    LawnUser *aUser = LawnUser::getCurUser();
+    aUser->mCoinItems.assign(std::begin(sTiers), std::end(sTiers));
 }
 
 // LawnApp::NextTestDialog()
@@ -5927,277 +5870,283 @@ void LawnApp::setItemToCoinItems()
 // ==========================================================================
 int LawnApp::NextTestDialog()
 {
-  // Remember the dialog that is up, then close it. The history lets
-  // PrevTestDialog step back to it.
-  int aShownDialog = mCurrentTestDialogId;
-  int aShownMessage = mCurrentTestDaveMessage;
-  if ( gTestDialogEnd == nullptr )
-  {
-    gTestDialogEnd = (TestDialogRecord *)mTestInfos;
-    gTestDialogCapacity = gTestDialogEnd + 64;
-  }
-  if ( gTestDialogEnd < gTestDialogCapacity )
-  {
-    gTestDialogEnd->mDialogId = aShownDialog;
-    gTestDialogEnd->mDaveMessage = aShownMessage;
-    gTestDialogEnd->mMessageIndex = gTestDialogIndex;
-    ++gTestDialogEnd;
-  }
-  if ( aShownDialog >= 0 )
-  {
-    mCurrentTestDialogId = -1;
-    KillDialogById(aShownDialog);
-    mCurrentTestDialogId = aShownDialog;
-  }
-
-  // A Dave line that is already showing advances one sentence. Past the last
-  // sentence Dave leaves and the next dialog opens.
-  if ( aShownMessage != -1 )
-  {
-    while ( mCrazyDaveMessageIndex <= 11000 )
+    // Remember the dialog that is up, then close it. The history lets
+    // PrevTestDialog step back to it.
+    int aShownDialog = mCurrentTestDialogId;
+    int aShownMessage = mCurrentTestDaveMessage;
+    if (gTestDialogEnd == nullptr)
     {
-      if ( AdvanceCrazyDaveText() != 0 )
-      {
-        mCurrentTestDaveMessage = mCrazyDaveMessageIndex;
-        return 1;
-      }
-      ++mCrazyDaveMessageIndex;
+        gTestDialogEnd = (TestDialogRecord *)mTestInfos;
+        gTestDialogCapacity = gTestDialogEnd + 64;
     }
-    CrazyDaveLeave();
-    mCurrentTestDaveMessage = -1;
-    mWidgetManager->RemoveWidget(gDaveWidget);
-    ToggleTestDialog();
-    return 0;
-  }
-
-  // Otherwise walk dialog ids until one of them actually opens. A dialog that
-  // has another message to show sets gTestDialogStay so the id stays put.
-  int aDialogId = mCurrentTestDialogId;
-  for (;;)
-  {
-    if ( gTestDialogStay == 0 )
-      mCurrentTestDialogId = ++aDialogId;
-    gTestDialogStay = 0;
-
-    switch ( aDialogId )
+    if (gTestDialogEnd < gTestDialogCapacity)
     {
-      case 2:
-        DoNewOptions(false, mPlayerInfo->GetId());
-        break;
-      case 3:
-        DoHelpDialog(false);
-        break;
-      case 13:
-        ConfirmQuit();
-        break;
-      case 16:
-      {
-        if ( mGameMode <= 1 )
-          mGameMode = GAMEMODE_SURVIVAL_NORMAL_STAGE_1;
-        const char* aMessage = "[ZOMBIQUARIUM_DEATH_MESSAGE]";
-        switch ( gTestDialogIndex )
-        {
-          case 0:
-            aMessage = "[ZOMBIQUARIUM_DEATH_MESSAGE]";
-            mGameMode = GAMEMODE_SURVIVAL_NORMAL_STAGE_1;
-            break;
-          case 1:
-            aMessage = "[LAST_STAND_DEATH_MESSAGE]";
-            break;
-          case 2:
-            aMessage = "[LAST_STAND_DEATH_MESSAGE]";
-            break;
-          case 3:
-            aMessage = "[ENDLESS_PUZZLE_DEATH_MESSAGE]";
-            break;
-          case 4:
-            aMessage = "[I_ZOMBIE_DEATH_MESSAGE]";
-            break;
-          case 5:
-            aMessage = "[MP_ZOMBIES_WIN_MESSAGE]";
-            mGameMode = (GameMode)((int)mGameMode + 1);
-            if ( (int)mGameMode == 91 )
-              gTestDialogIndex = 0;
-            break;
-          default:
-            break;
-        }
-        if ( gTestDialogIndex < 5 )
-        {
-          gTestDialogStay = 1;
-          ++gTestDialogIndex;
-        }
-        GameOverDialog* aGameOver = new GameOverDialog(Sexy::String(aMessage), true);
-        AddDialogWithId(16, aGameOver);
-        break;
-      }
-      case 20:
-        DoPauseDialog();
-        break;
-      case 23:
-        DoConfirmBackToMain(true);
-        break;
-      case 24:
-        DoConfirmRestartDialog();
-        break;
-      case 26:
-        DoNotEnoughMoneyDialog();
-        break;
-      case 27:
-        DoUpgradeDialog();
-        break;
-      case 28:
-        gTestDialogIndex = 0;
-        break;
-      case 29:
-      {
-        static const char* sWarnings[] = {
-          "repick0", "repick1", "repick2", "repick3", "repick4",
-          "repick5", "repick6", "repick7", "repick8", "repick9", nullptr
-        };
-        const char* aWarning = sWarnings[gTestDialogIndex];
-        if ( aWarning != nullptr )
-        {
-          ++gTestDialogIndex;
-          gTestDialogStay = 1;
-          DoRepickWarningDialog(aWarning);
-        }
-        else
-        {
-          gTestDialogIndex = 0;
-        }
-        break;
-      }
-      case 39:
-        if ( gTestDialogIndex == 0 )
-        {
-          mGameMode = GAMEMODE_ADVENTURE;
-          DoContinueDialog();
-          gTestDialogStay = 1;
-          ++gTestDialogIndex;
-        }
-        else if ( gTestDialogIndex == 1 )
-        {
-          mGameMode = GAMEMODE_SURVIVAL_NORMAL_STAGE_1;
-          DoContinueDialog();
-          ++gTestDialogIndex;
-        }
-        else if ( gTestDialogIndex == 2 )
-        {
-          gTestDialogIndex = 0;
-        }
-        break;
-      case 41:
-        if ( gTestDialogIndex == 0 )
-        {
-          mGameMode = GAMEMODE_ADVENTURE;
-          DoRestartConfirmDialog();
-          gTestDialogStay = 1;
-        }
-        else if ( gTestDialogIndex == 1 )
-        {
-          mGameMode = GAMEMODE_SURVIVAL_NORMAL_STAGE_1;
-          DoRestartConfirmDialog();
-          gTestDialogStay = 1;
-        }
-        else if ( gTestDialogIndex == 2 )
-        {
-          gTestDialogIndex = 0;
-        }
-        break;
-      case 48:
-        DoStoreItemDialog();
-        break;
-      case 49:
-        DoTreeItemDialog();
-        break;
-      case 50:
-        DoZenSellDialog();
-        break;
-      case 53:
-        DoPacketPurchaseDialog(10000, 10);
-        break;
-      case 54:
-        DoProfileChangeDialog();
-        break;
-      case 56:
-        if ( gTestDialogIndex == 0 )
-        {
-          AddDialog(static_cast<Sexy::Dialog*>(new WaitForRemoteFileDialog(0, this, false)));
-          gTestDialogStay = 1;
-          ++gTestDialogIndex;
-        }
-        else if ( gTestDialogIndex == 1 )
-        {
-          AddDialog(static_cast<Sexy::Dialog*>(new WaitForLeaderboardsDialog(this)));
-          gTestDialogIndex = 0;
-        }
-        break;
-      case 61:
-        DoRetryLeaderboardDialog();
-        break;
-      case 62:
-        DoRetryAchievementsDialog();
-        break;
-      case 63:
-        if ( gTestDialogIndex == 0 )
-        {
-          HandleCorruptedGameFile();
-          gTestDialogStay = 1;
-          ++gTestDialogIndex;
-        }
-        else if ( gTestDialogIndex == 1 )
-        {
-          gTestDialogIndex = 0;
-          HandleOldGameFile();
-        }
-        break;
-      case 64:
-        HandleNoDevice();
-        break;
-      case 65:
-        HandleInvalidLevel();
-        break;
-      case 66:
-        DoProfileLoadErrorDialog();
-        break;
-      case 67:
-        DoProfileSaveErrorDialog();
-        break;
-      case 68:
-        if ( gTestDialogIndex == 0 )
-        {
-          DoContentSavingDialog();
-          gTestDialogStay = 1;
-          ++gTestDialogIndex;
-        }
-        else if ( gTestDialogIndex == 1 )
-        {
-          DoContentLoadingDialog();
-          gTestDialogIndex = 0;
-        }
-        break;
-      case 85:
+        gTestDialogEnd->mDialogId = aShownDialog;
+        gTestDialogEnd->mDaveMessage = aShownMessage;
+        gTestDialogEnd->mMessageIndex = gTestDialogIndex;
+        ++gTestDialogEnd;
+    }
+    if (aShownDialog >= 0)
+    {
         mCurrentTestDialogId = -1;
-        mWidgetManager->AddWidget(gDaveWidget);
-        if ( mCrazyDaveState != 0 )
-          CrazyDaveLeave();
-        CrazyDaveEnter();
-        CrazyDaveTalkIndex(0);
-        mCurrentTestDaveMessage = 0;
-        delete mBoard;
-        mBoard = nullptr;
-        break;
-      default:
-        break;
+        KillDialogById(aShownDialog);
+        mCurrentTestDialogId = aShownDialog;
     }
 
-    aDialogId = mCurrentTestDialogId;
-    if ( GetDialog(aDialogId) != nullptr || aDialogId == -1 )
-      return 1;
-  }
-}
+    // A Dave line that is already showing advances one sentence. Past the last
+    // sentence Dave leaves and the next dialog opens.
+    if (aShownMessage != -1)
+    {
+        while (mCrazyDaveMessageIndex <= 11000)
+        {
+            if (AdvanceCrazyDaveText() != 0)
+            {
+                mCurrentTestDaveMessage = mCrazyDaveMessageIndex;
+                return 1;
+            }
+            ++mCrazyDaveMessageIndex;
+        }
+        CrazyDaveLeave();
+        mCurrentTestDaveMessage = -1;
+        mWidgetManager->RemoveWidget(gDaveWidget);
+        ToggleTestDialog();
+        return 0;
+    }
 
+    // Otherwise walk dialog ids until one of them actually opens. A dialog that
+    // has another message to show sets gTestDialogStay so the id stays put.
+    int aDialogId = mCurrentTestDialogId;
+    for (;;)
+    {
+        if (gTestDialogStay == 0)
+            mCurrentTestDialogId = ++aDialogId;
+        gTestDialogStay = 0;
+
+        switch (aDialogId)
+        {
+            case 2:
+                DoNewOptions(false, mPlayerInfo->GetId());
+                break;
+            case 3:
+                DoHelpDialog(false);
+                break;
+            case 13:
+                ConfirmQuit();
+                break;
+            case 16:
+            {
+                if (mGameMode <= 1)
+                    mGameMode = GAMEMODE_SURVIVAL_NORMAL_STAGE_1;
+                const char *aMessage = "[ZOMBIQUARIUM_DEATH_MESSAGE]";
+                switch (gTestDialogIndex)
+                {
+                    case 0:
+                        aMessage = "[ZOMBIQUARIUM_DEATH_MESSAGE]";
+                        mGameMode = GAMEMODE_SURVIVAL_NORMAL_STAGE_1;
+                        break;
+                    case 1:
+                        aMessage = "[LAST_STAND_DEATH_MESSAGE]";
+                        break;
+                    case 2:
+                        aMessage = "[LAST_STAND_DEATH_MESSAGE]";
+                        break;
+                    case 3:
+                        aMessage = "[ENDLESS_PUZZLE_DEATH_MESSAGE]";
+                        break;
+                    case 4:
+                        aMessage = "[I_ZOMBIE_DEATH_MESSAGE]";
+                        break;
+                    case 5:
+                        aMessage = "[MP_ZOMBIES_WIN_MESSAGE]";
+                        mGameMode = (GameMode)((int)mGameMode + 1);
+                        if ((int)mGameMode == 91)
+                            gTestDialogIndex = 0;
+                        break;
+                    default:
+                        break;
+                }
+                if (gTestDialogIndex < 5)
+                {
+                    gTestDialogStay = 1;
+                    ++gTestDialogIndex;
+                }
+                GameOverDialog *aGameOver = new GameOverDialog(Sexy::String(aMessage), true);
+                AddDialogWithId(16, aGameOver);
+                break;
+            }
+            case 20:
+                DoPauseDialog();
+                break;
+            case 23:
+                DoConfirmBackToMain(true);
+                break;
+            case 24:
+                DoConfirmRestartDialog();
+                break;
+            case 26:
+                DoNotEnoughMoneyDialog();
+                break;
+            case 27:
+                DoUpgradeDialog();
+                break;
+            case 28:
+                gTestDialogIndex = 0;
+                break;
+            case 29:
+            {
+                static const char *sWarnings[] = {"repick0",
+                    "repick1",
+                    "repick2",
+                    "repick3",
+                    "repick4",
+                    "repick5",
+                    "repick6",
+                    "repick7",
+                    "repick8",
+                    "repick9",
+                    nullptr};
+                const char *aWarning = sWarnings[gTestDialogIndex];
+                if (aWarning != nullptr)
+                {
+                    ++gTestDialogIndex;
+                    gTestDialogStay = 1;
+                    DoRepickWarningDialog(aWarning);
+                }
+                else
+                {
+                    gTestDialogIndex = 0;
+                }
+                break;
+            }
+            case 39:
+                if (gTestDialogIndex == 0)
+                {
+                    mGameMode = GAMEMODE_ADVENTURE;
+                    DoContinueDialog();
+                    gTestDialogStay = 1;
+                    ++gTestDialogIndex;
+                }
+                else if (gTestDialogIndex == 1)
+                {
+                    mGameMode = GAMEMODE_SURVIVAL_NORMAL_STAGE_1;
+                    DoContinueDialog();
+                    ++gTestDialogIndex;
+                }
+                else if (gTestDialogIndex == 2)
+                {
+                    gTestDialogIndex = 0;
+                }
+                break;
+            case 41:
+                if (gTestDialogIndex == 0)
+                {
+                    mGameMode = GAMEMODE_ADVENTURE;
+                    DoRestartConfirmDialog();
+                    gTestDialogStay = 1;
+                }
+                else if (gTestDialogIndex == 1)
+                {
+                    mGameMode = GAMEMODE_SURVIVAL_NORMAL_STAGE_1;
+                    DoRestartConfirmDialog();
+                    gTestDialogStay = 1;
+                }
+                else if (gTestDialogIndex == 2)
+                {
+                    gTestDialogIndex = 0;
+                }
+                break;
+            case 48:
+                DoStoreItemDialog();
+                break;
+            case 49:
+                DoTreeItemDialog();
+                break;
+            case 50:
+                DoZenSellDialog();
+                break;
+            case 53:
+                DoPacketPurchaseDialog(10000, 10);
+                break;
+            case 54:
+                DoProfileChangeDialog();
+                break;
+            case 56:
+                if (gTestDialogIndex == 0)
+                {
+                    AddDialog(static_cast<Sexy::Dialog *>(new WaitForRemoteFileDialog(0, this, false)));
+                    gTestDialogStay = 1;
+                    ++gTestDialogIndex;
+                }
+                else if (gTestDialogIndex == 1)
+                {
+                    AddDialog(static_cast<Sexy::Dialog *>(new WaitForLeaderboardsDialog(this)));
+                    gTestDialogIndex = 0;
+                }
+                break;
+            case 61:
+                DoRetryLeaderboardDialog();
+                break;
+            case 62:
+                DoRetryAchievementsDialog();
+                break;
+            case 63:
+                if (gTestDialogIndex == 0)
+                {
+                    HandleCorruptedGameFile();
+                    gTestDialogStay = 1;
+                    ++gTestDialogIndex;
+                }
+                else if (gTestDialogIndex == 1)
+                {
+                    gTestDialogIndex = 0;
+                    HandleOldGameFile();
+                }
+                break;
+            case 64:
+                HandleNoDevice();
+                break;
+            case 65:
+                HandleInvalidLevel();
+                break;
+            case 66:
+                DoProfileLoadErrorDialog();
+                break;
+            case 67:
+                DoProfileSaveErrorDialog();
+                break;
+            case 68:
+                if (gTestDialogIndex == 0)
+                {
+                    DoContentSavingDialog();
+                    gTestDialogStay = 1;
+                    ++gTestDialogIndex;
+                }
+                else if (gTestDialogIndex == 1)
+                {
+                    DoContentLoadingDialog();
+                    gTestDialogIndex = 0;
+                }
+                break;
+            case 85:
+                mCurrentTestDialogId = -1;
+                mWidgetManager->AddWidget(gDaveWidget);
+                if (mCrazyDaveState != 0)
+                    CrazyDaveLeave();
+                CrazyDaveEnter();
+                CrazyDaveTalkIndex(0);
+                mCurrentTestDaveMessage = 0;
+                delete mBoard;
+                mBoard = nullptr;
+                break;
+            default:
+                break;
+        }
+
+        aDialogId = mCurrentTestDialogId;
+        if (GetDialog(aDialogId) != nullptr || aDialogId == -1)
+            return 1;
+    }
+}
 
 // ==========================================================================
 // LawnApp::ToggleTestDialog()
@@ -6205,27 +6154,27 @@ int LawnApp::NextTestDialog()
 // ==========================================================================
 void LawnApp::ToggleTestDialog()
 {
-  // A dialog that is already up advances to the next one. A Dave line that is
-  // already showing is dismissed. With neither, the first test dialog opens.
-  if ( mCurrentTestDialogId >= 0 )
-  {
-    int aDialogId = mCurrentTestDialogId;
-    mCurrentTestDialogId = -1;
-    KillDialogById(aDialogId);
-    mCurrentTestDialogId = 84;
-    NextTestDialog();
-  }
-  else if ( mCurrentTestDialogId != -1 || mCurrentTestDaveMessage != -1 )
-  {
-    CrazyDaveLeave();
-    mCurrentTestDaveMessage = -1;
-    mCurrentTestDialogId = -1;
-  }
-  else
-  {
-    NextTestDialog();
-  }
-  gTestDialogIndex = 0;
+    // A dialog that is already up advances to the next one. A Dave line that is
+    // already showing is dismissed. With neither, the first test dialog opens.
+    if (mCurrentTestDialogId >= 0)
+    {
+        int aDialogId = mCurrentTestDialogId;
+        mCurrentTestDialogId = -1;
+        KillDialogById(aDialogId);
+        mCurrentTestDialogId = 84;
+        NextTestDialog();
+    }
+    else if (mCurrentTestDialogId != -1 || mCurrentTestDaveMessage != -1)
+    {
+        CrazyDaveLeave();
+        mCurrentTestDaveMessage = -1;
+        mCurrentTestDialogId = -1;
+    }
+    else
+    {
+        NextTestDialog();
+    }
+    gTestDialogIndex = 0;
 }
 
 // ==========================================================================
@@ -6234,31 +6183,31 @@ void LawnApp::ToggleTestDialog()
 // ==========================================================================
 void LawnApp::PrevTestDialog()
 {
-  // The history holds one record per dialog that was shown. With fewer than two
-  // there is nothing to step back to.
-  int aCount = (int)(gTestDialogEnd - (TestDialogRecord *)mTestInfos);
-  if ( aCount <= 1 )
-    return;
+    // The history holds one record per dialog that was shown. With fewer than two
+    // there is nothing to step back to.
+    int aCount = (int)(gTestDialogEnd - (TestDialogRecord *)mTestInfos);
+    if (aCount <= 1)
+        return;
 
-  int aShownDialog = mCurrentTestDialogId;
-  int aShownMessage = mCurrentTestDaveMessage;
-  if ( aShownDialog >= 0 )
-  {
-    mCurrentTestDialogId = -1;
-    KillDialogById(aShownDialog);
-    mCurrentTestDialogId = aShownDialog;
-  }
+    int aShownDialog = mCurrentTestDialogId;
+    int aShownMessage = mCurrentTestDaveMessage;
+    if (aShownDialog >= 0)
+    {
+        mCurrentTestDialogId = -1;
+        KillDialogById(aShownDialog);
+        mCurrentTestDialogId = aShownDialog;
+    }
 
-  // Drop the record just pushed and restore the one before it.
-  gTestDialogEnd -= 1;
-  TestDialogRecord* aPrevious = gTestDialogEnd - 1;
-  mCurrentTestDialogId = aPrevious->mDialogId;
-  mCurrentTestDaveMessage = aPrevious->mDaveMessage;
-  mCrazyDaveMessageIndex = aPrevious->mDaveMessage;
-  gTestDialogIndex = aPrevious->mMessageIndex;
-  if ( aShownMessage >= 0 && aPrevious->mDaveMessage == -1 )
-    CrazyDaveLeave();
-  NextTestDialog();
+    // Drop the record just pushed and restore the one before it.
+    gTestDialogEnd -= 1;
+    TestDialogRecord *aPrevious = gTestDialogEnd - 1;
+    mCurrentTestDialogId = aPrevious->mDialogId;
+    mCurrentTestDaveMessage = aPrevious->mDaveMessage;
+    mCrazyDaveMessageIndex = aPrevious->mDaveMessage;
+    gTestDialogIndex = aPrevious->mMessageIndex;
+    if (aShownMessage >= 0 && aPrevious->mDaveMessage == -1)
+        CrazyDaveLeave();
+    NextTestDialog();
 }
 
 // LawnApp::GotoBuyTool(E_SHOP_PACKET)
@@ -6268,53 +6217,52 @@ void LawnApp::PrevTestDialog()
 // ==========================================================================
 bool LawnApp::GotoBuyTool(E_SHOP_PACKET thePacket)
 {
-  // The shop prices live on the current user, keyed by the packet. With no
-  // price the purchase cannot start.
-  LawnUser* aUser = LawnUser::getCurUser();
-  if ( aUser == nullptr )
-  {
-    OnSessionTaskFailed(-500, Sexy::String(""));
-    return false;
-  }
-
-  std::map<int, Sexy::String>::iterator aPriceEntry = aUser->mPrices.find((int)thePacket);
-  if ( aPriceEntry == aUser->mPrices.end() )
-  {
-    OnSessionTaskFailed(-499, Sexy::String(""));
-    return false;
-  }
-
-  int aPrice = atoi(aPriceEntry->second.c_str());
-  int aBalance = atoi(aUser->mCoinText.c_str());
-  if ( aBalance < aPrice )
-  {
-    if ( mAdProvider != nullptr && mAdProvider->getADType() == 7 )
-      doTransRecharge();
-    else
+    // The shop prices live on the current user, keyed by the packet. With no
+    // price the purchase cannot start.
+    LawnUser *aUser = LawnUser::getCurUser();
+    if (aUser == nullptr)
     {
-      Sexy::String aHeaderText("[MONEY_NOT_ENOUGH_TO_BUY_MONEY_HEADER]");
-      DoBuyMoneyDialog(aHeaderText);
-      Sexy::Dialog* aDialog = GetDialog(82);
-      if ( aDialog != nullptr )
-        aDialog->WaitForResult(true);
+        OnSessionTaskFailed(-500, Sexy::String(""));
+        return false;
     }
-    return false;
-  }
 
-  if ( !SrvBuyTool(thePacket) )
-  {
-    OnSessionTaskFailed(-498, Sexy::String(""));
-    return false;
-  }
+    std::map<int, Sexy::String>::iterator aPriceEntry = aUser->mPrices.find((int)thePacket);
+    if (aPriceEntry == aUser->mPrices.end())
+    {
+        OnSessionTaskFailed(-499, Sexy::String(""));
+        return false;
+    }
 
-  int aLevel = getLevelForPost();
-  char aPriceText[32];
-  sprintf(aPriceText, "%d", aPrice);
-  logfi("price is%s\n", aPriceText);
-  printf("****use Tool %d in level %d\n", (int)thePacket, aLevel);
-  return true;
+    int aPrice = atoi(aPriceEntry->second.c_str());
+    int aBalance = atoi(aUser->mCoinText.c_str());
+    if (aBalance < aPrice)
+    {
+        if (mAdProvider != nullptr && mAdProvider->getADType() == 7)
+            doTransRecharge();
+        else
+        {
+            Sexy::String aHeaderText("[MONEY_NOT_ENOUGH_TO_BUY_MONEY_HEADER]");
+            DoBuyMoneyDialog(aHeaderText);
+            Sexy::Dialog *aDialog = GetDialog(82);
+            if (aDialog != nullptr)
+                aDialog->WaitForResult(true);
+        }
+        return false;
+    }
+
+    if (!SrvBuyTool(thePacket))
+    {
+        OnSessionTaskFailed(-498, Sexy::String(""));
+        return false;
+    }
+
+    int aLevel = getLevelForPost();
+    char aPriceText[32];
+    sprintf(aPriceText, "%d", aPrice);
+    logfi("price is%s\n", aPriceText);
+    printf("****use Tool %d in level %d\n", (int)thePacket, aLevel);
+    return true;
 }
-
 
 // ==========================================================================
 // LawnApp::buyToolForDemo(E_SHOP_PACKET)
@@ -6322,27 +6270,27 @@ bool LawnApp::GotoBuyTool(E_SHOP_PACKET thePacket)
 // ==========================================================================
 bool LawnApp::buyToolForDemo(E_SHOP_PACKET thePacket)
 {
-  // The demo spends coins directly. A packet with no price costs nothing.
-  LawnUser* aUser = LawnUser::getCurUser();
-  int aPrice = 0;
-  std::map<int, Sexy::String>::iterator aPriceEntry = aUser->mPrices.find((int)thePacket);
-  if ( aPriceEntry != aUser->mPrices.end() )
-    aPrice = atoi(aPriceEntry->second.c_str());
+    // The demo spends coins directly. A packet with no price costs nothing.
+    LawnUser *aUser = LawnUser::getCurUser();
+    int aPrice = 0;
+    std::map<int, Sexy::String>::iterator aPriceEntry = aUser->mPrices.find((int)thePacket);
+    if (aPriceEntry != aUser->mPrices.end())
+        aPrice = atoi(aPriceEntry->second.c_str());
 
-  int aBalance = atoi(aUser->mCoinText.c_str());
-  if ( aBalance < aPrice )
-  {
-    Sexy::String aEmpty;
-    DoBuyMoneyDialog(aEmpty);
-    return false;
-  }
+    int aBalance = atoi(aUser->mCoinText.c_str());
+    if (aBalance < aPrice)
+    {
+        Sexy::String aEmpty;
+        DoBuyMoneyDialog(aEmpty);
+        return false;
+    }
 
-  int aLeft = aBalance - aPrice;
-  char aText[32];
-  sprintf(aText, "%d", aLeft);
-  aUser->mCoinText = Sexy::String(aText);
-  writeCoinNum(aLeft);
-  return true;
+    int aLeft = aBalance - aPrice;
+    char aText[32];
+    sprintf(aText, "%d", aLeft);
+    aUser->mCoinText = Sexy::String(aText);
+    writeCoinNum(aLeft);
+    return true;
 }
 
 // LawnApp::setItemToShopItems()
@@ -6350,14 +6298,12 @@ bool LawnApp::buyToolForDemo(E_SHOP_PACKET thePacket)
 // ==========================================================================
 int LawnApp::setItemToShopItems()
 {
-  // The shop's eleven packets and the coin price of each.
-  static const char* sPrices[11] = {
-    "18", "12", "18", "8", "12", "8", "18", "20", "20", "20", "20"
-  };
-  LawnUser* aUser = LawnUser::getCurUser();
-  for ( int aPacket = 0; aPacket < 11; ++aPacket )
-    aUser->mPrices[aPacket] = Sexy::String(sPrices[aPacket]);
-  return 1;
+    // The shop's eleven packets and the coin price of each.
+    static const char *sPrices[11] = {"18", "12", "18", "8", "12", "8", "18", "20", "20", "20", "20"};
+    LawnUser *aUser = LawnUser::getCurUser();
+    for (int aPacket = 0; aPacket < 11; ++aPacket)
+        aUser->mPrices[aPacket] = Sexy::String(sPrices[aPacket]);
+    return 1;
 }
 
 // LawnApp::SetKeyValueData()
@@ -6367,13 +6313,12 @@ int LawnApp::setItemToShopItems()
 // ==========================================================================
 int LawnApp::SetKeyValueData()
 {
-  // The session stores the sun-money purchase count under this one key.
-  mKeyValueData[Sexy::String("iBuySunMoneyCount")] = mInitialSunMoney;
-  logfi("saveGameData, mBuySunMoneyCount is :%d\n", mInitialSunMoney);
-  mSessionTaskType = 12;
-  return mSession.StartTask(mLawnSessionTask);
+    // The session stores the sun-money purchase count under this one key.
+    mKeyValueData[Sexy::String("iBuySunMoneyCount")] = mInitialSunMoney;
+    logfi("saveGameData, mBuySunMoneyCount is :%d\n", mInitialSunMoney);
+    mSessionTaskType = 12;
+    return mSession.StartTask(mLawnSessionTask);
 }
-
 
 // LawnApp::AddBuySunMoneyCount()
 // ==========================================================================
@@ -6382,10 +6327,10 @@ int LawnApp::SetKeyValueData()
 // ==========================================================================
 int LawnApp::AddBuySunMoneyCount()
 {
-  // +0xA14 (ordinal 645) is mInitialSunMoney, the counter BuySunMoneyDialog
-  // increments and then reads back through its own 50 * mInitialSunMoney price.
-  ++mInitialSunMoney;
-  return SetKeyValueData();
+    // +0xA14 (ordinal 645) is mInitialSunMoney, the counter BuySunMoneyDialog
+    // increments and then reads back through its own 50 * mInitialSunMoney price.
+    ++mInitialSunMoney;
+    return SetKeyValueData();
 }
 
 // ==========================================================================
@@ -6394,16 +6339,14 @@ int LawnApp::AddBuySunMoneyCount()
 // ==========================================================================
 int LawnApp::GetKeyValueData()
 {
-  // The server's copy of the purchase count arrives in the key/value table.
-  // A missing key leaves the count at zero, then the coin balance is queried.
-  LawnUser::getCurUser();
-  std::map<Sexy::String, int>::iterator aEntry =
-      mKeyValueData.find(Sexy::String("iBuySunMoneyCount"));
-  mInitialSunMoney = aEntry == mKeyValueData.end() ? 0 : aEntry->second;
-  logfi("initData, mBuySunMoneyCount is :%d\n", mInitialSunMoney);
-  return SrvQueryCoin();
+    // The server's copy of the purchase count arrives in the key/value table.
+    // A missing key leaves the count at zero, then the coin balance is queried.
+    LawnUser::getCurUser();
+    std::map<Sexy::String, int>::iterator aEntry = mKeyValueData.find(Sexy::String("iBuySunMoneyCount"));
+    mInitialSunMoney = aEntry == mKeyValueData.end() ? 0 : aEntry->second;
+    logfi("initData, mBuySunMoneyCount is :%d\n", mInitialSunMoney);
+    return SrvQueryCoin();
 }
-
 
 // LawnApp::QueryKeyValues()
 // ==========================================================================
@@ -6412,14 +6355,13 @@ int LawnApp::GetKeyValueData()
 // ==========================================================================
 int LawnApp::QueryKeyValues()
 {
-  // Ask the session for the stored key/value pairs. The answer comes back
-  // through the task, and UpdateSessionState reads it with GetKeyValueData.
-  LawnUser::getCurUser();
-  logfi("send login to server", "");
-  mSessionTaskType = 13;
-  return mSession.StartTask(mLawnSessionTask);
+    // Ask the session for the stored key/value pairs. The answer comes back
+    // through the task, and UpdateSessionState reads it with GetKeyValueData.
+    LawnUser::getCurUser();
+    logfi("send login to server", "");
+    mSessionTaskType = 13;
+    return mSession.StartTask(mLawnSessionTask);
 }
-
 
 // ==========================================================================
 // LawnApp::UpdateSessionState()
@@ -6427,76 +6369,76 @@ int LawnApp::QueryKeyValues()
 // ==========================================================================
 void LawnApp::UpdateSessionState()
 {
-  // A finished session task is freed here. The callers ignore the old return,
-  // which was this stored as an integer.
-  if (mLawnSessionTask == nullptr || !mSession.IsTaskDone() || !mLoadingThreadCompleted)
-    return;
+    // A finished session task is freed here. The callers ignore the old return,
+    // which was this stored as an integer.
+    if (mLawnSessionTask == nullptr || !mSession.IsTaskDone() || !mLoadingThreadCompleted)
+        return;
 
-  LawnSessionTask* aTask = mLawnSessionTask;
-  int aType = mSessionTaskType;
-  mLawnSessionTask = nullptr;
-  mSessionTaskType = 0;
+    LawnSessionTask *aTask = mLawnSessionTask;
+    int aType = mSessionTaskType;
+    mLawnSessionTask = nullptr;
+    mSessionTaskType = 0;
 
-  bool aQueryBalance = false;
-  if (aType == 1)
-  {
-    if (!aTask->Failed())
+    bool aQueryBalance = false;
+    if (aType == 1)
     {
-      mLoginToServer = true;
-      QueryKeyValues();
+        if (!aTask->Failed())
+        {
+            mLoginToServer = true;
+            QueryKeyValues();
+        }
+        else
+            OnSessionTaskFailed(aTask->GetLastError(), aTask->GetLastErrorMsg());
     }
-    else
-      OnSessionTaskFailed(aTask->GetLastError(), aTask->GetLastErrorMsg());
-  }
-  else if (aType == 9)
-  {
-    if (aTask->Failed())
+    else if (aType == 9)
     {
-      OnSessionTaskFailed(aTask->GetLastError(), aTask->GetLastErrorMsg());
-      logfi("Recharge failed!\n");
+        if (aTask->Failed())
+        {
+            OnSessionTaskFailed(aTask->GetLastError(), aTask->GetLastErrorMsg());
+            logfi("Recharge failed!\n");
+        }
+        else
+        {
+            logfi("Recharge succeed!***********\n");
+            KillDialogById(82);
+            OnSessionTaskSucceed();
+        }
     }
-    else
+    else if (aType == 5 || aType == 6 || aType == 7)
     {
-      logfi("Recharge succeed!***********\n");
-      KillDialogById(82);
-      OnSessionTaskSucceed();
+        SessionWaitingDialog *aWait = (SessionWaitingDialog *)GetDialog(81);
+        if (aWait != nullptr)
+            aWait->mResult = aTask->GetLastError();
+        if (!aTask->Failed())
+        {
+            if (aType == 5)
+                SrvQueryCoin();
+            if (aType == 7 && mAdProvider != nullptr && mAdProvider->getADType() == 7)
+                aQueryBalance = true;
+        }
     }
-  }
-  else if (aType == 5 || aType == 6 || aType == 7)
-  {
-    SessionWaitingDialog* aWait = (SessionWaitingDialog*)GetDialog(81);
-    if (aWait != nullptr)
-      aWait->mResult = aTask->GetLastError();
-    if (!aTask->Failed())
+    else if (aType == 13)
     {
-      if (aType == 5)
-        SrvQueryCoin();
-      if (aType == 7 && mAdProvider != nullptr && mAdProvider->getADType() == 7)
-        aQueryBalance = true;
+        if (aTask->Failed())
+            logfi("Load keyvalue failed!\n");
+        else
+        {
+            GetKeyValueData();
+            if (mAdProvider != nullptr && mAdProvider->getADType() == 7)
+                aQueryBalance = true;
+        }
     }
-  }
-  else if (aType == 13)
-  {
-    if (aTask->Failed())
-      logfi("Load keyvalue failed!\n");
-    else
+    else if (aType == 12 && aTask->Failed())
     {
-      GetKeyValueData();
-      if (mAdProvider != nullptr && mAdProvider->getADType() == 7)
-        aQueryBalance = true;
+        logfi("Set keyvalue failed!");
     }
-  }
-  else if (aType == 12 && aTask->Failed())
-  {
-    logfi("Set keyvalue failed!");
-  }
 
-  if (aQueryBalance && mAdProvider != nullptr)
-  {
-    Sexy::String aUser;
-    mAdProvider->queryBalance(aUser);
-  }
-  delete aTask;
+    if (aQueryBalance && mAdProvider != nullptr)
+    {
+        Sexy::String aUser;
+        mAdProvider->queryBalance(aUser);
+    }
+    delete aTask;
 }
 
 // LawnApp::LawnApp()
@@ -6506,205 +6448,204 @@ void LawnApp::UpdateSessionState()
 // ==========================================================================
 LawnApp::LawnApp()
 {
-  // The six stores the dump makes to +0, +4, +8, +2084, +2200 and +2204 are
-  // this object's own vptr and the vptrs of its InputDeviceListener,
-  // ProfileEventListener and IGameCenter::Listener sub-objects. They are not
-  // emitted here: the compiler writes them for the real class, so a
-  // hand-written vptr store would only fight the ABI.
+    // The six stores the dump makes to +0, +4, +8, +2084, +2200 and +2204 are
+    // this object's own vptr and the vptrs of its InputDeviceListener,
+    // ProfileEventListener and IGameCenter::Listener sub-objects. They are not
+    // emitted here: the compiler writes them for the real class, so a
+    // hand-written vptr store would only fight the ABI.
 
-  // The two embedded list heads at +0x8DC and +0x8E4 are std::list sentinels:
-  // the empty state is both links pointing back at the head itself.
-  //
-  // There is deliberately NO `new ((GamepadApp *)this) GamepadApp();` here. The
-  // dump calls GamepadApp::GamepadApp(this) exactly once, and the compiler
-  // already emits that call for the mem-initializer -- it is `LawnApp::LawnApp
-  // +0x37`. The extra placement-new ran the whole base chain (ButtonListener,
-  // SexyAppBase, SexyCommonApp, GamepadApp) a SECOND time, and its last act was
-  // to store GamepadApp's vtable over the LawnApp one, so `theApp->Init()` went
-  // to SexyCommonApp::Init and LawnApp::Init was never reached at all.
-  mCreatedImageList.next = &mCreatedImageList;
-  mCreatedImageList.prev = &mCreatedImageList;
-  mControlButtonList.next = &mControlButtonList;
-  mControlButtonList.prev = &mControlButtonList;
-  mReferId = Sexy::String();
-  mRegisterLink = Sexy::String();
-  mMod = Sexy::String();
-  mCrazyDaveMessageText = new Sexy::String();
-  mDingusText = Sexy::String();
-  mGameInfoStrings[0] = Sexy::String();
-  mGameInfoStrings[1] = Sexy::String();
-  mGameInfoStrings[2] = Sexy::String();
-  mGameInfoStrings[3] = Sexy::String();
-  mGameInfoStrings[4] = Sexy::String();
-  mSecondPlayerGamepadIndex = -1;
-  mVsInitialPlantMode = 0;
-  gLawnApp = this;
-  mGameSelector = nullptr;
-  mNeedLoadGame = 0;
-  mNeedGoBackToMain = 0;
-  mSaveGameOperation = 0;
-  mModalCount[0] = 0;
-  mBoard = nullptr;
-  mLeaderboardScreen = nullptr;
-  mChallengeScreen = nullptr;
-  mSeedChooserScreen = nullptr;
-  mZombieChooserScreen = nullptr;
-  mVSSetupMenu = nullptr;
-  mVSResultsMenu = nullptr;
-  mAwardScreen = nullptr;
-  mCreditScreen = nullptr;
-  mTitleScreen = nullptr;
-  mSoundSystem = nullptr;
-  mKonamiCheck = nullptr;
-  mMustacheCheck = nullptr;
-  mMoustacheCheck = nullptr;
-  mSuperMowerCheck = nullptr;
-  mSuperMowerCheck2 = nullptr;
-  mFutureCheck = nullptr;
-  mPinataCheck = nullptr;
-  mDanceCheck = nullptr;
-  mDaisyCheck = nullptr;
-  mSukhbirCheck = nullptr;
-  mMustacheMode = 0;
-  mSuperMowerMode = 0;
-  mFutureMode = 0;
-  mPinataMode = 0;
-  mDanceMode = 0;
-  mDaisyMode = 0;
-  mSukhbirMode = 0;
-  mGameScene = SCENE_LOADING;
-  mPoolEffect = nullptr;
-  mZenGarden = nullptr;
-  mEffectSystem = nullptr;
-  mReanimatorCache = nullptr;
-  mCloseRequest = 0;
-  mAppCounter = 0;
-  // LawnApp::LawnApp @0x2C087C. 0x500/0x2D0 are the TV layout,
-  // 0x320/0x258 are the 800 by 600 stage the art was drawn for.
-  // InitGraphics centers that stage in the display: (display - mWidth) / 2.
-  mLayoutWidth = 1280;
-  mLayoutHeight = 720;
-  mWidth = 800;
-  mHeight = 600;
-  mFullscreenBits = 32;
-  mPlayTimeActiveSession = 0;
-  mAppRandSeed = (int)time(nullptr);
-  mMuteSoundsForCutscene = 0;
-  mHelpTextScreen = nullptr;
-  mIsFullVersion = 0;
-  mMailboxRefreshed = 0;
-  mDialogFadeDrawn = 0;
-  // The binary allocates 0x40 bytes here, which is sizeof(Mailbox) now that
-  // game/Mailbox.h models the class at its real size.
-  mMailBox = new Mailbox(this);
-  mWindowed = 1;
-  mMusicVolume = 0.85;
-  mSfxVolume = 0.5525;
-  mTrialType = 0;
-  mAutoStartLoadingThread = 0;
-  mDebugKeysEnabled = 0;
-  mRegKey = "PopCap\\PlantsVsZombiesConsole";
-  mProdName = "PlantsVsZombies";
-  mTitle = "Plants vs. Zombies";
-  mCustomCursorsEnabled = 0;
-  mPlayerInfo = nullptr;
-  mPlayer2Info = nullptr;
-  // sizeof, not the binary's 4.
-  //
-  // The binary's 4 bytes is the size of its own LevelStats, but this tree's
-  // LevelStats is opaque storage sized from the largest offset its bodies
-  // reach, which is far more than a word. LevelStats() writes across that
-  // model, so a 4-byte block is overflowed immediately.
-  mLastLevelStats = new LevelStats();
-  mFirstTimeGameSelector = 1;
-  mTest3D = 1;
-  mGameMode = GAMEMODE_ADVENTURE;
-  mEasyPlantingCheat = 0;
-  Tod_SWTri_AddAllDrawTriFuncs();
-  mLoadingZombiesThreadCompleted = 1;
-  mGamesPlayed = 0;
-  mMaxExecutions = 0;
-  mMaxPlays = 0;
-  mMaxTime = 0;
-  mCompletedLoadingThreadTasks = 0;
-  // The listener the manager registers is this object's ProfileEventListener
-  // base sub-object, the one at +0x898.
-  mProfileMgr = new Sexy::DefaultProfileMgr((Sexy::ProfileEventListener *)this);
-  mRegisterResourcesLoaded = 0;
-  mTodCheatKeys = 0;
-  mCrazyDaveReanimID = REANIMATIONID_NULL;
-  mCrazyDaveState = CRAZY_DAVE_OFF;
-  mCrazyDaveBlinkCounter = 0;
-  mCrazyDaveBlinkReanimID = REANIMATIONID_NULL;
-  mCrazyDaveMessageIndex = -1;
-  mCurrentTestDaveMessage = -1;
-  mCurrentTestDialogId = -1;
-  // The Dave widget is reached only through this global.
-  gDaveWidget = new Sexy::Widget();
-  mProfileOperationPending1 = 0;
-  mProfileOperationPending2 = 0;
-  mHelpBarWidget = nullptr;
-  mSavingDingusReanimationID = REANIMATIONID_NULL;
-  mSavingDingusCurrentY = 1400.0f;
-  mSavingDingusAnimationStartY = 0.0f;
-  mSavingDingusAnimationEndY = 0.0f;
-  mSavingDingusAnimationTime = 0.0f;
-  mDingusText = "";
-  mSavingDingusShowCount = 0;
-  mProfileSaveInProgress = 0;
-  mProfileSaveFailed = 0;
-  mSaveGame = nullptr;
-  mP2JoinPromptTimer = 0;
-  mSkipProfileSaving = 0;
-  mIsFullVersion = 1;
-  // The byte at +0x795 is the second of SexyAppBase's four packed flags
-  // (mRuntimeFlags), the one the binary sets here.
-  mRuntimeFlags[1] = 1;
-  mLawnMouseMode = 1;
-  mSafeReload = Sexy::GetEnvOption("LAWN_SAFE_RELOAD", true) != 0;
-  // Byte 0x4C of the vtable is the deleting destructor, the same slot
-  // SexyAppBase::Cleanup dispatches through for this member. The manager the
-  // base constructor created is thrown away here and replaced below.
-  if ( mResourceManager != nullptr )
-    delete mResourceManager;
-  // The binary allocates 0x1BC bytes here, which is sizeof(Sexy::ResourceManager)
-  // -- the same expression SexyAppBase's own constructor uses for the same
-  // class.
-  //
-  // The dump then installs the TodResourceManager vtable in the object it just
-  // constructed. That subclass adds no data member -- its vtable differs from
-  // the base's only in the two destructor slots -- so the base object is the
-  // same size and is constructed directly here.
-  mResourceManager = new Sexy::ResourceManager((Sexy::SexyAppBase *)this);
-  SDL_SetEnvironmentVariable(SDL_GetEnvironment(), "SEXY_LENOVO_WORKAROUND", "0", true);
-  mLawnSessionTask = nullptr;
-  MLogManager = nullptr;
-  mLogComposer = nullptr;
-  mDaveHelp = new DaveHelp(this);
-  mMaskHelpWidget = new MaskHelpWidget(this);
-  mQRCodeImage = Sexy::GamepadApp::GetImage(Sexy::String("images/mark/2d_mark.png"), true);
-  mQRCodeImageBackground =
-      Sexy::GamepadApp::GetImage(Sexy::String("images/mark/2d_mark_bg.png"), true);
-  mAuthId = 47;
-  if (mAuthManager != nullptr)
-    mAuthManager->SetAuthSerialNumber(Sexy::String("4ADS-5PK4-UUF9"));
-  mInitialSunMoney = 0;
-  mQueryCoinState.mPending = 0;
-  mCanDoBuyMoneyDialog = 1;
+    // The two embedded list heads at +0x8DC and +0x8E4 are std::list sentinels:
+    // the empty state is both links pointing back at the head itself.
+    //
+    // There is deliberately NO `new ((GamepadApp *)this) GamepadApp();` here. The
+    // dump calls GamepadApp::GamepadApp(this) exactly once, and the compiler
+    // already emits that call for the mem-initializer -- it is `LawnApp::LawnApp
+    // +0x37`. The extra placement-new ran the whole base chain (ButtonListener,
+    // SexyAppBase, SexyCommonApp, GamepadApp) a SECOND time, and its last act was
+    // to store GamepadApp's vtable over the LawnApp one, so `theApp->Init()` went
+    // to SexyCommonApp::Init and LawnApp::Init was never reached at all.
+    mCreatedImageList.next = &mCreatedImageList;
+    mCreatedImageList.prev = &mCreatedImageList;
+    mControlButtonList.next = &mControlButtonList;
+    mControlButtonList.prev = &mControlButtonList;
+    mReferId = Sexy::String();
+    mRegisterLink = Sexy::String();
+    mMod = Sexy::String();
+    mCrazyDaveMessageText = new Sexy::String();
+    mDingusText = Sexy::String();
+    mGameInfoStrings[0] = Sexy::String();
+    mGameInfoStrings[1] = Sexy::String();
+    mGameInfoStrings[2] = Sexy::String();
+    mGameInfoStrings[3] = Sexy::String();
+    mGameInfoStrings[4] = Sexy::String();
+    mSecondPlayerGamepadIndex = -1;
+    mVsInitialPlantMode = 0;
+    gLawnApp = this;
+    mGameSelector = nullptr;
+    mNeedLoadGame = 0;
+    mNeedGoBackToMain = 0;
+    mSaveGameOperation = 0;
+    mModalCount[0] = 0;
+    mBoard = nullptr;
+    mLeaderboardScreen = nullptr;
+    mChallengeScreen = nullptr;
+    mSeedChooserScreen = nullptr;
+    mZombieChooserScreen = nullptr;
+    mVSSetupMenu = nullptr;
+    mVSResultsMenu = nullptr;
+    mAwardScreen = nullptr;
+    mCreditScreen = nullptr;
+    mTitleScreen = nullptr;
+    mSoundSystem = nullptr;
+    mKonamiCheck = nullptr;
+    mMustacheCheck = nullptr;
+    mMoustacheCheck = nullptr;
+    mSuperMowerCheck = nullptr;
+    mSuperMowerCheck2 = nullptr;
+    mFutureCheck = nullptr;
+    mPinataCheck = nullptr;
+    mDanceCheck = nullptr;
+    mDaisyCheck = nullptr;
+    mSukhbirCheck = nullptr;
+    mMustacheMode = 0;
+    mSuperMowerMode = 0;
+    mFutureMode = 0;
+    mPinataMode = 0;
+    mDanceMode = 0;
+    mDaisyMode = 0;
+    mSukhbirMode = 0;
+    mGameScene = SCENE_LOADING;
+    mPoolEffect = nullptr;
+    mZenGarden = nullptr;
+    mEffectSystem = nullptr;
+    mReanimatorCache = nullptr;
+    mCloseRequest = 0;
+    mAppCounter = 0;
+    // LawnApp::LawnApp @0x2C087C. 0x500/0x2D0 are the TV layout,
+    // 0x320/0x258 are the 800 by 600 stage the art was drawn for.
+    // InitGraphics centers that stage in the display: (display - mWidth) / 2.
+    mLayoutWidth = 1280;
+    mLayoutHeight = 720;
+    mWidth = 800;
+    mHeight = 600;
+    mFullscreenBits = 32;
+    mPlayTimeActiveSession = 0;
+    mAppRandSeed = (int)time(nullptr);
+    mMuteSoundsForCutscene = 0;
+    mHelpTextScreen = nullptr;
+    mIsFullVersion = 0;
+    mMailboxRefreshed = 0;
+    mDialogFadeDrawn = 0;
+    // The binary allocates 0x40 bytes here, which is sizeof(Mailbox) now that
+    // game/Mailbox.h models the class at its real size.
+    mMailBox = new Mailbox(this);
+    mWindowed = 1;
+    mMusicVolume = 0.85;
+    mSfxVolume = 0.5525;
+    mTrialType = 0;
+    mAutoStartLoadingThread = 0;
+    mDebugKeysEnabled = 0;
+    mRegKey = "PopCap\\PlantsVsZombiesConsole";
+    mProdName = "PlantsVsZombies";
+    mTitle = "Plants vs. Zombies";
+    mCustomCursorsEnabled = 0;
+    mPlayerInfo = nullptr;
+    mPlayer2Info = nullptr;
+    // sizeof, not the binary's 4.
+    //
+    // The binary's 4 bytes is the size of its own LevelStats, but this tree's
+    // LevelStats is opaque storage sized from the largest offset its bodies
+    // reach, which is far more than a word. LevelStats() writes across that
+    // model, so a 4-byte block is overflowed immediately.
+    mLastLevelStats = new LevelStats();
+    mFirstTimeGameSelector = 1;
+    mTest3D = 1;
+    mGameMode = GAMEMODE_ADVENTURE;
+    mEasyPlantingCheat = 0;
+    Tod_SWTri_AddAllDrawTriFuncs();
+    mLoadingZombiesThreadCompleted = 1;
+    mGamesPlayed = 0;
+    mMaxExecutions = 0;
+    mMaxPlays = 0;
+    mMaxTime = 0;
+    mCompletedLoadingThreadTasks = 0;
+    // The listener the manager registers is this object's ProfileEventListener
+    // base sub-object, the one at +0x898.
+    mProfileMgr = new Sexy::DefaultProfileMgr((Sexy::ProfileEventListener *)this);
+    mRegisterResourcesLoaded = 0;
+    mTodCheatKeys = 0;
+    mCrazyDaveReanimID = REANIMATIONID_NULL;
+    mCrazyDaveState = CRAZY_DAVE_OFF;
+    mCrazyDaveBlinkCounter = 0;
+    mCrazyDaveBlinkReanimID = REANIMATIONID_NULL;
+    mCrazyDaveMessageIndex = -1;
+    mCurrentTestDaveMessage = -1;
+    mCurrentTestDialogId = -1;
+    // The Dave widget is reached only through this global.
+    gDaveWidget = new Sexy::Widget();
+    mProfileOperationPending1 = 0;
+    mProfileOperationPending2 = 0;
+    mHelpBarWidget = nullptr;
+    mSavingDingusReanimationID = REANIMATIONID_NULL;
+    mSavingDingusCurrentY = 1400.0f;
+    mSavingDingusAnimationStartY = 0.0f;
+    mSavingDingusAnimationEndY = 0.0f;
+    mSavingDingusAnimationTime = 0.0f;
+    mDingusText = "";
+    mSavingDingusShowCount = 0;
+    mProfileSaveInProgress = 0;
+    mProfileSaveFailed = 0;
+    mSaveGame = nullptr;
+    mP2JoinPromptTimer = 0;
+    mSkipProfileSaving = 0;
+    mIsFullVersion = 1;
+    // The byte at +0x795 is the second of SexyAppBase's four packed flags
+    // (mRuntimeFlags), the one the binary sets here.
+    mRuntimeFlags[1] = 1;
+    mLawnMouseMode = 1;
+    mSafeReload = Sexy::GetEnvOption("LAWN_SAFE_RELOAD", true) != 0;
+    // Byte 0x4C of the vtable is the deleting destructor, the same slot
+    // SexyAppBase::Cleanup dispatches through for this member. The manager the
+    // base constructor created is thrown away here and replaced below.
+    if (mResourceManager != nullptr)
+        delete mResourceManager;
+    // The binary allocates 0x1BC bytes here, which is sizeof(Sexy::ResourceManager)
+    // -- the same expression SexyAppBase's own constructor uses for the same
+    // class.
+    //
+    // The dump then installs the TodResourceManager vtable in the object it just
+    // constructed. That subclass adds no data member -- its vtable differs from
+    // the base's only in the two destructor slots -- so the base object is the
+    // same size and is constructed directly here.
+    mResourceManager = new Sexy::ResourceManager((Sexy::SexyAppBase *)this);
+    SDL_SetEnvironmentVariable(SDL_GetEnvironment(), "SEXY_LENOVO_WORKAROUND", "0", true);
+    mLawnSessionTask = nullptr;
+    MLogManager = nullptr;
+    mLogComposer = nullptr;
+    mDaveHelp = new DaveHelp(this);
+    mMaskHelpWidget = new MaskHelpWidget(this);
+    mQRCodeImage = Sexy::GamepadApp::GetImage(Sexy::String("images/mark/2d_mark.png"), true);
+    mQRCodeImageBackground = Sexy::GamepadApp::GetImage(Sexy::String("images/mark/2d_mark_bg.png"), true);
+    mAuthId = 47;
+    if (mAuthManager != nullptr)
+        mAuthManager->SetAuthSerialNumber(Sexy::String("4ADS-5PK4-UUF9"));
+    mInitialSunMoney = 0;
+    mQueryCoinState.mPending = 0;
+    mCanDoBuyMoneyDialog = 1;
 }
 
 // ==========================================================================
 // LawnApp::BetaAddFile(std::list<Sexy::String> &,Sexy::String,Sexy::String)
 // @002C0D10  74 bytes
 // ==========================================================================
-void LawnApp::BetaAddFile(std::list<Sexy::String> & theFiles, Sexy::String theName, Sexy::String thePath)
+void LawnApp::BetaAddFile(std::list<Sexy::String> &theFiles, Sexy::String theName, Sexy::String thePath)
 {
-  // A file that can be read is recorded as the name the caller asked for.
-  // The path is what gets opened; the name is what the list keeps.
-  (void)theName;
-  Sexy::Buffer aBuffer;
-  if ( ((SexyAppBase*)gSexyAppBase)->ReadBufferFromFile(thePath, &aBuffer, false) != 0 )
-    theFiles.push_back(thePath);
+    // A file that can be read is recorded as the name the caller asked for.
+    // The path is what gets opened; the name is what the list keeps.
+    (void)theName;
+    Sexy::Buffer aBuffer;
+    if (((SexyAppBase *)gSexyAppBase)->ReadBufferFromFile(thePath, &aBuffer, false) != 0)
+        theFiles.push_back(thePath);
 }
 
 // LawnApp::TryLoadGame()
@@ -6714,28 +6655,27 @@ void LawnApp::BetaAddFile(std::list<Sexy::String> & theFiles, Sexy::String theNa
 // ==========================================================================
 int LawnApp::TryLoadGame()
 {
-  // The trial build has no saved games. A full build names the save from the
-  // mode and the profile, reads it, and marks the board to be restored.
-  if ( IsFullVersion() == 0 )
-    return 0;
+    // The trial build has no saved games. A full build names the save from the
+    // mode and the profile, reads it, and marks the board to be restored.
+    if (IsFullVersion() == 0)
+        return 0;
 
-  Sexy::String aSaveName;
-  GetSavedGameName(&aSaveName, mGameMode,
-                   mPlayerInfo->GetProfileId(), mPlayerInfo->GetId());
-  mMusic->MusicDispose();
+    Sexy::String aSaveName;
+    GetSavedGameName(&aSaveName, mGameMode, mPlayerInfo->GetProfileId(), mPlayerInfo->GetId());
+    mMusic->MusicDispose();
 
-  delete mSaveGame;
-  mSaveGame = new SaveGameContext();
-  mSaveGame->mReadError = false;
-  mSaveGame->mReading = true;
+    delete mSaveGame;
+    mSaveGame = new SaveGameContext();
+    mSaveGame->mReadError = false;
+    mSaveGame->mReading = true;
 
-  bool aRead = ReadBufferFromFile(aSaveName, mSaveGame, false) != 0;
-  if ( aRead )
-  {
-    mNeedLoadGame = true;
-    mSaveGameOperation = 1;
-  }
-  return aRead ? 1 : 0;
+    bool aRead = ReadBufferFromFile(aSaveName, mSaveGame, false) != 0;
+    if (aRead)
+    {
+        mNeedLoadGame = true;
+        mSaveGameOperation = 1;
+    }
+    return aRead ? 1 : 0;
 }
 
 // LawnApp::PreNewGame(GameMode,bool)
@@ -6745,23 +6685,22 @@ int LawnApp::TryLoadGame()
 // ==========================================================================
 void LawnApp::PreNewGame(GameMode theGameMode, bool theContinue)
 {
-  PostEnterLevel();
-  if ( NeedRegister() != 0 )
-  {
-    ShowGameSelector();
-    return;
-  }
+    PostEnterLevel();
+    if (NeedRegister() != 0)
+    {
+        ShowGameSelector();
+        return;
+    }
 
-  mGameMode = theGameMode;
-  if ( theContinue && TryLoadGame() != 0 )
-    return;
+    mGameMode = theGameMode;
+    if (theContinue && TryLoadGame() != 0)
+        return;
 
-  // A fresh game throws away the save for this mode and this profile.
-  Sexy::String aSaveName;
-  GetSavedGameName(&aSaveName, mGameMode,
-                   mPlayerInfo->GetProfileId(), mPlayerInfo->GetId());
-  EraseFile(aSaveName);
-  NewGame();
+    // A fresh game throws away the save for this mode and this profile.
+    Sexy::String aSaveName;
+    GetSavedGameName(&aSaveName, mGameMode, mPlayerInfo->GetProfileId(), mPlayerInfo->GetId());
+    EraseFile(aSaveName);
+    NewGame();
 }
 
 // ==========================================================================
@@ -6770,28 +6709,28 @@ void LawnApp::PreNewGame(GameMode theGameMode, bool theContinue)
 // ==========================================================================
 void LawnApp::FinishCheatDialog(bool theAccepted)
 {
-  CheatDialog *aDialog = (CheatDialog *)GetDialog(36);
-  if ( aDialog != nullptr )
-  {
-    if ( theAccepted )
+    CheatDialog *aDialog = (CheatDialog *)GetDialog(36);
+    if (aDialog != nullptr)
     {
-      if ( aDialog->ApplyCheat() != 0 )
-      {
-        // ARM table byte 428 is LawnApp's by-id kill, the header's
-        // KillDialogById.
-        KillDialogById(36);
-        // +0x940 is mMusic; ARM table byte 20 is Music2's slot 5, StopAllMusic.
-        mMusic->StopAllMusic();
-        // +0xA38 is mBoardResult, and 6 is BOARDRESULT_CHEAT.
-        mBoardResult = BOARDRESULT_CHEAT;
-        PreNewGame(mGameMode, 0);
-      }
+        if (theAccepted)
+        {
+            if (aDialog->ApplyCheat() != 0)
+            {
+                // ARM table byte 428 is LawnApp's by-id kill, the header's
+                // KillDialogById.
+                KillDialogById(36);
+                // +0x940 is mMusic; ARM table byte 20 is Music2's slot 5, StopAllMusic.
+                mMusic->StopAllMusic();
+                // +0xA38 is mBoardResult, and 6 is BOARDRESULT_CHEAT.
+                mBoardResult = BOARDRESULT_CHEAT;
+                PreNewGame(mGameMode, 0);
+            }
+        }
+        else
+        {
+            KillDialogById(36);
+        }
     }
-    else
-    {
-      KillDialogById(36);
-    }
-  }
 }
 
 // LawnApp::FinishRestartConfirmDialog()
@@ -6801,14 +6740,14 @@ void LawnApp::FinishCheatDialog(bool theAccepted)
 // ==========================================================================
 void LawnApp::FinishRestartConfirmDialog()
 {
-  // +0xA3C is mKilledYetiAndRestarted and the byte it takes comes from the
-  // board's own mKilledYeti at +0x5880. Byte 428 of the app's table is slot
-  // 107, the by-id kill the header names KillDialogById.
-  mKilledYetiAndRestarted = mBoard->mKilledYeti;
-  KillDialogById(39);
-  KillDialogById(41);
-  KillBoard();
-  PreNewGame(mGameMode, 0);
+    // +0xA3C is mKilledYetiAndRestarted and the byte it takes comes from the
+    // board's own mKilledYeti at +0x5880. Byte 428 of the app's table is slot
+    // 107, the by-id kill the header names KillDialogById.
+    mKilledYetiAndRestarted = mBoard->mKilledYeti;
+    KillDialogById(39);
+    KillDialogById(41);
+    KillBoard();
+    PreNewGame(mGameMode, 0);
 }
 
 // LawnApp::CheckForGameEnd()
@@ -6816,101 +6755,98 @@ void LawnApp::FinishRestartConfirmDialog()
 // ==========================================================================
 void LawnApp::CheckForGameEnd()
 {
-  if ( mBoard == nullptr || mBoard->mLevelComplete == 0 || mProfileSaveInProgress )
-    return;
+    if (mBoard == nullptr || mBoard->mLevelComplete == 0 || mProfileSaveInProgress)
+        return;
 
-  int aProfileUpdated = UpdatePlayerProfileForFinishingLevel();
-  HideHelpBarWidget();
+    int aProfileUpdated = UpdatePlayerProfileForFinishingLevel();
+    HideHelpBarWidget();
 
-  // Adventure ends on the note levels (10, 20, 30, 40, 50) and on the credits
-  // of a first playthrough. Every other finished adventure level starts over.
-  if ( IsAdventureMode() )
-  {
-    int aLevel = mBoard->mLevel;
-    KillBoard();
-    bool aFirstPlay = IsFirstTimeAdventureMode() != 0 && aLevel <= 49;
-    bool aNoteLevel = aLevel == 9 || aLevel == 19 || aLevel == 29
-      || aLevel == 39 || aLevel == 49 || aLevel == 50;
-    if ( aFirstPlay || aNoteLevel )
+    // Adventure ends on the note levels (10, 20, 30, 40, 50) and on the credits
+    // of a first playthrough. Every other finished adventure level starts over.
+    if (IsAdventureMode())
     {
-      if ( aLevel == 50
-        && mPlayerInfo->GetFlag((PlayerFlags)1)
-        && !mPlayerInfo->GetFlag((PlayerFlags)0x8000) )
-      {
+        int aLevel = mBoard->mLevel;
+        KillBoard();
+        bool aFirstPlay = IsFirstTimeAdventureMode() != 0 && aLevel <= 49;
+        bool aNoteLevel = aLevel == 9 || aLevel == 19 || aLevel == 29 || aLevel == 39 || aLevel == 49 || aLevel == 50;
+        if (aFirstPlay || aNoteLevel)
+        {
+            if (aLevel == 50 && mPlayerInfo->GetFlag((PlayerFlags)1) && !mPlayerInfo->GetFlag((PlayerFlags)0x8000))
+            {
+                ShowAwardScreen(AWARD_FORLEVEL);
+                return;
+            }
+            if (aLevel == 50)
+            {
+                ShowAwardScreen(AWARD_CREDITS_ZOMBIENOTE);
+                return;
+            }
+            ShowAwardScreen(AWARD_FORLEVEL);
+            return;
+        }
+        PreNewGame(mGameMode, false);
+        return;
+    }
+
+    // A finished survival stage either ends the run or starts the next stage.
+    // Coop and single player land on different challenge pages.
+    if (IsSurvivalMode())
+    {
+        if (mBoard == nullptr)
+            return;
+        if (mBoard->IsFinalSurvivalStage() == 0)
+        {
+            ++mBoard->mChallenge->mSurvivalStage;
+            KillSeedChooserScreen();
+            mBoard->InitSurvivalStage();
+            return;
+        }
+        KillBoard();
+        DeleteSavedGame();
+        ChallengePage aPage = IsCoopMode() ? CHALLENGE_PAGE_COOP : CHALLENGE_PAGE_SURVIVAL;
+        if (aProfileUpdated == 0 || !HasFinishedAdventure())
+        {
+            ShowChallengeScreen(aPage);
+            return;
+        }
         ShowAwardScreen(AWARD_FORLEVEL);
         return;
-      }
-      if ( aLevel == 50 )
-      {
-        ShowAwardScreen(AWARD_CREDITS_ZOMBIENOTE);
+    }
+
+    if (IsCoopMode())
+    {
+        KillBoard();
+        ShowChallengeScreen(CHALLENGE_PAGE_COOP);
         return;
-      }
-      ShowAwardScreen(AWARD_FORLEVEL);
-      return;
     }
-    PreNewGame(mGameMode, false);
-    return;
-  }
 
-  // A finished survival stage either ends the run or starts the next stage.
-  // Coop and single player land on different challenge pages.
-  if ( IsSurvivalMode() )
-  {
-    if ( mBoard == nullptr )
-      return;
-    if ( mBoard->IsFinalSurvivalStage() == 0 )
+    if (IsPuzzleMode())
     {
-      ++mBoard->mChallenge->mSurvivalStage;
-      KillSeedChooserScreen();
-      mBoard->InitSurvivalStage();
-      return;
+        KillBoard();
+        if (aProfileUpdated == 0)
+        {
+            ShowChallengeScreen(CHALLENGE_PAGE_PUZZLE);
+            return;
+        }
+        ShowAwardScreen(AWARD_FORLEVEL);
+        return;
     }
-    KillBoard();
-    DeleteSavedGame();
-    ChallengePage aPage = IsCoopMode() ? CHALLENGE_PAGE_COOP : CHALLENGE_PAGE_SURVIVAL;
-    if ( aProfileUpdated == 0 || !HasFinishedAdventure() )
+
+    if (mGameMode == GAMEMODE_MP_VS)
     {
-      ShowChallengeScreen(aPage);
-      return;
+        ShowVSResultsScreen();
+        mVSResultsMenu->InitFromBoard(mBoard);
+        KillBoard();
+        return;
+    }
+
+    KillBoard();
+    if (aProfileUpdated == 0 || !HasFinishedAdventure())
+    {
+        ShowChallengeScreen(CHALLENGE_PAGE_CHALLENGE);
+        return;
     }
     ShowAwardScreen(AWARD_FORLEVEL);
-    return;
-  }
-
-  if ( IsCoopMode() )
-  {
-    KillBoard();
-    ShowChallengeScreen(CHALLENGE_PAGE_COOP);
-    return;
-  }
-
-  if ( IsPuzzleMode() )
-  {
-    KillBoard();
-    if ( aProfileUpdated == 0 )
-    {
-      ShowChallengeScreen(CHALLENGE_PAGE_PUZZLE);
-      return;
-    }
-    ShowAwardScreen(AWARD_FORLEVEL);
-    return;
-  }
-
-  if ( mGameMode == GAMEMODE_MP_VS )
-  {
-    ShowVSResultsScreen();
-    mVSResultsMenu->InitFromBoard(mBoard);
-    KillBoard();
-    return;
-  }
-
-  KillBoard();
-  if ( aProfileUpdated == 0 || !HasFinishedAdventure() )
-  {
-    ShowChallengeScreen(CHALLENGE_PAGE_CHALLENGE);
-    return;
-  }
-  ShowAwardScreen(AWARD_FORLEVEL);
 }
 
 // ==========================================================================
@@ -6919,13 +6855,13 @@ void LawnApp::CheckForGameEnd()
 // ==========================================================================
 void LawnApp::FastLoad(GameMode theGameMode)
 {
-  if ( mShutDown )
-    return;
+    if (mShutDown)
+        return;
 
-  mWidgetManager->RemoveWidget(mTitleScreen);
-  SafeDeleteWidget(mTitleScreen);
-  mTitleScreen = nullptr;
-  PreNewGame(theGameMode, false);
+    mWidgetManager->RemoveWidget(mTitleScreen);
+    SafeDeleteWidget(mTitleScreen);
+    mTitleScreen = nullptr;
+    PreNewGame(theGameMode, false);
 }
 
 // LawnApp::ButtonDepress(int)
@@ -6935,260 +6871,260 @@ void LawnApp::FastLoad(GameMode theGameMode)
 // ==========================================================================
 void LawnApp::ButtonDepress(int theId)
 {
-  // A dialog button arrives as `dialogId + 2000` (OK) or `dialogId + 3000`
-  // (cancel), added by SexyAppBase::DialogButtonDepress. The range test runs on
-  // theId % 10000 so a composite id still classifies; the value switched on is the
-  // full theId with that base subtracted, and that same value is what the shared
-  // kill call takes -- the binary never reloads r1 before it.
-  // Every path ends by killing the dialog it came from (KillDialogById), which
-  // is why most arms share that one call.
-  if ( (unsigned int)(theId % 10000 - 2000) >= 0x3E8 )
-  {
-    // ---- dialogs whose buttons are numbered from 3000 ----
-    if ( (unsigned int)(theId % 10000 - 3000) >= 0x3E8 )
-      return;
+    // A dialog button arrives as `dialogId + 2000` (OK) or `dialogId + 3000`
+    // (cancel), added by SexyAppBase::DialogButtonDepress. The range test runs on
+    // theId % 10000 so a composite id still classifies; the value switched on is the
+    // full theId with that base subtracted, and that same value is what the shared
+    // kill call takes -- the binary never reloads r1 before it.
+    // Every path ends by killing the dialog it came from (KillDialogById), which
+    // is why most arms share that one call.
+    if ((unsigned int)(theId % 10000 - 2000) >= 0x3E8)
+    {
+        // ---- dialogs whose buttons are numbered from 3000 ----
+        if ((unsigned int)(theId % 10000 - 3000) >= 0x3E8)
+            return;
 
-    int aButton = theId - 3000;
-    if ( aButton == 44 )
-    {
-      FinishTimesUpDialog();
-      return;
-    }
-    if ( aButton <= 44 )
-    {
-      if ( aButton == 36 )
-      {
-        FinishCheatDialog(false);
-        return;
-      }
-      if ( aButton <= 36 )
-      {
-        KillDialogById(aButton);
-        return;
-      }
-      if ( aButton == 37 )
-      {
-        FinishCheatCodeDialog(false);
-        return;
-      }
-      if ( aButton == 41 )
-      {
-        // The options dialog hands focus to the help-bar widget before it goes
-        // away. GetDialog(39) is the help bar; a non-null result means it is
-        // open and should take focus back.
-        Sexy::Dialog *aHelpDialog = GetDialog(39);
-        if ( aHelpDialog != NULL )
-          mWidgetManager->SetFocus(aHelpDialog);
-        KillDialogById(41);
-        return;
-      }
-    }
-    else
-    {
-      if ( aButton == 77 )
-      {
-        KillDialogById(aButton);
-        HandleNoDevice();
-        return;
-      }
-      if ( aButton > 77 )
-      {
-        if ( aButton != 82 )
+        int aButton = theId - 3000;
+        if (aButton == 44)
         {
-          if ( aButton != 10009 )
-          {
-            KillDialogById(aButton);
+            FinishTimesUpDialog();
             return;
-          }
-          KillDialogById(aButton);
-          KillDialogById(9);
-          return;
         }
-        FinishBuyMoneyDialog(false);
-        return;
-      }
-      if ( aButton == 64 )
-      {
-        KillDialogById(aButton);
-        if ( mBoard != NULL )
+        if (aButton <= 44)
         {
-          bool aAlreadyOpen = GetDialog(4) != NULL;
-          if ( !aAlreadyOpen )
-          {
-            if ( mSaveGameOperation == 2 )
+            if (aButton == 36)
             {
-              // Windows saves complete synchronously and clear their pending flag.
-              mBoard->TryToSaveGame();
+                FinishCheatDialog(false);
+                return;
             }
-            else if ( mSaveGameOperation == 1 )
+            if (aButton <= 36)
             {
-              TryLoadGame();
-              mNeedLoadGame = true;
+                KillDialogById(aButton);
+                return;
             }
-          }
+            if (aButton == 37)
+            {
+                FinishCheatCodeDialog(false);
+                return;
+            }
+            if (aButton == 41)
+            {
+                // The options dialog hands focus to the help-bar widget before it goes
+                // away. GetDialog(39) is the help bar; a non-null result means it is
+                // open and should take focus back.
+                Sexy::Dialog *aHelpDialog = GetDialog(39);
+                if (aHelpDialog != NULL)
+                    mWidgetManager->SetFocus(aHelpDialog);
+                KillDialogById(41);
+                return;
+            }
         }
+        else
+        {
+            if (aButton == 77)
+            {
+                KillDialogById(aButton);
+                HandleNoDevice();
+                return;
+            }
+            if (aButton > 77)
+            {
+                if (aButton != 82)
+                {
+                    if (aButton != 10009)
+                    {
+                        KillDialogById(aButton);
+                        return;
+                    }
+                    KillDialogById(aButton);
+                    KillDialogById(9);
+                    return;
+                }
+                FinishBuyMoneyDialog(false);
+                return;
+            }
+            if (aButton == 64)
+            {
+                KillDialogById(aButton);
+                if (mBoard != NULL)
+                {
+                    bool aAlreadyOpen = GetDialog(4) != NULL;
+                    if (!aAlreadyOpen)
+                    {
+                        if (mSaveGameOperation == 2)
+                        {
+                            // Windows saves complete synchronously and clear their pending flag.
+                            mBoard->TryToSaveGame();
+                        }
+                        else if (mSaveGameOperation == 1)
+                        {
+                            TryLoadGame();
+                            mNeedLoadGame = true;
+                        }
+                    }
+                }
+                return;
+            }
+        }
+        KillDialogById(aButton);
         return;
-      }
     }
-    KillDialogById(aButton);
-    return;
-  }
 
-  // ---- dialogs whose buttons are numbered from 2000 ----
-  int aButton = theId - 2000;
-  if ( aButton == 32 )
-  {
-    FinishConfirmDeleteUserDialog(true);
-    return;
-  }
-  if ( aButton > 32 )
-  {
-    if ( aButton == 41 )
+    // ---- dialogs whose buttons are numbered from 2000 ----
+    int aButton = theId - 2000;
+    if (aButton == 32)
     {
-      FinishRestartConfirmDialog();
-      return;
-    }
-    if ( aButton > 41 )
-    {
-      if ( aButton == 64 )
-      {
-        KillDialogById(aButton);
+        FinishConfirmDeleteUserDialog(true);
         return;
-      }
-      if ( aButton > 64 )
-      {
-        if ( aButton != 82 )
+    }
+    if (aButton > 32)
+    {
+        if (aButton == 41)
         {
-          if ( aButton != 20009 )
-          {
-            if ( aButton == 77 )
+            FinishRestartConfirmDialog();
+            return;
+        }
+        if (aButton > 41)
+        {
+            if (aButton == 64)
             {
-              KillDialogById(77);
-              mNeedGoBackToMain = true;
-              mSaveGameOperation = 2;
-              KillDialogById(68);
-              return;
+                KillDialogById(aButton);
+                return;
             }
-            KillDialogById(aButton);
+            if (aButton > 64)
+            {
+                if (aButton != 82)
+                {
+                    if (aButton != 20009)
+                    {
+                        if (aButton == 77)
+                        {
+                            KillDialogById(77);
+                            mNeedGoBackToMain = true;
+                            mSaveGameOperation = 2;
+                            KillDialogById(68);
+                            return;
+                        }
+                        KillDialogById(aButton);
+                        return;
+                    }
+                    KillDialogById(aButton);
+                    KillDialogById(9);
+                    return;
+                }
+                FinishBuyMoneyDialog(true);
+                return;
+            }
+            if (aButton != 44)
+            {
+                KillDialogById(aButton);
+                return;
+            }
+            FinishTimesUpDialog();
             return;
-          }
-          KillDialogById(aButton);
-          KillDialogById(9);
-          return;
         }
-        FinishBuyMoneyDialog(true);
-        return;
-      }
-      if ( aButton != 44 )
-      {
-        KillDialogById(aButton);
-        return;
-      }
-      FinishTimesUpDialog();
-      return;
-    }
-    if ( aButton != 35 )
-    {
-      if ( aButton > 35 )
-      {
-        if ( aButton != 36 )
+        if (aButton != 35)
         {
-          if ( aButton != 37 )
-          {
-            KillDialogById(aButton);
-            return;
-          }
-          FinishCheatCodeDialog(true);
-          return;
+            if (aButton > 35)
+            {
+                if (aButton != 36)
+                {
+                    if (aButton != 37)
+                    {
+                        KillDialogById(aButton);
+                        return;
+                    }
+                    FinishCheatCodeDialog(true);
+                    return;
+                }
+                FinishCheatDialog(true);
+                return;
+            }
+            if (aButton == 33)
+            {
+                FinishRenameUserDialog(true);
+                return;
+            }
         }
-        FinishCheatDialog(true);
+        FinishNameError(aButton);
         return;
-      }
-      if ( aButton == 33 )
-      {
-        FinishRenameUserDialog(true);
-        return;
-      }
     }
-    FinishNameError(aButton);
-    return;
-  }
-  if ( aButton == 15 )
-  {
-    KillDialogById(aButton);
-    return;
-  }
-  if ( aButton <= 15 )
-  {
-    if (aButton == 13)
+    if (aButton == 15)
     {
-      KillDialogById(aButton);
-      Quit();
-      return;
-    }
-    if ( aButton == 7 )
-      return;
-    if ( aButton <= 7 )
-    {
-      if ( aButton == 0 )
-      {
         KillDialogById(aButton);
-        ShowGameSelector();
         return;
-      }
-      if ( aButton == 2 )
-      {
-        KillNewOptionsDialog();
+    }
+    if (aButton <= 15)
+    {
+        if (aButton == 13)
+        {
+            KillDialogById(aButton);
+            Quit();
+            return;
+        }
+        if (aButton == 7)
+            return;
+        if (aButton <= 7)
+        {
+            if (aButton == 0)
+            {
+                KillDialogById(aButton);
+                ShowGameSelector();
+                return;
+            }
+            if (aButton == 2)
+            {
+                KillNewOptionsDialog();
+                return;
+            }
+        }
+        else if (aButton == 8)
+        {
+            KillDialogById(aButton);
+            CheckForUpdates();
+            return;
+        }
+        KillDialogById(aButton);
         return;
-      }
     }
-    else if ( aButton == 8 )
+    if (aButton == 22)
     {
-      KillDialogById(aButton);
-      CheckForUpdates();
-      return;
-    }
-    KillDialogById(aButton);
-    return;
-  }
-  if ( aButton == 22 )
-  {
-    KillDialogById(aButton);
-    return;
-  }
-  if ( aButton <= 22 )
-  {
-    if ( aButton == 21 )
-    {
-      KillDialogById(aButton);
-      mBoard->AddSunMoney(100, 0);
-      return;
-    }
-    KillDialogById(aButton);
-    return;
-  }
-  if ( aButton != 30 )
-  {
-    if ( aButton > 30 )
-    {
-      FinishCreateUserDialog(true);
-      return;
-    }
-    if ( aButton == 23 )
-    {
-      Board *aBoard = mBoard;
-      if (aBoard == nullptr || !aBoard->TryToSaveGame())
+        KillDialogById(aButton);
         return;
-      PostLeaveLevel();
-      KillDialogById(23);
-      mBoardResult = BOARDRESULT_QUIT;
-      aBoard->TryToExit();
-      return;
     }
-    KillDialogById(aButton);
-    return;
-  }
-  FinishUserDialog(true);
+    if (aButton <= 22)
+    {
+        if (aButton == 21)
+        {
+            KillDialogById(aButton);
+            mBoard->AddSunMoney(100, 0);
+            return;
+        }
+        KillDialogById(aButton);
+        return;
+    }
+    if (aButton != 30)
+    {
+        if (aButton > 30)
+        {
+            FinishCreateUserDialog(true);
+            return;
+        }
+        if (aButton == 23)
+        {
+            Board *aBoard = mBoard;
+            if (aBoard == nullptr || !aBoard->TryToSaveGame())
+                return;
+            PostLeaveLevel();
+            KillDialogById(23);
+            mBoardResult = BOARDRESULT_QUIT;
+            aBoard->TryToExit();
+            return;
+        }
+        KillDialogById(aButton);
+        return;
+    }
+    FinishUserDialog(true);
 }
 
 // LawnApp::FinishLoadGame()
@@ -7196,40 +7132,39 @@ void LawnApp::ButtonDepress(int theId)
 // ==========================================================================
 bool LawnApp::FinishLoadGame()
 {
-  // The save is applied to a fresh board. When it loads, the board finishes the
-  // restore and the save is released. When it does not, a new game starts and
-  // any dialog that is already up keeps the board paused, with the focus on
-  // the last dialog.
-  PostEnterLevel();
-  MakeNewBoard();
-  const bool loaded = LawnLoadGame(mBoard, mSaveGame);
-  const bool replaceSave = mSaveGame->mVersionMismatch;
-  delete mSaveGame;
-  mSaveGame = nullptr;
+    // The save is applied to a fresh board. When it loads, the board finishes the
+    // restore and the save is released. When it does not, a new game starts and
+    // any dialog that is already up keeps the board paused, with the focus on
+    // the last dialog.
+    PostEnterLevel();
+    MakeNewBoard();
+    const bool loaded = LawnLoadGame(mBoard, mSaveGame);
+    const bool replaceSave = mSaveGame->mVersionMismatch;
+    delete mSaveGame;
+    mSaveGame = nullptr;
 
-  if (loaded)
-  {
-    mBoard->PostLoadGame();
-    return true;
-  }
+    if (loaded)
+    {
+        mBoard->PostLoadGame();
+        return true;
+    }
 
-  NewGame();
-  if (replaceSave)
-  {
-    // The intro and seed chooser must finish before a resumable board is saved.
-    GetSavedGameName(&mSaveGameToReplace, mGameMode,
-                    mPlayerInfo->GetProfileId(), mPlayerInfo->GetId());
-  }
-  if ( GetDialogCount() == 0 )
+    NewGame();
+    if (replaceSave)
+    {
+        // The intro and seed chooser must finish before a resumable board is saved.
+        GetSavedGameName(&mSaveGameToReplace, mGameMode, mPlayerInfo->GetProfileId(), mPlayerInfo->GetId());
+    }
+    if (GetDialogCount() == 0)
+        return false;
+
+    mBoard->Pause(true);
+    Sexy::Dialog *aLastDialog = nullptr;
+    for (const auto &aEntry : mDialogMap)
+        aLastDialog = aEntry.second;
+    if (aLastDialog != nullptr)
+        mWidgetManager->SetFocus(aLastDialog);
     return false;
-
-  mBoard->Pause(true);
-  Sexy::Dialog* aLastDialog = nullptr;
-  for (const auto& aEntry : mDialogMap)
-    aLastDialog = aEntry.second;
-  if ( aLastDialog != nullptr )
-    mWidgetManager->SetFocus(aLastDialog);
-  return false;
 }
 
 // ==========================================================================
@@ -7238,13 +7173,13 @@ bool LawnApp::FinishLoadGame()
 // ==========================================================================
 void LawnApp::Shutdown()
 {
-  // The session is only torn down when it has not already shut itself down.
-  if ( !mSession.mShutdown )
-  {
-    SrvLogoutFromServer();
-    mSession.Shutdown();
-  }
-  SexyAppBase::Shutdown();
+    // The session is only torn down when it has not already shut itself down.
+    if (!mSession.mShutdown)
+    {
+        SrvLogoutFromServer();
+        mSession.Shutdown();
+    }
+    SexyAppBase::Shutdown();
 }
 // LawnApp::WriteToRegistry()
 // ==========================================================================
@@ -7253,16 +7188,16 @@ void LawnApp::Shutdown()
 // ==========================================================================
 void LawnApp::WriteToRegistry()
 {
-  SexyAppBase::WriteToRegistry();
-  if ( mPlayerInfo != nullptr )
-  {
-    // The key is the literal "CurUser" and the value is the profile's name.
-    // GetName returns its Sexy::String by value, so the local owns the release
-    // the dump spelled out by hand.
-    Sexy::String aKey("CurUser");
-    Sexy::String aValue = mPlayerInfo->GetName();
-    RegistryWriteString(aKey, aValue);
-  }
+    SexyAppBase::WriteToRegistry();
+    if (mPlayerInfo != nullptr)
+    {
+        // The key is the literal "CurUser" and the value is the profile's name.
+        // GetName returns its Sexy::String by value, so the local owns the release
+        // the dump spelled out by hand.
+        Sexy::String aKey("CurUser");
+        Sexy::String aValue = mPlayerInfo->GetName();
+        RegistryWriteString(aKey, aValue);
+    }
 }
 
 // ==========================================================================
@@ -7271,40 +7206,40 @@ void LawnApp::WriteToRegistry()
 // ==========================================================================
 void LawnApp::ReadFromRegistry()
 {
-  SexyAppBase::ReadFromRegistry();
+    SexyAppBase::ReadFromRegistry();
 }
 // ==========================================================================
 // LawnApp::DoDialog(int,bool,Sexy::String const&,Sexy::String const&,Sexy::String const&,int)
 // @002C1640  338 bytes
 // ==========================================================================
-LawnDialog * LawnApp::DoDialog(int theDialogId, bool theModal, Sexy::String const& theHeader, Sexy::String const& theLines, Sexy::String const& theFooter, int theButtonMode)
+LawnDialog *LawnApp::DoDialog(int theDialogId, bool theModal, Sexy::String const &theHeader,
+    Sexy::String const &theLines, Sexy::String const &theFooter, int theButtonMode)
 {
-  Sexy::String aHeader;
-  TodStringTranslate(&aHeader, theHeader.c_str());
-  Sexy::String aBody;
-  TodStringTranslate(&aBody, theLines.c_str());
-  Sexy::String aFooter;
-  TodStringTranslate(&aFooter, theFooter.c_str());
+    Sexy::String aHeader;
+    TodStringTranslate(&aHeader, theHeader.c_str());
+    Sexy::String aBody;
+    TodStringTranslate(&aBody, theLines.c_str());
+    Sexy::String aFooter;
+    TodStringTranslate(&aFooter, theFooter.c_str());
 
-  // The body's {BUTTONS} placeholder expands to the captions the button mode
-  // selects.
-  Sexy::String aButtons;
-  TodReplaceButtons(&aButtons, &aBody);
-  aBody = aButtons;
+    // The body's {BUTTONS} placeholder expands to the captions the button mode
+    // selects.
+    Sexy::String aButtons;
+    TodReplaceButtons(&aButtons, &aBody);
+    aBody = aButtons;
 
-  // Keep the base DoDialog lifecycle while retaining NewDialog's real type.
-  KillDialog(theDialogId);
-  LawnDialog *aDialog = NewDialog(theDialogId, theModal, aHeader, aBody, aFooter, theButtonMode);
-  AddDialogWithId(theDialogId, aDialog);
-  if ( mWidgetManager->mFocusWidget == nullptr )
-  {
-    // Nothing holds the focus yet, so the dialog takes it and hands it on to
-    // its first button.
-    mWidgetManager->SetFocus(aDialog);
-    aDialog->SetFocus(aDialog->mLawnYesButton != nullptr ? aDialog->mLawnYesButton
-                                                      : aDialog->mLawnNoButton, true);
-  }
-  return aDialog;
+    // Keep the base DoDialog lifecycle while retaining NewDialog's real type.
+    KillDialog(theDialogId);
+    LawnDialog *aDialog = NewDialog(theDialogId, theModal, aHeader, aBody, aFooter, theButtonMode);
+    AddDialogWithId(theDialogId, aDialog);
+    if (mWidgetManager->mFocusWidget == nullptr)
+    {
+        // Nothing holds the focus yet, so the dialog takes it and hands it on to
+        // its first button.
+        mWidgetManager->SetFocus(aDialog);
+        aDialog->SetFocus(aDialog->mLawnYesButton != nullptr ? aDialog->mLawnYesButton : aDialog->mLawnNoButton, true);
+    }
+    return aDialog;
 }
 // LawnApp::KillDialog(int)
 // ==========================================================================
@@ -7313,23 +7248,23 @@ LawnDialog * LawnApp::DoDialog(int theDialogId, bool theModal, Sexy::String cons
 // ==========================================================================
 bool LawnApp::KillDialog(int theDialogId)
 {
-  return KillDialogById(theDialogId);
+    return KillDialogById(theDialogId);
 }
 
 bool LawnApp::KillDialogById(int theDialogId)
 {
-  bool aKilled = SexyAppBase::KillDialogById(theDialogId);
-  if ( !aKilled )
-    return false;
+    bool aKilled = SexyAppBase::KillDialogById(theDialogId);
+    if (!aKilled)
+        return false;
 
-  if ( mBoard != nullptr )
-  {
-    if ( mDialogMap.empty() && mSeedChooserScreen == nullptr )
-      mWidgetManager->SetFocus(mBoard);
-    if ( !NeedPauseGame() )
-      mBoard->Pause(false);
-  }
-  return aKilled;
+    if (mBoard != nullptr)
+    {
+        if (mDialogMap.empty() && mSeedChooserScreen == nullptr)
+            mWidgetManager->SetFocus(mBoard);
+        if (!NeedPauseGame())
+            mBoard->Pause(false);
+    }
+    return aKilled;
 }
 
 // ==========================================================================
@@ -7338,25 +7273,25 @@ bool LawnApp::KillDialogById(int theDialogId)
 // ==========================================================================
 void LawnApp::Start()
 {
-  // A load that already failed does not start the framework's startup.
-  if ( mLoadingFailed )
-    return;
-  SexyAppBase::Start();
+    // A load that already failed does not start the framework's startup.
+    if (mLoadingFailed)
+        return;
+    SexyAppBase::Start();
 }
 // ==========================================================================
 // LawnApp::HandleCmdLineParam(Sexy::String const&,Sexy::String const&)
 // @002C1EA8  58 bytes
 // ==========================================================================
-void LawnApp::HandleCmdLineParam(Sexy::String const& theParamName, Sexy::String const& theParamValue)
+void LawnApp::HandleCmdLineParam(Sexy::String const &theParamName, Sexy::String const &theParamValue)
 {
-  // Developer shortcuts are enabled explicitly in both Debug and Release.
-  if ( theParamName == "-tod" && !gDisableDebugKeys )
-  {
-    mTodCheatKeys = true;
-    mDebugKeysEnabled = true;
-    return;
-  }
-  SexyCommonApp::HandleCmdLineParam(theParamName, theParamValue);
+    // Developer shortcuts are enabled explicitly in both Debug and Release.
+    if (theParamName == "-tod" && !gDisableDebugKeys)
+    {
+        mTodCheatKeys = true;
+        mDebugKeysEnabled = true;
+        return;
+    }
+    SexyCommonApp::HandleCmdLineParam(theParamName, theParamValue);
 }
 // LawnApp::UpdateFrames()
 // ==========================================================================
@@ -7365,98 +7300,98 @@ void LawnApp::HandleCmdLineParam(Sexy::String const& theParamName, Sexy::String 
 // ==========================================================================
 void LawnApp::UpdateFrames()
 {
-  if ( !mActive || mMinimized )
-  {
-    if ( mBoard != nullptr )
-      mBoard->ResetFPSStats();
-  }
-  UpdateSessionState();
-  UpdatePlayTimeStats();
-
-  // Slow motion steps one frame and then skips one. Fast motion runs twenty
-  // frames per tick. Step mode waits until StepAdvance arms a single frame.
-  int aSteps = 0;
-  if ( gSlowMo != 0 )
-  {
-    ++gSlowMoFrame;
-    if ( gSlowMoFrame >= 2 )
+    if (!mActive || mMinimized)
     {
-      gSlowMoFrame = 0;
-      aSteps = 1;
+        if (mBoard != nullptr)
+            mBoard->ResetFPSStats();
     }
-  }
-  else if ( gFastMo != 0 )
-  {
-    aSteps = 20;
-  }
-  else if ( gStep != 0 )
-  {
-    if ( gStepReady != 0 )
-    {
-      gStepReady = 0;
-      aSteps = 1;
-    }
-  }
-  else
-  {
-    aSteps = 1;
-  }
+    UpdateSessionState();
+    UpdatePlayTimeStats();
 
-  for ( int aStep = 0; aStep < aSteps; ++aStep )
-  {
-    ++mAppCounter;
-    if ( mBoard != nullptr )
-      mBoard->ProcessDeleteQueue();
-    Sexy::GamepadApp::UpdateFrames();
-    mMusic->MusicUpdate();
-    if ( mPlayerInfo != nullptr && mPlayerInfo->IsLoaded() )
+    // Slow motion steps one frame and then skips one. Fast motion runs twenty
+    // frames per tick. Step mode waits until StepAdvance arms a single frame.
+    int aSteps = 0;
+    if (gSlowMo != 0)
     {
-      mMailBox->Update();
-      if ( !mMailboxRefreshed )
-      {
-        mMailBox->RefreshMessages();
-        mMailboxRefreshed = true;
-      }
+        ++gSlowMoFrame;
+        if (gSlowMoFrame >= 2)
+        {
+            gSlowMoFrame = 0;
+            aSteps = 1;
+        }
     }
-    if ( mLoadingThreadCompleted && mEffectSystem != nullptr )
-      mEffectSystem->ProcessDeleteQueue();
-    CheckForGameEnd();
-    UpdateSavingDingus();
-  }
-
-  if ( mNeedLoadGame )
-  {
-    KillDialogById(68);
-    mNeedLoadGame = false;
-    const bool loaded = FinishLoadGame();
-    if (loaded && GetDialog(63) == nullptr && GetDialog(65) == nullptr)
+    else if (gFastMo != 0)
     {
-      mFirstTimeGameSelector = false;
-      DoContinueDialog();
+        aSteps = 20;
     }
-    delete mSaveGame;
-    mSaveGame = nullptr;
-  }
+    else if (gStep != 0)
+    {
+        if (gStepReady != 0)
+        {
+            gStepReady = 0;
+            aSteps = 1;
+        }
+    }
+    else
+    {
+        aSteps = 1;
+    }
 
-  if ( !mQueryCoinState.mPending )
-    return;
-  if ( mQueryCoinState.mRequestCount > 20 )
-  {
-    mQueryCoinState.mPending = false;
-    return;
-  }
-  unsigned int aNow = Sexy::GetTickCount();
-  if ( (int)(aNow - mQueryCoinState.mLastRequestTime) <= 5000 )
-    return;
-  mQueryCoinState.mLastRequestTime = aNow;
-  ++mQueryCoinState.mRequestCount;
-  LawnUser* aUser = LawnUser::getCurUser();
-  if ( atoi(aUser->mCoinText.c_str()) != mQueryCoinState.mPreviousBalance )
-  {
-    mQueryCoinState.mPending = false;
-    return;
-  }
-  SrvQueryCoin();
+    for (int aStep = 0; aStep < aSteps; ++aStep)
+    {
+        ++mAppCounter;
+        if (mBoard != nullptr)
+            mBoard->ProcessDeleteQueue();
+        Sexy::GamepadApp::UpdateFrames();
+        mMusic->MusicUpdate();
+        if (mPlayerInfo != nullptr && mPlayerInfo->IsLoaded())
+        {
+            mMailBox->Update();
+            if (!mMailboxRefreshed)
+            {
+                mMailBox->RefreshMessages();
+                mMailboxRefreshed = true;
+            }
+        }
+        if (mLoadingThreadCompleted && mEffectSystem != nullptr)
+            mEffectSystem->ProcessDeleteQueue();
+        CheckForGameEnd();
+        UpdateSavingDingus();
+    }
+
+    if (mNeedLoadGame)
+    {
+        KillDialogById(68);
+        mNeedLoadGame = false;
+        const bool loaded = FinishLoadGame();
+        if (loaded && GetDialog(63) == nullptr && GetDialog(65) == nullptr)
+        {
+            mFirstTimeGameSelector = false;
+            DoContinueDialog();
+        }
+        delete mSaveGame;
+        mSaveGame = nullptr;
+    }
+
+    if (!mQueryCoinState.mPending)
+        return;
+    if (mQueryCoinState.mRequestCount > 20)
+    {
+        mQueryCoinState.mPending = false;
+        return;
+    }
+    unsigned int aNow = Sexy::GetTickCount();
+    if ((int)(aNow - mQueryCoinState.mLastRequestTime) <= 5000)
+        return;
+    mQueryCoinState.mLastRequestTime = aNow;
+    ++mQueryCoinState.mRequestCount;
+    LawnUser *aUser = LawnUser::getCurUser();
+    if (atoi(aUser->mCoinText.c_str()) != mQueryCoinState.mPreviousBalance)
+    {
+        mQueryCoinState.mPending = false;
+        return;
+    }
+    SrvQueryCoin();
 }
 
 // LawnApp::WriteImage(Sexy::String const&,Sexy::Image *)
@@ -7464,63 +7399,63 @@ void LawnApp::UpdateFrames()
 // LawnApp::WriteImage(Sexy::String const&,Sexy::Image *)
 // @002C20A4  62 bytes
 // ==========================================================================
-bool LawnApp::WriteImage(Sexy::String const& thePath, Sexy::Image * theImage)
+bool LawnApp::WriteImage(Sexy::String const &thePath, Sexy::Image *theImage)
 {
-  // The record borrows the image's pixels. Clearing the pointer before the
-  // record is destroyed keeps the writer from freeing them.
-  ImageLib::Image aRecord;
-  aRecord.mWidth = theImage->mWidth;
-  aRecord.mHeight = theImage->mHeight;
-  aRecord.mBits = theImage->GetBits();
-  bool aWritten = ImageLib::WritePNGImage(thePath, &aRecord) != nullptr;
-  aRecord.mBits = nullptr;
-  return aWritten;
+    // The record borrows the image's pixels. Clearing the pointer before the
+    // record is destroyed keeps the writer from freeing them.
+    ImageLib::Image aRecord;
+    aRecord.mWidth = theImage->mWidth;
+    aRecord.mHeight = theImage->mHeight;
+    aRecord.mBits = theImage->GetBits();
+    bool aWritten = ImageLib::WritePNGImage(thePath, &aRecord) != nullptr;
+    aRecord.mBits = nullptr;
+    return aWritten;
 }
 
 // ==========================================================================
 // LawnApp::URLOpenFailed(Sexy::String const&)
 // @002C20EC  312 bytes
 // ==========================================================================
-void LawnApp::URLOpenFailed(Sexy::String const& theURL)
+void LawnApp::URLOpenFailed(Sexy::String const &theURL)
 {
-  SexyAppBase::URLOpenFailed(theURL);
-  KillDialogById(11);
-  CopyToClipboard(theURL);
+    SexyAppBase::URLOpenFailed(theURL);
+    KillDialogById(11);
+    CopyToClipboard(theURL);
 
-  // The body is the [OPEN_URL] template with the failed URL formatted into it.
-  Sexy::String aTemplate;
-  TodStringTranslate(&aTemplate, "[OPEN_URL]");
-  Sexy::String aBody;
-  StrFormat(&aBody, aTemplate.c_str(), theURL.c_str());
+    // The body is the [OPEN_URL] template with the failed URL formatted into it.
+    Sexy::String aTemplate;
+    TodStringTranslate(&aTemplate, "[OPEN_URL]");
+    Sexy::String aBody;
+    StrFormat(&aBody, aTemplate.c_str(), theURL.c_str());
 
-  Sexy::String aHeader("[OPEN_BROWSER]");
-  Sexy::String aButton("[DIALOG_BUTTON_OK]");
-  DoDialog(11, true, aHeader, aBody, aButton, 3);
+    Sexy::String aHeader("[OPEN_BROWSER]");
+    Sexy::String aButton("[DIALOG_BUTTON_OK]");
+    DoDialog(11, true, aHeader, aBody, aButton, 3);
 }
 // ==========================================================================
 // LawnApp::URLOpenSucceeded(Sexy::String const&)
 // @002C2274  22 bytes
 // ==========================================================================
-void LawnApp::URLOpenSucceeded(Sexy::String const& theURL)
+void LawnApp::URLOpenSucceeded(Sexy::String const &theURL)
 {
-  SexyAppBase::URLOpenSucceeded(theURL);
-  KillDialogById(11);
+    SexyAppBase::URLOpenSucceeded(theURL);
+    KillDialogById(11);
 }
 // ==========================================================================
 // LawnApp::OpenURL(Sexy::String const&,bool)
 // @002C228C  254 bytes
 // ==========================================================================
-bool LawnApp::OpenURL(Sexy::String const& theURL, bool theShutdownOnOpen)
+bool LawnApp::OpenURL(Sexy::String const &theURL, bool theShutdownOnOpen)
 {
-  // The "opening browser" notice is opened with the same text as both its
-  // header and its body, and no button text.
-  Sexy::String aHeader("[OPENING_BROWSER]");
-  Sexy::String aBody("[OPENING_BROWSER]");
-  Sexy::String aButton(gEmptyCString);
-  DoDialog(11, true, aHeader, aBody, aButton, 0);
+    // The "opening browser" notice is opened with the same text as both its
+    // header and its body, and no button text.
+    Sexy::String aHeader("[OPENING_BROWSER]");
+    Sexy::String aBody("[OPENING_BROWSER]");
+    Sexy::String aButton(gEmptyCString);
+    DoDialog(11, true, aHeader, aBody, aButton, 0);
 
-  PreDrawScreen();
-  return SexyAppBase::OpenURL(theURL, theShutdownOnOpen);
+    PreDrawScreen();
+    return SexyAppBase::OpenURL(theURL, theShutdownOnOpen);
 }
 // ==========================================================================
 // LawnApp::PreDisplayHook()
@@ -7528,7 +7463,7 @@ bool LawnApp::OpenURL(Sexy::String const& theURL, bool theShutdownOnOpen)
 // ==========================================================================
 void LawnApp::PreDisplayHook()
 {
-  SexyAppBase::PreDisplayHook();
+    SexyAppBase::PreDisplayHook();
 }
 
 // ==========================================================================
@@ -7537,40 +7472,40 @@ void LawnApp::PreDisplayHook()
 // ==========================================================================
 bool LawnApp::UpdateApp()
 {
-  // A close request skips the frame entirely and goes through Shutdown.
-  if ( mCloseRequest )
-  {
-    Shutdown();
-    return false;
-  }
+    // A close request skips the frame entirely and goes through Shutdown.
+    if (mCloseRequest)
+    {
+        Shutdown();
+        return false;
+    }
 
-  // The hesitation bracket measures the frame the game spends loading; it is
-  // skipped once the app is on its way out.
-  bool aHesitating = mLoadingThreadCompleted;
-  if ( aHesitating )
-    TodHesitationStartBuffer();
+    // The hesitation bracket measures the frame the game spends loading; it is
+    // skipped once the app is on its way out.
+    bool aHesitating = mLoadingThreadCompleted;
+    if (aHesitating)
+        TodHesitationStartBuffer();
 
-  bool aUpdated = SexyAppBase::UpdateApp();
+    bool aUpdated = SexyAppBase::UpdateApp();
 
-  if ( aHesitating && !mCloseRequested )
-  {
-    bool aResult = aUpdated;
-    TodHesitationEndBuffer();
-    return aResult;
-  }
-  return aUpdated;
+    if (aHesitating && !mCloseRequested)
+    {
+        bool aResult = aUpdated;
+        TodHesitationEndBuffer();
+        return aResult;
+    }
+    return aUpdated;
 }
 
 // ==========================================================================
 // LawnApp::UpdateAppStep(bool *)
 // @002C2414  22 bytes
 // ==========================================================================
-bool LawnApp::UpdateAppStep(bool * theUpdated)
+bool LawnApp::UpdateAppStep(bool *theUpdated)
 {
-  bool aUpdated = SexyAppBase::UpdateAppStep(theUpdated);
-  if ( aUpdated )
-    UpdateSessionState();
-  return aUpdated;
+    bool aUpdated = SexyAppBase::UpdateAppStep(theUpdated);
+    if (aUpdated)
+        UpdateSessionState();
+    return aUpdated;
 }
 
 // ==========================================================================
@@ -7579,7 +7514,7 @@ bool LawnApp::UpdateAppStep(bool * theUpdated)
 // ==========================================================================
 void LawnApp::EnforceCursor()
 {
-  SexyAppBase::EnforceCursor();
+    SexyAppBase::EnforceCursor();
 }
 
 // ==========================================================================
@@ -7590,71 +7525,71 @@ void LawnApp::EnforceCursor()
 // binary's own symbol is `_ZN7LawnApp16SwitchScreenModeEbbb`.
 void LawnApp::SwitchScreenModeFull(bool theWindowed, bool theUse3D, bool theForce)
 {
-  SexyAppBase::SwitchScreenModeFull(theWindowed, theUse3D, theForce);
-  // The body's tail is vtable byte 412, GetDialog(2) -- the store screen probe.
-  GetDialog(2);
+    SexyAppBase::SwitchScreenModeFull(theWindowed, theUse3D, theForce);
+    // The body's tail is vtable byte 412, GetDialog(2) -- the store screen probe.
+    GetDialog(2);
 }
 // LawnApp::HardwareInit()
 // @002C2448  882 bytes
 // ==========================================================================
 int LawnApp::HardwareInit()
 {
-  TodStringListSetColors(gLawnStringFormats, 14);
-  gGetCurrentLevelName = LawnGetCurrentLevelName;
-  gAppCloseRequest = LawnGetCloseRequest;
-  gAppHasUsedCheatKeys = LawnHasUsedCheatKeys;
-  gExtractResourcesByName = Sexy::ExtractResourcesByName;
-  // `BL _ZN4Sexy13SexyCommonApp4InitEv` @0x2c24a2 -- a static base call. The
-  // vptr slot for Init is 71, and a LawnApp's slot 71 is LawnApp::Init, so the
-  // cast form called Init from inside HardwareInit and never came back.
-  SexyCommonApp::Init();
-  // Byte +96 of the platform display is the wide-screen flag the cursor and text
-  // code reads. The binary's AndroidAppDriver::CreateGraphics stores the display
-  // at app+0x2E4 before this runs; this port's driver never did, so the object
-  // is built here when it is missing. mClip is WidgetContainer's byte at +0x45.
-  if ( mPlatformDriverOrQueue == nullptr )
-    mPlatformDriverOrQueue = new Sexy::NativeDisplay();
-  mPlatformDriverOrQueue->mWideScreen = true;
-  mWidgetManager->mClip = false;
-  Sexy::SWTri_AddDrawTriFunc(1, 1, 0, 0, 34952, 1, Sexy::DrawTriangle_8888_TEX1_TALPHA1_MOD0_GLOB0_BLEND1);
-  // Both branches allocate the same 0x68 bytes; Music2 adds no member, so the
-  // block Music constructs fits the Music2* the member is typed as.
-  // Music is the XM path (mainmusic.xm plus the drums and hihats layers).
-  // Music2 is the per-file ogg path. The default is Music; LAWN_MUSIC2=1
-  // selects the ogg path.
-  if ( Sexy::GetEnvOption("LAWN_MUSIC2", false) != 0 )
-    mMusic = new Music2();
-  else
-    mMusic = new Music();
-  // 0x4678 bytes, 110 records of 164. TodFoley is that array, and its
-  // constructor runs FoleyTypeData::FoleyTypeData on each record.
-  mSoundSystem = new TodFoley();
-  mEffectSystem = new EffectSystem();
-  mHelpBarWidget = new HelpBarWidget();
-  if ( Sexy::GetEnvOption("LAWN_NO_ATLAS", false) == 0 )
-  {
-    // The ten atlas maps, loaded in the order the binary lists them.
-    const char* aAtlasFiles[] = {
-      "reanim/plant-atlas.xml",
-      "reanim/zombie-atlas.xml",
-      "reanim/zombie-boss-atlas.xml",
-      "reanim/crazydave-atlas.xml",
-      "reanim/mainmenu3/crow-atlas.xml",
-      "reanim/mainmenu3/mainmenu3-atlas.xml",
-      "reanim/mainmenu3/menu-atlas.xml",
-      "particles/particles-atlas.xml",
-      "images/dialog-atlas.xml",
-      "images/seeds-atlas.xml",
-    };
-    for ( const char* aFile : aAtlasFiles )
+    TodStringListSetColors(gLawnStringFormats, 14);
+    gGetCurrentLevelName = LawnGetCurrentLevelName;
+    gAppCloseRequest = LawnGetCloseRequest;
+    gAppHasUsedCheatKeys = LawnHasUsedCheatKeys;
+    gExtractResourcesByName = Sexy::ExtractResourcesByName;
+    // `BL _ZN4Sexy13SexyCommonApp4InitEv` @0x2c24a2 -- a static base call. The
+    // vptr slot for Init is 71, and a LawnApp's slot 71 is LawnApp::Init, so the
+    // cast form called Init from inside HardwareInit and never came back.
+    SexyCommonApp::Init();
+    // Byte +96 of the platform display is the wide-screen flag the cursor and text
+    // code reads. The binary's AndroidAppDriver::CreateGraphics stores the display
+    // at app+0x2E4 before this runs; this port's driver never did, so the object
+    // is built here when it is missing. mClip is WidgetContainer's byte at +0x45.
+    if (mPlatformDriverOrQueue == nullptr)
+        mPlatformDriverOrQueue = new Sexy::NativeDisplay();
+    mPlatformDriverOrQueue->mWideScreen = true;
+    mWidgetManager->mClip = false;
+    Sexy::SWTri_AddDrawTriFunc(1, 1, 0, 0, 34952, 1, Sexy::DrawTriangle_8888_TEX1_TALPHA1_MOD0_GLOB0_BLEND1);
+    // Both branches allocate the same 0x68 bytes; Music2 adds no member, so the
+    // block Music constructs fits the Music2* the member is typed as.
+    // Music is the XM path (mainmusic.xm plus the drums and hihats layers).
+    // Music2 is the per-file ogg path. The default is Music; LAWN_MUSIC2=1
+    // selects the ogg path.
+    if (Sexy::GetEnvOption("LAWN_MUSIC2", false) != 0)
+        mMusic = new Music2();
+    else
+        mMusic = new Music();
+    // 0x4678 bytes, 110 records of 164. TodFoley is that array, and its
+    // constructor runs FoleyTypeData::FoleyTypeData on each record.
+    mSoundSystem = new TodFoley();
+    mEffectSystem = new EffectSystem();
+    mHelpBarWidget = new HelpBarWidget();
+    if (Sexy::GetEnvOption("LAWN_NO_ATLAS", false) == 0)
     {
-      Sexy::String aPath(aFile);
-      LoadAtlasMap(aPath);
+        // The ten atlas maps, loaded in the order the binary lists them.
+        const char *aAtlasFiles[] = {
+            "reanim/plant-atlas.xml",
+            "reanim/zombie-atlas.xml",
+            "reanim/zombie-boss-atlas.xml",
+            "reanim/crazydave-atlas.xml",
+            "reanim/mainmenu3/crow-atlas.xml",
+            "reanim/mainmenu3/mainmenu3-atlas.xml",
+            "reanim/mainmenu3/menu-atlas.xml",
+            "particles/particles-atlas.xml",
+            "images/dialog-atlas.xml",
+            "images/seeds-atlas.xml",
+        };
+        for (const char *aFile : aAtlasFiles)
+        {
+            Sexy::String aPath(aFile);
+            LoadAtlasMap(aPath);
+        }
     }
-  }
-  // Publisher metrics are disabled; startup creates no transport thread or
-  // trans_log spool and does not load a metrics configuration.
-  return 0;
+    // Publisher metrics are disabled; startup creates no transport thread or
+    // trans_log spool and does not load a metrics configuration.
+    return 0;
 }
 
 // ==========================================================================
@@ -7663,43 +7598,46 @@ int LawnApp::HardwareInit()
 // ==========================================================================
 bool LawnApp::DrawDirtyStuff()
 {
-  mDialogFadeDrawn = false;
-  return SexyAppBase::DrawDirtyStuff();
+    mDialogFadeDrawn = false;
+    return SexyAppBase::DrawDirtyStuff();
 }
 
 // ==========================================================================
 // LawnApp::SafeDeleteWidget(Sexy::Widget *)
 // @002C28E0  4 bytes
 // ==========================================================================
-void LawnApp::SafeDeleteWidget(Sexy::Widget * theWidget)
+void LawnApp::SafeDeleteWidget(Sexy::Widget *theWidget)
 {
-  SexyAppBase::SafeDeleteWidget(theWidget);
+    SexyAppBase::SafeDeleteWidget(theWidget);
 }
 // LawnApp::LoadLevelConfiguration @0x2C28E4. The XML loader now selects
 // a record using the mode, adventure cycle and current survival stage.
 bool LawnApp::LoadLevelConfiguration(GameMode theMode, int theLevelId)
 {
-  Sexy::LevelLoadContext context;
-  context.mGameMode = theMode;
-  context.mLevelId = theLevelId;
-  context.mAdventureComplete = HasFinishedAdventure();
-  if (mBoard != nullptr && mBoard->mChallenge != nullptr)
-    context.mSurvivalStage = mBoard->mChallenge->mSurvivalStage;
+    Sexy::LevelLoadContext context;
+    context.mGameMode = theMode;
+    context.mLevelId = theLevelId;
+    context.mAdventureComplete = HasFinishedAdventure();
+    if (mBoard != nullptr && mBoard->mChallenge != nullptr)
+        context.mSurvivalStage = mBoard->mChallenge->mSurvivalStage;
 
-  if (!mLevel.InitFromXML(context, Sexy::String("properties/levels.xml")))
-  {
-    if (!mLevel.mConfigurationError.empty())
-      fprintf(stderr, "levels.xml: mode=%d level=%d stage=%d: %s\n",
-              static_cast<int>(theMode), theLevelId, context.mSurvivalStage,
-              mLevel.mConfigurationError.c_str());
-    return false;
-  }
-  return true;
+    if (!mLevel.InitFromXML(context, Sexy::String("properties/levels.xml")))
+    {
+        if (!mLevel.mConfigurationError.empty())
+            fprintf(stderr,
+                "levels.xml: mode=%d level=%d stage=%d: %s\n",
+                static_cast<int>(theMode),
+                theLevelId,
+                context.mSurvivalStage,
+                mLevel.mConfigurationError.c_str());
+        return false;
+    }
+    return true;
 }
 
 void LawnApp::StartAuth()
 {
-  SexyAppBase::StartAuth();
+    SexyAppBase::StartAuth();
 }
 
 // ==========================================================================
@@ -7708,17 +7646,17 @@ void LawnApp::StartAuth()
 // ==========================================================================
 void LawnApp::AuthFinished(bool theSuccess)
 {
-  SexyAppBase::AuthFinished(theSuccess);
+    SexyAppBase::AuthFinished(theSuccess);
 }
 
 // ==========================================================================
 // LawnApp::ProcessMessage(Sexy::Event &)
 // @002C3A30  10 bytes
 // ==========================================================================
-bool LawnApp::ProcessMessage(Sexy::Event & theEvent)
+bool LawnApp::ProcessMessage(Sexy::Event &theEvent)
 {
-  // Update held gamepad buttons before widgets handle the event. B's dig
-  // state and the other held actions read Gamepad::IsButtonDown each tick.
-  Sexy::GamepadApp::ProcessMessage(theEvent);
-  return true;
+    // Update held gamepad buttons before widgets handle the event. B's dig
+    // state and the other held actions read Gamepad::IsButtonDown each tick.
+    Sexy::GamepadApp::ProcessMessage(theEvent);
+    return true;
 }

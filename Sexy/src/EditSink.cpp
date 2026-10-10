@@ -11,9 +11,7 @@ void Sexy::EditSink::SetEditMark(int theStart, int theEnd)
     (void)theEnd;
 }
 
-Sexy::EditSink::~EditSink()
-{
-}
+Sexy::EditSink::~EditSink() {}
 
 int Sexy::EditSink::GetEditWidget()
 {
@@ -36,7 +34,7 @@ void Sexy::EditSink::UnknownPureVirtual10(int theFirst, int theSecond)
 // no arguments, slot 10 with words 1 and 2, SetEditMark with words 3 and 4.
 // Word 0 is never loaded. EditState is only forward-declared, so the words
 // are read through a same-sized view.
-int Sexy::EditSink::SetEditState(Sexy::EditState const& theState)
+int Sexy::EditSink::SetEditState(Sexy::EditState const &theState)
 {
     struct EditStateWords
     {
@@ -46,7 +44,7 @@ int Sexy::EditSink::SetEditState(Sexy::EditState const& theState)
         int mWord3;
         int mWord4;
     };
-    const EditStateWords* theWords = static_cast<const EditStateWords*>(static_cast<const void*>(&theState));
+    const EditStateWords *theWords = static_cast<const EditStateWords *>(static_cast<const void *>(&theState));
 
     UnknownPureVirtual9();
     UnknownPureVirtual10(theWords->mWord1, theWords->mWord2);
@@ -54,33 +52,25 @@ int Sexy::EditSink::SetEditState(Sexy::EditState const& theState)
     return 0;
 }
 
-void Sexy::EditSink::KeyboardWasShown(Sexy::TRect<int> const& theRect)
+void Sexy::EditSink::KeyboardWasShown(Sexy::TRect<int> const &theRect)
 {
     (void)theRect;
 }
 
-void Sexy::EditSink::KeyboardWillBeHidden()
-{
-}
+void Sexy::EditSink::KeyboardWillBeHidden() {}
 
 int Sexy::EditSink::EditFinished()
 {
     return 1;
 }
 
-void Sexy::EditSink::EditCancelled()
-{
-}
+void Sexy::EditSink::EditCancelled() {}
 
-void Sexy::EditSink::ShowKeyboard()
-{
-}
+void Sexy::EditSink::ShowKeyboard() {}
 
-void Sexy::EditSink::HideKeyboard()
-{
-}
+void Sexy::EditSink::HideKeyboard() {}
 
-Sexy::EditController* Sexy::EditSink::GetEditController()
+Sexy::EditController *Sexy::EditSink::GetEditController()
 {
     return nullptr;
 }

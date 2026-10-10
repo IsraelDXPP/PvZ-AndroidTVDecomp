@@ -21,12 +21,12 @@ EmptyStringStorage gEmptyStringStorage = {{0, 0, -1}, {}};
 StringRep &gEmptyStringRep = gEmptyStringStorage.mRep;
 char *const gEmptyStringData = gEmptyStringStorage.mText;
 
-static bool Usable(const char* theData)
+static bool Usable(const char *theData)
 {
     return theData != nullptr;
 }
 
-static char* Fresh(const char* theText, unsigned int theLength)
+static char *Fresh(const char *theText, unsigned int theLength)
 {
     if (theLength == 0 || theText == nullptr)
         return gEmptyStringData;
@@ -41,8 +41,7 @@ static char* Fresh(const char* theText, unsigned int theLength)
             return gEmptyStringData;
     }
 
-    StringRep* aRep = static_cast<StringRep*>(
-        ::operator new(sizeof(StringRep) + theLength + 1));
+    StringRep *aRep = static_cast<StringRep *>(::operator new(sizeof(StringRep) + theLength + 1));
     aRep->mLength = theLength;
     aRep->mCapacity = theLength;
     aRep->mRefCount = -1;
@@ -51,27 +50,23 @@ static char* Fresh(const char* theText, unsigned int theLength)
     return aRep->Data();
 }
 
-static void Drop(char* theData)
+static void Drop(char *theData)
 {
     if (!Usable(theData) || theData == gEmptyStringData)
         return;
-    ::operator delete(reinterpret_cast<StringRep*>(theData) - 1);
+    ::operator delete(reinterpret_cast<StringRep *>(theData) - 1);
 }
 
-void StringAddRef(StringRep*)
-{
-}
+void StringAddRef(StringRep *) {}
 
 // Transcribed code releases a rep and the String's own destructor releases it
 // again. The destructor owns the buffer, so this is a no-op.
-int StringRelease(StringRep*)
+int StringRelease(StringRep *)
 {
     return -1;
 }
 
-void String::Detach()
-{
-}
+void String::Detach() {}
 
 void String::EnsureCapacity(unsigned int theCapacity)
 {
@@ -81,9 +76,8 @@ void String::EnsureCapacity(unsigned int theCapacity)
     if (mData != gEmptyStringData && theCapacity <= capacity())
         return;
 
-    const char* aText = Usable(mData) ? mData : "";
-    StringRep* aRep = static_cast<StringRep*>(
-        ::operator new(sizeof(StringRep) + theCapacity + 1));
+    const char *aText = Usable(mData) ? mData : "";
+    StringRep *aRep = static_cast<StringRep *>(::operator new(sizeof(StringRep) + theCapacity + 1));
     aRep->mLength = aLength;
     aRep->mCapacity = theCapacity;
     aRep->mRefCount = -1;
@@ -94,7 +88,7 @@ void String::EnsureCapacity(unsigned int theCapacity)
     mData = aRep->Data();
 }
 
-void String::Assign(const char* theData, unsigned int theLength)
+void String::Assign(const char *theData, unsigned int theLength)
 {
     if (!Usable(theData))
     {
@@ -103,12 +97,12 @@ void String::Assign(const char* theData, unsigned int theLength)
     }
 
     // The source may be this string's own buffer. Copy first, then drop.
-    char* aFresh = Fresh(theData, theLength);
+    char *aFresh = Fresh(theData, theLength);
     Drop(mData);
     mData = aFresh;
 }
 
-void String::Append(const char* theData, unsigned int theLength)
+void String::Append(const char *theData, unsigned int theLength)
 {
     if (theLength == 0 || !Usable(theData))
         return;
@@ -123,29 +117,28 @@ void String::Append(const char* theData, unsigned int theLength)
         aJoined.append(mData, aOld);
     aJoined.append(theData, theLength);
 
-    char* aFresh = Fresh(aJoined.data(), (unsigned int)aJoined.size());
+    char *aFresh = Fresh(aJoined.data(), (unsigned int)aJoined.size());
     Drop(mData);
     mData = aFresh;
 }
 
-String* StringCtor(String* aResult, const char* theString, const void*)
+String *StringCtor(String *aResult, const char *theString, const void *)
 {
     if (aResult == nullptr)
         return nullptr;
     aResult->mData = gEmptyStringData;
-    aResult->Assign(theString ? theString : "",
-                    theString ? (unsigned int)strlen(theString) : 0);
+    aResult->Assign(theString ? theString : "", theString ? (unsigned int)strlen(theString) : 0);
     return aResult;
 }
 
-String* StringAssign(String* aTarget, const String* aSource)
+String *StringAssign(String *aTarget, const String *aSource)
 {
     if (aTarget != nullptr && aSource != nullptr)
         *aTarget = *aSource;
     return aTarget;
 }
 
-String* StringCopyCtor(String* aResult, const String* aSource)
+String *StringCopyCtor(String *aResult, const String *aSource)
 {
     if (aResult == nullptr)
         return nullptr;
@@ -155,34 +148,33 @@ String* StringCopyCtor(String* aResult, const String* aSource)
     return aResult;
 }
 
-String* StringDispose(String* aString)
+String *StringDispose(String *aString)
 {
     if (aString != nullptr)
         aString->Assign("", 0);
     return aString;
 }
 
-String* StringDisposeLeaked(String* theString)
+String *StringDisposeLeaked(String *theString)
 {
     return theString;
 }
 
-String* StringAppend(String* aTarget, const String* aSource)
+String *StringAppend(String *aTarget, const String *aSource)
 {
     if (aTarget != nullptr && aSource != nullptr)
         aTarget->Append(aSource->c_str(), aSource->size());
     return aTarget;
 }
 
-String* StringAppendRange(String* aTarget, const char* aData, unsigned int theCount)
+String *StringAppendRange(String *aTarget, const char *aData, unsigned int theCount)
 {
     if (aTarget != nullptr && aData != nullptr && theCount != 0)
         aTarget->Append(aData, theCount);
     return aTarget;
 }
 
-String* StringSubstr(String* aResult, const String* aSource,
-                     unsigned int theStart, unsigned int theCount)
+String *StringSubstr(String *aResult, const String *aSource, unsigned int theStart, unsigned int theCount)
 {
     if (aResult == nullptr)
         return nullptr;

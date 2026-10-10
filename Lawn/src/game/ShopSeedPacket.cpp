@@ -8,9 +8,7 @@
 #include "SexyTransform2D.h"
 #include <cmath>
 
-ShopSeedPacket::~ShopSeedPacket()
-{
-}
+ShopSeedPacket::~ShopSeedPacket() {}
 
 ShopSeedPacket::ShopSeedPacket()
 {
@@ -37,10 +35,8 @@ void ShopSeedPacket::UpdateSelected()
 
     // The first player's cursor shows only while the second player's gamepad is
     // idle, not sitting on a zombie, and not already on this very shop item.
-    if (mSeedBank != seedBank1
-        || gamepad2->mSelectedShopSeedIndex != shopItemIndex
-        || gamepad2->mGamepadIndex == -1
-        || gamepad2->mIsZombie)
+    if (mSeedBank != seedBank1 || gamepad2->mSelectedShopSeedIndex != shopItemIndex || gamepad2->mGamepadIndex == -1 ||
+        gamepad2->mIsZombie)
     {
         playerIndex = false;
     }
@@ -61,10 +57,10 @@ void ShopSeedPacket::UpdateSelected()
 
     if (mApp->mGameMode == GAMEMODE_MP_VS)
     {
-        mSelectedPlayerIndex = (seedBank1 == mSeedBank && gamepad1->mPlayerIndex == 1
-                                && gamepad1->mSelectedShopSeedIndex == shopItemIndex)
-                            || (seedBank2 == mSeedBank && gamepad2->mPlayerIndex == 1
-                                && gamepad2->mSelectedShopSeedIndex == shopItemIndex);
+        mSelectedPlayerIndex = (seedBank1 == mSeedBank && gamepad1->mPlayerIndex == 1 &&
+                                   gamepad1->mSelectedShopSeedIndex == shopItemIndex) ||
+            (seedBank2 == mSeedBank && gamepad2->mPlayerIndex == 1 &&
+                gamepad2->mSelectedShopSeedIndex == shopItemIndex);
     }
 
     bool isSelected;
@@ -77,8 +73,7 @@ void ShopSeedPacket::UpdateSelected()
 
     mIsSelected = isSelected;
     bool bothCursors = false;
-    if (gamepad2->mGamepadIndex != -1
-        && gamepad1->mSelectedShopSeedIndex == gamepad2->mSelectedShopSeedIndex)
+    if (gamepad2->mGamepadIndex != -1 && gamepad1->mSelectedShopSeedIndex == gamepad2->mSelectedShopSeedIndex)
     {
         bothCursors = !mApp->IsCoopMode() && mApp->mGameMode != GAMEMODE_MP_VS;
     }
@@ -91,8 +86,7 @@ void ShopSeedPacket::UpdateSelected()
         if (!onThisItem && mApp->IsTwoPlayerGame())
         {
             GamepadControls *otherGamepad = board->mGamepadControls[1];
-            if (otherGamepad != nullptr && otherGamepad->mIsInShopSeedBank
-                && otherGamepad->mGamepadIndex != -1)
+            if (otherGamepad != nullptr && otherGamepad->mIsInShopSeedBank && otherGamepad->mGamepadIndex != -1)
             {
                 mIsSelected = (otherGamepad->mSelectedShopSeedIndex == shopItemIndex);
             }
@@ -111,9 +105,7 @@ void ShopSeedPacket::Update()
     mSelectAnimCounter += 0.006f;
 }
 
-void ShopSeedPacket::DrawMiddle()
-{
-}
+void ShopSeedPacket::DrawMiddle() {}
 
 void ShopSeedPacket::DrawOverlay(Sexy::Graphics *g)
 {
@@ -138,8 +130,7 @@ void ShopSeedPacket::DrawOverlay(Sexy::Graphics *g)
     float bob = sinf(mSelectArrowAnimTime * 5.0f);
     if (!mApp->IsTwoPlayerGame())
     {
-        Sexy::Image *arrow = mSelectedPlayerIndex ? IMAGE_CURSOR_ARROW_P2
-                                                  : IMAGE_CURSOR_ARROW_P1;
+        Sexy::Image *arrow = mSelectedPlayerIndex ? IMAGE_CURSOR_ARROW_P2 : IMAGE_CURSOR_ARROW_P1;
         SexyTransform2D transform(true);
         transform.Scale(1.5f, 1.5f);
         transform.Translate((float)(mPacketOffsetX + 23), (float)(bob + bob) - 8.0f);
@@ -158,15 +149,11 @@ void ShopSeedPacket::DrawOverlay(Sexy::Graphics *g)
             Sexy::Image *p1Arrow = IMAGE_CURSOR_ARROW_P1;
             Sexy::Image *p1Text = IMAGE_CURSOR_P1_TEXT;
             float bob2 = bob + bob;
-            g->DrawImageRotatedF(arrow,
-                (float)(mPacketOffsetX + 23 - arrow->mWidth / 2), bob2 + 63.0f,
-                3.14159274f, nullptr);
-            g->DrawImageF(textImage,
-                (float)(mPacketOffsetX + 23 - textImage->mWidth / 2), 75.0f);
-            g->DrawImageF(p1Arrow,
-                (float)(mPacketOffsetX + 23 - p1Arrow->mWidth / 2), bob2 - 8.0f);
-            g->DrawImageF(p1Text,
-                (float)(mPacketOffsetX + 23 - p1Text->mWidth / 2), -28.0f);
+            g->DrawImageRotatedF(
+                arrow, (float)(mPacketOffsetX + 23 - arrow->mWidth / 2), bob2 + 63.0f, 3.14159274f, nullptr);
+            g->DrawImageF(textImage, (float)(mPacketOffsetX + 23 - textImage->mWidth / 2), 75.0f);
+            g->DrawImageF(p1Arrow, (float)(mPacketOffsetX + 23 - p1Arrow->mWidth / 2), bob2 - 8.0f);
+            g->DrawImageF(p1Text, (float)(mPacketOffsetX + 23 - p1Text->mWidth / 2), -28.0f);
             return;
         }
     }
@@ -175,10 +162,8 @@ void ShopSeedPacket::DrawOverlay(Sexy::Graphics *g)
         textImage = IMAGE_CURSOR_P1_TEXT;
         arrow = IMAGE_CURSOR_ARROW_P1;
     }
-    g->DrawImageF(arrow,
-        (float)(mPacketOffsetX + 23 - arrow->mWidth / 2), (float)(bob + bob) - 8.0f);
-    g->DrawImageF(textImage,
-        (float)(mPacketOffsetX + 23 - textImage->mWidth / 2), -28.0f);
+    g->DrawImageF(arrow, (float)(mPacketOffsetX + 23 - arrow->mWidth / 2), (float)(bob + bob) - 8.0f);
+    g->DrawImageF(textImage, (float)(mPacketOffsetX + 23 - textImage->mWidth / 2), -28.0f);
 }
 
 void ShopSeedPacket::DrawBackground(Sexy::Graphics *g)
@@ -204,15 +189,13 @@ void ShopSeedPacket::DrawBackground(Sexy::Graphics *g)
         if (scaled)
         {
             g->SetScale(mSelectScale, mSelectScale, (float)(mPacketOffsetX + 25), 35.0f);
-            g->TranslateF((float)(1.0f - mSelectScale) * 25.0f,
-                          (float)(1.0f - mSelectScale) * 35.0f);
+            g->TranslateF((float)(1.0f - mSelectScale) * 25.0f, (float)(1.0f - mSelectScale) * 35.0f);
         }
     }
 
     if (!mApp->IsSlotMachineLevel() && mIsSelected)
     {
-        Sexy::Image *selector = mSelectedPlayerIndex ? IMAGE_SEED_SELECTOR_BLUE
-                                                     : IMAGE_SEED_SELECTOR;
+        Sexy::Image *selector = mSelectedPlayerIndex ? IMAGE_SEED_SELECTOR_BLUE : IMAGE_SEED_SELECTOR;
         g->DrawImage(selector,
             (int)((float)(mPacketOffsetX - 1) - g->mScaleX * 5.0f),
             (int)-(g->mScaleY * 5.0f + 2.5f),
@@ -224,19 +207,33 @@ void ShopSeedPacket::DrawBackground(Sexy::Graphics *g)
     Sexy::Image *shopItemImage = nullptr;
     switch (mStoreItemType)
     {
-        case 0xA: shopItemImage = IMAGE_SHOPITEM_BOMB; break;
-        case 0xB: shopItemImage = IMAGE_SHOPITEM_SUN500; break;
-        case 0xC: shopItemImage = IMAGE_SHOPITEM_SUN1000; break;
-        case 0xD: shopItemImage = IMAGE_SHOPITEM_COLDDOWN; break;
-        case 0xE: shopItemImage = IMAGE_SHOPITEM_SHOOTER; break;
-        case 0xF: shopItemImage = IMAGE_SHOPITEM_PEPPER; break;
-        case 0x10: shopItemImage = IMAGE_SHOPITEM_GETMONEY; break;
-        default: break;
+        case 0xA:
+            shopItemImage = IMAGE_SHOPITEM_BOMB;
+            break;
+        case 0xB:
+            shopItemImage = IMAGE_SHOPITEM_SUN500;
+            break;
+        case 0xC:
+            shopItemImage = IMAGE_SHOPITEM_SUN1000;
+            break;
+        case 0xD:
+            shopItemImage = IMAGE_SHOPITEM_COLDDOWN;
+            break;
+        case 0xE:
+            shopItemImage = IMAGE_SHOPITEM_SHOOTER;
+            break;
+        case 0xF:
+            shopItemImage = IMAGE_SHOPITEM_PEPPER;
+            break;
+        case 0x10:
+            shopItemImage = IMAGE_SHOPITEM_GETMONEY;
+            break;
+        default:
+            break;
     }
     if (shopItemImage != nullptr)
     {
-        g->DrawImage(shopItemImage, mPacketOffsetX, 0,
-            (int)(mSelectScale * 48.0f), (int)(mSelectScale * 66.0f));
+        g->DrawImage(shopItemImage, mPacketOffsetX, 0, (int)(mSelectScale * 48.0f), (int)(mSelectScale * 66.0f));
         if (shopItemIndex != 6)
         {
             LawnUser *user = LawnUser::getCurUser();
@@ -247,7 +244,8 @@ void ShopSeedPacket::DrawBackground(Sexy::Graphics *g)
                 Sexy::String priceText;
                 StrFormat(&priceText, "%d", price);
                 Sexy::Color color(0, 0, 0);
-                TodDrawString(g, priceText,
+                TodDrawString(g,
+                    priceText,
                     (int)((float)mPacketOffsetX + mSelectScale * 29.0f),
                     (int)(mSelectScale * 30.0f - 30.0f + 60.0f),
                     FONT_BRIANNETOD12,
@@ -260,8 +258,7 @@ void ShopSeedPacket::DrawBackground(Sexy::Graphics *g)
     if (!mApp->IsSlotMachineLevel() && (mIsSelected || mSelectAnimCounter < 0.15f))
     {
         g->SetScale(1.0f, 1.0f, 0.0f, 0.0f);
-        g->TranslateF((float)(mSelectScale - 1.0f) * 25.0f,
-                      (float)(mSelectScale - 1.0f) * 35.0f);
+        g->TranslateF((float)(mSelectScale - 1.0f) * 25.0f, (float)(mSelectScale - 1.0f) * 35.0f);
     }
 }
 

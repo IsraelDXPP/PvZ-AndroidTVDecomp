@@ -7,11 +7,9 @@
 #include "Graphics.h"
 #include "Image.h"
 
-Sexy::ScrollbuttonWidget::~ScrollbuttonWidget()
-{
-}
+Sexy::ScrollbuttonWidget::~ScrollbuttonWidget() {}
 
-void Sexy::ScrollbuttonWidget::Draw(Sexy::Graphics* theGraphics)
+void Sexy::ScrollbuttonWidget::Draw(Sexy::Graphics *theGraphics)
 {
     if (mButtonImage != nullptr || mDownImage != nullptr)
     {
@@ -30,7 +28,7 @@ void Sexy::ScrollbuttonWidget::Draw(Sexy::Graphics* theGraphics)
                 cel = mDirection - 3;
         }
 
-        Sexy::Image* image = mButtonImage;
+        Sexy::Image *image = mButtonImage;
         if (mIsDown && mIsOver && !mDisabled)
             image = mDownImage;
         else if (mDisabled && mDisabledImage != nullptr)
@@ -96,9 +94,9 @@ void Sexy::ScrollbuttonWidget::Draw(Sexy::Graphics* theGraphics)
     }
 }
 
-Sexy::ScrollbuttonWidget::ScrollbuttonWidget(int theId, Sexy::ButtonListener* theListener, int theDirection)
-    : ButtonWidget(theId, theListener)
-    , mInvisIfNoScroll(false)
-    , mDirection(theDirection)
+Sexy::ScrollbuttonWidget::ScrollbuttonWidget(int theId, Sexy::ButtonListener *theListener, int theDirection) :
+    ButtonWidget(theId, theListener),
+    mInvisIfNoScroll(false),
+    mDirection(theDirection)
 {
 }

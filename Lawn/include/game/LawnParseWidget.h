@@ -22,7 +22,8 @@
 // member.
 // TODO(recon): name the word at +0x04.
 
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_LAWNPARSEWIDGET_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_LAWNPARSEWIDGET_H
 
 #include "ReconTypes.h"
 #include "MenuParser.h"
@@ -38,3 +39,4 @@ public:
     virtual ~LawnParseWidget();
 };
 
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_LAWNPARSEWIDGET_H

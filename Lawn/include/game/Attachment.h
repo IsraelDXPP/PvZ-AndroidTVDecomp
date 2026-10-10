@@ -20,7 +20,8 @@
 //   [  0] 0x1f5660  ~Attachment
 //   [  1] 0x1f56a8  ~Attachment (ARM D0; MSVC x86 keeps ONE dtor slot)
 
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_ATTACHMENT_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_ATTACHMENT_H
 
 #include <vector>
 
@@ -46,11 +47,11 @@ enum EffectType
 class AttachEffect
 {
 public:
-    unsigned int mEffectID;        // DataArray key for the selected effect holder
-    EffectType mEffectType;        // +0x04
+    unsigned int mEffectID; // DataArray key for the selected effect holder
+    EffectType mEffectType; // +0x04
     Sexy::SexyTransform2D mOffset; // +0x08 .. +0x2B
-    bool mDontDrawIfParentHidden;  // +0x2C
-    bool mDontPropogateColor;      // +0x2D
+    bool mDontDrawIfParentHidden; // +0x2C
+    bool mDontPropogateColor; // +0x2D
 };
 
 class Attachment
@@ -69,14 +70,14 @@ public:
     // costs no size: 3 * 4 == 12 either way.
     std::vector<SyncBlockInfo> mSyncBlocks;
     AttachEffect mEffectArray[16]; // +0x10 .. +0x30F
-    int mNumEffects;               // +0x310
-    bool mDead;                    // +0x314
-    bool mActive;                  // +0x315
-    bool mUsesClipping;            // +0x316
-    int mAttachmentID;             // +0x318
+    int mNumEffects; // +0x310
+    bool mDead; // +0x314
+    bool mActive; // +0x315
+    bool mUsesClipping; // +0x316
+    int mAttachmentID; // +0x318
     // size 0x31C
 
-    virtual ~Attachment();         // [ 0]
+    virtual ~Attachment(); // [ 0]
 
     // Return types come from the ARM, not from the dump's scratch register:
     // Update @0x1f4b1c, SetPosition @0x1f4c80, OverrideColor @0x1f4dd8,
@@ -87,15 +88,18 @@ public:
     // the object's layout or its two-slot vtable.
     void Update();
     void SetPosition(const Sexy::SexyVector2 &thePosition);
-    void OverrideColor(const Color & theColor);
-    void PropogateColor(const Color &theColor, bool theEnableAdditive, const Color &theAdditiveColor, bool theEnableOverlay, const Color &theOverlayColor);
+    void OverrideColor(const Color &theColor);
+    void PropogateColor(const Color &theColor, bool theEnableAdditive, const Color &theAdditiveColor,
+        bool theEnableOverlay, const Color &theOverlayColor);
     void OverrideScale(float theScale);
-    void CrossFade(const char * theCrossFadeName);
-    void SetMatrix(const Sexy::SexyTransform2D & theMatrix);
-    void Draw(Sexy::Graphics * g, bool theParentHidden);
+    void CrossFade(const char *theCrossFadeName);
+    void SetMatrix(const Sexy::SexyTransform2D &theMatrix);
+    void Draw(Sexy::Graphics *g, bool theParentHidden);
     void Detach();
     void AttachmentDie();
     Attachment();
 };
 
 // Layout check: 4 + 16 effect records + the tail.
+
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_ATTACHMENT_H

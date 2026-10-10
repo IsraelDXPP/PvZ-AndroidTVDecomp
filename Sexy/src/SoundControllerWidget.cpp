@@ -15,43 +15,41 @@
 
 namespace
 {
-    // The app the widget adjusts. gSexyAppBase is the one the constructor and
-    // every volume call read.
-    Sexy::SexyAppBase* App()
-    {
-        return gSexyAppBase;
-    }
-
-    void ApplyMusicVolume(int theSize)
-    {
-        Sexy::SexyAppBase* anApp = App();
-        if (anApp != nullptr)
-            anApp->SetMusicVolume((double)theSize * 0.1);
-    }
+// The app the widget adjusts. gSexyAppBase is the one the constructor and
+// every volume call read.
+Sexy::SexyAppBase *App()
+{
+    return gSexyAppBase;
 }
 
-Sexy::SoundControllerWidget::SoundControllerWidget()
-    : mOpenImage(nullptr),
-      mClosedImage(nullptr),
-      mRaisedImage(nullptr),
-      mLoweredImage(nullptr),
-      mSoundSize(0),
-      mState(STATE_OPEN),
-      mShowing(false),
-      mShownTick(0)
+void ApplyMusicVolume(int theSize)
 {
-    Sexy::SexyAppBase* anApp = App();
+    Sexy::SexyAppBase *anApp = App();
+    if (anApp != nullptr)
+        anApp->SetMusicVolume((double)theSize * 0.1);
+}
+}
+
+Sexy::SoundControllerWidget::SoundControllerWidget() :
+    mOpenImage(nullptr),
+    mClosedImage(nullptr),
+    mRaisedImage(nullptr),
+    mLoweredImage(nullptr),
+    mSoundSize(0),
+    mState(STATE_OPEN),
+    mShowing(false),
+    mShownTick(0)
+{
+    Sexy::SexyAppBase *anApp = App();
     if (anApp != nullptr)
         mSoundSize = (int)(anApp->GetMusicVolume() * 10.0);
 }
 
-Sexy::SoundControllerWidget::~SoundControllerWidget()
-{
-}
+Sexy::SoundControllerWidget::~SoundControllerWidget() {}
 
 // @0x531594. While the overlay is up, the image for the current state is
 // centred in the widget; the base draw runs either way.
-void Sexy::SoundControllerWidget::Draw(Sexy::Graphics* g)
+void Sexy::SoundControllerWidget::Draw(Sexy::Graphics *g)
 {
     if (!mShowing)
     {
@@ -59,7 +57,7 @@ void Sexy::SoundControllerWidget::Draw(Sexy::Graphics* g)
         return;
     }
 
-    Sexy::Image* anImage = nullptr;
+    Sexy::Image *anImage = nullptr;
     if (mState == STATE_OPEN)
         anImage = mLoweredImage;
     else if (mState == STATE_CLOSED)
@@ -71,9 +69,7 @@ void Sexy::SoundControllerWidget::Draw(Sexy::Graphics* g)
 
     if (anImage != nullptr)
     {
-        g->DrawImage(anImage,
-                     (mWidth - anImage->mWidth) / 2,
-                     (mHeight - anImage->mHeight) / 2);
+        g->DrawImage(anImage, (mWidth - anImage->mWidth) / 2, (mHeight - anImage->mHeight) / 2);
     }
     Widget::Draw(g);
 }
@@ -176,9 +172,8 @@ void Sexy::SoundControllerWidget::setSoundStatus(int theState)
 }
 
 // @0x531578. The four images, in the order the binary stores them.
-Sexy::SoundControllerWidget* Sexy::SoundControllerWidget::setSoundControllerImage(
-    Sexy::Image* theOpen, Sexy::Image* theClosed,
-    Sexy::Image* theRaised, Sexy::Image* theLowered)
+Sexy::SoundControllerWidget *Sexy::SoundControllerWidget::setSoundControllerImage(
+    Sexy::Image *theOpen, Sexy::Image *theClosed, Sexy::Image *theRaised, Sexy::Image *theLowered)
 {
     mOpenImage = theOpen;
     mLoweredImage = theLowered;

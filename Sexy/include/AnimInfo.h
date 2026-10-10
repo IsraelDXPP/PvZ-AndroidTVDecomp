@@ -6,12 +6,14 @@
 //
 // AnimType (AnimType_None / Once / PingPong / Loop) lives in ReconTypes.h.
 
-#pragma once
+#ifndef LAWNPROJECTTV_SEXY_INCLUDE_ANIMINFO_H
+#define LAWNPROJECTTV_SEXY_INCLUDE_ANIMINFO_H
 
 #include "ReconTypes.h"
 #include <vector>
 
-namespace Sexy {
+namespace Sexy
+{
 
 class AnimInfo
 {
@@ -34,3 +36,5 @@ public:
 } // namespace Sexy
 
 using Sexy::AnimInfo;
+
+#endif // LAWNPROJECTTV_SEXY_INCLUDE_ANIMINFO_H

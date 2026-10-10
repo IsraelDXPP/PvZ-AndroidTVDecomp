@@ -6,7 +6,8 @@
 // and distinct on this port, so both range overloads are declared. A call
 // that passes a plain integer then matches the unsigned int form.
 
-#pragma once
+#ifndef LAWNPROJECTTV_SEXY_INCLUDE_MTRAND_H
+#define LAWNPROJECTTV_SEXY_INCLUDE_MTRAND_H
 
 #include "ReconTypes.h"
 #include <string>
@@ -14,7 +15,8 @@
 #include <map>
 #include <set>
 
-namespace Sexy {
+namespace Sexy
+{
 
 constexpr int MTRAND_N = 624;
 
@@ -26,12 +28,12 @@ public:
     bool mRandAllowed;
     unsigned char mPad9C5[3];
 
-    MTRand* SetRandAllowed(bool theAllowed);
-    MTRand* SRand(unsigned long theSeed);
+    MTRand *SetRandAllowed(bool theAllowed);
+    MTRand *SRand(unsigned long theSeed);
     MTRand(unsigned long theSeed);
     MTRand();
-    MTRand* SRand(Sexy::String const& theBlob);
-    MTRand(Sexy::String const& theBlob);
+    MTRand *SRand(Sexy::String const &theBlob);
+    MTRand(Sexy::String const &theBlob);
     unsigned int NextNoAssert();
     unsigned int Next();
     unsigned int NextNoAssert(unsigned long theRange);
@@ -40,9 +42,11 @@ public:
     unsigned int Next(unsigned int theRange);
     float NextNoAssert(float theRange);
     float Next(float theRange);
-    MTRand* Serialize();
+    MTRand *Serialize();
 };
 
 } // namespace Sexy
 
 using Sexy::MTRand;
+
+#endif // LAWNPROJECTTV_SEXY_INCLUDE_MTRAND_H

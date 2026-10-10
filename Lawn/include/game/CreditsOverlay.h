@@ -19,7 +19,8 @@
 // MSVC x86 gives a virtual destructor one slot where Itanium and ARM give it two,
 // so the absolute slot numbers run one lower here; only the order is copied.
 
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_CREDITSOVERLAY_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_CREDITSOVERLAY_H
 
 #include "ReconTypes.h"
 // Classes this one calls a method on: the call needs the
@@ -38,6 +39,8 @@ public:
     // The PC reference source declares the same member as `CreditScreen* mParent`
     // (LawnProject\src\Lawn\CreditScreen.h); the body only ever calls a virtual on
     // it, so the type is consistent but not independently confirmed here.
-    CreditScreen *mParent;   // +0x100
+    CreditScreen *mParent; // +0x100
     // size 0x104
 };
+
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_CREDITSOVERLAY_H

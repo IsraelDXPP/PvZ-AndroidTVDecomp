@@ -1,4 +1,5 @@
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_HOUSECHOOSERDIALOG_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_HOUSECHOOSERDIALOG_H
 
 #include "ReconTypes.h"
 #include "Graphics.h"
@@ -12,20 +13,22 @@ class HouseChooserDialog : public LawnDialog
 public:
     virtual ~HouseChooserDialog();
 
-    virtual void RemovedFromManager(Sexy::WidgetManager* theWidgetManager);
+    virtual void RemovedFromManager(Sexy::WidgetManager *theWidgetManager);
     virtual void Update();
-    virtual void Draw(Sexy::Graphics* g);
+    virtual void Draw(Sexy::Graphics *g);
     virtual void Resize(int theX, int theY, int theWidth, int theHeight);
     virtual void GotFocus();
     int KeyDown(Sexy::KeyCode theKey) override;
     void ButtonDepress(int theId) override;
     void MouseDown(int x, int y, int theClickCount) override;
 
-    HouseChooserDialog(LawnApp* theApp);
+    HouseChooserDialog(LawnApp *theApp);
     void GameButtonDown(Sexy::GamepadButton theButton, int thePlayerIndex, unsigned int theFlags);
     static bool IsHouseAvaliable(HouseType houseType);
 
     HouseType mSelectedHouseType;
     float mGrowTime;
-    HelpBarWidget* mHelpBarWidget = nullptr;
+    HelpBarWidget *mHelpBarWidget = nullptr;
 };
+
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_HOUSECHOOSERDIALOG_H

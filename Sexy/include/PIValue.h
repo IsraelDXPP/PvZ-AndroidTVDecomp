@@ -2,13 +2,15 @@
 // fills. mKeyframes is the authored (time, value) list. mBezier is used when
 // it has points. The last four floats cache the previous query.
 
-#pragma once
+#ifndef LAWNPROJECTTV_SEXY_INCLUDE_PIVALUE_H
+#define LAWNPROJECTTV_SEXY_INCLUDE_PIVALUE_H
 
 #include "Bezier.h"
 
 #include <vector>
 
-namespace Sexy {
+namespace Sexy
+{
 
 struct PIKeyframe
 {
@@ -28,7 +30,7 @@ public:
     float mLastStepSize = 0.01f;
 
     PIValue();
-    PIValue(const PIValue& other);
+    PIValue(const PIValue &other);
 
     // Value of the last keyframe at or before theTime. A query before every
     // keyframe, or an empty curve, is 0.
@@ -45,3 +47,5 @@ public:
 
 using Sexy::PIKeyframe;
 using Sexy::PIValue;
+
+#endif // LAWNPROJECTTV_SEXY_INCLUDE_PIVALUE_H

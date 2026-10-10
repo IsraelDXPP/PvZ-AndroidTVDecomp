@@ -3,9 +3,7 @@
 #include "LawnApp.h"
 #include "Widget.h"
 
-SlideInOutWidgetAnimator::~SlideInOutWidgetAnimator()
-{
-}
+SlideInOutWidgetAnimator::~SlideInOutWidgetAnimator() {}
 
 void SlideInOutWidgetAnimator::Init(Sexy::WidgetAnimationState theState)
 {

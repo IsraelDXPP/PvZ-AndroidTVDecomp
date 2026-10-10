@@ -26,7 +26,8 @@
 // only declaration needed. MSVC x86 gives a virtual destructor one slot while the
 // Itanium table has a D0/D1 pair.
 
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_PARSEWIDGET_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_PARSEWIDGET_H
 
 #include "ReconTypes.h"
 // The base must be complete: RefCount supplies the vtable ParseWidget reuses.
@@ -39,3 +40,5 @@ public:
 
     // ---- no own data members ----
 };
+
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_PARSEWIDGET_H

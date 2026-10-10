@@ -9,11 +9,11 @@
 // LevelStats::Reset(void)
 // @00145700  6 bytes
 // ==========================================================================
-LevelStats* LevelStats::Reset()
+LevelStats *LevelStats::Reset()
 {
-  // @0x145700: MOVS R3,#0; STR R3,[R0]; BX LR. Only the first word is cleared.
-  mUnusedLawnMowers = 0;
-  return this;
+    // @0x145700: MOVS R3,#0; STR R3,[R0]; BX LR. Only the first word is cleared.
+    mUnusedLawnMowers = 0;
+    return this;
 }
 
 // ==========================================================================
@@ -22,5 +22,5 @@ LevelStats* LevelStats::Reset()
 // ==========================================================================
 LevelStats::LevelStats()
 {
-  Reset();
+    Reset();
 }

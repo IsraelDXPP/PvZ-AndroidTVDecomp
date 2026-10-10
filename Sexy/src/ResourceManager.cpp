@@ -21,36 +21,38 @@
 #include <cstdlib>
 #include <cstring>
 
-namespace Sexy {
+namespace Sexy
+{
 
-bool StringLessNoCase::operator()(Sexy::String const& theLeft, Sexy::String const& theRight) const
+bool StringLessNoCase::operator()(Sexy::String const &theLeft, Sexy::String const &theRight) const
 {
     return strcasecmp(theLeft.c_str(), theRight.c_str()) < 0;
 }
 
 } // namespace Sexy
 
-namespace {
+namespace
+{
 
-int LocaleFromText(Sexy::String const& theText)
+int LocaleFromText(Sexy::String const &theText)
 {
     if (theText.empty())
         return 0;
     if (theText.size() == 4)
     {
-        const char* aText = theText.c_str();
-        return ((unsigned char)aText[0] << 24) | ((unsigned char)aText[1] << 16)
-            | ((unsigned char)aText[2] << 8) | (unsigned char)aText[3];
+        const char *aText = theText.c_str();
+        return ((unsigned char)aText[0] << 24) | ((unsigned char)aText[1] << 16) | ((unsigned char)aText[2] << 8) |
+            (unsigned char)aText[3];
     }
     return atoi(theText.c_str());
 }
 
-Sexy::String FileStem(Sexy::String const& thePath)
+Sexy::String FileStem(Sexy::String const &thePath)
 {
-    const char* aText = thePath.c_str();
-    const char* aSlash = strrchr(aText, '/');
-    const char* aBack = strrchr(aText, '\\');
-    const char* aName = aText;
+    const char *aText = thePath.c_str();
+    const char *aSlash = strrchr(aText, '/');
+    const char *aBack = strrchr(aText, '\\');
+    const char *aName = aText;
     if (aSlash != nullptr && aSlash + 1 > aName)
         aName = aSlash + 1;
     if (aBack != nullptr && aBack + 1 > aName)
@@ -58,12 +60,12 @@ Sexy::String FileStem(Sexy::String const& thePath)
     return Sexy::String(aName);
 }
 
-Sexy::String FileDir(Sexy::String const& thePath)
+Sexy::String FileDir(Sexy::String const &thePath)
 {
-    const char* aText = thePath.c_str();
-    const char* aSlash = strrchr(aText, '/');
-    const char* aBack = strrchr(aText, '\\');
-    const char* aCut = aSlash;
+    const char *aText = thePath.c_str();
+    const char *aSlash = strrchr(aText, '/');
+    const char *aBack = strrchr(aText, '\\');
+    const char *aCut = aSlash;
     if (aBack != nullptr && (aCut == nullptr || aBack > aCut))
         aCut = aBack;
     if (aCut == nullptr)
@@ -71,10 +73,10 @@ Sexy::String FileDir(Sexy::String const& thePath)
     return Sexy::String(aText, (unsigned int)(aCut - aText));
 }
 
-static Sexy::String UpperCopy(Sexy::String const& theText)
+static Sexy::String UpperCopy(Sexy::String const &theText)
 {
     Sexy::String aUpper = theText;
-    char* aData = aUpper.mData;
+    char *aData = aUpper.mData;
     if (aData == nullptr)
         return aUpper;
     for (unsigned int i = 0; i < aUpper.size(); ++i)
@@ -82,14 +84,14 @@ static Sexy::String UpperCopy(Sexy::String const& theText)
     return aUpper;
 }
 
-bool StartsWithNoCase(Sexy::String const& theText, Sexy::String const& thePrefix)
+bool StartsWithNoCase(Sexy::String const &theText, Sexy::String const &thePrefix)
 {
     if (thePrefix.size() > theText.size())
         return false;
     return strncasecmp(theText.c_str(), thePrefix.c_str(), thePrefix.size()) == 0;
 }
 
-const char* AttributeOrNull(Sexy::XMLElement& theElement, const char* theName)
+const char *AttributeOrNull(Sexy::XMLElement &theElement, const char *theName)
 {
     Sexy::String aKey;
     aKey = theName;
@@ -99,12 +101,12 @@ const char* AttributeOrNull(Sexy::XMLElement& theElement, const char* theName)
     return aFound->second.c_str();
 }
 
-void ParseCommaInts(const char* theText, std::vector<int>& theOut)
+void ParseCommaInts(const char *theText, std::vector<int> &theOut)
 {
     theOut.clear();
     if (theText == nullptr || theText[0] == '\0')
         return;
-    const char* aCursor = theText;
+    const char *aCursor = theText;
     while (*aCursor != '\0')
     {
         while (*aCursor == ' ' || *aCursor == ',')
@@ -120,9 +122,9 @@ void ParseCommaInts(const char* theText, std::vector<int>& theOut)
 class HeldLock
 {
 public:
-    explicit HeldLock(Sexy::CritSect& theSect)
-        : mSect(theSect)
-        , mHeld(true)
+    explicit HeldLock(Sexy::CritSect &theSect) :
+        mSect(theSect),
+        mHeld(true)
     {
         mSect.Lock();
     }
@@ -151,7 +153,7 @@ public:
     }
 
 private:
-    Sexy::CritSect& mSect;
+    Sexy::CritSect &mSect;
     bool mHeld;
 };
 
@@ -162,26 +164,26 @@ private:
 // and leaves the record in the map so a later load can fill it again.
 // ---------------------------------------------------------------------------
 
-Sexy::ResourceManager_BaseRes::ResourceManager_BaseRes()
-    : mManager(nullptr)
-    , mResourceRef(nullptr)
-    , mHeldRef(nullptr)
-    , mRefCount(0)
-    , mRefHeld(false)
-    , mGeneration(0)
-    , mResType(ResType_Image)
-    , mId()
-    , mGroup()
-    , mParentGroup()
-    , mPath()
-    , mIdEncoded()
-    , mGroupEncoded()
-    , mParentEncoded()
-    , mPathEncoded()
-    , mResId(0)
-    , mLocale(0)
-    , mAttributes()
-    , mFromProgram(false)
+Sexy::ResourceManager_BaseRes::ResourceManager_BaseRes() :
+    mManager(nullptr),
+    mResourceRef(nullptr),
+    mHeldRef(nullptr),
+    mRefCount(0),
+    mRefHeld(false),
+    mGeneration(0),
+    mResType(ResType_Image),
+    mId(),
+    mGroup(),
+    mParentGroup(),
+    mPath(),
+    mIdEncoded(),
+    mGroupEncoded(),
+    mParentEncoded(),
+    mPathEncoded(),
+    mResId(0),
+    mLocale(0),
+    mAttributes(),
+    mFromProgram(false)
 {
 }
 
@@ -189,42 +191,37 @@ Sexy::ResourceManager_BaseRes::~ResourceManager_BaseRes()
 {
     if (mHeldRef != nullptr)
     {
-        delete static_cast<Sexy::ResourceRef*>(mHeldRef);
+        delete static_cast<Sexy::ResourceRef *>(mHeldRef);
         mHeldRef = nullptr;
     }
 }
 
-void Sexy::ResourceManager_BaseRes::DeleteResource()
-{
-}
+void Sexy::ResourceManager_BaseRes::DeleteResource() {}
 
-void Sexy::ResourceManager_BaseRes::ApplyConfig()
-{
-}
+void Sexy::ResourceManager_BaseRes::ApplyConfig() {}
 
-Sexy::ResourceManager_SoundRes::ResourceManager_SoundRes()
-    : mSoundId(-1)
-    , mVolume(-1.0)
-    , mPanning(0)
+Sexy::ResourceManager_SoundRes::ResourceManager_SoundRes() :
+    mSoundId(-1),
+    mVolume(-1.0),
+    mPanning(0)
 {
     mResType = ResType_Sound;
 }
 
 void Sexy::ResourceManager_SoundRes::DeleteResource()
 {
-    if (mSoundId >= 0 && mManager != nullptr && mManager->mApp != nullptr
-        && mManager->mApp->mSoundManager != nullptr)
+    if (mSoundId >= 0 && mManager != nullptr && mManager->mApp != nullptr && mManager->mApp->mSoundManager != nullptr)
         mManager->mApp->mSoundManager->ReleaseSound((unsigned int)mSoundId);
     mSoundId = -1;
     if (mResourceRef != nullptr)
-        *static_cast<int*>(mResourceRef) = -1;
+        *static_cast<int *>(mResourceRef) = -1;
 }
 
 void Sexy::ResourceManager_SoundRes::ApplyConfig()
 {
     if (mSoundId < 0 || mManager == nullptr || mManager->mApp == nullptr)
         return;
-    Sexy::SoundManager* aSounds = mManager->mApp->mSoundManager;
+    Sexy::SoundManager *aSounds = mManager->mApp->mSoundManager;
     if (aSounds == nullptr)
         return;
     if (mVolume >= 0.0)
@@ -233,17 +230,17 @@ void Sexy::ResourceManager_SoundRes::ApplyConfig()
         aSounds->SetBasePan((unsigned int)mSoundId, mPanning);
 }
 
-Sexy::ResourceManager_FontRes::ResourceManager_FontRes()
-    : mFont(nullptr)
-    , mImage(nullptr)
-    , mSourcePath()
-    , mTags()
-    , mIsSysFont(false)
-    , mBold(false)
-    , mItalic(false)
-    , mUnderline(false)
-    , mShadow(false)
-    , mPointSize(0)
+Sexy::ResourceManager_FontRes::ResourceManager_FontRes() :
+    mFont(nullptr),
+    mImage(nullptr),
+    mSourcePath(),
+    mTags(),
+    mIsSysFont(false),
+    mBold(false),
+    mItalic(false),
+    mUnderline(false),
+    mShadow(false),
+    mPointSize(0)
 {
     mResType = ResType_Font;
 }
@@ -255,21 +252,21 @@ void Sexy::ResourceManager_FontRes::DeleteResource()
     delete mImage;
     mImage = nullptr;
     if (mResourceRef != nullptr)
-        *static_cast<Sexy::Font**>(mResourceRef) = nullptr;
+        *static_cast<Sexy::Font **>(mResourceRef) = nullptr;
 }
 
 void Sexy::ResourceManager_FontRes::ApplyConfig()
 {
     if (mFont == nullptr || mIsSysFont || mTags.empty())
         return;
-    Sexy::ImageFont* aFont = dynamic_cast<Sexy::ImageFont*>(mFont);
+    Sexy::ImageFont *aFont = dynamic_cast<Sexy::ImageFont *>(mFont);
     if (aFont == nullptr)
         return;
 
     char aTags[1024];
     strncpy(aTags, mTags.c_str(), sizeof(aTags) - 1);
     aTags[sizeof(aTags) - 1] = '\0';
-    char* aToken = strtok(aTags, ", \r\n\t");
+    char *aToken = strtok(aTags, ", \r\n\t");
     while (aToken != nullptr)
     {
         Sexy::String aTag;
@@ -280,8 +277,8 @@ void Sexy::ResourceManager_FontRes::ApplyConfig()
     aFont->Prepare();
 }
 
-Sexy::ResourceManager_PopAnimRes::ResourceManager_PopAnimRes()
-    : mPopAnim(nullptr)
+Sexy::ResourceManager_PopAnimRes::ResourceManager_PopAnimRes() :
+    mPopAnim(nullptr)
 {
     mResType = ResType_Music;
 }
@@ -291,11 +288,11 @@ void Sexy::ResourceManager_PopAnimRes::DeleteResource()
     delete mPopAnim;
     mPopAnim = nullptr;
     if (mResourceRef != nullptr)
-        *static_cast<Sexy::PopAnim**>(mResourceRef) = nullptr;
+        *static_cast<Sexy::PopAnim **>(mResourceRef) = nullptr;
 }
 
-Sexy::ResourceManager_PIEffectRes::ResourceManager_PIEffectRes()
-    : mPIEffect(nullptr)
+Sexy::ResourceManager_PIEffectRes::ResourceManager_PIEffectRes() :
+    mPIEffect(nullptr)
 {
     mResType = ResType_Reanim;
 }
@@ -305,12 +302,12 @@ void Sexy::ResourceManager_PIEffectRes::DeleteResource()
     delete mPIEffect;
     mPIEffect = nullptr;
     if (mResourceRef != nullptr)
-        *static_cast<Sexy::PIEffect**>(mResourceRef) = nullptr;
+        *static_cast<Sexy::PIEffect **>(mResourceRef) = nullptr;
 }
 
-Sexy::ResourceManager_RenderEffectRes::ResourceManager_RenderEffectRes()
-    : mRenderEffect(nullptr)
-    , mSourcePath()
+Sexy::ResourceManager_RenderEffectRes::ResourceManager_RenderEffectRes() :
+    mRenderEffect(nullptr),
+    mSourcePath()
 {
     mResType = ResType_Particle;
 }
@@ -320,12 +317,12 @@ void Sexy::ResourceManager_RenderEffectRes::DeleteResource()
     delete mRenderEffect;
     mRenderEffect = nullptr;
     if (mResourceRef != nullptr)
-        *static_cast<Sexy::RenderEffectDefinition**>(mResourceRef) = nullptr;
+        *static_cast<Sexy::RenderEffectDefinition **>(mResourceRef) = nullptr;
 }
 
-Sexy::ResourceManager_GenericResFileRes::ResourceManager_GenericResFileRes()
-    : mGenericResFile(nullptr)
-    , mFileBody()
+Sexy::ResourceManager_GenericResFileRes::ResourceManager_GenericResFileRes() :
+    mGenericResFile(nullptr),
+    mFileBody()
 {
     mResType = ResType_Trail;
 }
@@ -335,38 +332,38 @@ void Sexy::ResourceManager_GenericResFileRes::DeleteResource()
     mGenericResFile = nullptr;
     mFileBody.clear();
     if (mResourceRef != nullptr)
-        *static_cast<void**>(mResourceRef) = nullptr;
+        *static_cast<void **>(mResourceRef) = nullptr;
 }
 
-Sexy::ResourceManager_ImageRes::ResourceManager_ImageRes()
-    : mImage()
-    , mAlphaImagePath()
-    , mAlphaGridPath()
-    , mVariant()
-    , mAlphaX(0)
-    , mAlphaY(0)
-    , mNoAlpha(true)
-    , mNoPal(true)
-    , mUseA4R4G4B4(false)
-    , mUseA8R8G8B8(false)
-    , mUseA1R5G5B5(false)
-    , mUseR5G6B5(false)
-    , mNoBits(false)
-    , mMinSubdivide(false)
-    , mCubeMap(false)
-    , mVolumeMap(false)
-    , mHasBits(true)
-    , m2DBig(false)
-    , mAtlas(false)
-    , mRows(1)
-    , mCols(1)
-    , mAlphaColor(0xFFFFFF)
-    , mAnim()
-    , mParentId()
-    , mAlphaXOffset(0)
-    , mAlphaYOffset(0)
-    , mAlphaWidth(0)
-    , mAlphaHeight(0)
+Sexy::ResourceManager_ImageRes::ResourceManager_ImageRes() :
+    mImage(),
+    mAlphaImagePath(),
+    mAlphaGridPath(),
+    mVariant(),
+    mAlphaX(0),
+    mAlphaY(0),
+    mNoAlpha(true),
+    mNoPal(true),
+    mUseA4R4G4B4(false),
+    mUseA8R8G8B8(false),
+    mUseA1R5G5B5(false),
+    mUseR5G6B5(false),
+    mNoBits(false),
+    mMinSubdivide(false),
+    mCubeMap(false),
+    mVolumeMap(false),
+    mHasBits(true),
+    m2DBig(false),
+    mAtlas(false),
+    mRows(1),
+    mCols(1),
+    mAlphaColor(0xFFFFFF),
+    mAnim(),
+    mParentId(),
+    mAlphaXOffset(0),
+    mAlphaYOffset(0),
+    mAlphaWidth(0),
+    mAlphaHeight(0)
 {
     mResType = ResType_Image;
 }
@@ -375,12 +372,12 @@ void Sexy::ResourceManager_ImageRes::DeleteResource()
 {
     mImage.Release();
     if (mResourceRef != nullptr)
-        *static_cast<Sexy::Image**>(mResourceRef) = nullptr;
+        *static_cast<Sexy::Image **>(mResourceRef) = nullptr;
 }
 
 void Sexy::ResourceManager_ImageRes::ApplyConfig()
 {
-    Sexy::Image* anImage = mImage;
+    Sexy::Image *anImage = mImage;
     if (anImage == nullptr)
         return;
     anImage->mNumRows = mRows > 0 ? mRows : 1;
@@ -394,10 +391,10 @@ void Sexy::ResourceManager_ImageRes::ApplyConfig()
     }
 }
 
-Sexy::ResourceManager::SubGroup::SubGroup()
-    : mName()
-    , mScale(0)
-    , mLocale(0)
+Sexy::ResourceManager::SubGroup::SubGroup() :
+    mName(),
+    mScale(0),
+    mLocale(0)
 {
 }
 
@@ -406,58 +403,58 @@ Sexy::ResourceManager::SubGroup::SubGroup()
 // name the first three maps so a parser can hand the map to the shared path.
 // ---------------------------------------------------------------------------
 
-Sexy::ResourceManager::ResourceManager(Sexy::SexyAppBase* theApp)
-    : mLoadedGroups()
-    , mResMaps()
-    , mResMapByPath()
-    , mGlobalPtrMap()
-    , mResFilePath()
-    , mResGenDir()
-    , mResGenResId(0)
-    , mResGenLocale(0)
-    , mResGenName()
-    , mResGenPrefix()
-    , mResGenSuffix()
-    , mImageMap(&mResMaps[ResType_Image])
-    , mSoundMap(&mResMaps[ResType_Sound])
-    , mFontMap(&mResMaps[ResType_Font])
-    , mUnusedPath()
-    , mUnusedId()
-    , mXMLParser(nullptr)
-    , mErrorText()
-    , mHasError(false)
-    , mApp(theApp)
-    , mParentResGroupName()
-    , mCurResGroupName()
-    , mCurResGroupResId(0)
-    , mCurResGroupLocale(0)
-    , mPathPrefix()
-    , mIdPrefix()
-    , mAllowMissingProgramImages(false)
-    , mIsReparsing(false)
-    , mReuseLoadedResources(false)
-    , mResGroupGeneration(0)
-    , mResGroupMap()
-    , mCurResGroupList(nullptr)
-    , mCurResGroupItr()
-    , mCompositeResGroupMap()
-    , mCompositeResGroupIndex(0)
-    , mImageResDir(0)
-    , mImageResScale(0)
-    , mLocaleCode(0x454E5553)
-    , mSubGroupList()
-    , mManifestVersion(1)
-    , mCritSect()
-    , mResSuffix()
-    , mLocaleSuffix()
-    , mResLocaleSuffix()
+Sexy::ResourceManager::ResourceManager(Sexy::SexyAppBase *theApp) :
+    mLoadedGroups(),
+    mResMaps(),
+    mResMapByPath(),
+    mGlobalPtrMap(),
+    mResFilePath(),
+    mResGenDir(),
+    mResGenResId(0),
+    mResGenLocale(0),
+    mResGenName(),
+    mResGenPrefix(),
+    mResGenSuffix(),
+    mImageMap(&mResMaps[ResType_Image]),
+    mSoundMap(&mResMaps[ResType_Sound]),
+    mFontMap(&mResMaps[ResType_Font]),
+    mUnusedPath(),
+    mUnusedId(),
+    mXMLParser(nullptr),
+    mErrorText(),
+    mHasError(false),
+    mApp(theApp),
+    mParentResGroupName(),
+    mCurResGroupName(),
+    mCurResGroupResId(0),
+    mCurResGroupLocale(0),
+    mPathPrefix(),
+    mIdPrefix(),
+    mAllowMissingProgramImages(false),
+    mIsReparsing(false),
+    mReuseLoadedResources(false),
+    mResGroupGeneration(0),
+    mResGroupMap(),
+    mCurResGroupList(nullptr),
+    mCurResGroupItr(),
+    mCompositeResGroupMap(),
+    mCompositeResGroupIndex(0),
+    mImageResDir(0),
+    mImageResScale(0),
+    mLocaleCode(0x454E5553),
+    mSubGroupList(),
+    mManifestVersion(1),
+    mCritSect(),
+    mResSuffix(),
+    mLocaleSuffix(),
+    mResLocaleSuffix()
 {
-    const char* aLocale = Sexy::setLocale(nullptr, nullptr);
+    const char *aLocale = Sexy::setLocale(nullptr, nullptr);
     if (aLocale != nullptr && std::strlen(aLocale) == 5)
     {
         std::string aCode = aLocale;
         aCode.erase(2, 1);
-        for (char& aLetter : aCode)
+        for (char &aLetter : aCode)
             if (aLetter >= 'a' && aLetter <= 'z')
                 aLetter -= 'a' - 'A';
         mLocaleCode = LocaleFromText(aCode.c_str());
@@ -472,7 +469,7 @@ Sexy::ResourceManager::~ResourceManager()
     mXMLParser = nullptr;
 }
 
-void Sexy::ResourceManager::DeleteMap(ResMap& theMap)
+void Sexy::ResourceManager::DeleteMap(ResMap &theMap)
 {
     for (ResMap::iterator anEntry = theMap.begin(); anEntry != theMap.end(); ++anEntry)
     {
@@ -497,18 +494,18 @@ void Sexy::ResourceManager::EnsureSuffixes()
     mResLocaleSuffix = aText;
 }
 
-Sexy::ResourceManager::ResList& Sexy::ResourceManager::GroupList(Sexy::String const& theName)
+Sexy::ResourceManager::ResList &Sexy::ResourceManager::GroupList(Sexy::String const &theName)
 {
     return mResGroupMap[theName];
 }
 
-void Sexy::ResourceManager::Publish(BaseRes* theRes, void* theValue)
+void Sexy::ResourceManager::Publish(BaseRes *theRes, void *theValue)
 {
     if (theRes != nullptr && theRes->mResourceRef != nullptr)
-        *static_cast<void**>(theRes->mResourceRef) = theValue;
+        *static_cast<void **>(theRes->mResourceRef) = theValue;
 }
 
-void Sexy::ResourceManager::Hold(BaseRes* theRes)
+void Sexy::ResourceManager::Hold(BaseRes *theRes)
 {
     if (theRes == nullptr || theRes->mRefHeld)
         return;
@@ -521,12 +518,12 @@ void Sexy::ResourceManager::Hold(BaseRes* theRes)
 // then with the scale suffix, the locale suffix, and both.
 // ---------------------------------------------------------------------------
 
-Sexy::ResourceManager::BaseRes* Sexy::ResourceManager::GetBaseRes(int theType, Sexy::String const& theId)
+Sexy::ResourceManager::BaseRes *Sexy::ResourceManager::GetBaseRes(int theType, Sexy::String const &theId)
 {
     if (theType < 0 || theType > 6)
         return nullptr;
     EnsureSuffixes();
-    ResMap& aMap = mResMaps[theType];
+    ResMap &aMap = mResMaps[theType];
     ResMap::iterator aFound = aMap.find(theId);
     if (aFound != aMap.end())
         return aFound->second;
@@ -548,7 +545,7 @@ Sexy::ResourceManager::BaseRes* Sexy::ResourceManager::GetBaseRes(int theType, S
     return nullptr;
 }
 
-bool Sexy::ResourceManager::Fail(Sexy::String const& theText)
+bool Sexy::ResourceManager::Fail(Sexy::String const &theText)
 {
     if (mHasError)
         return false;
@@ -582,7 +579,7 @@ bool Sexy::ResourceManager::HadError()
     return mHasError;
 }
 
-bool Sexy::ResourceManager::IsGroupLoaded(Sexy::String const& theGroup)
+bool Sexy::ResourceManager::IsGroupLoaded(Sexy::String const &theGroup)
 {
     return mLoadedGroups.find(theGroup) != mLoadedGroups.end();
 }
@@ -592,36 +589,35 @@ void Sexy::ResourceManager::SetAllowMissingProgramImages(bool theAllow)
     mAllowMissingProgramImages = theAllow;
 }
 
-void Sexy::ResourceManager::ResourceLoadedHook(BaseRes* theRes)
+void Sexy::ResourceManager::ResourceLoadedHook(BaseRes *theRes)
 {
     (void)theRes;
 }
 
-void Sexy::ResourceManager::PrepareLoadResources(Sexy::String const& theGroup)
+void Sexy::ResourceManager::PrepareLoadResources(Sexy::String const &theGroup)
 {
     (void)theGroup;
 }
 
-void Sexy::ResourceManager::PrepareLoadResourcesList(char const** theGroups)
+void Sexy::ResourceManager::PrepareLoadResourcesList(char const **theGroups)
 {
     (void)theGroups;
 }
 
-float Sexy::ResourceManager::GetLoadResourcesListProgress(char const** theGroups)
+float Sexy::ResourceManager::GetLoadResourcesListProgress(char const **theGroups)
 {
     (void)theGroups;
     return 0.0f;
 }
 
-int Sexy::ResourceManager::GetLocSetForLocaleName(Sexy::String const& theName)
+int Sexy::ResourceManager::GetLocSetForLocaleName(Sexy::String const &theName)
 {
     (void)theName;
     return 0;
 }
 
-bool Sexy::ResourceManager::InitResourceGen(Sexy::String const& theDir, Sexy::String const& theName,
-                                            Sexy::String const& thePrefix, int theResId, int theLocale,
-                                            Sexy::String const& theSuffix)
+bool Sexy::ResourceManager::InitResourceGen(Sexy::String const &theDir, Sexy::String const &theName,
+    Sexy::String const &thePrefix, int theResId, int theLocale, Sexy::String const &theSuffix)
 {
     mResGenDir = theDir;
     mResGenResId = theResId;
@@ -636,8 +632,7 @@ void Sexy::ResourceManager::ReapplyConfigs()
 {
     for (int aKind = 0; aKind < 7; ++aKind)
     {
-        for (ResMap::iterator anEntry = mResMaps[aKind].begin();
-             anEntry != mResMaps[aKind].end(); ++anEntry)
+        for (ResMap::iterator anEntry = mResMaps[aKind].begin(); anEntry != mResMaps[aKind].end(); ++anEntry)
         {
             if (anEntry->second != nullptr)
                 anEntry->second->ApplyConfig();
@@ -647,7 +642,7 @@ void Sexy::ResourceManager::ReapplyConfigs()
 
 Sexy::String Sexy::ResourceManager::GetLocaleFolder(bool theTrailingSlash)
 {
-    const char* aLocale = Sexy::setLocale(nullptr, nullptr);
+    const char *aLocale = Sexy::setLocale(nullptr, nullptr);
     Sexy::String aFolder;
     if (aLocale != nullptr && aLocale[0] != '\0')
         aFolder = aLocale;
@@ -658,14 +653,13 @@ Sexy::String Sexy::ResourceManager::GetLocaleFolder(bool theTrailingSlash)
     return aFolder;
 }
 
-void Sexy::ResourceManager::DumpCurResGroup(Sexy::String& theDest)
+void Sexy::ResourceManager::DumpCurResGroup(Sexy::String &theDest)
 {
     theDest = mCurResGroupName;
     theDest += "\n";
     if (mCurResGroupList == nullptr)
         return;
-    for (ResList::iterator aRecord = mCurResGroupList->begin();
-         aRecord != mCurResGroupList->end(); ++aRecord)
+    for (ResList::iterator aRecord = mCurResGroupList->begin(); aRecord != mCurResGroupList->end(); ++aRecord)
     {
         if (*aRecord == nullptr)
             continue;
@@ -676,13 +670,13 @@ void Sexy::ResourceManager::DumpCurResGroup(Sexy::String& theDest)
     }
 }
 
-int Sexy::ResourceManager::GetNumResources(Sexy::String const& theGroup, ResMap& theMap,
-                                           bool theFilterRes, bool theFilterLocale)
+int Sexy::ResourceManager::GetNumResources(
+    Sexy::String const &theGroup, ResMap &theMap, bool theFilterRes, bool theFilterLocale)
 {
     int aCount = 0;
     for (ResMap::iterator anEntry = theMap.begin(); anEntry != theMap.end(); ++anEntry)
     {
-        BaseRes* aRecord = anEntry->second;
+        BaseRes *aRecord = anEntry->second;
         if (aRecord == nullptr || aRecord->mFromProgram)
             continue;
         if (theFilterRes && aRecord->mResId != 0 && aRecord->mResId != mImageResScale)
@@ -696,22 +690,22 @@ int Sexy::ResourceManager::GetNumResources(Sexy::String const& theGroup, ResMap&
     return aCount;
 }
 
-int Sexy::ResourceManager::GetNumImages(Sexy::String const& theGroup, bool theFilterRes, bool theFilterLocale)
+int Sexy::ResourceManager::GetNumImages(Sexy::String const &theGroup, bool theFilterRes, bool theFilterLocale)
 {
     return GetNumResources(theGroup, mResMaps[ResType_Image], theFilterRes, theFilterLocale);
 }
 
-int Sexy::ResourceManager::GetNumSounds(Sexy::String const& theGroup, bool theFilterRes, bool theFilterLocale)
+int Sexy::ResourceManager::GetNumSounds(Sexy::String const &theGroup, bool theFilterRes, bool theFilterLocale)
 {
     return GetNumResources(theGroup, mResMaps[ResType_Sound], theFilterRes, theFilterLocale);
 }
 
-int Sexy::ResourceManager::GetNumFonts(Sexy::String const& theGroup, bool theFilterRes, bool theFilterLocale)
+int Sexy::ResourceManager::GetNumFonts(Sexy::String const &theGroup, bool theFilterRes, bool theFilterLocale)
 {
     return GetNumResources(theGroup, mResMaps[ResType_Font], theFilterRes, theFilterLocale);
 }
 
-int Sexy::ResourceManager::GetNumResources(Sexy::String const& theGroup, bool theFilterRes, bool theFilterLocale)
+int Sexy::ResourceManager::GetNumResources(Sexy::String const &theGroup, bool theFilterRes, bool theFilterLocale)
 {
     int aCount = 0;
     for (int aKind = 0; aKind < 7; ++aKind)
@@ -719,7 +713,7 @@ int Sexy::ResourceManager::GetNumResources(Sexy::String const& theGroup, bool th
     return aCount;
 }
 
-void Sexy::ResourceManager::Deref(BaseRes* theRes)
+void Sexy::ResourceManager::Deref(BaseRes *theRes)
 {
     if (theRes == nullptr)
         return;
@@ -736,7 +730,7 @@ void Sexy::ResourceManager::Deref(BaseRes* theRes)
 // stem when the attribute is absent.
 // ---------------------------------------------------------------------------
 
-bool Sexy::ResourceManager::ParseCommonResource(Sexy::XMLElement& theElement, BaseRes* theRes, ResMap& theMap)
+bool Sexy::ResourceManager::ParseCommonResource(Sexy::XMLElement &theElement, BaseRes *theRes, ResMap &theMap)
 {
     mReuseLoadedResources = false;
     theRes->mManager = this;
@@ -748,7 +742,7 @@ bool Sexy::ResourceManager::ParseCommonResource(Sexy::XMLElement& theElement, Ba
     if (aPathFound == theElement.mAttributes.end() || aPathFound->second.empty())
         return Fail(Sexy::String("No path specified."));
 
-    const Sexy::String& aPathText = aPathFound->second;
+    const Sexy::String &aPathText = aPathFound->second;
     theRes->mAttributes = theElement.mAttributes;
     theRes->mFromProgram = false;
 
@@ -773,7 +767,7 @@ bool Sexy::ResourceManager::ParseCommonResource(Sexy::XMLElement& theElement, Ba
     }
 
     Sexy::String aId;
-    const char* anIdAttr = AttributeOrNull(theElement, "id");
+    const char *anIdAttr = AttributeOrNull(theElement, "id");
     if (anIdAttr == nullptr)
         aId = mIdPrefix + FileStem(theRes->mPath);
     else
@@ -814,13 +808,13 @@ bool Sexy::ResourceManager::ParseCommonResource(Sexy::XMLElement& theElement, Ba
     }
 
     theMap[aId] = theRes;
-    ResList& aGroup = GroupList(mCurResGroupName);
+    ResList &aGroup = GroupList(mCurResGroupName);
     aGroup.push_back(theRes);
     mCurResGroupList = &mResGroupMap[mCurResGroupName];
     return true;
 }
 
-bool Sexy::ResourceManager::ParseSetDefaults(Sexy::XMLElement& theElement)
+bool Sexy::ResourceManager::ParseSetDefaults(Sexy::XMLElement &theElement)
 {
     Sexy::String aPath = theElement.GetAttribute("path");
     if (!aPath.empty())
@@ -835,10 +829,10 @@ bool Sexy::ResourceManager::ParseSetDefaults(Sexy::XMLElement& theElement)
     return true;
 }
 
-bool Sexy::ResourceManager::ParseSoundResource(Sexy::XMLElement& theElement)
+bool Sexy::ResourceManager::ParseSoundResource(Sexy::XMLElement &theElement)
 {
-    SoundRes* aNew = new SoundRes();
-    SoundRes* aLive = aNew;
+    SoundRes *aNew = new SoundRes();
+    SoundRes *aLive = aNew;
     if (!ParseCommonResource(theElement, aNew, *mSoundMap))
     {
         if (!mReuseLoadedResources || !mIsReparsing)
@@ -848,7 +842,7 @@ bool Sexy::ResourceManager::ParseSoundResource(Sexy::XMLElement& theElement)
         }
         mErrorText.clear();
         mHasError = false;
-        aLive = static_cast<SoundRes*>((*mSoundMap)[aNew->mId]);
+        aLive = static_cast<SoundRes *>((*mSoundMap)[aNew->mId]);
         if (aLive != nullptr)
         {
             aLive->mPath = aNew->mPath;
@@ -861,30 +855,30 @@ bool Sexy::ResourceManager::ParseSoundResource(Sexy::XMLElement& theElement)
             return false;
     }
 
-    const char* aVolume = AttributeOrNull(theElement, "volume");
+    const char *aVolume = AttributeOrNull(theElement, "volume");
     if (aVolume != nullptr)
         sscanf(aVolume, "%lf", &aLive->mVolume);
-    const char* aPan = AttributeOrNull(theElement, "pan");
+    const char *aPan = AttributeOrNull(theElement, "pan");
     if (aPan != nullptr)
         sscanf(aPan, "%d", &aLive->mPanning);
     aLive->ApplyConfig();
     return true;
 }
 
-void Sexy::ResourceManager::ApplyImageFlags(ImageRes* theRes)
+void Sexy::ResourceManager::ApplyImageFlags(ImageRes *theRes)
 {
     theRes->ApplyConfig();
 }
 
-bool Sexy::ResourceManager::ParseImageResource(Sexy::XMLElement& theElement)
+bool Sexy::ResourceManager::ParseImageResource(Sexy::XMLElement &theElement)
 {
-    const char* anId = AttributeOrNull(theElement, "id");
-    const char* aPath = AttributeOrNull(theElement, "path");
+    const char *anId = AttributeOrNull(theElement, "id");
+    const char *aPath = AttributeOrNull(theElement, "path");
     if (anId == nullptr || anId[0] == '\0' || aPath == nullptr || aPath[0] == '\0')
         return true;
 
-    ImageRes* aNew = new ImageRes();
-    ImageRes* aLive = aNew;
+    ImageRes *aNew = new ImageRes();
+    ImageRes *aLive = aNew;
     if (!ParseCommonResource(theElement, aNew, *mImageMap))
     {
         if (!mReuseLoadedResources)
@@ -894,7 +888,7 @@ bool Sexy::ResourceManager::ParseImageResource(Sexy::XMLElement& theElement)
         }
         mErrorText.clear();
         mHasError = false;
-        aLive = static_cast<ImageRes*>((*mImageMap)[aNew->mId]);
+        aLive = static_cast<ImageRes *>((*mImageMap)[aNew->mId]);
         if (aLive != nullptr)
         {
             aLive->mPath = aNew->mPath;
@@ -926,7 +920,7 @@ bool Sexy::ResourceManager::ParseImageResource(Sexy::XMLElement& theElement)
     aLive->m2DBig = theElement.GetAttributeBool(Sexy::String("2dbig"), false) != 0;
     aLive->mAtlas = theElement.GetAttributeBool(Sexy::String("atlas"), false) != 0;
 
-    const char* aAlphaImage = AttributeOrNull(theElement, "alphaimage");
+    const char *aAlphaImage = AttributeOrNull(theElement, "alphaimage");
     if (aAlphaImage != nullptr)
     {
         Sexy::String aJoined = mPathPrefix;
@@ -934,7 +928,7 @@ bool Sexy::ResourceManager::ParseImageResource(Sexy::XMLElement& theElement)
         aLive->mAlphaImagePath = aJoined;
     }
     aLive->mAlphaColor = 0xFFFFFF;
-    const char* aAlphaColor = AttributeOrNull(theElement, "alphacolor");
+    const char *aAlphaColor = AttributeOrNull(theElement, "alphacolor");
     if (aAlphaColor != nullptr)
     {
         unsigned int aValue = 0xFFFFFFu;
@@ -942,15 +936,15 @@ bool Sexy::ResourceManager::ParseImageResource(Sexy::XMLElement& theElement)
         aLive->mAlphaColor = (int)aValue;
     }
 
-    const char* aX = AttributeOrNull(theElement, "x");
+    const char *aX = AttributeOrNull(theElement, "x");
     aLive->mAlphaX = aX == nullptr ? 0 : atoi(aX);
-    const char* aY = AttributeOrNull(theElement, "y");
+    const char *aY = AttributeOrNull(theElement, "y");
     aLive->mAlphaY = aY == nullptr ? 0 : atoi(aY);
 
-    const char* aVariant = AttributeOrNull(theElement, "variant");
+    const char *aVariant = AttributeOrNull(theElement, "variant");
     if (aVariant != nullptr)
         aLive->mVariant = aVariant;
-    const char* aAlphaGrid = AttributeOrNull(theElement, "alphagrid");
+    const char *aAlphaGrid = AttributeOrNull(theElement, "alphagrid");
     if (aAlphaGrid != nullptr)
     {
         Sexy::String aJoined = mPathPrefix;
@@ -958,12 +952,12 @@ bool Sexy::ResourceManager::ParseImageResource(Sexy::XMLElement& theElement)
         aLive->mAlphaGridPath = aJoined;
     }
 
-    const char* aRows = AttributeOrNull(theElement, "rows");
+    const char *aRows = AttributeOrNull(theElement, "rows");
     aLive->mRows = aRows == nullptr ? 1 : atoi(aRows);
-    const char* aCols = AttributeOrNull(theElement, "cols");
+    const char *aCols = AttributeOrNull(theElement, "cols");
     aLive->mCols = aCols == nullptr ? 1 : atoi(aCols);
 
-    const char* aParent = AttributeOrNull(theElement, "parent");
+    const char *aParent = AttributeOrNull(theElement, "parent");
     if (aParent != nullptr)
     {
         aLive->mParentId = aParent;
@@ -979,10 +973,11 @@ bool Sexy::ResourceManager::ParseImageResource(Sexy::XMLElement& theElement)
     {
         int aCells = aLive->mRows * aLive->mCols;
         if (aCells == 0 || (aCells & (aCells - 1)) != 0)
-            return Fail(Sexy::String("Invalid VolumeMap definition; must have a pow2 cell count (check rows & cols values)."));
+            return Fail(
+                Sexy::String("Invalid VolumeMap definition; must have a pow2 cell count (check rows & cols values)."));
     }
 
-    const char* aAnim = AttributeOrNull(theElement, "anim");
+    const char *aAnim = AttributeOrNull(theElement, "anim");
     if (aAnim == nullptr || strcasecmp(aAnim, "none") == 0)
     {
         aLive->mAnim.mAnimType = AnimType_None;
@@ -1001,21 +996,21 @@ bool Sexy::ResourceManager::ParseImageResource(Sexy::XMLElement& theElement)
 
         aLive->mAnim.mAnimType = aType;
         int aNumCels = aLive->mRows > aLive->mCols ? aLive->mRows : aLive->mCols;
-        const char* aFrameDelay = AttributeOrNull(theElement, "framedelay");
+        const char *aFrameDelay = AttributeOrNull(theElement, "framedelay");
         if (aFrameDelay != nullptr)
             aLive->mAnim.mFrameDelay = atoi(aFrameDelay);
         int aBeginDelay = 0;
-        const char* aBegin = AttributeOrNull(theElement, "begindelay");
+        const char *aBegin = AttributeOrNull(theElement, "begindelay");
         if (aBegin != nullptr)
             aBeginDelay = atoi(aBegin);
         int aEndDelay = 0;
-        const char* aEnd = AttributeOrNull(theElement, "enddelay");
+        const char *aEnd = AttributeOrNull(theElement, "enddelay");
         if (aEnd != nullptr)
             aEndDelay = atoi(aEnd);
-        const char* aPerFrame = AttributeOrNull(theElement, "perframedelay");
+        const char *aPerFrame = AttributeOrNull(theElement, "perframedelay");
         if (aPerFrame != nullptr)
             ParseCommaInts(aPerFrame, aLive->mAnim.mPerFrameDelay);
-        const char* aFrameMap = AttributeOrNull(theElement, "framemap");
+        const char *aFrameMap = AttributeOrNull(theElement, "framemap");
         if (aFrameMap != nullptr)
             ParseCommaInts(aFrameMap, aLive->mAnim.mFrameMap);
         aLive->mAnim.Compute(aNumCels, aBeginDelay, aEndDelay);
@@ -1025,10 +1020,10 @@ bool Sexy::ResourceManager::ParseImageResource(Sexy::XMLElement& theElement)
     return true;
 }
 
-bool Sexy::ResourceManager::ParseFontResource(Sexy::XMLElement& theElement)
+bool Sexy::ResourceManager::ParseFontResource(Sexy::XMLElement &theElement)
 {
-    FontRes* aNew = new FontRes();
-    FontRes* aLive = aNew;
+    FontRes *aNew = new FontRes();
+    FontRes *aLive = aNew;
     if (!ParseCommonResource(theElement, aNew, *mFontMap))
     {
         if (!mReuseLoadedResources)
@@ -1038,7 +1033,7 @@ bool Sexy::ResourceManager::ParseFontResource(Sexy::XMLElement& theElement)
         }
         mErrorText.clear();
         mHasError = false;
-        aLive = static_cast<FontRes*>((*mFontMap)[aNew->mId]);
+        aLive = static_cast<FontRes *>((*mFontMap)[aNew->mId]);
         if (aLive != nullptr)
         {
             aLive->mPath = aNew->mPath;
@@ -1051,10 +1046,10 @@ bool Sexy::ResourceManager::ParseFontResource(Sexy::XMLElement& theElement)
             return false;
     }
 
-    const char* anImage = AttributeOrNull(theElement, "image");
+    const char *anImage = AttributeOrNull(theElement, "image");
     if (anImage != nullptr)
         aLive->mSourcePath = anImage;
-    const char* aTags = AttributeOrNull(theElement, "tags");
+    const char *aTags = AttributeOrNull(theElement, "tags");
     if (aTags != nullptr)
         aLive->mTags = aTags;
 
@@ -1064,7 +1059,7 @@ bool Sexy::ResourceManager::ParseFontResource(Sexy::XMLElement& theElement)
         Sexy::String aStripped = aLive->mPath.substr(5);
         aLive->mPathEncoded = aStripped;
         aLive->mPath = aStripped;
-        const char* aSizeText = AttributeOrNull(theElement, "size");
+        const char *aSizeText = AttributeOrNull(theElement, "size");
         if (aSizeText == nullptr)
             return Fail(Sexy::String("SysFont needs point size"));
         int aSize = atoi(aSizeText);
@@ -1084,9 +1079,9 @@ bool Sexy::ResourceManager::ParseFontResource(Sexy::XMLElement& theElement)
     return true;
 }
 
-bool Sexy::ResourceManager::ParsePopAnimResource(Sexy::XMLElement& theElement)
+bool Sexy::ResourceManager::ParsePopAnimResource(Sexy::XMLElement &theElement)
 {
-    PopAnimRes* aNew = new PopAnimRes();
+    PopAnimRes *aNew = new PopAnimRes();
     if (!ParseCommonResource(theElement, aNew, mResMaps[ResType_Music]))
     {
         if (!mReuseLoadedResources)
@@ -1096,7 +1091,7 @@ bool Sexy::ResourceManager::ParsePopAnimResource(Sexy::XMLElement& theElement)
         }
         mErrorText.clear();
         mHasError = false;
-        PopAnimRes* aLive = static_cast<PopAnimRes*>(mResMaps[ResType_Music][aNew->mId]);
+        PopAnimRes *aLive = static_cast<PopAnimRes *>(mResMaps[ResType_Music][aNew->mId]);
         if (aLive != nullptr)
         {
             aLive->mPath = aNew->mPath;
@@ -1110,9 +1105,9 @@ bool Sexy::ResourceManager::ParsePopAnimResource(Sexy::XMLElement& theElement)
     return true;
 }
 
-bool Sexy::ResourceManager::ParsePIEffectResource(Sexy::XMLElement& theElement)
+bool Sexy::ResourceManager::ParsePIEffectResource(Sexy::XMLElement &theElement)
 {
-    PIEffectRes* aNew = new PIEffectRes();
+    PIEffectRes *aNew = new PIEffectRes();
     if (!ParseCommonResource(theElement, aNew, mResMaps[ResType_Reanim]))
     {
         if (!mReuseLoadedResources)
@@ -1122,7 +1117,7 @@ bool Sexy::ResourceManager::ParsePIEffectResource(Sexy::XMLElement& theElement)
         }
         mErrorText.clear();
         mHasError = false;
-        PIEffectRes* aLive = static_cast<PIEffectRes*>(mResMaps[ResType_Reanim][aNew->mId]);
+        PIEffectRes *aLive = static_cast<PIEffectRes *>(mResMaps[ResType_Reanim][aNew->mId]);
         if (aLive != nullptr)
         {
             aLive->mPath = aNew->mPath;
@@ -1136,10 +1131,10 @@ bool Sexy::ResourceManager::ParsePIEffectResource(Sexy::XMLElement& theElement)
     return true;
 }
 
-bool Sexy::ResourceManager::ParseRenderEffectResource(Sexy::XMLElement& theElement)
+bool Sexy::ResourceManager::ParseRenderEffectResource(Sexy::XMLElement &theElement)
 {
-    RenderEffectRes* aNew = new RenderEffectRes();
-    RenderEffectRes* aLive = aNew;
+    RenderEffectRes *aNew = new RenderEffectRes();
+    RenderEffectRes *aLive = aNew;
     if (!ParseCommonResource(theElement, aNew, mResMaps[ResType_Particle]))
     {
         if (!mReuseLoadedResources)
@@ -1149,7 +1144,7 @@ bool Sexy::ResourceManager::ParseRenderEffectResource(Sexy::XMLElement& theEleme
         }
         mErrorText.clear();
         mHasError = false;
-        aLive = static_cast<RenderEffectRes*>(mResMaps[ResType_Particle][aNew->mId]);
+        aLive = static_cast<RenderEffectRes *>(mResMaps[ResType_Particle][aNew->mId]);
         if (aLive != nullptr)
         {
             aLive->mPath = aNew->mPath;
@@ -1162,7 +1157,7 @@ bool Sexy::ResourceManager::ParseRenderEffectResource(Sexy::XMLElement& theEleme
             return false;
     }
     aLive->mSourcePath.clear();
-    const char* aSource = AttributeOrNull(theElement, "srcpath");
+    const char *aSource = AttributeOrNull(theElement, "srcpath");
     if (aSource != nullptr && aSource[0] != '\0')
     {
         Sexy::String aJoined = mPathPrefix;
@@ -1172,9 +1167,9 @@ bool Sexy::ResourceManager::ParseRenderEffectResource(Sexy::XMLElement& theEleme
     return true;
 }
 
-bool Sexy::ResourceManager::ParseGenericResFileResource(Sexy::XMLElement& theElement)
+bool Sexy::ResourceManager::ParseGenericResFileResource(Sexy::XMLElement &theElement)
 {
-    GenericResFileRes* aNew = new GenericResFileRes();
+    GenericResFileRes *aNew = new GenericResFileRes();
     if (!ParseCommonResource(theElement, aNew, mResMaps[ResType_Trail]))
     {
         if (!mReuseLoadedResources)
@@ -1184,8 +1179,7 @@ bool Sexy::ResourceManager::ParseGenericResFileResource(Sexy::XMLElement& theEle
         }
         mErrorText.clear();
         mHasError = false;
-        GenericResFileRes* aLive =
-            static_cast<GenericResFileRes*>(mResMaps[ResType_Trail][aNew->mId]);
+        GenericResFileRes *aLive = static_cast<GenericResFileRes *>(mResMaps[ResType_Trail][aNew->mId]);
         if (aLive != nullptr)
         {
             aLive->mPath = aNew->mPath;
@@ -1279,7 +1273,7 @@ bool Sexy::ResourceManager::DoParseResources()
         if (aId.empty())
             return Fail(Sexy::String("No id specified on CompositeGroup."));
 
-        CompositeResGroup& aComposite = mCompositeResGroupMap[aId];
+        CompositeResGroup &aComposite = mCompositeResGroupMap[aId];
         aComposite.mSubGroups.clear();
         for (;;)
         {
@@ -1306,7 +1300,7 @@ bool Sexy::ResourceManager::DoParseResources()
     return !mHasError;
 }
 
-bool Sexy::ResourceManager::ParseResourcesFile(Sexy::String const& theFileName)
+bool Sexy::ResourceManager::ParseResourcesFile(Sexy::String const &theFileName)
 {
     mResFilePath = theFileName;
     delete mXMLParser;
@@ -1328,7 +1322,7 @@ bool Sexy::ResourceManager::ParseResourcesFile(Sexy::String const& theFileName)
             return Fail(Sexy::String("Resource file not found: ") + theFileName);
 
         int aByteCount = aBuffer.mDataBitSize / 8;
-        const char* aBytes = aBuffer.mData.empty() ? "" : (const char*)&aBuffer.mData[0];
+        const char *aBytes = aBuffer.mData.empty() ? "" : (const char *)&aBuffer.mData[0];
         Sexy::String aSource(aBytes, (unsigned int)aByteCount);
         mXMLParser->SetStringSource(aSource);
         aOpened = mXMLParser->HasFailed() == 0;
@@ -1375,7 +1369,7 @@ bool Sexy::ResourceManager::ParseResourcesFile(Sexy::String const& theFileName)
     return DoParseResources();
 }
 
-bool Sexy::ResourceManager::ReparseResourcesFile(Sexy::String const& theFileName)
+bool Sexy::ResourceManager::ReparseResourcesFile(Sexy::String const &theFileName)
 {
     bool aWasReparsing = mIsReparsing;
     mIsReparsing = true;
@@ -1384,10 +1378,9 @@ bool Sexy::ResourceManager::ReparseResourcesFile(Sexy::String const& theFileName
 
     for (int aKind = 0; aKind < 7; ++aKind)
     {
-        for (ResMap::iterator anEntry = mResMaps[aKind].begin();
-             anEntry != mResMaps[aKind].end(); ++anEntry)
+        for (ResMap::iterator anEntry = mResMaps[aKind].begin(); anEntry != mResMaps[aKind].end(); ++anEntry)
         {
-            BaseRes* aRecord = anEntry->second;
+            BaseRes *aRecord = anEntry->second;
             if (aRecord != nullptr && aRecord->mGeneration != mResGroupGeneration)
                 aRecord->DeleteResource();
         }
@@ -1401,9 +1394,9 @@ bool Sexy::ResourceManager::ReparseResourcesFile(Sexy::String const& theFileName
 // Everything else asks the app for the file and publishes the result.
 // ---------------------------------------------------------------------------
 
-bool Sexy::ResourceManager::DoLoadImage(ImageRes* theRes)
+bool Sexy::ResourceManager::DoLoadImage(ImageRes *theRes)
 {
-    const char* aPath = theRes->mPath.c_str();
+    const char *aPath = theRes->mPath.c_str();
     if (aPath == nullptr || aPath[0] == '\0')
         return false;
 
@@ -1446,23 +1439,23 @@ bool Sexy::ResourceManager::DoLoadImage(ImageRes* theRes)
     return true;
 }
 
-bool Sexy::ResourceManager::DoLoadSound(SoundRes* theRes)
+bool Sexy::ResourceManager::DoLoadSound(SoundRes *theRes)
 {
     HeldLock aLock(mCritSect);
-    const char* aPath = theRes->mPath.c_str();
+    const char *aPath = theRes->mPath.c_str();
     if (strncmp(aPath, "!ref:", 5) == 0)
     {
         Sexy::String aRefId;
         aRefId = aPath + 5;
-        BaseRes* aRef = GetBaseRes(ResType_Sound, aRefId);
+        BaseRes *aRef = GetBaseRes(ResType_Sound, aRefId);
         if (aRef == nullptr)
         {
             aLock.Unlock();
             return Fail(Sexy::String("Ref sound not found: ") + aRefId);
         }
-        theRes->mSoundId = static_cast<SoundRes*>(aRef)->mSoundId;
+        theRes->mSoundId = static_cast<SoundRes *>(aRef)->mSoundId;
         if (theRes->mResourceRef != nullptr)
-            *static_cast<int*>(theRes->mResourceRef) = theRes->mSoundId;
+            *static_cast<int *>(theRes->mResourceRef) = theRes->mSoundId;
         return true;
     }
 
@@ -1472,7 +1465,7 @@ bool Sexy::ResourceManager::DoLoadSound(SoundRes* theRes)
         return Fail(Sexy::String("Failed to load sound: ") + theRes->mPath);
     }
 
-    Sexy::SoundManager* aSounds = mApp->mSoundManager;
+    Sexy::SoundManager *aSounds = mApp->mSoundManager;
     int anId = aSounds->GetFreeSoundId();
     if (anId < 0)
     {
@@ -1490,16 +1483,16 @@ bool Sexy::ResourceManager::DoLoadSound(SoundRes* theRes)
     theRes->mSoundId = anId;
     theRes->ApplyConfig();
     if (theRes->mResourceRef != nullptr)
-        *static_cast<int*>(theRes->mResourceRef) = anId;
+        *static_cast<int *>(theRes->mResourceRef) = anId;
     ResourceLoadedHook(theRes);
     return true;
 }
 
-bool Sexy::ResourceManager::AcceptFont(FontRes* theRes, Sexy::Font* theFont)
+bool Sexy::ResourceManager::AcceptFont(FontRes *theRes, Sexy::Font *theFont)
 {
     if (theFont == nullptr)
         return true;
-    Sexy::ImageFont* anImageFont = dynamic_cast<Sexy::ImageFont*>(theFont);
+    Sexy::ImageFont *anImageFont = dynamic_cast<Sexy::ImageFont *>(theFont);
     if (anImageFont == nullptr)
         return true;
     if (anImageFont->mFontData == nullptr || anImageFont->mFontData->mIsListFont == 0)
@@ -1515,7 +1508,7 @@ bool Sexy::ResourceManager::AcceptFont(FontRes* theRes, Sexy::Font* theFont)
     return true;
 }
 
-bool Sexy::ResourceManager::DoLoadFont(FontRes* theRes)
+bool Sexy::ResourceManager::DoLoadFont(FontRes *theRes)
 {
     HeldLock aLock(mCritSect);
     Sexy::String aPath = theRes->mPath;
@@ -1558,7 +1551,7 @@ bool Sexy::ResourceManager::DoLoadFont(FontRes* theRes)
         Sexy::String aLocalized = TryLocalizedResourcePath(theRes->mPath, aEmpty, aEmpty);
         if (mApp == nullptr || mApp->mPlatformDriverOrQueue == nullptr)
             return false;
-        Sexy::Font* aFont = mApp->mPlatformDriverOrQueue->CreateFont(
+        Sexy::Font *aFont = mApp->mPlatformDriverOrQueue->CreateFont(
             mApp, aLocalized, theRes->mPointSize, theRes->mBold, theRes->mItalic, theRes->mUnderline);
         if (aFont == nullptr)
             return false;
@@ -1576,7 +1569,7 @@ bool Sexy::ResourceManager::DoLoadFont(FontRes* theRes)
     {
         Sexy::String aEmpty;
         Sexy::String aLocalized = GetLocalizedResourcePath(theRes->mSourcePath, aEmpty, aEmpty);
-        Sexy::Image* anImage = mApp != nullptr ? mApp->GetImage(aLocalized, true) : nullptr;
+        Sexy::Image *anImage = mApp != nullptr ? mApp->GetImage(aLocalized, true) : nullptr;
         if (anImage == nullptr && mApp != nullptr)
             anImage = mApp->GetImage(theRes->mSourcePath, true);
         if (anImage == nullptr)
@@ -1586,7 +1579,7 @@ bool Sexy::ResourceManager::DoLoadFont(FontRes* theRes)
             return Fail(Sexy::String(aText));
         }
         theRes->mImage = anImage;
-        Sexy::ImageFont* aMade = new Sexy::ImageFont(anImage, aPath);
+        Sexy::ImageFont *aMade = new Sexy::ImageFont(anImage, aPath);
         if (!AcceptFont(theRes, aMade))
             return false;
         theRes->mFont = aMade;
@@ -1602,12 +1595,12 @@ bool Sexy::ResourceManager::DoLoadFont(FontRes* theRes)
         Sexy::ResourceRef aRef = GetFontRef(aId);
         aLock.Lock();
         if (theRes->mHeldRef != nullptr)
-            delete static_cast<Sexy::ResourceRef*>(theRes->mHeldRef);
+            delete static_cast<Sexy::ResourceRef *>(theRes->mHeldRef);
         theRes->mHeldRef = new Sexy::ResourceRef(aRef);
-        Sexy::Font* aFont = static_cast<Sexy::ResourceRef*>(theRes->mHeldRef)->operator Sexy::Font*();
+        Sexy::Font *aFont = static_cast<Sexy::ResourceRef *>(theRes->mHeldRef)->operator Sexy::Font *();
         if (aFont == nullptr)
             return Fail(Sexy::String("Ref Font not found: ") + aId);
-        Sexy::Font* aCopy = aFont->Duplicate();
+        Sexy::Font *aCopy = aFont->Duplicate();
         if (aCopy != nullptr && !AcceptFont(theRes, aCopy))
             return false;
         theRes->mFont = aCopy;
@@ -1618,7 +1611,7 @@ bool Sexy::ResourceManager::DoLoadFont(FontRes* theRes)
 
     Sexy::String aEmpty;
     Sexy::String aLocalized = TryLocalizedResourcePath(aPath, aEmpty, aEmpty);
-    Sexy::ImageFont* aMade = new Sexy::ImageFont(mApp, aLocalized);
+    Sexy::ImageFont *aMade = new Sexy::ImageFont(mApp, aLocalized);
     if (!AcceptFont(theRes, aMade))
         return false;
     theRes->mFont = aMade;
@@ -1627,9 +1620,9 @@ bool Sexy::ResourceManager::DoLoadFont(FontRes* theRes)
     return true;
 }
 
-bool Sexy::ResourceManager::DoLoadPopAnim(PopAnimRes* theRes)
+bool Sexy::ResourceManager::DoLoadPopAnim(PopAnimRes *theRes)
 {
-    Sexy::PopAnim* aPop = new Sexy::PopAnim(0, nullptr);
+    Sexy::PopAnim *aPop = new Sexy::PopAnim(0, nullptr);
     char aPrefixText[64];
     sprintf(aPrefixText, "images\\%d\\", mImageResDir);
     Sexy::String aPrefix;
@@ -1664,9 +1657,9 @@ bool Sexy::ResourceManager::DoLoadPopAnim(PopAnimRes* theRes)
     return true;
 }
 
-bool Sexy::ResourceManager::DoLoadPIEffect(PIEffectRes* theRes)
+bool Sexy::ResourceManager::DoLoadPIEffect(PIEffectRes *theRes)
 {
-    Sexy::PIEffect* anEffect = new Sexy::PIEffect();
+    Sexy::PIEffect *anEffect = new Sexy::PIEffect();
     anEffect->LoadEffect(theRes->mPath);
     if (!anEffect->mError.empty())
     {
@@ -1682,9 +1675,9 @@ bool Sexy::ResourceManager::DoLoadPIEffect(PIEffectRes* theRes)
     return true;
 }
 
-bool Sexy::ResourceManager::DoLoadRenderEffect(RenderEffectRes* theRes)
+bool Sexy::ResourceManager::DoLoadRenderEffect(RenderEffectRes *theRes)
 {
-    Sexy::RenderEffectDefinition* anEffect = new Sexy::RenderEffectDefinition();
+    Sexy::RenderEffectDefinition *anEffect = new Sexy::RenderEffectDefinition();
     int aLoaded = anEffect->LoadFromFile(theRes->mPath.c_str(), theRes->mSourcePath.c_str());
     if (aLoaded == 0)
     {
@@ -1699,14 +1692,14 @@ bool Sexy::ResourceManager::DoLoadRenderEffect(RenderEffectRes* theRes)
     return true;
 }
 
-bool Sexy::ResourceManager::DoLoadGenericResFile(GenericResFileRes* theRes)
+bool Sexy::ResourceManager::DoLoadGenericResFile(GenericResFileRes *theRes)
 {
     theRes->mFileBody = theRes->mPath;
     ResourceLoadedHook(theRes);
     return true;
 }
 
-bool Sexy::ResourceManager::DoLoadResource(BaseRes* theRes, bool* theKeepGoing)
+bool Sexy::ResourceManager::DoLoadResource(BaseRes *theRes, bool *theKeepGoing)
 {
     if (theKeepGoing != nullptr)
         *theKeepGoing = false;
@@ -1722,48 +1715,48 @@ bool Sexy::ResourceManager::DoLoadResource(BaseRes* theRes, bool* theKeepGoing)
     bool aLoaded = false;
     switch (theRes->mResType)
     {
-    case ResType_Image:
-        SexyPerf::StartTiming("ResourceManager::DoLoadResource(ResType_Image)");
-        aLoaded = DoLoadImage(static_cast<ImageRes*>(theRes));
-        SexyPerf::StopTiming("ResourceManager::DoLoadResource(ResType_Image)");
-        break;
-    case ResType_Sound:
-        SexyPerf::StartTiming("ResourceManager::DoLoadResource(ResType_Sound)");
-        aLoaded = DoLoadSound(static_cast<SoundRes*>(theRes));
-        SexyPerf::StopTiming("ResourceManager::DoLoadResource(ResType_Sound)");
-        break;
-    case ResType_Font:
-        SexyPerf::StartTiming("ResourceManager::DoLoadResource(ResType_Font)");
-        aLoaded = DoLoadFont(static_cast<FontRes*>(theRes));
-        SexyPerf::StopTiming("ResourceManager::DoLoadResource(ResType_Font)");
-        break;
-    case ResType_Music:
-        SexyPerf::StartTiming("ResourceManager::DoLoadResource(ResType_PopAnim)");
-        aLoaded = DoLoadPopAnim(static_cast<PopAnimRes*>(theRes));
-        SexyPerf::StopTiming("ResourceManager::DoLoadResource(ResType_PopAnim)");
-        break;
-    case ResType_Reanim:
-        SexyPerf::StartTiming("ResourceManager::DoLoadResource(ResType_PIEffect)");
-        aLoaded = DoLoadPIEffect(static_cast<PIEffectRes*>(theRes));
-        SexyPerf::StopTiming("ResourceManager::DoLoadResource(ResType_PIEffect)");
-        break;
-    case ResType_Particle:
-        SexyPerf::StartTiming("ResourceManager::DoLoadResource(ResType_RenderEffect)");
-        aLoaded = DoLoadRenderEffect(static_cast<RenderEffectRes*>(theRes));
-        SexyPerf::StopTiming("ResourceManager::DoLoadResource(ResType_RenderEffect)");
-        break;
-    case ResType_Trail:
-        SexyPerf::StartTiming("ResourceManager::DoLoadResource(ResType_GenericResFile)");
-        aLoaded = DoLoadGenericResFile(static_cast<GenericResFileRes*>(theRes));
-        SexyPerf::StopTiming("ResourceManager::DoLoadResource(ResType_GenericResFile)");
-        break;
-    default:
-        break;
+        case ResType_Image:
+            SexyPerf::StartTiming("ResourceManager::DoLoadResource(ResType_Image)");
+            aLoaded = DoLoadImage(static_cast<ImageRes *>(theRes));
+            SexyPerf::StopTiming("ResourceManager::DoLoadResource(ResType_Image)");
+            break;
+        case ResType_Sound:
+            SexyPerf::StartTiming("ResourceManager::DoLoadResource(ResType_Sound)");
+            aLoaded = DoLoadSound(static_cast<SoundRes *>(theRes));
+            SexyPerf::StopTiming("ResourceManager::DoLoadResource(ResType_Sound)");
+            break;
+        case ResType_Font:
+            SexyPerf::StartTiming("ResourceManager::DoLoadResource(ResType_Font)");
+            aLoaded = DoLoadFont(static_cast<FontRes *>(theRes));
+            SexyPerf::StopTiming("ResourceManager::DoLoadResource(ResType_Font)");
+            break;
+        case ResType_Music:
+            SexyPerf::StartTiming("ResourceManager::DoLoadResource(ResType_PopAnim)");
+            aLoaded = DoLoadPopAnim(static_cast<PopAnimRes *>(theRes));
+            SexyPerf::StopTiming("ResourceManager::DoLoadResource(ResType_PopAnim)");
+            break;
+        case ResType_Reanim:
+            SexyPerf::StartTiming("ResourceManager::DoLoadResource(ResType_PIEffect)");
+            aLoaded = DoLoadPIEffect(static_cast<PIEffectRes *>(theRes));
+            SexyPerf::StopTiming("ResourceManager::DoLoadResource(ResType_PIEffect)");
+            break;
+        case ResType_Particle:
+            SexyPerf::StartTiming("ResourceManager::DoLoadResource(ResType_RenderEffect)");
+            aLoaded = DoLoadRenderEffect(static_cast<RenderEffectRes *>(theRes));
+            SexyPerf::StopTiming("ResourceManager::DoLoadResource(ResType_RenderEffect)");
+            break;
+        case ResType_Trail:
+            SexyPerf::StartTiming("ResourceManager::DoLoadResource(ResType_GenericResFile)");
+            aLoaded = DoLoadGenericResFile(static_cast<GenericResFileRes *>(theRes));
+            SexyPerf::StopTiming("ResourceManager::DoLoadResource(ResType_GenericResFile)");
+            break;
+        default:
+            break;
     }
     return aLoaded;
 }
 
-bool Sexy::ResourceManager::StartLoadResources(Sexy::String const& theGroup, bool theFromComposite)
+bool Sexy::ResourceManager::StartLoadResources(Sexy::String const &theGroup, bool theFromComposite)
 {
     (void)theFromComposite;
     mErrorText.clear();
@@ -1783,7 +1776,7 @@ bool Sexy::ResourceManager::LoadNextResource()
 
     while (mCurResGroupItr != mCurResGroupList->end())
     {
-        BaseRes* aRecord = *mCurResGroupItr;
+        BaseRes *aRecord = *mCurResGroupItr;
         ++mCurResGroupItr;
         if (aRecord == nullptr)
             continue;
@@ -1809,11 +1802,11 @@ bool Sexy::ResourceManager::LoadNextResource()
             mCompositeResGroupMap.find(mParentResGroupName);
         if (aFound != mCompositeResGroupMap.end())
         {
-            std::vector<SubGroup>& aSubs = aFound->second.mSubGroups;
+            std::vector<SubGroup> &aSubs = aFound->second.mSubGroups;
             int aIndex = mCompositeResGroupIndex + 1;
             for (; aIndex < (int)aSubs.size(); ++aIndex)
             {
-                SubGroup& aSub = aSubs[(size_t)aIndex];
+                SubGroup &aSub = aSubs[(size_t)aIndex];
                 if (aSub.mName.empty())
                     continue;
                 if (aSub.mScale != 0 && aSub.mScale != mImageResScale)
@@ -1836,7 +1829,7 @@ bool Sexy::ResourceManager::LoadNextResource()
     return false;
 }
 
-bool Sexy::ResourceManager::LoadResources(Sexy::String const& theGroup)
+bool Sexy::ResourceManager::LoadResources(Sexy::String const &theGroup)
 {
     mErrorText.clear();
     mHasError = false;
@@ -1847,13 +1840,13 @@ bool Sexy::ResourceManager::LoadResources(Sexy::String const& theGroup)
     return !mHasError;
 }
 
-void Sexy::ResourceManager::DeleteResources(ResMap& theMap, Sexy::String const& theGroup)
+void Sexy::ResourceManager::DeleteResources(ResMap &theMap, Sexy::String const &theGroup)
 {
     if (theGroup.empty())
     {
         for (ResMap::iterator anEntry = theMap.begin(); anEntry != theMap.end(); ++anEntry)
         {
-            BaseRes* aRecord = anEntry->second;
+            BaseRes *aRecord = anEntry->second;
             if (aRecord != nullptr && aRecord->mRefHeld)
             {
                 aRecord->mRefHeld = false;
@@ -1869,7 +1862,7 @@ void Sexy::ResourceManager::DeleteResources(ResMap& theMap, Sexy::String const& 
     {
         for (ResMap::iterator anEntry = theMap.begin(); anEntry != theMap.end(); ++anEntry)
         {
-            BaseRes* aRecord = anEntry->second;
+            BaseRes *aRecord = anEntry->second;
             if (aRecord != nullptr && aRecord->mGroup == theGroup && aRecord->mRefHeld)
             {
                 aRecord->mRefHeld = false;
@@ -1881,12 +1874,12 @@ void Sexy::ResourceManager::DeleteResources(ResMap& theMap, Sexy::String const& 
 
     for (size_t i = 0; i < aComposite->second.mSubGroups.size(); ++i)
     {
-        Sexy::String const& aSubName = aComposite->second.mSubGroups[i].mName;
+        Sexy::String const &aSubName = aComposite->second.mSubGroups[i].mName;
         if (aSubName.empty())
             continue;
         for (ResMap::iterator anEntry = theMap.begin(); anEntry != theMap.end(); ++anEntry)
         {
-            BaseRes* aRecord = anEntry->second;
+            BaseRes *aRecord = anEntry->second;
             if (aRecord != nullptr && aRecord->mGroup == aSubName && aRecord->mRefHeld)
             {
                 aRecord->mRefHeld = false;
@@ -1896,42 +1889,42 @@ void Sexy::ResourceManager::DeleteResources(ResMap& theMap, Sexy::String const& 
     }
 }
 
-void Sexy::ResourceManager::DeleteResources(Sexy::String const& theGroup)
+void Sexy::ResourceManager::DeleteResources(Sexy::String const &theGroup)
 {
     for (int aKind = 0; aKind < 7; ++aKind)
         DeleteResources(mResMaps[aKind], theGroup);
     mLoadedGroups.erase(theGroup);
 }
 
-void Sexy::ResourceManager::DeleteExtraImageBuffers(Sexy::String const& theGroup)
+void Sexy::ResourceManager::DeleteExtraImageBuffers(Sexy::String const &theGroup)
 {
-    for (ResMap::iterator anEntry = mResMaps[ResType_Image].begin();
-         anEntry != mResMaps[ResType_Image].end(); ++anEntry)
+    for (ResMap::iterator anEntry = mResMaps[ResType_Image].begin(); anEntry != mResMaps[ResType_Image].end();
+        ++anEntry)
     {
-        ImageRes* aRecord = static_cast<ImageRes*>(anEntry->second);
+        ImageRes *aRecord = static_cast<ImageRes *>(anEntry->second);
         if (aRecord == nullptr)
             continue;
         if (!theGroup.empty() && aRecord->mGroup != theGroup)
             continue;
-        Sexy::MemoryImage* anImage = aRecord->mImage;
+        Sexy::MemoryImage *anImage = aRecord->mImage;
         if (anImage != nullptr)
             anImage->DeleteExtraBuffers();
     }
 }
 
-void Sexy::ResourceManager::DeleteImage(Sexy::String const& theId)
+void Sexy::ResourceManager::DeleteImage(Sexy::String const &theId)
 {
-    BaseRes* aRes = GetBaseRes(ResType_Image, theId);
+    BaseRes *aRes = GetBaseRes(ResType_Image, theId);
     if (aRes == nullptr)
         return;
     aRes->mRefHeld = false;
     Deref(aRes);
 }
 
-Sexy::SharedImageRef Sexy::ResourceManager::LoadImage(Sexy::String const& theId)
+Sexy::SharedImageRef Sexy::ResourceManager::LoadImage(Sexy::String const &theId)
 {
     HeldLock aLock(mCritSect);
-    ImageRes* aRes = static_cast<ImageRes*>(GetBaseRes(ResType_Image, theId));
+    ImageRes *aRes = static_cast<ImageRes *>(GetBaseRes(ResType_Image, theId));
     Sexy::SharedImageRef aResult;
     if (aRes == nullptr)
         return aResult;
@@ -1953,19 +1946,19 @@ Sexy::SharedImageRef Sexy::ResourceManager::LoadImage(Sexy::String const& theId)
     return aResult;
 }
 
-int const* Sexy::ResourceManager::GetImageOffset(Sexy::String const& theId)
+int const *Sexy::ResourceManager::GetImageOffset(Sexy::String const &theId)
 {
-    static int aMissing[2] = { 0, 0 };
-    ImageRes* aRes = static_cast<ImageRes*>(GetBaseRes(ResType_Image, theId));
+    static int aMissing[2] = {0, 0};
+    ImageRes *aRes = static_cast<ImageRes *>(GetBaseRes(ResType_Image, theId));
     if (aRes == nullptr)
         return aMissing;
     return &aRes->mAlphaX;
 }
 
-Sexy::Font* Sexy::ResourceManager::LoadFont(Sexy::String const& theId)
+Sexy::Font *Sexy::ResourceManager::LoadFont(Sexy::String const &theId)
 {
     HeldLock aLock(mCritSect);
-    FontRes* aRes = static_cast<FontRes*>(GetBaseRes(ResType_Font, theId));
+    FontRes *aRes = static_cast<FontRes *>(GetBaseRes(ResType_Font, theId));
     if (aRes == nullptr)
         return nullptr;
     Hold(aRes);
@@ -1980,10 +1973,10 @@ Sexy::Font* Sexy::ResourceManager::LoadFont(Sexy::String const& theId)
     return aRes->mFont;
 }
 
-int Sexy::ResourceManager::LoadSound(Sexy::String const& theId)
+int Sexy::ResourceManager::LoadSound(Sexy::String const &theId)
 {
     HeldLock aLock(mCritSect);
-    SoundRes* aRes = static_cast<SoundRes*>(GetBaseRes(ResType_Sound, theId));
+    SoundRes *aRes = static_cast<SoundRes *>(GetBaseRes(ResType_Sound, theId));
     if (aRes == nullptr)
         return -1;
     Hold(aRes);
@@ -1999,10 +1992,10 @@ int Sexy::ResourceManager::LoadSound(Sexy::String const& theId)
     return aRes->mSoundId;
 }
 
-Sexy::PopAnim* Sexy::ResourceManager::LoadPopAnim(Sexy::String const& theId)
+Sexy::PopAnim *Sexy::ResourceManager::LoadPopAnim(Sexy::String const &theId)
 {
     HeldLock aLock(mCritSect);
-    PopAnimRes* aRes = static_cast<PopAnimRes*>(GetBaseRes(ResType_Music, theId));
+    PopAnimRes *aRes = static_cast<PopAnimRes *>(GetBaseRes(ResType_Music, theId));
     if (aRes == nullptr)
         return nullptr;
     Hold(aRes);
@@ -2017,10 +2010,10 @@ Sexy::PopAnim* Sexy::ResourceManager::LoadPopAnim(Sexy::String const& theId)
     return aRes->mPopAnim;
 }
 
-Sexy::PIEffect* Sexy::ResourceManager::LoadPIEffect(Sexy::String const& theId)
+Sexy::PIEffect *Sexy::ResourceManager::LoadPIEffect(Sexy::String const &theId)
 {
     HeldLock aLock(mCritSect);
-    PIEffectRes* aRes = static_cast<PIEffectRes*>(GetBaseRes(ResType_Reanim, theId));
+    PIEffectRes *aRes = static_cast<PIEffectRes *>(GetBaseRes(ResType_Reanim, theId));
     if (aRes == nullptr)
         return nullptr;
     Hold(aRes);
@@ -2035,10 +2028,10 @@ Sexy::PIEffect* Sexy::ResourceManager::LoadPIEffect(Sexy::String const& theId)
     return aRes->mPIEffect;
 }
 
-Sexy::RenderEffectDefinition* Sexy::ResourceManager::LoadRenderEffect(Sexy::String const& theId)
+Sexy::RenderEffectDefinition *Sexy::ResourceManager::LoadRenderEffect(Sexy::String const &theId)
 {
     HeldLock aLock(mCritSect);
-    RenderEffectRes* aRes = static_cast<RenderEffectRes*>(GetBaseRes(ResType_Particle, theId));
+    RenderEffectRes *aRes = static_cast<RenderEffectRes *>(GetBaseRes(ResType_Particle, theId));
     if (aRes == nullptr)
         return nullptr;
     Hold(aRes);
@@ -2053,10 +2046,10 @@ Sexy::RenderEffectDefinition* Sexy::ResourceManager::LoadRenderEffect(Sexy::Stri
     return aRes->mRenderEffect;
 }
 
-Sexy::GenericResFile* Sexy::ResourceManager::LoadGenericResFile(Sexy::String const& theId)
+Sexy::GenericResFile *Sexy::ResourceManager::LoadGenericResFile(Sexy::String const &theId)
 {
     HeldLock aLock(mCritSect);
-    GenericResFileRes* aRes = static_cast<GenericResFileRes*>(GetBaseRes(ResType_Trail, theId));
+    GenericResFileRes *aRes = static_cast<GenericResFileRes *>(GetBaseRes(ResType_Trail, theId));
     if (aRes == nullptr)
         return nullptr;
     Hold(aRes);
@@ -2071,31 +2064,31 @@ Sexy::GenericResFile* Sexy::ResourceManager::LoadGenericResFile(Sexy::String con
     return aRes->mGenericResFile;
 }
 
-Sexy::SharedImageRef Sexy::ResourceManager::GetImage(Sexy::String const& theId)
+Sexy::SharedImageRef Sexy::ResourceManager::GetImage(Sexy::String const &theId)
 {
-    ImageRes* aRes = static_cast<ImageRes*>(GetBaseRes(ResType_Image, theId));
+    ImageRes *aRes = static_cast<ImageRes *>(GetBaseRes(ResType_Image, theId));
     if (aRes == nullptr)
         return Sexy::SharedImageRef();
     return aRes->mImage;
 }
 
-int Sexy::ResourceManager::GetSound(Sexy::String const& theId)
+int Sexy::ResourceManager::GetSound(Sexy::String const &theId)
 {
-    SoundRes* aRes = static_cast<SoundRes*>(GetBaseRes(ResType_Sound, theId));
+    SoundRes *aRes = static_cast<SoundRes *>(GetBaseRes(ResType_Sound, theId));
     if (aRes == nullptr)
         return -1;
     return aRes->mSoundId;
 }
 
-Sexy::Font* Sexy::ResourceManager::GetFont(Sexy::String const& theId)
+Sexy::Font *Sexy::ResourceManager::GetFont(Sexy::String const &theId)
 {
-    FontRes* aRes = static_cast<FontRes*>(GetBaseRes(ResType_Font, theId));
+    FontRes *aRes = static_cast<FontRes *>(GetBaseRes(ResType_Font, theId));
     if (aRes == nullptr)
         return nullptr;
     return aRes->mFont;
 }
 
-bool Sexy::ResourceManager::IsResourceLoaded(Sexy::String const& theId)
+bool Sexy::ResourceManager::IsResourceLoaded(Sexy::String const &theId)
 {
     Sexy::SharedImageRef anImage = GetImage(theId);
     if (anImage.mImage != nullptr)
@@ -2105,39 +2098,39 @@ bool Sexy::ResourceManager::IsResourceLoaded(Sexy::String const& theId)
     return GetSound(theId) != -1;
 }
 
-Sexy::PopAnim* Sexy::ResourceManager::GetPopAnim(Sexy::String const& theId)
+Sexy::PopAnim *Sexy::ResourceManager::GetPopAnim(Sexy::String const &theId)
 {
-    PopAnimRes* aRes = static_cast<PopAnimRes*>(GetBaseRes(ResType_Music, theId));
+    PopAnimRes *aRes = static_cast<PopAnimRes *>(GetBaseRes(ResType_Music, theId));
     if (aRes == nullptr)
         return nullptr;
     return aRes->mPopAnim;
 }
 
-Sexy::PIEffect* Sexy::ResourceManager::GetPIEffect(Sexy::String const& theId)
+Sexy::PIEffect *Sexy::ResourceManager::GetPIEffect(Sexy::String const &theId)
 {
-    PIEffectRes* aRes = static_cast<PIEffectRes*>(GetBaseRes(ResType_Reanim, theId));
+    PIEffectRes *aRes = static_cast<PIEffectRes *>(GetBaseRes(ResType_Reanim, theId));
     if (aRes == nullptr)
         return nullptr;
     return aRes->mPIEffect;
 }
 
-Sexy::RenderEffectDefinition* Sexy::ResourceManager::GetRenderEffect(Sexy::String const& theId)
+Sexy::RenderEffectDefinition *Sexy::ResourceManager::GetRenderEffect(Sexy::String const &theId)
 {
-    RenderEffectRes* aRes = static_cast<RenderEffectRes*>(GetBaseRes(ResType_Particle, theId));
+    RenderEffectRes *aRes = static_cast<RenderEffectRes *>(GetBaseRes(ResType_Particle, theId));
     if (aRes == nullptr)
         return nullptr;
     return aRes->mRenderEffect;
 }
 
-Sexy::GenericResFile* Sexy::ResourceManager::GetGenericResFile(Sexy::String const& theId)
+Sexy::GenericResFile *Sexy::ResourceManager::GetGenericResFile(Sexy::String const &theId)
 {
-    GenericResFileRes* aRes = static_cast<GenericResFileRes*>(GetBaseRes(ResType_Trail, theId));
+    GenericResFileRes *aRes = static_cast<GenericResFileRes *>(GetBaseRes(ResType_Trail, theId));
     if (aRes == nullptr)
         return nullptr;
     return aRes->mGenericResFile;
 }
 
-Sexy::SharedImageRef Sexy::ResourceManager::GetImageThrow(Sexy::String const& theId, int theScale, bool theRequired)
+Sexy::SharedImageRef Sexy::ResourceManager::GetImageThrow(Sexy::String const &theId, int theScale, bool theRequired)
 {
     if (gSexyAppBase != nullptr && gSexyAppBase->mShutDown)
         return Sexy::SharedImageRef();
@@ -2157,12 +2150,12 @@ Sexy::SharedImageRef Sexy::ResourceManager::GetImageThrow(Sexy::String const& th
     return anImage;
 }
 
-Sexy::SharedImageRef Sexy::ResourceManager::GetImageThrow(Sexy::String const& theId, bool theRequired)
+Sexy::SharedImageRef Sexy::ResourceManager::GetImageThrow(Sexy::String const &theId, bool theRequired)
 {
     return GetImageThrow(theId, 0, theRequired);
 }
 
-int Sexy::ResourceManager::GetSoundThrow(Sexy::String const& theId)
+int Sexy::ResourceManager::GetSoundThrow(Sexy::String const &theId)
 {
     int aSound = GetSound(theId);
     if (aSound == -1)
@@ -2173,14 +2166,14 @@ int Sexy::ResourceManager::GetSoundThrow(Sexy::String const& theId)
     return aSound;
 }
 
-Sexy::Font* Sexy::ResourceManager::GetFontThrow(Sexy::String const& theId, int theScale)
+Sexy::Font *Sexy::ResourceManager::GetFontThrow(Sexy::String const &theId, int theScale)
 {
     if (theScale != 0 && mImageResScale != theScale)
     {
         Fail(Sexy::String("Font scale mismatch: ") + theId);
         throw Sexy::ResourceManagerException(mErrorText);
     }
-    Sexy::Font* aFont = GetFont(theId);
+    Sexy::Font *aFont = GetFont(theId);
     if (aFont == nullptr)
     {
         Fail(Sexy::String("Font not found: ") + theId);
@@ -2189,9 +2182,9 @@ Sexy::Font* Sexy::ResourceManager::GetFontThrow(Sexy::String const& theId, int t
     return aFont;
 }
 
-Sexy::PopAnim* Sexy::ResourceManager::GetPopAnimThrow(Sexy::String const& theId)
+Sexy::PopAnim *Sexy::ResourceManager::GetPopAnimThrow(Sexy::String const &theId)
 {
-    Sexy::PopAnim* anAnim = GetPopAnim(theId);
+    Sexy::PopAnim *anAnim = GetPopAnim(theId);
     if (anAnim == nullptr)
     {
         Fail(Sexy::String("PopAnim not found: ") + theId);
@@ -2200,9 +2193,9 @@ Sexy::PopAnim* Sexy::ResourceManager::GetPopAnimThrow(Sexy::String const& theId)
     return anAnim;
 }
 
-Sexy::PIEffect* Sexy::ResourceManager::GetPIEffectThrow(Sexy::String const& theId)
+Sexy::PIEffect *Sexy::ResourceManager::GetPIEffectThrow(Sexy::String const &theId)
 {
-    Sexy::PIEffect* anEffect = GetPIEffect(theId);
+    Sexy::PIEffect *anEffect = GetPIEffect(theId);
     if (anEffect == nullptr)
     {
         Fail(Sexy::String("PIEffect not found: ") + theId);
@@ -2211,9 +2204,9 @@ Sexy::PIEffect* Sexy::ResourceManager::GetPIEffectThrow(Sexy::String const& theI
     return anEffect;
 }
 
-Sexy::RenderEffectDefinition* Sexy::ResourceManager::GetRenderEffectThrow(Sexy::String const& theId)
+Sexy::RenderEffectDefinition *Sexy::ResourceManager::GetRenderEffectThrow(Sexy::String const &theId)
 {
-    Sexy::RenderEffectDefinition* anEffect = GetRenderEffect(theId);
+    Sexy::RenderEffectDefinition *anEffect = GetRenderEffect(theId);
     if (anEffect == nullptr)
     {
         Fail(Sexy::String("RenderEffect not found: ") + theId);
@@ -2222,9 +2215,9 @@ Sexy::RenderEffectDefinition* Sexy::ResourceManager::GetRenderEffectThrow(Sexy::
     return anEffect;
 }
 
-Sexy::GenericResFile* Sexy::ResourceManager::GetGenericResFileThrow(Sexy::String const& theId)
+Sexy::GenericResFile *Sexy::ResourceManager::GetGenericResFileThrow(Sexy::String const &theId)
 {
-    Sexy::GenericResFile* aFile = GetGenericResFile(theId);
+    Sexy::GenericResFile *aFile = GetGenericResFile(theId);
     if (aFile == nullptr)
     {
         Fail(Sexy::String("GenericResFile not found: ") + theId);
@@ -2233,7 +2226,7 @@ Sexy::GenericResFile* Sexy::ResourceManager::GetGenericResFileThrow(Sexy::String
     return aFile;
 }
 
-Sexy::ResourceRef Sexy::ResourceManager::GetResourceRef(BaseRes* theRes)
+Sexy::ResourceRef Sexy::ResourceManager::GetResourceRef(BaseRes *theRes)
 {
     Sexy::ResourceRef aRef;
     if (theRes == nullptr)
@@ -2248,98 +2241,98 @@ Sexy::ResourceRef Sexy::ResourceManager::GetResourceRef(BaseRes* theRes)
     return aRef;
 }
 
-Sexy::ResourceRef Sexy::ResourceManager::GetResourceRef(void* theSlot)
+Sexy::ResourceRef Sexy::ResourceManager::GetResourceRef(void *theSlot)
 {
-    std::map<void*, BaseRes*>::iterator aFound = mGlobalPtrMap.find(theSlot);
+    std::map<void *, BaseRes *>::iterator aFound = mGlobalPtrMap.find(theSlot);
     if (aFound == mGlobalPtrMap.end())
         return Sexy::ResourceRef();
     return GetResourceRef(aFound->second);
 }
 
-void Sexy::ResourceManager::GetImageRef(Sexy::Image*& theSlot)
+void Sexy::ResourceManager::GetImageRef(Sexy::Image *&theSlot)
 {
-    GetResourceRef(static_cast<void*>(&theSlot));
+    GetResourceRef(static_cast<void *>(&theSlot));
 }
 
-void Sexy::ResourceManager::GetSoundRef(int& theSlot)
+void Sexy::ResourceManager::GetSoundRef(int &theSlot)
 {
-    GetResourceRef(static_cast<void*>(&theSlot));
+    GetResourceRef(static_cast<void *>(&theSlot));
 }
 
-void Sexy::ResourceManager::GetFontRef(Sexy::ImageFont*& theSlot)
+void Sexy::ResourceManager::GetFontRef(Sexy::ImageFont *&theSlot)
 {
-    GetResourceRef(static_cast<void*>(&theSlot));
+    GetResourceRef(static_cast<void *>(&theSlot));
 }
 
-void Sexy::ResourceManager::GetPopAnimRef(Sexy::PopAnim*& theSlot)
+void Sexy::ResourceManager::GetPopAnimRef(Sexy::PopAnim *&theSlot)
 {
-    GetResourceRef(static_cast<void*>(&theSlot));
+    GetResourceRef(static_cast<void *>(&theSlot));
 }
 
-void Sexy::ResourceManager::GetPIEffectRef(Sexy::PIEffect*& theSlot)
+void Sexy::ResourceManager::GetPIEffectRef(Sexy::PIEffect *&theSlot)
 {
-    GetResourceRef(static_cast<void*>(&theSlot));
+    GetResourceRef(static_cast<void *>(&theSlot));
 }
 
-void Sexy::ResourceManager::GetRenderEffectRef(Sexy::RenderEffectDefinition*& theSlot)
+void Sexy::ResourceManager::GetRenderEffectRef(Sexy::RenderEffectDefinition *&theSlot)
 {
-    GetResourceRef(static_cast<void*>(&theSlot));
+    GetResourceRef(static_cast<void *>(&theSlot));
 }
 
-void Sexy::ResourceManager::GetGenericResFileRef(Sexy::GenericResFile*& theSlot)
+void Sexy::ResourceManager::GetGenericResFileRef(Sexy::GenericResFile *&theSlot)
 {
-    GetResourceRef(static_cast<void*>(&theSlot));
+    GetResourceRef(static_cast<void *>(&theSlot));
 }
 
-Sexy::ResourceRef Sexy::ResourceManager::GetResourceRef(int theType, Sexy::String const& theId)
+Sexy::ResourceRef Sexy::ResourceManager::GetResourceRef(int theType, Sexy::String const &theId)
 {
     return GetResourceRef(GetBaseRes(theType, theId));
 }
 
-Sexy::ResourceRef Sexy::ResourceManager::GetImageRef(Sexy::String const& theId)
+Sexy::ResourceRef Sexy::ResourceManager::GetImageRef(Sexy::String const &theId)
 {
     return GetResourceRef(ResType_Image, theId);
 }
 
-Sexy::ResourceRef Sexy::ResourceManager::GetSoundRef(Sexy::String const& theId)
+Sexy::ResourceRef Sexy::ResourceManager::GetSoundRef(Sexy::String const &theId)
 {
     return GetResourceRef(ResType_Sound, theId);
 }
 
-Sexy::ResourceRef Sexy::ResourceManager::GetFontRef(Sexy::String const& theId)
+Sexy::ResourceRef Sexy::ResourceManager::GetFontRef(Sexy::String const &theId)
 {
     return GetResourceRef(ResType_Font, theId);
 }
 
-Sexy::ResourceRef Sexy::ResourceManager::GetPopAnimRef(Sexy::String const& theId)
+Sexy::ResourceRef Sexy::ResourceManager::GetPopAnimRef(Sexy::String const &theId)
 {
     return GetResourceRef(ResType_Music, theId);
 }
 
-Sexy::ResourceRef Sexy::ResourceManager::GetPIEffectRef(Sexy::String const& theId)
+Sexy::ResourceRef Sexy::ResourceManager::GetPIEffectRef(Sexy::String const &theId)
 {
     return GetResourceRef(ResType_Reanim, theId);
 }
 
-Sexy::ResourceRef Sexy::ResourceManager::GetRenderEffectRef(Sexy::String const& theId)
+Sexy::ResourceRef Sexy::ResourceManager::GetRenderEffectRef(Sexy::String const &theId)
 {
     return GetResourceRef(ResType_Particle, theId);
 }
 
-Sexy::ResourceRef Sexy::ResourceManager::GetGenericResFileRef(Sexy::String const& theId)
+Sexy::ResourceRef Sexy::ResourceManager::GetGenericResFileRef(Sexy::String const &theId)
 {
     return GetResourceRef(ResType_Trail, theId);
 }
 
-bool Sexy::ResourceManager::ReplaceImage(Sexy::String const& theId, Sexy::Image* theImage)
+bool Sexy::ResourceManager::ReplaceImage(Sexy::String const &theId, Sexy::Image *theImage)
 {
-    ImageRes* aRes = static_cast<ImageRes*>(GetBaseRes(ResType_Image, theId));
+    ImageRes *aRes = static_cast<ImageRes *>(GetBaseRes(ResType_Image, theId));
     if (aRes == nullptr)
         return false;
     aRes->DeleteResource();
     if (theImage == nullptr)
         return true;
-    Sexy::SharedImage* aShared = new Sexy::SharedImage();
+    Sexy::SharedImage *aShared = new Sexy::SharedImage();
     aShared->mImage = theImage;
     aShared->mRefCount = 1;
     aRes->mImage = Sexy::SharedImageRef(aShared);
@@ -2348,26 +2341,26 @@ bool Sexy::ResourceManager::ReplaceImage(Sexy::String const& theId, Sexy::Image*
     return true;
 }
 
-bool Sexy::ResourceManager::ReplaceSound(Sexy::String const& theId, int theSoundId)
+bool Sexy::ResourceManager::ReplaceSound(Sexy::String const &theId, int theSoundId)
 {
-    SoundRes* aRes = static_cast<SoundRes*>(GetBaseRes(ResType_Sound, theId));
+    SoundRes *aRes = static_cast<SoundRes *>(GetBaseRes(ResType_Sound, theId));
     if (aRes == nullptr)
         return false;
     aRes->DeleteResource();
     aRes->mSoundId = theSoundId;
     if (aRes->mResourceRef != nullptr)
-        *static_cast<int*>(aRes->mResourceRef) = theSoundId;
+        *static_cast<int *>(aRes->mResourceRef) = theSoundId;
     return true;
 }
 
-bool Sexy::ResourceManager::DeleteSound(Sexy::String const& theId)
+bool Sexy::ResourceManager::DeleteSound(Sexy::String const &theId)
 {
     return ReplaceSound(theId, -1);
 }
 
-bool Sexy::ResourceManager::ReplaceFont(Sexy::String const& theId, Sexy::Font* theFont)
+bool Sexy::ResourceManager::ReplaceFont(Sexy::String const &theId, Sexy::Font *theFont)
 {
-    FontRes* aRes = static_cast<FontRes*>(GetBaseRes(ResType_Font, theId));
+    FontRes *aRes = static_cast<FontRes *>(GetBaseRes(ResType_Font, theId));
     if (aRes == nullptr)
         return false;
     aRes->DeleteResource();
@@ -2376,14 +2369,14 @@ bool Sexy::ResourceManager::ReplaceFont(Sexy::String const& theId, Sexy::Font* t
     return true;
 }
 
-bool Sexy::ResourceManager::DeleteFont(Sexy::String const& theId)
+bool Sexy::ResourceManager::DeleteFont(Sexy::String const &theId)
 {
     return ReplaceFont(theId, nullptr);
 }
 
-bool Sexy::ResourceManager::ReplacePopAnim(Sexy::String const& theId, Sexy::PopAnim* theAnim)
+bool Sexy::ResourceManager::ReplacePopAnim(Sexy::String const &theId, Sexy::PopAnim *theAnim)
 {
-    PopAnimRes* aRes = static_cast<PopAnimRes*>(GetBaseRes(ResType_Music, theId));
+    PopAnimRes *aRes = static_cast<PopAnimRes *>(GetBaseRes(ResType_Music, theId));
     if (aRes == nullptr)
         return false;
     aRes->DeleteResource();
@@ -2392,14 +2385,14 @@ bool Sexy::ResourceManager::ReplacePopAnim(Sexy::String const& theId, Sexy::PopA
     return true;
 }
 
-bool Sexy::ResourceManager::DeletePopAnim(Sexy::String const& theId)
+bool Sexy::ResourceManager::DeletePopAnim(Sexy::String const &theId)
 {
     return ReplacePopAnim(theId, nullptr);
 }
 
-bool Sexy::ResourceManager::ReplacePIEffect(Sexy::String const& theId, Sexy::PIEffect* theEffect)
+bool Sexy::ResourceManager::ReplacePIEffect(Sexy::String const &theId, Sexy::PIEffect *theEffect)
 {
-    PIEffectRes* aRes = static_cast<PIEffectRes*>(GetBaseRes(ResType_Reanim, theId));
+    PIEffectRes *aRes = static_cast<PIEffectRes *>(GetBaseRes(ResType_Reanim, theId));
     if (aRes == nullptr)
         return false;
     aRes->DeleteResource();
@@ -2408,14 +2401,14 @@ bool Sexy::ResourceManager::ReplacePIEffect(Sexy::String const& theId, Sexy::PIE
     return true;
 }
 
-bool Sexy::ResourceManager::DeletePIEffect(Sexy::String const& theId)
+bool Sexy::ResourceManager::DeletePIEffect(Sexy::String const &theId)
 {
     return ReplacePIEffect(theId, nullptr);
 }
 
-bool Sexy::ResourceManager::ReplaceRenderEffect(Sexy::String const& theId, Sexy::RenderEffectDefinition* theEffect)
+bool Sexy::ResourceManager::ReplaceRenderEffect(Sexy::String const &theId, Sexy::RenderEffectDefinition *theEffect)
 {
-    RenderEffectRes* aRes = static_cast<RenderEffectRes*>(GetBaseRes(ResType_Particle, theId));
+    RenderEffectRes *aRes = static_cast<RenderEffectRes *>(GetBaseRes(ResType_Particle, theId));
     if (aRes == nullptr)
         return false;
     aRes->DeleteResource();
@@ -2424,14 +2417,14 @@ bool Sexy::ResourceManager::ReplaceRenderEffect(Sexy::String const& theId, Sexy:
     return true;
 }
 
-bool Sexy::ResourceManager::DeleteRenderEffect(Sexy::String const& theId)
+bool Sexy::ResourceManager::DeleteRenderEffect(Sexy::String const &theId)
 {
     return ReplaceRenderEffect(theId, nullptr);
 }
 
-bool Sexy::ResourceManager::ReplaceGenericResFile(Sexy::String const& theId, Sexy::GenericResFile* theFile)
+bool Sexy::ResourceManager::ReplaceGenericResFile(Sexy::String const &theId, Sexy::GenericResFile *theFile)
 {
-    GenericResFileRes* aRes = static_cast<GenericResFileRes*>(GetBaseRes(ResType_Trail, theId));
+    GenericResFileRes *aRes = static_cast<GenericResFileRes *>(GetBaseRes(ResType_Trail, theId));
     if (aRes == nullptr)
         return false;
     aRes->DeleteResource();
@@ -2440,21 +2433,21 @@ bool Sexy::ResourceManager::ReplaceGenericResFile(Sexy::String const& theId, Sex
     return true;
 }
 
-bool Sexy::ResourceManager::DeleteGenericResFile(Sexy::String const& theId)
+bool Sexy::ResourceManager::DeleteGenericResFile(Sexy::String const &theId)
 {
     return ReplaceGenericResFile(theId, nullptr);
 }
 
-Sexy::ResourceManager::AttrMap const& Sexy::ResourceManager::GetImageAttributes(Sexy::String const& theId)
+Sexy::ResourceManager::AttrMap const &Sexy::ResourceManager::GetImageAttributes(Sexy::String const &theId)
 {
     static AttrMap aMissing;
-    ImageRes* aRes = static_cast<ImageRes*>(GetBaseRes(ResType_Image, theId));
+    ImageRes *aRes = static_cast<ImageRes *>(GetBaseRes(ResType_Image, theId));
     if (aRes == nullptr)
         return aMissing;
     return aRes->mAttributes;
 }
 
-Sexy::String Sexy::ResourceManager::GetIdByPath(Sexy::String const& thePath)
+Sexy::String Sexy::ResourceManager::GetIdByPath(Sexy::String const &thePath)
 {
     Sexy::String aUpper = UpperCopy(thePath);
     for (unsigned int i = 0; i < aUpper.size(); ++i)
@@ -2468,29 +2461,29 @@ Sexy::String Sexy::ResourceManager::GetIdByPath(Sexy::String const& thePath)
     return aFound->second->mId;
 }
 
-Sexy::String Sexy::ResourceManager::GetIdByPath(Sexy::String const& thePath, int theType)
+Sexy::String Sexy::ResourceManager::GetIdByPath(Sexy::String const &thePath, int theType)
 {
     if ((unsigned int)theType > 6u)
         return Sexy::String();
     return GetIdByPath(thePath);
 }
 
-Sexy::String Sexy::ResourceManager::GetImageIdByPath(Sexy::String const& thePath)
+Sexy::String Sexy::ResourceManager::GetImageIdByPath(Sexy::String const &thePath)
 {
     return GetIdByPath(thePath, ResType_Image);
 }
 
-Sexy::String Sexy::ResourceManager::GetSoundIdByPath(Sexy::String const& thePath)
+Sexy::String Sexy::ResourceManager::GetSoundIdByPath(Sexy::String const &thePath)
 {
     return GetIdByPath(thePath, ResType_Sound);
 }
 
-Sexy::String Sexy::ResourceManager::GetFontIdByPath(Sexy::String const& thePath)
+Sexy::String Sexy::ResourceManager::GetFontIdByPath(Sexy::String const &thePath)
 {
     return GetIdByPath(thePath, ResType_Font);
 }
 
-Sexy::ResourceRef Sexy::ResourceManager::GetResourceRefFromPath(Sexy::String const& thePath)
+Sexy::ResourceRef Sexy::ResourceManager::GetResourceRefFromPath(Sexy::String const &thePath)
 {
     Sexy::String aUpper = UpperCopy(thePath);
     for (unsigned int i = 0; i < aUpper.size(); ++i)
@@ -2504,9 +2497,9 @@ Sexy::ResourceRef Sexy::ResourceManager::GetResourceRefFromPath(Sexy::String con
     return GetResourceRef(aFound->second);
 }
 
-void* Sexy::ResourceManager::RegisterGlobalPtr(Sexy::String const& theId, void* theSlot)
+void *Sexy::ResourceManager::RegisterGlobalPtr(Sexy::String const &theId, void *theSlot)
 {
-    BaseRes* aRes = nullptr;
+    BaseRes *aRes = nullptr;
     for (int aKind = 0; aKind < 7 && aRes == nullptr; ++aKind)
         aRes = GetBaseRes(aKind, theId);
     if (aRes != nullptr)
@@ -2517,9 +2510,8 @@ void* Sexy::ResourceManager::RegisterGlobalPtr(Sexy::String const& theId, void* 
     return theSlot;
 }
 
-Sexy::String Sexy::ResourceManager::GetLocalizedResourcePath(Sexy::String const& thePath,
-                                                            Sexy::String const& theDir,
-                                                            Sexy::String const& theLocale)
+Sexy::String Sexy::ResourceManager::GetLocalizedResourcePath(
+    Sexy::String const &thePath, Sexy::String const &theDir, Sexy::String const &theLocale)
 {
     Sexy::String aDir;
     if (!theDir.empty())
@@ -2535,7 +2527,7 @@ Sexy::String Sexy::ResourceManager::GetLocalizedResourcePath(Sexy::String const&
     Sexy::String aLocale = theLocale;
     if (aLocale.empty())
     {
-        const char* aName = Sexy::setLocale(nullptr, nullptr);
+        const char *aName = Sexy::setLocale(nullptr, nullptr);
         aLocale = "locale/";
         if (aName != nullptr)
             aLocale += aName;
@@ -2547,12 +2539,11 @@ Sexy::String Sexy::ResourceManager::GetLocalizedResourcePath(Sexy::String const&
     return aJoined;
 }
 
-Sexy::String Sexy::ResourceManager::TryLocalizedResourcePath(Sexy::String const& thePath,
-                                                            Sexy::String const& theDir,
-                                                            Sexy::String const& theLocale)
+Sexy::String Sexy::ResourceManager::TryLocalizedResourcePath(
+    Sexy::String const &thePath, Sexy::String const &theDir, Sexy::String const &theLocale)
 {
     Sexy::String aLocalized = GetLocalizedResourcePath(thePath, theDir, theLocale);
-    SDL_IOStream* aFile = p_fopen(aLocalized.c_str(), "rb");
+    SDL_IOStream *aFile = p_fopen(aLocalized.c_str(), "rb");
     if (aFile != nullptr)
     {
         p_fclose(aFile);
@@ -2561,26 +2552,26 @@ Sexy::String Sexy::ResourceManager::TryLocalizedResourcePath(Sexy::String const&
     return thePath;
 }
 
-Sexy::Image* Sexy::ResourceManager::LoadLocalizedImage(Sexy::String const& thePath, bool theAlpha,
-                                                       Sexy::String const& theLocale)
+Sexy::Image *Sexy::ResourceManager::LoadLocalizedImage(
+    Sexy::String const &thePath, bool theAlpha, Sexy::String const &theLocale)
 {
     (void)theAlpha;
     if (mApp == nullptr)
         return nullptr;
     Sexy::String aEmpty;
     Sexy::String aLocalized = GetLocalizedResourcePath(thePath, aEmpty, theLocale);
-    Sexy::Image* anImage = mApp->GetImage(aLocalized, true);
+    Sexy::Image *anImage = mApp->GetImage(aLocalized, true);
     if (anImage == nullptr)
         anImage = mApp->GetImage(thePath, true);
     return anImage;
 }
 
-bool Sexy::ResourceManager::LoadAlphaGridImage(ImageRes* theRes, Sexy::MemoryImage* theImage)
+bool Sexy::ResourceManager::LoadAlphaGridImage(ImageRes *theRes, Sexy::MemoryImage *theImage)
 {
     if (theRes == nullptr || theImage == nullptr)
         return false;
     Sexy::String aEmpty;
-    Sexy::Image* anAlpha = LoadLocalizedImage(theRes->mAlphaGridPath, true, aEmpty);
+    Sexy::Image *anAlpha = LoadLocalizedImage(theRes->mAlphaGridPath, true, aEmpty);
     if (anAlpha == nullptr)
     {
         char aText[512];
@@ -2592,8 +2583,10 @@ bool Sexy::ResourceManager::LoadAlphaGridImage(ImageRes* theRes, Sexy::MemoryIma
     if (anAlpha->mWidth != theImage->mWidth / aCols || anAlpha->mHeight != theImage->mHeight / aRows)
     {
         char aText[512];
-        sprintf(aText, "GridAlphaImage size mismatch between %s and %s",
-                theRes->mPath.c_str(), theRes->mAlphaGridPath.c_str());
+        sprintf(aText,
+            "GridAlphaImage size mismatch between %s and %s",
+            theRes->mPath.c_str(),
+            theRes->mAlphaGridPath.c_str());
         delete anAlpha;
         return Fail(Sexy::String(aText));
     }
@@ -2601,12 +2594,12 @@ bool Sexy::ResourceManager::LoadAlphaGridImage(ImageRes* theRes, Sexy::MemoryIma
     return true;
 }
 
-bool Sexy::ResourceManager::LoadAlphaImage(ImageRes* theRes, Sexy::MemoryImage* theImage)
+bool Sexy::ResourceManager::LoadAlphaImage(ImageRes *theRes, Sexy::MemoryImage *theImage)
 {
     if (theRes == nullptr || theImage == nullptr)
         return false;
     Sexy::String aEmpty;
-    Sexy::Image* anAlpha = LoadLocalizedImage(theRes->mAlphaImagePath, true, aEmpty);
+    Sexy::Image *anAlpha = LoadLocalizedImage(theRes->mAlphaImagePath, true, aEmpty);
     if (anAlpha == nullptr)
     {
         char aText[512];
@@ -2616,8 +2609,10 @@ bool Sexy::ResourceManager::LoadAlphaImage(ImageRes* theRes, Sexy::MemoryImage* 
     if (anAlpha->mWidth != theImage->mWidth || anAlpha->mHeight != theImage->mHeight)
     {
         char aText[512];
-        sprintf(aText, "AlphaImage size mismatch between %s and %s",
-                theRes->mPath.c_str(), theRes->mAlphaImagePath.c_str());
+        sprintf(aText,
+            "AlphaImage size mismatch between %s and %s",
+            theRes->mPath.c_str(),
+            theRes->mAlphaImagePath.c_str());
         delete anAlpha;
         return Fail(Sexy::String(aText));
     }

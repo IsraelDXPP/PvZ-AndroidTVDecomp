@@ -84,22 +84,22 @@
 // ==========================================================================
 Sexy::RenderDevice::~RenderDevice()
 {
-  // The body is the compiler's own vptr store (`LDR R3, =_ZTVN4Sexy12RenderDeviceE
-  // + 8; STR R3, [R0]`) and nothing else: RenderDevice is a pure interface with
-  // no data members and no owned resources. A vptr store is what the compiler
-  // emits and is not something to transcribe, so the body is empty.
+    // The body is the compiler's own vptr store (`LDR R3, =_ZTVN4Sexy12RenderDeviceE
+    // + 8; STR R3, [R0]`) and nothing else: RenderDevice is a pure interface with
+    // no data members and no owned resources. A vptr store is what the compiler
+    // emits and is not something to transcribe, so the body is empty.
 }
 
 // ==========================================================================
 // Sexy::RenderDevice::Get3D()
 // @0x68A380 (vtable slot [ 2])  --  __cxa_pure_virtual in the ARM
 // ==========================================================================
-int * Sexy::RenderDevice::Get3D()
+int *Sexy::RenderDevice::Get3D()
 {
-  // The binary holds __cxa_pure_virtual @0x2C50D8 in this slot, so there is no
-  // ARM body to read. Declared non-pure by MemoryImage.h, so the definition is
-  // required for the base vftable; MemoryImage::Get3D [68] overrides it.
-  return nullptr;
+    // The binary holds __cxa_pure_virtual @0x2C50D8 in this slot, so there is no
+    // ARM body to read. Declared non-pure by MemoryImage.h, so the definition is
+    // required for the base vftable; MemoryImage::Get3D [68] overrides it.
+    return nullptr;
 }
 
 // ==========================================================================
@@ -108,44 +108,44 @@ int * Sexy::RenderDevice::Get3D()
 // ==========================================================================
 bool Sexy::RenderDevice::CanFillPoly()
 {
-  // No ARM body: the slot holds __cxa_pure_virtual @0x2C50D8. See the file
-  // comment. MemoryImage::CanFillPoly [69] overrides it.
-  return false;
+    // No ARM body: the slot holds __cxa_pure_virtual @0x2C50D8. See the file
+    // comment. MemoryImage::CanFillPoly [69] overrides it.
+    return false;
 }
 
 // ==========================================================================
 // Sexy::RenderDevice::CreateContext(Sexy::Image *,int const&)
 // @0x68A388 (vtable slot [ 4])  --  __cxa_pure_virtual in the ARM
 // ==========================================================================
-bool Sexy::RenderDevice::CreateContext(Image * theImage, const int & theContext)
+bool Sexy::RenderDevice::CreateContext(Image *theImage, const int &theContext)
 {
-  // No ARM body: the slot holds __cxa_pure_virtual @0x2C50D8. See the file
-  // comment. MemoryImage::CreateContext [70] overrides it.
-  (void)theImage;
-  (void)theContext;
-  return false;
+    // No ARM body: the slot holds __cxa_pure_virtual @0x2C50D8. See the file
+    // comment. MemoryImage::CreateContext [70] overrides it.
+    (void)theImage;
+    (void)theContext;
+    return false;
 }
 
 // ==========================================================================
 // Sexy::RenderDevice::DeleteContext(int const&)
 // @0x68A38C (vtable slot [ 5])  --  __cxa_pure_virtual in the ARM
 // ==========================================================================
-void Sexy::RenderDevice::DeleteContext(const int & theContext)
+void Sexy::RenderDevice::DeleteContext(const int &theContext)
 {
-  // No ARM body: the slot holds __cxa_pure_virtual @0x2C50D8. See the file
-  // comment. MemoryImage::DeleteContext [71] overrides it.
-  (void)theContext;
+    // No ARM body: the slot holds __cxa_pure_virtual @0x2C50D8. See the file
+    // comment. MemoryImage::DeleteContext [71] overrides it.
+    (void)theContext;
 }
 
 // ==========================================================================
 // Sexy::RenderDevice::SetCurrentContext(int const&)
 // @0x68A390 (vtable slot [ 6])  --  __cxa_pure_virtual in the ARM
 // ==========================================================================
-void Sexy::RenderDevice::SetCurrentContext(const int & theContext)
+void Sexy::RenderDevice::SetCurrentContext(const int &theContext)
 {
-  // No ARM body: the slot holds __cxa_pure_virtual @0x2C50D8. See the file
-  // comment. MemoryImage::SetCurrentContext [72] overrides it.
-  (void)theContext;
+    // No ARM body: the slot holds __cxa_pure_virtual @0x2C50D8. See the file
+    // comment. MemoryImage::SetCurrentContext [72] overrides it.
+    (void)theContext;
 }
 
 // ==========================================================================
@@ -154,9 +154,9 @@ void Sexy::RenderDevice::SetCurrentContext(const int & theContext)
 // ==========================================================================
 int Sexy::RenderDevice::GetCurrentContext() const
 {
-  // No ARM body: the slot holds __cxa_pure_virtual @0x2C50D8. See the file
-  // comment. MemoryImage::GetCurrentContext [73] overrides it.
-  return 0;
+    // No ARM body: the slot holds __cxa_pure_virtual @0x2C50D8. See the file
+    // comment. MemoryImage::GetCurrentContext [73] overrides it.
+    return 0;
 }
 
 // ==========================================================================
@@ -165,8 +165,8 @@ int Sexy::RenderDevice::GetCurrentContext() const
 // ==========================================================================
 void Sexy::RenderDevice::PushState()
 {
-  // No ARM body: the slot holds __cxa_pure_virtual @0x2C50D8. See the file
-  // comment. MemoryImage::PushState [74] overrides it.
+    // No ARM body: the slot holds __cxa_pure_virtual @0x2C50D8. See the file
+    // comment. MemoryImage::PushState [74] overrides it.
 }
 
 // ==========================================================================
@@ -175,8 +175,8 @@ void Sexy::RenderDevice::PushState()
 // ==========================================================================
 void Sexy::RenderDevice::PopState()
 {
-  // No ARM body: the slot holds __cxa_pure_virtual @0x2C50D8. See the file
-  // comment. MemoryImage::PopState [75] overrides it.
+    // No ARM body: the slot holds __cxa_pure_virtual @0x2C50D8. See the file
+    // comment. MemoryImage::PopState [75] overrides it.
 }
 
 // ==========================================================================
@@ -206,76 +206,75 @@ void Sexy::RenderDevice::PopState()
 // headers under PvZ\, which are not on this project's include path.
 bool Sexy::RenderDevice::IsPixelFormatSupported(PixelFormat theFormat)
 {
-  const int aFormat = (int)theFormat;
-  return (unsigned int)(aFormat - 1) <= 1u;
+    const int aFormat = (int)theFormat;
+    return (unsigned int)(aFormat - 1) <= 1u;
 }
 
 // ==========================================================================
 // Sexy::RenderDevice::ClearRect(Sexy::TRect<int> const&)
 // @0x68A3A4 (vtable slot [11])  --  __cxa_pure_virtual in the ARM
 // ==========================================================================
-void Sexy::RenderDevice::ClearRect(const TRect<int> & theRect)
+void Sexy::RenderDevice::ClearRect(const TRect<int> &theRect)
 {
-  // No ARM body: the slot holds __cxa_pure_virtual @0x2C50D8. See the file
-  // comment. MemoryImage::ClearRect [19] overrides it.
-  (void)theRect;
+    // No ARM body: the slot holds __cxa_pure_virtual @0x2C50D8. See the file
+    // comment. MemoryImage::ClearRect [19] overrides it.
+    (void)theRect;
 }
 
 // ==========================================================================
 // Sexy::RenderDevice::FillRect(Sexy::TRect<int> const&,Sexy::Color const&,int)
 // @0x68A3A8 (vtable slot [12])  --  __cxa_pure_virtual in the ARM
 // ==========================================================================
-void Sexy::RenderDevice::FillRect(const TRect<int> & theRect, const Color & theColor, int theDrawMode)
+void Sexy::RenderDevice::FillRect(const TRect<int> &theRect, const Color &theColor, int theDrawMode)
 {
-  // No ARM body: the slot holds __cxa_pure_virtual @0x2C50D8. See the file
-  // comment. MemoryImage::FillRect [17] overrides it -- and it is also the slot
-  // DrawRect and FillScanLines below dispatch their work through.
-  (void)theRect;
-  (void)theColor;
-  (void)theDrawMode;
+    // No ARM body: the slot holds __cxa_pure_virtual @0x2C50D8. See the file
+    // comment. MemoryImage::FillRect [17] overrides it -- and it is also the slot
+    // DrawRect and FillScanLines below dispatch their work through.
+    (void)theRect;
+    (void)theColor;
+    (void)theDrawMode;
 }
 
 // ==========================================================================
 // Sexy::RenderDevice::FillScanLinesWithCoverage(Sexy::RenderDevice::Span *,int,Sexy::Color const&,int,unsigned char const*,int,int,int,int)
 // @0x68A3AC (vtable slot [13])  --  __cxa_pure_virtual in the ARM
 // ==========================================================================
-void Sexy::RenderDevice::FillScanLinesWithCoverage(Span * theSpans, int theSpanCount, const Color & theColor,
-                                                   int theDrawMode, const unsigned char * theCoverage,
-                                                   int theCoverageX, int theCoverageY, int theCoverageWidth,
-                                                   int theCoverageHeight)
+void Sexy::RenderDevice::FillScanLinesWithCoverage(Span *theSpans, int theSpanCount, const Color &theColor,
+    int theDrawMode, const unsigned char *theCoverage, int theCoverageX, int theCoverageY, int theCoverageWidth,
+    int theCoverageHeight)
 {
-  // No ARM body: the slot holds __cxa_pure_virtual @0x2C50D8. See the file
-  // comment. MemoryImage implements it as
-  // FillScanLinesWithCoverageRenderDevice [56], which is why that method carries
-  // the "RenderDevice" suffix -- the two take the same RenderDevice::Span but
-  // land in different slots of the two vtables.
-  (void)theSpans;
-  (void)theSpanCount;
-  (void)theColor;
-  (void)theDrawMode;
-  (void)theCoverage;
-  (void)theCoverageX;
-  (void)theCoverageY;
-  (void)theCoverageWidth;
-  (void)theCoverageHeight;
+    // No ARM body: the slot holds __cxa_pure_virtual @0x2C50D8. See the file
+    // comment. MemoryImage implements it as
+    // FillScanLinesWithCoverageRenderDevice [56], which is why that method carries
+    // the "RenderDevice" suffix -- the two take the same RenderDevice::Span but
+    // land in different slots of the two vtables.
+    (void)theSpans;
+    (void)theSpanCount;
+    (void)theColor;
+    (void)theDrawMode;
+    (void)theCoverage;
+    (void)theCoverageX;
+    (void)theCoverageY;
+    (void)theCoverageWidth;
+    (void)theCoverageHeight;
 }
 
 // ==========================================================================
 // Sexy::RenderDevice::FillPoly(Sexy::TPoint<int> const*,int,Sexy::TRect<int> const*,Sexy::Color const&,int,int,int)
 // @0x68A3B0 (vtable slot [14])  --  __cxa_pure_virtual in the ARM
 // ==========================================================================
-void Sexy::RenderDevice::FillPoly(const TPoint<int> * thePoints, int thePointCount, const TRect<int> * theClipRect,
-                                  const Color & theColor, int theDrawMode, int theTx, int theTy)
+void Sexy::RenderDevice::FillPoly(const TPoint<int> *thePoints, int thePointCount, const TRect<int> *theClipRect,
+    const Color &theColor, int theDrawMode, int theTx, int theTy)
 {
-  // No ARM body: the slot holds __cxa_pure_virtual @0x2C50D8. See the file
-  // comment. MemoryImage::FillPoly [76] overrides it.
-  (void)thePoints;
-  (void)thePointCount;
-  (void)theClipRect;
-  (void)theColor;
-  (void)theDrawMode;
-  (void)theTx;
-  (void)theTy;
+    // No ARM body: the slot holds __cxa_pure_virtual @0x2C50D8. See the file
+    // comment. MemoryImage::FillPoly [76] overrides it.
+    (void)thePoints;
+    (void)thePointCount;
+    (void)theClipRect;
+    (void)theColor;
+    (void)theDrawMode;
+    (void)theTx;
+    (void)theTy;
 }
 
 // ==========================================================================
@@ -283,175 +282,173 @@ void Sexy::RenderDevice::FillPoly(const TPoint<int> * thePoints, int thePointCou
 // @0x68A3B4 (vtable slot [15])  --  __cxa_pure_virtual in the ARM
 // ==========================================================================
 void Sexy::RenderDevice::DrawLine(double theStartX, double theStartY, double theEndX, double theEndY,
-                                  const Color & theColor, int theDrawMode, bool theAntiAlias)
+    const Color &theColor, int theDrawMode, bool theAntiAlias)
 {
-  // No ARM body: the slot holds __cxa_pure_virtual @0x2C50D8. See the file
-  // comment. MemoryImage::DrawLine [20] and DrawLineAA [21] override the two
-  // aliasing modes; Graphics::DrawLine dispatches here through mRenderDevice.
-  (void)theStartX;
-  (void)theStartY;
-  (void)theEndX;
-  (void)theEndY;
-  (void)theColor;
-  (void)theDrawMode;
-  (void)theAntiAlias;
+    // No ARM body: the slot holds __cxa_pure_virtual @0x2C50D8. See the file
+    // comment. MemoryImage::DrawLine [20] and DrawLineAA [21] override the two
+    // aliasing modes; Graphics::DrawLine dispatches here through mRenderDevice.
+    (void)theStartX;
+    (void)theStartY;
+    (void)theEndX;
+    (void)theEndY;
+    (void)theColor;
+    (void)theDrawMode;
+    (void)theAntiAlias;
 }
 
 // ==========================================================================
 // Sexy::RenderDevice::Blt(Sexy::Image *,int,int,Sexy::TRect<int> const&,Sexy::Color const&,int)
 // @0x68A3B8 (vtable slot [16])  --  __cxa_pure_virtual in the ARM
 // ==========================================================================
-void Sexy::RenderDevice::Blt(Image * theSource, int theX, int theY, const TRect<int> & theSourceRect,
-                             const Color & theColor, int theDrawMode, bool theColorize)
+void Sexy::RenderDevice::Blt(Image *theSource, int theX, int theY, const TRect<int> &theSourceRect,
+    const Color &theColor, int theDrawMode, bool theColorize)
 {
-  // No ARM body: the slot holds __cxa_pure_virtual @0x2C50D8. See the file
-  // comment. MemoryImage::Blt [24] overrides it; the binary's other
-  // implementations are BltF (below) and the GL device's.
-  (void)theSource;
-  (void)theX;
-  (void)theY;
-  (void)theSourceRect;
-  (void)theColor;
-  (void)theDrawMode;
-  (void)theColorize;
+    // No ARM body: the slot holds __cxa_pure_virtual @0x2C50D8. See the file
+    // comment. MemoryImage::Blt [24] overrides it; the binary's other
+    // implementations are BltF (below) and the GL device's.
+    (void)theSource;
+    (void)theX;
+    (void)theY;
+    (void)theSourceRect;
+    (void)theColor;
+    (void)theDrawMode;
+    (void)theColorize;
 }
 
 // ==========================================================================
 // Sexy::RenderDevice::BltF(Sexy::Image *,float,float,Sexy::TRect<int> const&,Sexy::TRect<int> const&,Sexy::Color const&,int)
 // @0x68A3BC (vtable slot [17])  --  __cxa_pure_virtual in the ARM
 // ==========================================================================
-void Sexy::RenderDevice::BltF(Image * theSource, float theX, float theY, const TRect<int> & theSourceRect,
-                              const TRect<int> & theClipRect, const Color & theColor, int theDrawMode)
+void Sexy::RenderDevice::BltF(Image *theSource, float theX, float theY, const TRect<int> &theSourceRect,
+    const TRect<int> &theClipRect, const Color &theColor, int theDrawMode)
 {
-  // No ARM body: the slot holds __cxa_pure_virtual @0x2C50D8. See the file
-  // comment. MemoryImage::BltF [25] overrides it.
-  (void)theSource;
-  (void)theX;
-  (void)theY;
-  (void)theSourceRect;
-  (void)theClipRect;
-  (void)theColor;
-  (void)theDrawMode;
+    // No ARM body: the slot holds __cxa_pure_virtual @0x2C50D8. See the file
+    // comment. MemoryImage::BltF [25] overrides it.
+    (void)theSource;
+    (void)theX;
+    (void)theY;
+    (void)theSourceRect;
+    (void)theClipRect;
+    (void)theColor;
+    (void)theDrawMode;
 }
 
 // ==========================================================================
 // Sexy::RenderDevice::BltRotated(Sexy::Image *,float,float,Sexy::TRect<int> const&,Sexy::TRect<int> const&,Sexy::Color const&,int,double,float,float)
 // @0x68A3C0 (vtable slot [18])  --  __cxa_pure_virtual in the ARM
 // ==========================================================================
-void Sexy::RenderDevice::BltRotated(Image * theSource, float theX, float theY, const TRect<int> & theSourceRect,
-                                    const TRect<int> & theClipRect, const Color & theColor, int theDrawMode,
-                                    double theRotate, float theRotateCenterX, float theRotateCenterY)
+void Sexy::RenderDevice::BltRotated(Image *theSource, float theX, float theY, const TRect<int> &theSourceRect,
+    const TRect<int> &theClipRect, const Color &theColor, int theDrawMode, double theRotate, float theRotateCenterX,
+    float theRotateCenterY)
 {
-  // No ARM body: the slot holds __cxa_pure_virtual @0x2C50D8. See the file
-  // comment. MemoryImage::BltRotated [26] overrides it.
-  (void)theSource;
-  (void)theX;
-  (void)theY;
-  (void)theSourceRect;
-  (void)theClipRect;
-  (void)theColor;
-  (void)theDrawMode;
-  (void)theRotate;
-  (void)theRotateCenterX;
-  (void)theRotateCenterY;
+    // No ARM body: the slot holds __cxa_pure_virtual @0x2C50D8. See the file
+    // comment. MemoryImage::BltRotated [26] overrides it.
+    (void)theSource;
+    (void)theX;
+    (void)theY;
+    (void)theSourceRect;
+    (void)theClipRect;
+    (void)theColor;
+    (void)theDrawMode;
+    (void)theRotate;
+    (void)theRotateCenterX;
+    (void)theRotateCenterY;
 }
 
 // ==========================================================================
 // Sexy::RenderDevice::BltMatrix(Sexy::Image *,float,float,SexyMatrix3 const&,Sexy::TRect<int> const&,Sexy::Color const&,int,Sexy::TRect<int> const&,bool,bool)
 // @0x68A3C4 (vtable slot [19])  --  __cxa_pure_virtual in the ARM
 // ==========================================================================
-void Sexy::RenderDevice::BltMatrix(Image * theSource, float theX, float theY, const SexyMatrix3 & theMatrix,
-                                   const TRect<int> & theSourceRect, const Color & theColor, int theDrawMode,
-                                   const TRect<int> & theClipRect, bool theLinearBlend, bool theMirror)
+void Sexy::RenderDevice::BltMatrix(Image *theSource, float theX, float theY, const SexyMatrix3 &theMatrix,
+    const TRect<int> &theSourceRect, const Color &theColor, int theDrawMode, const TRect<int> &theClipRect,
+    bool theLinearBlend, bool theMirror)
 {
-  // No ARM body: the slot holds __cxa_pure_virtual @0x2C50D8. See the file
-  // comment. MemoryImage::BltMatrix [28] overrides it.
-  (void)theSource;
-  (void)theX;
-  (void)theY;
-  (void)theMatrix;
-  (void)theSourceRect;
-  (void)theColor;
-  (void)theDrawMode;
-  (void)theClipRect;
-  (void)theLinearBlend;
-  (void)theMirror;
+    // No ARM body: the slot holds __cxa_pure_virtual @0x2C50D8. See the file
+    // comment. MemoryImage::BltMatrix [28] overrides it.
+    (void)theSource;
+    (void)theX;
+    (void)theY;
+    (void)theMatrix;
+    (void)theSourceRect;
+    (void)theColor;
+    (void)theDrawMode;
+    (void)theClipRect;
+    (void)theLinearBlend;
+    (void)theMirror;
 }
 
 // ==========================================================================
 // Sexy::RenderDevice::BltTriangles(Sexy::Image *,SexyVertex2D const (*)[3],int,Sexy::Color const&,int,float,float,bool,Sexy::TRect<int> const*)
 // @0x68A3C8 (vtable slot [20])  --  __cxa_pure_virtual in the ARM
 // ==========================================================================
-void Sexy::RenderDevice::BltTriangles(Image * theSource, const SexyVertex2D (*theTriangles)[3], int theTriangleCount,
-                                      const Color & theColor, int theDrawMode, float theTx, float theTy,
-                                      bool theBlend, const TRect<int> * theClipRect)
+void Sexy::RenderDevice::BltTriangles(Image *theSource, const SexyVertex2D (*theTriangles)[3], int theTriangleCount,
+    const Color &theColor, int theDrawMode, float theTx, float theTy, bool theBlend, const TRect<int> *theClipRect)
 {
-  // No ARM body: the slot holds __cxa_pure_virtual @0x2C50D8. See the file
-  // comment. MemoryImage::BltTriangles [62] overrides it; MemoryImage also has
-  // the separate BltTrianglesTex [29] slot, which is the Image-chain spelling of
-  // the same operation with the clip rect passed by reference.
-  (void)theSource;
-  (void)theTriangles;
-  (void)theTriangleCount;
-  (void)theColor;
-  (void)theDrawMode;
-  (void)theTx;
-  (void)theTy;
-  (void)theBlend;
-  (void)theClipRect;
+    // No ARM body: the slot holds __cxa_pure_virtual @0x2C50D8. See the file
+    // comment. MemoryImage::BltTriangles [62] overrides it; MemoryImage also has
+    // the separate BltTrianglesTex [29] slot, which is the Image-chain spelling of
+    // the same operation with the clip rect passed by reference.
+    (void)theSource;
+    (void)theTriangles;
+    (void)theTriangleCount;
+    (void)theColor;
+    (void)theDrawMode;
+    (void)theTx;
+    (void)theTy;
+    (void)theBlend;
+    (void)theClipRect;
 }
 
 // ==========================================================================
 // Sexy::RenderDevice::BltMirror(Sexy::Image *,int,int,Sexy::TRect<int> const&,Sexy::Color const&,int)
 // @0x68A3CC (vtable slot [21])  --  __cxa_pure_virtual in the ARM
 // ==========================================================================
-void Sexy::RenderDevice::BltMirror(Image * theSource, int theX, int theY, const TRect<int> & theSourceRect,
-                                   const Color & theColor, int theDrawMode)
+void Sexy::RenderDevice::BltMirror(
+    Image *theSource, int theX, int theY, const TRect<int> &theSourceRect, const Color &theColor, int theDrawMode)
 {
-  // No ARM body: the slot holds __cxa_pure_virtual @0x2C50D8. See the file
-  // comment. MemoryImage::BltMirror [30] overrides it.
-  (void)theSource;
-  (void)theX;
-  (void)theY;
-  (void)theSourceRect;
-  (void)theColor;
-  (void)theDrawMode;
+    // No ARM body: the slot holds __cxa_pure_virtual @0x2C50D8. See the file
+    // comment. MemoryImage::BltMirror [30] overrides it.
+    (void)theSource;
+    (void)theX;
+    (void)theY;
+    (void)theSourceRect;
+    (void)theColor;
+    (void)theDrawMode;
 }
 
 // ==========================================================================
 // Sexy::RenderDevice::BltStretched(Sexy::Image *,Sexy::TRect<int> const&,Sexy::TRect<int> const&,Sexy::TRect<int> const&,Sexy::Color const&,int,bool,bool)
 // @0x68A3D0 (vtable slot [22])  --  __cxa_pure_virtual in the ARM
 // ==========================================================================
-void Sexy::RenderDevice::BltStretched(Image * theSource, const TRect<int> & theDestRect,
-                                      const TRect<int> & theSrcRect, const TRect<int> & theClipRect,
-                                      const Color & theColor, int theDrawMode, bool theFastStretch, bool theMirror)
+void Sexy::RenderDevice::BltStretched(Image *theSource, const TRect<int> &theDestRect, const TRect<int> &theSrcRect,
+    const TRect<int> &theClipRect, const Color &theColor, int theDrawMode, bool theFastStretch, bool theMirror)
 {
-  // No ARM body: the slot holds __cxa_pure_virtual @0x2C50D8. See the file
-  // comment. MemoryImage::BltStretched [63] overrides it. Note the parameter
-  // order differs from the Image-chain StretchBlt [27]: here the destination
-  // rect comes before the source rect.
-  (void)theSource;
-  (void)theDestRect;
-  (void)theSrcRect;
-  (void)theClipRect;
-  (void)theColor;
-  (void)theDrawMode;
-  (void)theFastStretch;
-  (void)theMirror;
+    // No ARM body: the slot holds __cxa_pure_virtual @0x2C50D8. See the file
+    // comment. MemoryImage::BltStretched [63] overrides it. Note the parameter
+    // order differs from the Image-chain StretchBlt [27]: here the destination
+    // rect comes before the source rect.
+    (void)theSource;
+    (void)theDestRect;
+    (void)theSrcRect;
+    (void)theClipRect;
+    (void)theColor;
+    (void)theDrawMode;
+    (void)theFastStretch;
+    (void)theMirror;
 }
 
 // ==========================================================================
 // Sexy::RenderDevice::PushTransform(SexyMatrix3 const&,bool)
 // @00307A88  2 bytes
 // ==========================================================================
-void Sexy::RenderDevice::PushTransform(const SexyMatrix3 & theTransform, bool theConcatenate)
+void Sexy::RenderDevice::PushTransform(const SexyMatrix3 &theTransform, bool theConcatenate)
 {
-  // `BX LR` -- two bytes, an immediate return. The base transform stack is a
-  // no-op: the devices that keep one (MemoryImage's sub-object, the GL
-  // devices) override this slot with their own implementation, and the
-  // interface's own body exists only so the slot is not pure.
-  (void)theTransform;
-  (void)theConcatenate;
+    // `BX LR` -- two bytes, an immediate return. The base transform stack is a
+    // no-op: the devices that keep one (MemoryImage's sub-object, the GL
+    // devices) override this slot with their own implementation, and the
+    // interface's own body exists only so the slot is not pure.
+    (void)theTransform;
+    (void)theConcatenate;
 }
 
 // ==========================================================================
@@ -460,18 +457,18 @@ void Sexy::RenderDevice::PushTransform(const SexyMatrix3 & theTransform, bool th
 // ==========================================================================
 void Sexy::RenderDevice::PopTransform()
 {
-  // `BX LR` -- empty, for the same reason as PushTransform above.
+    // `BX LR` -- empty, for the same reason as PushTransform above.
 }
 
 // ==========================================================================
 // Sexy::RenderDevice::PopTransform(SexyMatrix3 &)
 // @00307A90  2 bytes
 // ==========================================================================
-void Sexy::RenderDevice::PopTransform(SexyMatrix3 & theTransform)
+void Sexy::RenderDevice::PopTransform(SexyMatrix3 &theTransform)
 {
-  // `BX LR` -- empty. The out-parameter is left untouched, which is what the
-  // ARM does: the base has no stack to pop a matrix off.
-  (void)theTransform;
+    // `BX LR` -- empty. The out-parameter is left untouched, which is what the
+    // ARM does: the base has no stack to pop a matrix off.
+    (void)theTransform;
 }
 
 // ==========================================================================
@@ -494,17 +491,17 @@ void Sexy::RenderDevice::PopTransform(SexyMatrix3 & theTransform)
 // mX + mWidth and the rectangle closes at its right edge; the vertical bands
 // then start one row down and stop one row short so they do not paint over the
 // two horizontal ones. Each band's other dimension is exactly 1.
-void Sexy::RenderDevice::DrawRect(const TRect<int> & theRect, const Color & theColor, int theDrawMode)
+void Sexy::RenderDevice::DrawRect(const TRect<int> &theRect, const Color &theColor, int theDrawMode)
 {
-  const int aLeft = theRect.mX;
-  const int aTop = theRect.mY;
-  const int aWidth = theRect.mWidth;
-  const int aHeight = theRect.mHeight;
+    const int aLeft = theRect.mX;
+    const int aTop = theRect.mY;
+    const int aWidth = theRect.mWidth;
+    const int aHeight = theRect.mHeight;
 
-  FillRect(TRect<int>(aLeft, aTop, aWidth + 1, 1), theColor, theDrawMode);
-  FillRect(TRect<int>(aLeft, aTop + aHeight, aWidth + 1, 1), theColor, theDrawMode);
-  FillRect(TRect<int>(aLeft, aTop + 1, 1, aHeight - 1), theColor, theDrawMode);
-  FillRect(TRect<int>(aLeft + aWidth, aTop + 1, 1, aHeight - 1), theColor, theDrawMode);
+    FillRect(TRect<int>(aLeft, aTop, aWidth + 1, 1), theColor, theDrawMode);
+    FillRect(TRect<int>(aLeft, aTop + aHeight, aWidth + 1, 1), theColor, theDrawMode);
+    FillRect(TRect<int>(aLeft, aTop + 1, 1, aHeight - 1), theColor, theDrawMode);
+    FillRect(TRect<int>(aLeft + aWidth, aTop + 1, 1, aHeight - 1), theColor, theDrawMode);
 }
 
 // ==========================================================================
@@ -527,24 +524,24 @@ void Sexy::RenderDevice::DrawRect(const TRect<int> & theRect, const Color & theC
 //
 // The loop is a do/while entered only when theSpanCount > 0, so a zero or
 // negative count draws nothing.
-void Sexy::RenderDevice::FillScanLines(Span * theSpans, int theSpanCount, const Color & theColor, int theDrawMode)
+void Sexy::RenderDevice::FillScanLines(Span *theSpans, int theSpanCount, const Color &theColor, int theDrawMode)
 {
-  for (int aSpan = 0; aSpan < theSpanCount; ++aSpan)
-  {
-    const Span & aCurrent = theSpans[aSpan];
-    FillRect(TRect<int>(aCurrent.mX, aCurrent.mY, aCurrent.mCount, 1), theColor, theDrawMode);
-  }
+    for (int aSpan = 0; aSpan < theSpanCount; ++aSpan)
+    {
+        const Span &aCurrent = theSpans[aSpan];
+        FillRect(TRect<int>(aCurrent.mX, aCurrent.mY, aCurrent.mCount, 1), theColor, theDrawMode);
+    }
 }
 
 // ==========================================================================
 // Sexy::RenderDevice::TakeScreenshot(Sexy::MemoryImage &)
 // @00307BA0  4 bytes
 // ==========================================================================
-void Sexy::RenderDevice::TakeScreenshot(MemoryImage & theImage)
+void Sexy::RenderDevice::TakeScreenshot(MemoryImage &theImage)
 {
-  // `MOVS R0, #0; BX LR` -- four bytes. The base implementation does nothing
-  // and leaves the destination image alone: a device that can read its
-  // framebuffer back (the GL devices) overrides this slot, and there is no
-  // software fallback to take a screenshot with.
-  (void)theImage;
+    // `MOVS R0, #0; BX LR` -- four bytes. The base implementation does nothing
+    // and leaves the destination image alone: a device that can read its
+    // framebuffer back (the GL devices) overrides this slot, and there is no
+    // software fallback to take a screenshot with.
+    (void)theImage;
 }

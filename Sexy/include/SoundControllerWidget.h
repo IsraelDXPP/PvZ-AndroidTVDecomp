@@ -4,11 +4,13 @@
 // flag and the tick the overlay was last touched. The overlay stays up for two
 // seconds after the last volume key.
 
-#pragma once
+#ifndef LAWNPROJECTTV_SEXY_INCLUDE_SOUNDCONTROLLERWIDGET_H
+#define LAWNPROJECTTV_SEXY_INCLUDE_SOUNDCONTROLLERWIDGET_H
 
 #include "Widget.h"
 
-namespace Sexy {
+namespace Sexy
+{
 
 class SoundControllerWidget : public Widget
 {
@@ -24,7 +26,7 @@ public:
     SoundControllerWidget();
     virtual ~SoundControllerWidget();
 
-    virtual void Draw(Sexy::Graphics* g);
+    virtual void Draw(Sexy::Graphics *g);
     virtual void Update();
     virtual int KeyUp(Sexy::KeyCode theKey);
 
@@ -34,19 +36,19 @@ public:
     void addSoundSize();
     void reduceSoundSize();
     void setSoundStatus(int theState);
-    SoundControllerWidget* setSoundControllerImage(Sexy::Image* theOpen,
-                                                   Sexy::Image* theClosed,
-                                                   Sexy::Image* theRaised,
-                                                   Sexy::Image* theLowered);
+    SoundControllerWidget *setSoundControllerImage(
+        Sexy::Image *theOpen, Sexy::Image *theClosed, Sexy::Image *theRaised, Sexy::Image *theLowered);
 
-    Sexy::Image* mOpenImage;     // +0x100
-    Sexy::Image* mClosedImage;   // +0x104
-    Sexy::Image* mRaisedImage;   // +0x108
-    Sexy::Image* mLoweredImage;  // +0x10C
-    int mSoundSize;              // +0x110
-    int mState;                  // +0x114
-    bool mShowing;               // +0x118
-    unsigned int mShownTick;     // +0x11C
+    Sexy::Image *mOpenImage; // +0x100
+    Sexy::Image *mClosedImage; // +0x104
+    Sexy::Image *mRaisedImage; // +0x108
+    Sexy::Image *mLoweredImage; // +0x10C
+    int mSoundSize; // +0x110
+    int mState; // +0x114
+    bool mShowing; // +0x118
+    unsigned int mShownTick; // +0x11C
 };
 
 } // namespace Sexy
+
+#endif // LAWNPROJECTTV_SEXY_INCLUDE_SOUNDCONTROLLERWIDGET_H

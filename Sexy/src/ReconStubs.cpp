@@ -36,7 +36,7 @@ unsigned int EndianUINT32(unsigned int theValue)
     return theValue;
 }
 
-int SMemR(unsigned char** theCursor, void* theDest, int theCount, int theLimit)
+int SMemR(unsigned char **theCursor, void *theDest, int theCount, int theLimit)
 {
     (void)theLimit;
     if (theCursor == nullptr || *theCursor == nullptr || theDest == nullptr || theCount < 0)
@@ -47,12 +47,12 @@ int SMemR(unsigned char** theCursor, void* theDest, int theCount, int theLimit)
     return theCount;
 }
 
-const char* AGGetExternalFilesDir()
+const char *AGGetExternalFilesDir()
 {
     return nullptr;
 }
 
-const char* AGGetModel(int theView)
+const char *AGGetModel(int theView)
 {
     (void)theView;
     return nullptr;
@@ -63,14 +63,14 @@ int AGGetSdkVersion()
     return 19;
 }
 
-int AGSetFullVersionListener(int (*theCallback)(bool, void*), void* theApp)
+int AGSetFullVersionListener(int (*theCallback)(bool, void *), void *theApp)
 {
     (void)theCallback;
     (void)theApp;
     return 1;
 }
 
-int AGSetMessageBoxListener(int (*theCallback)(int, void*), void* theApp)
+int AGSetMessageBoxListener(int (*theCallback)(int, void *), void *theApp)
 {
     (void)theCallback;
     (void)theApp;
@@ -95,7 +95,7 @@ int AGVideoIsPlaying(int theUnused)
     return MpegVideoIsPlaying();
 }
 
-int AGVideoOpen(const char* thePath)
+int AGVideoOpen(const char *thePath)
 {
     return MpegVideoOpen(thePath);
 }
@@ -112,14 +112,14 @@ int AGVideoShow(int theShow)
     return 0;
 }
 
-int AGViewAddEventListener(int* (*theListener)(int*), int theFlags)
+int AGViewAddEventListener(int *(*theListener)(int *), int theFlags)
 {
     MpegVideoAddEventListener(theListener);
     (void)theFlags;
     return 1;
 }
 
-int AGViewRemoveEventListener(int* (*theListener)(int*))
+int AGViewRemoveEventListener(int *(*theListener)(int *))
 {
     MpegVideoRemoveEventListener(theListener);
     return 1;
@@ -131,9 +131,7 @@ int AGViewShow(int theShow)
     return 1;
 }
 
-void AGHideAD()
-{
-}
+void AGHideAD() {}
 
 void AGShowAD(int theGravity, int theAdType)
 {
@@ -141,8 +139,7 @@ void AGShowAD(int theGravity, int theAdType)
     (void)theAdType;
 }
 
-void AGShowOfferAD(const char* theOffer, int theX, int theY, int theWidth,
-                   int theAdType, int theHeight)
+void AGShowOfferAD(const char *theOffer, int theX, int theY, int theWidth, int theAdType, int theHeight)
 {
     (void)theOffer;
     (void)theX;
@@ -152,9 +149,8 @@ void AGShowOfferAD(const char* theOffer, int theX, int theY, int theWidth,
     (void)theHeight;
 }
 
-void AGShowItems(const char* theItem, int theCount, const char* theName,
-                 const char* theDescription, float thePrice, int theFlags,
-                 int theAdType)
+void AGShowItems(const char *theItem, int theCount, const char *theName, const char *theDescription, float thePrice,
+    int theFlags, int theAdType)
 {
     (void)theItem;
     (void)theCount;
@@ -165,7 +161,7 @@ void AGShowItems(const char* theItem, int theCount, const char* theName,
     (void)theAdType;
 }
 
-void AGQueryBalance(const char* theAccount, int theAdType)
+void AGQueryBalance(const char *theAccount, int theAdType)
 {
     (void)theAccount;
     (void)theAdType;
@@ -177,7 +173,7 @@ void AGGoToLogin(bool theForce, int theAdType)
     (void)theAdType;
 }
 
-const char* AGGetUserName(int theAdType)
+const char *AGGetUserName(int theAdType)
 {
     (void)theAdType;
     return "";

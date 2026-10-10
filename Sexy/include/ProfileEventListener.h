@@ -26,19 +26,23 @@
 // type to dispatch through the listener, so the move is done and LawnApp.h now
 // includes this header instead of keeping a second copy.
 
-#pragma once
+#ifndef LAWNPROJECTTV_SEXY_INCLUDE_PROFILEEVENTLISTENER_H
+#define LAWNPROJECTTV_SEXY_INCLUDE_PROFILEEVENTLISTENER_H
 
-namespace Sexy {
+namespace Sexy
+{
 
 class PlayerInfo;
 
 class ProfileEventListener
 {
 public:
-    virtual int GetProfileVersion() = 0;                              // [0]
-    virtual PlayerInfo *CreatePlayerInfo() = 0;                       // [1]
+    virtual int GetProfileVersion() = 0; // [0]
+    virtual PlayerInfo *CreatePlayerInfo() = 0; // [1]
     virtual void NotifyProfileChanged(PlayerInfo *thePlayerInfo) = 0; // [2]
-    virtual void OnProfileSaveError(PlayerInfo *thePlayerInfo) = 0;   // [3]
+    virtual void OnProfileSaveError(PlayerInfo *thePlayerInfo) = 0; // [3]
 };
 
 } // namespace Sexy
+
+#endif // LAWNPROJECTTV_SEXY_INCLUDE_PROFILEEVENTLISTENER_H

@@ -23,14 +23,16 @@
 // _ZN4Sexy22CustomScrollbarWidget...), and the global spelling is kept alive by
 // the `using` at the end of this header so the .cpp files keep compiling.
 
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_CUSTOMSCROLLBARWIDGET_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_CUSTOMSCROLLBARWIDGET_H
 
 #include "ReconTypes.h"
 // These includes exist because the transcribed bodies call methods on complete
 // types. Kept as-is so other files' transitive dependencies do not change.
 #include "ScrollbarWidget.h"
 
-namespace Sexy {
+namespace Sexy
+{
 
 class CustomScrollbarWidget : public Sexy::ScrollbarWidget
 {
@@ -50,3 +52,5 @@ public:
 
 // The global spelling, which the transcribed bodies use.
 using Sexy::CustomScrollbarWidget;
+
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_CUSTOMSCROLLBARWIDGET_H

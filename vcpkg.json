@@ -1,96 +1,94 @@
 {
-  "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
-  "name": "lawntvdecomp",
-  "version": "0.1.0",
-  "description": "Decompiled reconstruction of the Plants vs. Zombies TV/Android build (libGameMain.so)",
-  "homepage": "https://github.com/",
-  "documentation": "https://github.com/microsoft/vcpkg",
-  "license": "MIT",
-  "builtin-baseline": "3f7b5a12ef0a55e7b59339b2b69cac4b56d6dbf9",
-
-  "$comment-dependencies": {
-    "sdl3": "Window creation, input, game controllers and audio device/stream output. Replaces GLFW and OpenAL Soft in the platform layer; existing codecs continue to decode audio to PCM.",
-    "sdl3-net": "Portable hostname resolution and typed sockets for the existing logging interfaces.",
-    "bgfx": "Cross-platform renderer. Runtime builds use the multithreaded library; the shader-tools feature builds native tools separately for regenerating SCBP packages.",
-    "glm": "Matrix/vector math for the transform pipeline (SexyMatrix3 / SexyTransform2D / SexyMatrix4).",
-    "sdl3-image": "Primary image decoder producing CPU surfaces for upload to bgfx. PNG and JPEG features bring libpng and libjpeg-turbo as transitive dependencies.",
-    "zlib": "Inflate for .pak archives and compressed resource streams.",
-    "minizip-ng": "Reads the .zip pak files under assets/paks (PakLib::ZipFileSystem).",
-    "bzip2": "Secondary compression used by some pak entries.",
-    "libogg": "OGG container parsing for the Music2 streaming path.",
-    "libvorbis": "Vorbis decoding. Music2 loads 11 OGG tracks and is the default music path.",
-    "libopenmpt": "Tracker music decoding and channel control for the existing music path; decoded PCM is sent to SDL3 audio.",
-    "nlohmann-json": "JSON parsing for DataSync / JSONNode / userdata.",
-    "pugixml": "XML parsing for levels/levels-*.xml, properties/*.xml and defaultSetting.xml.",
-    "stb": "Fallback image decoding for formats such as PSD, HDR and Softimage PIC."
-  },
-
-  "dependencies": [
-    "sdl3",
-    "sdl3-net",
-    {
-      "name": "bgfx",
-      "default-features": false,
-      "features": [
-        "multithreaded"
-      ]
+    "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
+    "name": "lawntvdecomp",
+    "version": "0.1.0",
+    "description": "Decompiled reconstruction of the Plants vs. Zombies TV/Android build (libGameMain.so)",
+    "homepage": "https://github.com/",
+    "documentation": "https://github.com/microsoft/vcpkg",
+    "license": "MIT",
+    "builtin-baseline": "3f7b5a12ef0a55e7b59339b2b69cac4b56d6dbf9",
+    "$comment-dependencies": {
+        "sdl3": "Window creation, input, game controllers and audio device/stream output. Replaces GLFW and OpenAL Soft in the platform layer; existing codecs continue to decode audio to PCM.",
+        "sdl3-net": "Portable hostname resolution and typed sockets for the existing logging interfaces.",
+        "bgfx": "Cross-platform renderer. Runtime builds use the multithreaded library; the shader-tools feature builds native tools separately for regenerating SCBP packages.",
+        "glm": "Matrix/vector math for the transform pipeline (SexyMatrix3 / SexyTransform2D / SexyMatrix4).",
+        "sdl3-image": "Primary image decoder producing CPU surfaces for upload to bgfx. PNG and JPEG features bring libpng and libjpeg-turbo as transitive dependencies.",
+        "zlib": "Inflate for .pak archives and compressed resource streams.",
+        "minizip-ng": "Reads the .zip pak files under assets/paks (PakLib::ZipFileSystem).",
+        "bzip2": "Secondary compression used by some pak entries.",
+        "libogg": "OGG container parsing for the Music2 streaming path.",
+        "libvorbis": "Vorbis decoding. Music2 loads 11 OGG tracks and is the default music path.",
+        "libopenmpt": "Tracker music decoding and channel control for the existing music path; decoded PCM is sent to SDL3 audio.",
+        "nlohmann-json": "JSON parsing for DataSync / JSONNode / userdata.",
+        "pugixml": "XML parsing for levels/levels-*.xml, properties/*.xml and defaultSetting.xml.",
+        "stb": "Fallback image decoding for formats such as PSD, HDR and Softimage PIC."
     },
-    "glm",
-    {
-      "name": "sdl3-image",
-      "default-features": false,
-      "features": [
-        "png",
-        "jpeg"
-      ]
-    },
-    "zlib",
-    {
-      "name": "minizip-ng",
-      "default-features": false,
-      "features": [
+    "dependencies": [
+        "sdl3",
+        "sdl3-net",
+        {
+            "name": "bgfx",
+            "default-features": false,
+            "features": [
+                "multithreaded"
+            ]
+        },
+        "glm",
+        {
+            "name": "sdl3-image",
+            "default-features": false,
+            "features": [
+                "png",
+                "jpeg"
+            ]
+        },
+        "zlib",
+        {
+            "name": "minizip-ng",
+            "default-features": false,
+            "features": [
+                "bzip2",
+                "zlib"
+            ]
+        },
         "bzip2",
-        "zlib"
-      ]
-    },
-    "bzip2",
-    "libogg",
-    "libvorbis",
-    "nlohmann-json",
-    "pugixml",
-    "stb",
-    "libopenmpt"
-  ],
-  "default-features": [
-    {
-      "name": "linux-audio",
-      "platform": "linux"
-    }
-  ],
-  "features": {
-    "linux-audio": {
-      "description": "SDL ALSA audio output on Linux",
-      "dependencies": [
+        "libogg",
+        "libvorbis",
+        "nlohmann-json",
+        "pugixml",
+        "stb",
+        "libopenmpt"
+    ],
+    "default-features": [
         {
-          "name": "sdl3",
-          "features": [
-            "alsa"
-          ]
+            "name": "linux-audio",
+            "platform": "linux"
         }
-      ]
-    },
-    "shader-tools": {
-      "description": "Native bgfx shaderc, texturec and geometryc tools for regenerating SCBP packages",
-      "dependencies": [
-        {
-          "name": "bgfx",
-          "host": true,
-          "default-features": false,
-          "features": [
-            "tools"
-          ]
+    ],
+    "features": {
+        "linux-audio": {
+            "description": "SDL ALSA audio output on Linux",
+            "dependencies": [
+                {
+                    "name": "sdl3",
+                    "features": [
+                        "alsa"
+                    ]
+                }
+            ]
+        },
+        "shader-tools": {
+            "description": "Native bgfx shaderc, texturec and geometryc tools for regenerating SCBP packages",
+            "dependencies": [
+                {
+                    "name": "bgfx",
+                    "host": true,
+                    "default-features": false,
+                    "features": [
+                        "tools"
+                    ]
+                }
+            ]
         }
-      ]
     }
-  }
 }

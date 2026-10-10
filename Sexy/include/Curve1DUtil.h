@@ -4,11 +4,13 @@
 // floats: the seven curve parameters plus a spare word, then the eight
 // coefficients the setters fill in.
 
-#pragma once
+#ifndef LAWNPROJECTTV_SEXY_INCLUDE_CURVE1DUTIL_H
+#define LAWNPROJECTTV_SEXY_INCLUDE_CURVE1DUTIL_H
 
 #include "ReconTypes.h"
 
-namespace Sexy {
+namespace Sexy
+{
 
 class Curve1DUtil
 {
@@ -17,13 +19,15 @@ public:
     float mCoeffs[8];
 
     Curve1DUtil();
-    Curve1DUtil(float theStart, float theEnd, float theControl0, float theControl1,
-                float theControl2, float theControl3, float theControl4);
-    Curve1DUtil* SetBounce(float theAmount, float theHeight);
-    Curve1DUtil* SetBounce(float theAmount);
-    Curve1DUtil* SetEaseIn();
-    Curve1DUtil* SetEaseOut();
+    Curve1DUtil(float theStart, float theEnd, float theControl0, float theControl1, float theControl2,
+        float theControl3, float theControl4);
+    Curve1DUtil *SetBounce(float theAmount, float theHeight);
+    Curve1DUtil *SetBounce(float theAmount);
+    Curve1DUtil *SetEaseIn();
+    Curve1DUtil *SetEaseOut();
     int GetInterp(float theTime);
 };
 
 } // namespace Sexy
+
+#endif // LAWNPROJECTTV_SEXY_INCLUDE_CURVE1DUTIL_H

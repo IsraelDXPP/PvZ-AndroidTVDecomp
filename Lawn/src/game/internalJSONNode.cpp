@@ -23,18 +23,18 @@
 // collapsed all of them onto gGuard_getValue__single_1, so the second and later
 // tokens read the first one's text; every singleton below is separated again and
 // named after the slot the dump points at.
-static Sexy::String gGuard_getValue__single_1;   // EMPTY_JSON_STRING @0x69FC7C
-static int gGuard_single_2 = 0;             // its guard @0x69FCA0
-static Sexy::String gGuard_getValue_CONST_NULL;  // CONST_NULL @0x7871A8
-static int gGuard_CONST_NULL = 0;           // its guard @0x7871B4
+static Sexy::String gGuard_getValue__single_1; // EMPTY_JSON_STRING @0x69FC7C
+static int gGuard_single_2 = 0; // its guard @0x69FCA0
+static Sexy::String gGuard_getValue_CONST_NULL; // CONST_NULL @0x7871A8
+static int gGuard_CONST_NULL = 0; // its guard @0x7871B4
 static Sexy::String gGuard_getValue_CONST_FALSE; // CONST_FALSE @0x7871AC
-static int gGuard_CONST_FALSE = 0;          // its guard @0x7871B8
-static Sexy::String gGuard_getValue_CONST_TRUE;  // CONST_TRUE @0x7871B0
-static int gGuard_CONST_TRUE = 0;           // its guard @0x7871BC
-static Sexy::String gGuard_getValue_NEW_LINE;    // NEW_LINE @0x787230
-static int gGuard_NEW_LINE = 0;             // its guard @0x787244
-static Sexy::String gGuard_getValue_SINGLELINE_COMMENT;  // SINGLELINE_COMMENT @0x7871CC
-static int gGuard_SINGLELINE_COMMENT = 0;   // its guard @0x787240
+static int gGuard_CONST_FALSE = 0; // its guard @0x7871B8
+static Sexy::String gGuard_getValue_CONST_TRUE; // CONST_TRUE @0x7871B0
+static int gGuard_CONST_TRUE = 0; // its guard @0x7871BC
+static Sexy::String gGuard_getValue_NEW_LINE; // NEW_LINE @0x787230
+static int gGuard_NEW_LINE = 0; // its guard @0x787244
+static Sexy::String gGuard_getValue_SINGLELINE_COMMENT; // SINGLELINE_COMMENT @0x7871CC
+static int gGuard_SINGLELINE_COMMENT = 0; // its guard @0x787240
 
 // Linker symbols IDA printed verbatim; each becomes a stub whose
 // address is what the original code compares or reads.
@@ -62,7 +62,7 @@ static int gGuardVar_8 = 0;
 // practice anyway.
 static void jsonSingletonDtorThunk(void *theObject)
 {
-  (void)theObject;
+    (void)theObject;
 }
 
 // `used_ascii_one` is a data symbol the binary's writer reads (@0052xxxx).
@@ -82,53 +82,52 @@ static Sexy::String gIndentShallow[8];
 // is dropped so "1.500" becomes "1.5".
 static Sexy::String FormatJsonNumber(double theValue)
 {
-  double aAsUnsigned = (double)(unsigned long long)theValue;
-  if (theValue >= 0.0)
-  {
-    double aGap = theValue - aAsUnsigned;
-    bool aIsInteger = theValue <= aAsUnsigned ? aGap > -0.00001 : aGap < 0.00001;
-    if (aIsInteger)
+    double aAsUnsigned = (double)(unsigned long long)theValue;
+    if (theValue >= 0.0)
     {
-      char aDigits[32];
-      snprintf(aDigits, sizeof(aDigits), "%llu", (unsigned long long)theValue);
-      return Sexy::String(aDigits);
+        double aGap = theValue - aAsUnsigned;
+        bool aIsInteger = theValue <= aAsUnsigned ? aGap > -0.00001 : aGap < 0.00001;
+        if (aIsInteger)
+        {
+            char aDigits[32];
+            snprintf(aDigits, sizeof(aDigits), "%llu", (unsigned long long)theValue);
+            return Sexy::String(aDigits);
+        }
     }
-  }
 
-  double aAsSigned = (double)(long long)theValue;
-  double aSignedGap = theValue - aAsSigned;
-  bool aIsSignedInteger = theValue <= aAsSigned ? aSignedGap > -0.00001 : aSignedGap < 0.00001;
-  if (aIsSignedInteger)
-  {
-    char aDigits[32];
-    snprintf(aDigits, sizeof(aDigits), "%lld", (long long)theValue);
-    return Sexy::String(aDigits);
-  }
-
-  char aText[64];
-  snprintf(aText, sizeof(aText), "%g", theValue);
-  char *aDot = strchr(aText, '.');
-  if (aDot != nullptr && aDot[1] != 0)
-  {
-    char *aKeep = aDot;
-    for (char *aCursor = aDot + 1; *aCursor != 0; ++aCursor)
+    double aAsSigned = (double)(long long)theValue;
+    double aSignedGap = theValue - aAsSigned;
+    bool aIsSignedInteger = theValue <= aAsSigned ? aSignedGap > -0.00001 : aSignedGap < 0.00001;
+    if (aIsSignedInteger)
     {
-      if (*aCursor != '0')
-        aKeep = aCursor;
+        char aDigits[32];
+        snprintf(aDigits, sizeof(aDigits), "%lld", (long long)theValue);
+        return Sexy::String(aDigits);
     }
-    aKeep[1] = 0;
-  }
-  return Sexy::String(aText);
+
+    char aText[64];
+    snprintf(aText, sizeof(aText), "%g", theValue);
+    char *aDot = strchr(aText, '.');
+    if (aDot != nullptr && aDot[1] != 0)
+    {
+        char *aKeep = aDot;
+        for (char *aCursor = aDot + 1; *aCursor != 0; ++aCursor)
+        {
+            if (*aCursor != '0')
+                aKeep = aCursor;
+        }
+        aKeep[1] = 0;
+    }
+    return Sexy::String(aText);
 }
 
 static void StoreNumberText(internalJSONNode *theNode, double theValue)
 {
-  theNode->_type = 2;
-  theNode->_value._number = theValue;
-  theNode->_string = FormatJsonNumber(theValue);
-  theNode->fetched = true;
+    theNode->_type = 2;
+    theNode->_value._number = theValue;
+    theNode->_string = FormatJsonNumber(theValue);
+    theNode->fetched = true;
 }
-
 
 // Every path that gives a node an array/object allocates the same empty
 // jsonChildren: three words, all zero. The binary spells it as a bare
@@ -136,9 +135,8 @@ static void StoreNumberText(internalJSONNode *theNode, double theValue)
 // followed by the field initialisers reproduces.
 static jsonChildren *NewJsonChildren()
 {
-  return new jsonChildren;
+    return new jsonChildren;
 }
-
 
 // ==========================================================================
 // internalJSONNode::FetchNumber()const
@@ -146,11 +144,11 @@ static jsonChildren *NewJsonChildren()
 // ==========================================================================
 double internalJSONNode::FetchNumber()
 {
-  double result;
+    double result;
 
-  result = strtod(_string.c_str(), nullptr);
-  _value._number = result;
-  return result;
+    result = strtod(_string.c_str(), nullptr);
+    _value._number = result;
+    return result;
 }
 
 // ==========================================================================
@@ -165,11 +163,11 @@ double internalJSONNode::FetchNumber()
 // `int Set(Sexy::String const& a2)` and `void Set(int a2)`.
 static int internalJSONNodeSetString(internalJSONNode *theNode, const Sexy::String &theValue)
 {
-  theNode->_type = 1;
-  theNode->_string = theValue;
-  theNode->_string_encoded = true;
-  theNode->fetched = true;
-  return 0;
+    theNode->_type = 1;
+    theNode->_string = theValue;
+    theNode->_string_encoded = true;
+    theNode->fetched = true;
+    return 0;
 }
 
 // ==========================================================================
@@ -178,27 +176,27 @@ static int internalJSONNodeSetString(internalJSONNode *theNode, const Sexy::Stri
 // ==========================================================================
 void internalJSONNode::Set(char theValue)
 {
-  // The decimal form is built backwards into aDigits and terminated one past
-  // the last digit, so the String constructor sees a plain C string.
-  char aDigits[16];
-  char *aCursor = &aDigits[14];
-  int aValue = theValue;
+    // The decimal form is built backwards into aDigits and terminated one past
+    // the last digit, so the String constructor sees a plain C string.
+    char aDigits[16];
+    char *aCursor = &aDigits[14];
+    int aValue = theValue;
 
-  _type = 2;
-  _value._number = (double)theValue;
-  aCursor[1] = 0;
-  while ( 1 )
-  {
-    int aDigit = aValue % 10;
-    aValue /= 10;
-    *aCursor = aDigit + '0';
-    if ( aValue == 0 )
-      break;
-    --aCursor;
-  }
-  Sexy::String aText(aCursor);
-  _string = aText;
-  fetched = true;
+    _type = 2;
+    _value._number = (double)theValue;
+    aCursor[1] = 0;
+    while (1)
+    {
+        int aDigit = aValue % 10;
+        aValue /= 10;
+        *aCursor = aDigit + '0';
+        if (aValue == 0)
+            break;
+        --aCursor;
+    }
+    Sexy::String aText(aCursor);
+    _string = aText;
+    fetched = true;
 }
 
 // ==========================================================================
@@ -207,25 +205,25 @@ void internalJSONNode::Set(char theValue)
 // ==========================================================================
 void internalJSONNode::Set(unsigned char theValue)
 {
-  char aDigits[16];
-  char *aCursor = &aDigits[14];
-  unsigned int aValue = theValue;
+    char aDigits[16];
+    char *aCursor = &aDigits[14];
+    unsigned int aValue = theValue;
 
-  _type = 2;
-  _value._number = (double)theValue;
-  aCursor[1] = 0;
-  while ( 1 )
-  {
-    unsigned int aDigit = aValue % 10;
-    aValue /= 10;
-    *aCursor = aDigit + '0';
-    if ( aValue == 0 )
-      break;
-    --aCursor;
-  }
-  Sexy::String aText(aCursor);
-  _string = aText;
-  fetched = true;
+    _type = 2;
+    _value._number = (double)theValue;
+    aCursor[1] = 0;
+    while (1)
+    {
+        unsigned int aDigit = aValue % 10;
+        aValue /= 10;
+        *aCursor = aDigit + '0';
+        if (aValue == 0)
+            break;
+        --aCursor;
+    }
+    Sexy::String aText(aCursor);
+    _string = aText;
+    fetched = true;
 }
 
 // ==========================================================================
@@ -234,33 +232,33 @@ void internalJSONNode::Set(unsigned char theValue)
 // ==========================================================================
 void internalJSONNode::Set(short theValue)
 {
-  char aDigits[16];
-  char *aCursor = &aDigits[14];
-  int aValue = theValue;
-  bool aNegative = false;
+    char aDigits[16];
+    char *aCursor = &aDigits[14];
+    int aValue = theValue;
+    bool aNegative = false;
 
-  _type = 2;
-  _value._number = (double)theValue;
-  aCursor[1] = 0;
-  if ( theValue < 0 )
-  {
-    aValue = -theValue;
-    aNegative = true;
-  }
-  while ( 1 )
-  {
-    int aDigit = aValue - 10 * (aValue / 10);
-    aValue /= 10;
-    *aCursor = aDigit + '0';
-    if ( aValue == 0 )
-      break;
-    --aCursor;
-  }
-  if ( aNegative )
-    *--aCursor = '-';
-  Sexy::String aText(aCursor);
-  _string = aText;
-  fetched = true;
+    _type = 2;
+    _value._number = (double)theValue;
+    aCursor[1] = 0;
+    if (theValue < 0)
+    {
+        aValue = -theValue;
+        aNegative = true;
+    }
+    while (1)
+    {
+        int aDigit = aValue - 10 * (aValue / 10);
+        aValue /= 10;
+        *aCursor = aDigit + '0';
+        if (aValue == 0)
+            break;
+        --aCursor;
+    }
+    if (aNegative)
+        *--aCursor = '-';
+    Sexy::String aText(aCursor);
+    _string = aText;
+    fetched = true;
 }
 
 // ==========================================================================
@@ -269,25 +267,25 @@ void internalJSONNode::Set(short theValue)
 // ==========================================================================
 void internalJSONNode::Set(unsigned short theValue)
 {
-  char aDigits[16];
-  char *aCursor = &aDigits[14];
-  unsigned int aValue = theValue;
+    char aDigits[16];
+    char *aCursor = &aDigits[14];
+    unsigned int aValue = theValue;
 
-  _type = 2;
-  _value._number = (double)theValue;
-  aCursor[1] = 0;
-  while ( 1 )
-  {
-    unsigned int aDigit = aValue % 10;
-    aValue /= 10;
-    *aCursor = aDigit + '0';
-    if ( aValue == 0 )
-      break;
-    --aCursor;
-  }
-  Sexy::String aText(aCursor);
-  _string = aText;
-  fetched = true;
+    _type = 2;
+    _value._number = (double)theValue;
+    aCursor[1] = 0;
+    while (1)
+    {
+        unsigned int aDigit = aValue % 10;
+        aValue /= 10;
+        *aCursor = aDigit + '0';
+        if (aValue == 0)
+            break;
+        --aCursor;
+    }
+    Sexy::String aText(aCursor);
+    _string = aText;
+    fetched = true;
 }
 
 // ==========================================================================
@@ -298,34 +296,34 @@ void internalJSONNode::Set(unsigned short theValue)
 // belongs to the String setter, so this definition carries the header's return type.
 int internalJSONNode::Set(int theValue)
 {
-  char aDigits[16];
-  char *aCursor = &aDigits[14];
-  int aValue = theValue;
-  bool aNegative = false;
+    char aDigits[16];
+    char *aCursor = &aDigits[14];
+    int aValue = theValue;
+    bool aNegative = false;
 
-  _type = 2;
-  aCursor[1] = 0;
-  if ( theValue < 0 )
-  {
-    aValue = -theValue;
-    aNegative = true;
-  }
-  _value._number = (double)theValue;
-  while ( 1 )
-  {
-    int aDigit = aValue - 10 * (aValue / 10);
-    aValue /= 10;
-    *aCursor = aDigit + '0';
-    if ( aValue == 0 )
-      break;
-    --aCursor;
-  }
-  if ( aNegative )
-    *--aCursor = '-';
-  Sexy::String aText(aCursor);
-  _string = aText;
-  fetched = true;
-  return 0;   // the dump's Set(int) returns void; see the note above
+    _type = 2;
+    aCursor[1] = 0;
+    if (theValue < 0)
+    {
+        aValue = -theValue;
+        aNegative = true;
+    }
+    _value._number = (double)theValue;
+    while (1)
+    {
+        int aDigit = aValue - 10 * (aValue / 10);
+        aValue /= 10;
+        *aCursor = aDigit + '0';
+        if (aValue == 0)
+            break;
+        --aCursor;
+    }
+    if (aNegative)
+        *--aCursor = '-';
+    Sexy::String aText(aCursor);
+    _string = aText;
+    fetched = true;
+    return 0; // the dump's Set(int) returns void; see the note above
 }
 
 // ==========================================================================
@@ -334,25 +332,25 @@ int internalJSONNode::Set(int theValue)
 // ==========================================================================
 void internalJSONNode::Set(unsigned int theValue)
 {
-  char aDigits[16];
-  char *aCursor = &aDigits[14];
-  unsigned int aValue = theValue;
+    char aDigits[16];
+    char *aCursor = &aDigits[14];
+    unsigned int aValue = theValue;
 
-  _type = 2;
-  aCursor[1] = 0;
-  _value._number = (double)theValue;
-  while ( 1 )
-  {
-    unsigned int aDigit = aValue % 10;
-    aValue /= 10;
-    *aCursor = aDigit + '0';
-    if ( aValue == 0 )
-      break;
-    --aCursor;
-  }
-  Sexy::String aText(aCursor);
-  _string = aText;
-  fetched = true;
+    _type = 2;
+    aCursor[1] = 0;
+    _value._number = (double)theValue;
+    while (1)
+    {
+        unsigned int aDigit = aValue % 10;
+        aValue /= 10;
+        *aCursor = aDigit + '0';
+        if (aValue == 0)
+            break;
+        --aCursor;
+    }
+    Sexy::String aText(aCursor);
+    _string = aText;
+    fetched = true;
 }
 
 // ==========================================================================
@@ -361,33 +359,33 @@ void internalJSONNode::Set(unsigned int theValue)
 // ==========================================================================
 void internalJSONNode::Set(long theValue)
 {
-  char aDigits[16];
-  char *aCursor = &aDigits[14];
-  int aValue = theValue;
-  bool aNegative = false;
+    char aDigits[16];
+    char *aCursor = &aDigits[14];
+    int aValue = theValue;
+    bool aNegative = false;
 
-  _type = 2;
-  aCursor[1] = 0;
-  if ( theValue < 0 )
-  {
-    aValue = -theValue;
-    aNegative = true;
-  }
-  _value._number = (double)theValue;
-  while ( 1 )
-  {
-    int aDigit = aValue - 10 * (aValue / 10);
-    aValue /= 10;
-    *aCursor = aDigit + '0';
-    if ( aValue == 0 )
-      break;
-    --aCursor;
-  }
-  if ( aNegative )
-    *--aCursor = '-';
-  Sexy::String aText(aCursor);
-  _string = aText;
-  fetched = true;
+    _type = 2;
+    aCursor[1] = 0;
+    if (theValue < 0)
+    {
+        aValue = -theValue;
+        aNegative = true;
+    }
+    _value._number = (double)theValue;
+    while (1)
+    {
+        int aDigit = aValue - 10 * (aValue / 10);
+        aValue /= 10;
+        *aCursor = aDigit + '0';
+        if (aValue == 0)
+            break;
+        --aCursor;
+    }
+    if (aNegative)
+        *--aCursor = '-';
+    Sexy::String aText(aCursor);
+    _string = aText;
+    fetched = true;
 }
 
 // ==========================================================================
@@ -396,25 +394,25 @@ void internalJSONNode::Set(long theValue)
 // ==========================================================================
 void internalJSONNode::Set(unsigned long theValue)
 {
-  char aDigits[16];
-  char *aCursor = &aDigits[14];
-  unsigned int aValue = theValue;
+    char aDigits[16];
+    char *aCursor = &aDigits[14];
+    unsigned int aValue = theValue;
 
-  _type = 2;
-  aCursor[1] = 0;
-  _value._number = (double)theValue;
-  while ( 1 )
-  {
-    unsigned int aDigit = aValue % 10;
-    aValue /= 10;
-    *aCursor = aDigit + '0';
-    if ( aValue == 0 )
-      break;
-    --aCursor;
-  }
-  Sexy::String aText(aCursor);
-  _string = aText;
-  fetched = true;
+    _type = 2;
+    aCursor[1] = 0;
+    _value._number = (double)theValue;
+    while (1)
+    {
+        unsigned int aDigit = aValue % 10;
+        aValue /= 10;
+        *aCursor = aDigit + '0';
+        if (aValue == 0)
+            break;
+        --aCursor;
+    }
+    Sexy::String aText(aCursor);
+    _string = aText;
+    fetched = true;
 }
 
 // ==========================================================================
@@ -423,39 +421,39 @@ void internalJSONNode::Set(unsigned long theValue)
 // ==========================================================================
 void internalJSONNode::Set(long long theValue)
 {
-  // The binary converts the low 32 bits of the value: the magic-number divide
-  // the body uses is the 32-bit one, so the width here matches the dump.
-  char aDigits[16];
-  char *aCursor = &aDigits[14];
-  int aValue = 0;
-  bool aNegative = false;
+    // The binary converts the low 32 bits of the value: the magic-number divide
+    // the body uses is the 32-bit one, so the width here matches the dump.
+    char aDigits[16];
+    char *aCursor = &aDigits[14];
+    int aValue = 0;
+    bool aNegative = false;
 
-  _type = 2;
-  _value._number = (double)theValue;
-  aCursor[1] = 0;
-  if ( (int)theValue >= 0 )
-  {
-    aNegative = false;
-  }
-  else
-  {
-    aValue = -(int)theValue;
-    aNegative = true;
-  }
-  while ( 1 )
-  {
-    int aDigit = aValue - 10 * (aValue / 10);
-    aValue /= 10;
-    *aCursor = aDigit + '0';
-    if ( aValue == 0 )
-      break;
-    --aCursor;
-  }
-  if ( aNegative )
-    *--aCursor = '-';
-  Sexy::String aText(aCursor);
-  _string = aText;
-  fetched = true;
+    _type = 2;
+    _value._number = (double)theValue;
+    aCursor[1] = 0;
+    if ((int)theValue >= 0)
+    {
+        aNegative = false;
+    }
+    else
+    {
+        aValue = -(int)theValue;
+        aNegative = true;
+    }
+    while (1)
+    {
+        int aDigit = aValue - 10 * (aValue / 10);
+        aValue /= 10;
+        *aCursor = aDigit + '0';
+        if (aValue == 0)
+            break;
+        --aCursor;
+    }
+    if (aNegative)
+        *--aCursor = '-';
+    Sexy::String aText(aCursor);
+    _string = aText;
+    fetched = true;
 }
 
 // ==========================================================================
@@ -464,26 +462,26 @@ void internalJSONNode::Set(long long theValue)
 // ==========================================================================
 void internalJSONNode::Set(unsigned long long theValue)
 {
-  // As in Set(long long), the width follows the dump's 32-bit magic divide.
-  char aDigits[16];
-  char *aCursor = &aDigits[14];
-  unsigned int aValue = (unsigned int)theValue;
+    // As in Set(long long), the width follows the dump's 32-bit magic divide.
+    char aDigits[16];
+    char *aCursor = &aDigits[14];
+    unsigned int aValue = (unsigned int)theValue;
 
-  _type = 2;
-  _value._number = (double)theValue;
-  aCursor[1] = 0;
-  while ( 1 )
-  {
-    unsigned int aDigit = aValue % 10;
-    aValue /= 10;
-    *aCursor = aDigit + '0';
-    if ( aValue == 0 )
-      break;
-    --aCursor;
-  }
-  Sexy::String aText(aCursor);
-  _string = aText;
-  fetched = true;
+    _type = 2;
+    _value._number = (double)theValue;
+    aCursor[1] = 0;
+    while (1)
+    {
+        unsigned int aDigit = aValue % 10;
+        aValue /= 10;
+        *aCursor = aDigit + '0';
+        if (aValue == 0)
+            break;
+        --aCursor;
+    }
+    Sexy::String aText(aCursor);
+    _string = aText;
+    fetched = true;
 }
 
 // ==========================================================================
@@ -492,21 +490,21 @@ void internalJSONNode::Set(unsigned long long theValue)
 // ==========================================================================
 int internalJSONNode::FetchNode()
 {
-  if ( _string.empty() )
-    return Nullify();
-  // The dump guards the detach with "the rep is not leaked yet"; LeakBuffer's
-  // own test is the same condition plus the empty-rep case, which cannot be
-  // reached here because the length is non-zero.
-  _string.LeakBuffer();
-  if ( _string[0] != '{' )
-    return Nullify();
-  _string.LeakBuffer();
-  if ( _string[_string.size() - 1] != '}' )
-    return Nullify();
-  JSONWorker aParser;
-  aParser.DoNode(this, _string);
-  StringMutate(&_string, 0, _string.size(), 0);
-  return 1;
+    if (_string.empty())
+        return Nullify();
+    // The dump guards the detach with "the rep is not leaked yet"; LeakBuffer's
+    // own test is the same condition plus the empty-rep case, which cannot be
+    // reached here because the length is non-zero.
+    _string.LeakBuffer();
+    if (_string[0] != '{')
+        return Nullify();
+    _string.LeakBuffer();
+    if (_string[_string.size() - 1] != '}')
+        return Nullify();
+    JSONWorker aParser;
+    aParser.DoNode(this, _string);
+    StringMutate(&_string, 0, _string.size(), 0);
+    return 1;
 }
 
 // ==========================================================================
@@ -515,62 +513,60 @@ int internalJSONNode::FetchNode()
 // ==========================================================================
 int internalJSONNode::FetchArray()
 {
-  if ( _string.empty() )
-    return Nullify();
-  _string.LeakBuffer();
-  if ( _string[0] != '[' )
-    return Nullify();
-  _string.LeakBuffer();
-  if ( _string[_string.size() - 1] != ']' )
-    return Nullify();
-  JSONWorker aParser;
-  aParser.DoArray(this, _string);
-  StringMutate(&_string, 0, _string.size(), 0);
-  return 1;
+    if (_string.empty())
+        return Nullify();
+    _string.LeakBuffer();
+    if (_string[0] != '[')
+        return Nullify();
+    _string.LeakBuffer();
+    if (_string[_string.size() - 1] != ']')
+        return Nullify();
+    JSONWorker aParser;
+    aParser.DoArray(this, _string);
+    StringMutate(&_string, 0, _string.size(), 0);
+    return 1;
 }
 
 // ==========================================================================
 // internalJSONNode::internalJSONNode(Sexy::String const&)
 // @001341A4  198 bytes
 // ==========================================================================
-internalJSONNode::internalJSONNode(Sexy::String const& theName)
-  : _name(), _string(theName), _comment()
+internalJSONNode::internalJSONNode(Sexy::String const &theName) :
+    _name(),
+    _string(theName),
+    _comment()
 {
-  const char *aFirst;
+    const char *aFirst;
 
-  _type = 0;
-  _name_encoded = false;
-  refcount = 1;
-  _value._number = 0;
-  _string_encoded = false;
-  fetched = false;
-  if ( (gGuard_single_2 & 1) == 0
-    && CxaGuardAcquire(&gGuard_single_2) != 0 )
-  {
-    gGuard_getValue__single_1.clear();
-    CxaGuardRelease(&gGuard_single_2);
-    RegisterAtExit(
-      &gGuard_getValue__single_1,
-      jsonSingletonDtorThunk,
-      nullptr);
-  }
-  StringCopyCtor(&_comment, &gGuard_getValue__single_1);
-  aFirst = theName.c_str();
-  CHILDREN = nullptr;
-  if ( *aFirst == '[' )
-  {
-    _type = 4;
-    CHILDREN = NewJsonChildren();
-  }
-  else if ( *aFirst == '{' )
-  {
-    _type = 5;
-    CHILDREN = NewJsonChildren();
-  }
-  else
-  {
-    Nullify();
-  }
+    _type = 0;
+    _name_encoded = false;
+    refcount = 1;
+    _value._number = 0;
+    _string_encoded = false;
+    fetched = false;
+    if ((gGuard_single_2 & 1) == 0 && CxaGuardAcquire(&gGuard_single_2) != 0)
+    {
+        gGuard_getValue__single_1.clear();
+        CxaGuardRelease(&gGuard_single_2);
+        RegisterAtExit(&gGuard_getValue__single_1, jsonSingletonDtorThunk, nullptr);
+    }
+    StringCopyCtor(&_comment, &gGuard_getValue__single_1);
+    aFirst = theName.c_str();
+    CHILDREN = nullptr;
+    if (*aFirst == '[')
+    {
+        _type = 4;
+        CHILDREN = NewJsonChildren();
+    }
+    else if (*aFirst == '{')
+    {
+        _type = 5;
+        CHILDREN = NewJsonChildren();
+    }
+    else
+    {
+        Nullify();
+    }
 }
 
 // The numeric branch of the (name, value) constructor.
@@ -586,119 +582,84 @@ internalJSONNode::internalJSONNode(Sexy::String const& theName)
 // token was consumed.
 static bool IsJSONNumberToken(const Sexy::String *theValue)
 {
-  const std::uint8_t *aCursor = (const std::uint8_t *)theValue->c_str();
-  const std::uint8_t *i;
-  unsigned int aChar;
-  bool aSeenExp;
-  bool aSeenDot;
+    const std::uint8_t *aCursor = (const std::uint8_t *)theValue->c_str();
+    const std::uint8_t *i;
+    unsigned int aChar;
+    bool aSeenExp;
+    bool aSeenDot;
 
-  switch ( *aCursor )
-  {
-    case '+':
-    case '-':
-      aChar = aCursor[1];
-      if ( aChar == '0' )
-      {
-        aSeenExp = false;
-        aChar = aCursor[2];
-        aSeenDot = false;
-        ++aCursor;
-        break;
-      }
-      if ( aChar > '0' )
-      {
-        if ( aChar != 'E' && aChar != 'e' )
-          break;
-        return false;
-      }
-      if ( aCursor[1] != 0 && aChar != '.' )
-        break;
-      return false;
-
-    case '.':
-      aChar = aCursor[1];
-      aSeenExp = false;
-      aSeenDot = true;
-      break;
-
-    case '0':
-      {
-        unsigned int aNext = aCursor[1];
-        if ( aNext > '7' )
-        {
-          if ( aNext != 'e' )
-          {
-            if ( aNext == 'x' )
-              return StringFindFirstNotOf((Sexy::String *)theValue, "0123456789ABCDEFabcdef", 2, 0x16u) == -1;
-            if ( aNext != 'E' )
-              return false;
-          }
-          unsigned int aExponent = (std::uint8_t)(aCursor[2] - 43);
-          if ( aExponent <= 0xE )
-          {
-            aSeenExp = true;
-            if ( ((1 << aExponent) & 0x7FE5) != 0 )
-            {
-              aChar = aCursor[3];
-              aSeenDot = false;
-              aCursor += 2;
-              break;
-            }
-          }
-          return false;
-        }
-        if ( aNext < '1' )
-        {
-          if ( aCursor[1] == 0 )
-            return true;
-          if ( aNext == '.' )
-          {
-            aChar = aCursor[2];
-            aSeenExp = false;
-            ++aCursor;
-            aSeenDot = true;
-            break;
-          }
-          return false;
-        }
-        return StringFindFirstNotOf((Sexy::String *)theValue, "01234567", 1, 8u) == -1;
-      }
-
-    case '1':
-    case '2':
-    case '3':
-    case '4':
-    case '5':
-    case '6':
-    case '7':
-    case '8':
-    case '9':
-      aSeenExp = false;
-      aChar = aCursor[1];
-      aSeenDot = false;
-      break;
-
-    default:
-      return false;
-  }
-
-  for ( i = aCursor + 1; aChar != 0; ++i )
-  {
-    if ( aChar > 0x39 )
+    switch (*aCursor)
     {
-      if ( (aChar != 69 && aChar != 101) || aSeenExp )
-        return false;
-      switch ( i[1] )
-      {
         case '+':
         case '-':
-          aChar = i[2];
-          if ( (*(_BYTE *)(ctype_ + aChar + 1) & 4) == 0 )
+            aChar = aCursor[1];
+            if (aChar == '0')
+            {
+                aSeenExp = false;
+                aChar = aCursor[2];
+                aSeenDot = false;
+                ++aCursor;
+                break;
+            }
+            if (aChar > '0')
+            {
+                if (aChar != 'E' && aChar != 'e')
+                    break;
+                return false;
+            }
+            if (aCursor[1] != 0 && aChar != '.')
+                break;
             return false;
-          ++i;
-          aSeenExp = true;
-          break;
+
+        case '.':
+            aChar = aCursor[1];
+            aSeenExp = false;
+            aSeenDot = true;
+            break;
+
         case '0':
+        {
+            unsigned int aNext = aCursor[1];
+            if (aNext > '7')
+            {
+                if (aNext != 'e')
+                {
+                    if (aNext == 'x')
+                        return StringFindFirstNotOf((Sexy::String *)theValue, "0123456789ABCDEFabcdef", 2, 0x16u) == -1;
+                    if (aNext != 'E')
+                        return false;
+                }
+                unsigned int aExponent = (std::uint8_t)(aCursor[2] - 43);
+                if (aExponent <= 0xE)
+                {
+                    aSeenExp = true;
+                    if (((1 << aExponent) & 0x7FE5) != 0)
+                    {
+                        aChar = aCursor[3];
+                        aSeenDot = false;
+                        aCursor += 2;
+                        break;
+                    }
+                }
+                return false;
+            }
+            if (aNext < '1')
+            {
+                if (aCursor[1] == 0)
+                    return true;
+                if (aNext == '.')
+                {
+                    aChar = aCursor[2];
+                    aSeenExp = false;
+                    ++aCursor;
+                    aSeenDot = true;
+                    break;
+                }
+                return false;
+            }
+            return StringFindFirstNotOf((Sexy::String *)theValue, "01234567", 1, 8u) == -1;
+        }
+
         case '1':
         case '2':
         case '3':
@@ -708,165 +669,193 @@ static bool IsJSONNumberToken(const Sexy::String *theValue)
         case '7':
         case '8':
         case '9':
-          aChar = i[2];
-          aSeenExp = true;
-          ++i;
-          continue;
-        default:
-          return false;
-      }
-    }
-    else if ( aChar >= 0x30 )
-    {
-      aChar = i[1];
-    }
-    else
-    {
-      if ( aChar != 0x2E || aSeenDot || aSeenExp )
-        return false;
-      aChar = i[1];
-      aSeenDot = true;
-    }
-  }
-  return true;
-}
+            aSeenExp = false;
+            aChar = aCursor[1];
+            aSeenDot = false;
+            break;
 
+        default:
+            return false;
+    }
+
+    for (i = aCursor + 1; aChar != 0; ++i)
+    {
+        if (aChar > 0x39)
+        {
+            if ((aChar != 69 && aChar != 101) || aSeenExp)
+                return false;
+            switch (i[1])
+            {
+                case '+':
+                case '-':
+                    aChar = i[2];
+                    if ((*(_BYTE *)(ctype_ + aChar + 1) & 4) == 0)
+                        return false;
+                    ++i;
+                    aSeenExp = true;
+                    break;
+                case '0':
+                case '1':
+                case '2':
+                case '3':
+                case '4':
+                case '5':
+                case '6':
+                case '7':
+                case '8':
+                case '9':
+                    aChar = i[2];
+                    aSeenExp = true;
+                    ++i;
+                    continue;
+                default:
+                    return false;
+            }
+        }
+        else if (aChar >= 0x30)
+        {
+            aChar = i[1];
+        }
+        else
+        {
+            if (aChar != 0x2E || aSeenDot || aSeenExp)
+                return false;
+            aChar = i[1];
+            aSeenDot = true;
+        }
+    }
+    return true;
+}
 
 // ==========================================================================
 // internalJSONNode::internalJSONNode(Sexy::String const&,Sexy::String const&)
 // @00134330  1282 bytes
 // ==========================================================================
-internalJSONNode::internalJSONNode(Sexy::String const& theName, Sexy::String const& theValue)
-  : _name(), _string(), _comment()
+internalJSONNode::internalJSONNode(Sexy::String const &theName, Sexy::String const &theValue) :
+    _name(),
+    _string(),
+    _comment()
 {
-  const char *aValue;
-  unsigned int aLength;
-  std::uint8_t aLast;
-  char aScratch[8];
+    const char *aValue;
+    unsigned int aLength;
+    std::uint8_t aLast;
 
-  _type = 0;
-  JSONWorker aNameFix;
-  aNameFix.FixString(theName, _name_encoded, _name);
-  _string_encoded = false;
-  fetched = false;
-  _value._number = 0;
-  refcount = 1;
-  if ( (gGuard_single_2 & 1) == 0
-    && CxaGuardAcquire(&gGuard_single_2) != 0 )
-  {
-    gGuard_getValue__single_1.clear();
-    CxaGuardRelease(&gGuard_single_2);
-    RegisterAtExit(
-      &gGuard_getValue__single_1,
-      jsonSingletonDtorThunk,
-      nullptr);
-  }
-  StringCopyCtor(&_comment, &gGuard_getValue__single_1);
-  aValue = theValue.c_str();
-  CHILDREN = nullptr;
-  if ( theValue.empty() )
-  {
     _type = 0;
-    fetched = true;
-    return;
-  }
-  StringAssign((Sexy::String*)&_string, &theValue);
-  aValue = theValue.c_str();
-  aLength = theValue.size();
-  aLast = (std::uint8_t)aValue[aLength - 1];
-  switch ( *aValue )
-  {
-    case '"':
-      if ( aLast != '"' )
-        break;
-      _type = 1;
-      fetched = false;
-      return;
-
-    case 'F':
-    case 'f':
-      if ( (gGuard_CONST_FALSE & 1) == 0
-        && CxaGuardAcquire(&gGuard_CONST_FALSE) != 0 )
-      {
-        gGuard_getValue_CONST_FALSE = "false";
-        CxaGuardRelease(&gGuard_CONST_FALSE);
-        RegisterAtExit(&gGuard_getValue_CONST_FALSE, jsonSingletonDtorThunk, nullptr);
-      }
-      aLength = theValue.size();
-      if ( aLength != gGuard_getValue_CONST_FALSE.size()
-        || memcmp(theValue.c_str(), gGuard_getValue_CONST_FALSE.c_str(), aLength) != 0 )
-      {
-        break;
-      }
-      _value._bool = 0;
-      _type = 3;
-      fetched = true;
-      return;
-
-    case 'N':
-    case 'n':
-      if ( (gGuard_CONST_NULL & 1) == 0
-        && CxaGuardAcquire(&gGuard_CONST_NULL) != 0 )
-      {
-        gGuard_getValue_CONST_NULL = "null";
-        CxaGuardRelease(&gGuard_CONST_NULL);
-        RegisterAtExit(&gGuard_getValue_CONST_NULL, jsonSingletonDtorThunk, nullptr);
-      }
-      aLength = theValue.size();
-      if ( aLength != gGuard_getValue_CONST_NULL.size()
-        || memcmp(theValue.c_str(), gGuard_getValue_CONST_NULL.c_str(), aLength) != 0 )
-      {
-        break;
-      }
-      _type = 0;
-      fetched = true;
-      return;
-
-    case 'T':
-    case 't':
-      if ( (gGuard_CONST_TRUE & 1) == 0
-        && CxaGuardAcquire(&gGuard_CONST_TRUE) != 0 )
-      {
-        gGuard_getValue_CONST_TRUE = "true";
-        CxaGuardRelease(&gGuard_CONST_TRUE);
-        RegisterAtExit(&gGuard_getValue_CONST_TRUE, jsonSingletonDtorThunk, nullptr);
-      }
-      aLength = theValue.size();
-      if ( aLength != gGuard_getValue_CONST_TRUE.size()
-        || memcmp(theValue.c_str(), gGuard_getValue_CONST_TRUE.c_str(), aLength) != 0 )
-      {
-        break;
-      }
-      _value._bool = 1;
-      fetched = true;
-      _type = 3;
-      return;
-    case '[':
-      if ( aLast != ']' )
-        break;
-      _type = 4;
-      CHILDREN = NewJsonChildren();
-      fetched = false;
-      return;
-
-    case '{':
-      if ( aLast != '}' )
-        break;
-      _type = 5;
-      CHILDREN = NewJsonChildren();
-      fetched = false;
-      return;
-
-    default:
-      if ( IsJSONNumberToken(&theValue) )
-      {
-        _type = 2;
-        fetched = false;
+    JSONWorker aNameFix;
+    aNameFix.FixString(theName, _name_encoded, _name);
+    _string_encoded = false;
+    fetched = false;
+    _value._number = 0;
+    refcount = 1;
+    if ((gGuard_single_2 & 1) == 0 && CxaGuardAcquire(&gGuard_single_2) != 0)
+    {
+        gGuard_getValue__single_1.clear();
+        CxaGuardRelease(&gGuard_single_2);
+        RegisterAtExit(&gGuard_getValue__single_1, jsonSingletonDtorThunk, nullptr);
+    }
+    StringCopyCtor(&_comment, &gGuard_getValue__single_1);
+    aValue = theValue.c_str();
+    CHILDREN = nullptr;
+    if (theValue.empty())
+    {
+        _type = 0;
+        fetched = true;
         return;
-      }
-      break;
-  }
-  Nullify();
+    }
+    StringAssign((Sexy::String *)&_string, &theValue);
+    aValue = theValue.c_str();
+    aLength = theValue.size();
+    aLast = (std::uint8_t)aValue[aLength - 1];
+    switch (*aValue)
+    {
+        case '"':
+            if (aLast != '"')
+                break;
+            _type = 1;
+            fetched = false;
+            return;
+
+        case 'F':
+        case 'f':
+            if ((gGuard_CONST_FALSE & 1) == 0 && CxaGuardAcquire(&gGuard_CONST_FALSE) != 0)
+            {
+                gGuard_getValue_CONST_FALSE = "false";
+                CxaGuardRelease(&gGuard_CONST_FALSE);
+                RegisterAtExit(&gGuard_getValue_CONST_FALSE, jsonSingletonDtorThunk, nullptr);
+            }
+            aLength = theValue.size();
+            if (aLength != gGuard_getValue_CONST_FALSE.size() ||
+                memcmp(theValue.c_str(), gGuard_getValue_CONST_FALSE.c_str(), aLength) != 0)
+            {
+                break;
+            }
+            _value._bool = 0;
+            _type = 3;
+            fetched = true;
+            return;
+
+        case 'N':
+        case 'n':
+            if ((gGuard_CONST_NULL & 1) == 0 && CxaGuardAcquire(&gGuard_CONST_NULL) != 0)
+            {
+                gGuard_getValue_CONST_NULL = "null";
+                CxaGuardRelease(&gGuard_CONST_NULL);
+                RegisterAtExit(&gGuard_getValue_CONST_NULL, jsonSingletonDtorThunk, nullptr);
+            }
+            aLength = theValue.size();
+            if (aLength != gGuard_getValue_CONST_NULL.size() ||
+                memcmp(theValue.c_str(), gGuard_getValue_CONST_NULL.c_str(), aLength) != 0)
+            {
+                break;
+            }
+            _type = 0;
+            fetched = true;
+            return;
+
+        case 'T':
+        case 't':
+            if ((gGuard_CONST_TRUE & 1) == 0 && CxaGuardAcquire(&gGuard_CONST_TRUE) != 0)
+            {
+                gGuard_getValue_CONST_TRUE = "true";
+                CxaGuardRelease(&gGuard_CONST_TRUE);
+                RegisterAtExit(&gGuard_getValue_CONST_TRUE, jsonSingletonDtorThunk, nullptr);
+            }
+            aLength = theValue.size();
+            if (aLength != gGuard_getValue_CONST_TRUE.size() ||
+                memcmp(theValue.c_str(), gGuard_getValue_CONST_TRUE.c_str(), aLength) != 0)
+            {
+                break;
+            }
+            _value._bool = 1;
+            fetched = true;
+            _type = 3;
+            return;
+        case '[':
+            if (aLast != ']')
+                break;
+            _type = 4;
+            CHILDREN = NewJsonChildren();
+            fetched = false;
+            return;
+
+        case '{':
+            if (aLast != '}')
+                break;
+            _type = 5;
+            CHILDREN = NewJsonChildren();
+            fetched = false;
+            return;
+
+        default:
+            if (IsJSONNumberToken(&theValue))
+            {
+                _type = 2;
+                fetched = false;
+                return;
+            }
+            break;
+    }
+    Nullify();
 }
 
 // ==========================================================================
@@ -875,40 +864,40 @@ internalJSONNode::internalJSONNode(Sexy::String const& theName, Sexy::String con
 // ==========================================================================
 void internalJSONNode::FetchString()
 {
-  Sexy::String aRaw;
-  Sexy::String aFixed;
-  unsigned int aLength;
+    Sexy::String aRaw;
+    Sexy::String aFixed;
+    unsigned int aLength;
 
-  if ( _string.empty() )
-  {
-    Nullify();
-    return;
-  }
-  _string.LeakBuffer();
-  if ( _string[0] != '"' )
-  {
-    Nullify();
-    return;
-  }
-  _string.LeakBuffer();
-  if ( _string[_string.size() - 1] != '"' )
-  {
-    Nullify();
-    return;
-  }
-  // The body is what sits between the two quotes. A `""` value leaves aRaw on
-  // the shared empty rep, which is the shortcut the dump's "cursor == end"
-  // test takes.
-  if ( _string.size() >= 2 )
-  {
-    aLength = _string.size() - 2;
-    if ( aLength != 0 )
-      aRaw.assign(_string.c_str() + 1, aLength);
-  }
-  // The decoded body replaces the quoted source. An escape sets _string_encoded.
-  JSONWorker aStringFix;
-  aStringFix.FixString(aRaw, _string_encoded, aFixed);
-  _string = aFixed;
+    if (_string.empty())
+    {
+        Nullify();
+        return;
+    }
+    _string.LeakBuffer();
+    if (_string[0] != '"')
+    {
+        Nullify();
+        return;
+    }
+    _string.LeakBuffer();
+    if (_string[_string.size() - 1] != '"')
+    {
+        Nullify();
+        return;
+    }
+    // The body is what sits between the two quotes. A `""` value leaves aRaw on
+    // the shared empty rep, which is the shortcut the dump's "cursor == end"
+    // test takes.
+    if (_string.size() >= 2)
+    {
+        aLength = _string.size() - 2;
+        if (aLength != 0)
+            aRaw.assign(_string.c_str() + 1, aLength);
+    }
+    // The decoded body replaces the quoted source. An escape sets _string_encoded.
+    JSONWorker aStringFix;
+    aStringFix.FixString(aRaw, _string_encoded, aFixed);
+    _string = aFixed;
 }
 
 // ==========================================================================
@@ -917,70 +906,69 @@ void internalJSONNode::FetchString()
 // ==========================================================================
 void internalJSONNode::Fetch()
 {
-  if ( !fetched )
-  {
-    switch ( _type )
+    if (!fetched)
     {
-      case 1:
-        FetchString();
-        break;
-      case 2:
-        FetchNumber();
-        break;
-      case 4:
-        FetchArray();
-        break;
-      case 5:
-        FetchNode();
-        break;
-      default:
-        Nullify();
-        break;
+        switch (_type)
+        {
+            case 1:
+                FetchString();
+                break;
+            case 2:
+                FetchNumber();
+                break;
+            case 4:
+                FetchArray();
+                break;
+            case 5:
+                FetchNode();
+                break;
+            default:
+                Nullify();
+                break;
+        }
+        fetched = true;
     }
-    fetched = true;
-  }
 }
 
 // ==========================================================================
 // internalJSONNode::AreEqualNoCase(char const*,char const*)
 // @00134B5C  88 bytes
 // ==========================================================================
-bool internalJSONNode::AreEqualNoCase(char const* theLeft, char const* theRight)
+bool internalJSONNode::AreEqualNoCase(char const *theLeft, char const *theRight)
 {
-  // The binary's function is static and takes two C strings; the header binds
-  // the first one to the receiver, so theLeft is the first string and theRight the second.
-  const char *aSecondEnd = theRight;
-  unsigned int aChar = (std::uint8_t)*theLeft;
+    // The binary's function is static and takes two C strings; the header binds
+    // the first one to the receiver, so theLeft is the first string and theRight the second.
+    const char *aSecondEnd = theRight;
+    unsigned int aChar = (std::uint8_t)*theLeft;
 
-  if ( *theLeft != 0 )
-  {
-    const char *aSecond = theRight;
-    do
+    if (*theLeft != 0)
     {
-      std::uint8_t aOther = (std::uint8_t)*aSecond++;
-      char aOtherChar = (char)aOther;
-      unsigned int aUpper = (std::uint8_t)(aOther - 'A');
-      aSecondEnd = aSecond;
-      if ( aChar != aOther )
-      {
-        int aLower = (std::uint8_t)(aOtherChar + 32);
-        unsigned int aLowerIdx = (std::uint8_t)(aOtherChar - 'a');
-        int aUpperIdx = (std::uint8_t)(aOtherChar - 32);
-        if ( aUpper <= 0x19 )
+        const char *aSecond = theRight;
+        do
         {
-          if ( aChar != aLower )
-            return false;
-        }
-        else if ( aLowerIdx > 0x19 || aChar != aUpperIdx )
-        {
-          return false;
-        }
-      }
-      aChar = (std::uint8_t)*++theLeft;
+            std::uint8_t aOther = (std::uint8_t)*aSecond++;
+            char aOtherChar = (char)aOther;
+            unsigned int aUpper = (std::uint8_t)(aOther - 'A');
+            aSecondEnd = aSecond;
+            if (aChar != aOther)
+            {
+                int aLower = (std::uint8_t)(aOtherChar + 32);
+                unsigned int aLowerIdx = (std::uint8_t)(aOtherChar - 'a');
+                int aUpperIdx = (std::uint8_t)(aOtherChar - 32);
+                if (aUpper <= 0x19)
+                {
+                    if (aChar != aLower)
+                        return false;
+                }
+                else if (aLowerIdx > 0x19 || aChar != aUpperIdx)
+                {
+                    return false;
+                }
+            }
+            aChar = (std::uint8_t)*++theLeft;
+        } while (aChar != 0);
     }
-    while ( aChar != 0 );
-  }
-  return *aSecondEnd == 0;
+    return *aSecondEnd == 0;
 }
 
 // ==========================================================================
@@ -989,107 +977,107 @@ bool internalJSONNode::AreEqualNoCase(char const* theLeft, char const* theRight)
 // ==========================================================================
 void internalJSONNode::deleteInternal(internalJSONNode *theNode)
 {
-  // The ARM at 0x134BB4 tests r0, destroys r0 and deletes r0: the node being
-  // freed is the receiver, and the declared parameter is dead. Every transcribed
-  // call site agrees -- the receiver is the node, the argument is scratch.
-  (void)theNode;
-  if ( this != nullptr )
-    delete this;
+    // The ARM at 0x134BB4 tests r0, destroys r0 and deletes r0: the node being
+    // freed is the receiver, and the declared parameter is dead. Every transcribed
+    // call site agrees -- the receiver is the node, the argument is scratch.
+    (void)theNode;
+    if (this != nullptr)
+        delete this;
 }
 
 // ==========================================================================
 // internalJSONNode::internalJSONNode(internalJSONNode const&)
 // @00134BCC  224 bytes
 // ==========================================================================
-internalJSONNode::internalJSONNode(internalJSONNode const& theOther)
+internalJSONNode::internalJSONNode(internalJSONNode const &theOther)
 {
-  // IDA's own rendering of @00134BCC is authoritative here: the transcription had
-  // shifted three of these destinations by the x4 rule (_name/_name_encoded/_value
-  // landed on _string_encoded/refcount/_string), which wrote over _string.
-  _type = theOther._type;
-  _name = theOther._name;
-  _name_encoded = theOther._name_encoded;
-  _string = theOther._string;
-  _value = theOther._value;
-  _string_encoded = theOther._string_encoded;
-  fetched = theOther.fetched;
-  refcount = 1;
-  _comment = theOther._comment;
-  CHILDREN = nullptr;
-  if ( (std::uint8_t)(_type - 4) <= 1u )
-  {
-    jsonChildren *aChildren = NewJsonChildren();
-    CHILDREN = aChildren;
-    unsigned int aCount = theOther.CHILDREN->mChildren.size();
-    if ( aCount != 0 )
+    // IDA's own rendering of @00134BCC is authoritative here: the transcription had
+    // shifted three of these destinations by the x4 rule (_name/_name_encoded/_value
+    // landed on _string_encoded/refcount/_string), which wrote over _string.
+    _type = theOther._type;
+    _name = theOther._name;
+    _name_encoded = theOther._name_encoded;
+    _string = theOther._string;
+    _value = theOther._value;
+    _string_encoded = theOther._string_encoded;
+    fetched = theOther.fetched;
+    refcount = 1;
+    _comment = theOther._comment;
+    CHILDREN = nullptr;
+    if ((std::uint8_t)(_type - 4) <= 1u)
     {
-      aChildren->mChildren.reserve(aCount);
-      JSONNode **aSrc = theOther.CHILDREN->mChildren.data();
-      JSONNode **aEnd = aSrc + theOther.CHILDREN->mChildren.size();
-      while ( aSrc != aEnd )
-      {
-        JSONNode *aChild = *aSrc++;
-        // duplicate() is constructor-shaped: the receiver is the destination and
-        // the argument is the source node, which the header types as
-        // internalJSONNode ** because JSONNode's only member is one of those.
-        // JSONNode has no default constructor, so the destination is a raw slot.
-        JSONNode aCopy = aChild->duplicate();
-        JSONNode *aNewChild = aCopy.Steal();
-        aChildren->mChildren.push_back(aNewChild);
-        internalJSONNode *aTemp = aCopy.mInternal;
-        if (aTemp != nullptr && --aTemp->refcount == 0)
-          aTemp->deleteInternal(aTemp);
-      }
+        jsonChildren *aChildren = NewJsonChildren();
+        CHILDREN = aChildren;
+        const std::size_t aCount = theOther.CHILDREN->mChildren.size();
+        if (aCount != 0)
+        {
+            aChildren->mChildren.reserve(aCount);
+            JSONNode **aSrc = theOther.CHILDREN->mChildren.data();
+            JSONNode **aEnd = aSrc + theOther.CHILDREN->mChildren.size();
+            while (aSrc != aEnd)
+            {
+                JSONNode *aChild = *aSrc++;
+                // duplicate() is constructor-shaped: the receiver is the destination and
+                // the argument is the source node, which the header types as
+                // internalJSONNode ** because JSONNode's only member is one of those.
+                // JSONNode has no default constructor, so the destination is a raw slot.
+                JSONNode aCopy = aChild->duplicate();
+                JSONNode *aNewChild = aCopy.Steal();
+                aChildren->mChildren.push_back(aNewChild);
+                internalJSONNode *aTemp = aCopy.mInternal;
+                if (aTemp != nullptr && --aTemp->refcount == 0)
+                    aTemp->deleteInternal(aTemp);
+            }
+        }
     }
-  }
 }
 
 // ==========================================================================
 // internalJSONNode::newInternal(char)
 // @00134D88  180 bytes
 // ==========================================================================
-internalJSONNode * internalJSONNode::newInternal(char theType)
+internalJSONNode *internalJSONNode::newInternal(char theType)
 {
-  // The binary has no (type) constructor, so it allocates 0x30 bytes and fills
-  // the object in by hand. The empty-String constructor produces exactly that
-  // state -- empty _name/_string/_comment, _value zero, refcount 1,
-  // _string_encoded false and, through Nullify, fetched true -- so only the type
-  // and the children array are left to set here.
-  internalJSONNode *aNode = new internalJSONNode(Sexy::String());
-  aNode->_type = (unsigned char)theType;
-  if ( (std::uint8_t)(aNode->_type - 4) <= 1u )
-    aNode->CHILDREN = NewJsonChildren();
-  return aNode;
+    // The binary has no (type) constructor, so it allocates 0x30 bytes and fills
+    // the object in by hand. The empty-String constructor produces exactly that
+    // state -- empty _name/_string/_comment, _value zero, refcount 1,
+    // _string_encoded false and, through Nullify, fetched true -- so only the type
+    // and the children array are left to set here.
+    internalJSONNode *aNode = new internalJSONNode(Sexy::String());
+    aNode->_type = (unsigned char)theType;
+    if ((std::uint8_t)(aNode->_type - 4) <= 1u)
+        aNode->CHILDREN = NewJsonChildren();
+    return aNode;
 }
 
 // ==========================================================================
 // internalJSONNode::newInternal(Sexy::String const&)
 // @00134EFC  22 bytes
 // ==========================================================================
-internalJSONNode * internalJSONNode::newInternal(Sexy::String const& theName)
+internalJSONNode *internalJSONNode::newInternal(Sexy::String const &theName)
 {
-  return new internalJSONNode(theName);
+    return new internalJSONNode(theName);
 }
 
 // ==========================================================================
 // internalJSONNode::newInternal(Sexy::String const&,Sexy::String const&)
 // @00134F14  26 bytes
 // ==========================================================================
-internalJSONNode * internalJSONNode::newInternal(Sexy::String const& theName, Sexy::String const& theValue)
+internalJSONNode *internalJSONNode::newInternal(Sexy::String const &theName, Sexy::String const &theValue)
 {
-  return new internalJSONNode(theName, theValue);
+    return new internalJSONNode(theName, theValue);
 }
 
 // ==========================================================================
 // internalJSONNode::newInternal(internalJSONNode const&)
 // @00134F30  22 bytes
 // ==========================================================================
-internalJSONNode * internalJSONNode::newInternal(internalJSONNode const& theOther)
+internalJSONNode *internalJSONNode::newInternal(internalJSONNode const &theOther)
 {
-  // The node being copied is the receiver -- the ARM passes r0 straight to the
-  // copy constructor -- so the declared parameter is dead.
-  (void)theOther;
-  return new internalJSONNode(*this);
+    // The node being copied is the receiver -- the ARM passes r0 straight to the
+    // copy constructor -- so the declared parameter is dead.
+    (void)theOther;
+    return new internalJSONNode(*this);
 }
 
 // ==========================================================================
@@ -1098,7 +1086,7 @@ internalJSONNode * internalJSONNode::newInternal(internalJSONNode const& theOthe
 // ==========================================================================
 void internalJSONNode::Set(long double theValue)
 {
-  StoreNumberText(this, (double)theValue);
+    StoreNumberText(this, (double)theValue);
 }
 
 // ==========================================================================
@@ -1107,7 +1095,7 @@ void internalJSONNode::Set(long double theValue)
 // ==========================================================================
 void internalJSONNode::Set(double theValue)
 {
-  StoreNumberText(this, theValue);
+    StoreNumberText(this, theValue);
 }
 
 // ==========================================================================
@@ -1116,7 +1104,7 @@ void internalJSONNode::Set(double theValue)
 // ==========================================================================
 void internalJSONNode::Set(float theValue)
 {
-  StoreNumberText(this, (double)theValue);
+    StoreNumberText(this, (double)theValue);
 }
 
 // ==========================================================================
@@ -1125,17 +1113,17 @@ void internalJSONNode::Set(float theValue)
 // ==========================================================================
 int internalJSONNode::WriteName(int theUnused, int theQuoted, int theSkip, Sexy::String *theOut)
 {
-  (void)theUnused;
-  if (theSkip != 0)
-    return 0;
-  theOut->Append("\"", 1);
-  JSONWorker aNameWriter;
-  aNameWriter.UnfixString(_name, _name_encoded, *theOut);
-  if (theQuoted != 0)
-    theOut->Append("\" : ", 4);
-  else
-    theOut->Append("\":", 2);
-  return 1;
+    (void)theUnused;
+    if (theSkip != 0)
+        return 0;
+    theOut->Append("\"", 1);
+    JSONWorker aNameWriter;
+    aNameWriter.UnfixString(_name, _name_encoded, *theOut);
+    if (theQuoted != 0)
+        theOut->Append("\" : ", 4);
+    else
+        theOut->Append("\":", 2);
+    return 1;
 }
 
 // ==========================================================================
@@ -1144,246 +1132,246 @@ int internalJSONNode::WriteName(int theUnused, int theQuoted, int theSkip, Sexy:
 // ==========================================================================
 void internalJSONNode::DumpRawString(Sexy::String *theOut)
 {
-  // used_ascii_one[0] is the writer's "a decoded quote was stored as byte 1"
-  // flag. Those bytes go back out as quotes; otherwise the raw text is appended.
-  if (used_ascii_one[0] != 0)
-  {
-    Sexy::String aCopy = _string;
-    const char *aText = aCopy.c_str();
-    unsigned int aLength = aCopy.size();
-    for (unsigned int aIndex = 0; aIndex < aLength; ++aIndex)
+    // used_ascii_one[0] is the writer's "a decoded quote was stored as byte 1"
+    // flag. Those bytes go back out as quotes; otherwise the raw text is appended.
+    if (used_ascii_one[0] != 0)
     {
-      if (aText[aIndex] == 1)
-        const_cast<char *>(aText)[aIndex] = '"';
+        Sexy::String aCopy = _string;
+        const char *aText = aCopy.c_str();
+        unsigned int aLength = aCopy.size();
+        for (unsigned int aIndex = 0; aIndex < aLength; ++aIndex)
+        {
+            if (aText[aIndex] == 1)
+                const_cast<char *>(aText)[aIndex] = '"';
+        }
+        *theOut += aCopy;
+        return;
     }
-    *theOut += aCopy;
-    return;
-  }
-  *theOut += _string;
+    *theOut += _string;
 }
 
 static Sexy::String IndentTabs(unsigned int theCount)
 {
-  if (theCount == 0)
-    return Sexy::String();
-  if (theCount <= 7)
-  {
-    static bool aFilled = false;
-    if (!aFilled)
+    if (theCount == 0)
+        return Sexy::String();
+    if (theCount <= 7)
     {
-      gIndentShallow[0].clear();
-      gIndentShallow[1].assign("\t", 1);
-      gIndentShallow[2].assign("\t\t", 2);
-      gIndentShallow[3].assign("\t\t\t", 3);
-      gIndentShallow[4].assign("\t\t\t\t", 4);
-      gIndentShallow[5].assign("\t\t\t\t\t", 5);
-      gIndentShallow[6].assign("\t\t\t\t\t\t", 6);
-      gIndentShallow[7].assign("\t\t\t\t\t\t\t", 7);
-      aFilled = true;
+        static bool aFilled = false;
+        if (!aFilled)
+        {
+            gIndentShallow[0].clear();
+            gIndentShallow[1].assign("\t", 1);
+            gIndentShallow[2].assign("\t\t", 2);
+            gIndentShallow[3].assign("\t\t\t", 3);
+            gIndentShallow[4].assign("\t\t\t\t", 4);
+            gIndentShallow[5].assign("\t\t\t\t\t", 5);
+            gIndentShallow[6].assign("\t\t\t\t\t\t", 6);
+            gIndentShallow[7].assign("\t\t\t\t\t\t\t", 7);
+            aFilled = true;
+        }
+        return gIndentShallow[theCount];
     }
-    return gIndentShallow[theCount];
-  }
-  if (theCount <= 15)
-  {
-    static bool aFilled = false;
-    if (!aFilled)
+    if (theCount <= 15)
     {
-      gIndentMid[0].assign("\t\t\t\t\t\t\t\t", 8);
-      gIndentMid[1].assign("\t\t\t\t\t\t\t\t\t", 9);
-      gIndentMid[2].assign("\t\t\t\t\t\t\t\t\t\t", 10);
-      gIndentMid[3].assign("\t\t\t\t\t\t\t\t\t\t\t", 11);
-      gIndentMid[4].assign("\t\t\t\t\t\t\t\t\t\t\t\t", 12);
-      gIndentMid[5].assign("\t\t\t\t\t\t\t\t\t\t\t\t\t", 13);
-      gIndentMid[6].assign("\t\t\t\t\t\t\t\t\t\t\t\t\t\t", 14);
-      gIndentMid[7].assign("\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t", 15);
-      aFilled = true;
+        static bool aFilled = false;
+        if (!aFilled)
+        {
+            gIndentMid[0].assign("\t\t\t\t\t\t\t\t", 8);
+            gIndentMid[1].assign("\t\t\t\t\t\t\t\t\t", 9);
+            gIndentMid[2].assign("\t\t\t\t\t\t\t\t\t\t", 10);
+            gIndentMid[3].assign("\t\t\t\t\t\t\t\t\t\t\t", 11);
+            gIndentMid[4].assign("\t\t\t\t\t\t\t\t\t\t\t\t", 12);
+            gIndentMid[5].assign("\t\t\t\t\t\t\t\t\t\t\t\t\t", 13);
+            gIndentMid[6].assign("\t\t\t\t\t\t\t\t\t\t\t\t\t\t", 14);
+            gIndentMid[7].assign("\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t", 15);
+            aFilled = true;
+        }
+        return gIndentMid[theCount - 8];
     }
-    return gIndentMid[theCount - 8];
-  }
-  if (theCount <= 23)
-  {
-    static bool aFilled = false;
-    if (!aFilled)
+    if (theCount <= 23)
     {
-      gIndentDeep[0].assign("\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t", 16);
-      gIndentDeep[1].assign("\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t", 17);
-      gIndentDeep[2].assign("\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t", 18);
-      gIndentDeep[3].assign("\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t", 19);
-      gIndentDeep[4].assign("\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t", 20);
-      gIndentDeep[5].assign("\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t", 21);
-      gIndentDeep[6].assign("\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t", 22);
-      gIndentDeep[7].assign("\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t", 23);
-      aFilled = true;
+        static bool aFilled = false;
+        if (!aFilled)
+        {
+            gIndentDeep[0].assign("\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t", 16);
+            gIndentDeep[1].assign("\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t", 17);
+            gIndentDeep[2].assign("\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t", 18);
+            gIndentDeep[3].assign("\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t", 19);
+            gIndentDeep[4].assign("\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t", 20);
+            gIndentDeep[5].assign("\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t", 21);
+            gIndentDeep[6].assign("\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t", 22);
+            gIndentDeep[7].assign("\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t", 23);
+            aFilled = true;
+        }
+        return gIndentDeep[theCount - 16];
     }
-    return gIndentDeep[theCount - 16];
-  }
-  Sexy::String aTabs;
-  for (unsigned int aIndex = 0; aIndex < theCount; ++aIndex)
-    aTabs.push_back('\t');
-  return aTabs;
+    Sexy::String aTabs;
+    for (unsigned int aIndex = 0; aIndex < theCount; ++aIndex)
+        aTabs.push_back('\t');
+    return aTabs;
 }
 
 void internalJSONNode::WriteComment(unsigned int theIndent, Sexy::String *theOut)
 {
-  if (theIndent == (unsigned int)-1 || _comment.empty())
-    return;
+    if (theIndent == (unsigned int)-1 || _comment.empty())
+        return;
 
-  Sexy::String aIndent = IndentTabs(theIndent);
-  Sexy::String aLineBreak("\n");
-  int aNewline = -1;
-  for (unsigned int aScan = 0; aScan < _comment.size(); ++aScan)
-  {
-    if (_comment[aScan] == '\n')
+    Sexy::String aIndent = IndentTabs(theIndent);
+    Sexy::String aLineBreak("\n");
+    int aNewline = -1;
+    for (unsigned int aScan = 0; aScan < _comment.size(); ++aScan)
     {
-      aNewline = (int)aScan;
-      break;
+        if (_comment[aScan] == '\n')
+        {
+            aNewline = (int)aScan;
+            break;
+        }
     }
-  }
-  if (aNewline < 0)
-  {
-    *theOut += aIndent;
-    *theOut += "//";
-    *theOut += _comment;
-    *theOut += aIndent;
-    return;
-  }
+    if (aNewline < 0)
+    {
+        *theOut += aIndent;
+        *theOut += "//";
+        *theOut += _comment;
+        *theOut += aIndent;
+        return;
+    }
 
-  Sexy::String aInner = aLineBreak + IndentTabs(theIndent + 1);
-  *theOut += aIndent;
-  theOut->Append("/*", 2);
-  *theOut += aInner;
-  unsigned int aFrom = 0;
-  while (aNewline >= 0)
-  {
-    unsigned int aLineEnd = (unsigned int)aNewline;
-    if (aLineEnd != 0 && _comment[(int)aLineEnd - 1] == '\r')
-      --aLineEnd;
-    if (aLineEnd > aFrom)
-      *theOut += _comment.substr(aFrom, aLineEnd - aFrom);
+    Sexy::String aInner = aLineBreak + IndentTabs(theIndent + 1);
+    *theOut += aIndent;
+    theOut->Append("/*", 2);
     *theOut += aInner;
-    aFrom = (unsigned int)aNewline + 1;
-    if (aLineEnd < (unsigned int)aNewline && _comment[(int)aLineEnd] == '\r')
-      aFrom = aLineEnd + 2;
-    aNewline = -1;
-    for (unsigned int aScan = aFrom; aScan < _comment.size(); ++aScan)
+    unsigned int aFrom = 0;
+    while (aNewline >= 0)
     {
-      if (_comment[aScan] == '\n')
-      {
-        aNewline = (int)aScan;
-        break;
-      }
+        unsigned int aLineEnd = (unsigned int)aNewline;
+        if (aLineEnd != 0 && _comment[(int)aLineEnd - 1] == '\r')
+            --aLineEnd;
+        if (aLineEnd > aFrom)
+            *theOut += _comment.substr(aFrom, aLineEnd - aFrom);
+        *theOut += aInner;
+        aFrom = (unsigned int)aNewline + 1;
+        if (aLineEnd < (unsigned int)aNewline && _comment[(int)aLineEnd] == '\r')
+            aFrom = aLineEnd + 2;
+        aNewline = -1;
+        for (unsigned int aScan = aFrom; aScan < _comment.size(); ++aScan)
+        {
+            if (_comment[aScan] == '\n')
+            {
+                aNewline = (int)aScan;
+                break;
+            }
+        }
     }
-  }
-  if (aFrom < _comment.size())
-    *theOut += _comment.substr(aFrom);
-  *theOut += aIndent;
-  theOut->Append("*/", 2);
-  *theOut += aIndent;
+    if (aFrom < _comment.size())
+        *theOut += _comment.substr(aFrom);
+    *theOut += aIndent;
+    theOut->Append("*/", 2);
+    *theOut += aIndent;
 }
 
 void internalJSONNode::WriteChildren(unsigned char *theUnused, int theIndent, Sexy::String *theOut)
 {
-  (void)theUnused;
-  if (CHILDREN == nullptr || CHILDREN->mChildren.size() == 0)
-    return;
+    (void)theUnused;
+    if (CHILDREN == nullptr || CHILDREN->mChildren.size() == 0)
+        return;
 
-  int aChildIndent = theIndent;
-  Sexy::String aPrefix;
-  if (theIndent != -1)
-  {
-    aChildIndent = theIndent + 1;
-    aPrefix = Sexy::String("\n") + IndentTabs((unsigned int)aChildIndent);
-  }
+    int aChildIndent = theIndent;
+    Sexy::String aPrefix;
+    if (theIndent != -1)
+    {
+        aChildIndent = theIndent + 1;
+        aPrefix = Sexy::String("\n") + IndentTabs((unsigned int)aChildIndent);
+    }
 
-  unsigned int aLast = CHILDREN->mChildren.size() - 1;
-  for (unsigned int aIndex = 0; aIndex < CHILDREN->mChildren.size(); ++aIndex)
-  {
-    *theOut += aPrefix;
-    JSONNode *aChild = CHILDREN->mChildren[aIndex];
-    aChild->mInternal->Write((unsigned int)aChildIndent, _type == 4, theOut);
-    if (aIndex < aLast)
-      theOut->push_back(',');
-  }
-  if (aChildIndent != -1)
-  {
-    *theOut += "\n";
-    *theOut += IndentTabs((unsigned int)(aChildIndent - 1));
-  }
+    const std::size_t aLast = CHILDREN->mChildren.size() - 1;
+    for (std::size_t aIndex = 0; aIndex < CHILDREN->mChildren.size(); ++aIndex)
+    {
+        *theOut += aPrefix;
+        JSONNode *aChild = CHILDREN->mChildren[aIndex];
+        aChild->mInternal->Write((unsigned int)aChildIndent, _type == 4, theOut);
+        if (aIndex < aLast)
+            theOut->push_back(',');
+    }
+    if (aChildIndent != -1)
+    {
+        *theOut += "\n";
+        *theOut += IndentTabs((unsigned int)(aChildIndent - 1));
+    }
 }
 
 void internalJSONNode::Write(unsigned int theIndent, int theFormatted, Sexy::String *theOut)
 {
-  bool aPretty = theIndent != (unsigned int)-1;
-  WriteComment(theIndent, theOut);
-  if (aPretty || fetched)
-  {
-    WriteName(0, aPretty ? 1 : 0, theFormatted, theOut);
-    switch (_type)
+    bool aPretty = theIndent != (unsigned int)-1;
+    WriteComment(theIndent, theOut);
+    if (aPretty || fetched)
     {
-      case 0:
-      case 2:
-      case 3:
-        *theOut += _string;
-        break;
-      case 4:
-        Fetch();
-        theOut->Append("[", 1);
-        WriteChildren(nullptr, (int)theIndent, theOut);
-        theOut->Append("]", 1);
-        break;
-      case 5:
-        Fetch();
-        theOut->Append("{", 1);
-        WriteChildren(nullptr, (int)theIndent, theOut);
-        theOut->Append("}", 1);
-        break;
-      default:
-        if (!fetched)
+        WriteName(0, aPretty ? 1 : 0, theFormatted, theOut);
+        switch (_type)
         {
-          DumpRawString(theOut);
-          break;
+            case 0:
+            case 2:
+            case 3:
+                *theOut += _string;
+                break;
+            case 4:
+                Fetch();
+                theOut->Append("[", 1);
+                WriteChildren(nullptr, (int)theIndent, theOut);
+                theOut->Append("]", 1);
+                break;
+            case 5:
+                Fetch();
+                theOut->Append("{", 1);
+                WriteChildren(nullptr, (int)theIndent, theOut);
+                theOut->Append("}", 1);
+                break;
+            default:
+                if (!fetched)
+                {
+                    DumpRawString(theOut);
+                    break;
+                }
+                theOut->Append("\"", 1);
+                {
+                    JSONWorker aWriter;
+                    aWriter.UnfixString(_string, _string_encoded, *theOut);
+                }
+                theOut->Append("\"", 1);
+                break;
         }
-        theOut->Append("\"", 1);
-        {
-          JSONWorker aWriter;
-          aWriter.UnfixString(_string, _string_encoded, *theOut);
-        }
-        theOut->Append("\"", 1);
-        break;
+        return;
     }
-    return;
-  }
-  WriteName(0, 0, theFormatted, theOut);
-  DumpRawString(theOut);
+    WriteName(0, 0, theFormatted, theOut);
+    DumpRawString(theOut);
 }
 
 // ==========================================================================
 int internalJSONNode::Set(bool theValue)
 {
-  _value._bool = theValue;
-  _type = 3;
-  if (theValue)
-  {
-    if ((gGuard_CONST_TRUE & 1) == 0 && CxaGuardAcquire(&gGuard_CONST_TRUE) != 0)
+    _value._bool = theValue;
+    _type = 3;
+    if (theValue)
     {
-      gGuard_getValue_CONST_TRUE = "true";
-      CxaGuardRelease(&gGuard_CONST_TRUE);
-      RegisterAtExit(&gGuard_getValue_CONST_TRUE, jsonSingletonDtorThunk, nullptr);
+        if ((gGuard_CONST_TRUE & 1) == 0 && CxaGuardAcquire(&gGuard_CONST_TRUE) != 0)
+        {
+            gGuard_getValue_CONST_TRUE = "true";
+            CxaGuardRelease(&gGuard_CONST_TRUE);
+            RegisterAtExit(&gGuard_getValue_CONST_TRUE, jsonSingletonDtorThunk, nullptr);
+        }
+        _string = *&gGuard_getValue_CONST_TRUE;
     }
-    _string = *&gGuard_getValue_CONST_TRUE;
-  }
-  else
-  {
-    if ((gGuard_CONST_FALSE & 1) == 0 && CxaGuardAcquire(&gGuard_CONST_FALSE) != 0)
+    else
     {
-      gGuard_getValue_CONST_FALSE = "false";
-      CxaGuardRelease(&gGuard_CONST_FALSE);
-      RegisterAtExit(&gGuard_getValue_CONST_FALSE, jsonSingletonDtorThunk, nullptr);
+        if ((gGuard_CONST_FALSE & 1) == 0 && CxaGuardAcquire(&gGuard_CONST_FALSE) != 0)
+        {
+            gGuard_getValue_CONST_FALSE = "false";
+            CxaGuardRelease(&gGuard_CONST_FALSE);
+            RegisterAtExit(&gGuard_getValue_CONST_FALSE, jsonSingletonDtorThunk, nullptr);
+        }
+        _string = *&gGuard_getValue_CONST_FALSE;
     }
-    _string = *&gGuard_getValue_CONST_FALSE;
-  }
-  fetched = true;
-  return 0;
+    fetched = true;
+    return 0;
 }
 
 // ==========================================================================
@@ -1392,16 +1380,16 @@ int internalJSONNode::Set(bool theValue)
 // ==========================================================================
 int internalJSONNode::Nullify()
 {
-  _type = 0;
-  if ((gGuard_CONST_NULL & 1) == 0 && CxaGuardAcquire(&gGuard_CONST_NULL) != 0)
-  {
-    gGuard_getValue_CONST_NULL = "null";
-    CxaGuardRelease(&gGuard_CONST_NULL);
-    RegisterAtExit(&gGuard_getValue_CONST_NULL, jsonSingletonDtorThunk, nullptr);
-  }
-  _string = *&gGuard_getValue_CONST_NULL;
-  fetched = true;
-  return 0;
+    _type = 0;
+    if ((gGuard_CONST_NULL & 1) == 0 && CxaGuardAcquire(&gGuard_CONST_NULL) != 0)
+    {
+        gGuard_getValue_CONST_NULL = "null";
+        CxaGuardRelease(&gGuard_CONST_NULL);
+        RegisterAtExit(&gGuard_getValue_CONST_NULL, jsonSingletonDtorThunk, nullptr);
+    }
+    _string = *&gGuard_getValue_CONST_NULL;
+    fetched = true;
+    return 0;
 }
 
 // ==========================================================================
@@ -1410,173 +1398,173 @@ int internalJSONNode::Nullify()
 // ==========================================================================
 int internalJSONNode::IsEqualTo(const internalJSONNode *theOther)
 {
-  if (this == theOther)
-    return 1;
-  if (theOther->_type != _type)
-    return 0;
-  if (_name.size() != theOther->_name.size() || memcmp(_name.c_str(), theOther->_name.c_str(), _name.size()) != 0)
-    return 0;
-  if (_type == 0)
-    return 1;
-  Fetch();
-  const_cast<internalJSONNode *>(theOther)->Fetch();
-  switch (_type)
-  {
-    case 2:
-    {
-      double aOther = theOther->_value._number;
-      double aMine = _value._number;
-      double aGap = aOther - aMine;
-      if (aOther <= aMine)
-        return aGap > -0.00001;
-      return aGap < 0.00001;
-    }
-    case 3:
-      return theOther->_value._bool == _value._bool;
-    case 1:
-      if (theOther->_string.size() != _string.size())
+    if (this == theOther)
+        return 1;
+    if (theOther->_type != _type)
         return 0;
-      return memcmp(theOther->_string.c_str(), _string.c_str(), _string.size()) == 0;
-    default:
-    {
-      jsonChildren *aMine = CHILDREN;
-      jsonChildren *aOther = theOther->CHILDREN;
-      if (aMine->mChildren.size() != aOther->mChildren.size())
+    if (_name.size() != theOther->_name.size() || memcmp(_name.c_str(), theOther->_name.c_str(), _name.size()) != 0)
         return 0;
-      for (unsigned int aIndex = 0; aIndex < aMine->mChildren.size(); ++aIndex)
-      {
-        if (aMine->mChildren[aIndex]->mInternal->IsEqualTo(aOther->mChildren[aIndex]->mInternal) == 0)
-          return 0;
-      }
-      return 1;
+    if (_type == 0)
+        return 1;
+    Fetch();
+    const_cast<internalJSONNode *>(theOther)->Fetch();
+    switch (_type)
+    {
+        case 2:
+        {
+            double aOther = theOther->_value._number;
+            double aMine = _value._number;
+            double aGap = aOther - aMine;
+            if (aOther <= aMine)
+                return aGap > -0.00001;
+            return aGap < 0.00001;
+        }
+        case 3:
+            return theOther->_value._bool == _value._bool;
+        case 1:
+            if (theOther->_string.size() != _string.size())
+                return 0;
+            return memcmp(theOther->_string.c_str(), _string.c_str(), _string.size()) == 0;
+        default:
+        {
+            jsonChildren *aMine = CHILDREN;
+            jsonChildren *aOther = theOther->CHILDREN;
+            if (aMine->mChildren.size() != aOther->mChildren.size())
+                return 0;
+            for (unsigned int aIndex = 0; aIndex < aMine->mChildren.size(); ++aIndex)
+            {
+                if (aMine->mChildren[aIndex]->mInternal->IsEqualTo(aOther->mChildren[aIndex]->mInternal) == 0)
+                    return 0;
+            }
+            return 1;
+        }
     }
-  }
 }
 
 // ==========================================================================
 // internalJSONNode::push_back(JSONNode const&)
 // @00529E50  46 bytes
 // ==========================================================================
-internalJSONNode * internalJSONNode::push_back(JSONNode const& theChild)
+internalJSONNode *internalJSONNode::push_back(JSONNode const &theChild)
 {
-  // The dump's return value is the child array inc() hands back, so the receiver
-  // is returned here when the node is not an array or object.
-  if ( (std::uint8_t)(_type - 4) <= 1u )
-  {
-    jsonChildren *aChildren = CHILDREN;
-    // newJSONNode() ignores its receiver and wraps the node it is handed, so the
-    // source node doubles as the receiver here.
-    JSONNode *aNewChild = const_cast<JSONNode &>(theChild).Share();
-    aChildren->mChildren.push_back(aNewChild);
+    // The dump's return value is the child array inc() hands back, so the receiver
+    // is returned here when the node is not an array or object.
+    if ((std::uint8_t)(_type - 4) <= 1u)
+    {
+        jsonChildren *aChildren = CHILDREN;
+        // newJSONNode() ignores its receiver and wraps the node it is handed, so the
+        // source node doubles as the receiver here.
+        JSONNode *aNewChild = const_cast<JSONNode &>(theChild).Share();
+        aChildren->mChildren.push_back(aNewChild);
+        return this;
+    }
     return this;
-  }
-  return this;
 }
 
 // ==========================================================================
 // internalJSONNode::push_front(JSONNode const&)
 // @00529E8C  54 bytes
 // ==========================================================================
-JSONNode ** internalJSONNode::push_front(JSONNode const& theChild)
+JSONNode **internalJSONNode::push_front(JSONNode const &theChild)
 {
-  if ( (std::uint8_t)(_type - 4) <= 1u )
-  {
-    jsonChildren *aChildren = CHILDREN;
-    JSONNode *aNewChild = const_cast<JSONNode &>(theChild).Share();
-    aChildren->mChildren.insert(aChildren->mChildren.begin(), aNewChild);
-    return aChildren->mChildren.data();
-  }
-  return nullptr;
+    if ((std::uint8_t)(_type - 4) <= 1u)
+    {
+        jsonChildren *aChildren = CHILDREN;
+        JSONNode *aNewChild = const_cast<JSONNode &>(theChild).Share();
+        aChildren->mChildren.insert(aChildren->mChildren.begin(), aNewChild);
+        return aChildren->mChildren.data();
+    }
+    return nullptr;
 }
 
 // ==========================================================================
 // internalJSONNode::pop_back(unsigned int)
 // @00529ED0  76 bytes
 // ==========================================================================
-JSONNode * internalJSONNode::pop_back(unsigned int theIndex)
+JSONNode *internalJSONNode::pop_back(unsigned int theIndex)
 {
-  if ( (std::uint8_t)(_type - 4) > 1u )
-    return 0;
-  jsonChildren *aChildren = CHILDREN;
-  if (theIndex >= aChildren->mChildren.size())
-    return nullptr;
-  JSONNode *aRemoved = aChildren->mChildren[theIndex];
-  aChildren->mChildren.erase(aChildren->mChildren.begin() + theIndex);
-  return aRemoved;
+    if ((std::uint8_t)(_type - 4) > 1u)
+        return 0;
+    jsonChildren *aChildren = CHILDREN;
+    if (theIndex >= aChildren->mChildren.size())
+        return nullptr;
+    JSONNode *aRemoved = aChildren->mChildren[theIndex];
+    aChildren->mChildren.erase(aChildren->mChildren.begin() + theIndex);
+    return aRemoved;
 }
 
 // ==========================================================================
 // internalJSONNode::at(Sexy::String const&)
 // @00529F1C  186 bytes
 // ==========================================================================
-JSONNode ** internalJSONNode::at(Sexy::String const& theName)
+JSONNode **internalJSONNode::at(Sexy::String const &theName)
 {
-  if ( (std::uint8_t)(_type - 4) > 1u )
+    if ((std::uint8_t)(_type - 4) > 1u)
+        return nullptr;
+    Fetch();
+    jsonChildren *aChildren = CHILDREN;
+    for (unsigned int aIndex = 0; aIndex < aChildren->mChildren.size(); ++aIndex)
+    {
+        const Sexy::String &aName = aChildren->mChildren[aIndex]->mInternal->_name;
+        if (aName.size() == theName.size() && memcmp(aName.c_str(), theName.c_str(), aName.size()) == 0)
+            return &aChildren->mChildren[aIndex];
+    }
     return nullptr;
-  Fetch();
-  jsonChildren *aChildren = CHILDREN;
-  for (unsigned int aIndex = 0; aIndex < aChildren->mChildren.size(); ++aIndex)
-  {
-    const Sexy::String &aName = aChildren->mChildren[aIndex]->mInternal->_name;
-    if (aName.size() == theName.size() && memcmp(aName.c_str(), theName.c_str(), aName.size()) == 0)
-      return &aChildren->mChildren[aIndex];
-  }
-  return nullptr;
 }
 
 // ==========================================================================
 // internalJSONNode::pop_back(Sexy::String const&)
 // @00529FEC  80 bytes
 // ==========================================================================
-JSONNode * internalJSONNode::pop_back(Sexy::String const& theName)
+JSONNode *internalJSONNode::pop_back(Sexy::String const &theName)
 {
-  if ( (std::uint8_t)(_type - 4) > 1u )
-    return nullptr;
-  JSONNode **aSlot = at(theName);
-  if ( aSlot == nullptr )
-    return nullptr;
-  jsonChildren *aChildren = CHILDREN;
-  JSONNode *aRemoved = *aSlot;
-  const auto anIndex = aSlot - aChildren->mChildren.data();
-  aChildren->mChildren.erase(aChildren->mChildren.begin() + anIndex);
-  return aRemoved;
+    if ((std::uint8_t)(_type - 4) > 1u)
+        return nullptr;
+    JSONNode **aSlot = at(theName);
+    if (aSlot == nullptr)
+        return nullptr;
+    jsonChildren *aChildren = CHILDREN;
+    JSONNode *aRemoved = *aSlot;
+    const auto anIndex = aSlot - aChildren->mChildren.data();
+    aChildren->mChildren.erase(aChildren->mChildren.begin() + anIndex);
+    return aRemoved;
 }
 
 // ==========================================================================
 // internalJSONNode::at_nocase(Sexy::String const&)
 // @0052A03C  148 bytes
 // ==========================================================================
-JSONNode ** internalJSONNode::at_nocase(Sexy::String const& theName)
+JSONNode **internalJSONNode::at_nocase(Sexy::String const &theName)
 {
-  if ( (std::uint8_t)(_type - 4) > 1u )
+    if ((std::uint8_t)(_type - 4) > 1u)
+        return nullptr;
+    Fetch();
+    jsonChildren *aChildren = CHILDREN;
+    for (unsigned int aIndex = 0; aIndex < aChildren->mChildren.size(); ++aIndex)
+    {
+        internalJSONNode *aChild = aChildren->mChildren[aIndex]->mInternal;
+        if (aChild->AreEqualNoCase(aChild->_name.c_str(), theName.c_str()))
+            return &aChildren->mChildren[aIndex];
+    }
     return nullptr;
-  Fetch();
-  jsonChildren *aChildren = CHILDREN;
-  for (unsigned int aIndex = 0; aIndex < aChildren->mChildren.size(); ++aIndex)
-  {
-    internalJSONNode *aChild = aChildren->mChildren[aIndex]->mInternal;
-    if (aChild->AreEqualNoCase(aChild->_name.c_str(), theName.c_str()))
-      return &aChildren->mChildren[aIndex];
-  }
-  return nullptr;
 }
 
 // ==========================================================================
 // internalJSONNode::pop_back_nocase(Sexy::String const&)
 // @0052A0E4  80 bytes
 // ==========================================================================
-JSONNode * internalJSONNode::pop_back_nocase(Sexy::String const& theName)
+JSONNode *internalJSONNode::pop_back_nocase(Sexy::String const &theName)
 {
-  if ( (std::uint8_t)(_type - 4) > 1u )
-    return nullptr;
-  JSONNode **aSlot = at_nocase(theName);
-  if ( aSlot == nullptr )
-    return nullptr;
-  jsonChildren *aChildren = CHILDREN;
-  JSONNode *aRemoved = *aSlot;
-  const auto anIndex = aSlot - aChildren->mChildren.data();
-  aChildren->mChildren.erase(aChildren->mChildren.begin() + anIndex);
-  return aRemoved;
+    if ((std::uint8_t)(_type - 4) > 1u)
+        return nullptr;
+    JSONNode **aSlot = at_nocase(theName);
+    if (aSlot == nullptr)
+        return nullptr;
+    jsonChildren *aChildren = CHILDREN;
+    JSONNode *aRemoved = *aSlot;
+    const auto anIndex = aSlot - aChildren->mChildren.data();
+    aChildren->mChildren.erase(aChildren->mChildren.begin() + anIndex);
+    return aRemoved;
 }
 
 // ==========================================================================
@@ -1585,13 +1573,13 @@ JSONNode * internalJSONNode::pop_back_nocase(Sexy::String const& theName)
 // ==========================================================================
 void internalJSONNode::preparse()
 {
-  Fetch();
-  if ( (std::uint8_t)(_type - 4) <= 1u )
-  {
-    jsonChildren *aChildren = CHILDREN;
-    for (unsigned int aIndex = 0; aIndex < aChildren->mChildren.size(); ++aIndex)
-      aChildren->mChildren[aIndex]->mInternal->preparse();
-  }
+    Fetch();
+    if ((std::uint8_t)(_type - 4) <= 1u)
+    {
+        jsonChildren *aChildren = CHILDREN;
+        for (unsigned int aIndex = 0; aIndex < aChildren->mChildren.size(); ++aIndex)
+            aChildren->mChildren[aIndex]->mInternal->preparse();
+    }
 }
 
 internalJSONNode::~internalJSONNode()

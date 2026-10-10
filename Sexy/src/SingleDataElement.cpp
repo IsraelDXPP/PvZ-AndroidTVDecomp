@@ -13,34 +13,34 @@
 // ==========================================================================
 Sexy::SingleDataElement::~SingleDataElement()
 {
-  DataElement *aNext = mNext;
-  if ( aNext != 0 )
-    delete aNext;
+    DataElement *aNext = mNext;
+    if (aNext != 0)
+        delete aNext;
 }
 
 // ==========================================================================
 // Sexy::SingleDataElement::Duplicate(void)
 // @002FE87C  110 bytes
 // ==========================================================================
-DataElement * Sexy::SingleDataElement::Duplicate()
+DataElement *Sexy::SingleDataElement::Duplicate()
 {
-  // `new SingleDataElement()` already stores the vptr, copies the DataElement
-  // base and seeds both members with the shared empty rep / null, so the only
-  // work left is the string reference and the recursive copy of the chain.
-  SingleDataElement *aCopy = new SingleDataElement();
-  aCopy->mData = mData;
-  if ( mNext != 0 )
-    aCopy->mNext = mNext->Duplicate();
-  return aCopy;
+    // `new SingleDataElement()` already stores the vptr, copies the DataElement
+    // base and seeds both members with the shared empty rep / null, so the only
+    // work left is the string reference and the recursive copy of the chain.
+    SingleDataElement *aCopy = new SingleDataElement();
+    aCopy->mData = mData;
+    if (mNext != 0)
+        aCopy->mNext = mNext->Duplicate();
+    return aCopy;
 }
 
 // ==========================================================================
 // Sexy::SingleDataElement::SingleDataElement(void)
 // @002FE928  40 bytes
 // ==========================================================================
-Sexy::SingleDataElement::SingleDataElement()
-  : Sexy::DataElement()
+Sexy::SingleDataElement::SingleDataElement() :
+    Sexy::DataElement()
 {
-  mData = "";
-  mNext = 0;
+    mData = "";
+    mNext = 0;
 }

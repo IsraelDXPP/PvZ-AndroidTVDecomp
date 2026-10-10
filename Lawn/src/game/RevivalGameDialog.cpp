@@ -18,9 +18,7 @@
 // The binary stores the two vptrs and calls LawnDialog::~LawnDialog, which is
 // exactly what the compiler emits for this empty body.
 // ==========================================================================
-RevivalGameDialog::~RevivalGameDialog()
-{
-}
+RevivalGameDialog::~RevivalGameDialog() {}
 
 // ==========================================================================
 // RevivalGameDialog::GotFocus()
@@ -28,11 +26,11 @@ RevivalGameDialog::~RevivalGameDialog()
 // ==========================================================================
 void RevivalGameDialog::GotFocus()
 {
-  LawnDialog::GotFocus();
-  // +0xDC is Widget::mFocusedChildWidget; the dialog only steals the focus when
-  // nothing inside it has it yet.
-  if ( mFocusedChildWidget == nullptr )
-    SetFocus(mLawnYesButton, true);
+    LawnDialog::GotFocus();
+    // +0xDC is Widget::mFocusedChildWidget; the dialog only steals the focus when
+    // nothing inside it has it yet.
+    if (mFocusedChildWidget == nullptr)
+        SetFocus(mLawnYesButton, true);
 }
 
 // ==========================================================================
@@ -44,7 +42,7 @@ void RevivalGameDialog::GotFocus()
 // ==========================================================================
 void RevivalGameDialog::MouseDrag(int theX, int theY)
 {
-  Sexy::Dialog::MouseDrag(theX, theY);
+    Sexy::Dialog::MouseDrag(theX, theY);
 }
 
 // ==========================================================================
@@ -57,21 +55,21 @@ void RevivalGameDialog::MouseDrag(int theX, int theY)
 // ==========================================================================
 void RevivalGameDialog::ButtonDepress(int theId)
 {
-  if ( theId == 1001 )
-  {
-    mApp->KillDialogById(17);
-    mApp->mBoard->ZombiesWon(mZombie);
-  }
-  else if ( theId == 1000 )
-  {
-    // 6 is E_SHOP_PACKET's revival entry, which this tree has no enumerator for.
-    if ( mApp->GotoBuyTool((E_SHOP_PACKET)6) != 0 )
+    if (theId == 1001)
     {
-      mApp->mBoard->ResetLawnMowers();
-      mZombie->DieNoLoot();
-      mApp->KillDialogById(17);
+        mApp->KillDialogById(17);
+        mApp->mBoard->ZombiesWon(mZombie);
     }
-  }
+    else if (theId == 1000)
+    {
+        // 6 is E_SHOP_PACKET's revival entry, which this tree has no enumerator for.
+        if (mApp->GotoBuyTool((E_SHOP_PACKET)6) != 0)
+        {
+            mApp->mBoard->ResetLawnMowers();
+            mZombie->DieNoLoot();
+            mApp->KillDialogById(17);
+        }
+    }
 }
 
 // ==========================================================================
@@ -82,24 +80,24 @@ void RevivalGameDialog::ButtonDepress(int theId)
 // on the stack before the call, which is what passing them straight to the base
 // constructor does here.
 // ==========================================================================
-RevivalGameDialog::RevivalGameDialog(Zombie *theZombie, int theZombieType)
-  : LawnDialog(gLawnApp, nullptr, 17, true, "[REVIVAL_GAME_TITLE]", "[REVIVAL_GAME_MSG]", "", 1)
-  , mZombie(theZombie)
+RevivalGameDialog::RevivalGameDialog(Zombie *theZombie, int theZombieType) :
+    LawnDialog(gLawnApp, nullptr, 17, true, "[REVIVAL_GAME_TITLE]", "[REVIVAL_GAME_MSG]", "", 1),
+    mZombie(theZombie)
 {
-  Sexy::String aFormatted;
-  StrFormat(&aFormatted, mDialogLines.c_str(), theZombieType);
-  mDialogLines = aFormatted;
-  mLawnYesButton->SetLabel("[REVIVAL_GAME_YES_BUTTON]");
-  mLawnNoButton->SetLabel("[REVIVAL_GAME_NO_BUTTON]");
-  CalcSize(300, 30, true);
-  Resize((800 - mWidth) / 2, (600 - mHeight) / 2, mWidth, mHeight);
-  mClip = false;
-  if ( mApp->mBoard != nullptr )
-  {
-    mApp->mBoard->mShowShovel = false;
-    mApp->mBoard->mShowButter = false;
-    mApp->mBoard->mShowHammer = false;
-  }
+    Sexy::String aFormatted;
+    StrFormat(&aFormatted, mDialogLines.c_str(), theZombieType);
+    mDialogLines = aFormatted;
+    mLawnYesButton->SetLabel("[REVIVAL_GAME_YES_BUTTON]");
+    mLawnNoButton->SetLabel("[REVIVAL_GAME_NO_BUTTON]");
+    CalcSize(300, 30, true);
+    Resize((800 - mWidth) / 2, (600 - mHeight) / 2, mWidth, mHeight);
+    mClip = false;
+    if (mApp->mBoard != nullptr)
+    {
+        mApp->mBoard->mShowShovel = false;
+        mApp->mBoard->mShowButter = false;
+        mApp->mBoard->mShowHammer = false;
+    }
 }
 
 // ==========================================================================
@@ -110,7 +108,7 @@ RevivalGameDialog::RevivalGameDialog(Zombie *theZombie, int theZombieType)
 // ==========================================================================
 void RevivalGameDialog::AddedToManager(Sexy::WidgetManager *theManager)
 {
-  LawnDialog::AddedToManager(theManager);
+    LawnDialog::AddedToManager(theManager);
 }
 
 // ==========================================================================
@@ -121,5 +119,5 @@ void RevivalGameDialog::AddedToManager(Sexy::WidgetManager *theManager)
 // ==========================================================================
 void RevivalGameDialog::RemovedFromManager(Sexy::WidgetManager *theManager)
 {
-  LawnDialog::RemovedFromManager(theManager);
+    LawnDialog::RemovedFromManager(theManager);
 }

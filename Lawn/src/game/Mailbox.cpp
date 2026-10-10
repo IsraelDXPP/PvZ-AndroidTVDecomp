@@ -14,9 +14,10 @@
 
 Mailbox::MailMessage Mailbox::INVALID_MESSAGE;
 
-namespace {
+namespace
+{
 
-int AttributeInt(const Sexy::XMLElement& theElement, const char* theName, int theDefault)
+int AttributeInt(const Sexy::XMLElement &theElement, const char *theName, int theDefault)
 {
     if (!theElement.HasAttribute(Sexy::String(theName)))
         return theDefault;
@@ -25,15 +26,15 @@ int AttributeInt(const Sexy::XMLElement& theElement, const char* theName, int th
     return aValue;
 }
 
-float AttributeFloat(const Sexy::XMLElement& theElement, const char* theName, float theDefault)
+float AttributeFloat(const Sexy::XMLElement &theElement, const char *theName, float theDefault)
 {
     return (float)AttributeInt(theElement, theName, (int)theDefault);
 }
 
 // offerID is a signed integer, decimal or 0x hex, stored in a 64-bit word.
-long long ParseOfferId(const Sexy::String& theText)
+long long ParseOfferId(const Sexy::String &theText)
 {
-    const char* aText = theText.c_str();
+    const char *aText = theText.c_str();
     if (aText == nullptr || aText[0] == 0)
         return 0;
 
@@ -74,9 +75,9 @@ long long ParseOfferId(const Sexy::String& theText)
     return aValue;
 }
 
-void EnsureImage(Sexy::SharedImageRef& theImage, const Sexy::String& thePath)
+void EnsureImage(Sexy::SharedImageRef &theImage, const Sexy::String &thePath)
 {
-    Sexy::Image* image = theImage;
+    Sexy::Image *image = theImage;
     if (image != nullptr)
         return;
     if (thePath.empty())
@@ -86,15 +87,13 @@ void EnsureImage(Sexy::SharedImageRef& theImage, const Sexy::String& thePath)
 
 } // namespace
 
-Mailbox::Mailbox(LawnApp* theApp)
+Mailbox::Mailbox(LawnApp *theApp)
 {
     mApp = theApp;
     mLoadState = 0;
 }
 
-void Mailbox::Update()
-{
-}
+void Mailbox::Update() {}
 
 bool Mailbox::MessagesLoaded()
 {
@@ -146,9 +145,7 @@ int Mailbox::GetUnreadMessage(int theIndex)
 
 void Mailbox::ReleaseMessageImages()
 {
-    for (std::map<int, MailMessage>::iterator aMessage = mMessages.begin();
-         aMessage != mMessages.end();
-         ++aMessage)
+    for (std::map<int, MailMessage>::iterator aMessage = mMessages.begin(); aMessage != mMessages.end(); ++aMessage)
     {
         aMessage->second.mMessageImage.Release();
         aMessage->second.mBackgroundImage.Release();
@@ -178,8 +175,7 @@ void Mailbox::MarkMessageRead(int theMessageId)
 
     mApp->mPlayerInfo->mMailMessageRead[aByte] |= (unsigned char)(1 << aBit);
 
-    std::vector<int>::iterator aFound = std::find(
-        mUnreadMessages.begin(), mUnreadMessages.end(), theMessageId);
+    std::vector<int>::iterator aFound = std::find(mUnreadMessages.begin(), mUnreadMessages.end(), theMessageId);
     if (aFound != mUnreadMessages.end())
         mUnreadMessages.erase(aFound);
 
@@ -188,13 +184,13 @@ void Mailbox::MarkMessageRead(int theMessageId)
     message->second.mIsRead = true;
 }
 
-Mailbox::MailMessage* Mailbox::GetMessageByIndex(int theIndex, bool theLoadImages)
+Mailbox::MailMessage *Mailbox::GetMessageByIndex(int theIndex, bool theLoadImages)
 {
     std::map<int, MailMessage>::iterator aFound = mMessages.find(theIndex);
     if (aFound == mMessages.end())
         return &INVALID_MESSAGE;
 
-    MailMessage& aMessage = aFound->second;
+    MailMessage &aMessage = aFound->second;
     if (theLoadImages)
     {
         EnsureImage(aMessage.mMessageImage, aMessage.mImagePath);
@@ -205,7 +201,7 @@ Mailbox::MailMessage* Mailbox::GetMessageByIndex(int theIndex, bool theLoadImage
 
 int Mailbox::GetNumUnseenMessages()
 {
-    LawnPlayerInfo* aPlayerInfo = mApp->mPlayerInfo;
+    LawnPlayerInfo *aPlayerInfo = mApp->mPlayerInfo;
     if (aPlayerInfo == nullptr)
         return 0;
 
@@ -214,14 +210,13 @@ int Mailbox::GetNumUnseenMessages()
     {
         for (int aBit = 0; aBit != 8; ++aBit)
         {
-            MailMessage* aMessage = GetMessageByIndex(aBit + 8 * aByte, false);
+            MailMessage *aMessage = GetMessageByIndex(aBit + 8 * aByte, false);
             int aLevel = aPlayerInfo->mLevel;
             if (aPlayerInfo->GetFlag(PLAYER_FLAG_ADVENTURE_COMPLETE))
                 aLevel = 50;
             int aMask = 1 << aBit;
-            if (aLevel >= aMessage->mMinLevel
-                && (aMask & aPlayerInfo->mMailMessageSeen[aByte]) == 0
-                && aMessage->mIsValid)
+            if (aLevel >= aMessage->mMinLevel && (aMask & aPlayerInfo->mMailMessageSeen[aByte]) == 0 &&
+                aMessage->mIsValid)
             {
                 ++aCount;
             }
@@ -230,7 +225,7 @@ int Mailbox::GetNumUnseenMessages()
     return aCount;
 }
 
-void Mailbox::ParseManifest(const Sexy::String& thePath)
+void Mailbox::ParseManifest(const Sexy::String &thePath)
 {
     Sexy::XMLParser aParser;
     if (!aParser.OpenFile(thePath))

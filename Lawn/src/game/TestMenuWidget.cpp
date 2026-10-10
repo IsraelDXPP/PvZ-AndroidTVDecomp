@@ -13,8 +13,8 @@
 // ==========================================================================
 TestMenuWidget::TestMenuWidget()
 {
-  // Both stores the transcription carried are vptr restores -- the primary one
-  // at +0x00 and the ButtonListener one MenuWidget's multiple inheritance puts
-  // at +0x100 (TestMenuWidget.h). The class adds no member and no override, so
-  // there is nothing left for the constructor to do.
+    // Both stores the transcription carried are vptr restores -- the primary one
+    // at +0x00 and the ButtonListener one MenuWidget's multiple inheritance puts
+    // at +0x100 (TestMenuWidget.h). The class adds no member and no override, so
+    // there is nothing left for the constructor to do.
 }

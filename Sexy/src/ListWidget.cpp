@@ -73,8 +73,7 @@ void Sexy::ListWidget::SetSelect(int theIdx)
         widget->mSelectIdx = theIdx;
         widget->MarkDirty();
         widget = widget->mChild;
-    }
-    while (widget != nullptr);
+    } while (widget != nullptr);
 }
 
 void Sexy::ListWidget::MouseWheel(int theDelta)
@@ -151,8 +150,7 @@ void Sexy::ListWidget::SetLineColor(int theIdx, Color const &theColor)
         widget->mLineColors[theIdx] = theColor;
         widget->MarkDirty();
         widget = widget->mChild;
-    }
-    while (widget != nullptr);
+    } while (widget != nullptr);
 }
 
 void Sexy::ListWidget::RemoveAll()
@@ -169,8 +167,7 @@ void Sexy::ListWidget::RemoveAll()
         widget->mHiliteIdx = -1;
         widget->MarkDirty();
         widget = widget->mChild;
-    }
-    while (widget != nullptr);
+    } while (widget != nullptr);
 
     if (mScrollbar != nullptr)
         mScrollbar->SetMaxValue((double)mLines.size());
@@ -237,9 +234,7 @@ void Sexy::ListWidget::Draw(Sexy::Graphics *theGraphics)
         else
             drawX = mWidth - mFont->StringWidth(text) - mTextOffset;
 
-        int drawY = (int)(((float)itemHeight - textExtents.mHeight) * 0.5f
-                          - textExtents.mMinY
-                          + (float)rowY);
+        int drawY = (int)(((float)itemHeight - textExtents.mHeight) * 0.5f - textExtents.mMinY + (float)rowY);
         theGraphics->DrawString(text, drawX, drawY);
     }
 
@@ -275,8 +270,7 @@ void Sexy::ListWidget::RemoveLine(int theIdx)
 
         widget->MarkDirty();
         widget = widget->mChild;
-    }
-    while (widget != nullptr);
+    } while (widget != nullptr);
 
     if (mScrollbar != nullptr)
         mScrollbar->SetMaxValue((double)mLines.size());
@@ -304,8 +298,7 @@ void Sexy::ListWidget::MouseLeave()
         widget->SetHilite(-1, true);
         widget->MarkDirty();
         widget = widget->mChild;
-    }
-    while (widget != nullptr);
+    } while (widget != nullptr);
 
     mWidgetManager->mApp->SetCursor(0);
 }
@@ -333,8 +326,7 @@ void Sexy::ListWidget::MouseMove(int theX, int theY)
         widget->SetHilite(hilite, true);
         widget->MarkDirty();
         widget = widget->mChild;
-    }
-    while (widget != nullptr);
+    } while (widget != nullptr);
 
     if (mHiliteIdx != -1 && mDoFingerWhenHilited)
         mWidgetManager->mApp->SetCursor(1);
@@ -479,8 +471,7 @@ void Sexy::ListWidget::Sort(bool descending)
         widget->mLineColors = sortedColors;
         widget->MarkDirty();
         widget = widget->mChild;
-    }
-    while (widget != nullptr);
+    } while (widget != nullptr);
 }
 
 void Sexy::ListWidget::MouseDown(int theX, int theY, int theClickCount)
@@ -535,16 +526,16 @@ int Sexy::ListWidget::KeyDown(Sexy::KeyCode theKey)
 
     switch (theKey)
     {
-    case KEYCODE_UP:
-        return MoveSelect(-1);
-    case KEYCODE_DOWN:
-        return MoveSelect(1);
-    case KEYCODE_RETURN:
-        if (mSelectIdx != -1 && mListListener != nullptr)
-            mListListener->ListClicked(mId, mSelectIdx, 1);
-        return (int)mSelected;
-    default:
-        return Widget::KeyDown(theKey);
+        case KEYCODE_UP:
+            return MoveSelect(-1);
+        case KEYCODE_DOWN:
+            return MoveSelect(1);
+        case KEYCODE_RETURN:
+            if (mSelectIdx != -1 && mListListener != nullptr)
+                mListListener->ListClicked(mId, mSelectIdx, 1);
+            return (int)mSelected;
+        default:
+            return Widget::KeyDown(theKey);
     }
 }
 

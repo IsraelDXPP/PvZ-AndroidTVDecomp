@@ -11,18 +11,20 @@
 #include <string>
 #include <vector>
 
-namespace Sexy {
-int StringToDouble(Sexy::String theText, double* theDest);
+namespace Sexy
+{
+int StringToDouble(Sexy::String theText, double *theDest);
 }
 
-namespace {
+namespace
+{
 
-bool SameText(const Sexy::String& theText, const char* theSpelling)
+bool SameText(const Sexy::String &theText, const char *theSpelling)
 {
     return strcasecmp(theText.c_str(), theSpelling) == 0;
 }
 
-Sexy::String UpperKey(const Sexy::String& theText)
+Sexy::String UpperKey(const Sexy::String &theText)
 {
     Sexy::String key;
     StringToUpper(&key, theText.c_str());
@@ -61,14 +63,14 @@ unsigned int EncodeCodePoint(int theCode, char (&theBytes)[4])
 
 // One code point becomes the UTF-8 bytes a command name or an ASCII glyph
 // already expects. A value above 127 stays as the character FontLayer looks up.
-void AppendCodePoint(Sexy::String& theText, int theCode)
+void AppendCodePoint(Sexy::String &theText, int theCode)
 {
     char bytes[4];
     unsigned int byteCount = EncodeCodePoint(theCode, bytes);
     theText.Append(bytes, byteCount);
 }
 
-int ReadCodePoint(const Sexy::String& theText, unsigned int& theIndex)
+int ReadCodePoint(const Sexy::String &theText, unsigned int &theIndex)
 {
     if (theIndex >= theText.size())
         return 0;
@@ -111,7 +113,7 @@ int ReadCodePoint(const Sexy::String& theText, unsigned int& theIndex)
     return aCode;
 }
 
-Sexy::String CodePointsToUtf8(const std::vector<int>& thePoints)
+Sexy::String CodePointsToUtf8(const std::vector<int> &thePoints)
 {
     // Sexy::String owns a copy of its bytes. Build the run in a growable
     // buffer first so drawing text does not copy and free it for every byte.
@@ -126,27 +128,27 @@ Sexy::String CodePointsToUtf8(const std::vector<int>& thePoints)
     return Sexy::String(text);
 }
 
-Sexy::DescParser::DescParser()
-    : mCmdSep(CMDSEP_SEMICOLON)
-    , mCurrentLineNum(0)
+Sexy::DescParser::DescParser() :
+    mCmdSep(CMDSEP_SEMICOLON),
+    mCurrentLineNum(0)
 {
 }
 
 Sexy::DescParser::~DescParser()
 {
-    for (auto& entry : mDefineMap)
+    for (auto &entry : mDefineMap)
         delete entry.second;
     mDefineMap.clear();
 }
 
-bool Sexy::DescParser::Error(const Sexy::String& theError)
+bool Sexy::DescParser::Error(const Sexy::String &theError)
 {
     if (mError.empty())
         mError = theError;
     return false;
 }
 
-Sexy::DataElement* Sexy::DescParser::Dereference(const Sexy::String& theString)
+Sexy::DataElement *Sexy::DescParser::Dereference(const Sexy::String &theString)
 {
     auto found = mDefineMap.find(UpperKey(theString));
     if (found == mDefineMap.end())
@@ -154,18 +156,17 @@ Sexy::DataElement* Sexy::DescParser::Dereference(const Sexy::String& theString)
     return found->second;
 }
 
-int Sexy::DescParser::IsImmediate(Sexy::String const& theText)
+int Sexy::DescParser::IsImmediate(Sexy::String const &theText)
 {
     if (theText.empty())
         return 0;
     const char first = theText[0];
-    if ((first >= '0' && first <= '9') || first == '-' || first == '+'
-        || first == '\'' || first == '"')
+    if ((first >= '0' && first <= '9') || first == '-' || first == '+' || first == '\'' || first == '"')
         return 1;
     return 0;
 }
 
-Sexy::String Sexy::DescParser::Unquote(Sexy::String const& theText)
+Sexy::String Sexy::DescParser::Unquote(Sexy::String const &theText)
 {
     if (theText.length() < 2)
         return theText;
@@ -206,14 +207,14 @@ Sexy::String Sexy::DescParser::Unquote(Sexy::String const& theText)
     return literal;
 }
 
-Sexy::String Sexy::DescParser::DataElementToString(const Sexy::DataElement* theElement, bool theNested)
+Sexy::String Sexy::DescParser::DataElementToString(const Sexy::DataElement *theElement, bool theNested)
 {
     if (theElement == nullptr)
         return Sexy::String();
 
     if (theElement->mElementKind != 0)
     {
-        const ListDataElement* list = (const ListDataElement*)theElement;
+        const ListDataElement *list = (const ListDataElement *)theElement;
         Sexy::String text;
         if (theNested)
             text += "(";
@@ -228,13 +229,13 @@ Sexy::String Sexy::DescParser::DataElementToString(const Sexy::DataElement* theE
         return text;
     }
 
-    const SingleDataElement* single = (const SingleDataElement*)theElement;
+    const SingleDataElement *single = (const SingleDataElement *)theElement;
     if (single->mNext != nullptr)
         return single->mData + "=" + DataElementToString(single->mNext, true);
     return single->mData;
 }
 
-int Sexy::DescParser::DataToString(Sexy::DataElement* theElement, Sexy::String* theResult)
+int Sexy::DescParser::DataToString(Sexy::DataElement *theElement, Sexy::String *theResult)
 {
     if (theResult == nullptr)
         return 0;
@@ -242,16 +243,16 @@ int Sexy::DescParser::DataToString(Sexy::DataElement* theElement, Sexy::String* 
     if (theElement == nullptr || theElement->mElementKind != 0)
         return 0;
 
-    SingleDataElement* single = (SingleDataElement*)theElement;
+    SingleDataElement *single = (SingleDataElement *)theElement;
     if (single->mNext != nullptr)
         return 0;
 
-    DataElement* resolved = Dereference(single->mData);
+    DataElement *resolved = Dereference(single->mData);
     if (resolved != nullptr)
     {
         if (resolved->mElementKind != 0)
             return 0;
-        *theResult = Unquote(((SingleDataElement*)resolved)->mData);
+        *theResult = Unquote(((SingleDataElement *)resolved)->mData);
     }
     else
     {
@@ -260,7 +261,7 @@ int Sexy::DescParser::DataToString(Sexy::DataElement* theElement, Sexy::String* 
     return 1;
 }
 
-int Sexy::DescParser::DataToInt(Sexy::DataElement* theElement, int* theResult)
+int Sexy::DescParser::DataToInt(Sexy::DataElement *theElement, int *theResult)
 {
     if (theResult == nullptr)
         return 0;
@@ -271,7 +272,7 @@ int Sexy::DescParser::DataToInt(Sexy::DataElement* theElement, int* theResult)
     return StringToInt(text, theResult);
 }
 
-int Sexy::DescParser::DataToDouble(Sexy::DataElement* theElement, double* theResult)
+int Sexy::DescParser::DataToDouble(Sexy::DataElement *theElement, double *theResult)
 {
     if (theResult == nullptr)
         return 0;
@@ -282,7 +283,7 @@ int Sexy::DescParser::DataToDouble(Sexy::DataElement* theElement, double* theRes
     return Sexy::StringToDouble(text, theResult);
 }
 
-int Sexy::DescParser::DataToBoolean(Sexy::DataElement* theElement, bool* theResult)
+int Sexy::DescParser::DataToBoolean(Sexy::DataElement *theElement, bool *theResult)
 {
     if (theResult == nullptr)
         return 0;
@@ -300,7 +301,7 @@ int Sexy::DescParser::DataToBoolean(Sexy::DataElement* theElement, bool* theResu
     return 0;
 }
 
-int Sexy::DescParser::GetValues(Sexy::ListDataElement* theSource, Sexy::ListDataElement* theResult)
+int Sexy::DescParser::GetValues(Sexy::ListDataElement *theSource, Sexy::ListDataElement *theResult)
 {
     if (theSource == nullptr || theResult == nullptr)
         return 0;
@@ -311,32 +312,32 @@ int Sexy::DescParser::GetValues(Sexy::ListDataElement* theSource, Sexy::ListData
 
     for (unsigned int i = 0; i < theSource->mDataElements.size(); ++i)
     {
-        DataElement* child = theSource->mDataElements[i];
+        DataElement *child = theSource->mDataElements[i];
         if (child == nullptr)
             continue;
         if (child->mElementKind != 0)
         {
-            ListDataElement* nested = new ListDataElement();
+            ListDataElement *nested = new ListDataElement();
             theResult->mDataElements.push_back(nested);
-            if (GetValues((ListDataElement*)child, nested) == 0)
+            if (GetValues((ListDataElement *)child, nested) == 0)
                 return 0;
             continue;
         }
 
-        SingleDataElement* single = (SingleDataElement*)child;
+        SingleDataElement *single = (SingleDataElement *)child;
         if (single->mData.empty())
             continue;
 
         const char first = single->mData[0];
         if (first == '\'' || first == '"')
         {
-            SingleDataElement* value = new SingleDataElement();
+            SingleDataElement *value = new SingleDataElement();
             value->mData = Unquote(single->mData);
             theResult->mDataElements.push_back(value);
         }
         else if (IsImmediate(single->mData) != 0)
         {
-            SingleDataElement* value = new SingleDataElement();
+            SingleDataElement *value = new SingleDataElement();
             value->mData = single->mData;
             theResult->mDataElements.push_back(value);
         }
@@ -354,51 +355,51 @@ int Sexy::DescParser::GetValues(Sexy::ListDataElement* theSource, Sexy::ListData
     return 1;
 }
 
-int Sexy::DescParser::DataToList(Sexy::DataElement* theElement, Sexy::ListDataElement* theResult)
+int Sexy::DescParser::DataToList(Sexy::DataElement *theElement, Sexy::ListDataElement *theResult)
 {
     if (theElement == nullptr || theResult == nullptr)
         return 0;
     if (theElement->mElementKind != 0)
-        return GetValues((ListDataElement*)theElement, theResult);
+        return GetValues((ListDataElement *)theElement, theResult);
 
-    DataElement* resolved = Dereference(((SingleDataElement*)theElement)->mData);
+    DataElement *resolved = Dereference(((SingleDataElement *)theElement)->mData);
     if (resolved == nullptr || resolved->mElementKind == 0)
         return 0;
 
     for (unsigned int i = 0; i < theResult->mDataElements.size(); ++i)
         delete theResult->mDataElements[i];
     theResult->mDataElements.clear();
-    ListDataElement* list = (ListDataElement*)resolved;
+    ListDataElement *list = (ListDataElement *)resolved;
     for (unsigned int i = 0; i < list->mDataElements.size(); ++i)
         theResult->mDataElements.push_back(list->mDataElements[i]->Duplicate());
     return 1;
 }
 
-int Sexy::DescParser::DataToStringVector(Sexy::DataElement* theElement, std::vector<Sexy::String>* theResult)
+int Sexy::DescParser::DataToStringVector(Sexy::DataElement *theElement, std::vector<Sexy::String> *theResult)
 {
     if (theElement == nullptr || theResult == nullptr)
         return 0;
     theResult->clear();
 
     ListDataElement held;
-    ListDataElement* values = nullptr;
+    ListDataElement *values = nullptr;
     if (theElement->mElementKind != 0)
     {
-        if (GetValues((ListDataElement*)theElement, &held) == 0)
+        if (GetValues((ListDataElement *)theElement, &held) == 0)
             return 0;
         values = &held;
     }
     else
     {
-        DataElement* resolved = Dereference(((SingleDataElement*)theElement)->mData);
+        DataElement *resolved = Dereference(((SingleDataElement *)theElement)->mData);
         if (resolved == nullptr)
         {
-            Error(Sexy::String("Unable to Dereference \"") + ((SingleDataElement*)theElement)->mData + "\"");
+            Error(Sexy::String("Unable to Dereference \"") + ((SingleDataElement *)theElement)->mData + "\"");
             return 0;
         }
         if (resolved->mElementKind == 0)
             return 0;
-        values = (ListDataElement*)resolved;
+        values = (ListDataElement *)resolved;
     }
 
     for (unsigned int i = 0; i < values->mDataElements.size(); ++i)
@@ -408,12 +409,12 @@ int Sexy::DescParser::DataToStringVector(Sexy::DataElement* theElement, std::vec
             theResult->clear();
             return 0;
         }
-        theResult->push_back(((SingleDataElement*)values->mDataElements[i])->mData);
+        theResult->push_back(((SingleDataElement *)values->mDataElements[i])->mData);
     }
     return 1;
 }
 
-int Sexy::DescParser::DataToIntVector(Sexy::DataElement* theElement, std::vector<int>* theResult)
+int Sexy::DescParser::DataToIntVector(Sexy::DataElement *theElement, std::vector<int> *theResult)
 {
     if (theResult == nullptr)
         return 0;
@@ -431,7 +432,7 @@ int Sexy::DescParser::DataToIntVector(Sexy::DataElement* theElement, std::vector
     return 1;
 }
 
-int Sexy::DescParser::DataToDoubleVector(Sexy::DataElement* theElement, std::vector<double>* theResult)
+int Sexy::DescParser::DataToDoubleVector(Sexy::DataElement *theElement, std::vector<double> *theResult)
 {
     if (theResult == nullptr)
         return 0;
@@ -449,8 +450,8 @@ int Sexy::DescParser::DataToDoubleVector(Sexy::DataElement* theElement, std::vec
     return 1;
 }
 
-int Sexy::DescParser::ParseToList(const std::vector<int>& theText, Sexy::ListDataElement* theList,
-                                  bool theExpectListEnd, int* thePos)
+int Sexy::DescParser::ParseToList(
+    const std::vector<int> &theText, Sexy::ListDataElement *theList, bool theExpectListEnd, int *thePos)
 {
     if (theList == nullptr)
         return 0;
@@ -459,8 +460,8 @@ int Sexy::DescParser::ParseToList(const std::vector<int>& theText, Sexy::ListDat
     bool inDouble = false;
     bool escaped = false;
     bool endKey = false;
-    SingleDataElement* key = nullptr;
-    SingleDataElement* current = nullptr;
+    SingleDataElement *key = nullptr;
+    SingleDataElement *current = nullptr;
     int localPos = 0;
     if (thePos == nullptr)
         thePos = &localPos;
@@ -507,7 +508,7 @@ int Sexy::DescParser::ParseToList(const std::vector<int>& theText, Sexy::ListDat
                         Error("Unexpected List Start");
                         return 0;
                     }
-                    ListDataElement* child = new ListDataElement();
+                    ListDataElement *child = new ListDataElement();
                     if (ParseToList(theText, child, true, thePos) == 0)
                         return 0;
                     if (key != nullptr)
@@ -593,7 +594,7 @@ int Sexy::DescParser::ParseToList(const std::vector<int>& theText, Sexy::ListDat
     return 1;
 }
 
-int Sexy::DescParser::ParseDescriptorLine(const std::vector<int>& theLine)
+int Sexy::DescParser::ParseDescriptorLine(const std::vector<int> &theLine)
 {
     ListDataElement params;
     if (ParseToList(theLine, &params, false, nullptr) == 0)
@@ -610,7 +611,7 @@ int Sexy::DescParser::ParseDescriptorLine(const std::vector<int>& theLine)
     return 1;
 }
 
-bool Sexy::DescParser::LoadDescriptor(const Sexy::String& theFileName)
+bool Sexy::DescParser::LoadDescriptor(const Sexy::String &theFileName)
 {
     mCurrentLineNum = 0;
     mError.clear();

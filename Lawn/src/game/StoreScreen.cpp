@@ -41,9 +41,8 @@
 #include <new>
 #include <cmath>
 
-
-
-namespace {
+namespace
+{
 
 // ---------------------------------------------------------------------------
 // The coin pool's element type.
@@ -58,7 +57,6 @@ namespace {
 // low half; the loops test the key, which is why `*(_WORD *)(item + 202) == 0`
 // appears in the decompilation.
 // ---------------------------------------------------------------------------
-
 
 } // namespace
 
@@ -81,12 +79,14 @@ void StoreScreen::MouseDown(int theX, int theY, int theClickCount)
     if (!CanInteractWithButtons())
         return;
     // Button origins from StoreScreen::Draw @0x19017C.
-    Sexy::Image* backImage = Sexy::GetImageById(std::min(mCarKeyImageIndex, 11) + 701);
+    Sexy::Image *backImage = Sexy::GetImageById(std::min(mCarKeyImageIndex, 11) + 701);
     if (backImage == nullptr || IMAGE_STORE_PREVBUTTON == nullptr || IMAGE_STORE_NEXTBUTTON == nullptr)
         return;
     const Sexy::Rect back(mShakeX + 305, mShakeY + 510, backImage->mWidth, backImage->mHeight);
-    const Sexy::Rect previous(mShakeX + 172, mShakeY + 375, IMAGE_STORE_PREVBUTTON->mWidth, IMAGE_STORE_PREVBUTTON->mHeight);
-    const Sexy::Rect next(mShakeX + 573, mShakeY + 373, IMAGE_STORE_NEXTBUTTON->mWidth, IMAGE_STORE_NEXTBUTTON->mHeight);
+    const Sexy::Rect previous(
+        mShakeX + 172, mShakeY + 375, IMAGE_STORE_PREVBUTTON->mWidth, IMAGE_STORE_PREVBUTTON->mHeight);
+    const Sexy::Rect next(
+        mShakeX + 573, mShakeY + 373, IMAGE_STORE_NEXTBUTTON->mWidth, IMAGE_STORE_NEXTBUTTON->mHeight);
     if (back.Contains(theX, theY))
     {
         mMousePressedButton = 100;
@@ -133,8 +133,8 @@ void StoreScreen::MouseUp(int x, int y, int theClickCount)
 {
     const int button = mMousePressedButton;
     mMousePressedButton = -1;
-    if (button != -1 && theClickCount > 0 && theClickCount != 3
-        && CanInteractWithButtons() && mMousePressedRect.Contains(x, y))
+    if (button != -1 && theClickCount > 0 && theClickCount != 3 && CanInteractWithButtons() &&
+        mMousePressedRect.Contains(x, y))
         ButtonDepress(button);
 }
 
@@ -146,31 +146,31 @@ void StoreScreen::MouseUp(int x, int y, int theClickCount)
 // the block base" branch is the inlined DataArray<Coin>::IterateNext: it walks
 // the block by the 0xCC element stride and skips a slot whose packed id has a
 // zero key.
-void StoreScreen::DrawOverlay(Sexy::Graphics * g)
+void StoreScreen::DrawOverlay(Sexy::Graphics *g)
 {
-  CoinSlot *aItems = mCoins.mBlock;
+    CoinSlot *aItems = mCoins.mBlock;
 
-  for (unsigned int i = 0; i < mCoins.mMaxUsedCount; ++i)
-  {
-    if ((aItems[i].mID >> 16) == 0)
-      continue;
-    if (!aItems[i].mItem.mDead)
-      aItems[i].mItem.Draw(g);
-  }
+    for (unsigned int i = 0; i < mCoins.mMaxUsedCount; ++i)
+    {
+        if ((aItems[i].mID >> 16) == 0)
+            continue;
+        if (!aItems[i].mItem.mDead)
+            aItems[i].mItem.Draw(g);
+    }
 }
 
 // ==========================================================================
 // StoreScreen::RemovedFromManager(Sexy::WidgetManager *)
 // @0018D860  40 bytes
 // ==========================================================================
-void StoreScreen::RemovedFromManager(Sexy::WidgetManager * theWidgetManager)
+void StoreScreen::RemovedFromManager(Sexy::WidgetManager *theWidgetManager)
 {
-  WidgetContainer::RemovedFromManager(theWidgetManager);
-  // The dump spells this as a call through `*this + 0x1C`, which is virtual slot
-  // 7 of WidgetContainer -- RemoveWidget -- dispatched on the object itself.
-  RemoveWidget(mOverlayWidget);
-  mApp->CrazyDaveDie();
-  mApp->HideHelpBarWidget();
+    WidgetContainer::RemovedFromManager(theWidgetManager);
+    // The dump spells this as a call through `*this + 0x1C`, which is virtual slot
+    // 7 of WidgetContainer -- RemoveWidget -- dispatched on the object itself.
+    RemoveWidget(mOverlayWidget);
+    mApp->CrazyDaveDie();
+    mApp->HideHelpBarWidget();
 }
 
 // ==========================================================================
@@ -179,9 +179,9 @@ void StoreScreen::RemovedFromManager(Sexy::WidgetManager * theWidgetManager)
 // ==========================================================================
 void StoreScreen::ButtonPress(int theId)
 {
-  // The two page-turn buttons stay silent; every other button clicks.
-  if ((unsigned int)(theId - 101) > 1)
-    mApp->PlaySample(SOUND_BUTTONCLICK, true);
+    // The two page-turn buttons stay silent; every other button clicks.
+    if ((unsigned int)(theId - 101) > 1)
+        mApp->PlaySample(SOUND_BUTTONCLICK, true);
 }
 
 // ==========================================================================
@@ -190,19 +190,19 @@ void StoreScreen::ButtonPress(int theId)
 // ==========================================================================
 void StoreScreen::GotFocus()
 {
-  // The help bar is cached in mHelpBarWidget so that Update can bring it to the front
-  // without a second lookup through mApp.
-  Widget::GotFocus();
-  mHelpBarWidget = mApp->mHelpBarWidget;
-  mHelpBarWidget->ClearButtons(0);
-  mHelpBarWidget->mDrawShade = false;
-  // Every label below is a temporary Sexy::String the dump builds with
-  // StringCtor and then releases by hand; the destructor does that now.
-  mHelpBarWidget->AddButton((Sexy::GamepadButton)14, Sexy::String("[USE_DPAD]"), HelpBarWidget::HELP_ALIGN_NONE);
-  mHelpBarWidget->AddButton((Sexy::GamepadButton)20, Sexy::String(""), HelpBarWidget::HELP_ALIGN_NONE);
-  mHelpBarWidget->AddButton((Sexy::GamepadButton)7, Sexy::String("[BACK]"), HelpBarWidget::HELP_ALIGN_NONE);
-  mHelpBarWidget->AddButton((Sexy::GamepadButton)6, Sexy::String("[BUY_ITEM]"), HelpBarWidget::HELP_ALIGN_NONE);
-  mApp->ShowHelpBarWidget();
+    // The help bar is cached in mHelpBarWidget so that Update can bring it to the front
+    // without a second lookup through mApp.
+    Widget::GotFocus();
+    mHelpBarWidget = mApp->mHelpBarWidget;
+    mHelpBarWidget->ClearButtons(0);
+    mHelpBarWidget->mDrawShade = false;
+    // Every label below is a temporary Sexy::String the dump builds with
+    // StringCtor and then releases by hand; the destructor does that now.
+    mHelpBarWidget->AddButton((Sexy::GamepadButton)14, Sexy::String("[USE_DPAD]"), HelpBarWidget::HELP_ALIGN_NONE);
+    mHelpBarWidget->AddButton((Sexy::GamepadButton)20, Sexy::String(""), HelpBarWidget::HELP_ALIGN_NONE);
+    mHelpBarWidget->AddButton((Sexy::GamepadButton)7, Sexy::String("[BACK]"), HelpBarWidget::HELP_ALIGN_NONE);
+    mHelpBarWidget->AddButton((Sexy::GamepadButton)6, Sexy::String("[BUY_ITEM]"), HelpBarWidget::HELP_ALIGN_NONE);
+    mApp->ShowHelpBarWidget();
 }
 
 // ==========================================================================
@@ -214,7 +214,8 @@ void StoreScreen::GotFocus()
 // The shelf is two banks of fifteen: slots 0..3 and 4..14 are laid out at
 // different origins and different row pitches, which is what the two branches
 // at the top compute. The final output is the quantity in one purchase.
-void StoreScreen::GetStoreItemInfo(int theSlot, int theItem, Sexy::Image **theImage, int &theDrawX, int &theDrawY, int &thePurchaseCount)
+void StoreScreen::GetStoreItemInfo(
+    int theSlot, int theItem, Sexy::Image **theImage, int &theDrawX, int &theDrawY, int &thePurchaseCount)
 {
     bool aFirstBank = theSlot <= 3;
     if (!aFirstBank)
@@ -242,41 +243,112 @@ void StoreScreen::GetStoreItemInfo(int theSlot, int theItem, Sexy::Image **theIm
     Sexy::Image *anImage = nullptr;
     switch (theItem)
     {
-    case 0:  anImage = IMAGE_STORESEEDPACK_REPEATER; break;
-    case 1:  anImage = IMAGE_STORESEEDPACK_DOUBLESUNFLOWER; break;
-    case 2:  anImage = IMAGE_STORESEEDPACK_GLOOMSHROOM; break;
-    case 3:  anImage = IMAGE_STORESEEDPACK_CATTAIL; break;
-    case 4:  anImage = IMAGE_STORESEEDPACK_FROZENWATERMELON; break;
-    case 5:  anImage = IMAGE_STORESEEDPACK_GOLDMAGNET; break;
-    case 6:  anImage = IMAGE_STORESEEDPACK_SPIKEROCK; break;
-    case 7:  anImage = IMAGE_STORESEEDPACK_COBCANNON; break;
-    case 8:  anImage = IMAGE_STORESEEDPACK_IMITATER; break;
-    case 13: anImage = IMAGE_WATERINGCANGOLD; break;
+        case 0:
+            anImage = IMAGE_STORESEEDPACK_REPEATER;
+            break;
+        case 1:
+            anImage = IMAGE_STORESEEDPACK_DOUBLESUNFLOWER;
+            break;
+        case 2:
+            anImage = IMAGE_STORESEEDPACK_GLOOMSHROOM;
+            break;
+        case 3:
+            anImage = IMAGE_STORESEEDPACK_CATTAIL;
+            break;
+        case 4:
+            anImage = IMAGE_STORESEEDPACK_FROZENWATERMELON;
+            break;
+        case 5:
+            anImage = IMAGE_STORESEEDPACK_GOLDMAGNET;
+            break;
+        case 6:
+            anImage = IMAGE_STORESEEDPACK_SPIKEROCK;
+            break;
+        case 7:
+            anImage = IMAGE_STORESEEDPACK_COBCANNON;
+            break;
+        case 8:
+            anImage = IMAGE_STORESEEDPACK_IMITATER;
+            break;
+        case 13:
+            anImage = IMAGE_WATERINGCANGOLD;
+            break;
 
-    case 14: anImage = IMAGE_FERTILIZER; thePurchaseCount = 5; break;
-    case 15: anImage = IMAGE_BUG_SPRAY; thePurchaseCount = 5; break;
+        case 14:
+            anImage = IMAGE_FERTILIZER;
+            thePurchaseCount = 5;
+            break;
+        case 15:
+            anImage = IMAGE_BUG_SPRAY;
+            thePurchaseCount = 5;
+            break;
 
-    case 16: anImage = IMAGE_PHONOGRAPH; break;
-    case 17: anImage = IMAGE_ZEN_GARDENGLOVE; break;
-    case 18: anImage = IMAGE_STORE_MUSHROOMGARDENICON; break;
-    case 19: anImage = IMAGE_ZEN_WHEELBARROW; aOffsetX = 10; break;
-    case 20: anImage = IMAGE_REANIM_STINKY_TURN3; aOffsetX = 15; break;
-    case 21: anImage = IMAGE_STORE_PACKETUPGRADE; break;
-    case 22: anImage = IMAGE_ICON_POOLCLEANER; break;
-    case 23: anImage = IMAGE_ICON_ROOFCLEANER; break;
-    case 24: anImage = IMAGE_ICON_RAKE; break;
-    case 25: anImage = IMAGE_STORE_AQUARIUMGARDENICON; break;
-    case 27: anImage = IMAGE_STORE_TREEOFWISDOMICON; break;
-    case 28: anImage = IMAGE_TREEFOOD; aOffsetX = 15; break;
-    case 29: anImage = IMAGE_STORE_FIRSTAIDWALLNUTICON; aOffsetX = 15; break;
-    case 30: anImage = IMAGE_STORE_PVZICON; break;
-    case 31: anImage = IMAGE_STORE_BLUEPRINT_BLING; break;
-    case 32: anImage = IMAGE_STORE_BLUEPRINT_SCARY; break;
-    case 33: anImage = IMAGE_STORE_BLUEPRINT_TRAILER; break;
-    case 34: anImage = IMAGE_STORE_BLUEPRINT_FUTURE; break;
-    case 35: anImage = IMAGE_STORE_BLUEPRINT_CLOWN; break;
-    case 36: anImage = IMAGE_STORE_BLUEPRINT_CHANGE; break;
-    default: break;
+        case 16:
+            anImage = IMAGE_PHONOGRAPH;
+            break;
+        case 17:
+            anImage = IMAGE_ZEN_GARDENGLOVE;
+            break;
+        case 18:
+            anImage = IMAGE_STORE_MUSHROOMGARDENICON;
+            break;
+        case 19:
+            anImage = IMAGE_ZEN_WHEELBARROW;
+            aOffsetX = 10;
+            break;
+        case 20:
+            anImage = IMAGE_REANIM_STINKY_TURN3;
+            aOffsetX = 15;
+            break;
+        case 21:
+            anImage = IMAGE_STORE_PACKETUPGRADE;
+            break;
+        case 22:
+            anImage = IMAGE_ICON_POOLCLEANER;
+            break;
+        case 23:
+            anImage = IMAGE_ICON_ROOFCLEANER;
+            break;
+        case 24:
+            anImage = IMAGE_ICON_RAKE;
+            break;
+        case 25:
+            anImage = IMAGE_STORE_AQUARIUMGARDENICON;
+            break;
+        case 27:
+            anImage = IMAGE_STORE_TREEOFWISDOMICON;
+            break;
+        case 28:
+            anImage = IMAGE_TREEFOOD;
+            aOffsetX = 15;
+            break;
+        case 29:
+            anImage = IMAGE_STORE_FIRSTAIDWALLNUTICON;
+            aOffsetX = 15;
+            break;
+        case 30:
+            anImage = IMAGE_STORE_PVZICON;
+            break;
+        case 31:
+            anImage = IMAGE_STORE_BLUEPRINT_BLING;
+            break;
+        case 32:
+            anImage = IMAGE_STORE_BLUEPRINT_SCARY;
+            break;
+        case 33:
+            anImage = IMAGE_STORE_BLUEPRINT_TRAILER;
+            break;
+        case 34:
+            anImage = IMAGE_STORE_BLUEPRINT_FUTURE;
+            break;
+        case 35:
+            anImage = IMAGE_STORE_BLUEPRINT_CLOWN;
+            break;
+        case 36:
+            anImage = IMAGE_STORE_BLUEPRINT_CHANGE;
+            break;
+        default:
+            break;
     }
 
     theDrawX += aOffsetX;
@@ -289,22 +361,22 @@ void StoreScreen::GetStoreItemInfo(int theSlot, int theItem, Sexy::Image **theIm
 // ==========================================================================
 int StoreScreen::GetStoreItemType(int theSlot)
 {
-  // Eight shelf slots per page. Slot 6 of the first page is the full-version
-  // icon while the trial is locked, and gloom-shroom otherwise.
-  static const int kShelf[6][8] = {
-    { 21, 22, 24, 23, 0, 1, 2, 3 },
-    { 6, 5, 4, 7, 8, 29, -1, -1 },
-    { 10, 11, 12, 13, 14, 15, 16, 17 },
-    { 18, 25, 19, 20, 27, 28, -1, -1 },
-    { -1, -1, -1, -1, -1, -1, -1, -1 },
-    { 31, 32, 33, 34, 35, 36, -1, -1 },
-  };
+    // Eight shelf slots per page. Slot 6 of the first page is the full-version
+    // icon while the trial is locked, and gloom-shroom otherwise.
+    static const int kShelf[6][8] = {
+        {21, 22, 24, 23, 0, 1, 2, 3},
+        {6, 5, 4, 7, 8, 29, -1, -1},
+        {10, 11, 12, 13, 14, 15, 16, 17},
+        {18, 25, 19, 20, 27, 28, -1, -1},
+        {-1, -1, -1, -1, -1, -1, -1, -1},
+        {31, 32, 33, 34, 35, 36, -1, -1},
+    };
 
-  if (theSlot < 0 || theSlot >= 8 || (unsigned)mPage > STORE_PAGE_HOUSE)
-    return -1;
-  if (mPage == STORE_PAGE_SLOT_UPGRADES && theSlot == 6 && mApp->IsTrialStageLocked() != 0)
-    return 30;
-  return kShelf[mPage][theSlot];
+    if (theSlot < 0 || theSlot >= 8 || (unsigned)mPage > STORE_PAGE_HOUSE)
+        return -1;
+    if (mPage == STORE_PAGE_SLOT_UPGRADES && theSlot == 6 && mApp->IsTrialStageLocked() != 0)
+        return 30;
+    return kShelf[mPage][theSlot];
 }
 
 // ==========================================================================
@@ -313,7 +385,7 @@ int StoreScreen::GetStoreItemType(int theSlot)
 // ==========================================================================
 bool StoreScreen::IsPottedPlant(StoreItem theItem)
 {
-  return (unsigned int)(theItem - 10) <= 2;
+    return (unsigned int)(theItem - 10) <= 2;
 }
 
 // ==========================================================================
@@ -322,21 +394,21 @@ bool StoreScreen::IsPottedPlant(StoreItem theItem)
 // ==========================================================================
 int StoreScreen::IsFullVersionOnly(StoreItem theItem)
 {
-  int result = mApp->IsTrialStageLocked();
+    int result = mApp->IsTrialStageLocked();
 
-  if ( result != 0 )
-  {
-    if ( theItem == 21 )
+    if (result != 0)
     {
-      if ( mApp->mPlayerInfo->mPurchases[21] <= 1 )
-        return 0;
+        if (theItem == 21)
+        {
+            if (mApp->mPlayerInfo->mPurchases[21] <= 1)
+                return 0;
+        }
+        else if (theItem != 1)
+        {
+            return 0;
+        }
     }
-    else if ( theItem != 1 )
-    {
-      return 0;
-    }
-  }
-  return result;
+    return result;
 }
 
 // ==========================================================================
@@ -345,28 +417,28 @@ int StoreScreen::IsFullVersionOnly(StoreItem theItem)
 // ==========================================================================
 bool StoreScreen::IsComingSoon(StoreItem theItem)
 {
-  LawnPlayerInfo *aPlayerInfo = mApp->mPlayerInfo;
-  int aFullVersionOnly = IsFullVersionOnly(theItem);
+    LawnPlayerInfo *aPlayerInfo = mApp->mPlayerInfo;
+    int aFullVersionOnly = IsFullVersionOnly(theItem);
 
-  if ( aFullVersionOnly != 0 )
-    return true;
-  if ( theItem == 19 )
-  {
-    if ( aPlayerInfo->mPurchases[18] == 0 && aPlayerInfo->mPurchases[25] == 0 )
-      return true;
-  }
-  else
-  {
-    if ( IsPottedPlant(theItem) && mApp->HasFinishedAdventure() == 0 )
-      return true;
-    if ( theItem == 28 )
-    {
-      if ( aPlayerInfo->mPurchases[27] == 0 )
+    if (aFullVersionOnly != 0)
         return true;
-      return aPlayerInfo->mPurchases[28] < 1000;
+    if (theItem == 19)
+    {
+        if (aPlayerInfo->mPurchases[18] == 0 && aPlayerInfo->mPurchases[25] == 0)
+            return true;
     }
-  }
-  return aFullVersionOnly;
+    else
+    {
+        if (IsPottedPlant(theItem) && mApp->HasFinishedAdventure() == 0)
+            return true;
+        if (theItem == 28)
+        {
+            if (aPlayerInfo->mPurchases[27] == 0)
+                return true;
+            return aPlayerInfo->mPurchases[28] < 1000;
+        }
+    }
+    return aFullVersionOnly;
 }
 
 // ==========================================================================
@@ -375,33 +447,32 @@ bool StoreScreen::IsComingSoon(StoreItem theItem)
 // ==========================================================================
 bool StoreScreen::IsItemSoldOut(StoreItem theItem)
 {
-  LawnPlayerInfo *aPlayerInfo = mApp->mPlayerInfo;
+    LawnPlayerInfo *aPlayerInfo = mApp->mPlayerInfo;
 
-  if ( theItem == STORE_ITEM_INVALID )
-    return false;
-  if ( theItem == STORE_ITEM_PACKET_UPGRADE )
-    return aPlayerInfo->mPurchases[STORE_ITEM_PACKET_UPGRADE] >= 4;
-  if ( theItem == STORE_ITEM_FERTILIZER || theItem == STORE_ITEM_BUG_SPRAY )
-    return aPlayerInfo->mPurchases[theItem] >= 1016;
-  if ( theItem == STORE_ITEM_TREE_FOOD )
-    return aPlayerInfo->mPurchases[STORE_ITEM_TREE_FOOD] > 1009;
-  if ( theItem == STORE_ITEM_BONUS_LAWN_MOWER )
-    return aPlayerInfo->mPurchases[STORE_ITEM_BONUS_LAWN_MOWER] > 1;
-  if ( IsPottedPlant(theItem) )
-  {
-    int aCurrentDay = GetCurrentDaysSince2000();
-    return mApp->mZenGarden->IsZenGardenFull(true)
-        || aCurrentDay == aPlayerInfo->mPurchases[theItem];
-  }
-  if ( theItem >= STORE_ITEM_BLUEPRINT_BLING && theItem <= STORE_ITEM_BLUEPRINT_CLOWN )
-  {
-    if ( theItem == STORE_ITEM_BLUEPRINT_BLING )
-      return aPlayerInfo->mPurchases[STORE_ITEM_BLUEPRINT_BLING] > 1;
-    return aPlayerInfo->mPurchases[theItem] > 4;
-  }
-  if ( theItem == STORE_ITEM_BLUEPRINT_CHANGE )
-    return false;
-  return aPlayerInfo->mPurchases[theItem] != 0;
+    if (theItem == STORE_ITEM_INVALID)
+        return false;
+    if (theItem == STORE_ITEM_PACKET_UPGRADE)
+        return aPlayerInfo->mPurchases[STORE_ITEM_PACKET_UPGRADE] >= 4;
+    if (theItem == STORE_ITEM_FERTILIZER || theItem == STORE_ITEM_BUG_SPRAY)
+        return aPlayerInfo->mPurchases[theItem] >= 1016;
+    if (theItem == STORE_ITEM_TREE_FOOD)
+        return aPlayerInfo->mPurchases[STORE_ITEM_TREE_FOOD] > 1009;
+    if (theItem == STORE_ITEM_BONUS_LAWN_MOWER)
+        return aPlayerInfo->mPurchases[STORE_ITEM_BONUS_LAWN_MOWER] > 1;
+    if (IsPottedPlant(theItem))
+    {
+        int aCurrentDay = GetCurrentDaysSince2000();
+        return mApp->mZenGarden->IsZenGardenFull(true) || aCurrentDay == aPlayerInfo->mPurchases[theItem];
+    }
+    if (theItem >= STORE_ITEM_BLUEPRINT_BLING && theItem <= STORE_ITEM_BLUEPRINT_CLOWN)
+    {
+        if (theItem == STORE_ITEM_BLUEPRINT_BLING)
+            return aPlayerInfo->mPurchases[STORE_ITEM_BLUEPRINT_BLING] > 1;
+        return aPlayerInfo->mPurchases[theItem] > 4;
+    }
+    if (theItem == STORE_ITEM_BLUEPRINT_CHANGE)
+        return false;
+    return aPlayerInfo->mPurchases[theItem] != 0;
 }
 
 // ==========================================================================
@@ -410,26 +481,26 @@ bool StoreScreen::IsItemSoldOut(StoreItem theItem)
 // ==========================================================================
 int StoreScreen::IsItemUnavailable(StoreItem theItem)
 {
-  // A locked item stays off the shelf until the adventure or the matching
-  // level is done. Roof cleaner and the two night plants also stay locked
-  // during the trial. Winter melon, cob cannon, imitater and first aid wait
-  // for the adventure to finish.
-  if (mEasyBuyingCheat)
+    // A locked item stays off the shelf until the adventure or the matching
+    // level is done. Roof cleaner and the two night plants also stay locked
+    // during the trial. Winter melon, cob cannon, imitater and first aid wait
+    // for the adventure to finish.
+    if (mEasyBuyingCheat)
+        return 0;
+
+    LawnPlayerInfo *aPlayerInfo = mApp->mPlayerInfo;
+    bool aAdventureDone = mApp->HasFinishedAdventure() != 0;
+    bool aTrialLocked = mApp->IsTrialStageLocked() != 0;
+
+    if (theItem == 23)
+        return aTrialLocked || (!aAdventureDone && aPlayerInfo->mLevel <= 41);
+    if (theItem == 2 || theItem == 3)
+        return aTrialLocked || (!aAdventureDone && aPlayerInfo->mLevel <= 34);
+    if (theItem == 6 || theItem == 5)
+        return !aAdventureDone && aPlayerInfo->mLevel <= 40;
+    if (theItem == 4 || theItem == 7 || theItem == 8 || theItem == 29)
+        return !aAdventureDone;
     return 0;
-
-  LawnPlayerInfo *aPlayerInfo = mApp->mPlayerInfo;
-  bool aAdventureDone = mApp->HasFinishedAdventure() != 0;
-  bool aTrialLocked = mApp->IsTrialStageLocked() != 0;
-
-  if (theItem == 23)
-    return aTrialLocked || (!aAdventureDone && aPlayerInfo->mLevel <= 41);
-  if (theItem == 2 || theItem == 3)
-    return aTrialLocked || (!aAdventureDone && aPlayerInfo->mLevel <= 34);
-  if (theItem == 6 || theItem == 5)
-    return !aAdventureDone && aPlayerInfo->mLevel <= 40;
-  if (theItem == 4 || theItem == 7 || theItem == 8 || theItem == 29)
-    return !aAdventureDone;
-  return 0;
 }
 
 // ==========================================================================
@@ -444,20 +515,20 @@ unsigned int StoreScreen::NextSlotInDir(StoreScreen_ItemDir theDir)
 
     switch (theDir)
     {
-    case 0:
-        aSlot -= 4;
-        break;
-    case 1:
-        aSlot += 4;
-        break;
-    case 2:
-        --aSlot;
-        break;
-    case 3:
-        ++aSlot;
-        break;
-    default:
-        break;
+        case 0:
+            aSlot -= 4;
+            break;
+        case 1:
+            aSlot += 4;
+            break;
+        case 2:
+            --aSlot;
+            break;
+        case 3:
+            ++aSlot;
+            break;
+        default:
+            break;
     }
 
     int aStoreItemType = GetStoreItemType(aSlot);
@@ -471,9 +542,7 @@ unsigned int StoreScreen::NextSlotInDir(StoreScreen_ItemDir theDir)
 // ==========================================================================
 // Two bytes and no instruction: the store's highlight is drawn by DrawItem, so
 // this hook does nothing.
-void StoreScreen::DrawItemHighlight()
-{
-}
+void StoreScreen::DrawItemHighlight() {}
 
 // ==========================================================================
 // StoreScreen::SetBubbleText(int,int,bool)
@@ -531,54 +600,129 @@ int StoreScreen::UpdateSelection()
     int aMessageId;
     switch (aStoreItem)
     {
-    case 0:  aMessageId = 2000; break;
-    case 1:  aMessageId = 2001; break;
-    case 2:  aMessageId = 2002; break;
-    case 3:  aMessageId = 2003; break;
-    case 4:  aMessageId = 2004; break;
-    case 5:  aMessageId = 2005; break;
-    case 6:  aMessageId = 2006; break;
-    case 7:  aMessageId = 2007; break;
-    case 8:  aMessageId = 2008; break;
-    case 9:  aMessageId = 2009; break;
-    case 10:
-    case 11:
-    case 12: aMessageId = 2010; break;
-    case 13: aMessageId = 2019; break;
-    case 14: aMessageId = 2020; break;
-    case 15: aMessageId = 2022; break;
-    case 16: aMessageId = 2021; break;
-    case 17: aMessageId = 2023; break;
-    case 18: aMessageId = 2032; break;
-    case 19: aMessageId = 2024; break;
-    case 20: aMessageId = 2025; break;
-    case 21:
-        // The seed-slot upgrade: one message per level already bought, and the
-        // fourth and later levels all share the last one.
-        aMessageId = 2011;
-        switch (mApp->mPlayerInfo->mPurchases[21])
-        {
-        case 0:  break;
-        case 1:  aMessageId = 2012; break;
-        case 2:  aMessageId = 2013; break;
-        default: aMessageId = 2014; break;
-        }
-        break;
-    case 22: aMessageId = 2026; break;
-    case 23: aMessageId = 2027; break;
-    case 24: aMessageId = 2028; break;
-    case 25: aMessageId = 2029; break;
-    case 27: aMessageId = 2030; break;
-    case 28: aMessageId = 2031; break;
-    case 29: aMessageId = 2033; break;
-    case 30: aMessageId = 2034; break;
-    case 31: aMessageId = 2036; break;
-    case 32: aMessageId = 2037; break;
-    case 33: aMessageId = 2039; break;
-    case 34: aMessageId = 2038; break;
-    case 35: aMessageId = 2040; break;
-    case 36: aMessageId = 2035; break;
-    default: aMessageId = -1;  break;
+        case 0:
+            aMessageId = 2000;
+            break;
+        case 1:
+            aMessageId = 2001;
+            break;
+        case 2:
+            aMessageId = 2002;
+            break;
+        case 3:
+            aMessageId = 2003;
+            break;
+        case 4:
+            aMessageId = 2004;
+            break;
+        case 5:
+            aMessageId = 2005;
+            break;
+        case 6:
+            aMessageId = 2006;
+            break;
+        case 7:
+            aMessageId = 2007;
+            break;
+        case 8:
+            aMessageId = 2008;
+            break;
+        case 9:
+            aMessageId = 2009;
+            break;
+        case 10:
+        case 11:
+        case 12:
+            aMessageId = 2010;
+            break;
+        case 13:
+            aMessageId = 2019;
+            break;
+        case 14:
+            aMessageId = 2020;
+            break;
+        case 15:
+            aMessageId = 2022;
+            break;
+        case 16:
+            aMessageId = 2021;
+            break;
+        case 17:
+            aMessageId = 2023;
+            break;
+        case 18:
+            aMessageId = 2032;
+            break;
+        case 19:
+            aMessageId = 2024;
+            break;
+        case 20:
+            aMessageId = 2025;
+            break;
+        case 21:
+            // The seed-slot upgrade: one message per level already bought, and the
+            // fourth and later levels all share the last one.
+            aMessageId = 2011;
+            switch (mApp->mPlayerInfo->mPurchases[21])
+            {
+                case 0:
+                    break;
+                case 1:
+                    aMessageId = 2012;
+                    break;
+                case 2:
+                    aMessageId = 2013;
+                    break;
+                default:
+                    aMessageId = 2014;
+                    break;
+            }
+            break;
+        case 22:
+            aMessageId = 2026;
+            break;
+        case 23:
+            aMessageId = 2027;
+            break;
+        case 24:
+            aMessageId = 2028;
+            break;
+        case 25:
+            aMessageId = 2029;
+            break;
+        case 27:
+            aMessageId = 2030;
+            break;
+        case 28:
+            aMessageId = 2031;
+            break;
+        case 29:
+            aMessageId = 2033;
+            break;
+        case 30:
+            aMessageId = 2034;
+            break;
+        case 31:
+            aMessageId = 2036;
+            break;
+        case 32:
+            aMessageId = 2037;
+            break;
+        case 33:
+            aMessageId = 2039;
+            break;
+        case 34:
+            aMessageId = 2038;
+            break;
+        case 35:
+            aMessageId = 2040;
+            break;
+        case 36:
+            aMessageId = 2035;
+            break;
+        default:
+            aMessageId = -1;
+            break;
     }
 
     // Already showing this line: hold it on screen instead of restarting it.
@@ -634,11 +778,15 @@ bool StoreScreen::IsPageShown(StorePages thePage)
     const bool finishedAdventure = mApp->HasFinishedAdventure();
     switch (thePage)
     {
-    case STORE_PAGE_PLANT_UPGRADES: return finishedAdventure || mApp->mPlayerInfo->mLevel >= 42;
-    case STORE_PAGE_ZEN1: return finishedAdventure || mApp->mPlayerInfo->mLevel >= 45;
-    case STORE_PAGE_ZEN2:
-    case STORE_PAGE_HOUSE: return finishedAdventure;
-    default: return true;
+        case STORE_PAGE_PLANT_UPGRADES:
+            return finishedAdventure || mApp->mPlayerInfo->mLevel >= 42;
+        case STORE_PAGE_ZEN1:
+            return finishedAdventure || mApp->mPlayerInfo->mLevel >= 45;
+        case STORE_PAGE_ZEN2:
+        case STORE_PAGE_HOUSE:
+            return finishedAdventure;
+        default:
+            return true;
     }
 }
 // ==========================================================================
@@ -647,81 +795,81 @@ bool StoreScreen::IsPageShown(StorePages thePage)
 // ==========================================================================
 int StoreScreen::GetItemCost(StoreItem theItem)
 {
-  LawnPlayerInfo *aPlayer = ((LawnApp *)gLawnApp)->mPlayerInfo;
+    LawnPlayerInfo *aPlayer = ((LawnApp *)gLawnApp)->mPlayerInfo;
 
-  // The second lawn mower costs more than the first. Each packet-upgrade
-  // step costs more than the last. Each blueprint costs more the more times
-  // that house style has already been bought.
-  if (theItem == 9)
-    return aPlayer->mPurchases[9] != 0 ? 500 : 200;
+    // The second lawn mower costs more than the first. Each packet-upgrade
+    // step costs more than the last. Each blueprint costs more the more times
+    // that house style has already been bought.
+    if (theItem == 9)
+        return aPlayer->mPurchases[9] != 0 ? 500 : 200;
 
-  switch (theItem)
-  {
-    case 0:
-    case 1:
-      return 500;
-    case 2:
-    case 6:
-      return 750;
-    case 3:
-    case 4:
-    case 13:
-    case 27:
-      return 1000;
-    case 5:
-    case 20:
-    case 23:
-      return 300;
-    case 7:
-      return 2000;
-    case 8:
-    case 18:
-    case 25:
-      return 3000;
-    case 10:
-    case 11:
-    case 12:
-    case 28:
-      return 250;
-    case 14:
-      return 75;
-    case 15:
-    case 17:
-    case 22:
-      return 100;
-    case 16:
-      return 1500;
-    case 19:
-    case 24:
-      return 20;
-    case 21:
+    switch (theItem)
     {
-      int aBought = aPlayer->mPurchases[21];
-      if (aBought == 0)
-        return 75;
-      if (aBought == 1)
-        return 500;
-      if (aBought == 2)
-        return 2000;
-      return 8000;
+        case 0:
+        case 1:
+            return 500;
+        case 2:
+        case 6:
+            return 750;
+        case 3:
+        case 4:
+        case 13:
+        case 27:
+            return 1000;
+        case 5:
+        case 20:
+        case 23:
+            return 300;
+        case 7:
+            return 2000;
+        case 8:
+        case 18:
+        case 25:
+            return 3000;
+        case 10:
+        case 11:
+        case 12:
+        case 28:
+            return 250;
+        case 14:
+            return 75;
+        case 15:
+        case 17:
+        case 22:
+            return 100;
+        case 16:
+            return 1500;
+        case 19:
+        case 24:
+            return 20;
+        case 21:
+        {
+            int aBought = aPlayer->mPurchases[21];
+            if (aBought == 0)
+                return 75;
+            if (aBought == 1)
+                return 500;
+            if (aBought == 2)
+                return 2000;
+            return 8000;
+        }
+        case 29:
+            return 200;
+        case 31:
+            return 800 * aPlayer->mPurchases[31] + 2400;
+        case 32:
+            return 800 * aPlayer->mPurchases[32] + 800;
+        case 33:
+            return 800 * aPlayer->mPurchases[33] + 800;
+        case 34:
+            return 800 * aPlayer->mPurchases[34] + 800;
+        case 35:
+            return 800 * aPlayer->mPurchases[35] + 800;
+        case 36:
+            return 30;
+        default:
+            return theItem;
     }
-    case 29:
-      return 200;
-    case 31:
-      return 800 * aPlayer->mPurchases[31] + 2400;
-    case 32:
-      return 800 * aPlayer->mPurchases[32] + 800;
-    case 33:
-      return 800 * aPlayer->mPurchases[33] + 800;
-    case 34:
-      return 800 * aPlayer->mPurchases[34] + 800;
-    case 35:
-      return 800 * aPlayer->mPurchases[35] + 800;
-    case 36:
-      return 30;
-    default:
-      return theItem;
-  }
 }
 
 // ==========================================================================
@@ -733,7 +881,7 @@ int StoreScreen::GetItemCost(StoreItem theItem)
 //
 // a3 is the slot index, which also picks the row the price tag sits on; a4 is
 // the item itself.
-int StoreScreen::DrawItem(Sexy::Graphics * g, int theSlot, StoreItem theItem)
+int StoreScreen::DrawItem(Sexy::Graphics *g, int theSlot, StoreItem theItem)
 {
     if (IsItemUnavailable(theItem) != 0)
         return 0;
@@ -781,8 +929,7 @@ int StoreScreen::DrawItem(Sexy::Graphics * g, int theSlot, StoreItem theItem)
     if (anItemImage == nullptr)
         return 0;
 
-    g->DrawImage(anItemImage, aDrawX - anItemImage->GetWidth() / 2,
-                  aDrawY - anItemImage->GetHeight());
+    g->DrawImage(anItemImage, aDrawX - anItemImage->GetWidth() / 2, aDrawY - anItemImage->GetHeight());
 
     if (aSelected)
     {
@@ -795,8 +942,7 @@ int StoreScreen::DrawItem(Sexy::Graphics * g, int theSlot, StoreItem theItem)
         Sexy::Color aGlowColor(255, 255, 100, (int)(aGlow * 150.0));
         g->SetColor(aGlowColor);
         g->SetColorizeImages(true);
-        g->DrawImage(anItemImage, aDrawX - anItemImage->GetWidth() / 2,
-                      aDrawY - anItemImage->GetHeight());
+        g->DrawImage(anItemImage, aDrawX - anItemImage->GetWidth() / 2, aDrawY - anItemImage->GetHeight());
         g->SetColor(Sexy::Color::White);
         g->SetDrawMode(0);
     }
@@ -811,22 +957,20 @@ int StoreScreen::DrawItem(Sexy::Graphics * g, int theSlot, StoreItem theItem)
         // The seed-slot upgrade prints how many slots the purchase is worth.
         Sexy::String aText("[STORE_UPGRADE_SLOTS]");
         Sexy::String aSlotsText;
-        TodReplaceNumberString(&aSlotsText, &aText, "{SLOTS}",
-                               mApp->mPlayerInfo->mPurchases[21] + 7);
+        TodReplaceNumberString(&aSlotsText, &aText, "{SLOTS}", mApp->mPlayerInfo->mPurchases[21] + 7);
 
         aLabelY = aDrawY - anImageHeight;
         if (mApp->GetBoolean(Sexy::String("STORE_USE_EXTRA_SLOT_IMAGE_LABEL")) != 0)
         {
-            g->DrawImage(IMAGE_STORE_EXTRA_SLOT,
-                          aLabelX + anImageWidth / 2 - IMAGE_STORE_EXTRA_SLOT->mWidth / 2,
-                          aLabelY);
+            g->DrawImage(
+                IMAGE_STORE_EXTRA_SLOT, aLabelX + anImageWidth / 2 - IMAGE_STORE_EXTRA_SLOT->mWidth / 2, aLabelY);
         }
         else
         {
             constexpr int DS_ALIGN_CENTER_MIDDLE = 5;
             Sexy::TRect<int> aSlotsRect(aLabelX, aLabelY, anImageWidth, anImageHeight);
-            TodDrawStringWrapped(g, aSlotsText, aSlotsRect, FONT_HOUSEOFTERROR16,
-                                 Sexy::Color::White, DS_ALIGN_CENTER_MIDDLE, false);
+            TodDrawStringWrapped(
+                g, aSlotsText, aSlotsRect, FONT_HOUSEOFTERROR16, Sexy::Color::White, DS_ALIGN_CENTER_MIDDLE, false);
         }
     }
     else if ((unsigned int)(theItem - 31) <= 4)
@@ -843,8 +987,7 @@ int StoreScreen::DrawItem(Sexy::Graphics * g, int theSlot, StoreItem theItem)
             else
             {
                 Sexy::String aFormat("[STORE_BLUEPRINT_LEVEL]");
-                TodReplaceNumberString(&aLevelText, &aFormat, "{LEVEL}",
-                                       mApp->mPlayerInfo->mPurchases[31] + 4);
+                TodReplaceNumberString(&aLevelText, &aFormat, "{LEVEL}", mApp->mPlayerInfo->mPurchases[31] + 4);
             }
         }
         else if (mApp->mPlayerInfo->mPurchases[theItem] > 4)
@@ -854,17 +997,14 @@ int StoreScreen::DrawItem(Sexy::Graphics * g, int theSlot, StoreItem theItem)
         else
         {
             Sexy::String aFormat("[STORE_BLUEPRINT_LEVEL]");
-            TodReplaceNumberString(&aLevelText, &aFormat, "{LEVEL}",
-                                   mApp->mPlayerInfo->mPurchases[theItem] + 1);
+            TodReplaceNumberString(&aLevelText, &aFormat, "{LEVEL}", mApp->mPlayerInfo->mPurchases[theItem] + 1);
         }
 
         if (aLevelText.size() != 0)
         {
-            Sexy::TRect<int> aLevelRect(aDrawX - anImageWidth / 2,
-                                        aDrawY - anImageHeight - 30,
-                                        anImageWidth, anImageHeight);
-            TodDrawStringWrapped(g, aLevelText, aLevelRect, FONT_HOUSEOFTERROR16,
-                                 Sexy::Color::White, 2, 0);
+            Sexy::TRect<int> aLevelRect(
+                aDrawX - anImageWidth / 2, aDrawY - anImageHeight - 30, anImageWidth, anImageHeight);
+            TodDrawStringWrapped(g, aLevelText, aLevelRect, FONT_HOUSEOFTERROR16, Sexy::Color::White, 2, 0);
         }
     }
     else if (theItem != 36)
@@ -875,11 +1015,8 @@ int StoreScreen::DrawItem(Sexy::Graphics * g, int theSlot, StoreItem theItem)
             Sexy::String aCountFormat("[STORE_ITEM_PURCHASE_COUNT]");
             Sexy::String aCountText;
             TodReplaceNumberString(&aCountText, &aCountFormat, "{COUNT}", aPurchaseCount);
-            Sexy::TRect<int> aCountRect(aDrawX - anImageWidth / 2,
-                                        aDrawY - anImageHeight,
-                                        anImageWidth, anImageHeight);
-            TodDrawStringWrapped(g, aCountText, aCountRect, FONT_HOUSEOFTERROR16,
-                                 Sexy::Color::White, 5, 0);
+            Sexy::TRect<int> aCountRect(aDrawX - anImageWidth / 2, aDrawY - anImageHeight, anImageWidth, anImageHeight);
+            TodDrawStringWrapped(g, aCountText, aCountRect, FONT_HOUSEOFTERROR16, Sexy::Color::White, 5, 0);
         }
     }
     else
@@ -887,11 +1024,8 @@ int StoreScreen::DrawItem(Sexy::Graphics * g, int theSlot, StoreItem theItem)
         // The house item prints its own name.
         Sexy::String aHouseText;
         TodStringTranslate(&aHouseText, "[STORE_HOUSE]");
-        Sexy::TRect<int> aHouseRect(aDrawX - anImageWidth / 2,
-                                    aDrawY - anImageHeight,
-                                    anImageWidth, anImageHeight);
-        TodDrawStringWrapped(g, aHouseText, aHouseRect, FONT_HOUSEOFTERROR16,
-                             Sexy::Color::White, 5, 0);
+        Sexy::TRect<int> aHouseRect(aDrawX - anImageWidth / 2, aDrawY - anImageHeight, anImageWidth, anImageHeight);
+        TodDrawStringWrapped(g, aHouseText, aHouseRect, FONT_HOUSEOFTERROR16, Sexy::Color::White, 5, 0);
     }
 
     g->SetColorizeImages(false);
@@ -937,8 +1071,8 @@ int StoreScreen::DrawItem(Sexy::Graphics * g, int theSlot, StoreItem theItem)
         if (mApp->GetBoolean(Sexy::String("STORE_USE_COMING_SOON_IMAGE_LABEL")) != 0)
         {
             g->DrawImage(IMAGE_STORE_COMING_SOON,
-                          aBadgeX + aBadgeWidth / 2 - IMAGE_STORE_COMING_SOON->mWidth / 2,
-                          aBadgeY - aBadgeHeight);
+                aBadgeX + aBadgeWidth / 2 - IMAGE_STORE_COMING_SOON->mWidth / 2,
+                aBadgeY - aBadgeHeight);
         }
         else
         {
@@ -972,8 +1106,8 @@ int StoreScreen::DrawItem(Sexy::Graphics * g, int theSlot, StoreItem theItem)
         if (mApp->GetBoolean(Sexy::String("STORE_USE_SOLD_OUT_IMAGE_LABEL")) != 0)
         {
             g->DrawImage(IMAGE_STORE_SOLD_OUT,
-                          aBadgeX + aBadgeWidth / 2 - IMAGE_STORE_SOLD_OUT->mWidth / 2,
-                          aBadgeY - aBadgeHeight);
+                aBadgeX + aBadgeWidth / 2 - IMAGE_STORE_SOLD_OUT->mWidth / 2,
+                aBadgeY - aBadgeHeight);
         }
         else
         {
@@ -1118,8 +1252,7 @@ void StoreScreen::PurchaseItem(StoreItem theItem)
 
             if (mApp->mBoard->mPlantRow[aMower->mRow] == PLANTROW_POOL)
             {
-                Reanimation *aReanim = mApp->AddReanimation(0.0f, 18.0f, aMower->mRenderOrder,
-                                                            REANIM_POOL_CLEANER);
+                Reanimation *aReanim = mApp->AddReanimation(0.0f, 18.0f, aMower->mRenderOrder, REANIM_POOL_CLEANER);
                 if (aReanim == nullptr)
                     continue;
 
@@ -1207,50 +1340,48 @@ void StoreScreen::ButtonDepress(int theId)
 {
     switch (theId)
     {
-    case 100:
-        mResult = 1000;
-        break;
+        case 100:
+            mResult = 1000;
+            break;
 
-    case 101:
-        mApp->PlaySample(SOUND_HATCHBACK_CLOSE, true);
-        mHatchTimer = 50;
-        mHatchDirection = 1;
-        mBubbleCountDown = 0;
-        mApp->CrazyDaveStopTalking();
-        EnableButtons(false);
-        do
-        {
-            int aPage = (int)mPage - 1;
-            if (aPage == NUM_STORE_PAGES)
-                --aPage;
-            if (aPage < 0)
-                aPage = STORE_PAGE_HOUSE;
-            mPage = (StorePages)aPage;
-        }
-        while (!IsPageShown(mPage));
-        break;
+        case 101:
+            mApp->PlaySample(SOUND_HATCHBACK_CLOSE, true);
+            mHatchTimer = 50;
+            mHatchDirection = 1;
+            mBubbleCountDown = 0;
+            mApp->CrazyDaveStopTalking();
+            EnableButtons(false);
+            do
+            {
+                int aPage = (int)mPage - 1;
+                if (aPage == NUM_STORE_PAGES)
+                    --aPage;
+                if (aPage < 0)
+                    aPage = STORE_PAGE_HOUSE;
+                mPage = (StorePages)aPage;
+            } while (!IsPageShown(mPage));
+            break;
 
-    case 102:
-        mApp->PlaySample(SOUND_HATCHBACK_CLOSE, true);
-        mHatchTimer = 50;
-        mHatchDirection = 2;
-        mBubbleCountDown = 0;
-        mApp->CrazyDaveStopTalking();
-        EnableButtons(false);
-        do
-        {
-            int aPage = (int)mPage + 1;
-            if (aPage == NUM_STORE_PAGES)
-                ++aPage;
-            if (aPage > STORE_PAGE_HOUSE)
-                aPage = 0;
-            mPage = (StorePages)aPage;
-        }
-        while (!IsPageShown(mPage));
-        break;
+        case 102:
+            mApp->PlaySample(SOUND_HATCHBACK_CLOSE, true);
+            mHatchTimer = 50;
+            mHatchDirection = 2;
+            mBubbleCountDown = 0;
+            mApp->CrazyDaveStopTalking();
+            EnableButtons(false);
+            do
+            {
+                int aPage = (int)mPage + 1;
+                if (aPage == NUM_STORE_PAGES)
+                    ++aPage;
+                if (aPage > STORE_PAGE_HOUSE)
+                    aPage = 0;
+                mPage = (StorePages)aPage;
+            } while (!IsPageShown(mPage));
+            break;
 
-    default:
-        break;
+        default:
+            break;
     }
 }
 // ==========================================================================
@@ -1404,81 +1535,87 @@ int StoreScreen::GameButtonDown(Sexy::GamepadButton theButton, int thePlayerInde
     mInputGamepadIndex = thePlayerIndex;
     switch (theButton)
     {
-    case GAMEPAD_BUTTON_UP:
-    case GAMEPAD_BUTTON_DOWN:
-    case GAMEPAD_BUTTON_LEFT:
-    case GAMEPAD_BUTTON_RIGHT:
-        // The d-pad moves the selection, one slot at a time.
-        {
-            int aSlot = NextSlotInDir((StoreScreen_ItemDir)theButton);
-            if (aSlot != mSelectedSlot)
+        case GAMEPAD_BUTTON_UP:
+        case GAMEPAD_BUTTON_DOWN:
+        case GAMEPAD_BUTTON_LEFT:
+        case GAMEPAD_BUTTON_RIGHT:
+            // The d-pad moves the selection, one slot at a time.
             {
-                SetSelectedSlot(aSlot);
-                mApp->PlaySample(SOUND_BLEEP, true);
+                int aSlot = NextSlotInDir((StoreScreen_ItemDir)theButton);
+                if (aSlot != mSelectedSlot)
+                {
+                    SetSelectedSlot(aSlot);
+                    mApp->PlaySample(SOUND_BLEEP, true);
+                }
             }
-        }
-        break;
-
-    case GAMEPAD_BUTTON_SELECT:
-    case GAMEPAD_BUTTON_B:
-        ButtonDepress(100);
-        break;
-
-    case GAMEPAD_BUTTON_A:
-        // The action button: advance the bubble, or buy what is selected.
-        if (mBubbleClickToContinue != 0)
-        {
-            AdvanceCrazyDaveDialog();
-            break;
-        }
-
-        if (CanInteractWithButtons() == 0)
             break;
 
-        {
-            int aStoreItemType = GetStoreItemType(mSelectedSlot);
-            if (aStoreItemType == -1)
+        case GAMEPAD_BUTTON_SELECT:
+        case GAMEPAD_BUTTON_B:
+            ButtonDepress(100);
+            break;
+
+        case GAMEPAD_BUTTON_A:
+            // The action button: advance the bubble, or buy what is selected.
+            if (mBubbleClickToContinue != 0)
+            {
+                AdvanceCrazyDaveDialog();
+                break;
+            }
+
+            if (CanInteractWithButtons() == 0)
                 break;
 
-            if (IsFullVersionOnly(StoreItem(aStoreItemType)) != 0)
             {
-                mWaitForDialog = true;
-                mApp->LawnMessageBox(51, "[GET_FULL_VERSION_TITLE]", "[FULL_VERSION_TO_BUY]",
-                                     "[DIALOG_BUTTON_OK]", gEmptyCString, 3);
-                mWaitForDialog = false;
-            }
-            else if (aStoreItemType == 30)
-            {
-                // The full-version item: the yes answer buys it.
-                mWaitForDialog = true;
-                int aResult = mApp->LawnMessageBox(51, "[BUY_PVZ_TITLE]", "[BUY_PVZ_BODY]",
-                                                   "[GET_FULL_VERSION_YES_BUTTON]",
-                                                   "[GET_FULL_VERSION_NO_BUTTON]", 1);
-                mWaitForDialog = false;
-                if (aResult == 1000)
-                    mApp->BuyFullVersion();
-            }
-            else if (IsItemSoldOut(StoreItem(aStoreItemType)) == 0
-                     && IsItemUnavailable(StoreItem(aStoreItemType)) == 0
-                     && !IsComingSoon(StoreItem(aStoreItemType)))
-            {
-                PurchaseItem((StoreItem)aStoreItemType);
-            }
-        }
-        break;
+                int aStoreItemType = GetStoreItemType(mSelectedSlot);
+                if (aStoreItemType == -1)
+                    break;
 
-    case GAMEPAD_BUTTON_TL:
-        if (CanInteractWithButtons() != 0 && IsPageShown(STORE_PAGE_PLANT_UPGRADES) != 0)
-            ButtonDepress(101);
-        break;
+                if (IsFullVersionOnly(StoreItem(aStoreItemType)) != 0)
+                {
+                    mWaitForDialog = true;
+                    mApp->LawnMessageBox(51,
+                        "[GET_FULL_VERSION_TITLE]",
+                        "[FULL_VERSION_TO_BUY]",
+                        "[DIALOG_BUTTON_OK]",
+                        gEmptyCString,
+                        3);
+                    mWaitForDialog = false;
+                }
+                else if (aStoreItemType == 30)
+                {
+                    // The full-version item: the yes answer buys it.
+                    mWaitForDialog = true;
+                    int aResult = mApp->LawnMessageBox(51,
+                        "[BUY_PVZ_TITLE]",
+                        "[BUY_PVZ_BODY]",
+                        "[GET_FULL_VERSION_YES_BUTTON]",
+                        "[GET_FULL_VERSION_NO_BUTTON]",
+                        1);
+                    mWaitForDialog = false;
+                    if (aResult == 1000)
+                        mApp->BuyFullVersion();
+                }
+                else if (IsItemSoldOut(StoreItem(aStoreItemType)) == 0 &&
+                    IsItemUnavailable(StoreItem(aStoreItemType)) == 0 && !IsComingSoon(StoreItem(aStoreItemType)))
+                {
+                    PurchaseItem((StoreItem)aStoreItemType);
+                }
+            }
+            break;
 
-    case GAMEPAD_BUTTON_TR:
-        if (CanInteractWithButtons() != 0 && IsPageShown(STORE_PAGE_PLANT_UPGRADES) != 0)
-            ButtonDepress(102);
-        break;
+        case GAMEPAD_BUTTON_TL:
+            if (CanInteractWithButtons() != 0 && IsPageShown(STORE_PAGE_PLANT_UPGRADES) != 0)
+                ButtonDepress(101);
+            break;
 
-    default:
-        break;
+        case GAMEPAD_BUTTON_TR:
+            if (CanInteractWithButtons() != 0 && IsPageShown(STORE_PAGE_PLANT_UPGRADES) != 0)
+                ButtonDepress(102);
+            break;
+
+        default:
+            break;
     }
 
     return 0;
@@ -1487,9 +1624,8 @@ int StoreScreen::GameButtonDown(Sexy::GamepadButton theButton, int thePlayerInde
 // StoreScreen::StoreScreen(LawnApp *)
 // @0018FCA8  778 bytes
 // ==========================================================================
-StoreScreen::StoreScreen(LawnApp *theApp)
-    : Sexy::Dialog(nullptr, nullptr, 6, 1,
-                   Sexy::String("[STORE]"), Sexy::String(""), Sexy::String(""), 0)
+StoreScreen::StoreScreen(LawnApp *theApp) :
+    Sexy::Dialog(nullptr, nullptr, 6, 1, Sexy::String("[STORE]"), Sexy::String(""), Sexy::String(""), 0)
 {
     // The base Dialog is constructed by the initialiser above; what is left is
     // the field setup, kept in the binary's order.
@@ -1576,7 +1712,8 @@ void StoreScreen::Draw(Sexy::Graphics *g)
 
     bool aNight = mApp->IsNight() != 0;
     g->DrawImage(aNight ? IMAGE_STORE_BACKGROUNDNIGHT : IMAGE_STORE_BACKGROUND,
-                  LawnApp::FULLSCREEN_RECT.mX, LawnApp::FULLSCREEN_RECT.mY);
+        LawnApp::FULLSCREEN_RECT.mX,
+        LawnApp::FULLSCREEN_RECT.mY);
 
     // The car sits on the shake offsets the hatch animation drives.
     int aCarX = LawnApp::FULLSCREEN_RECT.mX + 359 + mShakeX;
@@ -1585,8 +1722,7 @@ void StoreScreen::Draw(Sexy::Graphics *g)
 
     // The car key on the shelf is one of twelve images, clamped at the last.
     int aKeyIndex = (mCarKeyImageIndex >= 11) ? 11 : mCarKeyImageIndex;
-    g->DrawImage(Sexy::GetImageById(aKeyIndex + 701),
-                  mShakeX + 305, mShakeY + 510);
+    g->DrawImage(Sexy::GetImageById(aKeyIndex + 701), mShakeX + 305, mShakeY + 510);
 
     g->DrawImage(IMAGE_STORE_PREVBUTTON, mShakeX + 172, mShakeY + 375);
     g->DrawImage(IMAGE_STORE_NEXTBUTTON, mShakeX + 573, mShakeY + 373);
@@ -1595,26 +1731,24 @@ void StoreScreen::Draw(Sexy::Graphics *g)
     {
         // Fully open: one wide image, and no closed-car pass at all.
         g->DrawImage(IMAGE_STORE_HATCHBACKOPEN,
-                      mShakeX + LawnApp::FULLSCREEN_RECT.mX + 458,
-                      mShakeY + LawnApp::FULLSCREEN_RECT.mY - 34);
+            mShakeX + LawnApp::FULLSCREEN_RECT.mX + 458,
+            mShakeY + LawnApp::FULLSCREEN_RECT.mY - 34);
     }
     else
     {
         g->DrawImage(IMAGE_STORE_CARCLOSED,
-                      mShakeX + LawnApp::FULLSCREEN_RECT.mX + 440,
-                      mShakeY + LawnApp::FULLSCREEN_RECT.mY + 144);
+            mShakeX + LawnApp::FULLSCREEN_RECT.mX + 440,
+            mShakeY + LawnApp::FULLSCREEN_RECT.mY + 144);
         if (aNight)
             g->DrawImage(IMAGE_STORE_CARCLOSED_NIGHT,
-                          mShakeX + LawnApp::FULLSCREEN_RECT.mX + 501,
-                          mShakeY + LawnApp::FULLSCREEN_RECT.mY + 169);
+                mShakeX + LawnApp::FULLSCREEN_RECT.mX + 501,
+                mShakeY + LawnApp::FULLSCREEN_RECT.mY + 169);
 
         // The page-turn button the hatch is heading for lights up.
         if (mHatchDirection == 1)
-            g->DrawImage(IMAGE_STORE_PREVBUTTONHIGHLIGHT,
-                          mShakeX + 172, mShakeY + 375);
+            g->DrawImage(IMAGE_STORE_PREVBUTTONHIGHLIGHT, mShakeX + 172, mShakeY + 375);
         else if (mHatchDirection == 2)
-            g->DrawImage(IMAGE_STORE_NEXTBUTTONHIGHLIGHT,
-                          mShakeX + 573, mShakeY + 373);
+            g->DrawImage(IMAGE_STORE_NEXTBUTTONHIGHLIGHT, mShakeX + 573, mShakeY + 373);
     }
 
     g->DrawImage(IMAGE_STORE_SIGN, 285, aSignY);
@@ -1781,9 +1915,9 @@ void StoreScreen::Update()
                     if (mBubbleCountDown == 0)
                     {
                         // Hold the bubble while Dave is still speaking.
-                        if (mApp->mSoundSystem->IsFoleyPlaying(FOLEY_CRAZY_DAVE_SHORT)
-                            || mApp->mSoundSystem->IsFoleyPlaying(FOLEY_CRAZY_DAVE_LONG)
-                            || mApp->mSoundSystem->IsFoleyPlaying(FOLEY_CRAZY_DAVE_EXTRA_LONG))
+                        if (mApp->mSoundSystem->IsFoleyPlaying(FOLEY_CRAZY_DAVE_SHORT) ||
+                            mApp->mSoundSystem->IsFoleyPlaying(FOLEY_CRAZY_DAVE_LONG) ||
+                            mApp->mSoundSystem->IsFoleyPlaying(FOLEY_CRAZY_DAVE_EXTRA_LONG))
                             mBubbleCountDown = 1;
                         else
                             mApp->CrazyDaveStopTalking();
@@ -1829,8 +1963,7 @@ void StoreScreen::Update()
             }
         }
 
-        if (CanInteractWithButtons() != 0 && mPurchasedFullVersion != 0
-            && mApp->IsTrialStageLocked() == 0)
+        if (CanInteractWithButtons() != 0 && mPurchasedFullVersion != 0 && mApp->IsTrialStageLocked() == 0)
         {
             // The full version has been bought: the store hands over to the
             // tree of wisdom.
@@ -1893,8 +2026,8 @@ int StoreScreen::KeyDown(Sexy::KeyCode theKey)
         if (IsFullVersionOnly(StoreItem(aStoreItemType)) != 0)
         {
             mWaitForDialog = true;
-            mApp->LawnMessageBox(51, "[GET_FULL_VERSION_TITLE]", "[FULL_VERSION_TO_BUY]",
-                                 "[DIALOG_BUTTON_OK]", gEmptyCString, 3);
+            mApp->LawnMessageBox(
+                51, "[GET_FULL_VERSION_TITLE]", "[FULL_VERSION_TO_BUY]", "[DIALOG_BUTTON_OK]", gEmptyCString, 3);
             mWaitForDialog = false;
             return 1;
         }
@@ -1903,18 +2036,20 @@ int StoreScreen::KeyDown(Sexy::KeyCode theKey)
         {
             // The full-version item: the yes answer buys it.
             mWaitForDialog = true;
-            int aResult = mApp->LawnMessageBox(51, "[BUY_PVZ_TITLE]", "[BUY_PVZ_BODY]",
-                                               "[GET_FULL_VERSION_YES_BUTTON]",
-                                               "[GET_FULL_VERSION_NO_BUTTON]", 1);
+            int aResult = mApp->LawnMessageBox(51,
+                "[BUY_PVZ_TITLE]",
+                "[BUY_PVZ_BODY]",
+                "[GET_FULL_VERSION_YES_BUTTON]",
+                "[GET_FULL_VERSION_NO_BUTTON]",
+                1);
             mWaitForDialog = false;
             if (aResult == 1000)
                 mApp->BuyFullVersion();
             return 1;
         }
 
-        if (IsItemSoldOut(StoreItem(aStoreItemType)) == 0
-            && IsItemUnavailable(StoreItem(aStoreItemType)) == 0
-            && !IsComingSoon(StoreItem(aStoreItemType)))
+        if (IsItemSoldOut(StoreItem(aStoreItemType)) == 0 && IsItemUnavailable(StoreItem(aStoreItemType)) == 0 &&
+            !IsComingSoon(StoreItem(aStoreItemType)))
             PurchaseItem((StoreItem)aStoreItemType);
 
         return 1;
@@ -2006,7 +2141,7 @@ StoreScreen::~StoreScreen()
 
     // Eight per-spot potted-plant icons at +0x364..+0x383. The dump loops eight
     // times from +0x364, deleting each non-null entry and clearing it.
-    for ( int i = 0; i < 8; ++i )
+    for (int i = 0; i < 8; ++i)
         delete mPottedPlantImage[i];
 
     // The resources group the store screen loaded.

@@ -1,6 +1,7 @@
 // ScrollbarWidget is a track with two arrow buttons and a draggable thumb.
 
-#pragma once
+#ifndef LAWNPROJECTTV_SEXY_INCLUDE_SCROLLBARWIDGET_H
+#define LAWNPROJECTTV_SEXY_INCLUDE_SCROLLBARWIDGET_H
 
 #include "ReconTypes.h"
 #include "ButtonListener.h"
@@ -9,7 +10,8 @@
 #include "Widget.h"
 #include "WidgetContainer.h"
 
-namespace Sexy {
+namespace Sexy
+{
 
 class ScrollListener;
 
@@ -19,7 +21,7 @@ public:
     virtual ~ScrollbarWidget();
 
     virtual void Update();
-    virtual void Draw(Sexy::Graphics * theGraphics);
+    virtual void Draw(Sexy::Graphics *theGraphics);
     virtual void MouseDown(int theX, int theY, int theClickCount);
     virtual void MouseDown(int theX, int theY, int theBtnNum, int theClickCount);
     virtual void MouseUp(int theX, int theY);
@@ -31,17 +33,17 @@ public:
     virtual void SetPageSize(double thePageSize);
     virtual void SetValue(double theValue);
     virtual void SetHorizontal(bool isHorizontal);
-    virtual void SetButtonImages(Sexy::Image * theButtonImage, Sexy::Image * theDownImage, Sexy::Image * theDisabledImage);
-    virtual void SetThumbImage(Sexy::Image * theThumbImage);
-    virtual void SetBarImages(Sexy::Image * theBarImage, Sexy::Image * thePagingImage);
+    virtual void SetButtonImages(Sexy::Image *theButtonImage, Sexy::Image *theDownImage, Sexy::Image *theDisabledImage);
+    virtual void SetThumbImage(Sexy::Image *theThumbImage);
+    virtual void SetBarImages(Sexy::Image *theBarImage, Sexy::Image *thePagingImage);
     virtual void SetButtonColors(int (*theColors)[3], int theCount);
     virtual void SetButtonColors(int (*theColors)[4], int theCount);
-    virtual void SetButtonColor(int theIdx, Color const& theColor);
+    virtual void SetButtonColor(int theIdx, Color const &theColor);
     virtual int ResizeScrollbar(int theX, int theY, int theWidth, int theHeight);
     virtual bool AtBottom();
     virtual void GoToBottom();
-    virtual int DrawThumb(Sexy::Graphics * theGraphics, int theX, int theY, int theWidth, int theHeight);
-    virtual int DrawThumb(Sexy::Graphics * theGraphics, TRect<int> theRect);
+    virtual int DrawThumb(Sexy::Graphics *theGraphics, int theX, int theY, int theWidth, int theHeight);
+    virtual int DrawThumb(Sexy::Graphics *theGraphics, TRect<int> theRect);
     virtual int GetTrackSize();
     virtual int GetThumbSize();
     virtual int GetThumbPosition();
@@ -74,9 +76,11 @@ public:
     Image *mBarImage;
     Image *mPagingImage;
 
-    ScrollbarWidget(int theId, Sexy::ScrollListener * theScrollListener);
+    ScrollbarWidget(int theId, Sexy::ScrollListener *theScrollListener);
 };
 
 } // namespace Sexy
 
 using Sexy::ScrollbarWidget;
+
+#endif // LAWNPROJECTTV_SEXY_INCLUDE_SCROLLBARWIDGET_H

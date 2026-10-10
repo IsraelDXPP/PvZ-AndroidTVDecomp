@@ -21,7 +21,7 @@
 // ==========================================================================
 void StartButton::SetFont(Sexy::Font *theFont)
 {
-  mFont = theFont;
+    mFont = theFont;
 }
 
 // ==========================================================================
@@ -30,45 +30,45 @@ void StartButton::SetFont(Sexy::Font *theFont)
 // ==========================================================================
 void StartButton::Draw(Sexy::Graphics *theGraphics)
 {
-  if ( mFont != 0 )
-  {
-    int aStringWidth = mWidth - mFont->StringWidth(mLabel);
-    int aY = (mFont->GetAscent() + mHeight) / 2 + 6;
-
-    if ( mIsOver )
-      theGraphics->SetColor(mOverColor);
-    else
-      theGraphics->SetColor(mColor);
-    theGraphics->SetFont(mFont);
-    theGraphics->DrawString(mLabel, aStringWidth / 2, aY);
-    if ( mTextDrawMode == 2 )
+    if (mFont != 0)
     {
-      // Pulsing overlay: the label is drawn a second time in white whose alpha
-      // follows a sine of mTextAlpha.
-      Sexy::Color aPulseColor(Sexy::Color::White);
-      aPulseColor.mAlpha = (int)(sin(mTextAlpha) * 255.0f);
-      theGraphics->SetColor(aPulseColor);
-      theGraphics->DrawString(mLabel, aStringWidth / 2, aY);
+        int aStringWidth = mWidth - mFont->StringWidth(mLabel);
+        int aY = (mFont->GetAscent() + mHeight) / 2 + 6;
+
+        if (mIsOver)
+            theGraphics->SetColor(mOverColor);
+        else
+            theGraphics->SetColor(mColor);
+        theGraphics->SetFont(mFont);
+        theGraphics->DrawString(mLabel, aStringWidth / 2, aY);
+        if (mTextDrawMode == 2)
+        {
+            // Pulsing overlay: the label is drawn a second time in white whose alpha
+            // follows a sine of mTextAlpha.
+            Sexy::Color aPulseColor(Sexy::Color::White);
+            aPulseColor.mAlpha = (int)(sin(mTextAlpha) * 255.0f);
+            theGraphics->SetColor(aPulseColor);
+            theGraphics->DrawString(mLabel, aStringWidth / 2, aY);
+        }
+        mTextAlpha = mTextAlpha + 0.03f;
+        if (mTextAlpha > 3.14159265f)
+            mTextAlpha = mTextAlpha - 3.14159265f;
     }
-    mTextAlpha = mTextAlpha + 0.03f;
-    if ( mTextAlpha > 3.14159265f )
-      mTextAlpha = mTextAlpha - 3.14159265f;
-  }
 }
 
 // ==========================================================================
 // StartButton::StartButton(int,Sexy::Widget *,Sexy::ButtonListener *)
 // @001A69C8  82 bytes
 // ==========================================================================
-StartButton::StartButton(int theId, Sexy::Widget *theParent, Sexy::ButtonListener *theListener)
-  : Sexy::ButtonWidget(theId, theListener)
+StartButton::StartButton(int theId, Sexy::Widget *theParent, Sexy::ButtonListener *theListener) :
+    Sexy::ButtonWidget(theId, theListener)
 {
-  mParent = (TitleScreen *)theParent;
-  mTextAlpha = 0.0f;
-  mFont = 0;
-  mTextDrawMode = 0;
-  mLabel = "";
-  mGamepadIndex = -1;
+    mParent = (TitleScreen *)theParent;
+    mTextAlpha = 0.0f;
+    mFont = 0;
+    mTextDrawMode = 0;
+    mLabel = "";
+    mGamepadIndex = -1;
 }
 
 // ==========================================================================
@@ -77,9 +77,9 @@ StartButton::StartButton(int theId, Sexy::Widget *theParent, Sexy::ButtonListene
 // ==========================================================================
 int StartButton::GameButtonDown(Sexy::GamepadButton theButton, int thePlayerIndex, unsigned int theGamepadIndex)
 {
-  (void)thePlayerIndex;
-  mGamepadIndex = (int)theGamepadIndex;
-  return theButton;
+    (void)thePlayerIndex;
+    mGamepadIndex = (int)theGamepadIndex;
+    return theButton;
 }
 
 // ==========================================================================
@@ -88,7 +88,7 @@ int StartButton::GameButtonDown(Sexy::GamepadButton theButton, int thePlayerInde
 // ==========================================================================
 void StartButton::GameButtonUp()
 {
-  ; // empty in the binary (a bare BX LR)
+    ; // empty in the binary (a bare BX LR)
 }
 
 // ==========================================================================
@@ -97,14 +97,13 @@ void StartButton::GameButtonUp()
 // ==========================================================================
 int StartButton::KeyDown(Sexy::KeyCode theKey)
 {
-  // The binary reads +0xEC on the top-level widget, which is Widget::mEvent,
-  // then +8 inside that Event -- its `lateModifiers`
-  // (Sexy::GamepadApp::ProcessMessage @0x2AF984 passes it the same way).
-  Sexy::Widget *aTopLevel = GetTopLevel();
-  if ( aTopLevel->mEvent != 0 )
-    mGamepadIndex = mParent->mApp->GetGamepadIndex(aTopLevel->mEvent->lateModifiers,
-                                                aTopLevel->mEvent->eventType);
-  return Sexy::ButtonWidget::KeyDown(theKey);
+    // The binary reads +0xEC on the top-level widget, which is Widget::mEvent,
+    // then +8 inside that Event -- its `lateModifiers`
+    // (Sexy::GamepadApp::ProcessMessage @0x2AF984 passes it the same way).
+    Sexy::Widget *aTopLevel = GetTopLevel();
+    if (aTopLevel->mEvent != 0)
+        mGamepadIndex = mParent->mApp->GetGamepadIndex(aTopLevel->mEvent->lateModifiers, aTopLevel->mEvent->eventType);
+    return Sexy::ButtonWidget::KeyDown(theKey);
 }
 
 // ==========================================================================
@@ -113,12 +112,12 @@ int StartButton::KeyDown(Sexy::KeyCode theKey)
 // ==========================================================================
 StartButton::~StartButton()
 {
-  // The vptr store is the compiler's and the trailing
-  // `Sexy::ButtonWidget::~ButtonWidget(this)` is the base, which C++ runs.
-  //
-  // What is left is the release of the word at +0x358, StartButton's own
-  // mLabel: the dump subtracts 12 to reach the COW rep, drops its refcount and
-  // frees the rep at zero. That is exactly Sexy::String's destructor, and
-  // mLabel is declared `Sexy::String` in StartButton.h, so it runs on its own.
-  // The body is therefore empty.
+    // The vptr store is the compiler's and the trailing
+    // `Sexy::ButtonWidget::~ButtonWidget(this)` is the base, which C++ runs.
+    //
+    // What is left is the release of the word at +0x358, StartButton's own
+    // mLabel: the dump subtracts 12 to reach the COW rep, drops its refcount and
+    // frees the rep at zero. That is exactly Sexy::String's destructor, and
+    // mLabel is declared `Sexy::String` in StartButton.h, so it runs on its own.
+    // The body is therefore empty.
 }

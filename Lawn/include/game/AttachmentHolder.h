@@ -28,7 +28,8 @@
 // TODO(recon): make this `class AttachmentHolder : public DataArray<Attachment>`
 // once DataArray<T> is the real seven-word template with DataArrayItem<T>.
 
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_ATTACHMENTHOLDER_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_ATTACHMENTHOLDER_H
 
 #include "ReconTypes.h"
 // Attachment is only needed by the methods; the include is kept so that other
@@ -38,13 +39,13 @@
 class AttachmentHolder
 {
 public:
-    Attachment *mBlock;         // +0x00  block of 1024 (0x400) records of 796 bytes
+    Attachment *mBlock; // +0x00  block of 1024 (0x400) records of 796 bytes
     unsigned int mMaxUsedCount; // +0x04  highest used index; AllocAttachment bumps it
-    unsigned int mMaxSize;      // +0x08  1024, set by InitializeHolder
+    unsigned int mMaxSize; // +0x08  1024, set by InitializeHolder
     unsigned int mFreeListHead; // +0x0C  index of the first free record
-    unsigned int mSize;         // +0x10  live attachment count
-    unsigned int mNextKey;      // +0x14  1 at construction, 54388 after InitializeHolder
-    const char *mName;          // +0x18  "attachments"
+    unsigned int mSize; // +0x10  live attachment count
+    unsigned int mNextKey; // +0x14  1 at construction, 54388 after InitializeHolder
+    const char *mName; // +0x18  "attachments"
     // Size 0x1C.
 
     AttachmentHolder();
@@ -55,3 +56,5 @@ public:
     void DisposeHolder();
     Attachment *AllocAttachment();
 };
+
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_ATTACHMENTHOLDER_H

@@ -13,12 +13,13 @@
 // so the imports are declared here and the bodies keep forwarding exactly the
 // arguments the binary passes. A file-local definition would have to invent
 // behaviour the binary does not have, so the symbols stay external.
-int __imp__ZN6Native12ShareManager6createEv(Native::ShareManager * theManager);
+int __imp__ZN6Native12ShareManager6createEv(Native::ShareManager *theManager);
 int __imp__ZN6Native12ShareManager11setListenerEPNS0_8ListenerE(Native::ShareManager::Listener *theListener);
-int __imp__ZNK6Native12ShareManager7getNameEv(Native::ShareManager * theManager);
-int __imp__ZN6Native12ShareManager11getFeaturesEv(Native::ShareManager * theManager);
+int __imp__ZNK6Native12ShareManager7getNameEv(Native::ShareManager *theManager);
+int __imp__ZN6Native12ShareManager11getFeaturesEv(Native::ShareManager *theManager);
 int __imp__ZN6Native12ShareManager5shareERKSsS2_();
-int __imp__ZN6Native12ShareManager5shareERKNS0_4PostE(Native::ShareManager *theManager, Native::ShareManager_Post const& thePost);
+int __imp__ZN6Native12ShareManager5shareERKNS0_4PostE(
+    Native::ShareManager *theManager, Native::ShareManager_Post const &thePost);
 
 // ==========================================================================
 // Native::ShareManager::create(void)
@@ -26,7 +27,7 @@ int __imp__ZN6Native12ShareManager5shareERKNS0_4PostE(Native::ShareManager *theM
 // ==========================================================================
 int Native::ShareManager::create()
 {
-  return __imp__ZN6Native12ShareManager6createEv(this);
+    return __imp__ZN6Native12ShareManager6createEv(this);
 }
 
 // ==========================================================================
@@ -35,7 +36,7 @@ int Native::ShareManager::create()
 // ==========================================================================
 int Native::ShareManager::setListener(Listener *theListener)
 {
-  return __imp__ZN6Native12ShareManager11setListenerEPNS0_8ListenerE(theListener);
+    return __imp__ZN6Native12ShareManager11setListenerEPNS0_8ListenerE(theListener);
 }
 
 // ==========================================================================
@@ -44,7 +45,7 @@ int Native::ShareManager::setListener(Listener *theListener)
 // ==========================================================================
 int Native::ShareManager::getName()
 {
-  return __imp__ZNK6Native12ShareManager7getNameEv(this);
+    return __imp__ZNK6Native12ShareManager7getNameEv(this);
 }
 
 // ==========================================================================
@@ -53,7 +54,7 @@ int Native::ShareManager::getName()
 // ==========================================================================
 int Native::ShareManager::getFeatures()
 {
-  return __imp__ZN6Native12ShareManager11getFeaturesEv(this);
+    return __imp__ZN6Native12ShareManager11getFeaturesEv(this);
 }
 
 // ==========================================================================
@@ -62,14 +63,14 @@ int Native::ShareManager::getFeatures()
 // ==========================================================================
 int Native::ShareManager::share()
 {
-  return __imp__ZN6Native12ShareManager5shareERKSsS2_();
+    return __imp__ZN6Native12ShareManager5shareERKSsS2_();
 }
 
 // ==========================================================================
 // Native::ShareManager::share(Native::ShareManager::Post const&)
 // @0012EB08  12 bytes
 // ==========================================================================
-int Native::ShareManager::share(Native::ShareManager_Post const& thePost)
+int Native::ShareManager::share(Native::ShareManager_Post const &thePost)
 {
-  return __imp__ZN6Native12ShareManager5shareERKNS0_4PostE(this, thePost);
+    return __imp__ZN6Native12ShareManager5shareERKNS0_4PostE(this, thePost);
 }

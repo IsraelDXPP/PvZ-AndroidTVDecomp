@@ -26,8 +26,8 @@
 // ==========================================================================
 int SavingProfileDialog::GetStatus()
 {
-  // 1000 is the "finished" threshold SavingDingusDialog::Update tests.
-  return 1000;
+    // 1000 is the "finished" threshold SavingDingusDialog::Update tests.
+    return 1000;
 }
 
 // ==========================================================================
@@ -36,8 +36,8 @@ int SavingProfileDialog::GetStatus()
 // ==========================================================================
 SavingProfileDialog::~SavingProfileDialog()
 {
-  // The binary's body re-points the two vptrs and calls the base destructor;
-  // with real inheritance the compiler emits all three.
+    // The binary's body re-points the two vptrs and calls the base destructor;
+    // with real inheritance the compiler emits all three.
 }
 
 // ==========================================================================
@@ -46,8 +46,8 @@ SavingProfileDialog::~SavingProfileDialog()
 // ==========================================================================
 void SavingProfileDialog::Draw(Sexy::Graphics *theGraphics)
 {
-  if ( mDrawFade )
-    mApp->DrawDialogFade(theGraphics);
+    if (mDrawFade)
+        mApp->DrawDialogFade(theGraphics);
 }
 
 // ==========================================================================
@@ -56,7 +56,7 @@ void SavingProfileDialog::Draw(Sexy::Graphics *theGraphics)
 // ==========================================================================
 void SavingProfileDialog::AddedToManager(Sexy::WidgetManager *theManager)
 {
-  Sexy::WidgetContainer::AddedToManager(theManager);
+    Sexy::WidgetContainer::AddedToManager(theManager);
 }
 
 // ==========================================================================
@@ -65,15 +65,15 @@ void SavingProfileDialog::AddedToManager(Sexy::WidgetManager *theManager)
 // ==========================================================================
 void SavingProfileDialog::RemovedFromManager(Sexy::WidgetManager *theManager)
 {
-  Sexy::WidgetContainer::RemovedFromManager(theManager);
+    Sexy::WidgetContainer::RemovedFromManager(theManager);
 }
 
 // ==========================================================================
 // SavingProfileDialog::SavingProfileDialog(LawnApp *,bool)
 // @0013FA58  132 bytes
 // ==========================================================================
-SavingProfileDialog::SavingProfileDialog(LawnApp *theApp, bool theDrawFade)
-  : SavingDingusDialog(theApp, true, 79, Sexy::String(""), 0.0f, true)
+SavingProfileDialog::SavingProfileDialog(LawnApp *theApp, bool theDrawFade) :
+    SavingDingusDialog(theApp, true, 79, Sexy::String(""), 0.0f, true)
 {
-  mDrawFade = theDrawFade;
+    mDrawFade = theDrawFade;
 }

@@ -10,7 +10,8 @@
 // real pointer of the type the loader stores. ImageRes keeps a SharedImageRef
 // at the front of its extra fields; ResourceRef reads that object in place.
 
-#pragma once
+#ifndef LAWNPROJECTTV_SEXY_INCLUDE_RESOURCERECORDS_H
+#define LAWNPROJECTTV_SEXY_INCLUDE_RESOURCERECORDS_H
 
 #include "ReconTypes.h"
 #include "SexyString.h"
@@ -18,7 +19,8 @@
 #include "SharedImageRef.h"
 #include <map>
 
-namespace Sexy {
+namespace Sexy
+{
 
 class ResourceManager;
 class Font;
@@ -181,3 +183,5 @@ struct ResourceManager_ImageRes : public ResourceManager_BaseRes
 };
 
 } // namespace Sexy
+
+#endif // LAWNPROJECTTV_SEXY_INCLUDE_RESOURCERECORDS_H

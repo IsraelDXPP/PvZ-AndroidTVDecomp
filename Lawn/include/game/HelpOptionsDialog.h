@@ -43,7 +43,8 @@
 //   +0x310 = MakeButton(4, "[BACK]")
 //   +0x314 is never written in this build but is inside the allocation.
 
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_HELPOPTIONSDIALOG_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_HELPOPTIONSDIALOG_H
 
 #include "ReconTypes.h"
 // These includes exist because the transcribed bodies call methods on complete
@@ -69,13 +70,13 @@ public:
     // Overrides of Dialog/WidgetContainer slots.
     virtual void AddedToManager(Sexy::WidgetManager *theWidgetManager); // [29] 0x168b88
     virtual void RemovedFromManager(Sexy::WidgetManager *theWidgetManager); // [30] 0x168c30
-    virtual void Update();                                              // [31] 0x168e90
-    virtual void Draw(Sexy::Graphics *g);                               // [36] 0x168f88
+    virtual void Update(); // [31] 0x168e90
+    virtual void Draw(Sexy::Graphics *g); // [36] 0x168f88
     virtual void Resize(int theX, int theY, int theWidth, int theHeight); // [50] 0x168cb4
-    virtual void GotFocus();                                            // [61] 0x1690d4
-    virtual int KeyDown(Sexy::KeyCode theKey);                         // [71] 0x168f6c
-    virtual void ButtonPress(int theId);                                // [128] 0x168028
-    virtual void ButtonDepress(int theId);                              // [129] 0x168ecc
+    virtual void GotFocus(); // [61] 0x1690d4
+    virtual int KeyDown(Sexy::KeyCode theKey); // [71] 0x168f6c
+    virtual void ButtonPress(int theId); // [128] 0x168028
+    virtual void ButtonDepress(int theId); // [129] 0x168ecc
 
     explicit HelpOptionsDialog(LawnApp *theApp);
 
@@ -83,13 +84,14 @@ public:
     int GetPreferredHeight(int theWidth);
     void GameButtonDown(Sexy::GamepadButton theButton, int thePlayerIndex, unsigned int theModifiers);
 
-    LawnApp *mApp;                  // +0x2FC
-    GameButton *mHowToPlayButton;   // +0x300, id 0, "[HOW_TO_PLAY]"
-    GameButton *mSwitchUserButton;  // +0x304, id 1, the binary labels it "[CONTROLS]"
-    GameButton *mSettingsButton;    // +0x308, id 2, "[SETTINGS]"
-    GameButton *mCreditsButton;     // +0x30C, id 3, "[CREDITS]"
-    GameButton *mBackButton;        // +0x310, id 4, "[BACK]"
-    GameButton *mExtraButton;       // +0x314, inside the allocation, never written here
+    LawnApp *mApp; // +0x2FC
+    GameButton *mHowToPlayButton; // +0x300, id 0, "[HOW_TO_PLAY]"
+    GameButton *mSwitchUserButton; // +0x304, id 1, the binary labels it "[CONTROLS]"
+    GameButton *mSettingsButton; // +0x308, id 2, "[SETTINGS]"
+    GameButton *mCreditsButton; // +0x30C, id 3, "[CREDITS]"
+    GameButton *mBackButton; // +0x310, id 4, "[BACK]"
+    GameButton *mExtraButton; // +0x314, inside the allocation, never written here
     // size 0x318
 };
 
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_HELPOPTIONSDIALOG_H

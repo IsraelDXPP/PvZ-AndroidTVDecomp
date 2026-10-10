@@ -15,7 +15,8 @@
 //   [  0] 0x17c684  LawnMower::~LawnMower
 //   [  1] 0x17c6a8  LawnMower::~LawnMower
 
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_LAWNMOWER_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_LAWNMOWER_H
 
 #include "ReconTypes.h"
 // The bodies need the complete types, so these includes stay for now (stage C
@@ -37,24 +38,24 @@ class LawnApp;
 class LawnMower : public SyncObject
 {
 public:
-    LawnApp *mApp;                // +0x10
-    Board   *mBoard;              // +0x14
-    float    mPosX;               // +0x18
-    float    mPosY;               // +0x1C
-    int      mRenderOrder;        // +0x20
-    int      mRow;                // +0x24
-    int      mAnimTicksPerFrame;  // +0x28
-    ReanimationID mReanimID;      // +0x2C
-    int      mChompCounter;       // +0x30
-    int      mRollingInCounter;   // +0x34
-    int      mSquishedCounter;    // +0x38
-    LawnMowerState mMowerState;   // +0x3C
-    bool     mDead;               // +0x40
-    bool     mVisible;            // +0x41
-    LawnMowerType  mMowerType;    // +0x44
-    float    mAltitude;           // +0x48
-    MowerHeight mMowerHeight;     // +0x4C
-    int      mLastPortalX;        // +0x50
+    LawnApp *mApp; // +0x10
+    Board *mBoard; // +0x14
+    float mPosX; // +0x18
+    float mPosY; // +0x1C
+    int mRenderOrder; // +0x20
+    int mRow; // +0x24
+    int mAnimTicksPerFrame; // +0x28
+    ReanimationID mReanimID; // +0x2C
+    int mChompCounter; // +0x30
+    int mRollingInCounter; // +0x34
+    int mSquishedCounter; // +0x38
+    LawnMowerState mMowerState; // +0x3C
+    bool mDead; // +0x40
+    bool mVisible; // +0x41
+    LawnMowerType mMowerType; // +0x44
+    float mAltitude; // +0x48
+    MowerHeight mMowerHeight; // +0x4C
+    int mLastPortalX; // +0x50
     // size 0x54
 
     // UpdatePool, StartMower, Update and Die are `void` in the binary -- their
@@ -83,3 +84,5 @@ struct LawnMowerSlot
     LawnMower mItem;
     unsigned int mID;
 };
+
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_LAWNMOWER_H

@@ -15,7 +15,8 @@
 #include <cstdlib>
 #include <cstring>
 
-namespace {
+namespace
+{
 
 using Sexy::PIParticle;
 using Sexy::PIParticleGroup;
@@ -26,32 +27,32 @@ const float kPi = 3.1416f;
 const float kTwoPi = 6.2832f;
 const float kInvHalfPi = 0.63662f;
 
-int KeyCount(const Sexy::PIValue& theCurve)
+int KeyCount(const Sexy::PIValue &theCurve)
 {
     return (int)theCurve.mKeyframes.size();
 }
 
-Sexy::PIKeyframe* KeyAt(Sexy::PIValue& theCurve, int theIndex)
+Sexy::PIKeyframe *KeyAt(Sexy::PIValue &theCurve, int theIndex)
 {
     return &theCurve.mKeyframes[(size_t)theIndex];
 }
 
-const Sexy::PIKeyframe* KeyAt(const Sexy::PIValue& theCurve, int theIndex)
+const Sexy::PIKeyframe *KeyAt(const Sexy::PIValue &theCurve, int theIndex)
 {
     return &theCurve.mKeyframes[(size_t)theIndex];
 }
 
-int CurveCount(const Sexy::PIValue2D& theCurve)
+int CurveCount(const Sexy::PIValue2D &theCurve)
 {
     return (int)theCurve.mKeyframes.size();
 }
 
-const Sexy::PIKeyframe2D* CurveAt(const Sexy::PIValue2D& theCurve, int theIndex)
+const Sexy::PIKeyframe2D *CurveAt(const Sexy::PIValue2D &theCurve, int theIndex)
 {
     return &theCurve.mKeyframes[(size_t)theIndex];
 }
 
-void PushCurveKey(Sexy::PIValue2D* theCurve, float theTime, float theX, float theY)
+void PushCurveKey(Sexy::PIValue2D *theCurve, float theTime, float theX, float theY)
 {
     Sexy::PIKeyframe2D key;
     key.mTime = theTime;
@@ -60,34 +61,31 @@ void PushCurveKey(Sexy::PIValue2D* theCurve, float theTime, float theX, float th
     theCurve->mKeyframes.push_back(key);
 }
 
-void ResizeKeys(Sexy::PIValue* theCurve, int theCount)
+void ResizeKeys(Sexy::PIValue *theCurve, int theCount)
 {
     if (theCount < 0)
         theCount = 0;
     theCurve->mKeyframes.resize((size_t)theCount);
 }
 
-void StoreKey(Sexy::PIValue* theCurve, int theIndex, float theTime, float theValue)
+void StoreKey(Sexy::PIValue *theCurve, int theIndex, float theTime, float theValue)
 {
-    Sexy::PIKeyframe& slot = theCurve->mKeyframes[(size_t)theIndex];
+    Sexy::PIKeyframe &slot = theCurve->mKeyframes[(size_t)theIndex];
     slot.mTime = theTime;
     slot.mValue = theValue;
 }
 
-float KeyValue(const Sexy::PIValue& theCurve, int theIndex)
+float KeyValue(const Sexy::PIValue &theCurve, int theIndex)
 {
     return theCurve.mKeyframes[(size_t)theIndex].mValue;
 }
 
 int ColorWord(int theRed, int theGreen, int theBlue)
 {
-    return (int)(0xFF000000u
-        | ((unsigned int)theRed << 16)
-        | ((unsigned int)theGreen << 8)
-        | (unsigned int)theBlue);
+    return (int)(0xFF000000u | ((unsigned int)theRed << 16) | ((unsigned int)theGreen << 8) | (unsigned int)theBlue);
 }
 
-void EndianMatrix(Sexy::SexyTransform2D* theMatrix)
+void EndianMatrix(Sexy::SexyTransform2D *theMatrix)
 {
     for (int col = 0; col != 3; ++col)
     {
@@ -96,16 +94,16 @@ void EndianMatrix(Sexy::SexyTransform2D* theMatrix)
     }
 }
 
-void DeleteChain(PIParticle* theHead)
+void DeleteChain(PIParticle *theHead)
 {
-    PIParticle* node = theHead;
+    PIParticle *node = theHead;
     while (node != nullptr)
     {
-        PIParticle* next = node->mNext;
-        PIParticle* child = node->mChildren;
+        PIParticle *next = node->mNext;
+        PIParticle *child = node->mChildren;
         while (child != nullptr)
         {
-            PIParticle* childNext = child->mNext;
+            PIParticle *childNext = child->mNext;
             delete child;
             --PIParticleInstanceCounter::mCount;
             child = childNext;
@@ -116,7 +114,7 @@ void DeleteChain(PIParticle* theHead)
     }
 }
 
-void LinkParticle(PIParticleGroup* theGroup, PIParticle* theParticle, bool theReverse)
+void LinkParticle(PIParticleGroup *theGroup, PIParticle *theParticle, bool theReverse)
 {
     if (theReverse)
     {
@@ -141,7 +139,7 @@ void LinkParticle(PIParticleGroup* theGroup, PIParticle* theParticle, bool theRe
     theGroup->mCount += 1;
 }
 
-void UnlinkParticle(PIParticleGroup* theGroup, PIParticle* theParticle)
+void UnlinkParticle(PIParticleGroup *theGroup, PIParticle *theParticle)
 {
     if (theParticle->mPrev != nullptr)
         theParticle->mPrev->mNext = theParticle->mNext;
@@ -154,33 +152,33 @@ void UnlinkParticle(PIParticleGroup* theGroup, PIParticle* theParticle)
     theGroup->mCount -= 1;
 }
 
-Sexy::PIValue* EmitterCurve(Sexy::PIEmitter* theEmitter, int theIndex)
+Sexy::PIValue *EmitterCurve(Sexy::PIEmitter *theEmitter, int theIndex)
 {
     if (theEmitter == nullptr || theIndex < 0 || theIndex >= 42)
         return nullptr;
     return &theEmitter->mValues[theIndex];
 }
 
-Sexy::PIValue* InstanceCurve(Sexy::PIEmitterInstanceDef* theDef, int theIndex)
+Sexy::PIValue *InstanceCurve(Sexy::PIEmitterInstanceDef *theDef, int theIndex)
 {
     if (theDef == nullptr || theIndex < 0 || theIndex >= 19)
         return nullptr;
     return &theDef->mValues[theIndex];
 }
 
-float Sample(Sexy::PIValue* theCurve, float theTime, float theStep)
+float Sample(Sexy::PIValue *theCurve, float theTime, float theStep)
 {
     if (theCurve == nullptr)
         return 0.0f;
     return theCurve->GetValueAt(theTime, theStep);
 }
 
-Sexy::DeviceImage* ImageOf(const Sexy::SharedImageRef& theRef)
+Sexy::DeviceImage *ImageOf(const Sexy::SharedImageRef &theRef)
 {
-    return static_cast<Sexy::DeviceImage*>(static_cast<Sexy::Image*>(theRef));
+    return static_cast<Sexy::DeviceImage *>(static_cast<Sexy::Image *>(theRef));
 }
 
-Sexy::SexyMatrix3 ParticleMatrix(PIParticle* theParticle)
+Sexy::SexyMatrix3 ParticleMatrix(PIParticle *theParticle)
 {
     if (theParticle == nullptr)
     {
@@ -193,7 +191,7 @@ Sexy::SexyMatrix3 ParticleMatrix(PIParticle* theParticle)
 
 } // namespace
 
-Sexy::PILiveEmitter* Sexy::PIEffect::FindLive(Sexy::PIEmitterInstance* theInstance)
+Sexy::PILiveEmitter *Sexy::PIEffect::FindLive(Sexy::PIEmitterInstance *theInstance)
 {
     if (theInstance == nullptr)
         return nullptr;
@@ -201,7 +199,7 @@ Sexy::PILiveEmitter* Sexy::PIEffect::FindLive(Sexy::PIEmitterInstance* theInstan
     {
         for (size_t emitter = 0; emitter < mLive[layer].mEmitters.size(); ++emitter)
         {
-            PILiveEmitter* live = &mLive[layer].mEmitters[emitter];
+            PILiveEmitter *live = &mLive[layer].mEmitters[emitter];
             if (live->mDef == theInstance->mDef)
                 return live;
         }
@@ -209,7 +207,7 @@ Sexy::PILiveEmitter* Sexy::PIEffect::FindLive(Sexy::PIEmitterInstance* theInstan
     return nullptr;
 }
 
-Sexy::PIParticleType* Sexy::PIEffect::FindType(Sexy::PIParticleDef* theDef)
+Sexy::PIParticleType *Sexy::PIEffect::FindType(Sexy::PIParticleDef *theDef)
 {
     if (mDef == nullptr || theDef == nullptr)
         return nullptr;
@@ -221,13 +219,12 @@ Sexy::PIParticleType* Sexy::PIEffect::FindType(Sexy::PIParticleDef* theDef)
     return nullptr;
 }
 
-void Sexy::PIEffect::SetImageOpts(Sexy::DeviceImage * theImage)
+void Sexy::PIEffect::SetImageOpts(Sexy::DeviceImage *theImage)
 {
     (void)theImage;
 }
 
-Sexy::SharedImageRef Sexy::PIEffect::GetImage(Sexy::String const& unusedName,
-                                              Sexy::String const& theImageName)
+Sexy::SharedImageRef Sexy::PIEffect::GetImage(Sexy::String const &unusedName, Sexy::String const &theImageName)
 {
     (void)unusedName;
     Sexy::String dir;
@@ -238,7 +235,7 @@ Sexy::SharedImageRef Sexy::PIEffect::GetImage(Sexy::String const& unusedName,
     return gSexyAppBase->GetSharedImage(path, Sexy::String(), nullptr, true, false);
 }
 
-int Sexy::PIEffect::Fail(Sexy::String const& theMessage)
+int Sexy::PIEffect::Fail(Sexy::String const &theMessage)
 {
     if (mError.empty())
         mError = theMessage;
@@ -331,7 +328,7 @@ size_t Sexy::PIEffect::WriteBool(bool theValue)
     return WriteByte(theValue ? 1 : 0);
 }
 
-const void * Sexy::PIEffect::WriteString(const Sexy::String *theText)
+const void *Sexy::PIEffect::WriteString(const Sexy::String *theText)
 {
     int length = (int)theText->size();
     WriteByte((char)length);
@@ -340,7 +337,7 @@ const void * Sexy::PIEffect::WriteString(const Sexy::String *theText)
     return theText->c_str();
 }
 
-size_t Sexy::PIEffect::WriteValue2D(Sexy::PIValue2D * theCurve)
+size_t Sexy::PIEffect::WriteValue2D(Sexy::PIValue2D *theCurve)
 {
     int count = CurveCount(*theCurve);
     bool hasTangents = false;
@@ -366,7 +363,7 @@ size_t Sexy::PIEffect::WriteValue2D(Sexy::PIValue2D * theCurve)
     int tangent = 0;
     for (int i = 0; i != count; ++i)
     {
-        const Sexy::PIKeyframe2D* key = CurveAt(*theCurve, i);
+        const Sexy::PIKeyframe2D *key = CurveAt(*theCurve, i);
         WriteInt((int)key->mTime);
         WriteFloat(key->mX);
         result = WriteFloat(key->mY);
@@ -399,13 +396,13 @@ size_t Sexy::PIEffect::WriteValue2D(Sexy::PIValue2D * theCurve)
     return result;
 }
 
-size_t Sexy::PIEffect::WriteEPoint(Sexy::PIValue2D * theCurve)
+size_t Sexy::PIEffect::WriteEPoint(Sexy::PIValue2D *theCurve)
 {
     int count = CurveCount(*theCurve);
     size_t result = WriteShort((short)count);
     for (int i = 0; i != count; ++i)
     {
-        const Sexy::PIKeyframe2D* key = CurveAt(*theCurve, i);
+        const Sexy::PIKeyframe2D *key = CurveAt(*theCurve, i);
         WriteInt((int)key->mTime);
         WriteFloat(key->mX);
         result = WriteFloat(key->mY);
@@ -413,7 +410,7 @@ size_t Sexy::PIEffect::WriteEPoint(Sexy::PIValue2D * theCurve)
     return result;
 }
 
-size_t Sexy::PIEffect::WriteValue(Sexy::PIValue * theCurve)
+size_t Sexy::PIEffect::WriteValue(Sexy::PIValue *theCurve)
 {
     int count = KeyCount(*theCurve);
     int flags = 0;
@@ -447,7 +444,7 @@ size_t Sexy::PIEffect::WriteValue(Sexy::PIValue * theCurve)
     int tangent = 0;
     for (int i = 0; i < count; ++i)
     {
-        Sexy::PIKeyframe* key = KeyAt(*theCurve, i);
+        Sexy::PIKeyframe *key = KeyAt(*theCurve, i);
         if (i != 0 || (flags & 0x10) == 0)
             result = WriteFloat(key->mTime);
         if (i != 0 || (flags & 0x60) == 0)
@@ -481,7 +478,7 @@ size_t Sexy::PIEffect::WriteValue(Sexy::PIValue * theCurve)
     return result;
 }
 
-size_t Sexy::PIEffect::WriteEmitterType(Sexy::PIEmitter * theEmitter)
+size_t Sexy::PIEffect::WriteEmitterType(Sexy::PIEmitter *theEmitter)
 {
     int defCount = (int)theEmitter->mParticleDefs.size();
     WriteInt(0);
@@ -494,7 +491,7 @@ size_t Sexy::PIEffect::WriteEmitterType(Sexy::PIEmitter * theEmitter)
     for (int i = 0; i < defCount; ++i)
     {
         int index = theEmitter->mEmitInReverse ? defCount - 1 - i : i;
-        PIParticleType* def = FindType(&theEmitter->mParticleDefs[index]);
+        PIParticleType *def = FindType(&theEmitter->mParticleDefs[index]);
         if (def == nullptr)
             continue;
         WriteInt(0);
@@ -582,8 +579,7 @@ size_t Sexy::PIEffect::WriteEmitterType(Sexy::PIEmitter * theEmitter)
     return WriteInt(0);
 }
 
-int Sexy::PIEffect::SaveParticleDefInstance(Sexy::Buffer & theBuffer,
-                                            Sexy::PIParticleDefInstance *theRecord)
+int Sexy::PIEffect::SaveParticleDefInstance(Sexy::Buffer &theBuffer, Sexy::PIParticleDefInstance *theRecord)
 {
     theBuffer.WriteFloat(theRecord->mField0);
     theBuffer.WriteFloat(theRecord->mField1);
@@ -592,10 +588,9 @@ int Sexy::PIEffect::SaveParticleDefInstance(Sexy::Buffer & theBuffer,
     return 0;
 }
 
-int Sexy::PIEffect::SaveParticle(Sexy::Buffer & theBuffer, Sexy::PILayer * theLayer,
-                                 PIParticle *theParticle)
+int Sexy::PIEffect::SaveParticle(Sexy::Buffer &theBuffer, Sexy::PILayer *theLayer, PIParticle *theParticle)
 {
-    PIParticleType* def = theParticle->mType;
+    PIParticleType *def = theParticle->mType;
     theBuffer.WriteFloat(theParticle->mLife);
     theBuffer.WriteFloat(theParticle->mLifePct);
     theBuffer.WriteFloat(theParticle->mAge);
@@ -611,7 +606,7 @@ int Sexy::PIEffect::SaveParticle(Sexy::Buffer & theBuffer, Sexy::PILayer * theLa
     theBuffer.WriteFloat(theParticle->mSize);
 
     int mask = 0;
-    const float* matrix = &theParticle->mTransform.mMatrix.m[0];
+    const float *matrix = &theParticle->mTransform.mMatrix.m[0];
     for (int i = 0; i != 9; ++i)
     {
         if (fabsf(matrix[i]) >= 0.00001f)
@@ -638,8 +633,7 @@ int Sexy::PIEffect::SaveParticle(Sexy::Buffer & theBuffer, Sexy::PILayer * theLa
     return 0;
 }
 
-int Sexy::PIEffect::LoadParticleDefInstance(Sexy::Buffer const& theBuffer,
-                                            Sexy::PIParticleDefInstance *theRecord)
+int Sexy::PIEffect::LoadParticleDefInstance(Sexy::Buffer const &theBuffer, Sexy::PIParticleDefInstance *theRecord)
 {
     theRecord->mField0 = theBuffer.ReadFloat();
     theRecord->mField1 = theBuffer.ReadFloat();
@@ -648,8 +642,7 @@ int Sexy::PIEffect::LoadParticleDefInstance(Sexy::Buffer const& theBuffer,
     return theRecord->mField3;
 }
 
-int Sexy::PIEffect::LoadParticle(Sexy::Buffer const& theBuffer, Sexy::PILayer * theLayer,
-                                 PIParticle *theParticle)
+int Sexy::PIEffect::LoadParticle(Sexy::Buffer const &theBuffer, Sexy::PILayer *theLayer, PIParticle *theParticle)
 {
     theParticle->mLife = theBuffer.ReadFloat();
     theParticle->mLifePct = theBuffer.ReadFloat();
@@ -666,7 +659,7 @@ int Sexy::PIEffect::LoadParticle(Sexy::Buffer const& theBuffer, Sexy::PILayer * 
     theParticle->mScaleX = point.mX;
     theParticle->mScaleY = point.mY;
 
-    PIParticleType* def = theParticle->mType;
+    PIParticleType *def = theParticle->mType;
     if (def != nullptr && def->mAttachToParent)
     {
         point = theBuffer.ReadFPoint();
@@ -677,7 +670,7 @@ int Sexy::PIEffect::LoadParticle(Sexy::Buffer const& theBuffer, Sexy::PILayer * 
     theParticle->mSize = theBuffer.ReadFloat();
 
     int mask = theBuffer.ReadShort();
-    float* matrix = &theParticle->mTransform.mMatrix.m[0];
+    float *matrix = &theParticle->mTransform.mMatrix.m[0];
     for (int i = 0; i != 9; ++i)
     {
         if (((mask >> i) & 1) != 0)
@@ -711,10 +704,10 @@ int Sexy::PIEffect::ResetAnim()
 
     for (size_t layerIndex = 0; layerIndex < mLive.size(); ++layerIndex)
     {
-        PILiveLayer& layer = mLive[layerIndex];
+        PILiveLayer &layer = mLive[layerIndex];
         for (size_t emitterIndex = 0; emitterIndex < layer.mEmitters.size(); ++emitterIndex)
         {
-            PILiveEmitter& live = layer.mEmitters[emitterIndex];
+            PILiveEmitter &live = layer.mEmitters[emitterIndex];
             DeleteChain(live.mFree.mHead);
             live.mFree.mHead = nullptr;
             live.mFree.mTail = nullptr;
@@ -748,14 +741,14 @@ int Sexy::PIEffect::ResetAnim()
     return (int)mLive.size();
 }
 
-Sexy::PILayer * Sexy::PIEffect::GetLayer(int theIndex)
+Sexy::PILayer *Sexy::PIEffect::GetLayer(int theIndex)
 {
     if (theIndex < 0 || theIndex >= (int)mLayers.size())
         return nullptr;
     return &mLayers[theIndex];
 }
 
-Sexy::PILayer * Sexy::PIEffect::GetLayer(Sexy::String const& theName)
+Sexy::PILayer *Sexy::PIEffect::GetLayer(Sexy::String const &theName)
 {
     if (mLayers.empty())
         return nullptr;
@@ -769,13 +762,12 @@ Sexy::PILayer * Sexy::PIEffect::GetLayer(Sexy::String const& theName)
     return nullptr;
 }
 
-Sexy::TPoint<float> Sexy::PIEffect::GetEmitterPos(Sexy::PIEmitterInstance * theInstance,
-                                                  bool theTransform)
+Sexy::TPoint<float> Sexy::PIEffect::GetEmitterPos(Sexy::PIEmitterInstance *theInstance, bool theTransform)
 {
     Sexy::TPoint<float> pos;
-    PILiveEmitter* live = FindLive(theInstance);
-    Sexy::PIEmitterInstanceDef* def = theInstance != nullptr ? theInstance->mDef
-        : (live != nullptr ? live->mDef : nullptr);
+    PILiveEmitter *live = FindLive(theInstance);
+    Sexy::PIEmitterInstanceDef *def =
+        theInstance != nullptr ? theInstance->mDef : (live != nullptr ? live->mDef : nullptr);
     if (def != nullptr)
     {
         def->mValue2D.GetValueAt(mTime);
@@ -798,7 +790,7 @@ Sexy::TPoint<float> Sexy::PIEffect::GetEmitterPos(Sexy::PIEmitterInstance * theI
 int Sexy::PIEffect::CountParticles(PIParticle *theHead)
 {
     int count = 0;
-    for (PIParticle* node = theHead; node != nullptr; node = node->mNext)
+    for (PIParticle *node = theHead; node != nullptr; node = node->mNext)
         ++count;
     return count;
 }
@@ -812,12 +804,12 @@ int Sexy::PIEffect::IsActive()
 {
     for (size_t layerIndex = 0; layerIndex < mLive.size(); ++layerIndex)
     {
-        PILiveLayer& layer = mLive[layerIndex];
+        PILiveLayer &layer = mLive[layerIndex];
         if (layer.mPublic == nullptr || !layer.mPublic->mVisible)
             continue;
         for (size_t emitterIndex = 0; emitterIndex < layer.mEmitters.size(); ++emitterIndex)
         {
-            PILiveEmitter& live = layer.mEmitters[emitterIndex];
+            PILiveEmitter &live = layer.mEmitters[emitterIndex];
             if (!live.mActive || live.mDef == nullptr)
                 continue;
             float next = live.mDef->mValues[13].GetNextKeyframeTime(mTime);
@@ -832,8 +824,7 @@ int Sexy::PIEffect::IsActive()
     return 0;
 }
 
-Sexy::String Sexy::PIEffect::GetNotesParam(Sexy::String const& theKey,
-                                           Sexy::String const& theDefault)
+Sexy::String Sexy::PIEffect::GetNotesParam(Sexy::String const &theKey, Sexy::String const &theDefault)
 {
     Sexy::String key;
     Upper(&key, &theKey);
@@ -853,9 +844,7 @@ int Sexy::PIEffect::SetCacheUpToDate()
     return 0;
 }
 
-void Sexy::PIEffect::WriteToCache()
-{
-}
+void Sexy::PIEffect::WriteToCache() {}
 
 void Sexy::PIEffect::Deref()
 {
@@ -908,19 +897,59 @@ int Sexy::PIEffect::Clear()
     return 0;
 }
 
-Sexy::PIEffect::PIEffect()
-    : mReadFile(nullptr), mWriteFile(nullptr), mChecksum(0), mWideBooleans(false),
-      mLoadedFlag(true), mFileVersion(0), mFilePath(), mWritePath(), mRand(),
-      mBuffer(), mReadValue(0), mReadPos(0), mNotesText(), mNotesCursor(0),
-      mStrings(), mSettingA(0), mSettingB(0), mLoadColor(), mParticleScale(0),
-      mTimelineStart(0), mTimelineEnd(0), mUnusedE40(0), mNotes(), mDef(nullptr),
-      mLayers(), mLive(), mError(), mLoaded(false), mFrameTick(0), mTime(0.0f),
-      mTimeCrossed(false), mFreeList(), mFreeStride(228), mDeadList(),
-      mDeadStride(256), mEmitEnabled(false), mEmitAfter(false), mLoopFlag(false),
-      mUpdateCountA(0), mUpdateCountB(0), mPixelCount(0), mTimeScale(1.0f),
-      mColor(Sexy::Color::White), mDebugDraw(false), mVisibleFlag(true),
-      mPausedFlag(false), mRandSeeds(), mRandSeedCursor(0), mUnusedED8(0),
-      mNeedsSeed(true), mTransform(), mWorldTransform()
+Sexy::PIEffect::PIEffect() :
+    mReadFile(nullptr),
+    mWriteFile(nullptr),
+    mChecksum(0),
+    mWideBooleans(false),
+    mLoadedFlag(true),
+    mFileVersion(0),
+    mFilePath(),
+    mWritePath(),
+    mRand(),
+    mBuffer(),
+    mReadValue(0),
+    mReadPos(0),
+    mNotesText(),
+    mNotesCursor(0),
+    mStrings(),
+    mSettingA(0),
+    mSettingB(0),
+    mLoadColor(),
+    mParticleScale(0),
+    mTimelineStart(0),
+    mTimelineEnd(0),
+    mUnusedE40(0),
+    mNotes(),
+    mDef(nullptr),
+    mLayers(),
+    mLive(),
+    mError(),
+    mLoaded(false),
+    mFrameTick(0),
+    mTime(0.0f),
+    mTimeCrossed(false),
+    mFreeList(),
+    mFreeStride(228),
+    mDeadList(),
+    mDeadStride(256),
+    mEmitEnabled(false),
+    mEmitAfter(false),
+    mLoopFlag(false),
+    mUpdateCountA(0),
+    mUpdateCountB(0),
+    mPixelCount(0),
+    mTimeScale(1.0f),
+    mColor(Sexy::Color::White),
+    mDebugDraw(false),
+    mVisibleFlag(true),
+    mPausedFlag(false),
+    mRandSeeds(),
+    mRandSeedCursor(0),
+    mUnusedED8(0),
+    mNeedsSeed(true),
+    mTransform(),
+    mWorldTransform()
 {
     mFreeList.mField0 = 0;
     mFreeList.mField1 = 0;
@@ -949,9 +978,10 @@ Sexy::PIEffect::~PIEffect()
     gSexyAppBase->mCritSect.Unlock();
 }
 
-namespace {
+namespace
+{
 
-int ReadBlockByte(Sexy::PIEffect* theEffect)
+int ReadBlockByte(Sexy::PIEffect *theEffect)
 {
     if (theEffect->mReadPos == 1024)
     {
@@ -967,7 +997,7 @@ int ReadBlockByte(Sexy::PIEffect* theEffect)
     return byte;
 }
 
-void ReadRaw(Sexy::PIEffect* theEffect, int theLen)
+void ReadRaw(Sexy::PIEffect *theEffect, int theLen)
 {
     unsigned char stage[4];
     std::memcpy(stage, &theEffect->mReadValue, 4);
@@ -976,7 +1006,7 @@ void ReadRaw(Sexy::PIEffect* theEffect, int theLen)
     std::memcpy(&theEffect->mReadValue, stage, 4);
 }
 
-float ReadRawFloat(Sexy::PIEffect* theEffect)
+float ReadRawFloat(Sexy::PIEffect *theEffect)
 {
     ReadRaw(theEffect, 4);
     float stored = 0.0f;
@@ -984,7 +1014,7 @@ float ReadRawFloat(Sexy::PIEffect* theEffect)
     return EndianFloat(stored);
 }
 
-bool ReadFileBool(Sexy::PIEffect* theEffect)
+bool ReadFileBool(Sexy::PIEffect *theEffect)
 {
     if (theEffect->mWideBooleans)
         return ReadBlockByte(theEffect) != 0;
@@ -992,19 +1022,19 @@ bool ReadFileBool(Sexy::PIEffect* theEffect)
     return EndianInt(theEffect->mReadValue) != 0;
 }
 
-int ReadFileInt(Sexy::PIEffect* theEffect)
+int ReadFileInt(Sexy::PIEffect *theEffect)
 {
     ReadRaw(theEffect, 4);
     return EndianInt(theEffect->mReadValue);
 }
 
-short ReadFileShort(Sexy::PIEffect* theEffect)
+short ReadFileShort(Sexy::PIEffect *theEffect)
 {
     ReadRaw(theEffect, 2);
     return EndianShort((short)theEffect->mReadValue);
 }
 
-void ClearSpawn(Sexy::PIParticleDefInstance* theRecord)
+void ClearSpawn(Sexy::PIParticleDefInstance *theRecord)
 {
     theRecord->mField0 = 0.0f;
     theRecord->mField1 = 0.0f;
@@ -1012,23 +1042,23 @@ void ClearSpawn(Sexy::PIParticleDefInstance* theRecord)
     theRecord->mField3 = 0;
 }
 
-Sexy::PIParticleType* TypeOf(Sexy::PIEffect* theEffect, Sexy::PIParticleDef* theDef)
+Sexy::PIParticleType *TypeOf(Sexy::PIEffect *theEffect, Sexy::PIParticleDef *theDef)
 {
     return theEffect->FindType(theDef);
 }
 
-Sexy::PILiveEmitter*& CurrentLive()
+Sexy::PILiveEmitter *&CurrentLive()
 {
-    static Sexy::PILiveEmitter* current = nullptr;
+    static Sexy::PILiveEmitter *current = nullptr;
     return current;
 }
 
 struct LiveScope
 {
-    Sexy::PILiveEmitter* mPrevious;
+    Sexy::PILiveEmitter *mPrevious;
 
-    explicit LiveScope(Sexy::PILiveEmitter* theLive)
-        : mPrevious(CurrentLive())
+    explicit LiveScope(Sexy::PILiveEmitter *theLive) :
+        mPrevious(CurrentLive())
     {
         CurrentLive() = theLive;
     }
@@ -1039,14 +1069,14 @@ struct LiveScope
     }
 };
 
-Sexy::PILiveEmitter* LiveOf(Sexy::PIEffect* theEffect, Sexy::PIEmitterInstance* theInstance)
+Sexy::PILiveEmitter *LiveOf(Sexy::PIEffect *theEffect, Sexy::PIEmitterInstance *theInstance)
 {
     if (CurrentLive() != nullptr)
         return CurrentLive();
     return theEffect->FindLive(theInstance);
 }
 
-float CurveAtTime(Sexy::PIValue* theCurve, float theTime, float theStep)
+float CurveAtTime(Sexy::PIValue *theCurve, float theTime, float theStep)
 {
     if (theCurve == nullptr)
         return 0.0f;
@@ -1087,7 +1117,7 @@ Sexy::String Sexy::PIEffect::ReadStringS()
             result += Sexy::String(blank, chunk);
             filled += chunk;
         }
-        char* data = result.data();
+        char *data = result.data();
         for (int i = 0; i < length; ++i)
             data[i] = (char)ReadBlockByte(this);
     }
@@ -1096,7 +1126,7 @@ Sexy::String Sexy::PIEffect::ReadStringS()
     return result;
 }
 
-int Sexy::PIEffect::ExpectCmd(Sexy::String const& theExpected)
+int Sexy::PIEffect::ExpectCmd(Sexy::String const &theExpected)
 {
     if (mWideBooleans)
         return 1;
@@ -1109,7 +1139,7 @@ int Sexy::PIEffect::ExpectCmd(Sexy::String const& theExpected)
     return Fail(message);
 }
 
-void Sexy::PIEffect::ReadValue2D(Sexy::PIValue2D * theCurve)
+void Sexy::PIEffect::ReadValue2D(Sexy::PIValue2D *theCurve)
 {
     int count = EndianShort(ReadFileShort(this));
     bool hasTangents = false;
@@ -1119,8 +1149,8 @@ void Sexy::PIEffect::ReadValue2D(Sexy::PIValue2D * theCurve)
         return;
 
     std::vector<float> times;
-    std::vector<Sexy::TPoint<float> > points;
-    std::vector<Sexy::TPoint<float> > tangents;
+    std::vector<Sexy::TPoint<float>> points;
+    std::vector<Sexy::TPoint<float>> tangents;
     for (int i = 0; i != count; ++i)
     {
         ExpectCmd(Sexy::String("CKey"));
@@ -1151,7 +1181,7 @@ void Sexy::PIEffect::ReadValue2D(Sexy::PIValue2D * theCurve)
         theCurve->mBezier.Init(points.data(), tangents.data(), times.data(), count);
 }
 
-int Sexy::PIEffect::ReadEPoint(Sexy::PIValue2D * theCurve)
+int Sexy::PIEffect::ReadEPoint(Sexy::PIValue2D *theCurve)
 {
     int count = EndianShort(ReadFileShort(this));
     for (int i = 0; i != count; ++i)
@@ -1165,7 +1195,7 @@ int Sexy::PIEffect::ReadEPoint(Sexy::PIValue2D * theCurve)
     return 0;
 }
 
-void Sexy::PIEffect::ReadValue(Sexy::PIValue * theCurve)
+void Sexy::PIEffect::ReadValue(Sexy::PIValue *theCurve)
 {
     int flags = ReadBlockByte(this);
     int count = flags & 7;
@@ -1174,8 +1204,8 @@ void Sexy::PIEffect::ReadValue(Sexy::PIValue * theCurve)
     ResizeKeys(theCurve, count);
     bool hasTangents = (flags & 8) != 0;
     std::vector<float> times;
-    std::vector<Sexy::TPoint<float> > points;
-    std::vector<Sexy::TPoint<float> > tangents;
+    std::vector<Sexy::TPoint<float>> points;
+    std::vector<Sexy::TPoint<float>> tangents;
     int tangent = 0;
     for (int i = 0; i < count; ++i)
     {
@@ -1216,7 +1246,7 @@ void Sexy::PIEffect::ReadValue(Sexy::PIValue * theCurve)
         theCurve->mBezier.Init(points.data(), tangents.data(), times.data(), count);
 }
 
-int Sexy::PIEffect::ReadEmitterType(Sexy::PIEmitter * theEmitter)
+int Sexy::PIEffect::ReadEmitterType(Sexy::PIEmitter *theEmitter)
 {
     ReadFileInt(this);
     theEmitter->mName = ReadString();
@@ -1227,7 +1257,7 @@ int Sexy::PIEffect::ReadEmitterType(Sexy::PIEmitter * theEmitter)
     for (int i = 0; i < defCount; ++i)
     {
         ExpectCmd(Sexy::String("CEmParticleType"));
-        PIParticleType* type = new PIParticleType();
+        PIParticleType *type = new PIParticleType();
         for (int skipped = 0; skipped != 16; ++skipped)
             ReadFileInt(this);
         type->mAdditive = ReadFileBool(this);
@@ -1276,10 +1306,10 @@ int Sexy::PIEffect::ReadEmitterType(Sexy::PIEmitter * theEmitter)
             ReadValue(&type->mValues[curve]);
         type->mPivotX = ReadRawFloat(this);
         type->mPivotY = ReadRawFloat(this);
-        if (!mWideBooleans && mDef != nullptr && type->mImageIndex >= 0
-            && type->mImageIndex < (int)mDef->mImages.size())
+        if (!mWideBooleans && mDef != nullptr && type->mImageIndex >= 0 &&
+            type->mImageIndex < (int)mDef->mImages.size())
         {
-            Sexy::DeviceImage* image = ImageOf(mDef->mImages[type->mImageIndex]->mImage);
+            Sexy::DeviceImage *image = ImageOf(mDef->mImages[type->mImageIndex]->mImage);
             if (image != nullptr && image->mWidth != 0 && image->mHeight != 0)
             {
                 type->mPivotX = type->mPivotX / (float)image->mWidth;
@@ -1323,7 +1353,7 @@ int Sexy::PIEffect::ReadEmitterType(Sexy::PIEmitter * theEmitter)
     return 0;
 }
 
-int Sexy::PIEffect::LoadEffect(Sexy::String const& thePath)
+int Sexy::PIEffect::LoadEffect(Sexy::String const &thePath)
 {
     Deref();
     Clear();
@@ -1359,14 +1389,14 @@ int Sexy::PIEffect::LoadEffect(Sexy::String const& thePath)
             break;
         if (command == "CEmitterType")
         {
-            PIEmitter* emitter = new PIEmitter();
+            PIEmitter *emitter = new PIEmitter();
             ReadEmitterType(emitter);
             mDef->mEmitters.push_back(emitter);
             continue;
         }
         if (command == "CMultiTexture" || command == "CTexture")
         {
-            PITextureData* texture = new PITextureData();
+            PITextureData *texture = new PITextureData();
             texture->mName = ReadString();
             texture->mAtlas = command == "CTexture";
             int count = ReadFileInt(this);
@@ -1505,7 +1535,7 @@ int Sexy::PIEffect::LoadEffect(Sexy::String const& thePath)
                 while (cursor < (int)value.size())
                 {
                     int comma = -1;
-                    const char* text = value.c_str();
+                    const char *text = value.c_str();
                     for (unsigned int index = (unsigned int)cursor; index < value.size(); ++index)
                     {
                         if (text[index] == ',')
@@ -1543,7 +1573,7 @@ int Sexy::PIEffect::LoadEffect(Sexy::String const& thePath)
     mLive.resize(mDef->mLayerDefs.size());
     for (size_t layerIndex = 0; layerIndex < mDef->mLayerDefs.size(); ++layerIndex)
     {
-        PILayerDef& layerDef = mDef->mLayerDefs[layerIndex];
+        PILayerDef &layerDef = mDef->mLayerDefs[layerIndex];
         mLive[layerIndex].mDef = &layerDef;
         mLive[layerIndex].mPublic = &mLayers[layerIndex];
         mLayers[layerIndex].mVisible = true;
@@ -1556,12 +1586,12 @@ int Sexy::PIEffect::LoadEffect(Sexy::String const& thePath)
             loadedBase += mDef->mLayerDefs[earlier].mEmitters.size();
         for (size_t emitterIndex = 0; emitterIndex < layerDef.mEmitters.size(); ++emitterIndex)
         {
-            PIEmitterInstanceDef& placed = layerDef.mEmitters[emitterIndex];
-            PILiveEmitter& live = mLive[layerIndex].mEmitters[emitterIndex];
+            PIEmitterInstanceDef &placed = layerDef.mEmitters[emitterIndex];
+            PILiveEmitter &live = mLive[layerIndex].mEmitters[emitterIndex];
             live.mDef = &placed;
             if (loadedBase + emitterIndex < loadedEmitters.size())
             {
-                PILiveEmitter& loaded = loadedEmitters[loadedBase + emitterIndex];
+                PILiveEmitter &loaded = loadedEmitters[loadedBase + emitterIndex];
                 live.mName = loaded.mName;
                 live.mLifeBias = loaded.mLifeBias;
                 live.mEmitterType = loaded.mEmitterType;
@@ -1598,16 +1628,14 @@ int Sexy::PIEffect::LoadEffect(Sexy::String const& thePath)
     return mLoaded ? 1 : 0;
 }
 
-Sexy::TPoint<float> Sexy::PIEffect::GetGeomPos(Sexy::PIEmitterInstance * theInstance,
-                                               PIParticle * theParticle,
-                                               float * theAngleOut,
-                                               bool * theMask)
+Sexy::TPoint<float> Sexy::PIEffect::GetGeomPos(
+    Sexy::PIEmitterInstance *theInstance, PIParticle *theParticle, float *theAngleOut, bool *theMask)
 {
     Sexy::TPoint<float> pos;
-    PILiveEmitter* live = LiveOf(this, theInstance);
+    PILiveEmitter *live = LiveOf(this, theInstance);
     if (live == nullptr || live->mDef == nullptr)
         return pos;
-    PIEmitterInstanceDef* def = live->mDef;
+    PIEmitterInstanceDef *def = live->mDef;
     int shape = live->mShape;
     float radiusX = CurveAtTime(&def->mValues[15], mTime, 0.0f);
     float radiusY = CurveAtTime(&def->mValues[16], mTime, 0.0f);
@@ -1677,8 +1705,7 @@ Sexy::TPoint<float> Sexy::PIEffect::GetGeomPos(Sexy::PIEmitterInstance * theInst
                 float side = 1.0f;
                 if (live->mHeadingLock)
                     side = live->mHeadingRandom ? GetRandSign() : -1.0f;
-                *theAngleOut = (*theAngleOut + kHalfPi) + side * kHalfPi
-                    + atan2f(y1 - y0, x1 - x0);
+                *theAngleOut = (*theAngleOut + kHalfPi) + side * kHalfPi + atan2f(y1 - y0, x1 - x0);
             }
         }
     }
@@ -1743,15 +1770,14 @@ Sexy::TPoint<float> Sexy::PIEffect::GetGeomPos(Sexy::PIEmitterInstance * theInst
             if (count > 1)
                 pos.mX = radiusX * (((float)(spawn % count) / (float)(count - 1)) - 0.5f);
             if (rows > 1)
-                pos.mY = radiusY * (((float)((spawn / (count != 0 ? count : 1)) % rows)
-                    / (float)(rows - 1)) - 0.5f);
+                pos.mY = radiusY * (((float)((spawn / (count != 0 ? count : 1)) % rows) / (float)(rows - 1)) - 0.5f);
         }
         else
         {
             pos.mX = (radiusX * 0.5f) * GetRandFloat();
             pos.mY = (radiusY * 0.5f) * GetRandFloat();
         }
-        Sexy::DeviceImage* mask = ImageOf(live->mImage);
+        Sexy::DeviceImage *mask = ImageOf(live->mImage);
         if (mask != nullptr && theMask != nullptr && radiusX != 0.0f && radiusY != 0.0f)
         {
             float u = pos.mX / radiusX + 0.5f;
@@ -1766,7 +1792,7 @@ Sexy::TPoint<float> Sexy::PIEffect::GetGeomPos(Sexy::PIEmitterInstance * theInst
                 px = 0;
             if (py < 0)
                 py = 0;
-            unsigned int* bits = mask->GetBits();
+            unsigned int *bits = mask->GetBits();
             if (bits != nullptr)
             {
                 int sample = (int)bits[px + py * mask->mWidth];
@@ -1786,18 +1812,14 @@ Sexy::TPoint<float> Sexy::PIEffect::GetGeomPos(Sexy::PIEmitterInstance * theInst
     return pos;
 }
 
-int Sexy::PIEffect::CalcParticleTransform(Sexy::PILayer * theLayer,
-                                          Sexy::PIEmitterInstance * theInstance,
-                                          Sexy::PIEmitter * theEmitter,
-                                          Sexy::PIParticleDef * theDef,
-                                          PIParticleGroup * theGroup,
-                                          PIParticle * theParticle)
+int Sexy::PIEffect::CalcParticleTransform(Sexy::PILayer *theLayer, Sexy::PIEmitterInstance *theInstance,
+    Sexy::PIEmitter *theEmitter, Sexy::PIParticleDef *theDef, PIParticleGroup *theGroup, PIParticle *theParticle)
 {
     (void)theLayer;
     (void)theEmitter;
-    PIParticleType* type = theParticle != nullptr ? theParticle->mType : TypeOf(this, theDef);
-    PILiveEmitter* live = LiveOf(this, theInstance);
-    PIEmitterInstanceDef* placed = live != nullptr ? live->mDef : nullptr;
+    PIParticleType *type = theParticle != nullptr ? theParticle->mType : TypeOf(this, theDef);
+    PILiveEmitter *live = LiveOf(this, theInstance);
+    PIEmitterInstanceDef *placed = live != nullptr ? live->mDef : nullptr;
     float life = theParticle != nullptr ? theParticle->mLifePct : 0.0f;
     float scaleX = 1.0f;
     float scaleY = 1.0f;
@@ -1806,11 +1828,10 @@ int Sexy::PIEffect::CalcParticleTransform(Sexy::PILayer * theLayer,
     int imageH = 0;
     bool scaled = false;
 
-    if (type != nullptr && mDef != nullptr && type->mImageIndex >= 0
-        && type->mImageIndex < (int)mDef->mImages.size())
+    if (type != nullptr && mDef != nullptr && type->mImageIndex >= 0 && type->mImageIndex < (int)mDef->mImages.size())
     {
-        PITextureData* texture = mDef->mImages[type->mImageIndex];
-        Sexy::DeviceImage* image = nullptr;
+        PITextureData *texture = mDef->mImages[type->mImageIndex];
+        Sexy::DeviceImage *image = nullptr;
         if (!texture->mRefs.empty())
         {
             int frame = theParticle != nullptr ? theParticle->mFrameIndex : 0;
@@ -1843,13 +1864,13 @@ int Sexy::PIEffect::CalcParticleTransform(Sexy::PILayer * theLayer,
             float emitterScale = theGroup != nullptr && theGroup->mUseEmitter != 0 && theEmitter != nullptr
                 ? CurveAtTime(EmitterCurve(theEmitter, 10), mTime, 0.0f)
                 : (placed != nullptr ? CurveAtTime(&placed->mValues[2], mTime, 0.0f) : 1.0f);
-            theParticle->mSpinScaleX = (CurveAtTime(&type->mValues[2], mTime, 0.0f) + theParticle->mVarSpin)
-                * emitterScale;
+            theParticle->mSpinScaleX =
+                (CurveAtTime(&type->mValues[2], mTime, 0.0f) + theParticle->mVarSpin) * emitterScale;
             float emitterScaleY = theGroup != nullptr && theGroup->mUseEmitter != 0 && theEmitter != nullptr
                 ? CurveAtTime(EmitterCurve(theEmitter, 11), mTime, 0.0f)
                 : (placed != nullptr ? CurveAtTime(&placed->mValues[17], mTime, 0.0f) : 1.0f);
-            theParticle->mSpinScaleY = (CurveAtTime(&type->mValues[25], mTime, 0.0f) + theParticle->mVarSpin2)
-                * emitterScaleY;
+            theParticle->mSpinScaleY =
+                (CurveAtTime(&type->mValues[25], mTime, 0.0f) + theParticle->mVarSpin2) * emitterScaleY;
         }
         if (theParticle != nullptr)
         {
@@ -1877,8 +1898,7 @@ int Sexy::PIEffect::CalcParticleTransform(Sexy::PILayer * theLayer,
         if (spin != 0.0f)
             basis.LoadRotateDeg(spin);
     }
-    if (theParticle != nullptr && theParticle->mParent != nullptr
-        && theParticle->mParent->mAngle != 0.0f)
+    if (theParticle != nullptr && theParticle->mParent != nullptr && theParticle->mParent->mAngle != 0.0f)
         basis.RotateRad(-theParticle->mParent->mAngle);
 
     float m00 = 1.0f;
@@ -1889,10 +1909,10 @@ int Sexy::PIEffect::CalcParticleTransform(Sexy::PILayer * theLayer,
     float ty = 0.0f;
     if (type != nullptr)
     {
-        float pivotX = -(type->mPivotX * (imageH != 0 ? (float)imageH / (float)(imageW != 0 ? imageW : 1) : 1.0f))
-            * (float)imageW;
-        float pivotY = -(type->mPivotY * (imageW != 0 ? (float)imageW / (float)(imageH != 0 ? imageH : 1) : 1.0f))
-            * (float)imageH;
+        float pivotX =
+            -(type->mPivotX * (imageH != 0 ? (float)imageH / (float)(imageW != 0 ? imageW : 1) : 1.0f)) * (float)imageW;
+        float pivotY =
+            -(type->mPivotY * (imageW != 0 ? (float)imageW / (float)(imageH != 0 ? imageH : 1) : 1.0f)) * (float)imageH;
         tx = -(type->mPivotX) * (float)imageW;
         ty = -(type->mPivotY) * (float)imageH;
         (void)pivotX;
@@ -1952,14 +1972,14 @@ int Sexy::PIEffect::CalcParticleTransform(Sexy::PILayer * theLayer,
             tx *= size;
             ty *= size;
         }
-        if (type != nullptr && type->mAttachToParent && theGroup != nullptr && theGroup->mSkipAttach == 0
-            && theParticle->mParent != nullptr)
+        if (type != nullptr && type->mAttachToParent && theGroup != nullptr && theGroup->mSkipAttach == 0 &&
+            theParticle->mParent != nullptr)
         {
             float weight = type->mAttachWeight;
-            float parentX = theParticle->mParent->mLaunchPosX + theParticle->mParent->mScaleX
-                + theParticle->mParent->mPosX;
-            float parentY = theParticle->mParent->mLaunchPosY + theParticle->mParent->mScaleY
-                + theParticle->mParent->mPosY;
+            float parentX =
+                theParticle->mParent->mLaunchPosX + theParticle->mParent->mScaleX + theParticle->mParent->mPosX;
+            float parentY =
+                theParticle->mParent->mLaunchPosY + theParticle->mParent->mScaleY + theParticle->mParent->mPosY;
             theParticle->mLaunchPosX = weight * parentX + (1.0f - weight) * theParticle->mLaunchPosX;
             theParticle->mLaunchPosY = weight * parentY + (1.0f - weight) * theParticle->mLaunchPosY;
         }
@@ -2007,21 +2027,20 @@ int Sexy::PIEffect::CalcParticleTransform(Sexy::PILayer * theLayer,
     return 0;
 }
 
-void Sexy::PIEffect::UpdateParticleGroup(Sexy::PILayer * theLayer,
-                                         Sexy::PIEmitterInstance * theInstance,
-                                         PIParticleGroup * theGroup)
+void Sexy::PIEffect::UpdateParticleGroup(
+    Sexy::PILayer *theLayer, Sexy::PIEmitterInstance *theInstance, PIParticleGroup *theGroup)
 {
     if (theGroup == nullptr || theGroup->mHead == nullptr)
         return;
-    PILiveEmitter* live = LiveOf(this, theInstance);
-    PIEmitterInstanceDef* placed = live != nullptr ? live->mDef : nullptr;
+    PILiveEmitter *live = LiveOf(this, theInstance);
+    PIEmitterInstanceDef *placed = live != nullptr ? live->mDef : nullptr;
     float frameScale = mTimeScale != 0.0f ? 100.0f / mTimeScale : 100.0f;
     float step = 1.0f / frameScale;
-    PIParticle* node = theGroup->mHead;
+    PIParticle *node = theGroup->mHead;
     while (node != nullptr)
     {
-        PIParticle* next = node->mNext;
-        PIParticleType* type = node->mType;
+        PIParticle *next = node->mNext;
+        PIParticleType *type = node->mType;
         float age = node->mEmitterTime;
         node->mEmitterTime = age + step;
         float life = 0.0f;
@@ -2047,12 +2066,12 @@ void Sexy::PIEffect::UpdateParticleGroup(Sexy::PILayer * theLayer,
             life = node->mEmitterTime / node->mLife;
         }
         node->mLifePct = life;
-        bool expired = life >= 1.0f || node->mLife <= 0.00000001f
-            || (live != nullptr && !live->mEmitting && !live->mFreeEmitters);
+        bool expired =
+            life >= 1.0f || node->mLife <= 0.00000001f || (live != nullptr && !live->mEmitting && !live->mFreeEmitters);
         if (expired)
         {
-            if (theGroup->mSkipAttach == 0 && type != nullptr && type->mSuperEmitter
-                && live != nullptr && live->mEmitting)
+            if (theGroup->mSkipAttach == 0 && type != nullptr && type->mSuperEmitter && live != nullptr &&
+                live->mEmitting)
             {
                 node = next;
                 continue;
@@ -2090,8 +2109,8 @@ void Sexy::PIEffect::UpdateParticleGroup(Sexy::PILayer * theLayer,
                 float base = theGroup->mUseEmitter != 0 && node->mEmitter != nullptr
                     ? CurveAtTime(EmitterCurve(node->mEmitter, 15), mTime, 0.0f)
                     : (placed != nullptr ? CurveAtTime(&placed->mValues[6], mTime, 0.0f) : 0.0f);
-                rate = CurveAtTime(&type->mValues[20], life, 0.0f) * base
-                    * (CurveAtTime(&type->mValues[6], mTime, 0.0f) + node->mVarJitter);
+                rate = CurveAtTime(&type->mValues[20], life, 0.0f) * base *
+                    (CurveAtTime(&type->mValues[6], mTime, 0.0f) + node->mVarJitter);
                 if (rate < 0.0f)
                     rate = 0.0f;
             }
@@ -2105,12 +2124,9 @@ void Sexy::PIEffect::UpdateParticleGroup(Sexy::PILayer * theLayer,
             float emitterG = theGroup->mUseEmitter != 0
                 ? CurveAtTime(EmitterCurve(node->mEmitter, 13), mTime, 0.0f)
                 : (placed != nullptr ? CurveAtTime(&placed->mValues[4], mTime, 0.0f) : 0.0f);
-            float overLife = type != nullptr
-                ? CurveAtTime(&type->mValues[18], life, 0.0f) : 1.0f;
-            float local = type != nullptr
-                ? CurveAtTime(&type->mValues[4], mTime, 0.0f) : 0.0f;
-            gravity = (overLife * (emitterG * gravityScale) - emitterG * gravityScale)
-                * (local + node->mVarGravity);
+            float overLife = type != nullptr ? CurveAtTime(&type->mValues[18], life, 0.0f) : 1.0f;
+            float local = type != nullptr ? CurveAtTime(&type->mValues[4], mTime, 0.0f) : 0.0f;
+            gravity = (overLife * (emitterG * gravityScale) - emitterG * gravityScale) * (local + node->mVarGravity);
         }
         float timeBias = ((float)mParticleScale - 100.0f) * 0.0005f + 1.0f;
         node->mSpinY += timeBias * step * gravity;
@@ -2119,7 +2135,7 @@ void Sexy::PIEffect::UpdateParticleGroup(Sexy::PILayer * theLayer,
         float moveY = drag * step * node->mSpinY;
         node->mPosX += moveX;
         node->mPosY += moveY;
-        PILayerDef* layerDef = nullptr;
+        PILayerDef *layerDef = nullptr;
         for (size_t layerIndex = 0; layerIndex < mLive.size(); ++layerIndex)
         {
             if (mLive[layerIndex].mPublic == theLayer)
@@ -2134,7 +2150,7 @@ void Sexy::PIEffect::UpdateParticleGroup(Sexy::PILayer * theLayer,
             Sexy::TPoint<float> end(node->mPosX, node->mPosY);
             for (size_t i = 0; i < layerDef->mDeflectors.size(); ++i)
             {
-                PIDeflector& deflector = layerDef->mDeflectors[i];
+                PIDeflector &deflector = layerDef->mDeflectors[i];
                 float active = deflector.mActive.GetLastKeyframe(mTime);
                 if (FloatBits(FloatToBits(active)) <= 0.99f)
                     continue;
@@ -2145,8 +2161,8 @@ void Sexy::PIEffect::UpdateParticleGroup(Sexy::PILayer * theLayer,
                 {
                     float fraction = 0.0f;
                     Sexy::TPoint<float> hit;
-                    if (!LineSegmentIntersects(start, end, deflector.mPoints[point],
-                                               deflector.mPoints[point + 1], &fraction, &hit))
+                    if (!LineSegmentIntersects(
+                            start, end, deflector.mPoints[point], deflector.mPoints[point + 1], &fraction, &hit))
                         continue;
                     float dx = deflector.mPoints[point + 1].mX - deflector.mPoints[point].mX;
                     float dy = deflector.mPoints[point + 1].mY - deflector.mPoints[point].mY;
@@ -2169,7 +2185,7 @@ void Sexy::PIEffect::UpdateParticleGroup(Sexy::PILayer * theLayer,
             }
             for (size_t i = 0; i < layerDef->mForces.size(); ++i)
             {
-                PIForce& force = layerDef->mForces[i];
+                PIForce &force = layerDef->mForces[i];
                 if (!force.mEnabled)
                     continue;
                 float active = force.mActive.GetLastKeyframe(mTime);
@@ -2181,8 +2197,8 @@ void Sexy::PIEffect::UpdateParticleGroup(Sexy::PILayer * theLayer,
                     int next = (corner + 1) & 3;
                     float edgeX = force.mCorners[next].mX - force.mCorners[corner].mX;
                     float edgeY = force.mCorners[next].mY - force.mCorners[corner].mY;
-                    float side = edgeX * (node->mPosY - force.mCorners[corner].mY)
-                        - edgeY * (node->mPosX - force.mCorners[corner].mX);
+                    float side = edgeX * (node->mPosY - force.mCorners[corner].mY) -
+                        edgeY * (node->mPosX - force.mCorners[corner].mX);
                     if (((corner & 1) == 0 && side > 0.0f) || ((corner & 1) != 0 && side < 0.0f))
                         inside += 1;
                 }
@@ -2215,40 +2231,36 @@ void Sexy::PIEffect::UpdateParticleGroup(Sexy::PILayer * theLayer,
     }
 }
 
-Sexy::Color * Sexy::PIEffect::DrawParticleGroup(Sexy::Graphics *theGraphics,
-                                                Sexy::PILayer *theLayer,
-                                                Sexy::PIEmitterInstance *theInstance,
-                                                PIParticleGroup *theGroup,
-                                                unsigned char theAdditivePass)
+Sexy::Color *Sexy::PIEffect::DrawParticleGroup(Sexy::Graphics *theGraphics, Sexy::PILayer *theLayer,
+    Sexy::PIEmitterInstance *theInstance, PIParticleGroup *theGroup, unsigned char theAdditivePass)
 {
     (void)theLayer;
     if (theGraphics == nullptr || theGroup == nullptr)
         return nullptr;
-    PILiveEmitter* live = LiveOf(this, theInstance);
+    PILiveEmitter *live = LiveOf(this, theInstance);
     if (live == nullptr || !live->mEmitting && theGroup->mHead == nullptr)
         return &mColor;
     if (!live->mActive)
         return &mColor;
-    Sexy::Color tint(
-        theLayer != nullptr ? theLayer->mColor.mRed * mColor.mRed / 255 : mColor.mRed,
+    Sexy::Color tint(theLayer != nullptr ? theLayer->mColor.mRed * mColor.mRed / 255 : mColor.mRed,
         theLayer != nullptr ? theLayer->mColor.mGreen * mColor.mGreen / 255 : mColor.mGreen,
         theLayer != nullptr ? theLayer->mColor.mBlue * mColor.mBlue / 255 : mColor.mBlue,
         theLayer != nullptr ? theLayer->mColor.mAlpha * mColor.mAlpha / 255 : mColor.mAlpha);
     bool tinted = tint != Sexy::Color::White;
-    for (PIParticle* node = theGroup->mHead; node != nullptr; node = node->mNext)
+    for (PIParticle *node = theGroup->mHead; node != nullptr; node = node->mNext)
     {
-        PIParticleType* type = node->mType;
+        PIParticleType *type = node->mType;
         if (type == nullptr)
             continue;
         bool additive = type->mAdditive && (type->mAdditiveSecond || theAdditivePass == 0);
         if (theAdditivePass != 0 && !type->mAdditive)
             continue;
         theGraphics->SetDrawMode(additive ? 1 : 0);
-        Sexy::Image* image = nullptr;
+        Sexy::Image *image = nullptr;
         Sexy::TRect<int> cel;
         if (mDef != nullptr && type->mImageIndex >= 0 && type->mImageIndex < (int)mDef->mImages.size())
         {
-            PITextureData* texture = mDef->mImages[type->mImageIndex];
+            PITextureData *texture = mDef->mImages[type->mImageIndex];
             if (!texture->mRefs.empty())
             {
                 int frame = node->mFrameIndex;
@@ -2284,7 +2296,8 @@ Sexy::Color * Sexy::PIEffect::DrawParticleGroup(Sexy::Graphics *theGraphics,
         else if (type->mUseSpawnColor)
         {
             int count = (int)type->mColorKeys.mKeyframes.size();
-            int index = count != 0 ? (node->mSpawnIndex / (type->mColorStride != 0 ? type->mColorStride : 1)) % count : 0;
+            int index =
+                count != 0 ? (node->mSpawnIndex / (type->mColorStride != 0 ? type->mColorStride : 1)) % count : 0;
             color = type->mColorKeys.GetKeyframeNum(index);
         }
         else
@@ -2304,8 +2317,7 @@ Sexy::Color * Sexy::PIEffect::DrawParticleGroup(Sexy::Graphics *theGraphics,
         float alphaScale = 1.0f;
         if (live->mDef != nullptr)
             alphaScale = CurveAtTime(&live->mDef->mValues[10], mTime, 0.0f);
-        float typeAlpha = node->mEmitter != nullptr
-            ? CurveAtTime(EmitterCurve(node->mEmitter, 20), mTime, 1.0f) : 1.0f;
+        float typeAlpha = node->mEmitter != nullptr ? CurveAtTime(EmitterCurve(node->mEmitter, 20), mTime, 1.0f) : 1.0f;
         int blended = InterpColor((int)color, (int)live->mTint.ToInt(), typeAlpha * alphaScale);
         float life = node->mLifePct;
         if (type->mAlphaRepeat != 0)
@@ -2314,11 +2326,9 @@ Sexy::Color * Sexy::PIEffect::DrawParticleGroup(Sexy::Graphics *theGraphics,
             life = scaled - (float)(int)scaled;
         }
         float alpha = (float)(unsigned int)type->mAlphaKeys.GetValueAt(life);
-        float alphaB = live->mDef != nullptr
-            ? CurveAtTime(&live->mDef->mValues[9], mTime, 0.0f) : 1.0f;
+        float alphaB = live->mDef != nullptr ? CurveAtTime(&live->mDef->mValues[9], mTime, 0.0f) : 1.0f;
         float alphaC = CurveAtTime(&type->mValues[22], mTime, 0.0f);
-        float alphaA = node->mEmitter != nullptr
-            ? CurveAtTime(EmitterCurve(node->mEmitter, 18), mTime, 1.0f) : 1.0f;
+        float alphaA = node->mEmitter != nullptr ? CurveAtTime(EmitterCurve(node->mEmitter, 18), mTime, 1.0f) : 1.0f;
         unsigned int alphaByte = (unsigned int)(alphaC * alphaB * alphaA * alpha);
         if (theAdditivePass != 0)
             blended &= (int)0xFF000000;
@@ -2326,8 +2336,10 @@ Sexy::Color * Sexy::PIEffect::DrawParticleGroup(Sexy::Graphics *theGraphics,
         Sexy::Color::FromInt(&draw, (blended & 0xFFFFFF) | (int)(alphaByte << 24));
         if (tinted)
         {
-            draw = Sexy::Color(tint.mRed * draw.mRed / 255, tint.mGreen * draw.mGreen / 255,
-                               tint.mBlue * draw.mBlue / 255, tint.mAlpha * draw.mAlpha / 255);
+            draw = Sexy::Color(tint.mRed * draw.mRed / 255,
+                tint.mGreen * draw.mGreen / 255,
+                tint.mBlue * draw.mBlue / 255,
+                tint.mAlpha * draw.mAlpha / 255);
         }
         if (draw.mAlpha == 0 || image == nullptr)
             continue;
@@ -2337,20 +2349,19 @@ Sexy::Color * Sexy::PIEffect::DrawParticleGroup(Sexy::Graphics *theGraphics,
         Sexy::SexyTransform2D wrapped(combined);
         xform.SetMatrix(wrapped);
         theGraphics->DrawImageTransform(image, xform, cel, 0.0f, 0.0f);
-        mPixelCount = (int)((float)mPixelCount
-            + (float)(image->mWidth * image->mHeight) * fabsf(node->mArea));
+        mPixelCount = (int)((float)mPixelCount + (float)(image->mWidth * image->mHeight) * fabsf(node->mArea));
         node->mDead = 1;
     }
     return &mColor;
 }
 
-int Sexy::PIEffect::DrawLayer(Sexy::Graphics * theGraphics, Sexy::PILayer * theLayer)
+int Sexy::PIEffect::DrawLayer(Sexy::Graphics *theGraphics, Sexy::PILayer *theLayer)
 {
     if (theGraphics == nullptr || theLayer == nullptr)
         return 0;
     theGraphics->PushState();
     theGraphics->SetColorizeImages(true);
-    PILiveLayer* liveLayer = nullptr;
+    PILiveLayer *liveLayer = nullptr;
     for (size_t i = 0; i < mLive.size(); ++i)
     {
         if (mLive[i].mPublic == theLayer)
@@ -2365,13 +2376,13 @@ int Sexy::PIEffect::DrawLayer(Sexy::Graphics * theGraphics, Sexy::PILayer * theL
         {
             for (size_t emitter = 0; emitter < liveLayer->mEmitters.size(); ++emitter)
             {
-                PILiveEmitter& live = liveLayer->mEmitters[emitter];
+                PILiveEmitter &live = liveLayer->mEmitters[emitter];
                 if (!live.mActive || live.mDef == nullptr)
                     continue;
                 LiveScope scope(&live);
                 if (live.mFreeEmitters)
                 {
-                    for (PIParticle* node = live.mFree.mHead; node != nullptr; node = node->mNext)
+                    for (PIParticle *node = live.mFree.mHead; node != nullptr; node = node->mNext)
                     {
                         PIParticleGroup children;
                         children.mHead = node->mChildren;
@@ -2379,14 +2390,12 @@ int Sexy::PIEffect::DrawLayer(Sexy::Graphics * theGraphics, Sexy::PILayer * theL
                         children.mCount = node->mChildCount;
                         children.mSkipAttach = 0;
                         children.mUseEmitter = 1;
-                        DrawParticleGroup(theGraphics, theLayer, nullptr, &children,
-                                          (unsigned char)((pass ^ 1) & 1));
+                        DrawParticleGroup(theGraphics, theLayer, nullptr, &children, (unsigned char)((pass ^ 1) & 1));
                     }
                 }
                 else
                 {
-                    DrawParticleGroup(theGraphics, theLayer, nullptr, &live.mTrail,
-                                      (unsigned char)((pass ^ 1) & 1));
+                    DrawParticleGroup(theGraphics, theLayer, nullptr, &live.mTrail, (unsigned char)((pass ^ 1) & 1));
                 }
             }
         }
@@ -2396,7 +2405,7 @@ int Sexy::PIEffect::DrawLayer(Sexy::Graphics * theGraphics, Sexy::PILayer * theL
     {
         for (size_t i = 0; i < liveLayer->mDef->mBlockers.size(); ++i)
         {
-            PIBlocker& blocker = liveLayer->mDef->mBlockers[i];
+            PIBlocker &blocker = liveLayer->mDef->mBlockers[i];
             float active = blocker.mActive.GetLastKeyframe(mTime);
             bool on = FloatBits(FloatToBits(active)) > 0.99f;
             if (!on)
@@ -2414,14 +2423,14 @@ int Sexy::PIEffect::DrawLayer(Sexy::Graphics * theGraphics, Sexy::PILayer * theL
                 blocker.mPoints[point].GetValueAt(mTime);
                 blocker.mPoints[next].GetValueAt(mTime);
                 theGraphics->DrawLine((int)blocker.mPoints[point].mLastValueX,
-                                      (int)blocker.mPoints[point].mLastValueY,
-                                      (int)blocker.mPoints[next].mLastValueX,
-                                      (int)blocker.mPoints[next].mLastValueY);
+                    (int)blocker.mPoints[point].mLastValueY,
+                    (int)blocker.mPoints[next].mLastValueX,
+                    (int)blocker.mPoints[next].mLastValueY);
             }
         }
         for (size_t i = 0; i < liveLayer->mDef->mDeflectors.size(); ++i)
         {
-            PIDeflector& deflector = liveLayer->mDef->mDeflectors[i];
+            PIDeflector &deflector = liveLayer->mDef->mDeflectors[i];
             float active = deflector.mActive.GetLastKeyframe(mTime);
             bool on = FloatBits(FloatToBits(active)) > 0.99f;
             theGraphics->SetColor(Sexy::Color(on ? 255 : 64, 0, 0));
@@ -2455,14 +2464,14 @@ int Sexy::PIEffect::DrawLayer(Sexy::Graphics * theGraphics, Sexy::PILayer * theL
                 for (int edge = 0; edge != 4; ++edge)
                 {
                     int next = (edge + 1) & 3;
-                    theGraphics->DrawLine((int)corners[edge].mX, (int)corners[edge].mY,
-                                          (int)corners[next].mX, (int)corners[next].mY);
+                    theGraphics->DrawLine(
+                        (int)corners[edge].mX, (int)corners[edge].mY, (int)corners[next].mX, (int)corners[next].mY);
                 }
             }
         }
         for (size_t i = 0; i < liveLayer->mDef->mForces.size(); ++i)
         {
-            PIForce& force = liveLayer->mDef->mForces[i];
+            PIForce &force = liveLayer->mDef->mForces[i];
             float active = force.mActive.GetLastKeyframe(mTime);
             bool on = FloatBits(FloatToBits(active)) > 0.99f;
             if (!force.mEnabled && !on)
@@ -2471,8 +2480,10 @@ int Sexy::PIEffect::DrawLayer(Sexy::Graphics * theGraphics, Sexy::PILayer * theL
             for (int edge = 0; edge != 4; ++edge)
             {
                 int next = (edge + 1) & 3;
-                theGraphics->DrawLine((int)force.mCorners[edge].mX, (int)force.mCorners[edge].mY,
-                                      (int)force.mCorners[next].mX, (int)force.mCorners[next].mY);
+                theGraphics->DrawLine((int)force.mCorners[edge].mX,
+                    (int)force.mCorners[edge].mY,
+                    (int)force.mCorners[next].mX,
+                    (int)force.mCorners[next].mY);
             }
             float direction = CurveAtTime(&force.mDirection, mTime, 0.0f);
             float spin = CurveAtTime(&force.mSpin, mTime, 0.0f);
@@ -2489,9 +2500,9 @@ int Sexy::PIEffect::DrawLayer(Sexy::Graphics * theGraphics, Sexy::PILayer * theL
                 TransformFPoint(&a, arrow.mMatrix, tips[tip]);
                 TransformFPoint(&b, arrow.mMatrix, tips[(tip + 1) % 3]);
                 theGraphics->DrawLine((int)(force.mArrowOriginX + a.mX),
-                                      (int)(force.mArrowOriginY + a.mY),
-                                      (int)(force.mArrowOriginX + b.mX),
-                                      (int)(force.mArrowOriginY + b.mY));
+                    (int)(force.mArrowOriginY + a.mY),
+                    (int)(force.mArrowOriginX + b.mX),
+                    (int)(force.mArrowOriginY + b.mY));
             }
         }
     }
@@ -2499,7 +2510,7 @@ int Sexy::PIEffect::DrawLayer(Sexy::Graphics * theGraphics, Sexy::PILayer * theL
     return 0;
 }
 
-float Sexy::PIEffect::Draw(Sexy::Graphics * theGraphics)
+float Sexy::PIEffect::Draw(Sexy::Graphics *theGraphics)
 {
     mPixelCount = 0;
     if (theGraphics == nullptr)
@@ -2523,20 +2534,15 @@ float Sexy::PIEffect::Draw(Sexy::Graphics * theGraphics)
     return scale;
 }
 
-Sexy::PIParticleDefInstance * Sexy::PIEffect::UpdateParticleDef(Sexy::PILayer * theLayer,
-                                                         Sexy::PIEmitter * theEmitter,
-                                                         Sexy::PIEmitterInstance * theInstance,
-                                                         Sexy::PIParticleDef * theDef,
-                                                         PIParticleDefInstance *theAccum,
-                                                         PIParticleGroup * theGroup,
-                                                         PIParticle *theParent)
+Sexy::PIParticleDefInstance *Sexy::PIEffect::UpdateParticleDef(Sexy::PILayer *theLayer, Sexy::PIEmitter *theEmitter,
+    Sexy::PIEmitterInstance *theInstance, Sexy::PIParticleDef *theDef, PIParticleDefInstance *theAccum,
+    PIParticleGroup *theGroup, PIParticle *theParent)
 {
     if (theAccum == nullptr || theGroup == nullptr)
         return theAccum;
-    PILiveEmitter* live = LiveOf(this, theInstance);
-    PIParticleType* type = theParent != nullptr && theDef == nullptr
-        ? theParent->mType : TypeOf(this, theDef);
-    PIEmitterInstanceDef* placed = live != nullptr ? live->mDef : nullptr;
+    PILiveEmitter *live = LiveOf(this, theInstance);
+    PIParticleType *type = theParent != nullptr && theDef == nullptr ? theParent->mType : TypeOf(this, theDef);
+    PIEmitterInstanceDef *placed = live != nullptr ? live->mDef : nullptr;
     float frameScale = mTimeScale != 0.0f ? 100.0f / mTimeScale : 100.0f;
     float parentLife = theParent != nullptr ? theParent->mLifePct : 0.0f;
     theAccum->mField3 += 1;
@@ -2583,8 +2589,7 @@ Sexy::PIParticleDefInstance * Sexy::PIEffect::UpdateParticleDef(Sexy::PILayer * 
         {
             float rx = placed != nullptr ? CurveAtTime(&placed->mValues[15], mTime, 0.0f) : 0.0f;
             float ry = placed != nullptr ? CurveAtTime(&placed->mValues[16], mTime, 0.0f) : 0.0f;
-            rate = (rate * 0.17952f) * sqrtf(live->mShape == 4 ? rx * rx
-                : ((rx * rx + ry * ry) * 0.5f));
+            rate = (rate * 0.17952f) * sqrtf(live->mShape == 4 ? rx * rx : ((rx * rx + ry * ry) * 0.5f));
         }
         else if (live->mShape == 3)
         {
@@ -2601,7 +2606,7 @@ Sexy::PIParticleDefInstance * Sexy::PIEffect::UpdateParticleDef(Sexy::PILayer * 
     while (theAccum->mField0 >= 1.0f)
     {
         theAccum->mField0 -= 1.0f;
-        PIParticle* born = new PIParticle();
+        PIParticle *born = new PIParticle();
         ++PIParticleInstanceCounter::mCount;
         born->mType = type;
         born->mEmitter = theEmitter;
@@ -2661,9 +2666,8 @@ Sexy::PIParticleDefInstance * Sexy::PIEffect::UpdateParticleDef(Sexy::PILayer * 
         {
             born->mVarLife = CurveAtTime(&type->mValues[8], mTime, 0.0f) * GetVariationScalar();
             born->mVarSpin = CurveAtTime(&type->mValues[10], mTime, 0.0f) * GetVariationScalar();
-            born->mVarSpin2 = type->mLockSpin
-                ? born->mVarSpin
-                : CurveAtTime(&type->mSpinVarY, mTime, 0.0f) * GetVariationScalar();
+            born->mVarSpin2 =
+                type->mLockSpin ? born->mVarSpin : CurveAtTime(&type->mSpinVarY, mTime, 0.0f) * GetVariationScalar();
             born->mVarLaunch = CurveAtTime(&type->mValues[11], mTime, 0.0f) * GetVariationScalar();
             born->mVarGravity = CurveAtTime(&type->mValues[12], mTime, 0.0f) * GetVariationScalar();
             born->mVarSpinRate = CurveAtTime(&type->mValues[13], mTime, 0.0f) * GetVariationScalar();
@@ -2727,8 +2731,8 @@ Sexy::PIParticleDefInstance * Sexy::PIEffect::UpdateParticleDef(Sexy::PILayer * 
         }
         else if (type != nullptr && type->mUseOwnAngle)
         {
-            born->mAngle = -((float)type->mAngleSpread
-                + (float)type->mAngleSpreadRange * 0.5f * GetRandFloat()) * kDegToRad;
+            born->mAngle =
+                -((float)type->mAngleSpread + (float)type->mAngleSpreadRange * 0.5f * GetRandFloat()) * kDegToRad;
         }
         else if (type != nullptr)
         {
@@ -2786,12 +2790,12 @@ int Sexy::PIEffect::Update()
         mTimeCrossed = (int)mTime != crossedFrom;
         for (size_t layerIndex = 0; layerIndex < mLive.size(); ++layerIndex)
         {
-            PILiveLayer& layer = mLive[layerIndex];
+            PILiveLayer &layer = mLive[layerIndex];
             if (layer.mPublic == nullptr || !layer.mPublic->mVisible || layer.mDef == nullptr)
                 continue;
             for (size_t i = 0; i < layer.mDef->mDeflectors.size(); ++i)
             {
-                PIDeflector& deflector = layer.mDef->mDeflectors[i];
+                PIDeflector &deflector = layer.mDef->mDeflectors[i];
                 Sexy::SexyTransform2D xform;
                 float spin = CurveAtTime(&deflector.mSpin, mTime, 0.0f);
                 if (spin != 0.0f)
@@ -2808,8 +2812,8 @@ int Sexy::PIEffect::Update()
                 for (size_t point = 0; point < deflector.mPointCurves.size(); ++point)
                 {
                     deflector.mPointCurves[point].GetValueAt(mTime);
-                    Sexy::TPoint<float> src(deflector.mPointCurves[point].mLastValueX,
-                                            deflector.mPointCurves[point].mLastValueY);
+                    Sexy::TPoint<float> src(
+                        deflector.mPointCurves[point].mLastValueX, deflector.mPointCurves[point].mLastValueY);
                     Sexy::TPoint<float> dst;
                     TransformFPoint(&dst, xform, src);
                     deflector.mPoints.push_back(dst);
@@ -2817,7 +2821,7 @@ int Sexy::PIEffect::Update()
             }
             for (size_t i = 0; i < layer.mDef->mForces.size(); ++i)
             {
-                PIForce& force = layer.mDef->mForces[i];
+                PIForce &force = layer.mDef->mForces[i];
                 Sexy::SexyTransform2D xform;
                 float scaleX = CurveAtTime(&force.mExtra, mTime, 0.0f);
                 float scaleY = CurveAtTime(&force.mAngle, mTime, 0.0f);
@@ -2848,7 +2852,7 @@ int Sexy::PIEffect::Update()
             }
             for (size_t emitterIndex = 0; emitterIndex < layer.mEmitters.size(); ++emitterIndex)
             {
-                PILiveEmitter& live = layer.mEmitters[emitterIndex];
+                PILiveEmitter &live = layer.mEmitters[emitterIndex];
                 if (!live.mActive || live.mDef == nullptr)
                     continue;
                 int loops = 1;
@@ -2857,8 +2861,8 @@ int Sexy::PIEffect::Update()
                 if (!emitting)
                     loops = 0;
                 else if (!live.mEmitting)
-                    loops = (int)((float)loops + ((float)live.mLifeBias * frameScale)
-                        / (float)(mParticleScale != 0 ? mParticleScale : 1));
+                    loops = (int)((float)loops +
+                        ((float)live.mLifeBias * frameScale) / (float)(mParticleScale != 0 ? mParticleScale : 1));
                 live.mEmitting = emitting;
                 float nextTime = live.mDef->mValues[13].GetNextKeyframeTime(0.0f);
                 float lastTime = live.mDef->mValues[13].GetLastKeyframeTime((float)mTimelineEnd + 1.0f);
@@ -2872,18 +2876,17 @@ int Sexy::PIEffect::Update()
                 LiveScope scope(&live);
                 if (live.mFreeEmitters)
                 {
-                    for (size_t curve = 0; curve < live.mDef->mCurve.size()
-                                           && curve < live.mFreeSpawns.size(); ++curve)
+                    for (size_t curve = 0; curve < live.mDef->mCurve.size() && curve < live.mFreeSpawns.size(); ++curve)
                     {
                         int typeIndex = live.mDef->mCurve[curve];
-                        Sexy::PIEmitter* emitter = nullptr;
+                        Sexy::PIEmitter *emitter = nullptr;
                         if (typeIndex >= 0 && typeIndex < (int)mDef->mEmitters.size())
                             emitter = mDef->mEmitters[typeIndex];
-                        UpdateParticleDef(layer.mPublic, emitter, nullptr, nullptr,
-                                          &live.mFreeSpawns[curve], &live.mFree, nullptr);
+                        UpdateParticleDef(
+                            layer.mPublic, emitter, nullptr, nullptr, &live.mFreeSpawns[curve], &live.mFree, nullptr);
                     }
                     UpdateParticleGroup(layer.mPublic, nullptr, &live.mFree);
-                    for (PIParticle* node = live.mFree.mHead; node != nullptr; node = node->mNext)
+                    for (PIParticle *node = live.mFree.mHead; node != nullptr; node = node->mNext)
                     {
                         if (node->mEmitter == nullptr)
                             continue;
@@ -2897,9 +2900,13 @@ int Sexy::PIEffect::Update()
                         children.mUseEmitter = 1;
                         for (size_t defIndex = 0; defIndex < node->mEmitter->mParticleDefs.size(); ++defIndex)
                         {
-                            UpdateParticleDef(layer.mPublic, node->mEmitter, nullptr,
-                                              &node->mEmitter->mParticleDefs[defIndex],
-                                              &node->mSpawnRecords[defIndex], &children, node);
+                            UpdateParticleDef(layer.mPublic,
+                                node->mEmitter,
+                                nullptr,
+                                &node->mEmitter->mParticleDefs[defIndex],
+                                &node->mSpawnRecords[defIndex],
+                                &children,
+                                node);
                         }
                         UpdateParticleGroup(layer.mPublic, nullptr, &children);
                         node->mChildren = children.mHead;
@@ -2913,9 +2920,13 @@ int Sexy::PIEffect::Update()
                         live.mDefSpawns.resize(live.mEmitter->mParticleDefs.size());
                     for (size_t defIndex = 0; defIndex < live.mEmitter->mParticleDefs.size(); ++defIndex)
                     {
-                        UpdateParticleDef(layer.mPublic, live.mEmitter, nullptr,
-                                          &live.mEmitter->mParticleDefs[defIndex],
-                                          &live.mDefSpawns[defIndex], &live.mTrail, nullptr);
+                        UpdateParticleDef(layer.mPublic,
+                            live.mEmitter,
+                            nullptr,
+                            &live.mEmitter->mParticleDefs[defIndex],
+                            &live.mDefSpawns[defIndex],
+                            &live.mTrail,
+                            nullptr);
                     }
                     UpdateParticleGroup(layer.mPublic, nullptr, &live.mTrail);
                 }
@@ -2932,7 +2943,7 @@ int Sexy::PIEffect::Update()
     return 1;
 }
 
-int Sexy::PIEffect::SaveState(Sexy::Buffer & theBuffer, bool theCompact)
+int Sexy::PIEffect::SaveState(Sexy::Buffer &theBuffer, bool theCompact)
 {
     theBuffer.WriteLong(0);
     theBuffer.WriteShort(1);
@@ -2953,7 +2964,7 @@ int Sexy::PIEffect::SaveState(Sexy::Buffer & theBuffer, bool theCompact)
     {
         for (size_t emitter = 0; emitter < mLive[layer].mEmitters.size(); ++emitter)
         {
-            PILiveEmitter& live = mLive[layer].mEmitters[emitter];
+            PILiveEmitter &live = mLive[layer].mEmitters[emitter];
             theBuffer.WriteBoolean(live.mActive);
             theBuffer.WriteBoolean(live.mEmitting);
             theBuffer.WriteBoolean(live.mKeepSpawn);
@@ -2962,17 +2973,17 @@ int Sexy::PIEffect::SaveState(Sexy::Buffer & theBuffer, bool theCompact)
             for (size_t i = 0; i < live.mFreeSpawns.size(); ++i)
                 SaveParticleDefInstance(theBuffer, &live.mFreeSpawns[i]);
             theBuffer.WriteLong(live.mTrail.mCount);
-            for (PIParticle* node = live.mTrail.mHead; node != nullptr; node = node->mNext)
+            for (PIParticle *node = live.mTrail.mHead; node != nullptr; node = node->mNext)
                 SaveParticle(theBuffer, mLive[layer].mPublic, node);
             theBuffer.WriteLong(live.mFree.mCount);
-            for (PIParticle* node = live.mFree.mHead; node != nullptr; node = node->mNext)
+            for (PIParticle *node = live.mFree.mHead; node != nullptr; node = node->mNext)
                 SaveParticle(theBuffer, mLive[layer].mPublic, node);
         }
     }
     return 1;
 }
 
-int Sexy::PIEffect::LoadState(Sexy::Buffer const& theBuffer, bool theCompact)
+int Sexy::PIEffect::LoadState(Sexy::Buffer const &theBuffer, bool theCompact)
 {
     if (!mError.empty())
         return 0;
@@ -3007,7 +3018,7 @@ int Sexy::PIEffect::LoadState(Sexy::Buffer const& theBuffer, bool theCompact)
     {
         for (size_t emitter = 0; emitter < mLive[layer].mEmitters.size(); ++emitter)
         {
-            PILiveEmitter& live = mLive[layer].mEmitters[emitter];
+            PILiveEmitter &live = mLive[layer].mEmitters[emitter];
             live.mActive = theBuffer.ReadBoolean();
             live.mEmitting = theBuffer.ReadBoolean();
             live.mKeepSpawn = theBuffer.ReadBoolean();
@@ -3018,7 +3029,7 @@ int Sexy::PIEffect::LoadState(Sexy::Buffer const& theBuffer, bool theCompact)
             int trailCount = theBuffer.ReadLong();
             for (int i = 0; i < trailCount; ++i)
             {
-                PIParticle* node = new PIParticle();
+                PIParticle *node = new PIParticle();
                 ++PIParticleInstanceCounter::mCount;
                 LoadParticle(theBuffer, mLive[layer].mPublic, node);
                 LinkParticle(&live.mTrail, node, false);
@@ -3026,7 +3037,7 @@ int Sexy::PIEffect::LoadState(Sexy::Buffer const& theBuffer, bool theCompact)
             int freeCount = theBuffer.ReadLong();
             for (int i = 0; i < freeCount; ++i)
             {
-                PIParticle* node = new PIParticle();
+                PIParticle *node = new PIParticle();
                 ++PIParticleInstanceCounter::mCount;
                 LoadParticle(theBuffer, mLive[layer].mPublic, node);
                 LinkParticle(&live.mFree, node, false);
@@ -3036,28 +3047,59 @@ int Sexy::PIEffect::LoadState(Sexy::Buffer const& theBuffer, bool theCompact)
     return 1;
 }
 
-Sexy::PIEffect::PIEffect(Sexy::PIEffect const& theOther)
-    : mReadFile(nullptr), mWriteFile(nullptr), mChecksum(theOther.mChecksum),
-      mWideBooleans(theOther.mWideBooleans), mLoadedFlag(theOther.mLoadedFlag),
-      mFileVersion(theOther.mFileVersion), mFilePath(theOther.mFilePath),
-      mWritePath(theOther.mWritePath), mRand(theOther.mRand), mBuffer(),
-      mReadValue(0), mReadPos(0), mNotesText(theOther.mNotesText),
-      mNotesCursor(theOther.mNotesCursor), mStrings(theOther.mStrings),
-      mSettingA(theOther.mSettingA), mSettingB(theOther.mSettingB),
-      mLoadColor(theOther.mLoadColor), mParticleScale(theOther.mParticleScale),
-      mTimelineStart(theOther.mTimelineStart), mTimelineEnd(theOther.mTimelineEnd),
-      mUnusedE40(theOther.mUnusedE40), mNotes(theOther.mNotes), mDef(theOther.mDef),
-      mLayers(), mLive(), mError(), mLoaded(theOther.mLoaded), mFrameTick(0),
-      mTime(0.0f), mTimeCrossed(false), mFreeList(), mFreeStride(theOther.mFreeStride),
-      mDeadList(), mDeadStride(theOther.mDeadStride), mEmitEnabled(theOther.mEmitEnabled),
-      mEmitAfter(theOther.mEmitAfter), mLoopFlag(theOther.mLoopFlag),
-      mUpdateCountA(0), mUpdateCountB(0), mPixelCount(0),
-      mTimeScale(theOther.mTimeScale), mColor(theOther.mColor),
-      mDebugDraw(theOther.mDebugDraw), mVisibleFlag(theOther.mVisibleFlag),
-      mPausedFlag(theOther.mPausedFlag), mRandSeeds(theOther.mRandSeeds),
-      mRandSeedCursor(theOther.mRandSeedCursor), mUnusedED8(theOther.mUnusedED8),
-      mNeedsSeed(true), mTransform(theOther.mTransform),
-      mWorldTransform(theOther.mWorldTransform)
+Sexy::PIEffect::PIEffect(Sexy::PIEffect const &theOther) :
+    mReadFile(nullptr),
+    mWriteFile(nullptr),
+    mChecksum(theOther.mChecksum),
+    mWideBooleans(theOther.mWideBooleans),
+    mLoadedFlag(theOther.mLoadedFlag),
+    mFileVersion(theOther.mFileVersion),
+    mFilePath(theOther.mFilePath),
+    mWritePath(theOther.mWritePath),
+    mRand(theOther.mRand),
+    mBuffer(),
+    mReadValue(0),
+    mReadPos(0),
+    mNotesText(theOther.mNotesText),
+    mNotesCursor(theOther.mNotesCursor),
+    mStrings(theOther.mStrings),
+    mSettingA(theOther.mSettingA),
+    mSettingB(theOther.mSettingB),
+    mLoadColor(theOther.mLoadColor),
+    mParticleScale(theOther.mParticleScale),
+    mTimelineStart(theOther.mTimelineStart),
+    mTimelineEnd(theOther.mTimelineEnd),
+    mUnusedE40(theOther.mUnusedE40),
+    mNotes(theOther.mNotes),
+    mDef(theOther.mDef),
+    mLayers(),
+    mLive(),
+    mError(),
+    mLoaded(theOther.mLoaded),
+    mFrameTick(0),
+    mTime(0.0f),
+    mTimeCrossed(false),
+    mFreeList(),
+    mFreeStride(theOther.mFreeStride),
+    mDeadList(),
+    mDeadStride(theOther.mDeadStride),
+    mEmitEnabled(theOther.mEmitEnabled),
+    mEmitAfter(theOther.mEmitAfter),
+    mLoopFlag(theOther.mLoopFlag),
+    mUpdateCountA(0),
+    mUpdateCountB(0),
+    mPixelCount(0),
+    mTimeScale(theOther.mTimeScale),
+    mColor(theOther.mColor),
+    mDebugDraw(theOther.mDebugDraw),
+    mVisibleFlag(theOther.mVisibleFlag),
+    mPausedFlag(theOther.mPausedFlag),
+    mRandSeeds(theOther.mRandSeeds),
+    mRandSeedCursor(theOther.mRandSeedCursor),
+    mUnusedED8(theOther.mUnusedED8),
+    mNeedsSeed(true),
+    mTransform(theOther.mTransform),
+    mWorldTransform(theOther.mWorldTransform)
 {
     if (mDef != nullptr)
         mDef->mRefCount += 1;
@@ -3077,7 +3119,7 @@ Sexy::PIEffect::PIEffect(Sexy::PIEffect const& theOther)
             mLayers[layer].mVisible = true;
             for (size_t emitter = 0; emitter < mLive[layer].mEmitters.size(); ++emitter)
             {
-                PILiveEmitter& live = mLive[layer].mEmitters[emitter];
+                PILiveEmitter &live = mLive[layer].mEmitters[emitter];
                 live.mDef = &mDef->mLayerDefs[layer].mEmitters[emitter];
                 if (layer < theOther.mLive.size() && emitter < theOther.mLive[layer].mEmitters.size())
                 {
@@ -3104,13 +3146,13 @@ Sexy::PIEffect::PIEffect(Sexy::PIEffect const& theOther)
     ResetAnim();
 }
 
-Sexy::PIEffect * Sexy::PIEffect::Duplicate()
+Sexy::PIEffect *Sexy::PIEffect::Duplicate()
 {
     return new PIEffect(*this);
 }
 
-int Sexy::PIEffect::WriteImage(Sexy::String const& unusedResult, int theFrame,
-                               Sexy::DeviceImage * theImage, bool * theResult)
+int Sexy::PIEffect::WriteImage(
+    Sexy::String const &unusedResult, int theFrame, Sexy::DeviceImage *theImage, bool *theResult)
 {
     (void)unusedResult;
     (void)theFrame;

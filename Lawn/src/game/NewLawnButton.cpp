@@ -10,9 +10,7 @@ int TodIsPointInPolygon(void *thePoly, int theCount, float *thePoint);
 #include "Image.h"
 #include "Widget.h"
 
-NewLawnButton::~NewLawnButton()
-{
-}
+NewLawnButton::~NewLawnButton() {}
 
 bool NewLawnButton::IsPointVisible(int x, int y)
 {
@@ -65,14 +63,11 @@ void NewLawnButton::Draw(Sexy::Graphics *g)
         g->SetColorizeImages(true);
         g->SetColor(mColors[5]);
         if (HaveButtonImage(mDownImage, mDownRect))
-            DrawButtonImage(g, mDownImage, mDownRect,
-                            mButtonOffsetX + mTranslateX, mTranslateY + mButtonOffsetY);
+            DrawButtonImage(g, mDownImage, mDownRect, mButtonOffsetX + mTranslateX, mTranslateY + mButtonOffsetY);
         else if (HaveButtonImage(mOverImage, mOverRect))
-            DrawButtonImage(g, mOverImage, mOverRect,
-                            mButtonOffsetX + mTranslateX, mTranslateY + mButtonOffsetY);
+            DrawButtonImage(g, mOverImage, mOverRect, mButtonOffsetX + mTranslateX, mTranslateY + mButtonOffsetY);
         else if (HaveButtonImage(mButtonImage, mNormalRect))
-            DrawButtonImage(g, mButtonImage, mNormalRect,
-                            mButtonOffsetX + mTranslateX, mTranslateY + mButtonOffsetY);
+            DrawButtonImage(g, mButtonImage, mNormalRect, mButtonOffsetX + mTranslateX, mTranslateY + mButtonOffsetY);
 
         g->SetColorizeImages(false);
         Sexy::Font *font = mHiliteFont;
@@ -131,8 +126,8 @@ void NewLawnButton::SetLabel(Sexy::String const &theLabel)
     mLabel = translated;
 }
 
-NewLawnButton::NewLawnButton(Sexy::Image *theComponentImage, int theId, Sexy::ButtonListener *theListener)
-    : Sexy::DialogButton(theComponentImage, theId, theListener)
+NewLawnButton::NewLawnButton(Sexy::Image *theComponentImage, int theId, Sexy::ButtonListener *theListener) :
+    Sexy::DialogButton(theComponentImage, theId, theListener)
 {
     mHiliteFont = nullptr;
     mTextDownOffsetX = 0;

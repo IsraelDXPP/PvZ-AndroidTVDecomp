@@ -24,33 +24,33 @@
 // ToolTipWidget::ToolTipWidget()
 // @001E8114  196 bytes
 // ==========================================================================
-ToolTipWidget::ToolTipWidget()
-  : mTitleTextColor(32, 32, 100)
+ToolTipWidget::ToolTipWidget() :
+    mTitleTextColor(32, 32, 100)
 {
-  // mTitle, mLabel and mWarningText are default-constructed Sexy::String, which
-  // already leaves each of them holding the shared empty rep the binary stores.
-  mX = 0;
-  mY = 0;
-  mWidth = 0;
-  mHeight = 0;
-  mVisible = true;
-  mCenter = false;
-  mMinLeft = 0;
-  mMaxBottom = 600;
-  mGetsLinesWidth = 0;
-  mWarningFlashCounter = 0;
+    // mTitle, mLabel and mWarningText are default-constructed Sexy::String, which
+    // already leaves each of them holding the shared empty rep the binary stores.
+    mX = 0;
+    mY = 0;
+    mWidth = 0;
+    mHeight = 0;
+    mVisible = true;
+    mCenter = false;
+    mMinLeft = 0;
+    mMaxBottom = 600;
+    mGetsLinesWidth = 0;
+    mWarningFlashCounter = 0;
 
-  // SexyAppBase::GetLocale() @0x33A2E8 is exactly
-  // `Sexy::String(Sexy::setLocale(nullptr))`, falling back to the empty string,
-  // and its r0 is the destination rather than an object -- it is a static-shaped
-  // body -- so the locale check goes through the free function it wraps.
-  const char *aLocale = Sexy::setLocale(nullptr, nullptr);
-  bool aIsChinese = (aLocale != nullptr && Sexy::String(aLocale) == "zh_CN");
+    // SexyAppBase::GetLocale() @0x33A2E8 is exactly
+    // `Sexy::String(Sexy::setLocale(nullptr))`, falling back to the empty string,
+    // and its r0 is the destination rather than an object -- it is a static-shaped
+    // body -- so the locale check goes through the free function it wraps.
+    const char *aLocale = Sexy::setLocale(nullptr, nullptr);
+    bool aIsChinese = (aLocale != nullptr && Sexy::String(aLocale) == "zh_CN");
 
-  // Only the warning line gets the locale-specific font; the title is always
-  // BrianneTod16.
-  mWarningTextFont = (Sexy::Font *)(aIsChinese ? FONT_BRIANNETOD16 : FONT_DWARVENTODCRAFT12);
-  mTitleFont = FONT_BRIANNETOD16;
+    // Only the warning line gets the locale-specific font; the title is always
+    // BrianneTod16.
+    mWarningTextFont = (Sexy::Font *)(aIsChinese ? FONT_BRIANNETOD16 : FONT_DWARVENTODCRAFT12);
+    mTitleFont = FONT_BRIANNETOD16;
 }
 
 // ==========================================================================
@@ -59,8 +59,8 @@ ToolTipWidget::ToolTipWidget()
 // ==========================================================================
 void ToolTipWidget::Update()
 {
-  if (mWarningFlashCounter > 0)
-    --mWarningFlashCounter;
+    if (mWarningFlashCounter > 0)
+        --mWarningFlashCounter;
 }
 
 // ==========================================================================
@@ -69,9 +69,9 @@ void ToolTipWidget::Update()
 // ==========================================================================
 void ToolTipWidget::FlashWarning()
 {
-  // Draw() blinks the warning line while this counts down: 70 frames, black on
-  // the first ten of every twenty.
-  mWarningFlashCounter = 70;
+    // Draw() blinks the warning line while this counts down: 70 frames, black on
+    // the first ten of every twenty.
+    mWarningFlashCounter = 70;
 }
 
 // ==========================================================================
@@ -80,90 +80,90 @@ void ToolTipWidget::FlashWarning()
 // ==========================================================================
 void ToolTipWidget::CalculateSize()
 {
-  // The box is as wide as the widest of the title, the warning line and the
-  // wrapped body lines, plus five pixels of padding on each side.
-  int aMaxWidth = mTitleFont->StringWidth(mTitle);
+    // The box is as wide as the widest of the title, the warning line and the
+    // wrapped body lines, plus five pixels of padding on each side.
+    int aMaxWidth = mTitleFont->StringWidth(mTitle);
 
-  int aWarningWidth = mWarningTextFont->StringWidth(mWarningText);
-  if (aWarningWidth > aMaxWidth)
-    aMaxWidth = aWarningWidth;
+    int aWarningWidth = mWarningTextFont->StringWidth(mWarningText);
+    if (aWarningWidth > aMaxWidth)
+        aMaxWidth = aWarningWidth;
 
-  // GetLines() wraps the body to this width. The binary subtracts 30 from the
-  // widest line and floors the result at 100.
-  mGetsLinesWidth = aMaxWidth - 30;
-  if (mGetsLinesWidth < 100)
-    mGetsLinesWidth = 100;
+    // GetLines() wraps the body to this width. The binary subtracts 30 from the
+    // widest line and floors the result at 100.
+    mGetsLinesWidth = aMaxWidth - 30;
+    if (mGetsLinesWidth < 100)
+        mGetsLinesWidth = 100;
 
-  std::vector<Sexy::String> aLines;
-  GetLines(aLines);
+    std::vector<Sexy::String> aLines;
+    GetLines(aLines);
 
-  // A wrapped body line can be wider than the title, so it feeds back into the
-  // box width.
-  for (unsigned int i = 0; i < aLines.size(); ++i)
-  {
-    int aLineWidth = mWarningTextFont->StringWidth(aLines[i]);
-    if (aLineWidth > aMaxWidth)
-      aMaxWidth = aLineWidth;
-  }
+    // A wrapped body line can be wider than the title, so it feeds back into the
+    // box width.
+    for (unsigned int i = 0; i < aLines.size(); ++i)
+    {
+        int aLineWidth = mWarningTextFont->StringWidth(aLines[i]);
+        if (aLineWidth > aMaxWidth)
+            aMaxWidth = aLineWidth;
+    }
 
-  // The height starts at a six-pixel margin and grows by the title line and the
-  // warning line, if either is present, with two pixels after each.
-  int aHeight = 6;
-  if (!mTitle.empty())
-    aHeight = mTitleFont->GetAscent() + 8;
-  if (!mWarningText.empty())
-    aHeight += mWarningTextFont->GetAscent() + 2;
+    // The height starts at a six-pixel margin and grows by the title line and the
+    // warning line, if either is present, with two pixels after each.
+    int aHeight = 6;
+    if (!mTitle.empty())
+        aHeight = mTitleFont->GetAscent() + 8;
+    if (!mWarningText.empty())
+        aHeight += mWarningTextFont->GetAscent() + 2;
 
-  // The body contributes one font line per wrapped line plus two pixels between
-  // them. The binary folds the count in unguarded -- `2 * (count - 1)` -- so an
-  // empty body does subtract its two pixels back off, and that is kept as is.
-  int aLineCount = (int)aLines.size();
+    // The body contributes one font line per wrapped line plus two pixels between
+    // them. The binary folds the count in unguarded -- `2 * (count - 1)` -- so an
+    // empty body does subtract its two pixels back off, and that is kept as is.
+    int aLineCount = (int)aLines.size();
 
-  mWidth = aMaxWidth + 10;
-  mHeight = aHeight + 2 * (aLineCount - 1) + aLineCount * mWarningTextFont->GetAscent();
+    mWidth = aMaxWidth + 10;
+    mHeight = aHeight + 2 * (aLineCount - 1) + aLineCount * mWarningTextFont->GetAscent();
 }
 
 // ==========================================================================
 // ToolTipWidget::SetLabel(Sexy::String const&)
 // @001E87F0  86 bytes
 // ==========================================================================
-void ToolTipWidget::SetLabel(const Sexy::String& theLabel)
+void ToolTipWidget::SetLabel(const Sexy::String &theLabel)
 {
-  // The dump spells TodStringTranslate destination-first -- that is the sret
-  // register of the original call. The store into the member is the binary's
-  // StringAssign (StringAssign), and the release block that follows it is the
-  // temporary's Sexy::String destructor.
-  Sexy::String aTranslated;
-  TodStringTranslate(&aTranslated, theLabel);
-  mLabel = aTranslated;
+    // The dump spells TodStringTranslate destination-first -- that is the sret
+    // register of the original call. The store into the member is the binary's
+    // StringAssign (StringAssign), and the release block that follows it is the
+    // temporary's Sexy::String destructor.
+    Sexy::String aTranslated;
+    TodStringTranslate(&aTranslated, theLabel);
+    mLabel = aTranslated;
 
-  CalculateSize();
+    CalculateSize();
 }
 
 // ==========================================================================
 // ToolTipWidget::SetTitle(Sexy::String const&)
 // @001E885C  86 bytes
 // ==========================================================================
-void ToolTipWidget::SetTitle(const Sexy::String& theTitle)
+void ToolTipWidget::SetTitle(const Sexy::String &theTitle)
 {
-  Sexy::String aTranslated;
-  TodStringTranslate(&aTranslated, theTitle);
-  mTitle = aTranslated;
+    Sexy::String aTranslated;
+    TodStringTranslate(&aTranslated, theTitle);
+    mTitle = aTranslated;
 
-  CalculateSize();
+    CalculateSize();
 }
 
 // ==========================================================================
 // ToolTipWidget::SetWarningText(Sexy::String const&)
 // @001E88C8  88 bytes
 // ==========================================================================
-void ToolTipWidget::SetWarningText(const Sexy::String& theWarningText)
+void ToolTipWidget::SetWarningText(const Sexy::String &theWarningText)
 {
-  Sexy::String aTranslated;
-  TodStringTranslate(&aTranslated, theWarningText);
-  mWarningText = aTranslated;
+    Sexy::String aTranslated;
+    TodStringTranslate(&aTranslated, theWarningText);
+    mWarningText = aTranslated;
 
-  CalculateSize();
+    CalculateSize();
 }
 
 // ==========================================================================
@@ -172,98 +172,98 @@ void ToolTipWidget::SetWarningText(const Sexy::String& theWarningText)
 // ==========================================================================
 void ToolTipWidget::Draw(Sexy::Graphics *theGraphics, bool theLocalCoordinates)
 {
-  if (!mVisible)
-    return;
+    if (!mVisible)
+        return;
 
-  float aTransX = theGraphics->mTransX;
-  float aTransY = theGraphics->mTransY;
+    float aTransX = theGraphics->mTransX;
+    float aTransY = theGraphics->mTransY;
 
-  int aDrawX = mX;
-  // Chooser overlays provide widget-local positions. Other tooltips use the
-  // original board coordinates and need the screen translation removed.
-  if (!theLocalCoordinates)
-  {
-    const Sexy::NativeDisplay *aDisplay = gLawnApp->mPlatformDriverOrQueue;
-    float aScreenOffsetX = aDisplay->mWideScreen ? (float)LawnApp::FULLSCREEN_RECT.mX : -80.0f;
-    aDrawX = (int)((float)mX - aTransX - aScreenOffsetX);
-  }
-  if (mCenter)
-    aDrawX -= mWidth / 2;
+    int aDrawX = mX;
+    // Chooser overlays provide widget-local positions. Other tooltips use the
+    // original board coordinates and need the screen translation removed.
+    if (!theLocalCoordinates)
+    {
+        const Sexy::NativeDisplay *aDisplay = gLawnApp->mPlatformDriverOrQueue;
+        float aScreenOffsetX = aDisplay->mWideScreen ? (float)LawnApp::FULLSCREEN_RECT.mX : -80.0f;
+        aDrawX = (int)((float)mX - aTransX - aScreenOffsetX);
+    }
+    if (mCenter)
+        aDrawX -= mWidth / 2;
 
-  int aDrawY = mY;
+    int aDrawY = mY;
 
-  // Keep the box on screen: never left of mMinLeft and never above the top.
-  const float aMinLeft = theLocalCoordinates ? (float)mMinLeft : (float)mMinLeft - aTransX;
-  if ((float)aDrawX < aMinLeft)
-    aDrawX = (int)aMinLeft;
+    // Keep the box on screen: never left of mMinLeft and never above the top.
+    const float aMinLeft = theLocalCoordinates ? (float)mMinLeft : (float)mMinLeft - aTransX;
+    if ((float)aDrawX < aMinLeft)
+        aDrawX = (int)aMinLeft;
 
-  float aMinTop = -aTransY;
-  if ((float)aDrawY < aMinTop)
-    aDrawY = (int)aMinTop;
+    float aMinTop = -aTransY;
+    if ((float)aDrawY < aMinTop)
+        aDrawY = (int)aMinTop;
 
-  // The panel, with a one-pixel black outline.
-  if (mWidth > 0 && mHeight > 0)
-  {
-    theGraphics->SetColor(Sexy::Color(255, 255, 200, 255));
-    theGraphics->FillRect(aDrawX, aDrawY, mWidth, mHeight);
+    // The panel, with a one-pixel black outline.
+    if (mWidth > 0 && mHeight > 0)
+    {
+        theGraphics->SetColor(Sexy::Color(255, 255, 200, 255));
+        theGraphics->FillRect(aDrawX, aDrawY, mWidth, mHeight);
 
-    theGraphics->SetColor(Sexy::Color::Black);
-    theGraphics->DrawRect(aDrawX, aDrawY, mWidth - 1, mHeight - 1);
-  }
+        theGraphics->SetColor(Sexy::Color::Black);
+        theGraphics->DrawRect(aDrawX, aDrawY, mWidth - 1, mHeight - 1);
+    }
 
-  int aTextY = aDrawY + 1;
+    int aTextY = aDrawY + 1;
 
-  // Title line, centred and drawn in mTitleTextColor.
-  if (!mTitle.empty())
-  {
-    theGraphics->SetFont(mTitleFont);
-    theGraphics->SetColor(mTitleTextColor);
+    // Title line, centred and drawn in mTitleTextColor.
+    if (!mTitle.empty())
+    {
+        theGraphics->SetFont(mTitleFont);
+        theGraphics->SetColor(mTitleTextColor);
 
-    int aTitleAscent = mTitleFont->GetAscent();
-    int aTitleWidth = mTitleFont->StringWidth(mTitle);
+        int aTitleAscent = mTitleFont->GetAscent();
+        int aTitleWidth = mTitleFont->StringWidth(mTitle);
 
-    theGraphics->DrawString(mTitle, aDrawX + (mWidth - aTitleWidth) / 2, aTextY + aTitleAscent);
-    aTextY += aTitleAscent + 2;
-  }
+        theGraphics->DrawString(mTitle, aDrawX + (mWidth - aTitleWidth) / 2, aTextY + aTitleAscent);
+        aTextY += aTitleAscent + 2;
+    }
 
-  // Warning line, centred in red, blinking black on the first ten frames of
-  // every twenty while the counter runs down.
-  if (!mWarningText.empty())
-  {
+    // Warning line, centred in red, blinking black on the first ten frames of
+    // every twenty while the counter runs down.
+    if (!mWarningText.empty())
+    {
+        theGraphics->SetFont(mWarningTextFont);
+
+        int aWarningAscent = mWarningTextFont->GetAscent();
+        int aWarningWidth = mWarningTextFont->StringWidth(mWarningText);
+
+        Sexy::Color aWarningColor(255, 0, 0);
+        if (mWarningFlashCounter > 0 && mWarningFlashCounter % 20 <= 9)
+            aWarningColor = Sexy::Color::Black;
+
+        theGraphics->SetColor(aWarningColor);
+        theGraphics->DrawString(mWarningText, aDrawX + (mWidth - aWarningWidth) / 2, aTextY + aWarningAscent);
+
+        theGraphics->SetColor(Sexy::Color::Black);
+        aTextY += aWarningAscent + 2;
+    }
+
+    // The wrapped body: one line per element of what GetLines produces, two
+    // pixels apart, in the warning font.
+    int aLineY = aTextY + 1;
+
+    std::vector<Sexy::String> aLines;
+    GetLines(aLines);
+
     theGraphics->SetFont(mWarningTextFont);
+    theGraphics->SetColor(Sexy::Color(32, 32, 32));
 
-    int aWarningAscent = mWarningTextFont->GetAscent();
-    int aWarningWidth = mWarningTextFont->StringWidth(mWarningText);
+    for (unsigned int i = 0; i < aLines.size(); ++i)
+    {
+        Sexy::String aLine(aLines[i]);
 
-    Sexy::Color aWarningColor(255, 0, 0);
-    if (mWarningFlashCounter > 0 && mWarningFlashCounter % 20 <= 9)
-      aWarningColor = Sexy::Color::Black;
+        int aLineAscent = mWarningTextFont->GetAscent();
+        int aLineWidth = mWarningTextFont->StringWidth(aLine);
 
-    theGraphics->SetColor(aWarningColor);
-    theGraphics->DrawString(mWarningText, aDrawX + (mWidth - aWarningWidth) / 2, aTextY + aWarningAscent);
-
-    theGraphics->SetColor(Sexy::Color::Black);
-    aTextY += aWarningAscent + 2;
-  }
-
-  // The wrapped body: one line per element of what GetLines produces, two
-  // pixels apart, in the warning font.
-  int aLineY = aTextY + 1;
-
-  std::vector<Sexy::String> aLines;
-  GetLines(aLines);
-
-  theGraphics->SetFont(mWarningTextFont);
-  theGraphics->SetColor(Sexy::Color(32, 32, 32));
-
-  for (unsigned int i = 0; i < aLines.size(); ++i)
-  {
-    Sexy::String aLine(aLines[i]);
-
-    int aLineAscent = mWarningTextFont->GetAscent();
-    int aLineWidth = mWarningTextFont->StringWidth(aLine);
-
-    theGraphics->DrawString(aLine, aDrawX + (mWidth - aLineWidth) / 2, aLineY + aLineAscent);
-    aLineY += aLineAscent + 2;
-  }
+        theGraphics->DrawString(aLine, aDrawX + (mWidth - aLineWidth) / 2, aLineY + aLineAscent);
+        aLineY += aLineAscent + 2;
+    }
 }

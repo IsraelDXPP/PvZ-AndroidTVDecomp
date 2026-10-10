@@ -19,7 +19,8 @@
 //   [  3] 0x1b7af0  GameObject::EndDraw
 //   [  4] 0x1b7b1c  GameObject::MakeParentGraphicsFrame
 
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_GAMEOBJECT_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_GAMEOBJECT_H
 
 #include "ReconTypes.h"
 #include "SyncObject.h"
@@ -35,18 +36,20 @@ public:
     virtual void EndDraw(Sexy::Graphics *theGraphics);
     virtual void MakeParentGraphicsFrame(Sexy::Graphics *theGraphics);
 
-    LawnApp *mApp;         // +0x10
-    Board   *mBoard;       // +0x14
-    int      mX;           // +0x18
-    int      mY;           // +0x1C
-    int      mWidth;       // +0x20
-    int      mHeight;      // +0x24
-    bool     mVisible;     // +0x28
-    int      mRow;         // +0x2C
-    int      mRenderOrder; // +0x30
+    LawnApp *mApp; // +0x10
+    Board *mBoard; // +0x14
+    int mX; // +0x18
+    int mY; // +0x1C
+    int mWidth; // +0x20
+    int mHeight; // +0x24
+    bool mVisible; // +0x28
+    int mRow; // +0x2C
+    int mRenderOrder; // +0x30
     // Total size 0x34 (13 words).
 
     GameObject();
 };
 
 // Layout check: 0x10 of SyncObject plus the 9 members above.
+
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_GAMEOBJECT_H

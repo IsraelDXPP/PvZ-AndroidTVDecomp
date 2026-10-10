@@ -14,8 +14,8 @@
 // these are arithmetic and bit operations -- so implementing them exactly is
 // both possible and the right thing to do.
 
-#ifndef __ARM_INTRINSICS_H__
-#define __ARM_INTRINSICS_H__
+#ifndef LAWNPROJECTTV_SEXY_INCLUDE_RUNTIME_ARMINTRINSICS_H
+#define LAWNPROJECTTV_SEXY_INCLUDE_RUNTIME_ARMINTRINSICS_H
 
 #include <cmath>
 #include <cstdint>
@@ -77,14 +77,12 @@ inline int __OFSUB__(int theA, int theB)
 {
     // The signed-overflow flag of  - b. Computing it from the operands is the
     // same predicate the ARM flag holds, and needs no builtin.
-    return ((theB > 0) && (theA < INT_MIN + theB)) ||
-           ((theB < 0) && (theA > INT_MAX + theB)) ? 1 : 0;
+    return ((theB > 0) && (theA < INT_MIN + theB)) || ((theB < 0) && (theA > INT_MAX + theB)) ? 1 : 0;
 }
 
 inline int __OFADD__(int theA, int theB)
 {
-    return ((theB > 0) && (theA > INT_MAX - theB)) ||
-           ((theB < 0) && (theA < INT_MIN - theB)) ? 1 : 0;
+    return ((theB > 0) && (theA > INT_MAX - theB)) || ((theB < 0) && (theA < INT_MIN - theB)) ? 1 : 0;
 }
 
 // ---------------------------------------------------------------------------
@@ -94,24 +92,33 @@ inline int __ssat(int theValue, unsigned int theBits)
 {
     int aMax = (1 << (theBits - 1)) - 1;
     int aMin = -(1 << (theBits - 1));
-    if (theValue > aMax) return aMax;
-    if (theValue < aMin) return aMin;
+    if (theValue > aMax)
+        return aMax;
+    if (theValue < aMin)
+        return aMin;
     return theValue;
 }
 
 inline unsigned int __usat(int theValue, unsigned int theBits)
 {
     unsigned int aMax = (1u << theBits) - 1u;
-    if (theValue < 0) return 0;
-    if ((unsigned int)theValue > aMax) return aMax;
+    if (theValue < 0)
+        return 0;
+    if ((unsigned int)theValue > aMax)
+        return aMax;
     return (unsigned int)theValue;
 }
 
 inline int __clz(unsigned int theValue)
 {
-    if (theValue == 0) return 32;
+    if (theValue == 0)
+        return 32;
     int aCount = 0;
-    while ((theValue & 0x80000000u) == 0) { theValue <<= 1; ++aCount; }
+    while ((theValue & 0x80000000u) == 0)
+    {
+        theValue <<= 1;
+        ++aCount;
+    }
     return aCount;
 }
 
@@ -129,4 +136,4 @@ inline float vrsqrte_f32(float theValue)
     return theValue > 0.0f ? 1.0f / sqrtf(theValue) : 0.0f;
 }
 
-#endif // __ARM_INTRINSICS_H__
+#endif // LAWNPROJECTTV_SEXY_INCLUDE_RUNTIME_ARMINTRINSICS_H

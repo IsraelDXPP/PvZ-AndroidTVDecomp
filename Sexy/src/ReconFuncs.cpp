@@ -64,39 +64,35 @@
 // File-local shapes for types that have no header of their own.
 namespace Sexy
 {
-bool        FileExists(Sexy::String const& thePath);
-char const* GetEnv(char const* theName);
-char const* logLevelName(LogLevel theLevel);
-int         logLevelFromName(char const* theName, LogLevel& theLevel);
-int         Split(Sexy::String const& theText, Sexy::String const& theSeparator,
-                  std::vector<Sexy::String>& theOut);
+bool FileExists(Sexy::String const &thePath);
+char const *GetEnv(char const *theName);
+char const *logLevelName(LogLevel theLevel);
+int logLevelFromName(char const *theName, LogLevel &theLevel);
+int Split(Sexy::String const &theText, Sexy::String const &theSeparator, std::vector<Sexy::String> &theOut);
 
-int          StringToInt(Sexy::String theText, int* theDest);
-int          StringToDouble(Sexy::String theText, double* theDest);
-int          SexyStringToString(Sexy::String* theDest, Sexy::String const* theSource);
-int          GetNextUTF8CharFromStream(void* theStream, char const** theCursor,
-                                       int theLimit, wchar_t* theChar);
-int          GetFileDate(Sexy::String const& thePath);
-bool         Quantize8Bit(unsigned long const* thePixels, int theWidth, int theHeight,
-                          unsigned char* theIndices, unsigned long* thePalette,
-                          unsigned int* theCount);
+int StringToInt(Sexy::String theText, int *theDest);
+int StringToDouble(Sexy::String theText, double *theDest);
+int SexyStringToString(Sexy::String *theDest, Sexy::String const *theSource);
+int GetNextUTF8CharFromStream(void *theStream, char const **theCursor, int theLimit, wchar_t *theChar);
+int GetFileDate(Sexy::String const &thePath);
+bool Quantize8Bit(unsigned long const *thePixels, int theWidth, int theHeight, unsigned char *theIndices,
+    unsigned long *thePalette, unsigned int *theCount);
 
-int          setLocale(char const* theLocale);
-int          SexyUtf8Validate(void* theState, char const* theText, int theLength);
+int setLocale(char const *theLocale);
+int SexyUtf8Validate(void *theState, char const *theText, int theLength);
 // SetAppDataFolder is declared by ReconHelpers.h.
 
-void         SexyMatrix3Multiply(float* theResult, SexyMatrix3 const& theMatrix,
-                                 float const* theVector);
-void         SexyWStringToString(Sexy::String* theDest, void const* theSource);
-void         WStringToStringFast(Sexy::String* theDest, void const* theSource);
+void SexyMatrix3Multiply(float *theResult, SexyMatrix3 const &theMatrix, float const *theVector);
+void SexyWStringToString(Sexy::String *theDest, void const *theSource);
+void WStringToStringFast(Sexy::String *theDest, void const *theSource);
 
-void         logtfd(void* theStream, char const* theFormat, ...);
-int          logtfe(Sexy::String const& theTag, char const* theFormat, ...);
+void logtfd(void *theStream, char const *theFormat, ...);
+int logtfe(Sexy::String const &theTag, char const *theFormat, ...);
 
 class PlatformIntegration
 {
 public:
-    PlatformIntegration(Sexy::SexyAppBase* theApp);
+    PlatformIntegration(Sexy::SexyAppBase *theApp);
 
     virtual ~PlatformIntegration();
     virtual void Init();
@@ -109,7 +105,7 @@ public:
 
     // The constructor stores the channel name, then the owning app.
     Sexy::String mChannel;
-    Sexy::SexyAppBase* mApp;
+    Sexy::SexyAppBase *mApp;
 };
 
 class PopAnimModParser
@@ -123,12 +119,12 @@ public:
 // One node of the listener list. The value is the listener pointer.
 struct InputConnectNode
 {
-    InputConnectNode*           mNext;
-    InputConnectNode*           mPrev;
-    Sexy::InputConnectListener* mListener;
+    InputConnectNode *mNext;
+    InputConnectNode *mPrev;
+    Sexy::InputConnectListener *mListener;
 };
 
-static void LinkConnectNodeBefore(InputConnectNode* thePos, InputConnectNode* theNode)
+static void LinkConnectNodeBefore(InputConnectNode *thePos, InputConnectNode *theNode)
 {
     theNode->mNext = thePos;
     theNode->mPrev = thePos->mPrev;
@@ -141,15 +137,15 @@ class PreLoadWidget
 public:
     unsigned char mObject[0x10C];
 
-    PreLoadWidget(Sexy::SexyAppBase* theApp);
+    PreLoadWidget(Sexy::SexyAppBase *theApp);
 };
 
 class ServiceManager
 {
 public:
-    static ServiceManager* getInstance(ServiceManager* theSingleton);
-    static int setName(ServiceManager* theManager, Sexy::String const& theName);
-    static void release(ServiceManager* theManager);
+    static ServiceManager *getInstance(ServiceManager *theSingleton);
+    static int setName(ServiceManager *theManager, Sexy::String const &theName);
+    static void release(ServiceManager *theManager);
 };
 
 class SysFont
@@ -161,41 +157,41 @@ public:
 class PropertiesParser
 {
 public:
-    PropertiesParser(Sexy::SexyAppBase* theApp);
+    PropertiesParser(Sexy::SexyAppBase *theApp);
     ~PropertiesParser();
-    static int ParsePropertiesBuffer(PropertiesParser* theParser, Sexy::Buffer const* theBuffer);
-    static void GetErrorText(PropertiesParser* theParser);
+    static int ParsePropertiesBuffer(PropertiesParser *theParser, Sexy::Buffer const *theBuffer);
+    static void GetErrorText(PropertiesParser *theParser);
 };
 
 class FileLogListener
 {
 public:
-    FileLogListener(Sexy::String const& thePath);
+    FileLogListener(Sexy::String const &thePath);
 };
 
 class TcpLogListener
 {
 public:
-    TcpLogListener(Sexy::String const& theEndpoint);
+    TcpLogListener(Sexy::String const &theEndpoint);
 };
 
 class SimpleUdpLogListener
 {
 public:
-    SimpleUdpLogListener(Sexy::String const& theEndpoint);
+    SimpleUdpLogListener(Sexy::String const &theEndpoint);
 };
 
 // Static factories, matching the mangled names the linker printed.
 class IShareManager
 {
 public:
-    static void* Create(SexyCommonApp* theApp);
+    static void *Create(SexyCommonApp *theApp);
 };
 
 class INotificationManager
 {
 public:
-    static void* Create(SexyCommonApp* theApp);
+    static void *Create(SexyCommonApp *theApp);
 };
 } // namespace Sexy
 
@@ -203,12 +199,12 @@ public:
 // fan-out type inside namespace Sexy; this one is the unqualified symbol.
 struct MultiplexLogNode
 {
-    MultiplexLogNode*  mNext;
-    MultiplexLogNode*  mPrev;
-    Sexy::LogListener* mListener;
+    MultiplexLogNode *mNext;
+    MultiplexLogNode *mPrev;
+    Sexy::LogListener *mListener;
 };
 
-static void LinkLogNodeBefore(MultiplexLogNode* thePos, MultiplexLogNode* theNode)
+static void LinkLogNodeBefore(MultiplexLogNode *thePos, MultiplexLogNode *theNode)
 {
     theNode->mNext = thePos;
     theNode->mPrev = thePos->mPrev;
@@ -220,7 +216,7 @@ class MultiplexLogListener
 {
 public:
     MultiplexLogListener();
-    int addListener(Sexy::LogListener* theListener);
+    int addListener(Sexy::LogListener *theListener);
     int hasListener();
 };
 
@@ -229,8 +225,8 @@ namespace Sexy
 {
 namespace RbTree
 {
-NodeBase* _M_copy(NodeBase* theNode, NodeBase* theParent);
-void      equal_range(NodeBase** theOut, MapStorage* theTree, Sexy::String const* theKey);
+NodeBase *_M_copy(NodeBase *theNode, NodeBase *theParent);
+void equal_range(NodeBase **theOut, MapStorage *theTree, Sexy::String const *theKey);
 } // namespace RbTree
 } // namespace Sexy
 
@@ -244,27 +240,36 @@ namespace
 {
 
 // Level names, indexed as level + 1. Anything outside -1..3 is "unknown".
-const char* const kLogLevelNames[5] =
-{
-    "verbose", "debug", "info", "warn", "error"
-};
+const char *const kLogLevelNames[5] = {"verbose", "debug", "info", "warn", "error"};
 
 // The eighteen vendor names the ad channel table holds, in initialiser order.
 // getADType returns the index of the "xiaomi" entry.
-const char* const kAdChannels[18] =
-{
-    "youmi", "wooboo", "nd", "uucun", "besttv", "huanwang", "aliyun",
-    "transmension", "skyworth", "xiaomi", "zjtelecomitv", "routon", "letv",
-    "unicom", "vtion", "egame", "ysten", "novel"
-};
+const char *const kAdChannels[18] = {"youmi",
+    "wooboo",
+    "nd",
+    "uucun",
+    "besttv",
+    "huanwang",
+    "aliyun",
+    "transmension",
+    "skyworth",
+    "xiaomi",
+    "zjtelecomitv",
+    "routon",
+    "letv",
+    "unicom",
+    "vtion",
+    "egame",
+    "ysten",
+    "novel"};
 
-void SeedEmpty(Sexy::String* theDest)
+void SeedEmpty(Sexy::String *theDest)
 {
     if (theDest != nullptr)
         theDest->mData = Sexy::gEmptyStringData;
 }
 
-void CopyText(Sexy::String* theDest, const char* theSource)
+void CopyText(Sexy::String *theDest, const char *theSource)
 {
     if (theDest == nullptr)
         return;
@@ -276,13 +281,13 @@ void CopyText(Sexy::String* theDest, const char* theSource)
     *theDest = theSource;
 }
 
-int LastSeparator(const char* thePath)
+int LastSeparator(const char *thePath)
 {
     if (thePath == nullptr)
         return -1;
-    const char* aSlash = std::strrchr(thePath, '\\');
-    const char* aForward = std::strrchr(thePath, '/');
-    const char* aHit = aSlash;
+    const char *aSlash = std::strrchr(thePath, '\\');
+    const char *aForward = std::strrchr(thePath, '/');
+    const char *aHit = aSlash;
     if (aForward != nullptr && (aHit == nullptr || aForward > aHit))
         aHit = aForward;
     if (aHit == nullptr)
@@ -296,20 +301,20 @@ int LastSeparator(const char* thePath)
 // the header, and the predecessor is then the header's right child. Otherwise
 // it is the rightmost node of the left subtree, or the first ancestor reached
 // by climbing out of a right-child link.
-void* TreeDecrement(void* theNodeWord)
+void *TreeDecrement(void *theNodeWord)
 {
-    Sexy::RbTree::NodeBase* theNode = static_cast<Sexy::RbTree::NodeBase*>(theNodeWord);
+    Sexy::RbTree::NodeBase *theNode = static_cast<Sexy::RbTree::NodeBase *>(theNodeWord);
     if (theNode == nullptr)
         return nullptr;
 
     if (theNode->mColor == 0)
     {
-        Sexy::RbTree::NodeBase* aGrand = theNode->mParent->mParent;
+        Sexy::RbTree::NodeBase *aGrand = theNode->mParent->mParent;
         if (aGrand == theNode)
             return aGrand->mRight;
     }
 
-    Sexy::RbTree::NodeBase* aLeft = theNode->mLeft;
+    Sexy::RbTree::NodeBase *aLeft = theNode->mLeft;
     if (aLeft != nullptr)
     {
         while (aLeft->mRight != nullptr)
@@ -317,14 +322,14 @@ void* TreeDecrement(void* theNodeWord)
         return aLeft;
     }
 
-    Sexy::RbTree::NodeBase* aParent = theNode->mParent;
+    Sexy::RbTree::NodeBase *aParent = theNode->mParent;
     if (theNode != aParent->mRight)
         return aParent;
 
-    Sexy::RbTree::NodeBase* aAncestor = aParent;
+    Sexy::RbTree::NodeBase *aAncestor = aParent;
     for (;;)
     {
-        Sexy::RbTree::NodeBase* aNext = aAncestor->mParent;
+        Sexy::RbTree::NodeBase *aNext = aAncestor->mParent;
         const bool aKeepClimbing = (aNext->mRight == aAncestor);
         aAncestor = aNext;
         if (!aKeepClimbing)
@@ -334,29 +339,28 @@ void* TreeDecrement(void* theNodeWord)
 }
 
 // The num_put insertion one slot over from the integer writer. Same operation.
-void* NumPutInsert(void* theStream, int theValue)
+void *NumPutInsert(void *theStream, int theValue)
 {
     return OStreamWriteInt(theStream, theValue);
 }
 
 // Exception destructors. The throw machinery calls these and ignores the
 // result; neither object owns anything this port allocated.
-std::exception* DestroyInvalidArgument(std::exception* theException)
+std::exception *DestroyInvalidArgument(std::exception *theException)
 {
     return theException;
 }
 
-std::exception* DestroyOutOfRange(std::exception* theException)
+std::exception *DestroyOutOfRange(std::exception *theException)
 {
     return theException;
 }
 
 // The framework free function, not SexyAppBase::FileExists.
-bool Sexy::FileExists(Sexy::String const& path)
+bool Sexy::FileExists(Sexy::String const &path)
 {
     return Sexy::SDLFile::FileExists(path.c_str());
 }
-
 
 unsigned int Sexy::TickCountDiff(unsigned int theEarlier, unsigned int theLater)
 {
@@ -364,13 +368,16 @@ unsigned int Sexy::TickCountDiff(unsigned int theEarlier, unsigned int theLater)
 }
 
 // Milliseconds since SDL initialization on the monotonic clock.
-int Sexy::GetTickCount() { return static_cast<int>(SDL_GetTicks()); }
-
+int Sexy::GetTickCount()
+{
+    return static_cast<int>(SDL_GetTicks());
+}
 
 // Sexy::GetEnv @0x2FB880. The first call loads external setup.env settings
 // with SDL's UTF-8 file API. A listed name wins; anything else falls through to
 // the process environment. The table is read once and kept for the process.
-namespace {
+namespace
+{
 
 struct SetupEnvTable
 {
@@ -378,31 +385,33 @@ struct SetupEnvTable
     std::string mRoot;
     std::map<std::string, std::string> mValues;
 
-    SetupEnvTable() : mLoaded(false) {}
+    SetupEnvTable() :
+        mLoaded(false)
+    {
+    }
 };
 
-SetupEnvTable& SetupEnv()
+SetupEnvTable &SetupEnv()
 {
     static SetupEnvTable aTable;
     return aTable;
 }
 
-void TrimEnvToken(std::string& theText)
+void TrimEnvToken(std::string &theText)
 {
     size_t aStart = 0;
-    while (aStart < theText.size()
-        && (theText[aStart] == ' ' || theText[aStart] == '\t'
-            || theText[aStart] == '\r' || theText[aStart] == '\n'))
+    while (aStart < theText.size() &&
+        (theText[aStart] == ' ' || theText[aStart] == '\t' || theText[aStart] == '\r' || theText[aStart] == '\n'))
         ++aStart;
     size_t aEnd = theText.size();
-    while (aEnd > aStart
-        && (theText[aEnd - 1] == ' ' || theText[aEnd - 1] == '\t'
-            || theText[aEnd - 1] == '\r' || theText[aEnd - 1] == '\n'))
+    while (aEnd > aStart &&
+        (theText[aEnd - 1] == ' ' || theText[aEnd - 1] == '\t' || theText[aEnd - 1] == '\r' ||
+            theText[aEnd - 1] == '\n'))
         --aEnd;
     theText = theText.substr(aStart, aEnd - aStart);
 }
 
-void UnquoteEnvValue(std::string& theValue)
+void UnquoteEnvValue(std::string &theValue)
 {
     if (theValue.size() >= 2 && theValue.front() == '\'' && theValue.back() == '\'')
     {
@@ -436,7 +445,7 @@ void UnquoteEnvValue(std::string& theValue)
     theValue.swap(aPlain);
 }
 
-void ApplySetupEnvLine(const std::string& theLine)
+void ApplySetupEnvLine(const std::string &theLine)
 {
     if (theLine.empty() || theLine[0] == '#')
         return;
@@ -474,7 +483,7 @@ void ApplySetupEnvLine(const std::string& theLine)
 
 void LoadSetupEnv()
 {
-    SetupEnvTable& aTable = SetupEnv();
+    SetupEnvTable &aTable = SetupEnv();
     // The first lookup can happen before main() points the asset root at the
     // real assets directory. Caching that miss would ignore setup.env for the
     // rest of the process, including LAWN_NO_INTRO_VIDEO.
@@ -489,7 +498,7 @@ void LoadSetupEnv()
     // accept assets/setup.env when loose resources use assets/files/.
     const auto aRootPath = std::filesystem::u8path(aRoot);
     const std::string aSettings = (aRootPath / "setup.env").u8string();
-    SDL_IOStream* aFile = SDL_IOFromFile(aSettings.c_str(), "rb");
+    SDL_IOStream *aFile = SDL_IOFromFile(aSettings.c_str(), "rb");
     if (aFile == nullptr && aRootPath.filename() == "files")
     {
         const std::string aParentSettings = (aRootPath.parent_path() / "setup.env").u8string();
@@ -522,7 +531,7 @@ void LoadSetupEnv()
 // Sexy::GetEnv @0x2FB880. setup.env is consulted first. A missing name falls
 // through to the process environment, which is what EnvVarFile::GetEnv does
 // when the file has no entry.
-char const* Sexy::GetEnv(char const* theName)
+char const *Sexy::GetEnv(char const *theName)
 {
     if (theName == nullptr || theName[0] == '\0')
         return nullptr;
@@ -534,7 +543,7 @@ char const* Sexy::GetEnv(char const* theName)
     return SDL_getenv(theName);
 }
 
-char const* Sexy::logLevelName(Sexy::LogLevel theLevel)
+char const *Sexy::logLevelName(Sexy::LogLevel theLevel)
 {
     const int aIndex = (int)theLevel + 1;
     if (aIndex < 0 || aIndex > 4)
@@ -544,7 +553,7 @@ char const* Sexy::logLevelName(Sexy::LogLevel theLevel)
 
 // Lower-cases the name, then matches it against the five level names.
 // 1 and the level written through the out-parameter on a hit, 0 otherwise.
-int Sexy::logLevelFromName(char const* theName, Sexy::LogLevel& theLevel)
+int Sexy::logLevelFromName(char const *theName, Sexy::LogLevel &theLevel)
 {
     if (theName == nullptr || theName[0] == 0)
         return 0;
@@ -571,11 +580,10 @@ int Sexy::logLevelFromName(char const* theName, Sexy::LogLevel& theLevel)
 
 // Split the text on every occurrence of the separator and append each piece.
 // An empty separator cannot be found, so the whole text is the one piece.
-int Sexy::Split(Sexy::String const& theText, Sexy::String const& theSeparator,
-                std::vector<Sexy::String>& theOut)
+int Sexy::Split(Sexy::String const &theText, Sexy::String const &theSeparator, std::vector<Sexy::String> &theOut)
 {
-    const char* aText = theText.c_str();
-    const char* aSeparator = theSeparator.c_str();
+    const char *aText = theText.c_str();
+    const char *aSeparator = theSeparator.c_str();
     const size_t aSeparatorLength = std::strlen(aSeparator);
 
     if (aSeparatorLength == 0)
@@ -584,10 +592,10 @@ int Sexy::Split(Sexy::String const& theText, Sexy::String const& theSeparator,
         return (int)theOut.size();
     }
 
-    const char* aCursor = aText;
+    const char *aCursor = aText;
     for (;;)
     {
-        const char* aHit = std::strstr(aCursor, aSeparator);
+        const char *aHit = std::strstr(aCursor, aSeparator);
         if (aHit == nullptr)
         {
             theOut.push_back(Sexy::String(aCursor));
@@ -602,32 +610,32 @@ int Sexy::Split(Sexy::String const& theText, Sexy::String const& theSeparator,
 // MkDir lives in ReconHelpers.cpp.
 // MTRand::Next lives in MTRand.cpp.
 
-void StringToUpper(Sexy::String* theDest, char const* theSource)
+void StringToUpper(Sexy::String *theDest, char const *theSource)
 {
     if (theDest == nullptr || theSource == nullptr)
         return;
     Sexy::String aResult;
-    for (const char* aCursor = theSource; *aCursor != 0; ++aCursor)
+    for (const char *aCursor = theSource; *aCursor != 0; ++aCursor)
         aResult.push_back((char)::toupper((unsigned char)*aCursor));
     *theDest = aResult;
 }
 
-void StringToLower(Sexy::String* theDest, char const* theSource)
+void StringToLower(Sexy::String *theDest, char const *theSource)
 {
     if (theDest == nullptr || theSource == nullptr)
         return;
     Sexy::String aResult;
-    for (const char* aCursor = theSource; *aCursor != 0; ++aCursor)
+    for (const char *aCursor = theSource; *aCursor != 0; ++aCursor)
         aResult.push_back((char)::tolower((unsigned char)*aCursor));
     *theDest = aResult;
 }
 
-void StringToSexyString(Sexy::String* theDest, char const* theSource)
+void StringToSexyString(Sexy::String *theDest, char const *theSource)
 {
     CopyText(theDest, theSource);
 }
 
-void ToString(Sexy::String* theDest, Sexy::String const* theSource)
+void ToString(Sexy::String *theDest, Sexy::String const *theSource)
 {
     if (theDest == nullptr)
         return;
@@ -635,13 +643,13 @@ void ToString(Sexy::String* theDest, Sexy::String const* theSource)
 }
 
 // Directory into the first string, file name into the second.
-void GetPathFrom(Sexy::String* theOut, Sexy::String* theFirst, Sexy::String* theSecond)
+void GetPathFrom(Sexy::String *theOut, Sexy::String *theFirst, Sexy::String *theSecond)
 {
     (void)theOut;
     if (theFirst == nullptr || theSecond == nullptr)
         return;
 
-    const char* aDirectory = theFirst->c_str();
+    const char *aDirectory = theFirst->c_str();
     const int aCut = LastSeparator(aDirectory);
     if (aCut < 0)
     {
@@ -658,16 +666,14 @@ void GetPathFrom(Sexy::String* theOut, Sexy::String* theFirst, Sexy::String* the
 
 // Stores the app, the default channel name, and the disabled flag. The six
 // platform listener registrations have no Windows backend.
-Sexy::AdProvider::AdProvider(Sexy::SexyCommonApp* theApp)
+Sexy::AdProvider::AdProvider(Sexy::SexyCommonApp *theApp)
 {
     mApp = theApp;
     mChannel = "default";
     mDisabled = false;
 }
 
-Sexy::AdProvider::~AdProvider()
-{
-}
+Sexy::AdProvider::~AdProvider() {}
 
 void Sexy::AdProvider::show(int theGravity)
 {
@@ -709,18 +715,15 @@ bool Sexy::AdProvider::haveAppOffer()
         return true;
     if (std::strcmp(kAdChannels[1], "xiaomi") == 0)
         return false;
-    if (std::strcmp(kAdChannels[2], "xiaomi") == 0
-        || std::strcmp(kAdChannels[3], "xiaomi") == 0
-        || std::strcmp(kAdChannels[4], "xiaomi") == 0
-        || std::strcmp(kAdChannels[5], "xiaomi") == 0)
+    if (std::strcmp(kAdChannels[2], "xiaomi") == 0 || std::strcmp(kAdChannels[3], "xiaomi") == 0 ||
+        std::strcmp(kAdChannels[4], "xiaomi") == 0 || std::strcmp(kAdChannels[5], "xiaomi") == 0)
         return true;
     (void)(std::strcmp(kAdChannels[6], "xiaomi") == 0);
     (void)(std::strcmp(kAdChannels[7], "xiaomi") == 0);
     return false;
 }
 
-void Sexy::AdProvider::showAppOffer(Sexy::String const& theOffer, int theX, int theY,
-                                    int theWidth, int theHeight)
+void Sexy::AdProvider::showAppOffer(Sexy::String const &theOffer, int theX, int theY, int theWidth, int theHeight)
 {
     if (mDisabled)
         return;
@@ -730,21 +733,18 @@ void Sexy::AdProvider::showAppOffer(Sexy::String const& theOffer, int theX, int 
     AGShowOfferAD(theOffer.c_str(), theX, theY, theWidth, aAdType, theHeight);
 }
 
-void Sexy::AdProvider::showItemPay(Sexy::String const& theItem, int theCount,
-                                   Sexy::String const& theName,
-                                   Sexy::String const& theDescription,
-                                   float thePrice, int theFlags)
+void Sexy::AdProvider::showItemPay(Sexy::String const &theItem, int theCount, Sexy::String const &theName,
+    Sexy::String const &theDescription, float thePrice, int theFlags)
 {
     if (mDisabled)
         return;
     int aAdType = getADType();
     if (aAdType == -1)
         return;
-    AGShowItems(theItem.c_str(), theCount, theName.c_str(), theDescription.c_str(),
-                thePrice, theFlags, aAdType);
+    AGShowItems(theItem.c_str(), theCount, theName.c_str(), theDescription.c_str(), thePrice, theFlags, aAdType);
 }
 
-void Sexy::AdProvider::queryBalance(Sexy::String const& theAccount)
+void Sexy::AdProvider::queryBalance(Sexy::String const &theAccount)
 {
     if (mDisabled)
         return;
@@ -764,46 +764,37 @@ void Sexy::AdProvider::goToLogin(bool theForce)
     AGGoToLogin(theForce, aAdType);
 }
 
-void Sexy::AdProvider::getUserName(Sexy::String& theName)
+void Sexy::AdProvider::getUserName(Sexy::String &theName)
 {
     int aAdType = getADType();
     if (aAdType == -1)
         return;
-    const char* aName = AGGetUserName(aAdType);
+    const char *aName = AGGetUserName(aAdType);
     if (aName == nullptr)
         aName = "";
     theName.assign(aName, (unsigned int)std::strlen(aName));
 }
 
-void Sexy::AdProvider::getNickname(Sexy::String& theName)
+void Sexy::AdProvider::getNickname(Sexy::String &theName)
 {
     (void)theName;
 }
 
-void Sexy::AdProvider::update()
+void Sexy::AdProvider::update() {}
+
+void Sexy::AdProvider::recharge() {}
+
+Sexy::PlatformIntegration::PlatformIntegration(Sexy::SexyAppBase *theApp) :
+    mChannel("android"),
+    mApp(theApp)
 {
 }
 
-void Sexy::AdProvider::recharge()
-{
-}
+void Sexy::PlatformIntegration::Init() {}
 
-Sexy::PlatformIntegration::PlatformIntegration(Sexy::SexyAppBase* theApp)
-    : mChannel("android"), mApp(theApp)
-{
-}
+void Sexy::PlatformIntegration::Cleanup() {}
 
-void Sexy::PlatformIntegration::Init()
-{
-}
-
-void Sexy::PlatformIntegration::Cleanup()
-{
-}
-
-Sexy::PlatformIntegration::~PlatformIntegration()
-{
-}
+Sexy::PlatformIntegration::~PlatformIntegration() {}
 
 Sexy::String Sexy::PlatformIntegration::GetHardwareID()
 {
@@ -830,32 +821,26 @@ Sexy::String Sexy::PlatformIntegration::GetRechargeLimit()
     return Sexy::String();
 }
 
-Sexy::MusicInterface::~MusicInterface()
-{
-}
+Sexy::MusicInterface::~MusicInterface() {}
 
-Sexy::SharedRenderTarget::Pool::~Pool()
-{
-}
+Sexy::SharedRenderTarget::Pool::~Pool() {}
 
-Sexy::PopAnimModParser::PopAnimModParser()
-{
-}
+Sexy::PopAnimModParser::PopAnimModParser() {}
 
 // PATransform, PASpriteDef::GetLabelFrame and PASpriteInst::GetObjectInst
 // are defined in PopAnim.cpp.
 
-Sexy::FileLogListener::FileLogListener(Sexy::String const& thePath)
+Sexy::FileLogListener::FileLogListener(Sexy::String const &thePath)
 {
     (void)thePath;
 }
 
-Sexy::TcpLogListener::TcpLogListener(Sexy::String const& theEndpoint)
+Sexy::TcpLogListener::TcpLogListener(Sexy::String const &theEndpoint)
 {
     (void)theEndpoint;
 }
 
-Sexy::SimpleUdpLogListener::SimpleUdpLogListener(Sexy::String const& theEndpoint)
+Sexy::SimpleUdpLogListener::SimpleUdpLogListener(Sexy::String const &theEndpoint)
 {
     (void)theEndpoint;
 }
@@ -864,33 +849,31 @@ Sexy::SimpleUdpLogListener::SimpleUdpLogListener(Sexy::String const& theEndpoint
 // at that pair, which is an empty list. The word before it is the format.
 MultiplexLogListener::MultiplexLogListener()
 {
-    void* aSelf = this;
-    int* aFormat = static_cast<int*>(aSelf);
+    void *aSelf = this;
+    int *aFormat = static_cast<int *>(aSelf);
     aFormat[1] = -1;
-    char* aBytes = static_cast<char*>(aSelf);
-    MultiplexLogNode* aSentinel = static_cast<MultiplexLogNode*>(
-        static_cast<void*>(aBytes + 8));
+    char *aBytes = static_cast<char *>(aSelf);
+    MultiplexLogNode *aSentinel = static_cast<MultiplexLogNode *>(static_cast<void *>(aBytes + 8));
     aSentinel->mNext = aSentinel;
     aSentinel->mPrev = aSentinel;
 }
 
 // Appends the listener unless it is already present. A null listener is ignored.
-int MultiplexLogListener::addListener(Sexy::LogListener* theListener)
+int MultiplexLogListener::addListener(Sexy::LogListener *theListener)
 {
     if (theListener == nullptr)
         return 0;
 
-    void* aSelf = this;
-    char* aBytes = static_cast<char*>(aSelf);
-    MultiplexLogNode* aSentinel = static_cast<MultiplexLogNode*>(
-        static_cast<void*>(aBytes + 8));
-    for (MultiplexLogNode* aNode = aSentinel->mNext; aNode != aSentinel; aNode = aNode->mNext)
+    void *aSelf = this;
+    char *aBytes = static_cast<char *>(aSelf);
+    MultiplexLogNode *aSentinel = static_cast<MultiplexLogNode *>(static_cast<void *>(aBytes + 8));
+    for (MultiplexLogNode *aNode = aSentinel->mNext; aNode != aSentinel; aNode = aNode->mNext)
     {
         if (aNode->mListener == theListener)
             return 1;
     }
 
-    MultiplexLogNode* aNewNode = new MultiplexLogNode;
+    MultiplexLogNode *aNewNode = new MultiplexLogNode;
     aNewNode->mListener = theListener;
     LinkLogNodeBefore(aSentinel, aNewNode);
     return 1;
@@ -898,49 +881,45 @@ int MultiplexLogListener::addListener(Sexy::LogListener* theListener)
 
 int MultiplexLogListener::hasListener()
 {
-    void* aSelf = this;
-    char* aBytes = static_cast<char*>(aSelf);
-    MultiplexLogNode* aSentinel = static_cast<MultiplexLogNode*>(
-        static_cast<void*>(aBytes + 8));
+    void *aSelf = this;
+    char *aBytes = static_cast<char *>(aSelf);
+    MultiplexLogNode *aSentinel = static_cast<MultiplexLogNode *>(static_cast<void *>(aBytes + 8));
     return aSentinel->mNext != aSentinel;
 }
 
-Sexy::ServiceManager* Sexy::ServiceManager::getInstance(Sexy::ServiceManager* theSingleton)
+Sexy::ServiceManager *Sexy::ServiceManager::getInstance(Sexy::ServiceManager *theSingleton)
 {
     (void)theSingleton;
     return nullptr;
 }
 
-int Sexy::ServiceManager::setName(Sexy::ServiceManager* theManager, Sexy::String const& theName)
+int Sexy::ServiceManager::setName(Sexy::ServiceManager *theManager, Sexy::String const &theName)
 {
     (void)theManager;
     (void)theName;
     return 0;
 }
 
-void Sexy::ServiceManager::release(Sexy::ServiceManager* theManager)
+void Sexy::ServiceManager::release(Sexy::ServiceManager *theManager)
 {
     (void)theManager;
 }
 
-Sexy::PropertiesParser::PropertiesParser(Sexy::SexyAppBase* theApp)
+Sexy::PropertiesParser::PropertiesParser(Sexy::SexyAppBase *theApp)
 {
     (void)theApp;
 }
 
-Sexy::PropertiesParser::~PropertiesParser()
-{
-}
+Sexy::PropertiesParser::~PropertiesParser() {}
 
-int Sexy::PropertiesParser::ParsePropertiesBuffer(Sexy::PropertiesParser* theParser,
-                                                  Sexy::Buffer const* theBuffer)
+int Sexy::PropertiesParser::ParsePropertiesBuffer(Sexy::PropertiesParser *theParser, Sexy::Buffer const *theBuffer)
 {
     (void)theParser;
     (void)theBuffer;
     return 0;
 }
 
-void Sexy::PropertiesParser::GetErrorText(Sexy::PropertiesParser* theParser)
+void Sexy::PropertiesParser::GetErrorText(Sexy::PropertiesParser *theParser)
 {
     (void)theParser;
 }
@@ -949,13 +928,11 @@ void Sexy::PropertiesParser::GetErrorText(Sexy::PropertiesParser* theParser)
 // The constructor's bool is the second byte of the flag word.
 Sexy::InputConnectManager::InputConnectManager(bool theAutoReconnect)
 {
-    InputConnectNode* aListeners = static_cast<InputConnectNode*>(
-        static_cast<void*>(&mListenerNext));
+    InputConnectNode *aListeners = static_cast<InputConnectNode *>(static_cast<void *>(&mListenerNext));
     aListeners->mNext = aListeners;
     aListeners->mPrev = aListeners;
 
-    InputConnectNode* aSecond = static_cast<InputConnectNode*>(
-        static_cast<void*>(&mSecondNext));
+    InputConnectNode *aSecond = static_cast<InputConnectNode *>(static_cast<void *>(&mSecondNext));
     aSecond->mNext = aSecond;
     aSecond->mPrev = aSecond;
 
@@ -979,23 +956,19 @@ Sexy::InputConnectManager::InputConnectManager(bool theAutoReconnect)
     mFlags[1] = theAutoReconnect ? 1 : 0;
 }
 
-Sexy::InputConnectManager::~InputConnectManager()
-{
-}
+Sexy::InputConnectManager::~InputConnectManager() {}
 
-void Sexy::InputConnectManager::AddListener(Sexy::InputConnectListener* theListener)
+void Sexy::InputConnectManager::AddListener(Sexy::InputConnectListener *theListener)
 {
-    InputConnectNode* aNode = new InputConnectNode;
+    InputConnectNode *aNode = new InputConnectNode;
     aNode->mListener = theListener;
-    LinkConnectNodeBefore(
-        static_cast<InputConnectNode*>(static_cast<void*>(&mListenerNext)), aNode);
+    LinkConnectNodeBefore(static_cast<InputConnectNode *>(static_cast<void *>(&mListenerNext)), aNode);
 }
 
-void Sexy::InputConnectManager::RemoveListener(Sexy::InputConnectListener* theListener)
+void Sexy::InputConnectManager::RemoveListener(Sexy::InputConnectListener *theListener)
 {
-    InputConnectNode* aEnd = static_cast<InputConnectNode*>(
-        static_cast<void*>(&mListenerNext));
-    for (InputConnectNode* aNode = aEnd->mNext; aNode != aEnd; aNode = aNode->mNext)
+    InputConnectNode *aEnd = static_cast<InputConnectNode *>(static_cast<void *>(&mListenerNext));
+    for (InputConnectNode *aNode = aEnd->mNext; aNode != aEnd; aNode = aNode->mNext)
     {
         if (aNode->mListener != theListener)
             continue;
@@ -1006,27 +979,21 @@ void Sexy::InputConnectManager::RemoveListener(Sexy::InputConnectListener* theLi
     }
 }
 
-void Sexy::InputConnectManager::Start(Sexy::InputManager* theInput)
+void Sexy::InputConnectManager::Start(Sexy::InputManager *theInput)
 {
     (void)theInput;
 }
 
-void Sexy::InputConnectManager::Stop()
-{
-}
+void Sexy::InputConnectManager::Stop() {}
 
-void Sexy::InputConnectManager::Update()
-{
-}
+void Sexy::InputConnectManager::Update() {}
 
-void Sexy::SysFont::Release()
-{
-}
+void Sexy::SysFont::Release() {}
 
 // Directory half of a path. The flag selects whether the separator is kept.
 // No separator yields an empty directory. The trailing unused argument is
 // what the older four-argument call sites still pass.
-int GetFileDir(Sexy::String* theDest, const void* thePath, int theKeepSeparator, int theUnused)
+int GetFileDir(Sexy::String *theDest, const void *thePath, int theKeepSeparator, int theUnused)
 {
     (void)theUnused;
     if (theDest == nullptr || thePath == nullptr)
@@ -1035,8 +1002,8 @@ int GetFileDir(Sexy::String* theDest, const void* thePath, int theKeepSeparator,
     // Call sites pass a Sexy::String*. The object is the pointer, not the
     // characters; reading it as a C string treats the data pointer's bytes
     // as the path.
-    const Sexy::String* aString = static_cast<const Sexy::String*>(thePath);
-    const char* aText = aString->c_str();
+    const Sexy::String *aString = static_cast<const Sexy::String *>(thePath);
+    const char *aText = aString->c_str();
     if (aText == nullptr)
         aText = "";
 
@@ -1055,21 +1022,21 @@ int GetFileDir(Sexy::String* theDest, const void* thePath, int theKeepSeparator,
 
 // File-name half. A non-zero flag stops the name at the last dot when that
 // dot sits after the last separator, which drops the extension.
-int GetFileName(Sexy::String* theDest, Sexy::String const* theName, int theStripExtension)
+int GetFileName(Sexy::String *theDest, Sexy::String const *theName, int theStripExtension)
 {
     if (theDest == nullptr || theName == nullptr)
         return 0;
 
-    const char* aText = theName->c_str();
+    const char *aText = theName->c_str();
     const int aCut = LastSeparator(aText);
-    const char* aFile = (aCut < 0) ? aText : aText + aCut + 1;
+    const char *aFile = (aCut < 0) ? aText : aText + aCut + 1;
     if (theStripExtension == 0)
     {
         *theDest = aFile;
         return 1;
     }
 
-    const char* aDot = std::strrchr(aFile, '.');
+    const char *aDot = std::strrchr(aFile, '.');
     if (aDot == nullptr || aDot == aFile)
     {
         *theDest = aFile;
@@ -1079,7 +1046,7 @@ int GetFileName(Sexy::String* theDest, Sexy::String const* theName, int theStrip
     return 1;
 }
 
-int Lower(Sexy::String* theDest, Sexy::String const* theSource)
+int Lower(Sexy::String *theDest, Sexy::String const *theSource)
 {
     if (theDest == nullptr || theSource == nullptr)
         return 0;
@@ -1089,9 +1056,9 @@ int Lower(Sexy::String* theDest, Sexy::String const* theSource)
 
 // The four-parameter equal_range lives in ReconHelpers. This spelling writes
 // the same collapsed range through a two-element out array.
-void Sexy::RbTree::equal_range(NodeBase** theOut, MapStorage* theTree, Sexy::String const* theKey)
+void Sexy::RbTree::equal_range(NodeBase **theOut, MapStorage *theTree, Sexy::String const *theKey)
 {
-    Sexy::RbTree::NodeBase* aFound = Sexy::RbTree::find(theTree, theKey);
+    Sexy::RbTree::NodeBase *aFound = Sexy::RbTree::find(theTree, theKey);
     if (theOut != nullptr)
     {
         theOut[0] = aFound;
@@ -1101,16 +1068,14 @@ void Sexy::RbTree::equal_range(NodeBase** theOut, MapStorage* theTree, Sexy::Str
 
 // Deep copy of a map node. The tree layer here does not allocate value nodes,
 // so a copy has nothing to clone.
-Sexy::RbTree::NodeBase* Sexy::RbTree::_M_copy(Sexy::RbTree::NodeBase* theNode,
-                                              Sexy::RbTree::NodeBase* theParent)
+Sexy::RbTree::NodeBase *Sexy::RbTree::_M_copy(Sexy::RbTree::NodeBase *theNode, Sexy::RbTree::NodeBase *theParent)
 {
     (void)theNode;
     (void)theParent;
     return nullptr;
 }
 
-void Sexy::SexyMatrix3Multiply(float* theResult, SexyMatrix3 const& theMatrix,
-                               float const* theVector)
+void Sexy::SexyMatrix3Multiply(float *theResult, SexyMatrix3 const &theMatrix, float const *theVector)
 {
     (void)theResult;
     (void)theMatrix;
@@ -1119,23 +1084,23 @@ void Sexy::SexyMatrix3Multiply(float* theResult, SexyMatrix3 const& theMatrix,
 
 namespace Sexy
 {
-Sexy::String SexyWStringFromString(Sexy::String const& theText)
+Sexy::String SexyWStringFromString(Sexy::String const &theText)
 {
     return theText;
 }
 } // namespace Sexy
 
-void StringToWString(Sexy::String* theDest, char const* theSource)
+void StringToWString(Sexy::String *theDest, char const *theSource)
 {
     CopyText(theDest, theSource);
 }
 
-void StringToWStringFast(Sexy::String* theDest, char const* theSource)
+void StringToWStringFast(Sexy::String *theDest, char const *theSource)
 {
     CopyText(theDest, theSource);
 }
 
-void WStringToString(Sexy::String* theDest, wchar_t const* theSource)
+void WStringToString(Sexy::String *theDest, wchar_t const *theSource)
 {
     if (theDest == nullptr)
         return;
@@ -1145,7 +1110,7 @@ void WStringToString(Sexy::String* theDest, wchar_t const* theSource)
         return;
     }
     Sexy::String aResult;
-    for (const wchar_t* aCursor = theSource; *aCursor != 0; ++aCursor)
+    for (const wchar_t *aCursor = theSource; *aCursor != 0; ++aCursor)
     {
         char aByte = (char)(*aCursor & 0xFF);
         aResult.push_back(aByte);
@@ -1153,18 +1118,18 @@ void WStringToString(Sexy::String* theDest, wchar_t const* theSource)
     *theDest = aResult;
 }
 
-void WStringFrom(Sexy::String* theDest, wchar_t const* theSource)
+void WStringFrom(Sexy::String *theDest, wchar_t const *theSource)
 {
     WStringToString(theDest, theSource);
 }
 
-void Sexy::SexyWStringToString(Sexy::String* theDest, void const* theSource)
+void Sexy::SexyWStringToString(Sexy::String *theDest, void const *theSource)
 {
     SeedEmpty(theDest);
     (void)theSource;
 }
 
-void Sexy::WStringToStringFast(Sexy::String* theDest, void const* theSource)
+void Sexy::WStringToStringFast(Sexy::String *theDest, void const *theSource)
 {
     if (theDest == nullptr)
         return;
@@ -1173,17 +1138,17 @@ void Sexy::WStringToStringFast(Sexy::String* theDest, void const* theSource)
         SeedEmpty(theDest);
         return;
     }
-    WStringToString(theDest, static_cast<const wchar_t*>(theSource));
+    WStringToString(theDest, static_cast<const wchar_t *>(theSource));
 }
 
-void SexyWStringToString(Sexy::String* theDest, Sexy::String const* theSource)
+void SexyWStringToString(Sexy::String *theDest, Sexy::String const *theSource)
 {
     if (theDest == nullptr)
         return;
     *theDest = (theSource != nullptr) ? *theSource : Sexy::String();
 }
 
-int Sexy::SexyStringToString(Sexy::String* theDest, Sexy::String const* theSource)
+int Sexy::SexyStringToString(Sexy::String *theDest, Sexy::String const *theSource)
 {
     if (theDest == nullptr)
         return 0;
@@ -1191,49 +1156,86 @@ int Sexy::SexyStringToString(Sexy::String* theDest, Sexy::String const* theSourc
     return 1;
 }
 
-void XMLEncodeString(Sexy::String* theDest, char const* theSource)
+void XMLEncodeString(Sexy::String *theDest, char const *theSource)
 {
     if (theDest == nullptr || theSource == nullptr)
         return;
     Sexy::String aResult;
-    for (const char* aCursor = theSource; *aCursor != 0; ++aCursor)
+    for (const char *aCursor = theSource; *aCursor != 0; ++aCursor)
     {
         switch (*aCursor)
         {
-        case '&':  aResult += "&amp;";  break;
-        case '<':  aResult += "&lt;";   break;
-        case '>':  aResult += "&gt;";   break;
-        case '"':  aResult += "&quot;"; break;
-        case '\'': aResult += "&apos;"; break;
-        default:   aResult.push_back(*aCursor); break;
+            case '&':
+                aResult += "&amp;";
+                break;
+            case '<':
+                aResult += "&lt;";
+                break;
+            case '>':
+                aResult += "&gt;";
+                break;
+            case '"':
+                aResult += "&quot;";
+                break;
+            case '\'':
+                aResult += "&apos;";
+                break;
+            default:
+                aResult.push_back(*aCursor);
+                break;
         }
     }
     *theDest = aResult;
 }
 
-void XMLDecodeString(Sexy::String* theDest, char const* theSource)
+void XMLDecodeString(Sexy::String *theDest, char const *theSource)
 {
     if (theDest == nullptr || theSource == nullptr)
         return;
     Sexy::String aResult;
-    for (const char* aCursor = theSource; *aCursor != 0; ++aCursor)
+    for (const char *aCursor = theSource; *aCursor != 0; ++aCursor)
     {
         if (*aCursor != '&')
         {
             aResult.push_back(*aCursor);
             continue;
         }
-        if (std::strncmp(aCursor, "&amp;", 5) == 0)  { aResult.push_back('&');  aCursor += 4; continue; }
-        if (std::strncmp(aCursor, "&lt;", 4) == 0)   { aResult.push_back('<');  aCursor += 3; continue; }
-        if (std::strncmp(aCursor, "&gt;", 4) == 0)   { aResult.push_back('>');  aCursor += 3; continue; }
-        if (std::strncmp(aCursor, "&quot;", 6) == 0) { aResult.push_back('"');  aCursor += 5; continue; }
-        if (std::strncmp(aCursor, "&apos;", 6) == 0) { aResult.push_back('\''); aCursor += 5; continue; }
+        if (std::strncmp(aCursor, "&amp;", 5) == 0)
+        {
+            aResult.push_back('&');
+            aCursor += 4;
+            continue;
+        }
+        if (std::strncmp(aCursor, "&lt;", 4) == 0)
+        {
+            aResult.push_back('<');
+            aCursor += 3;
+            continue;
+        }
+        if (std::strncmp(aCursor, "&gt;", 4) == 0)
+        {
+            aResult.push_back('>');
+            aCursor += 3;
+            continue;
+        }
+        if (std::strncmp(aCursor, "&quot;", 6) == 0)
+        {
+            aResult.push_back('"');
+            aCursor += 5;
+            continue;
+        }
+        if (std::strncmp(aCursor, "&apos;", 6) == 0)
+        {
+            aResult.push_back('\'');
+            aCursor += 5;
+            continue;
+        }
         aResult.push_back('&');
     }
     *theDest = aResult;
 }
 
-int Sexy::StringToInt(Sexy::String theText, int* theDest)
+int Sexy::StringToInt(Sexy::String theText, int *theDest)
 {
     if (theDest == nullptr)
         return 0;
@@ -1241,7 +1243,7 @@ int Sexy::StringToInt(Sexy::String theText, int* theDest)
     return 1;
 }
 
-int Sexy::StringToDouble(Sexy::String theText, double* theDest)
+int Sexy::StringToDouble(Sexy::String theText, double *theDest)
 {
     if (theDest == nullptr)
         return 0;
@@ -1249,44 +1251,44 @@ int Sexy::StringToDouble(Sexy::String theText, double* theDest)
     return 1;
 }
 
-int StringToInt(Sexy::String theText, int* theDest)
+int StringToInt(Sexy::String theText, int *theDest)
 {
     return Sexy::StringToInt(theText, theDest);
 }
 
-void ToSexyString(Sexy::String* theDest, Sexy::String const* theSource)
+void ToSexyString(Sexy::String *theDest, Sexy::String const *theSource)
 {
     if (theDest == nullptr)
         return;
     *theDest = (theSource != nullptr) ? *theSource : Sexy::String();
 }
 
-void ToWString(Sexy::String* theDest, Sexy::String const* theSource)
+void ToWString(Sexy::String *theDest, Sexy::String const *theSource)
 {
     if (theDest == nullptr)
         return;
     *theDest = (theSource != nullptr) ? *theSource : Sexy::String();
 }
 
-int SexySetLocale(void* theLocale, char const* theEncoding)
+int SexySetLocale(void *theLocale, char const *theEncoding)
 {
     (void)theLocale;
     (void)theEncoding;
     return 0;
 }
 
-int Sexy::setLocale(char const* theLocale)
+int Sexy::setLocale(char const *theLocale)
 {
     return Sexy::setLocale(nullptr, theLocale) != nullptr ? 1 : 0;
 }
 
-int Sexy::SexyUtf8Validate(void* theState, char const* theText, int theLength)
+int Sexy::SexyUtf8Validate(void *theState, char const *theText, int theLength)
 {
     (void)theState;
     if (theText == nullptr || theLength <= 0)
         return 0;
 
-    const unsigned char* aBytes = (const unsigned char*)theText;
+    const unsigned char *aBytes = (const unsigned char *)theText;
     int aIndex = 0;
     while (aIndex < theLength)
     {
@@ -1319,13 +1321,12 @@ int Sexy::SexyUtf8Validate(void* theState, char const* theText, int theLength)
     return theLength;
 }
 
-void Sexy::SetAppDataFolder(Sexy::String const& thePath)
+void Sexy::SetAppDataFolder(Sexy::String const &thePath)
 {
     (void)thePath;
 }
 
-int Sexy::GetNextUTF8CharFromStream(void* theStream, char const** theCursor,
-                                    int theLimit, wchar_t* theChar)
+int Sexy::GetNextUTF8CharFromStream(void *theStream, char const **theCursor, int theLimit, wchar_t *theChar)
 {
     (void)theStream;
     (void)theCursor;
@@ -1334,13 +1335,13 @@ int Sexy::GetNextUTF8CharFromStream(void* theStream, char const** theCursor,
     return 0;
 }
 
-Sexy::String UTF8::filterUnicode(Sexy::String const& theText)
+Sexy::String UTF8::filterUnicode(Sexy::String const &theText)
 {
     (void)theText;
     return Sexy::String();
 }
 
-int Sexy::DividePoly(void* thePolygon, void* theLeft, void* theRight, int theCount, void* thePlane)
+int Sexy::DividePoly(void *thePolygon, void *theLeft, void *theRight, int theCount, void *thePlane)
 {
     (void)thePolygon;
     (void)theLeft;
@@ -1350,7 +1351,7 @@ int Sexy::DividePoly(void* thePolygon, void* theLeft, void* theRight, int theCou
     return 0;
 }
 
-int TodIsPointInPolygon(void* thePoint, int theCount, float* theVertices)
+int TodIsPointInPolygon(void *thePoint, int theCount, float *theVertices)
 {
     (void)thePoint;
     (void)theCount;
@@ -1358,54 +1359,53 @@ int TodIsPointInPolygon(void* thePoint, int theCount, float* theVertices)
     return 0;
 }
 
-int Sexy::GetFileDate(Sexy::String const& thePath)
+int Sexy::GetFileDate(Sexy::String const &thePath)
 {
     (void)thePath;
     return 0;
 }
 
-int logtfd(char const* theFormat, ...)
+int logtfd(char const *theFormat, ...)
 {
     (void)theFormat;
     return 0;
 }
 
-void Sexy::logtfd(void* theStream, char const* theFormat, ...)
+void Sexy::logtfd(void *theStream, char const *theFormat, ...)
 {
     (void)theStream;
     (void)theFormat;
 }
 
-int logtfe(Sexy::String const& theTag, char const* theFormat, ...)
+int logtfe(Sexy::String const &theTag, char const *theFormat, ...)
 {
     (void)theTag;
     (void)theFormat;
     return 0;
 }
 
-void Sexy::logtfi(int theLevel, char* theFormat, ...)
+void Sexy::logtfi(int theLevel, const char *theFormat, ...)
 {
     (void)theLevel;
     (void)theFormat;
 }
 
-int TodLogMessage(int theLevel, char const* theFormat, ...)
+int TodLogMessage(int theLevel, char const *theFormat, ...)
 {
     (void)theLevel;
     (void)theFormat;
     return 0;
 }
 
-int p_addResource(char const* thePath, char const* theKind, int thePriority)
+int p_addResource(char const *thePath, char const *theKind, int thePriority)
 {
     if (thePath == nullptr || theKind == nullptr)
         return 0;
     return PakLib::FileSystemManager::getManager()->addResource(thePath, theKind, thePriority) ? 1 : 0;
 }
 
-bool Sexy::Quantize8Bit(unsigned long const* thePixels, int theWidth, int theHeight,
-                        unsigned char* theIndices, unsigned long* thePalette,
-                        unsigned int* theCount)
+bool Sexy::Quantize8Bit(unsigned long const *thePixels, int theWidth, int theHeight, unsigned char *theIndices,
+    unsigned long *thePalette, unsigned int *theCount)
 {
     (void)thePixels;
     (void)theWidth;
@@ -1417,7 +1417,7 @@ bool Sexy::Quantize8Bit(unsigned long const* thePixels, int theWidth, int theHei
 }
 
 int __imp__ZN6Native10GameCenter11reportScoreERKNS0_5ScoreE(
-    Native::GameCenter* theCenter, Native::GameCenter_Score const& theScore)
+    Native::GameCenter *theCenter, Native::GameCenter_Score const &theScore)
 {
     (void)theCenter;
     (void)theScore;
@@ -1425,7 +1425,7 @@ int __imp__ZN6Native10GameCenter11reportScoreERKNS0_5ScoreE(
 }
 
 int __imp__ZN6Native10GameCenter11sendMessageERKNS0_7MessageE(
-    Native::GameCenter* theCenter, Native::GameCenter_Message const& theMessage)
+    Native::GameCenter *theCenter, Native::GameCenter_Message const &theMessage)
 {
     (void)theCenter;
     (void)theMessage;
@@ -1433,7 +1433,7 @@ int __imp__ZN6Native10GameCenter11sendMessageERKNS0_7MessageE(
 }
 
 int __imp__ZN6Native10GameCenter8purchaseERKNS0_7PaymentE(
-    Native::GameCenter* theCenter, Native::GameCenter_Payment const& thePayment)
+    Native::GameCenter *theCenter, Native::GameCenter_Payment const &thePayment)
 {
     (void)theCenter;
     (void)thePayment;
@@ -1441,28 +1441,27 @@ int __imp__ZN6Native10GameCenter8purchaseERKNS0_7PaymentE(
 }
 
 int __imp__ZN6Native10GameCenter8rechargeERKNS0_12RechargeArgsE(
-    Native::GameCenter* theCenter, Native::GameCenter_RechargeArgs const& theArgs)
+    Native::GameCenter *theCenter, Native::GameCenter_RechargeArgs const &theArgs)
 {
     (void)theCenter;
     (void)theArgs;
     return 0;
 }
 
-int __imp__ZN6Native12ShareManager11getFeaturesEv(Native::ShareManager* theManager)
+int __imp__ZN6Native12ShareManager11getFeaturesEv(Native::ShareManager *theManager)
 {
     (void)theManager;
     return 0;
 }
 
-int __imp__ZN6Native12ShareManager11setListenerEPNS0_8ListenerE(
-    Native::ShareManager::Listener* theListener)
+int __imp__ZN6Native12ShareManager11setListenerEPNS0_8ListenerE(Native::ShareManager::Listener *theListener)
 {
     (void)theListener;
     return 0;
 }
 
 int __imp__ZN6Native12ShareManager5shareERKNS0_4PostE(
-    Native::ShareManager* theManager, Native::ShareManager_Post const& thePost)
+    Native::ShareManager *theManager, Native::ShareManager_Post const &thePost)
 {
     (void)theManager;
     (void)thePost;
@@ -1474,13 +1473,13 @@ int __imp__ZN6Native12ShareManager5shareERKSsS2_()
     return 0;
 }
 
-int __imp__ZN6Native12ShareManager6createEv(Native::ShareManager* theManager)
+int __imp__ZN6Native12ShareManager6createEv(Native::ShareManager *theManager)
 {
     (void)theManager;
     return 0;
 }
 
-int __imp__ZNK6Native12ShareManager7getNameEv(Native::ShareManager* theManager)
+int __imp__ZNK6Native12ShareManager7getNameEv(Native::ShareManager *theManager)
 {
     (void)theManager;
     return 0;
@@ -1496,26 +1495,26 @@ int j_AGShowMoreGame()
     return 0;
 }
 
-void* Sexy::IGameCenter::Create(Sexy::SexyCommonApp* theApp)
+void *Sexy::IGameCenter::Create(Sexy::SexyCommonApp *theApp)
 {
     (void)theApp;
     return new Sexy::LocalGameCenter();
 }
 
-void* Sexy::INotificationManager::Create(Sexy::SexyCommonApp* theApp)
+void *Sexy::INotificationManager::Create(Sexy::SexyCommonApp *theApp)
 {
     (void)theApp;
     return nullptr;
 }
 
-void* Sexy::IShareManager::Create(Sexy::SexyCommonApp* theApp)
+void *Sexy::IShareManager::Create(Sexy::SexyCommonApp *theApp)
 {
     (void)theApp;
     return nullptr;
 }
 
-int DrCurlEngine::perform(Sexy::String const& theUrl, Sexy::String const& theBody,
-                          Sexy::String& theResponse, DrCurlRequest::HttpMethod theMethod)
+int DrCurlEngine::perform(Sexy::String const &theUrl, Sexy::String const &theBody, Sexy::String &theResponse,
+    DrCurlRequest::HttpMethod theMethod)
 {
     (void)theUrl;
     (void)theBody;
@@ -1524,7 +1523,7 @@ int DrCurlEngine::perform(Sexy::String const& theUrl, Sexy::String const& theBod
     return 0;
 }
 
-SimpleMessageWidget::SimpleMessageWidget(LawnApp* theApp)
+SimpleMessageWidget::SimpleMessageWidget(LawnApp *theApp)
 {
     (void)theApp;
 }
@@ -1538,7 +1537,7 @@ void SimpleMessageWidget::ClearReanim()
 {
     for (int aIndex = 0; aIndex < 128; aIndex++)
     {
-        Reanimation* aReanim = mApp->ReanimationTryToGet(mTextReanimID[aIndex]);
+        Reanimation *aReanim = mApp->ReanimationTryToGet(mTextReanimID[aIndex]);
         if (aReanim == nullptr)
             continue;
         aReanim->ReanimationDie();
@@ -1546,22 +1545,20 @@ void SimpleMessageWidget::ClearReanim()
     }
 }
 
-void SimpleMessageWidget::Draw(Sexy::Graphics* theGraphics)
+void SimpleMessageWidget::Draw(Sexy::Graphics *theGraphics)
 {
     (void)theGraphics;
 }
 
-void SimpleMessageWidget::SetLabel(Sexy::String const& theLabel, SimpleMessageStyle theStyle)
+void SimpleMessageWidget::SetLabel(Sexy::String const &theLabel, SimpleMessageStyle theStyle)
 {
     (void)theLabel;
     (void)theStyle;
 }
 
-void SimpleMessageWidget::Update()
-{
-}
+void SimpleMessageWidget::Update() {}
 
-void ToolTipWidget::GetLines(std::vector<Sexy::String>& theLines)
+void ToolTipWidget::GetLines(std::vector<Sexy::String> &theLines)
 {
     // Wrap mLabel on spaces and newlines to mGetsLinesWidth, measuring each
     // character with the warning font. A word that itself exceeds the width
@@ -1622,7 +1619,7 @@ int TierForPick(int theIndex)
     return 0;
 }
 
-int PoolLength(SeedType const* theRow)
+int PoolLength(SeedType const *theRow)
 {
     int aCount = 0;
     while (aCount < 8 && (int)theRow[aCount] != -1)
@@ -1630,7 +1627,7 @@ int PoolLength(SeedType const* theRow)
     return aCount;
 }
 
-bool AlreadyPicked(std::vector<SeedType> const& thePicked, SeedType theSeed)
+bool AlreadyPicked(std::vector<SeedType> const &thePicked, SeedType theSeed)
 {
     for (SeedType aHave : thePicked)
     {
@@ -1640,8 +1637,7 @@ bool AlreadyPicked(std::vector<SeedType> const& thePicked, SeedType theSeed)
     return false;
 }
 
-SeedType DrawFromRow(SeedType const* theRow, std::vector<SeedType>& thePicked,
-                     LawnApp* theApp, bool theZombie)
+SeedType DrawFromRow(SeedType const *theRow, std::vector<SeedType> &thePicked, LawnApp *theApp, bool theZombie)
 {
     const int aCount = PoolLength(theRow);
     if (aCount <= 0)
@@ -1661,16 +1657,14 @@ SeedType DrawFromRow(SeedType const* theRow, std::vector<SeedType>& thePicked,
 
 } // namespace
 
-void VSSetupMenu::PickRandomPlants(std::vector<SeedType>& thePicked,
-                                   std::vector<SeedType> const& theTaken)
+void VSSetupMenu::PickRandomPlants(std::vector<SeedType> &thePicked, std::vector<SeedType> const &theTaken)
 {
     // Five plant cards. Past level 20, one roll in five opens with seed 35 and
     // draws the rest from the later plant rows. Otherwise the five cards come
     // two, two, and one from the first three rows.
     int aPick = 0;
     int aRowBase = 0;
-    if (mApp != nullptr && mApp->mPlayerInfo != nullptr
-        && mApp->mPlayerInfo->mLevel > 20 && Sexy::Rand(5) == 1)
+    if (mApp != nullptr && mApp->mPlayerInfo != nullptr && mApp->mPlayerInfo->mLevel > 20 && Sexy::Rand(5) == 1)
     {
         thePicked.push_back((SeedType)35);
         aPick = 1;
@@ -1699,7 +1693,7 @@ void VSSetupMenu::PickRandomPlants(std::vector<SeedType>& thePicked,
     }
     if (!aHasSwapZombie || mApp == nullptr || !mApp->HasSeedType((SeedType)3, false))
         return;
-    for (SeedType& aCard : thePicked)
+    for (SeedType &aCard : thePicked)
     {
         if ((int)aCard == 3)
         {
@@ -1709,7 +1703,7 @@ void VSSetupMenu::PickRandomPlants(std::vector<SeedType>& thePicked,
     }
 }
 
-void VSSetupMenu::PickRandomZombies(std::vector<SeedType>& thePicked)
+void VSSetupMenu::PickRandomZombies(std::vector<SeedType> &thePicked)
 {
     // Five zombie cards: two from the first zombie row, two from the second,
     // one from the third. Those rows sit after the six plant rows.
@@ -1722,16 +1716,14 @@ void VSSetupMenu::PickRandomZombies(std::vector<SeedType>& thePicked)
     }
 }
 
-int TodTriangleGroup::DrawGroup(Sexy::Graphics* theGraphics)
+int TodTriangleGroup::DrawGroup(Sexy::Graphics *theGraphics)
 {
     (void)theGraphics;
     return 0;
 }
 
-int TodTriangleGroup::AddTriangle(Sexy::Graphics* theGraphics, Sexy::Image* theImage,
-                                  SexyMatrix3 const& theMatrix, Sexy::TRect<int> const& theSrc,
-                                  Sexy::Color const& theColor, int theVertexCount,
-                                  Sexy::TRect<int> const& theClip)
+int TodTriangleGroup::AddTriangle(Sexy::Graphics *theGraphics, Sexy::Image *theImage, SexyMatrix3 const &theMatrix,
+    Sexy::TRect<int> const &theSrc, Sexy::Color const &theColor, int theVertexCount, Sexy::TRect<int> const &theClip)
 {
     (void)theGraphics;
     (void)theImage;

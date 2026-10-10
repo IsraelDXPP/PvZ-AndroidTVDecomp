@@ -55,14 +55,13 @@ internalJSONNode *Unshare(internalJSONNode *theNode)
     return theNode->newInternal(*theNode);
 }
 
-void AssignName(internalJSONNode *theNode, Sexy::String const& theName)
+void AssignName(internalJSONNode *theNode, Sexy::String const &theName)
 {
     theNode->_name = theName;
     theNode->_name_encoded = true;
 }
 
-template <typename T>
-internalJSONNode *MakeValued(Sexy::String const& theName, T theValue)
+template <typename T> internalJSONNode *MakeValued(Sexy::String const &theName, T theValue)
 {
     internalJSONNode *aNode = new internalJSONNode(theName);
     aNode->Set(theValue);
@@ -105,13 +104,13 @@ void ClearName(internalJSONNode *theNode)
 
 }
 
-JSONNode::JSONNode(JSONNode const& theOther)
-    : mInternal(theOther.mInternal)
+JSONNode::JSONNode(JSONNode const &theOther) :
+    mInternal(theOther.mInternal)
 {
     Retain(mInternal);
 }
 
-JSONNode & JSONNode::operator=(JSONNode const& theOther)
+JSONNode &JSONNode::operator=(JSONNode const &theOther)
 {
     if (mInternal == theOther.mInternal)
         return *this;
@@ -128,77 +127,77 @@ JSONNode::~JSONNode()
     mInternal = nullptr;
 }
 
-JSONNode::JSONNode(Sexy::String const& theName, char theValue)
-    : mInternal(MakeValued(theName, theValue))
+JSONNode::JSONNode(Sexy::String const &theName, char theValue) :
+    mInternal(MakeValued(theName, theValue))
 {
 }
 
-JSONNode::JSONNode(Sexy::String const& theName, unsigned char theValue)
-    : mInternal(MakeValued(theName, theValue))
+JSONNode::JSONNode(Sexy::String const &theName, unsigned char theValue) :
+    mInternal(MakeValued(theName, theValue))
 {
 }
 
-JSONNode::JSONNode(Sexy::String const& theName, short theValue)
-    : mInternal(MakeValued(theName, theValue))
+JSONNode::JSONNode(Sexy::String const &theName, short theValue) :
+    mInternal(MakeValued(theName, theValue))
 {
 }
 
-JSONNode::JSONNode(Sexy::String const& theName, unsigned short theValue)
-    : mInternal(MakeValued(theName, theValue))
+JSONNode::JSONNode(Sexy::String const &theName, unsigned short theValue) :
+    mInternal(MakeValued(theName, theValue))
 {
 }
 
-JSONNode::JSONNode(Sexy::String const& theName, int theValue)
-    : mInternal(MakeValued(theName, theValue))
+JSONNode::JSONNode(Sexy::String const &theName, int theValue) :
+    mInternal(MakeValued(theName, theValue))
 {
 }
 
-JSONNode::JSONNode(Sexy::String const& theName, unsigned int theValue)
-    : mInternal(MakeValued(theName, theValue))
+JSONNode::JSONNode(Sexy::String const &theName, unsigned int theValue) :
+    mInternal(MakeValued(theName, theValue))
 {
 }
 
-JSONNode::JSONNode(Sexy::String const& theName, float theValue)
-    : mInternal(MakeValued(theName, theValue))
+JSONNode::JSONNode(Sexy::String const &theName, float theValue) :
+    mInternal(MakeValued(theName, theValue))
 {
 }
 
-JSONNode::JSONNode(Sexy::String const& theName, double theValue)
-    : mInternal(MakeValued(theName, theValue))
+JSONNode::JSONNode(Sexy::String const &theName, double theValue) :
+    mInternal(MakeValued(theName, theValue))
 {
 }
 
-JSONNode::JSONNode(Sexy::String const& theName, long long theValue)
-    : mInternal(MakeValued(theName, theValue))
+JSONNode::JSONNode(Sexy::String const &theName, long long theValue) :
+    mInternal(MakeValued(theName, theValue))
 {
 }
 
-JSONNode::JSONNode(Sexy::String const& theName, unsigned long long theValue)
-    : mInternal(MakeValued(theName, theValue))
+JSONNode::JSONNode(Sexy::String const &theName, unsigned long long theValue) :
+    mInternal(MakeValued(theName, theValue))
 {
 }
 
-JSONNode::JSONNode(Sexy::String const& theName, long double theValue)
-    : mInternal(MakeValued(theName, (double)theValue))
+JSONNode::JSONNode(Sexy::String const &theName, long double theValue) :
+    mInternal(MakeValued(theName, (double)theValue))
 {
 }
 
-JSONNode::JSONNode(Sexy::String const& theName, Sexy::String const& theValue)
-    : mInternal(new internalJSONNode(theName, theValue))
+JSONNode::JSONNode(Sexy::String const &theName, Sexy::String const &theValue) :
+    mInternal(new internalJSONNode(theName, theValue))
 {
 }
 
-JSONNode::JSONNode(Sexy::String const& theName, bool theValue)
-    : mInternal(MakeValued(theName, theValue))
+JSONNode::JSONNode(Sexy::String const &theName, bool theValue) :
+    mInternal(MakeValued(theName, theValue))
 {
 }
 
-JSONNode::JSONNode(Sexy::String const& theName, char const* theValue)
-    : mInternal(new internalJSONNode(theName, Sexy::String(theValue)))
+JSONNode::JSONNode(Sexy::String const &theName, char const *theValue) :
+    mInternal(new internalJSONNode(theName, Sexy::String(theValue)))
 {
 }
 
-JSONNode * JSONNode::Share()
+JSONNode *JSONNode::Share()
 {
     JSONNode *aHandle = new JSONNode();
     Retain(mInternal);
@@ -206,7 +205,7 @@ JSONNode * JSONNode::Share()
     return aHandle;
 }
 
-JSONNode * JSONNode::Adopt(internalJSONNode *theNode)
+JSONNode *JSONNode::Adopt(internalJSONNode *theNode)
 {
     JSONNode *aHandle = new JSONNode();
     aHandle->mInternal = theNode;
@@ -218,7 +217,7 @@ void JSONNode::Bind(JSONNode &theHandle, internalJSONNode *theNode)
     theHandle.mInternal = theNode;
 }
 
-JSONNode * JSONNode::Steal()
+JSONNode *JSONNode::Steal()
 {
     JSONNode *aHandle = new JSONNode();
     aHandle->mInternal = mInternal;
@@ -248,15 +247,13 @@ void JSONNode::ThrowOutOfRange()
     CxaThrow(aException, nullptr, (void (*)(void *))DestroyOutOfRange);
 }
 
-JSONNode * JSONNode::merge(JSONNode *theOther)
+JSONNode *JSONNode::merge(JSONNode *theOther)
 {
     if (theOther == nullptr || mInternal == theOther->mInternal)
         return this;
     JSONNode *aKeeper = this;
     JSONNode *aDonor = theOther;
-    if (mInternal != nullptr
-        && theOther->mInternal != nullptr
-        && mInternal->refcount >= theOther->mInternal->refcount)
+    if (mInternal != nullptr && theOther->mInternal != nullptr && mInternal->refcount >= theOther->mInternal->refcount)
     {
         aKeeper = theOther;
         aDonor = this;
@@ -265,7 +262,7 @@ JSONNode * JSONNode::merge(JSONNode *theOther)
     return aKeeper;
 }
 
-JSONNode * JSONNode::merge(unsigned int theCount, ...)
+JSONNode *JSONNode::merge(unsigned int theCount, ...)
 {
     va_list aArgs;
     va_start(aArgs, theCount);
@@ -368,62 +365,62 @@ void JSONNode::cast(char theType)
         return;
     switch (theType)
     {
-    case JSON_NULL:
-        MakeUnique();
-        mInternal->Nullify();
-        return;
-    case JSON_STRING:
-    {
-        mInternal->Fetch();
-        Sexy::String aText = mInternal->_string;
-        MakeUnique();
-        mInternal->_type = JSON_STRING;
-        mInternal->_string = aText;
-        mInternal->_string_encoded = true;
-        mInternal->fetched = true;
-        return;
-    }
-    case JSON_NUMBER:
-        MakeUnique();
-        mInternal->Set(ReadNumber(mInternal));
-        return;
-    case JSON_BOOL:
-        MakeUnique();
-        mInternal->Set(ReadBool(mInternal));
-        return;
-    case JSON_ARRAY:
-        *this = as_array();
-        return;
-    case JSON_OBJECT:
-        *this = as_node();
-        return;
-    default:
-        return;
+        case JSON_NULL:
+            MakeUnique();
+            mInternal->Nullify();
+            return;
+        case JSON_STRING:
+        {
+            mInternal->Fetch();
+            Sexy::String aText = mInternal->_string;
+            MakeUnique();
+            mInternal->_type = JSON_STRING;
+            mInternal->_string = aText;
+            mInternal->_string_encoded = true;
+            mInternal->fetched = true;
+            return;
+        }
+        case JSON_NUMBER:
+            MakeUnique();
+            mInternal->Set(ReadNumber(mInternal));
+            return;
+        case JSON_BOOL:
+            MakeUnique();
+            mInternal->Set(ReadBool(mInternal));
+            return;
+        case JSON_ARRAY:
+            *this = as_array();
+            return;
+        case JSON_OBJECT:
+            *this = as_node();
+            return;
+        default:
+            return;
     }
 }
 
-JSONNode * JSONNode::at(unsigned int theIndex)
+JSONNode *JSONNode::at(unsigned int theIndex)
 {
     MakeUnique();
     JSONNode const *aReader = this;
     return aReader->at(theIndex);
 }
 
-JSONNode * JSONNode::at(Sexy::String const& theName)
+JSONNode *JSONNode::at(Sexy::String const &theName)
 {
     MakeUnique();
     JSONNode const *aReader = this;
     return aReader->at(theName);
 }
 
-JSONNode * JSONNode::at_nocase(Sexy::String const& theName)
+JSONNode *JSONNode::at_nocase(Sexy::String const &theName)
 {
     MakeUnique();
     JSONNode const *aReader = this;
     return aReader->at_nocase(theName);
 }
 
-JSONNode * JSONNode::at(unsigned int theIndex) const
+JSONNode *JSONNode::at(unsigned int theIndex) const
 {
     if (mInternal == nullptr || !IsContainer(mInternal->_type))
         ThrowOutOfRange();
@@ -434,7 +431,7 @@ JSONNode * JSONNode::at(unsigned int theIndex) const
     return aChildren->mChildren[theIndex];
 }
 
-JSONNode * JSONNode::at(Sexy::String const& theName) const
+JSONNode *JSONNode::at(Sexy::String const &theName) const
 {
     if (mInternal == nullptr)
         ThrowOutOfRange();
@@ -444,7 +441,7 @@ JSONNode * JSONNode::at(Sexy::String const& theName) const
     return *aSlot;
 }
 
-JSONNode * JSONNode::at_nocase(Sexy::String const& theName) const
+JSONNode *JSONNode::at_nocase(Sexy::String const &theName) const
 {
     if (mInternal == nullptr)
         ThrowOutOfRange();
@@ -471,7 +468,7 @@ JSONNode JSONNode::pop_back(unsigned int theIndex)
     return aTaken;
 }
 
-JSONNode JSONNode::pop_back(Sexy::String const& theName)
+JSONNode JSONNode::pop_back(Sexy::String const &theName)
 {
     if (mInternal == nullptr)
         ThrowOutOfRange();
@@ -483,7 +480,7 @@ JSONNode JSONNode::pop_back(Sexy::String const& theName)
     return aTaken;
 }
 
-JSONNode JSONNode::pop_back_nocase(Sexy::String const& theName)
+JSONNode JSONNode::pop_back_nocase(Sexy::String const &theName)
 {
     if (mInternal == nullptr)
         ThrowOutOfRange();

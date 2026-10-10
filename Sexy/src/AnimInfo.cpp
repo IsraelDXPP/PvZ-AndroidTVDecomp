@@ -6,11 +6,11 @@
 
 #include "AnimInfo.h"
 
-Sexy::AnimInfo::AnimInfo()
-    : mAnimType(AnimType_None)
-    , mFrameDelay(1)
-    , mNumCels(1)
-    , mTotalAnimTime(0)
+Sexy::AnimInfo::AnimInfo() :
+    mAnimType(AnimType_None),
+    mFrameDelay(1),
+    mNumCels(1),
+    mTotalAnimTime(0)
 {
 }
 

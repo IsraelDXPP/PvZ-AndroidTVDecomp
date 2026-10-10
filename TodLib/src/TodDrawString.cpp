@@ -25,9 +25,10 @@
 #include <cstring>
 #include <string>
 
-namespace {
+namespace
+{
 
-std::u32string DecodeText(const Sexy::String& theText)
+std::u32string DecodeText(const Sexy::String &theText)
 {
     std::u32string aCodePoints;
     aCodePoints.reserve(theText.length());
@@ -37,24 +38,24 @@ std::u32string DecodeText(const Sexy::String& theText)
     return aCodePoints;
 }
 
-Sexy::String EncodeText(const std::u32string& theWide)
+Sexy::String EncodeText(const std::u32string &theWide)
 {
     return CodePointsToUtf8(std::vector<int>(theWide.begin(), theWide.end()));
 }
 
-Sexy::String ReplaceButtonCaptions(const Sexy::String& theText)
+Sexy::String ReplaceButtonCaptions(const Sexy::String &theText)
 {
     Sexy::String aResult;
     TodReplaceButtons(&aResult, &theText);
     return aResult;
 }
 
-Sexy::String PrepareText(const Sexy::String& theText)
+Sexy::String PrepareText(const Sexy::String &theText)
 {
     return ReplaceButtonCaptions(TodStringTranslate(theText));
 }
 
-int ShiftX(Sexy::Font* theFont, const std::u32string& theWide, int theX, int theJustification);
+int ShiftX(Sexy::Font *theFont, const std::u32string &theWide, int theX, int theJustification);
 
 static int MulDiv255(int theLeft, int theRight)
 {
@@ -72,20 +73,20 @@ static int ClampChannel(int theValue)
 
 struct DrawStyle
 {
-    Sexy::Font* mFont;
+    Sexy::Font *mFont;
     Sexy::Color mColor;
     int mExtra;
     unsigned int mFlags;
 };
 
-void ApplyFormatTag(DrawStyle& theStyle, const std::u32string& theName)
+void ApplyFormatTag(DrawStyle &theStyle, const std::u32string &theName)
 {
     if (gTodStringFormatCount <= 0 || gTodStringFormats == nullptr)
         return;
     for (int aIndex = 0; aIndex < gTodStringFormatCount; ++aIndex)
     {
-        TodStringListFormat& aFormat = gTodStringFormats[aIndex];
-        const char* aName = aFormat.mName.c_str();
+        TodStringListFormat &aFormat = gTodStringFormats[aIndex];
+        const char *aName = aFormat.mName.c_str();
         unsigned int aLength = aFormat.mName.length();
         if (theName.size() < aLength)
             continue;
@@ -110,19 +111,17 @@ void ApplyFormatTag(DrawStyle& theStyle, const std::u32string& theName)
     }
 }
 
-int DrawLine(Sexy::Graphics* theGraphics, const std::u32string& theWide,
-             int theX, int theY, DrawStyle& theStyle, int theWidth,
-             int theJustification, bool theDraw, int theStart, int theCount,
-             bool theParseFormats = true)
+int DrawLine(Sexy::Graphics *theGraphics, const std::u32string &theWide, int theX, int theY, DrawStyle &theStyle,
+    int theWidth, int theJustification, bool theDraw, int theStart, int theCount, bool theParseFormats = true)
 {
-    Sexy::Font* aFont = theStyle.mFont;
+    Sexy::Font *aFont = theStyle.mFont;
     int aOrigin = theX;
     if (theDraw && theGraphics != nullptr)
     {
         if (theJustification == 1 || theJustification == 4 || theJustification == 2 || theJustification == 5)
         {
-            int aMeasured = DrawLine(theGraphics, theWide, theX, theY, theStyle, theWidth,
-                                     0, false, theStart, theCount, theParseFormats);
+            int aMeasured = DrawLine(
+                theGraphics, theWide, theX, theY, theStyle, theWidth, 0, false, theStart, theCount, theParseFormats);
             if (theJustification == 1 || theJustification == 4)
                 aOrigin = theX + theWidth - aMeasured;
             else
@@ -136,7 +135,7 @@ int DrawLine(Sexy::Graphics* theGraphics, const std::u32string& theWide,
     if (aEnd > (int)theWide.size())
         aEnd = (int)theWide.size();
 
-    DrawStyle& aStyle = theStyle;
+    DrawStyle &aStyle = theStyle;
     std::u32string aRun;
     int aPen = 0;
     bool aCollapsed = false;
@@ -152,8 +151,8 @@ int DrawLine(Sexy::Graphics* theGraphics, const std::u32string& theWide,
             {
                 if (theDraw && theGraphics != nullptr && !aRun.empty())
                 {
-                    aFont->DrawString(theGraphics, aOrigin + aPen, theY, EncodeText(aRun),
-                                             aStyle.mColor, theGraphics->mClipRect);
+                    aFont->DrawString(
+                        theGraphics, aOrigin + aPen, theY, EncodeText(aRun), aStyle.mColor, theGraphics->mClipRect);
                     aPen += aFont->StringWidth(EncodeText(aRun));
                     aRun.clear();
                 }
@@ -183,8 +182,12 @@ int DrawLine(Sexy::Graphics* theGraphics, const std::u32string& theWide,
                     if (!aRun.empty())
                     {
                         if (theDraw && theGraphics != nullptr)
-                            aFont->DrawString(theGraphics, aOrigin + aPen, theY, EncodeText(aRun),
-                                                     aStyle.mColor, theGraphics->mClipRect);
+                            aFont->DrawString(theGraphics,
+                                aOrigin + aPen,
+                                theY,
+                                EncodeText(aRun),
+                                aStyle.mColor,
+                                theGraphics->mClipRect);
                         aPen += aFont->StringWidth(EncodeText(aRun));
                         aRun.clear();
                     }
@@ -192,8 +195,8 @@ int DrawLine(Sexy::Graphics* theGraphics, const std::u32string& theWide,
                     int aSlot = aFont->StringWidth(aSpaces);
                     if (theDraw && theGraphics != nullptr)
                     {
-                        aFont->DrawString(theGraphics, aOrigin + aPen, theY, aSpaces,
-                                                 aStyle.mColor, theGraphics->mClipRect);
+                        aFont->DrawString(
+                            theGraphics, aOrigin + aPen, theY, aSpaces, aStyle.mColor, theGraphics->mClipRect);
                         if (ButtonGlyphsActive())
                             DrawButtonGlyph(theGraphics, aOrigin + aPen, theY, aFont, aCel, aSlot);
                     }
@@ -224,14 +227,14 @@ int DrawLine(Sexy::Graphics* theGraphics, const std::u32string& theWide,
     if (!aRun.empty())
     {
         if (theDraw && theGraphics != nullptr)
-            aFont->DrawString(theGraphics, aOrigin + aPen, theY, EncodeText(aRun),
-                                     aStyle.mColor, theGraphics->mClipRect);
+            aFont->DrawString(
+                theGraphics, aOrigin + aPen, theY, EncodeText(aRun), aStyle.mColor, theGraphics->mClipRect);
         aPen += aFont->StringWidth(EncodeText(aRun));
     }
     return aPen;
 }
 
-int ShiftX(Sexy::Font* theFont, const std::u32string& theWide, int theX, int theJustification)
+int ShiftX(Sexy::Font *theFont, const std::u32string &theWide, int theX, int theJustification)
 {
     DrawStyle aStyle;
     aStyle.mFont = theFont;
@@ -248,16 +251,16 @@ int ShiftX(Sexy::Font* theFont, const std::u32string& theWide, int theX, int the
 
 struct MatrixGlyph
 {
-    Sexy::Image* mImage;
+    Sexy::Image *mImage;
     int mX;
     int mY;
     Sexy::TRect<int> mSrc;
     int mDrawMode;
     Sexy::Color mColor;
-    MatrixGlyph* mNext;
+    MatrixGlyph *mNext;
 };
 
-Sexy::TRect<int> LayerSourceRect(Sexy::ActiveFontLayer* theLayer, int theChar)
+Sexy::TRect<int> LayerSourceRect(Sexy::ActiveFontLayer *theLayer, int theChar)
 {
     auto found = theLayer->mCharRects.find(theChar);
     if (found == theLayer->mCharRects.end())
@@ -265,12 +268,11 @@ Sexy::TRect<int> LayerSourceRect(Sexy::ActiveFontLayer* theLayer, int theChar)
     return found->second;
 }
 
-void DrawStringOnMatrix(Sexy::Graphics* theGraphics, Sexy::ImageFont* theFont,
-                        const Sexy::SexyMatrix3& theMatrix, const std::u32string& theWide,
-                        const Sexy::Color& theColor)
+void DrawStringOnMatrix(Sexy::Graphics *theGraphics, Sexy::ImageFont *theFont, const Sexy::SexyMatrix3 &theMatrix,
+    const std::u32string &theWide, const Sexy::Color &theColor)
 {
-    MatrixGlyph* aHeads[256];
-    MatrixGlyph* aTails[256];
+    MatrixGlyph *aHeads[256];
+    MatrixGlyph *aTails[256];
     MatrixGlyph aRecords[4096];
     for (int aBucket = 0; aBucket < 256; ++aBucket)
     {
@@ -294,13 +296,12 @@ void DrawStringOnMatrix(Sexy::Graphics* theGraphics, Sexy::ImageFont* theFont,
             aNext = theFont->GetMappedChar((int)theWide[aIndex + 1]);
 
         int aPenMax = aPen;
-        for (unsigned int aLayerIndex = 0;
-             aLayerIndex < theFont->mActiveLayerList.size() && aRecordCount < 4096;
-             ++aLayerIndex)
+        for (unsigned int aLayerIndex = 0; aLayerIndex < theFont->mActiveLayerList.size() && aRecordCount < 4096;
+            ++aLayerIndex)
         {
-            Sexy::ActiveFontLayer* aLayer = &theFont->mActiveLayerList[aLayerIndex];
-            Sexy::FontLayer* aFontLayer = aLayer->mLayer;
-            Sexy::CharData* aGlyph = aFontLayer->GetCharData(aChar);
+            Sexy::ActiveFontLayer *aLayer = &theFont->mActiveLayerList[aLayerIndex];
+            Sexy::FontLayer *aFontLayer = aLayer->mLayer;
+            Sexy::CharData *aGlyph = aFontLayer->GetCharData(aChar);
             double aScale = theFont->mScale;
             if (aFontLayer->mPointSize != 0)
                 aScale = theFont->mScale * ((double)theFont->mPointSize / (double)aFontLayer->mPointSize);
@@ -319,7 +320,7 @@ void DrawStringOnMatrix(Sexy::Graphics* theGraphics, Sexy::ImageFont* theFont,
                     aKern = aFontLayer->mSpacing;
                     if (aGlyph->mKernCount != 0)
                     {
-                        Sexy::FontLayer::KerningValue* aKerning =
+                        Sexy::FontLayer::KerningValue *aKerning =
                             aFontLayer->mKerningValues.data() + aGlyph->mKernIndex;
                         for (unsigned short aPair = 0; aPair < aGlyph->mKernCount; ++aPair)
                         {
@@ -335,14 +336,15 @@ void DrawStringOnMatrix(Sexy::Graphics* theGraphics, Sexy::ImageFont* theFont,
             else
             {
                 aX = aPen + (int)std::floor(aScale * (double)(aFontLayer->mOffset.mX + (int)(short)aGlyph->mOffsetX));
-                aY = -(int)std::floor(aScale * (double)(aFontLayer->mAscent - aFontLayer->mOffset.mY - (int)(short)aGlyph->mOffsetY));
+                aY = -(int)std::floor(
+                    aScale * (double)(aFontLayer->mAscent - aFontLayer->mOffset.mY - (int)(short)aGlyph->mOffsetY));
                 aAdvance = (int)(aScale * (double)(short)aGlyph->mAdvance);
                 if (aNext != 0)
                 {
                     aKern = aFontLayer->mSpacing;
                     if (aGlyph->mKernCount != 0)
                     {
-                        Sexy::FontLayer::KerningValue* aKerning =
+                        Sexy::FontLayer::KerningValue *aKerning =
                             aFontLayer->mKerningValues.data() + aGlyph->mKernIndex;
                         for (unsigned short aPair = 0; aPair < aGlyph->mKernCount; ++aPair)
                         {
@@ -354,10 +356,14 @@ void DrawStringOnMatrix(Sexy::Graphics* theGraphics, Sexy::ImageFont* theFont,
             }
 
             Sexy::Color aDrawn;
-            aDrawn.mRed = ClampChannel(MulDiv255(aFontLayer->mColorMult.mRed, theColor.mRed) + aFontLayer->mColorAdd.mRed);
-            aDrawn.mGreen = ClampChannel(MulDiv255(aFontLayer->mColorMult.mGreen, theColor.mGreen) + aFontLayer->mColorAdd.mGreen);
-            aDrawn.mBlue = ClampChannel(MulDiv255(aFontLayer->mColorMult.mBlue, theColor.mBlue) + aFontLayer->mColorAdd.mBlue);
-            aDrawn.mAlpha = ClampChannel(MulDiv255(aFontLayer->mColorMult.mAlpha, theColor.mAlpha) + aFontLayer->mColorAdd.mAlpha);
+            aDrawn.mRed =
+                ClampChannel(MulDiv255(aFontLayer->mColorMult.mRed, theColor.mRed) + aFontLayer->mColorAdd.mRed);
+            aDrawn.mGreen =
+                ClampChannel(MulDiv255(aFontLayer->mColorMult.mGreen, theColor.mGreen) + aFontLayer->mColorAdd.mGreen);
+            aDrawn.mBlue =
+                ClampChannel(MulDiv255(aFontLayer->mColorMult.mBlue, theColor.mBlue) + aFontLayer->mColorAdd.mBlue);
+            aDrawn.mAlpha =
+                ClampChannel(MulDiv255(aFontLayer->mColorMult.mAlpha, theColor.mAlpha) + aFontLayer->mColorAdd.mAlpha);
 
             int aOrder = (short)aGlyph->mPageHeight + aFontLayer->mBaseOrder + 128;
             if (aOrder < 0)
@@ -365,7 +371,7 @@ void DrawStringOnMatrix(Sexy::Graphics* theGraphics, Sexy::ImageFont* theFont,
             if (aOrder > 255)
                 aOrder = 255;
 
-            MatrixGlyph& aRecord = aRecords[aRecordCount];
+            MatrixGlyph &aRecord = aRecords[aRecordCount];
             aRecord.mImage = aLayer->mImage;
             aRecord.mX = aX;
             aRecord.mY = aY;
@@ -389,7 +395,7 @@ void DrawStringOnMatrix(Sexy::Graphics* theGraphics, Sexy::ImageFont* theFont,
 
     for (int aBucket = 0; aBucket < 256; ++aBucket)
     {
-        for (MatrixGlyph* aRecord = aHeads[aBucket]; aRecord != nullptr; aRecord = aRecord->mNext)
+        for (MatrixGlyph *aRecord = aHeads[aBucket]; aRecord != nullptr; aRecord = aRecord->mNext)
         {
             if (aRecord->mImage == nullptr)
                 continue;
@@ -399,37 +405,43 @@ void DrawStringOnMatrix(Sexy::Graphics* theGraphics, Sexy::ImageFont* theFont,
             Sexy::SexyMatrix3 aPlaced;
             aPlaced.LoadIdentity();
             SexyMatrix3Translation(&aPlaced,
-                                   (float)aRecord->mX + (float)aRecord->mSrc.mWidth * 0.5f,
-                                   (float)aRecord->mY + (float)aRecord->mSrc.mHeight * 0.5f);
+                (float)aRecord->mX + (float)aRecord->mSrc.mWidth * 0.5f,
+                (float)aRecord->mY + (float)aRecord->mSrc.mHeight * 0.5f);
             Sexy::SexyMatrix3 aResult;
             SexyMatrix3Multiply(&aResult, theMatrix, aPlaced);
-            TodBltMatrix(theGraphics, aRecord->mImage, aResult, theGraphics->mClipRect,
-                         aRecord->mColor, aMode, aRecord->mSrc);
+            TodBltMatrix(
+                theGraphics, aRecord->mImage, aResult, theGraphics->mClipRect, aRecord->mColor, aMode, aRecord->mSrc);
         }
     }
 }
 
-void EmitLine(Sexy::Graphics* theGraphics, const std::u32string& theWide,
-              const Sexy::TRect<int>& theRect, DrawStyle& theStyle,
-              int theLineY, int theStep, int theJustification, bool theDraw,
-              bool theDrawOffscreen, int theStart, int theCount, bool theCheckVisibility)
+void EmitLine(Sexy::Graphics *theGraphics, const std::u32string &theWide, const Sexy::TRect<int> &theRect,
+    DrawStyle &theStyle, int theLineY, int theStep, int theJustification, bool theDraw, bool theDrawOffscreen,
+    int theStart, int theCount, bool theCheckVisibility)
 {
     if (theCount <= 0)
         return;
     int aBaseY = theRect.mY + theLineY;
     int aScreenY = (int)theGraphics->mTransY + aBaseY;
-    bool aVisible = aScreenY >= theGraphics->mClipRect.mY
-        && aScreenY < theGraphics->mClipRect.mY + theGraphics->mClipRect.mHeight + theStep;
+    bool aVisible = aScreenY >= theGraphics->mClipRect.mY &&
+        aScreenY < theGraphics->mClipRect.mY + theGraphics->mClipRect.mHeight + theStep;
     if (!theCheckVisibility || aVisible || theDrawOffscreen)
     {
-        DrawLine(theGraphics, theWide, theRect.mX, aBaseY, theStyle, theRect.mWidth,
-                 theJustification, theDraw, theStart, theCount);
+        DrawLine(theGraphics,
+            theWide,
+            theRect.mX,
+            aBaseY,
+            theStyle,
+            theRect.mWidth,
+            theJustification,
+            theDraw,
+            theStart,
+            theCount);
     }
 }
 
-int WrappedHeight(Sexy::Graphics* theGraphics, const std::u32string& theWide,
-                  const Sexy::TRect<int>& theRect, Sexy::Font* theFont, Sexy::Color theColor,
-                  int theJustification, bool theDraw, bool theDrawOffscreen)
+int WrappedHeight(Sexy::Graphics *theGraphics, const std::u32string &theWide, const Sexy::TRect<int> &theRect,
+    Sexy::Font *theFont, Sexy::Color theColor, int theJustification, bool theDraw, bool theDrawOffscreen)
 {
     DrawStyle aStyle;
     aStyle.mFont = theFont;
@@ -501,8 +513,18 @@ int WrappedHeight(Sexy::Graphics* theGraphics, const std::u32string& theWide,
             aLineEnd = aLineFrom + 1;
         if (aLineEnd > aLength)
             aLineEnd = aLength;
-        EmitLine(theGraphics, theWide, theRect, aStyle, aLineY, aStep, theJustification,
-                 theDraw, theDrawOffscreen, aLineFrom, aLineEnd - aLineFrom, aWordBreak);
+        EmitLine(theGraphics,
+            theWide,
+            theRect,
+            aStyle,
+            aLineY,
+            aStep,
+            theJustification,
+            theDraw,
+            theDrawOffscreen,
+            aLineFrom,
+            aLineEnd - aLineFrom,
+            aWordBreak);
 
         int aResume = aWordBreak ? aBreak + 1 : aLineEnd;
         while (aWordBreak && !aForced && aResume < aLength)
@@ -522,8 +544,18 @@ int WrappedHeight(Sexy::Graphics* theGraphics, const std::u32string& theWide,
 
     if (aLength > aLineFrom)
     {
-        EmitLine(theGraphics, theWide, theRect, aStyle, aLineY, aStep, theJustification,
-                 theDraw, theDrawOffscreen, aLineFrom, aLength - aLineFrom, false);
+        EmitLine(theGraphics,
+            theWide,
+            theRect,
+            aStyle,
+            aLineY,
+            aStep,
+            theJustification,
+            theDraw,
+            theDrawOffscreen,
+            aLineFrom,
+            aLength - aLineFrom,
+            false);
         aLineY += aStep;
     }
     else if (aLast == U'\n')
@@ -535,46 +567,40 @@ int WrappedHeight(Sexy::Graphics* theGraphics, const std::u32string& theWide,
 
 } // namespace
 
-void TodDrawString(Sexy::Graphics* theGraphics, const Sexy::String& theText,
-                   int theX, int theY, Sexy::Font* theFont, Sexy::Color theColor,
-                   int theJustification)
+void TodDrawString(Sexy::Graphics *theGraphics, const Sexy::String &theText, int theX, int theY, Sexy::Font *theFont,
+    Sexy::Color theColor, int theJustification)
 {
     Sexy::String aText = PrepareText(theText);
     std::u32string aWide = DecodeText(aText);
     int aX = ShiftX(theFont, aWide, theX, theJustification);
-    DrawStyle aStyle = { theFont, theColor, 0, 0 };
+    DrawStyle aStyle = {theFont, theColor, 0, 0};
     DrawLine(theGraphics, aWide, aX, theY, aStyle, 0, 0, true, 0, (int)aWide.size(), false);
 }
 
-void TodDrawStringMatrix(Sexy::Graphics* theGraphics, Sexy::Font* theFont,
-                         const Sexy::SexyMatrix3& theMatrix, const Sexy::String& theText,
-                         const Sexy::Color& theColor)
+void TodDrawStringMatrix(Sexy::Graphics *theGraphics, Sexy::Font *theFont, const Sexy::SexyMatrix3 &theMatrix,
+    const Sexy::String &theText, const Sexy::Color &theColor)
 {
     std::u32string aWide = DecodeText(TodStringTranslate(theText));
-    DrawStringOnMatrix(theGraphics, static_cast<Sexy::ImageFont*>(theFont), theMatrix, aWide, theColor);
+    DrawStringOnMatrix(theGraphics, static_cast<Sexy::ImageFont *>(theFont), theMatrix, aWide, theColor);
 }
 
-int TodDrawStringWrappedHelper(Sexy::Graphics* theGraphics, const Sexy::String& theText,
-                               const Sexy::TRect<int>& theRect, Sexy::Font* theFont,
-                               Sexy::Color theColor, int theJustification,
-                               bool theDraw, bool theDrawOffscreen)
+int TodDrawStringWrappedHelper(Sexy::Graphics *theGraphics, const Sexy::String &theText,
+    const Sexy::TRect<int> &theRect, Sexy::Font *theFont, Sexy::Color theColor, int theJustification, bool theDraw,
+    bool theDrawOffscreen)
 {
-    return WrappedHeight(theGraphics, DecodeText(theText), theRect, theFont, theColor,
-                         theJustification, theDraw, theDrawOffscreen);
+    return WrappedHeight(
+        theGraphics, DecodeText(theText), theRect, theFont, theColor, theJustification, theDraw, theDrawOffscreen);
 }
 
-int TodDrawStringWrapped(Sexy::Graphics* theGraphics, const Sexy::String& theText,
-                         const Sexy::TRect<int>& theRect, Sexy::Font* theFont,
-                         const Sexy::Color& theColor, int theJustification, bool theDraw)
+int TodDrawStringWrapped(Sexy::Graphics *theGraphics, const Sexy::String &theText, const Sexy::TRect<int> &theRect,
+    Sexy::Font *theFont, const Sexy::Color &theColor, int theJustification, bool theDraw)
 {
     std::u32string aWide = DecodeText(PrepareText(theText));
     Sexy::TRect<int> aRect = theRect;
     if ((unsigned)(theJustification - 3) <= 2u)
     {
-        int aMeasured = WrappedHeight(theGraphics, aWide, aRect, theFont, theColor,
-                                      theJustification, false, theDraw);
+        int aMeasured = WrappedHeight(theGraphics, aWide, aRect, theFont, theColor, theJustification, false, theDraw);
         aRect.mY += (theRect.mHeight - aMeasured) / 2;
     }
-    return WrappedHeight(theGraphics, aWide, aRect, theFont, theColor,
-                         theJustification, true, theDraw);
+    return WrappedHeight(theGraphics, aWide, aRect, theFont, theColor, theJustification, true, theDraw);
 }

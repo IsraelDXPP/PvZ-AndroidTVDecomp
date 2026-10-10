@@ -58,16 +58,19 @@ static int gGuardVar_9 = 0;
 // signature also takes the length, which this call site does not pass --
 // `curl_unescape(text, length)` and `curl_free(ptr)`. Their definitions belong
 // with game/DrCurlEngine or in whatever curl target the build links.
-extern "C" {
-int    curl_global_init(int theFlags);
-char * curl_escape(const char *theText);
-char * curl_unescape(const char *theText, int theLength);
-void   curl_free(void *thePointer);
+extern "C"
+{
+    int curl_global_init(int theFlags);
+    char *curl_escape(const char *theText);
+    char *curl_unescape(const char *theText, int theLength);
+    void curl_free(void *thePointer);
 }
 
 namespace logger
 {
-struct Clog {};
+struct Clog
+{
+};
 static Clog debug;
 }
 
@@ -119,7 +122,6 @@ static long long internalJSONNode_QWORD(int theWord)
     return (long long)theWord;
 }
 
-
 // ==========================================================================
 // DrRpcEngine::DrRpcEngine(void)
 // @001EDEEC  146 bytes
@@ -141,7 +143,7 @@ DrRpcEngine::DrRpcEngine()
 // DrRpcEngine::getRpcEngine(void)
 // @001EDFD4  186 bytes
 // ==========================================================================
-void * DrRpcEngine::getRpcEngine()
+void *DrRpcEngine::getRpcEngine()
 {
     // Meyers singleton. The binary keeps the object at 0x69F9D0, the
     // once-guard at 0x69FBE4 and the init result at 0x69FBE8.
@@ -181,7 +183,7 @@ void * DrRpcEngine::getRpcEngine()
 // ==========================================================================
 // `ADD.W R0, R0, #0x204 / B.W AssignStringThunk` -- the body is the String assignment
 // inlined into a tail call, so the int result is the transcriber's.
-int DrRpcEngine::setDefaultUrl(Sexy::String const& theUrl)
+int DrRpcEngine::setDefaultUrl(Sexy::String const &theUrl)
 {
     AssignStringThunk(&mDefaultUrl, &theUrl);
     return 1;
@@ -206,14 +208,14 @@ void DrRpcEngine::setDataEncryption(bool theEnabled)
 // argument in r1 -- which is why the dump reads its only argument as `R1` and
 // never touches a receiver. The body builds the escaped text in a local and
 // moves it into the result with the String move-assignment.
-Sexy::String DrRpcEngine::escapeUrl(Sexy::String const& theUrl)
+Sexy::String DrRpcEngine::escapeUrl(Sexy::String const &theUrl)
 {
     // curl_escape returns a malloc'd buffer that curl_free releases.
     const char *aEscaped = (const char *)curl_escape(theUrl.c_str());
     Sexy::String aResult;
     if (aEscaped != nullptr)
     {
-        StringCtor((Sexy::String*)&aResult, aEscaped);
+        StringCtor((Sexy::String *)&aResult, aEscaped);
         curl_free((void *)aEscaped);
     }
     return aResult;
@@ -225,13 +227,13 @@ Sexy::String DrRpcEngine::escapeUrl(Sexy::String const& theUrl)
 // ==========================================================================
 // The same by-value return shape as escapeUrl. curl_unescape's length argument
 // is the string rep's length word at data - 12.
-Sexy::String DrRpcEngine::unescapeUrl(Sexy::String const& theUrl)
+Sexy::String DrRpcEngine::unescapeUrl(Sexy::String const &theUrl)
 {
     const char *aUnescaped = (const char *)curl_unescape(theUrl.c_str(), (int)theUrl.size());
     Sexy::String aResult;
     if (aUnescaped != nullptr)
     {
-        StringCtor((Sexy::String*)&aResult, aUnescaped);
+        StringCtor((Sexy::String *)&aResult, aUnescaped);
         curl_free((void *)aUnescaped);
     }
     return aResult;
@@ -242,7 +244,7 @@ Sexy::String DrRpcEngine::unescapeUrl(Sexy::String const& theUrl)
 // @001EE21C  686 bytes
 // ==========================================================================
 // Returns a DrRpcRes BY VALUE: r0 is the caller's record.
-DrRpcRes DrRpcEngine::parseResponse(Sexy::String const& theBody)
+DrRpcRes DrRpcEngine::parseResponse(Sexy::String const &theBody)
 {
     // parse() writes the node into the receiver's first word. The slot is a
     // JSONNode; that is the only word the rest of this function reads back.
@@ -340,7 +342,7 @@ DrRpcRes DrRpcEngine::parseResponse(Sexy::String const& theBody)
 // ==========================================================================
 // A real member: r0 is the engine and r1 the destination String. The result is
 // whether the decoded text is non-empty, which is the string rep's length word.
-bool DrRpcEngine::decodeResponseString(Sexy::String & theBody)
+bool DrRpcEngine::decodeResponseString(Sexy::String &theBody)
 {
     if (mDataEncryption)
     {
@@ -365,7 +367,7 @@ bool DrRpcEngine::decodeResponseString(Sexy::String & theBody)
 // stores the sorted fields, logs that text, then replaces the result with
 // "sig=" + encode(those) and then "action=" + getField("action") + "&" + that
 // text. Encryption off stores the post fields.
-Sexy::String DrRpcEngine::encodeRequesArgs(DrCurlRequest const& theRequest)
+Sexy::String DrRpcEngine::encodeRequesArgs(DrCurlRequest const &theRequest)
 {
     // Seeded with the shared empty rep (Sexy::gEmptyStringData) before the branch.
     Sexy::String aResult;
@@ -425,7 +427,7 @@ Sexy::String DrRpcEngine::encodeRequesArgs(DrCurlRequest const& theRequest)
 // with no '{', both copy the failure record that begins at kNotDone: STRB of
 // its low byte into mRet, the next word (the failure status) into mStatus, the
 // string at +8, and the list node at +12 with its refcount bumped.
-DrRpcRes DrRpcEngine::perform(DrCurlRequest const& theRequest)
+DrRpcRes DrRpcEngine::perform(DrCurlRequest const &theRequest)
 {
     DrRpcRes aResult;
     Sexy::String aResponse;
@@ -442,8 +444,7 @@ DrRpcRes DrRpcEngine::perform(DrCurlRequest const& theRequest)
             Sexy::String aArgs = encodeRequesArgs(theRequest);
             // Static in this tree: live strings, method 0 (HTTP_METHOD_GET).
             // The binary passes the engine in r0; the stub has no receiver.
-            aTransport = DrCurlEngine::perform(
-                aUrl, aArgs, aResponse, DrCurlRequest::HTTP_METHOD_GET);
+            aTransport = DrCurlEngine::perform(aUrl, aArgs, aResponse, DrCurlRequest::HTTP_METHOD_GET);
             if (aTransport != 0)
                 aTransport = decodeResponseString(aResponse);
         }
@@ -470,8 +471,7 @@ DrRpcRes DrRpcEngine::perform(DrCurlRequest const& theRequest)
         const void *aHit = std::memchr(aResponse.c_str(), '{', aLength);
         if (aHit != nullptr)
         {
-            const char *aHitChars = static_cast<const char *>(
-                static_cast<const void *>(aHit));
+            const char *aHitChars = static_cast<const char *>(static_cast<const void *>(aHit));
             aBrace = static_cast<unsigned int>(aHitChars - aResponse.c_str());
         }
     }
@@ -510,8 +510,7 @@ DrRpcRes DrRpcEngine::perform(DrCurlRequest const& theRequest)
 // The port Sexy::RbTree::_M_erase only walks; this instantiation releases the
 // value, then the key, then deletes the node. `theTree` is the stateless
 // allocator the binary forwards and never reads.
-extern "C" void
-_ZNSt8_Rb_treeISsSt4pairIKSsSsESt10_Select1stIS2_ESt4lessISsESaIS2_EE8_M_eraseEPSt13_Rb_tree_nodeIS2_E(
+extern "C" void _ZNSt8_Rb_treeISsSt4pairIKSsSsESt10_Select1stIS2_ESt4lessISsESaIS2_EE8_M_eraseEPSt13_Rb_tree_nodeIS2_E(
     void *theTree, Sexy::RbTree::NodeBase *theNode)
 {
     struct FieldNode : Sexy::RbTree::NodeBase
@@ -542,7 +541,7 @@ _ZNSt8_Rb_treeISsSt4pairIKSsSsESt10_Select1stIS2_ESt4lessISsESaIS2_EE8_M_eraseEP
 // string map setField indexes at +4. LDRB of perform's mRet picks the branch:
 // a non-zero low byte stores mStatus into the result, a zero low byte copies
 // the inlined DrRpcResCommon::error() static.
-DrRpcResCommon DrRpcEngine::call_Logout(Sexy::String const& theToken)
+DrRpcResCommon DrRpcEngine::call_Logout(Sexy::String const &theToken)
 {
     // URL at +0, map at +4 (comparator, header, count). 28 bytes, the span
     // setField and _M_erase index.
@@ -573,14 +572,12 @@ DrRpcResCommon DrRpcEngine::call_Logout(Sexy::String const& theToken)
         }
 
         {
-            const DrCurlRequest *aCurl = static_cast<const DrCurlRequest *>(
-                static_cast<const void *>(&aRequest));
+            const DrCurlRequest *aCurl = static_cast<const DrCurlRequest *>(static_cast<const void *>(&aRequest));
             DrRpcRes aPerformed = perform(*aCurl);
             // CBZ on the low byte. A non-zero byte stores the status word.
             if (static_cast<unsigned char>(aPerformed.mRet) != 0)
             {
-                if (aPerformed.mStatus == 0
-                    && static_cast<unsigned char>(aPerformed.mList->_type - 4) <= 1u)
+                if (aPerformed.mStatus == 0 && static_cast<unsigned char>(aPerformed.mList->_type - 4) <= 1u)
                     aPerformed.mList->Fetch();
                 aResult.mRet = aPerformed.mStatus;
                 aResult.mRetMsg = aPerformed.mRetMsg;
@@ -610,7 +607,7 @@ DrRpcResCommon DrRpcEngine::call_Logout(Sexy::String const& theToken)
 // ==========================================================================
 // Returns a DrRpcResWithText BY VALUE, so r0 is the record, r1 the engine and r2
 // the uid. Its three words are mRet, mRetMsg and mText.
-DrRpcResWithText DrRpcEngine::call_QueryCoin(Sexy::String const& theToken)
+DrRpcResWithText DrRpcEngine::call_QueryCoin(Sexy::String const &theToken)
 {
     // Same request shape as call_Logout: the default URL plus a string map.
     struct QueryRequest
@@ -638,20 +635,17 @@ DrRpcResWithText DrRpcEngine::call_QueryCoin(Sexy::String const& theToken)
             DrCurlRequest::setField(&aRequest, &aUidKey, &theToken);
         }
 
-        const DrCurlRequest *aCurl = static_cast<const DrCurlRequest *>(
-            static_cast<const void *>(&aRequest));
+        const DrCurlRequest *aCurl = static_cast<const DrCurlRequest *>(static_cast<const void *>(&aRequest));
         DrRpcRes aPerformed = perform(*aCurl);
         if (aPerformed.mRet != 0)
         {
             // mText is the coin total. A missing list leaves it 0.
             aResult.mText = 0;
-            if (aPerformed.mStatus == 0
-                && aPerformed.mList != nullptr
-                && (unsigned char)(aPerformed.mList->_type - 4) <= 1u)
+            if (aPerformed.mStatus == 0 && aPerformed.mList != nullptr &&
+                (unsigned char)(aPerformed.mList->_type - 4) <= 1u)
             {
                 aPerformed.mList->Fetch();
-                if (aPerformed.mList->CHILDREN != nullptr
-                    && aPerformed.mList->CHILDREN->mChildren.size() != 0)
+                if (aPerformed.mList->CHILDREN != nullptr && aPerformed.mList->CHILDREN->mChildren.size() != 0)
                 {
                     JSONNode aRow;
                     JSONNode::Bind(aRow, aPerformed.mList);
@@ -691,7 +685,7 @@ DrRpcResWithText DrRpcEngine::call_QueryCoin(Sexy::String const& theToken)
 // ==========================================================================
 // Returns a DrRpcResWithText BY VALUE: r0 the record, r1 the engine, r2 the uid
 // and r3 the key. Its third word mText carries the "sValue" number.
-DrRpcResWithText DrRpcEngine::call_GetKeyValue(Sexy::String const& theToken, Sexy::String const& theKey)
+DrRpcResWithText DrRpcEngine::call_GetKeyValue(Sexy::String const &theToken, Sexy::String const &theKey)
 {
     struct KeyRequest
     {
@@ -723,19 +717,16 @@ DrRpcResWithText DrRpcEngine::call_GetKeyValue(Sexy::String const& theToken, Sex
             DrCurlRequest::setField(&aRequest, &aKeyName, &aPrefixed);
         }
 
-        const DrCurlRequest *aCurl = static_cast<const DrCurlRequest *>(
-            static_cast<const void *>(&aRequest));
+        const DrCurlRequest *aCurl = static_cast<const DrCurlRequest *>(static_cast<const void *>(&aRequest));
         DrRpcRes aPerformed = perform(*aCurl);
         if (aPerformed.mRet != 0)
         {
             aResult.mText = 0;
-            if (aPerformed.mStatus == 0
-                && aPerformed.mList != nullptr
-                && (unsigned char)(aPerformed.mList->_type - 4) <= 1u)
+            if (aPerformed.mStatus == 0 && aPerformed.mList != nullptr &&
+                (unsigned char)(aPerformed.mList->_type - 4) <= 1u)
             {
                 aPerformed.mList->Fetch();
-                if (aPerformed.mList->CHILDREN != nullptr
-                    && aPerformed.mList->CHILDREN->mChildren.size() != 0)
+                if (aPerformed.mList->CHILDREN != nullptr && aPerformed.mList->CHILDREN->mChildren.size() != 0)
                 {
                     JSONNode aRow;
                     JSONNode::Bind(aRow, aPerformed.mList);
@@ -775,7 +766,7 @@ DrRpcResWithText DrRpcEngine::call_GetKeyValue(Sexy::String const& theToken, Sex
 // ==========================================================================
 // Returns a DrRpcResCommon BY VALUE: r0 the record, r1 the engine, r2 the uid,
 // r3 the amount. Its two words are mRet and mRetMsg.
-DrRpcResCommon DrRpcEngine::call_Recharge(Sexy::String const& theToken, int theAmount)
+DrRpcResCommon DrRpcEngine::call_Recharge(Sexy::String const &theToken, int theAmount)
 {
     struct RechargeRequest
     {
@@ -809,14 +800,12 @@ DrRpcResCommon DrRpcEngine::call_Recharge(Sexy::String const& theToken, int theA
             DrCurlRequest::setField(&aRequest, &aSerialKey, &aSerial);
         }
 
-        const DrCurlRequest *aCurl = static_cast<const DrCurlRequest *>(
-            static_cast<const void *>(&aRequest));
+        const DrCurlRequest *aCurl = static_cast<const DrCurlRequest *>(static_cast<const void *>(&aRequest));
         DrRpcRes aPerformed = perform(*aCurl);
         if (aPerformed.mRet != 0)
         {
-            if (aPerformed.mStatus == 0
-                && aPerformed.mList != nullptr
-                && (unsigned char)(aPerformed.mList->_type - 4) <= 1u)
+            if (aPerformed.mStatus == 0 && aPerformed.mList != nullptr &&
+                (unsigned char)(aPerformed.mList->_type - 4) <= 1u)
                 aPerformed.mList->Fetch();
             aResult.mRet = aPerformed.mStatus;
             aResult.mRetMsg = aPerformed.mRetMsg;
@@ -844,7 +833,7 @@ DrRpcResCommon DrRpcEngine::call_Recharge(Sexy::String const& theToken, int theA
 // Returns a DrRpcResCommon BY VALUE: r0 the record, r1 the engine, r2 the uid,
 // r3 the key and the value on the stack. A status other than kNotDone or ok
 // is reported as a failed call.
-DrRpcResCommon DrRpcEngine::call_SetKeyValue(Sexy::String const& theToken, Sexy::String const& theKey, int theValue)
+DrRpcResCommon DrRpcEngine::call_SetKeyValue(Sexy::String const &theToken, Sexy::String const &theKey, int theValue)
 {
     struct SetKeyRequest
     {
@@ -878,8 +867,7 @@ DrRpcResCommon DrRpcEngine::call_SetKeyValue(Sexy::String const& theToken, Sexy:
             DrCurlRequest::setField(&aRequest, &aValueKey, &aValueText);
         }
 
-        const DrCurlRequest *aCurl = static_cast<const DrCurlRequest *>(
-            static_cast<const void *>(&aRequest));
+        const DrCurlRequest *aCurl = static_cast<const DrCurlRequest *>(static_cast<const void *>(&aRequest));
         DrRpcRes aPerformed = perform(*aCurl);
         if (aPerformed.mRet == 0)
         {
@@ -913,7 +901,7 @@ DrRpcResCommon DrRpcEngine::call_SetKeyValue(Sexy::String const& theToken, Sexy:
 // @001F0330  1164 bytes
 // ==========================================================================
 // Returns a DrRpcResWithString BY VALUE. mText carries the "iCoin" text.
-DrRpcResWithString DrRpcEngine::call_DebugAddMoney(Sexy::String const& theToken, int theAmount)
+DrRpcResWithString DrRpcEngine::call_DebugAddMoney(Sexy::String const &theToken, int theAmount)
 {
     struct AddMoneyRequest
     {
@@ -947,19 +935,16 @@ DrRpcResWithString DrRpcEngine::call_DebugAddMoney(Sexy::String const& theToken,
             DrCurlRequest::setField(&aRequest, &aSerialKey, &aSerial);
         }
 
-        const DrCurlRequest *aCurl = static_cast<const DrCurlRequest *>(
-            static_cast<const void *>(&aRequest));
+        const DrCurlRequest *aCurl = static_cast<const DrCurlRequest *>(static_cast<const void *>(&aRequest));
         DrRpcRes aPerformed = perform(*aCurl);
         if (aPerformed.mRet != 0)
         {
             aResult.mText = Sexy::String();
-            if (aPerformed.mStatus == 0
-                && aPerformed.mList != nullptr
-                && (unsigned char)(aPerformed.mList->_type - 4) <= 1u)
+            if (aPerformed.mStatus == 0 && aPerformed.mList != nullptr &&
+                (unsigned char)(aPerformed.mList->_type - 4) <= 1u)
             {
                 aPerformed.mList->Fetch();
-                if (aPerformed.mList->CHILDREN != nullptr
-                    && aPerformed.mList->CHILDREN->mChildren.size() != 0)
+                if (aPerformed.mList->CHILDREN != nullptr && aPerformed.mList->CHILDREN->mChildren.size() != 0)
                 {
                     JSONNode aRow;
                     JSONNode::Bind(aRow, aPerformed.mList);
@@ -999,7 +984,7 @@ DrRpcResWithString DrRpcEngine::call_DebugAddMoney(Sexy::String const& theToken,
 // ==========================================================================
 // Returns a DrRpcResWithString BY VALUE. The tool id is sent as id+1000, and
 // the count is always 1. mText stays empty: this action only confirms the use.
-DrRpcResWithString DrRpcEngine::call_UseTool(Sexy::String const& theToken, int theTool)
+DrRpcResWithString DrRpcEngine::call_UseTool(Sexy::String const &theToken, int theTool)
 {
     struct UseToolRequest
     {
@@ -1036,14 +1021,12 @@ DrRpcResWithString DrRpcEngine::call_UseTool(Sexy::String const& theToken, int t
             DrCurlRequest::setField(&aRequest, &aSerialKey, &aSerial);
         }
 
-        const DrCurlRequest *aCurl = static_cast<const DrCurlRequest *>(
-            static_cast<const void *>(&aRequest));
+        const DrCurlRequest *aCurl = static_cast<const DrCurlRequest *>(static_cast<const void *>(&aRequest));
         DrRpcRes aPerformed = perform(*aCurl);
         if (aPerformed.mRet != 0)
         {
-            if (aPerformed.mStatus == 0
-                && aPerformed.mList != nullptr
-                && (unsigned char)(aPerformed.mList->_type - 4) <= 1u)
+            if (aPerformed.mStatus == 0 && aPerformed.mList != nullptr &&
+                (unsigned char)(aPerformed.mList->_type - 4) <= 1u)
                 aPerformed.mList->Fetch();
             aResult.mRet = aPerformed.mStatus;
             aResult.mRetMsg = aPerformed.mRetMsg;
@@ -1073,7 +1056,8 @@ DrRpcResWithString DrRpcEngine::call_UseTool(Sexy::String const& theToken, int t
 // Returns a DrRpcResOfLoggin BY VALUE. The five words are mRet, mRetMsg and
 // the uid, role name and coin text the response carries. The password argument
 // is the oem target the engine remembers for later shop queries.
-DrRpcResOfLoggin DrRpcEngine::call_Loggin(Sexy::String const& theAccount, Sexy::String const& thePassword, Sexy::String const& theExtra)
+DrRpcResOfLoggin DrRpcEngine::call_Loggin(
+    Sexy::String const &theAccount, Sexy::String const &thePassword, Sexy::String const &theExtra)
 {
     struct LoginRequest
     {
@@ -1105,21 +1089,18 @@ DrRpcResOfLoggin DrRpcEngine::call_Loggin(Sexy::String const& theAccount, Sexy::
         }
         mOemTarget = thePassword;
 
-        const DrCurlRequest *aCurl = static_cast<const DrCurlRequest *>(
-            static_cast<const void *>(&aRequest));
+        const DrCurlRequest *aCurl = static_cast<const DrCurlRequest *>(static_cast<const void *>(&aRequest));
         DrRpcRes aPerformed = perform(*aCurl);
         if (aPerformed.mRet != 0)
         {
             aResult.mText1 = Sexy::String();
             aResult.mText2 = Sexy::String();
             aResult.mText3 = Sexy::String();
-            if (aPerformed.mStatus == 0
-                && aPerformed.mList != nullptr
-                && (unsigned char)(aPerformed.mList->_type - 4) <= 1u)
+            if (aPerformed.mStatus == 0 && aPerformed.mList != nullptr &&
+                (unsigned char)(aPerformed.mList->_type - 4) <= 1u)
             {
                 aPerformed.mList->Fetch();
-                if (aPerformed.mList->CHILDREN != nullptr
-                    && aPerformed.mList->CHILDREN->mChildren.size() != 0)
+                if (aPerformed.mList->CHILDREN != nullptr && aPerformed.mList->CHILDREN->mChildren.size() != 0)
                 {
                     JSONNode aRow;
                     JSONNode::Bind(aRow, aPerformed.mList);
@@ -1202,15 +1183,13 @@ DrRpcResOfCoinList DrRpcEngine::call_QueryCoinList()
             DrCurlRequest::setField(&aRequest, &aOemKey, &mOemTarget);
         }
 
-        const DrCurlRequest *aCurl = static_cast<const DrCurlRequest *>(
-            static_cast<const void *>(&aRequest));
+        const DrCurlRequest *aCurl = static_cast<const DrCurlRequest *>(static_cast<const void *>(&aRequest));
         DrRpcRes aPerformed = perform(*aCurl);
         aResult.mList.clear();
         if (aPerformed.mRet != 0)
         {
-            if (aPerformed.mStatus == 0
-                && aPerformed.mList != nullptr
-                && (unsigned char)(aPerformed.mList->_type - 4) <= 1u)
+            if (aPerformed.mStatus == 0 && aPerformed.mList != nullptr &&
+                (unsigned char)(aPerformed.mList->_type - 4) <= 1u)
             {
                 aPerformed.mList->Fetch();
                 jsonChildren *aChildren = aPerformed.mList->CHILDREN;
@@ -1300,7 +1279,7 @@ static void InitItemMap(Sexy::RbTree::MapStorage *theMap)
 }
 
 // Insert or replace one price. The key is the item id stored at node +16.
-static void PutShopPrice(Sexy::RbTree::MapStorage *theMap, int theItemId, Sexy::String const& thePrice)
+static void PutShopPrice(Sexy::RbTree::MapStorage *theMap, int theItemId, Sexy::String const &thePrice)
 {
     struct PriceNode : Sexy::RbTree::NodeBase
     {
@@ -1444,7 +1423,7 @@ static void EraseItemMap(Sexy::RbTree::NodeBase *theNode)
 // ==========================================================================
 // Asks for the shop catalogue. Each list entry is keyed by iItemId-1000 and
 // stores the iPrice text.
-DrRpcResOfAllItems DrRpcEngine::call_QueryAllItems(Sexy::String const& theToken)
+DrRpcResOfAllItems DrRpcEngine::call_QueryAllItems(Sexy::String const &theToken)
 {
     struct ItemRequest
     {
@@ -1469,14 +1448,12 @@ DrRpcResOfAllItems DrRpcEngine::call_QueryAllItems(Sexy::String const& theToken)
         Sexy::RbTree::MapStorage aPrices;
         InitItemMap(&aPrices);
 
-        const DrCurlRequest *aCurl = static_cast<const DrCurlRequest *>(
-            static_cast<const void *>(&aRequest));
+        const DrCurlRequest *aCurl = static_cast<const DrCurlRequest *>(static_cast<const void *>(&aRequest));
         DrRpcRes aPerformed = perform(*aCurl);
         if (aPerformed.mRet != 0)
         {
-            if (aPerformed.mStatus == 0
-                && aPerformed.mList != nullptr
-                && (unsigned char)(aPerformed.mList->_type - 4) <= 1u)
+            if (aPerformed.mStatus == 0 && aPerformed.mList != nullptr &&
+                (unsigned char)(aPerformed.mList->_type - 4) <= 1u)
             {
                 aPerformed.mList->Fetch();
                 jsonChildren *aChildren = aPerformed.mList->CHILDREN;

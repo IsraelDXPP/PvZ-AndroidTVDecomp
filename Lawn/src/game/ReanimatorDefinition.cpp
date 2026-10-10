@@ -11,8 +11,8 @@
 // ==========================================================================
 ReanimatorDefinition::ReanimatorDefinition()
 {
-  mTracks = nullptr;
-  mTrackCount = 0;
-  mFPS = 12.0f;
-  mReanimAtlas = nullptr;
+    mTracks = nullptr;
+    mTrackCount = 0;
+    mFPS = 12.0f;
+    mReanimAtlas = nullptr;
 }

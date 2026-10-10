@@ -1,5 +1,5 @@
-#ifndef __DATAARRAY_METHODS_H__
-#define __DATAARRAY_METHODS_H__
+#ifndef LAWNPROJECTTV_TODLIB_INCLUDE_DATAARRAYMETHODS_H
+#define LAWNPROJECTTV_TODLIB_INCLUDE_DATAARRAYMETHODS_H
 
 // Method bodies for DataArray<T, Slot>. Include this from every translation
 // unit that calls a method, after T and Slot are both complete. The bodies
@@ -21,8 +21,7 @@ inline void DataArray<T, Slot>::DataArrayInitialize(unsigned int theMaxSize, con
     mName = theName;
 }
 
-template <typename T, typename Slot>
-inline void DataArray<T, Slot>::DataArrayDispose()
+template <typename T, typename Slot> inline void DataArray<T, Slot>::DataArrayDispose()
 {
     if (mBlock == nullptr)
         return;
@@ -37,8 +36,7 @@ inline void DataArray<T, Slot>::DataArrayDispose()
     mName = nullptr;
 }
 
-template <typename T, typename Slot>
-inline void DataArray<T, Slot>::DataArrayFree(T *theItem)
+template <typename T, typename Slot> inline void DataArray<T, Slot>::DataArrayFree(T *theItem)
 {
     Slot *aSlot = nullptr;
     for (unsigned int anIndex = 0; anIndex < mMaxUsedCount; ++anIndex)
@@ -57,8 +55,7 @@ inline void DataArray<T, Slot>::DataArrayFree(T *theItem)
     --mSize;
 }
 
-template <typename T, typename Slot>
-inline void DataArray<T, Slot>::DataArrayFreeAll()
+template <typename T, typename Slot> inline void DataArray<T, Slot>::DataArrayFreeAll()
 {
     T *aItem = nullptr;
     while (IterateNext(aItem))
@@ -68,8 +65,7 @@ inline void DataArray<T, Slot>::DataArrayFreeAll()
     mMaxUsedCount = 0;
 }
 
-template <typename T, typename Slot>
-inline unsigned int DataArray<T, Slot>::DataArrayGetID(T *theItem)
+template <typename T, typename Slot> inline unsigned int DataArray<T, Slot>::DataArrayGetID(T *theItem)
 {
     for (unsigned int anIndex = 0; anIndex < mMaxSize; ++anIndex)
     {
@@ -79,8 +75,7 @@ inline unsigned int DataArray<T, Slot>::DataArrayGetID(T *theItem)
     return 0;
 }
 
-template <typename T, typename Slot>
-inline bool DataArray<T, Slot>::IterateNext(T *&theItem)
+template <typename T, typename Slot> inline bool DataArray<T, Slot>::IterateNext(T *&theItem)
 {
     Slot *aSlot = &mBlock[0];
     if (theItem != nullptr)
@@ -110,8 +105,7 @@ inline bool DataArray<T, Slot>::IterateNext(T *&theItem)
     return false;
 }
 
-template <typename T, typename Slot>
-inline T *DataArray<T, Slot>::DataArrayAlloc()
+template <typename T, typename Slot> inline T *DataArray<T, Slot>::DataArrayAlloc()
 {
     unsigned int anIndex = mMaxUsedCount;
     if (mFreeListHead == mMaxUsedCount)
@@ -131,8 +125,7 @@ inline T *DataArray<T, Slot>::DataArrayAlloc()
     return ConstructRaw<T>(&aSlot->mItem);
 }
 
-template <typename T, typename Slot>
-inline T *DataArray<T, Slot>::DataArrayTryToGet(unsigned int theId)
+template <typename T, typename Slot> inline T *DataArray<T, Slot>::DataArrayTryToGet(unsigned int theId)
 {
     if (theId == 0 || (theId & DATA_ARRAY_INDEX_MASK) >= mMaxSize)
         return nullptr;
@@ -141,8 +134,7 @@ inline T *DataArray<T, Slot>::DataArrayTryToGet(unsigned int theId)
     return aSlot->mID == theId ? &aSlot->mItem : nullptr;
 }
 
-template <typename T, typename Slot>
-inline T *DataArray<T, Slot>::DataArrayGet(unsigned int theId)
+template <typename T, typename Slot> inline T *DataArray<T, Slot>::DataArrayGet(unsigned int theId)
 {
     return &mBlock[theId & DATA_ARRAY_INDEX_MASK].mItem;
 }

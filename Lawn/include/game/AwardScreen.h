@@ -46,7 +46,8 @@
 //             the binary's container is libstdc++'s std::map header, not MSVC's.
 //     +0x130  end of object
 
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_AWARDSCREEN_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_AWARDSCREEN_H
 
 #include "ReconTypes.h"
 // These includes exist because the transcribed bodies call methods on complete
@@ -81,20 +82,21 @@ class AwardScreen : public Sexy::Widget, public Sexy::ButtonListener
 public:
     virtual ~AwardScreen();
 
-    virtual void AddedToManager(Sexy::WidgetManager *theWidgetManager);   // [ 29] 0x146b18
+    virtual void AddedToManager(Sexy::WidgetManager *theWidgetManager); // [ 29] 0x146b18
     virtual void RemovedFromManager(Sexy::WidgetManager *theWidgetManager); // [ 30] 0x146b1c
-    virtual void Update();                                  // [ 31] 0x146acc
-    virtual void Draw(Sexy::Graphics *theGraphics);                  // [ 36] 0x1441f4
-    virtual void Resize(int theX, int theY, int theWidth, int theHeight);    // [ 50] 0x143e60
-    virtual void GotFocus();                                // [ 61] 0x146b14
-    virtual int KeyChar(char theChar);                          // [ 67] 0x1459d8
-    virtual int KeyDown(Sexy::KeyCode theKey);                 // [ 71] 0x145934
-    virtual void MouseDown(int theX, int theY, int theClickCount);         // [ 76] 0x143e64
-    virtual void MouseUp(int theX, int theY, int theClickCount);           // [ 79] 0x145928
+    virtual void Update(); // [ 31] 0x146acc
+    virtual void Draw(Sexy::Graphics *theGraphics); // [ 36] 0x1441f4
+    virtual void Resize(int theX, int theY, int theWidth, int theHeight); // [ 50] 0x143e60
+    virtual void GotFocus(); // [ 61] 0x146b14
+    virtual int KeyChar(char theChar); // [ 67] 0x1459d8
+    virtual int KeyDown(Sexy::KeyCode theKey); // [ 71] 0x145934
+    virtual void MouseDown(int theX, int theY, int theClickCount); // [ 76] 0x143e64
+    virtual void MouseUp(int theX, int theY, int theClickCount); // [ 79] 0x145928
 
     // Not vtable slots: the signatures are the ones the transcribed bodies use.
     int IsPaperNote();
-    int DrawBottom(Sexy::Graphics *theGraphics, Sexy::String const &theTitle, Sexy::String const &theSubtitle, Sexy::String const &theDescription);
+    int DrawBottom(Sexy::Graphics *theGraphics, Sexy::String const &theTitle, Sexy::String const &theSubtitle,
+        Sexy::String const &theDescription);
     void DrawAwardSeed(Sexy::Graphics *theGraphics);
     void StartButtonPressed();
     void GameButtonDown(Sexy::GamepadButton theButton, int thePlayerIndex, unsigned int theFlags);
@@ -102,9 +104,11 @@ public:
     AwardScreen(LawnApp *theApp, AwardType theAward);
 
     GameButton *mStartButton; // +0x104
-    GameButton *mMenuButton;  // +0x108
-    LawnApp *mApp;            // +0x10C
-    int mFadeInCounter;       // +0x110
-    AwardType mAwardType;     // +0x114
+    GameButton *mMenuButton; // +0x108
+    LawnApp *mApp; // +0x10C
+    int mFadeInCounter; // +0x110
+    AwardType mAwardType; // +0x114
     std::set<Sexy::String> mLoadedResources;
 };
+
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_AWARDSCREEN_H

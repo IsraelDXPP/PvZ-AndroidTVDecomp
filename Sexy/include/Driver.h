@@ -7,11 +7,13 @@
 // GetName and GetPriority belong to PakLib::Driver, declared in ReconTypes.h,
 // not to this class.
 
-#pragma once
+#ifndef LAWNPROJECTTV_SEXY_INCLUDE_DRIVER_H
+#define LAWNPROJECTTV_SEXY_INCLUDE_DRIVER_H
 
 #include "ReconTypes.h"
 
-namespace Sexy {
+namespace Sexy
+{
 
 class Driver
 {
@@ -30,3 +32,5 @@ public:
 } // namespace Sexy
 
 using Sexy::Driver;
+
+#endif // LAWNPROJECTTV_SEXY_INCLUDE_DRIVER_H

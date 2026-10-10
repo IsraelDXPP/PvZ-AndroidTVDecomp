@@ -12,7 +12,8 @@
 //
 // ReanimatorDefinition.cpp touches no byte past +0x0C.
 
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_REANIMATORDEFINITION_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_REANIMATORDEFINITION_H
 
 #include "ReanimatorTransform.h"
 #include "ReconTypes.h"
@@ -26,11 +27,11 @@ class ReanimAtlas;
 class ReanimatorTrack
 {
 public:
-    const char*          mTrackId;         // +0x00 interned track-name id
-    char                *mName;            // +0x04
-    ReanimatorTransform *mTransforms;      // +0x08
-    int                  mTransformCount;  // +0x0C
-    bool                 mIsAttacher;      // +0x10
+    const char *mTrackId; // +0x00 interned track-name id
+    char *mName; // +0x04
+    ReanimatorTransform *mTransforms; // +0x08
+    int mTransformCount; // +0x0C
+    bool mIsAttacher; // +0x10
 };
 
 class ReanimatorTrackInstance;
@@ -38,13 +39,15 @@ class ReanimatorTrackInstance;
 class ReanimatorDefinition
 {
 public:
-    ReanimatorTrack *mTracks;      // +0x00
-    int              mTrackCount;  // +0x04
-    float            mFPS;         // +0x08, default 12.0f
-    ReanimAtlas     *mReanimAtlas; // +0x0C
+    ReanimatorTrack *mTracks; // +0x00
+    int mTrackCount; // +0x04
+    float mFPS; // +0x08, default 12.0f
+    ReanimAtlas *mReanimAtlas; // +0x0C
     // size 0x10
 
     ReanimatorDefinition();
 };
 
 // Layout check: four words.
+
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_REANIMATORDEFINITION_H

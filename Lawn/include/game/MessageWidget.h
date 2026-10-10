@@ -16,7 +16,8 @@
 //   [  1] 0x1a3bd8  MessageWidget::~MessageWidget   (D0)
 // MSVC x86 emits ONE slot for a virtual destructor where Itanium emits two.
 
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_MESSAGEWIDGET_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_MESSAGEWIDGET_H
 
 #include "ReconTypes.h"
 // These includes exist because the transcribed bodies call methods on complete
@@ -48,36 +49,36 @@ class MessageWidget : public SyncObject
 public:
     virtual ~MessageWidget();
 
-    LawnApp       *mApp;                     // +0x10
-    char           mLabel[MAX_MESSAGE_LENGTH]; // +0x14 ~ +0x93
-    int            mDisplayTime;             // +0x94
-    int            mDuration;                // +0x98
-    MessageStyle   mMessageStyle;            // +0x9C
+    LawnApp *mApp; // +0x10
+    char mLabel[MAX_MESSAGE_LENGTH]; // +0x14 ~ +0x93
+    int mDisplayTime; // +0x94
+    int mDuration; // +0x98
+    MessageStyle mMessageStyle; // +0x9C
     // The array holds ReanimationID VALUES, not pointers: the constructor
     // zeroes all 128 words, SetLabel/LayoutReanimText store the result of
     // `mApp->ReanimationGetID(...)` into them, and the readers hand each word
     // straight back to `mApp->ReanimationTryToGet(ReanimationID)`. It was
     // declared `Reanimation *` in stage 1, which made every access need a cast.
-    ReanimationID  mTextReanimID[MAX_MESSAGE_LENGTH]; // +0xA0 ~ +0x29F
-    ReanimationType mReanimType;             // +0x2A0
-    int            mSlideOffTime;            // +0x2A4  (the constructor writes 100)
-    float          mFontScale;   // +0x2A8  1.0 normally; the huge-wave style uses 1.6 in zh_CN
-    char           mLabelNext[MAX_MESSAGE_LENGTH]; // +0x2AC ~ +0x32B
-    MessageStyle   mMessageStyleNext;        // +0x32C
+    ReanimationID mTextReanimID[MAX_MESSAGE_LENGTH]; // +0xA0 ~ +0x29F
+    ReanimationType mReanimType; // +0x2A0
+    int mSlideOffTime; // +0x2A4  (the constructor writes 100)
+    float mFontScale; // +0x2A8  1.0 normally; the huge-wave style uses 1.6 in zh_CN
+    char mLabelNext[MAX_MESSAGE_LENGTH]; // +0x2AC ~ +0x32B
+    MessageStyle mMessageStyleNext; // +0x32C
     // Size 0x330 (204 ints).
 
     MessageWidget(LawnApp *theApp);
 
-    Reanimation * ClearReanim();
-    MessageWidget* ClearLabel();
+    Reanimation *ClearReanim();
+    MessageWidget *ClearLabel();
     // The three below are void in the binary; the sibling class
     // SimpleMessageWidget.h declares the same three the same way.
-    Sexy::Font * GetFont();
+    Sexy::Font *GetFont();
     bool IsBeingDisplayed();
     void LayoutReanimText();
-    void SetLabel(Sexy::String const& theLabel, MessageStyle theStyle);
+    void SetLabel(Sexy::String const &theLabel, MessageStyle theStyle);
     void Update();
-    void DrawReanimatedText(Sexy::Graphics *theGraphics, Sexy::Font *theFont, Color const& theColor, float thePos);
+    void DrawReanimatedText(Sexy::Graphics *theGraphics, Sexy::Font *theFont, Color const &theColor, float thePos);
     void Draw(Sexy::Graphics *theGraphics);
 };
 
@@ -93,14 +94,15 @@ class CustomMessageWidget : public MessageWidget
 public:
     virtual ~CustomMessageWidget();
 
-    Sexy::Image *mIcon;   // +0x330
+    Sexy::Image *mIcon; // +0x330
     // Size 0x334 (205 ints).
 
     CustomMessageWidget(LawnApp *theApp);
 
     void ClearLabel();
-    void SetLabel(Sexy::String const& theLabel, MessageStyle theStyle);
+    void SetLabel(Sexy::String const &theLabel, MessageStyle theStyle);
     void Update();
     void Draw(Sexy::Graphics *theGraphics);
 };
 
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_MESSAGEWIDGET_H

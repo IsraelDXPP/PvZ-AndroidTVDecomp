@@ -8,14 +8,16 @@
 // of that cycle. It is a pure addition: the layout is unchanged and nothing that
 // included Board.h loses anything, because Board.h includes this.
 
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_HITRESULT_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_HITRESULT_H
 
 #include "ReconTypes.h"
 
 class HitResult
 {
 public:
-    void *mObject;              // +0x00
+    void *mObject; // +0x00
     GameObjectType mObjectType; // +0x04
 };
 
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_HITRESULT_H

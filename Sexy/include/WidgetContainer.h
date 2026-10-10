@@ -5,13 +5,15 @@
 // rebuilt by SortWidgets for the key and focus walks. Hit testing, dirty
 // marks and the user-data map live here too.
 
-#pragma once
+#ifndef LAWNPROJECTTV_SEXY_INCLUDE_WIDGETCONTAINER_H
+#define LAWNPROJECTTV_SEXY_INCLUDE_WIDGETCONTAINER_H
 
 #include "ReconTypes.h"
 #include <map>
 #include <vector>
 
-namespace Sexy {
+namespace Sexy
+{
 
 class Graphics;
 class Widget;
@@ -123,3 +125,5 @@ public:
 } // namespace Sexy
 
 using Sexy::WidgetContainer;
+
+#endif // LAWNPROJECTTV_SEXY_INCLUDE_WIDGETCONTAINER_H

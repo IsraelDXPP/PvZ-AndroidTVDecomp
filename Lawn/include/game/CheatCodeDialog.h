@@ -31,7 +31,8 @@
 //   [133] 0x192154  CheatCodeDialog::EditWidgetText
 //   [134] 0x192174  CheatCodeDialog::AllowChar
 
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_CHEATCODEDIALOG_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_CHEATCODEDIALOG_H
 
 #include "ReconTypes.h"
 // The base class. Board was included here as well but is not named anywhere in
@@ -55,17 +56,17 @@ public:
     virtual ~CheatCodeDialog();
 
     // Overrides of base slots.
-    virtual void AddedToManager(Sexy::WidgetManager *theWidgetManager);   // [ 29] 0x1923d0
+    virtual void AddedToManager(Sexy::WidgetManager *theWidgetManager); // [ 29] 0x1923d0
     virtual void RemovedFromManager(Sexy::WidgetManager *theWidgetManager); // [ 30] 0x1923f8
-    virtual void Draw(Sexy::Graphics *g);                                // [ 36] 0x192450
+    virtual void Draw(Sexy::Graphics *g); // [ 36] 0x192450
     virtual void Resize(int theX, int theY, int theWidth, int theHeight); // [ 50] 0x192410
-    virtual void GotFocus();                                             // [ 61] 0x192468
-    virtual int GetPreferredHeight(int theWidth);                        // [125] 0x1923c4
+    virtual void GotFocus(); // [ 61] 0x192468
+    virtual int GetPreferredHeight(int theWidth); // [125] 0x1923c4
 
     // The two entries this class appends to the PRIMARY table. EditWidgetText
     // fills EditListener's slot 0 as well, and AllowChar matches its slot 3, so
     // both are overrides of the listener base.
-    virtual void EditWidgetText(int theId, const Sexy::String& theText);
+    virtual void EditWidgetText(int theId, const Sexy::String &theText);
     virtual int AllowChar(int theId, char theChar);
 
     explicit CheatCodeDialog(LawnApp *theApp);
@@ -74,8 +75,10 @@ public:
     // +0x2FC is the Sexy::EditListener base's vptr, so it is not a member.
     // +0x300 .. +0x307 (the first 0x2FC bytes are LawnDialog and the next 4 the
     // EditListener sub-object).
-    LawnApp *mApp;                 // +0x300, the constructor's argument and the
-                                   // object ApplyCheat reads mBoard from
+    LawnApp *mApp; // +0x300, the constructor's argument and the
+    // object ApplyCheat reads mBoard from
     Sexy::EditWidget *mEditWidget; // +0x304, the CreateEditWidget result
     // size 0x308, allocation 0x308
 };
+
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_CHEATCODEDIALOG_H

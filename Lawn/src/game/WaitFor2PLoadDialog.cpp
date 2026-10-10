@@ -42,8 +42,8 @@ WaitFor2PLoadDialog::~WaitFor2PLoadDialog()
 // WaitFor2PLoadDialog::WaitFor2PLoadDialog(LawnApp *)
 // @0013F9C0  120 bytes
 // ==========================================================================
-WaitFor2PLoadDialog::WaitFor2PLoadDialog(LawnApp *theApp)
-    : SavingDingusDialog(theApp, true, 69, Sexy::String("[LOADING_P2_PROFILE]"), 0.0f, true)
+WaitFor2PLoadDialog::WaitFor2PLoadDialog(LawnApp *theApp) :
+    SavingDingusDialog(theApp, true, 69, Sexy::String("[LOADING_P2_PROFILE]"), 0.0f, true)
 {
     // The dump's placement-new of SavingDingusDialog over `this` plus the string
     // temporary and its release block (`v8 - 12 != (int *)Sexy::gEmptyStringData`) are the base

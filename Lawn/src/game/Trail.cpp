@@ -39,7 +39,7 @@ void Trail::AddPoint(float theX, float theY)
     int aNumPoints = mNumPoints;
     if (aNumPoints > 0)
     {
-        const float* aLast = mPoints[aNumPoints - 1];
+        const float *aLast = mPoints[aNumPoints - 1];
         float aDistX = aLast[0] - theX;
         float aDistY = aLast[1] - theY;
         float aDistance = sqrtf(aDistY * aDistY + aDistX * aDistX);
@@ -74,7 +74,7 @@ void Trail::Update()
 // from the two half-edges and normalised. The first and last points only have
 // one neighbour. Returns false for a zero-length normal so the caller keeps
 // the previous one.
-bool Trail::GetNormalAtPoint(int theIndex, SexyVector2& theNormal)
+bool Trail::GetNormalAtPoint(int theIndex, SexyVector2 &theNormal)
 {
     float aDirX;
     float aDirY;
@@ -126,7 +126,7 @@ bool Trail::GetNormalAtPoint(int theIndex, SexyVector2& theNormal)
 // One segment produces two triangles. Width and alpha are the product of the
 // definition's length track at that segment and its time track at the trail's
 // current age. mOffsetX/mOffsetY shift the ribbon in screen space.
-void Trail::Draw(Sexy::Graphics* theGraphics)
+void Trail::Draw(Sexy::Graphics *theGraphics)
 {
     if (mDead)
         return;
@@ -153,8 +153,8 @@ void Trail::Draw(Sexy::Graphics* theGraphics)
     {
         if (aHaveQuad || GetNormalAtPoint(aPrevIndex, aPrevNormal))
         {
-            SexyVertex2D* aFirstTriangle = aTriangles[2 * aPrevIndex];
-            SexyVertex2D* aSecondTriangle = aTriangles[2 * aPrevIndex + 1];
+            SexyVertex2D *aFirstTriangle = aTriangles[2 * aPrevIndex];
+            SexyVertex2D *aSecondTriangle = aTriangles[2 * aPrevIndex + 1];
             aNextNormal.mX = 0.0f;
             aNextNormal.mY = 0.0f;
             aLastIndex = anIndex;
@@ -173,24 +173,22 @@ void Trail::Draw(Sexy::Graphics* theGraphics)
             float aPointFrac = 1.0f - (float)aPrevIndex / (float)(mNumPoints - 1);
             float aNextFrac = 1.0f - (float)anIndex / (float)(mNumPoints - 1);
 
-            float aWidthOverLength = FloatTrackEvaluate(
-                mDefinition->mWidthOverLength, aPointFrac, mTrailInterp[0]);
-            float aNextWidthOverLength = FloatTrackEvaluate(
-                mDefinition->mWidthOverLength, aNextFrac, mTrailInterp[0]);
-            float aWidthOverTime = FloatTrackEvaluate(
-                mDefinition->mWidthOverTime, anAgeFrac, mTrailInterp[1]);
-            float anAlphaOverLength = FloatTrackEvaluate(
-                mDefinition->mAlphaOverLength, aPointFrac, mTrailInterp[2]);
-            float aNextAlphaOverLength = FloatTrackEvaluate(
-                mDefinition->mAlphaOverLength, aNextFrac, mTrailInterp[2]);
-            float anAlphaOverTime = FloatTrackEvaluate(
-                mDefinition->mAlphaOverTime, anAgeFrac, mTrailInterp[3]);
+            float aWidthOverLength = FloatTrackEvaluate(mDefinition->mWidthOverLength, aPointFrac, mTrailInterp[0]);
+            float aNextWidthOverLength = FloatTrackEvaluate(mDefinition->mWidthOverLength, aNextFrac, mTrailInterp[0]);
+            float aWidthOverTime = FloatTrackEvaluate(mDefinition->mWidthOverTime, anAgeFrac, mTrailInterp[1]);
+            float anAlphaOverLength = FloatTrackEvaluate(mDefinition->mAlphaOverLength, aPointFrac, mTrailInterp[2]);
+            float aNextAlphaOverLength = FloatTrackEvaluate(mDefinition->mAlphaOverLength, aNextFrac, mTrailInterp[2]);
+            float anAlphaOverTime = FloatTrackEvaluate(mDefinition->mAlphaOverTime, anAgeFrac, mTrailInterp[3]);
 
             float aColorAlpha = (float)mColor.mAlpha;
-            Color aPointColor(mColor.mRed, mColor.mGreen, mColor.mBlue,
-                              AlphaToByte(anAlphaOverLength * anAlphaOverTime * aColorAlpha));
-            Color aNextColor(mColor.mRed, mColor.mGreen, mColor.mBlue,
-                             AlphaToByte(aNextAlphaOverLength * anAlphaOverTime * aColorAlpha));
+            Color aPointColor(mColor.mRed,
+                mColor.mGreen,
+                mColor.mBlue,
+                AlphaToByte(anAlphaOverLength * anAlphaOverTime * aColorAlpha));
+            Color aNextColor(mColor.mRed,
+                mColor.mGreen,
+                mColor.mBlue,
+                AlphaToByte(aNextAlphaOverLength * anAlphaOverTime * aColorAlpha));
 
             aHaveQuad = true;
 
@@ -246,8 +244,7 @@ void Trail::Draw(Sexy::Graphics* theGraphics)
 
         ++aPrevIndex;
         ++anIndex;
-    }
-    while (aLastIndex < mNumPoints - 1);
+    } while (aLastIndex < mNumPoints - 1);
 
     theGraphics->DrawTrianglesTex(mDefinition->mImage, aTriangles, aNumTriangles);
 }

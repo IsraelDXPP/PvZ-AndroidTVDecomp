@@ -37,7 +37,8 @@
 // No other method of this class is virtual. The 176 declarations at the end keep
 // the order the transcription produced, so phase 2 can retype them one at a time.
 
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_CHALLENGE_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_CHALLENGE_H
 
 #include "ReconTypes.h"
 #include "SyncObject.h"
@@ -111,63 +112,63 @@ public:
 
     // --- members, in binary order ------------------------------------------
     // The SyncObject base supplies +0x00 (vptr) and +0x04..+0x0F (mSyncBlocks).
-    LawnApp       *mApp;                          // +0x10
-    Board         *mBoard;                        // +0x14
-    HelpBarWidget *mHelpBar;                      // +0x18
-    bool           mBeghouledMouseCapture;        // +0x1C
-    int            mBeghouledMouseDownX;          // +0x20
-    int            mBeghouledMouseDownY;          // +0x24
-    bool           mBeghouledEated[9][6];         // +0x28 (54 bytes)
-    bool           mBeghouledPurcasedUpgrade[NUM_BEGHOULED_UPGRADES]; // +0x5E
+    LawnApp *mApp; // +0x10
+    Board *mBoard; // +0x14
+    HelpBarWidget *mHelpBar; // +0x18
+    bool mBeghouledMouseCapture; // +0x1C
+    int mBeghouledMouseDownX; // +0x20
+    int mBeghouledMouseDownY; // +0x24
+    bool mBeghouledEated[9][6]; // +0x28 (54 bytes)
+    bool mBeghouledPurcasedUpgrade[NUM_BEGHOULED_UPGRADES]; // +0x5E
     // Three bytes of padding follow, so this int lands on +0x64 (word 25).
-    int            mBeghouledMatchesThisMove;     // +0x64
-    ChallengeState mChallengeState;               // +0x68
-    int            mChallengeStateCounter;        // +0x6C
-    int            mConveyorBeltCounter1;         // +0x70
-    int            mConveyorBeltCounter2;         // +0x74
-    int            mChallengeScore;               // +0x78
-    bool           mShowBowlingLine;              // +0x7C
-    SeedType       mLastConveyorSeedType;         // +0x80
-    int            mSurvivalStage;                // +0x84
-    int            mSlotMachineRollCount;         // +0x88
-    ReanimationID  mReanimChallenge;              // +0x8C
-    ReanimationID  mReanimCloud[6];               // +0x90
-    int            mCloudCounter[6];              // +0xA8
-    int            mChallengeGridX;               // +0xC0
-    int            mChallengeGridY;               // +0xC4
-    int            mScaryPotterPots;              // +0xC8
-    int            mRainCounter;                  // +0xCC
-    int            mTreeOfWisdomTalkIndex;        // +0xD0
+    int mBeghouledMatchesThisMove; // +0x64
+    ChallengeState mChallengeState; // +0x68
+    int mChallengeStateCounter; // +0x6C
+    int mConveyorBeltCounter1; // +0x70
+    int mConveyorBeltCounter2; // +0x74
+    int mChallengeScore; // +0x78
+    bool mShowBowlingLine; // +0x7C
+    SeedType mLastConveyorSeedType; // +0x80
+    int mSurvivalStage; // +0x84
+    int mSlotMachineRollCount; // +0x88
+    ReanimationID mReanimChallenge; // +0x8C
+    ReanimationID mReanimCloud[6]; // +0x90
+    int mCloudCounter[6]; // +0xA8
+    int mChallengeGridX; // +0xC0
+    int mChallengeGridY; // +0xC4
+    int mScaryPotterPots; // +0xC8
+    int mRainCounter; // +0xCC
+    int mTreeOfWisdomTalkIndex; // +0xD0
     // The authoritative header types this `int`, but every access in the binary
     // is byte-wide -- the constructor and the beghouled bodies store bytes
     // (`*((_BYTE *)this + 212) = 1/0`) and UpdateBeghouled compares and copies
     // it as `*((unsigned __int8 *)this + 212)` -- so it is a bool here. The next
     // member stays word-aligned at +0xD8 either way, so the size is unchanged.
-    bool           mBeghouledMouseDown;           // +0xD4
-    int            mBeghouledMouseCaptureCountdown; // +0xD8
-    int            mMPZombieConveyorTimer;        // +0xDC
-    int            mBobSledMPCounter;             // +0xE0 (the ctor writes 3000)
-    int            mSuddenDeathStartTick;         // +0xE4, unused (-1)
-    int            mPauseStartTick;               // +0xE8, unused (-1)
-    bool           mIsMPSuddenDeathNow;           // +0xEC
-    SeedType       mSuddenDeathDisableSeeds1[3];  // +0xF0
-    SeedType       mSuddenDeathDisableSeeds2[3];  // +0xFC
-    int            mSuddenDeathBoomCount;         // +0x108
-    float          mHeavyWeaponX;                 // +0x10C
-    float          mHeavyWeaponY;                 // +0x110
-    float          mHeavyWeaponAngle;             // +0x114
+    bool mBeghouledMouseDown; // +0xD4
+    int mBeghouledMouseCaptureCountdown; // +0xD8
+    int mMPZombieConveyorTimer; // +0xDC
+    int mBobSledMPCounter; // +0xE0 (the ctor writes 3000)
+    int mSuddenDeathStartTick; // +0xE4, unused (-1)
+    int mPauseStartTick; // +0xE8, unused (-1)
+    bool mIsMPSuddenDeathNow; // +0xEC
+    SeedType mSuddenDeathDisableSeeds1[3]; // +0xF0
+    SeedType mSuddenDeathDisableSeeds2[3]; // +0xFC
+    int mSuddenDeathBoomCount; // +0x108
+    float mHeavyWeaponX; // +0x10C
+    float mHeavyWeaponY; // +0x110
+    float mHeavyWeaponAngle; // +0x114
     // Counts down each HeavyWeaponUpdate tick. At 0 the update draws a new
     // idle delay from 1000 to 3000.
-    int            mHeavyWeaponIdleTimer;         // +0x118
-    int            mHeavyWeaponCatTailAttackCounter; // +0x11C
-    int            mHeavyWeaponCatTailLevel;      // +0x120
-    int            mHeavyWeaponPeaLevel;          // +0x124
-    int            mHeavyWeaponSnowPeaCounter;    // +0x128
-    int            mHeavyWeaponTorchWoodCounter;  // +0x12C
+    int mHeavyWeaponIdleTimer; // +0x118
+    int mHeavyWeaponCatTailAttackCounter; // +0x11C
+    int mHeavyWeaponCatTailLevel; // +0x120
+    int mHeavyWeaponPeaLevel; // +0x124
+    int mHeavyWeaponSnowPeaCounter; // +0x128
+    int mHeavyWeaponTorchWoodCounter; // +0x12C
     // +0x130 was written 10 at level start and 0 in the constructor. Nothing reads it.
-    ReanimationID  mReanimHeavyWeaponID1;         // +0x134
-    ReanimationID  mReanimHeavyWeaponID2;         // +0x138
-    ReanimationID  mReanimHeavyWeaponID3;         // +0x13C
+    ReanimationID mReanimHeavyWeaponID1; // +0x134
+    ReanimationID mReanimHeavyWeaponID2; // +0x138
+    ReanimationID mReanimHeavyWeaponID3; // +0x13C
     // size 0x140
 
     // --- methods (declaration order preserved from the transcription) -------
@@ -183,7 +184,7 @@ public:
     // bodies do.
     int LoadBeghouledBoardState(BeghouledBoardState *theState);
     int BeghouledTwistValidMove(int theGridX, int theGridY, BeghouledBoardState *theState);
-    int BeghouledTwistSquareFromMouse(int theX, int theY, int & theGridX, int & theGridY);
+    int BeghouledTwistSquareFromMouse(int theX, int theY, int &theGridX, int &theGridY);
     int BeghouledDragStart(int theX, int theY);
     int BeghouledDragCancel();
     SeedType BeghouledGetPlantAt(int theGridX, int theGridY, BeghouledBoardState *theState);
@@ -209,13 +210,13 @@ public:
     int GameButtonUp(int theButton, int thePlayerIndex, unsigned int theFlags);
     int GameAxisMove(int theAxis, int theButton, int thePlayerIndex);
     int ClearCursor(int thePlayerIndex);
-    int UpdateBeghouledPlant(Plant * thePlant);
-    Plant * BeghouledFlashPlant(int theFlashX, int theFlashY, int theFromX, int theFromY, int theToX, int theToY);
+    int UpdateBeghouledPlant(Plant *thePlant);
+    Plant *BeghouledFlashPlant(int theFlashX, int theFlashY, int theFromX, int theFromY, int theToX, int theToY);
     int BeghouledTwistFlashMatch(BeghouledBoardState *theState, int theGridX, int theGridY);
     int BeghouledFlashFromBoardState(BeghouledBoardState *theState, int theFromX, int theFromY, int theToX, int theToY);
     int BeghouledCancelMatchFlashing();
     int BeghouledStartFalling(ChallengeState theState);
-    int BeghouledTwistMouseDown(int theX, int theY);
+    void BeghouledTwistMouseDown(int theX, int theY);
     int OnKeyDown(Sexy::KeyCode theKey, unsigned int theFlags);
     void BeghouledDragUpdate(int theX, int theY);
     int MouseMove(int theX, int theY);
@@ -239,9 +240,9 @@ public:
     void SpawnLevelAward(int theGridX, int theGridY);
     void UpdateSlotMachine();
     void CheckForCompleteArtChallenge(int theGridX, int theGridY);
-    void DrawArtChallenge(Sexy::Graphics * g);
-    int DrawBeghouled(Sexy::Graphics * g);
-    void PlantAdded(Plant * thePlant);
+    void DrawArtChallenge(Sexy::Graphics *g);
+    int DrawBeghouled(Sexy::Graphics *g);
+    void PlantAdded(Plant *thePlant);
     int InitZombieWavesSurvival();
     void InitZombieWavesFromList(const ZombieType *theZombieList, int theListLength);
     void InitZombieWaves();
@@ -251,43 +252,44 @@ public:
     void GraveDangerSpawnGraveAt(int theGridX, int theGridY);
     int GraveDangerSpawnRandomGrave();
     void SpawnZombieWave();
-    int DrawStormFlash(Sexy::Graphics * g, int theTime, int theMaxAmount);
-    void DrawRain(Sexy::Graphics * g);
-    void DrawStormNight(Sexy::Graphics * g);
-    void DrawWeather(Sexy::Graphics * g);
-    Zombie * PlayBossEnter();
-    GridItem * GetOtherPortal(GridItem * thePortal);
-    int UpdatePortal(GridItem * thePortal);
-    GridItem * GetPortalAt(int theGridX, int theGridY);
-    GridItem * GetPortalToLeft(int theGridX, int theGridY);
+    int DrawStormFlash(Sexy::Graphics *g, int theTime, int theMaxAmount);
+    void DrawRain(Sexy::Graphics *g);
+    void DrawStormNight(Sexy::Graphics *g);
+    void DrawWeather(Sexy::Graphics *g);
+    Zombie *PlayBossEnter();
+    GridItem *GetOtherPortal(GridItem *thePortal);
+    int UpdatePortal(GridItem *thePortal);
+    GridItem *GetPortalAt(int theGridX, int theGridY);
+    GridItem *GetPortalToLeft(int theGridX, int theGridY);
     int GetPortalDistanceToMower(int theGridY);
     float PortalCombatRowSpawnWeight(int theGridY);
-    GridItem * GetPortalToRight(int theGridX, int theGridY);
-    int CanTargetZombieWithPortals(Plant * thePlant, Zombie * theZombie);
+    GridItem *GetPortalToRight(int theGridX, int theGridY);
+    int CanTargetZombieWithPortals(Plant *thePlant, Zombie *theZombie);
     int BeghouledShuffle();
     int BeghouledCanClearCrater();
-    Challenge * BeghouledUpdateCraters();
-    Challenge * BeghouledClearCrater(int theCount);
-    void ZombieAtePlant(Zombie * theZombie, Plant * thePlant);
-    int BeghouledPacketClicked(SeedPacket * thePacket);
+    Challenge *BeghouledUpdateCraters();
+    Challenge *BeghouledClearCrater(int theCount);
+    void ZombieAtePlant(Zombie *theZombie, Plant *thePlant);
+    int BeghouledPacketClicked(SeedPacket *thePacket);
     void BeghouledScore(int theGridX, int theGridY, int theNumPlants, bool theIsHorizontal);
     void BeghouledRemoveMatches(BeghouledBoardState *theState);
     void UpdateBeghouled();
-    Zombie * ZombiquariumSpawnSnorkel();
-    int ZombiquariumPacketClicked(SeedPacket * thePacket);
+    Zombie *ZombiquariumSpawnSnorkel();
+    int ZombiquariumPacketClicked(SeedPacket *thePacket);
     void ZombiquariumUpdate();
-    Plant * ShovelAddWallnuts();
+    Plant *ShovelAddWallnuts();
     void ScaryPotterChangePotType(GridItemState thePotType, int theCount);
     void ScaryPotterDontPlaceInCol(int theCol, TodWeightedGridArray *theGrid, int theGridCount);
-    void ScaryPotterFillColumnWithPlant(int theCol, SeedType theSeedType, TodWeightedGridArray *theGrid, int theGridCount);
+    void ScaryPotterFillColumnWithPlant(
+        int theCol, SeedType theSeedType, TodWeightedGridArray *theGrid, int theGridCount);
     void ScaryPotterStart();
     int ScaryPotterIsCompleted();
-    void ScaryPotterMalletPot(GridItem * thePot);
+    void ScaryPotterMalletPot(GridItem *thePot);
     int ScaryPotterCountPots();
-    static int ScaryPotterCountSunInPot(GridItem * thePot);
+    static int ScaryPotterCountSunInPot(GridItem *thePot);
     bool PuzzleIsAwardStage();
     void PuzzlePhaseComplete(int theGridX, int theGridY);
-    void ScaryPotterOpenPot(GridItem * thePot);
+    void ScaryPotterOpenPot(GridItem *thePot);
     void ScaryPotterUpdate();
     void ScaryPotterJackExplode(int thePosX, int thePosY);
     void PuzzleNextStageClear();
@@ -296,7 +298,7 @@ public:
     // receiver and the function is STATIC.
     static ZombieType IZombieSeedTypeToZombieType(SeedType theSeedType);
     void IZombiePlaceZombie(ZombieType theZombieType, int theGridX, int theGridY);
-    void IZombieSetupPlant(Plant * thePlant);
+    void IZombieSetupPlant(Plant *thePlant);
     void IZombiePlacePlantInSquare(SeedType theSeedType, int theGridX, int theGridY);
     void IZombiePlacePlants(SeedType theSeedType, int theCount, int theGridY);
     void IZombieStart();
@@ -305,53 +307,54 @@ public:
     PlantingReason CanPlantAt(int theGridX, int theGridY, SeedType theSeedType);
     void IZombieMouseDownWithZombie(int theX, int theY, int theClickCount, int thePlayerIndex);
     static int IsMPSeedType(SeedType theSeedType);
-    void IZombieSetPlantFilterEffect(Plant * thePlant, FilterEffect theFilterEffect);
-    void IZombieDrawPlant(Sexy::Graphics * g, Plant * thePlant);
-    GridItem * IZombieGetBrainTarget(Zombie * theZombie);
-    void IZombieScoreBrain(GridItem * theBrain);
-    bool IZombieEatBrain(Zombie * theZombie);
-    void IZombiePlantDropRemainingSun(Plant * thePlant);
-    void IZombieSquishBrain(GridItem * theBrain);
+    void IZombieSetPlantFilterEffect(Plant *thePlant, FilterEffect theFilterEffect);
+    void IZombieDrawPlant(Sexy::Graphics *g, Plant *thePlant);
+    GridItem *IZombieGetBrainTarget(Zombie *theZombie);
+    void IZombieScoreBrain(GridItem *theBrain);
+    bool IZombieEatBrain(Zombie *theZombie);
+    void IZombiePlantDropRemainingSun(Plant *thePlant);
+    void IZombieSquishBrain(GridItem *theBrain);
     int SquirrelCountUncaught();
-    void SquirrelChew(GridItem * theSquirrel);
-    void SquirrelPeek(GridItem * theSquirrel);
-    void SquirrelFound(GridItem * theSquirrel);
-    void SquirrelUpdateOne(GridItem * theSquirrel);
+    void SquirrelChew(GridItem *theSquirrel);
+    void SquirrelPeek(GridItem *theSquirrel);
+    void SquirrelFound(GridItem *theSquirrel);
+    void SquirrelUpdateOne(GridItem *theSquirrel);
     void SquirrelUpdate();
     void UpdateRain();
     void LastStandUpate();
     void LastStandCompletedStage();
     void WhackAZombieUpdate();
     int TreeOfWisdomGetSize();
-    void TreeOfWisdomDraw(Sexy::Graphics * g);
+    void TreeOfWisdomDraw(Sexy::Graphics *g);
     void TreeOfWisdomRebuildHelpbar(bool theFromDialog);
     void TreeOfWisdomInit();
     void TreeOfWisdomGrow();
-    void TreeOfWisdomToolUpdate(GridItem * theZenTool);
+    void TreeOfWisdomToolUpdate(GridItem *theZenTool);
     int TreeOfWisdomBabble();
     int TreeOfWisdomGiveWisdom();
     int TreeOfWisdomSayRepeat();
     void TreeOfWisdomUpdate();
-    Reanimation * TreeOfWisdomLeave();
+    Reanimation *TreeOfWisdomLeave();
     void TreeOfWisdomNextGarden();
     void TreeOfWisdomOpenStore();
     int TreeOfWisdomHitTest(int theX, int theY, HitResult *theHitResult);
     int TreeOfWisdomCanFeed();
     int HeavyWeaponStart();
-    void HeavyWeaponPacketClicked(SeedPacket * thePacket);
+    void HeavyWeaponPacketClicked(SeedPacket *thePacket);
     int HeavyWeaponButtonDown(int theButton, int thePlayerIndex, unsigned int theFlags);
     int GameButtonDown(int theButton, int thePlayerIndex, unsigned int theFlags);
-    void DrawHeavyWeapon(Sexy::Graphics * g);
-    Reanimation * DrawTank(Sexy::Graphics * g);
+    void DrawHeavyWeapon(Sexy::Graphics *g);
+    Reanimation *DrawTank(Sexy::Graphics *g);
     void HeavyWeaponFire(float theDirX, float theDirY);
     void HeavyWeaponUpdate();
     void PortalStart();
-    TodParticleSystem * MoveAPortal();
+    TodParticleSystem *MoveAPortal();
     void UpdatePortalCombat();
     void Update();
     int ZombiquariumDropBrain(int theX, int theY);
     int ZombiquariumMouseDown(int theX, int theY);
-    int ScaryPotterPlacePot(int thePotType, int theZombieType, int theSeedType, int theCount, TodWeightedGridArray *theGrid, int theGridCount);
+    int ScaryPotterPlacePot(int thePotType, int theZombieType, int theSeedType, int theCount,
+        TodWeightedGridArray *theGrid, int theGridCount);
     int ScaryPotterPopulate();
     void AdvanceCrazyDaveDialog();
     bool MouseDown(int theX, int theY, int theClickCount, HitResult *theHitResult, int thePlayerIndex);
@@ -360,9 +363,10 @@ public:
     int SquirrelStart();
     void StartLevel();
     void TreeOfWisdomFertilize();
-    Challenge * TreeOfWisdomTool(int theMouseX, int theMouseY);
+    Challenge *TreeOfWisdomTool(int theMouseX, int theMouseY);
     Challenge();
-    void DrawSlotMachine(Sexy::Graphics * g);
-    void DrawBackdrop(Sexy::Graphics * g);
+    void DrawSlotMachine(Sexy::Graphics *g);
+    void DrawBackdrop(Sexy::Graphics *g);
 };
 
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_CHALLENGE_H

@@ -34,7 +34,8 @@
 // returns; the base class declares `void`, which is what an override needs, so the
 // declarations below use void. Phase 2 aligns the bodies.
 
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_HELPBARWIDGET_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_HELPBARWIDGET_H
 
 #include "ReconTypes.h"
 // The bodies call methods on these complete types.
@@ -62,13 +63,13 @@ public:
     virtual ~HelpBarWidget();
 
     // slot 29
-    virtual void AddedToManager(Sexy::WidgetManager * theWidgetManager);
+    virtual void AddedToManager(Sexy::WidgetManager *theWidgetManager);
     // slot 30
-    virtual void RemovedFromManager(Sexy::WidgetManager * theWidgetManager);
+    virtual void RemovedFromManager(Sexy::WidgetManager *theWidgetManager);
     // slot 31
     virtual void Update();
     // slot 36
-    virtual void Draw(Sexy::Graphics * theGraphics);
+    virtual void Draw(Sexy::Graphics *theGraphics);
     bool IsPointVisible(int x, int y) override;
     void MouseDown(int x, int y, int theClickCount) override;
     void MouseUp(int x, int y, int theClickCount) override;
@@ -95,17 +96,19 @@ public:
     std::vector<ButtonDef> mButtons;
     std::vector<ButtonDef> mButtons2;
     bool mDrawShade;
-    Sexy::Font *mFontId;         // +0x120
-    int mState;                  // +0x124
-    int mAnimCounter;            // +0x128
+    Sexy::Font *mFontId; // +0x120
+    int mState; // +0x124
+    int mAnimCounter; // +0x128
     std::unique_ptr<Sexy::Font> mOutlineFont;
     Sexy::GamepadButton mMousePressedButton = GAMEPAD_BUTTON_NONE;
 
     // ---- methods that are not vtable slots (kept from the transcription) ----
     // Button renderer @0x1470BC: incoming/outgoing set and fade alpha.
-    void DrawButtons(Sexy::Graphics* theGraphics, std::vector<ButtonDef>& theButtons, bool theIncoming, float theAlpha);
+    void DrawButtons(Sexy::Graphics *theGraphics, std::vector<ButtonDef> &theButtons, bool theIncoming, float theAlpha);
     HelpBarWidget();
     void AddButton(Sexy::GamepadButton theButton, Sexy::String theLabel, HelpAlign theAlign);
     void ClearButtons(unsigned int theFirstKept);
     Sexy::GamepadButton HitTestButton(int x, int y) const;
 };
+
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_HELPBARWIDGET_H

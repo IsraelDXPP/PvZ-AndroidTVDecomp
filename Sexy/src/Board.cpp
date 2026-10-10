@@ -37,12 +37,19 @@
 #include <cstring>
 #include <new>
 
-namespace Sexy { bool FileExists(const Sexy::String& thePath); }
-namespace Sexy { int GetFileDate(const Sexy::String& thePath); }
+namespace Sexy
+{
+bool FileExists(const Sexy::String &thePath);
+}
+namespace Sexy
+{
+int GetFileDate(const Sexy::String &thePath);
+}
 
 #include "ResourceManager.h"
 
-namespace {
+namespace
+{
 
 const int kMaxImageNames = 100;
 const int kMaxReanimDefs = 100;
@@ -59,27 +66,25 @@ bool SlotInUse(unsigned int theId)
     return (theId >> 16) != 0;
 }
 
-ParticleSystemSlot* ParticleSlots(TodParticleHolder* theHolder)
+ParticleSystemSlot *ParticleSlots(TodParticleHolder *theHolder)
 {
     return theHolder->mParticleSystems.mBlock;
 }
 
-TrailSlot* TrailSlots(TrailHolder* theHolder)
+TrailSlot *TrailSlots(TrailHolder *theHolder)
 {
     return theHolder->mTrails.mBlock;
 }
 
-ReanimationSlot* ReanimSlots(ReanimationHolder* theHolder)
+ReanimationSlot *ReanimSlots(ReanimationHolder *theHolder)
 {
     return theHolder->mBlock;
 }
 
-
-
 // A shared copy-on-write rep (refcount >= 0) is detached before the name is
 // read. The loader does this on the image's file-name string, then tests the
 // first character.
-void DetachImageName(Sexy::String* theName)
+void DetachImageName(Sexy::String *theName)
 {
     // A shared rep (refcount >= 0) is detached before the first character is
     // tested. StringDisposeLeaked is that detach; an empty name has nothing
@@ -89,17 +94,17 @@ void DetachImageName(Sexy::String* theName)
     StringDisposeLeaked(theName);
 }
 
-bool ImageHasFileName(Sexy::Image* theImage)
+bool ImageHasFileName(Sexy::Image *theImage)
 {
     DetachImageName(&theImage->mFileName);
     return !theImage->mFileName.empty();
 }
 
-const char* BaseNameOf(const char* thePath)
+const char *BaseNameOf(const char *thePath)
 {
-    const char* aSlash = strrchr(thePath, '/');
-    const char* aBack = strrchr(thePath, '\\');
-    const char* aCut = aSlash;
+    const char *aSlash = strrchr(thePath, '/');
+    const char *aBack = strrchr(thePath, '\\');
+    const char *aCut = aSlash;
     if (aBack != nullptr && (aCut == nullptr || aBack > aCut))
         aCut = aBack;
     if (aCut == nullptr)
@@ -110,25 +115,25 @@ const char* BaseNameOf(const char* thePath)
 // The binary reads the current animation time as word 5 of the reanimation.
 // That word is mAnimTime; GetPosition reads the same overlay matrix the buddy
 // code saves and restores around the off-screen draw.
-float AnimTimeOf(Reanimation* theReanim)
+float AnimTimeOf(Reanimation *theReanim)
 {
     return theReanim->mAnimTime;
 }
 
-void SetAnimTime(Reanimation* theReanim, float theTime)
+void SetAnimTime(Reanimation *theReanim, float theTime)
 {
     theReanim->mAnimTime = theTime;
 }
 
 // A 512x512 memory image whose pixel buffer carries the framework's check word
 // one past the last pixel. FindBuddyImageSize and WritePNGImage both read it.
-MemoryImage* MakeBuddyCanvas(int theWidth, int theHeight)
+MemoryImage *MakeBuddyCanvas(int theWidth, int theHeight)
 {
-    MemoryImage* aCanvas = new MemoryImage();
+    MemoryImage *aCanvas = new MemoryImage();
     aCanvas->mWidth = theWidth;
     aCanvas->mHeight = theHeight;
     unsigned int aPixels = (unsigned int)theWidth * (unsigned int)theHeight;
-    unsigned long* aBits = new unsigned long[aPixels + 1];
+    unsigned long *aBits = new unsigned long[aPixels + 1];
     memset(aBits, 0, aPixels * sizeof(unsigned long));
     aBits[aPixels] = kMemoryImageCheck;
     aCanvas->mBits = aBits;
@@ -137,7 +142,7 @@ MemoryImage* MakeBuddyCanvas(int theWidth, int theHeight)
     return aCanvas;
 }
 
-void ClearCanvas(MemoryImage* theCanvas)
+void ClearCanvas(MemoryImage *theCanvas)
 {
     unsigned int aPixels = (unsigned int)theCanvas->mWidth * (unsigned int)theCanvas->mHeight;
     if (theCanvas->mBits != nullptr)
@@ -148,11 +153,11 @@ void ClearCanvas(MemoryImage* theCanvas)
 // pointers name one buffer; the PNG writer does not take ownership.
 struct BuddyPng : ImageLib::Image
 {
-    explicit BuddyPng(MemoryImage* theCanvas)
+    explicit BuddyPng(MemoryImage *theCanvas)
     {
         mWidth = theCanvas->mWidth;
         mHeight = theCanvas->mHeight;
-        mBits = static_cast<unsigned int*>(static_cast<void*>(theCanvas->mBits));
+        mBits = static_cast<unsigned int *>(static_cast<void *>(theCanvas->mBits));
     }
     ~BuddyPng()
     {
@@ -166,7 +171,7 @@ struct BuddyPng : ImageLib::Image
 // Board::AddedToManager
 // @001F5F20
 // ==========================================================================
-void Sexy::Board::AddedToManager(Sexy::WidgetManager* theWidgetManager)
+void Sexy::Board::AddedToManager(Sexy::WidgetManager *theWidgetManager)
 {
     WidgetContainer::AddedToManager(theWidgetManager);
     theWidgetManager->AddWidget(mLoadNewEffectButton);
@@ -176,7 +181,7 @@ void Sexy::Board::AddedToManager(Sexy::WidgetManager* theWidgetManager)
 // Board::RemovedFromManager
 // @001F5F38
 // ==========================================================================
-void Sexy::Board::RemovedFromManager(Sexy::WidgetManager* theWidgetManager)
+void Sexy::Board::RemovedFromManager(Sexy::WidgetManager *theWidgetManager)
 {
     WidgetContainer::RemovedFromManager(theWidgetManager);
     theWidgetManager->RemoveWidget(mLoadNewEffectButton);
@@ -206,10 +211,10 @@ void Sexy::Board::Update()
     float aX = sinf(aAngle) * 150.0f + 300.0f;
     float aY = cosf(aAngle) * 150.0f + 300.0f;
 
-    TrailHolder* aTrails = mEffectSystem->mTrailHolder;
+    TrailHolder *aTrails = mEffectSystem->mTrailHolder;
     for (unsigned int i = 0; i < aTrails->mTrails.mMaxUsedCount; ++i)
     {
-        TrailSlot* aSlot = &TrailSlots(aTrails)[i];
+        TrailSlot *aSlot = &TrailSlots(aTrails)[i];
         if (aSlot->mItem.mDead)
             continue;
         aSlot->mItem.AddPoint(aX, aY);
@@ -227,19 +232,35 @@ int Sexy::Board::KeyChar(char theChar)
 {
     switch (theChar)
     {
-    case ' ': LoadEffectDef(); break;
-    case 'T': DoReanimatorTest(); break;
-    case 'b': Blink(); break;
-    case '+': NextAnim(); break;
-    case 'f': FadeOutParticles(); break;
-    case 'o': MakeBuddyImage(); break;
-    case 's': MakeBuddyImageStrip(); break;
-    case 'a': MakeAllBuddyImages(); break;
-    case '%':
-        mApp->SwitchScreenModeFull(mApp->mWindowed, !mApp->Is3DAccelerated(), false);
-        break;
-    default:
-        break;
+        case ' ':
+            LoadEffectDef();
+            break;
+        case 'T':
+            DoReanimatorTest();
+            break;
+        case 'b':
+            Blink();
+            break;
+        case '+':
+            NextAnim();
+            break;
+        case 'f':
+            FadeOutParticles();
+            break;
+        case 'o':
+            MakeBuddyImage();
+            break;
+        case 's':
+            MakeBuddyImageStrip();
+            break;
+        case 'a':
+            MakeAllBuddyImages();
+            break;
+        case '%':
+            mApp->SwitchScreenModeFull(mApp->mWindowed, !mApp->Is3DAccelerated(), false);
+            break;
+        default:
+            break;
     }
     return 1;
 }
@@ -248,7 +269,7 @@ int Sexy::Board::KeyChar(char theChar)
 // Board::Draw
 // @001F784C
 // ==========================================================================
-void Sexy::Board::Draw(Sexy::Graphics* g)
+void Sexy::Board::Draw(Sexy::Graphics *g)
 {
     if (!mApp->mLoadingThreadCompleted)
     {
@@ -269,7 +290,7 @@ void Sexy::Board::Draw(Sexy::Graphics* g)
     // The definition's atlas carries its packed preview image at +0x504.
     if (mReanimatorDef != nullptr && mReanimatorDef->mReanimAtlas != nullptr)
     {
-        Sexy::Image* aPreview = mReanimatorDef->mReanimAtlas->mImage;
+        Sexy::Image *aPreview = mReanimatorDef->mReanimAtlas->mImage;
         if (aPreview != nullptr)
             g->DrawImage(aPreview, 100, 100);
     }
@@ -277,13 +298,13 @@ void Sexy::Board::Draw(Sexy::Graphics* g)
     // Caption is the file's base name with the extension stripped, then the
     // full track name appended. Drawn at (5, 15) in white.
     Sexy::String aCaption = mTrackName;
-    const char* aPath = aCaption.c_str();
-    const char* aBase = BaseNameOf(aPath);
+    const char *aPath = aCaption.c_str();
+    const char *aBase = BaseNameOf(aPath);
     if (aBase != aPath)
         aCaption = aCaption.substr((unsigned int)(aBase - aPath));
 
-    const char* aName = aCaption.c_str();
-    const char* aDot = strrchr(aName, '.');
+    const char *aName = aCaption.c_str();
+    const char *aDot = strrchr(aName, '.');
     if (aDot != nullptr)
         aCaption = aCaption.substr(0, (unsigned int)(aDot - aName));
 
@@ -293,28 +314,28 @@ void Sexy::Board::Draw(Sexy::Graphics* g)
     g->SetColor(Color(255, 255, 255));
     g->DrawString(aText, 5, 15);
 
-    TodParticleHolder* aParticles = mEffectSystem->mParticleHolder;
+    TodParticleHolder *aParticles = mEffectSystem->mParticleHolder;
     for (unsigned int i = 0; i < aParticles->mParticleSystems.mMaxUsedCount; ++i)
     {
-        ParticleSystemSlot* aSlot = &ParticleSlots(aParticles)[i];
+        ParticleSystemSlot *aSlot = &ParticleSlots(aParticles)[i];
         if (!SlotInUse(aSlot->mID))
             continue;
         aSlot->mItem.Draw(g);
     }
 
-    TrailHolder* aTrails = mEffectSystem->mTrailHolder;
+    TrailHolder *aTrails = mEffectSystem->mTrailHolder;
     for (unsigned int i = 0; i < aTrails->mTrails.mMaxUsedCount; ++i)
     {
-        TrailSlot* aSlot = &TrailSlots(aTrails)[i];
+        TrailSlot *aSlot = &TrailSlots(aTrails)[i];
         if (!SlotInUse(aSlot->mID))
             continue;
         aSlot->mItem.Draw(g);
     }
 
-    ReanimationHolder* aReanims = mEffectSystem->mReanimationHolder;
+    ReanimationHolder *aReanims = mEffectSystem->mReanimationHolder;
     for (unsigned int i = 0; i < aReanims->mMaxUsedCount; ++i)
     {
-        ReanimationSlot* aSlot = &ReanimSlots(aReanims)[i];
+        ReanimationSlot *aSlot = &ReanimSlots(aReanims)[i];
         if (!SlotInUse(aSlot->mID))
             continue;
         if (aSlot->mItem.mIsAttachment)
@@ -350,7 +371,7 @@ void Sexy::Board::MouseDown(int x, int y, int theClickCount)
 
     if (mTrailDef != nullptr)
     {
-        Trail* aTrail = mEffectSystem->mTrailHolder->AllocTrailFromDef(0, mTrailDef);
+        Trail *aTrail = mEffectSystem->mTrailHolder->AllocTrailFromDef(0, mTrailDef);
         aTrail->mOffsetX = (float)x;
         aTrail->mOffsetY = (float)y;
         return;
@@ -359,8 +380,8 @@ void Sexy::Board::MouseDown(int x, int y, int theClickCount)
     if (mReanimatorDef == nullptr)
         return;
 
-    Reanimation* aReanim = mEffectSystem->mReanimationHolder->AllocReanimation(
-        (float)x, (float)y, 0, REANIM_LOADBAR_SPROUT);
+    Reanimation *aReanim =
+        mEffectSystem->mReanimationHolder->AllocReanimation((float)x, (float)y, 0, REANIM_LOADBAR_SPROUT);
     aReanim->SetAnimRate(0.0f);
 
     if (aReanim->TrackExists("anim_idle"))
@@ -380,8 +401,8 @@ void Sexy::Board::MouseDown(int x, int y, int theClickCount)
     if (!aReanim->TrackExists("anim_head_idle"))
         return;
 
-    Reanimation* aHead = mEffectSystem->mReanimationHolder->AllocReanimation(
-        (float)x, (float)y, 0, REANIM_LOADBAR_SPROUT);
+    Reanimation *aHead =
+        mEffectSystem->mReanimationHolder->AllocReanimation((float)x, (float)y, 0, REANIM_LOADBAR_SPROUT);
     aHead->SetAnimRate(0.0f);
     aHead->mFrameStart = aReanim->mFrameStart;
     aHead->SetFramesForLayer("anim_head_idle");
@@ -420,7 +441,7 @@ int Sexy::Board::MakeFullImageFileName(Sexy::String theFileName)
     if (Sexy::FileExists(theFileName))
         return 1;
 
-    static const char* kExtensions[6] = { ".png", ".tga", ".jpg", ".gif", ".j2k", ".jp2" };
+    static const char *kExtensions[6] = {".png", ".tga", ".jpg", ".gif", ".j2k", ".jp2"};
     for (int i = 0; i < 6; ++i)
     {
         Sexy::String aCandidate = theFileName;
@@ -450,11 +471,11 @@ int Sexy::Board::TryToLoadParticle()
     }
 
     mNumImages = 0;
-    TodEmitterDefinition* aEmitters = mParticleDef->mEmitterDefs;
+    TodEmitterDefinition *aEmitters = mParticleDef->mEmitterDefs;
     for (int i = 0; i < mParticleDef->mEmitterDefCount; ++i)
     {
-        TodEmitterDefinition* aEmitter = &aEmitters[i];
-        Sexy::Image* aImage = aEmitter->mImage;
+        TodEmitterDefinition *aEmitter = &aEmitters[i];
+        Sexy::Image *aImage = aEmitter->mImage;
         if (aImage != nullptr)
         {
             int aColSpan = aEmitter->mImageCol + aEmitter->mImageFrames;
@@ -493,7 +514,7 @@ int Sexy::Board::TryToLoadTrail()
         return 0;
     }
 
-    Sexy::Image* aImage = mTrailDef->mImage;
+    Sexy::Image *aImage = mTrailDef->mImage;
     if (aImage == nullptr)
     {
         TodErrorMessageBox("Invalid image in trail xml", "Error");
@@ -514,7 +535,7 @@ int Sexy::Board::TryToLoadTrail()
 // ==========================================================================
 int Sexy::Board::TryToLoadReanimation()
 {
-    ReanimatorDefinition* aDefs = new ReanimatorDefinition[kMaxReanimDefs];
+    ReanimatorDefinition *aDefs = new ReanimatorDefinition[kMaxReanimDefs];
     mReanimatorDef = aDefs;
     gReanimatorDefArray = aDefs;
     gReanimatorDefCount = 1;
@@ -528,7 +549,7 @@ int Sexy::Board::TryToLoadReanimation()
 
     gReanimationParamArray = new ReanimationParamRecord[kMaxReanimDefs];
     gReanimationParamArray[0].mReanimationType = REANIM_LOADBAR_SPROUT;
-    Sexy::String* aKeptName = new Sexy::String(mFileName);
+    Sexy::String *aKeptName = new Sexy::String(mFileName);
     gReanimationParamArray[0].mFileName = aKeptName->c_str();
     gReanimationParamArraySize = 1;
     mNumImages = 0;
@@ -542,10 +563,10 @@ int Sexy::Board::TryToLoadReanimation()
     {
         for (int aTrack = 0; aTrack < mReanimatorDef->mTrackCount; ++aTrack)
         {
-            ReanimatorTrack& aRow = mReanimatorDef->mTracks[aTrack];
+            ReanimatorTrack &aRow = mReanimatorDef->mTracks[aTrack];
             for (int aFrame = 0; aFrame < aRow.mTransformCount; ++aFrame)
             {
-                Sexy::Image* aImage = aRow.mTransforms[aFrame].mImage;
+                Sexy::Image *aImage = aRow.mTransforms[aFrame].mImage;
                 if (aImage == nullptr)
                     continue;
                 if (!ImageHasFileName(aImage))
@@ -564,7 +585,7 @@ int Sexy::Board::TryToLoadReanimation()
 
     for (int aTrack = 0; aTrack < mReanimatorDef->mTrackCount; ++aTrack)
     {
-        ReanimatorTrack& aRow = mReanimatorDef->mTracks[aTrack];
+        ReanimatorTrack &aRow = mReanimatorDef->mTracks[aTrack];
         if (strncasecmp(aRow.mName, "attacher__", 10) != 0)
             continue;
         if (aRow.mTransformCount <= 0)
@@ -572,7 +593,7 @@ int Sexy::Board::TryToLoadReanimation()
 
         for (int aFrame = 0; aFrame < aRow.mTransformCount; ++aFrame)
         {
-            ReanimatorTransform& aTransform = aRow.mTransforms[aFrame];
+            ReanimatorTransform &aTransform = aRow.mTransforms[aFrame];
             if (aTransform.mText == nullptr || aTransform.mText[0] == 0)
                 continue;
 
@@ -605,7 +626,7 @@ int Sexy::Board::TryToLoadReanimation()
 
             int aIndex = gReanimationParamArraySize;
             gReanimationParamArray[aIndex].mReanimationType = (ReanimationType)aIndex;
-            Sexy::String* aAttachName = new Sexy::String(aFileName);
+            Sexy::String *aAttachName = new Sexy::String(aFileName);
             gReanimationParamArray[aIndex].mFileName = aAttachName->c_str();
             gReanimationParamArraySize = aIndex + 1;
             ++gReanimatorDefCount;
@@ -676,7 +697,7 @@ void Sexy::Board::TryToLoadEffect()
     mApp->LoadResourceManifest();
     mApp->CleanSharedImages();
 
-    const char* aFileName = mFileName.c_str();
+    const char *aFileName = mFileName.c_str();
     if (strstr(aFileName, ".xml") != nullptr)
     {
         mParticleDef = new TodParticleDefinition();
@@ -747,7 +768,7 @@ void Sexy::Board::LoadEffectDef()
 // Board::Board
 // @001F6F48
 // ==========================================================================
-Sexy::Board::Board(Sexy::SexyAppBase* theApp)
+Sexy::Board::Board(Sexy::SexyAppBase *theApp)
 {
     mApp = theApp;
     mParticleDef = nullptr;
@@ -768,17 +789,14 @@ Sexy::Board::Board(Sexy::SexyAppBase* theApp)
     mLoadNewEffectButton->mFont = mFont;
     mLoadNewEffectButton->mColor = Sexy::Color(255);
     mLoadNewEffectButton->mOverColor = Sexy::Color(0x4040FF);
-    mLoadNewEffectButton->Resize(
-        5, 18,
-        mFont->StringWidth(mLoadNewEffectButton->mLabel),
-        mFont->GetHeight());
+    mLoadNewEffectButton->Resize(5, 18, mFont->StringWidth(mLoadNewEffectButton->mLabel), mFont->GetHeight());
 }
 
 // ==========================================================================
 // Board::DrawPerfText
 // @001F7358
 // ==========================================================================
-void Sexy::Board::DrawPerfText(Sexy::Graphics* g)
+void Sexy::Board::DrawPerfText(Sexy::Graphics *g)
 {
     Sexy::String aText;
 
@@ -789,10 +807,10 @@ void Sexy::Board::DrawPerfText(Sexy::Graphics* g)
         int aParticles = 0;
         int aPixels = 0;
 
-        TodParticleHolder* aHolder = mEffectSystem->mParticleHolder;
+        TodParticleHolder *aHolder = mEffectSystem->mParticleHolder;
         for (unsigned int i = 0; i < aHolder->mParticleSystems.mMaxUsedCount; ++i)
         {
-            ParticleSystemSlot* aSlot = &ParticleSlots(aHolder)[i];
+            ParticleSystemSlot *aSlot = &ParticleSlots(aHolder)[i];
             if (!SlotInUse(aSlot->mID))
                 continue;
             ++aSystems;
@@ -821,10 +839,10 @@ void Sexy::Board::DrawPerfText(Sexy::Graphics* g)
         int aPixels = 0;
         int aDrawn = 0;
 
-        ReanimationHolder* aHolder = mEffectSystem->mReanimationHolder;
+        ReanimationHolder *aHolder = mEffectSystem->mReanimationHolder;
         for (unsigned int i = 0; i < aHolder->mMaxUsedCount; ++i)
         {
-            ReanimationSlot* aSlot = &ReanimSlots(aHolder)[i];
+            ReanimationSlot *aSlot = &ReanimSlots(aHolder)[i];
             if (!SlotInUse(aSlot->mID))
                 continue;
             int aImageCount = 0;
@@ -878,14 +896,14 @@ bool Sexy::Board::DefinitionHasChanged()
 // ==========================================================================
 void Sexy::Board::NextAnim()
 {
-    ReanimationHolder* aHolder = mEffectSystem->mReanimationHolder;
+    ReanimationHolder *aHolder = mEffectSystem->mReanimationHolder;
 
     for (unsigned int i = 0; i < aHolder->mMaxUsedCount; ++i)
     {
-        ReanimationSlot* aSlot = &ReanimSlots(aHolder)[i];
+        ReanimationSlot *aSlot = &ReanimSlots(aHolder)[i];
         if (!SlotInUse(aSlot->mID))
             continue;
-        Reanimation* aReanim = &aSlot->mItem;
+        Reanimation *aReanim = &aSlot->mItem;
         if (aReanim->mIsAttachment)
             continue;
         if (aReanim->mDefinition == nullptr || aReanim->mDefinition->mTrackCount <= 0)
@@ -896,7 +914,7 @@ void Sexy::Board::NextAnim()
         bool aPassedCurrent = false;
         for (int aTrack = 0; aTrack < aReanim->mDefinition->mTrackCount; ++aTrack)
         {
-            const char* aName = aReanim->mDefinition->mTracks[aTrack].mName;
+            const char *aName = aReanim->mDefinition->mTracks[aTrack].mName;
             if (StringEqualCStr(&mTrackName, aName) != 0)
             {
                 if (strncasecmp(aName, "anim_", 5) == 0)
@@ -920,14 +938,14 @@ void Sexy::Board::NextAnim()
         if (aChosen == -1)
             continue;
 
-        const char* aName = aReanim->mDefinition->mTracks[aChosen].mName;
+        const char *aName = aReanim->mDefinition->mTracks[aChosen].mName;
         mTrackName.assign(aName, (unsigned int)strlen(aName));
         break;
     }
 
     for (unsigned int i = 0; i < aHolder->mMaxUsedCount; ++i)
     {
-        ReanimationSlot* aSlot = &ReanimSlots(aHolder)[i];
+        ReanimationSlot *aSlot = &ReanimSlots(aHolder)[i];
         if (!SlotInUse(aSlot->mID))
             continue;
         if (aSlot->mItem.mIsAttachment)
@@ -946,18 +964,18 @@ void Sexy::Board::NextAnim()
 int Sexy::Board::Blink()
 {
     int aResult = 0;
-    ReanimationHolder* aHolder = mEffectSystem->mReanimationHolder;
+    ReanimationHolder *aHolder = mEffectSystem->mReanimationHolder;
 
     for (unsigned int i = 0; i < aHolder->mMaxUsedCount; ++i)
     {
-        ReanimationSlot* aBodySlot = &ReanimSlots(aHolder)[i];
+        ReanimationSlot *aBodySlot = &ReanimSlots(aHolder)[i];
         if (!SlotInUse(aBodySlot->mID))
             continue;
-        Reanimation* aBody = &aBodySlot->mItem;
+        Reanimation *aBody = &aBodySlot->mItem;
         if (aBody->mIsAttachment)
             continue;
 
-        const char* aBlink = nullptr;
+        const char *aBlink = nullptr;
         if (aBody->TrackExists("blink_twice") != 0)
             aBlink = "blink_twice";
         else if (aBody->TrackExists("anim_blink") != 0)
@@ -965,7 +983,7 @@ int Sexy::Board::Blink()
         else
             continue;
 
-        Reanimation* aBlinkAnim = aHolder->AllocReanimation(0.0f, 0.0f, 0, REANIM_LOADBAR_SPROUT);
+        Reanimation *aBlinkAnim = aHolder->AllocReanimation(0.0f, 0.0f, 0, REANIM_LOADBAR_SPROUT);
         aBlinkAnim->SetAnimRate(4.0f);
         aBlinkAnim->SetFramesForLayer(aBlink);
 
@@ -988,10 +1006,10 @@ int Sexy::Board::Blink()
 // ==========================================================================
 void Sexy::Board::FadeOutParticles()
 {
-    TodParticleHolder* aHolder = mEffectSystem->mParticleHolder;
+    TodParticleHolder *aHolder = mEffectSystem->mParticleHolder;
     for (unsigned int i = 0; i < aHolder->mParticleSystems.mMaxUsedCount; ++i)
     {
-        ParticleSystemSlot* aSlot = &ParticleSlots(aHolder)[i];
+        ParticleSystemSlot *aSlot = &ParticleSlots(aHolder)[i];
         if (!SlotInUse(aSlot->mID))
             continue;
         aSlot->mItem.CrossFade("FadeOut");
@@ -1002,12 +1020,12 @@ void Sexy::Board::FadeOutParticles()
 // Board::GetBuddyReanimation
 // @001F8850
 // ==========================================================================
-Reanimation* Sexy::Board::GetBuddyReanimation()
+Reanimation *Sexy::Board::GetBuddyReanimation()
 {
-    ReanimationHolder* aHolder = mEffectSystem->mReanimationHolder;
+    ReanimationHolder *aHolder = mEffectSystem->mReanimationHolder;
     for (unsigned int i = 0; i < aHolder->mMaxUsedCount; ++i)
     {
-        ReanimationSlot* aSlot = &ReanimSlots(aHolder)[i];
+        ReanimationSlot *aSlot = &ReanimSlots(aHolder)[i];
         if (!SlotInUse(aSlot->mID))
             continue;
         if (!aSlot->mItem.mIsAttachment)
@@ -1020,17 +1038,13 @@ Reanimation* Sexy::Board::GetBuddyReanimation()
 // Board::MakeAllBuddyImages
 // @001F8890  empty (`bx lr`).
 // ==========================================================================
-void Sexy::Board::MakeAllBuddyImages()
-{
-}
+void Sexy::Board::MakeAllBuddyImages() {}
 
 // ==========================================================================
 // Board::NewEffectDialog
 // @001F8894  empty (`bx lr`).
 // ==========================================================================
-void Sexy::Board::NewEffectDialog()
-{
-}
+void Sexy::Board::NewEffectDialog() {}
 
 // ==========================================================================
 // Board::ButtonDepress
@@ -1061,8 +1075,7 @@ double Sexy::Board::RunATest()
         Update();
         mApp->DrawDirtyStuff();
         aDuration = (double)aTimer.GetDuration();
-    }
-    while (aDuration <= 1000.0);
+    } while (aDuration <= 1000.0);
 
     return (double)aCount / aDuration * 1000.0;
 }
@@ -1073,19 +1086,19 @@ double Sexy::Board::RunATest()
 // ==========================================================================
 void Sexy::Board::ScaleEffects(float theScale)
 {
-    TodParticleHolder* aParticles = mEffectSystem->mParticleHolder;
+    TodParticleHolder *aParticles = mEffectSystem->mParticleHolder;
     for (unsigned int i = 0; i < aParticles->mParticleSystems.mMaxUsedCount; ++i)
     {
-        ParticleSystemSlot* aSlot = &ParticleSlots(aParticles)[i];
+        ParticleSystemSlot *aSlot = &ParticleSlots(aParticles)[i];
         if (!SlotInUse(aSlot->mID))
             continue;
         aSlot->mItem.OverrideScale(nullptr, theScale);
     }
 
-    ReanimationHolder* aReanims = mEffectSystem->mReanimationHolder;
+    ReanimationHolder *aReanims = mEffectSystem->mReanimationHolder;
     for (unsigned int i = 0; i < aReanims->mMaxUsedCount; ++i)
     {
-        ReanimationSlot* aSlot = &ReanimSlots(aReanims)[i];
+        ReanimationSlot *aSlot = &ReanimSlots(aReanims)[i];
         if (!SlotInUse(aSlot->mID))
             continue;
         if (!aSlot->mItem.mIsAttachment)
@@ -1103,10 +1116,10 @@ int Sexy::Board::DoATestSet(float theScale)
     MouseDown(100, 100, 1);
     ScaleEffects(theScale);
 
-    ReanimationHolder* aHolder = mEffectSystem->mReanimationHolder;
+    ReanimationHolder *aHolder = mEffectSystem->mReanimationHolder;
     for (unsigned int i = 0; i < aHolder->mMaxUsedCount; ++i)
     {
-        ReanimationSlot* aSlot = &ReanimSlots(aHolder)[i];
+        ReanimationSlot *aSlot = &ReanimSlots(aHolder)[i];
         if (!SlotInUse(aSlot->mID))
             continue;
         int aImages = 0;
@@ -1145,11 +1158,11 @@ int Sexy::Board::DoReanimatorTest()
 // ==========================================================================
 void Sexy::Board::MakeBuddyImageStrip()
 {
-    MemoryImage* aCanvas = MakeBuddyCanvas(kBuddyCanvas, kBuddyCanvas);
+    MemoryImage *aCanvas = MakeBuddyCanvas(kBuddyCanvas, kBuddyCanvas);
     Sexy::Graphics aGraphics(aCanvas);
     aGraphics.SetLinearBlend(true);
 
-    Reanimation* aBuddy = GetBuddyReanimation();
+    Reanimation *aBuddy = GetBuddyReanimation();
     if (aBuddy != nullptr)
     {
         float aSavedTime = AnimTimeOf(aBuddy);
@@ -1172,7 +1185,7 @@ void Sexy::Board::MakeBuddyImageStrip()
         FindBuddyImageSize(aCanvas, &aCrop);
         if (aCrop.mWidth != 0)
         {
-            MemoryImage* aCropped = MakeBuddyCanvas(aCrop.mWidth, aCrop.mHeight);
+            MemoryImage *aCropped = MakeBuddyCanvas(aCrop.mWidth, aCrop.mHeight);
 
             char aName[1024];
             memset(aName, 0, sizeof(aName));
@@ -1183,7 +1196,7 @@ void Sexy::Board::MakeBuddyImageStrip()
 
             aBuddy->SetPosition(100.0f, 100.0f);
             aBuddy->OverrideScale(kBuddyDrawScale, kBuddyDrawScale);
-            for (int aFrame = 0; aFrame != kBuddyFrames; )
+            for (int aFrame = 0; aFrame != kBuddyFrames;)
             {
                 ClearCanvas(aCanvas);
                 ClearCanvas(aCropped);
@@ -1219,11 +1232,11 @@ void Sexy::Board::MakeBuddyImageStrip()
 // ==========================================================================
 void Sexy::Board::MakeBuddyImage()
 {
-    MemoryImage* aCanvas = MakeBuddyCanvas(kBuddyCanvas, kBuddyCanvas);
+    MemoryImage *aCanvas = MakeBuddyCanvas(kBuddyCanvas, kBuddyCanvas);
     Sexy::Graphics aGraphics(aCanvas);
     aGraphics.SetLinearBlend(true);
 
-    Reanimation* aBuddy = GetBuddyReanimation();
+    Reanimation *aBuddy = GetBuddyReanimation();
     if (aBuddy != nullptr)
     {
         float aSavedTime = AnimTimeOf(aBuddy);
@@ -1243,7 +1256,7 @@ void Sexy::Board::MakeBuddyImage()
         FindBuddyImageSize(aCanvas, &aCrop);
         if (aCrop.mWidth != 0)
         {
-            MemoryImage* aCropped = MakeBuddyCanvas(aCrop.mWidth, aCrop.mHeight);
+            MemoryImage *aCropped = MakeBuddyCanvas(aCrop.mWidth, aCrop.mHeight);
             ClearCanvas(aCropped);
 
             Sexy::Graphics aCropGraphics(aCropped);
@@ -1257,8 +1270,7 @@ void Sexy::Board::MakeBuddyImage()
             MkDir(&aDir);
 
             Sexy::String aPath;
-            StrFormat(&aPath, "%s/Icon_%s_%dx%d.png",
-                      aDir.c_str(), aName, aCropped->mWidth, aCropped->mHeight);
+            StrFormat(&aPath, "%s/Icon_%s_%dx%d.png", aDir.c_str(), aName, aCropped->mWidth, aCropped->mHeight);
 
             BuddyPng aPng(aCropped);
             ImageLib::WritePNGImage(aPath, &aPng);

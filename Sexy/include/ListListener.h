@@ -5,11 +5,13 @@
 // The word after the vptr is unused. It stays so a listener embedded in a
 // larger object keeps the size the binary recorded.
 
-#pragma once
+#ifndef LAWNPROJECTTV_SEXY_INCLUDE_LISTLISTENER_H
+#define LAWNPROJECTTV_SEXY_INCLUDE_LISTLISTENER_H
 
 #include "ReconTypes.h"
 
-namespace Sexy {
+namespace Sexy
+{
 
 class ListListener
 {
@@ -24,3 +26,5 @@ public:
 } // namespace Sexy
 
 using Sexy::ListListener;
+
+#endif // LAWNPROJECTTV_SEXY_INCLUDE_LISTLISTENER_H

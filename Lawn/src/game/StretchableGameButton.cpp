@@ -19,42 +19,42 @@
 // StretchableGameButton::SetFont(Sexy::Font *)
 // @001A2014  94 bytes
 // ==========================================================================
-void StretchableGameButton::SetFont(Sexy::Font * theFont)
+void StretchableGameButton::SetFont(Sexy::Font *theFont)
 {
-  // The outgoing font is released through its deleting destructor (vtable byte
-  // 4); the incoming one is stored as its own Duplicate (vtable byte 84, slot
-  // 21), exactly as ButtonWidget::SetFont does. mFont is left holding the freed
-  // pointer until that Duplicate overwrites it, which is the value the dump's
-  // null test below inspects.
-  Sexy::Font * aOldFont = mFont;
-  if ( aOldFont != theFont )
-  {
-    if ( aOldFont != nullptr )
-      delete aOldFont;
+    // The outgoing font is released through its deleting destructor (vtable byte
+    // 4); the incoming one is stored as its own Duplicate (vtable byte 84, slot
+    // 21), exactly as ButtonWidget::SetFont does. mFont is left holding the freed
+    // pointer until that Duplicate overwrites it, which is the value the dump's
+    // null test below inspects.
+    Sexy::Font *aOldFont = mFont;
+    if (aOldFont != theFont)
+    {
+        if (aOldFont != nullptr)
+            delete aOldFont;
 
-    // The dump re-tests the incoming font against the value it just reloaded
-    // from mFont before storing the Duplicate; the early-out above already
-    // ruled that comparison out, so it is not reproduced here.
-    if ( theFont != nullptr )
-      mFont = theFont->Duplicate();
+        // The dump re-tests the incoming font against the value it just reloaded
+        // from mFont before storing the Duplicate; the early-out above already
+        // ruled that comparison out, so it is not reproduced here.
+        if (theFont != nullptr)
+            mFont = theFont->Duplicate();
 
-    if ( mFont == nullptr )
-    {
-      mTextWidth = 0;
-      return;
+        if (mFont == nullptr)
+        {
+            mTextWidth = 0;
+            return;
+        }
+        if (mLabel.size() != 0)
+        {
+            // Vtable byte 32 of the font is its narrow StringWidth; the widget then
+            // grows to the measured text plus both paddings.
+            mTextWidth = mFont->StringWidth(mLabel);
+            mWidth = mTextWidth + mPadX + mPadY;
+        }
+        else
+        {
+            mTextWidth = 0;
+        }
     }
-    if ( mLabel.size() != 0 )
-    {
-      // Vtable byte 32 of the font is its narrow StringWidth; the widget then
-      // grows to the measured text plus both paddings.
-      mTextWidth = mFont->StringWidth(mLabel);
-      mWidth = mTextWidth + mPadX + mPadY;
-    }
-    else
-    {
-      mTextWidth = 0;
-    }
-  }
 }
 
 // ==========================================================================
@@ -63,40 +63,40 @@ void StretchableGameButton::SetFont(Sexy::Font * theFont)
 // ==========================================================================
 void StretchableGameButton::Resize(int theX, int theY, int theWidth, int theHeight)
 {
-  // The alignment decides how the old left edge is unwound before the new size
-  // is applied, and how it is reapplied afterwards: -1 anchors the right edge
-  // at theX, 0 centres the widget on it.
-  if ( mAlignment == -1 )
-  {
-    mX += mWidth;
-  }
-  else if ( mAlignment == 0 )
-  {
-    mX += mWidth / 2;
-  }
-  mY = theY;
-  mWidth = theWidth;
-  mHeight = theHeight;
-  mTextWidth = theWidth - (mPadY + mPadX);
+    // The alignment decides how the old left edge is unwound before the new size
+    // is applied, and how it is reapplied afterwards: -1 anchors the right edge
+    // at theX, 0 centres the widget on it.
+    if (mAlignment == -1)
+    {
+        mX += mWidth;
+    }
+    else if (mAlignment == 0)
+    {
+        mX += mWidth / 2;
+    }
+    mY = theY;
+    mWidth = theWidth;
+    mHeight = theHeight;
+    mTextWidth = theWidth - (mPadY + mPadX);
 
-  if ( mFont != nullptr )
-  {
-    // mLabelJustify 2 is the wrapped-line mode; measuring is skipped for it.
-    if ( mLabelJustify < 2 )
-      mFont->StringWidth(mLabel);
+    if (mFont != nullptr)
+    {
+        // mLabelJustify 2 is the wrapped-line mode; measuring is skipped for it.
+        if (mLabelJustify < 2)
+            mFont->StringWidth(mLabel);
 
-    // Vtable byte 8 of the font is GetAscent; the dump calls it twice.
-    mFont->GetAscent();
-    mFont->GetAscent();
-  }
-  if ( mAlignment == -1 )
-  {
-    mX = theX - mWidth;
-  }
-  else if ( mAlignment == 0 )
-  {
-    mX = theX - mWidth / 2;
-  }
+        // Vtable byte 8 of the font is GetAscent; the dump calls it twice.
+        mFont->GetAscent();
+        mFont->GetAscent();
+    }
+    if (mAlignment == -1)
+    {
+        mX = theX - mWidth;
+    }
+    else if (mAlignment == 0)
+    {
+        mX = theX - mWidth / 2;
+    }
 }
 
 // ==========================================================================
@@ -105,17 +105,17 @@ void StretchableGameButton::Resize(int theX, int theY, int theWidth, int theHeig
 // ==========================================================================
 void StretchableGameButton::SetPadding(int theX, int theY)
 {
-  // Widens the widget by exactly the padding change, so the label keeps the
-  // room it had, and then re-runs the alignment-aware Resize.
-  // The dump also stores the two previous paddings into its return buffer: the
-  // binary's real signature returns an eight-byte value there by hidden
-  // pointer, which is why the decompiler's `this` is not the object at all.
-  // GameButton declares this slot `void` and the slot count is the same either
-  // way, so that buffer is not reproduced here.
-  mPadX = theX;
-  mPadY = theY;
-  mWidth = mTextWidth + theX + theY;
-  Resize(mX, mY, mWidth, mHeight);
+    // Widens the widget by exactly the padding change, so the label keeps the
+    // room it had, and then re-runs the alignment-aware Resize.
+    // The dump also stores the two previous paddings into its return buffer: the
+    // binary's real signature returns an eight-byte value there by hidden
+    // pointer, which is why the decompiler's `this` is not the object at all.
+    // GameButton declares this slot `void` and the slot count is the same either
+    // way, so that buffer is not reproduced here.
+    mPadX = theX;
+    mPadY = theY;
+    mWidth = mTextWidth + theX + theY;
+    Resize(mX, mY, mWidth, mHeight);
 }
 
 // ==========================================================================
@@ -124,156 +124,154 @@ void StretchableGameButton::SetPadding(int theX, int theY)
 // ==========================================================================
 StretchableGameButton::~StretchableGameButton()
 {
-  // Both of the dump's stores are the compiler's: the vptr switch to this
-  // class' table and the base destructor call.
+    // Both of the dump's stores are the compiler's: the vptr switch to this
+    // class' table and the base destructor call.
 }
 
 // ==========================================================================
 // StretchableGameButton::SetLabel(Sexy::String const&)
 // @001A2878  276 bytes
 // ==========================================================================
-void StretchableGameButton::SetLabel(Sexy::String const& theLabel)
+void StretchableGameButton::SetLabel(Sexy::String const &theLabel)
 {
-  // TodStringTranslate fills a temporary in place (destination first, this
-  // tree's house form) and the COW assign copies it into mLabel. Releasing that
-  // temporary is the refcount/`operator delete` tail the dump spells out.
-  Sexy::String aTranslatedLabel;
+    // TodStringTranslate fills a temporary in place (destination first, this
+    // tree's house form) and the COW assign copies it into mLabel. Releasing that
+    // temporary is the refcount/`operator delete` tail the dump spells out.
+    Sexy::String aTranslatedLabel;
 
-  TodStringTranslate(&aTranslatedLabel, theLabel);
-  mLabel = aTranslatedLabel;
+    TodStringTranslate(&aTranslatedLabel, theLabel);
+    mLabel = aTranslatedLabel;
 
-  // Unwind the old alignment, re-measure, then reapply it.
-  if ( mAlignment == -1 )
-  {
-    mX += mWidth;
-  }
-  else if ( mAlignment == 0 )
-  {
-    mX += mWidth / 2;
-  }
-
-  // The dump re-enters SetFont through slot 126 with the font that is already
-  // installed. SetFont's early-out makes that a no-op; the re-measure below is
-  // what actually reacts to the new label.
-  SetFont(mFont);
-
-  if ( mFont != nullptr )
-  {
-    if ( mLabel.size() != 0 )
+    // Unwind the old alignment, re-measure, then reapply it.
+    if (mAlignment == -1)
     {
-      int aTextWidth = mFont->StringWidth(mLabel);
-      if ( aTextWidth > mWidth )
-      {
-        mTextWidth = aTextWidth;
-        mWidth = mPadY + (mPadX + aTextWidth);
-      }
+        mX += mWidth;
     }
-    else
+    else if (mAlignment == 0)
     {
-      mTextWidth = 0;
+        mX += mWidth / 2;
     }
 
-    // mLabelJustify 2 is the wrapped-line mode; measuring is skipped for it.
-    if ( mLabelJustify < 2 )
-      mFont->StringWidth(mLabel);
+    // The dump re-enters SetFont through slot 126 with the font that is already
+    // installed. SetFont's early-out makes that a no-op; the re-measure below is
+    // what actually reacts to the new label.
+    SetFont(mFont);
 
-    // Vtable byte 8 of the font is GetAscent; the dump calls it twice.
-    mFont->GetAscent();
-    mFont->GetAscent();
-  }
+    if (mFont != nullptr)
+    {
+        if (mLabel.size() != 0)
+        {
+            int aTextWidth = mFont->StringWidth(mLabel);
+            if (aTextWidth > mWidth)
+            {
+                mTextWidth = aTextWidth;
+                mWidth = mPadY + (mPadX + aTextWidth);
+            }
+        }
+        else
+        {
+            mTextWidth = 0;
+        }
 
-  if ( mAlignment == -1 )
-  {
-    mX -= mWidth;
-  }
-  else if ( mAlignment == 0 )
-  {
-    mX -= mWidth / 2;
-  }
+        // mLabelJustify 2 is the wrapped-line mode; measuring is skipped for it.
+        if (mLabelJustify < 2)
+            mFont->StringWidth(mLabel);
+
+        // Vtable byte 8 of the font is GetAscent; the dump calls it twice.
+        mFont->GetAscent();
+        mFont->GetAscent();
+    }
+
+    if (mAlignment == -1)
+    {
+        mX -= mWidth;
+    }
+    else if (mAlignment == 0)
+    {
+        mX -= mWidth / 2;
+    }
 }
 
 // ==========================================================================
 // StretchableGameButton::StretchableGameButton(int,Sexy::ButtonListener *,Sexy::String const&,int,int,int,int,BUTTON_ALIGNMENT_X,int,int,Sexy::Font *)
 // @001A39A0  204 bytes
 // ==========================================================================
-StretchableGameButton::StretchableGameButton(int theId, Sexy::ButtonListener *theListener,
-                                             Sexy::String const& theLabel, int theX, int theY,
-                                             int theWidth, int theHeight,
-                                             BUTTON_ALIGNMENT_X theAlignment,
-                                             int thePadX, int thePadY, Font *theFont)
-  : GameButton(theId, theListener)
+StretchableGameButton::StretchableGameButton(int theId, Sexy::ButtonListener *theListener, Sexy::String const &theLabel,
+    int theX, int theY, int theWidth, int theHeight, BUTTON_ALIGNMENT_X theAlignment, int thePadX, int thePadY,
+    Font *theFont) :
+    GameButton(theId, theListener)
 {
-  // The transcribed body's leading `GameButton *a1` was this constructor's own
-  // implicit `this`; the rest line up one-for-one with the mangled signature
-  // (int, ButtonListener*, String const&, int x4, BUTTON_ALIGNMENT_X, int x2,
-  // Font*), so the object is built by the member-initialiser above.
-  Sexy::String aTranslatedLabel;
+    // The transcribed body's leading `GameButton *a1` was this constructor's own
+    // implicit `this`; the rest line up one-for-one with the mangled signature
+    // (int, ButtonListener*, String const&, int x4, BUTTON_ALIGNMENT_X, int x2,
+    // Font*), so the object is built by the member-initialiser above.
+    Sexy::String aTranslatedLabel;
 
-  // The vptr store the dump spells out here is the compiler's, so it is not
-  // reproduced. mAlignment's zero is the dump's initial value; the caller's
-  // alignment is stored at the end of the body.
-  mPadX = thePadX;
-  mAlignment = BUTTON_ALIGNMENT_X(0);
-  mPadY = thePadY;
+    // The vptr store the dump spells out here is the compiler's, so it is not
+    // reproduced. mAlignment's zero is the dump's initial value; the caller's
+    // alignment is stored at the end of the body.
+    mPadX = thePadX;
+    mAlignment = BUTTON_ALIGNMENT_X(0);
+    mPadY = thePadY;
 
-  TodStringTranslate(&aTranslatedLabel, theLabel);
-  mLabel = aTranslatedLabel;
+    TodStringTranslate(&aTranslatedLabel, theLabel);
+    mLabel = aTranslatedLabel;
 
-  mX = theX;
-  mY = theY;
-  mHeight = theHeight;
+    mX = theX;
+    mY = theY;
+    mHeight = theHeight;
 
-  SetFont(theFont);
+    SetFont(theFont);
 
-  mAlignment = theAlignment;
-  if ( mWidth < theWidth )
-    mWidth = theWidth;
+    mAlignment = theAlignment;
+    if (mWidth < theWidth)
+        mWidth = theWidth;
 
-  if ( theAlignment == -1 )
-  {
-    mX -= mWidth;
-  }
-  else if ( theAlignment == 0 )
-  {
-    mX -= mWidth / 2;
-  }
+    if (theAlignment == -1)
+    {
+        mX -= mWidth;
+    }
+    else if (theAlignment == 0)
+    {
+        mX -= mWidth / 2;
+    }
 }
 
 // ==========================================================================
 // StretchableGameButton::DrawStretchableGameButton(Sexy::Graphics *,Sexy::Image *,Sexy::TRect<int> const&)
 // @001A3A90  32 bytes
 // ==========================================================================
-int StretchableGameButton::DrawStretchableGameButton(Sexy::Graphics * theGraphics, Sexy::Image * theImage,
-                                                     TRect<int> const& theRect)
+int StretchableGameButton::DrawStretchableGameButton(
+    Sexy::Graphics *theGraphics, Sexy::Image *theImage, TRect<int> const &theRect)
 {
-  // The transcribed receiver here was `this`, which is this widget and not the
-  // graphics argument: the dump named the first register argument `this` even
-  // though this function's real `this` is the widget.
-  theGraphics->DrawImage(theImage, theRect.mX, theRect.mY, theRect.mWidth, theRect.mHeight);
-  return 0;
+    // The transcribed receiver here was `this`, which is this widget and not the
+    // graphics argument: the dump named the first register argument `this` even
+    // though this function's real `this` is the widget.
+    theGraphics->DrawImage(theImage, theRect.mX, theRect.mY, theRect.mWidth, theRect.mHeight);
+    return 0;
 }
 
 // ==========================================================================
 // StretchableGameButton::DrawStretchableGameButton(Sexy::Graphics *,Sexy::Image *,int,int,int,int)
 // @001A3AB0  28 bytes
 // ==========================================================================
-int StretchableGameButton::DrawStretchableGameButton(Sexy::Graphics * theGraphics, Sexy::Image * theImage,
-                                                     int theX, int theY, int theWidth, int theHeight)
+int StretchableGameButton::DrawStretchableGameButton(
+    Sexy::Graphics *theGraphics, Sexy::Image *theImage, int theX, int theY, int theWidth, int theHeight)
 {
-  // The dump builds four words on the stack and passes their address, which is
-  // exactly a by-value TRect<int> argument.
-  return DrawStretchableGameButton(theGraphics, theImage, TRect<int>(theX, theY, theWidth, theHeight));
+    // The dump builds four words on the stack and passes their address, which is
+    // exactly a by-value TRect<int> argument.
+    return DrawStretchableGameButton(theGraphics, theImage, TRect<int>(theX, theY, theWidth, theHeight));
 }
 
 // ==========================================================================
 // StretchableGameButton::DrawButtonImage(Sexy::Graphics *,Sexy::Image *,Sexy::TRect<int> const&,int,int)
 // @001A3ACC  42 bytes
 // ==========================================================================
-void StretchableGameButton::DrawButtonImage(Sexy::Graphics * theGraphics, Sexy::Image * theImage,
-                                            TRect<int> const& theRect, int theX, int theY)
+void StretchableGameButton::DrawButtonImage(
+    Sexy::Graphics *theGraphics, Sexy::Image *theImage, TRect<int> const &theRect, int theX, int theY)
 {
-  // This override ignores the frame rect it is handed and shifts the draw by
-  // the button's own offset.
-  DrawStretchableGameButton(theGraphics, theImage,
-                            TRect<int>(theX + mButtonOffsetX, theY + mButtonOffsetY, mWidth, mHeight));
+    // This override ignores the frame rect it is handed and shifts the draw by
+    // the button's own offset.
+    DrawStretchableGameButton(
+        theGraphics, theImage, TRect<int>(theX + mButtonOffsetX, theY + mButtonOffsetY, mWidth, mHeight));
 }

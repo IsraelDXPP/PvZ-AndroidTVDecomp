@@ -1,11 +1,13 @@
 // Shared ownership count. Release drops it and deletes the object at zero.
 // The destructor is the only virtual; the count sits in the word after the vptr.
 
-#pragma once
+#ifndef LAWNPROJECTTV_SEXY_INCLUDE_REFCOUNT_H
+#define LAWNPROJECTTV_SEXY_INCLUDE_REFCOUNT_H
 
 #include "ReconTypes.h"
 
-namespace Sexy {
+namespace Sexy
+{
 
 class RefCount
 {
@@ -18,3 +20,5 @@ public:
 };
 
 } // namespace Sexy
+
+#endif // LAWNPROJECTTV_SEXY_INCLUDE_REFCOUNT_H

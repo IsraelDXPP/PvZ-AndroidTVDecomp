@@ -22,12 +22,14 @@
 // Size 0x10: the base Driver is 0x10 (vptr + a one-word String + two words, see
 // Driver.h) and this class adds no member of its own.
 
-#pragma once
+#ifndef LAWNPROJECTTV_SEXY_INCLUDE_INPUTDRIVER_H
+#define LAWNPROJECTTV_SEXY_INCLUDE_INPUTDRIVER_H
 
 #include "ReconTypes.h"
 #include "Driver.h"
 
-namespace Sexy {
+namespace Sexy
+{
 
 class SexyAppBase;
 class InputManager;
@@ -40,13 +42,15 @@ public:
 
     // The per-platform hook the concrete drivers implement. Init builds the
     // IInputDriver the manager then owns; a null result skips the driver.
-    virtual IInputDriver *Init() = 0;                           // [ 2] pure
+    virtual IInputDriver *Init() = 0; // [ 2] pure
     virtual int OnStart(Sexy::SexyAppBase *theApp,
-                        Sexy::InputManager *theManager);        // [ 3] 0x409d50
-    virtual int OnStop();                                       // [ 4] 0x409d70
+        Sexy::InputManager *theManager); // [ 3] 0x409d50
+    virtual int OnStop(); // [ 4] 0x409d70
 };
 
 } // namespace Sexy
 
 // The global spelling, which the transcribed bodies use.
 using Sexy::InputDriver;
+
+#endif // LAWNPROJECTTV_SEXY_INCLUDE_INPUTDRIVER_H

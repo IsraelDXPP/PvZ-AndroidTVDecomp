@@ -1,8 +1,6 @@
 #include "WidgetAnimator.h"
 
-Sexy::WidgetAnimator::~WidgetAnimator()
-{
-}
+Sexy::WidgetAnimator::~WidgetAnimator() {}
 
 void Sexy::WidgetAnimator::Init(Sexy::WidgetAnimationState theState)
 {

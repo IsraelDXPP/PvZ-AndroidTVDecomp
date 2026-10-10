@@ -11,7 +11,8 @@
 #include "SexyAppBase.h"
 #include "Widget.h"
 
-namespace {
+namespace
+{
 
 double ClampUnit(double theValue)
 {
@@ -141,9 +142,8 @@ void Sexy::Slider::MouseDrag(int x, int y)
         return;
 
     double aOld = mVal;
-    double aNew = mHorizontal
-        ? (double)(x - mGrabOffsetX) / (double)(mWidth - mThumbImage->GetWidth())
-        : (double)(y - mGrabOffsetY) / (double)(mHeight - mThumbImage->GetHeight());
+    double aNew = mHorizontal ? (double)(x - mGrabOffsetX) / (double)(mWidth - mThumbImage->GetWidth())
+                              : (double)(y - mGrabOffsetY) / (double)(mHeight - mThumbImage->GetHeight());
     aNew = ClampUnit(aNew);
     mVal = aNew;
     if (aOld != aNew)

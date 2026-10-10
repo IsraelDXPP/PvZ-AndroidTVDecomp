@@ -22,7 +22,8 @@
 // The Itanium table has a D0/D1 destructor pair; MSVC x86 keeps one slot, so only
 // one `virtual ~GameSlider()` is declared.
 
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_GAMESLIDER_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_GAMESLIDER_H
 
 #include "ReconTypes.h"
 // Classes this one calls a method on: the call needs the
@@ -44,5 +45,7 @@ public:
     // ---- no own data members ----
 
     GameSlider(Sexy::Image *theTrackImage, Sexy::Image *theThumbImage, int theId,
-               Sexy::SliderListener *theSliderListener, Sexy::ButtonListener *theButtonListener);
+        Sexy::SliderListener *theSliderListener, Sexy::ButtonListener *theButtonListener);
 };
+
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_GAMESLIDER_H

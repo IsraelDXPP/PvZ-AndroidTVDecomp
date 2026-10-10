@@ -30,7 +30,8 @@
 //   Update: calls SimpleMessageWidget::Update on 0x2E0 and decrements 0x2E8
 //   Draw:  calls SimpleMessageWidget::Draw on the widget at 0x2E0
 
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_SESSIONWAITINGDIALOG_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_SESSIONWAITINGDIALOG_H
 
 #include "ReconTypes.h"
 // The waiting dialogs construct a SimpleMessageWidget; include the real class
@@ -46,7 +47,7 @@ public:
     virtual ~SessionWaitingDialog();
 
     // Overrides of Dialog/Widget slots.
-    virtual void Update();                     // [31] 0x1eb018
+    virtual void Update(); // [31] 0x1eb018
     virtual void Draw(Sexy::Graphics *theGraphics);
 
     SessionWaitingDialog(LawnApp *theApp, int theDialogId);
@@ -54,10 +55,11 @@ public:
     void MouseDrag(int theX, int theY);
 
     SimpleMessageWidget *mMessageWidget; // +0x2E0, owned and deleted by the dtor
-    Sexy::String mString;                // +0x2E4, "[CONNECTION_SERVER]" style status text
-    int mDelay;                          // +0x2E8, counted down by Update
+    Sexy::String mString; // +0x2E4, "[CONNECTION_SERVER]" style status text
+    int mDelay; // +0x2E8, counted down by Update
     // Written when a session task finishes while this wait is up. 0 means the wait ended.
     int mResult;
     // size 0x2EC
 };
 
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_SESSIONWAITINGDIALOG_H

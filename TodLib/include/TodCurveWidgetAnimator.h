@@ -23,7 +23,8 @@
 //                            SexyVector2 &a5, int a6)
 // as recovered from _ZN21TodCurveWidgetAnimatorC1EPN4Sexy6WidgetE9TodCurvesRNS_11SexyVector2ES4_i.
 
-#pragma once
+#ifndef LAWNPROJECTTV_TODLIB_INCLUDE_TODCURVEWIDGETANIMATOR_H
+#define LAWNPROJECTTV_TODLIB_INCLUDE_TODCURVEWIDGETANIMATOR_H
 
 #include "ReconTypes.h"
 #include "WidgetAnimator.h"
@@ -36,7 +37,8 @@ public:
     virtual void Update();
     virtual bool IsCompleted();
 
-    TodCurveWidgetAnimator(Sexy::Widget *theWidget, TodCurves theCurve, SexyVector2 &theFrom, SexyVector2 &theTo, int theDuration);
+    TodCurveWidgetAnimator(
+        Sexy::Widget *theWidget, TodCurves theCurve, SexyVector2 &theFrom, SexyVector2 &theTo, int theDuration);
 
     // Derived area, binary +0x18 .. +0x4F.
     // TODO(recon): the curve animator has not been transcribed; the recon dump
@@ -52,3 +54,5 @@ public:
     float mToX;
     float mToY;
 };
+
+#endif // LAWNPROJECTTV_TODLIB_INCLUDE_TODCURVEWIDGETANIMATOR_H

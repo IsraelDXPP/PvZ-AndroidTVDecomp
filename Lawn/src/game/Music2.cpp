@@ -22,16 +22,10 @@
 #include <map>
 #include <set>
 
-// TodAnimateCurveFloat is declared as the C-style variadic
-// `int TodAnimateCurveFloat(...)` in Sexy\ReconFreeFunctions.h, so the float
-// bounds travel as their bit patterns and the answer comes back in r0 as one.
-// MusicUpdate's single call ramps the fade linearly from 1.0f down to 0.0f.
+// MusicUpdate ramps the volume linearly from 1.0f down to 0.0f.
 static float AnimateFadeOutVolume(int theDuration, int theRemaining)
 {
-    const int kOneBits = 0x3F800000; // 1.0f
-    int aResult = TodAnimateCurveFloat(theDuration, 0, theRemaining,
-                                       kOneBits, 0, CURVE_LINEAR);
-    return *(float *)&aResult;
+    return TodAnimateCurveFloat(theDuration, 0, theRemaining, 1.0f, 0.0f, CURVE_LINEAR);
 }
 
 // ==========================================================================
@@ -100,25 +94,19 @@ void Music2::MusicResyncChannel(MusicFile theMusicFile1, MusicFile theMusicFile2
 // Music2::MusicResync(void)
 // @001EA1C8  2 bytes
 // ==========================================================================
-void Music2::MusicResync()
-{
-}
+void Music2::MusicResync() {}
 
 // ==========================================================================
 // Music2::StartBurst(void)
 // @001EA1CC  2 bytes
 // ==========================================================================
-void Music2::StartBurst()
-{
-}
+void Music2::StartBurst() {}
 
 // ==========================================================================
 // Music2::UpdateMusicBurst(void)
 // @001EA1D0  2 bytes
 // ==========================================================================
-void Music2::UpdateMusicBurst()
-{
-}
+void Music2::UpdateMusicBurst() {}
 
 // ==========================================================================
 // Music2::GameMusicPause(bool)
@@ -202,7 +190,7 @@ void Music2::MusicUpdate()
 // Music2::LoadSong(MusicTune,Sexy::String const&)
 // @001EA2F8  46 bytes
 // ==========================================================================
-int Music2::LoadSong(MusicTune theTune, const Sexy::String& theFileName)
+int Music2::LoadSong(MusicTune theTune, const Sexy::String &theFileName)
 {
     int aResult = mApp->mMusicInterface->LoadMusic(theTune, theFileName);
     if (aResult != 0)
@@ -244,9 +232,7 @@ void Music2::StartGameMusic(bool theStart)
     else if (anApp->mGameMode == GAMEMODE_CHALLENGE_SPEED)
         MakeSureMusicIsPlaying(MUSIC_TUNE_MINIGAME_LOONBOON);
     else if (anApp->IsAdventureMode() &&
-             (anApp->mPlayerInfo->mLevel == 20 ||
-              anApp->mPlayerInfo->mLevel == 10 ||
-              anApp->mPlayerInfo->mLevel == 30))
+        (anApp->mPlayerInfo->mLevel == 20 || anApp->mPlayerInfo->mLevel == 10 || anApp->mPlayerInfo->mLevel == 30))
         MakeSureMusicIsPlaying(MUSIC_TUNE_CONVEYER); // MUSIC_TUNE_CONVEYER
     else if (anApp->mGameMode == GAMEMODE_CHALLENGE_COLUMN)
         MakeSureMusicIsPlaying(MUSIC_TUNE_CONVEYER);

@@ -56,7 +56,8 @@
 // build uses.
 // Id 8 is the full-version prompt; id 1000 resumes the game.
 
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_NEWOPTIONSDIALOG_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_NEWOPTIONSDIALOG_H
 
 #include "ReconTypes.h"
 // Classes this one calls a method on: the call needs the
@@ -103,13 +104,13 @@ public:
     virtual ~NewOptionsDialog();
 
     // slot 29
-    virtual void AddedToManager(Sexy::WidgetManager * theWidgetManager);
+    virtual void AddedToManager(Sexy::WidgetManager *theWidgetManager);
     // slot 30
-    virtual void RemovedFromManager(Sexy::WidgetManager * theWidgetManager);
+    virtual void RemovedFromManager(Sexy::WidgetManager *theWidgetManager);
     // slot 31
     virtual void Update();
     // slot 36
-    virtual void Draw(Sexy::Graphics * theGraphics);
+    virtual void Draw(Sexy::Graphics *theGraphics);
     // slot 41
     virtual void OrderInManagerChanged();
     // slot 50
@@ -128,26 +129,28 @@ public:
     // +0x2FC and the CheckboxListener base's vptr is +0x300, so this class's own
     // members start at +0x304, where the opening gamepad index is stored.
     // The button ids and labels follow the constructor at 0x14140C.
-    int mGamepadIndex;              // +0x304  the constructor stores the gamepad index here
-    GameButton * mHelpDialogButton; // +0x308  MakeButton(2) "[HELP AND OPTIONS]"
-    GameButton * mLeaderboardsButton; // +0x30C  MakeButton(0) "[LEADERBOARDS]"
-    GameButton * mAchievementsButton; // +0x310  MakeButton(1) "[ACHIEVEMENTS]"
-    GameButton * mAlmanacButton;    // +0x314  MakeButton(3), either label
-    GameButton * mUnlockButton;     // +0x318  MakeButton(8)
-    GameButton * mRestartButton;    // +0x31C  MakeButton(5), restart or concede
-    GameButton * mDropP2Button;      // +0x320  MakeButton(7) "[DROP_P2]"
-    GameButton * mMainMenuButton;   // +0x324  MakeButton(4)
-    GameButton * mBackToGameButton;
+    int mGamepadIndex; // +0x304  the constructor stores the gamepad index here
+    GameButton *mHelpDialogButton; // +0x308  MakeButton(2) "[HELP AND OPTIONS]"
+    GameButton *mLeaderboardsButton; // +0x30C  MakeButton(0) "[LEADERBOARDS]"
+    GameButton *mAchievementsButton; // +0x310  MakeButton(1) "[ACHIEVEMENTS]"
+    GameButton *mAlmanacButton; // +0x314  MakeButton(3), either label
+    GameButton *mUnlockButton; // +0x318  MakeButton(8)
+    GameButton *mRestartButton; // +0x31C  MakeButton(5), restart or concede
+    GameButton *mDropP2Button; // +0x320  MakeButton(7) "[DROP_P2]"
+    GameButton *mMainMenuButton; // +0x324  MakeButton(4)
+    GameButton *mBackToGameButton;
     // True when the pause dialog was opened from a menu rather than a level.
     // Hides restart, relabels resume as OK, and changes the almanac rules.
     bool mFromMenu;
     Sexy::Font *mFontId;
 
     // ---- methods that are not vtable slots (kept from the transcription) ----
-    virtual int GetPreferredHeight(int theWidth);   // overrides Dialog's [125]
+    virtual int GetPreferredHeight(int theWidth); // overrides Dialog's [125]
     // Overrides of the two listener bases. Both bodies are empty in the binary.
     virtual void SliderVal(int theId, double theValue);
     virtual void CheckboxChecked(int theId, bool checked);
     NewOptionsDialog(LawnApp *theApp, bool theFromMenu, unsigned int theGamepadIndex);
     virtual void GameButtonDown(Sexy::GamepadButton theButton, int thePlayerIndex, unsigned int theFlags);
 };
+
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_NEWOPTIONSDIALOG_H

@@ -12,7 +12,8 @@
 #include <algorithm>
 #include <cmath>
 
-namespace {
+namespace
+{
 constexpr int kHoleLength = 136;
 constexpr int kMenuSlideFrames = 100;
 constexpr int kReturnToTopFrames = 50;
@@ -22,26 +23,37 @@ constexpr int kMenuSlideDistance = 720;
 // Reference MAIN_MENU_HEIGHT: overlap the two backgrounds by two pixels.
 constexpr int kMenuJoinOffset = kMenuSlideDistance - 2;
 constexpr int kMouseInputFlag = 16;
-const char* HoleImageName(int thePanel)
+const char *HoleImageName(int thePanel)
 {
     switch (thePanel)
     {
-    case 16: return "hole_worm";
-    case 25: return "hole_gems";
-    case 38: return "hole_chuzzle";
-    case 52: return "hole_bjorn";
-    case 69: return "hole_pipe";
-    case 85: return "hole_tiki";
-    case 101: return "hole_heavyrocks";
-    case 114: return "hole_duwei";
-    case kHoleLength: return "hole_china";
-    default: return "hole";
+        case 16:
+            return "hole_worm";
+        case 25:
+            return "hole_gems";
+        case 38:
+            return "hole_chuzzle";
+        case 52:
+            return "hole_bjorn";
+        case 69:
+            return "hole_pipe";
+        case 85:
+            return "hole_tiki";
+        case 101:
+            return "hole_heavyrocks";
+        case 114:
+            return "hole_duwei";
+        case kHoleLength:
+            return "hole_china";
+        default:
+            return "hole";
     }
 }
 }
 
-AchievementsWidget::AchievementsWidget(LawnApp* theApp, bool theFromGame)
-    : mApp(theApp), mFromGame(theFromGame)
+AchievementsWidget::AchievementsWidget(LawnApp *theApp, bool theFromGame) :
+    mApp(theApp),
+    mFromGame(theFromGame)
 {
     mClip = false;
     Resize(LawnApp::FULLSCREEN_RECT);
@@ -61,8 +73,7 @@ AchievementsWidget::AchievementsWidget(LawnApp* theApp, bool theFromGame)
         mTransition = Transition::Entering;
         mTransitionCounter = kMenuSlideFrames;
         // Keep the viewport covered after moving the page two pixels above its edge.
-        Resize(mReturnMenu->mX, mMenuStartY + kMenuJoinOffset, mWidth,
-               mHeight + kMenuSlideDistance - kMenuJoinOffset);
+        Resize(mReturnMenu->mX, mMenuStartY + kMenuJoinOffset, mWidth, mHeight + kMenuSlideDistance - kMenuJoinOffset);
         mBackButton->Move(mBackButton->mX, mBackButton->mY + kMenuSlideDistance - kMenuJoinOffset);
         mBackButton->SetVisible(false);
     }
@@ -73,13 +84,13 @@ AchievementsWidget::~AchievementsWidget()
     delete mBackButton;
 }
 
-void AchievementsWidget::AddedToManager(Sexy::WidgetManager* theManager)
+void AchievementsWidget::AddedToManager(Sexy::WidgetManager *theManager)
 {
     Sexy::Widget::AddedToManager(theManager);
     AddWidget(mBackButton);
 }
 
-void AchievementsWidget::RemovedFromManager(Sexy::WidgetManager* theManager)
+void AchievementsWidget::RemovedFromManager(Sexy::WidgetManager *theManager)
 {
     RestoreMainMenu();
     RemoveWidget(mBackButton);
@@ -94,7 +105,7 @@ void AchievementsWidget::GotFocus()
 
 void AchievementsWidget::ScrollTo(int theY)
 {
-    Sexy::Image* hole = mApp->GetConsoleImage("hole");
+    Sexy::Image *hole = mApp->GetConsoleImage("hole");
     if (hole == nullptr)
         return;
     mScrollY = std::clamp(theY, 0, std::max(0, (kHoleLength + 1) * hole->mHeight - mHeight));
@@ -112,8 +123,8 @@ void AchievementsWidget::Update()
     if (mKeyScrollCounter > 0)
     {
         --mKeyScrollCounter;
-        ScrollTo(TodAnimateCurve(kKeyboardScrollFrames, 0, mKeyScrollCounter,
-                                mKeyScrollStartY, mKeyScrollTargetY, CURVE_LINEAR));
+        ScrollTo(TodAnimateCurve(
+            kKeyboardScrollFrames, 0, mKeyScrollCounter, mKeyScrollStartY, mKeyScrollTargetY, CURVE_LINEAR));
         return;
     }
     if (!mDragging && std::fabs(mScrollVelocity) > 0.5f)
@@ -133,8 +144,7 @@ void AchievementsWidget::UpdateTransition()
     --mTransitionCounter;
     if (mTransition == Transition::ReturningToTop)
     {
-        ScrollTo(TodAnimateCurve(kReturnToTopFrames, 0, mTransitionCounter,
-                                mReturnScrollY, 0, CURVE_EASE_IN_OUT));
+        ScrollTo(TodAnimateCurve(kReturnToTopFrames, 0, mTransitionCounter, mReturnScrollY, 0, CURVE_EASE_IN_OUT));
         if (mTransitionCounter == 0)
         {
             mTransition = Transition::Leaving;
@@ -143,8 +153,12 @@ void AchievementsWidget::UpdateTransition()
         return;
     }
     const bool entering = mTransition == Transition::Entering;
-    const int slide = TodAnimateCurve(kMenuSlideFrames, 0, mTransitionCounter,
-        entering ? 0 : kMenuSlideDistance, entering ? kMenuSlideDistance : 0, CURVE_EASE_IN_OUT);
+    const int slide = TodAnimateCurve(kMenuSlideFrames,
+        0,
+        mTransitionCounter,
+        entering ? 0 : kMenuSlideDistance,
+        entering ? kMenuSlideDistance : 0,
+        CURVE_EASE_IN_OUT);
     if (mReturnMenu != nullptr && mApp->mGameSelector == mReturnMenu)
         mReturnMenu->Move(mReturnMenu->mX, mMenuStartY - slide);
     Move(mX, mMenuStartY + kMenuJoinOffset - slide);
@@ -181,11 +195,11 @@ void AchievementsWidget::ScrollByKey(int theAmount)
     mKeyScrollCounter = kKeyboardScrollFrames;
 }
 
-void AchievementsWidget::Draw(Sexy::Graphics* theGraphics)
+void AchievementsWidget::Draw(Sexy::Graphics *theGraphics)
 {
     theGraphics->SetColor(Sexy::Color(31, 20, 12));
     theGraphics->FillRect(0, 0, mWidth, mHeight);
-    Sexy::Image* hole = mApp->GetConsoleImage("hole");
+    Sexy::Image *hole = mApp->GetConsoleImage("hole");
     if (hole == nullptr || hole->mHeight <= 0)
         return;
     const int panelHeight = hole->mHeight;
@@ -196,13 +210,13 @@ void AchievementsWidget::Draw(Sexy::Graphics* theGraphics)
     const int lastPanel = std::min(kHoleLength, (mScrollY + mHeight) / panelHeight);
     for (int panel = firstPanel; panel <= lastPanel; ++panel)
     {
-        Sexy::Image* image = mApp->GetConsoleImage(HoleImageName(panel));
+        Sexy::Image *image = mApp->GetConsoleImage(HoleImageName(panel));
         if (image != nullptr)
             theGraphics->DrawImage(image, 0, panel * panelHeight);
     }
     if (firstPanel == 0)
     {
-        Sexy::Image* top = mApp->GetConsoleImage("hole_top");
+        Sexy::Image *top = mApp->GetConsoleImage("hole_top");
         if (top != nullptr)
             theGraphics->DrawImage(top, 0, 0);
     }
@@ -215,22 +229,30 @@ void AchievementsWidget::Draw(Sexy::Graphics* theGraphics)
         const int achievementY = 300 + index * (panelHeight * 2 / 3);
         if (achievementY + 150 < mScrollY || achievementY - 5 > mScrollY + mHeight)
             continue;
-        Sexy::Image* icon = GetAchievementIcon(achievement);
+        Sexy::Image *icon = GetAchievementIcon(achievement);
         theGraphics->SetColorizeImages(!unlocked);
         theGraphics->SetColor(Sexy::Color(128, 128, 128));
         if (icon != nullptr)
             theGraphics->DrawImage(icon, 330, achievementY - 5);
         theGraphics->SetColorizeImages(false);
-        TodDrawString(theGraphics, GetAchievementTitle(achievement), 460, achievementY + 40,
-                      FONT_HOUSEOFTERROR28, Sexy::Color(0, 255, 0), 0);
-        TodDrawStringWrapped(theGraphics, GetAchievementDescription(achievement),
-                             Sexy::Rect(460, achievementY + 60, 540, 150), FONT_HOUSEOFTERROR20,
-                             unlocked ? Sexy::Color::White : Sexy::Color(160, 160, 160), 0, false);
+        TodDrawString(theGraphics,
+            GetAchievementTitle(achievement),
+            460,
+            achievementY + 40,
+            FONT_HOUSEOFTERROR28,
+            Sexy::Color(0, 255, 0),
+            0);
+        TodDrawStringWrapped(theGraphics,
+            GetAchievementDescription(achievement),
+            Sexy::Rect(460, achievementY + 60, 540, 150),
+            FONT_HOUSEOFTERROR20,
+            unlocked ? Sexy::Color::White : Sexy::Color(160, 160, 160),
+            0,
+            false);
     }
     Sexy::String count;
     StrFormat(&count, "%d/%d", completed, NUM_ACHIEVEMENT_TYPES);
-    TodDrawString(theGraphics, count, 1060, 173, FONT_DWARVENTODCRAFT18,
-                  Sexy::Color(255, 240, 0), 2);
+    TodDrawString(theGraphics, count, 1060, 173, FONT_DWARVENTODCRAFT18, Sexy::Color(255, 240, 0), 2);
     theGraphics->PopState();
 }
 
@@ -279,41 +301,67 @@ int AchievementsWidget::KeyDown(Sexy::KeyCode theKey)
     {
         switch (button)
         {
-        case GAMEPAD_BUTTON_B:
-            if ((flags & 1) != 0)
-                return 1;
-            theKey = Sexy::KEYCODE_ESCAPE;
-            break;
-        case GAMEPAD_BUTTON_UP:
-        case GAMEPAD_BUTTON_DPAD_UP: theKey = Sexy::KEYCODE_UP; break;
-        case GAMEPAD_BUTTON_DOWN:
-        case GAMEPAD_BUTTON_DPAD_DOWN: theKey = Sexy::KEYCODE_DOWN; break;
-        case GAMEPAD_BUTTON_LEFT:
-        case GAMEPAD_BUTTON_DPAD_LEFT: theKey = Sexy::KEYCODE_PRIOR; break;
-        case GAMEPAD_BUTTON_RIGHT:
-        case GAMEPAD_BUTTON_DPAD_RIGHT: theKey = Sexy::KEYCODE_NEXT; break;
-        default: break;
+            case GAMEPAD_BUTTON_B:
+                if ((flags & 1) != 0)
+                    return 1;
+                theKey = Sexy::KEYCODE_ESCAPE;
+                break;
+            case GAMEPAD_BUTTON_UP:
+            case GAMEPAD_BUTTON_DPAD_UP:
+                theKey = Sexy::KEYCODE_UP;
+                break;
+            case GAMEPAD_BUTTON_DOWN:
+            case GAMEPAD_BUTTON_DPAD_DOWN:
+                theKey = Sexy::KEYCODE_DOWN;
+                break;
+            case GAMEPAD_BUTTON_LEFT:
+            case GAMEPAD_BUTTON_DPAD_LEFT:
+                theKey = Sexy::KEYCODE_PRIOR;
+                break;
+            case GAMEPAD_BUTTON_RIGHT:
+            case GAMEPAD_BUTTON_DPAD_RIGHT:
+                theKey = Sexy::KEYCODE_NEXT;
+                break;
+            default:
+                break;
         }
     }
     switch (theKey)
     {
-    case Sexy::KEYCODE_ESCAPE:
-    case Sexy::KEYCODE_GAMEPAD_B: ButtonDepress(1000); return 1;
-    case Sexy::KEYCODE_UP:
-    case Sexy::KEYCODE_GAMEPAD_UP:
-    case Sexy::KEYCODE_GAMEPAD_DPAD_UP: ScrollByKey(-kKeyboardScrollDistance); return 1;
-    case Sexy::KEYCODE_DOWN:
-    case Sexy::KEYCODE_GAMEPAD_DOWN:
-    case Sexy::KEYCODE_GAMEPAD_DPAD_DOWN: ScrollByKey(kKeyboardScrollDistance); return 1;
-    case Sexy::KEYCODE_PRIOR:
-    case Sexy::KEYCODE_GAMEPAD_LEFT:
-    case Sexy::KEYCODE_GAMEPAD_DPAD_LEFT: ScrollByKey(-mHeight); return 1;
-    case Sexy::KEYCODE_NEXT:
-    case Sexy::KEYCODE_GAMEPAD_RIGHT:
-    case Sexy::KEYCODE_GAMEPAD_DPAD_RIGHT: ScrollByKey(mHeight); return 1;
-    case Sexy::KEYCODE_HOME: mKeyScrollCounter = 0; ScrollTo(0); return 1;
-    case Sexy::KEYCODE_END: mKeyScrollCounter = 0; ScrollTo(100000); return 1;
-    default: return Sexy::Widget::KeyDown(theKey);
+        case Sexy::KEYCODE_ESCAPE:
+        case Sexy::KEYCODE_GAMEPAD_B:
+            ButtonDepress(1000);
+            return 1;
+        case Sexy::KEYCODE_UP:
+        case Sexy::KEYCODE_GAMEPAD_UP:
+        case Sexy::KEYCODE_GAMEPAD_DPAD_UP:
+            ScrollByKey(-kKeyboardScrollDistance);
+            return 1;
+        case Sexy::KEYCODE_DOWN:
+        case Sexy::KEYCODE_GAMEPAD_DOWN:
+        case Sexy::KEYCODE_GAMEPAD_DPAD_DOWN:
+            ScrollByKey(kKeyboardScrollDistance);
+            return 1;
+        case Sexy::KEYCODE_PRIOR:
+        case Sexy::KEYCODE_GAMEPAD_LEFT:
+        case Sexy::KEYCODE_GAMEPAD_DPAD_LEFT:
+            ScrollByKey(-mHeight);
+            return 1;
+        case Sexy::KEYCODE_NEXT:
+        case Sexy::KEYCODE_GAMEPAD_RIGHT:
+        case Sexy::KEYCODE_GAMEPAD_DPAD_RIGHT:
+            ScrollByKey(mHeight);
+            return 1;
+        case Sexy::KEYCODE_HOME:
+            mKeyScrollCounter = 0;
+            ScrollTo(0);
+            return 1;
+        case Sexy::KEYCODE_END:
+            mKeyScrollCounter = 0;
+            ScrollTo(100000);
+            return 1;
+        default:
+            return Sexy::Widget::KeyDown(theKey);
     }
 }
 
@@ -344,13 +392,13 @@ void AchievementsWidget::BeginClose()
 
 void AchievementsWidget::FinishClose()
 {
-    LawnApp* app = mApp;
+    LawnApp *app = mApp;
     const bool fromGame = mFromGame;
-    MainMenu* returnMenu = app->mGameSelector == mReturnMenu ? mReturnMenu : nullptr;
+    MainMenu *returnMenu = app->mGameSelector == mReturnMenu ? mReturnMenu : nullptr;
     app->KillAchievementsScreen();
     if (fromGame)
     {
-        Sexy::Widget* options = app->GetDialog(2);
+        Sexy::Widget *options = app->GetDialog(2);
         if (options != nullptr)
             app->mWidgetManager->SetFocus(options);
         else if (app->mBoard != nullptr)

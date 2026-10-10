@@ -34,7 +34,8 @@
 // NOTE: the transcribed .cpp spells these with `int` returns; the base classes
 // declare `void`, which is what an override needs.
 
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_GAMEOVERDIALOG_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_GAMEOVERDIALOG_H
 
 #include "ReconTypes.h"
 // Classes this one calls a method on: the call needs the
@@ -53,9 +54,9 @@ public:
     virtual ~GameOverDialog();
 
     // slot 29
-    virtual void AddedToManager(Sexy::WidgetManager * theWidgetManager);
+    virtual void AddedToManager(Sexy::WidgetManager *theWidgetManager);
     // slot 30
-    virtual void RemovedFromManager(Sexy::WidgetManager * theWidgetManager);
+    virtual void RemovedFromManager(Sexy::WidgetManager *theWidgetManager);
     // slot 61
     virtual void GotFocus();
     // slot 81
@@ -65,5 +66,7 @@ public:
 
     // ---- no own data members; base LawnDialog = 0x2FC ----
 
-    GameOverDialog(const Sexy::String& theMessage, bool theShowTrophy);
+    GameOverDialog(const Sexy::String &theMessage, bool theShowTrophy);
 };
+
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_GAMEOVERDIALOG_H

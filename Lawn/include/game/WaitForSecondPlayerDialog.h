@@ -26,7 +26,8 @@
 // TODO(recon): LawnDialog is still opaque in this tree, so the derived member
 // area cannot be placed exactly.
 
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_WAITFORSECONDPLAYERDIALOG_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_WAITFORSECONDPLAYERDIALOG_H
 
 #include "ReconTypes.h"
 // Classes this one calls a method on: the call needs the
@@ -44,7 +45,7 @@ class LawnApp;
 class WaitForSecondPlayerDialog : public LawnDialog
 {
 public:
-    virtual ~WaitForSecondPlayerDialog();                          // [  0],[1] 0x000/0x004
+    virtual ~WaitForSecondPlayerDialog(); // [  0],[1] 0x000/0x004
     virtual int KeyDown(Sexy::KeyCode theKey);
     void MouseDown(int x, int y, int theClickCount) override;
     virtual void GameButtonDown(Sexy::GamepadButton theButton, int theGamepadIndex, unsigned int theFlags);
@@ -55,3 +56,5 @@ public:
     // The remaining methods. None of these owns a vtable slot.
     explicit WaitForSecondPlayerDialog(LawnApp *theApp);
 };
+
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_WAITFORSECONDPLAYERDIALOG_H

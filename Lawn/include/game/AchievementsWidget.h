@@ -1,5 +1,6 @@
 // Copyright (C) 2023-2026 PvZ TV Touch Team. GPL-3.0-or-later.
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_ACHIEVEMENTSWIDGET_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_ACHIEVEMENTSWIDGET_H
 #include "Widget.h"
 #include "ButtonListener.h"
 
@@ -10,13 +11,13 @@ class MainMenu;
 class AchievementsWidget : public Sexy::Widget, public Sexy::ButtonListener
 {
 public:
-    AchievementsWidget(LawnApp* theApp, bool theFromGame);
+    AchievementsWidget(LawnApp *theApp, bool theFromGame);
     ~AchievementsWidget() override;
-    void AddedToManager(Sexy::WidgetManager* theManager) override;
-    void RemovedFromManager(Sexy::WidgetManager* theManager) override;
+    void AddedToManager(Sexy::WidgetManager *theManager) override;
+    void RemovedFromManager(Sexy::WidgetManager *theManager) override;
     void GotFocus() override;
     void Update() override;
-    void Draw(Sexy::Graphics* theGraphics) override;
+    void Draw(Sexy::Graphics *theGraphics) override;
     void MouseDown(int x, int y, int theClickCount) override;
     void MouseDrag(int x, int y) override;
     void MouseUp(int x, int y, int theClickCount) override;
@@ -25,22 +26,28 @@ public:
     void ButtonDepress(int theId) override;
 
 private:
-    enum class Transition { None, Entering, ReturningToTop, Leaving };
+    enum class Transition
+    {
+        None,
+        Entering,
+        ReturningToTop,
+        Leaving
+    };
     void ScrollTo(int theY);
     void ScrollByKey(int theAmount);
     void UpdateTransition();
     void BeginClose();
     void FinishClose();
     void RestoreMainMenu();
-    LawnApp* mApp;
-    GameButton* mBackButton;
+    LawnApp *mApp;
+    GameButton *mBackButton;
     bool mFromGame;
     bool mDragging = false;
     int mScrollY = 0;
     int mDragStartY = 0;
     int mDragStartScroll = 0;
     float mScrollVelocity = 0.0f;
-    MainMenu* mReturnMenu = nullptr;
+    MainMenu *mReturnMenu = nullptr;
     int mMenuStartY = 0;
     bool mMenuWasDisabled = false;
     int mMenuRemovedFlags = 0;
@@ -51,3 +58,5 @@ private:
     int mKeyScrollStartY = 0;
     int mKeyScrollTargetY = 0;
 };
+
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_ACHIEVEMENTSWIDGET_H

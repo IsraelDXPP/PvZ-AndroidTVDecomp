@@ -35,9 +35,7 @@ void GameSlider::FocusDirectionHint(Sexy::WidgetFocusDir theDir)
 // The binary stores this class's vtable and then calls the SelectableWidget
 // base destructor explicitly.  With a real base class chain the compiler emits
 // both, so the body is empty.
-GameSlider::~GameSlider()
-{
-}
+GameSlider::~GameSlider() {}
 
 // ==========================================================================
 // GameSlider::GameSlider(Sexy::Image *,Sexy::Image *,int,Sexy::SliderListener *,Sexy::ButtonListener *)
@@ -47,8 +45,8 @@ GameSlider::~GameSlider()
 // own vtable, which is exactly base-class construction.  The incoming
 // ButtonListener* is not used by this constructor.
 GameSlider::GameSlider(Sexy::Image *theTrackImage, Sexy::Image *theThumbImage, int theId,
-                       Sexy::SliderListener *theSliderListener, Sexy::ButtonListener *theButtonListener)
-    : Sexy::Slider(theTrackImage, theThumbImage, theId, theSliderListener)
+    Sexy::SliderListener *theSliderListener, Sexy::ButtonListener *theButtonListener) :
+    Sexy::Slider(theTrackImage, theThumbImage, theId, theSliderListener)
 {
     (void)theButtonListener;
 }

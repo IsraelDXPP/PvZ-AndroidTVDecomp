@@ -24,7 +24,8 @@
 // MSVC x86 gives a virtual destructor one slot where Itanium and ARM give it two,
 // so the absolute slot numbers run one lower here; only the order is copied.
 
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_SAVINGPROFILEDIALOG_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_SAVINGPROFILEDIALOG_H
 
 #include "ReconTypes.h"
 // Classes this one calls a method on: the call needs the
@@ -50,3 +51,5 @@ public:
 
     SavingProfileDialog(LawnApp *theApp, bool theDrawFade);
 };
+
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_SAVINGPROFILEDIALOG_H

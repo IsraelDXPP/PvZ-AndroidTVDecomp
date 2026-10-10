@@ -19,7 +19,8 @@
 #include <cstdlib>
 #include <vector>
 
-namespace {
+namespace
+{
 
 const int kMaxSpans = 8192;
 unsigned char gCoverageTable[256 * 256];
@@ -53,7 +54,7 @@ Sexy::String Sexy::Graphics::mPreferedEncoding;
 
 const Sexy::TPoint<int> *Sexy::Graphics::mPolyPoints = nullptr;
 
-int Sexy::Graphics::ComparePointY(void const* theLeft, void const* theRight)
+int Sexy::Graphics::ComparePointY(void const *theLeft, void const *theRight)
 {
     int aLeft = *(int const *)theLeft;
     int aRight = *(int const *)theRight;
@@ -62,14 +63,14 @@ int Sexy::Graphics::ComparePointY(void const* theLeft, void const* theRight)
     return 1;
 }
 
-int Sexy::Graphics::CompareEdgeX(void const* theLeft, void const* theRight)
+int Sexy::Graphics::CompareEdgeX(void const *theLeft, void const *theRight)
 {
     if (*(double const *)theLeft > *(double const *)theRight)
         return 1;
     return -1;
 }
 
-void Sexy::Graphics::SetPreferedEncoding(Sexy::String const& theEncoding)
+void Sexy::Graphics::SetPreferedEncoding(Sexy::String const &theEncoding)
 {
     mPreferedEncoding = theEncoding;
 }
@@ -79,16 +80,14 @@ Sexy::String Sexy::Graphics::GetPreferedEncoding()
     return mPreferedEncoding;
 }
 
-Sexy::Graphics3D * Sexy::Graphics::Get3D()
+Sexy::Graphics3D *Sexy::Graphics::Get3D()
 {
     return mGraphics3D;
 }
 
-void Sexy::Graphics::SetAsCurrentContext()
-{
-}
+void Sexy::Graphics::SetAsCurrentContext() {}
 
-void Sexy::Graphics::PushTransform(SexyMatrix3 const& theTransform, bool theConcatenate)
+void Sexy::Graphics::PushTransform(SexyMatrix3 const &theTransform, bool theConcatenate)
 {
     // Graphics::PushTransform @0x307DD4 forwards to its destination device.
     SetAsCurrentContext();
@@ -115,7 +114,7 @@ void Sexy::Graphics::PopTransform()
     }
 }
 
-void Sexy::Graphics::PopTransform(SexyMatrix3 & theTransform)
+void Sexy::Graphics::PopTransform(SexyMatrix3 &theTransform)
 {
     SetAsCurrentContext();
     if (mGraphics3D != nullptr)
@@ -128,7 +127,7 @@ void Sexy::Graphics::PopTransform(SexyMatrix3 & theTransform)
     }
 }
 
-Sexy::Color const& Sexy::Graphics::DrawColor() const
+Sexy::Color const &Sexy::Graphics::DrawColor() const
 {
     if (mColorStack.empty())
         return mColor;
@@ -143,14 +142,14 @@ void Sexy::Graphics::CalcFinalColor()
         return;
     }
 
-    Color const& aMult = mColorStack.back();
+    Color const &aMult = mColorStack.back();
     mFinalColor.mRed = ClampByte(aMult.mRed * mColor.mRed / 255);
     mFinalColor.mGreen = ClampByte(aMult.mGreen * mColor.mGreen / 255);
     mFinalColor.mBlue = ClampByte(aMult.mBlue * mColor.mBlue / 255);
     mFinalColor.mAlpha = ClampByte(aMult.mAlpha * mColor.mAlpha / 255);
 }
 
-Color const& Sexy::Graphics::GetImageColor() const
+Color const &Sexy::Graphics::GetImageColor() const
 {
     if (!mColorStack.empty())
     {
@@ -163,31 +162,31 @@ Color const& Sexy::Graphics::GetImageColor() const
     return Color::White;
 }
 
-Sexy::Graphics* Sexy::Graphics::SetTrackingDeviceState(bool theTrack)
+Sexy::Graphics *Sexy::Graphics::SetTrackingDeviceState(bool theTrack)
 {
     mTrackDeviceState = theTrack;
     return this;
 }
 
-Sexy::Font * Sexy::Graphics::GetFont()
+Sexy::Font *Sexy::Graphics::GetFont()
 {
     return mFont;
 }
 
-Sexy::Graphics* Sexy::Graphics::SetFont(Sexy::Font * theFont)
+Sexy::Graphics *Sexy::Graphics::SetFont(Sexy::Font *theFont)
 {
     mFont = theFont;
     return this;
 }
 
-Sexy::Graphics* Sexy::Graphics::SetColor(Color const& theColor)
+Sexy::Graphics *Sexy::Graphics::SetColor(Color const &theColor)
 {
     mColor = theColor;
     CalcFinalColor();
     return this;
 }
 
-const Color & Sexy::Graphics::GetColor()
+const Color &Sexy::Graphics::GetColor()
 {
     return mColor;
 }
@@ -199,7 +198,7 @@ void Sexy::Graphics::PopColorMult()
     CalcFinalColor();
 }
 
-Sexy::Graphics* Sexy::Graphics::SetDrawMode(int theDrawMode)
+Sexy::Graphics *Sexy::Graphics::SetDrawMode(int theDrawMode)
 {
     mDrawMode = theDrawMode;
     return this;
@@ -210,7 +209,7 @@ int Sexy::Graphics::GetDrawMode()
     return mDrawMode;
 }
 
-Sexy::Graphics* Sexy::Graphics::SetColorizeImages(bool theColorize)
+Sexy::Graphics *Sexy::Graphics::SetColorizeImages(bool theColorize)
 {
     mColorizeImages = theColorize;
     return this;
@@ -221,7 +220,7 @@ bool Sexy::Graphics::GetColorizeImages()
     return mColorizeImages;
 }
 
-Sexy::Graphics* Sexy::Graphics::SetFastStretch(bool theFastStretch)
+Sexy::Graphics *Sexy::Graphics::SetFastStretch(bool theFastStretch)
 {
     mFastStretch = theFastStretch;
     return this;
@@ -232,7 +231,7 @@ bool Sexy::Graphics::GetFastStretch()
     return mFastStretch;
 }
 
-Sexy::Graphics* Sexy::Graphics::SetLinearBlend(bool theLinear)
+Sexy::Graphics *Sexy::Graphics::SetLinearBlend(bool theLinear)
 {
     mLinearBlend = theLinear;
     return this;
@@ -243,13 +242,13 @@ bool Sexy::Graphics::GetLinearBlend()
     return mLinearBlend;
 }
 
-Sexy::Graphics* Sexy::Graphics::SetDefaultGlobalScale(bool theScale)
+Sexy::Graphics *Sexy::Graphics::SetDefaultGlobalScale(bool theScale)
 {
     mDefaultGlobalScale = theScale;
     return this;
 }
 
-Sexy::Graphics* Sexy::Graphics::SetGlobalScale(bool theScale)
+Sexy::Graphics *Sexy::Graphics::SetGlobalScale(bool theScale)
 {
     mApplyGlobalScale = theScale;
     return this;
@@ -265,7 +264,7 @@ bool Sexy::Graphics::ScaleIsIdentity() const
     return !mApplyGlobalScale || (mScaleX == 1.0f && mScaleY == 1.0f);
 }
 
-void Sexy::Graphics::ScalePoint(int & theX, int & theY, int & theWidth, int & theHeight) const
+void Sexy::Graphics::ScalePoint(int &theX, int &theY, int &theWidth, int &theHeight) const
 {
     if (ScaleIsIdentity())
         return;
@@ -275,7 +274,7 @@ void Sexy::Graphics::ScalePoint(int & theX, int & theY, int & theWidth, int & th
     theHeight = (int)ceil((float)mScaleY * (float)theHeight);
 }
 
-Sexy::Graphics* Sexy::Graphics::ClearRect(int theX, int theY, int theWidth, int theHeight)
+Sexy::Graphics *Sexy::Graphics::ClearRect(int theX, int theY, int theWidth, int theHeight)
 {
     if (mDestImage == nullptr)
         return this;
@@ -288,16 +287,16 @@ Sexy::Graphics* Sexy::Graphics::ClearRect(int theX, int theY, int theWidth, int 
     return this;
 }
 
-Sexy::Graphics* Sexy::Graphics::ClearRect(TRect<int> const& theRect)
+Sexy::Graphics *Sexy::Graphics::ClearRect(TRect<int> const &theRect)
 {
     return ClearRect(theRect.mX, theRect.mY, theRect.mWidth, theRect.mHeight);
 }
 
-Sexy::Graphics* Sexy::Graphics::FillRect(int theX, int theY, int theWidth, int theHeight)
+Sexy::Graphics *Sexy::Graphics::FillRect(int theX, int theY, int theWidth, int theHeight)
 {
     if (mDestImage == nullptr)
         return this;
-    Color const& aColor = DrawColor();
+    Color const &aColor = DrawColor();
     if (aColor.mAlpha == 0)
         return this;
 
@@ -306,21 +305,20 @@ Sexy::Graphics* Sexy::Graphics::FillRect(int theX, int theY, int theWidth, int t
     int aWidth = theWidth;
     int aHeight = theHeight;
     ScalePoint(aX, aY, aWidth, aHeight);
-    mDestImage->FillRect(TRect<int>(aX, aY, aWidth, aHeight).Intersection(mClipRect),
-                         aColor, mDrawMode);
+    mDestImage->FillRect(TRect<int>(aX, aY, aWidth, aHeight).Intersection(mClipRect), aColor, mDrawMode);
     return this;
 }
 
-Sexy::Graphics* Sexy::Graphics::FillRect(TRect<int> const& theRect)
+Sexy::Graphics *Sexy::Graphics::FillRect(TRect<int> const &theRect)
 {
     return FillRect(theRect.mX, theRect.mY, theRect.mWidth, theRect.mHeight);
 }
 
-Sexy::Graphics* Sexy::Graphics::DrawRect(int theX, int theY, int theWidth, int theHeight)
+Sexy::Graphics *Sexy::Graphics::DrawRect(int theX, int theY, int theWidth, int theHeight)
 {
     if (mDestImage == nullptr)
         return this;
-    Color const& aColor = DrawColor();
+    Color const &aColor = DrawColor();
     if (aColor.mAlpha == 0)
         return this;
 
@@ -333,8 +331,8 @@ Sexy::Graphics* Sexy::Graphics::DrawRect(int theX, int theY, int theWidth, int t
     if (aX >= aClipX)
         aClipX = aX;
     int aClippedWidth = (aX + aOutlineWidth > mClipRect.mX + mClipRect.mWidth)
-                            ? mClipRect.mX + mClipRect.mWidth - aClipX
-                            : aX + aOutlineWidth - aClipX;
+        ? mClipRect.mX + mClipRect.mWidth - aClipX
+        : aX + aOutlineWidth - aClipX;
     int aClipY = mClipRect.mY;
     if (aClipY < aY)
         aClipY = aY;
@@ -358,8 +356,7 @@ Sexy::Graphics* Sexy::Graphics::DrawRect(int theX, int theY, int theWidth, int t
             aDeviceWidth = (int)ceil((float)theWidth * mScaleX);
             aDeviceHeight = (int)ceil((float)mScaleY * (float)theHeight);
         }
-        mDestImage->DrawRect(TRect<int>(aDeviceX, aDeviceY, aDeviceWidth, aDeviceHeight),
-                             aColor, mDrawMode);
+        mDestImage->DrawRect(TRect<int>(aDeviceX, aDeviceY, aDeviceWidth, aDeviceHeight), aColor, mDrawMode);
         return this;
     }
 
@@ -370,7 +367,7 @@ Sexy::Graphics* Sexy::Graphics::DrawRect(int theX, int theY, int theWidth, int t
     return this;
 }
 
-Sexy::Graphics* Sexy::Graphics::DrawRect(TRect<int> const& theRect)
+Sexy::Graphics *Sexy::Graphics::DrawRect(TRect<int> const &theRect)
 {
     return DrawRect(theRect.mX, theRect.mY, theRect.mWidth, theRect.mHeight);
 }
@@ -382,8 +379,7 @@ void Sexy::Graphics::DeleteEdge(int theIndex)
         if (mActiveEdges[anEdge].mIndex == theIndex)
         {
             --mActiveEdgeCount;
-            memmove(&mActiveEdges[anEdge], &mActiveEdges[anEdge + 1],
-                    sizeof(ActiveEdge) * (mActiveEdgeCount - anEdge));
+            memmove(&mActiveEdges[anEdge], &mActiveEdges[anEdge + 1], sizeof(ActiveEdge) * (mActiveEdgeCount - anEdge));
             break;
         }
     }
@@ -392,8 +388,8 @@ void Sexy::Graphics::DeleteEdge(int theIndex)
 void Sexy::Graphics::InsertEdge(int theIndex, int theScanY)
 {
     int aNext = (mPointCount - 1 <= theIndex) ? 0 : theIndex + 1;
-    TPoint<int> const& aCur = mPolyPoints[theIndex];
-    TPoint<int> const& aFollowing = mPolyPoints[aNext];
+    TPoint<int> const &aCur = mPolyPoints[theIndex];
+    TPoint<int> const &aFollowing = mPolyPoints[aNext];
     bool aSwapped = aCur.mY >= aFollowing.mY;
     int aUpperX = aSwapped ? aFollowing.mX : aCur.mX;
     int aUpperY = aSwapped ? aFollowing.mY : aCur.mY;
@@ -409,15 +405,14 @@ void Sexy::Graphics::InsertEdge(int theIndex, int theScanY)
     ++mActiveEdgeCount;
 }
 
-void Sexy::Graphics::PolyFill(TPoint<int> const* thePoints, int theCount, bool theConvex)
+void Sexy::Graphics::PolyFill(TPoint<int> const *thePoints, int theCount, bool theConvex)
 {
     if (mDestImage == nullptr || theCount <= 0)
         return;
 
     if (theConvex)
     {
-        mDestImage->PolyFill3D(thePoints, theCount, &mClipRect, mColor, mDrawMode,
-                               (int)mTransX, (int)mTransY, true);
+        mDestImage->PolyFill3D(thePoints, theCount, &mClipRect, mColor, mDrawMode, (int)mTransX, (int)mTransY, true);
     }
 
     mPointCount = theCount;
@@ -441,7 +436,7 @@ void Sexy::Graphics::PolyFill(TPoint<int> const* thePoints, int theCount, bool t
 
     for (int aY = aStartY; aY <= aLastY; ++aY)
     {
-        for (int aCursor = 0; aCursor < mPointCount; )
+        for (int aCursor = 0; aCursor < mPointCount;)
         {
             int aPoint = anIndices[aCursor];
             double aScanY = (double)aY + 0.5;
@@ -472,8 +467,7 @@ void Sexy::Graphics::PolyFill(TPoint<int> const* thePoints, int theCount, bool t
                 if (++aCursor >= mPointCount)
                     break;
                 aPoint = anIndices[aCursor];
-            }
-            while ((float)((float)thePoints[aPoint].mY + mTransY) <= aScanY);
+            } while ((float)((float)thePoints[aPoint].mY + mTransY) <= aScanY);
         }
 
         qsort(mActiveEdges, mActiveEdgeCount, sizeof(ActiveEdge), CompareEdgeX);
@@ -506,16 +500,15 @@ void Sexy::Graphics::PolyFill(TPoint<int> const* thePoints, int theCount, bool t
     mActiveEdges = nullptr;
 }
 
-void Sexy::Graphics::PolyFillAA(TPoint<int> const* thePoints, int theCount, bool theConvex)
+void Sexy::Graphics::PolyFillAA(TPoint<int> const *thePoints, int theCount, bool theConvex)
 {
     if (mDestImage == nullptr || theCount <= 0)
         return;
 
-    Color const& aColor = DrawColor();
+    Color const &aColor = DrawColor();
     if (theConvex)
     {
-        mDestImage->PolyFill3D(thePoints, theCount, &mClipRect, aColor, mDrawMode,
-                               (int)mTransX, (int)mTransY, true);
+        mDestImage->PolyFill3D(thePoints, theCount, &mClipRect, aColor, mDrawMode, (int)mTransX, (int)mTransY, true);
     }
 
     int aMinX = thePoints[0].mX;
@@ -658,8 +651,7 @@ void Sexy::Graphics::PolyFillAA(TPoint<int> const* thePoints, int theCount, bool
 
                 if (anEndX == aStartX)
                 {
-                    int aNewCoverage = aCoverage[aRowOffset + anEndX]
-                                     + ((aRightCoverage * aLeftCoverage) >> 8);
+                    int aNewCoverage = aCoverage[aRowOffset + anEndX] + ((aRightCoverage * aLeftCoverage) >> 8);
                     if (aNewCoverage > 254)
                         aNewCoverage = 255;
                     aCoverage[aRowOffset + anEndX] = (unsigned char)aNewCoverage;
@@ -683,11 +675,11 @@ void Sexy::Graphics::PolyFillAA(TPoint<int> const* thePoints, int theCount, bool
                         {
                             int aValue = (int)(fabs(aRamp + (double)aStartX * anInvSlope) * 255.0);
                             int aNewCoverage = aCoverage[aRowOffset + aStartX] + ((aValue > 255) ? 255 : aValue);
-                            aCoverage[aRowOffset + aStartX] = (unsigned char)((aNewCoverage > 254) ? 255 : aNewCoverage);
+                            aCoverage[aRowOffset + aStartX] =
+                                (unsigned char)((aNewCoverage > 254) ? 255 : aNewCoverage);
                             aLeftSlope -= 1.0;
                             ++aStartX;
-                        }
-                        while (aStartX <= anEndX && aLeftSlope > 0.0);
+                        } while (aStartX <= anEndX && aLeftSlope > 0.0);
                     }
 
                     double aRightSlope = fabs(aRight.mSlope);
@@ -710,8 +702,7 @@ void Sexy::Graphics::PolyFillAA(TPoint<int> const* thePoints, int theCount, bool
                             aCoverage[aRowOffset + anEndX] = (unsigned char)((aNewCoverage > 254) ? 255 : aNewCoverage);
                             aRightSlope -= 1.0;
                             --anEndX;
-                        }
-                        while (anEndX >= aStartX && aRightSlope > 0.0);
+                        } while (anEndX >= aStartX && aRightSlope > 0.0);
                     }
 
                     if (aStartX <= anEndX)
@@ -730,8 +721,8 @@ void Sexy::Graphics::PolyFillAA(TPoint<int> const* thePoints, int theCount, bool
         }
     }
 
-    mDestImage->FillScanLinesWithCoverage(aSpans, aSpanCount, aColor, mDrawMode,
-                                          aCoverage, aMinX, aMinY, aStride, aCoverageHeight);
+    mDestImage->FillScanLinesWithCoverage(
+        aSpans, aSpanCount, aColor, mDrawMode, aCoverage, aMinX, aMinY, aStride, aCoverageHeight);
     if (aCoverage != gCoverageTable)
         delete[] aCoverage;
     delete[] aSorted;
@@ -812,11 +803,11 @@ bool Sexy::Graphics::ClipLine(double *theStartX, double *theStartY, double *theE
     return false;
 }
 
-Sexy::Graphics* Sexy::Graphics::DrawLine(int theStartX, int theStartY, int theEndX, int theEndY)
+Sexy::Graphics *Sexy::Graphics::DrawLine(int theStartX, int theStartY, int theEndX, int theEndY)
 {
     if (mDestImage == nullptr)
         return this;
-    Color const& aColor = DrawColor();
+    Color const &aColor = DrawColor();
     double aX1 = (float)((float)theStartX + mTransX);
     double aX2 = (float)((float)theEndX + mTransX);
     double aY1 = (float)((float)theStartY + mTransY);
@@ -837,11 +828,11 @@ Sexy::Graphics* Sexy::Graphics::DrawLine(int theStartX, int theStartY, int theEn
     return this;
 }
 
-Sexy::Graphics* Sexy::Graphics::DrawLineAA(int theStartX, int theStartY, int theEndX, int theEndY)
+Sexy::Graphics *Sexy::Graphics::DrawLineAA(int theStartX, int theStartY, int theEndX, int theEndY)
 {
     if (mDestImage == nullptr)
         return this;
-    Color const& aColor = DrawColor();
+    Color const &aColor = DrawColor();
     double aX1 = (float)((float)theStartX + mTransX);
     double aX2 = (float)((float)theEndX + mTransX);
     double aY1 = (float)((float)theStartY + mTransY);
@@ -862,7 +853,7 @@ Sexy::Graphics* Sexy::Graphics::DrawLineAA(int theStartX, int theStartY, int the
     return this;
 }
 
-Sexy::Graphics* Sexy::Graphics::DrawImage(Sexy::Image * theImage, int theX, int theY, TRect<int> const& theSrcRect)
+Sexy::Graphics *Sexy::Graphics::DrawImage(Sexy::Image *theImage, int theX, int theY, TRect<int> const &theSrcRect)
 {
     if (theImage == nullptr || mDestImage == nullptr)
         return this;
@@ -877,8 +868,8 @@ Sexy::Graphics* Sexy::Graphics::DrawImage(Sexy::Image * theImage, int theX, int 
     {
         int aClippedX = (mClipRect.mX < aX) ? aX : mClipRect.mX;
         int aClippedWidth = (mClipRect.mX + mClipRect.mWidth > aX + theSrcRect.mWidth)
-                              ? aX + theSrcRect.mWidth - aClippedX
-                              : mClipRect.mX + mClipRect.mWidth - aClippedX;
+            ? aX + theSrcRect.mWidth - aClippedX
+            : mClipRect.mX + mClipRect.mWidth - aClippedX;
         int aClippedY = (mClipRect.mY < aY) ? aY : mClipRect.mY;
         int aClippedBottom = theSrcRect.mHeight + aY;
         if (mClipRect.mHeight + mClipRect.mY < aClippedBottom)
@@ -886,21 +877,20 @@ Sexy::Graphics* Sexy::Graphics::DrawImage(Sexy::Image * theImage, int theX, int 
         int aClippedHeight = aClippedBottom - aClippedY;
         if (aClippedWidth <= 0 || aClippedHeight <= 0)
             return this;
-        TRect<int> aSrc(theSrcRect.mX + aClippedX - aX, theSrcRect.mY + aClippedY - aY,
-                        aClippedWidth, aClippedHeight);
+        TRect<int> aSrc(theSrcRect.mX + aClippedX - aX, theSrcRect.mY + aClippedY - aY, aClippedWidth, aClippedHeight);
         mDestImage->Blt(theImage, aClippedX, aClippedY, aSrc, GetImageColor(), mDrawMode, mColorizeImages);
         return this;
     }
 
     TRect<int> aDest((int)(floor((float)((float)aX - mScaleOrigX) * mScaleX) + mScaleOrigX),
-                     (int)(floor((float)mScaleY * (float)((float)aY - mScaleOrigY)) + mScaleOrigY),
-                     (int)ceil((float)theSrcRect.mWidth * mScaleX),
-                     (int)ceil((float)mScaleY * (float)theSrcRect.mHeight));
+        (int)(floor((float)mScaleY * (float)((float)aY - mScaleOrigY)) + mScaleOrigY),
+        (int)ceil((float)theSrcRect.mWidth * mScaleX),
+        (int)ceil((float)mScaleY * (float)theSrcRect.mHeight));
     mDestImage->StretchBlt(theImage, aDest, theSrcRect, mClipRect, GetImageColor(), mDrawMode, mFastStretch);
     return this;
 }
 
-Sexy::Graphics* Sexy::Graphics::DrawImage(Sexy::Image * theImage, int theX, int theY)
+Sexy::Graphics *Sexy::Graphics::DrawImage(Sexy::Image *theImage, int theX, int theY)
 {
     if (theImage == nullptr || mDestImage == nullptr)
         return this;
@@ -910,8 +900,8 @@ Sexy::Graphics* Sexy::Graphics::DrawImage(Sexy::Image * theImage, int theX, int 
         int aY = (int)mTransY + theY;
         int aClippedX = (mClipRect.mX < aX) ? aX : mClipRect.mX;
         int aClippedWidth = (aX + theImage->GetWidth() > mClipRect.mX + mClipRect.mWidth)
-                              ? mClipRect.mX + mClipRect.mWidth - aClippedX
-                              : aX + theImage->GetWidth() - aClippedX;
+            ? mClipRect.mX + mClipRect.mWidth - aClippedX
+            : aX + theImage->GetWidth() - aClippedX;
         int aClippedY = (mClipRect.mY < aY) ? aY : mClipRect.mY;
         int aClippedBottom = aY + theImage->GetHeight();
         if (aClippedBottom > mClipRect.mY + mClipRect.mHeight)
@@ -926,7 +916,8 @@ Sexy::Graphics* Sexy::Graphics::DrawImage(Sexy::Image * theImage, int theX, int 
     return DrawImage(theImage, theX, theY, TRect<int>(0, 0, theImage->GetWidth(), theImage->GetHeight()));
 }
 
-Sexy::Graphics* Sexy::Graphics::DrawImageMirror(Sexy::Image * theImage, int theX, int theY, TRect<int> const& theSrcRect, bool theMirror)
+Sexy::Graphics *Sexy::Graphics::DrawImageMirror(
+    Sexy::Image *theImage, int theX, int theY, TRect<int> const &theSrcRect, bool theMirror)
 {
     if (!theMirror)
         return DrawImage(theImage, theX, theY, theSrcRect);
@@ -941,8 +932,8 @@ Sexy::Graphics* Sexy::Graphics::DrawImageMirror(Sexy::Image * theImage, int theX
     int aY = theY + (int)mTransY;
     int aClippedX = (mClipRect.mX < aX) ? aX : mClipRect.mX;
     int aClippedWidth = (mClipRect.mX + mClipRect.mWidth > aX + theSrcRect.mWidth)
-                          ? aX + theSrcRect.mWidth - aClippedX
-                          : mClipRect.mX + mClipRect.mWidth - aClippedX;
+        ? aX + theSrcRect.mWidth - aClippedX
+        : mClipRect.mX + mClipRect.mWidth - aClippedX;
     int aClippedY = (mClipRect.mY < aY) ? aY : mClipRect.mY;
     int aClippedBottom = mClipRect.mY + mClipRect.mHeight;
     if (aClippedBottom >= theSrcRect.mHeight + aY)
@@ -952,8 +943,9 @@ Sexy::Graphics* Sexy::Graphics::DrawImageMirror(Sexy::Image * theImage, int theX
         return this;
 
     TRect<int> aSrc(theSrcRect.mX + theSrcRect.mWidth - aClippedWidth - (aClippedX - aX),
-                    theSrcRect.mY + aClippedY - aY,
-                    aClippedWidth, aClippedHeight);
+        theSrcRect.mY + aClippedY - aY,
+        aClippedWidth,
+        aClippedHeight);
     if (mApplyGlobalScale && (mScaleX != 1.0f || mScaleY != 1.0f))
     {
         aClippedX = (int)(floor((float)((float)aClippedX - mScaleOrigX) * mScaleX) + mScaleOrigX);
@@ -963,14 +955,15 @@ Sexy::Graphics* Sexy::Graphics::DrawImageMirror(Sexy::Image * theImage, int theX
     return this;
 }
 
-Sexy::Graphics* Sexy::Graphics::DrawImageMirror(Sexy::Image * theImage, int theX, int theY, bool theMirror)
+Sexy::Graphics *Sexy::Graphics::DrawImageMirror(Sexy::Image *theImage, int theX, int theY, bool theMirror)
 {
     if (theImage == nullptr)
         return this;
-    return DrawImageMirror(theImage, theX, theY, TRect<int>(0, 0, theImage->GetWidth(), theImage->GetHeight()), theMirror);
+    return DrawImageMirror(
+        theImage, theX, theY, TRect<int>(0, 0, theImage->GetWidth(), theImage->GetHeight()), theMirror);
 }
 
-Sexy::Graphics* Sexy::Graphics::DrawImage(Sexy::Image * theImage, int theX, int theY, int theWidth, int theHeight)
+Sexy::Graphics *Sexy::Graphics::DrawImage(Sexy::Image *theImage, int theX, int theY, int theWidth, int theHeight)
 {
     if (theImage == nullptr || mDestImage == nullptr)
         return this;
@@ -993,7 +986,8 @@ Sexy::Graphics* Sexy::Graphics::DrawImage(Sexy::Image * theImage, int theX, int 
     return this;
 }
 
-Sexy::Graphics* Sexy::Graphics::DrawImage(Sexy::Image * theImage, TRect<int> const& theDestRect, TRect<int> const& theSrcRect)
+Sexy::Graphics *Sexy::Graphics::DrawImage(
+    Sexy::Image *theImage, TRect<int> const &theDestRect, TRect<int> const &theSrcRect)
 {
     if (theImage == nullptr || mDestImage == nullptr)
         return this;
@@ -1029,29 +1023,26 @@ Sexy::Graphics* Sexy::Graphics::DrawImage(Sexy::Image * theImage, TRect<int> con
     }
     TRect<int> aClippedSrc(aClipX, aClipY, aClipWidth, aClipHeight);
 
-    bool aNeedsScale = theSrcRect.mX != aClipX
-                    || aClipY != theSrcRect.mY
-                    || theSrcRect.mWidth != aClipWidth
-                    || theSrcRect.mHeight != aClipHeight;
+    bool aNeedsScale = theSrcRect.mX != aClipX || aClipY != theSrcRect.mY || theSrcRect.mWidth != aClipWidth ||
+        theSrcRect.mHeight != aClipHeight;
     if (aNeedsScale && theSrcRect.mWidth != 0 && theSrcRect.mHeight != 0)
     {
         float aRatioX = (float)aDestWidth / (float)theSrcRect.mWidth;
         float aRatioY = (float)aDestHeight / (float)theSrcRect.mHeight;
         TRect<int> aScaled((int)(float)((float)aDestX + (float)((float)(aClipX - theSrcRect.mX) * aRatioX)),
-                           (int)(float)((float)aDestY + (float)((float)(aClipY - theSrcRect.mY) * aRatioY)),
-                           (int)ceilf((float)aClipWidth * aRatioX),
-                           (int)ceilf((float)aClipHeight * aRatioY));
-        mDestImage->StretchBlt(theImage, aScaled, aClippedSrc, mClipRect,
-                               GetImageColor(), mDrawMode, mFastStretch);
+            (int)(float)((float)aDestY + (float)((float)(aClipY - theSrcRect.mY) * aRatioY)),
+            (int)ceilf((float)aClipWidth * aRatioX),
+            (int)ceilf((float)aClipHeight * aRatioY));
+        mDestImage->StretchBlt(theImage, aScaled, aClippedSrc, mClipRect, GetImageColor(), mDrawMode, mFastStretch);
         return this;
     }
     TRect<int> aDest(aDestX, aDestY, aDestWidth, aDestHeight);
-    mDestImage->StretchBlt(theImage, aDest, theSrcRect, mClipRect,
-                           GetImageColor(), mDrawMode, mFastStretch);
+    mDestImage->StretchBlt(theImage, aDest, theSrcRect, mClipRect, GetImageColor(), mDrawMode, mFastStretch);
     return this;
 }
 
-Sexy::Graphics* Sexy::Graphics::DrawImageMirror(Sexy::Image * theImage, TRect<int> const& theDestRect, TRect<int> const& theSrcRect, bool theMirror)
+Sexy::Graphics *Sexy::Graphics::DrawImageMirror(
+    Sexy::Image *theImage, TRect<int> const &theDestRect, TRect<int> const &theSrcRect, bool theMirror)
 {
     if (!theMirror)
         return DrawImage(theImage, theDestRect, theSrcRect);
@@ -1070,12 +1061,11 @@ Sexy::Graphics* Sexy::Graphics::DrawImageMirror(Sexy::Image * theImage, TRect<in
         aHeight = (int)ceil((float)(mScaleY * (float)theDestRect.mHeight));
     }
     TRect<int> aDest(aX, aY, aWidth, aHeight);
-    mDestImage->StretchBltMirror(theImage, aDest, theSrcRect, mClipRect,
-                                 GetImageColor(), mDrawMode, mFastStretch);
+    mDestImage->StretchBltMirror(theImage, aDest, theSrcRect, mClipRect, GetImageColor(), mDrawMode, mFastStretch);
     return this;
 }
 
-Sexy::Graphics* Sexy::Graphics::DrawImageF(Sexy::Image * theImage, float theX, float theY, TRect<int> const& theSrcRect)
+Sexy::Graphics *Sexy::Graphics::DrawImageF(Sexy::Image *theImage, float theX, float theY, TRect<int> const &theSrcRect)
 {
     if (theImage == nullptr || mDestImage == nullptr)
         return this;
@@ -1087,14 +1077,14 @@ Sexy::Graphics* Sexy::Graphics::DrawImageF(Sexy::Image * theImage, float theX, f
         return this;
     }
     TRect<int> aDest((int)(mScaleOrigX + (float)((float)(aX - mScaleOrigX) * mScaleX)),
-                     (int)(mScaleOrigY + (float)(mScaleY * (float)(aY - mScaleOrigY))),
-                     (int)(float)((float)theSrcRect.mWidth * mScaleX),
-                     (int)(float)(mScaleY * (float)theSrcRect.mHeight));
+        (int)(mScaleOrigY + (float)(mScaleY * (float)(aY - mScaleOrigY))),
+        (int)(float)((float)theSrcRect.mWidth * mScaleX),
+        (int)(float)(mScaleY * (float)theSrcRect.mHeight));
     mDestImage->StretchBlt(theImage, aDest, theSrcRect, mClipRect, GetImageColor(), mDrawMode, mFastStretch);
     return this;
 }
 
-Sexy::Graphics* Sexy::Graphics::DrawImageF(Sexy::Image * theImage, float theX, float theY)
+Sexy::Graphics *Sexy::Graphics::DrawImageF(Sexy::Image *theImage, float theX, float theY)
 {
     if (theImage == nullptr || mDestImage == nullptr)
         return this;
@@ -1107,7 +1097,8 @@ Sexy::Graphics* Sexy::Graphics::DrawImageF(Sexy::Image * theImage, float theX, f
     return DrawImageF(theImage, theX, theY, TRect<int>(0, 0, theImage->mWidth, theImage->mHeight));
 }
 
-void Sexy::Graphics::DrawImageRotatedF(Sexy::Image * theImage, float theX, float theY, double theRot, float theCenterX, float theCenterY, TRect<int> const* theSrcRect)
+void Sexy::Graphics::DrawImageRotatedF(Sexy::Image *theImage, float theX, float theY, double theRot, float theCenterX,
+    float theCenterY, TRect<int> const *theSrcRect)
 {
     if (theImage == nullptr || mDestImage == nullptr)
         return;
@@ -1115,57 +1106,84 @@ void Sexy::Graphics::DrawImageRotatedF(Sexy::Image * theImage, float theX, float
     float aY = theY + mTransY;
     if (theSrcRect != nullptr)
     {
-        mDestImage->BltRotated(theImage, aX, aY, *theSrcRect, mClipRect, GetImageColor(),
-                               mDrawMode, theRot, theCenterX, theCenterY);
+        mDestImage->BltRotated(
+            theImage, aX, aY, *theSrcRect, mClipRect, GetImageColor(), mDrawMode, theRot, theCenterX, theCenterY);
         return;
     }
     TRect<int> aSrc(0, 0, theImage->mWidth, theImage->mHeight);
-    mDestImage->BltRotated(theImage, aX, aY, aSrc, mClipRect, GetImageColor(),
-                           mDrawMode, theRot, theCenterX, theCenterY);
+    mDestImage->BltRotated(
+        theImage, aX, aY, aSrc, mClipRect, GetImageColor(), mDrawMode, theRot, theCenterX, theCenterY);
 }
 
-void Sexy::Graphics::DrawImageRotated(Sexy::Image * theImage, int theX, int theY, double theRot, TRect<int> const* theSrcRect)
+void Sexy::Graphics::DrawImageRotated(
+    Sexy::Image *theImage, int theX, int theY, double theRot, TRect<int> const *theSrcRect)
 {
     if (theImage == nullptr)
         return;
     if (theSrcRect != nullptr)
     {
-        DrawImageRotatedF(theImage, (float)theX, (float)theY, theRot,
-                          (float)(theSrcRect->mWidth / 2), (float)(theSrcRect->mHeight / 2), theSrcRect);
+        DrawImageRotatedF(theImage,
+            (float)theX,
+            (float)theY,
+            theRot,
+            (float)(theSrcRect->mWidth / 2),
+            (float)(theSrcRect->mHeight / 2),
+            theSrcRect);
         return;
     }
-    DrawImageRotatedF(theImage, (float)theX, (float)theY, theRot,
-                      (float)(theImage->GetWidth() / 2), (float)(theImage->GetHeight() / 2), nullptr);
+    DrawImageRotatedF(theImage,
+        (float)theX,
+        (float)theY,
+        theRot,
+        (float)(theImage->GetWidth() / 2),
+        (float)(theImage->GetHeight() / 2),
+        nullptr);
 }
 
-void Sexy::Graphics::DrawImageRotatedF(Sexy::Image * theImage, float theX, float theY, double theRot, TRect<int> const* theSrcRect)
+void Sexy::Graphics::DrawImageRotatedF(
+    Sexy::Image *theImage, float theX, float theY, double theRot, TRect<int> const *theSrcRect)
 {
     if (theImage == nullptr)
         return;
     if (theSrcRect != nullptr)
     {
-        DrawImageRotatedF(theImage, theX, theY, theRot,
-                          (float)theSrcRect->mWidth * 0.5f, (float)theSrcRect->mHeight * 0.5f, theSrcRect);
+        DrawImageRotatedF(theImage,
+            theX,
+            theY,
+            theRot,
+            (float)theSrcRect->mWidth * 0.5f,
+            (float)theSrcRect->mHeight * 0.5f,
+            theSrcRect);
         return;
     }
-    DrawImageRotatedF(theImage, theX, theY, theRot,
-                      (float)theImage->GetWidth() * 0.5f, (float)theImage->GetHeight() * 0.5f, nullptr);
+    DrawImageRotatedF(
+        theImage, theX, theY, theRot, (float)theImage->GetWidth() * 0.5f, (float)theImage->GetHeight() * 0.5f, nullptr);
 }
 
-void Sexy::Graphics::DrawImageRotated(Sexy::Image * theImage, int theX, int theY, double theRot, int theCenterX, int theCenterY, TRect<int> const* theSrcRect)
+void Sexy::Graphics::DrawImageRotated(Sexy::Image *theImage, int theX, int theY, double theRot, int theCenterX,
+    int theCenterY, TRect<int> const *theSrcRect)
 {
     DrawImageRotatedF(theImage, (float)theX, (float)theY, theRot, (float)theCenterX, (float)theCenterY, theSrcRect);
 }
 
-Sexy::Graphics* Sexy::Graphics::DrawImageMatrix(Sexy::Image * theImage, SexyMatrix3 const& theMatrix, float theX, float theY, bool theMirror)
+Sexy::Graphics *Sexy::Graphics::DrawImageMatrix(
+    Sexy::Image *theImage, SexyMatrix3 const &theMatrix, float theX, float theY, bool theMirror)
 {
     if (theImage == nullptr || mDestImage == nullptr)
         return this;
     TRect<int> aSrc(0, 0, theImage->mWidth, theImage->mHeight);
     if (ScaleIsIdentity())
     {
-        mDestImage->BltMatrix(theImage, theX + mTransX, theY + mTransY, theMatrix, aSrc,
-                              GetImageColor(), mDrawMode, mClipRect, mLinearBlend, theMirror);
+        mDestImage->BltMatrix(theImage,
+            theX + mTransX,
+            theY + mTransY,
+            theMatrix,
+            aSrc,
+            GetImageColor(),
+            mDrawMode,
+            mClipRect,
+            mLinearBlend,
+            theMirror);
         return this;
     }
     float aOrigX = mScaleOrigX;
@@ -1174,20 +1192,37 @@ Sexy::Graphics* Sexy::Graphics::DrawImageMatrix(Sexy::Image * theImage, SexyMatr
     double aScaledY = floor((float)(mScaleY * (float)((float)(mTransY - aOrigY) + theY)));
     SexyTransform2D aTransform(theMatrix);
     aTransform.Scale(mScaleX, mScaleY);
-    Color const& aColor = mColorizeImages ? mColor : Color::White;
-    mDestImage->BltMatrix(theImage, (float)aScaledX + aOrigX, (float)aScaledY + aOrigY,
-                          aTransform, aSrc, aColor, mDrawMode, mClipRect, mLinearBlend, theMirror);
+    Color const &aColor = mColorizeImages ? mColor : Color::White;
+    mDestImage->BltMatrix(theImage,
+        (float)aScaledX + aOrigX,
+        (float)aScaledY + aOrigY,
+        aTransform,
+        aSrc,
+        aColor,
+        mDrawMode,
+        mClipRect,
+        mLinearBlend,
+        theMirror);
     return this;
 }
 
-Sexy::Graphics* Sexy::Graphics::DrawImageMatrix(Sexy::Image * theImage, SexyMatrix3 const& theMatrix, TRect<int> const& theSrcRect, float theX, float theY, bool theMirror)
+Sexy::Graphics *Sexy::Graphics::DrawImageMatrix(Sexy::Image *theImage, SexyMatrix3 const &theMatrix,
+    TRect<int> const &theSrcRect, float theX, float theY, bool theMirror)
 {
     if (theImage == nullptr || mDestImage == nullptr)
         return this;
     if (ScaleIsIdentity())
     {
-        mDestImage->BltMatrix(theImage, theX + mTransX, theY + mTransY, theMatrix, theSrcRect,
-                              GetImageColor(), mDrawMode, mClipRect, mLinearBlend, theMirror);
+        mDestImage->BltMatrix(theImage,
+            theX + mTransX,
+            theY + mTransY,
+            theMatrix,
+            theSrcRect,
+            GetImageColor(),
+            mDrawMode,
+            mClipRect,
+            mLinearBlend,
+            theMirror);
         return this;
     }
     float aOrigX = mScaleOrigX;
@@ -1196,12 +1231,21 @@ Sexy::Graphics* Sexy::Graphics::DrawImageMatrix(Sexy::Image * theImage, SexyMatr
     double aScaledY = floor((float)(mScaleY * (float)((float)(mTransY - aOrigY) + theY)));
     SexyTransform2D aTransform(theMatrix);
     aTransform.Scale(mScaleX, mScaleY);
-    mDestImage->BltMatrix(theImage, (float)aScaledX + aOrigX, (float)aScaledY + aOrigY,
-                          aTransform, theSrcRect, GetImageColor(), mDrawMode, mClipRect, mLinearBlend, theMirror);
+    mDestImage->BltMatrix(theImage,
+        (float)aScaledX + aOrigX,
+        (float)aScaledY + aOrigY,
+        aTransform,
+        theSrcRect,
+        GetImageColor(),
+        mDrawMode,
+        mClipRect,
+        mLinearBlend,
+        theMirror);
     return this;
 }
 
-void Sexy::Graphics::DrawImageTransformHelper(Sexy::Image * theImage, Sexy::Transform const& theTransform, TRect<int> const& theSrcRect, float theX, float theY, bool theUseFloat)
+void Sexy::Graphics::DrawImageTransformHelper(Sexy::Image *theImage, Sexy::Transform const &theTransform,
+    TRect<int> const &theSrcRect, float theX, float theY, bool theUseFloat)
 {
     if (theTransform.mNeedCalc)
     {
@@ -1223,7 +1267,8 @@ void Sexy::Graphics::DrawImageTransformHelper(Sexy::Image * theImage, Sexy::Tran
         if (theUseFloat)
             DrawImageRotatedF(theImage, aX, aY, theTransform.mRotation, aCenterX, aCenterY, &theSrcRect);
         else
-            DrawImageRotated(theImage, (int)aX, (int)aY, theTransform.mRotation, (int)aCenterX, (int)aCenterY, &theSrcRect);
+            DrawImageRotated(
+                theImage, (int)aX, (int)aY, theTransform.mRotation, (int)aCenterX, (int)aCenterY, &theSrcRect);
         return;
     }
     if (theTransform.mScaled)
@@ -1236,54 +1281,65 @@ void Sexy::Graphics::DrawImageTransformHelper(Sexy::Image * theImage, Sexy::Tran
             if (aScaleY == 1.0f)
             {
                 DrawImageMirror(theImage,
-                    (int)(float)((float)((float)(theTransform.mTransX + theTransform.mRotateCenterX) + 0.5f) - aHalfWidth + theX),
-                    (int)(float)((float)((float)(theTransform.mTransY + theTransform.mRotateCenterY) + 0.5f) - aHalfHeight + theY),
-                    theSrcRect, true);
+                    (int)(float)((float)((float)(theTransform.mTransX + theTransform.mRotateCenterX) + 0.5f) -
+                        aHalfWidth + theX),
+                    (int)(float)((float)((float)(theTransform.mTransY + theTransform.mRotateCenterY) + 0.5f) -
+                        aHalfHeight + theY),
+                    theSrcRect,
+                    true);
                 return;
             }
             aMirror = true;
         }
         TRect<int> aDest((int)(float)((float)(theTransform.mRotateCenterX - aHalfWidth * aScaleX) + theX),
-                         (int)(float)((float)(theY + theTransform.mRotateCenterY) - aHalfHeight * aScaleY),
-                         (int)(float)(aHalfWidth * aScaleX * 2.0f),
-                         (int)(float)(aHalfHeight * aScaleY * 2.0f));
+            (int)(float)((float)(theY + theTransform.mRotateCenterY) - aHalfHeight * aScaleY),
+            (int)(float)(aHalfWidth * aScaleX * 2.0f),
+            (int)(float)(aHalfHeight * aScaleY * 2.0f));
         DrawImageMirror(theImage, aDest, theSrcRect, aMirror);
         return;
     }
 
     float aX = (float)((float)((float)(theTransform.mTransX + theTransform.mRotateCenterX) + 0.5f) - aHalfWidth) + theX;
-    float aY = (float)((float)((float)(theTransform.mTransY + theTransform.mRotateCenterY) + 0.5f) - aHalfHeight) + theY;
+    float aY =
+        (float)((float)((float)(theTransform.mTransY + theTransform.mRotateCenterY) + 0.5f) - aHalfHeight) + theY;
     if (theUseFloat)
         DrawImageF(theImage, aX, aY, theSrcRect);
     else
         DrawImage(theImage, (int)aX, (int)aY, theSrcRect);
 }
 
-void Sexy::Graphics::DrawImageTransform(Sexy::Image * theImage, Sexy::Transform const& theTransform, float theX, float theY)
+void Sexy::Graphics::DrawImageTransform(
+    Sexy::Image *theImage, Sexy::Transform const &theTransform, float theX, float theY)
 {
     if (theImage == nullptr)
         return;
-    DrawImageTransformHelper(theImage, theTransform, TRect<int>(0, 0, theImage->mWidth, theImage->mHeight), theX, theY, false);
+    DrawImageTransformHelper(
+        theImage, theTransform, TRect<int>(0, 0, theImage->mWidth, theImage->mHeight), theX, theY, false);
 }
 
-void Sexy::Graphics::DrawImageTransformF(Sexy::Image * theImage, Sexy::Transform const& theTransform, float theX, float theY)
+void Sexy::Graphics::DrawImageTransformF(
+    Sexy::Image *theImage, Sexy::Transform const &theTransform, float theX, float theY)
 {
     if (theImage == nullptr)
         return;
-    DrawImageTransformHelper(theImage, theTransform, TRect<int>(0, 0, theImage->mWidth, theImage->mHeight), theX, theY, true);
+    DrawImageTransformHelper(
+        theImage, theTransform, TRect<int>(0, 0, theImage->mWidth, theImage->mHeight), theX, theY, true);
 }
 
-void Sexy::Graphics::DrawImageTransform(Sexy::Image * theImage, Sexy::Transform const& theTransform, TRect<int> const& theSrcRect, float theX, float theY)
+void Sexy::Graphics::DrawImageTransform(
+    Sexy::Image *theImage, Sexy::Transform const &theTransform, TRect<int> const &theSrcRect, float theX, float theY)
 {
     DrawImageTransformHelper(theImage, theTransform, theSrcRect, theX, theY, false);
 }
 
-void Sexy::Graphics::DrawImageTransformF(Sexy::Image * theImage, Sexy::Transform const& theTransform, TRect<int> const& theSrcRect, float theX, float theY)
+void Sexy::Graphics::DrawImageTransformF(
+    Sexy::Image *theImage, Sexy::Transform const &theTransform, TRect<int> const &theSrcRect, float theX, float theY)
 {
     DrawImageTransformHelper(theImage, theTransform, theSrcRect, theX, theY, true);
 }
 
-void Sexy::Graphics::DrawTriangleTex(Sexy::Image * theImage, SexyVertex2D const& theA, SexyVertex2D const& theB, SexyVertex2D const& theC)
+void Sexy::Graphics::DrawTriangleTex(
+    Sexy::Image *theImage, SexyVertex2D const &theA, SexyVertex2D const &theB, SexyVertex2D const &theC)
 {
     SexyVertex2D aTriangle[1][3];
     aTriangle[0][0] = theA;
@@ -1292,7 +1348,8 @@ void Sexy::Graphics::DrawTriangleTex(Sexy::Image * theImage, SexyVertex2D const&
     DrawTrianglesTex(theImage, aTriangle, 1);
 }
 
-void Sexy::Graphics::DrawTrianglesTex(Sexy::Image * theImage, SexyVertex2D const(*theTriangles)[3], int theCount, Color const& theColor, int theDrawMode, float theTx, float theTy, bool theBlend, TRect<int> const* theClipRect)
+void Sexy::Graphics::DrawTrianglesTex(Sexy::Image *theImage, SexyVertex2D const (*theTriangles)[3], int theCount,
+    Color const &theColor, int theDrawMode, float theTx, float theTy, bool theBlend, TRect<int> const *theClipRect)
 {
     if (theImage == nullptr || mDestImage == nullptr || theTriangles == nullptr || theCount <= 0)
         return;
@@ -1300,12 +1357,13 @@ void Sexy::Graphics::DrawTrianglesTex(Sexy::Image * theImage, SexyVertex2D const
     mDestImage->BltTrianglesTex(theImage, theTriangles, theCount, aClip, theColor, theDrawMode, theTx, theTy, theBlend);
 }
 
-void Sexy::Graphics::DrawTrianglesTexStrip(Sexy::Image * theImage, SexyVertex2D const* theVertices, int theCount, Color const& theColor, int theDrawMode, float theTx, float theTy, bool theBlend)
+void Sexy::Graphics::DrawTrianglesTexStrip(Sexy::Image *theImage, SexyVertex2D const *theVertices, int theCount,
+    Color const &theColor, int theDrawMode, float theTx, float theTy, bool theBlend)
 {
     if (theImage == nullptr || theVertices == nullptr || theCount <= 0)
         return;
     SexyVertex2D aChunk[100][3];
-    for (int aStart = 0; aStart < theCount; )
+    for (int aStart = 0; aStart < theCount;)
     {
         int aCount = theCount - aStart;
         if (aCount > 100)
@@ -1320,13 +1378,13 @@ void Sexy::Graphics::DrawTrianglesTexStrip(Sexy::Image * theImage, SexyVertex2D 
     }
 }
 
-void Sexy::Graphics::DrawTrianglesTexStrip(Sexy::Image * theImage, SexyVertex2D const* theVertices, int theCount)
+void Sexy::Graphics::DrawTrianglesTexStrip(Sexy::Image *theImage, SexyVertex2D const *theVertices, int theCount)
 {
-    Color const& aColor = mColorizeImages ? mColor : Color::White;
+    Color const &aColor = mColorizeImages ? mColor : Color::White;
     DrawTrianglesTexStrip(theImage, theVertices, theCount, aColor, mDrawMode, mTransX, mTransY, mLinearBlend);
 }
 
-Sexy::Graphics* Sexy::Graphics::ClearClipRect()
+Sexy::Graphics *Sexy::Graphics::ClearClipRect()
 {
     if (mDestImage == nullptr)
     {
@@ -1360,7 +1418,7 @@ void Sexy::Graphics::SetClipRect(int theX, int theY, int theWidth, int theHeight
         mClipRect = TRect<int>(aClipX, aClipY, aClipWidth, aClipHeight);
 }
 
-void Sexy::Graphics::SetClipRect(TRect<int> const& theRect)
+void Sexy::Graphics::SetClipRect(TRect<int> const &theRect)
 {
     SetClipRect(theRect.mX, theRect.mY, theRect.mWidth, theRect.mHeight);
 }
@@ -1372,26 +1430,26 @@ void Sexy::Graphics::ClipRect(int theX, int theY, int theWidth, int theHeight)
     mClipRect = mClipRect.Intersection(TRect<int>(aX, aY, theWidth, theHeight));
 }
 
-void Sexy::Graphics::ClipRect(TRect<int> const& theRect)
+void Sexy::Graphics::ClipRect(TRect<int> const &theRect)
 {
     ClipRect(theRect.mX, theRect.mY, theRect.mWidth, theRect.mHeight);
 }
 
-Sexy::Graphics* Sexy::Graphics::Translate(int theX, int theY)
+Sexy::Graphics *Sexy::Graphics::Translate(int theX, int theY)
 {
     mTransX += (float)theX;
     mTransY += (float)theY;
     return this;
 }
 
-Sexy::Graphics* Sexy::Graphics::TranslateF(float theX, float theY)
+Sexy::Graphics *Sexy::Graphics::TranslateF(float theX, float theY)
 {
     mTransX += theX;
     mTransY += theY;
     return this;
 }
 
-Sexy::Graphics* Sexy::Graphics::SetScale(float theScaleX, float theScaleY, float theOrigX, float theOrigY)
+Sexy::Graphics *Sexy::Graphics::SetScale(float theScaleX, float theScaleY, float theOrigX, float theOrigY)
 {
     mScaleX = theScaleX;
     mScaleY = theScaleY;
@@ -1400,14 +1458,14 @@ Sexy::Graphics* Sexy::Graphics::SetScale(float theScaleX, float theScaleY, float
     return this;
 }
 
-int Sexy::Graphics::StringWidth(Sexy::String const& theString)
+int Sexy::Graphics::StringWidth(Sexy::String const &theString)
 {
     if (mFont == nullptr)
         return 0;
     return mFont->StringWidth(theString);
 }
 
-Sexy::Graphics* Sexy::Graphics::DrawImageCel(Sexy::Image * theImage, int theX, int theY, int theCol, int theRow)
+Sexy::Graphics *Sexy::Graphics::DrawImageCel(Sexy::Image *theImage, int theX, int theY, int theCol, int theRow)
 {
     if (theImage == nullptr)
         return this;
@@ -1418,21 +1476,22 @@ Sexy::Graphics* Sexy::Graphics::DrawImageCel(Sexy::Image * theImage, int theX, i
     return DrawImage(theImage, theX, theY, TRect<int>(theCol * aCelWidth, theRow * aCelHeight, aCelWidth, aCelHeight));
 }
 
-Sexy::Graphics* Sexy::Graphics::DrawImageCel(Sexy::Image * theImage, int theX, int theY, int theCel)
+Sexy::Graphics *Sexy::Graphics::DrawImageCel(Sexy::Image *theImage, int theX, int theY, int theCel)
 {
     if (theImage == nullptr || theImage->mNumCols == 0)
         return this;
     return DrawImageCel(theImage, theX, theY, theCel % theImage->mNumCols, theCel / theImage->mNumCols);
 }
 
-Sexy::Graphics* Sexy::Graphics::DrawImageAnim(Sexy::Image * theImage, int theX, int theY, int theTime)
+Sexy::Graphics *Sexy::Graphics::DrawImageAnim(Sexy::Image *theImage, int theX, int theY, int theTime)
 {
     if (theImage == nullptr || theImage->mAnimInfo == nullptr)
         return this;
     return DrawImageCel(theImage, theX, theY, theImage->mAnimInfo->GetCel(theTime));
 }
 
-Sexy::Graphics* Sexy::Graphics::DrawImageCel(Sexy::Image * theImage, TRect<int> const& theDestRect, int theCol, int theRow)
+Sexy::Graphics *Sexy::Graphics::DrawImageCel(
+    Sexy::Image *theImage, TRect<int> const &theDestRect, int theCol, int theRow)
 {
     if (theImage == nullptr)
         return this;
@@ -1443,23 +1502,23 @@ Sexy::Graphics* Sexy::Graphics::DrawImageCel(Sexy::Image * theImage, TRect<int> 
     return DrawImage(theImage, theDestRect, TRect<int>(theCol * aCelWidth, theRow * aCelHeight, aCelWidth, aCelHeight));
 }
 
-Sexy::Graphics* Sexy::Graphics::DrawImageCel(Sexy::Image * theImage, TRect<int> const& theDestRect, int theCel)
+Sexy::Graphics *Sexy::Graphics::DrawImageCel(Sexy::Image *theImage, TRect<int> const &theDestRect, int theCel)
 {
     if (theImage == nullptr || theImage->mNumCols == 0)
         return this;
     return DrawImageCel(theImage, theDestRect, theCel % theImage->mNumCols, theCel / theImage->mNumCols);
 }
 
-Sexy::Graphics* Sexy::Graphics::DrawString(Sexy::String const& theString, int theX, int theY)
+Sexy::Graphics *Sexy::Graphics::DrawString(Sexy::String const &theString, int theX, int theY)
 {
     if (mFont == nullptr)
         return this;
 
-    Color const& aColor = DrawColor();
+    Color const &aColor = DrawColor();
     // Sexy::String already holds the label. Widening it and calling the base
     // Font::DrawStringUnicode drops the glyphs, so the image font draws the
     // bytes it was given. A pad found at startup turns a tag into its icon here.
-    const char* aBytes = theString.c_str();
+    const char *aBytes = theString.c_str();
     unsigned int aSize = theString.size();
     int aPen = theX;
     unsigned int aIndex = 0;
@@ -1517,7 +1576,7 @@ Sexy::Graphics* Sexy::Graphics::DrawString(Sexy::String const& theString, int th
     return this;
 }
 
-void Sexy::Graphics::BindDestination(Sexy::Graphics const* theOther)
+void Sexy::Graphics::BindDestination(Sexy::Graphics const *theOther)
 {
     mGraphics3D = nullptr;
     mIs3D = false;
@@ -1546,11 +1605,11 @@ void Sexy::Graphics::BindDestination(Sexy::Graphics const* theOther)
         mIs3D = mDestImage->Is3D();
 }
 
-Sexy::Graphics::Graphics(Sexy::Image * theDestImage)
-    : mGraphics3D(nullptr)
-    , mActiveEdges(nullptr)
-    , mActiveEdgeCount(0)
-    , mPointCount(0)
+Sexy::Graphics::Graphics(Sexy::Image *theDestImage) :
+    mGraphics3D(nullptr),
+    mActiveEdges(nullptr),
+    mActiveEdgeCount(0),
+    mPointCount(0)
 {
     mClipRect = TRect<int>();
     mFinalColor = Color();
@@ -1582,11 +1641,11 @@ Sexy::Graphics::Graphics(Sexy::Image * theDestImage)
     BindDestination(nullptr);
 }
 
-Sexy::Graphics::Graphics(Sexy::Graphics const& theOther)
-    : mGraphics3D(nullptr)
-    , mActiveEdges(nullptr)
-    , mActiveEdgeCount(0)
-    , mPointCount(0)
+Sexy::Graphics::Graphics(Sexy::Graphics const &theOther) :
+    mGraphics3D(nullptr),
+    mActiveEdges(nullptr),
+    mActiveEdgeCount(0),
+    mPointCount(0)
 {
     mClipRect = TRect<int>();
     mFinalColor = Color();
@@ -1595,12 +1654,12 @@ Sexy::Graphics::Graphics(Sexy::Graphics const& theOther)
     BindDestination(&theOther);
 }
 
-Sexy::Graphics * Sexy::Graphics::Create()
+Sexy::Graphics *Sexy::Graphics::Create()
 {
     return new Graphics(*this);
 }
 
-void Sexy::Graphics::DrawImageBox(TRect<int> const& theSrc, TRect<int> const& theDest, Sexy::Image * theImage)
+void Sexy::Graphics::DrawImageBox(TRect<int> const &theSrc, TRect<int> const &theDest, Sexy::Image *theImage)
 {
     if (theImage == nullptr || theSrc.mWidth <= 0 || theSrc.mHeight <= 0)
         return;
@@ -1615,12 +1674,18 @@ void Sexy::Graphics::DrawImageBox(TRect<int> const& theSrc, TRect<int> const& th
         return;
 
     DrawImage(theImage, theDest.mX, theDest.mY, TRect<int>(aSrcX, aSrcY, aCornerWidth, aCornerHeight));
-    DrawImage(theImage, theDest.mX + theDest.mWidth - aCornerWidth, theDest.mY,
-              TRect<int>(aSrcX + aCornerWidth + aMidWidth, aSrcY, aCornerWidth, aCornerHeight));
-    DrawImage(theImage, theDest.mX, theDest.mY + theDest.mHeight - aCornerHeight,
-              TRect<int>(aSrcX, aSrcY + aCornerHeight + aMidHeight, aCornerWidth, aCornerHeight));
-    DrawImage(theImage, theDest.mX + theDest.mWidth - aCornerWidth, theDest.mY + theDest.mHeight - aCornerHeight,
-              TRect<int>(aSrcX + aCornerWidth + aMidWidth, aSrcY + aCornerHeight + aMidHeight, aCornerWidth, aCornerHeight));
+    DrawImage(theImage,
+        theDest.mX + theDest.mWidth - aCornerWidth,
+        theDest.mY,
+        TRect<int>(aSrcX + aCornerWidth + aMidWidth, aSrcY, aCornerWidth, aCornerHeight));
+    DrawImage(theImage,
+        theDest.mX,
+        theDest.mY + theDest.mHeight - aCornerHeight,
+        TRect<int>(aSrcX, aSrcY + aCornerHeight + aMidHeight, aCornerWidth, aCornerHeight));
+    DrawImage(theImage,
+        theDest.mX + theDest.mWidth - aCornerWidth,
+        theDest.mY + theDest.mHeight - aCornerHeight,
+        TRect<int>(aSrcX + aCornerWidth + aMidWidth, aSrcY + aCornerHeight + aMidHeight, aCornerWidth, aCornerHeight));
 
     Graphics aVertClip(*this);
     aVertClip.ClipRect(theDest.mX + aCornerWidth, theDest.mY, theDest.mWidth - 2 * aCornerWidth, theDest.mHeight);
@@ -1628,9 +1693,12 @@ void Sexy::Graphics::DrawImageBox(TRect<int> const& theSrc, TRect<int> const& th
     for (int aColumn = 0; aColumn < aColumns; ++aColumn)
     {
         int aX = theDest.mX + aCornerWidth + aColumn * aMidWidth;
-        aVertClip.DrawImage(theImage, aX, theDest.mY, TRect<int>(aSrcX + aCornerWidth, aSrcY, aMidWidth, aCornerHeight));
-        aVertClip.DrawImage(theImage, aX, theDest.mY + theDest.mHeight - aCornerHeight,
-                            TRect<int>(aSrcX + aCornerWidth, aSrcY + aCornerHeight + aMidHeight, aMidWidth, aCornerHeight));
+        aVertClip.DrawImage(
+            theImage, aX, theDest.mY, TRect<int>(aSrcX + aCornerWidth, aSrcY, aMidWidth, aCornerHeight));
+        aVertClip.DrawImage(theImage,
+            aX,
+            theDest.mY + theDest.mHeight - aCornerHeight,
+            TRect<int>(aSrcX + aCornerWidth, aSrcY + aCornerHeight + aMidHeight, aMidWidth, aCornerHeight));
     }
 
     Graphics aHorzClip(*this);
@@ -1639,34 +1707,39 @@ void Sexy::Graphics::DrawImageBox(TRect<int> const& theSrc, TRect<int> const& th
     for (int aRow = 0; aRow < aRows; ++aRow)
     {
         int aY = theDest.mY + aCornerHeight + aRow * aMidHeight;
-        aHorzClip.DrawImage(theImage, theDest.mX, aY, TRect<int>(aSrcX, aSrcY + aCornerHeight, aCornerWidth, aMidHeight));
-        aHorzClip.DrawImage(theImage, theDest.mX + theDest.mWidth - aCornerWidth, aY,
-                            TRect<int>(aSrcX + aCornerWidth + aMidWidth, aSrcY + aCornerHeight, aCornerWidth, aMidHeight));
+        aHorzClip.DrawImage(
+            theImage, theDest.mX, aY, TRect<int>(aSrcX, aSrcY + aCornerHeight, aCornerWidth, aMidHeight));
+        aHorzClip.DrawImage(theImage,
+            theDest.mX + theDest.mWidth - aCornerWidth,
+            aY,
+            TRect<int>(aSrcX + aCornerWidth + aMidWidth, aSrcY + aCornerHeight, aCornerWidth, aMidHeight));
     }
 
     Graphics aMidClip(*this);
-    aMidClip.ClipRect(theDest.mX + aCornerWidth, theDest.mY + aCornerHeight,
-                      theDest.mWidth - 2 * aCornerWidth, theDest.mHeight - 2 * aCornerHeight);
+    aMidClip.ClipRect(theDest.mX + aCornerWidth,
+        theDest.mY + aCornerHeight,
+        theDest.mWidth - 2 * aCornerWidth,
+        theDest.mHeight - 2 * aCornerHeight);
     for (int aColumn = 0; aColumn < aColumns; ++aColumn)
     {
         for (int aRow = 0; aRow < aRows; ++aRow)
         {
             aMidClip.DrawImage(theImage,
-                               theDest.mX + aCornerWidth + aColumn * aMidWidth,
-                               theDest.mY + aCornerHeight + aRow * aMidHeight,
-                               TRect<int>(aSrcX + aCornerWidth, aSrcY + aCornerHeight, aMidWidth, aMidHeight));
+                theDest.mX + aCornerWidth + aColumn * aMidWidth,
+                theDest.mY + aCornerHeight + aRow * aMidHeight,
+                TRect<int>(aSrcX + aCornerWidth, aSrcY + aCornerHeight, aMidWidth, aMidHeight));
         }
     }
 }
 
-void Sexy::Graphics::DrawImageBox(TRect<int> const& theDest, Sexy::Image * theImage)
+void Sexy::Graphics::DrawImageBox(TRect<int> const &theDest, Sexy::Image *theImage)
 {
     if (theImage == nullptr)
         return;
     DrawImageBox(TRect<int>(0, 0, theImage->mWidth, theImage->mHeight), theDest, theImage);
 }
 
-Sexy::Graphics* Sexy::Graphics::PushState()
+Sexy::Graphics *Sexy::Graphics::PushState()
 {
     if (mStateStack.empty())
         mStateStack.reserve(8);
@@ -1677,7 +1750,7 @@ Sexy::Graphics* Sexy::Graphics::PushState()
     return this;
 }
 
-Sexy::Graphics* Sexy::Graphics::PushState(bool theTrackDeviceState)
+Sexy::Graphics *Sexy::Graphics::PushState(bool theTrackDeviceState)
 {
     if (mStateStack.empty())
         mStateStack.reserve(8);
@@ -1689,7 +1762,7 @@ Sexy::Graphics* Sexy::Graphics::PushState(bool theTrackDeviceState)
     return this;
 }
 
-Sexy::Graphics* Sexy::Graphics::PopState()
+Sexy::Graphics *Sexy::Graphics::PopState()
 {
     if (!mStateStack.empty())
     {
@@ -1709,18 +1782,18 @@ void Sexy::Graphics::PushColorMult()
     CalcFinalColor();
 }
 
-void Sexy::Graphics::DrawTrianglesTex(Sexy::Image * theImage, SexyVertex2D const(*theTriangles)[3], int theCount)
+void Sexy::Graphics::DrawTrianglesTex(Sexy::Image *theImage, SexyVertex2D const (*theTriangles)[3], int theCount)
 {
     if (theImage == nullptr || mDestImage == nullptr || theTriangles == nullptr || theCount <= 0)
         return;
     if (ScaleIsIdentity())
     {
-        mDestImage->BltTrianglesTex(theImage, theTriangles, theCount, mClipRect, GetImageColor(),
-                                    mDrawMode, mTransX, mTransY, mLinearBlend);
+        mDestImage->BltTrianglesTex(
+            theImage, theTriangles, theCount, mClipRect, GetImageColor(), mDrawMode, mTransX, mTransY, mLinearBlend);
         return;
     }
 
-    SexyVertex2D (*aScaled)[3] = new SexyVertex2D[theCount][3];
+    SexyVertex2D(*aScaled)[3] = new SexyVertex2D[theCount][3];
     for (int aTriangle = 0; aTriangle < theCount; ++aTriangle)
     {
         for (int aVertex = 0; aVertex < 3; ++aVertex)
@@ -1731,13 +1804,14 @@ void Sexy::Graphics::DrawTrianglesTex(Sexy::Image * theImage, SexyVertex2D const
             aScaled[aTriangle][aVertex] = aPoint;
         }
     }
-    Color const& aColor = mColorizeImages ? mColor : Color::White;
-    mDestImage->BltTrianglesTex(theImage, aScaled, theCount, mClipRect,
-                                aColor, mDrawMode, mTransX, mTransY, mLinearBlend);
+    Color const &aColor = mColorizeImages ? mColor : Color::White;
+    mDestImage->BltTrianglesTex(
+        theImage, aScaled, theCount, mClipRect, aColor, mDrawMode, mTransX, mTransY, mLinearBlend);
     delete[] aScaled;
 }
 
-int Sexy::Graphics::WriteString(Sexy::String const& theString, int theX, int theY, int theWidth, int theJustification, bool theDraw, int theOffset, int theLength, int theOldColor)
+int Sexy::Graphics::WriteString(Sexy::String const &theString, int theX, int theY, int theWidth, int theJustification,
+    bool theDraw, int theOffset, int theLength, int theOldColor)
 {
     if (mFont == nullptr)
         return 0;
@@ -1800,8 +1874,8 @@ int Sexy::Graphics::WriteString(Sexy::String const& theString, int theX, int the
         if (theDraw)
         {
             DrawString(aLine, theX + aXOffset, theY);
-            SetColor(Color((unsigned char)(aColor >> 16), (unsigned char)(aColor >> 8),
-                           (unsigned char)aColor, GetColor().mAlpha));
+            SetColor(Color(
+                (unsigned char)(aColor >> 16), (unsigned char)(aColor >> 8), (unsigned char)aColor, GetColor().mAlpha));
         }
         aXOffset += mFont->StringWidth(aLine);
         aLine = Sexy::String();
@@ -1813,12 +1887,13 @@ int Sexy::Graphics::WriteString(Sexy::String const& theString, int theX, int the
     return aXOffset + mFont->StringWidth(aLine);
 }
 
-int Sexy::Graphics::DrawStringColor(Sexy::String const& theString, int theX, int theY, int theOldColor)
+int Sexy::Graphics::DrawStringColor(Sexy::String const &theString, int theX, int theY, int theOldColor)
 {
     return WriteString(theString, theX, theY, -1, -1, true, 0, -1, theOldColor);
 }
 
-int Sexy::Graphics::WriteWordWrapped(TRect<int> const& theRect, Sexy::String const& theLine, int theLineSpacing, int theJustification, int *theMaxWidth, int theMaxChars, int *theLastWidth)
+int Sexy::Graphics::WriteWordWrapped(TRect<int> const &theRect, Sexy::String const &theLine, int theLineSpacing,
+    int theJustification, int *theMaxWidth, int theMaxChars, int *theLastWidth)
 {
     if (mFont == nullptr)
         return 0;
@@ -1901,9 +1976,15 @@ int Sexy::Graphics::WriteWordWrapped(TRect<int> const& theRect, Sexy::String con
             aWritten = 0;
             if (aCount > 0)
             {
-                aWritten = WriteString(theLine, theRect.mX, theRect.mY + aYOffset, theRect.mWidth,
-                                       theJustification, mDestImage != nullptr, aByteOffsets[aLineStart],
-                                       aByteOffsets[aLineStart + aCount] - aByteOffsets[aLineStart], aColorWord);
+                aWritten = WriteString(theLine,
+                    theRect.mX,
+                    theRect.mY + aYOffset,
+                    theRect.mWidth,
+                    theJustification,
+                    mDestImage != nullptr,
+                    aByteOffsets[aLineStart],
+                    aByteOffsets[aLineStart + aCount] - aByteOffsets[aLineStart],
+                    aColorWord);
                 if (aWritten < 0)
                 {
                     aStopped = true;
@@ -1924,8 +2005,15 @@ int Sexy::Graphics::WriteWordWrapped(TRect<int> const& theRect, Sexy::String con
             {
                 int aBreak = (aLimit < aLastWordEnd) ? aLimit : aLastWordEnd;
                 if (aBreak - aLineStart > 0)
-                    WriteString(theLine, theRect.mX, theRect.mY + aYOffset, theRect.mWidth, theJustification, true,
-                                aByteOffsets[aLineStart], aByteOffsets[aBreak] - aByteOffsets[aLineStart], aColorWord);
+                    WriteString(theLine,
+                        theRect.mX,
+                        theRect.mY + aYOffset,
+                        theRect.mWidth,
+                        theJustification,
+                        true,
+                        aByteOffsets[aLineStart],
+                        aByteOffsets[aBreak] - aByteOffsets[aLineStart],
+                        aColorWord);
             }
             aWritten = aWidth;
             if (aWritten < 0)
@@ -1980,9 +2068,15 @@ int Sexy::Graphics::WriteWordWrapped(TRect<int> const& theRect, Sexy::String con
             int aWritten = 0;
             if (aRemaining > 0)
             {
-                aWritten = WriteString(theLine, theRect.mX, theRect.mY + aYOffset, theRect.mWidth,
-                                       theJustification, mDestImage != nullptr, aByteOffsets[aLineStart],
-                                       aByteOffsets[aLineStart + aRemaining] - aByteOffsets[aLineStart], aColorWord);
+                aWritten = WriteString(theLine,
+                    theRect.mX,
+                    theRect.mY + aYOffset,
+                    theRect.mWidth,
+                    theJustification,
+                    mDestImage != nullptr,
+                    aByteOffsets[aLineStart],
+                    aByteOffsets[aLineStart + aRemaining] - aByteOffsets[aLineStart],
+                    aColorWord);
             }
             if (aWritten >= 0)
             {
@@ -2003,7 +2097,8 @@ int Sexy::Graphics::WriteWordWrapped(TRect<int> const& theRect, Sexy::String con
     return mFont->GetDescent() + aYOffset - aSpacing;
 }
 
-int Sexy::Graphics::DrawStringWordWrapped(Sexy::String const& theLine, int theX, int theY, int theWrapWidth, int theLineSpacing, int theJustification, int *theMaxWidth)
+int Sexy::Graphics::DrawStringWordWrapped(Sexy::String const &theLine, int theX, int theY, int theWrapWidth,
+    int theLineSpacing, int theJustification, int *theMaxWidth)
 {
     if (mFont == nullptr)
         return 0;
@@ -2013,11 +2108,13 @@ int Sexy::Graphics::DrawStringWordWrapped(Sexy::String const& theLine, int theX,
     return WriteWordWrapped(aRect, theLine, theLineSpacing, theJustification, theMaxWidth, -1, nullptr);
 }
 
-int Sexy::Graphics::GetWordWrappedHeight(int theWidth, Sexy::String const& theLine, int theLineSpacing, int *theMaxWidth)
+int Sexy::Graphics::GetWordWrappedHeight(
+    int theWidth, Sexy::String const &theLine, int theLineSpacing, int *theMaxWidth)
 {
     Graphics aMeasure(nullptr);
     aMeasure.SetFont(mFont);
-    return aMeasure.WriteWordWrapped(TRect<int>(0, 0, theWidth, 0), theLine, theLineSpacing, -1, theMaxWidth, -1, nullptr);
+    return aMeasure.WriteWordWrapped(
+        TRect<int>(0, 0, theWidth, 0), theLine, theLineSpacing, -1, theMaxWidth, -1, nullptr);
 }
 
 Sexy::Graphics::~Graphics()

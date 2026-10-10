@@ -2,7 +2,8 @@
 // (one Sexy::String). Check compares the typed text against the start of that
 // phrase, case-insensitive, and an empty phrase never matches.
 
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_TYPINGCHECK_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_TYPINGCHECK_H
 
 #include "ReconTypes.h"
 
@@ -12,10 +13,12 @@ public:
     Sexy::String mPhrase;
 
     TypingCheck();
-    explicit TypingCheck(const Sexy::String& thePhrase);
+    explicit TypingCheck(const Sexy::String &thePhrase);
 
-    void SetPhrase(const Sexy::String& thePhrase);
+    void SetPhrase(const Sexy::String &thePhrase);
     void AddKeyCode(Sexy::KeyCode theKeyCode);
     void AddChar(char theChar);
-    bool Check(const Sexy::String& theTyped);
+    bool Check(const Sexy::String &theTyped);
 };
+
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_TYPINGCHECK_H

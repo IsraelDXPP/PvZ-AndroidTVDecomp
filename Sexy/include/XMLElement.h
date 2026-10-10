@@ -1,12 +1,14 @@
 // XMLElement is one node from an XML parse: its kind, the text fields the
 // parser fills, and the attributes keyed by name.
 
-#pragma once
+#ifndef LAWNPROJECTTV_SEXY_INCLUDE_XMLELEMENT_H
+#define LAWNPROJECTTV_SEXY_INCLUDE_XMLELEMENT_H
 
 #include "ReconTypes.h"
 #include <map>
 
-namespace Sexy {
+namespace Sexy
+{
 
 class XMLElement
 {
@@ -24,11 +26,13 @@ public:
 
     XMLElement();
 
-    int GetAttributeBool(Sexy::String const& theName, bool theDefault);
-    Sexy::String GetAttribute(Sexy::String const& theName) const;
-    bool HasAttribute(Sexy::String const& theName) const;
+    int GetAttributeBool(Sexy::String const &theName, bool theDefault);
+    Sexy::String GetAttribute(Sexy::String const &theName) const;
+    bool HasAttribute(Sexy::String const &theName) const;
 };
 
 } // namespace Sexy
 
 using Sexy::XMLElement;
+
+#endif // LAWNPROJECTTV_SEXY_INCLUDE_XMLELEMENT_H

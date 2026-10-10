@@ -50,7 +50,8 @@
 // shifts OnKeyDown..GameButtonUp down by two. The declaration order below keeps
 // the binary's sequence so the intent stays readable.
 
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_SEEDCHOOSERSCREEN_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_SEEDCHOOSERSCREEN_H
 
 #include "ReconTypes.h"
 // These includes exist because the transcribed bodies call methods on complete
@@ -99,7 +100,8 @@ class ImitaterDialog;
 
 // Touch bookkeeping for the chooser. Declared in the authoritative header as a
 // free enum next to the class.
-enum SeedChooserTouchState {
+enum SeedChooserTouchState
+{
     VIEW_LAWN_BUTTON,
     SEEDCHOOSER_TOUCHSTATE_SEED_CHOOSER,
     SEEDCHOOSER_TOUCHSTATE_STORE_BUTTON,
@@ -115,23 +117,23 @@ inline bool daveNoPickSeeds;
 class ChosenSeed
 {
 public:
-    int mX;                         // +0x00
-    int mY;                         // +0x04
-    int mTimeStartMotion;           // +0x08
-    int mTimeEndMotion;             // +0x0C
-    int mStartX;                    // +0x10
-    int mStartY;                    // +0x14
-    int mEndX;                      // +0x18
-    int mEndY;                      // +0x1C
-    int mChosenPlayerIndex;         // +0x20
-    SeedType mSeedType;             // +0x24
-    ChosenSeedState mSeedState;     // +0x28
-    int mSeedIndexInBank;           // +0x2C
-    bool mRefreshing;               // +0x30
+    int mX; // +0x00
+    int mY; // +0x04
+    int mTimeStartMotion; // +0x08
+    int mTimeEndMotion; // +0x0C
+    int mStartX; // +0x10
+    int mStartY; // +0x14
+    int mEndX; // +0x18
+    int mEndY; // +0x1C
+    int mChosenPlayerIndex; // +0x20
+    SeedType mSeedType; // +0x24
+    ChosenSeedState mSeedState; // +0x28
+    int mSeedIndexInBank; // +0x2C
+    bool mRefreshing; // +0x30
     // +0x31 ~ +0x33 padding
-    int mRefreshCounter;            // +0x34
-    SeedType mImitaterType;         // +0x38
-    bool mCrazyDavePicked;          // +0x3C
+    int mRefreshCounter; // +0x34
+    SeedType mImitaterType; // +0x38
+    bool mCrazyDavePicked; // +0x3C
     // +0x3D ~ +0x3F padding
     // Size 0x40.
 };
@@ -142,9 +144,9 @@ using ChosenSeedData = ChosenSeed;
 class BannedSeed
 {
 public:
-    int mX;                     // +0x00
-    int mY;                     // +0x04
-    SeedType mSeedType;         // +0x08
+    int mX; // +0x00
+    int mY; // +0x04
+    SeedType mSeedType; // +0x08
     BannedSeedState mSeedState; // +0x0C
     // Size 0x10.
 };
@@ -153,7 +155,8 @@ class SeedChooserScreen : public Sexy::Widget, public Sexy::ButtonListener
 {
 public:
     // From the authoritative header; used as the button ids.
-    enum {
+    enum
+    {
         SeedChooserScreen_Start = 100,
         SeedChooserScreen_Random = 101,
         SeedChooserScreen_ViewLawn = 102,
@@ -166,7 +169,8 @@ public:
 
     // Direction of GetNextSeedInDir. The authoritative header nests this enum in
     // the class; this tree had a `SeedChooserScreen_SeedDir` shim instead.
-    enum SeedDir {
+    enum SeedDir
+    {
         SEED_DIR_UP,
         SEED_DIR_DOWN,
         SEED_DIR_LEFT,
@@ -216,43 +220,43 @@ public:
     virtual int GameButtonUp(Sexy::GamepadButton theButton, int thePlayerIndex, unsigned int theFlags);
 
     // Widget occupies +0x00..+0xFF; ButtonListener's vptr +0x100..+0x103.
-    bool mShowHelpText;                        // +0x104
+    bool mShowHelpText; // +0x104
     // +0x105 ~ +0x107 padding
-    GameButton *mImitaterButton;               // +0x108
-    ChosenSeedData mChosenSeeds[54];           // +0x10C ~ +0xE8B (54 * 64 = 0xD80)
-    LawnApp *mApp;                             // +0xE8C
-    Board *mBoard;                             // +0xE90
-    int mSeedChooserAge;                       // +0xE94
-    int mSeedsInFlight;                        // +0xE98
-    int mSeedsInBank;                          // +0xE9C
-    int mSeedsIn1PBank;                        // +0xEA0
-    int mSeedsIn2PBank;                        // +0xEA4
-    ToolTipWidget *mToolTip1;                  // +0xEA8
-    ToolTipWidget *mToolTip2;                  // +0xEAC
-    int mToolTipSeed1;                         // +0xEB0
-    int mToolTipSeed2;                         // +0xEB4
-    int mCursorPositionX1;                     // +0xEB8
-    int mCursorPositionX2;                     // +0xEBC
-    int mCursorPositionY1;                     // +0xEC0
-    int mCursorPositionY2;                     // +0xEC4
-    SeedChooserState mChooseState;             // +0xEC8
-    int mViewLawnTime;                         // +0xECC
-    bool mOpeningDialog;                       // +0xED0
+    GameButton *mImitaterButton; // +0x108
+    ChosenSeedData mChosenSeeds[54]; // +0x10C ~ +0xE8B (54 * 64 = 0xD80)
+    LawnApp *mApp; // +0xE8C
+    Board *mBoard; // +0xE90
+    int mSeedChooserAge; // +0xE94
+    int mSeedsInFlight; // +0xE98
+    int mSeedsInBank; // +0xE9C
+    int mSeedsIn1PBank; // +0xEA0
+    int mSeedsIn2PBank; // +0xEA4
+    ToolTipWidget *mToolTip1; // +0xEA8
+    ToolTipWidget *mToolTip2; // +0xEAC
+    int mToolTipSeed1; // +0xEB0
+    int mToolTipSeed2; // +0xEB4
+    int mCursorPositionX1; // +0xEB8
+    int mCursorPositionX2; // +0xEBC
+    int mCursorPositionY1; // +0xEC0
+    int mCursorPositionY2; // +0xEC4
+    SeedChooserState mChooseState; // +0xEC8
+    int mViewLawnTime; // +0xECC
+    bool mOpeningDialog; // +0xED0
     // +0xED1 ~ +0xED3 padding
-    int mPlayerIndex;                          // +0xED4
-    int mSeedIndex1;                           // +0xED8
-    int mSeedIndex2;                           // +0xEDC
-    float mCursorBobPhase;                     // +0xEE0
-    bool mIsZombieChooser;                     // +0xEE4
+    int mPlayerIndex; // +0xED4
+    int mSeedIndex1; // +0xED8
+    int mSeedIndex2; // +0xEDC
+    float mCursorBobPhase; // +0xEE0
+    bool mIsZombieChooser; // +0xEE4
     // +0xEE5 ~ +0xEE7 padding
-    SeedBank *mSeedBank1;                      // +0xEE8
-    SeedBank *mSeedBank2;                      // +0xEEC
-    int mDimCounter;                           // +0xEF0
-    ImitaterDialog *mImitaterDialog;           // +0xEF4
-    GameButton *mViewLawnButton;               // +0xEF8
-    GameButton *mStoreButton;                  // +0xEFC
-    GameButton *mStartButton;                  // +0xF00
-    GameButton *mAlmanacButton;                // +0xF04
+    SeedBank *mSeedBank1; // +0xEE8
+    SeedBank *mSeedBank2; // +0xEEC
+    int mDimCounter; // +0xEF0
+    ImitaterDialog *mImitaterDialog; // +0xEF4
+    GameButton *mViewLawnButton; // +0xEF8
+    GameButton *mStoreButton; // +0xEFC
+    GameButton *mStartButton; // +0xF00
+    GameButton *mAlmanacButton; // +0xF04
     // The bottom-row buttons: view lawn, store, start, almanac.
     std::vector<GameButton *> mButtons;
     GameButton *mSelectedButton;
@@ -274,7 +278,8 @@ public:
     int GetZombieSeedType(int theIndex);
     int GetSeedPacketIndex(SeedType theSeedType);
     int VSAutoPickResourceGen();
-    void DrawPacket(Sexy::Graphics *g, int theX, int theY, int theSeedType, int theImitaterType, float thePercentDark, int theGrayness, Color &theColor, bool theDrawCost, bool theUseCurrentCost);
+    void DrawPacket(Sexy::Graphics *g, int theX, int theY, int theSeedType, int theImitaterType, float thePercentDark,
+        int theGrayness, Color &theColor, bool theDrawCost, bool theUseCurrentCost);
     void UpdateViewLawn();
     bool DisplayRepickWarningDialog(char const *theMessage);
     int FlyersAreComing();
@@ -293,8 +298,8 @@ public:
     int SeedHitTest(int theX, int theY);
     SeedType MouseSeedHitTest(int theX, int theY);
     void UpdateMouseSeedCursor(SeedType theSeed);
-    Sexy::Rect GetMouseButtonRect(const GameButton& theButton) const;
-    GameButton* MouseButtonHitTest(int theX, int theY) const;
+    Sexy::Rect GetMouseButtonRect(const GameButton &theButton) const;
+    GameButton *MouseButtonHitTest(int theX, int theY) const;
     int UpdateCursor();
     int ShowToolTip(int thePlayerIndex);
     int FindSeedInBank(int theIndexInBank, int thePlayerIndex);
@@ -309,3 +314,5 @@ public:
     int ClickedSeedInChooser(ChosenSeedData &theChosenSeed, int thePlayerIndex);
     int ShouldDisplayCursor(int thePlayerIndex);
 };
+
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_SEEDCHOOSERSCREEN_H

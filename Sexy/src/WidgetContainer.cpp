@@ -10,8 +10,10 @@
 
 Sexy::WidgetUserData::~WidgetUserData() = default;
 
-namespace Sexy {
-namespace {
+namespace Sexy
+{
+namespace
+{
 
 WidgetListLink *EndChild(WidgetContainer *theContainer)
 {
@@ -269,11 +271,11 @@ void Sexy::WidgetContainer::UpdateAll(ModalFlags *theFlags)
 
     // Help screens raise themselves and their help bar during Update. Each
     // child must still update once even when its list node moves or disappears.
-    std::vector<Widget*> aChildren;
+    std::vector<Widget *> aChildren;
     aChildren.reserve(mWidgetVector.size());
-    for (WidgetListLink* aNode = BeginChild(this); aNode != EndChild(this); aNode = NextChild(aNode))
+    for (WidgetListLink *aNode = BeginChild(this); aNode != EndChild(this); aNode = NextChild(aNode))
         aChildren.push_back(ChildWidget(aNode));
-    for (Widget* aWidget : aChildren)
+    for (Widget *aWidget : aChildren)
     {
         if (HasWidget(aWidget))
             aWidget->UpdateAll(theFlags);
@@ -284,9 +286,7 @@ void Sexy::WidgetContainer::UpdateAll(ModalFlags *theFlags)
     theFlags->mUnderFlags = aSavedUnder;
 }
 
-void Sexy::WidgetContainer::UpdateF(float)
-{
-}
+void Sexy::WidgetContainer::UpdateF(float) {}
 
 void Sexy::WidgetContainer::UpdateFAll(ModalFlags *theFlags, float theFrac)
 {
@@ -300,11 +300,11 @@ void Sexy::WidgetContainer::UpdateFAll(ModalFlags *theFlags, float theFrac)
     if ((aFlags & 1) != 0)
         UpdateF(theFrac);
 
-    std::vector<Widget*> aChildren;
+    std::vector<Widget *> aChildren;
     aChildren.reserve(mWidgetVector.size());
-    for (WidgetListLink* aNode = BeginChild(this); aNode != EndChild(this); aNode = NextChild(aNode))
+    for (WidgetListLink *aNode = BeginChild(this); aNode != EndChild(this); aNode = NextChild(aNode))
         aChildren.push_back(ChildWidget(aNode));
-    for (Widget* aWidget : aChildren)
+    for (Widget *aWidget : aChildren)
     {
         if (HasWidget(aWidget))
             aWidget->UpdateFAll(theFlags, theFrac);
@@ -315,17 +315,11 @@ void Sexy::WidgetContainer::UpdateFAll(ModalFlags *theFlags, float theFrac)
     theFlags->mUnderFlags = aSavedUnder;
 }
 
-void Sexy::WidgetContainer::DrawOther(Sexy::Graphics *)
-{
-}
+void Sexy::WidgetContainer::DrawOther(Sexy::Graphics *) {}
 
-void Sexy::WidgetContainer::DrawPre(Sexy::Graphics *)
-{
-}
+void Sexy::WidgetContainer::DrawPre(Sexy::Graphics *) {}
 
-void Sexy::WidgetContainer::Draw(Sexy::Graphics *)
-{
-}
+void Sexy::WidgetContainer::Draw(Sexy::Graphics *) {}
 
 void Sexy::WidgetContainer::DrawAll(ModalFlags *theFlags, Sexy::Graphics *g)
 {
@@ -383,9 +377,7 @@ void Sexy::WidgetContainer::DrawAll(ModalFlags *theFlags, Sexy::Graphics *g)
     theFlags->mUnderFlags = aSavedUnder;
 }
 
-void Sexy::WidgetContainer::SysColorChanged()
-{
-}
+void Sexy::WidgetContainer::SysColorChanged() {}
 
 void Sexy::WidgetContainer::SysColorChangedAll()
 {
@@ -394,13 +386,9 @@ void Sexy::WidgetContainer::SysColorChangedAll()
         ChildWidget(aNode)->SysColorChangedAll();
 }
 
-void Sexy::WidgetContainer::DisableWidget(Sexy::Widget *)
-{
-}
+void Sexy::WidgetContainer::DisableWidget(Sexy::Widget *) {}
 
-void Sexy::WidgetContainer::SetFocus(Sexy::Widget *)
-{
-}
+void Sexy::WidgetContainer::SetFocus(Sexy::Widget *) {}
 
 bool Sexy::WidgetContainer::Intersects(Sexy::WidgetContainer *theOther)
 {
@@ -509,8 +497,8 @@ void Sexy::WidgetContainer::MarkDirtyFull(Sexy::WidgetContainer *theWidget)
                         aClippedLeft = aHeight;
                     }
 
-                    if (aChild->Contains(aClippedLeft, aClippedTop)
-                        && aChild->Contains(aWidth + aClippedLeft - 1, aHeight + aClippedTop - 1))
+                    if (aChild->Contains(aClippedLeft, aClippedTop) &&
+                        aChild->Contains(aWidth + aClippedLeft - 1, aHeight + aClippedTop - 1))
                     {
                         aChild->MarkDirty();
                         aNode = aMarked;
@@ -579,7 +567,8 @@ Sexy::WidgetContainer::WidgetContainer()
     mWidgetId = 0;
 }
 
-Widget *Sexy::WidgetContainer::GetWidgetAtHelper(int x, int y, int theFlags, bool *found, int *theWidgetX, int *theWidgetY)
+Widget *Sexy::WidgetContainer::GetWidgetAtHelper(
+    int x, int y, int theFlags, bool *found, int *theWidgetX, int *theWidgetY)
 {
     if (BeginChild(this) == EndChild(this))
     {
@@ -600,8 +589,8 @@ Widget *Sexy::WidgetContainer::GetWidgetAtHelper(int x, int y, int theFlags, boo
         if ((aWidgetFlags & 0x10) != 0 && aWidget->mVisible)
         {
             bool aChildFound = false;
-            Widget *aResult = aWidget->GetWidgetAtHelper(x - aWidget->mX, y - aWidget->mY,
-                                                         aWidgetFlags, &aChildFound, theWidgetX, theWidgetY);
+            Widget *aResult = aWidget->GetWidgetAtHelper(
+                x - aWidget->mX, y - aWidget->mY, aWidgetFlags, &aChildFound, theWidgetX, theWidgetY);
             if (aResult != nullptr || aChildFound)
             {
                 *found = true;
@@ -611,8 +600,7 @@ Widget *Sexy::WidgetContainer::GetWidgetAtHelper(int x, int y, int theFlags, boo
             if (aWidget->mMouseVisible)
             {
                 Rect aRect = aWidget->GetInsetRect();
-                if (x >= aRect.mX && x < aRect.mX + aRect.mWidth
-                    && y >= aRect.mY && y < aRect.mY + aRect.mHeight)
+                if (x >= aRect.mX && x < aRect.mX + aRect.mWidth && y >= aRect.mY && y < aRect.mY + aRect.mHeight)
                 {
                     *found = true;
                     Widget *aHit = aWidget->IsPointVisible(x - aWidget->mX, y - aWidget->mY) ? aWidget : nullptr;
@@ -638,8 +626,8 @@ Widget *Sexy::WidgetContainer::GetWidgetAtHelper(int x, int y, int theFlags, boo
         }
 
         if (aFoundBelow)
-            aHitFlags = (aHitFlags | mWidgetManager->mBelowModalFlagsMod.mAddFlags)
-                        & ~mWidgetManager->mBelowModalFlagsMod.mRemoveFlags;
+            aHitFlags = (aHitFlags | mWidgetManager->mBelowModalFlagsMod.mAddFlags) &
+                ~mWidgetManager->mBelowModalFlagsMod.mRemoveFlags;
     }
 }
 

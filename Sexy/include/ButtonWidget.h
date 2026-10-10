@@ -10,7 +10,8 @@
 // UpdateLabel. MSVC gives the destructor one slot where the binary gives two;
 // only the declaration order matters.
 
-#pragma once
+#ifndef LAWNPROJECTTV_SEXY_INCLUDE_BUTTONWIDGET_H
+#define LAWNPROJECTTV_SEXY_INCLUDE_BUTTONWIDGET_H
 
 #include "ReconTypes.h"
 #include "Font.h"
@@ -20,7 +21,8 @@
 #include "TextLayout.h"
 #include "Widget.h"
 
-namespace Sexy {
+namespace Sexy
+{
 
 // Six floats Font::StringExtents writes for a label: the glyph box, then the
 // advance. Draw uses the minimum Y as a vertical nudge and the height as the
@@ -35,7 +37,7 @@ public:
     virtual ~ButtonWidget();
 
     virtual void Update();
-    virtual void Draw(Sexy::Graphics* g);
+    virtual void Draw(Sexy::Graphics *g);
     virtual void SetDisabled(bool isDisabled);
     virtual int KeyDown(Sexy::KeyCode theKey);
     virtual int KeyUp(Sexy::KeyCode theKey);
@@ -52,9 +54,9 @@ public:
     virtual void TouchDown(int theId, int x, int y);
     virtual void TouchUp(int theId, int x, int y);
 
-    virtual void DrawButtonImage(Sexy::Graphics* g, Sexy::Image* image, const TRect<int>& rect, int x, int y);
-    virtual void SetFont(Sexy::Font* theFont);
-    virtual void SetLabel(const Sexy::String& theLabel);
+    virtual void DrawButtonImage(Sexy::Graphics *g, Sexy::Image *image, const TRect<int> &rect, int x, int y);
+    virtual void SetFont(Sexy::Font *theFont);
+    virtual void SetLabel(const Sexy::String &theLabel);
     virtual bool IsButtonDown();
     virtual void LockState(int theState);
     virtual void UnlockState();
@@ -62,9 +64,9 @@ public:
     virtual bool IsLockedToDownState() const;
     virtual void UpdateLabel();
 
-    ButtonWidget(int theId, Sexy::ButtonListener* theButtonListener);
+    ButtonWidget(int theId, Sexy::ButtonListener *theButtonListener);
 
-    bool HaveButtonImage(Sexy::Image* theImage, const TRect<int>& theRect);
+    bool HaveButtonImage(Sexy::Image *theImage, const TRect<int> &theRect);
 
     Sexy::String mLabel;
     // Caches the label the layout was built from, so UpdateLabel can skip a rebuild.
@@ -73,11 +75,11 @@ public:
     LabelExtents mLabelExtents;
     Insets mInsets;
     int mLabelJustify;
-    Sexy::Font* mFont;
-    Sexy::Image* mButtonImage;
-    Sexy::Image* mOverImage;
-    Sexy::Image* mDownImage;
-    Sexy::Image* mDisabledImage;
+    Sexy::Font *mFont;
+    Sexy::Image *mButtonImage;
+    Sexy::Image *mOverImage;
+    Sexy::Image *mDownImage;
+    Sexy::Image *mDisabledImage;
     TRect<int> mNormalRect;
     TRect<int> mOverRect;
     TRect<int> mDownRect;
@@ -85,7 +87,7 @@ public:
     bool mInverted;
     bool mBtnNoDraw;
     bool mFrameNoDraw;
-    Sexy::ButtonListener* mListener;
+    Sexy::ButtonListener *mListener;
     int mUnusedWord;
     double mOverAlpha;
     double mOverAlphaSpeed;
@@ -102,3 +104,5 @@ public:
 } // namespace Sexy
 
 using Sexy::ButtonWidget;
+
+#endif // LAWNPROJECTTV_SEXY_INCLUDE_BUTTONWIDGET_H

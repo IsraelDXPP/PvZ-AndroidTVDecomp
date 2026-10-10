@@ -92,7 +92,8 @@
 // two (D1 complete + D0 deleting), so a faithful MSVC vtable holds 124 entries.
 // Only the declaration ORDER matters; the slot numbers above are the ARM ones.
 
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_BOARD_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_BOARD_H
 
 #include "ReconTypes.h"
 // Classes this one calls a method on: the call needs the
@@ -270,27 +271,31 @@ public:
     // TODO(recon): the transcribed bodies were written against `int`/`_DWORD*`
     // returns for several of these, so Game\Board.cpp must be retyped in the
     // same pass.
-    virtual void RemovedFromManager(Sexy::WidgetManager * theManager); // [ 30] 0x078
-    virtual void Update();                                    // [ 31] 0x07C
-    virtual void Draw(Sexy::Graphics * g);                    // [ 36] 0x090
-    virtual void Move(int theX, int theY);                    // [ 52] 0x0D0
-    virtual void DrawOverlay(Sexy::Graphics * g);             // [ 54] 0x0D8
-    virtual void GotFocus();                                  // [ 61] 0x0F4
-    virtual int KeyChar(char theChar);                        // [ 67] 0x10C
-    virtual int KeyDown(Sexy::KeyCode theKey);                // [ 71] 0x11C
-    virtual int KeyUp(Sexy::KeyCode theKey);                  // [ 72] 0x120
-    virtual void MouseMove(int theX, int theY);               // [ 75] 0x12C
+    virtual void RemovedFromManager(Sexy::WidgetManager *theManager); // [ 30] 0x078
+    virtual void Update(); // [ 31] 0x07C
+    virtual void Draw(Sexy::Graphics *g); // [ 36] 0x090
+    virtual void Move(int theX, int theY); // [ 52] 0x0D0
+    virtual void DrawOverlay(Sexy::Graphics *g); // [ 54] 0x0D8
+    virtual void GotFocus(); // [ 61] 0x0F4
+    virtual int KeyChar(char theChar); // [ 67] 0x10C
+    virtual int KeyDown(Sexy::KeyCode theKey); // [ 71] 0x11C
+    virtual int KeyUp(Sexy::KeyCode theKey); // [ 72] 0x120
+    virtual void MouseMove(int theX, int theY); // [ 75] 0x12C
     virtual void MouseDown(int theX, int theY, int theClickCount); // [ 76] 0x130
-    virtual void MouseUp(int theX, int theY, int theClickCount);   // [ 79] 0x13C
-    virtual void MouseDrag(int theX, int theY);               // [ 81] 0x144
+    virtual void MouseUp(int theX, int theY, int theClickCount); // [ 79] 0x13C
+    virtual void MouseDrag(int theX, int theY); // [ 81] 0x144
     // Slots [122]/[123]/[124] are the Sexy::ButtonListener overrides. The
     // binary's order is MouseEnter, MouseLeave, Press -- keep it.
     virtual void ButtonMouseEnter(int theId); // [122] 0x1E8
     virtual void ButtonMouseLeave(int theId); // [123] 0x1EC
-    virtual void ButtonPress(int theId);      // [124] 0x1F0
+    virtual void ButtonPress(int theId); // [124] 0x1F0
     // Desktop menu button adapted from the TV touch extension.
     void ButtonDepress(int theId) override;
-    enum BoardButtons { BOARD_BUTTON_MENU = 1000, BOARD_BUTTON_TOOLS = 1001 };
+    enum BoardButtons
+    {
+        BOARD_BUTTON_MENU = 1000,
+        BOARD_BUTTON_TOOLS = 1001
+    };
 
     // ------------------------------------------------------------------
     // Member area, +0x114 .. +0x591B.
@@ -302,13 +307,13 @@ public:
     // Plant indexes and loaded resource names are standard containers. The TV
     // binary stored each as a 24-byte libstdc++ tree; MSVC's set is larger, so
     // members after mPumpkinTree no longer sit at the old board offsets.
-    LawnApp *mApp;                       // +0x114
-    DataArray<Zombie, ZombieSlot> mZombies;         // +0x118 (block 0x118, count 0x11C, cap 0x120)
-    DataArray<Plant, PlantSlot> mPlants;           // +0x134
+    LawnApp *mApp; // +0x114
+    DataArray<Zombie, ZombieSlot> mZombies; // +0x118 (block 0x118, count 0x11C, cap 0x120)
+    DataArray<Plant, PlantSlot> mPlants; // +0x134
     DataArray<Projectile, ProjectileSlot> mProjectiles; // +0x150
-    DataArray<Coin, CoinSlot> mCoins;             // +0x16C
-    DataArray<LawnMower, LawnMowerSlot> mLawnMowers;   // +0x188 (stride 88; see Board.cpp:3309)
-    DataArray<GridItem, GridItemSlot> mGridItems;     // +0x1A4 (stride 0x130; Board.cpp:13722)
+    DataArray<Coin, CoinSlot> mCoins; // +0x16C
+    DataArray<LawnMower, LawnMowerSlot> mLawnMowers; // +0x188 (stride 88; see Board.cpp:3309)
+    DataArray<GridItem, GridItemSlot> mGridItems; // +0x1A4 (stride 0x130; Board.cpp:13722)
     std::set<Plant *> mTangleKelpTree;
     std::set<Plant *> mFlowerPotTree;
     std::set<Plant *> mPumpkinTree;
@@ -319,149 +324,159 @@ public:
     // Cleared at the start of every level. Nothing else reads it.
     std::map<Sexy::String, int> mLevelStringMap;
     GamepadControls *mGamepadControls[2]; // +0x230
-    CursorObject *mCursorObject[2];      // +0x238
-    CursorPreview *mCursorPreview[2];    // +0x240
-    ToolTipWidget *mToolTip;             // +0x248
-    Sexy::Font *mDebugFont;              // +0x24C
-    CutScene *mCutScene;                 // +0x250 (Board.cpp:1750 reads this + 0)
-    Challenge *mChallenge;               // +0x254 (Board.cpp:1418 reads this + 0x84)
+    CursorObject *mCursorObject[2]; // +0x238
+    CursorPreview *mCursorPreview[2]; // +0x240
+    ToolTipWidget *mToolTip; // +0x248
+    Sexy::Font *mDebugFont; // +0x24C
+    CutScene *mCutScene; // +0x250 (Board.cpp:1750 reads this + 0)
+    Challenge *mChallenge; // +0x254 (Board.cpp:1418 reads this + 0x84)
     // TryToExit sets this. Update calls FinishExit once saving and the exit dialog are done.
-    bool mExitRequested;                 // +0x258
-    bool mPaused;                        // +0x259 (Board.cpp:1226/1749/18779/...)
+    bool mExitRequested; // +0x258
+    bool mPaused; // +0x259 (Board.cpp:1226/1749/18779/...)
     GridSquareType mGridSquareType[MAX_GRID_SIZE_X][MAX_GRID_SIZE_Y]; // +0x25C
-    int mGridCelLook[MAX_GRID_SIZE_X][MAX_GRID_SIZE_Y];               // +0x334
-    int mGridCelOffset[MAX_GRID_SIZE_X][MAX_GRID_SIZE_Y][2];          // +0x40C
-    int mGridCelFog[MAX_GRID_SIZE_X][MAX_GRID_SIZE_Y + 1];            // +0x5BC
-    bool mEnableGraveStones;             // +0x6B8 (Board.cpp:9816/17064/18217)
-    int mSpecialGraveStoneX;             // +0x6BC
-    int mSpecialGraveStoneY;             // +0x6C0
-    float mFogOffset;                    // +0x6C4
-    int mOffsetMoved;                    // +0x6C8
+    int mGridCelLook[MAX_GRID_SIZE_X][MAX_GRID_SIZE_Y]; // +0x334
+    int mGridCelOffset[MAX_GRID_SIZE_X][MAX_GRID_SIZE_Y][2]; // +0x40C
+    int mGridCelFog[MAX_GRID_SIZE_X][MAX_GRID_SIZE_Y + 1]; // +0x5BC
+    bool mEnableGraveStones; // +0x6B8 (Board.cpp:9816/17064/18217)
+    int mSpecialGraveStoneX; // +0x6BC
+    int mSpecialGraveStoneY; // +0x6C0
+    float mFogOffset; // +0x6C4
+    int mOffsetMoved; // +0x6C8
     ReanimationID mCoverLayerAnimIDs[7]; // +0x6CC
-    int mFogBlownCountDown;              // +0x6E8
-    PlantRowType mPlantRow[MAX_GRID_SIZE_Y];      // +0x6EC
-    int mWaveRowGotLawnMowered[MAX_GRID_SIZE_Y];  // +0x704
-    int mBonusLawnMowersRemaining;       // +0x71C
-    int mIceMinX[MAX_GRID_SIZE_Y];       // +0x720
-    int mIceTimer[MAX_GRID_SIZE_Y];      // +0x738
+    int mFogBlownCountDown; // +0x6E8
+    PlantRowType mPlantRow[MAX_GRID_SIZE_Y]; // +0x6EC
+    int mWaveRowGotLawnMowered[MAX_GRID_SIZE_Y]; // +0x704
+    int mBonusLawnMowersRemaining; // +0x71C
+    int mIceMinX[MAX_GRID_SIZE_Y]; // +0x720
+    int mIceTimer[MAX_GRID_SIZE_Y]; // +0x738
     ParticleSystemID mIceParticleID[MAX_GRID_SIZE_Y]; // +0x750
     // Six smooth-pick rows. Each record is 16 bytes, so the table is still
     // the 24 words at +0x768.
     TodSmoothArray mRowPickingArray[MAX_GRID_SIZE_Y]; // +0x768
     ZombieType mZombiesInWave[MAX_ZOMBIE_WAVES][MAX_ZOMBIES_IN_WAVE]; // +0x7C8 (20000 bytes)
-    bool mZombieAllowed[100];            // +0x55E8 (Challenge.cpp:3597 reads board + 21992)
-    int mSunCountDown;                   // +0x564C
-    int mNumSunsFallen;                  // +0x5650
-    int mShakeCounter;                   // +0x5654
-    int mShakeAmountX;                   // +0x5658
-    int mShakeAmountY;                   // +0x565C
-    BackgroundType mBackground;          // +0x5660 (Board.cpp:3532 compares with 7)
-    int mLevel;                          // +0x5664 (Board.cpp:524/959 compares with 1)
-    int mSodPosition;                    // +0x5668
-    int mPrevMouseX;                     // +0x566C
-    int mPrevMouseY;                     // +0x5670
-    int mSunMoney1;                      // +0x5674
-    int mSunMoney2;                      // +0x5678
-    int mDeathMoney;                     // +0x567C
-    int mNumWaves;                       // +0x5680
-    int mMainCounter;                    // +0x5684
-    int mEffectCounter;                  // +0x5688
-    int mDrawCount;                      // +0x568C
-    int mRiseFromGraveCounter;           // +0x5690
-    int mOutOfMoneyCounter;              // +0x5694
-    int mCurrentWave;                    // +0x5698
-    int mTotalSpawnedWaves;              // +0x569C
-    TutorialState mTutorialState;        // +0x56A0
+    bool mZombieAllowed[100]; // +0x55E8 (Challenge.cpp:3597 reads board + 21992)
+    int mSunCountDown; // +0x564C
+    int mNumSunsFallen; // +0x5650
+    int mShakeCounter; // +0x5654
+    int mShakeAmountX; // +0x5658
+    int mShakeAmountY; // +0x565C
+    BackgroundType mBackground; // +0x5660 (Board.cpp:3532 compares with 7)
+    int mLevel; // +0x5664 (Board.cpp:524/959 compares with 1)
+    int mSodPosition; // +0x5668
+    int mPrevMouseX; // +0x566C
+    int mPrevMouseY; // +0x5670
+    int mSunMoney1; // +0x5674
+    int mSunMoney2; // +0x5678
+    int mDeathMoney; // +0x567C
+    int mNumWaves; // +0x5680
+    int mMainCounter; // +0x5684
+    int mEffectCounter; // +0x5688
+    int mDrawCount; // +0x568C
+    int mRiseFromGraveCounter; // +0x5690
+    int mOutOfMoneyCounter; // +0x5694
+    int mCurrentWave; // +0x5698
+    int mTotalSpawnedWaves; // +0x569C
+    TutorialState mTutorialState; // +0x56A0
     ParticleSystemID mTutorialParticleID; // +0x56A4 (passed to ParticleTryToGet/ParticleGetID)
-    int mTutorialTimer;                  // +0x56A8
-    int mLastBungeeWave;                 // +0x56AC
-    int mZombieHealthToNextWave;         // +0x56B0
-    int mZombieHealthWaveStart;          // +0x56B4
-    int mZombieCountDown;                // +0x56B8
-    int mZombieCountDownStart;           // +0x56BC
-    int mHugeWaveCountDown;              // +0x56C0
-    bool mHelpDisplayed[72];             // +0x56C4
-    AdviceType mHelpIndex;               // +0x570C
-    bool mFinalBossKilled;               // +0x5710
-    bool mShowShovel;                    // +0x5711
-    bool mShowButter;                    // +0x5712
-    bool mShowHammer;                    // +0x5713
-    int mCoinBankFadeCount;              // +0x5714
-    DebugTextMode mDebugTextMode;        // +0x5718
-    bool mLevelComplete;                 // +0x571C
+    int mTutorialTimer; // +0x56A8
+    int mLastBungeeWave; // +0x56AC
+    int mZombieHealthToNextWave; // +0x56B0
+    int mZombieHealthWaveStart; // +0x56B4
+    int mZombieCountDown; // +0x56B8
+    int mZombieCountDownStart; // +0x56BC
+    int mHugeWaveCountDown; // +0x56C0
+    bool mHelpDisplayed[72]; // +0x56C4
+    AdviceType mHelpIndex; // +0x570C
+    bool mFinalBossKilled; // +0x5710
+    bool mShowShovel; // +0x5711
+    bool mShowButter; // +0x5712
+    bool mShowHammer; // +0x5713
+    int mCoinBankFadeCount; // +0x5714
+    DebugTextMode mDebugTextMode; // +0x5718
+    bool mLevelComplete; // +0x571C
     bool mNewWallNutAndSunFlowerAndChomperOnly; // +0x571D
-    unsigned char mNewPeaShooterCount;   // peashooters planted this level, capped at ten
-    int mBoardFadeOutCounter;            // +0x5720
-    int mNextSurvivalStageCounter;       // +0x5724 (Board.cpp:2479)
-    int mScoreNextMowerCounter;          // +0x5728
-    bool mLevelAwardSpawned;             // +0x572C (Board.cpp:1440/12538/12672/18194)
-    int mProgressMeterWidth;             // +0x5730
-    int mFlagRaiseCounter;               // +0x5734
-    int mIceTrapCounter;                 // +0x5738
-    int mBoardRandSeed;                  // +0x573C
+    unsigned char mNewPeaShooterCount; // peashooters planted this level, capped at ten
+    int mBoardFadeOutCounter; // +0x5720
+    int mNextSurvivalStageCounter; // +0x5724 (Board.cpp:2479)
+    int mScoreNextMowerCounter; // +0x5728
+    bool mLevelAwardSpawned; // +0x572C (Board.cpp:1440/12538/12672/18194)
+    int mProgressMeterWidth; // +0x5730
+    int mFlagRaiseCounter; // +0x5734
+    int mIceTrapCounter; // +0x5738
+    int mBoardRandSeed; // +0x573C
     ParticleSystemID mPoolSparklyParticleID; // +0x5740
     ReanimationID mFwooshID[MAX_GRID_SIZE_Y][12]; // +0x5744
-    int mFwooshCountDown;                // +0x5864
-    int mTimeStopCounter;                // +0x5868
-    bool mDroppedFirstCoin;              // +0x586C (Board.cpp:8228/8363/18215)
-    int mFinalWaveSoundCounter;          // +0x5870
-    int mCobCannonCursorDelayCounter;    // +0x5874
-    int mCobCannonMouseX;                // +0x5878
-    int mCobCannonMouseY;                // +0x587C
-    bool mKilledYeti;                    // +0x5880
-    bool mMustacheMode;                  // +0x5881
-    bool mSuperMowerMode;                // +0x5882
-    bool mFutureMode;                    // +0x5883
-    bool mPinataMode;                    // +0x5884
-    bool mDanceMode;                     // +0x5885
-    bool mDaisyMode;                     // +0x5886
-    bool mSukhbirMode;                   // +0x5887
-    BoardResult mPrevBoardResult;        // +0x5888
-    int mTriggeredLawnMowers;            // +0x588C
-    int mPlayTimeActiveLevel;            // +0x5890
-    int mPlayTimeInactiveLevel;          // +0x5894
-    int mMaxSunPlants;                   // +0x5898
-    int mStartDrawTime;                  // +0x589C
-    int mIntervalDrawTime;               // +0x58A0
-    int mIntervalDrawCountStart;         // +0x58A4
-    float mMinFPS;                       // +0x58A8
-    int mPreloadTime;                    // +0x58AC
-    int mGameID;                         // +0x58B0
-    int mGravesCleared;                  // +0x58B4
-    int mPlantsEaten;                    // +0x58B8
-    int mPlantsShoveled;                 // +0x58BC
-    int mCoinsCollected;                 // +0x58C0
-    int mDiamondsCollected;              // +0x58C4
-    int mPottedPlantsCollected;          // +0x58C8
-    int mChocolateCollected;             // +0x58CC
-    bool mPeaShooterUsed;                // +0x58D0
-    bool mCatapultPlantsUsed;            // +0x58D1
-    int mCollectedCoinStreak;            // +0x58D4 (Board.cpp:18884)
+    int mFwooshCountDown; // +0x5864
+    int mTimeStopCounter; // +0x5868
+    bool mDroppedFirstCoin; // +0x586C (Board.cpp:8228/8363/18215)
+    int mFinalWaveSoundCounter; // +0x5870
+    int mCobCannonCursorDelayCounter; // +0x5874
+    int mCobCannonMouseX; // +0x5878
+    int mCobCannonMouseY; // +0x587C
+    bool mKilledYeti; // +0x5880
+    bool mMustacheMode; // +0x5881
+    bool mSuperMowerMode; // +0x5882
+    bool mFutureMode; // +0x5883
+    bool mPinataMode; // +0x5884
+    bool mDanceMode; // +0x5885
+    bool mDaisyMode; // +0x5886
+    bool mSukhbirMode; // +0x5887
+    BoardResult mPrevBoardResult; // +0x5888
+    int mTriggeredLawnMowers; // +0x588C
+    int mPlayTimeActiveLevel; // +0x5890
+    int mPlayTimeInactiveLevel; // +0x5894
+    int mMaxSunPlants; // +0x5898
+    int mStartDrawTime; // +0x589C
+    int mIntervalDrawTime; // +0x58A0
+    int mIntervalDrawCountStart; // +0x58A4
+    float mMinFPS; // +0x58A8
+    int mPreloadTime; // +0x58AC
+    int mGameID; // +0x58B0
+    int mGravesCleared; // +0x58B4
+    int mPlantsEaten; // +0x58B8
+    int mPlantsShoveled; // +0x58BC
+    int mCoinsCollected; // +0x58C0
+    int mDiamondsCollected; // +0x58C4
+    int mPottedPlantsCollected; // +0x58C8
+    int mChocolateCollected; // +0x58CC
+    bool mPeaShooterUsed; // +0x58D0
+    bool mCatapultPlantsUsed; // +0x58D1
+    int mCollectedCoinStreak; // +0x58D4 (Board.cpp:18884)
     // The "2P joined" banner. Update counts the flashes still left, times the
     // current flash, and flips which half of the blink is showing.
-    int mSecondPlayerBannerCount;        // +0x58D8
-    bool mSecondPlayerBannerVisible;     // +0x58DC
-    float mSecondPlayerBannerTimer;      // +0x58E0
+    int mSecondPlayerBannerCount; // +0x58D8
+    bool mSecondPlayerBannerVisible; // +0x58DC
+    float mSecondPlayerBannerTimer; // +0x58E0
     // homura::Storage<pvzstl::string>: a libstdc++ COW string is one pointer, so
     // the type is size-neutral here -- but it IS a string (Board::InitLevel
     // assigns "[P2_JOIN]" into it), not an int.
-    Sexy::String mStringSecondPlayer;    // +0x58E4
-    bool mHelpTextDirty;                 // +0x58E8  a new tool in hand redraws the help text
+    Sexy::String mStringSecondPlayer; // +0x58E4
+    bool mHelpTextDirty; // +0x58E8  a new tool in hand redraws the help text
     // PlantsWon and ZombiesWon set this. TryToSaveGame then skips the save.
-    bool mLevelFinished = false;         // +0x58E9
-    unsigned char mPadding58EA[2];       // +0x58EA
+    bool mLevelFinished = false; // +0x58E9
+    unsigned char mPadding58EA[2]; // +0x58EA
     // Groups LoadResources has already loaded. A second request finds the name.
     std::set<Sexy::String> mLoadedResourceGroups;
-    int mBoardInitCounter;               // +0x5904  InitLevel and the constructor clear it
-    GameButton *mBoardMenuButton = nullptr;        // +0x5908
-    GameButton *mBoardStoreButton = nullptr;       // +0x590C
-    void *mShovelWidget = nullptr;                 // +0x5910  TODO(recon): ShovelRedirectWidget*, not reconstructed yet
-    void *mReplayControlsWidget = nullptr;         // +0x5914  TODO(recon): ReplayControlsWidget*, not reconstructed yet
-    bool mJacksonDanceMode = false;                // +0x5918
+    int mBoardInitCounter; // +0x5904  InitLevel and the constructor clear it
+    GameButton *mBoardMenuButton = nullptr; // +0x5908
+    GameButton *mBoardStoreButton = nullptr; // +0x590C
+    void *mShovelWidget = nullptr; // +0x5910  TODO(recon): ShovelRedirectWidget*, not reconstructed yet
+    void *mReplayControlsWidget = nullptr; // +0x5914  TODO(recon): ReplayControlsWidget*, not reconstructed yet
+    bool mJacksonDanceMode = false; // +0x5918
     // Per-board tutorial timing, outside the saved board state.
     int mShopSeedTutorialCounter = 0;
     // Transient desktop input, outside the saved board state.
-    enum class MouseGesture { None, SeedBank, Tool, CobCannon, UsableSeed, Lawn, Challenge, HeavyWeapon };
+    enum class MouseGesture
+    {
+        None,
+        SeedBank,
+        Tool,
+        CobCannon,
+        UsableSeed,
+        Lawn,
+        Challenge,
+        HeavyWeapon
+    };
     MouseGesture mMouseGesture = MouseGesture::None;
     bool mMouseInputActive[2] = {false, false};
     int mMousePlayerIndex = 0;
@@ -493,20 +508,20 @@ public:
     bool IsFlagWave(int theWaveIndex);
     int PutZombieInWave(ZombieType theZombieType, int theWaveIndex, ZombiePicker *thePicker);
     int GetLevelRandSeed();
-    int DisplayAdvice(Sexy::String const& theAdvice, MessageStyle theStyle, AdviceType theType);
-    int DisplayAdviceAgain(Sexy::String const& theAdvice, MessageStyle theStyle, AdviceType theType);
+    int DisplayAdvice(Sexy::String const &theAdvice, MessageStyle theStyle, AdviceType theType);
+    int DisplayAdviceAgain(Sexy::String const &theAdvice, MessageStyle theStyle, AdviceType theType);
     int ClearAdvice(AdviceType theType);
     int ClearAdviceImmediately();
-    Coin * AddCoin(int theX, int theY, CoinType theType, CoinMotion theMotion);
-    Coin * AddCoinHeavyWeapon(int theX, int theY, CoinType theType);
+    Coin *AddCoin(int theX, int theY, CoinType theType, CoinMotion theMotion);
+    Coin *AddCoinHeavyWeapon(int theX, int theY, CoinType theType);
     bool IsPlantInCursor(int thePlayerIndex);
     SeedType GetSeedTypeInCursor(int thePlayerIndex);
     SeedType GetAvailableUpgradeSeedInCursor(int thePlayerIndex);
     bool IsPoolSquare(int theGridX, int theGridY);
-    Plant * NewPlant(int theGridX, int theGridY, SeedType theSeedType, SeedType theImitaterType, int thePlayerIndex);
-    Plant * GetPumpkinAt(int theGridX, int theGridY);
-    Plant * GetFlowerPotAt(int theGridX, int theGridY);
-    Projectile * AddProjectile(int theX, int theY, int theRenderOrder, int theRow, ProjectileType theType);
+    Plant *NewPlant(int theGridX, int theGridY, SeedType theSeedType, SeedType theImitaterType, int thePlayerIndex);
+    Plant *GetPumpkinAt(int theGridX, int theGridY);
+    Plant *GetFlowerPotAt(int theGridX, int theGridY);
+    Projectile *AddProjectile(int theX, int theY, int theRenderOrder, int theRow, ProjectileType theType);
     bool CanZombieSpawnOnLevel(ZombieType theZombieType, int theLevel);
     int IsZombieWaveDistributionOk();
     int InitZombieWavesForLevel(int theLevel);
@@ -545,18 +560,18 @@ public:
     bool ProgressMeterHasFlags();
     // Both are void in the binary: the value the transcription returned was the
     // leftover in r0 from Graphics::DrawImage, and no caller reads it.
-    void DrawHouseDoorBottom(Sexy::Graphics * g);
-    void DrawHouseDoorTop(Sexy::Graphics * g);
-    int DrawTopRightUI(Sexy::Graphics * g);
-    void DrawUICoinBank(Sexy::Graphics * g);
-    void DrawFog(Sexy::Graphics * g);
-    Reanimation * UpdateCoverLayer();
-    void DrawCoverLayer(Sexy::Graphics * g, int theRow);
+    void DrawHouseDoorBottom(Sexy::Graphics *g);
+    void DrawHouseDoorTop(Sexy::Graphics *g);
+    int DrawTopRightUI(Sexy::Graphics *g);
+    void DrawUICoinBank(Sexy::Graphics *g);
+    void DrawFog(Sexy::Graphics *g);
+    Reanimation *UpdateCoverLayer();
+    void DrawCoverLayer(Sexy::Graphics *g, int theRow);
     int IsScaryPotterDaveTalking();
     void SetPinataMode(bool theEnable);
     int SetDaisyMode(bool theEnable);
     int SetSukhbirMode(bool theEnable);
-    Board * AddSunMoney(int theAmount, int thePlayerIndex);
+    Board *AddSunMoney(int theAmount, int thePlayerIndex);
     void AddDeathMoney(int theAmount);
     int TakeDeathMoney(int theAmount);
     int HasConveyorBeltSeedBank(bool thePlayer2);
@@ -567,7 +582,7 @@ public:
     int StageHasGraveStones();
     int PickGraveRisingZombieType(int theLevel);
     bool StageHasPool();
-    void DrawBackdrop(Sexy::Graphics * g);
+    void DrawBackdrop(Sexy::Graphics *g);
     bool StageHasRoof();
     bool StageHas6Rows();
     void InitLawnMowers();
@@ -594,7 +609,7 @@ public:
     // needs the same treatment when its body is converted.
     Sexy::Rect GetShovelButtonRect();
     Sexy::Rect GetButterButtonRect();
-    int OffsetYForPlanting(int & theY, SeedType theSeedType);
+    int OffsetYForPlanting(int &theY, SeedType theSeedType);
     int PixelToGridX(int theX, int theY);
     int PlantingPixelToGridX(int theX, int theY, SeedType theSeedType);
     int PixelToGridXKeepOnBoard(int theX, int theY);
@@ -603,34 +618,36 @@ public:
     int PixelToGridYKeepOnBoard(int theX, int theY);
     int GridToPixelX(int theGridX, int theGridY);
     int GridToPixelY(int theGridX, int theGridY);
-    void DoPlantingEffects(int theGridX, int theGridY, Plant * thePlant);
+    void DoPlantingEffects(int theGridX, int theGridY, Plant *thePlant);
     void UpdateIce();
     float GetPosYBasedOnRow(float thePosX, int theRow);
-    int DrawIce(Sexy::Graphics * g, int theRow);
+    int DrawIce(Sexy::Graphics *g, int theRow);
     int GridCellWidth(int theGridX, int theGridY);
     int GridCellHeight(int theGridX, int theGridY);
-    ZombieID ZombieGetID(Zombie * theZombie);
-    Zombie * ZombieGet(ZombieID theId);
-    Zombie * ZombieTryToGet(ZombieID theId);
+    ZombieID ZombieGetID(Zombie *theZombie);
+    Zombie *ZombieGet(ZombieID theId);
+    Zombie *ZombieTryToGet(ZombieID theId);
     void ShakeBoard(int theShakeAmountX, int theShakeAmountY);
-    int IterateZombies(Zombie *& theZombie);
+    int IterateZombies(Zombie *&theZombie);
     int AreEnemyZombiesOnScreen();
     int CountZombiesOnScreen();
     int RemoveAllZombies();
     int RemoveZombiesForRepick();
     int RemoveCutsceneZombies();
-    Zombie * ZombieHitTest(int theX, int theY, bool theInRow);
+    Zombie *ZombieHitTest(int theX, int theY, bool theInRow);
     int TotalZombiesHealthInWave(int theWaveIndex);
     int StopAllZombieSounds();
     int SetMustacheMode(bool theEnable);
     int SetFutureMode(bool theEnable);
     int SetDanceMode(bool theEnable);
-    int IteratePlants(Plant *& thePlant);
+    int IteratePlants(Plant *&thePlant);
     int GetPlantsOnLawn(unsigned int theGridX, unsigned int theGridY, PlantsOnLawn *thePlants);
-    Plant * GetTopPlantAt(int theGridX, int theGridY, PlantPriority thePriority);
-    bool IsPlantInGoldWateringCanRange(int theGridX, int theGridY, Plant * thePlant);
+    Plant *GetTopPlantAt(int theGridX, int theGridY, PlantPriority thePriority);
+    bool IsPlantInGoldWateringCanRange(int theGridX, int theGridY, Plant *thePlant);
     int PlantingPixelToGridY(int theX, int theY, SeedType theSeedType);
-    void GridCellBounds(int theGridX, int theGridY, SexyVector2 & theTopLeft, SexyVector2 & theTopRight, SexyVector2 & theBottomLeft, SexyVector2 & theBottomRight, SexyVector2 & theCenter, SexyVector2 & theTop, SexyVector2 & theBottom, SexyVector2 & theSide);
+    void GridCellBounds(int theGridX, int theGridY, SexyVector2 &theTopLeft, SexyVector2 &theTopRight,
+        SexyVector2 &theBottomLeft, SexyVector2 &theBottomRight, SexyVector2 &theCenter, SexyVector2 &theTop,
+        SexyVector2 &theBottom, SexyVector2 &theSide);
     int CountSunFlowers();
     int CountPlantByType(SeedType theSeedType);
     void UpdateTutorial();
@@ -639,11 +656,11 @@ public:
     int UpdateMousePosition();
     // Returns the plant under the point, or null. The binary leaves the plant
     // pointer in r0; a miss leaves the iterator's 0.
-    Plant * SpecialPlantHitTest(int theX, int theY);
+    Plant *SpecialPlantHitTest(int theX, int theY);
     int MouseHitTestPlant(int theX, int theY, HitResult *theHitResult);
-    int IterateProjectiles(Projectile *& theProjectile);
+    int IterateProjectiles(Projectile *&theProjectile);
     int RemoveAllProjectiles();
-    int IterateCoins(Coin *& theCoin);
+    int IterateCoins(Coin *&theCoin);
     int RemoveAllCoins();
     int CountSunBeingCollected(int thePlayerIndex);
     bool TakeSunMoney(int theAmount, int thePlayerIndex);
@@ -651,40 +668,40 @@ public:
     int CountDeathBeingCollected();
     bool CanTakeDeathMoney(int theAmount);
     int CountCoinsBeingCollected();
-    int IterateLawnMowers(LawnMower *& theMower);
-    LawnMower * FindLawnMowerInRow(int theRow);
+    int IterateLawnMowers(LawnMower *&theMower);
+    LawnMower *FindLawnMowerInRow(int theRow);
     int CountUntriggerLawnMowers();
-    LawnMower * GetBottomLawnMower();
+    LawnMower *GetBottomLawnMower();
     int RemoveAllMowers();
     int UpdateGameObjects();
-    void DrawDebugObjectRects(Sexy::Graphics * g);
+    void DrawDebugObjectRects(Sexy::Graphics *g);
     int SetSuperMowerMode(bool theEnable);
     void DoTypingCheck(char *theKey);
-    bool IterateGridItems(GridItem *& theGridItem);
-    GridItem * GetGridItemAt(GridItemType theType, int theGridX, int theGridY);
-    GridItem * GetGraveStoneAt(int theGridX, int theGridY);
-    GridItem * GetCraterAt(int theGridX, int theGridY);
-    GridItem * GetScaryPotAt(int theGridX, int theGridY);
+    bool IterateGridItems(GridItem *&theGridItem);
+    GridItem *GetGridItemAt(GridItemType theType, int theGridX, int theGridY);
+    GridItem *GetGraveStoneAt(int theGridX, int theGridY);
+    GridItem *GetCraterAt(int theGridX, int theGridY);
+    GridItem *GetScaryPotAt(int theGridX, int theGridY);
     // @0x157444 returns a PlantingReason in r0. Zero is PLANTING_OK.
     PlantingReason CanPlantAt(int theGridX, int theGridY, SeedType theSeedType);
     int IsValidCobCannonSpotHelper(int theGridX, int theGridY);
     bool IsValidCobCannonSpot(int theGridX, int theGridY);
     int HasValidCobCannonSpot();
-    GridItem * GetSquirrelAt(int theGridX, int theGridY);
-    GridItem * GetZenToolAt(int theGridX, int theGridY);
-    GridItem * GetLadderAt(int theGridX, int theGridY);
-    GridItem * GetMoundAt(int theGridX, int theGridY);
-    GridItem * GetRake();
+    GridItem *GetSquirrelAt(int theGridX, int theGridY);
+    GridItem *GetZenToolAt(int theGridX, int theGridY);
+    GridItem *GetLadderAt(int theGridX, int theGridY);
+    GridItem *GetMoundAt(int theGridX, int theGridY);
+    GridItem *GetRake();
     int CanAddGraveStoneAt(int theGridX, int theGridY);
     int RemoveAllGridItems();
     int GetGraveStoneCount();
     int GetMPTargetCount();
-    void DrawProgressMeter(Sexy::Graphics * g, int theX, int theY);
-    GridItem * PickSpecialGraveStone();
-    int IterateParticles(TodParticleSystem *& theParticle);
-    int IterateReanimations(Reanimation *& theReanimation);
+    void DrawProgressMeter(Sexy::Graphics *g, int theX, int theY);
+    GridItem *PickSpecialGraveStone();
+    int IterateParticles(TodParticleSystem *&theParticle);
+    int IterateReanimations(Reanimation *&theReanimation);
     int FreezeEffectsForCutscene(bool theFreeze);
-    int PlantsWon(GridItem * theBrain);
+    int PlantsWon(GridItem *theBrain);
     void StartLevel();
     int KillAllPlantsInRadius(int theX, int theY, int theRadius);
     // MakeRenderOrder(RenderLayer,int,int) -- STATIC. The dump body is
@@ -696,21 +713,22 @@ public:
     int AddBossRenderItem(BoardRenderItem *aRecords, int &aCount, Zombie *aZombie);
     int InitCoverLayer();
     int CountCoinByType(CoinType theType);
-    Coin * DropLootPiece(int theX, int theY, int thePiece);
+    Coin *DropLootPiece(int theX, int theY, int thePiece);
     int CanDropLoot();
     int CompleteEndLevelSequenceForSaving();
     // False means the level file could not be written; callers must keep the board.
     bool TryToSaveGame();
     int BungeeIsTargetingCell(int theGridX, int theGridY);
-    Zombie * GetBossZombie();
+    Zombie *GetBossZombie();
     int UpdateProgressMeter();
-    void DrawDebugText(Sexy::Graphics * g);
-    Plant * FindUmbrellaPlant(int theGridX, int theGridY);
+    void DrawDebugText(Sexy::Graphics *g);
+    Plant *FindUmbrellaPlant(int theGridX, int theGridY);
     ReanimationID DoFwoosh(int theRow);
     void UpdateFwoosh();
     int UpdateGridItems();
     bool PlantingRequirementsMet(SeedType theSeedType);
-    int KillAllZombiesInRadius(int theX, int theY, int theRadius, int theRow, int theFlags, bool theBurn, int theDamage);
+    int KillAllZombiesInRadius(
+        int theX, int theY, int theRadius, int theRow, int theFlags, bool theBurn, int theDamage);
     int KillAllGravestonesInRadius(int theX, int theY, int theRadius);
     int GetNumWavesPerSurvivalStage();
     bool RowCanHaveZombieType(int theRow, ZombieType theZombieType);
@@ -718,12 +736,12 @@ public:
     int GetSurvivalFlagsCompleted();
     int SurvivalSaveScore();
     ZombieType PickZombieType(int thePointCount, int theWaveIndex, ZombiePicker *thePicker);
-    void ZombiesWon(Zombie * theZombie);
-    void DrawLevel(Sexy::Graphics * g);
+    void ZombiesWon(Zombie *theZombie);
+    void DrawLevel(Sexy::Graphics *g);
     int IsFinalSurvivalStage();
     int IsSurvivalStageWithRepick();
     int NextWaveComing();
-    int DrawFadeOut(Sexy::Graphics * g);
+    int DrawFadeOut(Sexy::Graphics *g);
     void UpdateLevelEndSequence();
     int RemoveParticleByType(ParticleEffect theEffect);
     Zombie *GetWinningZombie();
@@ -736,61 +754,62 @@ public:
     // member returning the rect by value
     // (_ZN5Board16GetZenButtonRectE14GameObjectType @0x15c500).
     Sexy::Rect GetZenButtonRect(GameObjectType theObjectType);
-    int DrawZenWheelBarrowButton(Sexy::Graphics * g, int theOffsetY);
+    int DrawZenWheelBarrowButton(Sexy::Graphics *g, int theOffsetY);
     int MouseHitTest(int theX, int theY, HitResult *theHitResult, int thePlayerIndex);
-    Plant * ToolHitTest(int theX, int theY);
-    Plant * HighlightPlantsForMouse(int theX, int theY);
-    int DrawZenButtons(Sexy::Graphics * g);
-    int DrawShovel(Sexy::Graphics * g);
+    Plant *ToolHitTest(int theX, int theY);
+    Plant *HighlightPlantsForMouse(int theX, int theY);
+    int DrawZenButtons(Sexy::Graphics *g);
+    int DrawShovel(Sexy::Graphics *g);
     void GameAxisMove(Sexy::GamepadAxis theAxis, int theValue, int thePlayerIndex);
     void AddSecondPlayer(int theGamepadIndex);
     void GameButtonUp(Sexy::GamepadButton theButton, int thePlayerIndex, unsigned int theFlags);
-    GamepadControls * GetGamepadControlsByPlayerIndex(int thePlayerIndex);
+    GamepadControls *GetGamepadControlsByPlayerIndex(int thePlayerIndex);
     void RefreshSeedPacketFromCursor(int thePlayerIndex);
     void FadeOutLevel();
     void DoPlantingAchievementCheck(SeedType theSeedType);
     void CheckLevelAchievements();
-    GamepadControls * GetGamepadControlsByGamepadIndex(int theGamepadIndex);
+    GamepadControls *GetGamepadControlsByGamepadIndex(int theGamepadIndex);
     void TryToExit();
     int FinishExit();
     bool OkToPause();
     void RebuildHelpBar();
     int GameButtonDown(Sexy::GamepadButton theButton, int thePlayerIndex, unsigned int theFlags);
     void OnFullVersionLicenseChange();
-    std::set<Plant *> * GetTangleKelpList();
+    std::set<Plant *> *GetTangleKelpList();
     void StartHelp(int theHelpIndex);
     bool IsLevelDataLoaded();
     int StageHasFog();
     int SeedNotRecommendedForLevel(SeedType theSeedType);
-    void DrawUIBottom(Sexy::Graphics * g);
+    void DrawUIBottom(Sexy::Graphics *g);
     int LeftFogColumn();
-    void ClearFogAroundPlant(Plant * thePlant, int theRadius);
+    void ClearFogAroundPlant(Plant *thePlant, int theRadius);
     void UpdateFog();
     int GetPointsInWave(int theWaveIndex);
     void dumpLevelDesignStatToLog();
     void AddALadder(int theGridX, int theGridY);
-    GridItem * AddACrater(int theGridX, int theGridY);
-    GridItem * AddAGraveStone(int theGridX, int theGridY);
-    void AddGraveStones(int theCount, int theMinX, MTRand & theRand);
+    GridItem *AddACrater(int theGridX, int theGridY);
+    GridItem *AddAGraveStone(int theGridX, int theGridY);
+    void AddGraveStones(int theCount, int theMinX, MTRand &theRand);
     void AddAMound(int theGridX, int theGridY, int theCount);
-    LawnApp * PlaceRake();
+    LawnApp *PlaceRake();
     void AddMPTarget(int theGridX, int theGridY);
-    Zombie * AddZombieInRow(ZombieType theZombieType, int theRow, int theFromWave, bool theIsVisible);
-    Zombie * SpawnZombiesFromPool();
-    Zombie * AddZombie(ZombieType theZombieType, int theFromWave, bool theIsVisible);
+    Zombie *AddZombieInRow(ZombieType theZombieType, int theRow, int theFromWave, bool theIsVisible);
+    Zombie *SpawnZombiesFromPool();
+    Zombie *AddZombie(ZombieType theZombieType, int theFromWave, bool theIsVisible);
     // _ZN5Board16BungeeDropZombieEP14BungeeDropGrid10ZombieType -- the first
     // parameter is the filled grid, not an int.
     void BungeeDropZombie(BungeeDropGrid *theDrop, ZombieType theZombieType);
     void SpawnZombiesFromSky();
     void SpawnZombieWave();
-    Zombie * SpawnZombiesFromGraves();
+    Zombie *SpawnZombiesFromGraves();
     void UpdateZombieSpawning();
     int UpdateGame();
-    int LoadResources(Sexy::String const& theGroup);
+    int LoadResources(Sexy::String const &theGroup);
     void LoadBackgroundImages();
     int PostLoadGame();
     int PickBackground();
-    Plant * AddPlant(int theGridX, int theGridY, SeedType theSeedType, SeedType theImitaterType, int thePlayerIndex, bool theFromSave);
+    Plant *AddPlant(int theGridX, int theGridY, SeedType theSeedType, SeedType theImitaterType, int thePlayerIndex,
+        bool theFromSave);
     void MouseDownWithPlant(int theX, int theY, int theClickCount, int thePlayerIndex);
     void MouseDownWithTool(int theX, int theY, int theClickCount, CursorType theCursorType, int thePlayerIndex);
     int PickZombieWaves();
@@ -804,12 +823,12 @@ public:
     Sexy::String dumpAllowedZombiesInLevel();
     Sexy::String dumpZombiesInWave(int theWaveIndex);
     // @0x163828. r0 is the LawnMower FindLawnMowerInRow left there, or null.
-    LawnMower * ResetLawnMowers();
-    Board(LawnApp * theApp);
+    LawnMower *ResetLawnMowers();
+    Board(LawnApp *theApp);
     int ProcessDeleteQueue();
     // Leaves r0 alone. The one caller discards the result.
-    void DrawUITop(Sexy::Graphics * g);
-    int DrawGameObjects(Sexy::Graphics * g);
+    void DrawUITop(Sexy::Graphics *g);
+    int DrawGameObjects(Sexy::Graphics *g);
     void dumpLevelConfiguration();
     // Everything from AddedToManager through MakeBuddyImage used to be declared
     // here. None of it is ::Board's: those bodies are all `_ZN4Sexy5Board*`
@@ -829,3 +848,5 @@ public:
 // 0x7A0 bytes here, where the binary's is 0x100.
 // TODO(recon): enable `static_assert(sizeof(Board) == 0x591C, "Board must be
 // 0x591C bytes");` as soon as Sexy\Widget.h is reconstructed.
+
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_BOARD_H

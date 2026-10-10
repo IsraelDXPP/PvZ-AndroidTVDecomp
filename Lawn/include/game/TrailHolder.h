@@ -1,4 +1,5 @@
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_TRAILHOLDER_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_TRAILHOLDER_H
 
 #include "ReconTypes.h"
 #include "Trail.h"
@@ -17,9 +18,11 @@ public:
     int InitializeHolder();
     void DisposeHolder();
     ~TrailHolder();
-    Trail* AllocTrailFromDef(int theRenderOrder, TrailDefinition* theDefinition);
-    Trail* AllocTrail(int theRenderOrder, TrailType theTrailType);
+    Trail *AllocTrailFromDef(int theRenderOrder, TrailDefinition *theDefinition);
+    Trail *AllocTrail(int theRenderOrder, TrailType theTrailType);
 };
 
 // Trail (0xF8) plus the DataArray id word.
 inline constexpr int DATA_ARRAY_TRAIL_STRIDE = 0xFC;
+
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_TRAILHOLDER_H

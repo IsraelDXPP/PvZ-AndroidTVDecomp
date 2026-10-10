@@ -17,7 +17,7 @@ Sexy::SexyTransform2D::SexyTransform2D(bool theLoadIdentity)
         LoadIdentity();
 }
 
-Sexy::SexyTransform2D::SexyTransform2D(SexyMatrix3 const& theMatrix)
+Sexy::SexyTransform2D::SexyTransform2D(SexyMatrix3 const &theMatrix)
 {
     m[0] = theMatrix.m[0];
     m[1] = theMatrix.m[1];
@@ -30,7 +30,7 @@ Sexy::SexyTransform2D::SexyTransform2D(SexyMatrix3 const& theMatrix)
     m[8] = theMatrix.m[8];
 }
 
-Sexy::SexyTransform2D* Sexy::SexyTransform2D::Translate(float theX, float theY)
+Sexy::SexyTransform2D *Sexy::SexyTransform2D::Translate(float theX, float theY)
 {
     SexyMatrix3 aFactor;
     aFactor.LoadIdentity();
@@ -41,7 +41,7 @@ Sexy::SexyTransform2D* Sexy::SexyTransform2D::Translate(float theX, float theY)
     return this;
 }
 
-Sexy::SexyTransform2D* Sexy::SexyTransform2D::RotateRad(float theRadians)
+Sexy::SexyTransform2D *Sexy::SexyTransform2D::RotateRad(float theRadians)
 {
     SexyMatrix3 aFactor;
     aFactor.LoadIdentity();
@@ -55,7 +55,7 @@ Sexy::SexyTransform2D* Sexy::SexyTransform2D::RotateRad(float theRadians)
     return this;
 }
 
-Sexy::SexyTransform2D* Sexy::SexyTransform2D::RotateDeg(float theDegrees)
+Sexy::SexyTransform2D *Sexy::SexyTransform2D::RotateDeg(float theDegrees)
 {
     return RotateRad(theDegrees * 0.017453294f);
 }
@@ -77,7 +77,7 @@ float Sexy::SexyTransform2D::LoadRotateDeg(float theDegrees)
     return LoadRotateRad(theDegrees * 0.017453294f);
 }
 
-Sexy::SexyTransform2D* Sexy::SexyTransform2D::Scale(float theX, float theY)
+Sexy::SexyTransform2D *Sexy::SexyTransform2D::Scale(float theX, float theY)
 {
     SexyMatrix3 aFactor;
     aFactor.LoadIdentity();

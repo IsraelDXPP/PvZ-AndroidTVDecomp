@@ -7,7 +7,8 @@
 // Board allocates one of these per side. Draw, Move and the belt helpers are
 // not virtual; the vtable is GameObject's.
 
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_SEEDBANK_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_SEEDBANK_H
 
 #include "ReconTypes.h"
 #include "HitResult.h"
@@ -54,3 +55,5 @@ public:
     void RefreshAllPackets();
     void Draw(Sexy::Graphics *theGraphics);
 };
+
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_SEEDBANK_H

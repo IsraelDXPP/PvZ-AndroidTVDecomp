@@ -43,7 +43,8 @@
 // GameButtonDown lands at 132 instead of 134. Declared in the binary's order
 // regardless so the intent stays readable.
 
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_SETTINGSDIALOG_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_SETTINGSDIALOG_H
 
 #include "ReconTypes.h"
 // These includes exist because the transcribed bodies call methods on complete
@@ -66,7 +67,8 @@ class SettingsDialog : public LawnDialog, public Sexy::SliderListener, public Se
 {
 public:
     // Button ids, from the authoritative header.
-    enum {
+    enum
+    {
         SettingsDialog_HardwareAcceleration = 1024,
         SettingsDialog_HapticFeedback,
     };
@@ -95,10 +97,10 @@ public:
 
     // LawnDialog occupies +0x00..+0x2FB, SliderListener's vptr +0x2FC..+0x2FF,
     // CheckboxListener's vptr +0x300..+0x303.
-    LawnApp *mApp;                  // +0x304
-    GameSlider *mMusicSlider;       // +0x308
-    GameSlider *mSoundSlider;       // +0x30C
-    GameButton *mBackButton;        // +0x310
+    LawnApp *mApp; // +0x304
+    GameSlider *mMusicSlider; // +0x308
+    GameSlider *mSoundSlider; // +0x30C
+    GameButton *mBackButton; // +0x310
     GameButton *mSelectDeviceButton; // +0x314
     // Whether the last attempt to save the settings failed.
     bool mSaveFailed;
@@ -106,3 +108,5 @@ public:
 
     SettingsDialog(LawnApp *theApp);
 };
+
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_SETTINGSDIALOG_H

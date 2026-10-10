@@ -8,17 +8,17 @@
 #include "MemoryImage.h"
 #include "SexyAppBase.h"
 
-Sexy::DeviceImage* Sexy::DeviceImage::AsDeviceImage()
+Sexy::DeviceImage *Sexy::DeviceImage::AsDeviceImage()
 {
     return this;
 }
 
-int Sexy::DeviceImage::SetSurface(void* theSurface)
+int Sexy::DeviceImage::SetSurface(void *theSurface)
 {
     if (mDriver == nullptr)
         return 0;
 
-    IDeviceSurface* surface = mSurface;
+    IDeviceSurface *surface = mSurface;
     mHasSurface = true;
 
     if (surface != nullptr)
@@ -87,16 +87,16 @@ int Sexy::DeviceImage::Init()
     return registered;
 }
 
-Sexy::DeviceImage::DeviceImage(Sexy::SexyAppBase* theApp)
-    : MemoryImage(theApp)
+Sexy::DeviceImage::DeviceImage(Sexy::SexyAppBase *theApp) :
+    MemoryImage(theApp)
 {
     mDriver = theApp != nullptr ? theApp->mDDInterface : nullptr;
     Init();
 }
 
-Sexy::DeviceImage* Sexy::DeviceImage::CreateSubImage(int theX, int theY, int theWidth, int theHeight)
+Sexy::DeviceImage *Sexy::DeviceImage::CreateSubImage(int theX, int theY, int theWidth, int theHeight)
 {
-    MemoryImage* parent = mParent;
+    MemoryImage *parent = mParent;
     int originX = theX;
     int originY = theY;
     if (parent != nullptr)
@@ -109,20 +109,20 @@ Sexy::DeviceImage* Sexy::DeviceImage::CreateSubImage(int theX, int theY, int the
         parent = this;
     }
 
-    DeviceImage* subImage = new DeviceImage(mApp);
+    DeviceImage *subImage = new DeviceImage(mApp);
     parent->Attach(subImage, originX, originY, theWidth, theHeight);
     return subImage;
 }
 
-Sexy::DeviceImage::DeviceImage(Sexy::IGraphicsDriver* theDriver)
-    : MemoryImage(gSexyAppBase)
+Sexy::DeviceImage::DeviceImage(Sexy::IGraphicsDriver *theDriver) :
+    MemoryImage(gSexyAppBase)
 {
     mDriver = theDriver;
     Init();
 }
 
-Sexy::DeviceImage::DeviceImage()
-    : MemoryImage(gSexyAppBase)
+Sexy::DeviceImage::DeviceImage() :
+    MemoryImage(gSexyAppBase)
 {
     mDriver = gSexyAppBase != nullptr ? gSexyAppBase->mDDInterface : nullptr;
     Init();
@@ -133,7 +133,7 @@ int Sexy::DeviceImage::GenerateDeviceSurface()
     if (mSurface != nullptr || mDriver == nullptr)
         return 0;
 
-    IDeviceSurface* surface = mDriver->CreateDeviceSurface();
+    IDeviceSurface *surface = mDriver->CreateDeviceSurface();
     if (surface == nullptr)
         return 0;
 
@@ -257,7 +257,7 @@ Sexy::PixelFormat Sexy::DeviceImage::GetPixelFormat()
     return (PixelFormat)mSurfaceFormat;
 }
 
-unsigned int* Sexy::DeviceImage::GetBits()
+unsigned int *Sexy::DeviceImage::GetBits()
 {
     if (mNoBits)
         return nullptr;
@@ -265,14 +265,14 @@ unsigned int* Sexy::DeviceImage::GetBits()
         return MemoryImage::GetBits();
     if (mLockCount == 0 || mSurfaceFormat != 2)
     {
-        mBits = (unsigned long*)mSurface->GetBits(this);
+        mBits = (unsigned long *)mSurface->GetBits(this);
         mFormat = (PixelFormat)2;
         return MemoryImage::GetBits();
     }
     return mSurfaceBits;
 }
 
-unsigned int* Sexy::DeviceImage::GetPixels()
+unsigned int *Sexy::DeviceImage::GetPixels()
 {
     if (mNoBits)
         return nullptr;

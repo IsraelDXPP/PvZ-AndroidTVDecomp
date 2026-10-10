@@ -4,13 +4,13 @@
 
 #include "Transform.h"
 
-Sexy::Transform::Transform()
-    : mMatrix(false)
+Sexy::Transform::Transform() :
+    mMatrix(false)
 {
     Reset();
 }
 
-Sexy::Transform* Sexy::Transform::Reset()
+Sexy::Transform *Sexy::Transform::Reset()
 {
     mNeedCalc = true;
     mComplex = false;
@@ -26,7 +26,7 @@ Sexy::Transform* Sexy::Transform::Reset()
     return this;
 }
 
-Sexy::Transform* Sexy::Transform::Translate(float theX, float theY)
+Sexy::Transform *Sexy::Transform::Translate(float theX, float theY)
 {
     if (mComplex)
     {
@@ -48,7 +48,7 @@ Sexy::Transform* Sexy::Transform::Translate(float theX, float theY)
     return this;
 }
 
-Sexy::SexyMatrix3* Sexy::Transform::CalcMatrix()
+Sexy::SexyMatrix3 *Sexy::Transform::CalcMatrix()
 {
     if (!mNeedCalc)
         return &mMatrix;
@@ -73,7 +73,7 @@ Sexy::SexyMatrix3* Sexy::Transform::CalcMatrix()
     return &mMatrix;
 }
 
-Sexy::SexyMatrix3* Sexy::Transform::MakeComplex()
+Sexy::SexyMatrix3 *Sexy::Transform::MakeComplex()
 {
     if (!mComplex)
     {
@@ -83,7 +83,7 @@ Sexy::SexyMatrix3* Sexy::Transform::MakeComplex()
     return &mMatrix;
 }
 
-Sexy::Transform* Sexy::Transform::RotateRad(float theRadians)
+Sexy::Transform *Sexy::Transform::RotateRad(float theRadians)
 {
     if (mComplex || mScaled)
     {
@@ -98,23 +98,18 @@ Sexy::Transform* Sexy::Transform::RotateRad(float theRadians)
     return this;
 }
 
-Sexy::Transform* Sexy::Transform::RotateDeg(float theDegrees)
+Sexy::Transform *Sexy::Transform::RotateDeg(float theDegrees)
 {
     return RotateRad(theDegrees * 0.017453294f);
 }
 
-Sexy::Transform* Sexy::Transform::Scale(float theX, float theY)
+Sexy::Transform *Sexy::Transform::Scale(float theX, float theY)
 {
     if (!mComplex)
     {
-        const bool aUniformOrOrigin =
-            (theX == theY) || (mRotateCenterX == 0.0f && mRotateCenterY == 0.0f);
-        const bool aPositive =
-            !mRotated
-            && mTransX == 0.0f
-            && mTransY == 0.0f
-            && (theX >= 0.0f || (theX * mScaleX) == -1.0f)
-            && theY >= 0.0f;
+        const bool aUniformOrOrigin = (theX == theY) || (mRotateCenterX == 0.0f && mRotateCenterY == 0.0f);
+        const bool aPositive = !mRotated && mTransX == 0.0f && mTransY == 0.0f &&
+            (theX >= 0.0f || (theX * mScaleX) == -1.0f) && theY >= 0.0f;
         if (aPositive && aUniformOrOrigin)
         {
             mRotateCenterX *= theX;
@@ -132,13 +127,13 @@ Sexy::Transform* Sexy::Transform::Scale(float theX, float theY)
     return this;
 }
 
-Sexy::Transform* Sexy::Transform::GetMatrix()
+Sexy::Transform *Sexy::Transform::GetMatrix()
 {
     CalcMatrix();
     return this;
 }
 
-Sexy::Transform* Sexy::Transform::SetMatrix(Sexy::SexyTransform2D const& theMatrix)
+Sexy::Transform *Sexy::Transform::SetMatrix(Sexy::SexyTransform2D const &theMatrix)
 {
     mMatrix.m[0] = theMatrix.m[0];
     mMatrix.m[1] = theMatrix.m[1];
@@ -154,7 +149,7 @@ Sexy::Transform* Sexy::Transform::SetMatrix(Sexy::SexyTransform2D const& theMatr
     return this;
 }
 
-Sexy::Transform* Sexy::Transform::SetMatrix(const float* theSimple)
+Sexy::Transform *Sexy::Transform::SetMatrix(const float *theSimple)
 {
     mMatrix.m[0] = theSimple[0];
     mMatrix.m[1] = theSimple[2];

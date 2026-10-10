@@ -37,7 +37,8 @@
 // establishes `namespace TM { using ::LogComposer; }` before including this
 // header, so the two spellings name the same class.
 
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_LOGCOMPOSER_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_LOGCOMPOSER_H
 
 #include "ReconTypes.h"
 #include <string>
@@ -48,29 +49,29 @@
 class LogComposer
 {
 public:
-    Sexy::String mSerialNum;   // +0x00  generateSerialNum writes this
-    Sexy::String mAccount;     // +0x04  login and auth logs carry this field
-    Sexy::String mPlatform;    // +0x08  XML tag "platform"
-    Sexy::String mVendor;      // +0x0C  XML tag "vendor"
-    Sexy::String mProduct;     // +0x10  XML tag "product"
-    Sexy::String mGameName;    // +0x14  XML tag "gamename"
+    Sexy::String mSerialNum; // +0x00  generateSerialNum writes this
+    Sexy::String mAccount; // +0x04  login and auth logs carry this field
+    Sexy::String mPlatform; // +0x08  XML tag "platform"
+    Sexy::String mVendor; // +0x0C  XML tag "vendor"
+    Sexy::String mProduct; // +0x10  XML tag "product"
+    Sexy::String mGameName; // +0x14  XML tag "gamename"
     Sexy::String mGameVersion; // +0x18  XML tag "gameversion"
     // Size 0x1C.
 
-    Sexy::String composeLog(std::vector<Sexy::String> const& theFields);
+    Sexy::String composeLog(std::vector<Sexy::String> const &theFields);
     Sexy::String getClientTime();
     Sexy::String generateSerialNum();
-    Sexy::String composeCrashLog(Sexy::String & theReason);
+    Sexy::String composeCrashLog(Sexy::String &theReason);
     Sexy::String composeLoginLog(int theKind);
     Sexy::String composeLoginLog();
     Sexy::String composeLogoutLog();
-    Sexy::String composeAssembledLog(int theKind, Sexy::String & theDetail);
-    Sexy::String composeAuthLog(int theKind, Sexy::String const& theDetail);
-    Sexy::String composeAuthStartLog(Sexy::String const& theDetail);
-    Sexy::String composeAuthSucceedLog(Sexy::String const& theDetail);
-    Sexy::String composeAuthFailedLog(Sexy::String const& theDetail);
-    Sexy::String composeGameDataLog(int theKind, Sexy::String const& theDetail);
-    Sexy::String composeGameResultLog(Sexy::String const& theDetail);
+    Sexy::String composeAssembledLog(int theKind, Sexy::String &theDetail);
+    Sexy::String composeAuthLog(int theKind, Sexy::String const &theDetail);
+    Sexy::String composeAuthStartLog(Sexy::String const &theDetail);
+    Sexy::String composeAuthSucceedLog(Sexy::String const &theDetail);
+    Sexy::String composeAuthFailedLog(Sexy::String const &theDetail);
+    Sexy::String composeGameDataLog(int theKind, Sexy::String const &theDetail);
+    Sexy::String composeGameResultLog(Sexy::String const &theDetail);
     Sexy::String composeGameDataLog(int theKind, int theValue);
     Sexy::String composeScoreLog(int theScore);
     Sexy::String composeTimeLog(int theSeconds);
@@ -78,8 +79,8 @@ public:
     Sexy::String composeRechargeLog(int theKind, int theAmount, int theCurrency);
     Sexy::String composeRechargeByRMBLog(int theAmount, int theCurrency);
     Sexy::String composeRechargeByDollarLog(int theAmount, int theCurrency);
-    Sexy::String composeGameLevelLog(int theKind, int theLevel, int theResult, Sexy::String const& theDetail);
-    Sexy::String composeLevelEnterLog(Sexy::String const& theLevel, int theResult);
+    Sexy::String composeGameLevelLog(int theKind, int theLevel, int theResult, Sexy::String const &theDetail);
+    Sexy::String composeLevelEnterLog(Sexy::String const &theLevel, int theResult);
     Sexy::String composeLevelLeaveLog(int theResult);
     Sexy::String composeLevelSucceedLog(int theResult);
     Sexy::String composeLevelFailedLog(int theResult);
@@ -88,7 +89,8 @@ public:
     Sexy::String composePayByRMBLog(int theAmount, int theCurrency, int theItem);
     Sexy::String composePayByDollarLog(int theAmount);
     Sexy::String composePayByDollarLog(int theAmount, int theCurrency, int theItem);
-    void initComposer(Sexy::String const& theXml);
+    void initComposer(Sexy::String const &theXml);
     LogComposer();
 };
 
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_LOGCOMPOSER_H

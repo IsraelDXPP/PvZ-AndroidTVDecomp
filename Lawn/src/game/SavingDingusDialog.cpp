@@ -21,9 +21,7 @@
 // Sexy::ButtonListener sub-object at +0x100 (Widget is 0x100 bytes, see
 // Dialog.h); a real base class makes the compiler emit both, and the explicit
 // `~Dialog()` call is the base destructor it already runs.
-SavingDingusDialog::~SavingDingusDialog()
-{
-}
+SavingDingusDialog::~SavingDingusDialog() {}
 
 // ==========================================================================
 // SavingDingusDialog::Draw(Sexy::Graphics *)
@@ -51,11 +49,12 @@ void SavingDingusDialog::Draw(Sexy::Graphics *theGraphics)
 // `Sexy::Dialog::Dialog(this, 0, 0, a4, a3, &hdr, &lines, &footer, 0)` -- the
 // component image and the dialog image are both null, the id is the 3rd argument
 // and the modal flag the 2nd.
-SavingDingusDialog::SavingDingusDialog(LawnApp *theApp, bool theModal, int theDialogId, Sexy::String theText, float theTimer, bool theDrawFade)
-    : Sexy::Dialog(nullptr, nullptr, theDialogId, theModal, "", "", "", 0),
-      mDingusTimer(theTimer),
-      mApp(theApp),
-      mDrawFade(theDrawFade)
+SavingDingusDialog::SavingDingusDialog(
+    LawnApp *theApp, bool theModal, int theDialogId, Sexy::String theText, float theTimer, bool theDrawFade) :
+    Sexy::Dialog(nullptr, nullptr, theDialogId, theModal, "", "", "", 0),
+    mDingusTimer(theTimer),
+    mApp(theApp),
+    mDrawFade(theDrawFade)
 {
     // The dump calls Dialog::SetHeaderFont directly (0x301c78) but reaches
     // SetLinesFont through the vptr (byte 0x1F0 -- slot 124).

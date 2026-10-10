@@ -29,7 +29,7 @@
 // Sexy\ReconFuncs.cpp.)
 Native::BridgeApp *__imp__ZN6Native9BridgeApp12getSingletonEv()
 {
-  return nullptr;
+    return nullptr;
 }
 
 // ==========================================================================
@@ -38,5 +38,5 @@ Native::BridgeApp *__imp__ZN6Native9BridgeApp12getSingletonEv()
 // ==========================================================================
 Native::BridgeApp *Native::BridgeApp::getSingleton()
 {
-  return __imp__ZN6Native9BridgeApp12getSingletonEv();
+    return __imp__ZN6Native9BridgeApp12getSingletonEv();
 }

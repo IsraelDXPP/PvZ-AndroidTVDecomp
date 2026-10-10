@@ -22,7 +22,8 @@
 // MSVC x86 gives a virtual destructor one slot where Itanium and ARM give it two,
 // so the absolute slot numbers run one lower here; only the order is copied.
 
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_LAWNSTONEBUTTON_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_LAWNSTONEBUTTON_H
 
 #include "ReconTypes.h"
 // Classes this one calls a method on: the call needs the
@@ -38,10 +39,12 @@ class LawnStoneButton : public GameButton
 public:
     virtual ~LawnStoneButton();
     virtual void Draw(Sexy::Graphics *theGraphics);
-    virtual void SetLabel(const Sexy::String& theLabel);
+    virtual void SetLabel(const Sexy::String &theLabel);
 
-    LawnStoneButton(int theId, Sexy::ButtonListener* theListener);
+    LawnStoneButton(int theId, Sexy::ButtonListener *theListener);
 
     // No members of its own; every field it touches belongs to GameButton.
     // size == sizeof(GameButton), see GameButton.h
 };
+
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_LAWNSTONEBUTTON_H

@@ -1,6 +1,7 @@
 // Fixed-width scalar types used by the reconstruction. Object pointers and
 // object layouts use their native C++ types on every target architecture.
-#pragma once
+#ifndef LAWNPROJECTTV_SEXY_INCLUDE_RUNTIME_SEXYTYPES_H
+#define LAWNPROJECTTV_SEXY_INCLUDE_RUNTIME_SEXYTYPES_H
 
 #include <cstdint>
 #include <cstddef>
@@ -18,3 +19,5 @@ using _BOOL1 = unsigned char;
 using _UNKNOWN = void;
 
 #include "IdaMacros.h"
+
+#endif // LAWNPROJECTTV_SEXY_INCLUDE_RUNTIME_SEXYTYPES_H

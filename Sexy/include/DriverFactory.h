@@ -37,12 +37,14 @@
 // (and the first two disagreed about its size -- one said 0x68). They now all
 // include this one.
 
-#pragma once
+#ifndef LAWNPROJECTTV_SEXY_INCLUDE_DRIVERFACTORY_H
+#define LAWNPROJECTTV_SEXY_INCLUDE_DRIVERFACTORY_H
 
 #include "ReconTypes.h"
 #include <vector>
 
-namespace Sexy {
+namespace Sexy
+{
 
 class Driver;
 
@@ -51,19 +53,21 @@ class DriverFactory
 public:
     // +0x00 .. +0x17: the std::set<Driver *, DriverCompare>, word by word.
     RbTree::MapStorage mDriverMap;
-    bool mDeleteDrivers;    // +0x18, set to 1 by the constructor
+    bool mDeleteDrivers; // +0x18, set to 1 by the constructor
     // size 0x1C
 
     DriverFactory();
     ~DriverFactory();
-    int AddDriver(Driver* theDriver);
-    Driver* Find(String theName);
+    int AddDriver(Driver *theDriver);
+    Driver *Find(String theName);
     void GetDrivers();
-    std::vector<Driver*> Drivers();
-    void RemoveDriver(Driver* theDriver);
+    std::vector<Driver *> Drivers();
+    void RemoveDriver(Driver *theDriver);
 };
 
 } // namespace Sexy
 
 // The global spelling, which the transcribed bodies use.
 using Sexy::DriverFactory;
+
+#endif // LAWNPROJECTTV_SEXY_INCLUDE_DRIVERFACTORY_H

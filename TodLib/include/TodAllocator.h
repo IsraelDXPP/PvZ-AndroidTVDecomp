@@ -1,4 +1,5 @@
-#pragma once
+#ifndef LAWNPROJECTTV_TODLIB_INCLUDE_TODALLOCATOR_H
+#define LAWNPROJECTTV_TODLIB_INCLUDE_TODALLOCATOR_H
 
 #include <cstring>
 #include <cstddef>
@@ -12,13 +13,12 @@
 class TodAllocator
 {
 public:
-    void *mFreeList;   // +0x00
-    void *mBlockList;  // +0x04
-    int   mGrowCount;  // +0x08
-    int   mTotalItems; // +0x0C
+    void *mFreeList; // +0x00
+    void *mBlockList; // +0x04
+    int mGrowCount; // +0x08
+    int mTotalItems; // +0x0C
     size_t mItemSize;
 };
-
 
 inline void *TodAllocatorReadLink(void *theItem)
 {
@@ -39,8 +39,7 @@ inline void TodAllocatorGrow(TodAllocator *theAllocator)
 {
     const size_t aAlignment = alignof(std::max_align_t);
     const size_t aHeaderSize = aAlignment;
-    const size_t aMinimumSize = theAllocator->mItemSize < sizeof(void *)
-        ? sizeof(void *) : theAllocator->mItemSize;
+    const size_t aMinimumSize = theAllocator->mItemSize < sizeof(void *) ? sizeof(void *) : theAllocator->mItemSize;
     if (aMinimumSize > (std::numeric_limits<size_t>::max)() - aAlignment + 1)
         throw std::bad_alloc();
     const size_t anItemStride = (aMinimumSize + aAlignment - 1) / aAlignment * aAlignment;
@@ -62,8 +61,7 @@ inline void TodAllocatorGrow(TodAllocator *theAllocator)
             TodAllocatorWriteLink(anItem, aFree);
             aFree = anItem;
             anItem += anItemStride;
-        }
-        while (anIndex != theAllocator->mGrowCount);
+        } while (anIndex != theAllocator->mGrowCount);
         aFree = aBlock + anItemStride * (anIndex - 1) + aHeaderSize;
     }
     theAllocator->mFreeList = aFree;
@@ -83,3 +81,5 @@ inline void *TodAllocatorAlloc(TodAllocator *theAllocator)
     theAllocator->mFreeList = TodAllocatorReadLink(aNode);
     return aNode;
 }
+
+#endif // LAWNPROJECTTV_TODLIB_INCLUDE_TODALLOCATOR_H

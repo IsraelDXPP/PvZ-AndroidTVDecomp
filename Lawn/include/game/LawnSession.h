@@ -21,7 +21,8 @@
 // sizeof(LawnSession) 0x18 instead of 0x14 and pushed every LawnApp member after
 // mSession four bytes late.
 
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_LAWNSESSION_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_LAWNSESSION_H
 
 #include "ReconTypes.h"
 // Needed for the complete Sexy::Thread type of the member below.
@@ -34,11 +35,11 @@ class LawnSession
 public:
     virtual ~LawnSession();
 
-    bool mShutdown;         // +0x04  (the SessionThreadProc loop tests it)
-    bool mTaskDone;         // +0x05  (StartTask / HandleTask / IsTaskDone)
+    bool mShutdown; // +0x04  (the SessionThreadProc loop tests it)
+    bool mTaskDone; // +0x05  (StartTask / HandleTask / IsTaskDone)
     // +0x06 ~ +0x07 padding to the next word
     LawnSessionTask *mTask; // +0x08
-    Sexy::Thread mThread;   // +0x0C  (the destructor tears down a Thread at this+12)
+    Sexy::Thread mThread; // +0x0C  (the destructor tears down a Thread at this+12)
     // Size 0x14.
 
     LawnSession();
@@ -47,6 +48,7 @@ public:
     int StartTask(LawnSessionTask *theTask);
     int IsTaskDone();
     bool HandleTask();
-    LawnSession * SessionThreadProc(void *theUnused);
+    LawnSession *SessionThreadProc(void *theUnused);
 };
 
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_LAWNSESSION_H

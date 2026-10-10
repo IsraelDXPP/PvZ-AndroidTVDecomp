@@ -1,16 +1,18 @@
-#pragma once
+#ifndef LAWNPROJECTTV_SEXY_INCLUDE_PLATFORM_SDLWINDOW_H
+#define LAWNPROJECTTV_SEXY_INCLUDE_PLATFORM_SDLWINDOW_H
 
 #include <SDL3/SDL.h>
 #include <atomic>
 #include <deque>
 #include "ReconTypes.h"
 
-namespace Sexy {
+namespace Sexy
+{
 
 class SDLWindow
 {
 public:
-    SDL_Window* mWindow = nullptr;
+    SDL_Window *mWindow = nullptr;
     int mWidth = 0;
     int mHeight = 0;
     bool mWindowed = true;
@@ -20,25 +22,34 @@ public:
     bool mVSync = true;
     double mFrameTime = 0.0;
 
-    enum MouseButton { MOUSE_LEFT, MOUSE_RIGHT, MOUSE_MIDDLE };
+    enum MouseButton
+    {
+        MOUSE_LEFT,
+        MOUSE_RIGHT,
+        MOUSE_MIDDLE
+    };
     ~SDLWindow();
-    bool Create(const char* theTitle, int theWidth, int theHeight,
-                bool theWindowed = true, bool theVSync = true, bool theVisible = true);
+    bool Create(const char *theTitle, int theWidth, int theHeight, bool theWindowed = true, bool theVSync = true,
+        bool theVisible = true);
     void Destroy();
-    void ProcessEvent(const SDL_Event& theEvent);
+    void ProcessEvent(const SDL_Event &theEvent);
     void UpdateFrame();
     // Compatibility pump for synchronous modal waits; the main loop uses callbacks.
     bool ProcessEvents();
     void WaitForFrame(double theFrameStart, int theMaxFPS);
     void SetVSync(bool theVSync);
-    void SetTitle(const char* theTitle);
+    void SetTitle(const char *theTitle);
     double GetTime() const;
-    double GetFrameTime() const { return mFrameTime; }
+    double GetFrameTime() const
+    {
+        return mFrameTime;
+    }
     void ResetTimer();
     bool IsKeyDown(int theKeyCode) const;
-    bool PopInputEvent(Event& theEvent);
+    bool PopInputEvent(Event &theEvent);
     bool IsMouseButtonDown(int theButton) const;
-    void GetCursorPos(double& theX, double& theY) const;
+    void GetCursorPos(double &theX, double &theY) const;
+
 private:
     bool mVideoInitialized = false;
     double mStartTime = 0.0;
@@ -48,6 +59,8 @@ private:
     void QueueMouseEvent(int theKind, float theX, float theY, int theClickCount = 0);
 };
 
-SDLWindow* ActiveWindow();
+SDLWindow *ActiveWindow();
 void ShutdownSDL();
 }
+
+#endif // LAWNPROJECTTV_SEXY_INCLUDE_PLATFORM_SDLWINDOW_H

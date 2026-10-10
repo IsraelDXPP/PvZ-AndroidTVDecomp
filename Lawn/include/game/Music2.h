@@ -66,7 +66,8 @@
 // an override replaces its base slot, it never appends one, so `LoadSong` stays
 // at slot 21.
 
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_MUSIC2_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_MUSIC2_H
 
 #include "ReconTypes.h"
 // Classes this one calls a method on: the call needs the
@@ -95,22 +96,22 @@ public:
     virtual ~Music2() = default;
 
     // ---- overrides of Music's slots, declared in vtable order ----
-    virtual void MusicInit();                                        // [ 2]
-    virtual void MusicDispose();                                     // [ 3]
-    virtual void MusicUpdate();                                      // [ 4]
-    virtual void StopAllMusic();                                     // [ 5]
+    virtual void MusicInit(); // [ 2]
+    virtual void MusicDispose(); // [ 3]
+    virtual void MusicUpdate(); // [ 4]
+    virtual void StopAllMusic(); // [ 5]
     virtual void StartGameMusic(bool theStart);
-    virtual void MusicResync();                                      // [ 8]
-    virtual void UpdateMusicBurst();                                 // [ 9]
-    virtual void StartBurst();                                       // [10]
+    virtual void MusicResync(); // [ 8]
+    virtual void UpdateMusicBurst(); // [ 9]
+    virtual void StartBurst(); // [10]
     virtual void GameMusicPause(bool thePaused);
     virtual void MusicResyncChannel(MusicFile theMusicFile1, MusicFile theMusicFile2);
-    virtual void MusicTitleScreenInit();                             // [13]
+    virtual void MusicTitleScreenInit(); // [13]
     virtual void MakeSureMusicIsPlaying(MusicTune theTune);
     virtual void FadeOut(int theFadeOutDuration);
     virtual int GetMusicOrder(MusicFile theMusicFile);
-    virtual int GetNumLoadingTasks();                                // [18]
-    virtual void MusicLoadCreditsSong();                             // [19]
+    virtual int GetNumLoadingTasks(); // [18]
+    virtual void MusicLoadCreditsSong(); // [19]
     virtual void PlayFromOffset(MusicFile theMusicFile, int theOffset, double theVolume);
 
     // ---- slot [21]: the single virtual Music2 adds ----
@@ -119,7 +120,7 @@ public:
     // ARM agrees that the return value is unused: every call site discards r0 and
     // the one internal `return 0` is the failure path of the LoadMusic it wraps.
     // It is an `int` here because the body reports the interface's own result.
-    virtual int LoadSong(MusicTune theTune, const Sexy::String& theFileName);
+    virtual int LoadSong(MusicTune theTune, const Sexy::String &theFileName);
 
     virtual void PlayMusic(MusicTune theTune, int theOffset, int theDrumsOffset);
 
@@ -134,3 +135,5 @@ public:
 // Layout check: Music2 adds no data member of its own. This only holds while every
 // override above is accepted -- a rejected one silently becomes a new virtual and
 // MSVC's error recovery then reports a size that is not Music's.
+
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_MUSIC2_H

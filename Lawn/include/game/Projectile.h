@@ -30,7 +30,8 @@
 // vtable a virtual destructor takes one slot; entries [0]/[1] above are the
 // ARM complete/deleting pair. Declaring them in this order is what matters.)
 
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_PROJECTILE_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_PROJECTILE_H
 
 #include "ReconTypes.h"
 // These headers are included so the transcribed bodies can call methods on
@@ -71,17 +72,17 @@ public:
     // +0x04 of the record is the image row and +0x08 its damage, so the return
     // really is a ProjectileDefinition; the transcribed `char *` only stood in for
     // "pointer into the gProjectileDefinition table".
-    const ProjectileDefinition * GetProjectileDef();
+    const ProjectileDefinition *GetProjectileDef();
     // The binary returns a 16-byte Sexy::Rect BY VALUE -- ARM passes the
     // destination buffer in r0, which is why the transcription merged it with
     // `this` and wrote the rectangle over the object's own +0x00..+0x0C (the
     // vptr). The sret shape is restored here; the call sites outside this file
     // still need the same treatment.
     Sexy::Rect GetProjectileRect();
-    Plant * FindCollisionTargetPlant();
-    GridItem * FindCollisionTargetGridItem();
+    Plant *FindCollisionTargetPlant();
+    GridItem *FindCollisionTargetGridItem();
     int PeaAboutToHitTorchwood();
-    Zombie * FindCollisionTarget();
+    Zombie *FindCollisionTarget();
     bool IsZombieHitBySplash(Zombie *theZombie);
     bool IsGridItemHitBySplash(GridItem *theGridItem);
     void DoSplashDamage(Zombie *theHitZombie, GridItem *theHitGridItem);
@@ -107,37 +108,37 @@ public:
     // spells the offset as an ordinal (`mFrame // 13`) the byte offset is
     // ordinal * 4, and the two entries that spell it in bytes
     // (`mDead // 96`, `mOnHighGround // 128`) are used as written.
-    int      mFrame;                // +0x34  (ordinal 13)
-    int      mNumFrames;            // +0x38  (14)
-    int      mAnimCounter;          // +0x3C  (15)
-    float    mPosX;                 // +0x40  (16)
-    float    mPosY;                 // +0x44  (17)
-    float    mPosZ;                 // +0x48  (18)
-    float    mVelX;                 // +0x4C  (19)
-    float    mVelY;                 // +0x50  (20)
-    float    mVelZ;                 // +0x54  (21)
-    float    mAccZ;                 // +0x58  (22)
-    float    mShadowY;              // +0x5C  (23)
-    bool     mDead;                 // +0x60  (authoritative header says 96)
-    int      mAnimTicksPerFrame;    // +0x64  (25)
-    ProjectileMotion mMotionType;   // +0x68  (26)
+    int mFrame; // +0x34  (ordinal 13)
+    int mNumFrames; // +0x38  (14)
+    int mAnimCounter; // +0x3C  (15)
+    float mPosX; // +0x40  (16)
+    float mPosY; // +0x44  (17)
+    float mPosZ; // +0x48  (18)
+    float mVelX; // +0x4C  (19)
+    float mVelY; // +0x50  (20)
+    float mVelZ; // +0x54  (21)
+    float mAccZ; // +0x58  (22)
+    float mShadowY; // +0x5C  (23)
+    bool mDead; // +0x60  (authoritative header says 96)
+    int mAnimTicksPerFrame; // +0x64  (25)
+    ProjectileMotion mMotionType; // +0x68  (26)
     ProjectileType mProjectileType; // +0x6C  (27)
-    int      mProjectileAge;        // +0x70  (28)
-    int      mClickBackoffCounter;  // +0x74  (29)
-    float    mRotation;             // +0x78  (30)
-    float    mRotationSpeed;        // +0x7C  (31)
-    bool     mOnHighGround;         // +0x80  (authoritative header says 128)
-    int      mDamageRangeFlags;     // +0x84  (33)
-    int      mHitTorchwoodGridX;    // +0x88  (34)
+    int mProjectileAge; // +0x70  (28)
+    int mClickBackoffCounter; // +0x74  (29)
+    float mRotation; // +0x78  (30)
+    float mRotationSpeed; // +0x7C  (31)
+    bool mOnHighGround; // +0x80  (authoritative header says 128)
+    int mDamageRangeFlags; // +0x84  (33)
+    int mHitTorchwoodGridX; // +0x88  (34)
     // TODO(recon): the authoritative header says `AttachmentID mAttachmentID`;
     // this project has no AttachmentID, and the Attachment* family
     // (Sexy\ReconFreeFunctions.h:221 onwards) are variadic stubs, so this word
     // is only ever passed by value or by address -- an int placeholder is enough.
-    int      mAttachmentID;         // +0x8C  (35)
-    float    mCobTargetX;           // +0x90  (36)
-    int      mCobTargetRow;         // +0x94  (37)
-    ZombieID mTargetZombieID;       // +0x98  (38)
-    int      mLastPortalX;          // +0x9C  (39)
+    int mAttachmentID; // +0x8C  (35)
+    float mCobTargetX; // +0x90  (36)
+    int mCobTargetRow; // +0x94  (37)
+    ZombieID mTargetZombieID; // +0x98  (38)
+    int mLastPortalX; // +0x9C  (39)
 
     // The authoritative header has five more members after +0xA0
     // (mPierceHitCount, mHitZombieIDs[3], mHitGridItemIDs[3], mRelatedPlantID,
@@ -156,3 +157,5 @@ struct ProjectileSlot
 
 // Layout self-check: 0x34 (GameObject) + 27 four-byte slots (two of them bools,
 // which padding keeps four bytes apart).
+
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_PROJECTILE_H

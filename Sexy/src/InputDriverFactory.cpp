@@ -16,9 +16,7 @@
 // A 12-byte tail call into `_ZN4Sexy13DriverFactoryC2Ev`; the base constructor
 // does all the work (Sexy\DriverFactory.h records the six stores).
 // ==========================================================================
-Sexy::InputDriverFactory::InputDriverFactory()
-{
-}
+Sexy::InputDriverFactory::InputDriverFactory() {}
 
 // ==========================================================================
 // Sexy::InputDriverFactory::~InputDriverFactory()
@@ -27,9 +25,7 @@ Sexy::InputDriverFactory::InputDriverFactory()
 // The matching tail call into `_ZN4Sexy13DriverFactoryD2Ev`, which clears the
 // delete flag and erases the registry. The base destructor runs on its own.
 // ==========================================================================
-Sexy::InputDriverFactory::~InputDriverFactory()
-{
-}
+Sexy::InputDriverFactory::~InputDriverFactory() {}
 
 // ==========================================================================
 // Sexy::InputDriverFactory::GetInputDriverFactory(void)
@@ -37,15 +33,15 @@ Sexy::InputDriverFactory::~InputDriverFactory()
 // ==========================================================================
 // 0x762C10 is the shutdown flag. 0x762C0C is the cached factory.
 static bool gInputDriverFactoryShuttingDown = false;
-static InputDriverFactory* gInputDriverFactory = nullptr;
+static InputDriverFactory *gInputDriverFactory = nullptr;
 
-Sexy::InputDriverFactory* Sexy::InputDriverFactory::GetInputDriverFactory()
+Sexy::InputDriverFactory *Sexy::InputDriverFactory::GetInputDriverFactory()
 {
-  if ( gInputDriverFactoryShuttingDown )
-    return nullptr;
-  if ( gInputDriverFactory == nullptr )
-    gInputDriverFactory = new InputDriverFactory();
-  return gInputDriverFactory;
+    if (gInputDriverFactoryShuttingDown)
+        return nullptr;
+    if (gInputDriverFactory == nullptr)
+        gInputDriverFactory = new InputDriverFactory();
+    return gInputDriverFactory;
 }
 
 // ==========================================================================
@@ -54,7 +50,7 @@ Sexy::InputDriverFactory* Sexy::InputDriverFactory::GetInputDriverFactory()
 // ==========================================================================
 void Sexy::InputDriverFactory::Load()
 {
-  if (Find(String("SDLGamepad")) != nullptr)
-    return;
-  AddDriver(new SDLGamepadDriver());
+    if (Find(String("SDLGamepad")) != nullptr)
+        return;
+    AddDriver(new SDLGamepadDriver());
 }

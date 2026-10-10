@@ -21,14 +21,16 @@
 //     +0x108  int
 //     +0x10C .. +0x117  three trailing words kept so sizeof stays at 0x118.
 
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_HELPTEXTWIDGET_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_HELPTEXTWIDGET_H
 
 #include "ReconTypes.h"
 // These includes exist because the transcribed bodies call methods on complete
 // types. Kept as-is so other files' transitive dependencies do not change.
 #include "Widget.h"
 
-namespace Sexy {
+namespace Sexy
+{
 class Font;
 } // namespace Sexy
 
@@ -49,3 +51,5 @@ public:
     // Draw passes this to TodDrawStringWrappedHelper as the justification.
     int mJustification;
 };
+
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_HELPTEXTWIDGET_H

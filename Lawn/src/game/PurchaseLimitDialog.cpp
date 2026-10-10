@@ -43,8 +43,8 @@ PurchaseLimitDialog::~PurchaseLimitDialog()
 // PurchaseLimitDialog::PurchaseLimitDialog(LawnApp *,int)
 // @001ECB74  626 bytes
 // ==========================================================================
-PurchaseLimitDialog::PurchaseLimitDialog(LawnApp * theApp, int thePurchaseId)
-    : LawnDialog(theApp, nullptr, 83, true, "[PurchaseSecretKey]", "", "", 2)
+PurchaseLimitDialog::PurchaseLimitDialog(LawnApp *theApp, int thePurchaseId) :
+    LawnDialog(theApp, nullptr, 83, true, "[PurchaseSecretKey]", "", "", 2)
 {
     // The base is a real base now, so the dump's placement-new of LawnDialog
     // over `this` and the three string temporaries it was handed (StringCtor is
@@ -142,7 +142,7 @@ Sexy::String PurchaseLimitDialog::GetName()
     // the erase, all of which Sexy::String does itself.
     //
     // The text is EditWidget's mString at +0x108, which Sexy\EditWidget.h names.
-    const Sexy::String & aText = mEditWidget->mString;
+    const Sexy::String &aText = mEditWidget->mString;
 
     Sexy::String aName;
     bool aLastWasSpace = true;
@@ -172,7 +172,7 @@ Sexy::String PurchaseLimitDialog::GetName()
 // PurchaseLimitDialog::SetKey(Sexy::String const&)
 // @001ECFD8  52 bytes
 // ==========================================================================
-int PurchaseLimitDialog::SetKey(Sexy::String const& theKey)
+int PurchaseLimitDialog::SetKey(Sexy::String const &theKey)
 {
     // vtable offset 516 is slot 129, EditWidget::SetText(String const&, bool,
     // bool, bool); the three flags are all set.
@@ -193,7 +193,7 @@ int PurchaseLimitDialog::SetKey(Sexy::String const& theKey)
 // PurchaseLimitDialog::AddedToManager(Sexy::WidgetManager *)
 // @001ED00C  72 bytes
 // ==========================================================================
-void PurchaseLimitDialog::AddedToManager(Sexy::WidgetManager * theWidgetManager)
+void PurchaseLimitDialog::AddedToManager(Sexy::WidgetManager *theWidgetManager)
 {
     LawnDialog::AddedToManager(theWidgetManager);
 
@@ -208,7 +208,7 @@ void PurchaseLimitDialog::AddedToManager(Sexy::WidgetManager * theWidgetManager)
 // PurchaseLimitDialog::RemovedFromManager(Sexy::WidgetManager *)
 // @001ED054  22 bytes
 // ==========================================================================
-void PurchaseLimitDialog::RemovedFromManager(Sexy::WidgetManager * theWidgetManager)
+void PurchaseLimitDialog::RemovedFromManager(Sexy::WidgetManager *theWidgetManager)
 {
     LawnDialog::RemovedFromManager(theWidgetManager);
 
@@ -220,7 +220,7 @@ void PurchaseLimitDialog::RemovedFromManager(Sexy::WidgetManager * theWidgetMana
 // PurchaseLimitDialog::Draw(Sexy::Graphics *)
 // @001ED06C  126 bytes
 // ==========================================================================
-void PurchaseLimitDialog::Draw(Sexy::Graphics * theGraphics)
+void PurchaseLimitDialog::Draw(Sexy::Graphics *theGraphics)
 {
     LawnDialog::Draw(theGraphics);
 

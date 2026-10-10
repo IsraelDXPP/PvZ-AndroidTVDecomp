@@ -8,11 +8,13 @@
 // Size 0x8, taken from the allocation sites the transcription recorded. No
 // transcribed body reads or writes the storage, so both words are unknown.
 
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_NOTIFICATIONMANAGER_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_NOTIFICATIONMANAGER_H
 
 #include "ReconTypes.h"
 
-namespace Native {
+namespace Native
+{
 
 class NotificationManager
 {
@@ -28,3 +30,5 @@ public:
 } // namespace Native
 
 // Layout check: two four-byte words.
+
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_NOTIFICATIONMANAGER_H

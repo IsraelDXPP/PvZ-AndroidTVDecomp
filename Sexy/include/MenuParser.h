@@ -8,7 +8,8 @@
 // command is building, and the pending focus links. Each link is the widget
 // plus the four focus ids CloseFile resolves.
 
-#pragma once
+#ifndef LAWNPROJECTTV_SEXY_INCLUDE_MENUPARSER_H
+#define LAWNPROJECTTV_SEXY_INCLUDE_MENUPARSER_H
 
 #include "ReconTypes.h"
 #include "ButtonWidget.h"
@@ -25,7 +26,8 @@ class HelpBarWidget;
 class HelpTextImageWidget;
 class HelpTextWidget;
 
-namespace Sexy {
+namespace Sexy
+{
 
 class Color;
 class MenuWidget;
@@ -42,14 +44,14 @@ public:
     MenuParser_ParseWidget();
     ~MenuParser_ParseWidget() override = default;
 
-    Widget*       mWidget;
-    Widget*       mReservedWidget;
-    LabelWidget*  mLabelWidget;
-    ImageWidget*  mImageWidget;
-    ButtonWidget* mButtonWidget;
-    HelpBarWidget* mHelpBar;
-    HelpTextImageWidget* mHelpImage;
-    HelpTextWidget* mHelpText;
+    Widget *mWidget;
+    Widget *mReservedWidget;
+    LabelWidget *mLabelWidget;
+    ImageWidget *mImageWidget;
+    ButtonWidget *mButtonWidget;
+    HelpBarWidget *mHelpBar;
+    HelpTextImageWidget *mHelpImage;
+    HelpTextWidget *mHelpText;
 };
 
 class MenuParser : public DescParser, public Sexy::RefCount
@@ -58,31 +60,33 @@ public:
     virtual ~MenuParser();
 
     virtual int CloseFile();
-    virtual bool HandleCommand(Sexy::ListDataElement const& theParams);
-    virtual Sexy::MenuParser_ParseWidget* CreateParseWidget();
-    virtual Sexy::Widget* CreateWidget(Sexy::String theType, int theId, Sexy::MenuParser_ParseWidget* theParse);
-    virtual Sexy::WidgetAnimator* CreateWidgetAnimator(Sexy::String theType, Sexy::ListDataElement const& theParams,
-                                     Sexy::MenuParser_ParseWidget* theParse);
+    virtual bool HandleCommand(Sexy::ListDataElement const &theParams);
+    virtual Sexy::MenuParser_ParseWidget *CreateParseWidget();
+    virtual Sexy::Widget *CreateWidget(Sexy::String theType, int theId, Sexy::MenuParser_ParseWidget *theParse);
+    virtual Sexy::WidgetAnimator *CreateWidgetAnimator(
+        Sexy::String theType, Sexy::ListDataElement const &theParams, Sexy::MenuParser_ParseWidget *theParse);
 
-    MenuWidget* mMenuWidget;
-    MenuParser_ParseWidget* mParseWidget;
+    MenuWidget *mMenuWidget;
+    MenuParser_ParseWidget *mParseWidget;
     struct WidgetLinks
     {
-        Sexy::Widget* mWidget;
-        int           mUpId;
-        int           mDownId;
-        int           mLeftId;
-        int           mRightId;
+        Sexy::Widget *mWidget;
+        int mUpId;
+        int mDownId;
+        int mLeftId;
+        int mRightId;
     };
     std::vector<WidgetLinks> mWidgetLinks;
 
-    MenuParser(Sexy::MenuWidget* theMenu);
-    int Error(Sexy::String const& theError, Sexy::String theDetail);
-    Sexy::Widget* FindWidget(int theId);
-    int DataToColor(Sexy::DataElement* theElement, Color& theColor);
+    MenuParser(Sexy::MenuWidget *theMenu);
+    int Error(Sexy::String const &theError, Sexy::String theDetail);
+    Sexy::Widget *FindWidget(int theId);
+    int DataToColor(Sexy::DataElement *theElement, Color &theColor);
 };
 
 } // namespace Sexy
 
 using Sexy::MenuParser;
 using Sexy::MenuParser_ParseWidget;
+
+#endif // LAWNPROJECTTV_SEXY_INCLUDE_MENUPARSER_H

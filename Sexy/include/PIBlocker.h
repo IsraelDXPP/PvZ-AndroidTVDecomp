@@ -3,7 +3,8 @@
 // mActive is the first curve the reader fills, mSpin the second, mOffset the
 // translation debug draw applies, and mPoints the polygon vertices.
 
-#pragma once
+#ifndef LAWNPROJECTTV_SEXY_INCLUDE_PIBLOCKER_H
+#define LAWNPROJECTTV_SEXY_INCLUDE_PIBLOCKER_H
 
 #include "ReconTypes.h"
 #include "Bezier.h"
@@ -12,7 +13,8 @@
 
 #include <vector>
 
-namespace Sexy {
+namespace Sexy
+{
 
 class PIBlocker
 {
@@ -24,10 +26,20 @@ public:
     Sexy::PIValue mSpin;
     std::vector<Sexy::PIValue2D> mPoints;
 
-    PIBlocker() : mName(), mFlag(false), mOffset(), mActive(), mSpin(), mPoints() {}
-    PIBlocker(Sexy::PIBlocker const& other);
+    PIBlocker() :
+        mName(),
+        mFlag(false),
+        mOffset(),
+        mActive(),
+        mSpin(),
+        mPoints()
+    {
+    }
+    PIBlocker(Sexy::PIBlocker const &other);
 };
 
 } // namespace Sexy
 
 using Sexy::PIBlocker;
+
+#endif // LAWNPROJECTTV_SEXY_INCLUDE_PIBLOCKER_H

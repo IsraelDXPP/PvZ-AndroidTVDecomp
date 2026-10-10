@@ -22,18 +22,17 @@
 #include <vector>
 #include <limits>
 
-
 // ==========================================================================
 // SaveGameContext::ByteLeftToRead(void)
 // @00142664  20 bytes
 // ==========================================================================
 int SaveGameContext::ByteLeftToRead()
 {
-  int aBitsLeft = mDataBitSize - mReadBitPos;
-  int aRounded = aBitsLeft + 14;
-  if (aBitsLeft + 7 >= 0)
-    aRounded = aBitsLeft + 7;
-  return aRounded >> 3;
+    int aBitsLeft = mDataBitSize - mReadBitPos;
+    int aRounded = aBitsLeft + 14;
+    if (aBitsLeft + 7 >= 0)
+        aRounded = aBitsLeft + 7;
+    return aRounded >> 3;
 }
 
 // ==========================================================================
@@ -42,28 +41,28 @@ int SaveGameContext::ByteLeftToRead()
 // ==========================================================================
 unsigned int SaveGameContext::SyncInt(int &theValue)
 {
-  if (mReading == 0)
-  {
-    WriteLong(theValue);
-    return (unsigned int)theValue;
-  }
-
-  unsigned int aResult = ByteLeftToRead();
-  if (aResult > 3)
-  {
-    if (mReadError == 0)
+    if (mReading == 0)
     {
-      aResult = ReadLong();
-      theValue = (int)aResult;
-      return aResult;
+        WriteLong(theValue);
+        return (unsigned int)theValue;
     }
-  }
-  else
-  {
-    mReadError = 1;
-  }
-  theValue = 0;
-  return aResult;
+
+    unsigned int aResult = ByteLeftToRead();
+    if (aResult > 3)
+    {
+        if (mReadError == 0)
+        {
+            aResult = ReadLong();
+            theValue = (int)aResult;
+            return aResult;
+        }
+    }
+    else
+    {
+        mReadError = 1;
+    }
+    theValue = 0;
+    return aResult;
 }
 
 // ==========================================================================
@@ -72,31 +71,32 @@ unsigned int SaveGameContext::SyncInt(int &theValue)
 // ==========================================================================
 signed int SaveGameContext::SyncBytes(void *theData, size_t theSize)
 {
-  if (theSize > static_cast<size_t>(std::numeric_limits<int>::max()))
-  {
-    mReadError = true;
-    return 0;
-  }
-  int aFileSize = static_cast<int>(theSize);
-  signed int aResult = SyncInt(aFileSize);
-  if (mReading == 0)
-  {
-    WriteBytes(static_cast<const unsigned char *>(theData), theSize);
-    return theSize;
-  }
-  if ( aFileSize == theSize && (aResult = ByteLeftToRead(), aFileSize <= aResult) )
-  {
-    if ( mReadError == 0 )
+    if (theSize > static_cast<size_t>(std::numeric_limits<int>::max()))
     {
-      ReadBytes(static_cast<unsigned char *>(theData), aFileSize);
-      return aFileSize;
+        mReadError = true;
+        return 0;
     }
-  }
-  else
-  {
-    mReadError = true;
-  }
-  return aResult;
+    int aFileSize = static_cast<int>(theSize);
+    signed int aResult = SyncInt(aFileSize);
+    if (mReading == 0)
+    {
+        WriteBytes(static_cast<const unsigned char *>(theData), aFileSize);
+        return aFileSize;
+    }
+    if (aFileSize >= 0 && static_cast<std::size_t>(aFileSize) == theSize &&
+        (aResult = ByteLeftToRead(), aFileSize <= aResult))
+    {
+        if (mReadError == 0)
+        {
+            ReadBytes(static_cast<unsigned char *>(theData), aFileSize);
+            return aFileSize;
+        }
+    }
+    else
+    {
+        mReadError = true;
+    }
+    return aResult;
 }
 
 // ==========================================================================
@@ -105,10 +105,10 @@ signed int SaveGameContext::SyncBytes(void *theData, size_t theSize)
 // ==========================================================================
 unsigned int SaveGameContext::SyncUint(unsigned int &theValue)
 {
-  int aSigned = (int)theValue;
-  unsigned int aResult = SyncInt(aSigned);
-  theValue = (unsigned int)aSigned;
-  return aResult;
+    int aSigned = (int)theValue;
+    unsigned int aResult = SyncInt(aSigned);
+    theValue = (unsigned int)aSigned;
+    return aResult;
 }
 
 // ==========================================================================
@@ -117,38 +117,38 @@ unsigned int SaveGameContext::SyncUint(unsigned int &theValue)
 // ==========================================================================
 int SaveGameContext::SyncReanimationDef(ReanimatorDefinition *&theDef)
 {
-  int aDefIndex = 0;
-  if (mReading != 0)
-  {
-    SyncInt(aDefIndex);
-    if (aDefIndex == -1)
+    int aDefIndex = 0;
+    if (mReading != 0)
     {
-      theDef = nullptr;
+        SyncInt(aDefIndex);
+        if (aDefIndex == -1)
+        {
+            theDef = nullptr;
+        }
+        else if ((unsigned int)aDefIndex <= 0xB1)
+        {
+            ReanimatorEnsureDefinitionLoaded((ReanimationType)aDefIndex, true);
+            theDef = gReanimatorDefArray + aDefIndex;
+        }
+        else
+        {
+            mReadError = 1;
+        }
+        return aDefIndex;
     }
-    else if ((unsigned int)aDefIndex <= 0xB1)
-    {
-      ReanimatorEnsureDefinitionLoaded((ReanimationType)aDefIndex, true);
-      theDef = gReanimatorDefArray + aDefIndex;
-    }
-    else
-    {
-      mReadError = 1;
-    }
-    return aDefIndex;
-  }
 
-  int aScanned = 0;
-  ReanimatorDefinition *aCursor = gReanimatorDefArray;
-  while (aCursor != theDef)
-  {
-    ++aCursor;
-    if (++aScanned == 178)
+    int aScanned = 0;
+    ReanimatorDefinition *aCursor = gReanimatorDefArray;
+    while (aCursor != theDef)
     {
-      int aMissing = -1;
-      return SyncInt(aMissing);
+        ++aCursor;
+        if (++aScanned == 178)
+        {
+            int aMissing = -1;
+            return SyncInt(aMissing);
+        }
     }
-  }
-  return SyncInt(aScanned);
+    return SyncInt(aScanned);
 }
 
 // ==========================================================================
@@ -157,31 +157,31 @@ int SaveGameContext::SyncReanimationDef(ReanimatorDefinition *&theDef)
 // ==========================================================================
 unsigned int SaveGameContext::SyncParticleDef(TodParticleDefinition *&theDef)
 {
-  int aDefIndex = 0;
-  if (mReading != 0)
-  {
-    unsigned int aResult = SyncInt(aDefIndex);
-    if (aDefIndex == -1)
-      theDef = nullptr;
-    else if ((unsigned int)aDefIndex <= 0x6B)
-      theDef = gParticleDefArray + aDefIndex;
-    else
-      mReadError = 1;
-    return aResult;
-  }
-
-  int aScanned = 0;
-  TodParticleDefinition *aCursor = gParticleDefArray;
-  while (aCursor != theDef)
-  {
-    ++aCursor;
-    if (++aScanned == 108)
+    int aDefIndex = 0;
+    if (mReading != 0)
     {
-      int aMissing = -1;
-      return SyncInt(aMissing);
+        unsigned int aResult = SyncInt(aDefIndex);
+        if (aDefIndex == -1)
+            theDef = nullptr;
+        else if ((unsigned int)aDefIndex <= 0x6B)
+            theDef = gParticleDefArray + aDefIndex;
+        else
+            mReadError = 1;
+        return aResult;
     }
-  }
-  return SyncInt(aScanned);
+
+    int aScanned = 0;
+    TodParticleDefinition *aCursor = gParticleDefArray;
+    while (aCursor != theDef)
+    {
+        ++aCursor;
+        if (++aScanned == 108)
+        {
+            int aMissing = -1;
+            return SyncInt(aMissing);
+        }
+    }
+    return SyncInt(aScanned);
 }
 
 // ==========================================================================
@@ -190,64 +190,64 @@ unsigned int SaveGameContext::SyncParticleDef(TodParticleDefinition *&theDef)
 // ==========================================================================
 unsigned int SaveGameContext::SyncTrailDef(TrailDefinition *&theDef)
 {
-  int aDefIndex = 0;
-  if (mReading != 0)
-  {
-    unsigned int aResult = SyncInt(aDefIndex);
-    if (aDefIndex == -1)
-      theDef = nullptr;
-    else if (aDefIndex != 0)
-      mReadError = 1;
-    else
-      theDef = gTrailDefArray;
-    return aResult;
-  }
+    int aDefIndex = 0;
+    if (mReading != 0)
+    {
+        unsigned int aResult = SyncInt(aDefIndex);
+        if (aDefIndex == -1)
+            theDef = nullptr;
+        else if (aDefIndex != 0)
+            mReadError = 1;
+        else
+            theDef = gTrailDefArray;
+        return aResult;
+    }
 
-  // One trail definition. A match stores index 0; anything else stores -1.
-  aDefIndex = (gTrailDefArray == theDef) ? 0 : -1;
-  return SyncInt(aDefIndex);
+    // One trail definition. A match stores index 0; anything else stores -1.
+    aDefIndex = (gTrailDefArray == theDef) ? 0 : -1;
+    return SyncInt(aDefIndex);
 }
 
 // ==========================================================================
 // SaveGameContext::SyncImage(Sexy::Image *&)
 // @0014284C  72 bytes
 // ==========================================================================
-Sexy::Image * SaveGameContext::SyncImage(Sexy::Image *&theImage)
+Sexy::Image *SaveGameContext::SyncImage(Sexy::Image *&theImage)
 {
-  // SyncImage @0x14284C. A stored id of 0x2F4 is the last valid resource slot
-  // (CMP #0x2F4 / BLS). 0x2F5 is the id written for a null image (MOVW #0x2F5).
-  const int kLastResourceId = 0x2F4;
-  const int kNullImageId = 0x2F5;
-  int theId = 0;
+    // SyncImage @0x14284C. A stored id of 0x2F4 is the last valid resource slot
+    // (CMP #0x2F4 / BLS). 0x2F5 is the id written for a null image (MOVW #0x2F5).
+    const int kLastResourceId = 0x2F4;
+    const int kNullImageId = 0x2F5;
+    int theId = 0;
 
-  if ( mReading != 0 )
-  {
-    SyncInt(theId);
-    if ( theId <= kLastResourceId )
+    if (mReading != 0)
     {
-      theImage = Sexy::GetImageById(theId);
-      return theImage;
+        SyncInt(theId);
+        if (theId <= kLastResourceId)
+        {
+            theImage = Sexy::GetImageById(theId);
+            return theImage;
+        }
+        theImage = nullptr;
+        return nullptr;
     }
-    theImage = nullptr;
-    return nullptr;
-  }
 
-  if (theImage != nullptr)
-    theId = Sexy::GetIdByImage(theImage);
-  else
-    theId = kNullImageId;
-  SyncInt(theId);
-  return theImage;
+    if (theImage != nullptr)
+        theId = Sexy::GetIdByImage(theImage);
+    else
+        theId = kNullImageId;
+    SyncInt(theId);
+    return theImage;
 }
 
-namespace {
+namespace
+{
 
 const int kSaveMagic = -17965395;
 const int kSaveVersion = 10;
 const int kSavePointerSize = sizeof(void *);
 
-template<class T>
-struct SaveArraySlot
+template <class T> struct SaveArraySlot
 {
     T mItem;
     unsigned int mID;
@@ -261,8 +261,7 @@ void SyncRegisteredBlocks(SaveGameContext *theContext, std::vector<SyncBlockInfo
         theContext->SyncBytes(theBlocks[i].mData, theBlocks[i].mSize);
 }
 
-template<class T, class Array>
-void SyncItemArray(SaveGameContext *theContext, Array *theArray)
+template <class T, class Array> void SyncItemArray(SaveGameContext *theContext, Array *theArray)
 {
     theContext->SyncUint(theArray->mFreeListHead);
     theContext->SyncUint(theArray->mMaxUsedCount);
@@ -315,8 +314,7 @@ void SyncAttachmentArray(SaveGameContext *theContext, AttachmentHolder *theHolde
     }
 }
 
-template<class List>
-void SyncDataIDList(List &theList, SaveGameContext *theContext, TodAllocator *thePool)
+template <class List> void SyncDataIDList(List &theList, SaveGameContext *theContext, TodAllocator *thePool)
 {
     if (theContext->mReading)
     {
@@ -376,10 +374,9 @@ void SyncParticleEmitter(SaveGameContext *theContext, TodParticleSystem *theSyst
     if (!theContext->mReading || theEmitter->mParticleList.mHead == nullptr)
         return;
 
-    ParticleSlot *aParticles =
-        theSystem->mParticleHolder->mParticles.mBlock;
-    for (DataIdNode *aNode = static_cast<DataIdNode *>(theEmitter->mParticleList.mHead);
-         aNode != nullptr; aNode = aNode->mNext)
+    ParticleSlot *aParticles = theSystem->mParticleHolder->mParticles.mBlock;
+    for (DataIdNode *aNode = static_cast<DataIdNode *>(theEmitter->mParticleList.mHead); aNode != nullptr;
+        aNode = aNode->mNext)
         aParticles[(unsigned short)aNode->mValue].mItem.mParticleEmitter = theEmitter;
 }
 
@@ -392,10 +389,9 @@ void SyncParticleSystem(SaveGameContext *theContext, Board *theBoard, TodParticl
     if (theSystem->mEmitterList.mHead == nullptr)
         return;
 
-    ParticleEmitterSlot *aEmitters =
-        theSystem->mParticleHolder->mEmitters.mBlock;
-    for (DataIdNode *aNode = static_cast<DataIdNode *>(theSystem->mEmitterList.mHead);
-         aNode != nullptr; aNode = aNode->mNext)
+    ParticleEmitterSlot *aEmitters = theSystem->mParticleHolder->mEmitters.mBlock;
+    for (DataIdNode *aNode = static_cast<DataIdNode *>(theSystem->mEmitterList.mHead); aNode != nullptr;
+        aNode = aNode->mNext)
         SyncParticleEmitter(theContext, theSystem, &aEmitters[(unsigned short)aNode->mValue].mItem);
 }
 
@@ -423,8 +419,7 @@ void SyncReanimationState(SaveGameContext *theContext, Board *theBoard, Reanimat
     {
         size_t aBufferSize = (sizeof(ReanimatorTrackInstance) + sizeof(ReanimatorTransform)) * aTrackCount;
         TodAllocator *aPool = FindGlobalAllocator(aBufferSize);
-        ReanimatorTrackInstance *aInstances =
-            static_cast<ReanimatorTrackInstance *>(TodAllocatorAlloc(aPool));
+        ReanimatorTrackInstance *aInstances = static_cast<ReanimatorTrackInstance *>(TodAllocatorAlloc(aPool));
         std::memset(aInstances, 0, aBufferSize);
         theReanim->mTrackInstances = aInstances;
         theReanim->mReanimatorTransforms = reinterpret_cast<ReanimatorTransform *>(&aInstances[aTrackCount]);
@@ -452,8 +447,7 @@ void SyncReanimationState(SaveGameContext *theContext, Board *theBoard, Reanimat
     }
 }
 
-template<class T>
-void RebindLive(void *theBlock, unsigned int theMaxUsed, Board *theBoard)
+template <class T> void RebindLive(void *theBlock, unsigned int theMaxUsed, Board *theBoard)
 {
     SaveArraySlot<T> *aSlots = static_cast<SaveArraySlot<T> *>(theBlock);
     for (unsigned int i = 0; i < theMaxUsed; ++i)
@@ -547,8 +541,7 @@ void SyncBoard(SaveGameContext *theContext, Board *theBoard)
     SyncItemArray<Trail>(theContext, &aTrails->mTrails);
     SyncAttachmentArray(theContext, theBoard->mApp->mEffectSystem->mAttachmentHolder);
 
-    ParticleSystemSlot *aSystems =
-        aParticles->mParticleSystems.mBlock;
+    ParticleSystemSlot *aSystems = aParticles->mParticleSystems.mBlock;
     for (unsigned int i = 0; i < aParticles->mParticleSystems.mMaxUsedCount; ++i)
     {
         if ((aSystems[i].mID >> 16) != 0)
@@ -586,7 +579,6 @@ void SyncBoard(SaveGameContext *theContext, Board *theBoard)
     if (aMagic != kSaveMagic)
         theContext->mReadError = true;
 }
-
 
 } // namespace
 
@@ -637,11 +629,11 @@ bool LawnLoadGame(Board *theBoard, SaveGameContext *theContext)
     }
     if (headerSize == currentHeaderSize)
         theContext->SyncInt(aHeader.mPointerSize);
-    if (headerSize != currentHeaderSize || aHeader.mVersion != kSaveVersion
-        || aHeader.mPointerSize != kSavePointerSize)
+    if (headerSize != currentHeaderSize || aHeader.mVersion != kSaveVersion || aHeader.mPointerSize != kSavePointerSize)
     {
         OutputDebug("Replacing incompatible level save (version %u, pointer size %d)\n",
-                    aHeader.mVersion, aHeader.mPointerSize);
+            aHeader.mVersion,
+            aHeader.mPointerSize);
         theContext->mVersionMismatch = true;
         return false;
     }

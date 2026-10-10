@@ -62,9 +62,8 @@ ImitaterDialog::~ImitaterDialog()
 // ImitaterDialog::ImitaterDialog(int)
 // @0014BF3C  568 bytes
 // ==========================================================================
-ImitaterDialog::ImitaterDialog(int thePlayerIndex)
-    : LawnDialog(gLawnApp, nullptr, 52, true,
-                 "[CHOOSE_SEED_TO_COPY]", "", "[DIALOG_BUTTON_OK]", 1)
+ImitaterDialog::ImitaterDialog(int thePlayerIndex) :
+    LawnDialog(gLawnApp, nullptr, 52, true, "[CHOOSE_SEED_TO_COPY]", "", "[DIALOG_BUTTON_OK]", 1)
 {
     // Before anything else the dialog is sized to the seed chooser's own
     // rectangle: 550x600, adjusted by however much CalcSize grows the frame.
@@ -125,7 +124,7 @@ void ImitaterDialog::GetSeedPosition(int theIndex, int &theX, int &theY)
     theX = 0;
     theY = 0;
 
-    SeedChooserScreen * aChooser = mApp->mSeedChooserScreen;
+    SeedChooserScreen *aChooser = mApp->mSeedChooserScreen;
     if (aChooser == nullptr)
         return;
 
@@ -184,22 +183,22 @@ int ImitaterDialog::GetNextSeedInDir(int theIndex, SeedChooserScreen_SeedDir the
     // selection when the move runs off the grid.
     switch (theDir)
     {
-    case SEED_DIR_UP:
-        if (aRow > 0)
-            --aRow;
-        break;
-    case SEED_DIR_DOWN:
-        if (aRow <= 3)
-            ++aRow;
-        break;
-    case SEED_DIR_LEFT:
-        if (aCol > 0)
-            --aCol;
-        break;
-    case SEED_DIR_RIGHT:
-        if (aCol <= 6)
-            ++aCol;
-        break;
+        case SEED_DIR_UP:
+            if (aRow > 0)
+                --aRow;
+            break;
+        case SEED_DIR_DOWN:
+            if (aRow <= 3)
+                ++aRow;
+            break;
+        case SEED_DIR_LEFT:
+            if (aCol > 0)
+                --aCol;
+            break;
+        case SEED_DIR_RIGHT:
+            if (aCol <= 6)
+                ++aCol;
+            break;
     }
 
     return aCol + aNumColumns * aRow;
@@ -245,7 +244,7 @@ void ImitaterDialog::ShowToolTip()
 
     RemoveToolTip();
 
-    SeedChooserScreen * aChooser = mApp->mSeedChooserScreen;
+    SeedChooserScreen *aChooser = mApp->mSeedChooserScreen;
     unsigned int aNotRecommended = aChooser->SeedNotRecommendedToPick((SeedType)aSeed);
     if (aChooser->SeedNotAllowedToPick((SeedType)aSeed) != 0)
         mToolTipWidget->SetWarningText("[NOT_ALLOWED_ON_THIS_LEVEL]");
@@ -290,14 +289,14 @@ void ImitaterDialog::MouseDown(int theX, int theY, int theClickCount)
         return;
     }
 
-    SeedChooserScreen * aChooser = mApp->mSeedChooserScreen;
+    SeedChooserScreen *aChooser = mApp->mSeedChooserScreen;
     if (aChooser->SeedNotAllowedToPick((SeedType)aSeed) != 0)
         return;
 
     // Slot 48 of the chooser is the imitater packet. Note the store order: the
     // copy target is written before the state, then the packet is animated from
     // the chooser's own layout coordinates.
-    ChosenSeedData & aImitater = aChooser->mChosenSeeds[SEED_IMITATER];
+    ChosenSeedData &aImitater = aChooser->mChosenSeeds[SEED_IMITATER];
     aImitater.mImitaterType = (SeedType)aSeed;
     aImitater.mSeedState = SEED_IN_CHOOSER;
     aChooser->GetSeedPositionInChooser(SEED_IMITATER, aImitater.mX, aImitater.mY);
@@ -316,51 +315,51 @@ void ImitaterDialog::MouseDown(int theX, int theY, int theClickCount)
 // ==========================================================================
 int ImitaterDialog::OnKeyDown(Sexy::KeyCode theKey, unsigned int theFlags)
 {
-    SeedChooserScreen * aChooser = mApp->mSeedChooserScreen;
+    SeedChooserScreen *aChooser = mApp->mSeedChooserScreen;
 
     switch (theKey)
     {
-    case Sexy::KEYCODE_RETURN:
-        if (mSelectedSeed == -1 || aChooser->SeedNotAllowedToPick((SeedType)mSelectedSeed) != 0)
-            return 0;
+        case Sexy::KEYCODE_RETURN:
+            if (mSelectedSeed == -1 || aChooser->SeedNotAllowedToPick((SeedType)mSelectedSeed) != 0)
+                return 0;
 
-        {
-            ChosenSeedData & aImitater = aChooser->mChosenSeeds[SEED_IMITATER];
-            aImitater.mSeedState = SEED_IN_CHOOSER;
-            aImitater.mImitaterType = (SeedType)mSelectedSeed;
-            aChooser->GetSeedPositionInChooser(SEED_IMITATER, aImitater.mX, aImitater.mY);
-            aChooser->ClickedSeedInChooser(aImitater, mApp->GamepadToPlayerIndex(mPlayerIndex));
-            aChooser->UpdateImitaterButton();
+            {
+                ChosenSeedData &aImitater = aChooser->mChosenSeeds[SEED_IMITATER];
+                aImitater.mSeedState = SEED_IN_CHOOSER;
+                aImitater.mImitaterType = (SeedType)mSelectedSeed;
+                aChooser->GetSeedPositionInChooser(SEED_IMITATER, aImitater.mX, aImitater.mY);
+                aChooser->ClickedSeedInChooser(aImitater, mApp->GamepadToPlayerIndex(mPlayerIndex));
+                aChooser->UpdateImitaterButton();
 
-            // Slot 7 of SeedChooserScreen (RemoveWidget) and slot 47 of LawnApp
-            // (SafeDeleteWidget), then the chooser forgets this dialog.
+                // Slot 7 of SeedChooserScreen (RemoveWidget) and slot 47 of LawnApp
+                // (SafeDeleteWidget), then the chooser forgets this dialog.
+                aChooser->RemoveWidget(this);
+                mApp->SafeDeleteWidget(this);
+                aChooser->mImitaterDialog = nullptr;
+            }
+            return 1;
+
+        case Sexy::KEYCODE_ESCAPE:
             aChooser->RemoveWidget(this);
-            mApp->SafeDeleteWidget(this);
             aChooser->mImitaterDialog = nullptr;
-        }
-        return 1;
+            mApp->SafeDeleteWidget(this);
+            return 1;
 
-    case Sexy::KEYCODE_ESCAPE:
-        aChooser->RemoveWidget(this);
-        aChooser->mImitaterDialog = nullptr;
-        mApp->SafeDeleteWidget(this);
-        return 1;
+        case Sexy::KEYCODE_LEFT:
+            mSelectedSeed = GetNextSeedInDir(mSelectedSeed, SEED_DIR_LEFT);
+            return 1;
+        case Sexy::KEYCODE_UP:
+            mSelectedSeed = GetNextSeedInDir(mSelectedSeed, SEED_DIR_UP);
+            return 1;
+        case Sexy::KEYCODE_RIGHT:
+            mSelectedSeed = GetNextSeedInDir(mSelectedSeed, SEED_DIR_RIGHT);
+            return 1;
+        case Sexy::KEYCODE_DOWN:
+            mSelectedSeed = GetNextSeedInDir(mSelectedSeed, SEED_DIR_DOWN);
+            return 1;
 
-    case Sexy::KEYCODE_LEFT:
-        mSelectedSeed = GetNextSeedInDir(mSelectedSeed, SEED_DIR_LEFT);
-        return 1;
-    case Sexy::KEYCODE_UP:
-        mSelectedSeed = GetNextSeedInDir(mSelectedSeed, SEED_DIR_UP);
-        return 1;
-    case Sexy::KEYCODE_RIGHT:
-        mSelectedSeed = GetNextSeedInDir(mSelectedSeed, SEED_DIR_RIGHT);
-        return 1;
-    case Sexy::KEYCODE_DOWN:
-        mSelectedSeed = GetNextSeedInDir(mSelectedSeed, SEED_DIR_DOWN);
-        return 1;
-
-    default:
-        return 0;
+        default:
+            return 0;
     }
 }
 
@@ -368,8 +367,7 @@ int ImitaterDialog::OnKeyDown(Sexy::KeyCode theKey, unsigned int theFlags)
 // ImitaterDialog::GameButtonDown(Sexy::GamepadButton,int,unsigned int)
 // @0014EC8C  304 bytes
 // ==========================================================================
-void ImitaterDialog::GameButtonDown(Sexy::GamepadButton theButton, int thePlayerIndex,
-                                    unsigned int theButtonFlags)
+void ImitaterDialog::GameButtonDown(Sexy::GamepadButton theButton, int thePlayerIndex, unsigned int theButtonFlags)
 {
     // The decompiler treated the receiver as the first argument, which made the
     // body look as if it switched on the argument it compares against
@@ -383,55 +381,54 @@ void ImitaterDialog::GameButtonDown(Sexy::GamepadButton theButton, int thePlayer
     if (mPlayerIndex != thePlayerIndex)
         return;
 
-    SeedChooserScreen * aChooser = mApp->mSeedChooserScreen;
+    SeedChooserScreen *aChooser = mApp->mSeedChooserScreen;
 
     switch (theButton)
     {
-    case GAMEPAD_BUTTON_UP:
-    case GAMEPAD_BUTTON_DPAD_UP:
-        mSelectedSeed = GetNextSeedInDir(mSelectedSeed, SEED_DIR_UP);
-        break;
-    case GAMEPAD_BUTTON_DOWN:
-    case GAMEPAD_BUTTON_DPAD_DOWN:
-        mSelectedSeed = GetNextSeedInDir(mSelectedSeed, SEED_DIR_DOWN);
-        break;
-    case GAMEPAD_BUTTON_LEFT:
-    case GAMEPAD_BUTTON_DPAD_LEFT:
-        mSelectedSeed = GetNextSeedInDir(mSelectedSeed, SEED_DIR_LEFT);
-        break;
-    case GAMEPAD_BUTTON_RIGHT:
-    case GAMEPAD_BUTTON_DPAD_RIGHT:
-        mSelectedSeed = GetNextSeedInDir(mSelectedSeed, SEED_DIR_RIGHT);
-        break;
-
-    case GAMEPAD_BUTTON_SELECT:
-    case GAMEPAD_BUTTON_B:
-        aChooser->RemoveWidget(this);
-        aChooser->mImitaterDialog = nullptr;
-        mApp->SafeDeleteWidget(this);
-        break;
-
-    case GAMEPAD_BUTTON_A:
-        if (mSelectedSeed == -1 || aChooser->SeedNotAllowedToPick((SeedType)mSelectedSeed) != 0)
+        case GAMEPAD_BUTTON_UP:
+        case GAMEPAD_BUTTON_DPAD_UP:
+            mSelectedSeed = GetNextSeedInDir(mSelectedSeed, SEED_DIR_UP);
+            break;
+        case GAMEPAD_BUTTON_DOWN:
+        case GAMEPAD_BUTTON_DPAD_DOWN:
+            mSelectedSeed = GetNextSeedInDir(mSelectedSeed, SEED_DIR_DOWN);
+            break;
+        case GAMEPAD_BUTTON_LEFT:
+        case GAMEPAD_BUTTON_DPAD_LEFT:
+            mSelectedSeed = GetNextSeedInDir(mSelectedSeed, SEED_DIR_LEFT);
+            break;
+        case GAMEPAD_BUTTON_RIGHT:
+        case GAMEPAD_BUTTON_DPAD_RIGHT:
+            mSelectedSeed = GetNextSeedInDir(mSelectedSeed, SEED_DIR_RIGHT);
             break;
 
-        {
-            ChosenSeedData & aImitater = aChooser->mChosenSeeds[SEED_IMITATER];
-            aImitater.mSeedState = SEED_IN_CHOOSER;
-            aImitater.mImitaterType = (SeedType)mSelectedSeed;
-            aChooser->GetSeedPositionInChooser(SEED_IMITATER, aImitater.mX, aImitater.mY);
-            aChooser->ClickedSeedInChooser(aImitater, mApp->GamepadToPlayerIndex(mPlayerIndex));
-            aChooser->UpdateImitaterButton();
+        case GAMEPAD_BUTTON_SELECT:
+        case GAMEPAD_BUTTON_B:
             aChooser->RemoveWidget(this);
-            mApp->SafeDeleteWidget(this);
             aChooser->mImitaterDialog = nullptr;
-        }
-        break;
+            mApp->SafeDeleteWidget(this);
+            break;
 
-    default:
-        break;
+        case GAMEPAD_BUTTON_A:
+            if (mSelectedSeed == -1 || aChooser->SeedNotAllowedToPick((SeedType)mSelectedSeed) != 0)
+                break;
+
+            {
+                ChosenSeedData &aImitater = aChooser->mChosenSeeds[SEED_IMITATER];
+                aImitater.mSeedState = SEED_IN_CHOOSER;
+                aImitater.mImitaterType = (SeedType)mSelectedSeed;
+                aChooser->GetSeedPositionInChooser(SEED_IMITATER, aImitater.mX, aImitater.mY);
+                aChooser->ClickedSeedInChooser(aImitater, mApp->GamepadToPlayerIndex(mPlayerIndex));
+                aChooser->UpdateImitaterButton();
+                aChooser->RemoveWidget(this);
+                mApp->SafeDeleteWidget(this);
+                aChooser->mImitaterDialog = nullptr;
+            }
+            break;
+
+        default:
+            break;
     }
-
 }
 
 // ==========================================================================
@@ -442,11 +439,11 @@ int ImitaterDialog::KeyDown(Sexy::KeyCode theKey)
 {
     // A focused child receives its parent's key event. Prefer a directly
     // delivered event, otherwise use the chooser's current event.
-    Sexy::Widget * aTopLevelWidget = GetTopLevel();
-    const Sexy::Event* aEvent = mEvent != nullptr ? mEvent : aTopLevelWidget->mEvent;
+    Sexy::Widget *aTopLevelWidget = GetTopLevel();
+    const Sexy::Event *aEvent = mEvent != nullptr ? mEvent : aTopLevelWidget->mEvent;
 
-    if (aEvent == nullptr || aEvent->lateModifiers == 0
-        || (mApp->HasGamepad() == 0 && (mApp->mGamePad1IsOn == 0 || mApp->mGamePad2IsOn == 0)))
+    if (aEvent == nullptr || aEvent->lateModifiers == 0 ||
+        (mApp->HasGamepad() == 0 && (mApp->mGamePad1IsOn == 0 || mApp->mGamePad2IsOn == 0)))
     {
         // Keyboard input remains on its own path with a gamepad connected;
         // direct KeyDown calls without an event also use the raw key.
@@ -508,14 +505,23 @@ void ImitaterDialog::Draw(Sexy::Graphics *theGraphics)
             GetSeedPosition(aSeed, aSeedX, aSeedY);
 
             int aGrayness;
-            if (mApp->mSeedChooserScreen->SeedNotAllowedToPick((SeedType)aSeed) != 0
-                || mApp->mSeedChooserScreen->SeedNotRecommendedToPick((SeedType)aSeed) != 0)
+            if (mApp->mSeedChooserScreen->SeedNotAllowedToPick((SeedType)aSeed) != 0 ||
+                mApp->mSeedChooserScreen->SeedNotRecommendedToPick((SeedType)aSeed) != 0)
                 aGrayness = 115;
             else
                 aGrayness = 255;
 
-            DrawSeedPacket(theGraphics, (float)aSeedX, (float)aSeedY, SEED_IMITATER, (SeedType)aSeed, 0.0f,
-                           aGrayness, true, false, aPass != 0, aPass == 0);
+            DrawSeedPacket(theGraphics,
+                (float)aSeedX,
+                (float)aSeedY,
+                SEED_IMITATER,
+                (SeedType)aSeed,
+                0.0f,
+                aGrayness,
+                true,
+                false,
+                aPass != 0,
+                aPass == 0);
         }
     }
 
@@ -535,9 +541,8 @@ void ImitaterDialog::Draw(Sexy::Graphics *theGraphics)
     if (mApp->mSeedChooserScreen->SeedNotAllowedToPick((SeedType)mSelectedSeed) == 0)
         aDimmed = mApp->mSeedChooserScreen->SeedNotRecommendedToPick((SeedType)mSelectedSeed) != 0;
 
-    Sexy::Image * aSelectorImage = (mPlayerIndex == mApp->mSecondPlayerGamepadIndex)
-                                 ? IMAGE_SEED_SELECTOR_BLUE
-                                 : IMAGE_SEED_SELECTOR;
+    Sexy::Image *aSelectorImage =
+        (mPlayerIndex == mApp->mSecondPlayerGamepadIndex) ? IMAGE_SEED_SELECTOR_BLUE : IMAGE_SEED_SELECTOR;
 
     theGraphics->DrawImage(aSelectorImage, aSeedX - 8, aSeedY - 4, 64, 85);
 
@@ -546,8 +551,17 @@ void ImitaterDialog::Draw(Sexy::Graphics *theGraphics)
     int aPacketY;
     GetSeedPosition(mSelectedSeed, aPacketX, aPacketY);
 
-    DrawSeedPacket(theGraphics, (float)aPacketX, (float)(aPacketY + 5), SEED_IMITATER, (SeedType)mSelectedSeed,
-                   0.0f, aDimmed ? 115 : 255, true, false, false, true);
+    DrawSeedPacket(theGraphics,
+        (float)aPacketX,
+        (float)(aPacketY + 5),
+        SEED_IMITATER,
+        (SeedType)mSelectedSeed,
+        0.0f,
+        aDimmed ? 115 : 255,
+        true,
+        false,
+        false,
+        true);
 
     DeferOverlay(0);
 }

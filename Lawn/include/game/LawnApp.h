@@ -167,7 +167,8 @@
 // at 0x687DF0 and the IGameCenter::Listener one at 0x687E08, and GCC simply emits
 // those groups next to the primary table in the same _ZTV7LawnApp object.)
 
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_LAWNAPP_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_LAWNAPP_H
 
 #include "ReconTypes.h"
 // Sexy::ProfileEventListener, this class's second base. It used to be declared
@@ -313,7 +314,8 @@ class VSResultsMenu;
 class VSSetupMenu;
 class ZenGarden;
 
-namespace Sexy {
+namespace Sexy
+{
 class DefaultPlayerInfo;
 class DefaultProfileMgr;
 
@@ -334,7 +336,8 @@ class LawnSessionTask;
 // this one), and the member cannot stay untyped, so the enum is declared here.
 // TODO(recon): move it into Sexy\ReconTypes.h next to BoardResult/FoleyType and
 // drop this copy -- that is where every other ConstEnums.h enum lives.
-enum CrazyDaveState {
+enum CrazyDaveState
+{
     CRAZY_DAVE_OFF = 0,
     CRAZY_DAVE_ENTERING = 1,
     CRAZY_DAVE_LEAVING = 2,
@@ -357,10 +360,10 @@ struct ListNodeBase
 // mPreviousBalance records the balance before the purchase at +2848.
 struct QueryCoinState
 {
-    bool mPending;                 // +0x00
+    bool mPending; // +0x00
     unsigned int mLastRequestTime; // +0x04
-    int mRequestCount;             // +0x08
-    int mPreviousBalance;          // +0x0C
+    int mRequestCount; // +0x08
+    int mPreviousBalance; // +0x0C
 };
 
 class LawnApp : public Sexy::GamepadApp, public Sexy::ProfileEventListener, public Sexy::IGameCenter::Listener
@@ -401,24 +404,24 @@ public:
     // overrides `SexyAppBase::PlaySample(int)`.
     // 175..179 override the two listener bases.
     // -----------------------------------------------------------------------
-    virtual void GamepadConnected();                                       // [168]
-    virtual void GamepadDisconnected();                                    // [169]
-    virtual void LoadingCompleted();                                       // [170]
-    virtual void PlaySample(int theSoundId, bool theLoop);                 // [171]
-    virtual void DrawPost();                                               // [172]
+    virtual void GamepadConnected(); // [168]
+    virtual void GamepadDisconnected(); // [169]
+    virtual void LoadingCompleted(); // [170]
+    virtual void PlaySample(int theSoundId, bool theLoop); // [171]
+    virtual void DrawPost(); // [172]
     // `void OnButtonDown(LawnApp*, int button, int playerIndex, unsigned int flags)`
     // in the authoritative table: the pointer the binary leaves in r0 is not a
     // return value, it is simply the register the widget search ended in.
     virtual void OnButtonDown(int theButton, int thePlayerIndex, unsigned int theFlags); // [173]
-    virtual void ShowResourceError(bool theExit);                          // [174]
+    virtual void ShowResourceError(bool theExit); // [174]
     // Overrides of Sexy::ProfileEventListener, the interface declared above --
     // its slots [0]..[3] in that order.
-    virtual int GetProfileVersion();                                       // [175]
-    virtual LawnPlayerInfo *CreatePlayerInfo();                            // [176]
-    virtual void NotifyProfileChanged(Sexy::PlayerInfo *theProfile);       // [177]
-    virtual void OnProfileSaveError(Sexy::PlayerInfo *theProfile);         // [178]
+    virtual int GetProfileVersion(); // [175]
+    virtual LawnPlayerInfo *CreatePlayerInfo(); // [176]
+    virtual void NotifyProfileChanged(Sexy::PlayerInfo *theProfile); // [177]
+    virtual void OnProfileSaveError(Sexy::PlayerInfo *theProfile); // [178]
     // Overrides Sexy::IGameCenter::Listener::onPay (Listener.h, slot [9]).
-    virtual void onPay(int theResult);                                     // [179]
+    virtual void onPay(int theResult); // [179]
 
     // -----------------------------------------------------------------------
     // Overrides of the base chain, ordered as in the binary's table. Every return
@@ -432,17 +435,18 @@ public:
     // They are left for phase 2 because fixing them means renaming the .cpp
     // definitions and their call sites, not just a return type.
     // -----------------------------------------------------------------------
-    virtual void ButtonPress(int theId);           // [  2]
-    virtual void ButtonDepress(int theId);         // [  4]  void in ButtonListener.h:44
-    virtual void EnforceCursor();                  // [ 11]
-    virtual void UpdateFrames();                   // [ 13]
-    virtual void LoadingThreadCompleted();         // [ 18]
-    virtual void InitHook();                       // [ 25]
-    virtual void LoadingThreadProc();              // [ 28]
-    virtual void WriteToRegistry();                // [ 29]
-    virtual void ReadFromRegistry();               // [ 30]
-    virtual LawnDialog *NewDialog(int theDialogId, bool theModal, Sexy::String const &theHeader, Sexy::String const &theLines, Sexy::String const &theFooter, int theButtonMode); // [ 31]
-    virtual void PreDisplayHook();                 // [ 32]
+    virtual void ButtonPress(int theId); // [  2]
+    virtual void ButtonDepress(int theId); // [  4]  void in ButtonListener.h:44
+    virtual void EnforceCursor(); // [ 11]
+    virtual void UpdateFrames(); // [ 13]
+    virtual void LoadingThreadCompleted(); // [ 18]
+    virtual void InitHook(); // [ 25]
+    virtual void LoadingThreadProc(); // [ 28]
+    virtual void WriteToRegistry(); // [ 29]
+    virtual void ReadFromRegistry(); // [ 30]
+    virtual LawnDialog *NewDialog(int theDialogId, bool theModal, Sexy::String const &theHeader,
+        Sexy::String const &theLines, Sexy::String const &theFooter, int theButtonMode); // [ 31]
+    virtual void PreDisplayHook(); // [ 32]
     virtual void SafeDeleteWidget(Sexy::Widget *theWidget); // [ 47]
     virtual void URLOpenFailed(Sexy::String const &theURL); // [ 48]
     // The base takes the URL (`void URLOpenSucceeded(const Sexy::String &)`,
@@ -450,11 +454,14 @@ public:
     // `_ZN7LawnApp16URLOpenSucceededERKSs`, so this is an override.
     virtual void URLOpenSucceeded(Sexy::String const &theURL); // [ 49]
     virtual bool OpenURL(Sexy::String const &theURL, bool theShutdownOnOpen); // [ 50]
-    virtual void Shutdown();                       // [ 57]
+    virtual void Shutdown(); // [ 57]
     virtual void HandleCmdLineParam(Sexy::String const &theParamName, Sexy::String const &theParamValue); // [ 65]
-    int GetFrameCounter() override { return mAppCounter; }
-    virtual void Start();                          // [ 69]
-    virtual void Init();                           // [ 71]
+    int GetFrameCounter() override
+    {
+        return mAppCounter;
+    }
+    virtual void Start(); // [ 69]
+    virtual void Init(); // [ 71]
     virtual bool ChangeDirHook(char const *theIntendedPath); // [ 75]
     // TODO(recon): the base's three-argument slot is
     // `SwitchScreenModeFull(bool windowed, bool use3D, bool force)`
@@ -462,23 +469,24 @@ public:
     // this is that function. The name now matches the base, which makes it a real
     // override instead of a hidden `SwitchScreenMode` overload.
     virtual void SwitchScreenModeFull(bool theWindowed, bool theUse3D, bool theForce); // [101]
-    virtual LawnDialog *DoDialog(int theDialogId, bool theModal, Sexy::String const &theHeader, Sexy::String const &theLines, Sexy::String const &theFooter, int theButtonMode); // [103]
+    virtual LawnDialog *DoDialog(int theDialogId, bool theModal, Sexy::String const &theHeader,
+        Sexy::String const &theLines, Sexy::String const &theFooter, int theButtonMode); // [103]
     // TV LawnApp::KillDialog(int) overrides the base's by-id close slot.
     // This port names that slot KillDialogById; keep KillDialog as a forwarder.
     bool KillDialogById(int theDialogId) override;
     bool KillDialog(int theDialogId);
-    virtual void ModalOpen();                      // [108]
-    virtual void ModalClose();                     // [109]
-    virtual void GotFocus();                       // [112]
-    virtual void LostFocus();                      // [113]
-    virtual void CloseRequestAsync();              // [120]
-    virtual void PreDrawScreen();                  // [123]
-    virtual bool DrawDirtyStuff();                 // [124]
-    virtual bool UpdateAppStep(bool *theUpdated);  // [128]
-    virtual bool UpdateApp();                      // [129]
+    virtual void ModalOpen(); // [108]
+    virtual void ModalClose(); // [109]
+    virtual void GotFocus(); // [112]
+    virtual void LostFocus(); // [113]
+    virtual void CloseRequestAsync(); // [120]
+    virtual void PreDrawScreen(); // [123]
+    virtual bool DrawDirtyStuff(); // [124]
+    virtual bool UpdateAppStep(bool *theUpdated); // [128]
+    virtual bool UpdateApp(); // [129]
     virtual bool ProcessMessage(Sexy::Event &theEvent); // [132]
-    virtual void AuthFinished(bool theSuccess);    // [144]
-    virtual void StartAuth();                      // [145]
+    virtual void AuthFinished(bool theSuccess); // [144]
+    virtual void StartAuth(); // [145]
     // GamepadConnected/GamepadDisconnected/LoadingCompleted/PlaySample(int,bool)
     // /DrawPost/OnButtonDown/ShowResourceError/GetProfileVersion/
     // CreatePlayerInfo/NotifyProfileChanged/OnProfileSaveError/onPay are declared
@@ -490,7 +498,7 @@ public:
     int DoCheatDialog();
     int DoCheatCodeDialog();
     int GetCurrentChallengeIndex();
-    const ChallengeDefinition* GetCurrentChallengeDef();
+    const ChallengeDefinition *GetCurrentChallengeDef();
     bool IsAdventureMode();
     bool IsSurvivalMode();
     bool IsCoopMode();
@@ -526,7 +534,7 @@ public:
     int SetBoardResult(BoardResult theResult);
     int showRechargeBoard(Sexy::String theAmount);
     // The dialog that was showing, or null when that id had none.
-    Sexy::Dialog* DoDialogDelay(int theDialogId);
+    Sexy::Dialog *DoDialogDelay(int theDialogId);
     int DoUserDialog();
     int FinishUserDialog(bool theYes);
     int DoBuyMoneyDialog(const Sexy::String &theMessage);
@@ -566,8 +574,8 @@ public:
     // parameter IS declared even though the 16-byte body at 0x2b507c never reads
     // r1 (it forwards *(this+2264) to TodFoley::PlayFoley). Call sites that omit
     // the argument need to pass it, not the other way round.
-    FoleyTypeDataElement* PlayFoley(FoleyType theFoley);
-    FoleyTypeDataElement* PlayFoleyPitch(FoleyType theFoley, float thePitch);
+    FoleyTypeDataElement *PlayFoley(FoleyType theFoley);
+    FoleyTypeDataElement *PlayFoleyPitch(FoleyType theFoley, float thePitch);
     // _ZN7LawnApp14GetStageStringEi @0x2b509c -- sret: ARM passes the by-value
     // String result's destination in r0, so IDA prints it as the receiver and
     // the real argument arrives in r1. The body is
@@ -594,18 +602,18 @@ public:
     // @0x2B60DC is a ten-byte tail call: `return ReanimationHolder::
     // AllocReanimation(...)`, which allocates a 220-byte record and hands back
     // its address. A pointer, not an index.
-    Reanimation * AddReanimation(float theX, float theY, int theRenderOrder, ReanimationType theType);
+    Reanimation *AddReanimation(float theX, float theY, int theRenderOrder, ReanimationType theType);
     // AddTodParticle(float,float,int,ParticleEffect) -- the demangled signature
     // in the binary's vtable listing at 0x2B60E8. The transcription had lost
     // the parameter list.
-    TodParticleSystem* AddTodParticle(float theX, float theY, int theLayer, ParticleEffect theEffect);
+    TodParticleSystem *AddTodParticle(float theX, float theY, int theLayer, ParticleEffect theEffect);
     ReanimationID ReanimationGetID(Reanimation *theReanimation);
     // _ZN7LawnApp13ReanimationGetE13ReanimationID @0x2b60fc -- the body returns
     // `*v3 + 220 * index`, the address of a 220-byte Reanimation record inside
     // the holder's array, so the result is a POINTER. The transcription typed it
     // `int`; the two callers that wrote `(Reanimation *)` around the result are
     // unchanged by the fix.
-    Reanimation * ReanimationGet(ReanimationID theReanimationId);
+    Reanimation *ReanimationGet(ReanimationID theReanimationId);
     // _ZN7LawnApp19ReanimationTryToGetE13ReanimationID @0x2b6110. The body
     // returns `*v3 + 220 * index`, the address of a 220-byte Reanimation record
     // inside the holder's array, so the result is a POINTER.
@@ -615,10 +623,10 @@ public:
     // from `Reanimation *` to `Reanimation *` still compiles, so flipping the
     // type costs nothing at the call sites and removes the last reason to think
     // the value is an index.
-    Reanimation * ReanimationTryToGet(ReanimationID theReanimationId);
+    Reanimation *ReanimationTryToGet(ReanimationID theReanimationId);
     ParticleSystemID ParticleGetID(TodParticleSystem *theParticle);
-    TodParticleSystem* ParticleGet(ParticleSystemID theId);
-    TodParticleSystem* ParticleTryToGet(ParticleSystemID theId);
+    TodParticleSystem *ParticleGet(ParticleSystemID theId);
+    TodParticleSystem *ParticleTryToGet(ParticleSystemID theId);
     Reanimation *RemoveReanimation(ReanimationID theReanimationId);
     TodParticleSystem *RemoveParticle(ParticleSystemID theParticleId);
     bool IsSurvivalNormal(GameMode theGameMode);
@@ -627,7 +635,7 @@ public:
     bool IsEndlessScaryPotter(GameMode theGameMode);
     bool IsEndlessIZombie(GameMode theGameMode);
     bool HasBeatenChallenge(GameMode theGameMode);
-    PottedPlant* GetPottedPlantByIndex(int theIndex);
+    PottedPlant *GetPottedPlantByIndex(int theIndex);
     bool HasFinishedAdventure();
     int CanShowAlmanac();
     bool CanShowStore();
@@ -796,11 +804,11 @@ public:
     void ShowHouseScreenFromGame();
     void ShowAchievementsScreen(bool theFromGame = false);
     void KillAchievementsScreen();
-    bool GrantAchievement(AchievementType theAchievement, LawnPlayerInfo* thePlayer = nullptr, bool theShow = true);
+    bool GrantAchievement(AchievementType theAchievement, LawnPlayerInfo *thePlayer = nullptr, bool theShow = true);
     void RefreshProfileAchievements();
     bool HasAllAchievementPlants();
-    void SetHouseReanim(Reanimation* theHouse);
-    Sexy::Image* GetConsoleImage(const char* theName);
+    void SetHouseReanim(Reanimation *theHouse);
+    Sexy::Image *GetConsoleImage(const char *theName);
     void KillTitleScreen();
     int KillMainMenu();
     int KillGameSelector();
@@ -837,7 +845,8 @@ public:
     int DoNewOptions(bool theFromGameSelector, unsigned int thePlayerIndex);
     AlmanacDialog *DoAlmanacDialog(SeedType theSeedType, ZombieType theZombieType);
     void DoPauseDialog();
-    int LawnMessageBox(int theDialogId, char const *theHeader, char const *theLines, char const *theButton1, char const *theButton2, int theButtonMode);
+    int LawnMessageBox(int theDialogId, char const *theHeader, char const *theLines, char const *theButton1,
+        char const *theButton2, int theButtonMode);
 
     // -----------------------------------------------------------------------
     // Members. +0x8A0 .. +0xB27, 0x288 bytes.
@@ -847,141 +856,141 @@ public:
     // (ordinal N -> byte 4*N) except for the last two, which it numbered one
     // too high.
     // -----------------------------------------------------------------------
-    Board *mBoard;                          // +0x8A0 (552)
-    TitleScreen *mTitleScreen;              // +0x8A4 (553)
-    MainMenu *mGameSelector;                // +0x8A8 (554)
+    Board *mBoard; // +0x8A0 (552)
+    TitleScreen *mTitleScreen; // +0x8A4 (553)
+    MainMenu *mGameSelector; // +0x8A8 (554)
     // Two modal counters. Board::DrawOverlay skips its overlay while either is set.
-    int mModalCount[2];                     // +0x8AC .. +0x8B3 (555~556)
-    HelpTextScreen *mHelpTextScreen;        // +0x8B4 (557)
-    LeaderboardsWidget* mLeaderboardScreen; // house, trophies and local records
-    VSSetupMenu *mVSSetupMenu;              // +0x8BC (559)
-    VSResultsMenu *mVSResultsMenu;          // +0x8C0 (560)
-    SeedChooserScreen *mSeedChooserScreen;  // +0x8C4 (561)
+    int mModalCount[2]; // +0x8AC .. +0x8B3 (555~556)
+    HelpTextScreen *mHelpTextScreen; // +0x8B4 (557)
+    LeaderboardsWidget *mLeaderboardScreen; // house, trophies and local records
+    VSSetupMenu *mVSSetupMenu; // +0x8BC (559)
+    VSResultsMenu *mVSResultsMenu; // +0x8C0 (560)
+    SeedChooserScreen *mSeedChooserScreen; // +0x8C4 (561)
     SeedChooserScreen *mZombieChooserScreen; // +0x8C8 (562)
-    AwardScreen *mAwardScreen;              // +0x8CC (563)
-    CreditScreen *mCreditScreen;            // +0x8D0 (564)
-    ChallengeScreen *mChallengeScreen;      // +0x8D4 (565)
-    TodFoley *mSoundSystem;                 // +0x8D8 (566)
-    ListNodeBase mControlButtonList;        // +0x8DC .. +0x8E3 (567~568)
-    ListNodeBase mCreatedImageList;         // +0x8E4 .. +0x8EB (569~570)
-    Sexy::String mReferId;                  // +0x8EC (571)
-    Sexy::String mRegisterLink;             // +0x8F0 (572)
-    Sexy::String mMod;                      // +0x8F4 (573)
-    bool mRegisterResourcesLoaded;          // +0x8F8 (byte 2296)
-    bool mTodCheatKeys;                     // +0x8F9 (byte 2297)
-    GameMode mGameMode;                     // +0x8FC (575)
-    GameScenes mGameScene;                  // +0x900 (576)
-    bool mLoadingZombiesThreadCompleted;    // +0x904 (byte 2308)
-    bool mFirstTimeGameSelector;            // +0x905 (byte 2309)
-    int mGamesPlayed;                       // +0x908 (578)
-    int mMaxExecutions;                     // +0x90C (579)
-    int mMaxPlays;                          // +0x910 (580)
-    int mMaxTime;                           // +0x914 (581)
-    bool mEasyPlantingCheat;                // +0x918 (byte 2328)
-    PoolEffect *mPoolEffect;                // +0x91C (583)
-    ZenGarden *mZenGarden;                  // +0x920 (584)
-    EffectSystem *mEffectSystem;            // +0x924 (585)
-    ReanimatorCache *mReanimatorCache;      // +0x928 (586)
-    LawnPlayerInfo *mPlayerInfo;            // +0x92C (587)
-    LawnPlayerInfo *mPlayer2Info;          // second player's game profile
+    AwardScreen *mAwardScreen; // +0x8CC (563)
+    CreditScreen *mCreditScreen; // +0x8D0 (564)
+    ChallengeScreen *mChallengeScreen; // +0x8D4 (565)
+    TodFoley *mSoundSystem; // +0x8D8 (566)
+    ListNodeBase mControlButtonList; // +0x8DC .. +0x8E3 (567~568)
+    ListNodeBase mCreatedImageList; // +0x8E4 .. +0x8EB (569~570)
+    Sexy::String mReferId; // +0x8EC (571)
+    Sexy::String mRegisterLink; // +0x8F0 (572)
+    Sexy::String mMod; // +0x8F4 (573)
+    bool mRegisterResourcesLoaded; // +0x8F8 (byte 2296)
+    bool mTodCheatKeys; // +0x8F9 (byte 2297)
+    GameMode mGameMode; // +0x8FC (575)
+    GameScenes mGameScene; // +0x900 (576)
+    bool mLoadingZombiesThreadCompleted; // +0x904 (byte 2308)
+    bool mFirstTimeGameSelector; // +0x905 (byte 2309)
+    int mGamesPlayed; // +0x908 (578)
+    int mMaxExecutions; // +0x90C (579)
+    int mMaxPlays; // +0x910 (580)
+    int mMaxTime; // +0x914 (581)
+    bool mEasyPlantingCheat; // +0x918 (byte 2328)
+    PoolEffect *mPoolEffect; // +0x91C (583)
+    ZenGarden *mZenGarden; // +0x920 (584)
+    EffectSystem *mEffectSystem; // +0x924 (585)
+    ReanimatorCache *mReanimatorCache; // +0x928 (586)
+    LawnPlayerInfo *mPlayerInfo; // +0x92C (587)
+    LawnPlayerInfo *mPlayer2Info; // second player's game profile
     // LevelStats* at +0x934. StartLevel resets it; the old int* was the dump's
     // untyped word.
-    LevelStats *mLastLevelStats;            // +0x934 (589)
-    bool mCloseRequest;                     // +0x938 (byte 2360)
-    int mAppCounter;                        // +0x93C (591)
-    Music *mMusic;                         // +0x940 (592)
-    ReanimationID mCrazyDaveReanimID;       // +0x944 (593)
-    CrazyDaveState mCrazyDaveState;         // +0x948 (594)
-    int mCrazyDaveBlinkCounter;             // +0x94C (595)
-    ReanimationID mCrazyDaveBlinkReanimID;  // +0x950 (596)
-    int mCrazyDaveMessageIndex;             // +0x954 (597)
+    LevelStats *mLastLevelStats; // +0x934 (589)
+    bool mCloseRequest; // +0x938 (byte 2360)
+    int mAppCounter; // +0x93C (591)
+    Music *mMusic; // +0x940 (592)
+    ReanimationID mCrazyDaveReanimID; // +0x944 (593)
+    CrazyDaveState mCrazyDaveState; // +0x948 (594)
+    int mCrazyDaveBlinkCounter; // +0x94C (595)
+    ReanimationID mCrazyDaveBlinkReanimID; // +0x950 (596)
+    int mCrazyDaveMessageIndex; // +0x954 (597)
     // +0x958 (598). The bodies copy this string into a scratch Sexy::String,
     // hand it to the {TAG} replacers and clear it when a line-up ends, so it is
     // a real String and not the word the transcription typed it as.
     Sexy::String *mCrazyDaveMessageText;
-    int mAppRandSeed;                       // +0x95C (599)
+    int mAppRandSeed; // +0x95C (599)
     // DrawDialogFade latches this and then draws the shade once.
-    bool mDialogFadeDrawn;                  // +0x960 (600)
-    Sexy::DefaultProfileMgr *mProfileMgr;   // +0x964 (601)
-    bool mSkipProfileSaving;                // +0x968 (602 * 4)
-    Sexy::Level mLevel;                     // +0x96C .. +0x9F3 (603~636, 34 words)
-    Sexy::Image *mQRCodeImage;              // +0x9F4 (637)
-    Sexy::Image *mQRCodeImageBackground;    // +0x9F8 (638)
+    bool mDialogFadeDrawn; // +0x960 (600)
+    Sexy::DefaultProfileMgr *mProfileMgr; // +0x964 (601)
+    bool mSkipProfileSaving; // +0x968 (602 * 4)
+    Sexy::Level mLevel; // +0x96C .. +0x9F3 (603~636, 34 words)
+    Sexy::Image *mQRCodeImage; // +0x9F4 (637)
+    Sexy::Image *mQRCodeImageBackground; // +0x9F8 (638)
     // Key/value pairs the session stores, such as "iBuySunMoneyCount". The
     // binary keeps a 24-byte libstdc++ map here.
     std::map<Sexy::String, int> mKeyValueData; // +0x9FC .. +0xA13 (639~644)
-    int mInitialSunMoney;                   // +0xA14 (645), gives the player starting sun
-    bool mIsFullVersion;                    // +0xA18 (byte 2584)
-    int mPendingBuyToolId;                  // +0xA1C (647)
-    int mPendingRechargeAmount;             // +0xA20 (648)
+    int mInitialSunMoney; // +0xA14 (645), gives the player starting sun
+    bool mIsFullVersion; // +0xA18 (byte 2584)
+    int mPendingBuyToolId; // +0xA1C (647)
+    int mPendingRechargeAmount; // +0xA20 (648)
     // TODO(recon): TrialType does not exist in this tree yet; the restore tree
     // has it as an enum at ordinal 649.
-    int mTrialType;                         // +0xA24 (649)
-    int mVsInitialPlantMode;                // +0xA28 (650)
+    int mTrialType; // +0xA24 (649)
+    int mVsInitialPlantMode; // +0xA28 (650)
     // Launch time in seconds, then two counters Init leaves at 0.
-    int mSessionStartSeconds;               // +0xA2C (651)
-    int mSessionCounter[2];                 // +0xA30 .. +0xA37 (652~653)
-    BoardResult mBoardResult;               // +0xA38 (654)
-    bool mKilledYetiAndRestarted;           // +0xA3C (byte 2620)
-    TypingCheck *mKonamiCheck;              // +0xA40 (656)
-    TypingCheck *mMustacheCheck;            // +0xA44 (657)
-    TypingCheck *mMoustacheCheck;           // +0xA48 (658)
-    TypingCheck *mSuperMowerCheck;          // +0xA4C (659)
-    TypingCheck *mSuperMowerCheck2;         // +0xA50 (660)
-    TypingCheck *mFutureCheck;              // +0xA54 (661)
-    TypingCheck *mPinataCheck;              // +0xA58 (662)
-    TypingCheck *mDanceCheck;               // +0xA5C (663)
-    TypingCheck *mDaisyCheck;               // +0xA60 (664)
-    TypingCheck *mSukhbirCheck;             // +0xA64 (665)
-    bool mMustacheMode;                     // +0xA68 (byte 2664)
-    bool mSuperMowerMode;                   // +0xA69 (byte 2665)
-    bool mFutureMode;                       // +0xA6A (byte 2666)
-    bool mPinataMode;                       // +0xA6B (byte 2667)
-    bool mDanceMode;                        // +0xA6C (byte 2668)
-    bool mDaisyMode;                        // +0xA6D (byte 2669)
-    bool mSukhbirMode;                      // +0xA6E (byte 2670)
+    int mSessionStartSeconds; // +0xA2C (651)
+    int mSessionCounter[2]; // +0xA30 .. +0xA37 (652~653)
+    BoardResult mBoardResult; // +0xA38 (654)
+    bool mKilledYetiAndRestarted; // +0xA3C (byte 2620)
+    TypingCheck *mKonamiCheck; // +0xA40 (656)
+    TypingCheck *mMustacheCheck; // +0xA44 (657)
+    TypingCheck *mMoustacheCheck; // +0xA48 (658)
+    TypingCheck *mSuperMowerCheck; // +0xA4C (659)
+    TypingCheck *mSuperMowerCheck2; // +0xA50 (660)
+    TypingCheck *mFutureCheck; // +0xA54 (661)
+    TypingCheck *mPinataCheck; // +0xA58 (662)
+    TypingCheck *mDanceCheck; // +0xA5C (663)
+    TypingCheck *mDaisyCheck; // +0xA60 (664)
+    TypingCheck *mSukhbirCheck; // +0xA64 (665)
+    bool mMustacheMode; // +0xA68 (byte 2664)
+    bool mSuperMowerMode; // +0xA69 (byte 2665)
+    bool mFutureMode; // +0xA6A (byte 2666)
+    bool mPinataMode; // +0xA6B (byte 2667)
+    bool mDanceMode; // +0xA6C (byte 2668)
+    bool mDaisyMode; // +0xA6D (byte 2669)
+    bool mSukhbirMode; // +0xA6E (byte 2670)
     // Constructor stores 0. Nothing reads it.
-    int mPlayTimeActiveSession;             // +0xA70 (668)
-    bool mMuteSoundsForCutscene;            // +0xA74 (byte 2676)
-    bool mNeedLoadGame;                     // +0xA75 (byte 2677)
-    bool mNeedGoBackToMain;                 // +0xA76 (byte 2678)
+    int mPlayTimeActiveSession; // +0xA70 (668)
+    bool mMuteSoundsForCutscene; // +0xA74 (byte 2676)
+    bool mNeedLoadGame; // +0xA75 (byte 2677)
+    bool mNeedGoBackToMain; // +0xA76 (byte 2678)
     // TODO(recon): SaveGameOperation is an enum in the authoritative tree; this
     // tree has it only in PvZ\Lawn\Common\ConstEnums.h, which LawnApp.h must not
     // start including, so the field keeps the int spelling.
-    int mSaveGameOperation;                 // +0xA78 (670)
-    int mSecondPlayerGamepadIndex;          // +0xA7C (671)
+    int mSaveGameOperation; // +0xA78 (670)
+    int mSecondPlayerGamepadIndex; // +0xA7C (671)
     // +0xA80 (672) is never read or written. Left out.
-    int mCurrentTestDialogId;               // +0xA84 (673)
-    int mCurrentTestDaveMessage;            // +0xA88 (674)
-    Mailbox *mMailBox;                      // +0xA8C (675)
+    int mCurrentTestDialogId; // +0xA84 (673)
+    int mCurrentTestDaveMessage; // +0xA88 (674)
+    Mailbox *mMailBox; // +0xA8C (675)
     // +0xA90 (676) is never read or written. Left out.
-    bool mMailboxRefreshed;                 // +0xA94 (byte 2708)
+    bool mMailboxRefreshed; // +0xA94 (byte 2708)
     ReanimationID mSavingDingusReanimationID; // +0xA98 (678)
-    float mSavingDingusCurrentY;            // +0xA9C (679)
-    float mSavingDingusAnimationStartY;     // +0xAA0 (680)
-    float mSavingDingusAnimationEndY;       // +0xAA4 (681)
-    float mSavingDingusAnimationTime;       // +0xAA8 (682)
-    Sexy::String mDingusText;               // +0xAAC (683)
-    int mSavingDingusShowCount;             // +0xAB0 (684)
-    bool mProfileSaveInProgress;            // +0xAB4 (685[0])
-    bool mProfileOperationPending1;         // +0xAB5 (685[1])
-    bool mProfileOperationPending2;         // +0xAB6 (685[2])
-    int mP2JoinPromptTimer;                 // +0xAB8 (686)
+    float mSavingDingusCurrentY; // +0xA9C (679)
+    float mSavingDingusAnimationStartY; // +0xAA0 (680)
+    float mSavingDingusAnimationEndY; // +0xAA4 (681)
+    float mSavingDingusAnimationTime; // +0xAA8 (682)
+    Sexy::String mDingusText; // +0xAAC (683)
+    int mSavingDingusShowCount; // +0xAB0 (684)
+    bool mProfileSaveInProgress; // +0xAB4 (685[0])
+    bool mProfileOperationPending1; // +0xAB5 (685[1])
+    bool mProfileOperationPending2; // +0xAB6 (685[2])
+    int mP2JoinPromptTimer; // +0xAB8 (686)
     // Constructor stores false. Nothing reads it.
-    bool mProfileSaveFailed;                // +0xABC (byte 2748)
-    SaveGameContext *mSaveGame;             // +0xAC0 (688)
-    Sexy::String mSaveGameToReplace;        // Rewrite an incompatible level once the fresh level starts.
+    bool mProfileSaveFailed; // +0xABC (byte 2748)
+    SaveGameContext *mSaveGame; // +0xAC0 (688)
+    Sexy::String mSaveGameToReplace; // Rewrite an incompatible level once the fresh level starts.
     // TODO(recon): SessionTaskType is an enum in the authoritative tree, same
     // situation as mSaveGameOperation above.
-    int mSessionTaskType;                   // +0xAC4 (689)
-    bool mLoginToServer;                    // +0xAC8 (byte 2760)
-    LawnSession mSession;                   // +0xACC .. +0xADF (691~695)
-    LawnSessionTask *mLawnSessionTask;      // +0xAE0 (696)
-    Sexy::String mGameInfoStrings[5];       // +0xAE4 .. +0xAF7 (697~701)
-    HelpBarWidget *mHelpBarWidget;          // +0xAF8 (702)
+    int mSessionTaskType; // +0xAC4 (689)
+    bool mLoginToServer; // +0xAC8 (byte 2760)
+    LawnSession mSession; // +0xACC .. +0xADF (691~695)
+    LawnSessionTask *mLawnSessionTask; // +0xAE0 (696)
+    Sexy::String mGameInfoStrings[5]; // +0xAE4 .. +0xAF7 (697~701)
+    HelpBarWidget *mHelpBarWidget; // +0xAF8 (702)
     // StartPlaying clears this after the help bar is rebuilt. Nothing reads it.
-    int mHelpIndex;                         // +0xAFC (703)
-    LogComposer *mLogComposer;              // +0xB00 (704)
+    int mHelpIndex; // +0xAFC (703)
+    LogComposer *mLogComposer; // +0xB00 (704)
     // The log manager this slot holds is a TM::LogManager, NOT a
     // Sexy::LogManager. Two independent proofs from the binary:
     //   * LawnApp::HardwareInit @0x2C26C8 calls
@@ -993,13 +1002,13 @@ public:
     // The tree typed it Sexy::LogManager, which is a different class with its
     // own sendLog, so the call mangled to `?sendLog@LogManager@Sexy@@...` while
     // the linker wanted the TM one.
-    TM::LogManager *MLogManager;            // +0xB04 (705)
-    int mLaunchTime;                        // +0xB08 (706)
-    DaveHelp *mDaveHelp;                    // +0xB0C (707)
-    MaskHelpWidget *mMaskHelpWidget;        // +0xB10 (708)
-    QueryCoinState mQueryCoinState;         // +0xB14 .. +0xB23 (709~712)
-    bool mCanDoBuyMoneyDialog;              // +0xB24 (byte 2852)
-    AchievementsWidget* mAchievementsScreen = nullptr;
+    TM::LogManager *MLogManager; // +0xB04 (705)
+    int mLaunchTime; // +0xB08 (706)
+    DaveHelp *mDaveHelp; // +0xB0C (707)
+    MaskHelpWidget *mMaskHelpWidget; // +0xB10 (708)
+    QueryCoinState mQueryCoinState; // +0xB14 .. +0xB23 (709~712)
+    bool mCanDoBuyMoneyDialog; // +0xB24 (byte 2852)
+    AchievementsWidget *mAchievementsScreen = nullptr;
     std::map<std::string, Sexy::SharedImageRef> mConsoleImages;
     // size 0xB28
 };
@@ -1017,3 +1026,5 @@ public:
 // declares the binary's `Sexy::Thread` (a pthread_t plus a validity flag, 8 bytes)
 // next to TM::Thread (12 bytes) and LawnSession uses the former. So this is a hard
 // check with no second term.
+
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_LAWNAPP_H

@@ -12,40 +12,41 @@
 
 #include <cstring>
 
-namespace {
+namespace
+{
 
 struct ButtonTag
 {
-    const char* mName;
+    const char *mName;
     int mLength;
     int mCel;
 };
 
 // Longer names first so <LT> is not read as <L>.
 const ButtonTag kButtonTags[] = {
-    { "<LT>", 4, 9 },
-    { "<RT>", 4, 8 },
-    { "<LB>", 4, 6 },
-    { "<RB>", 4, 5 },
-    { "<A>", 3, 0 },
-    { "<B>", 3, 1 },
-    { "<X>", 3, 2 },
-    { "<Y>", 3, 3 },
-    { "<S>", 3, 4 },
-    { "<L>", 3, 6 },
-    { "<R>", 3, 5 },
-    { "<D>", 3, 7 },
-    { "<C>", 3, 4 },
-    { "<b>", 3, 10 },
-    { "<l>", 3, 12 },
-    { "<r>", 3, 11 },
+    {"<LT>", 4, 9},
+    {"<RT>", 4, 8},
+    {"<LB>", 4, 6},
+    {"<RB>", 4, 5},
+    {"<A>", 3, 0},
+    {"<B>", 3, 1},
+    {"<X>", 3, 2},
+    {"<Y>", 3, 3},
+    {"<S>", 3, 4},
+    {"<L>", 3, 6},
+    {"<R>", 3, 5},
+    {"<D>", 3, 7},
+    {"<C>", 3, 4},
+    {"<b>", 3, 10},
+    {"<l>", 3, 12},
+    {"<r>", 3, 11},
 };
 
-const ButtonTag* MatchTag(const char* theTag, int theLength)
+const ButtonTag *MatchTag(const char *theTag, int theLength)
 {
     for (int aIndex = 0; aIndex < (int)(sizeof(kButtonTags) / sizeof(kButtonTags[0])); ++aIndex)
     {
-        const ButtonTag& aTag = kButtonTags[aIndex];
+        const ButtonTag &aTag = kButtonTags[aIndex];
         if (aTag.mLength == theLength && std::memcmp(theTag, aTag.mName, (size_t)theLength) == 0)
             return &aTag;
     }
@@ -61,10 +62,10 @@ bool ButtonGlyphsActive()
     if (Sexy::GetEnvOption("LAWN_GAMEPAD_MODE", true) == 0)
         return false;
     // An icon needs a live SDL pad. A keyboard does not count.
-    Sexy::GamepadApp* aApp = static_cast<Sexy::GamepadApp*>(gSexyAppBase);
+    Sexy::GamepadApp *aApp = static_cast<Sexy::GamepadApp *>(gSexyAppBase);
     if (aApp->mInputManager == nullptr)
         return false;
-    for (Sexy::IInputDriver* aDriver : aApp->mInputManager->Drivers())
+    for (Sexy::IInputDriver *aDriver : aApp->mInputManager->Drivers())
     {
         if (aDriver == nullptr || aDriver->mOwner == nullptr)
             continue;
@@ -76,15 +77,15 @@ bool ButtonGlyphsActive()
     return false;
 }
 
-int ButtonGlyphCel(const char* theTag, int theLength)
+int ButtonGlyphCel(const char *theTag, int theLength)
 {
-    const ButtonTag* aTag = MatchTag(theTag, theLength);
+    const ButtonTag *aTag = MatchTag(theTag, theLength);
     if (aTag == nullptr)
         return -1;
     return aTag->mCel;
 }
 
-Sexy::String ButtonTagAsSpaces(Sexy::Font* theFont, const char* theTag, int theLength)
+Sexy::String ButtonTagAsSpaces(Sexy::Font *theFont, const char *theTag, int theLength)
 {
     Sexy::String aTag(theTag, (unsigned int)theLength);
     if (theFont == nullptr)
@@ -103,8 +104,7 @@ Sexy::String ButtonTagAsSpaces(Sexy::Font* theFont, const char* theTag, int theL
     return aSpaces;
 }
 
-void DrawButtonGlyph(Sexy::Graphics* theGraphics, int theX, int theY, Sexy::Font* theFont,
-                     int theCel, int theSlotWidth)
+void DrawButtonGlyph(Sexy::Graphics *theGraphics, int theX, int theY, Sexy::Font *theFont, int theCel, int theSlotWidth)
 {
     if (theGraphics == nullptr || IMAGE_HELP_BUTTONS == nullptr || theCel < 0)
         return;

@@ -7,7 +7,8 @@
 // identity. Replace a declaration with a real definition as its meaning
 // is recovered.
 
-#pragma once
+#ifndef LAWNPROJECTTV_SEXY_INCLUDE_RECONDATA_H
+#define LAWNPROJECTTV_SEXY_INCLUDE_RECONDATA_H
 
 #include "SexyTypes.h"
 #include "ElfShims.h"
@@ -15,7 +16,10 @@
 
 #include <vector>
 
-namespace Sexy { class Color; }
+namespace Sexy
+{
+class Color;
+}
 
 class ReanimatorDefinition;
 class TodParticleDefinition;
@@ -122,8 +126,11 @@ struct HesitationTrace
 extern HesitationTrace gHesitationTrace;
 // Counts frames while slow motion is on. UpdateFrames resets it every two ticks.
 extern int gSlowMoFrame;
-namespace Sexy { class Widget; }
-extern Sexy::Widget* gDaveWidget;
+namespace Sexy
+{
+class Widget;
+}
+extern Sexy::Widget *gDaveWidget;
 extern int gTestDialogIndex;
 struct TestDialogRecord
 {
@@ -131,14 +138,11 @@ struct TestDialogRecord
     int mDaveMessage;
     int mMessageIndex;
 };
-extern TestDialogRecord* gTestDialogEnd;
-extern TestDialogRecord* gTestDialogCapacity;
+extern TestDialogRecord *gTestDialogEnd;
+extern TestDialogRecord *gTestDialogCapacity;
 // The profiler tree, flag and record cursors live in SexyPerf.cpp.
 
-
-
 extern float gMaskHelpFade;
-
 
 // The two rows of six seed types VS setup plants, at 0x5A1C9C, plus the
 // word that follows them. Each row's walk starts one word in and can read
@@ -176,7 +180,6 @@ extern int gCreditOutline[3];
 // Pressed-button offsets at 0x5A1E0C: four x values, then four y values.
 extern float gButtonPressOffset[8];
 
-
 // The ad-channel table at 0x787298: eighteen strings, one per vendor, filled
 // by the static initialiser at 0x133078. Order: youmi, wooboo, nd, uucun,
 // besttv, huanwang, aliyun, transmension, skyworth, xiaomi, zjtelecomitv,
@@ -185,7 +188,6 @@ extern float gButtonPressOffset[8];
 extern Sexy::String gAdChannels[18];
 extern Sexy::String gMoreGameChannel;
 extern const char gSlash[2];
-
 
 // ---------------------------------------------------------------------------
 // Globals the binary had real symbols for.
@@ -199,13 +201,16 @@ extern const char gSlash[2];
 
 class LawnApp;
 class EffectSystem;
-namespace Sexy { class SexyAppBase; }
-extern LawnApp* gLawnApp;
-extern EffectSystem* gEffectSystem;
+namespace Sexy
+{
+class SexyAppBase;
+}
+extern LawnApp *gLawnApp;
+extern EffectSystem *gEffectSystem;
 // gSexyAppBaseRaw is NOT declared here. It was a second spelling of
 // Sexy::gSexyAppBase, which is the symbol the rest of the tree already uses,
 // and the binary exports no separate gSexyAppBaseRaw.
-extern Sexy::SexyAppBase* gSexyAppBase;
+extern Sexy::SexyAppBase *gSexyAppBase;
 extern int gPerfRecordTop;
 extern int gStartCount;
 extern bool gDisableDebugKeys;
@@ -220,22 +225,22 @@ extern const bool gZombieAllowedLevels[][50];
 extern const int gZombieWaves[50];
 
 // Six decoded music buffers. MusicDispose walks them and deletes each.
-extern void* gMusicFileData[6];
+extern void *gMusicFileData[6];
 
 // Five colour triples the user-list widget copies at construction.
 extern int gUserListWidgetColors[5][3];
 
 // Profiler sample vector and the elapsed-time total GetResults prints.
 struct PerfRecord;
-extern PerfRecord* gPerfRecordVector;
+extern PerfRecord *gPerfRecordVector;
 extern double gDuration;
 // Definition tables. Each pointer is filled at load; the count is how many
 // records are live. ReanimatorDefinition is 0x10, TodParticleDefinition is
 // 0x08, TrailDefinition is 0x38.
-extern ReanimatorDefinition* gReanimatorDefArray;
+extern ReanimatorDefinition *gReanimatorDefArray;
 extern int gReanimatorDefCount;
-extern TodParticleDefinition* gParticleDefArray;
-extern TrailDefinition* gTrailDefArray;
+extern TodParticleDefinition *gParticleDefArray;
+extern TrailDefinition *gTrailDefArray;
 // One byte per ZombieType. AlmanacInitForPlayer clears the 34 bytes at
 // 0x69E424 (NUM_ZOMBIE_TYPES), and AlmanacPlayerDefeatedZombie writes one byte.
 extern unsigned char gZombieDefeated[34];
@@ -243,3 +248,5 @@ extern unsigned char gZombieDefeated[34];
 // by (char + 1), exactly as ctype tables are used.
 extern const unsigned char ctype_[];
 extern const unsigned char used_ascii_one[];
+
+#endif // LAWNPROJECTTV_SEXY_INCLUDE_RECONDATA_H

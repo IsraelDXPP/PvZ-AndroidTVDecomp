@@ -25,7 +25,7 @@ void SessionWaitingDialog::MouseDrag(int theX, int theY)
 // String member the compiler emits all of that, so only the delete is left.
 SessionWaitingDialog::~SessionWaitingDialog()
 {
-  delete mMessageWidget;
+    delete mMessageWidget;
 }
 
 // ==========================================================================
@@ -34,17 +34,17 @@ SessionWaitingDialog::~SessionWaitingDialog()
 // ==========================================================================
 void SessionWaitingDialog::Update()
 {
-  mMessageWidget->Update();
-  // The dump calls vtable slot 25 (byte offset 100), which is
-  // WidgetContainer::MarkDirty.
-  MarkDirty();
+    mMessageWidget->Update();
+    // The dump calls vtable slot 25 (byte offset 100), which is
+    // WidgetContainer::MarkDirty.
+    MarkDirty();
 
-  if (mDelay > 0)
-  {
-    mDelay--;
-    if (mDelay == 0)
-      mResult = 0;
-  }
+    if (mDelay > 0)
+    {
+        mDelay--;
+        if (mDelay == 0)
+            mResult = 0;
+    }
 }
 
 // ==========================================================================
@@ -53,9 +53,9 @@ void SessionWaitingDialog::Update()
 // ==========================================================================
 void SessionWaitingDialog::Draw(Sexy::Graphics *theGraphics)
 {
-  LawnApp *theApp = gLawnApp;
-  if (theApp->mLoaded)
-    mMessageWidget->Draw(theGraphics);
+    LawnApp *theApp = gLawnApp;
+    if (theApp->mLoaded)
+        mMessageWidget->Draw(theGraphics);
 }
 
 // ==========================================================================
@@ -65,11 +65,11 @@ void SessionWaitingDialog::Draw(Sexy::Graphics *theGraphics)
 // The dump builds three empty Sexy::String temporaries (StringCtor over the empty
 // C string at 0x57D7EA) for the header/lines/footer arguments and releases them
 // again at the end; the default-constructed String spells the same thing.
-SessionWaitingDialog::SessionWaitingDialog(LawnApp *theApp, int theDialogId)
-  : Dialog(nullptr, nullptr, theDialogId, true, Sexy::String(), Sexy::String(), Sexy::String(), 0)
+SessionWaitingDialog::SessionWaitingDialog(LawnApp *theApp, int theDialogId) :
+    Dialog(nullptr, nullptr, theDialogId, true, Sexy::String(), Sexy::String(), Sexy::String(), 0)
 {
-  mMessageWidget = new SimpleMessageWidget(theApp);
-  mMessageWidget->SetLabel(Sexy::String("[CONNECTION_SERVER]"), (SimpleMessageStyle)7);
-  Resize(0, 0, theApp->mWidth, theApp->mHeight);
-  mDelay = 0;
+    mMessageWidget = new SimpleMessageWidget(theApp);
+    mMessageWidget->SetLabel(Sexy::String("[CONNECTION_SERVER]"), (SimpleMessageStyle)7);
+    Resize(0, 0, theApp->mWidth, theApp->mHeight);
+    mDelay = 0;
 }

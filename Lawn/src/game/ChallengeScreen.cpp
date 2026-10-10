@@ -49,7 +49,8 @@
 #include <cstdio>
 #include <algorithm>
 
-namespace {
+namespace
+{
 // ChallengePage values, from the authoritative PvZ\Lawn\Common\ConstEnums.h.
 // Sexy\ReconTypes.h carries ChallengePage as a one-int surrogate struct with no
 // enumerators, so the values this file compares `mPage` against are named here.
@@ -116,8 +117,7 @@ int ChallengeScreen::UpdateButtons()
         }
 
         ++aChallengeMode;
-    }
-    while (aChallengeMode != NUM_CHALLENGE_MODES);
+    } while (aChallengeMode != NUM_CHALLENGE_MODES);
 
     return result;
 }
@@ -159,9 +159,7 @@ void ChallengeScreen::ButtonDepress(int theId)
 bool ChallengeScreen::IsScaryPotterLevel(GameMode theGameMode)
 {
     // Levels 1 through 9. Endless (70) is a different page and is not included.
-    return theGameMode >= GAMEMODE_SCARY_POTTER_1
-        && theGameMode <= GAMEMODE_SCARY_POTTER_9
-        && (theGameMode % 2) == 0;
+    return theGameMode >= GAMEMODE_SCARY_POTTER_1 && theGameMode <= GAMEMODE_SCARY_POTTER_9 && (theGameMode % 2) == 0;
 }
 
 // ==========================================================================
@@ -170,16 +168,16 @@ bool ChallengeScreen::IsScaryPotterLevel(GameMode theGameMode)
 // ==========================================================================
 bool ChallengeScreen::IsIZombieLevel(GameMode theGameMode)
 {
-    return theGameMode >= GAMEMODE_PUZZLE_I_ZOMBIE_1
-        && theGameMode <= GAMEMODE_PUZZLE_I_ZOMBIE_9
-        && (theGameMode % 2) == 1;
+    return theGameMode >= GAMEMODE_PUZZLE_I_ZOMBIE_1 && theGameMode <= GAMEMODE_PUZZLE_I_ZOMBIE_9 &&
+        (theGameMode % 2) == 1;
 }
 
 // ==========================================================================
 // ChallengeScreen::MoreTrophiesNeeded(int)
 // @0018A404  688 bytes
 // ==========================================================================
-namespace {
+namespace
+{
 // The adventure-progress answer for a challenge that sits at `aRowCol`
 // (5 * mRow + mCol) inside its page: the first three slots of a page are free,
 // the fourth needs one trophy and everything past it needs two.
@@ -272,8 +270,7 @@ int ChallengeScreen::MoreTrophiesNeeded(int theChallengeIndex)
 
     // Everything else: the first three slots of a page are free, and past that
     // the page has to be three trophies ahead of what the player already has.
-    if ((aPage == CHALLENGE_PAGE_CHALLENGE || aPage == CHALLENGE_PAGE_SURVIVAL)
-        && !mApp->HasFinishedAdventure())
+    if ((aPage == CHALLENGE_PAGE_CHALLENGE || aPage == CHALLENGE_PAGE_SURVIVAL) && !mApp->HasFinishedAdventure())
         return TrophiesForRowCol(aRowCol);
 
     int aTrophies = mApp->GetNumTrophies(ChallengePage(aPage));
@@ -298,11 +295,9 @@ int ChallengeScreen::AccomplishmentsNeeded(int theChallengeIndex)
 
     // An endless survival page counts as a single accomplishment once the
     // player is on the last trophy and has finished adventure.
-    if (mApp->IsSurvivalEndless(aChlDef->mChallengeMode)
-        && aTrophiesNeeded <= 3
-        && mApp->GetNumTrophies(CHALLENGE_PAGE_SURVIVAL) <= 9
-        && mApp->HasFinishedAdventure()
-        && !mApp->IsTrialStageLocked())
+    if (mApp->IsSurvivalEndless(aChlDef->mChallengeMode) && aTrophiesNeeded <= 3 &&
+        mApp->GetNumTrophies(CHALLENGE_PAGE_SURVIVAL) <= 9 && mApp->HasFinishedAdventure() &&
+        !mApp->IsTrialStageLocked())
     {
         aTrophiesNeeded = 1;
     }
@@ -316,7 +311,7 @@ int ChallengeScreen::AccomplishmentsNeeded(int theChallengeIndex)
 // ChallengeScreen::DrawButton(Sexy::Graphics *,int,int)
 // @0018A710  1960 bytes
 // ==========================================================================
-void ChallengeScreen::DrawButton(Sexy::Graphics * theGraphics, int theIndex, int thePageIndex)
+void ChallengeScreen::DrawButton(Sexy::Graphics *theGraphics, int theIndex, int thePageIndex)
 {
     // theIndex is the challenge mode (the index into mChallengeButtons) and thePageIndex its
     // slot on the page; the button's position and its animation time come from
@@ -367,12 +362,11 @@ void ChallengeScreen::DrawButton(Sexy::Graphics * theGraphics, int theIndex, int
     // ---- the thumbnail, the name plate and the label ---------------------
     // The survival and versus pages share one thumbnail sheet; the co-op page
     // uses it too, except for the bowling and boss stages.
-    bool aUseSurvivalThumbnails = mPage == CHALLENGE_PAGE_SURVIVAL || mPage == CHALLENGE_PAGE_VS
-        || (mPage == CHALLENGE_PAGE_COOP && aMode != GAMEMODE_TWO_PLAYER_COOP_BOWLING
-            && aMode != GAMEMODE_TWO_PLAYER_COOP_BOSS);
+    bool aUseSurvivalThumbnails = mPage == CHALLENGE_PAGE_SURVIVAL || mPage == CHALLENGE_PAGE_VS ||
+        (mPage == CHALLENGE_PAGE_COOP && aMode != GAMEMODE_TWO_PLAYER_COOP_BOWLING &&
+            aMode != GAMEMODE_TWO_PLAYER_COOP_BOSS);
 
-    Sexy::Image *aThumbnails = aUseSurvivalThumbnails ? IMAGE_SURVIVAL_THUMBNAILS
-                                                      : IMAGE_CHALLENGE_THUMBNAILS;
+    Sexy::Image *aThumbnails = aUseSurvivalThumbnails ? IMAGE_SURVIVAL_THUMBNAILS : IMAGE_CHALLENGE_THUMBNAILS;
     theGraphics->DrawImageCel(aThumbnails, Sexy::TRect<int>(aX + 6, aY + 2, 104, 104), aChlDef->mChallengeIconIndex);
     theGraphics->SetColorizeImages(false);
     theGraphics->DrawImage(IMAGE_CHALLENGE_NAME_BACK, aX - 6, aY - 2, 720, 118);
@@ -413,10 +407,7 @@ void ChallengeScreen::DrawButton(Sexy::Graphics * theGraphics, int theIndex, int
     theGraphics->PushState();
     int aFontHeight = aFont->GetHeight();
     Sexy::TRect<int> aLabelRect(
-        aTextLeftOffset + aX + 150,
-        (int)((float)aY + 60.0f + (float)aTextHeight - (float)aFontHeight),
-        550,
-        100);
+        aTextLeftOffset + aX + 150, (int)((float)aY + 60.0f + (float)aTextHeight - (float)aFontHeight), 550, 100);
     TodDrawStringWrappedHelper(theGraphics, aLabel, aLabelRect, aFont, aNameColor, aJustification, 1, 0);
     theGraphics->PopState();
 
@@ -430,9 +421,7 @@ void ChallengeScreen::DrawButton(Sexy::Graphics * theGraphics, int theIndex, int
             theGraphics->SetColor(Sexy::Color(255, 255, 255, aAlpha));
             theGraphics->SetColorizeImages(true);
             theGraphics->DrawImage(
-                IMAGE_LOCK,
-                (int)(mLockShakeX + 10.0f + (float)aX),
-                (int)(mLockShakeY + 10.0f + (float)aY));
+                IMAGE_LOCK, (int)(mLockShakeX + 10.0f + (float)aX), (int)(mLockShakeY + 10.0f + (float)aY));
         }
         else
         {
@@ -480,7 +469,7 @@ void ChallengeScreen::DrawButton(Sexy::Graphics * theGraphics, int theIndex, int
 // ChallengeScreen::Draw(Sexy::Graphics *)
 // @0018AEE4  1418 bytes
 // ==========================================================================
-void ChallengeScreen::Draw(Sexy::Graphics * theGraphics)
+void ChallengeScreen::Draw(Sexy::Graphics *theGraphics)
 {
     theGraphics->SetLinearBlend(true);
     theGraphics->DrawImage(IMAGE_CHALLENGE_BACKGROUND, LawnApp::FULLSCREEN_RECT.mX, LawnApp::FULLSCREEN_RECT.mY);
@@ -489,11 +478,20 @@ void ChallengeScreen::Draw(Sexy::Graphics * theGraphics)
     const char *aTitleText = "[PICK_CHALLENGE]";
     switch ((int)mPage)
     {
-    case CHALLENGE_PAGE_SURVIVAL: aTitleText = "[PICK_AREA]"; break;
-    case CHALLENGE_PAGE_PUZZLE:   aTitleText = "[SCARY_POTTER]"; break;
-    case CHALLENGE_PAGE_VS:       aTitleText = "[VS_MODE]"; break;
-    case CHALLENGE_PAGE_COOP:     aTitleText = "[XBOX_COOP]"; break;
-    default: break;
+        case CHALLENGE_PAGE_SURVIVAL:
+            aTitleText = "[PICK_AREA]";
+            break;
+        case CHALLENGE_PAGE_PUZZLE:
+            aTitleText = "[SCARY_POTTER]";
+            break;
+        case CHALLENGE_PAGE_VS:
+            aTitleText = "[VS_MODE]";
+            break;
+        case CHALLENGE_PAGE_COOP:
+            aTitleText = "[XBOX_COOP]";
+            break;
+        default:
+            break;
     }
 
     Sexy::String aTitle(aTitleText);
@@ -561,15 +559,13 @@ void ChallengeScreen::Draw(Sexy::Graphics * theGraphics)
 
     theGraphics->ClipRect(aThumbRectX, aScrollBarY, aThumbRectWidth, aScrollBarHeight);
     theGraphics->SetColor(Sexy::Color(0, 128));
-    theGraphics->FillRect(
-        aScrollBarX + 6, aScrollBarY + 6, aScrollBarWidth - 12, aScrollBarHeight - 12);
+    theGraphics->FillRect(aScrollBarX + 6, aScrollBarY + 6, aScrollBarWidth - 12, aScrollBarHeight - 12);
     theGraphics->SetColor(Sexy::Color(140, 140, 140, 255));
     theGraphics->FillRect(Sexy::TRect<int>(aThumbRectX, aThumbY, aThumbRectWidth, aThumbHeightClamped));
     theGraphics->ClearClipRect();
     theGraphics->SetColorizeImages(false);
     theGraphics->DrawImageBox(
-        Sexy::TRect<int>(aScrollBarX, aScrollBarY, aScrollBarWidth, aScrollBarHeight),
-        IMAGE_DLG_SELECTORFRAME);
+        Sexy::TRect<int>(aScrollBarX, aScrollBarY, aScrollBarWidth, aScrollBarHeight), IMAGE_DLG_SELECTORFRAME);
     theGraphics->PopState();
 
     // ---- the scrolling list of challenge buttons --------------------------
@@ -693,7 +689,7 @@ void ChallengeScreen::GameButtonUp()
 // ChallengeScreen::SetScrollTarget(int)
 // @0018B834  34 bytes
 // ==========================================================================
-ChallengeScreen * ChallengeScreen::SetScrollTarget(int theTarget)
+ChallengeScreen *ChallengeScreen::SetScrollTarget(int theTarget)
 {
     int aTarget = theTarget & ~(theTarget >> 31); // clamp to >= 0
     int aLast = mPageChallengeCount - 1;
@@ -706,7 +702,7 @@ ChallengeScreen * ChallengeScreen::SetScrollTarget(int theTarget)
 // ChallengeScreen::SetUnlockChallengeIndex(ChallengePage,bool)
 // @0018B858  156 bytes
 // ==========================================================================
-int * ChallengeScreen::SetUnlockChallengeIndex(ChallengePage thePage, bool theAnimate)
+int *ChallengeScreen::SetUnlockChallengeIndex(ChallengePage thePage, bool theAnimate)
 {
     mUnlockState = UNLOCK_SHAKING;
     mUnlockStateCounter = 100;
@@ -762,7 +758,7 @@ int * ChallengeScreen::SetUnlockChallengeIndex(ChallengePage thePage, bool theAn
 // ChallengeScreen::ChallengeScreen(LawnApp *,ChallengePage,unsigned int)
 // @0018B8F4  746 bytes
 // ==========================================================================
-ChallengeScreen::ChallengeScreen(LawnApp * theApp, ChallengePage thePage, unsigned int theFlags)
+ChallengeScreen::ChallengeScreen(LawnApp *theApp, ChallengePage thePage, unsigned int theFlags)
 {
     // theApp is the app and thePage the page; theFlags is unused. The Sexy::Widget base and the
     // ButtonListener subobject at +0x100 are built by the compiler now, so the
@@ -855,8 +851,7 @@ ChallengeScreen::ChallengeScreen(LawnApp * theApp, ChallengePage thePage, unsign
 
     mHelpBarWidget = mApp->mHelpBarWidget;
     mHelpBarWidget->ClearButtons(0);
-    mHelpBarWidget->AddButton(
-        GAMEPAD_BUTTON_B, Sexy::String("[BACK]"), HelpBarWidget::HELP_ALIGN_NONE);
+    mHelpBarWidget->AddButton(GAMEPAD_BUTTON_B, Sexy::String("[BACK]"), HelpBarWidget::HELP_ALIGN_NONE);
     mHelpBarWidget->mDrawShade = false;
 }
 
@@ -963,13 +958,7 @@ int ChallengeScreen::KeyDown(Sexy::KeyCode theKey)
             if (aAccomplishments <= 1)
             {
                 mApp->PlaySample(SOUND_CERAMIC, true);
-                mApp->DoDialog(
-                    75,
-                    true,
-                    Sexy::String("[MODE_LOCKED]"),
-                    mToolTip->mLabel,
-                    Sexy::String("[OK]"),
-                    3);
+                mApp->DoDialog(75, true, Sexy::String("[MODE_LOCKED]"), mToolTip->mLabel, Sexy::String("[OK]"), 3);
             }
             else
             {
@@ -1075,13 +1064,7 @@ void ChallengeScreen::GameButtonDown(Sexy::GamepadButton theButton, int thePlaye
         if (aAccomplishments <= 1)
         {
             mApp->PlaySample(SOUND_CERAMIC, true);
-            mApp->DoDialog(
-                75,
-                true,
-                Sexy::String("[MODE_LOCKED]"),
-                mToolTip->mLabel,
-                Sexy::String("[OK]"),
-                3);
+            mApp->DoDialog(75, true, Sexy::String("[MODE_LOCKED]"), mToolTip->mLabel, Sexy::String("[OK]"), 3);
         }
         else
         {
@@ -1130,7 +1113,7 @@ int ChallengeScreen::SaveSurvivalCount()
     aFilePath = aFolder;
     aFilePath += "userdata/survival.dat";
 
-    SDL_IOStream* aFile = SDL_IOFromFile(aFilePath.c_str(), "wb");
+    SDL_IOStream *aFile = SDL_IOFromFile(aFilePath.c_str(), "wb");
     if (aFile == nullptr)
     {
         printf("error creating file");
@@ -1162,7 +1145,7 @@ int ChallengeScreen::LoadSurvivalCount()
     Sexy::String aFilePath = aFolder;
     aFilePath += "userdata/survival.dat";
 
-    SDL_IOStream* aFile = SDL_IOFromFile(aFilePath.c_str(), "rb");
+    SDL_IOStream *aFile = SDL_IOFromFile(aFilePath.c_str(), "rb");
     if (aFile != nullptr)
     {
         int aSavedCount = 0;
@@ -1244,7 +1227,7 @@ void ChallengeScreen::Update()
 // ChallengeScreen::AddedToManager(Sexy::WidgetManager *)
 // @0018C684  44 bytes
 // ==========================================================================
-void ChallengeScreen::AddedToManager(Sexy::WidgetManager * theWidgetManager)
+void ChallengeScreen::AddedToManager(Sexy::WidgetManager *theWidgetManager)
 {
     Sexy::WidgetContainer::AddedToManager(theWidgetManager);
 
@@ -1262,7 +1245,7 @@ void ChallengeScreen::AddedToManager(Sexy::WidgetManager * theWidgetManager)
 // ChallengeScreen::RemovedFromManager(Sexy::WidgetManager *)
 // @0018C6B0  44 bytes
 // ==========================================================================
-void ChallengeScreen::RemovedFromManager(Sexy::WidgetManager * theWidgetManager)
+void ChallengeScreen::RemovedFromManager(Sexy::WidgetManager *theWidgetManager)
 {
     Sexy::WidgetContainer::RemovedFromManager(theWidgetManager);
 
@@ -1294,7 +1277,7 @@ ChallengeScreen::~ChallengeScreen()
     // The first walk steps 4 bytes from +0x104 over 376 bytes, which is exactly
     // the 94 entries of mChallengeButtons; each non-null one is dispatched
     // through vtable byte 4, i.e. `delete`.
-    for ( int i = 0; i < NUM_CHALLENGE_MODES; ++i )
+    for (int i = 0; i < NUM_CHALLENGE_MODES; ++i)
         delete mChallengeButtons[i];
 
     // The word at +0x280 is mToolTip. The dump releases its three COW string

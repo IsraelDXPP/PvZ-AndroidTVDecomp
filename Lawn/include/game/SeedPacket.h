@@ -1,4 +1,5 @@
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_SEEDPACKET_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_SEEDPACKET_H
 
 #include "GameObject.h"
 #include "ReconTypes.h"
@@ -66,3 +67,5 @@ public:
     void WasPlanted(int playerIndex);
     void SetPacketType(SeedType theSeedType, SeedType theImitaterType);
 };
+
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_SEEDPACKET_H

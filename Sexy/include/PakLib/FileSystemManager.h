@@ -1,4 +1,5 @@
-#pragma once
+#ifndef LAWNPROJECTTV_SEXY_INCLUDE_PAKLIB_FILESYSTEMMANAGER_H
+#define LAWNPROJECTTV_SEXY_INCLUDE_PAKLIB_FILESYSTEMMANAGER_H
 
 #include <SDL3/SDL_iostream.h>
 #include <memory>
@@ -13,14 +14,14 @@ namespace PakLib
 class FileSystemManager
 {
 public:
-    static FileSystemManager* getManager();
+    static FileSystemManager *getManager();
     ~FileSystemManager();
 
-    void setAssetRoot(const std::string& theDirectory, const std::string& theLanguage = "en_us");
-    bool addResource(const std::string& theLocation, const std::string& theKind, int thePriority);
-    SDL_IOStream* open(const std::string& thePath);
-    bool fileExists(const std::string& thePath);
-    Sint64 getFileSize(const std::string& thePath);
+    void setAssetRoot(const std::string &theDirectory, const std::string &theLanguage = "en_us");
+    bool addResource(const std::string &theLocation, const std::string &theKind, int thePriority);
+    SDL_IOStream *open(const std::string &thePath);
+    bool fileExists(const std::string &thePath);
+    Sint64 getFileSize(const std::string &thePath);
     void release();
 
 private:
@@ -30,3 +31,5 @@ private:
 };
 
 }
+
+#endif // LAWNPROJECTTV_SEXY_INCLUDE_PAKLIB_FILESYSTEMMANAGER_H

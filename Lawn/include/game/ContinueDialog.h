@@ -34,7 +34,8 @@
 // declare `void`, which is what an override needs, so the declarations below use
 // void. Phase 2 aligns the bodies.
 
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_CONTINUEDIALOG_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_CONTINUEDIALOG_H
 
 #include "ReconTypes.h"
 // Classes this one calls a method on: the call needs the
@@ -67,9 +68,9 @@ public:
     virtual ~ContinueDialog();
 
     // slot 29
-    virtual void AddedToManager(Sexy::WidgetManager * theWidgetManager);
+    virtual void AddedToManager(Sexy::WidgetManager *theWidgetManager);
     // slot 30
-    virtual void RemovedFromManager(Sexy::WidgetManager * theWidgetManager);
+    virtual void RemovedFromManager(Sexy::WidgetManager *theWidgetManager);
     // slot 50
     virtual void Resize(int theX, int theY, int theWidth, int theHeight);
     // slot 61
@@ -82,8 +83,8 @@ public:
     virtual void ButtonDepress(int theId);
 
     // ---- members, absolute offsets (base LawnDialog = 0x2FC) ----
-    LawnStoneButton * mContinueButton;
-    LawnStoneButton * mNewGameButton;
+    LawnStoneButton *mContinueButton;
+    LawnStoneButton *mNewGameButton;
 
     // ---- methods that are not vtable slots (kept from the transcription) ----
     void GotGameFocus();
@@ -91,3 +92,5 @@ public:
     int RestartLoopingSounds();
     int GetPreferredHeight(int theWidth);
 };
+
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_CONTINUEDIALOG_H

@@ -3,7 +3,8 @@
 // first. mActive gates the bounce, mSpin is the second curve, mOffset is the
 // value curve, mPointCurves the per-vertex curves and mPoints the polyline.
 
-#pragma once
+#ifndef LAWNPROJECTTV_SEXY_INCLUDE_PIDEFLECTOR_H
+#define LAWNPROJECTTV_SEXY_INCLUDE_PIDEFLECTOR_H
 
 #include "ReconTypes.h"
 #include "Bezier.h"
@@ -12,7 +13,8 @@
 
 #include <vector>
 
-namespace Sexy {
+namespace Sexy
+{
 
 class PIDeflector
 {
@@ -28,14 +30,24 @@ public:
     std::vector<Sexy::PIValue2D> mPointCurves;
     std::vector<TPoint<float>> mPoints;
 
-    PIDeflector()
-        : mName(), mBounce(0.0f), mHitChance(0.0f), mThickness(0.0f), mVisible(false),
-          mOffset(), mActive(), mSpin(), mPointCurves(), mPoints()
+    PIDeflector() :
+        mName(),
+        mBounce(0.0f),
+        mHitChance(0.0f),
+        mThickness(0.0f),
+        mVisible(false),
+        mOffset(),
+        mActive(),
+        mSpin(),
+        mPointCurves(),
+        mPoints()
     {
     }
-    PIDeflector(Sexy::PIDeflector const& other);
+    PIDeflector(Sexy::PIDeflector const &other);
 };
 
 } // namespace Sexy
 
 using Sexy::PIDeflector;
+
+#endif // LAWNPROJECTTV_SEXY_INCLUDE_PIDEFLECTOR_H

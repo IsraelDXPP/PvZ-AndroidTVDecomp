@@ -27,8 +27,8 @@ void Sexy::ScrollbarWidget::SetHorizontal(bool isHorizontal)
     mUpButton->mInvisIfNoScroll = isHorizontal;
 }
 
-void Sexy::ScrollbarWidget::SetButtonImages(Sexy::Image * theButtonImage, Sexy::Image * theDownImage,
-                                           Sexy::Image * theDisabledImage)
+void Sexy::ScrollbarWidget::SetButtonImages(
+    Sexy::Image *theButtonImage, Sexy::Image *theDownImage, Sexy::Image *theDisabledImage)
 {
     mUpButton->mButtonImage = theButtonImage;
     mUpButton->mDownImage = theDownImage;
@@ -38,12 +38,12 @@ void Sexy::ScrollbarWidget::SetButtonImages(Sexy::Image * theButtonImage, Sexy::
     mDownButton->mDisabledImage = theDisabledImage;
 }
 
-void Sexy::ScrollbarWidget::SetThumbImage(Sexy::Image * theThumbImage)
+void Sexy::ScrollbarWidget::SetThumbImage(Sexy::Image *theThumbImage)
 {
     mThumbImage = theThumbImage;
 }
 
-void Sexy::ScrollbarWidget::SetBarImages(Sexy::Image * theBarImage, Sexy::Image * thePagingImage)
+void Sexy::ScrollbarWidget::SetBarImages(Sexy::Image *theBarImage, Sexy::Image *thePagingImage)
 {
     mBarImage = theBarImage;
     mPagingImage = thePagingImage;
@@ -61,7 +61,7 @@ void Sexy::ScrollbarWidget::SetButtonColors(int (*theColors)[4], int theCount)
     mDownButton->SetColors(theColors, theCount);
 }
 
-void Sexy::ScrollbarWidget::SetButtonColor(int theIdx, Color const& theColor)
+void Sexy::ScrollbarWidget::SetButtonColor(int theIdx, Color const &theColor)
 {
     mUpButton->SetColor(theIdx, theColor);
     mDownButton->SetColor(theIdx, theColor);
@@ -120,7 +120,7 @@ void Sexy::ScrollbarWidget::GoToBottom()
     SetValue(mValue);
 }
 
-int Sexy::ScrollbarWidget::DrawThumb(Sexy::Graphics * theGraphics, TRect<int> theRect)
+int Sexy::ScrollbarWidget::DrawThumb(Sexy::Graphics *theGraphics, TRect<int> theRect)
 {
     return DrawThumb(theGraphics, theRect.mX, theRect.mY, theRect.mWidth, theRect.mHeight);
 }
@@ -162,9 +162,7 @@ void Sexy::ScrollbarWidget::SetThumbPosition(int thePosition)
     SetValue((double)thumbOffset * range / (double)(trackSize - thumbSize));
 }
 
-void Sexy::ScrollbarWidget::ButtonDepress(int)
-{
-}
+void Sexy::ScrollbarWidget::ButtonDepress(int) {}
 
 int Sexy::ScrollbarWidget::ThumbCompare(int theX, int theY)
 {
@@ -174,7 +172,7 @@ int Sexy::ScrollbarWidget::ThumbCompare(int theX, int theY)
     return pos >= GetThumbSize() + GetThumbPosition();
 }
 
-void Sexy::ScrollbarWidget::Draw(Sexy::Graphics * theGraphics)
+void Sexy::ScrollbarWidget::Draw(Sexy::Graphics *theGraphics)
 {
     int thumbSize = GetThumbSize();
     int trackExtent = mHorizontal ? mWidth : mHeight;
@@ -189,15 +187,13 @@ void Sexy::ScrollbarWidget::Draw(Sexy::Graphics * theGraphics)
     if (mHorizontal)
     {
         beforeThumb = TRect<int>(trackOffset, 0, thumbPos + halfThumb, mHeight);
-        afterThumb = TRect<int>(trackOffset + thumbPos + halfThumb, 0,
-                                GetTrackSize() - thumbPos - halfThumb, mHeight);
+        afterThumb = TRect<int>(trackOffset + thumbPos + halfThumb, 0, GetTrackSize() - thumbPos - halfThumb, mHeight);
         thumbRect = TRect<int>(trackOffset + thumbPos, 0, thumbSize, mHeight);
     }
     else
     {
         beforeThumb = TRect<int>(0, trackOffset, mWidth, thumbPos + halfThumb);
-        afterThumb = TRect<int>(0, trackOffset + thumbPos + halfThumb,
-                                mWidth, GetTrackSize() - thumbPos - halfThumb);
+        afterThumb = TRect<int>(0, trackOffset + thumbPos + halfThumb, mWidth, GetTrackSize() - thumbPos - halfThumb);
         thumbRect = TRect<int>(0, trackOffset + thumbPos, mWidth, thumbSize);
     }
 
@@ -300,7 +296,7 @@ void Sexy::ScrollbarWidget::ButtonDownTick(int theId)
     mButtonAcc = 24;
 }
 
-int Sexy::ScrollbarWidget::DrawThumb(Sexy::Graphics * theGraphics, int theX, int theY, int theWidth, int theHeight)
+int Sexy::ScrollbarWidget::DrawThumb(Sexy::Graphics *theGraphics, int theX, int theY, int theWidth, int theHeight)
 {
     if (mThumbImage != nullptr)
     {
@@ -336,7 +332,7 @@ int Sexy::ScrollbarWidget::GetThumbSize()
     return thumbSize;
 }
 
-Sexy::ScrollbarWidget::ScrollbarWidget(int theId, Sexy::ScrollListener * theScrollListener)
+Sexy::ScrollbarWidget::ScrollbarWidget(int theId, Sexy::ScrollListener *theScrollListener)
 {
     mId = theId;
     mScrollListener = theScrollListener;

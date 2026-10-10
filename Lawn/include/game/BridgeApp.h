@@ -12,11 +12,13 @@
 // Android header names that word as a dispatch-table pointer. This build keeps
 // the word, under the name of that platform table, and does not dispatch through it.
 
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_BRIDGEAPP_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_BRIDGEAPP_H
 
 #include "ReconTypes.h"
 
-namespace Native {
+namespace Native
+{
 
 class NativeApp;
 
@@ -24,7 +26,7 @@ class BridgeApp
 {
 public:
     void *mPlatformDispatch; // +0x00  Android dispatch table, unused as a C++ vptr
-    NativeApp *mNativeApp;  // +0x04
+    NativeApp *mNativeApp; // +0x04
     // size 0x08
 
     static BridgeApp *getSingleton();
@@ -33,3 +35,5 @@ public:
 } // namespace Native
 
 // Layout check: two pointers.
+
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_BRIDGEAPP_H

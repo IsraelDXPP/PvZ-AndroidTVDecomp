@@ -2,7 +2,8 @@
 // services (game centre, share, notifications, ads, auth) and the command-line
 // account fields LawnApp reads back.
 
-#pragma once
+#ifndef LAWNPROJECTTV_SEXY_INCLUDE_SEXYCOMMONAPP_H
+#define LAWNPROJECTTV_SEXY_INCLUDE_SEXYCOMMONAPP_H
 
 #include "ReconTypes.h"
 #include "SoundControllerWidget.h"
@@ -16,7 +17,8 @@
 
 #include <vector>
 
-namespace Sexy {
+namespace Sexy
+{
 
 class IGameCenter;
 class IShareManager;
@@ -35,7 +37,7 @@ public:
     int Update(int theFrame);
 
 private:
-    void* mMulti;
+    void *mMulti;
 };
 
 class SPayGameInfo;
@@ -47,21 +49,21 @@ public:
     virtual void UpdateFrames();
     virtual void AppEnteredBackground();
     virtual void AppEnteredForeground();
-    virtual void HandleCmdLineParam(const Sexy::String& theName, const Sexy::String& theValue);
+    virtual void HandleCmdLineParam(const Sexy::String &theName, const Sexy::String &theValue);
     virtual void Init();
     virtual void Cleanup();
 
     ConnectionManager mConnectionManager;
-    PlatformIntegration* mPlatformIntegration;
-    unsigned int mGamePaidQueryStartTick;
-    PaymentManager* mPaymentManager;
-    TrialTimeCheck* mTrialTimeCheck;
-    AdProvider* mAdProvider;
-    InputDeviceListener* mUpdateRemoteListener;
-    SoundControllerWidget* mSoundControllerWidget;
-    IGameCenter* mGameCenter;
-    IShareManager* mShareManager;
-    INotificationManager* mNotificationManager;
+    PlatformIntegration *mPlatformIntegration;
+    std::uint64_t mGamePaidQueryStartTick;
+    PaymentManager *mPaymentManager;
+    TrialTimeCheck *mTrialTimeCheck;
+    AdProvider *mAdProvider;
+    InputDeviceListener *mUpdateRemoteListener;
+    SoundControllerWidget *mSoundControllerWidget;
+    IGameCenter *mGameCenter;
+    IShareManager *mShareManager;
+    INotificationManager *mNotificationManager;
     bool mAuthenticated;
     int mAuthId;
     int mMarketOrAuthMode;
@@ -86,9 +88,9 @@ public:
 
     void setErrorCode();
     void showRechargeBoard();
-    static int FullVersionHandle(bool theFull, void* theApp);
-    static int MessageBoxHandle(int theResult, void* theApp);
-    void DoGameTrialDialog(const SPayGameInfo& theInfo);
+    static int FullVersionHandle(bool theFull, void *theApp);
+    static int MessageBoxHandle(int theResult, void *theApp);
+    void DoGameTrialDialog(const SPayGameInfo &theInfo);
     void CreateGameTrialDialog();
     void CreateGotoBuyResultDialog();
     void CreateWaitResultDialog();
@@ -97,17 +99,17 @@ public:
     int setOfferRes(bool theResult);
     int setOfferFullOpenRes(bool theResult);
     int setFullVersion(bool theFull);
-    int setPayItemsRes(bool theResult, const char* theItemId, int theCount, const char* theChannel);
+    int setPayItemsRes(bool theResult, const char *theItemId, int theCount, const char *theChannel);
     int setQueryBalanceRes(bool theResult, int theBalance);
     int adBarClick();
-    int setLoginRes(bool theResult, const char* theUser);
+    int setLoginRes(bool theResult, const char *theUser);
     int messageBoxRes(int theResult);
     int DoAuthenticate();
     SexyCommonApp();
-    IGameCenter* GetGameCenter();
-    IShareManager* GetShareManager();
-    INotificationManager* GetNotificationManager();
-    PlatformIntegration* GetPlatformIntegration();
+    IGameCenter *GetGameCenter();
+    IShareManager *GetShareManager();
+    INotificationManager *GetNotificationManager();
+    PlatformIntegration *GetPlatformIntegration();
     int GotoBuyGame(int theProduct);
     int NotGoToBuy();
     bool IsGamePaid();
@@ -121,7 +123,8 @@ public:
     int postData(Sexy::String theKind, Sexy::String theBody);
     void postData(SexyCommonApp_POST_TYPE theKind, Sexy::String theBody);
     int postXMLFileData(Sexy::String thePath);
-    int showMessageBox(Sexy::String theText, Sexy::String theTitle, SexyCommonApp_E_MESSAGEBOX_TYPE theType, int theFlags);
+    int showMessageBox(
+        Sexy::String theText, Sexy::String theTitle, SexyCommonApp_E_MESSAGEBOX_TYPE theType, int theFlags);
     Sexy::String getUserIdentifier();
     Sexy::String getUserName();
     Sexy::String getSecretKey();
@@ -139,14 +142,17 @@ public:
     };
     GameInfoRecord getGameInfo();
     void CreateTrialDialog();
-    static int OfferResHandle(bool theResult, void* theApp);
-    static int OfferFullOpenResHandle(bool theResult, void* theApp);
-    static int PayItemsResHandle(bool theResult, const char* theItemId, int theCount, const char* theChannel, void* theApp);
-    static int QueryBalanceResHandle(bool theResult, int theBalance, void* theApp);
-    static int AdBarClickHandle(void* theApp);
-    static int LoginResHandle(bool theResult, const char* theUser, void* theApp);
+    static int OfferResHandle(bool theResult, void *theApp);
+    static int OfferFullOpenResHandle(bool theResult, void *theApp);
+    static int PayItemsResHandle(
+        bool theResult, const char *theItemId, int theCount, const char *theChannel, void *theApp);
+    static int QueryBalanceResHandle(bool theResult, int theBalance, void *theApp);
+    static int AdBarClickHandle(void *theApp);
+    static int LoginResHandle(bool theResult, const char *theUser, void *theApp);
 };
 
 } // namespace Sexy
 
 using Sexy::SexyCommonApp;
+
+#endif // LAWNPROJECTTV_SEXY_INCLUDE_SEXYCOMMONAPP_H

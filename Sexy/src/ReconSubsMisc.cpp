@@ -14,9 +14,9 @@
 namespace
 {
 
-inline Sexy::StringRep* RepAt(void* theRep)
+inline Sexy::StringRep *RepAt(void *theRep)
 {
-    return static_cast<Sexy::StringRep*>(theRep);
+    return static_cast<Sexy::StringRep *>(theRep);
 }
 
 inline float Lerp(float theT, float theA, float theB)
@@ -24,7 +24,7 @@ inline float Lerp(float theT, float theA, float theB)
     return (theA * (1.0f - theT)) + (theB * theT);
 }
 
-Sexy::String& RemapResult()
+Sexy::String &RemapResult()
 {
     static Sexy::String sResult;
     return sResult;
@@ -49,15 +49,15 @@ bool DebugDrawStringEnabled()
 // Clone a wide-character control block, leaving room for theExtra more
 // characters. theRep is the old control block (character pointer minus the
 // header). The old buffer is not released.
-char* CloneWideStringChars(char* theRep, int theExtra)
+char *CloneWideStringChars(char *theRep, int theExtra)
 {
-    Sexy::StringRep* aOld = RepAt(theRep);
+    Sexy::StringRep *aOld = RepAt(theRep);
     if (aOld == nullptr)
         return nullptr;
 
     unsigned int aLength = aOld->mLength;
-    char* aNewRep = CreateWideStringRep(aLength + (unsigned int)theExtra, aOld->mCapacity);
-    Sexy::StringRep* aNew = RepAt(aNewRep);
+    char *aNewRep = CreateWideStringRep(aLength + (unsigned int)theExtra, aOld->mCapacity);
+    Sexy::StringRep *aNew = RepAt(aNewRep);
     if (aNew == nullptr)
         return nullptr;
 
@@ -68,8 +68,8 @@ char* CloneWideStringChars(char* theRep, int theExtra)
     {
         aNew->mLength = aLength;
         aNew->mRefCount = 0;
-        void* aCharStorage = aNew->Data();
-        unsigned int* aChars = static_cast<unsigned int*>(aCharStorage);
+        void *aCharStorage = aNew->Data();
+        unsigned int *aChars = static_cast<unsigned int *>(aCharStorage);
         aChars[aLength] = 0;
     }
 
@@ -77,26 +77,26 @@ char* CloneWideStringChars(char* theRep, int theExtra)
 }
 
 // Read a length-prefixed string from a definition-cache cursor.
-int ReadEndianString(void* theStream, Sexy::String* theText)
+int ReadEndianString(void *theStream, Sexy::String *theText)
 {
     if (theText == nullptr)
         return 0;
 
     int aLength = 0;
-    SMemR(static_cast<unsigned char**>(theStream), &aLength, 4);
+    SMemR(static_cast<unsigned char **>(theStream), &aLength, 4);
     aLength = EndianInt(aLength);
     if (aLength < 0)
         aLength = 0;
 
     StringResize(theText, (unsigned int)aLength, 0);
-    return SMemR(static_cast<unsigned char**>(theStream), theText->data(), aLength);
+    return SMemR(static_cast<unsigned char **>(theStream), theText->data(), aLength);
 }
 
 // Drop one reference on a wide-character control block and free it when the
 // count reaches zero. A null argument is a call site that lost the pointer.
-void ReleaseWideStringRep(unsigned int* theRep)
+void ReleaseWideStringRep(unsigned int *theRep)
 {
-    Sexy::StringRep* aRep = RepAt(theRep);
+    Sexy::StringRep *aRep = RepAt(theRep);
     if (aRep == nullptr)
         return;
 
@@ -104,7 +104,7 @@ void ReleaseWideStringRep(unsigned int* theRep)
 }
 
 // Allocate a wide-character control block. Length is left for the caller.
-char* CreateWideStringRep(unsigned int theCapacity, unsigned int theOldCapacity)
+char *CreateWideStringRep(unsigned int theCapacity, unsigned int theOldCapacity)
 {
     unsigned int aCapacity = theCapacity;
 
@@ -124,28 +124,28 @@ char* CreateWideStringRep(unsigned int theCapacity, unsigned int theOldCapacity)
         aBytes = 4 * (aCapacity + 4);
     }
 
-    void* aStorage = new char[aBytes];
-    Sexy::StringRep* aRep = static_cast<Sexy::StringRep*>(aStorage);
+    void *aStorage = new char[aBytes];
+    Sexy::StringRep *aRep = static_cast<Sexy::StringRep *>(aStorage);
     aRep->mLength = 0;
     aRep->mCapacity = aCapacity;
     aRep->mRefCount = 0;
-    return static_cast<char*>(aStorage);
+    return static_cast<char *>(aStorage);
 }
 
 // Hand back the characters of a wide-character rep. A negative refcount means
 // the buffer is pinned, so the caller gets a private copy. Otherwise the
 // count is raised and the caller lowers it with ReleaseWideStringRep.
-unsigned int* LeakWideStringData(unsigned int* theRep)
+unsigned int *LeakWideStringData(unsigned int *theRep)
 {
-    Sexy::StringRep* aRep = RepAt(theRep);
+    Sexy::StringRep *aRep = RepAt(theRep);
     if (aRep == nullptr)
         return nullptr;
 
     if (aRep->mRefCount < 0)
     {
         unsigned int aLength = aRep->mLength;
-        char* aNewRep = CreateWideStringRep(aLength, aRep->mCapacity);
-        Sexy::StringRep* aNew = RepAt(aNewRep);
+        char *aNewRep = CreateWideStringRep(aLength, aRep->mCapacity);
+        Sexy::StringRep *aNew = RepAt(aNewRep);
         if (aNew == nullptr)
             return nullptr;
 
@@ -155,24 +155,24 @@ unsigned int* LeakWideStringData(unsigned int* theRep)
         if (aNew != &Sexy::gEmptyStringRep)
             SetFontRepLength(aNewRep, aLength);
 
-        void* aCharStorage = aNew->Data();
-        return static_cast<unsigned int*>(aCharStorage);
+        void *aCharStorage = aNew->Data();
+        return static_cast<unsigned int *>(aCharStorage);
     }
 
     if (aRep != &Sexy::gEmptyStringRep)
         Sexy::StringAddRef(aRep);
 
-    void* aCharStorage = aRep->Data();
-    return static_cast<unsigned int*>(aCharStorage);
+    void *aCharStorage = aRep->Data();
+    return static_cast<unsigned int *>(aCharStorage);
 }
 
 // Splice a matched remap pattern. A star on the replacement keeps that side
 // of the input. The result lives in a function-local static; the caller
 // copies it immediately.
-Sexy::String* SpliceRemapPattern(const Sexy::String* theInput, unsigned int theBegin,
-                                 unsigned int theEnd, const Sexy::String* theValue)
+Sexy::String *SpliceRemapPattern(
+    const Sexy::String *theInput, unsigned int theBegin, unsigned int theEnd, const Sexy::String *theValue)
 {
-    Sexy::String& aResult = RemapResult();
+    Sexy::String &aResult = RemapResult();
     if (theInput == nullptr || theValue == nullptr)
         return &aResult;
 
@@ -195,23 +195,21 @@ Sexy::String* SpliceRemapPattern(const Sexy::String* theInput, unsigned int theB
     else if (!aWildcardTail)
         aResult = theInput->substr(0, theBegin) + theValue->substr(1, aValueLength - 1);
     else
-        aResult = theInput->substr(0, theBegin)
-                + theValue->substr(1, aValueLength - 2)
-                + theInput->substr(theEnd);
+        aResult = theInput->substr(0, theBegin) + theValue->substr(1, aValueLength - 2) + theInput->substr(theEnd);
 
     return &aResult;
 }
 
 // Arc length of one cubic piece. theCurve is a Bezier. theStart and theEnd
 // are the parameters along the segment, clamped to 0..1.
-float MeasureCurvePiece(void* theCurve, int theIndex, float theStart, float theEnd)
+float MeasureCurvePiece(void *theCurve, int theIndex, float theStart, float theEnd)
 {
     if (theCurve == nullptr)
         return 0.0f;
 
-    Sexy::Bezier* aCurve = static_cast<Sexy::Bezier*>(theCurve);
-    const float* aControls = aCurve->mDerivativePoints;
-    const float* aPoints = aCurve->mPoints;
+    Sexy::Bezier *aCurve = static_cast<Sexy::Bezier *>(theCurve);
+    const float *aControls = aCurve->mDerivativePoints;
+    const float *aPoints = aCurve->mPoints;
     if (aControls == nullptr || aPoints == nullptr)
         return 0.0f;
 
@@ -265,20 +263,20 @@ float MeasureCurvePiece(void* theCurve, int theIndex, float theStart, float theE
     return aCurve->SubdivideLength(aPoint1, aPoint2, aPoint3, aPoint4);
 }
 
-Sexy::String* AssignStringThunk(Sexy::String* theTarget, const Sexy::String* theSource)
+Sexy::String *AssignStringThunk(Sexy::String *theTarget, const Sexy::String *theSource)
 {
     return StringAssign(theTarget, theSource);
 }
 
-void* HookListNode(void* theNode, void* thePos)
+void *HookListNode(void *theNode, void *thePos)
 {
     if (theNode == nullptr || thePos == nullptr)
         return nullptr;
     return ListHook(theNode, thePos);
 }
 
-Sexy::String* MutateStringThunk(Sexy::String* theString, unsigned int thePos,
-                                unsigned int theCount, unsigned int theReplacement)
+Sexy::String *MutateStringThunk(
+    Sexy::String *theString, unsigned int thePos, unsigned int theCount, unsigned int theReplacement)
 {
     return StringMutate(theString, thePos, theCount, theReplacement);
 }

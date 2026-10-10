@@ -1,4 +1,5 @@
-#pragma once
+#ifndef LAWNPROJECTTV_TODLIB_INCLUDE_TODPARTICLEEMITTER_H
+#define LAWNPROJECTTV_TODLIB_INCLUDE_TODPARTICLEEMITTER_H
 
 #include "SyncObject.h"
 #include "DataArray.h"
@@ -50,10 +51,10 @@ class TodParticleEmitter : public SyncObject
 public:
     struct ParticleIdList
     {
-        DataArrayIdNode* mHead;
-        DataArrayIdNode* mTail;
+        DataArrayIdNode *mHead;
+        DataArrayIdNode *mTail;
         int mSize;
-        TodAllocator* mpAllocator;
+        TodAllocator *mpAllocator;
     };
 
     struct SyncState
@@ -69,39 +70,39 @@ public:
         Sexy::Color mColorOverride;
         bool mExtraAdditiveDrawOverride;
         float mScaleOverride;
-        Sexy::Image* mImageOverride;
+        Sexy::Image *mImageOverride;
         unsigned int mCrossFadeEmitterID;
         int mEmitterCrossFadeCountDown;
         int mFrameOverride;
     };
 
-    TodEmitterDefinition* mEmitterDef;
-    TodParticleSystem* mParticleSystem;
+    TodEmitterDefinition *mEmitterDef;
+    TodParticleSystem *mParticleSystem;
     ParticleIdList mParticleList;
     SyncState mSyncState;
     float mTrackInterp[SYSTEM_TRACK_COUNT];
     float mSystemFieldInterp[4][2];
 
     TodParticleEmitter();
-    void CrossFadeEmitter(TodParticleEmitter* theEmitter);
+    void CrossFadeEmitter(TodParticleEmitter *theEmitter);
     void DeleteAll();
-    void Draw(Sexy::Graphics* theGraphics);
+    void Draw(Sexy::Graphics *theGraphics);
     void SystemMove(float theX, float theY);
     void Update();
-    void TodEmitterInitialize(float theX, float theY, TodParticleSystem* theSystem,
-                              TodEmitterDefinition* theDefinition);
-    TodParticle* SpawnParticle(int theIndex, int theCount);
-    bool UpdateParticle(TodParticle* theParticle);
-    void DeleteParticle(TodParticle* theParticle);
+    void TodEmitterInitialize(
+        float theX, float theY, TodParticleSystem *theSystem, TodEmitterDefinition *theDefinition);
+    TodParticle *SpawnParticle(int theIndex, int theCount);
+    bool UpdateParticle(TodParticle *theParticle);
+    void DeleteParticle(TodParticle *theParticle);
     void UpdateSpawning();
-    bool CrossFadeParticle(TodParticle* theParticle, TodParticleEmitter* theEmitter);
-    bool CrossFadeParticleToName(TodParticle* theParticle, const char* theName);
-    void UpdateParticleField(TodParticle* theParticle, ParticleField& theField, int theIndex);
-    void UpdateSystemField(ParticleField& theField, int theIndex);
-    float SystemTrackEvaluate(FloatParameterTrack& theTrack, ParticleSystemTracks theIndex);
-    float ParticleTrackEvaluate(FloatParameterTrack& theTrack, TodParticle* theParticle, ParticleTracks theIndex);
-    static bool GetRenderParams(TodParticle* theParticle, ParticleRenderParams& theParams);
-    void DrawParticle(Sexy::Graphics* theGraphics, TodParticle* theParticle);
+    bool CrossFadeParticle(TodParticle *theParticle, TodParticleEmitter *theEmitter);
+    bool CrossFadeParticleToName(TodParticle *theParticle, const char *theName);
+    void UpdateParticleField(TodParticle *theParticle, ParticleField &theField, int theIndex);
+    void UpdateSystemField(ParticleField &theField, int theIndex);
+    float SystemTrackEvaluate(FloatParameterTrack &theTrack, ParticleSystemTracks theIndex);
+    float ParticleTrackEvaluate(FloatParameterTrack &theTrack, TodParticle *theParticle, ParticleTracks theIndex);
+    static bool GetRenderParams(TodParticle *theParticle, ParticleRenderParams &theParams);
+    void DrawParticle(Sexy::Graphics *theGraphics, TodParticle *theParticle);
 };
 
 struct ParticleEmitterSlot
@@ -109,3 +110,5 @@ struct ParticleEmitterSlot
     TodParticleEmitter mItem;
     unsigned int mID;
 };
+
+#endif // LAWNPROJECTTV_TODLIB_INCLUDE_TODPARTICLEEMITTER_H

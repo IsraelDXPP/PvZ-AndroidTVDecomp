@@ -43,7 +43,8 @@
 //   [ 16] 0x040  BaseGamepadControls::~BaseGamepadControls
 //   [ 17] 0x044  BaseGamepadControls::~BaseGamepadControls
 
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_BASEGAMEPADCONTROLS_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_BASEGAMEPADCONTROLS_H
 
 #include "ReconTypes.h"
 // Only complete types this header itself needs: GameObject is a base class and
@@ -77,7 +78,8 @@ class Board;
 class Challenge;
 class CursorObject;
 
-namespace Sexy {
+namespace Sexy
+{
 
 // GamepadListener -- the abstract gamepad-event interface. The binary's
 // BaseGamepadControls vtable starts with its slots, and slots [1]/[2] stay at
@@ -96,13 +98,16 @@ public:
     virtual void OnButtonUp(int theButton, int thePlayerIndex, unsigned int theFlags) = 0; // [1] 0x004
     virtual void OnGameAxisMove(int theAxis, int theValue, int thePlayerIndex) = 0; // [2] 0x008
     virtual bool OnKeyDown(Sexy::KeyCode theKey, unsigned int theFlags) = 0; // [3] 0x00C
-    virtual int OnKeyUp(Sexy::KeyCode theKey, unsigned int theFlags) = 0;    // [4] 0x010
+    virtual int OnKeyUp(Sexy::KeyCode theKey, unsigned int theFlags) = 0; // [4] 0x010
 };
 
 } // namespace Sexy
 
 class SeedBank;
-namespace Sexy { class Graphics; }
+namespace Sexy
+{
+class Graphics;
+}
 
 class BaseGamepadControls : public Sexy::GamepadListener, public GameObject
 {
@@ -130,61 +135,61 @@ public:
     virtual void OnButtonUp(int theButton, int thePlayerIndex, unsigned int theFlags); // [ 1] 0x004
     virtual void OnGameAxisMove(int theAxis, int theValue, int thePlayerIndex); // [ 2] 0x008
     virtual bool OnKeyDown(Sexy::KeyCode theKey, unsigned int theFlags); // [ 3] 0x00C
-    virtual int OnKeyUp(Sexy::KeyCode theKey, unsigned int theFlags);    // [ 4] 0x010
-    virtual int Update(float theDeltaTime);                         // [ 5] 0x014
-    virtual bool BeginDraw(Sexy::Graphics *theGraphics);              // [ 6] 0x018
-    virtual void Draw(Sexy::Graphics *theGraphics);                   // [ 7] 0x01C
-    virtual void EndDraw(Sexy::Graphics *theGraphics);                // [ 8] 0x020
-    virtual void MakeParentGraphicsFrame();                          // [ 9] 0x024
-    virtual int EnterState(int theState);                            // [10] 0x028
-    virtual int ExitState();                                         // [11] 0x02C
-    virtual int UpdateStates(float theDeltaTime);                    // [12] 0x030
-    virtual int GotoState(MovementState theState);                   // [13] 0x034
+    virtual int OnKeyUp(Sexy::KeyCode theKey, unsigned int theFlags); // [ 4] 0x010
+    virtual int Update(float theDeltaTime); // [ 5] 0x014
+    virtual bool BeginDraw(Sexy::Graphics *theGraphics); // [ 6] 0x018
+    virtual void Draw(Sexy::Graphics *theGraphics); // [ 7] 0x01C
+    virtual void EndDraw(Sexy::Graphics *theGraphics); // [ 8] 0x020
+    virtual void MakeParentGraphicsFrame(); // [ 9] 0x024
+    virtual int EnterState(int theState); // [10] 0x028
+    virtual int ExitState(); // [11] 0x02C
+    virtual int UpdateStates(float theDeltaTime); // [12] 0x030
+    virtual int GotoState(MovementState theState); // [13] 0x034
     // sret: ARM passes a by-value result's destination in r0, so the dump's
     // `this` in both of these IS that destination and the object arrives in the
     // next register. The transcribed `BaseGamepadControls *` return was the
     // destination handed back in r0. Same shape as GetHitResult below.
-    virtual SnapToGridPosition GetSnapToGridPos();                   // [14] 0x038
-    virtual SnapToGridPosition GetSnapToGridXY();                    // [15] 0x03C
-    virtual ~BaseGamepadControls();                                  // [16],[17] 0x040/0x044
+    virtual SnapToGridPosition GetSnapToGridPos(); // [14] 0x038
+    virtual SnapToGridPosition GetSnapToGridXY(); // [15] 0x03C
+    virtual ~BaseGamepadControls(); // [16],[17] 0x040/0x044
 
     // Member area +0x38 .. +0xAB (the ordinals are 4-byte units in the
     // authoritative table; the byte values it writes directly are kept as-is).
-    Board *mBoard;                   // +0x38 (ordinal 14; shadows GameObject::mBoard at +0x18)
-    bool mDrawCursorFrame;           // +0x3C
+    Board *mBoard; // +0x38 (ordinal 14; shadows GameObject::mBoard at +0x18)
+    bool mDrawCursorFrame; // +0x3C
     float mCursorHighlightAnimPhase; // +0x40 (ordinal 16; BaseGamepadControls.cpp:522)
-    int mGamepadFrameCounter;        // +0x44 (ordinal 17; BaseGamepadControls.cpp:2606)
-    float mGamepadAccLeftX;          // +0x48
-    float mGamepadAccLeftY;          // +0x4C
-    float mGridCenterPositionX;      // +0x50 (ordinal 20; BaseGamepadControls.cpp:298)
-    float mGridCenterPositionY;      // +0x54 (ordinal 21)
-    float mRightPositionX;           // +0x58 (ordinal 22)
-    float mRightPositionY;           // +0x5C (ordinal 23)
-    MovementState mGamepadState;     // +0x60 (ordinal 24; the switch selector)
-    float mMovementStateTimer;       // +0x64
-    float mDigIndicatorPercentage;   // +0x68 (ordinal 26; +2.3 per dig key press)
-    float mCursorPositionX;          // +0x6C (ordinal 27)
-    float mCursorPositionY;          // +0x70 (ordinal 28)
-    float mGamepadVelocityLeftX;     // +0x74 (ordinal 29)
-    float mGamepadVelocityLeftY;     // +0x78 (ordinal 30)
-    float mGamepadVelocityRightX;    // +0x7C (ordinal 31)
-    float mGamepadVelocityRightY;    // +0x80 (ordinal 32)
-    float mInputLeftStickX;          // +0x84
-    float mInputLeftStickY;          // +0x88
-    float mInputRightStickX;         // +0x8C
-    float mInputRightStickY;         // +0x90
-    int mPlayerIndex;                // +0x94 (ordinal 37; indexes CursorObject/CursorPreview)
-    int mGamepadIndex;               // +0x98 (ordinal 38; equal to mPlayerIndex in practice)
-    float mCursorPositionYJitter;    // +0x9C (ordinal 39)
-    float mCursorJitterAnimPhase;    // +0xA0 (ordinal 40)
-    int mButterCursorMoveCounter;    // +0xA4
-    int mDerivedSyncBlockPadding;    // +0xA8 (no semantic access found yet)
+    int mGamepadFrameCounter; // +0x44 (ordinal 17; BaseGamepadControls.cpp:2606)
+    float mGamepadAccLeftX; // +0x48
+    float mGamepadAccLeftY; // +0x4C
+    float mGridCenterPositionX; // +0x50 (ordinal 20; BaseGamepadControls.cpp:298)
+    float mGridCenterPositionY; // +0x54 (ordinal 21)
+    float mRightPositionX; // +0x58 (ordinal 22)
+    float mRightPositionY; // +0x5C (ordinal 23)
+    MovementState mGamepadState; // +0x60 (ordinal 24; the switch selector)
+    float mMovementStateTimer; // +0x64
+    float mDigIndicatorPercentage; // +0x68 (ordinal 26; +2.3 per dig key press)
+    float mCursorPositionX; // +0x6C (ordinal 27)
+    float mCursorPositionY; // +0x70 (ordinal 28)
+    float mGamepadVelocityLeftX; // +0x74 (ordinal 29)
+    float mGamepadVelocityLeftY; // +0x78 (ordinal 30)
+    float mGamepadVelocityRightX; // +0x7C (ordinal 31)
+    float mGamepadVelocityRightY; // +0x80 (ordinal 32)
+    float mInputLeftStickX; // +0x84
+    float mInputLeftStickY; // +0x88
+    float mInputRightStickX; // +0x8C
+    float mInputRightStickY; // +0x90
+    int mPlayerIndex; // +0x94 (ordinal 37; indexes CursorObject/CursorPreview)
+    int mGamepadIndex; // +0x98 (ordinal 38; equal to mPlayerIndex in practice)
+    float mCursorPositionYJitter; // +0x9C (ordinal 39)
+    float mCursorJitterAnimPhase; // +0xA0 (ordinal 40)
+    int mButterCursorMoveCounter; // +0xA4
+    int mDerivedSyncBlockPadding; // +0xA8 (no semantic access found yet)
     // 0xAC (43 ints)
 
     // The remaining methods. None of these owns a vtable slot.
-    int GetCursorPosition(float & theX, float & theY);
-    int GetCursorPosition(int & theX, int & theY);
-    int GetGamepadVelocity(float & theX, float & theY);
+    int GetCursorPosition(float &theX, float &theY);
+    int GetCursorPosition(int &theX, int &theY);
+    int GetGamepadVelocity(float &theX, float &theY);
     // sret again: the dump's `this` is the destination, the object is the second
     // register. Verified at 0x1BE920.
     SnapToGridPosition GetCursorGridPosition();
@@ -197,7 +202,9 @@ public:
     // hands the result back in EAX and the callee writes 8 bytes over the first
     // two words of the GamepadControls object instead. Verified at 0x1C0B6C.
     HitResult GetHitResult();
-    BaseGamepadControls(Board * theBoard, int thePlayerIndex, int theGamepadIndex);
+    BaseGamepadControls(Board *theBoard, int thePlayerIndex, int theGamepadIndex);
 };
 
 // Layout check: 0x04 (GamepadListener vptr) + 0x34 (GameObject) + 0x74 (own members).
+
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_BASEGAMEPADCONTROLS_H

@@ -40,7 +40,8 @@
 // LawnMenuParser::LawnMenuParser(Sexy::MenuWidget*) @0x149190), which matches the
 // recorder's figure.
 
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_LAWNMENUPARSER_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_LAWNMENUPARSER_H
 
 #include "ReconTypes.h"
 // Classes this one calls a method on: the call needs the
@@ -77,15 +78,17 @@ class LawnMenuParser : public Sexy::MenuParser
 {
 public:
     virtual ~LawnMenuParser();
-    virtual bool HandleCommand(Sexy::ListDataElement const& theParams);
-    virtual Sexy::MenuParser_ParseWidget* CreateParseWidget();
-    virtual Sexy::Widget* CreateWidget(Sexy::String theType, int theId, Sexy::MenuParser_ParseWidget* theParse);
-    virtual Sexy::WidgetAnimator* CreateWidgetAnimator(Sexy::String theType, Sexy::ListDataElement const& theParams,
-                                     Sexy::MenuParser_ParseWidget* theParse);
+    virtual bool HandleCommand(Sexy::ListDataElement const &theParams);
+    virtual Sexy::MenuParser_ParseWidget *CreateParseWidget();
+    virtual Sexy::Widget *CreateWidget(Sexy::String theType, int theId, Sexy::MenuParser_ParseWidget *theParse);
+    virtual Sexy::WidgetAnimator *CreateWidgetAnimator(
+        Sexy::String theType, Sexy::ListDataElement const &theParams, Sexy::MenuParser_ParseWidget *theParse);
 
-    LawnMenuWidget* mLawnMenuWidget;
+    LawnMenuWidget *mLawnMenuWidget;
 
     // The remaining methods. None of these owns a vtable slot.
     LawnMenuParser(Sexy::MenuWidget *theMenu);
     int DataToVector2(Sexy::DataElement *theElement, float *theOut);
 };
+
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_LAWNMENUPARSER_H

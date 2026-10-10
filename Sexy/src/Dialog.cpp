@@ -34,7 +34,7 @@ void Sexy::Dialog::MouseUp(int theX, int theY, int theClickCount)
     Widget::MouseUp(theX, theY, theClickCount);
 }
 
-void Sexy::Dialog::SetButtonFont(Sexy::Font * theFont)
+void Sexy::Dialog::SetButtonFont(Sexy::Font *theFont)
 {
     if (mYesButton != nullptr)
         mYesButton->SetFont(theFont);
@@ -42,7 +42,7 @@ void Sexy::Dialog::SetButtonFont(Sexy::Font * theFont)
         mNoButton->SetFont(theFont);
 }
 
-void Sexy::Dialog::SetHeaderFont(Sexy::Font * theFont)
+void Sexy::Dialog::SetHeaderFont(Sexy::Font *theFont)
 {
     delete mHeaderFont;
     mHeaderFont = theFont->Duplicate();
@@ -71,11 +71,9 @@ int Sexy::Dialog::WaitForResult(bool autoKill)
     return aResult;
 }
 
-void Sexy::Dialog::ButtonDownTick(int)
-{
-}
+void Sexy::Dialog::ButtonDownTick(int) {}
 
-void Sexy::Dialog::SetLinesFont(Sexy::Font * theFont)
+void Sexy::Dialog::SetLinesFont(Sexy::Font *theFont)
 {
     delete mLinesFont;
     mLinesFont = theFont->Duplicate();
@@ -109,22 +107,23 @@ void Sexy::Dialog::Resize(int theX, int theY, int theWidth, int theHeight)
 
     if (mNoButton != nullptr)
     {
-        int buttonWidth = (mWidth - mContentInsets.mLeft - mContentInsets.mRight
-                           - mBackgroundInsets.mLeft - mBackgroundInsets.mRight
-                           - 2 * mButtonSidePadding - mButtonHorzSpacing) / 2;
+        int buttonWidth = (mWidth - mContentInsets.mLeft - mContentInsets.mRight - mBackgroundInsets.mLeft -
+                              mBackgroundInsets.mRight - 2 * mButtonSidePadding - mButtonHorzSpacing) /
+            2;
         int buttonY = offsetY + mHeight - mContentInsets.mBottom - mBackgroundInsets.mBottom - mButtonHeight;
         mYesButton->Resize(mButtonSidePadding + mContentInsets.mLeft + offsetX + mBackgroundInsets.mLeft,
-                           buttonY, buttonWidth, mButtonHeight);
-        mNoButton->Resize(mButtonHorzSpacing + buttonWidth + mYesButton->mX,
-                          mYesButton->mY, buttonWidth, mButtonHeight);
+            buttonY,
+            buttonWidth,
+            mButtonHeight);
+        mNoButton->Resize(
+            mButtonHorzSpacing + buttonWidth + mYesButton->mX, mYesButton->mY, buttonWidth, mButtonHeight);
     }
     else
     {
         mYesButton->Resize(mBackgroundInsets.mLeft + offsetX + mContentInsets.mLeft,
-                           offsetY + mHeight - mContentInsets.mBottom - mBackgroundInsets.mBottom - mButtonHeight,
-                           mWidth - mContentInsets.mLeft - mContentInsets.mRight
-                             - mBackgroundInsets.mLeft - mBackgroundInsets.mRight,
-                           mButtonHeight);
+            offsetY + mHeight - mContentInsets.mBottom - mBackgroundInsets.mBottom - mButtonHeight,
+            mWidth - mContentInsets.mLeft - mContentInsets.mRight - mBackgroundInsets.mLeft - mBackgroundInsets.mRight,
+            mButtonHeight);
     }
 }
 
@@ -182,7 +181,7 @@ void Sexy::Dialog::ButtonDepress(int theId)
     }
 }
 
-void Sexy::Dialog::SetColor(int theIdx, Color const& theColor)
+void Sexy::Dialog::SetColor(int theIdx, Color const &theColor)
 {
     Widget::SetColor(theIdx, theColor);
 
@@ -202,7 +201,7 @@ void Sexy::Dialog::SetColor(int theIdx, Color const& theColor)
     }
 }
 
-void Sexy::Dialog::AddedToManager(Sexy::WidgetManager * theWidgetManager)
+void Sexy::Dialog::AddedToManager(Sexy::WidgetManager *theWidgetManager)
 {
     WidgetContainer::AddedToManager(theWidgetManager);
 
@@ -222,7 +221,7 @@ void Sexy::Dialog::AddedToManager(Sexy::WidgetManager * theWidgetManager)
     }
 }
 
-void Sexy::Dialog::RemovedFromManager(Sexy::WidgetManager * theWidgetManager)
+void Sexy::Dialog::RemovedFromManager(Sexy::WidgetManager *theWidgetManager)
 {
     WidgetContainer::RemovedFromManager(theWidgetManager);
 
@@ -242,9 +241,8 @@ void Sexy::Dialog::RemovedFromManager(Sexy::WidgetManager * theWidgetManager)
     }
 }
 
-Sexy::Dialog::Dialog(Sexy::Image * theComponentImage, Sexy::Image * theButtonImage, int theId, bool isModal,
-                     Sexy::String const& theHeader, Sexy::String const& theLines, Sexy::String const& theFooter,
-                     int theButtonMode)
+Sexy::Dialog::Dialog(Sexy::Image *theComponentImage, Sexy::Image *theButtonImage, int theId, bool isModal,
+    Sexy::String const &theHeader, Sexy::String const &theLines, Sexy::String const &theFooter, int theButtonMode)
 {
     mId = theId;
     mComponentImage = theComponentImage;
@@ -344,14 +342,14 @@ void Sexy::Dialog::EnsureFonts()
     }
 }
 
-void Sexy::Dialog::Draw(Sexy::Graphics * theGraphics)
+void Sexy::Dialog::Draw(Sexy::Graphics *theGraphics)
 {
     EnsureFonts();
 
     Sexy::TRect<int> boxRect(mBackgroundInsets.mLeft,
-                             mBackgroundInsets.mTop,
-                             mWidth - mBackgroundInsets.mLeft - mBackgroundInsets.mRight,
-                             mHeight - mBackgroundInsets.mTop - mBackgroundInsets.mBottom);
+        mBackgroundInsets.mTop,
+        mWidth - mBackgroundInsets.mLeft - mBackgroundInsets.mRight,
+        mHeight - mBackgroundInsets.mTop - mBackgroundInsets.mBottom);
     if (mComponentImage != nullptr)
     {
         theGraphics->DrawImageBox(boxRect, mComponentImage);
@@ -388,8 +386,8 @@ void Sexy::Dialog::Draw(Sexy::Graphics * theGraphics)
     int layoutRect[4];
     layoutRect[0] = 0;
     layoutRect[1] = 0;
-    layoutRect[2] = mWidth - mContentInsets.mLeft - mContentInsets.mRight
-                    - mBackgroundInsets.mLeft - mBackgroundInsets.mRight - 4;
+    layoutRect[2] =
+        mWidth - mContentInsets.mLeft - mContentInsets.mRight - mBackgroundInsets.mLeft - mBackgroundInsets.mRight - 4;
     layoutRect[3] = 0;
     mTextLayout.SetRect(layoutRect);
     mTextLayout.SetJustification(mTextAlign);
@@ -416,8 +414,7 @@ int Sexy::Dialog::GetPreferredHeight(int theWidth)
 {
     EnsureFonts();
 
-    int height = mBackgroundInsets.mBottom + mContentInsets.mBottom
-                 + mContentInsets.mTop + mBackgroundInsets.mTop;
+    int height = mBackgroundInsets.mBottom + mContentInsets.mBottom + mContentInsets.mTop + mBackgroundInsets.mTop;
     bool hasHeader = mDialogHeader.length() != 0;
     if (hasHeader)
     {
@@ -435,10 +432,10 @@ int Sexy::Dialog::GetPreferredHeight(int theWidth)
         Sexy::Graphics graphics(nullptr);
         graphics.SetFont(mLinesFont);
 
-        int textWidth = theWidth - mContentInsets.mLeft - mContentInsets.mRight
-                        - mBackgroundInsets.mLeft - mBackgroundInsets.mRight - 4;
-        height += GetWordWrappedHeight(&graphics, textWidth, mDialogLines,
-                                       mLineSpacingOffset + mLinesFont->GetLineSpacing());
+        int textWidth = theWidth - mContentInsets.mLeft - mContentInsets.mRight - mBackgroundInsets.mLeft -
+            mBackgroundInsets.mRight - 4;
+        height +=
+            GetWordWrappedHeight(&graphics, textWidth, mDialogLines, mLineSpacingOffset + mLinesFont->GetLineSpacing());
         hasHeader = true;
     }
 
@@ -513,9 +510,9 @@ int Sexy::Dialog::KeyDown(Sexy::KeyCode theKey)
 int Sexy::Dialog::KeyUp(Sexy::KeyCode theKey)
 {
     int result = Widget::KeyUp(theKey);
-    if (result == 0 && mResult != 0x7FFFFFFF
-        && ((mYesButton != nullptr && mResult == mYesButton->mWidgetId && theKey == Sexy::KEYCODE_RETURN)
-         || (mNoButton != nullptr && mResult == mNoButton->mWidgetId && theKey == Sexy::KEYCODE_ESCAPE)))
+    if (result == 0 && mResult != 0x7FFFFFFF &&
+        ((mYesButton != nullptr && mResult == mYesButton->mWidgetId && theKey == Sexy::KEYCODE_RETURN) ||
+            (mNoButton != nullptr && mResult == mNoButton->mWidgetId && theKey == Sexy::KEYCODE_ESCAPE)))
     {
         ButtonDepress(mResult);
         return 1;

@@ -57,7 +57,7 @@ AttachmentHolder::AttachmentHolder()
 // the shipped ARM build was compiled with a different constant).
 int AttachmentHolder::InitializeHolder()
 {
-    mBlock = static_cast<Attachment*>(::operator new[](kAttachmentCapacity * sizeof(Attachment)));
+    mBlock = static_cast<Attachment *>(::operator new[](kAttachmentCapacity * sizeof(Attachment)));
     mMaxSize = kAttachmentCapacity;
     mNextKey = 54388;
     mName = "attachments";
@@ -124,7 +124,7 @@ AttachmentHolder::~AttachmentHolder()
 //
 // Both branches advance the free-list head. Index the typed records so their
 // standard library members can use the native compiler's layout.
-Attachment * AttachmentHolder::AllocAttachment()
+Attachment *AttachmentHolder::AllocAttachment()
 {
     unsigned int anIndex = mFreeListHead;
     Attachment *aRecord;

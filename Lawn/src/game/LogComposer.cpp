@@ -16,7 +16,10 @@
 // makes the later forward declaration name the same entity, which it already
 // does -- one class, two spellings.
 class LogComposer;
-namespace TM { using ::LogComposer; }
+namespace TM
+{
+using ::LogComposer;
+}
 
 #include "LogComposer.h"
 #include "XMLElement.h"
@@ -35,9 +38,9 @@ namespace TM { using ::LogComposer; }
 // same conversion with the stream boilerplate kept in one place.
 static Sexy::String FormatNumber(int theValue)
 {
-  std::ostringstream aStream;
-  aStream << theValue;
-  return aStream.str();
+    std::ostringstream aStream;
+    aStream << theValue;
+    return aStream.str();
 }
 
 // ==========================================================================
@@ -49,17 +52,17 @@ static Sexy::String FormatNumber(int theValue)
 // method returns a string by value, so r0 is the hidden return-value buffer and
 // r1 -- the receiver -- is the object itself.
 // ==========================================================================
-Sexy::String TM::LogComposer::composeLog(std::vector<Sexy::String> const& theFields)
+Sexy::String TM::LogComposer::composeLog(std::vector<Sexy::String> const &theFields)
 {
-  Sexy::String aResult;
+    Sexy::String aResult;
 
-  for (unsigned int i = 0; i < theFields.size(); i++)
-  {
-    aResult += theFields[i];
-    aResult += "|";
-  }
-  aResult += "\n";
-  return aResult;
+    for (unsigned int i = 0; i < theFields.size(); i++)
+    {
+        aResult += theFields[i];
+        aResult += "|";
+    }
+    aResult += "\n";
+    return aResult;
 }
 
 // The XML node API. Sexy/ReconFreeFunctions.h declares the six static helpers on
@@ -75,22 +78,21 @@ Sexy::String TM::LogComposer::composeLog(std::vector<Sexy::String> const& theFie
 // ==========================================================================
 Sexy::String TM::LogComposer::getClientTime()
 {
-  struct timeb aTimeBuf;
-  char aText[260];
-  struct tm *aTime;
+    struct timeb aTimeBuf;
+    char aText[260];
+    struct tm *aTime;
 
-  ftime(&aTimeBuf);
-  aTime = localtime(&aTimeBuf.time);
-  sprintf(
-    aText,
-    "%.4d-%.2d-%.2d %.2d:%.2d:%.2d",
-    aTime->tm_year + 1900,
-    aTime->tm_mon + 1,
-    aTime->tm_mday,
-    aTime->tm_hour,
-    aTime->tm_min,
-    aTime->tm_sec);
-  return aText;
+    ftime(&aTimeBuf);
+    aTime = localtime(&aTimeBuf.time);
+    sprintf(aText,
+        "%.4d-%.2d-%.2d %.2d:%.2d:%.2d",
+        aTime->tm_year + 1900,
+        aTime->tm_mon + 1,
+        aTime->tm_mday,
+        aTime->tm_hour,
+        aTime->tm_min,
+        aTime->tm_sec);
+    return aText;
 }
 
 // ==========================================================================
@@ -99,47 +101,46 @@ Sexy::String TM::LogComposer::getClientTime()
 // ==========================================================================
 Sexy::String TM::LogComposer::generateSerialNum()
 {
-  struct timeb aTimeBuf;
-  char aText[256];
-  struct tm *aTime;
+    struct timeb aTimeBuf;
+    char aText[256];
+    struct tm *aTime;
 
-  ftime(&aTimeBuf);
-  aTime = localtime(&aTimeBuf.time);
-  sprintf(
-    aText,
-    "%.4d%.2d%.2d%.2d%.2d%.2d%.3d",
-    aTime->tm_year + 1900,
-    aTime->tm_mon + 1,
-    aTime->tm_mday,
-    aTime->tm_hour,
-    aTime->tm_min,
-    aTime->tm_sec,
-    aTimeBuf.millitm);
-  return aText;
+    ftime(&aTimeBuf);
+    aTime = localtime(&aTimeBuf.time);
+    sprintf(aText,
+        "%.4d%.2d%.2d%.2d%.2d%.2d%.3d",
+        aTime->tm_year + 1900,
+        aTime->tm_mon + 1,
+        aTime->tm_mday,
+        aTime->tm_hour,
+        aTime->tm_min,
+        aTime->tm_sec,
+        aTimeBuf.millitm);
+    return aText;
 }
 
 // ==========================================================================
 // TM::LogComposer::composeCrashLog(Sexy::String &)
 // @004F4734  1210 bytes
 // ==========================================================================
-Sexy::String TM::LogComposer::composeCrashLog(Sexy::String & theReason)
+Sexy::String TM::LogComposer::composeCrashLog(Sexy::String &theReason)
 {
-  std::vector<Sexy::String> aFields;
+    std::vector<Sexy::String> aFields;
 
-  aFields.push_back("runCoolCrash");
-  aFields.push_back("testphone");
-  aFields.push_back("test");
-  aFields.push_back(mSerialNum);
-  aFields.push_back(mPlatform);
-  aFields.push_back(mVendor);
-  aFields.push_back(mProduct);
-  aFields.push_back(mGameName);
-  aFields.push_back(mGameVersion);
-  aFields.push_back(getClientTime());
-  aFields.push_back(theReason);
-  aFields.push_back("");
-  aFields.push_back("model");
-  return composeLog(aFields);
+    aFields.push_back("runCoolCrash");
+    aFields.push_back("testphone");
+    aFields.push_back("test");
+    aFields.push_back(mSerialNum);
+    aFields.push_back(mPlatform);
+    aFields.push_back(mVendor);
+    aFields.push_back(mProduct);
+    aFields.push_back(mGameName);
+    aFields.push_back(mGameVersion);
+    aFields.push_back(getClientTime());
+    aFields.push_back(theReason);
+    aFields.push_back("");
+    aFields.push_back("model");
+    return composeLog(aFields);
 }
 
 // ==========================================================================
@@ -148,19 +149,19 @@ Sexy::String TM::LogComposer::composeCrashLog(Sexy::String & theReason)
 // ==========================================================================
 Sexy::String TM::LogComposer::composeLoginLog(int theKind)
 {
-  std::vector<Sexy::String> aFields;
+    std::vector<Sexy::String> aFields;
 
-  aFields.push_back("login");
-  aFields.push_back(mAccount);
-  aFields.push_back(FormatNumber(theKind));
-  aFields.push_back(mPlatform);
-  aFields.push_back(mVendor);
-  aFields.push_back(mProduct);
-  aFields.push_back(mSerialNum);
-  aFields.push_back(mGameName);
-  aFields.push_back(mGameVersion);
-  aFields.push_back(getClientTime());
-  return composeLog(aFields);
+    aFields.push_back("login");
+    aFields.push_back(mAccount);
+    aFields.push_back(FormatNumber(theKind));
+    aFields.push_back(mPlatform);
+    aFields.push_back(mVendor);
+    aFields.push_back(mProduct);
+    aFields.push_back(mSerialNum);
+    aFields.push_back(mGameName);
+    aFields.push_back(mGameVersion);
+    aFields.push_back(getClientTime());
+    return composeLog(aFields);
 }
 
 // ==========================================================================
@@ -169,7 +170,7 @@ Sexy::String TM::LogComposer::composeLoginLog(int theKind)
 // ==========================================================================
 Sexy::String TM::LogComposer::composeLoginLog()
 {
-  return composeLoginLog(0);
+    return composeLoginLog(0);
 }
 
 // ==========================================================================
@@ -178,109 +179,109 @@ Sexy::String TM::LogComposer::composeLoginLog()
 // ==========================================================================
 Sexy::String TM::LogComposer::composeLogoutLog()
 {
-  return composeLoginLog(1);
+    return composeLoginLog(1);
 }
 
 // ==========================================================================
 // TM::LogComposer::composeAssembledLog(int,Sexy::String &)
 // @004F51B8  1402 bytes
 // ==========================================================================
-Sexy::String TM::LogComposer::composeAssembledLog(int theKind, Sexy::String & theDetail)
+Sexy::String TM::LogComposer::composeAssembledLog(int theKind, Sexy::String &theDetail)
 {
-  std::vector<Sexy::String> aFields;
+    std::vector<Sexy::String> aFields;
 
-  aFields.push_back("gameinfo");
-  aFields.push_back(mAccount);
-  aFields.push_back(mSerialNum);
-  aFields.push_back(mPlatform);
-  aFields.push_back(mVendor);
-  aFields.push_back(mProduct);
-  aFields.push_back(mGameName);
-  aFields.push_back(mGameVersion);
-  aFields.push_back(getClientTime());
-  aFields.push_back(FormatNumber(theKind));
-  aFields.push_back(theDetail);
-  return composeLog(aFields);
+    aFields.push_back("gameinfo");
+    aFields.push_back(mAccount);
+    aFields.push_back(mSerialNum);
+    aFields.push_back(mPlatform);
+    aFields.push_back(mVendor);
+    aFields.push_back(mProduct);
+    aFields.push_back(mGameName);
+    aFields.push_back(mGameVersion);
+    aFields.push_back(getClientTime());
+    aFields.push_back(FormatNumber(theKind));
+    aFields.push_back(theDetail);
+    return composeLog(aFields);
 }
 
 // ==========================================================================
 // TM::LogComposer::composeAuthLog(int,Sexy::String const&)
 // @004F5764  1402 bytes
 // ==========================================================================
-Sexy::String TM::LogComposer::composeAuthLog(int theKind, Sexy::String const& theDetail)
+Sexy::String TM::LogComposer::composeAuthLog(int theKind, Sexy::String const &theDetail)
 {
-  std::vector<Sexy::String> aFields;
+    std::vector<Sexy::String> aFields;
 
-  aFields.push_back("authorize");
-  aFields.push_back(mAccount);
-  aFields.push_back(mPlatform);
-  aFields.push_back(mVendor);
-  aFields.push_back(mProduct);
-  aFields.push_back(mSerialNum);
-  aFields.push_back(theDetail);
-  aFields.push_back(FormatNumber(theKind));
-  aFields.push_back(mGameName);
-  aFields.push_back(mGameVersion);
-  aFields.push_back(getClientTime());
-  return composeLog(aFields);
+    aFields.push_back("authorize");
+    aFields.push_back(mAccount);
+    aFields.push_back(mPlatform);
+    aFields.push_back(mVendor);
+    aFields.push_back(mProduct);
+    aFields.push_back(mSerialNum);
+    aFields.push_back(theDetail);
+    aFields.push_back(FormatNumber(theKind));
+    aFields.push_back(mGameName);
+    aFields.push_back(mGameVersion);
+    aFields.push_back(getClientTime());
+    return composeLog(aFields);
 }
 
 // ==========================================================================
 // TM::LogComposer::composeAuthStartLog(Sexy::String const&)
 // @004F5D10  16 bytes
 // ==========================================================================
-Sexy::String TM::LogComposer::composeAuthStartLog(Sexy::String const& theDetail)
+Sexy::String TM::LogComposer::composeAuthStartLog(Sexy::String const &theDetail)
 {
-  return composeAuthLog(0, theDetail);
+    return composeAuthLog(0, theDetail);
 }
 
 // ==========================================================================
 // TM::LogComposer::composeAuthSucceedLog(Sexy::String const&)
 // @004F5D20  16 bytes
 // ==========================================================================
-Sexy::String TM::LogComposer::composeAuthSucceedLog(Sexy::String const& theDetail)
+Sexy::String TM::LogComposer::composeAuthSucceedLog(Sexy::String const &theDetail)
 {
-  return composeAuthLog(1, theDetail);
+    return composeAuthLog(1, theDetail);
 }
 
 // ==========================================================================
 // TM::LogComposer::composeAuthFailedLog(Sexy::String const&)
 // @004F5D30  16 bytes
 // ==========================================================================
-Sexy::String TM::LogComposer::composeAuthFailedLog(Sexy::String const& theDetail)
+Sexy::String TM::LogComposer::composeAuthFailedLog(Sexy::String const &theDetail)
 {
-  return composeAuthLog(2, theDetail);
+    return composeAuthLog(2, theDetail);
 }
 
 // ==========================================================================
 // TM::LogComposer::composeGameDataLog(int,Sexy::String const&)
 // @004F5D40  1454 bytes
 // ==========================================================================
-Sexy::String TM::LogComposer::composeGameDataLog(int theKind, Sexy::String const& theDetail)
+Sexy::String TM::LogComposer::composeGameDataLog(int theKind, Sexy::String const &theDetail)
 {
-  std::vector<Sexy::String> aFields;
+    std::vector<Sexy::String> aFields;
 
-  aFields.push_back("gamedata");
-  aFields.push_back(mAccount);
-  aFields.push_back(mPlatform);
-  aFields.push_back(mVendor);
-  aFields.push_back(mProduct);
-  aFields.push_back(mSerialNum);
-  aFields.push_back(mGameName);
-  aFields.push_back(mGameVersion);
-  aFields.push_back(FormatNumber(theKind));
-  aFields.push_back(theDetail);
-  aFields.push_back(getClientTime());
-  return composeLog(aFields);
+    aFields.push_back("gamedata");
+    aFields.push_back(mAccount);
+    aFields.push_back(mPlatform);
+    aFields.push_back(mVendor);
+    aFields.push_back(mProduct);
+    aFields.push_back(mSerialNum);
+    aFields.push_back(mGameName);
+    aFields.push_back(mGameVersion);
+    aFields.push_back(FormatNumber(theKind));
+    aFields.push_back(theDetail);
+    aFields.push_back(getClientTime());
+    return composeLog(aFields);
 }
 
 // ==========================================================================
 // TM::LogComposer::composeGameResultLog(Sexy::String const&)
 // @004F6348  16 bytes
 // ==========================================================================
-Sexy::String TM::LogComposer::composeGameResultLog(Sexy::String const& theDetail)
+Sexy::String TM::LogComposer::composeGameResultLog(Sexy::String const &theDetail)
 {
-  return composeGameDataLog(2, theDetail);
+    return composeGameDataLog(2, theDetail);
 }
 
 // ==========================================================================
@@ -289,7 +290,7 @@ Sexy::String TM::LogComposer::composeGameResultLog(Sexy::String const& theDetail
 // ==========================================================================
 Sexy::String TM::LogComposer::composeGameDataLog(int theKind, int theValue)
 {
-  return composeGameDataLog(theKind, FormatNumber(theValue));
+    return composeGameDataLog(theKind, FormatNumber(theValue));
 }
 
 // ==========================================================================
@@ -298,7 +299,7 @@ Sexy::String TM::LogComposer::composeGameDataLog(int theKind, int theValue)
 // ==========================================================================
 Sexy::String TM::LogComposer::composeScoreLog(int theScore)
 {
-  return composeGameDataLog(0, theScore);
+    return composeGameDataLog(0, theScore);
 }
 
 // ==========================================================================
@@ -307,7 +308,7 @@ Sexy::String TM::LogComposer::composeScoreLog(int theScore)
 // ==========================================================================
 Sexy::String TM::LogComposer::composeTimeLog(int theSeconds)
 {
-  return composeGameDataLog(1, theSeconds);
+    return composeGameDataLog(1, theSeconds);
 }
 
 // ==========================================================================
@@ -316,21 +317,21 @@ Sexy::String TM::LogComposer::composeTimeLog(int theSeconds)
 // ==========================================================================
 Sexy::String TM::LogComposer::composeConsumeLog(int theKind, int theItem, int theCount)
 {
-  std::vector<Sexy::String> aFields;
+    std::vector<Sexy::String> aFields;
 
-  aFields.push_back("consume");
-  aFields.push_back(mAccount);
-  aFields.push_back(mPlatform);
-  aFields.push_back(mVendor);
-  aFields.push_back(mProduct);
-  aFields.push_back(mSerialNum);
-  aFields.push_back(mGameName);
-  aFields.push_back(mGameVersion);
-  aFields.push_back(FormatNumber(theCount));
-  aFields.push_back(FormatNumber(theKind));
-  aFields.push_back(FormatNumber(theItem));
-  aFields.push_back(getClientTime());
-  return composeLog(aFields);
+    aFields.push_back("consume");
+    aFields.push_back(mAccount);
+    aFields.push_back(mPlatform);
+    aFields.push_back(mVendor);
+    aFields.push_back(mProduct);
+    aFields.push_back(mSerialNum);
+    aFields.push_back(mGameName);
+    aFields.push_back(mGameVersion);
+    aFields.push_back(FormatNumber(theCount));
+    aFields.push_back(FormatNumber(theKind));
+    aFields.push_back(FormatNumber(theItem));
+    aFields.push_back(getClientTime());
+    return composeLog(aFields);
 }
 
 // ==========================================================================
@@ -339,21 +340,21 @@ Sexy::String TM::LogComposer::composeConsumeLog(int theKind, int theItem, int th
 // ==========================================================================
 Sexy::String TM::LogComposer::composeRechargeLog(int theKind, int theAmount, int theCurrency)
 {
-  std::vector<Sexy::String> aFields;
+    std::vector<Sexy::String> aFields;
 
-  aFields.push_back("recharge");
-  aFields.push_back(mAccount);
-  aFields.push_back(mPlatform);
-  aFields.push_back(mVendor);
-  aFields.push_back(mProduct);
-  aFields.push_back(mSerialNum);
-  aFields.push_back(mGameName);
-  aFields.push_back(mGameVersion);
-  aFields.push_back(FormatNumber(theKind));
-  aFields.push_back(FormatNumber(theAmount));
-  aFields.push_back(FormatNumber(theCurrency));
-  aFields.push_back(getClientTime());
-  return composeLog(aFields);
+    aFields.push_back("recharge");
+    aFields.push_back(mAccount);
+    aFields.push_back(mPlatform);
+    aFields.push_back(mVendor);
+    aFields.push_back(mProduct);
+    aFields.push_back(mSerialNum);
+    aFields.push_back(mGameName);
+    aFields.push_back(mGameVersion);
+    aFields.push_back(FormatNumber(theKind));
+    aFields.push_back(FormatNumber(theAmount));
+    aFields.push_back(FormatNumber(theCurrency));
+    aFields.push_back(getClientTime());
+    return composeLog(aFields);
 }
 
 // ==========================================================================
@@ -362,7 +363,7 @@ Sexy::String TM::LogComposer::composeRechargeLog(int theKind, int theAmount, int
 // ==========================================================================
 Sexy::String TM::LogComposer::composeRechargeByRMBLog(int theAmount, int theCurrency)
 {
-  return composeRechargeLog(0, theAmount, theCurrency);
+    return composeRechargeLog(0, theAmount, theCurrency);
 }
 
 // ==========================================================================
@@ -371,40 +372,41 @@ Sexy::String TM::LogComposer::composeRechargeByRMBLog(int theAmount, int theCurr
 // ==========================================================================
 Sexy::String TM::LogComposer::composeRechargeByDollarLog(int theAmount, int theCurrency)
 {
-  return composeRechargeLog(1, theAmount, theCurrency);
+    return composeRechargeLog(1, theAmount, theCurrency);
 }
 
 // ==========================================================================
 // TM::LogComposer::composeGameLevelLog(int,int,int,Sexy::String const&)
 // @004F7680  1940 bytes
 // ==========================================================================
-Sexy::String TM::LogComposer::composeGameLevelLog(int theKind, int theLevel, int theResult, Sexy::String const& theDetail)
+Sexy::String TM::LogComposer::composeGameLevelLog(
+    int theKind, int theLevel, int theResult, Sexy::String const &theDetail)
 {
-  std::vector<Sexy::String> aFields;
+    std::vector<Sexy::String> aFields;
 
-  aFields.push_back("gamelevel");
-  aFields.push_back(mAccount);
-  aFields.push_back(mPlatform);
-  aFields.push_back(mVendor);
-  aFields.push_back(mProduct);
-  aFields.push_back(mSerialNum);
-  aFields.push_back(mGameName);
-  aFields.push_back(mGameVersion);
-  aFields.push_back(FormatNumber(theKind));
-  aFields.push_back(FormatNumber(theLevel));
-  aFields.push_back(FormatNumber(theResult));
-  aFields.push_back(getClientTime());
-  aFields.push_back(theDetail);
-  return composeLog(aFields);
+    aFields.push_back("gamelevel");
+    aFields.push_back(mAccount);
+    aFields.push_back(mPlatform);
+    aFields.push_back(mVendor);
+    aFields.push_back(mProduct);
+    aFields.push_back(mSerialNum);
+    aFields.push_back(mGameName);
+    aFields.push_back(mGameVersion);
+    aFields.push_back(FormatNumber(theKind));
+    aFields.push_back(FormatNumber(theLevel));
+    aFields.push_back(FormatNumber(theResult));
+    aFields.push_back(getClientTime());
+    aFields.push_back(theDetail);
+    return composeLog(aFields);
 }
 
 // ==========================================================================
 // TM::LogComposer::composeLevelEnterLog(Sexy::String const&,int)
 // @004F7E4C  26 bytes
 // ==========================================================================
-Sexy::String TM::LogComposer::composeLevelEnterLog(Sexy::String const& theLevel, int theResult)
+Sexy::String TM::LogComposer::composeLevelEnterLog(Sexy::String const &theLevel, int theResult)
 {
-  return composeGameLevelLog(0, theResult, -1, theLevel);
+    return composeGameLevelLog(0, theResult, -1, theLevel);
 }
 
 // ==========================================================================
@@ -413,7 +415,7 @@ Sexy::String TM::LogComposer::composeLevelEnterLog(Sexy::String const& theLevel,
 // ==========================================================================
 Sexy::String TM::LogComposer::composeLevelLeaveLog(int theResult)
 {
-  return composeGameLevelLog(1, theResult, -1, "");
+    return composeGameLevelLog(1, theResult, -1, "");
 }
 
 // ==========================================================================
@@ -422,7 +424,7 @@ Sexy::String TM::LogComposer::composeLevelLeaveLog(int theResult)
 // ==========================================================================
 Sexy::String TM::LogComposer::composeLevelSucceedLog(int theResult)
 {
-  return composeGameLevelLog(-1, theResult, 0, "");
+    return composeGameLevelLog(-1, theResult, 0, "");
 }
 
 // ==========================================================================
@@ -431,7 +433,7 @@ Sexy::String TM::LogComposer::composeLevelSucceedLog(int theResult)
 // ==========================================================================
 Sexy::String TM::LogComposer::composeLevelFailedLog(int theResult)
 {
-  return composeGameLevelLog(-1, theResult, 1, "");
+    return composeGameLevelLog(-1, theResult, 1, "");
 }
 
 // ==========================================================================
@@ -440,22 +442,22 @@ Sexy::String TM::LogComposer::composeLevelFailedLog(int theResult)
 // ==========================================================================
 Sexy::String TM::LogComposer::composePayLog(int theKind, int theAmount, int theCurrency, int theItem)
 {
-  std::vector<Sexy::String> aFields;
+    std::vector<Sexy::String> aFields;
 
-  aFields.push_back("purchase");
-  aFields.push_back(mAccount);
-  aFields.push_back(mPlatform);
-  aFields.push_back(mVendor);
-  aFields.push_back(mProduct);
-  aFields.push_back(mSerialNum);
-  aFields.push_back(mGameName);
-  aFields.push_back(mGameVersion);
-  aFields.push_back(FormatNumber(theKind));
-  aFields.push_back(FormatNumber(theAmount));
-  aFields.push_back(FormatNumber(theCurrency));
-  aFields.push_back(FormatNumber(theItem));
-  aFields.push_back(getClientTime());
-  return composeLog(aFields);
+    aFields.push_back("purchase");
+    aFields.push_back(mAccount);
+    aFields.push_back(mPlatform);
+    aFields.push_back(mVendor);
+    aFields.push_back(mProduct);
+    aFields.push_back(mSerialNum);
+    aFields.push_back(mGameName);
+    aFields.push_back(mGameVersion);
+    aFields.push_back(FormatNumber(theKind));
+    aFields.push_back(FormatNumber(theAmount));
+    aFields.push_back(FormatNumber(theCurrency));
+    aFields.push_back(FormatNumber(theItem));
+    aFields.push_back(getClientTime());
+    return composeLog(aFields);
 }
 
 // ==========================================================================
@@ -464,7 +466,7 @@ Sexy::String TM::LogComposer::composePayLog(int theKind, int theAmount, int theC
 // ==========================================================================
 Sexy::String TM::LogComposer::composePayByRMBLog(int theAmount)
 {
-  return composePayLog(0, -1, -1, theAmount);
+    return composePayLog(0, -1, -1, theAmount);
 }
 
 // ==========================================================================
@@ -473,7 +475,7 @@ Sexy::String TM::LogComposer::composePayByRMBLog(int theAmount)
 // ==========================================================================
 Sexy::String TM::LogComposer::composePayByRMBLog(int theAmount, int theCurrency, int theItem)
 {
-  return composePayLog(0, theAmount, theCurrency, theItem);
+    return composePayLog(0, theAmount, theCurrency, theItem);
 }
 
 // ==========================================================================
@@ -482,7 +484,7 @@ Sexy::String TM::LogComposer::composePayByRMBLog(int theAmount, int theCurrency,
 // ==========================================================================
 Sexy::String TM::LogComposer::composePayByDollarLog(int theAmount)
 {
-  return composePayLog(1, -1, -1, theAmount);
+    return composePayLog(1, -1, -1, theAmount);
 }
 
 // ==========================================================================
@@ -491,69 +493,69 @@ Sexy::String TM::LogComposer::composePayByDollarLog(int theAmount)
 // ==========================================================================
 Sexy::String TM::LogComposer::composePayByDollarLog(int theAmount, int theCurrency, int theItem)
 {
-  return composePayLog(1, theAmount, theCurrency, theItem);
+    return composePayLog(1, theAmount, theCurrency, theItem);
 }
 
 // ==========================================================================
 // TM::LogComposer::initComposer(Sexy::String const&)
 // @004F8920  4452 bytes
 // ==========================================================================
-void TM::LogComposer::initComposer(Sexy::String const& theXml)
+void TM::LogComposer::initComposer(Sexy::String const &theXml)
 {
-  // The binary parses theXml and copies the text of platform, vendor, product,
-  // gamename and gameversion onto this object. An empty source leaves them
-  // empty, which is what the constructor's initComposer("") relies on.
-  __android_log_print(4, "trans", "the xml content is: %s", theXml.c_str());
+    // The binary parses theXml and copies the text of platform, vendor, product,
+    // gamename and gameversion onto this object. An empty source leaves them
+    // empty, which is what the constructor's initComposer("") relies on.
+    __android_log_print(4, "trans", "the xml content is: %s", theXml.c_str());
 
-  const char *aTags[5] = { "platform", "vendor", "product", "gamename", "gameversion" };
-  Sexy::String *aFields[5] = { &mPlatform, &mVendor, &mProduct, &mGameName, &mGameVersion };
-  bool aFound[5] = { false, false, false, false, false };
+    const char *aTags[5] = {"platform", "vendor", "product", "gamename", "gameversion"};
+    Sexy::String *aFields[5] = {&mPlatform, &mVendor, &mProduct, &mGameName, &mGameVersion};
+    bool aFound[5] = {false, false, false, false, false};
 
-  if (!theXml.empty())
-  {
-    Sexy::XMLParser aParser;
-    aParser.SetStringSource(theXml);
-    int aPending = -1;
-    while (aParser.HasFailed() == 0)
+    if (!theXml.empty())
     {
-      Sexy::XMLElement aElement;
-      if (aParser.NextElement(&aElement) == 0)
-        break;
-      if (aElement.mType == 1)
-      {
-        aPending = -1;
-        for (int aIndex = 0; aIndex < 5; ++aIndex)
+        Sexy::XMLParser aParser;
+        aParser.SetStringSource(theXml);
+        int aPending = -1;
+        while (aParser.HasFailed() == 0)
         {
-          if (aElement.mInstruction == aTags[aIndex])
-          {
-            aPending = aIndex;
-            break;
-          }
+            Sexy::XMLElement aElement;
+            if (aParser.NextElement(&aElement) == 0)
+                break;
+            if (aElement.mType == 1)
+            {
+                aPending = -1;
+                for (int aIndex = 0; aIndex < 5; ++aIndex)
+                {
+                    if (aElement.mInstruction == aTags[aIndex])
+                    {
+                        aPending = aIndex;
+                        break;
+                    }
+                }
+            }
+            else if (aElement.mType == 3 && aPending >= 0 && !aElement.mText.empty())
+            {
+                aFields[aPending]->assign(aElement.mText.c_str(), aElement.mText.size());
+                aFound[aPending] = true;
+                aPending = -1;
+            }
+            else if (aElement.mType == 2)
+            {
+                aPending = -1;
+            }
         }
-      }
-      else if (aElement.mType == 3 && aPending >= 0 && !aElement.mText.empty())
-      {
-        aFields[aPending]->assign(aElement.mText.c_str(), aElement.mText.size());
-        aFound[aPending] = true;
-        aPending = -1;
-      }
-      else if (aElement.mType == 2)
-      {
-        aPending = -1;
-      }
     }
-  }
 
-  if (!aFound[0])
-    __android_log_print(4, "trans", "%s", "coundn't get the platform");
-  if (!aFound[1])
-    __android_log_print(4, "trans", "%s", "coundn't get the vendor");
-  if (!aFound[2])
-    __android_log_print(4, "trans", "%s", "coundn't get the product");
-  if (!aFound[3])
-    __android_log_print(4, "trans", "%s", "coundn't get the gamename");
-  if (!aFound[4])
-    __android_log_print(4, "trans", "%s", "coundn't get the gameversion");
+    if (!aFound[0])
+        __android_log_print(4, "trans", "%s", "coundn't get the platform");
+    if (!aFound[1])
+        __android_log_print(4, "trans", "%s", "coundn't get the vendor");
+    if (!aFound[2])
+        __android_log_print(4, "trans", "%s", "coundn't get the product");
+    if (!aFound[3])
+        __android_log_print(4, "trans", "%s", "coundn't get the gamename");
+    if (!aFound[4])
+        __android_log_print(4, "trans", "%s", "coundn't get the gameversion");
 }
 
 // ==========================================================================
@@ -562,8 +564,8 @@ void TM::LogComposer::initComposer(Sexy::String const& theXml)
 // ==========================================================================
 TM::LogComposer::LogComposer()
 {
-  // The seven Sexy::String members are default-constructed by the compiler;
-  // the binary spells that out as seven StringCtor(dest, "", tmp) calls.
-  mSerialNum = generateSerialNum();
-  initComposer("");
+    // The seven Sexy::String members are default-constructed by the compiler;
+    // the binary spells that out as seven StringCtor(dest, "", tmp) calls.
+    mSerialNum = generateSerialNum();
+    initComposer("");
 }

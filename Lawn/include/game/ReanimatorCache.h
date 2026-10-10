@@ -1,6 +1,7 @@
 // ReanimatorCache -- reconstructed from libGameMain.so.
 
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_REANIMATORCACHE_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_REANIMATORCACHE_H
 
 #include "ReconTypes.h"
 // These includes exist because the transcribed bodies call methods on complete
@@ -20,7 +21,10 @@ class Zombie;
 // here would make the two mutually recursive.
 class LawnApp;
 
-namespace Sexy { class MemoryImage; }
+namespace Sexy
+{
+class MemoryImage;
+}
 
 struct ReanimCacheImageVariation
 {
@@ -44,13 +48,17 @@ public:
     Sexy::MemoryImage *MakeBlankCanvasImage(int theWidth, int theHeight);
     void ReanimatorCacheInitialize();
     void ReanimatorCacheDispose();
-    void DrawCachedPlant(Sexy::Graphics *theGraphics, float theX, float theY, SeedType theSeedType, DrawVariation theVariation);
+    void DrawCachedPlant(
+        Sexy::Graphics *theGraphics, float theX, float theY, SeedType theSeedType, DrawVariation theVariation);
     void DrawCachedMower(Sexy::Graphics *theGraphics, float theX, float theY, LawnMowerType theMowerType);
     void DrawCachedZombie(Sexy::Graphics *theGraphics, float theX, float theY, ZombieType theZombieType);
     void LoadCachedImages();
     void SaveCachedImages();
-    void DrawReanimatorFrame(Sexy::Graphics *theGraphics, float theX, float theY, ReanimationType theType, char const *theTrackName, DrawVariation theVariation);
+    void DrawReanimatorFrame(Sexy::Graphics *theGraphics, float theX, float theY, ReanimationType theType,
+        char const *theTrackName, DrawVariation theVariation);
     Sexy::Image *MakeCachedMowerFrame(LawnMowerType theMowerType);
     Sexy::Image *MakeCachedPlantFrame(SeedType theSeedType, DrawVariation theVariation);
     Sexy::Image *MakeCachedZombieFrame(ZombieType theZombieType);
 };
+
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_REANIMATORCACHE_H

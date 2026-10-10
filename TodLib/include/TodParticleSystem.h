@@ -1,4 +1,5 @@
-#pragma once
+#ifndef LAWNPROJECTTV_TODLIB_INCLUDE_TODPARTICLESYSTEM_H
+#define LAWNPROJECTTV_TODLIB_INCLUDE_TODPARTICLESYSTEM_H
 
 #include "ReconTypes.h"
 #include "SyncObject.h"
@@ -19,8 +20,8 @@ public:
 
     struct EmitterIdList
     {
-        DataArrayIdNode* mHead;
-        DataArrayIdNode* mTail;
+        DataArrayIdNode *mHead;
+        DataArrayIdNode *mTail;
         int mSize;
         TodAllocator *mpAllocator;
     };
@@ -46,8 +47,7 @@ public:
     TodEmitterDefinition *FindEmitterDefByName(const char *theEmitterName);
     TodParticleSystem();
     void TodParticleInitializeFromDef(
-        float theX, float theY, int theRenderOrder,
-        TodParticleDefinition *theDefinition, ParticleEffect theEffectType);
+        float theX, float theY, int theRenderOrder, TodParticleDefinition *theDefinition, ParticleEffect theEffectType);
     void Update();
     void CrossFade(const char *theEmitterName);
 };
@@ -57,3 +57,5 @@ struct ParticleSystemSlot
     TodParticleSystem mItem;
     unsigned int mID;
 };
+
+#endif // LAWNPROJECTTV_TODLIB_INCLUDE_TODPARTICLESYSTEM_H

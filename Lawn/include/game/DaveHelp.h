@@ -38,7 +38,8 @@
 // The three bools are byte stores in the ARM (`STRB.W R0,[R4,#0x10C]` at
 // 0x1ec554), and the 0x11C allocation closes right after the last word.
 
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_DAVEHELP_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_DAVEHELP_H
 
 #include "ReconTypes.h"
 // Classes this one calls a method on: the call needs the
@@ -57,20 +58,20 @@ class LawnApp;
 class DaveHelp : public Sexy::Widget
 {
 public:
-    virtual ~DaveHelp();                                  // [ 0],[1] 0x000/0x004
+    virtual ~DaveHelp(); // [ 0],[1] 0x000/0x004
     virtual void RemovedFromManager(Sexy::WidgetManager *theManager); // [30] 0x078
-    virtual void Update();                                // [31] 0x07C
-    virtual void Draw(Sexy::Graphics *theGraphics);               // [36] 0x090
+    virtual void Update(); // [31] 0x07C
+    virtual void Draw(Sexy::Graphics *theGraphics); // [36] 0x090
     // Desktop input advances the same dialogue as the TV confirm button.
     void MouseDown(int theX, int theY, int theClickCount) override;
 
-    LawnApp         *mApp;        // +0x100
-    int              mHelpType;   // +0x104  an E_DAVEHELP
-    int              mSingleType; // +0x108  an E_DAVESINGLEHELP
-    bool             mIsSingle;   // +0x10C
+    LawnApp *mApp; // +0x100
+    int mHelpType; // +0x104  an E_DAVEHELP
+    int mSingleType; // +0x108  an E_DAVESINGLEHELP
+    bool mIsSingle; // +0x10C
     Sexy::WidgetContainer *mContainer; // +0x110
-    int              mCounter;    // +0x114
-    bool             mDrawActive; // +0x118
+    int mCounter; // +0x114
+    bool mDrawActive; // +0x118
     // 0x11C
 
     // The remaining methods. None of these owns a vtable slot.
@@ -81,3 +82,5 @@ public:
     int DealClick(Sexy::KeyCode theKey);
     void DrawDave(Sexy::Graphics *theGraphics);
 };
+
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_DAVEHELP_H

@@ -1,3 +1,6 @@
+#ifndef LAWNPROJECTTV_SEXY_INCLUDE_RUNTIME_IDAMACROS_H
+#define LAWNPROJECTTV_SEXY_INCLUDE_RUNTIME_IDAMACROS_H
+
 // IdaMacros.h -- the byte/word extraction macros IDA emits, as lvalues.
 //
 // WHY THIS IS ITS OWN HEADER
@@ -83,13 +86,13 @@
 #undef BYTE7
 #endif
 
-#define LOBYTE(x)  (*(unsigned char  *)&(x))
-#define HIBYTE(x)  (*(unsigned char  *)((unsigned char *)&(x) + 1))
-#define BYTE1(x)   (*(unsigned char  *)((unsigned char *)&(x) + 1))
-#define BYTE2(x)   (*(unsigned char  *)((unsigned char *)&(x) + 2))
-#define LOWORD(x)  (*(unsigned short *)&(x))
-#define HIWORD(x)  (*(unsigned short *)((unsigned char *)&(x) + 2))
-#define WORD1(x)   (*(unsigned short *)((unsigned char *)&(x) + 2))
+#define LOBYTE(x) (*(unsigned char *)&(x))
+#define HIBYTE(x) (*(unsigned char *)((unsigned char *)&(x) + 1))
+#define BYTE1(x) (*(unsigned char *)((unsigned char *)&(x) + 1))
+#define BYTE2(x) (*(unsigned char *)((unsigned char *)&(x) + 2))
+#define LOWORD(x) (*(unsigned short *)&(x))
+#define HIWORD(x) (*(unsigned short *)((unsigned char *)&(x) + 2))
+#define WORD1(x) (*(unsigned short *)((unsigned char *)&(x) + 2))
 #define LODWORD(x) (*reinterpret_cast<std::uint32_t *>(&(x)))
 #define HIDWORD(x) (*reinterpret_cast<std::uint32_t *>(reinterpret_cast<unsigned char *>(&(x)) + 4))
 
@@ -110,8 +113,10 @@
 // reads `BYTE4(x)` as a call to an unknown function, and `BYTE4(x) = y;` is
 // then C2106 ("left operand must be an lvalue"). All are lvalues by the same
 // address-cast construction the macros above use.
-#define BYTE3(x)   (*(unsigned char  *)((unsigned char *)&(x) + 3))
-#define BYTE4(x)   (*(unsigned char  *)((unsigned char *)&(x) + 4))
-#define BYTE5(x)   (*(unsigned char  *)((unsigned char *)&(x) + 5))
-#define BYTE6(x)   (*(unsigned char  *)((unsigned char *)&(x) + 6))
-#define BYTE7(x)   (*(unsigned char  *)((unsigned char *)&(x) + 7))
+#define BYTE3(x) (*(unsigned char *)((unsigned char *)&(x) + 3))
+#define BYTE4(x) (*(unsigned char *)((unsigned char *)&(x) + 4))
+#define BYTE5(x) (*(unsigned char *)((unsigned char *)&(x) + 5))
+#define BYTE6(x) (*(unsigned char *)((unsigned char *)&(x) + 6))
+#define BYTE7(x) (*(unsigned char *)((unsigned char *)&(x) + 7))
+
+#endif // LAWNPROJECTTV_SEXY_INCLUDE_RUNTIME_IDAMACROS_H

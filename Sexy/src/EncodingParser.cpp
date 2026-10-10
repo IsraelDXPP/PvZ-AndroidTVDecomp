@@ -2,8 +2,9 @@
 #include <cstdio>
 #include <functional>
 
-namespace Sexy {
-int SexyUtf8Validate(void* theState, char const* theText, int theLength);
+namespace Sexy
+{
+int SexyUtf8Validate(void *theState, char const *theText, int theLength);
 }
 
 // Lead-byte masks for UTF-8. The index that matches is the sequence length
@@ -13,18 +14,29 @@ int SexyUtf8Validate(void* theState, char const* theText, int theLength);
 //   2  0xF0  lead 0xE0..0xEF, length 3
 //   3  0xF8  lead 0xF0..0xF7, length 4
 //   4  0xFC  lead 0xF8..0xFB, length 5
-static const unsigned short kUtf8LeadMasks[] = { 0xC0, 0xE0, 0xF0, 0xF8, 0xFC };
+static const unsigned short kUtf8LeadMasks[] = {0xC0, 0xE0, 0xF0, 0xF8, 0xFC};
 
 int Sexy::EncodingParser::SetEncodingType(int theEncoding)
 {
     switch (theEncoding)
     {
-    case 0: mGetCharFunc = &EncodingParser::GetAsciiChar; break;
-    case 1: mGetCharFunc = &EncodingParser::GetUTF8Char; break;
-    case 2: mGetCharFunc = &EncodingParser::GetUTF16Char; break;
-    case 3: mGetCharFunc = &EncodingParser::GetUTF16LEChar; break;
-    case 4: mGetCharFunc = &EncodingParser::GetUTF16BEChar; break;
-    default: return 0;
+        case 0:
+            mGetCharFunc = &EncodingParser::GetAsciiChar;
+            break;
+        case 1:
+            mGetCharFunc = &EncodingParser::GetUTF8Char;
+            break;
+        case 2:
+            mGetCharFunc = &EncodingParser::GetUTF16Char;
+            break;
+        case 3:
+            mGetCharFunc = &EncodingParser::GetUTF16LEChar;
+            break;
+        case 4:
+            mGetCharFunc = &EncodingParser::GetUTF16BEChar;
+            break;
+        default:
+            return 0;
     }
 
     mGetCharFuncAdj = 0;
@@ -41,7 +53,7 @@ int Sexy::EncodingParser::CloseFile()
     return 1;
 }
 
-int Sexy::EncodingParser::GetAsciiChar(wchar_t* theChar, bool* theFirstChar)
+int Sexy::EncodingParser::GetAsciiChar(wchar_t *theChar, bool *theFirstChar)
 {
     (void)theFirstChar;
     unsigned char aByte = 0;
@@ -51,7 +63,7 @@ int Sexy::EncodingParser::GetAsciiChar(wchar_t* theChar, bool* theFirstChar)
     return 1;
 }
 
-int Sexy::EncodingParser::GetUTF8Char(wchar_t* theChar, bool* theFirstChar)
+int Sexy::EncodingParser::GetUTF8Char(wchar_t *theChar, bool *theFirstChar)
 {
     unsigned char aByte = 0;
 
@@ -101,24 +113,24 @@ int Sexy::EncodingParser::GetUTF8Char(wchar_t* theChar, bool* theFirstChar)
 
         switch (aLength)
         {
-        case 2:
-            if ((aLead & 0x3E) == 0)
-                return 0;
-            break;
-        case 3:
-            if ((aLead & 0x1F) == 0 && (aSecond & 0x20) == 0)
-                return 0;
-            break;
-        case 4:
-            if ((aLead & 0x0F) == 0 && (aSecond & 0x30) == 0)
-                return 0;
-            break;
-        case 5:
-            if ((aLead & 0x07) == 0 && (aSecond & 0x38) == 0)
-                return 0;
-            break;
-        default:
-            break;
+            case 2:
+                if ((aLead & 0x3E) == 0)
+                    return 0;
+                break;
+            case 3:
+                if ((aLead & 0x1F) == 0 && (aSecond & 0x20) == 0)
+                    return 0;
+                break;
+            case 4:
+                if ((aLead & 0x0F) == 0 && (aSecond & 0x30) == 0)
+                    return 0;
+                break;
+            case 5:
+                if ((aLead & 0x07) == 0 && (aSecond & 0x38) == 0)
+                    return 0;
+                break;
+            default:
+                break;
         }
     }
 
@@ -141,7 +153,7 @@ static int SwapUtf16(int theUnit)
     return ((theUnit & 0xFF) << 8) | ((theUnit >> 8) & 0xFF);
 }
 
-static int DecodeUtf16Pair(int theHigh, int theLow, wchar_t* theChar, bool* theFirstChar)
+static int DecodeUtf16Pair(int theHigh, int theLow, wchar_t *theChar, bool *theFirstChar)
 {
     if ((theHigh & 0xFC00) != 0xD800)
     {
@@ -159,7 +171,7 @@ static int DecodeUtf16Pair(int theHigh, int theLow, wchar_t* theChar, bool* theF
     return 1;
 }
 
-int Sexy::EncodingParser::GetUTF16Char(wchar_t* theChar, bool* theFirstChar)
+int Sexy::EncodingParser::GetUTF16Char(wchar_t *theChar, bool *theFirstChar)
 {
     int aUnit = 0;
     if (p_fread(&aUnit, 2, 1, mFile) != 1)
@@ -199,7 +211,7 @@ int Sexy::EncodingParser::GetUTF16Char(wchar_t* theChar, bool* theFirstChar)
     return DecodeUtf16Pair(aUnit, aLow, theChar, theFirstChar);
 }
 
-int Sexy::EncodingParser::GetUTF16LEChar(wchar_t* theChar, bool* theFirstChar)
+int Sexy::EncodingParser::GetUTF16LEChar(wchar_t *theChar, bool *theFirstChar)
 {
     int aUnit = 0;
     if (p_fread(&aUnit, 2, 1, mFile) != 1)
@@ -219,7 +231,7 @@ int Sexy::EncodingParser::GetUTF16LEChar(wchar_t* theChar, bool* theFirstChar)
     return DecodeUtf16Pair(aUnit, aLow, theChar, theFirstChar);
 }
 
-int Sexy::EncodingParser::GetUTF16BEChar(wchar_t* theChar, bool* theFirstChar)
+int Sexy::EncodingParser::GetUTF16BEChar(wchar_t *theChar, bool *theFirstChar)
 {
     int aUnit = 0;
     if (p_fread(&aUnit, 2, 1, mFile) != 1)
@@ -241,10 +253,10 @@ int Sexy::EncodingParser::GetUTF16BEChar(wchar_t* theChar, bool* theFirstChar)
     return DecodeUtf16Pair(aUnit, aLow, theChar, theFirstChar);
 }
 
-int Sexy::EncodingParser::OpenFile(Sexy::String const& thePath)
+int Sexy::EncodingParser::OpenFile(Sexy::String const &thePath)
 {
     CloseFile();
-    SDL_IOStream* aFile = p_fopen(thePath.c_str(), "rb");
+    SDL_IOStream *aFile = p_fopen(thePath.c_str(), "rb");
     mFile = aFile;
     if (aFile == nullptr)
         return 0;
@@ -315,7 +327,7 @@ bool Sexy::EncodingParser::EndOfFile()
     return true;
 }
 
-int Sexy::EncodingParser::GetChar(wchar_t* theChar)
+int Sexy::EncodingParser::GetChar(wchar_t *theChar)
 {
     if (theChar == nullptr)
         return 3;
@@ -336,17 +348,17 @@ int Sexy::EncodingParser::GetChar(wchar_t* theChar)
     return 0;
 }
 
-Sexy::EncodingParser::EncodingParser()
-    : mFile(nullptr),
-      mGetCharFunc(&EncodingParser::GetUTF8Char),
-      mGetCharFuncAdj(0),
-      mForcedEncodingType(false),
-      mFirstChar(false),
-      mByteSwap(false)
+Sexy::EncodingParser::EncodingParser() :
+    mFile(nullptr),
+    mGetCharFunc(&EncodingParser::GetUTF8Char),
+    mGetCharFuncAdj(0),
+    mForcedEncodingType(false),
+    mFirstChar(false),
+    mByteSwap(false)
 {
 }
 
-void Sexy::EncodingParser::SetStringSource(Sexy::String const& theSource)
+void Sexy::EncodingParser::SetStringSource(Sexy::String const &theSource)
 {
     Sexy::String aWideText;
     StringToWString(&aWideText, theSource.c_str());
@@ -356,13 +368,13 @@ void Sexy::EncodingParser::SetStringSource(Sexy::String const& theSource)
         mBufferedText.push_back((wchar_t)(unsigned char)aWideText[aIndex]);
 }
 
-int Sexy::EncodingParser::PutChar(wchar_t const& theChar)
+int Sexy::EncodingParser::PutChar(wchar_t const &theChar)
 {
     mBufferedText.insert(mBufferedText.begin(), theChar);
     return 1;
 }
 
-int Sexy::EncodingParser::PutString(Sexy::String const& theText)
+int Sexy::EncodingParser::PutString(Sexy::String const &theText)
 {
     for (unsigned int aIndex = 0; aIndex < theText.size(); ++aIndex)
         mBufferedText.push_back((wchar_t)(unsigned char)theText[aIndex]);

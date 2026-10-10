@@ -27,7 +27,8 @@
 //
 // Draw callbacks share the Graphics* signatures of BaseGamepadControls.
 
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_GAMEPADCONTROLS_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_GAMEPADCONTROLS_H
 
 #include "ReconTypes.h"
 // Classes this one calls a method on: the call needs the
@@ -61,28 +62,28 @@ class GamepadControls : public BaseGamepadControls
 {
 public:
     // ---- own members, +0xAC..+0x107 (authoritative ordinals 43..65) ----
-    float mCursorLabelLiftOffset;         // +0xAC
+    float mCursorLabelLiftOffset; // +0xAC
     ParticleSystemID mSelectorParticleID; // +0xB0
-    int mSelectedSeedIndex;               // +0xB4
-    SeedType mSelectedSeedType;           // +0xB8
-    bool mIsZombie;                       // +0xBC (188)
-    bool mCanPickUp;                      // +0xBD (189)
-    int mSelectedUpgradableType;          // +0xC0
-    int mCobCannonPlantIndexInList;       // +0xC4
-    bool mIsCobCannonSelected;            // +0xC8 (200)
-    float mCanPickUpFade;                 // +0xCC
-    ReanimationID mPreviewReanimID1;      // +0xD0
-    ReanimationID mCobCannonReanimID;     // +0xD4
-    ReanimationID mPreviewReanimID3;      // +0xD8
-    int mCobCannonAnimCounter;            // +0xDC
-    ReanimationID mPreviewReanimID4;      // +0xE0
-    SeedType mPreviewingSeedType;         // +0xE4
-    Sexy::Image * mPreviewImage;          // +0xE8
-    ZombieID mButterZombieID;             // +0xEC
-    int mDigIndicatorStartCounter;        // +0xF0
-    bool mIsShowingDigIndicator;          // +0xF4 (244)
-    bool mIsInShopSeedBank;               // +0xF5 (245)
-    int mSelectedShopSeedIndex;           // +0xF8
+    int mSelectedSeedIndex; // +0xB4
+    SeedType mSelectedSeedType; // +0xB8
+    bool mIsZombie; // +0xBC (188)
+    bool mCanPickUp; // +0xBD (189)
+    int mSelectedUpgradableType; // +0xC0
+    int mCobCannonPlantIndexInList; // +0xC4
+    bool mIsCobCannonSelected; // +0xC8 (200)
+    float mCanPickUpFade; // +0xCC
+    ReanimationID mPreviewReanimID1; // +0xD0
+    ReanimationID mCobCannonReanimID; // +0xD4
+    ReanimationID mPreviewReanimID3; // +0xD8
+    int mCobCannonAnimCounter; // +0xDC
+    ReanimationID mPreviewReanimID4; // +0xE0
+    SeedType mPreviewingSeedType; // +0xE4
+    Sexy::Image *mPreviewImage; // +0xE8
+    ZombieID mButterZombieID; // +0xEC
+    int mDigIndicatorStartCounter; // +0xF0
+    bool mIsShowingDigIndicator; // +0xF4 (244)
+    bool mIsInShopSeedBank; // +0xF5 (245)
+    int mSelectedShopSeedIndex; // +0xF8
 
     // ---- the 18 slots, declared in binary order --------------------------
     // Every one of these is a real override of a BaseGamepadControls virtual
@@ -91,15 +92,15 @@ public:
     virtual void OnButtonDown(int theButton, int thePlayerIndex, unsigned int theFlags); // [ 0] 0x000
     virtual void OnButtonUp(int theButton, int thePlayerIndex, unsigned int theFlags); // [ 1] 0x004
     virtual void OnGameAxisMove(int theAxis, int theValue, int thePlayerIndex); // [ 2] 0x008
-    virtual bool OnKeyDown(Sexy::KeyCode theKey, unsigned int theFlags);                 // [ 3] 0x00C
+    virtual bool OnKeyDown(Sexy::KeyCode theKey, unsigned int theFlags); // [ 3] 0x00C
     virtual int OnKeyUp(Sexy::KeyCode theKey, unsigned int theFlags); // [ 4] 0x010
-    virtual int Update(float theDeltaTime);                          // [ 5] 0x014
-    bool BeginDraw(Sexy::Graphics *theGraphics) override;             // [ 6] 0x018
-    void Draw(Sexy::Graphics *theGraphics) override;                  // [ 7] 0x01C
-    void EndDraw(Sexy::Graphics *theGraphics) override;               // [ 8] 0x020
-    virtual void MakeParentGraphicsFrame();                          // [ 9] 0x024
-    virtual int UpdateStates(float theDeltaTime);                    // [12] 0x030
-    virtual ~GamepadControls();                                      // [16] 0x040
+    virtual int Update(float theDeltaTime); // [ 5] 0x014
+    bool BeginDraw(Sexy::Graphics *theGraphics) override; // [ 6] 0x018
+    void Draw(Sexy::Graphics *theGraphics) override; // [ 7] 0x01C
+    void EndDraw(Sexy::Graphics *theGraphics) override; // [ 8] 0x020
+    virtual void MakeParentGraphicsFrame(); // [ 9] 0x024
+    virtual int UpdateStates(float theDeltaTime); // [12] 0x030
+    virtual ~GamepadControls(); // [16] 0x040
 
     // ---- methods the binary has but the authoritative header does not list ----
     // The transcription gave several of these the return type of whatever the
@@ -107,14 +108,14 @@ public:
     // int). None of the callers reads a result, so they are void here.
     void GotoSelectingState(int theSeedIndex);
     void InvalidatePreviewReanim();
-    int DrawHighlightPolys(Sexy::Graphics * g);
+    int DrawHighlightPolys(Sexy::Graphics *g);
     float DrawReticuleHorizontal(Sexy::Graphics *g, int theX, int theY);
     int DrawReticuleVertical(Sexy::Graphics *g, int theX, int theY);
     void DrawDigIndicator(Sexy::Graphics *g, float theX, float theY, float theProgress);
-    SeedBank * GetSeedBank();
+    SeedBank *GetSeedBank();
     int PlantShopPacket();
     int FreeUseShopPacketAndBack();
-    void DrawPreview(Sexy::Graphics * g);
+    void DrawPreview(Sexy::Graphics *g);
     int UpdateSeedSelect(float theDeltaTime);
     int IsMagnetized(CoinType theCoinType);
     int AddSelectorParticle(int theSeedIndex);
@@ -149,9 +150,11 @@ public:
     void HandleShovelButton();
     void UpdateCursorReanims();
     void AddCursorReanim();
-    int PickupUsableSeedPacket(Coin * theCoin);
+    int PickupUsableSeedPacket(Coin *theCoin);
     void UpdatePreviewReanim();
-    GamepadControls(Board * theBoard, int thePlayerIndex1, int thePlayerIndex2);
+    GamepadControls(Board *theBoard, int thePlayerIndex1, int thePlayerIndex2);
 };
 
 // Layout check: BaseGamepadControls (0xAC) + 0x5C of own members = 0x108.
+
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_GAMEPADCONTROLS_H

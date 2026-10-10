@@ -30,7 +30,8 @@
 // member area cannot be placed exactly; the bodies reach 0xAB/0xAC, 0xE6..0xE9
 // and 0x120.
 
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_STRETCHABLEGAMEBUTTON_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_STRETCHABLEGAMEBUTTON_H
 
 #include "ReconTypes.h"
 // Classes this one calls a method on: the call needs the
@@ -46,12 +47,13 @@
 class StretchableGameButton : public GameButton
 {
 public:
-    virtual ~StretchableGameButton();                                  // [  0],[1] 0x000/0x004
+    virtual ~StretchableGameButton(); // [  0],[1] 0x000/0x004
     virtual void Resize(int theX, int theY, int theWidth, int theHeight); // [ 50] 0x0C8
-    virtual void DrawButtonImage(Sexy::Graphics *theGraphics, Sexy::Image *theImage, TRect<int> const& theRect, int theX, int theY); // [125] 0x1F4
-    virtual void SetFont(Sexy::Font *theFont);                         // [126] 0x1F8
-    virtual void SetLabel(Sexy::String const& theLabel);               // [127] 0x1FC
-    virtual void SetPadding(int thePadX, int thePadY);                 // [134] 0x218
+    virtual void DrawButtonImage(Sexy::Graphics *theGraphics, Sexy::Image *theImage, TRect<int> const &theRect,
+        int theX, int theY); // [125] 0x1F4
+    virtual void SetFont(Sexy::Font *theFont); // [126] 0x1F8
+    virtual void SetLabel(Sexy::String const &theLabel); // [127] 0x1FC
+    virtual void SetPadding(int thePadX, int thePadY); // [134] 0x218
 
     // Derived member area. Sexy::ButtonWidget is 0x330 and GameButton is 0x398,
     // and both now carry their real members, so this class' own area is exactly
@@ -62,9 +64,9 @@ public:
     // so it mis-named three base members and overlapped all of ButtonWidget and
     // GameButton. The four real members below occupy the same sixteen bytes, so
     // sizeof is unchanged at 0x3A8.
-    int mTextWidth;                // +0x398, the label's measured text width
-    int mPadX;                     // +0x39C, SetPadding's first argument
-    int mPadY;                     // +0x3A0, SetPadding's second argument
+    int mTextWidth; // +0x398, the label's measured text width
+    int mPadX; // +0x39C, SetPadding's first argument
+    int mPadY; // +0x3A0, SetPadding's second argument
     BUTTON_ALIGNMENT_X mAlignment; // +0x3A4, 0 = centred, -1 = right, 1 = left
     // 0x3A8
 
@@ -74,8 +76,12 @@ public:
     // i.e. (int, ButtonListener*, String const&, int x5, BUTTON_ALIGNMENT_X, int x2, Font*).
     // The leading `GameButton *a1` the transcription emitted was the implicit
     // `this`, not a parameter.
-    StretchableGameButton(int theId, Sexy::ButtonListener *theListener, Sexy::String const& theLabel, int theX, int theY, int theWidth, int theHeight, BUTTON_ALIGNMENT_X theAlignment, int thePadX, int thePadY, Font *theFont);
-    int DrawStretchableGameButton(Sexy::Graphics *theGraphics, Sexy::Image *theImage, TRect<int> const& theRect);
-    int DrawStretchableGameButton(Sexy::Graphics *theGraphics, Sexy::Image *theImage, int theX, int theY, int theWidth, int theHeight);
+    StretchableGameButton(int theId, Sexy::ButtonListener *theListener, Sexy::String const &theLabel, int theX,
+        int theY, int theWidth, int theHeight, BUTTON_ALIGNMENT_X theAlignment, int thePadX, int thePadY,
+        Font *theFont);
+    int DrawStretchableGameButton(Sexy::Graphics *theGraphics, Sexy::Image *theImage, TRect<int> const &theRect);
+    int DrawStretchableGameButton(
+        Sexy::Graphics *theGraphics, Sexy::Image *theImage, int theX, int theY, int theWidth, int theHeight);
 };
 
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_STRETCHABLEGAMEBUTTON_H

@@ -56,13 +56,13 @@ struct XmlCursor
     size_t mIndex = 0;
 };
 
-std::map<const Sexy::XMLParser*, XmlCursor> gXmlCursors;
+std::map<const Sexy::XMLParser *, XmlCursor> gXmlCursors;
 
-bool IsSpaceOnly(const char* theText)
+bool IsSpaceOnly(const char *theText)
 {
     if (theText == nullptr)
         return true;
-    for (const char* cursor = theText; *cursor != 0; ++cursor)
+    for (const char *cursor = theText; *cursor != 0; ++cursor)
     {
         if (isspace((unsigned char)*cursor) == 0)
             return false;
@@ -70,15 +70,16 @@ bool IsSpaceOnly(const char* theText)
     return true;
 }
 
-int LineAt(const std::vector<size_t>& theNewlines, ptrdiff_t theOffset)
+int LineAt(const std::vector<size_t> &theNewlines, ptrdiff_t theOffset)
 {
-    if (theOffset <= 0) return 1;
+    if (theOffset <= 0)
+        return 1;
     const auto position = std::lower_bound(theNewlines.begin(), theNewlines.end(), static_cast<size_t>(theOffset));
     return 1 + static_cast<int>(position - theNewlines.begin());
 }
 
-void AppendNode(std::vector<XmlEvent>& theEvents, pugi::xml_node theNode,
-                std::string& theSection, const std::vector<size_t>& theNewlines)
+void AppendNode(std::vector<XmlEvent> &theEvents, pugi::xml_node theNode, std::string &theSection,
+    const std::vector<size_t> &theNewlines)
 {
     // A processing instruction, including the "<?xml ...?>" declaration. The
     // manifest reader skips a start tag whose name begins with '?', so the
@@ -145,7 +146,7 @@ void AppendNode(std::vector<XmlEvent>& theEvents, pugi::xml_node theNode,
     theEvents.push_back(aEnd);
 }
 
-std::string ReadOpenStream(SDL_IOStream* theFile)
+std::string ReadOpenStream(SDL_IOStream *theFile)
 {
     std::string aBytes;
     char aChunk[4096];
@@ -159,9 +160,9 @@ std::string ReadOpenStream(SDL_IOStream* theFile)
     return aBytes;
 }
 
-void LoadXmlText(Sexy::XMLParser* theParser, const char* theText, size_t theSize)
+void LoadXmlText(Sexy::XMLParser *theParser, const char *theText, size_t theSize)
 {
-    XmlCursor& aCursor = gXmlCursors[theParser];
+    XmlCursor &aCursor = gXmlCursors[theParser];
     aCursor.mEvents.clear();
     aCursor.mIndex = 0;
     if (theText == nullptr)
@@ -170,12 +171,10 @@ void LoadXmlText(Sexy::XMLParser* theParser, const char* theText, size_t theSize
         theSize = 0;
     }
     pugi::xml_document aDoc;
-    pugi::xml_parse_result aResult = aDoc.load_buffer(
-        theText, theSize, pugi::parse_default, pugi::encoding_auto);
+    pugi::xml_parse_result aResult = aDoc.load_buffer(theText, theSize, pugi::parse_default, pugi::encoding_auto);
     if (!aResult)
     {
-        fprintf(stderr, "XML parse failed at %d of %u, head:",
-                (int)aResult.offset, (unsigned)theSize);
+        fprintf(stderr, "XML parse failed at %d of %u, head:", (int)aResult.offset, (unsigned)theSize);
         unsigned aShow = theSize < 24 ? (unsigned)theSize : 24;
         for (unsigned i = 0; i < aShow; ++i)
             fprintf(stderr, " %02X", (unsigned char)theText[i]);
@@ -188,7 +187,8 @@ void LoadXmlText(Sexy::XMLParser* theParser, const char* theText, size_t theSize
     // quadratic for the unified levels.xml and delayed every stage selection.
     std::vector<size_t> newlines;
     for (size_t offset = 0; offset < theSize; ++offset)
-        if (theText[offset] == '\n') newlines.push_back(offset);
+        if (theText[offset] == '\n')
+            newlines.push_back(offset);
     std::string aSection;
     for (pugi::xml_node aChild = aDoc.first_child(); aChild; aChild = aChild.next_sibling())
         AppendNode(aCursor.mEvents, aChild, aSection, newlines);
@@ -197,7 +197,7 @@ void LoadXmlText(Sexy::XMLParser* theParser, const char* theText, size_t theSize
 } // namespace
 
 // Both element walks start each round by emptying the element they fill.
-static void ResetElement(Sexy::XMLElement* theElement, const Sexy::String& theSection)
+static void ResetElement(Sexy::XMLElement *theElement, const Sexy::String &theSection)
 {
     theElement->mType = 0;
     theElement->mValue = theSection;
@@ -213,7 +213,7 @@ static void ResetElement(Sexy::XMLElement* theElement, const Sexy::String& theSe
 // Sexy::Trim @0x2FA90C (`_ZN4Sexy4TrimERKSs`) has no home in this tree; it
 // strips the leading and trailing whitespace, which is all the text walk needs
 // it for.
-static Sexy::String TrimString(const Sexy::String & theText)
+static Sexy::String TrimString(const Sexy::String &theText)
 {
     unsigned int aStart = 0;
     unsigned int anEnd = theText.size();
@@ -226,7 +226,7 @@ static Sexy::String TrimString(const Sexy::String & theText)
 
 // StringRFindChar(&theText, '/', npos) -- the offset of the LAST '/' in the text, or
 // -1. The section path uses it to cut itself back one component.
-static int FindLastSlash(const Sexy::String & theText)
+static int FindLastSlash(const Sexy::String &theText)
 {
     for (int i = (int)theText.size() - 1; i >= 0; --i)
     {
@@ -242,7 +242,7 @@ static int FindLastSlash(const Sexy::String & theText)
 // ==========================================================================
 // Fail records the message and the flag; the binary hands the assignment's
 // result register back, which is what the int return type is.
-int Sexy::XMLParser::Fail(Sexy::String const& theErrorText)
+int Sexy::XMLParser::Fail(Sexy::String const &theErrorText)
 {
     mHasFailed = true;
     mErrorText = theErrorText;
@@ -259,7 +259,7 @@ int Sexy::XMLParser::Fail(Sexy::String const& theErrorText)
 // The override reads the file into the character buffer and resets the parser,
 // which is what a later NextElement walks. Nothing on the loading path calls
 // it; the manifest comes through SetStringSource.
-int Sexy::XMLParser::OpenFile(Sexy::String const& thePath)
+int Sexy::XMLParser::OpenFile(Sexy::String const &thePath)
 {
     mFileName = thePath;
     Init();
@@ -297,7 +297,7 @@ void Sexy::XMLParser::Init()
 // is the base's implementation); this tree spells both overloads with
 // Sexy::String, so the call is written qualified to reach the base rather than
 // itself.
-void Sexy::XMLParser::SetStringSource(Sexy::String const& theString)
+void Sexy::XMLParser::SetStringSource(Sexy::String const &theString)
 {
     // The dump's slot-6 override @0x3B7034 is two calls:
     //
@@ -321,7 +321,7 @@ void Sexy::XMLParser::SetStringSource(Sexy::String const& theString)
 // Sexy::XMLParser::GetString(unsigned short)const
 // @003B4690  20 bytes
 // ==========================================================================
-Sexy::String const * Sexy::XMLParser::GetString(unsigned int theIdx) const
+Sexy::String const *Sexy::XMLParser::GetString(unsigned int theIdx) const
 {
     if (theIdx >= mStringList.size())
         return nullptr;
@@ -394,11 +394,11 @@ Sexy::XMLParser::XMLParser()
 // Sexy::XMLParser::OpenBinaryFile(Sexy::String const&)
 // @003B494C  888 bytes
 // ==========================================================================
-int Sexy::XMLParser::OpenBinaryFile(Sexy::String const& theFileName)
+int Sexy::XMLParser::OpenBinaryFile(Sexy::String const &theFileName)
 {
-    if (gSexyAppBase == 0
-        || ((Sexy::SexyAppBase *)gSexyAppBase)->ReadBufferFromFile(theFileName, &mBuffer, false) == 0
-        || mBuffer.mDataBitSize <= 120)
+    if (gSexyAppBase == 0 ||
+        ((Sexy::SexyAppBase *)gSexyAppBase)->ReadBufferFromFile(theFileName, &mBuffer, false) == 0 ||
+        mBuffer.mDataBitSize <= 120)
     {
         mLineNum = 0;
         // The message is the address of a String, not its text.
@@ -462,7 +462,7 @@ int Sexy::XMLParser::OpenBinaryFile(Sexy::String const& theFileName)
         Sexy::String aText;
         mStringList.push_back(aText);
 
-        Sexy::String & aString = mStringList.back();
+        Sexy::String &aString = mStringList.back();
         aString.Assign("", 0);
         mBuffer.ReadBytes((std::uint8_t *)aString.data(), aStringSizes[i]);
     }
@@ -471,7 +471,8 @@ int Sexy::XMLParser::OpenBinaryFile(Sexy::String const& theFileName)
     return 1;
 }
 
-int Sexy::XMLParser::AddAttribute(Sexy::XMLElement* theElement, Sexy::String const& theName, Sexy::String const& theValue)
+int Sexy::XMLParser::AddAttribute(
+    Sexy::XMLElement *theElement, Sexy::String const &theName, Sexy::String const &theValue)
 {
     if (theElement == nullptr)
         return 0;
@@ -480,7 +481,8 @@ int Sexy::XMLParser::AddAttribute(Sexy::XMLElement* theElement, Sexy::String con
     return inserted ? 1 : 0;
 }
 
-int Sexy::XMLParser::AddAttributeEncoded(Sexy::XMLElement* theElement, Sexy::String const& theName, Sexy::String const& theValue)
+int Sexy::XMLParser::AddAttributeEncoded(
+    Sexy::XMLElement *theElement, Sexy::String const &theName, Sexy::String const &theValue)
 {
     if (theElement == nullptr)
         return 0;
@@ -496,7 +498,7 @@ int Sexy::XMLParser::AddAttributeEncoded(Sexy::XMLElement* theElement, Sexy::Str
 // Walks one chunk of the binary format. Each chunk is a type byte, a string
 // index and an attribute count, optionally followed by that many attribute
 // index pairs.
-int Sexy::XMLParser::NextBinaryElement(Sexy::XMLElement * theElement)
+int Sexy::XMLParser::NextBinaryElement(Sexy::XMLElement *theElement)
 {
     while (mCurrentElementIndex < mElementCount)
     {
@@ -519,8 +521,8 @@ int Sexy::XMLParser::NextBinaryElement(Sexy::XMLElement * theElement)
             {
                 unsigned short aNameIdx = (unsigned short)mBuffer.ReadInt16();
                 unsigned short aValueIdx = (unsigned short)mBuffer.ReadInt16();
-                Sexy::String const * aName = GetString(aNameIdx);
-                Sexy::String const * aValue = GetString(aValueIdx);
+                Sexy::String const *aName = GetString(aNameIdx);
+                Sexy::String const *aValue = GetString(aValueIdx);
                 if (aName == nullptr || aValue == nullptr)
                 {
                     aCorrupt = true;
@@ -551,116 +553,116 @@ int Sexy::XMLParser::NextBinaryElement(Sexy::XMLElement * theElement)
 
         switch (aType)
         {
-        case 1:
-            // Character data.
-            theElement->mType = 4;
-            {
-                Sexy::String const * aText = GetString(aStringIdx);
-                if (aText == nullptr)
+            case 1:
+                // Character data.
+                theElement->mType = 4;
                 {
-                    Fail("The file is corrupted.");
-                    return 0;
+                    Sexy::String const *aText = GetString(aStringIdx);
+                    if (aText == nullptr)
+                    {
+                        Fail("The file is corrupted.");
+                        return 0;
+                    }
+                    theElement->mInstruction = aText->c_str();
                 }
-                theElement->mInstruction = aText->c_str();
-            }
-            break;
+                break;
 
-        case 2:
-            // A comment: the instruction is the marker, mComment the body.
-            theElement->mType = 5;
-            {
-                Sexy::String const * aText = GetString(aStringIdx);
-                if (aText == nullptr)
+            case 2:
+                // A comment: the instruction is the marker, mComment the body.
+                theElement->mType = 5;
                 {
-                    Fail("The file is corrupted.");
-                    return 0;
+                    Sexy::String const *aText = GetString(aStringIdx);
+                    if (aText == nullptr)
+                    {
+                        Fail("The file is corrupted.");
+                        return 0;
+                    }
+                    theElement->mInstruction = "!--";
+                    theElement->mComment = aText->c_str();
                 }
-                theElement->mInstruction = "!--";
-                theElement->mComment = aText->c_str();
-            }
-            break;
+                break;
 
-        case 3:
-            // A start tag: extend the section path by this element's name.
-            theElement->mType = 1;
-            {
-                Sexy::String const * aName = GetString(aStringIdx);
-                if (aName == nullptr)
+            case 3:
+                // A start tag: extend the section path by this element's name.
+                theElement->mType = 1;
                 {
-                    Fail("The file is corrupted.");
-                    return 0;
-                }
-                theElement->mInstruction = aName->c_str();
-                theElement->mValue = mSection;
+                    Sexy::String const *aName = GetString(aStringIdx);
+                    if (aName == nullptr)
+                    {
+                        Fail("The file is corrupted.");
+                        return 0;
+                    }
+                    theElement->mInstruction = aName->c_str();
+                    theElement->mValue = mSection;
 
-                if (!mSection.empty())
+                    if (!mSection.empty())
+                    {
+                        Sexy::String aSeparator("/");
+                        aSeparator += theElement->mInstruction;
+                        mSection += aSeparator;
+                    }
+                    else
+                    {
+                        mSection += theElement->mInstruction;
+                    }
+                }
+                break;
+
+            case 4:
+                // An end tag: drop one component off the section path.
+                theElement->mType = 2;
                 {
-                    Sexy::String aSeparator("/");
-                    aSeparator += theElement->mInstruction;
-                    mSection += aSeparator;
+                    Sexy::String const *aName = GetString(aStringIdx);
+                    if (aName == nullptr)
+                    {
+                        Fail("The file is corrupted.");
+                        return 0;
+                    }
+                    theElement->mInstruction = aName->c_str();
+                    theElement->mValue = mSection;
+
+                    int aSlash = FindLastSlash(mSection);
+                    if (aSlash == -1)
+                        mSection.clear();
+                    else
+                        mSection = mSection.substr((unsigned int)aSlash);
                 }
-                else
+                break;
+
+            case 5:
+                theElement->mType = 6;
                 {
-                    mSection += theElement->mInstruction;
+                    Sexy::String const *aText = GetString(aStringIdx);
+                    if (aText == nullptr)
+                    {
+                        Fail("The file is corrupted.");
+                        return 0;
+                    }
+                    theElement->mInstruction = aText->c_str();
+                    theElement->mValue = mSection;
                 }
-            }
-            break;
+                break;
 
-        case 4:
-            // An end tag: drop one component off the section path.
-            theElement->mType = 2;
-            {
-                Sexy::String const * aName = GetString(aStringIdx);
-                if (aName == nullptr)
+            case 6:
+                // A processing instruction; an empty one restarts the walk.
+                theElement->mType = 3;
                 {
-                    Fail("The file is corrupted.");
-                    return 0;
+                    Sexy::String const *aText = GetString(aStringIdx);
+                    if (aText == nullptr)
+                    {
+                        Fail("The file is corrupted.");
+                        return 0;
+                    }
+                    theElement->mInstruction = aText->c_str();
+                    theElement->mValue = mSection;
+
+                    if (TrimString(theElement->mInstruction).empty())
+                        continue;
                 }
-                theElement->mInstruction = aName->c_str();
-                theElement->mValue = mSection;
+                break;
 
-                int aSlash = FindLastSlash(mSection);
-                if (aSlash == -1)
-                    mSection.clear();
-                else
-                    mSection = mSection.substr((unsigned int)aSlash);
-            }
-            break;
-
-        case 5:
-            theElement->mType = 6;
-            {
-                Sexy::String const * aText = GetString(aStringIdx);
-                if (aText == nullptr)
-                {
-                    Fail("The file is corrupted.");
-                    return 0;
-                }
-                theElement->mInstruction = aText->c_str();
-                theElement->mValue = mSection;
-            }
-            break;
-
-        case 6:
-            // A processing instruction; an empty one restarts the walk.
-            theElement->mType = 3;
-            {
-                Sexy::String const * aText = GetString(aStringIdx);
-                if (aText == nullptr)
-                {
-                    Fail("The file is corrupted.");
-                    return 0;
-                }
-                theElement->mInstruction = aText->c_str();
-                theElement->mValue = mSection;
-
-                if (TrimString(theElement->mInstruction).empty())
-                    continue;
-            }
-            break;
-
-        default:
-            break;
+            default:
+                break;
         }
 
         if (theElement->mType != 5)
@@ -682,23 +684,23 @@ int Sexy::XMLParser::NextBinaryElement(Sexy::XMLElement * theElement)
 // sequence is the one the callers test: 1 start, 2 end, 3 text, 6 character
 // data. The tag name is mInstruction. A start tag's mValue is the parent
 // path; the matching end tag's mValue still includes the tag.
-int Sexy::XMLParser::NextElement(Sexy::XMLElement * theElement)
+int Sexy::XMLParser::NextElement(Sexy::XMLElement *theElement)
 {
     if (mIsBinary)
         return NextBinaryElement(theElement);
 
-    std::map<const Sexy::XMLParser*, XmlCursor>::iterator aFound = gXmlCursors.find(this);
+    std::map<const Sexy::XMLParser *, XmlCursor>::iterator aFound = gXmlCursors.find(this);
     if (aFound == gXmlCursors.end() || aFound->second.mIndex >= aFound->second.mEvents.size())
         return 0;
 
-    const XmlEvent& aEvent = aFound->second.mEvents[aFound->second.mIndex];
+    const XmlEvent &aEvent = aFound->second.mEvents[aFound->second.mIndex];
     ++aFound->second.mIndex;
 
     ResetElement(theElement, Sexy::String(aEvent.mValue.c_str()));
     theElement->mType = aEvent.mType;
-    theElement->mInstruction.assign(aEvent.mInstruction.c_str(), aEvent.mInstruction.size());
-    theElement->mText.assign(aEvent.mText.c_str(), aEvent.mText.size());
-    mSection.assign(aEvent.mSectionAfter.c_str(), aEvent.mSectionAfter.size());
+    theElement->mInstruction.assign(aEvent.mInstruction.c_str());
+    theElement->mText.assign(aEvent.mText.c_str());
+    mSection.assign(aEvent.mSectionAfter.c_str());
     mLineNum = aEvent.mLine;
 
     for (size_t aIndex = 0; aIndex < aEvent.mAttrs.size(); ++aIndex)

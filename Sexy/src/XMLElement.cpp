@@ -5,9 +5,10 @@
 #include "XMLElement.h"
 #include <cstring>
 
-namespace {
+namespace
+{
 
-bool IsTrueText(const char* theText)
+bool IsTrueText(const char *theText)
 {
     if (theText == nullptr || theText[0] == 0)
         return true;
@@ -16,7 +17,7 @@ bool IsTrueText(const char* theText)
     return false;
 }
 
-bool IsFalseText(const char* theText)
+bool IsFalseText(const char *theText)
 {
     if (theText == nullptr)
         return false;
@@ -25,18 +26,18 @@ bool IsFalseText(const char* theText)
 
 } // namespace
 
-Sexy::XMLElement::XMLElement()
-    : mType(0)
+Sexy::XMLElement::XMLElement() :
+    mType(0)
 {
 }
 
-int Sexy::XMLElement::GetAttributeBool(Sexy::String const& theName, bool theDefault)
+int Sexy::XMLElement::GetAttributeBool(Sexy::String const &theName, bool theDefault)
 {
     std::map<Sexy::String, Sexy::String>::const_iterator found = mAttributes.find(theName);
     if (found == mAttributes.end())
         return theDefault ? 1 : 0;
 
-    const char* text = found->second.c_str();
+    const char *text = found->second.c_str();
     if (IsTrueText(text))
         return 1;
     if (IsFalseText(text))
@@ -44,7 +45,7 @@ int Sexy::XMLElement::GetAttributeBool(Sexy::String const& theName, bool theDefa
     return theDefault ? 1 : 0;
 }
 
-Sexy::String Sexy::XMLElement::GetAttribute(Sexy::String const& theName) const
+Sexy::String Sexy::XMLElement::GetAttribute(Sexy::String const &theName) const
 {
     std::map<Sexy::String, Sexy::String>::const_iterator found = mAttributes.find(theName);
     if (found == mAttributes.end())
@@ -52,7 +53,7 @@ Sexy::String Sexy::XMLElement::GetAttribute(Sexy::String const& theName) const
     return found->second;
 }
 
-bool Sexy::XMLElement::HasAttribute(Sexy::String const& theName) const
+bool Sexy::XMLElement::HasAttribute(Sexy::String const &theName) const
 {
     return mAttributes.find(theName) != mAttributes.end();
 }

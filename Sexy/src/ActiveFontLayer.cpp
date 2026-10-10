@@ -9,10 +9,10 @@
 #include "Image.h"
 #include "SexyAppBase.h"
 
-Sexy::ActiveFontLayer::ActiveFontLayer()
-    : mLayer(nullptr)
-    , mImage(nullptr)
-    , mOwnsImage(false)
+Sexy::ActiveFontLayer::ActiveFontLayer() :
+    mLayer(nullptr),
+    mImage(nullptr),
+    mOwnsImage(false)
 {
 }
 
@@ -23,7 +23,7 @@ int Sexy::ActiveFontLayer::PopColor()
     return 0;
 }
 
-void Sexy::ActiveFontLayer::PushColor(Color const& theColor)
+void Sexy::ActiveFontLayer::PushColor(Color const &theColor)
 {
     if (mColorStack.empty())
     {
@@ -31,21 +31,20 @@ void Sexy::ActiveFontLayer::PushColor(Color const& theColor)
         return;
     }
 
-    const Color& aTop = mColorStack.back();
+    const Color &aTop = mColorStack.back();
     mColorStack.push_back(Color(aTop.mRed * theColor.mRed / 255,
-                                aTop.mGreen * theColor.mGreen / 255,
-                                aTop.mBlue * theColor.mBlue / 255,
-                                aTop.mAlpha * theColor.mAlpha / 255));
+        aTop.mGreen * theColor.mGreen / 255,
+        aTop.mBlue * theColor.mBlue / 255,
+        aTop.mAlpha * theColor.mAlpha / 255));
 }
 
-Sexy::ActiveFontLayer::ActiveFontLayer(Sexy::ActiveFontLayer const& theOther)
-    : mLayer(theOther.mLayer)
-    , mImage(theOther.mImage)
-    , mOwnsImage(theOther.mOwnsImage)
-    , mCharRects(theOther.mCharRects)
-    , mColorStack(theOther.mColorStack)
+Sexy::ActiveFontLayer::ActiveFontLayer(Sexy::ActiveFontLayer const &theOther) :
+    mLayer(theOther.mLayer),
+    mImage(theOther.mImage),
+    mOwnsImage(theOther.mOwnsImage),
+    mCharRects(theOther.mCharRects),
+    mColorStack(theOther.mColorStack)
 {
-    if (mOwnsImage && mLayer != nullptr && mLayer->mFontData != nullptr
-        && mLayer->mFontData->mApp != nullptr)
+    if (mOwnsImage && mLayer != nullptr && mLayer->mFontData != nullptr && mLayer->mFontData->mApp != nullptr)
         mImage = mLayer->mFontData->mApp->CopyImage(mImage);
 }

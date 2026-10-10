@@ -38,7 +38,8 @@
 // MSVC x86 gives a virtual destructor one slot where Itanium and ARM give it two,
 // so the absolute slot numbers run one lower here; only the order is copied.
 
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_USERDIALOG_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_USERDIALOG_H
 
 #include "ReconTypes.h"
 // Classes this one calls a method on: the call needs the
@@ -59,25 +60,25 @@ class UserDialog : public LawnDialog, public Sexy::ListListener, public Sexy::Ed
 {
 public:
     virtual ~UserDialog();
-    virtual void AddedToManager(Sexy::WidgetManager *theWidgetManager);  // slot 29
+    virtual void AddedToManager(Sexy::WidgetManager *theWidgetManager); // slot 29
     virtual void RemovedFromManager(Sexy::WidgetManager *theWidgetManager); // slot 30
-    virtual void Draw(Sexy::Graphics *theGraphics);                 // slot 36
-    virtual void Resize(int theX, int theY, int theWidth, int theHeight);    // slot 50
-    virtual int GetPreferredHeight(int theWidth);                 // slot 125
-    virtual void ButtonDepress(int theId);                     // slot 129
-    virtual void ListClicked(int theId, int theIndex, int theClickCount);       // ListListener subobject
+    virtual void Draw(Sexy::Graphics *theGraphics); // slot 36
+    virtual void Resize(int theX, int theY, int theWidth, int theHeight); // slot 50
+    virtual int GetPreferredHeight(int theWidth); // slot 125
+    virtual void ButtonDepress(int theId); // slot 129
+    virtual void ListClicked(int theId, int theIndex, int theClickCount); // ListListener subobject
     virtual void EditWidgetText(int theId, const Sexy::String &theText); // EditListener subobject
-    virtual int AllowChar(int theId, char theChar);                 // EditListener subobject
+    virtual int AllowChar(int theId, char theChar); // EditListener subobject
 
     // +0x304 .. +0x313. The ListListener base owns +0x2FC and the EditListener
     // base owns +0x300, so this class's own members start at +0x304.
     // TODO(recon): the reference tree names the buttons `Sexy::DialogButton *`;
     // UserDialog.cpp:219/:235 store whatever the button factory returns, so the
     // exact type is unconfirmed.
-    Sexy::ListWidget *mUserList;      // +0x304
+    Sexy::ListWidget *mUserList; // +0x304
     Sexy::DialogButton *mRenameButton; // +0x308
     Sexy::DialogButton *mDeleteButton; // +0x30C
-    int mNumUsers;                    // +0x310, :402 and :437 bounds-check it
+    int mNumUsers; // +0x310, :402 and :437 bounds-check it
     // size 0x314
 
     // Phase 2 recovered both signatures from the binary's own disassembly:
@@ -86,7 +87,7 @@ public:
     //   FinishRenameUser @0x176A74 passes its incoming second register on to
     //     ListWidget::SetLine as the new label, so its parameter is the name.
     Sexy::String GetSelName();
-    void FinishRenameUser(const Sexy::String & theNewName);
+    void FinishRenameUser(const Sexy::String &theNewName);
     void FinishDeleteUser();
     UserDialog(LawnApp *theApp);
 };
@@ -95,3 +96,5 @@ public:
 // UserDialog_RenameUser and UserDialog_DeleteUser -- are still spelled as bare
 // 0/1 in the body; the binary gives them no symbol either, so they stay
 // literals until the framework's id table is reconstructed.
+
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_USERDIALOG_H

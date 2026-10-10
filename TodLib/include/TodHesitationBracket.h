@@ -34,7 +34,8 @@
 // The object is always a local, never a heap allocation and never an array
 // element: the constructor's nine call sites all pass a stack address.
 
-#pragma once
+#ifndef LAWNPROJECTTV_TODLIB_INCLUDE_TODHESITATIONBRACKET_H
+#define LAWNPROJECTTV_TODLIB_INCLUDE_TODHESITATIONBRACKET_H
 
 #include "ReconTypes.h"
 // The method signatures name these, so the includes stay as the transcriber left them.
@@ -43,8 +44,8 @@
 class TodHesitationBracket
 {
 public:
-    char mMessage[256];     // +0x00, the TodVsnprintf destination
-    int mBracketStartTime;  // +0x100, -1 while no bracket is open
+    char mMessage[256]; // +0x00, the TodVsnprintf destination
+    int mBracketStartTime; // +0x100, -1 while no bracket is open
     // size 0x104
 
     TodHesitationBracket(const char *theFormat, ...);
@@ -53,3 +54,5 @@ public:
 };
 
 // Layout check: the 256-byte message buffer plus the start time.
+
+#endif // LAWNPROJECTTV_TODLIB_INCLUDE_TODHESITATIONBRACKET_H

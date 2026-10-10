@@ -32,7 +32,8 @@
 // MSVC x86 gives a virtual destructor one slot where Itanium and ARM give it two,
 // so the absolute slot numbers run one lower here; only the order is copied.
 
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_SAVINGDINGUSDIALOG_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_SAVINGDINGUSDIALOG_H
 
 #include "ReconTypes.h"
 // Classes this one calls a method on: the call needs the
@@ -72,14 +73,17 @@ public:
     virtual int GetStatus() = 0;
 
     // +0x2E0 .. +0x2EB (the first 0x2E0 bytes are Sexy::Dialog).
-    float mDingusTimer;   // +0x2E0, constructor takes it as the 5th argument and
-                          // Update subtracts 0.01 from it each frame
-    LawnApp *mApp;        // +0x2E4
+    float mDingusTimer; // +0x2E0, constructor takes it as the 5th argument and
+    // Update subtracts 0.01 from it each frame
+    LawnApp *mApp; // +0x2E4
     // Constructor's last argument; Draw checks it before DrawDialogFade, so it is
     // the "draw the fade behind the dingus" switch.
     // TODO(recon): name it once the caller in LawnApp.cpp is reconstructed.
-    bool mDrawFade;       // +0x2E8, DrawDialogFade runs only when this is set
+    bool mDrawFade; // +0x2E8, DrawDialogFade runs only when this is set
     // size 0x2EC
 
-    SavingDingusDialog(LawnApp *theApp, bool theModal, int theDialogId, Sexy::String theText, float theTimer, bool theDrawFade);
+    SavingDingusDialog(
+        LawnApp *theApp, bool theModal, int theDialogId, Sexy::String theText, float theTimer, bool theDrawFade);
 };
+
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_SAVINGDINGUSDIALOG_H

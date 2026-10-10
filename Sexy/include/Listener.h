@@ -10,32 +10,34 @@
 // bodies live in Listener.cpp and are declared by GameCenter.h and
 // ShareManager.h.
 
-#pragma once
+#ifndef LAWNPROJECTTV_SEXY_INCLUDE_LISTENER_H
+#define LAWNPROJECTTV_SEXY_INCLUDE_LISTENER_H
 
 #include "ReconTypes.h"
 
-namespace Sexy {
+namespace Sexy
+{
 
 class SexyCommonApp;
 
 class AdProvider
 {
 public:
-    AdProvider(Sexy::SexyCommonApp * theApp);
+    AdProvider(Sexy::SexyCommonApp *theApp);
 
     virtual ~AdProvider();
     virtual void show(int theGravity);
     virtual void hide();
     virtual void disable();
-    virtual int  getADType();
+    virtual int getADType();
     virtual bool haveAppOffer();
-    virtual void showAppOffer(Sexy::String const& theOffer, int theX, int theY, int theWidth, int theHeight);
-    virtual void showItemPay(Sexy::String const& theItem, int theCount, Sexy::String const& theName,
-                             Sexy::String const& theDescription, float thePrice, int theFlags);
-    virtual void queryBalance(Sexy::String const& theAccount);
+    virtual void showAppOffer(Sexy::String const &theOffer, int theX, int theY, int theWidth, int theHeight);
+    virtual void showItemPay(Sexy::String const &theItem, int theCount, Sexy::String const &theName,
+        Sexy::String const &theDescription, float thePrice, int theFlags);
+    virtual void queryBalance(Sexy::String const &theAccount);
     virtual void goToLogin(bool theForce);
-    virtual void getUserName(Sexy::String& theName);
-    virtual void getNickname(Sexy::String& theName);
+    virtual void getUserName(Sexy::String &theName);
+    virtual void getNickname(Sexy::String &theName);
     virtual void update();
     virtual void recharge();
 
@@ -47,7 +49,7 @@ public:
 class IGameCenter
 {
 public:
-    static void * Create(SexyCommonApp * theApp);
+    static void *Create(SexyCommonApp *theApp);
 
     virtual void Update() = 0;
     virtual void Pause() = 0;
@@ -59,7 +61,7 @@ public:
         FEATURE_EXIT = 64,
     };
     virtual bool HasFeature(Feature theFeature) = 0;
-    virtual void Show(Sexy::String const& thePage) = 0;
+    virtual void Show(Sexy::String const &thePage) = 0;
 
     struct Payment
     {
@@ -70,7 +72,7 @@ public:
         Sexy::String mAccount;
     };
 
-    virtual int Purchase(Payment const& thePayment) = 0;
+    virtual int Purchase(Payment const &thePayment) = 0;
 
     virtual int GetProducts() = 0;
     virtual int QueryProducts() = 0;
@@ -92,11 +94,13 @@ public:
         virtual void onQueryInvitableFriends();
         virtual void onInviteFriend(int theResult);
         virtual void onPay(int theResult);
-        virtual void onPay(int theResult, Sexy::String const& theOrderId);
+        virtual void onPay(int theResult, Sexy::String const &theOrderId);
         virtual void onMessage();
     };
 
-    virtual int SetListener(Listener * theListener) = 0;
+    virtual int SetListener(Listener *theListener) = 0;
 };
 
 } // namespace Sexy
+
+#endif // LAWNPROJECTTV_SEXY_INCLUDE_LISTENER_H

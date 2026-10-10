@@ -36,7 +36,7 @@
 // ButtonDepress -- vtable slot 4 -- called with `mId + 2000`, the framework's
 // edit-widget id convention (the dialog's own id plus 2000). The same call
 // appears in CheatCodeDialog, CheatDialog and UserDialog.
-void NewUserDialog::EditWidgetText(int theId, const Sexy::String & theText)
+void NewUserDialog::EditWidgetText(int theId, const Sexy::String &theText)
 {
     mApp->ButtonDepress(mId + 2000);
 }
@@ -60,11 +60,11 @@ int NewUserDialog::AllowChar(int theId, char theChar)
 // ==========================================================================
 NewUserDialog::~NewUserDialog()
 {
-  // The edit widget belongs to this dialog; the dump deletes it through its
-  // virtual deleting destructor (`(*(vptr + 4))(widget)`), which is what
-  // `delete` emits. The three vptr stores are compiler-generated now that the
-  // bases are real.
-  delete mEditWidget;
+    // The edit widget belongs to this dialog; the dump deletes it through its
+    // virtual deleting destructor (`(*(vptr + 4))(widget)`), which is what
+    // `delete` emits. The three vptr stores are compiler-generated now that the
+    // bases are real.
+    delete mEditWidget;
 }
 
 // ==========================================================================
@@ -76,28 +76,27 @@ NewUserDialog::NewUserDialog(LawnApp *theApp, bool theIsRename)
     // temporaries it was handed (StringCtor is StringCtor) are this initialiser
     // list; the id and the header both depend on `isRename`. The three vptr
     // stores are compiler-generated.
-    : LawnDialog(theApp, nullptr, theIsRename ? 33 : 31, true,
-                 theIsRename ? "[RENAME_USER]" : "[NEW_USER]",
-                 "[PLEASE_ENTER_NAME]", "", 2)
+    :
+    LawnDialog(theApp, nullptr, theIsRename ? 33 : 31, true, theIsRename ? "[RENAME_USER]" : "[NEW_USER]",
+        "[PLEASE_ENTER_NAME]", "", 2)
 {
-  mVerticalCenterText = false;
-  mApp = theApp;
+    mVerticalCenterText = false;
+    mApp = theApp;
 
-  // CreateEditWidget(int, Sexy::EditListener *, Sexy::Dialog *). The listener
-  // argument is the +0x2FC EditListener sub-object, so the pointer adjustment
-  // has to be explicit: the declaration is variadic and would otherwise pass
-  // `this` unchanged.
-  mEditWidget = (Sexy::EditWidget *)CreateEditWidget(0, static_cast<Sexy::EditListener *>(this), this);
-  mEditWidget->mMaxChars = 12;
-  mEditWidget->AddWidthCheckFont(FONT_BRIANNETOD16, 220);
+    // CreateEditWidget(int, Sexy::EditListener *, Sexy::Dialog *). The listener
+    // argument is the +0x2FC EditListener sub-object, so the pointer adjustment
+    // has to be explicit: the declaration is variadic and would otherwise pass
+    // `this` unchanged.
+    mEditWidget = (Sexy::EditWidget *)CreateEditWidget(0, static_cast<Sexy::EditListener *>(this), this);
+    mEditWidget->mMaxChars = 12;
+    mEditWidget->AddWidthCheckFont(FONT_BRIANNETOD16, 220);
 
-  // vtable slot 129 (EditWidget::SetText): seed the widget with the empty
-  // string, so the caret and the selection both start at zero.
-  mEditWidget->SetText(Sexy::String(""), true, true, true);
+    // vtable slot 129 (EditWidget::SetText): seed the widget with the empty
+    // string, so the caret and the selection both start at zero.
+    mEditWidget->SetText(Sexy::String(""), true, true, true);
 
-  CalcSize(110, 40, true);
+    CalcSize(110, 40, true);
 }
-
 
 // ==========================================================================
 // NewUserDialog::GetName()
@@ -105,54 +104,54 @@ NewUserDialog::NewUserDialog(LawnApp *theApp, bool theIsRename)
 // ==========================================================================
 Sexy::String NewUserDialog::GetName()
 {
-  // The dump's `this` is the result buffer -- the binary returns the String
-  // through r0 -- and its `a2` is the real receiver, so the signature returns by
-  // value (see the header). The body copies the edit widget's text one character
-  // at a time, collapsing every run of spaces into a single one and dropping a
-  // run at the front (the loop starts as if the previous character had been a
-  // space), then drops one trailing space. The reserve/refcount bookkeeping in
-  // the dump (StringReserve, StringDisposeLeaked, StringResize) is the inlined COW append, the
-  // LeakBuffer call and the erase, all of which Sexy::String does itself.
-  Sexy::String aName;
-  bool aLastWasSpace = true;
-  for ( unsigned int i = 0; i < mEditWidget->mString.size(); i++ )
-  {
-    char aChar = mEditWidget->mString[i];
-    if ( aChar == ' ' )
+    // The dump's `this` is the result buffer -- the binary returns the String
+    // through r0 -- and its `a2` is the real receiver, so the signature returns by
+    // value (see the header). The body copies the edit widget's text one character
+    // at a time, collapsing every run of spaces into a single one and dropping a
+    // run at the front (the loop starts as if the previous character had been a
+    // space), then drops one trailing space. The reserve/refcount bookkeeping in
+    // the dump (StringReserve, StringDisposeLeaked, StringResize) is the inlined COW append, the
+    // LeakBuffer call and the erase, all of which Sexy::String does itself.
+    Sexy::String aName;
+    bool aLastWasSpace = true;
+    for (unsigned int i = 0; i < mEditWidget->mString.size(); i++)
     {
-      if ( aLastWasSpace )
-        continue;
-      aLastWasSpace = true;
+        char aChar = mEditWidget->mString[i];
+        if (aChar == ' ')
+        {
+            if (aLastWasSpace)
+                continue;
+            aLastWasSpace = true;
+        }
+        else
+        {
+            aLastWasSpace = false;
+        }
+        aName += aChar;
     }
-    else
-    {
-      aLastWasSpace = false;
-    }
-    aName += aChar;
-  }
 
-  if ( !aName.empty() && aName[aName.size() - 1] == ' ' )
-    aName = aName.substr(0, aName.size() - 1);
+    if (!aName.empty() && aName[aName.size() - 1] == ' ')
+        aName = aName.substr(0, aName.size() - 1);
 
-  return aName;
+    return aName;
 }
 
 // ==========================================================================
 // NewUserDialog::SetName(Sexy::String const&)
 // @0014B884  52 bytes
 // ==========================================================================
-int NewUserDialog::SetName(Sexy::String const& theName)
+int NewUserDialog::SetName(Sexy::String const &theName)
 {
-  // vtable offset 516 is slot 129, EditWidget::SetText(String const&, bool,
-  // bool, bool); the three flags are all set.
-  mEditWidget->SetText(theName, true, true, true);
-  // The widget's selection follows the text that was just installed: the caret
-  // sits at the end of it and nothing is selected.
-  mEditWidget->mCursorPos = (int)theName.size();
-  mEditWidget->mSelectionPos = 0;
-  // The binary returns SetText's result. This tree's EditWidget::SetText is
-  // declared void (Sexy\EditWidget.h), so there is nothing to return.
-  return 0;
+    // vtable offset 516 is slot 129, EditWidget::SetText(String const&, bool,
+    // bool, bool); the three flags are all set.
+    mEditWidget->SetText(theName, true, true, true);
+    // The widget's selection follows the text that was just installed: the caret
+    // sits at the end of it and nothing is selected.
+    mEditWidget->mCursorPos = (int)theName.size();
+    mEditWidget->mSelectionPos = 0;
+    // The binary returns SetText's result. This tree's EditWidget::SetText is
+    // declared void (Sexy\EditWidget.h), so there is nothing to return.
+    return 0;
 }
 
 // ==========================================================================
@@ -161,8 +160,8 @@ int NewUserDialog::SetName(Sexy::String const& theName)
 // ==========================================================================
 int NewUserDialog::GetPreferredHeight(int theWidth)
 {
-  // The edit widget needs forty more pixels than the base asks for.
-  return Sexy::Dialog::GetPreferredHeight(theWidth) + 40;
+    // The edit widget needs forty more pixels than the base asks for.
+    return Sexy::Dialog::GetPreferredHeight(theWidth) + 40;
 }
 
 // ==========================================================================
@@ -171,9 +170,9 @@ int NewUserDialog::GetPreferredHeight(int theWidth)
 // ==========================================================================
 void NewUserDialog::AddedToManager(Sexy::WidgetManager *theWidgetManager)
 {
-  LawnDialog::AddedToManager(theWidgetManager);
-  AddWidget(mEditWidget);
-  SetFocus(mEditWidget, true);
+    LawnDialog::AddedToManager(theWidgetManager);
+    AddWidget(mEditWidget);
+    SetFocus(mEditWidget, true);
 }
 
 // ==========================================================================
@@ -182,8 +181,8 @@ void NewUserDialog::AddedToManager(Sexy::WidgetManager *theWidgetManager)
 // ==========================================================================
 void NewUserDialog::RemovedFromManager(Sexy::WidgetManager *theWidgetManager)
 {
-  LawnDialog::RemovedFromManager(theWidgetManager);
-  RemoveWidget(mEditWidget);
+    LawnDialog::RemovedFromManager(theWidgetManager);
+    RemoveWidget(mEditWidget);
 }
 
 // ==========================================================================
@@ -192,14 +191,12 @@ void NewUserDialog::RemovedFromManager(Sexy::WidgetManager *theWidgetManager)
 // ==========================================================================
 void NewUserDialog::Resize(int theX, int theY, int theWidth, int theHeight)
 {
-  LawnDialog::Resize(theX, theY, theWidth, theHeight);
+    LawnDialog::Resize(theX, theY, theWidth, theHeight);
 
-  // The edit widget fills the dialog's content area, inset twelve pixels at the
-  // top and leaving room for the two buttons at the bottom.
-  mEditWidget->Resize(mContentInsets.mTop + 12,
-                      mHeight - 155,
-                      mWidth - mContentInsets.mTop - mContentInsets.mBottom - 24,
-                      28);
+    // The edit widget fills the dialog's content area, inset twelve pixels at the
+    // top and leaving room for the two buttons at the bottom.
+    mEditWidget->Resize(
+        mContentInsets.mTop + 12, mHeight - 155, mWidth - mContentInsets.mTop - mContentInsets.mBottom - 24, 28);
 }
 
 // ==========================================================================
@@ -208,8 +205,8 @@ void NewUserDialog::Resize(int theX, int theY, int theWidth, int theHeight)
 // ==========================================================================
 void NewUserDialog::Draw(Sexy::Graphics *theGraphics)
 {
-  LawnDialog::Draw(theGraphics);
-  DrawEditBox(theGraphics, mEditWidget);
+    LawnDialog::Draw(theGraphics);
+    DrawEditBox(theGraphics, mEditWidget);
 }
 
 // ==========================================================================
@@ -218,10 +215,10 @@ void NewUserDialog::Draw(Sexy::Graphics *theGraphics)
 // ==========================================================================
 void NewUserDialog::GotFocus()
 {
-  LawnDialog::GotFocus();
-  // The edit widget takes the focus unless something else already holds it, in
-  // which case the base's choice stands. The two paths the ARM takes are
-  // "nothing focused yet" and "the edit widget itself is focused".
-  if ( mFocusedChildWidget == nullptr || mFocusedChildWidget == mEditWidget )
-    SetFocus(mEditWidget, true);
+    LawnDialog::GotFocus();
+    // The edit widget takes the focus unless something else already holds it, in
+    // which case the base's choice stands. The two paths the ARM takes are
+    // "nothing focused yet" and "the edit widget itself is focused".
+    if (mFocusedChildWidget == nullptr || mFocusedChildWidget == mEditWidget)
+        SetFocus(mEditWidget, true);
 }

@@ -26,7 +26,8 @@
 //   [  3] 0x1b7af0  GameObject::EndDraw
 //   [  4] 0x1b7b1c  GameObject::MakeParentGraphicsFrame
 
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_PLANT_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_PLANT_H
 
 #include "ReconTypes.h"
 // Classes this one calls a method on: the call needs the
@@ -61,7 +62,8 @@ class LawnApp;
 inline constexpr int MAX_MAGNET_ITEMS = 5;
 
 // TV adds three trashcan damage stages after the screen doors.
-enum MagnetItemType {
+enum MagnetItemType
+{
     MAGNET_ITEM_NONE = 0,
     MAGNET_ITEM_PAIL_1 = 1,
     MAGNET_ITEM_PAIL_2 = 2,
@@ -94,16 +96,17 @@ enum MagnetItemType {
 class MagnetItem
 {
 public:
-    float          mPosX;         // +0x00
-    float          mPosY;         // +0x04
-    float          mDestOffsetX;  // +0x08
-    float          mDestOffsetY;  // +0x0C
-    MagnetItemType mItemType;     // +0x10
+    float mPosX; // +0x00
+    float mPosY; // +0x04
+    float mDestOffsetX; // +0x08
+    float mDestOffsetY; // +0x0C
+    MagnetItemType mItemType; // +0x10
 };
 
 // PlantOnBungeeState -- authoritative header Plant.h:41, identical to
 // libGameMain115.h:1111.
-enum PlantOnBungeeState {
+enum PlantOnBungeeState
+{
     NOT_ON_BUNGEE = 0,
     GETTING_GRABBED_BY_BUNGEE = 1,
     RISING_WITH_BUNGEE = 2,
@@ -114,7 +117,8 @@ enum PlantOnBungeeState {
 // LilypadInvulnerable=0x30(48) all agree. The trailing STATE_CELERY_STALKER_* block
 // in the authoritative header is a mod extension that this .so does not have, but
 // keeping it does not disturb the values 0..48 (it is needed when porting PvZ-src).
-enum PlantState {
+enum PlantState
+{
     STATE_NOTREADY = 0,
     STATE_READY = 1,
     STATE_DOINGSPECIAL = 2,
@@ -183,85 +187,85 @@ class Plant : public GameObject
 {
 public:
     // Every offset below is absolute (GameObject occupies 0x00..0x33).
-    SeedType    mSeedType;                  // +0x34
-    int         mPlantCol;                  // +0x38
-    int         mAnimCounter;               // +0x3C
-    int         mFrame;                     // +0x40
-    int         mFrameLength;               // +0x44
-    int         mNumFrames;                 // +0x48
-    PlantState  mState;                     // +0x4C
-    int         mPlantHealth;               // +0x50
-    int         mPlantMaxHealth;            // +0x54
-    int         mSubclass;                  // +0x58
-    int         mDisappearCountdown;        // +0x5C
-    int         mDoSpecialCountdown;        // +0x60
-    int         mStateCountdown;            // +0x64
-    int         mLaunchCounter;             // +0x68
-    int         mLaunchRate;                // +0x6C
-    Sexy::Rect  mPlantRect;                 // +0x70 ~ +0x7F
-    Sexy::Rect  mPlantAttackRect;           // +0x80 ~ +0x8F
-    int         mTargetX;                   // +0x90
-    int         mTargetY;                   // +0x94
-    int         mStartRow;                  // +0x98
+    SeedType mSeedType; // +0x34
+    int mPlantCol; // +0x38
+    int mAnimCounter; // +0x3C
+    int mFrame; // +0x40
+    int mFrameLength; // +0x44
+    int mNumFrames; // +0x48
+    PlantState mState; // +0x4C
+    int mPlantHealth; // +0x50
+    int mPlantMaxHealth; // +0x54
+    int mSubclass; // +0x58
+    int mDisappearCountdown; // +0x5C
+    int mDoSpecialCountdown; // +0x60
+    int mStateCountdown; // +0x64
+    int mLaunchCounter; // +0x68
+    int mLaunchRate; // +0x6C
+    Sexy::Rect mPlantRect; // +0x70 ~ +0x7F
+    Sexy::Rect mPlantAttackRect; // +0x80 ~ +0x8F
+    int mTargetX; // +0x90
+    int mTargetY; // +0x94
+    int mStartRow; // +0x98
     // The authoritative header Plant.h:192 and the IDA export libGameMain115.h:1141
     // both spell this `int *mParticleID`, but in the recon body the slot only ever
     // carries a value: `ParticleTryToGet(mParticleID)`, the return value of
     // `ParticleGetID(...)` stored back, and `= 0`. The PC reference source
     // (Lawn\Plant.h) calls it `ParticleSystemID` as well, so it is declared here as
     // ParticleSystemID (same 4 bytes, identical layout).
-    ParticleSystemID mParticleID;           // +0x9C
-    int         mShootingCounter;           // +0xA0
-    ReanimationID mBodyReanimID;            // +0xA4
-    ReanimationID mHeadReanimID;            // +0xA8
-    ReanimationID mHeadReanimID2;           // +0xAC
-    ReanimationID mHeadReanimID3;           // +0xB0
-    ReanimationID mBlinkReanimID;           // +0xB4
-    ReanimationID mLightReanimID;           // +0xB8
-    ReanimationID mSleepingReanimID;        // +0xBC
-    int         mBlinkCountdown;            // +0xC0
-    int         mRecentlyEatenCountdown;    // +0xC4
-    int         mEatenFlashCountdown;       // +0xC8
-    int         mBeghouledFlashCountdown;   // +0xCC
-    float       mShakeOffsetX;              // +0xD0
-    float       mShakeOffsetY;              // +0xD4
-    MagnetItem  mMagnetItems[MAX_MAGNET_ITEMS]; // +0xD8 ~ +0x13B
-    ZombieID    mTargetZombieID;            // +0x13C
-    int         mWakeUpCounter;             // +0x140
-    PlantOnBungeeState mOnBungeeState;      // +0x144
-    SeedType    mImitaterType;              // +0x148
-    int         mPottedPlantIndex;          // +0x14C
-    bool        mAnimPing;                  // +0x150
-    bool        mDead;                      // +0x151
-    bool        mSquished;                  // +0x152
-    bool        mIsAsleep;                  // +0x153
-    bool        mIsOnBoard;                 // +0x154
-    bool        mHighlighted;               // +0x155
-    bool        mInFlowerPot;               // +0x156
-    bool        mGloveGrabbed;              // +0x157
+    ParticleSystemID mParticleID; // +0x9C
+    int mShootingCounter; // +0xA0
+    ReanimationID mBodyReanimID; // +0xA4
+    ReanimationID mHeadReanimID; // +0xA8
+    ReanimationID mHeadReanimID2; // +0xAC
+    ReanimationID mHeadReanimID3; // +0xB0
+    ReanimationID mBlinkReanimID; // +0xB4
+    ReanimationID mLightReanimID; // +0xB8
+    ReanimationID mSleepingReanimID; // +0xBC
+    int mBlinkCountdown; // +0xC0
+    int mRecentlyEatenCountdown; // +0xC4
+    int mEatenFlashCountdown; // +0xC8
+    int mBeghouledFlashCountdown; // +0xCC
+    float mShakeOffsetX; // +0xD0
+    float mShakeOffsetY; // +0xD4
+    MagnetItem mMagnetItems[MAX_MAGNET_ITEMS]; // +0xD8 ~ +0x13B
+    ZombieID mTargetZombieID; // +0x13C
+    int mWakeUpCounter; // +0x140
+    PlantOnBungeeState mOnBungeeState; // +0x144
+    SeedType mImitaterType; // +0x148
+    int mPottedPlantIndex; // +0x14C
+    bool mAnimPing; // +0x150
+    bool mDead; // +0x151
+    bool mSquished; // +0x152
+    bool mIsAsleep; // +0x153
+    bool mIsOnBoard; // +0x154
+    bool mHighlighted; // +0x155
+    bool mInFlowerPot; // +0x156
+    bool mGloveGrabbed; // +0x157
     // Player who planted this. -1 is none. DoSpecial checks 0 and 1 for the
     // cherry-bomb achievement, and ImitaterMorph forwards it to AddPlant.
-    int         mPlayerIndex;               // +0x158
+    int mPlayerIndex; // +0x158
     // size 0x15C
 
     virtual ~Plant();
     int GetDamageRangeFlags(PlantWeapon theWeapon);
     bool IsOnHighGround();
-    TodParticleSystem * AddAttachedParticle(int thePosX, int thePosY, int theRenderOrder, ParticleEffect theEffect);
+    TodParticleSystem *AddAttachedParticle(int thePosX, int thePosY, int theRenderOrder, ParticleEffect theEffect);
     int FindStarFruitTarget();
     int StarFruitFire();
     bool MakesSun();
-    void PlayBodyReanim(char const* theTrackName, ReanimLoopType theLoopType, int theBlendTime, float theAnimRate);
+    void PlayBodyReanim(char const *theTrackName, ReanimLoopType theLoopType, int theBlendTime, float theAnimRate);
     int LaunchStarFruit();
     int SpikeweedAttack();
     void UpdateDoomShroom();
     int UpdateIceShroom();
     int UpdateFlowerPot();
     int UpdateLilypad();
-    MagnetItem * GetFreeMagnetItem();
-    void MagnetShroomAttactItem(Zombie * theZombie);
+    MagnetItem *GetFreeMagnetItem();
+    void MagnetShroomAttactItem(Zombie *theZombie);
     int DrawMagnetItemsOnTop();
     void UpdateMagnetShroom();
-    Coin * FindGoldMagnetTarget();
+    Coin *FindGoldMagnetTarget();
     int GoldMagnetFindTargets();
     int RemoveEffects();
     int IsUpgradableTo(SeedType theSeedType);
@@ -273,33 +277,33 @@ public:
     int UpdateSunShroom();
     int NotOnGround();
     int IsAGoldMagnetAboutToSuck();
-    Reanimation * AttachBlinkAnim(Reanimation * theReanim);
+    Reanimation *AttachBlinkAnim(Reanimation *theReanim);
     void EndBlink();
     void SetSleeping(bool theIsAsleep);
-    Reanimation * DoBlink();
-    Reanimation * UpdateBlink();
-    Reanimation * AnimateNuts();
+    Reanimation *DoBlink();
+    Reanimation *UpdateBlink();
+    Reanimation *AnimateNuts();
     void AnimateGarlic();
     void AnimatePumpkin();
     void UpdateNeedsFood();
     void Animate();
     int GetPeaHeadOffset(int &theOffsetX, int &theOffsetY);
     void MouseDown(int x, int y, int theClickCount);
-    Zombie * IceZombies();
-    Zombie * BurnRow(int theRow);
+    Zombie *IceZombies();
+    Zombie *BurnRow(int theRow);
     int BlowAwayFliers(int theX, int theRow);
     int CobCannonFire(int theTargetX, int theTargetRow);
     // _ZN5Plant18FindTargetGridItemEi11PlantWeapon @0x16bb70 -- one explicit
     // parameter. The entry is `LDR R3,[R0,#0x10] / MOV R7,R1`: R0 is the plant,
     // R1 is the row. The old `int a1` was the plant itself, which is why every
     // call site passed `this` a second time.
-    GridItem * FindTargetGridItem(int theRow);
+    GridItem *FindTargetGridItem(int theRow);
     // _ZN5Plant8GetImage8SeedType @0x16bbf0 -- no receiver in the mangled name;
     // the disassembly is `BL GetPlantDefinition` then `LDR R0,[R0,#4]`, with R0
     // carrying the SeedType. STATIC.
     // The body returns the Image* stored at plant-definition +4, or that word
     // dereferenced when it is not null. Both callers treat the result as an Image*.
-    static Sexy::Image * GetImage(SeedType theSeedType);
+    static Sexy::Image *GetImage(SeedType theSeedType);
     // DrawSeedType is STATIC in the binary: the mangled name
     // `_ZN5Plant12DrawSeedTypeEPN4Sexy8GraphicsE8SeedTypeS3_13DrawVariationff`
     // carries no Plant* receiver -- the first argument is the Graphics. The PC
@@ -307,7 +311,8 @@ public:
     // (LawnProject/src/Lawn/Plant.h:243). Declaring it static is what lets the
     // transcribed call sites `Plant::DrawSeedType(g, seed, ...)` compile as
     // written.
-    static int DrawSeedType(Sexy::Graphics *g, SeedType theSeedType, SeedType theImitaterType, DrawVariation theDrawVariation, float thePosX, float thePosY);
+    static int DrawSeedType(Sexy::Graphics *g, SeedType theSeedType, SeedType theImitaterType,
+        DrawVariation theDrawVariation, float thePosX, float thePosY);
     // _ZN5Plant7GetCostE8SeedTypeS0_ -- no receiver in the mangled name, so it
     // is STATIC like the other seed-table queries below.
     static int GetCost(SeedType theSeedType, SeedType theImitaterType);
@@ -336,14 +341,14 @@ public:
     void DrawShadow(Sexy::Graphics *g, float theOffsetX, float theOffsetY);
     int Die();
     int SpikeRockTakeDamage();
-    TodParticleSystem * UpdateGraveBuster();
-    Plant * UpdateCoffeeBean();
+    TodParticleSystem *UpdateGraveBuster();
+    Plant *UpdateCoffeeBean();
     int KillAllPlantsNearDoom();
     int DoSpecial();
-    Reanimation * UpdateBlover();
+    Reanimation *UpdateBlover();
     int Squish();
     int ImitaterMorph();
-    Plant * UpdateImitater();
+    Plant *UpdateImitater();
     void Draw(Sexy::Graphics *g);
     bool IsSpiky();
     // Both return a 16-byte Rect BY VALUE, so on this target the result buffer
@@ -359,18 +364,18 @@ public:
     // game/Projectile.cpp.
     Sexy::Rect GetPlantRect();
     Sexy::Rect GetPlantAttackRect(PlantWeapon theWeapon);
-    GridItem * DoRowAreaDamage(int theDamage, unsigned int theDamageFlags);
+    GridItem *DoRowAreaDamage(int theDamage, unsigned int theDamageFlags);
     void Fire(Zombie *theTargetZombie, int theRow, PlantWeapon theWeapon, GridItem *theTargetGridItem);
     int UpdateTorchwood();
     int DoSquashDamage();
-    Zombie * FindSquashTarget();
-    Zombie * UpdateSquash();
-    Zombie * FindTargetZombie(int theRow, PlantWeapon theWeapon);
+    Zombie *FindSquashTarget();
+    Zombie *UpdateSquash();
+    Zombie *FindTargetZombie(int theRow, PlantWeapon theWeapon);
     int FindTargetAndFire(int theRow, PlantWeapon theWeapon);
-    GridItem * LaunchThreepeater();
+    GridItem *LaunchThreepeater();
     int UpdateShooter();
-    int * UpdateTanglekelp();
-    Zombie * UpdateBowling();
+    int *UpdateTanglekelp();
+    Zombie *UpdateBowling();
     int DistanceToClosestZombie();
     int UpdatePotato();
     // _ZN5Plant21PreloadPlantResourcesE8SeedType @0x1704dc -- no receiver in the
@@ -378,12 +383,12 @@ public:
     static int PreloadPlantResources(SeedType theSeedType);
     int PlayIdleAnim(float theRate);
     int UpdateScaredyShroom();
-    Plant * UpdateUmbrella();
+    Plant *UpdateUmbrella();
     int UpdateCobCannon();
     float UpdateGoldMagnetShroom();
-    Zombie * UpdateSpikeweed();
-    Zombie * UpdateCactus();
-    Zombie * UpdateChomper();
+    Zombie *UpdateSpikeweed();
+    Zombie *UpdateCactus();
+    Zombie *UpdateChomper();
     void UpdateShooting();
     float UpdateAbilities();
     int Update();
@@ -396,3 +401,4 @@ struct PlantSlot
     unsigned int mID;
 };
 
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_PLANT_H

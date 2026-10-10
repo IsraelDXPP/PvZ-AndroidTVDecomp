@@ -62,7 +62,7 @@ if(WIN32)
 endif()
 if(MSVC)
     target_compile_options(LawnTVBuildOptions INTERFACE
-        /W3 /bigobj /source-charset:utf-8 /we4302 /we4311 /we4312
+        /W3 /permissive- /bigobj /source-charset:utf-8 /we4302 /we4311 /we4312
     )
 endif()
 

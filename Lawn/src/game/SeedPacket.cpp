@@ -20,7 +20,6 @@
 
 // ChallengeState is a one-int surrogate; this is the value Update compares.
 
-
 namespace
 {
 
@@ -45,29 +44,28 @@ bool TutorialWantsFlash(Board *board, SeedType packetType)
 {
     switch (board->mTutorialState)
     {
-    case TUTORIAL_LEVEL_1_PICK_UP_PEASHOOTER:
-        return board->mTutorialTimer == -1 && packetType == SEED_PEASHOOTER;
-    case TUTORIAL_LEVEL_2_PICK_UP_SUNFLOWER:
-    case TUTORIAL_MORESUN_PICK_UP_SUNFLOWER:
-        return packetType == SEED_SUNFLOWER;
-    case TUTORIAL_WHACK_A_ZOMBIE_PICK_SEED:
-        return true;
-    default:
-        return false;
+        case TUTORIAL_LEVEL_1_PICK_UP_PEASHOOTER:
+            return board->mTutorialTimer == -1 && packetType == SEED_PEASHOOTER;
+        case TUTORIAL_LEVEL_2_PICK_UP_SUNFLOWER:
+        case TUTORIAL_MORESUN_PICK_UP_SUNFLOWER:
+            return packetType == SEED_SUNFLOWER;
+        case TUTORIAL_WHACK_A_ZOMBIE_PICK_SEED:
+            return true;
+        default:
+            return false;
     }
 }
 
 // Grayness of the packet art. Flashing tutorial packets use the flash red
 // channel. Playing packets go full white when they can be planted, else 128.
-int PacketGrayness(SeedPacket *packet, SeedType shownSeed, int plantCost,
-                   bool isZombieBank, bool costsSun, float *darkness)
+int PacketGrayness(
+    SeedPacket *packet, SeedType shownSeed, int plantCost, bool isZombieBank, bool costsSun, float *darkness)
 {
     LawnApp *app = packet->mApp;
     Board *board = packet->mBoard;
     GameMode mode = app->mGameMode;
 
-    if ((mode == GAMEMODE_CHALLENGE_BEGHOULED || mode == GAMEMODE_CHALLENGE_BEGHOULED_TWIST)
-        && !packet->mActive)
+    if ((mode == GAMEMODE_CHALLENGE_BEGHOULED || mode == GAMEMODE_CHALLENGE_BEGHOULED_TWIST) && !packet->mActive)
         return 64;
 
     if (app->mGameScene != SCENE_PLAYING)
@@ -118,25 +116,25 @@ void ApplySelectScale(SeedPacket *packet, Sexy::Graphics *g)
     if (packet->mSelected)
     {
         if (packet->mLastSelectedTime < SEED_PACKET_SELECT_TIME)
-            packet->mSelectScale = TodAnimateCurveFloatTime(
-                0.0f, SEED_PACKET_SELECT_TIME, packet->mLastSelectedTime,
-                1.0f, SEED_PACKET_SELECT_SCALE, CURVE_EASE_OUT);
+            packet->mSelectScale = TodAnimateCurveFloatTime(0.0f,
+                SEED_PACKET_SELECT_TIME,
+                packet->mLastSelectedTime,
+                1.0f,
+                SEED_PACKET_SELECT_SCALE,
+                CURVE_EASE_OUT);
         else
             packet->mSelectScale = SEED_PACKET_SELECT_SCALE;
     }
     else
     {
         packet->mSelectScale = TodAnimateCurveFloatTime(
-            0.0f, SEED_PACKET_SELECT_TIME, packet->mLastSelectedTime,
-            SEED_PACKET_SELECT_SCALE, 1.0f, CURVE_EASE_OUT);
+            0.0f, SEED_PACKET_SELECT_TIME, packet->mLastSelectedTime, SEED_PACKET_SELECT_SCALE, 1.0f, CURVE_EASE_OUT);
         if (packet->mLastSelectedTime >= SEED_PACKET_SELECT_TIME)
             return;
     }
 
-    g->SetScale(packet->mSelectScale, packet->mSelectScale,
-                (float)(packet->mOffsetY + 25), 35.0f);
-    g->TranslateF((1.0f - packet->mSelectScale) * 25.0f,
-                  (1.0f - packet->mSelectScale) * 35.0f);
+    g->SetScale(packet->mSelectScale, packet->mSelectScale, (float)(packet->mOffsetY + 25), 35.0f);
+    g->TranslateF((1.0f - packet->mSelectScale) * 25.0f, (1.0f - packet->mSelectScale) * 35.0f);
 }
 
 void UndoSelectScale(SeedPacket *packet, Sexy::Graphics *g)
@@ -147,8 +145,7 @@ void UndoSelectScale(SeedPacket *packet, Sexy::Graphics *g)
         return;
 
     g->SetScale(1.0f, 1.0f, 0.0f, 0.0f);
-    g->TranslateF((packet->mSelectScale - 1.0f) * 25.0f,
-                  (packet->mSelectScale - 1.0f) * 35.0f);
+    g->TranslateF((packet->mSelectScale - 1.0f) * 25.0f, (packet->mSelectScale - 1.0f) * 35.0f);
 }
 
 void StartRefreshing(SeedPacket *packet, int refreshTime)
@@ -167,45 +164,36 @@ bool VersusStartsCooling(SeedType seedType, bool zombieBank)
 
     switch (seedType)
     {
-    case SEED_PEASHOOTER:
-    case SEED_SUNFLOWER:
-    case SEED_WALLNUT:
-    case SEED_POTATOMINE:
-    case SEED_PUFFSHROOM:
-    case SEED_TALLNUT:
-    case SEED_CABBAGEPULT:
-        return false;
-    default:
-        return true;
+        case SEED_PEASHOOTER:
+        case SEED_SUNFLOWER:
+        case SEED_WALLNUT:
+        case SEED_POTATOMINE:
+        case SEED_PUFFSHROOM:
+        case SEED_TALLNUT:
+        case SEED_CABBAGEPULT:
+            return false;
+        default:
+            return true;
     }
 }
 
 void DrawSuddenDeathMark(Sexy::Graphics *g, int centerX, int centerY)
 {
     Sexy::Image *mark = IMAGE_MP_TARGETS_X;
-    g->DrawImage(mark,
-                 centerX - mark->mWidth / 2,
-                 centerY - mark->mHeight / 2,
-                 mark->mWidth,
-                 mark->mHeight);
+    g->DrawImage(mark, centerX - mark->mWidth / 2, centerY - mark->mHeight / 2, mark->mWidth, mark->mHeight);
 }
 
 } // namespace
 
-SeedPacket::~SeedPacket()
-{
-}
+SeedPacket::~SeedPacket() {}
 
 SeedType SeedPacket::PickNextSlotMachineSeed()
 {
     // Peashooter weight falls as the board fills with them. Diamond stays rare
     // and never gets the "already queued" bonus. The third reel prefers a seed
     // the first two reels are already about to show.
-    static const SeedType kSeedList[6] =
-    {
-        SEED_SUNFLOWER, SEED_PEASHOOTER, SEED_SNOWPEA, SEED_WALLNUT,
-        SEED_SLOT_MACHINE_SUN, SEED_SLOT_MACHINE_DIAMOND
-    };
+    static const SeedType kSeedList[6] = {
+        SEED_SUNFLOWER, SEED_PEASHOOTER, SEED_SNOWPEA, SEED_WALLNUT, SEED_SLOT_MACHINE_SUN, SEED_SLOT_MACHINE_DIAMOND};
 
     TodWeightedArray weighted[6];
     int peashooterCount = mBoard->CountPlantByType(SEED_PEASHOOTER);
@@ -225,9 +213,9 @@ SeedType SeedPacket::PickNextSlotMachineSeed()
             else
                 weight = 100;
 
-            if (mIndex == 2
-                && (mSeedBank->mSeedPackets[0].mSlotMachiningNextSeed == seedType
-                    || mSeedBank->mSeedPackets[1].mSlotMachiningNextSeed == seedType))
+            if (mIndex == 2 &&
+                (mSeedBank->mSeedPackets[0].mSlotMachiningNextSeed == seedType ||
+                    mSeedBank->mSeedPackets[1].mSlotMachiningNextSeed == seedType))
                 weight += weight / 2;
         }
 
@@ -251,15 +239,14 @@ void SeedPacket::UpdateSelected()
     SeedBank *bank = mSeedBank;
     GamepadControls *pad1 = board->mGamepadControls[1];
     GamepadControls *pad0 = board->mGamepadControls[0];
-    const auto pointsAtPacket = [this, board](GamepadControls* controls)
+    const auto pointsAtPacket = [this, board](GamepadControls *controls)
     {
         if (controls == nullptr || controls->mSelectedSeedIndex != mIndex)
             return false;
         if (!board->mMouseInputActive[controls->mPlayerIndex])
             return true;
-        const CursorObject* cursor = board->mCursorObject[controls->mPlayerIndex];
-        return cursor->mCursorType == CURSOR_TYPE_PLANT_FROM_BANK
-            && cursor->mSelectedIndex == mIndex;
+        const CursorObject *cursor = board->mCursorObject[controls->mPlayerIndex];
+        return cursor->mCursorType == CURSOR_TYPE_PLANT_FROM_BANK && cursor->mSelectedIndex == mIndex;
     };
 
     // UpdateSelected @0x172A40 identifies the bank owner before selecting its
@@ -267,7 +254,7 @@ void SeedPacket::UpdateSelected()
     // selection below would otherwise mark the other player's index as well.
     if (mApp->mGameMode == GAMEMODE_MP_VS || mApp->IsCoopMode())
     {
-        GamepadControls* owner = GetPlayerIndex() ? pad1 : pad0;
+        GamepadControls *owner = GetPlayerIndex() ? pad1 : pad0;
         mSelected = owner != nullptr && !owner->mIsInShopSeedBank && pointsAtPacket(owner);
         mSelectedBy2P = mSelected && owner->mPlayerIndex == 1;
         mSelectedByBothPlayer = false;
@@ -277,11 +264,8 @@ void SeedPacket::UpdateSelected()
     // Player 2's frame: the second pad pointing at this packet in the first
     // bank (solo only), or any packet in the second bank that pad is on.
     bool selectedBy2P = false;
-    if (bank == board->mSeedBank[0]
-        && pointsAtPacket(pad1)
-        && pad1->mGamepadIndex != -1
-        && !pad1->mIsZombie
-        && !mApp->IsCoopMode())
+    if (bank == board->mSeedBank[0] && pointsAtPacket(pad1) && pad1->mGamepadIndex != -1 && !pad1->mIsZombie &&
+        !mApp->IsCoopMode())
         selectedBy2P = true;
 
     if (bank == board->mSeedBank[1] && pad1 != nullptr)
@@ -344,10 +328,18 @@ void SeedPacket::DrawBackground(Sexy::Graphics *g)
 
         g->PushState();
         g->ClipRect(0, 0, mWidth, mHeight);
-        DrawSeedPacket(g, 0.0f, (float)slideY, mPacketType, SEED_NONE,
-                       0.0f, 128, false, false, false, true);
-        DrawSeedPacket(g, 0.0f, (float)(mHeight + slideY), mSlotMachiningNextSeed, SEED_NONE,
-                       0.0f, 128, false, false, false, true);
+        DrawSeedPacket(g, 0.0f, (float)slideY, mPacketType, SEED_NONE, 0.0f, 128, false, false, false, true);
+        DrawSeedPacket(g,
+            0.0f,
+            (float)(mHeight + slideY),
+            mSlotMachiningNextSeed,
+            SEED_NONE,
+            0.0f,
+            128,
+            false,
+            false,
+            false,
+            true);
         g->PopState();
         return;
     }
@@ -371,18 +363,18 @@ void SeedPacket::DrawBackground(Sexy::Graphics *g)
     {
         Sexy::Image *frame = mSelectedBy2P ? IMAGE_SEED_SELECTOR_BLUE : IMAGE_SEED_SELECTOR;
         g->DrawImage(frame,
-                     (int)((float)mOffsetY - 1.0f - g->mScaleX * 5.0f),
-                     (int)-(g->mScaleY * 5.0f + 2.5f),
-                     (int)(g->mScaleX * 60.0f),
-                     (int)(g->mScaleY * 80.0f));
+            (int)((float)mOffsetY - 1.0f - g->mScaleX * 5.0f),
+            (int)-(g->mScaleY * 5.0f + 2.5f),
+            (int)(g->mScaleX * 60.0f),
+            (int)(g->mScaleY * 80.0f));
     }
 
     bool versusZombie = false;
     if (mApp->mGameMode == GAMEMODE_MP_VS && mSeedBank != nullptr)
         versusZombie = mSeedBank->mIsZombie;
 
-    DrawSeedPacket(g, (float)mOffsetY, 0.0f, mPacketType, mImitaterType, darkness, grayness,
-                   false, true, versusZombie, true);
+    DrawSeedPacket(
+        g, (float)mOffsetY, 0.0f, mPacketType, mImitaterType, darkness, grayness, false, true, versusZombie, true);
     UndoSelectScale(this, g);
 }
 
@@ -410,8 +402,8 @@ void SeedPacket::DrawMiddle(Sexy::Graphics *g)
         darkness = 0.0f;
     }
 
-    DrawSeedPacket(g, (float)mOffsetY, 0.0f, mPacketType, mImitaterType, darkness, grayness,
-                   costsSun, true, versusZombie, false);
+    DrawSeedPacket(
+        g, (float)mOffsetY, 0.0f, mPacketType, mImitaterType, darkness, grayness, costsSun, true, versusZombie, false);
     UndoSelectScale(this, g);
 }
 
@@ -426,16 +418,14 @@ void SeedPacket::DrawOverlay(Sexy::Graphics *g)
         {
             if (mLastSelectedTime < SEED_PACKET_SELECT_TIME)
                 mSelectScale = TodAnimateCurveFloatTime(
-                    0.0f, SEED_PACKET_SELECT_TIME, mLastSelectedTime,
-                    1.0f, SEED_PACKET_SELECT_SCALE, CURVE_EASE_OUT);
+                    0.0f, SEED_PACKET_SELECT_TIME, mLastSelectedTime, 1.0f, SEED_PACKET_SELECT_SCALE, CURVE_EASE_OUT);
             else
                 mSelectScale = SEED_PACKET_SELECT_SCALE;
         }
         else
         {
             mSelectScale = TodAnimateCurveFloatTime(
-                0.0f, SEED_PACKET_SELECT_TIME, mLastSelectedTime,
-                SEED_PACKET_SELECT_SCALE, 1.0f, CURVE_EASE_OUT);
+                0.0f, SEED_PACKET_SELECT_TIME, mLastSelectedTime, SEED_PACKET_SELECT_SCALE, 1.0f, CURVE_EASE_OUT);
         }
     }
 
@@ -457,18 +447,13 @@ void SeedPacket::DrawOverlay(Sexy::Graphics *g)
         {
             // Both players: P2's arrow is flipped under the packet, P1's sits above.
             Sexy::Image *arrow2 = IMAGE_CURSOR_ARROW_P2;
-            g->DrawImageRotatedF(arrow2,
-                                 (float)(mOffsetY + 23 - arrow2->mWidth / 2),
-                                 bobY + 63.0f,
-                                 3.14159274,
-                                 nullptr);
+            g->DrawImageRotatedF(
+                arrow2, (float)(mOffsetY + 23 - arrow2->mWidth / 2), bobY + 63.0f, 3.14159274, nullptr);
             Sexy::Image *label2 = IMAGE_CURSOR_P2_TEXT;
             g->DrawImageF(label2, (float)(mOffsetY + 23 - label2->mWidth / 2), 75.0f);
 
             Sexy::Image *arrow1 = IMAGE_CURSOR_ARROW_P1;
-            g->DrawImageF(arrow1,
-                          (float)(mOffsetY + 23 - arrow1->mWidth / 2),
-                          bobY - 8.0f);
+            g->DrawImageF(arrow1, (float)(mOffsetY + 23 - arrow1->mWidth / 2), bobY - 8.0f);
             Sexy::Image *label1 = IMAGE_CURSOR_P1_TEXT;
             g->DrawImageF(label1, (float)(mOffsetY + 23 - label1->mWidth / 2), -28.0f);
         }
@@ -492,8 +477,8 @@ void SeedPacket::DrawOverlay(Sexy::Graphics *g)
     int centerX = mOffsetY + IMAGE_SEEDS->GetCelWidth() / 2;
     int centerY = IMAGE_SEEDS->GetCelHeight() / 2;
     bool zombieBank = mSeedBank->mIsZombie;
-    if (Challenge::IsMPResourceProducer(mPacketType)
-        || mApp->mBoard->mChallenge->ISMPSeedSuddenDeathDisabled(zombieBank, mPacketType))
+    if (Challenge::IsMPResourceProducer(mPacketType) ||
+        mApp->mBoard->mChallenge->ISMPSeedSuddenDeathDisabled(zombieBank, mPacketType))
         DrawSuddenDeathMark(g, centerX, centerY);
 }
 
@@ -527,8 +512,7 @@ bool SeedPacket::CanPickUp()
         if (!mBoard->CanTakeDeathMoney(plantCost) && !mBoard->HasConveyorBeltSeedBank(true))
             return false;
     }
-    else if (!mBoard->CanTakeSunMoney(plantCost, GetPlayerIndex())
-             && !mBoard->HasConveyorBeltSeedBank(false))
+    else if (!mBoard->CanTakeSunMoney(plantCost, GetPlayerIndex()) && !mBoard->HasConveyorBeltSeedBank(false))
     {
         return false;
     }
@@ -555,8 +539,7 @@ void SeedPacket::FlashIfReady()
             offsetY = -4.0f;
         }
 
-        TodParticleSystem *particles = mApp->AddTodParticle(
-            offsetX + (float)mSeedBank->mX + scale * (float)mX,
+        TodParticleSystem *particles = mApp->AddTodParticle(offsetX + (float)mSeedBank->mX + scale * (float)mX,
             offsetY + (float)mSeedBank->mY + scale * (float)mY,
             100002,
             PARTICLE_SEED_PACKET_FLASH);
@@ -622,8 +605,7 @@ void SeedPacket::MouseDown(int x, int y, int clickCount, int playerIndex)
 
     // Versus lets player 1 pick without the extra checks. A click that already
     // carries a player index does too. The cheat skips them entirely.
-    bool skipChecks = mApp->mEasyPlantingCheat
-        || (mApp->mGameMode == GAMEMODE_MULTI_PLAYER && playerIndex > 0);
+    bool skipChecks = mApp->mEasyPlantingCheat || (mApp->mGameMode == GAMEMODE_MULTI_PLAYER && playerIndex > 0);
     if (!skipChecks)
     {
         if (!mActive)
@@ -638,8 +620,7 @@ void SeedPacket::MouseDown(int x, int y, int clickCount, int playerIndex)
         }
 
         int plantCost = mBoard->GetCurrentPlantCost(mPacketType, mImitaterType);
-        if (!mBoard->CanTakeSunMoney(plantCost, GetPlayerIndex())
-            && !mBoard->HasConveyorBeltSeedBank(false))
+        if (!mBoard->CanTakeSunMoney(plantCost, GetPlayerIndex()) && !mBoard->HasConveyorBeltSeedBank(false))
         {
             mApp->PlaySample(SOUND_BUZZER, true);
             mBoard->mOutOfMoneyCounter = 70;
@@ -647,8 +628,8 @@ void SeedPacket::MouseDown(int x, int y, int clickCount, int playerIndex)
                 return;
             if (mBoard->mLevel != 1 || !mBoard->mHelpDisplayed[0])
                 return;
-            mBoard->DisplayAdvice("[ADVICE_CANT_AFFORD_PLANT]", MESSAGE_STYLE_TUTORIAL_LEVEL1,
-                                  ADVICE_CANT_AFFORD_PLANT);
+            mBoard->DisplayAdvice(
+                "[ADVICE_CANT_AFFORD_PLANT]", MESSAGE_STYLE_TUTORIAL_LEVEL1, ADVICE_CANT_AFFORD_PLANT);
             return;
         }
 
@@ -657,40 +638,40 @@ void SeedPacket::MouseDown(int x, int y, int clickCount, int playerIndex)
             mApp->PlaySample(SOUND_BUZZER, true);
             switch (seedType)
             {
-            case SEED_GATLINGPEA:
-                mBoard->DisplayAdvice("[ADVICE_PLANT_NEEDS_REPEATER]", MESSAGE_STYLE_HINT_LONG,
-                                      ADVICE_PLANT_NEEDS_REPEATER);
-                break;
-            case SEED_WINTERMELON:
-                mBoard->DisplayAdvice("[ADVICE_PLANT_NEEDS_MELONPULT]", MESSAGE_STYLE_HINT_LONG,
-                                      ADVICE_PLANT_NEEDS_MELONPULT);
-                break;
-            case SEED_TWINSUNFLOWER:
-                mBoard->DisplayAdvice("[ADVICE_PLANT_NEEDS_SUNFLOWER]", MESSAGE_STYLE_HINT_LONG,
-                                      ADVICE_PLANT_NEEDS_SUNFLOWER);
-                break;
-            case SEED_SPIKEROCK:
-                mBoard->DisplayAdvice("[ADVICE_PLANT_NEEDS_SPIKEWEED]", MESSAGE_STYLE_HINT_LONG,
-                                      ADVICE_PLANT_NEEDS_SPIKEWEED);
-                break;
-            case SEED_COBCANNON:
-                mBoard->DisplayAdvice("[ADVICE_PLANT_NEEDS_KERNELPULT]", MESSAGE_STYLE_HINT_LONG,
-                                      ADVICE_PLANT_NEEDS_KERNELPULT);
-                break;
-            case SEED_GOLD_MAGNET:
-                mBoard->DisplayAdvice("[ADVICE_PLANT_NEEDS_MAGNETSHROOM]", MESSAGE_STYLE_HINT_LONG,
-                                      ADVICE_PLANT_NEEDS_MAGNETSHROOM);
-                break;
-            case SEED_GLOOMSHROOM:
-                mBoard->DisplayAdvice("[ADVICE_PLANT_NEEDS_FUMESHROOM]", MESSAGE_STYLE_HINT_LONG,
-                                      ADVICE_PLANT_NEEDS_FUMESHROOM);
-                break;
-            case SEED_CATTAIL:
-                mBoard->DisplayAdvice("[ADVICE_PLANT_NEEDS_LILYPAD]", MESSAGE_STYLE_HINT_LONG,
-                                      ADVICE_PLANT_NEEDS_LILYPAD);
-                break;
-            default:
-                break;
+                case SEED_GATLINGPEA:
+                    mBoard->DisplayAdvice(
+                        "[ADVICE_PLANT_NEEDS_REPEATER]", MESSAGE_STYLE_HINT_LONG, ADVICE_PLANT_NEEDS_REPEATER);
+                    break;
+                case SEED_WINTERMELON:
+                    mBoard->DisplayAdvice(
+                        "[ADVICE_PLANT_NEEDS_MELONPULT]", MESSAGE_STYLE_HINT_LONG, ADVICE_PLANT_NEEDS_MELONPULT);
+                    break;
+                case SEED_TWINSUNFLOWER:
+                    mBoard->DisplayAdvice(
+                        "[ADVICE_PLANT_NEEDS_SUNFLOWER]", MESSAGE_STYLE_HINT_LONG, ADVICE_PLANT_NEEDS_SUNFLOWER);
+                    break;
+                case SEED_SPIKEROCK:
+                    mBoard->DisplayAdvice(
+                        "[ADVICE_PLANT_NEEDS_SPIKEWEED]", MESSAGE_STYLE_HINT_LONG, ADVICE_PLANT_NEEDS_SPIKEWEED);
+                    break;
+                case SEED_COBCANNON:
+                    mBoard->DisplayAdvice(
+                        "[ADVICE_PLANT_NEEDS_KERNELPULT]", MESSAGE_STYLE_HINT_LONG, ADVICE_PLANT_NEEDS_KERNELPULT);
+                    break;
+                case SEED_GOLD_MAGNET:
+                    mBoard->DisplayAdvice(
+                        "[ADVICE_PLANT_NEEDS_MAGNETSHROOM]", MESSAGE_STYLE_HINT_LONG, ADVICE_PLANT_NEEDS_MAGNETSHROOM);
+                    break;
+                case SEED_GLOOMSHROOM:
+                    mBoard->DisplayAdvice(
+                        "[ADVICE_PLANT_NEEDS_FUMESHROOM]", MESSAGE_STYLE_HINT_LONG, ADVICE_PLANT_NEEDS_FUMESHROOM);
+                    break;
+                case SEED_CATTAIL:
+                    mBoard->DisplayAdvice(
+                        "[ADVICE_PLANT_NEEDS_LILYPAD]", MESSAGE_STYLE_HINT_LONG, ADVICE_PLANT_NEEDS_LILYPAD);
+                    break;
+                default:
+                    break;
             }
             return;
         }
@@ -708,18 +689,18 @@ void SeedPacket::MouseDown(int x, int y, int clickCount, int playerIndex)
 
     switch (mApp->mGameMode)
     {
-    case GAMEMODE_CHALLENGE_BEGHOULED:
-    case GAMEMODE_CHALLENGE_BEGHOULED_TWIST:
-        mBoard->mChallenge->BeghouledPacketClicked(this);
-        return;
-    case GAMEMODE_CHALLENGE_HEAVY_WEAPON:
-        mBoard->mChallenge->HeavyWeaponPacketClicked(this);
-        return;
-    case GAMEMODE_CHALLENGE_ZOMBIQUARIUM:
-        mBoard->mChallenge->ZombiquariumPacketClicked(this);
-        return;
-    default:
-        break;
+        case GAMEMODE_CHALLENGE_BEGHOULED:
+        case GAMEMODE_CHALLENGE_BEGHOULED_TWIST:
+            mBoard->mChallenge->BeghouledPacketClicked(this);
+            return;
+        case GAMEMODE_CHALLENGE_HEAVY_WEAPON:
+            mBoard->mChallenge->HeavyWeaponPacketClicked(this);
+            return;
+        case GAMEMODE_CHALLENGE_ZOMBIQUARIUM:
+            mBoard->mChallenge->ZombiquariumPacketClicked(this);
+            return;
+        default:
+            break;
     }
 
     CursorObject *cursor = mBoard->mCursorObject[playerIndex];
@@ -731,23 +712,23 @@ void SeedPacket::MouseDown(int x, int y, int clickCount, int playerIndex)
 
     switch (mBoard->mTutorialState)
     {
-    case TUTORIAL_LEVEL_1_PICK_UP_PEASHOOTER:
-        mBoard->SetTutorialState(TUTORIAL_LEVEL_1_PLANT_PEASHOOTER);
-        break;
-    case TUTORIAL_LEVEL_2_PICK_UP_SUNFLOWER:
-        mBoard->SetTutorialState(mPacketType == SEED_SUNFLOWER
-            ? TUTORIAL_LEVEL_2_PLANT_SUNFLOWER : TUTORIAL_LEVEL_2_REFRESH_SUNFLOWER);
-        break;
-    case TUTORIAL_MORESUN_PICK_UP_SUNFLOWER:
-        mBoard->SetTutorialState(mPacketType == SEED_SUNFLOWER
-            ? TUTORIAL_MORESUN_PLANT_SUNFLOWER : TUTORIAL_MORESUN_REFRESH_SUNFLOWER);
-        break;
-    case TUTORIAL_WHACK_A_ZOMBIE_BEFORE_PICK_SEED:
-    case TUTORIAL_WHACK_A_ZOMBIE_PICK_SEED:
-        mBoard->SetTutorialState(TUTORIAL_WHACK_A_ZOMBIE_COMPLETED);
-        break;
-    default:
-        break;
+        case TUTORIAL_LEVEL_1_PICK_UP_PEASHOOTER:
+            mBoard->SetTutorialState(TUTORIAL_LEVEL_1_PLANT_PEASHOOTER);
+            break;
+        case TUTORIAL_LEVEL_2_PICK_UP_SUNFLOWER:
+            mBoard->SetTutorialState(
+                mPacketType == SEED_SUNFLOWER ? TUTORIAL_LEVEL_2_PLANT_SUNFLOWER : TUTORIAL_LEVEL_2_REFRESH_SUNFLOWER);
+            break;
+        case TUTORIAL_MORESUN_PICK_UP_SUNFLOWER:
+            mBoard->SetTutorialState(
+                mPacketType == SEED_SUNFLOWER ? TUTORIAL_MORESUN_PLANT_SUNFLOWER : TUTORIAL_MORESUN_REFRESH_SUNFLOWER);
+            break;
+        case TUTORIAL_WHACK_A_ZOMBIE_BEFORE_PICK_SEED:
+        case TUTORIAL_WHACK_A_ZOMBIE_PICK_SEED:
+            mBoard->SetTutorialState(TUTORIAL_WHACK_A_ZOMBIE_COMPLETED);
+            break;
+        default:
+            break;
     }
 
     Deactivate();
@@ -786,8 +767,7 @@ void SeedPacket::Update()
         return;
 
     mSlotMachineCountDown--;
-    float flipsPerSecond = TodAnimateCurveFloat(
-        SLOT_MACHINE_TIME, 0, mSlotMachineCountDown, 6.0f, 2.0f, CURVE_LINEAR);
+    float flipsPerSecond = TodAnimateCurveFloat(SLOT_MACHINE_TIME, 0, mSlotMachineCountDown, 6.0f, 2.0f, CURVE_LINEAR);
     mSlotMachiningPosition += flipsPerSecond * 0.01f;
 
     if (mSlotMachiningPosition < 1.0f)
@@ -821,12 +801,8 @@ bool SeedPacket::MouseHitTest(int x, int y, HitResult *hitResult)
 {
     // Spinning reels and empty packets are not clickable. The hit box is the
     // packet rect shifted by the conveyor offset.
-    if (mSlotMachineCountDown > 0
-        || mPacketType == SEED_NONE
-        || x < mX + mOffsetY
-        || x >= mX + mOffsetY + mWidth
-        || y < mY
-        || y >= mY + mHeight)
+    if (mSlotMachineCountDown > 0 || mPacketType == SEED_NONE || x < mX + mOffsetY || x >= mX + mOffsetY + mWidth ||
+        y < mY || y >= mY + mHeight)
     {
         hitResult->mObject = nullptr;
         hitResult->mObjectType = OBJECT_TYPE_NONE;
@@ -869,8 +845,8 @@ void SeedPacket::WasPlanted(int playerIndex)
         return;
     }
 
-    if (mApp->mGameMode != GAMEMODE_CHALLENGE_LAST_STAND
-        || mBoard->mChallenge->mChallengeState == STATECHALLENGE_LAST_STAND_ONSLAUGHT)
+    if (mApp->mGameMode != GAMEMODE_CHALLENGE_LAST_STAND ||
+        mBoard->mChallenge->mChallengeState == STATECHALLENGE_LAST_STAND_ONSLAUGHT)
     {
         mRefreshing = true;
         mTimesUsed++;
@@ -885,8 +861,7 @@ void SeedPacket::WasPlanted(int playerIndex)
     }
 
     // Only a peashooter, or an imitater of one, feeds the favourite-plant flag.
-    if (mPacketType != SEED_PEASHOOTER
-        && (mPacketType != SEED_IMITATER || mImitaterType != SEED_PEASHOOTER))
+    if (mPacketType != SEED_PEASHOOTER && (mPacketType != SEED_IMITATER || mImitaterType != SEED_PEASHOOTER))
         return;
 
     if ((unsigned char)mApp->mPlayerInfo->FavoritePlants()[SEED_PEASHOOTER] > 9)
@@ -895,8 +870,7 @@ void SeedPacket::WasPlanted(int playerIndex)
     if (mApp->mSecondPlayerGamepadIndex != -1)
     {
         Sexy::DefaultPlayerInfo *info2 = mApp->mPlayer2Info;
-        if (info2 != nullptr
-            && (unsigned char)info2->FavoritePlants()[SEED_PEASHOOTER] > 9)
+        if (info2 != nullptr && (unsigned char)info2->FavoritePlants()[SEED_PEASHOOTER] > 9)
             info2->mHasFavoritePlant = true;
     }
 }
@@ -936,21 +910,16 @@ void SeedPacket::SetPacketType(SeedType theSeedType, SeedType theImitaterType)
     }
 
     // These modes hand the packet over already usable.
-    if (mode == GAMEMODE_CHALLENGE_BEGHOULED
-        || mode == GAMEMODE_CHALLENGE_ZOMBIQUARIUM
-        || mode == GAMEMODE_CHALLENGE_BEGHOULED_TWIST
-        || mode == GAMEMODE_CHALLENGE_LAST_STAND
-        || mApp->IsIZombieLevel()
-        || mApp->IsScaryPotterLevel()
-        || mApp->IsWhackAZombieLevel()
-        || mode == GAMEMODE_CHALLENGE_HEAVY_WEAPON)
+    if (mode == GAMEMODE_CHALLENGE_BEGHOULED || mode == GAMEMODE_CHALLENGE_ZOMBIQUARIUM ||
+        mode == GAMEMODE_CHALLENGE_BEGHOULED_TWIST || mode == GAMEMODE_CHALLENGE_LAST_STAND || mApp->IsIZombieLevel() ||
+        mApp->IsScaryPotterLevel() || mApp->IsWhackAZombieLevel() || mode == GAMEMODE_CHALLENGE_HEAVY_WEAPON)
         return;
 
     if (mApp->IsSurvivalMode() && mBoard->mChallenge->mSurvivalStage > 0)
         return;
 
-    if ((Plant::IsUpgrade(useSeed) && !gLawnApp->IsSurvivalMode())
-        || Plant::GetRefreshTime(mPacketType, mImitaterType) == 5000)
+    if ((Plant::IsUpgrade(useSeed) && !gLawnApp->IsSurvivalMode()) ||
+        Plant::GetRefreshTime(mPacketType, mImitaterType) == 5000)
     {
         StartRefreshing(this, 3500);
         return;

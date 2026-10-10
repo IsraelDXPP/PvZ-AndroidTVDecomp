@@ -36,62 +36,59 @@
 
 // Transcribed static data (from the binary, see ZenGarden::GetSpecialGridPlacements).
 // Six ints per garden cell: mPixelX, mPixelY, mGridX, mGridY, mCellWidth, mCellHeight.
-static SpecialGridPlacement gMushroomGridPlacement[] =
-{
-    { 110, 441, 0, 0, 100, 100 },
-    { 237, 360, 1, 0, 100, 100 },
-    { 298, 458, 2, 0, 100, 100 },
-    { 355, 296, 3, 0, 100, 100 },
-    { 387, 203, 4, 0, 100, 100 },
-    { 460, 385, 5, 0, 100, 100 },
-    { 486, 478, 6, 0, 100, 100 },
-    { 552, 283, 7, 0, 100, 100 },
+static SpecialGridPlacement gMushroomGridPlacement[] = {
+    {110, 441, 0, 0, 100, 100},
+    {237, 360, 1, 0, 100, 100},
+    {298, 458, 2, 0, 100, 100},
+    {355, 296, 3, 0, 100, 100},
+    {387, 203, 4, 0, 100, 100},
+    {460, 385, 5, 0, 100, 100},
+    {486, 478, 6, 0, 100, 100},
+    {552, 283, 7, 0, 100, 100},
 };
-static SpecialGridPlacement gAquariumGridPlacement[] =
-{
-    { 113, 185, 0, 0, 100, 100 },
-    { 306, 85, 1, 0, 100, 100 },
-    { 356, 213, 2, 0, 100, 100 },
-    { 522, 105, 3, 0, 100, 100 },
-    { 669, 270, 4, 0, 100, 100 },
-    { 122, 355, 5, 0, 100, 100 },
-    { 365, 458, 6, 0, 100, 100 },
-    { 504, 417, 7, 0, 100, 100 },
+static SpecialGridPlacement gAquariumGridPlacement[] = {
+    {113, 185, 0, 0, 100, 100},
+    {306, 85, 1, 0, 100, 100},
+    {356, 213, 2, 0, 100, 100},
+    {522, 105, 3, 0, 100, 100},
+    {669, 270, 4, 0, 100, 100},
+    {122, 355, 5, 0, 100, 100},
+    {365, 458, 6, 0, 100, 100},
+    {504, 417, 7, 0, 100, 100},
 };
-static SpecialGridPlacement gGreenhouseGridPlacement[] =
-{
-    { 73, 73, 0, 0, 82, 95 },
-    { 155, 71, 1, 0, 84, 94 },
-    { 239, 68, 2, 0, 82, 102 },
-    { 321, 73, 3, 0, 85, 102 },
-    { 406, 71, 4, 0, 78, 102 },
-    { 484, 67, 5, 0, 82, 103 },
-    { 566, 70, 6, 0, 82, 94 },
-    { 648, 72, 7, 0, 80, 96 },
-    { 67, 168, 0, 1, 83, 100 },
-    { 150, 165, 1, 1, 82, 101 },
-    { 232, 170, 2, 1, 82, 90 },
-    { 314, 175, 3, 1, 102, 91 },
-    { 416, 173, 4, 1, 81, 94 },
-    { 497, 170, 5, 1, 81, 91 },
-    { 578, 164, 6, 1, 82, 101 },
-    { 660, 168, 7, 1, 80, 101 },
-    { 41, 268, 0, 2, 89, 103 },
-    { 130, 266, 1, 2, 89, 103 },
-    { 219, 260, 2, 2, 91, 108 },
-    { 310, 266, 3, 2, 106, 103 },
-    { 416, 267, 4, 2, 88, 108 },
-    { 504, 261, 5, 2, 90, 107 },
-    { 594, 265, 6, 2, 90, 100 },
-    { 684, 269, 7, 2, 80, 99 },
-    { 37, 371, 0, 3, 87, 85 },
-    { 124, 369, 1, 3, 87, 85 },
-    { 211, 368, 2, 3, 91, 85 },
-    { 302, 369, 3, 3, 123, 85 },
-    { 425, 375, 4, 3, 87, 85 },
-    { 512, 368, 5, 3, 90, 85 },
-    { 602, 365, 6, 3, 89, 85 },
-    { 691, 368, 7, 3, 80, 85 },
+static SpecialGridPlacement gGreenhouseGridPlacement[] = {
+    {73, 73, 0, 0, 82, 95},
+    {155, 71, 1, 0, 84, 94},
+    {239, 68, 2, 0, 82, 102},
+    {321, 73, 3, 0, 85, 102},
+    {406, 71, 4, 0, 78, 102},
+    {484, 67, 5, 0, 82, 103},
+    {566, 70, 6, 0, 82, 94},
+    {648, 72, 7, 0, 80, 96},
+    {67, 168, 0, 1, 83, 100},
+    {150, 165, 1, 1, 82, 101},
+    {232, 170, 2, 1, 82, 90},
+    {314, 175, 3, 1, 102, 91},
+    {416, 173, 4, 1, 81, 94},
+    {497, 170, 5, 1, 81, 91},
+    {578, 164, 6, 1, 82, 101},
+    {660, 168, 7, 1, 80, 101},
+    {41, 268, 0, 2, 89, 103},
+    {130, 266, 1, 2, 89, 103},
+    {219, 260, 2, 2, 91, 108},
+    {310, 266, 3, 2, 106, 103},
+    {416, 267, 4, 2, 88, 108},
+    {504, 261, 5, 2, 90, 107},
+    {594, 265, 6, 2, 90, 100},
+    {684, 269, 7, 2, 80, 99},
+    {37, 371, 0, 3, 87, 85},
+    {124, 369, 1, 3, 87, 85},
+    {211, 368, 2, 3, 91, 85},
+    {302, 369, 3, 3, 123, 85},
+    {425, 375, 4, 3, 87, 85},
+    {512, 368, 5, 3, 90, 85},
+    {602, 365, 6, 3, 89, 85},
+    {691, 368, 7, 3, 80, 85},
 };
 
 namespace
@@ -102,7 +99,6 @@ namespace
 // PvZ\Lawn\Common\ConstEnums.h; naming them here keeps the call sites readable
 // and makes the swap to real enumerators a one-line change each. Same convention
 // as game/GridItem.cpp.
-
 
 // The four DrawVariation values the zen garden draws pots with.
 
@@ -121,26 +117,26 @@ namespace
 // ==========================================================================
 ZenGarden::ZenGarden()
 {
-  mShowShopButton = true;
-  mBoard = nullptr;
-  mGardenType = GARDEN_MAIN;
-  mHelpBar = nullptr;
-  mSelectedTool = OBJECT_TYPE_NONE;
-  mApp = gLawnApp;
+    mShowShopButton = true;
+    mBoard = nullptr;
+    mGardenType = GARDEN_MAIN;
+    mHelpBar = nullptr;
+    mSelectedTool = OBJECT_TYPE_NONE;
+    mApp = gLawnApp;
 }
 // ==========================================================================
 // ZenGarden::RemovePottedPlant(Plant *)
 // @0019DA0C  36 bytes
 // ==========================================================================
-void ZenGarden::RemovePottedPlant(Plant * thePlant)
+void ZenGarden::RemovePottedPlant(Plant *thePlant)
 {
-  thePlant->Die();
+    thePlant->Die();
 
-  // The plant drawn on top of this square is the flower pot's occupant; it goes
-  // with the pot.
-  Plant *aTopPlant = mBoard->GetTopPlantAt(thePlant->mPlantCol, thePlant->mRow, TOPPLANT_ANY);
-  if ( aTopPlant != nullptr )
-    aTopPlant->Die();
+    // The plant drawn on top of this square is the flower pot's occupant; it goes
+    // with the pot.
+    Plant *aTopPlant = mBoard->GetTopPlantAt(thePlant->mPlantCol, thePlant->mRow, TOPPLANT_ANY);
+    if (aTopPlant != nullptr)
+        aTopPlant->Die();
 }
 
 // ==========================================================================
@@ -149,163 +145,162 @@ void ZenGarden::RemovePottedPlant(Plant * thePlant)
 // ==========================================================================
 void ZenGarden::ZenGardenStart()
 {
-  ;
+    ;
 }
 
 // ==========================================================================
 // ZenGarden::AddHappyEffect(Plant *)
 // @0019DA34  106 bytes
 // ==========================================================================
-TodParticleSystem * ZenGarden::AddHappyEffect(Plant * thePlant)
+TodParticleSystem *ZenGarden::AddHappyEffect(Plant *thePlant)
 {
-  // The effect hangs off whatever is drawn on top of the pot, so that it
-  // disappears with the plant the player can see.
-  Plant *aTopPlant = mBoard->GetTopPlantAt(thePlant->mPlantCol, thePlant->mRow, TOPPLANT_ANY);
-  if ( aTopPlant == nullptr )
-    return thePlant->AddAttachedParticle(thePlant->mX + 40, thePlant->mY + 60, thePlant->mRenderOrder - 1, ParticleEffect(88));
+    // The effect hangs off whatever is drawn on top of the pot, so that it
+    // disappears with the plant the player can see.
+    Plant *aTopPlant = mBoard->GetTopPlantAt(thePlant->mPlantCol, thePlant->mRow, TOPPLANT_ANY);
+    if (aTopPlant == nullptr)
+        return thePlant->AddAttachedParticle(
+            thePlant->mX + 40, thePlant->mY + 60, thePlant->mRenderOrder - 1, ParticleEffect(88));
 
-  // Aquatic plants sit lower in the pot, so their effect is placed one pixel
-  // higher than a land plant's.
-  if ( Plant::IsAquatic(thePlant->mSeedType) )
-    return aTopPlant->AddAttachedParticle(aTopPlant->mX + 40, aTopPlant->mY + 61,
-                                          aTopPlant->mRenderOrder - 1, ParticleEffect(87));
-  return aTopPlant->AddAttachedParticle(aTopPlant->mX + 40, aTopPlant->mY + 63,
-                                        aTopPlant->mRenderOrder - 1, ParticleEffect(86));
+    // Aquatic plants sit lower in the pot, so their effect is placed one pixel
+    // higher than a land plant's.
+    if (Plant::IsAquatic(thePlant->mSeedType))
+        return aTopPlant->AddAttachedParticle(
+            aTopPlant->mX + 40, aTopPlant->mY + 61, aTopPlant->mRenderOrder - 1, ParticleEffect(87));
+    return aTopPlant->AddAttachedParticle(
+        aTopPlant->mX + 40, aTopPlant->mY + 63, aTopPlant->mRenderOrder - 1, ParticleEffect(86));
 }
 
 // ==========================================================================
 // ZenGarden::RemoveHappyEffect(Plant *)
 // @0019DAA0  54 bytes
 // ==========================================================================
-void ZenGarden::RemoveHappyEffect(Plant * thePlant)
+void ZenGarden::RemoveHappyEffect(Plant *thePlant)
 {
-  // The particle belongs to whatever plant is on top of the one being removed.
-  Plant *aTopPlant = mBoard->GetTopPlantAt(thePlant->mPlantCol, thePlant->mRow, TOPPLANT_ANY);
-  ParticleSystemID aParticleID = aTopPlant != nullptr ? aTopPlant->mParticleID : thePlant->mParticleID;
-  TodParticleSystem *aParticle = mApp->ParticleTryToGet(aParticleID);
-  if ( aParticle != nullptr )
-    aParticle->ParticleSystemDie();
+    // The particle belongs to whatever plant is on top of the one being removed.
+    Plant *aTopPlant = mBoard->GetTopPlantAt(thePlant->mPlantCol, thePlant->mRow, TOPPLANT_ANY);
+    ParticleSystemID aParticleID = aTopPlant != nullptr ? aTopPlant->mParticleID : thePlant->mParticleID;
+    TodParticleSystem *aParticle = mApp->ParticleTryToGet(aParticleID);
+    if (aParticle != nullptr)
+        aParticle->ParticleSystemDie();
 }
 // ==========================================================================
 // ZenGarden::WasPlantNeedFulfilledToday(PottedPlant *)
 // @0019DAD8  78 bytes
 // ==========================================================================
-bool ZenGarden::WasPlantNeedFulfilledToday(PottedPlant * thePottedPlant)
+bool ZenGarden::WasPlantNeedFulfilledToday(PottedPlant *thePottedPlant)
 {
-  time_t aNow = time(nullptr);
-  if ( aNow - thePottedPlant->mLastNeedFulfilledTime < 3600 )
-    return true;
+    time_t aNow = time(nullptr);
+    if (aNow - thePottedPlant->mLastNeedFulfilledTime < 3600)
+        return true;
 
-  // Outside the one-hour grace period, compare the local calendar dates.
-  time_t aLast = thePottedPlant->mLastNeedFulfilledTime;
-  struct tm aNowTm;
-  struct tm aLastTm;
-  PlatformLocalTime(&aNow, &aNowTm);
-  PlatformLocalTime(&aLast, &aLastTm);
-  return aNowTm.tm_year <= aLastTm.tm_year && aNowTm.tm_yday <= aLastTm.tm_yday;
+    // Outside the one-hour grace period, compare the local calendar dates.
+    time_t aLast = thePottedPlant->mLastNeedFulfilledTime;
+    struct tm aNowTm;
+    struct tm aLastTm;
+    PlatformLocalTime(&aNow, &aNowTm);
+    PlatformLocalTime(&aLast, &aLastTm);
+    return aNowTm.tm_year <= aLastTm.tm_year && aNowTm.tm_yday <= aLastTm.tm_yday;
 }
 
 // ==========================================================================
 // ZenGarden::WasPlantFertilizedInLastHour(PottedPlant *)
 // @0019DB28  26 bytes
 // ==========================================================================
-bool ZenGarden::WasPlantFertilizedInLastHour(PottedPlant * thePottedPlant)
+bool ZenGarden::WasPlantFertilizedInLastHour(PottedPlant *thePottedPlant)
 {
-  return time(nullptr) - thePottedPlant->mLastFertilizedTime < 3600;
+    return time(nullptr) - thePottedPlant->mLastFertilizedTime < 3600;
 }
 
 // ==========================================================================
 // ZenGarden::PlantShouldRefreshNeed(PottedPlant *)
 // @0019DB44  78 bytes
 // ==========================================================================
-bool ZenGarden::PlantShouldRefreshNeed(PottedPlant * thePottedPlant)
+bool ZenGarden::PlantShouldRefreshNeed(PottedPlant *thePottedPlant)
 {
-  time_t aNow = time(nullptr);
-  if ( aNow - thePottedPlant->mLastWateredTime < 3600 )
-    return false;
+    time_t aNow = time(nullptr);
+    if (aNow - thePottedPlant->mLastWateredTime < 3600)
+        return false;
 
-  // A need only refreshes once the clock has rolled over to a later day.
-  time_t aLast = thePottedPlant->mLastWateredTime;
-  struct tm aNowTm;
-  struct tm aLastTm;
-  PlatformLocalTime(&aNow, &aNowTm);
-  PlatformLocalTime(&aLast, &aLastTm);
-  return aNowTm.tm_year > aLastTm.tm_year || aNowTm.tm_yday > aLastTm.tm_yday;
+    // A need only refreshes once the clock has rolled over to a later day.
+    time_t aLast = thePottedPlant->mLastWateredTime;
+    struct tm aNowTm;
+    struct tm aLastTm;
+    PlatformLocalTime(&aNow, &aNowTm);
+    PlatformLocalTime(&aLast, &aLastTm);
+    return aNowTm.tm_year > aLastTm.tm_year || aNowTm.tm_yday > aLastTm.tm_yday;
 }
 
 // ==========================================================================
 // ZenGarden::RefreshPlantNeeds(PottedPlant *)
 // @0019DB94  78 bytes
 // ==========================================================================
-void ZenGarden::RefreshPlantNeeds(PottedPlant * thePottedPlant)
+void ZenGarden::RefreshPlantNeeds(PottedPlant *thePottedPlant)
 {
-  // Only a fully grown plant can develop a new need.
-  if ( thePottedPlant->mPlantAge != PLANTAGE_FULL )
-    return;
-  if ( !PlantShouldRefreshNeed(thePottedPlant) )
-    return;
+    // Only a fully grown plant can develop a new need.
+    if (thePottedPlant->mPlantAge != PLANTAGE_FULL)
+        return;
+    if (!PlantShouldRefreshNeed(thePottedPlant))
+        return;
 
-  if ( Plant::IsAquatic(thePottedPlant->mSeedType) )
-  {
-    // Aquatic plants always ask to be fed again; the specific need is rolled.
-    thePottedPlant->mLastWateredTime = time(nullptr);
-    thePottedPlant->mPlantNeed = PottedPlantNeed(RandRangeInt(PLANTNEED_BUGSPRAY, PLANTNEED_PHONOGRAPH));
-  }
-  else
-  {
-    thePottedPlant->mPlantNeed = PLANTNEED_NONE;
-    thePottedPlant->mTimesFed = 0;
-  }
+    if (Plant::IsAquatic(thePottedPlant->mSeedType))
+    {
+        // Aquatic plants always ask to be fed again; the specific need is rolled.
+        thePottedPlant->mLastWateredTime = time(nullptr);
+        thePottedPlant->mPlantNeed = PottedPlantNeed(RandRangeInt(PLANTNEED_BUGSPRAY, PLANTNEED_PHONOGRAPH));
+    }
+    else
+    {
+        thePottedPlant->mPlantNeed = PLANTNEED_NONE;
+        thePottedPlant->mTimesFed = 0;
+    }
 }
 
 // ==========================================================================
 // ZenGarden::GetPlantsNeed(PottedPlant *)
 // @0019DBE4  198 bytes
 // ==========================================================================
-PottedPlantNeed ZenGarden::GetPlantsNeed(PottedPlant * thePottedPlant)
+PottedPlantNeed ZenGarden::GetPlantsNeed(PottedPlant *thePottedPlant)
 {
-  // TV 0x19DC24 reads the garden bits, independently of the plant's facing.
-  if ( thePottedPlant->mPlantAge != PLANTAGE_SPROUT
-    && Plant::IsNocturnal(thePottedPlant->mSeedType)
-    && thePottedPlant->mWhichZenGarden == GARDEN_MAIN )
-    return PLANTNEED_NONE;
-  if ( thePottedPlant->mWhichZenGarden == GARDEN_WHEELBARROW )
-    return PLANTNEED_NONE;
+    // TV 0x19DC24 reads the garden bits, independently of the plant's facing.
+    if (thePottedPlant->mPlantAge != PLANTAGE_SPROUT && Plant::IsNocturnal(thePottedPlant->mSeedType) &&
+        thePottedPlant->mWhichZenGarden == GARDEN_MAIN)
+        return PLANTNEED_NONE;
+    if (thePottedPlant->mWhichZenGarden == GARDEN_WHEELBARROW)
+        return PLANTNEED_NONE;
 
-  time_t aNow = time(nullptr);
+    time_t aNow = time(nullptr);
 
-  if ( WasPlantFertilizedInLastHour(thePottedPlant) || WasPlantNeedFulfilledToday(thePottedPlant) )
-    return PLANTNEED_NONE;
+    if (WasPlantFertilizedInLastHour(thePottedPlant) || WasPlantNeedFulfilledToday(thePottedPlant))
+        return PLANTNEED_NONE;
 
-  if ( Plant::IsAquatic(thePottedPlant->mSeedType) && thePottedPlant->mPlantAge != PLANTAGE_SPROUT )
-  {
-    if ( thePottedPlant->mPlantAge != PLANTAGE_FULL )
-      return thePottedPlant->mWhichZenGarden == GARDEN_AQUARIUM
-          ? PLANTNEED_FERTILIZER : PLANTNEED_NONE;
-    if ( PlantShouldRefreshNeed(thePottedPlant) )
-      return PLANTNEED_NONE;
-    return thePottedPlant->mPlantNeed;
-  }
+    if (Plant::IsAquatic(thePottedPlant->mSeedType) && thePottedPlant->mPlantAge != PLANTAGE_SPROUT)
+    {
+        if (thePottedPlant->mPlantAge != PLANTAGE_FULL)
+            return thePottedPlant->mWhichZenGarden == GARDEN_AQUARIUM ? PLANTNEED_FERTILIZER : PLANTNEED_NONE;
+        if (PlantShouldRefreshNeed(thePottedPlant))
+            return PLANTNEED_NONE;
+        return thePottedPlant->mPlantNeed;
+    }
 
-  // Land plants wait fifteen seconds after watering before asking again.
-  if ( aNow - thePottedPlant->mLastWateredTime <= 15 )
-    return PLANTNEED_NONE;
-  if ( thePottedPlant->mTimesFed < thePottedPlant->mFeedingsPerGrow )
-    return PLANTNEED_WATER;
-  if ( thePottedPlant->mPlantAge != PLANTAGE_FULL )
-    return PLANTNEED_FERTILIZER;
-  if ( PlantShouldRefreshNeed(thePottedPlant) )
-    return PLANTNEED_NONE;
-  return thePottedPlant->mPlantNeed == PLANTNEED_NONE ? PLANTNEED_WATER : thePottedPlant->mPlantNeed;
+    // Land plants wait fifteen seconds after watering before asking again.
+    if (aNow - thePottedPlant->mLastWateredTime <= 15)
+        return PLANTNEED_NONE;
+    if (thePottedPlant->mTimesFed < thePottedPlant->mFeedingsPerGrow)
+        return PLANTNEED_WATER;
+    if (thePottedPlant->mPlantAge != PLANTAGE_FULL)
+        return PLANTNEED_FERTILIZER;
+    if (PlantShouldRefreshNeed(thePottedPlant))
+        return PLANTNEED_NONE;
+    return thePottedPlant->mPlantNeed == PLANTNEED_NONE ? PLANTNEED_WATER : thePottedPlant->mPlantNeed;
 }
 
 // ==========================================================================
 // ZenGarden::PlantHighOnChocolate(PottedPlant *)
 // @0019DCAC  26 bytes
 // ==========================================================================
-bool ZenGarden::PlantHighOnChocolate(PottedPlant * thePottedPlant)
+bool ZenGarden::PlantHighOnChocolate(PottedPlant *thePottedPlant)
 {
-  return time(nullptr) - thePottedPlant->mLastChocolateTime < 300;
+    return time(nullptr) - thePottedPlant->mLastChocolateTime < 300;
 }
 // ==========================================================================
 // ZenGarden::PlantPottedDrawHeightOffset(SeedType,float)
@@ -313,288 +308,287 @@ bool ZenGarden::PlantHighOnChocolate(PottedPlant * thePottedPlant)
 // ==========================================================================
 float ZenGarden::PlantPottedDrawHeightOffset(SeedType theSeedType, float theScale)
 {
-  switch ( theSeedType )
-  {
-    case SEED_GRAVEBUSTER:
-      return theScale * 15.0f - 15.0f + 50.0f;
-    case SEED_PUFFSHROOM:
-    case SEED_STARFRUIT:
-      return theScale * 24.0f - 24.0f + 10.0f;
-    case SEED_SUNSHROOM:
-      return theScale * 17.0f - 17.0f + 10.0f;
-    case SEED_SCAREDYSHROOM:
-      return theScale * 5.0f - 5.0f + 5.0f;
-    case SEED_TANGLEKELP:
-      return theScale * 20.0f - 20.0f - 18.0f;
-    case SEED_SEASHROOM:
-      return theScale * 15.0f - 15.0f - 20.0f;
-    case SEED_LILYPAD:
-      return theScale * 30.0f - 30.0f - 10.0f;
-    case SEED_PEASHOOTER:
-    case SEED_SUNFLOWER:
-    case SEED_HYPNOSHROOM:
-    case SEED_MAGNETSHROOM:
-    case SEED_SNOWPEA:
-    case SEED_REPEATER:
-    case SEED_LEFTPEATER:
-    case SEED_THREEPEATER:
-    case SEED_MARIGOLD:
-    case SEED_BLOVER:
-      return theScale * 10.0f - 10.0f;
-    case SEED_CABBAGEPULT:
-    case SEED_MELONPULT:
-      return theScale * 10.0f - 10.0f + 3.0f;
-    case SEED_POTATOMINE:
-      return theScale * 5.0f - 5.0f;
-    case SEED_TORCHWOOD:
-      return theScale * 3.0f - 3.0f;
-    case SEED_SPIKEWEED:
-      return theScale * 10.0f - 10.0f - 13.0f;
-    case SEED_PUMPKINSHELL:
-      return theScale * 20.0f - 20.0f;
-    case SEED_PLANTERN:
-      return 1.0f - theScale;
-    default:
-      return 0.0f;
-  }
+    switch (theSeedType)
+    {
+        case SEED_GRAVEBUSTER:
+            return theScale * 15.0f - 15.0f + 50.0f;
+        case SEED_PUFFSHROOM:
+        case SEED_STARFRUIT:
+            return theScale * 24.0f - 24.0f + 10.0f;
+        case SEED_SUNSHROOM:
+            return theScale * 17.0f - 17.0f + 10.0f;
+        case SEED_SCAREDYSHROOM:
+            return theScale * 5.0f - 5.0f + 5.0f;
+        case SEED_TANGLEKELP:
+            return theScale * 20.0f - 20.0f - 18.0f;
+        case SEED_SEASHROOM:
+            return theScale * 15.0f - 15.0f - 20.0f;
+        case SEED_LILYPAD:
+            return theScale * 30.0f - 30.0f - 10.0f;
+        case SEED_PEASHOOTER:
+        case SEED_SUNFLOWER:
+        case SEED_HYPNOSHROOM:
+        case SEED_MAGNETSHROOM:
+        case SEED_SNOWPEA:
+        case SEED_REPEATER:
+        case SEED_LEFTPEATER:
+        case SEED_THREEPEATER:
+        case SEED_MARIGOLD:
+        case SEED_BLOVER:
+            return theScale * 10.0f - 10.0f;
+        case SEED_CABBAGEPULT:
+        case SEED_MELONPULT:
+            return theScale * 10.0f - 10.0f + 3.0f;
+        case SEED_POTATOMINE:
+            return theScale * 5.0f - 5.0f;
+        case SEED_TORCHWOOD:
+            return theScale * 3.0f - 3.0f;
+        case SEED_SPIKEWEED:
+            return theScale * 10.0f - 10.0f - 13.0f;
+        case SEED_PUMPKINSHELL:
+            return theScale * 20.0f - 20.0f;
+        case SEED_PLANTERN:
+            return 1.0f - theScale;
+        default:
+            return 0.0f;
+    }
 }
 
 // ==========================================================================
 // ZenGarden::StinkyWakeUp(GridItem *)
 // @0019DE28  88 bytes
 // ==========================================================================
-void ZenGarden::StinkyWakeUp(GridItem * theStinky)
+void ZenGarden::StinkyWakeUp(GridItem *theStinky)
 {
-  Reanimation *aReanim = mApp->ReanimationGet(theStinky->mGridItemReanimID);
-  aReanim->PlayReanim("anim_out", REANIM_PLAY_ONCE_AND_HOLD, 20, 6.0);
-  theStinky->mGridItemState = GRIDITEM_STINKY_WAKING_UP;
+    Reanimation *aReanim = mApp->ReanimationGet(theStinky->mGridItemReanimID);
+    aReanim->PlayReanim("anim_out", REANIM_PLAY_ONCE_AND_HOLD, 20, 6.0);
+    theStinky->mGridItemState = GRIDITEM_STINKY_WAKING_UP;
 
-  // The shell is a separate attachment, and it comes off as Stinky wakes up.
-  Reanimation *aShell = FindReanimAttachment(aReanim->GetTrackInstanceByName("shell")->mAttachmentID);
-  aShell->ReanimationDie();
+    // The shell is a separate attachment, and it comes off as Stinky wakes up.
+    Reanimation *aShell = FindReanimAttachment(aReanim->GetTrackInstanceByName("shell")->mAttachmentID);
+    aShell->ReanimationDie();
 
-  mApp->mPlayerInfo->SetFlag(4, 1);
+    mApp->mPlayerInfo->SetFlag(4, 1);
 }
 
 // ==========================================================================
 // ZenGarden::StinkyStartFallingAsleep(GridItem *)
 // @0019DE90  42 bytes
 // ==========================================================================
-void ZenGarden::StinkyStartFallingAsleep(GridItem * theStinky)
+void ZenGarden::StinkyStartFallingAsleep(GridItem *theStinky)
 {
-  Reanimation *aReanim = mApp->ReanimationGet(theStinky->mGridItemReanimID);
-  aReanim->PlayReanim("anim_in", REANIM_PLAY_ONCE_AND_HOLD, 20, 6.0);
-  theStinky->mGridItemState = GRIDITEM_STINKY_FALLING_ASLEEP;
+    Reanimation *aReanim = mApp->ReanimationGet(theStinky->mGridItemReanimID);
+    aReanim->PlayReanim("anim_in", REANIM_PLAY_ONCE_AND_HOLD, 20, 6.0);
+    theStinky->mGridItemState = GRIDITEM_STINKY_FALLING_ASLEEP;
 }
 // ==========================================================================
 // ZenGarden::StinkyFinishFallingAsleep(GridItem *,int)
 // @0019DEC0  236 bytes
 // ==========================================================================
-void ZenGarden::StinkyFinishFallingAsleep(GridItem * theStinky, int theBlendTime)
+void ZenGarden::StinkyFinishFallingAsleep(GridItem *theStinky, int theBlendTime)
 {
-  Reanimation *aReanim = mApp->ReanimationGet(theStinky->mGridItemReanimID);
-  aReanim->PlayReanim("anim_out", REANIM_PLAY_ONCE_AND_HOLD, theBlendTime, 0.0);
-  aReanim->SetAnimRate(0.0);
+    Reanimation *aReanim = mApp->ReanimationGet(theStinky->mGridItemReanimID);
+    aReanim->PlayReanim("anim_out", REANIM_PLAY_ONCE_AND_HOLD, theBlendTime, 0.0);
+    aReanim->SetAnimRate(0.0);
 
-  // A second, static reanimation holds the shell left behind.
-  Reanimation *aShell = mApp->AddReanimation(0, 0, 0, REANIM_SLEEPING);
-  aShell->mRenderOrder = 0;
-  aShell->SetAnimRate(3.0);
-  AttachReanim(aReanim->mTrackInstances[aReanim->FindTrackIndex("shell")].mAttachmentID,
-               aShell, 33.0f, 38.0f);
+    // A second, static reanimation holds the shell left behind.
+    Reanimation *aShell = mApp->AddReanimation(0, 0, 0, REANIM_SLEEPING);
+    aShell->mRenderOrder = 0;
+    aShell->SetAnimRate(3.0);
+    AttachReanim(aReanim->mTrackInstances[aReanim->FindTrackIndex("shell")].mAttachmentID, aShell, 33.0f, 38.0f);
 
-  theStinky->mGridItemState = GRIDITEM_STINKY_SLEEPING;
-  if ( !mApp->mPlayerInfo->GetFlag(PlayerFlags(4)) )
-  {
-    // The advice is shown once, the first time Stinky goes to sleep.
-    Sexy::String aText;
-    TodStringTranslate(&aText, "[ADVICE_STINKY_SLEEPING]");
-    mBoard->DisplayAdvice(aText, MESSAGE_STYLE_HINT_LONG, AdviceType(59));
-  }
+    theStinky->mGridItemState = GRIDITEM_STINKY_SLEEPING;
+    if (!mApp->mPlayerInfo->GetFlag(PlayerFlags(4)))
+    {
+        // The advice is shown once, the first time Stinky goes to sleep.
+        Sexy::String aText;
+        TodStringTranslate(&aText, "[ADVICE_STINKY_SLEEPING]");
+        mBoard->DisplayAdvice(aText, MESSAGE_STYLE_HINT_LONG, AdviceType(59));
+    }
 }
 
 // ==========================================================================
 // ZenGarden::UpdateStinkyMotionTrail(GridItem *,bool)
 // @0019DFD4  116 bytes
 // ==========================================================================
-void ZenGarden::UpdateStinkyMotionTrail(GridItem * theStinky, bool theStinkyHighOnChocolate)
+void ZenGarden::UpdateStinkyMotionTrail(GridItem *theStinky, bool theStinkyHighOnChocolate)
 {
-  Reanimation *aReanim = mApp->ReanimationTryToGet(theStinky->mGridItemReanimID);
-  if ( theStinkyHighOnChocolate )
-  {
-    // Only while Stinky is walking does the trail advance.
-    if ( theStinky->mGridItemState == GRIDITEM_STINKY_WALKING_LEFT
-      || theStinky->mGridItemState == GRIDITEM_STINKY_WALKING_RIGHT )
+    Reanimation *aReanim = mApp->ReanimationTryToGet(theStinky->mGridItemReanimID);
+    if (theStinkyHighOnChocolate)
     {
-      int aCount = theStinky->mMotionTrailCount;
-      if ( aCount == 12 )
-        aCount = 10;
-      else if ( aCount <= 0 )
-        aCount = 0;
-      else
-        --aCount;
+        // Only while Stinky is walking does the trail advance.
+        if (theStinky->mGridItemState == GRIDITEM_STINKY_WALKING_LEFT ||
+            theStinky->mGridItemState == GRIDITEM_STINKY_WALKING_RIGHT)
+        {
+            int aCount = theStinky->mMotionTrailCount;
+            if (aCount == 12)
+                aCount = 10;
+            else if (aCount <= 0)
+                aCount = 0;
+            else
+                --aCount;
 
-      // Shift the trail one slot along, oldest first.
-      for ( int i = aCount; i > 0; --i )
-      {
-        theStinky->mMotionTrailFrames[i].mPosX = theStinky->mMotionTrailFrames[i - 1].mPosX;
-        theStinky->mMotionTrailFrames[i].mPosY = theStinky->mMotionTrailFrames[i - 1].mPosY;
-        theStinky->mMotionTrailFrames[i].mAnimTime = theStinky->mMotionTrailFrames[i - 1].mAnimTime;
-      }
+            // Shift the trail one slot along, oldest first.
+            for (int i = aCount; i > 0; --i)
+            {
+                theStinky->mMotionTrailFrames[i].mPosX = theStinky->mMotionTrailFrames[i - 1].mPosX;
+                theStinky->mMotionTrailFrames[i].mPosY = theStinky->mMotionTrailFrames[i - 1].mPosY;
+                theStinky->mMotionTrailFrames[i].mAnimTime = theStinky->mMotionTrailFrames[i - 1].mAnimTime;
+            }
 
-      theStinky->mGoalX = theStinky->mPosX;
-      theStinky->mGoalY = theStinky->mPosY;
-      theStinky->mMotionTrailFrames[0].mAnimTime = aReanim->mAnimTime;
-      theStinky->mMotionTrailCount = theStinky->mMotionTrailCount + 1;
-      return;
+            theStinky->mGoalX = theStinky->mPosX;
+            theStinky->mGoalY = theStinky->mPosY;
+            theStinky->mMotionTrailFrames[0].mAnimTime = aReanim->mAnimTime;
+            theStinky->mMotionTrailCount = theStinky->mMotionTrailCount + 1;
+            return;
+        }
     }
-  }
-  theStinky->mMotionTrailCount = 0;
+    theStinky->mMotionTrailCount = 0;
 }
 
 // ==========================================================================
 // ZenGarden::GetStinky()
 // @0019E048  46 bytes
 // ==========================================================================
-GridItem * ZenGarden::GetStinky()
+GridItem *ZenGarden::GetStinky()
 {
-  GridItem *aGridItem = nullptr;
-  while ( mBoard->IterateGridItems(aGridItem) != 0 )
-  {
-    if ( aGridItem->mGridItemType == GRIDITEM_STINKY )
-      return aGridItem;
-  }
-  return nullptr;
+    GridItem *aGridItem = nullptr;
+    while (mBoard->IterateGridItems(aGridItem) != 0)
+    {
+        if (aGridItem->mGridItemType == GRIDITEM_STINKY)
+            return aGridItem;
+    }
+    return nullptr;
 }
 
 // ==========================================================================
 // ZenGarden::GetSpecialGridPlacements(int &)
 // @0019E078  54 bytes
 // ==========================================================================
-SpecialGridPlacement * ZenGarden::GetSpecialGridPlacements(int & theCount)
+SpecialGridPlacement *ZenGarden::GetSpecialGridPlacements(int &theCount)
 {
-  switch ( mBoard->mBackground )
-  {
-    case BACKGROUND_MUSHROOM_GARDEN:
-      theCount = 8;
-      return gMushroomGridPlacement;
-    case BACKGROUND_ZOMBIQUARIUM:
-      theCount = 8;
-      return gAquariumGridPlacement;
-    case BACKGROUND_GREENHOUSE:
-      theCount = 32;
-      return gGreenhouseGridPlacement;
-    default:
-      break;
-  }
-  return nullptr;
+    switch (mBoard->mBackground)
+    {
+        case BACKGROUND_MUSHROOM_GARDEN:
+            theCount = 8;
+            return gMushroomGridPlacement;
+        case BACKGROUND_ZOMBIQUARIUM:
+            theCount = 8;
+            return gAquariumGridPlacement;
+        case BACKGROUND_GREENHOUSE:
+            theCount = 32;
+            return gGreenhouseGridPlacement;
+        default:
+            break;
+    }
+    return nullptr;
 }
 // ==========================================================================
 // ZenGarden::StinkyPickGoal(GridItem *)
 // @0019E0C0  684 bytes
 // ==========================================================================
-void ZenGarden::StinkyPickGoal(GridItem * theStinky)
+void ZenGarden::StinkyPickGoal(GridItem *theStinky)
 {
-  // How far Stinky is from the goal he is already walking to.
-  float aGoalDx = theStinky->mPosX - theStinky->mGoalX;
-  float aGoalDy = theStinky->mPosY - theStinky->mGoalY;
-  float aGoalDistance = sqrtf(aGoalDx * aGoalDx + aGoalDy * aGoalDy);
+    // How far Stinky is from the goal he is already walking to.
+    float aGoalDx = theStinky->mPosX - theStinky->mGoalX;
+    float aGoalDy = theStinky->mPosY - theStinky->mGoalY;
+    float aGoalDistance = sqrtf(aGoalDx * aGoalDx + aGoalDy * aGoalDy);
 
-  // Prefer the nearest coin he can reach, scoring each by how far it is.
-  Coin *aBestCoin = nullptr;
-  float aBestScore = 0.0f;
-  Coin *aCoin = nullptr;
-  while ( mBoard->IterateCoins(aCoin) != 0 )
-  {
-    // Only coins sitting still on the ground are worth walking to.
-    if ( aCoin->mIsBeingCollected )
-      continue;
-    if ( aCoin->mPosY != (float)aCoin->mGroundY )
-      continue;
-
-    float aCoinX = aCoin->mPosX;
-    float aCoinY = aCoin->mPosY + 30.0f;
-    float aDistance = sqrtf((theStinky->mPosX - aCoinX) * (theStinky->mPosX - aCoinX)
-                          + (theStinky->mPosY - aCoinY) * (theStinky->mPosY - aCoinY));
-    // More valuable coins receive priority over nearby silver coins.
-    if ( aCoin->mType == COIN_GOLD )
-      aDistance -= 40.0f;
-    else if ( aCoin->mType == COIN_DIAMOND )
-      aDistance -= 80.0f;
-
-    // A coin already inside the goal is discounted by how long it has been there.
-    if ( sqrtf((theStinky->mGoalX - aCoinX) * (theStinky->mGoalX - aCoinX)
-             + (theStinky->mGoalY - aCoinY) * (theStinky->mGoalY - aCoinY)) < 5.0f )
-      aDistance = (aDistance - 20.0f) + (float)TodAnimateCurve(3000, 6000, aCoin->mCoinAge, 0, -40, CURVE_LINEAR);
-
-    if ( aBestCoin == nullptr || aDistance < aBestScore )
+    // Prefer the nearest coin he can reach, scoring each by how far it is.
+    Coin *aBestCoin = nullptr;
+    float aBestScore = 0.0f;
+    Coin *aCoin = nullptr;
+    while (mBoard->IterateCoins(aCoin) != 0)
     {
-      aBestCoin = aCoin;
-      aBestScore = aDistance;
-    }
-  }
+        // Only coins sitting still on the ground are worth walking to.
+        if (aCoin->mIsBeingCollected)
+            continue;
+        if (aCoin->mPosY != (float)aCoin->mGroundY)
+            continue;
 
-  if ( aBestCoin != nullptr )
-  {
-    theStinky->mGoalX = aBestCoin->mPosX;
-    theStinky->mGoalY = aBestCoin->mPosY + 30.0f;
-  }
-  else
-  {
-    // No coin to chase: pick a free pot square, preferring one at Stinky's own
-    // height. Too close to the current goal is not worth moving for.
-    if ( aGoalDistance > 10.0f )
-      return;
+        float aCoinX = aCoin->mPosX;
+        float aCoinY = aCoin->mPosY + 30.0f;
+        float aDistance = sqrtf((theStinky->mPosX - aCoinX) * (theStinky->mPosX - aCoinX) +
+            (theStinky->mPosY - aCoinY) * (theStinky->mPosY - aCoinY));
+        // More valuable coins receive priority over nearby silver coins.
+        if (aCoin->mType == COIN_GOLD)
+            aDistance -= 40.0f;
+        else if (aCoin->mType == COIN_DIAMOND)
+            aDistance -= 80.0f;
 
-    int aCount = 0;
-    SpecialGridPlacement *aGrids = GetSpecialGridPlacements(aCount);
-    TodWeightedGridArray aWeights[32];
-    int aUsed = 0;
-    for ( int i = 0; i < aCount; ++i )
-    {
-      // The candidate is the square's centre, 15 across and 80 down.
-      int aCandidateX = aGrids[i].mPixelX + 15;
-      int aCandidateY = aGrids[i].mPixelY + 80;
-      int aWeight;
-      if ( mBoard->GetTopPlantAt(aGrids[i].mGridX, aGrids[i].mGridY, TOPPLANT_BUNGEE_ORDER) != nullptr )
-      {
-        // An occupied square is still allowed, but penalised by how far above
-        // Stinky it is.
-        int aDelta = (int)((float)aCandidateY - theStinky->mPosY);
-        aWeight = 2000 - (aDelta < 0 ? -aDelta : aDelta);
-      }
-      else
-      {
-        aWeight = 1;
-      }
-      aWeights[aUsed].mX = aCandidateX;
-      aWeights[aUsed].mY = aCandidateY;
-      aWeights[aUsed].mWeight = aWeight;
-      ++aUsed;
+        // A coin already inside the goal is discounted by how long it has been there.
+        if (sqrtf((theStinky->mGoalX - aCoinX) * (theStinky->mGoalX - aCoinX) +
+                (theStinky->mGoalY - aCoinY) * (theStinky->mGoalY - aCoinY)) < 5.0f)
+            aDistance = (aDistance - 20.0f) + (float)TodAnimateCurve(3000, 6000, aCoin->mCoinAge, 0, -40, CURVE_LINEAR);
+
+        if (aBestCoin == nullptr || aDistance < aBestScore)
+        {
+            aBestCoin = aCoin;
+            aBestScore = aDistance;
+        }
     }
 
-    TodWeightedGridArray *aPicked = TodPickFromWeightedGridArray(aWeights, aUsed);
-    theStinky->mGoalX = (float)aPicked->mX;
-    theStinky->mGoalY = (float)aPicked->mY;
-  }
+    if (aBestCoin != nullptr)
+    {
+        theStinky->mGoalX = aBestCoin->mPosX;
+        theStinky->mGoalY = aBestCoin->mPosY + 30.0f;
+    }
+    else
+    {
+        // No coin to chase: pick a free pot square, preferring one at Stinky's own
+        // height. Too close to the current goal is not worth moving for.
+        if (aGoalDistance > 10.0f)
+            return;
 
-  // Turn to face the new goal, unless Stinky is already heading that way.
-  float aPosX = theStinky->mPosX;
-  theStinky->mGridItemCounter = 100;
-  if ( aPosX > theStinky->mGoalX && theStinky->mGridItemState == GRIDITEM_STINKY_WALKING_RIGHT )
-  {
-    Reanimation *aReanim = mApp->ReanimationGet(theStinky->mGridItemReanimID);
-    theStinky->mGridItemState = GRIDITEM_STINKY_TURNING_LEFT;
-    aReanim->PlayReanim("turn", REANIM_PLAY_ONCE_AND_HOLD, 10, 6.0);
-    theStinky->mMotionTrailCount = 0;
-  }
-  else if ( aPosX < theStinky->mGoalX && theStinky->mGridItemState == GRIDITEM_STINKY_WALKING_LEFT )
-  {
-    Reanimation *aReanim = mApp->ReanimationGet(theStinky->mGridItemReanimID);
-    theStinky->mGridItemState = GRIDITEM_STINKY_TURNING_RIGHT;
-    aReanim->PlayReanim("turn", REANIM_PLAY_ONCE_AND_HOLD, 10, 6.0);
-    theStinky->mMotionTrailCount = 0;
-  }
+        int aCount = 0;
+        SpecialGridPlacement *aGrids = GetSpecialGridPlacements(aCount);
+        TodWeightedGridArray aWeights[32];
+        int aUsed = 0;
+        for (int i = 0; i < aCount; ++i)
+        {
+            // The candidate is the square's centre, 15 across and 80 down.
+            int aCandidateX = aGrids[i].mPixelX + 15;
+            int aCandidateY = aGrids[i].mPixelY + 80;
+            int aWeight;
+            if (mBoard->GetTopPlantAt(aGrids[i].mGridX, aGrids[i].mGridY, TOPPLANT_BUNGEE_ORDER) != nullptr)
+            {
+                // An occupied square is still allowed, but penalised by how far above
+                // Stinky it is.
+                int aDelta = (int)((float)aCandidateY - theStinky->mPosY);
+                aWeight = 2000 - (aDelta < 0 ? -aDelta : aDelta);
+            }
+            else
+            {
+                aWeight = 1;
+            }
+            aWeights[aUsed].mX = aCandidateX;
+            aWeights[aUsed].mY = aCandidateY;
+            aWeights[aUsed].mWeight = aWeight;
+            ++aUsed;
+        }
+
+        TodWeightedGridArray *aPicked = TodPickFromWeightedGridArray(aWeights, aUsed);
+        theStinky->mGoalX = (float)aPicked->mX;
+        theStinky->mGoalY = (float)aPicked->mY;
+    }
+
+    // Turn to face the new goal, unless Stinky is already heading that way.
+    float aPosX = theStinky->mPosX;
+    theStinky->mGridItemCounter = 100;
+    if (aPosX > theStinky->mGoalX && theStinky->mGridItemState == GRIDITEM_STINKY_WALKING_RIGHT)
+    {
+        Reanimation *aReanim = mApp->ReanimationGet(theStinky->mGridItemReanimID);
+        theStinky->mGridItemState = GRIDITEM_STINKY_TURNING_LEFT;
+        aReanim->PlayReanim("turn", REANIM_PLAY_ONCE_AND_HOLD, 10, 6.0);
+        theStinky->mMotionTrailCount = 0;
+    }
+    else if (aPosX < theStinky->mGoalX && theStinky->mGridItemState == GRIDITEM_STINKY_WALKING_LEFT)
+    {
+        Reanimation *aReanim = mApp->ReanimationGet(theStinky->mGridItemReanimID);
+        theStinky->mGridItemState = GRIDITEM_STINKY_TURNING_RIGHT;
+        aReanim->PlayReanim("turn", REANIM_PLAY_ONCE_AND_HOLD, 10, 6.0);
+        theStinky->mMotionTrailCount = 0;
+    }
 }
 // ==========================================================================
 // ZenGarden::PixelToGridX(int,int)
@@ -602,27 +596,27 @@ void ZenGarden::StinkyPickGoal(GridItem * theStinky)
 // ==========================================================================
 int ZenGarden::PixelToGridX(int theX, int theY)
 {
-  int aCount = 0;
-  SpecialGridPlacement *aGrids = GetSpecialGridPlacements(aCount);
+    int aCount = 0;
+    SpecialGridPlacement *aGrids = GetSpecialGridPlacements(aCount);
 
-  // Nearest special placement to the pixel, measured from the cell's centre.
-  // aBest stays -1 when the background has no placement table, which is the one
-  // case where the binary's own index runs below the table; it cannot happen for
-  // a background GetSpecialGridPlacements recognises.
-  int aBest = -1;
-  float aBestDistance = 0.0f;
-  for ( int i = 0; i < aCount; ++i )
-  {
-    float aDx = (float)(aGrids[i].mPixelX + 40) - (float)theX;
-    float aDy = (float)(aGrids[i].mPixelY + 42) - (float)theY;
-    float aDistance = fabsf(sqrtf(aDx * aDx + aDy * aDy));
-    if ( i == 0 || aDistance < aBestDistance )
+    // Nearest special placement to the pixel, measured from the cell's centre.
+    // aBest stays -1 when the background has no placement table, which is the one
+    // case where the binary's own index runs below the table; it cannot happen for
+    // a background GetSpecialGridPlacements recognises.
+    int aBest = -1;
+    float aBestDistance = 0.0f;
+    for (int i = 0; i < aCount; ++i)
     {
-      aBestDistance = aDistance;
-      aBest = i;
+        float aDx = (float)(aGrids[i].mPixelX + 40) - (float)theX;
+        float aDy = (float)(aGrids[i].mPixelY + 42) - (float)theY;
+        float aDistance = fabsf(sqrtf(aDx * aDx + aDy * aDy));
+        if (i == 0 || aDistance < aBestDistance)
+        {
+            aBestDistance = aDistance;
+            aBest = i;
+        }
     }
-  }
-  return aBest >= 0 ? aGrids[aBest].mGridX : -1;
+    return aBest >= 0 ? aGrids[aBest].mGridX : -1;
 }
 
 // ==========================================================================
@@ -631,23 +625,23 @@ int ZenGarden::PixelToGridX(int theX, int theY)
 // ==========================================================================
 int ZenGarden::PixelToGridY(int theX, int theY)
 {
-  int aCount = 0;
-  SpecialGridPlacement *aGrids = GetSpecialGridPlacements(aCount);
+    int aCount = 0;
+    SpecialGridPlacement *aGrids = GetSpecialGridPlacements(aCount);
 
-  int aBest = -1;
-  float aBestDistance = 0.0f;
-  for ( int i = 0; i < aCount; ++i )
-  {
-    float aDx = (float)(aGrids[i].mPixelX + 40) - (float)theX;
-    float aDy = (float)(aGrids[i].mPixelY + 42) - (float)theY;
-    float aDistance = fabsf(sqrtf(aDx * aDx + aDy * aDy));
-    if ( i == 0 || aDistance < aBestDistance )
+    int aBest = -1;
+    float aBestDistance = 0.0f;
+    for (int i = 0; i < aCount; ++i)
     {
-      aBestDistance = aDistance;
-      aBest = i;
+        float aDx = (float)(aGrids[i].mPixelX + 40) - (float)theX;
+        float aDy = (float)(aGrids[i].mPixelY + 42) - (float)theY;
+        float aDistance = fabsf(sqrtf(aDx * aDx + aDy * aDy));
+        if (i == 0 || aDistance < aBestDistance)
+        {
+            aBestDistance = aDistance;
+            aBest = i;
+        }
     }
-  }
-  return aBest >= 0 ? aGrids[aBest].mGridY : -1;
+    return aBest >= 0 ? aGrids[aBest].mGridY : -1;
 }
 
 // ==========================================================================
@@ -679,14 +673,14 @@ void ZenGarden::GetGridSize(int &theGridHeight, int &theGridWidth)
 // ==========================================================================
 int ZenGarden::GridToPixelX(int theGridX, int theGridY)
 {
-  int aCount = 0;
-  SpecialGridPlacement *aGrids = GetSpecialGridPlacements(aCount);
-  for ( int i = 0; i < aCount; ++i )
-  {
-    if ( aGrids[i].mGridX == theGridX && aGrids[i].mGridY == theGridY )
-      return aGrids[i].mPixelX;
-  }
-  return -1;
+    int aCount = 0;
+    SpecialGridPlacement *aGrids = GetSpecialGridPlacements(aCount);
+    for (int i = 0; i < aCount; ++i)
+    {
+        if (aGrids[i].mGridX == theGridX && aGrids[i].mGridY == theGridY)
+            return aGrids[i].mPixelX;
+    }
+    return -1;
 }
 
 // ==========================================================================
@@ -695,14 +689,14 @@ int ZenGarden::GridToPixelX(int theGridX, int theGridY)
 // ==========================================================================
 int ZenGarden::GridToPixelY(int theGridX, int theGridY)
 {
-  int aCount = 0;
-  SpecialGridPlacement *aGrids = GetSpecialGridPlacements(aCount);
-  for ( int i = 0; i < aCount; ++i )
-  {
-    if ( aGrids[i].mGridX == theGridX && aGrids[i].mGridY == theGridY )
-      return aGrids[i].mPixelY;
-  }
-  return -1;
+    int aCount = 0;
+    SpecialGridPlacement *aGrids = GetSpecialGridPlacements(aCount);
+    for (int i = 0; i < aCount; ++i)
+    {
+        if (aGrids[i].mGridX == theGridX && aGrids[i].mGridY == theGridY)
+            return aGrids[i].mPixelY;
+    }
+    return -1;
 }
 
 // ==========================================================================
@@ -711,14 +705,14 @@ int ZenGarden::GridToPixelY(int theGridX, int theGridY)
 // ==========================================================================
 int ZenGarden::GridCellWidth(int theGridX, int theGridY)
 {
-  int aCount = 0;
-  SpecialGridPlacement *aGrids = GetSpecialGridPlacements(aCount);
-  for ( int i = 0; i < aCount; ++i )
-  {
-    if ( aGrids[i].mGridX == theGridX && aGrids[i].mGridY == theGridY )
-      return aGrids[i].mCellWidth;
-  }
-  return -1;
+    int aCount = 0;
+    SpecialGridPlacement *aGrids = GetSpecialGridPlacements(aCount);
+    for (int i = 0; i < aCount; ++i)
+    {
+        if (aGrids[i].mGridX == theGridX && aGrids[i].mGridY == theGridY)
+            return aGrids[i].mCellWidth;
+    }
+    return -1;
 }
 
 // ==========================================================================
@@ -727,39 +721,38 @@ int ZenGarden::GridCellWidth(int theGridX, int theGridY)
 // ==========================================================================
 int ZenGarden::GridCellHeight(int theGridX, int theGridY)
 {
-  int aCount = 0;
-  SpecialGridPlacement *aGrids = GetSpecialGridPlacements(aCount);
-  for ( int i = 0; i < aCount; ++i )
-  {
-    if ( aGrids[i].mGridX == theGridX && aGrids[i].mGridY == theGridY )
-      return aGrids[i].mCellHeight;
-  }
-  return -1;
+    int aCount = 0;
+    SpecialGridPlacement *aGrids = GetSpecialGridPlacements(aCount);
+    for (int i = 0; i < aCount; ++i)
+    {
+        if (aGrids[i].mGridX == theGridX && aGrids[i].mGridY == theGridY)
+            return aGrids[i].mCellHeight;
+    }
+    return -1;
 }
 // ==========================================================================
 // ZenGarden::DrawBackdrop(Sexy::Graphics *)
 // @0019E65C  148 bytes
 // ==========================================================================
-void ZenGarden::DrawBackdrop(Sexy::Graphics * g)
+void ZenGarden::DrawBackdrop(Sexy::Graphics *g)
 {
-  // Only the aquarium draws pot shadows, and only over the tank backgrounds.
-  if ( mGardenType != GARDEN_AQUARIUM )
-    return;
+    // Only the aquarium draws pot shadows, and only over the tank backgrounds.
+    if (mGardenType != GARDEN_AQUARIUM)
+        return;
 
-  int aBackground = mBoard->mBackground;
-  if ( aBackground != BACKGROUND_MUSHROOM_GARDEN && aBackground != BACKGROUND_6_BOSS
-    && aBackground != BACKGROUND_4_FOG )
-    return;
+    int aBackground = mBoard->mBackground;
+    if (aBackground != BACKGROUND_MUSHROOM_GARDEN && aBackground != BACKGROUND_6_BOSS &&
+        aBackground != BACKGROUND_4_FOG)
+        return;
 
-  int aCount = 0;
-  SpecialGridPlacement *aGrids = GetSpecialGridPlacements(aCount);
-  for ( int i = 0; i < aCount; ++i )
-  {
-    // An empty square gets a shadow on the floor of the tank.
-    if ( mBoard->GetTopPlantAt(aGrids[i].mGridX, aGrids[i].mGridY, TOPPLANT_ZEN_TOOL_ORDER) == nullptr )
-      TodDrawImageCelScaled(g, IMAGE_PLANTSHADOW, aGrids[i].mPixelX - 35,
-                            aGrids[i].mPixelY + 33, 0, 0, 1.7, 1.7);
-  }
+    int aCount = 0;
+    SpecialGridPlacement *aGrids = GetSpecialGridPlacements(aCount);
+    for (int i = 0; i < aCount; ++i)
+    {
+        // An empty square gets a shadow on the floor of the tank.
+        if (mBoard->GetTopPlantAt(aGrids[i].mGridX, aGrids[i].mGridY, TOPPLANT_ZEN_TOOL_ORDER) == nullptr)
+            TodDrawImageCelScaled(g, IMAGE_PLANTSHADOW, aGrids[i].mPixelX - 35, aGrids[i].mPixelY + 33, 0, 0, 1.7, 1.7);
+    }
 }
 // ==========================================================================
 // ZenGarden::ShowTutorialArrowOnWateringCan()
@@ -767,35 +760,33 @@ void ZenGarden::DrawBackdrop(Sexy::Graphics * g)
 // ==========================================================================
 void ZenGarden::ShowTutorialArrowOnWateringCan()
 {
-  // The arrow points at the watering-can button on the zen tool row.
-  Sexy::Rect aRect = mBoard->GetZenButtonRect(OBJECT_TYPE_WATERING_CAN);
-  mBoard->TutorialArrowShow(aRect.mX + 10, aRect.mY + 10);
+    // The arrow points at the watering-can button on the zen tool row.
+    Sexy::Rect aRect = mBoard->GetZenButtonRect(OBJECT_TYPE_WATERING_CAN);
+    mBoard->TutorialArrowShow(aRect.mX + 10, aRect.mY + 10);
 
-  Sexy::String aText;
-  TodStringTranslate(&aText, "[ADVICE_ZEN_GARDEN_PICK_UP_WATER]");
-  mBoard->DisplayAdvice(aText, MESSAGE_STYLE_ZEN_GARDEN_LONG, AdviceType(-1));
+    Sexy::String aText;
+    TodStringTranslate(&aText, "[ADVICE_ZEN_GARDEN_PICK_UP_WATER]");
+    mBoard->DisplayAdvice(aText, MESSAGE_STYLE_ZEN_GARDEN_LONG, AdviceType(-1));
 
-  mBoard->mTutorialState = TUTORIAL_ZEN_GARDEN_PICKUP_WATER;
+    mBoard->mTutorialState = TUTORIAL_ZEN_GARDEN_PICKUP_WATER;
 }
 // ==========================================================================
 // ZenGarden::PottedPlantFromIndex(int)
 // @0019E794  20 bytes
 // ==========================================================================
-PottedPlant * ZenGarden::PottedPlantFromIndex(int thePottedPlantIndex)
+PottedPlant *ZenGarden::PottedPlantFromIndex(int thePottedPlantIndex)
 {
-  return &mApp->mPlayerInfo->mPottedPlants[thePottedPlantIndex];
+    return &mApp->mPlayerInfo->mPottedPlants[thePottedPlantIndex];
 }
 
 // ==========================================================================
 // ZenGarden::PlantCanHaveChocolate(Plant *)
 // @0019E7A8  54 bytes
 // ==========================================================================
-bool ZenGarden::PlantCanHaveChocolate(Plant * thePlant)
+bool ZenGarden::PlantCanHaveChocolate(Plant *thePlant)
 {
-  PottedPlant *aPotted = PottedPlantFromIndex(thePlant->mPottedPlantIndex);
-  return aPotted->mPlantAge == PLANTAGE_FULL
-      && WasPlantNeedFulfilledToday(aPotted)
-      && !PlantHighOnChocolate(aPotted);
+    PottedPlant *aPotted = PottedPlantFromIndex(thePlant->mPottedPlantIndex);
+    return aPotted->mPlantAge == PLANTAGE_FULL && WasPlantNeedFulfilledToday(aPotted) && !PlantHighOnChocolate(aPotted);
 }
 
 // ==========================================================================
@@ -804,114 +795,121 @@ bool ZenGarden::PlantCanHaveChocolate(Plant * thePlant)
 // ==========================================================================
 bool ZenGarden::IsZenGardenFull(bool theIncludeDroppedPresents)
 {
-  // The wheelbarrow and the plants waiting to be moved both count as occupied.
-  int aOccupied = 0;
-  if ( mBoard != nullptr && theIncludeDroppedPresents )
-    aOccupied = mBoard->CountCoinByType(COIN_PRESENT_PLANT)
-        + mBoard->CountCoinByType(COIN_USABLE_SEED_PACKET);
+    // The wheelbarrow and the plants waiting to be moved both count as occupied.
+    int aOccupied = 0;
+    if (mBoard != nullptr && theIncludeDroppedPresents)
+        aOccupied = mBoard->CountCoinByType(COIN_PRESENT_PLANT) + mBoard->CountCoinByType(COIN_USABLE_SEED_PACKET);
 
-  int aGrown = 0;
-  for ( int i = 0; i < mApp->mPlayerInfo->mNumPottedPlants; ++i )
-  {
-    if ( PottedPlantFromIndex(i)->mPlantAge != PLANTAGE_SPROUT )
-      ++aGrown;
-  }
-  return aGrown + aOccupied > 31;
+    int aGrown = 0;
+    for (int i = 0; i < mApp->mPlayerInfo->mNumPottedPlants; ++i)
+    {
+        if (PottedPlantFromIndex(i)->mPlantAge != PLANTAGE_SPROUT)
+            ++aGrown;
+    }
+    return aGrown + aOccupied > 31;
 }
 
 // ==========================================================================
 // ZenGarden::FindOpenZenGardenSpot(unsigned char &,unsigned char &)
 // @0019E844  178 bytes
 // ==========================================================================
-void ZenGarden::FindOpenZenGardenSpot(unsigned char & theSpotX, unsigned char & theSpotY)
+void ZenGarden::FindOpenZenGardenSpot(unsigned char &theSpotX, unsigned char &theSpotY)
 {
-  // Weighted list of the free squares of the main garden, one entry per free
-  // (mX, mY) with weight 1; one is then picked at random. The two output words
-  // are mX and mY, in that order.
-  TodWeightedGridArray aWeights[8 * 4];
-  int aCount = 0;
-  for ( int aX = 0; aX != 8; ++aX )
-  {
-    for ( int aY = 0; aY != 4; ++aY )
+    // Weighted list of the free squares of the main garden, one entry per free
+    // (mX, mY) with weight 1; one is then picked at random. The two output words
+    // are mX and mY, in that order.
+    TodWeightedGridArray aWeights[8 * 4];
+    int aCount = 0;
+    for (int aX = 0; aX != 8; ++aX)
     {
-      // While Crazy Dave is talking, only the first few squares are offered, so
-      // the tutorial's two free plants land where he can point at them.
-      bool aFree = true;
-      if ( mApp->mCrazyDaveMessageIndex != -1 && aX > 1 && aY > 0 )
-        aFree = false;
+        for (int aY = 0; aY != 4; ++aY)
+        {
+            // While Crazy Dave is talking, only the first few squares are offered, so
+            // the tutorial's two free plants land where he can point at them.
+            bool aFree = true;
+            if (mApp->mCrazyDaveMessageIndex != -1 && aX > 1 && aY > 0)
+                aFree = false;
 
-      // Only pots currently in the main garden occupy a main-garden square.
-      for ( int i = 0; aFree && i < mApp->mPlayerInfo->mNumPottedPlants; ++i )
-      {
-        PottedPlant *aPotted = PottedPlantFromIndex(i);
-        if ( aPotted->mWhichZenGarden == GARDEN_MAIN && aPotted->mX == aX && aPotted->mY == aY )
-          aFree = false;
-      }
+            // Only pots currently in the main garden occupy a main-garden square.
+            for (int i = 0; aFree && i < mApp->mPlayerInfo->mNumPottedPlants; ++i)
+            {
+                PottedPlant *aPotted = PottedPlantFromIndex(i);
+                if (aPotted->mWhichZenGarden == GARDEN_MAIN && aPotted->mX == aX && aPotted->mY == aY)
+                    aFree = false;
+            }
 
-      if ( aFree )
-      {
-        aWeights[aCount].mX = aX;
-        aWeights[aCount].mY = aY;
-        aWeights[aCount].mWeight = 1;
-        ++aCount;
-      }
+            if (aFree)
+            {
+                aWeights[aCount].mX = aX;
+                aWeights[aCount].mY = aY;
+                aWeights[aCount].mWeight = 1;
+                ++aCount;
+            }
+        }
     }
-  }
 
-  TodWeightedGridArray *aPicked = TodPickFromWeightedGridArray(aWeights, aCount);
-  theSpotX = (unsigned char)aPicked->mX;
-  theSpotY = (unsigned char)aPicked->mY;
+    TodWeightedGridArray *aPicked = TodPickFromWeightedGridArray(aWeights, aCount);
+    theSpotX = (unsigned char)aPicked->mX;
+    theSpotY = (unsigned char)aPicked->mY;
 }
 // ==========================================================================
 // ZenGarden::GetPlantSellPrice(Plant *)
 // @0019E8F8  110 bytes
 // ==========================================================================
-int ZenGarden::GetPlantSellPrice(Plant * thePlant)
+int ZenGarden::GetPlantSellPrice(Plant *thePlant)
 {
-  PottedPlant *aPotted = PottedPlantFromIndex(thePlant->mPottedPlantIndex);
-  SeedType aSeedType = aPotted->mSeedType;
-  if ( aSeedType == SEED_MARIGOLD )
-  {
-    switch ( aPotted->mPlantAge )
+    PottedPlant *aPotted = PottedPlantFromIndex(thePlant->mPottedPlantIndex);
+    SeedType aSeedType = aPotted->mSeedType;
+    if (aSeedType == SEED_MARIGOLD)
     {
-      case PLANTAGE_SPROUT: return 150;
-      case PLANTAGE_SMALL:  return 200;
-      case PLANTAGE_MEDIUM: return 250;
-      default:              return 300;
+        switch (aPotted->mPlantAge)
+        {
+            case PLANTAGE_SPROUT:
+                return 150;
+            case PLANTAGE_SMALL:
+                return 200;
+            case PLANTAGE_MEDIUM:
+                return 250;
+            default:
+                return 300;
+        }
     }
-  }
 
-  switch ( aPotted->mPlantAge )
-  {
-    case PLANTAGE_SPROUT: return 150;
-    case PLANTAGE_SMALL:  return 300;
-    case PLANTAGE_MEDIUM: return 500;
-    default:              break;
-  }
-  if ( Plant::IsNocturnal(aSeedType) || Plant::IsAquatic(aSeedType) )
-    return 1000;
-  return 800;
+    switch (aPotted->mPlantAge)
+    {
+        case PLANTAGE_SPROUT:
+            return 150;
+        case PLANTAGE_SMALL:
+            return 300;
+        case PLANTAGE_MEDIUM:
+            return 500;
+        default:
+            break;
+    }
+    if (Plant::IsNocturnal(aSeedType) || Plant::IsAquatic(aSeedType))
+        return 1000;
+    return 800;
 }
 // ==========================================================================
 // ZenGarden::PlantFulfillNeed(Plant *)
 // @0019E968  136 bytes
 // ==========================================================================
-void ZenGarden::PlantFulfillNeed(Plant * thePlant)
+void ZenGarden::PlantFulfillNeed(Plant *thePlant)
 {
-  PottedPlant *aPotted = PottedPlantFromIndex(thePlant->mPottedPlantIndex);
-  aPotted->mLastNeedFulfilledTime = time(nullptr);
-  aPotted->mPlantNeed = PLANTNEED_NONE;
-  aPotted->mTimesFed = 0;
+    PottedPlant *aPotted = PottedPlantFromIndex(thePlant->mPottedPlantIndex);
+    aPotted->mLastNeedFulfilledTime = time(nullptr);
+    aPotted->mPlantNeed = PLANTNEED_NONE;
+    aPotted->mTimesFed = 0;
 
-  mApp->PlayFoley(FOLEY_PRIZE);
-  mApp->PlayFoley(FOLEY_PLANT);
+    mApp->PlayFoley(FOLEY_PRIZE);
+    mApp->PlayFoley(FOLEY_PLANT);
 
-  mBoard->AddCoin(thePlant->mX + 40, thePlant->mY, COIN_GOLD, COIN_MOTION_COIN);
-  if ( Plant::IsNocturnal(thePlant->mSeedType) || Plant::IsAquatic(thePlant->mSeedType) )
-  {
-    mBoard->AddCoin(thePlant->mX + 10, thePlant->mY, COIN_GOLD, COIN_MOTION_COIN);
-    mBoard->AddCoin(thePlant->mX + 70, thePlant->mY, COIN_GOLD, COIN_MOTION_COIN);
-  }
+    mBoard->AddCoin(thePlant->mX + 40, thePlant->mY, COIN_GOLD, COIN_MOTION_COIN);
+    if (Plant::IsNocturnal(thePlant->mSeedType) || Plant::IsAquatic(thePlant->mSeedType))
+    {
+        mBoard->AddCoin(thePlant->mX + 10, thePlant->mY, COIN_GOLD, COIN_MOTION_COIN);
+        mBoard->AddCoin(thePlant->mX + 70, thePlant->mY, COIN_GOLD, COIN_MOTION_COIN);
+    }
 }
 
 // ==========================================================================
@@ -920,23 +918,23 @@ void ZenGarden::PlantFulfillNeed(Plant * thePlant)
 // ==========================================================================
 int ZenGarden::PlantsNeedWater()
 {
-  for ( int i = 0; i < mApp->mPlayerInfo->mNumPottedPlants; ++i )
-  {
-    if ( GetPlantsNeed(PottedPlantFromIndex(i)) == PLANTNEED_WATER )
-      return PLANTNEED_WATER;
-  }
-  return 0;
+    for (int i = 0; i < mApp->mPlayerInfo->mNumPottedPlants; ++i)
+    {
+        if (GetPlantsNeed(PottedPlantFromIndex(i)) == PLANTNEED_WATER)
+            return PLANTNEED_WATER;
+    }
+    return 0;
 }
 
 // ==========================================================================
 // ZenGarden::PlantCanBeWatered(Plant *)
 // @0019EA38  40 bytes
 // ==========================================================================
-bool ZenGarden::PlantCanBeWatered(Plant * thePlant)
+bool ZenGarden::PlantCanBeWatered(Plant *thePlant)
 {
-  if ( thePlant->mPottedPlantIndex == -1 )
-    return false;
-  return GetPlantsNeed(PottedPlantFromIndex(thePlant->mPottedPlantIndex)) == PLANTNEED_WATER;
+    if (thePlant->mPottedPlantIndex == -1)
+        return false;
+    return GetPlantsNeed(PottedPlantFromIndex(thePlant->mPottedPlantIndex)) == PLANTNEED_WATER;
 }
 
 // ==========================================================================
@@ -945,13 +943,13 @@ bool ZenGarden::PlantCanBeWatered(Plant * thePlant)
 // ==========================================================================
 int ZenGarden::CountPlantsNeedingFertilizer()
 {
-  int aCount = 0;
-  for ( int i = 0; i < mApp->mPlayerInfo->mNumPottedPlants; ++i )
-  {
-    if ( GetPlantsNeed(PottedPlantFromIndex(i)) == PLANTNEED_FERTILIZER )
-      ++aCount;
-  }
-  return aCount;
+    int aCount = 0;
+    for (int i = 0; i < mApp->mPlayerInfo->mNumPottedPlants; ++i)
+    {
+        if (GetPlantsNeed(PottedPlantFromIndex(i)) == PLANTNEED_FERTILIZER)
+            ++aCount;
+    }
+    return aCount;
 }
 
 // ==========================================================================
@@ -960,61 +958,61 @@ int ZenGarden::CountPlantsNeedingFertilizer()
 // ==========================================================================
 int ZenGarden::AllPlantsHaveBeenFertilized()
 {
-  // A garden with nothing growing in it counts as finished.
-  for ( int i = 0; i < mApp->mPlayerInfo->mNumPottedPlants; ++i )
-  {
-    if ( PottedPlantFromIndex(i)->mPlantAge == PLANTAGE_SPROUT )
-      return 0;
-  }
-  return 1;
+    // A garden with nothing growing in it counts as finished.
+    for (int i = 0; i < mApp->mPlayerInfo->mNumPottedPlants; ++i)
+    {
+        if (PottedPlantFromIndex(i)->mPlantAge == PLANTAGE_SPROUT)
+            return 0;
+    }
+    return 1;
 }
 
 // ==========================================================================
 // ZenGarden::UpdatePlantEffectState(Plant *)
 // @0019EAE8  230 bytes
 // ==========================================================================
-void ZenGarden::UpdatePlantEffectState(Plant * thePlant)
+void ZenGarden::UpdatePlantEffectState(Plant *thePlant)
 {
-  PottedPlant *aPotted = PottedPlantFromIndex(thePlant->mPottedPlantIndex);
-  PlantState aOldState = thePlant->mState;
-  PottedPlantNeed aPlantsNeed = GetPlantsNeed(aPotted);
+    PottedPlant *aPotted = PottedPlantFromIndex(thePlant->mPottedPlantIndex);
+    PlantState aOldState = thePlant->mState;
+    PottedPlantNeed aPlantsNeed = GetPlantsNeed(aPotted);
 
-  if ( aPlantsNeed == PLANTNEED_WATER )
-    thePlant->mState = STATE_NOTREADY;
-  else if ( aPlantsNeed != PLANTNEED_NONE )
-    thePlant->mState = STATE_ZEN_GARDEN_NEEDY;
-  else if ( WasPlantNeedFulfilledToday(aPotted) )
-    thePlant->mState = STATE_ZEN_GARDEN_HAPPY;
-  else
-    thePlant->mState = thePlant->mIsAsleep ? STATE_NOTREADY : STATE_ZEN_GARDEN_WATERED;
+    if (aPlantsNeed == PLANTNEED_WATER)
+        thePlant->mState = STATE_NOTREADY;
+    else if (aPlantsNeed != PLANTNEED_NONE)
+        thePlant->mState = STATE_ZEN_GARDEN_NEEDY;
+    else if (WasPlantNeedFulfilledToday(aPotted))
+        thePlant->mState = STATE_ZEN_GARDEN_HAPPY;
+    else
+        thePlant->mState = thePlant->mIsAsleep ? STATE_NOTREADY : STATE_ZEN_GARDEN_WATERED;
 
-  if ( aOldState != thePlant->mState )
-  {
-    // The rim of the pot goes dark whenever the plant is unhappy, and light
-    // again once it is content.
-    Plant *aTopPlant = mBoard->GetTopPlantAt(thePlant->mPlantCol, thePlant->mRow, TOPPLANT_ANY);
-    if ( aTopPlant != nullptr && !Plant::IsAquatic(thePlant->mSeedType) )
+    if (aOldState != thePlant->mState)
     {
-      Reanimation *aReanim = mApp->ReanimationGet(aTopPlant->mBodyReanimID);
-      if ( (unsigned int)(thePlant->mState - STATE_ZEN_GARDEN_WATERED) > 2 )
-        aReanim->SetImageOverride("Pot_top", nullptr);
-      else
-        aReanim->SetImageOverride("Pot_top", IMAGE_REANIM_POT_TOP_DARK);
-    }
+        // The rim of the pot goes dark whenever the plant is unhappy, and light
+        // again once it is content.
+        Plant *aTopPlant = mBoard->GetTopPlantAt(thePlant->mPlantCol, thePlant->mRow, TOPPLANT_ANY);
+        if (aTopPlant != nullptr && !Plant::IsAquatic(thePlant->mSeedType))
+        {
+            Reanimation *aReanim = mApp->ReanimationGet(aTopPlant->mBodyReanimID);
+            if ((unsigned int)(thePlant->mState - STATE_ZEN_GARDEN_WATERED) > 2)
+                aReanim->SetImageOverride("Pot_top", nullptr);
+            else
+                aReanim->SetImageOverride("Pot_top", IMAGE_REANIM_POT_TOP_DARK);
+        }
 
-    if ( aOldState == STATE_ZEN_GARDEN_HAPPY )
-      RemoveHappyEffect(thePlant);
-    if ( thePlant->mState == STATE_ZEN_GARDEN_HAPPY )
-    {
-      thePlant->SetSleeping(false);
-      AddHappyEffect(thePlant);
-      return;
-    }
+        if (aOldState == STATE_ZEN_GARDEN_HAPPY)
+            RemoveHappyEffect(thePlant);
+        if (thePlant->mState == STATE_ZEN_GARDEN_HAPPY)
+        {
+            thePlant->SetSleeping(false);
+            AddHappyEffect(thePlant);
+            return;
+        }
 
-    // A nocturnal plant sleeps through the day.
-    if ( Plant::IsNocturnal(thePlant->mSeedType) && !mBoard->StageIsNight() )
-      thePlant->SetSleeping(true);
-  }
+        // A nocturnal plant sleeps through the day.
+        if (Plant::IsNocturnal(thePlant->mSeedType) && !mBoard->StageIsNight())
+            thePlant->SetSleeping(true);
+    }
 }
 
 // ==========================================================================
@@ -1023,342 +1021,339 @@ void ZenGarden::UpdatePlantEffectState(Plant * thePlant)
 // ==========================================================================
 void ZenGarden::UpdatePlantNeeds()
 {
-  for ( int i = 0; i < mApp->mPlayerInfo->mNumPottedPlants; ++i )
-    RefreshPlantNeeds(PottedPlantFromIndex(i));
+    for (int i = 0; i < mApp->mPlayerInfo->mNumPottedPlants; ++i)
+        RefreshPlantNeeds(PottedPlantFromIndex(i));
 }
 
 // ==========================================================================
 // ZenGarden::FeedChocolateToPlant(Plant *)
 // @0019EC18  86 bytes
 // ==========================================================================
-void ZenGarden::FeedChocolateToPlant(Plant * thePlant)
+void ZenGarden::FeedChocolateToPlant(Plant *thePlant)
 {
-  PottedPlant *aPotted = PottedPlantFromIndex(thePlant->mPottedPlantIndex);
-  aPotted->mLastChocolateTime = time(nullptr);
+    PottedPlant *aPotted = PottedPlantFromIndex(thePlant->mPottedPlantIndex);
+    aPotted->mLastChocolateTime = time(nullptr);
 
-  // The plant is busy for a while, and a chocolate wrapper floats off it.
-  thePlant->mLaunchCounter = 200;
-  mApp->AddTodParticle((float)thePlant->mX + 40.0f, (float)thePlant->mY + 40.0f,
-                              thePlant->mRenderOrder + 1, PARTICLE_PRESENT_PICKUP);
+    // The plant is busy for a while, and a chocolate wrapper floats off it.
+    thePlant->mLaunchCounter = 200;
+    mApp->AddTodParticle(
+        (float)thePlant->mX + 40.0f, (float)thePlant->mY + 40.0f, thePlant->mRenderOrder + 1, PARTICLE_PRESENT_PICKUP);
 }
 
 // ==========================================================================
 // ZenGarden::MouseDownWithEmptyWheelBarrow(Plant *)
 // @0019EC74  58 bytes
 // ==========================================================================
-void ZenGarden::MouseDownWithEmptyWheelBarrow(Plant * thePlant)
+void ZenGarden::MouseDownWithEmptyWheelBarrow(Plant *thePlant)
 {
-  PottedPlant *aPotted = PottedPlantFromIndex(thePlant->mPottedPlantIndex);
-  RemovePottedPlant(thePlant);
+    PottedPlant *aPotted = PottedPlantFromIndex(thePlant->mPottedPlantIndex);
+    RemovePottedPlant(thePlant);
 
-  // The pot goes back to the wheelbarrow, keeping the plant it holds.
-  aPotted->mPlantNeed = PLANTNEED_NONE;
-  aPotted->mWhichZenGarden = GARDEN_WHEELBARROW;
-  mApp->PlayFoley(FOLEY_USE_SHOVEL);
+    // The pot goes back to the wheelbarrow, keeping the plant it holds.
+    aPotted->mPlantNeed = PLANTNEED_NONE;
+    aPotted->mWhichZenGarden = GARDEN_WHEELBARROW;
+    mApp->PlayFoley(FOLEY_USE_SHOVEL);
 }
 
 // ==========================================================================
 // ZenGarden::GetPottedPlantInWheelbarrow()
 // @0019ECB0  64 bytes
 // ==========================================================================
-PottedPlant * ZenGarden::GetPottedPlantInWheelbarrow()
+PottedPlant *ZenGarden::GetPottedPlantInWheelbarrow()
 {
-  for ( int i = 0; i < mApp->mPlayerInfo->mNumPottedPlants; ++i )
-  {
-    PottedPlant *aPotted = PottedPlantFromIndex(i);
-    if ( aPotted->mWhichZenGarden == GARDEN_WHEELBARROW )
-      return aPotted;
-  }
-  return nullptr;
+    for (int i = 0; i < mApp->mPlayerInfo->mNumPottedPlants; ++i)
+    {
+        PottedPlant *aPotted = PottedPlantFromIndex(i);
+        if (aPotted->mWhichZenGarden == GARDEN_WHEELBARROW)
+            return aPotted;
+    }
+    return nullptr;
 }
 // ==========================================================================
 // ZenGarden::MovePlant(Plant *,int,int)
 // @0019ECF0  334 bytes
 // ==========================================================================
-void ZenGarden::MovePlant(Plant * thePlant, int theGridX, int theGridY)
+void ZenGarden::MovePlant(Plant *thePlant, int theGridX, int theGridY)
 {
-  // Dragging a pot around is only allowed in the zen-garden game mode.
-  if ( mApp->mGameMode != GAMEMODE_CHALLENGE_ZEN_GARDEN )
-    return;
+    // Dragging a pot around is only allowed in the zen-garden game mode.
+    if (mApp->mGameMode != GAMEMODE_CHALLENGE_ZEN_GARDEN)
+        return;
 
-  int aPixelX = mBoard->GridToPixelX(theGridX, theGridY);
-  int aPixelY = mBoard->GridToPixelY(theGridX, theGridY);
-  bool aWasAsleep = thePlant->mIsAsleep;
-  thePlant->SetSleeping(false);
+    int aPixelX = mBoard->GridToPixelX(theGridX, theGridY);
+    int aPixelY = mBoard->GridToPixelY(theGridX, theGridY);
+    bool aWasAsleep = thePlant->mIsAsleep;
+    thePlant->SetSleeping(false);
 
-  // Whatever was stacked on the old square moves with the pot.
-  Plant *aTopPlant = mBoard->GetTopPlantAt(thePlant->mPlantCol, thePlant->mRow, TOPPLANT_ANY);
-  if ( aTopPlant != nullptr )
-  {
-    aTopPlant->mX = aPixelX;
-    aTopPlant->mY = aPixelY;
-    aTopPlant->mPlantCol = theGridX;
-    aTopPlant->mRow = theGridY;
-    aTopPlant->mRenderOrder = Board::MakeRenderOrder(RENDER_LAYER_PLANT, 0, aPixelY);
-  }
+    // Whatever was stacked on the old square moves with the pot.
+    Plant *aTopPlant = mBoard->GetTopPlantAt(thePlant->mPlantCol, thePlant->mRow, TOPPLANT_ANY);
+    if (aTopPlant != nullptr)
+    {
+        aTopPlant->mX = aPixelX;
+        aTopPlant->mY = aPixelY;
+        aTopPlant->mPlantCol = theGridX;
+        aTopPlant->mRow = theGridY;
+        aTopPlant->mRenderOrder = Board::MakeRenderOrder(RENDER_LAYER_PLANT, 0, aPixelY);
+    }
 
-  int aOldPixelX = thePlant->mX;
-  int aOldPixelY = thePlant->mY;
-  thePlant->mPlantCol = theGridX;
-  thePlant->mRow = theGridY;
-  thePlant->mX = aPixelX;
-  thePlant->mY = aPixelY;
-  // One step in front of the pot underneath, so its rim covers that pot.
-  thePlant->mRenderOrder = Board::MakeRenderOrder(RENDER_LAYER_PLANT, 0, aPixelY + 1);
-  thePlant->SetSleeping(aWasAsleep);
+    int aOldPixelX = thePlant->mX;
+    int aOldPixelY = thePlant->mY;
+    thePlant->mPlantCol = theGridX;
+    thePlant->mRow = theGridY;
+    thePlant->mX = aPixelX;
+    thePlant->mY = aPixelY;
+    // One step in front of the pot underneath, so its rim covers that pot.
+    thePlant->mRenderOrder = Board::MakeRenderOrder(RENDER_LAYER_PLANT, 0, aPixelY + 1);
+    thePlant->SetSleeping(aWasAsleep);
 
-  // A happy effect already running has to be carried across by hand.
-  TodParticleSystem *aParticle = mApp->ParticleTryToGet(thePlant->mParticleID);
-  if ( aParticle != nullptr && aParticle->mEmitterList.mSize != 0 )
-  {
-    TodParticleEmitter *aEmitter = aParticle->mParticleHolder->mEmitters.DataArrayGet(
-        aParticle->mEmitterList.mHead->mValue);
-    aParticle->SystemMove(aPixelX - aOldPixelX + aEmitter->mSyncState.mSystemCenter.mX,
-                         aPixelY - aOldPixelY + aEmitter->mSyncState.mSystemCenter.mY);
-  }
+    // A happy effect already running has to be carried across by hand.
+    TodParticleSystem *aParticle = mApp->ParticleTryToGet(thePlant->mParticleID);
+    if (aParticle != nullptr && aParticle->mEmitterList.mSize != 0)
+    {
+        TodParticleEmitter *aEmitter =
+            aParticle->mParticleHolder->mEmitters.DataArrayGet(aParticle->mEmitterList.mHead->mValue);
+        aParticle->SystemMove(aPixelX - aOldPixelX + aEmitter->mSyncState.mSystemCenter.mX,
+            aPixelY - aOldPixelY + aEmitter->mSyncState.mSystemCenter.mY);
+    }
 
-  PottedPlant *aPotted = PottedPlantFromIndex(thePlant->mPottedPlantIndex);
-  PlantState aOldState = thePlant->mState;
-  aPotted->mY = theGridY;
-  aPotted->mX = theGridX;
-  if ( aOldState == STATE_ZEN_GARDEN_HAPPY )
-  {
-    RemoveHappyEffect(thePlant);
-    AddHappyEffect(thePlant);
-  }
+    PottedPlant *aPotted = PottedPlantFromIndex(thePlant->mPottedPlantIndex);
+    PlantState aOldState = thePlant->mState;
+    aPotted->mY = theGridY;
+    aPotted->mX = theGridX;
+    if (aOldState == STATE_ZEN_GARDEN_HAPPY)
+    {
+        RemoveHappyEffect(thePlant);
+        AddHappyEffect(thePlant);
+    }
 
-  mBoard->DoPlantingEffects(theGridX, theGridY, aTopPlant != nullptr ? aTopPlant : thePlant);
+    mBoard->DoPlantingEffects(theGridX, theGridY, aTopPlant != nullptr ? aTopPlant : thePlant);
 }
 
 // ==========================================================================
 // ZenGarden::PlantWatered(Plant *)
 // @0019EE40  236 bytes
 // ==========================================================================
-void ZenGarden::PlantWatered(Plant * thePlant)
+void ZenGarden::PlantWatered(Plant *thePlant)
 {
-  PottedPlant *aPotted = PottedPlantFromIndex(thePlant->mPottedPlantIndex);
+    PottedPlant *aPotted = PottedPlantFromIndex(thePlant->mPottedPlantIndex);
 
-  // One more watering towards the next growth stage.
-  aPotted->mTimesFed = aPotted->mTimesFed + 1;
+    // One more watering towards the next growth stage.
+    aPotted->mTimesFed = aPotted->mTimesFed + 1;
 
-  // The plant asks again almost immediately while the tutorial is teaching
-  // watering, and after a short random delay once it is not.
-  time_t aNow = time(nullptr);
-  int aDelay = RandRangeInt(0, 8);
-  if ( mBoard->mTutorialState == TUTORIAL_ZEN_GARDEN_WATER_PLANT ||
-       mBoard->mTutorialState == TUTORIAL_ZEN_GARDEN_KEEP_WATERING )
-    aDelay = 9;
-  aPotted->mLastWateredTime = aNow - aDelay;
+    // The plant asks again almost immediately while the tutorial is teaching
+    // watering, and after a short random delay once it is not.
+    time_t aNow = time(nullptr);
+    int aDelay = RandRangeInt(0, 8);
+    if (mBoard->mTutorialState == TUTORIAL_ZEN_GARDEN_WATER_PLANT ||
+        mBoard->mTutorialState == TUTORIAL_ZEN_GARDEN_KEEP_WATERING)
+        aDelay = 9;
+    aPotted->mLastWateredTime = aNow - aDelay;
 
-  mApp->PlayFoley(FOLEY_SPAWN_SUN);
-  mBoard->AddCoin(thePlant->mX + 40, thePlant->mY, COIN_SILVER, COIN_MOTION_COIN);
+    mApp->PlayFoley(FOLEY_SPAWN_SUN);
+    mBoard->AddCoin(thePlant->mX + 40, thePlant->mY, COIN_SILVER, COIN_MOTION_COIN);
 
-  // A fully grown plant with no need yet picks one now.
-  if ( aPotted->mPlantAge == PLANTAGE_FULL && aPotted->mPlantNeed == PLANTNEED_NONE )
-    aPotted->mPlantNeed = (PottedPlantNeed)RandRangeInt(PLANTNEED_BUGSPRAY, PLANTNEED_PHONOGRAPH);
+    // A fully grown plant with no need yet picks one now.
+    if (aPotted->mPlantAge == PLANTAGE_FULL && aPotted->mPlantNeed == PLANTNEED_NONE)
+        aPotted->mPlantNeed = (PottedPlantNeed)RandRangeInt(PLANTNEED_BUGSPRAY, PLANTNEED_PHONOGRAPH);
 
-  if ( mBoard->mTutorialState == TUTORIAL_ZEN_GARDEN_WATER_PLANT )
-  {
-    mBoard->mTutorialState = TUTORIAL_ZEN_GARDEN_KEEP_WATERING;
-    Sexy::String aText;
-    TodStringTranslate(&aText, "[ADVICE_ZEN_GARDEN_KEEP_WATERING]");
-    mBoard->DisplayAdvice(aText, MESSAGE_STYLE_HINT_TALL_UNLOCKMESSAGE, ADVICE_NONE);
-  }
+    if (mBoard->mTutorialState == TUTORIAL_ZEN_GARDEN_WATER_PLANT)
+    {
+        mBoard->mTutorialState = TUTORIAL_ZEN_GARDEN_KEEP_WATERING;
+        Sexy::String aText;
+        TodStringTranslate(&aText, "[ADVICE_ZEN_GARDEN_KEEP_WATERING]");
+        mBoard->DisplayAdvice(aText, MESSAGE_STYLE_HINT_TALL_UNLOCKMESSAGE, ADVICE_NONE);
+    }
 }
 // ==========================================================================
 // ZenGarden::SetPlantAnimSpeed(Plant *)
 // @0019EF48  290 bytes
 // ==========================================================================
-void ZenGarden::SetPlantAnimSpeed(Plant * thePlant)
+void ZenGarden::SetPlantAnimSpeed(Plant *thePlant)
 {
-  Reanimation *aReanim = mApp->ReanimationGet(thePlant->mBodyReanimID);
-  PottedPlant *aPotted = PottedPlantFromIndex(thePlant->mPottedPlantIndex);
-  bool aHigh = PlantHighOnChocolate(aPotted);
+    Reanimation *aReanim = mApp->ReanimationGet(thePlant->mBodyReanimID);
+    PottedPlant *aPotted = PottedPlantFromIndex(thePlant->mPottedPlantIndex);
+    bool aHigh = PlantHighOnChocolate(aPotted);
 
-  // Nothing to do while the rate already matches the chocolate state: a plant on
-  // chocolate always runs at 25 or more.
-  if ( (aReanim->mAnimRate >= 25.0f) == aHigh )
-    return;
+    // Nothing to do while the rate already matches the chocolate state: a plant on
+    // chocolate always runs at 25 or more.
+    if ((aReanim->mAnimRate >= 25.0f) == aHigh)
+        return;
 
-  // Seed types that idle slowly get a faster base rate.
-  float aRate;
-  switch ( thePlant->mSeedType )
-  {
-    case SEED_PEASHOOTER:
-    case SEED_SNOWPEA:
-    case SEED_REPEATER:
-    case SEED_THREEPEATER:
-    case SEED_SPLITPEA:
-    case SEED_MARIGOLD:
-    case SEED_GATLINGPEA:
-    case SEED_LEFTPEATER:
-      aRate = RandRangeFloat(15.0f, 20.0f);
-      break;
-    case SEED_POTATOMINE:
-      aRate = 12.0f;
-      break;
-    default:
-      aRate = RandRangeFloat(10.0f, 15.0f);
-      break;
-  }
+    // Seed types that idle slowly get a faster base rate.
+    float aRate;
+    switch (thePlant->mSeedType)
+    {
+        case SEED_PEASHOOTER:
+        case SEED_SNOWPEA:
+        case SEED_REPEATER:
+        case SEED_THREEPEATER:
+        case SEED_SPLITPEA:
+        case SEED_MARIGOLD:
+        case SEED_GATLINGPEA:
+        case SEED_LEFTPEATER:
+            aRate = RandRangeFloat(15.0f, 20.0f);
+            break;
+        case SEED_POTATOMINE:
+            aRate = 12.0f;
+            break;
+        default:
+            aRate = RandRangeFloat(10.0f, 15.0f);
+            break;
+    }
 
-  // A plant on chocolate animates at double rate, never below 25.
-  if ( aHigh )
-  {
-    aRate = aRate + aRate;
-    if ( aRate < 25.0f )
-      aRate = 25.0f;
-  }
-  aReanim->SetAnimRate(aRate);
+    // A plant on chocolate animates at double rate, never below 25.
+    if (aHigh)
+    {
+        aRate = aRate + aRate;
+        if (aRate < 25.0f)
+            aRate = 25.0f;
+    }
+    aReanim->SetAnimRate(aRate);
 
-  // The head reanimations follow the body, frame time and all.
-  Reanimation *aHead1 = mApp->ReanimationTryToGet(thePlant->mHeadReanimID);
-  Reanimation *aHead2 = mApp->ReanimationTryToGet(thePlant->mHeadReanimID2);
-  Reanimation *aHead3 = mApp->ReanimationTryToGet(thePlant->mHeadReanimID3);
-  if ( aHead1 != nullptr )
-  {
-    aHead1->SetAnimRate(aReanim->mAnimRate);
-    aHead1->mAnimTime = aReanim->mAnimTime;
-  }
-  if ( aHead2 != nullptr )
-  {
-    aHead2->SetAnimRate(aReanim->mAnimRate);
-    aHead2->mAnimTime = aReanim->mAnimTime;
-  }
-  if ( aHead3 != nullptr )
-  {
-    aHead3->SetAnimRate(aReanim->mAnimRate);
-    aHead3->mAnimTime = aReanim->mAnimTime;
-  }
+    // The head reanimations follow the body, frame time and all.
+    Reanimation *aHead1 = mApp->ReanimationTryToGet(thePlant->mHeadReanimID);
+    Reanimation *aHead2 = mApp->ReanimationTryToGet(thePlant->mHeadReanimID2);
+    Reanimation *aHead3 = mApp->ReanimationTryToGet(thePlant->mHeadReanimID3);
+    if (aHead1 != nullptr)
+    {
+        aHead1->SetAnimRate(aReanim->mAnimRate);
+        aHead1->mAnimTime = aReanim->mAnimTime;
+    }
+    if (aHead2 != nullptr)
+    {
+        aHead2->SetAnimRate(aReanim->mAnimRate);
+        aHead2->mAnimTime = aReanim->mAnimTime;
+    }
+    if (aHead3 != nullptr)
+    {
+        aHead3->SetAnimRate(aReanim->mAnimRate);
+        aHead3->mAnimTime = aReanim->mAnimTime;
+    }
 }
 
 // ==========================================================================
 // ZenGarden::PlantGetMinutesSinceHappy(Plant *)
 // @0019F06C  62 bytes
 // ==========================================================================
-int ZenGarden::PlantGetMinutesSinceHappy(Plant * thePlant)
+int ZenGarden::PlantGetMinutesSinceHappy(Plant *thePlant)
 {
-  PottedPlant *aPotted = PottedPlantFromIndex(thePlant->mPottedPlantIndex);
-  time_t aNow = time(nullptr);
-  if ( PlantHighOnChocolate(aPotted) )
-    return 0;
-  return (int)((aNow - aPotted->mLastNeedFulfilledTime) / 60);
+    PottedPlant *aPotted = PottedPlantFromIndex(thePlant->mPottedPlantIndex);
+    time_t aNow = time(nullptr);
+    if (PlantHighOnChocolate(aPotted))
+        return 0;
+    return (int)((aNow - aPotted->mLastNeedFulfilledTime) / 60);
 }
 
 // ==========================================================================
 // ZenGarden::PlantSetLaunchCounter(Plant *)
 // @0019F0AC  50 bytes
 // ==========================================================================
-int ZenGarden::PlantSetLaunchCounter(Plant * thePlant)
+int ZenGarden::PlantSetLaunchCounter(Plant *thePlant)
 {
-  // The longer the plant has been happy, the longer until it produces again.
-  int aMinutes = PlantGetMinutesSinceHappy(thePlant);
-  int aMax = TodAnimateCurve(5, 30, aMinutes, 3000, 15000, 1);
-  int aCounter = RandRangeInt(1800, aMax);
-  thePlant->mLaunchCounter = aCounter;
-  return aCounter;
+    // The longer the plant has been happy, the longer until it produces again.
+    int aMinutes = PlantGetMinutesSinceHappy(thePlant);
+    int aMax = TodAnimateCurve(5, 30, aMinutes, 3000, 15000, 1);
+    int aCounter = RandRangeInt(1800, aMax);
+    thePlant->mLaunchCounter = aCounter;
+    return aCounter;
 }
 // ==========================================================================
 // ZenGarden::PlacePottedPlant(int)
 // @0019F0E0  342 bytes
 // ==========================================================================
-Plant * ZenGarden::PlacePottedPlant(int thePottedPlantIndex)
+Plant *ZenGarden::PlacePottedPlant(int thePottedPlantIndex)
 {
-  PottedPlant *aPotted = PottedPlantFromIndex(thePottedPlantIndex);
-  SeedType aSeedType = aPotted->mSeedType;
-  int aPlantCol = aPotted->mX;
-  int aRow = aPotted->mY;
+    PottedPlant *aPotted = PottedPlantFromIndex(thePottedPlantIndex);
+    SeedType aSeedType = aPotted->mSeedType;
+    int aPlantCol = aPotted->mX;
+    int aRow = aPotted->mY;
 
-  // A sprout is drawn as a bare sprout until it has grown into something.
-  if ( aPotted->mPlantAge == PLANTAGE_SPROUT )
-    aSeedType = SEED_SPROUT;
+    // A sprout is drawn as a bare sprout until it has grown into something.
+    if (aPotted->mPlantAge == PLANTAGE_SPROUT)
+        aSeedType = SEED_SPROUT;
 
-  // A flower pot is planted underneath, except in the aquarium (where the plant
-  // sits in water) and in the mushroom garden for a non-aquatic plant.
-  bool aPlantPot = (mGardenType != GARDEN_AQUARIUM);
-  if ( mGardenType == GARDEN_MUSHROOM && !Plant::IsAquatic(aSeedType) )
-    aPlantPot = false;
+    // A flower pot is planted underneath, except in the aquarium (where the plant
+    // sits in water) and in the mushroom garden for a non-aquatic plant.
+    bool aPlantPot = (mGardenType != GARDEN_AQUARIUM);
+    if (mGardenType == GARDEN_MUSHROOM && !Plant::IsAquatic(aSeedType))
+        aPlantPot = false;
 
-  if ( aPlantPot )
-  {
-    Plant *aPot = mBoard->NewPlant(aPlantCol, aRow, SEED_FLOWERPOT, SEED_NONE, -1);
-    aPot->mRenderOrder = Board::MakeRenderOrder(RENDER_LAYER_PLANT, 0, aPot->mY);
-    aPot->mStateCountdown = 0;
-
-    Reanimation *aPotReanim = mApp->ReanimationGet(aPot->mBodyReanimID);
-    if ( Plant::IsAquatic(aSeedType) )
-      aPotReanim->SetFramesForLayer("anim_waterplants");
-    else
-      aPotReanim->SetFramesForLayer("anim_zengarden");
-  }
-
-  Plant *aPlant = mBoard->NewPlant(aPlantCol, aRow, aSeedType, SEED_NONE, -1);
-  aPlant->mPottedPlantIndex = thePottedPlantIndex;
-  // One step in front of the pot it stands in.
-  aPlant->mRenderOrder = Board::MakeRenderOrder(RENDER_LAYER_PLANT, 0, aPlant->mY + 1);
-  aPlant->mStateCountdown = 0;
-
-  Reanimation *aReanim = mApp->ReanimationTryToGet(aPlant->mBodyReanimID);
-  if ( aReanim != nullptr )
-  {
-    if ( aSeedType == SEED_SPROUT )
+    if (aPlantPot)
     {
-      // A bare sprout has its own flowerless idle.
-      if ( aPotted->mSeedType != SEED_MARIGOLD )
-        aReanim->SetFramesForLayer("anim_idle_noflower");
-    }
-    else if ( (aSeedType == SEED_TANGLEKELP || aSeedType == SEED_SEASHROOM)
-      && mGardenType == GARDEN_AQUARIUM )
-    {
-      aReanim->SetFramesForLayer("anim_idle_aquarium");
-    }
-    else
-    {
-      mApp->mReanimatorCache->UpdateReanimationForVariation(aReanim,
-          (DrawVariation)(aPotted->mDrawVariation));
+        Plant *aPot = mBoard->NewPlant(aPlantCol, aRow, SEED_FLOWERPOT, SEED_NONE, -1);
+        aPot->mRenderOrder = Board::MakeRenderOrder(RENDER_LAYER_PLANT, 0, aPot->mY);
+        aPot->mStateCountdown = 0;
+
+        Reanimation *aPotReanim = mApp->ReanimationGet(aPot->mBodyReanimID);
+        if (Plant::IsAquatic(aSeedType))
+            aPotReanim->SetFramesForLayer("anim_waterplants");
+        else
+            aPotReanim->SetFramesForLayer("anim_zengarden");
     }
 
-    aPlant->UpdateReanim();
-    aReanim->Update();
-  }
+    Plant *aPlant = mBoard->NewPlant(aPlantCol, aRow, aSeedType, SEED_NONE, -1);
+    aPlant->mPottedPlantIndex = thePottedPlantIndex;
+    // One step in front of the pot it stands in.
+    aPlant->mRenderOrder = Board::MakeRenderOrder(RENDER_LAYER_PLANT, 0, aPlant->mY + 1);
+    aPlant->mStateCountdown = 0;
 
-  PlantSetLaunchCounter(aPlant);
-  UpdatePlantEffectState(aPlant);
-  return aPlant;
+    Reanimation *aReanim = mApp->ReanimationTryToGet(aPlant->mBodyReanimID);
+    if (aReanim != nullptr)
+    {
+        if (aSeedType == SEED_SPROUT)
+        {
+            // A bare sprout has its own flowerless idle.
+            if (aPotted->mSeedType != SEED_MARIGOLD)
+                aReanim->SetFramesForLayer("anim_idle_noflower");
+        }
+        else if ((aSeedType == SEED_TANGLEKELP || aSeedType == SEED_SEASHROOM) && mGardenType == GARDEN_AQUARIUM)
+        {
+            aReanim->SetFramesForLayer("anim_idle_aquarium");
+        }
+        else
+        {
+            mApp->mReanimatorCache->UpdateReanimationForVariation(aReanim, (DrawVariation)(aPotted->mDrawVariation));
+        }
+
+        aPlant->UpdateReanim();
+        aReanim->Update();
+    }
+
+    PlantSetLaunchCounter(aPlant);
+    UpdatePlantEffectState(aPlant);
+    return aPlant;
 }
 // ==========================================================================
 // ZenGarden::AddPottedPlant(PottedPlant *)
 // @0019F24C  228 bytes
 // ==========================================================================
-int ZenGarden::AddPottedPlant(PottedPlant * thePottedPlant)
+int ZenGarden::AddPottedPlant(PottedPlant *thePottedPlant)
 {
-  int aCount = mApp->mPlayerInfo->mNumPottedPlants;
-  PottedPlant *aSlot = &mApp->mPlayerInfo->mPottedPlants[aCount];
+    int aCount = mApp->mPlayerInfo->mNumPottedPlants;
+    PottedPlant *aSlot = &mApp->mPlayerInfo->mPottedPlants[aCount];
 
-  // The record is copied whole, then its four timers are cleared.
-  *aSlot = *thePottedPlant;
-  aSlot->mLastWateredTime = 0;
-  aSlot->mLastNeedFulfilledTime = 0;
-  aSlot->mLastFertilizedTime = 0;
-  aSlot->mLastChocolateTime = 0;
+    // The record is copied whole, then its four timers are cleared.
+    *aSlot = *thePottedPlant;
+    aSlot->mLastWateredTime = 0;
+    aSlot->mLastNeedFulfilledTime = 0;
+    aSlot->mLastFertilizedTime = 0;
+    aSlot->mLastChocolateTime = 0;
 
-  unsigned char aSpotX = 0;
-  unsigned char aSpotY = 0;
-  FindOpenZenGardenSpot(aSpotX, aSpotY);
-  aSlot->mX = aSpotX;
-  aSlot->mY = aSpotY;
-  ++mApp->mPlayerInfo->mNumPottedPlants;
+    unsigned char aSpotX = 0;
+    unsigned char aSpotY = 0;
+    FindOpenZenGardenSpot(aSpotX, aSpotY);
+    aSlot->mX = aSpotX;
+    aSlot->mY = aSpotY;
+    ++mApp->mPlayerInfo->mNumPottedPlants;
 
-  // A pot added while the garden is on screen is planted straight away.
-  if ( mApp->mGameMode == GAMEMODE_CHALLENGE_ZEN_GARDEN && mBoard != nullptr
-    && aSlot->mWhichZenGarden == mGardenType )
-  {
-    Plant *aPlant = PlacePottedPlant(aCount);
-    if ( mBoard->CanUseGameObject(OBJECT_TYPE_WATERING_CAN) == 0 )
-      mBoard->DoPlantingEffects(aSlot->mX, aSlot->mY, aPlant);
-      return 0;
-  }
-  return 0;
+    // A pot added while the garden is on screen is planted straight away.
+    if (mApp->mGameMode == GAMEMODE_CHALLENGE_ZEN_GARDEN && mBoard != nullptr && aSlot->mWhichZenGarden == mGardenType)
+    {
+        Plant *aPlant = PlacePottedPlant(aCount);
+        if (mBoard->CanUseGameObject(OBJECT_TYPE_WATERING_CAN) == 0)
+            mBoard->DoPlantingEffects(aSlot->mX, aSlot->mY, aPlant);
+        return 0;
+    }
+    return 0;
 }
 
 // ==========================================================================
@@ -1367,91 +1362,91 @@ int ZenGarden::AddPottedPlant(PottedPlant * thePottedPlant)
 // ==========================================================================
 void ZenGarden::AdvanceCrazyDaveDialog()
 {
-  if ( mApp->mCrazyDaveMessageIndex == -1 )
-    return;
-  // A modal dialog already up owns the input.
-  if ( mApp->GetDialog(6) != nullptr )
-    return;
-  if ( mApp->GetDialog(50) != nullptr )
-    return;
+    if (mApp->mCrazyDaveMessageIndex == -1)
+        return;
+    // A modal dialog already up owns the input.
+    if (mApp->GetDialog(6) != nullptr)
+        return;
+    if (mApp->GetDialog(50) != nullptr)
+        return;
 
-  if ( mApp->mCrazyDaveMessageIndex == 2104 )
-    ShowTutorialArrowOnWateringCan();
+    if (mApp->mCrazyDaveMessageIndex == 2104)
+        ShowTutorialArrowOnWateringCan();
 
-  if ( mApp->AdvanceCrazyDaveText() == 0 )
-  {
-    mApp->CrazyDaveLeave();
-    return;
-  }
-
-  // The last line of the introduction hands out two free marigolds, once.
-  if ( mApp->mCrazyDaveMessageIndex == 2102 && mApp->mPlayerInfo->mNumPottedPlants == 0 )
-  {
-    for ( int i = 2; i != 0; --i )
+    if (mApp->AdvanceCrazyDaveText() == 0)
     {
-      PottedPlant aPotted;
-      aPotted.InitializePottedPlant(SEED_MARIGOLD);
-      aPotted.mDrawVariation = RandRangeInt(2, 12);
-      aPotted.mPlantAge = PLANTAGE_FULL;
-      mApp->mZenGarden->AddPottedPlant(&aPotted);
+        mApp->CrazyDaveLeave();
+        return;
     }
-  }
+
+    // The last line of the introduction hands out two free marigolds, once.
+    if (mApp->mCrazyDaveMessageIndex == 2102 && mApp->mPlayerInfo->mNumPottedPlants == 0)
+    {
+        for (int i = 2; i != 0; --i)
+        {
+            PottedPlant aPotted;
+            aPotted.InitializePottedPlant(SEED_MARIGOLD);
+            aPotted.mDrawVariation = RandRangeInt(2, 12);
+            aPotted.mPlantAge = PLANTAGE_FULL;
+            mApp->mZenGarden->AddPottedPlant(&aPotted);
+        }
+    }
 }
 
 // ==========================================================================
 // ZenGarden::PlantFertilized(Plant *)
 // @0019F3EC  262 bytes
 // ==========================================================================
-void ZenGarden::PlantFertilized(Plant * thePlant)
+void ZenGarden::PlantFertilized(Plant *thePlant)
 {
-  PottedPlant *aPotted = PottedPlantFromIndex(thePlant->mPottedPlantIndex);
-  aPotted->mLastFertilizedTime = time(nullptr);
-  aPotted->mPlantNeed = PLANTNEED_NONE;
+    PottedPlant *aPotted = PottedPlantFromIndex(thePlant->mPottedPlantIndex);
+    aPotted->mLastFertilizedTime = time(nullptr);
+    aPotted->mPlantNeed = PLANTNEED_NONE;
 
-  // One more fertilization towards the next growth stage; the age wraps at 3.
-  int aOldAge = aPotted->mPlantAge;
-  aPotted->mTimesFed = 0;
-  aPotted->mPlantAge = (PottedPlantAge)((aOldAge + 1) & 3);
+    // One more fertilization towards the next growth stage; the age wraps at 3.
+    int aOldAge = aPotted->mPlantAge;
+    aPotted->mTimesFed = 0;
+    aPotted->mPlantAge = (PottedPlantAge)((aOldAge + 1) & 3);
 
-  if ( aPotted->mPlantAge == PLANTAGE_SMALL )
-  {
-    // Growing to the next stage replaces the plant object, and its pot.
-    RemovePottedPlant(thePlant);
-    PlacePottedPlant(thePlant->mPottedPlantIndex);
-    mApp->PlaySample(SOUND_LOADINGBAR_FLOWER, true);
-  }
-  else
-  {
-    thePlant->mStateCountdown = 100;
-    mApp->PlayFoley(FOLEY_PLANTGROW);
-  }
-  mApp->PlayFoley(FOLEY_PLANT);
+    if (aPotted->mPlantAge == PLANTAGE_SMALL)
+    {
+        // Growing to the next stage replaces the plant object, and its pot.
+        RemovePottedPlant(thePlant);
+        PlacePottedPlant(thePlant->mPottedPlantIndex);
+        mApp->PlaySample(SOUND_LOADINGBAR_FLOWER, true);
+    }
+    else
+    {
+        thePlant->mStateCountdown = 100;
+        mApp->PlayFoley(FOLEY_PLANTGROW);
+    }
+    mApp->PlayFoley(FOLEY_PLANT);
 
-  // Small and medium plants reward gold; reaching full size rewards diamonds.
-  switch ( aPotted->mPlantAge )
-  {
-    case PLANTAGE_SMALL:
-      mBoard->AddCoin(thePlant->mX + 40, thePlant->mY, COIN_GOLD, COIN_MOTION_COIN);
-      break;
-    case PLANTAGE_MEDIUM:
-      mBoard->AddCoin(thePlant->mX + 30, thePlant->mY, COIN_GOLD, COIN_MOTION_COIN);
-      mBoard->AddCoin(thePlant->mX + 50, thePlant->mY, COIN_GOLD, COIN_MOTION_COIN);
-      break;
-    case PLANTAGE_FULL:
-      // A marigold pays one diamond, every other plant pays two.
-      if ( aPotted->mSeedType == SEED_MARIGOLD )
-      {
-        mBoard->AddCoin(thePlant->mX + 40, thePlant->mY, COIN_DIAMOND, COIN_MOTION_COIN);
-      }
-      else
-      {
-        mBoard->AddCoin(thePlant->mX + 10, thePlant->mY, COIN_DIAMOND, COIN_MOTION_COIN);
-        mBoard->AddCoin(thePlant->mX + 70, thePlant->mY, COIN_DIAMOND, COIN_MOTION_COIN);
-      }
-      break;
-    default:
-      break;
-  }
+    // Small and medium plants reward gold; reaching full size rewards diamonds.
+    switch (aPotted->mPlantAge)
+    {
+        case PLANTAGE_SMALL:
+            mBoard->AddCoin(thePlant->mX + 40, thePlant->mY, COIN_GOLD, COIN_MOTION_COIN);
+            break;
+        case PLANTAGE_MEDIUM:
+            mBoard->AddCoin(thePlant->mX + 30, thePlant->mY, COIN_GOLD, COIN_MOTION_COIN);
+            mBoard->AddCoin(thePlant->mX + 50, thePlant->mY, COIN_GOLD, COIN_MOTION_COIN);
+            break;
+        case PLANTAGE_FULL:
+            // A marigold pays one diamond, every other plant pays two.
+            if (aPotted->mSeedType == SEED_MARIGOLD)
+            {
+                mBoard->AddCoin(thePlant->mX + 40, thePlant->mY, COIN_DIAMOND, COIN_MOTION_COIN);
+            }
+            else
+            {
+                mBoard->AddCoin(thePlant->mX + 10, thePlant->mY, COIN_DIAMOND, COIN_MOTION_COIN);
+                mBoard->AddCoin(thePlant->mX + 70, thePlant->mY, COIN_DIAMOND, COIN_MOTION_COIN);
+            }
+            break;
+        default:
+            break;
+    }
 }
 // ==========================================================================
 // ZenGarden::MouseDownWithFullWheelBarrow(int,int)
@@ -1459,96 +1454,95 @@ void ZenGarden::PlantFertilized(Plant * thePlant)
 // ==========================================================================
 void ZenGarden::MouseDownWithFullWheelBarrow(int x, int y)
 {
-  PottedPlant *aPotted = GetPottedPlantInWheelbarrow();
-  if ( aPotted == nullptr )
-    return;
+    PottedPlant *aPotted = GetPottedPlantInWheelbarrow();
+    if (aPotted == nullptr)
+        return;
 
-  // The aquarium only accepts aquatic plants, and every other garden only
-  // accepts land plants.
-  if ( mGardenType == GARDEN_AQUARIUM && !Plant::IsAquatic(aPotted->mSeedType) )
-  {
-    Sexy::String aText;
-    TodStringTranslate(&aText, "[ZEN_ONLY_AQUATIC_PLANTS]");
-    mBoard->DisplayAdvice(aText, MESSAGE_STYLE_HINT_TALL_FAST, AdviceType(-1));
-    return;
-  }
+    // The aquarium only accepts aquatic plants, and every other garden only
+    // accepts land plants.
+    if (mGardenType == GARDEN_AQUARIUM && !Plant::IsAquatic(aPotted->mSeedType))
+    {
+        Sexy::String aText;
+        TodStringTranslate(&aText, "[ZEN_ONLY_AQUATIC_PLANTS]");
+        mBoard->DisplayAdvice(aText, MESSAGE_STYLE_HINT_TALL_FAST, AdviceType(-1));
+        return;
+    }
 
-  int aGridX = mBoard->PixelToGridX(x, y);
-  int aGridY = mBoard->PixelToGridY(x, y);
-  if ( aGridX == -1 || aGridY == -1 )
-    return;
-  if ( mBoard->CanPlantAt(aGridX, aGridY, aPotted->mSeedType) != PLANTING_OK )
-    return;
+    int aGridX = mBoard->PixelToGridX(x, y);
+    int aGridY = mBoard->PixelToGridY(x, y);
+    if (aGridX == -1 || aGridY == -1)
+        return;
+    if (mBoard->CanPlantAt(aGridX, aGridY, aPotted->mSeedType) != PLANTING_OK)
+        return;
 
-  // The pot moves out of the wheelbarrow and into the garden.
-  aPotted->mX = aGridX;
-  aPotted->mY = aGridY;
-  aPotted->mWhichZenGarden = mGardenType;
-  Plant *aPlant = PlacePottedPlant(aPotted - mApp->mPlayerInfo->mPottedPlants);
-  mBoard->DoPlantingEffects(aGridX, aGridY, aPlant);
+    // The pot moves out of the wheelbarrow and into the garden.
+    aPotted->mX = aGridX;
+    aPotted->mY = aGridY;
+    aPotted->mWhichZenGarden = mGardenType;
+    Plant *aPlant = PlacePottedPlant(aPotted - mApp->mPlayerInfo->mPottedPlants);
+    mBoard->DoPlantingEffects(aGridX, aGridY, aPlant);
 }
 
 // ==========================================================================
 // ZenGarden::PlantUpdateProduction(Plant *)
 // @0019F630  136 bytes
 // ==========================================================================
-void ZenGarden::PlantUpdateProduction(Plant * thePlant)
+void ZenGarden::PlantUpdateProduction(Plant *thePlant)
 {
-  // The production counter runs down twice as fast on chocolate.
-  --thePlant->mLaunchCounter;
-  SetPlantAnimSpeed(thePlant);
-
-  PottedPlant *aPotted = PottedPlantFromIndex(thePlant->mPottedPlantIndex);
-  if ( PlantHighOnChocolate(aPotted) )
+    // The production counter runs down twice as fast on chocolate.
     --thePlant->mLaunchCounter;
+    SetPlantAnimSpeed(thePlant);
 
-  if ( thePlant->mLaunchCounter <= 0 )
-  {
-    PlantSetLaunchCounter(thePlant);
-    mApp->PlayFoley(FOLEY_PLANT);
+    PottedPlant *aPotted = PottedPlantFromIndex(thePlant->mPottedPlantIndex);
+    if (PlantHighOnChocolate(aPotted))
+        --thePlant->mLaunchCounter;
 
-    // The longer the plant has been happy, the better the coin it drops.
-    int aRoll = Rand(1000);
-    int aMinutes = PlantGetMinutesSinceHappy(thePlant);
-    CoinType aType = (aRoll + TodAnimateCurve(5, 30, aMinutes, 0, 80, 1) > 99)
-        ? COIN_GOLD : COIN_SILVER;
-    mBoard->AddCoin(thePlant->mX, thePlant->mY, aType, COIN_MOTION_COIN);
-  }
+    if (thePlant->mLaunchCounter <= 0)
+    {
+        PlantSetLaunchCounter(thePlant);
+        mApp->PlayFoley(FOLEY_PLANT);
+
+        // The longer the plant has been happy, the better the coin it drops.
+        int aRoll = Rand(1000);
+        int aMinutes = PlantGetMinutesSinceHappy(thePlant);
+        CoinType aType = (aRoll + TodAnimateCurve(5, 30, aMinutes, 0, 80, 1) > 99) ? COIN_GOLD : COIN_SILVER;
+        mBoard->AddCoin(thePlant->mX, thePlant->mY, aType, COIN_MOTION_COIN);
+    }
 }
 
 // ==========================================================================
 // ZenGarden::DrawPlantOverlay(Sexy::Graphics *,Plant *)
 // @0019F6B8  160 bytes
 // ==========================================================================
-void ZenGarden::DrawPlantOverlay(Sexy::Graphics * g, Plant * thePlant)
+void ZenGarden::DrawPlantOverlay(Sexy::Graphics *g, Plant *thePlant)
 {
-  if ( thePlant->mPottedPlantIndex == -1 )
-    return;
+    if (thePlant->mPottedPlantIndex == -1)
+        return;
 
-  PottedPlant *aPotted = PottedPlantFromIndex(thePlant->mPottedPlantIndex);
-  PottedPlantNeed aNeed = GetPlantsNeed(aPotted);
-  if ( aNeed == PLANTNEED_NONE )
-    return;
+    PottedPlant *aPotted = PottedPlantFromIndex(thePlant->mPottedPlantIndex);
+    PottedPlantNeed aNeed = GetPlantsNeed(aPotted);
+    if (aNeed == PLANTNEED_NONE)
+        return;
 
-  // A speech bubble over the pot, with the icon of what the plant wants.
-  g->DrawImage(IMAGE_PLANTSPEECHBUBBLE, 50, 0);
-  switch ( aNeed )
-  {
-    case PLANTNEED_WATER:
-      g->DrawImage(IMAGE_WATERDROP, 67, 9);
-      break;
-    case PLANTNEED_FERTILIZER:
-      g->DrawImageCel(IMAGE_ZEN_NEED_ICONS, 61, 7, 0, 0);
-      break;
-    case PLANTNEED_BUGSPRAY:
-      g->DrawImageCel(IMAGE_ZEN_NEED_ICONS, 61, 7, 1, 0);
-      break;
-    case PLANTNEED_PHONOGRAPH:
-      g->DrawImageCel(IMAGE_ZEN_NEED_ICONS, 60, 7, 2, 0);
-      break;
-    default:
-      break;
-  }
+    // A speech bubble over the pot, with the icon of what the plant wants.
+    g->DrawImage(IMAGE_PLANTSPEECHBUBBLE, 50, 0);
+    switch (aNeed)
+    {
+        case PLANTNEED_WATER:
+            g->DrawImage(IMAGE_WATERDROP, 67, 9);
+            break;
+        case PLANTNEED_FERTILIZER:
+            g->DrawImageCel(IMAGE_ZEN_NEED_ICONS, 61, 7, 0, 0);
+            break;
+        case PLANTNEED_BUGSPRAY:
+            g->DrawImageCel(IMAGE_ZEN_NEED_ICONS, 61, 7, 1, 0);
+            break;
+        case PLANTNEED_PHONOGRAPH:
+            g->DrawImageCel(IMAGE_ZEN_NEED_ICONS, 60, 7, 2, 0);
+            break;
+        default:
+            break;
+    }
 }
 
 // ==========================================================================
@@ -1557,9 +1551,9 @@ void ZenGarden::DrawPlantOverlay(Sexy::Graphics * g, Plant * thePlant)
 // ==========================================================================
 int ZenGarden::CanDropPottedPlantLoot()
 {
-  if ( !mApp->HasFinishedAdventure() )
-    return 0;
-  return !mApp->mZenGarden->IsZenGardenFull(true);
+    if (!mApp->HasFinishedAdventure())
+        return 0;
+    return !mApp->mZenGarden->IsZenGardenFull(true);
 }
 
 // ==========================================================================
@@ -1568,10 +1562,10 @@ int ZenGarden::CanDropPottedPlantLoot()
 // ==========================================================================
 int ZenGarden::HasPurchasedStinky()
 {
-  // Purchase 20 is STORE_ITEM_STINKY_THE_SNAIL.
-  if ( mApp->mPlayerInfo == nullptr )
-    return 0;
-  return mApp->mPlayerInfo->mPurchases[20] != 0;
+    // Purchase 20 is STORE_ITEM_STINKY_THE_SNAIL.
+    if (mApp->mPlayerInfo == nullptr)
+        return 0;
+    return mApp->mPlayerInfo->mPurchases[20] != 0;
 }
 
 // ==========================================================================
@@ -1580,11 +1574,11 @@ int ZenGarden::HasPurchasedStinky()
 // ==========================================================================
 int ZenGarden::CanDropChocolate()
 {
-  // Purchase 26 is STORE_ITEM_CHOCOLATE; its value is the chocolate count plus
-  // 1000, so it is exhausted once it falls to 1009.
-  if ( !HasPurchasedStinky() )
-    return 0;
-  return mApp->mPlayerInfo->mPurchases[26] <= 1009;
+    // Purchase 26 is STORE_ITEM_CHOCOLATE; its value is the chocolate count plus
+    // 1000, so it is exhausted once it falls to 1009.
+    if (!HasPurchasedStinky())
+        return 0;
+    return mApp->mPlayerInfo->mPurchases[26] <= 1009;
 }
 
 // ==========================================================================
@@ -1593,12 +1587,12 @@ int ZenGarden::CanDropChocolate()
 // ==========================================================================
 int ZenGarden::WakeStinky()
 {
-  // Purchase slot 20 is the "last woken" timestamp; stamping it now keeps
-  // ShouldStinkyBeAwake true for the next three minutes.
-  mApp->mPlayerInfo->mPurchases[20] = time(nullptr);
-  mApp->PlaySample(SOUND_TAP, true);
-  mBoard->ClearAdvice(AdviceType(59));
-  return mApp->mPlayerInfo->SetFlag(4, 1);
+    // Purchase slot 20 is the "last woken" timestamp; stamping it now keeps
+    // ShouldStinkyBeAwake true for the next three minutes.
+    mApp->mPlayerInfo->mPurchases[20] = time(nullptr);
+    mApp->PlaySample(SOUND_TAP, true);
+    mBoard->ClearAdvice(AdviceType(59));
+    return mApp->mPlayerInfo->SetFlag(4, 1);
 }
 // ==========================================================================
 // ZenGarden::DoFeedingTool(int,int,GridItemState)
@@ -1606,163 +1600,162 @@ int ZenGarden::WakeStinky()
 // ==========================================================================
 void ZenGarden::DoFeedingTool(int x, int y, GridItemState theToolType)
 {
-  int aGridX = PixelToGridX(x, y);
-  int aGridY = PixelToGridY(x, y);
-  bool aIsWateringCan = (theToolType == GRIDITEM_STATE_ZEN_TOOL_WATERING_CAN);
-  bool aIsGoldCan = (theToolType == GRIDITEM_STATE_ZEN_TOOL_GOLD_WATERING_CAN);
+    int aGridX = PixelToGridX(x, y);
+    int aGridY = PixelToGridY(x, y);
+    bool aIsWateringCan = (theToolType == GRIDITEM_STATE_ZEN_TOOL_WATERING_CAN);
+    bool aIsGoldCan = (theToolType == GRIDITEM_STATE_ZEN_TOOL_GOLD_WATERING_CAN);
 
-  // Watering a sleeping Stinky wakes him up instead of watering a plant.
-  if ( aIsWateringCan || aIsGoldCan )
-  {
-    GridItem *aStinky = GetStinky();
-    if ( aStinky != nullptr && aStinky->mHighlighted )
-      WakeStinky();
-  }
-
-  // The gold can waters every plant in range in one go.
-  if ( aIsGoldCan )
-  {
-    Plant *aPlant = nullptr;
-    while ( mBoard->IteratePlants(aPlant) != 0 )
+    // Watering a sleeping Stinky wakes him up instead of watering a plant.
+    if (aIsWateringCan || aIsGoldCan)
     {
-      if ( !mBoard->IsPlantInGoldWateringCanRange(x, y, aPlant) )
-        continue;
-      PottedPlant *aPotted = PottedPlantFromIndex(aPlant->mPottedPlantIndex);
-      if ( GetPlantsNeed(aPotted) == PLANTNEED_WATER )
+        GridItem *aStinky = GetStinky();
+        if (aStinky != nullptr && aStinky->mHighlighted)
+            WakeStinky();
+    }
+
+    // The gold can waters every plant in range in one go.
+    if (aIsGoldCan)
+    {
+        Plant *aPlant = nullptr;
+        while (mBoard->IteratePlants(aPlant) != 0)
+        {
+            if (!mBoard->IsPlantInGoldWateringCanRange(x, y, aPlant))
+                continue;
+            PottedPlant *aPotted = PottedPlantFromIndex(aPlant->mPottedPlantIndex);
+            if (GetPlantsNeed(aPotted) == PLANTNEED_WATER)
+                PlantWatered(aPlant);
+        }
+        return;
+    }
+
+    // Every other tool works on the one square clicked.
+    Plant *aPlant = mBoard->GetTopPlantAt(aGridX, aGridY, TOPPLANT_ZEN_TOOL_ORDER);
+    if (aPlant == nullptr)
+        return;
+
+    PottedPlant *aPotted = PottedPlantFromIndex(aPlant->mPottedPlantIndex);
+    PottedPlantNeed aNeed = GetPlantsNeed(aPotted);
+    if (aNeed == PLANTNEED_WATER && aIsWateringCan)
+    {
         PlantWatered(aPlant);
     }
-    return;
-  }
+    else if (aNeed == PLANTNEED_FERTILIZER && theToolType == GRIDITEM_STATE_ZEN_TOOL_FERTILIZER)
+    {
+        PlantFertilized(aPlant);
+    }
+    else if ((aNeed == PLANTNEED_BUGSPRAY && theToolType == GRIDITEM_STATE_ZEN_TOOL_BUG_SPRAY) ||
+        (aNeed == PLANTNEED_PHONOGRAPH && theToolType == GRIDITEM_STATE_ZEN_TOOL_PHONOGRAPH))
+    {
+        PlantFulfillNeed(aPlant);
+    }
 
-  // Every other tool works on the one square clicked.
-  Plant *aPlant = mBoard->GetTopPlantAt(aGridX, aGridY, TOPPLANT_ZEN_TOOL_ORDER);
-  if ( aPlant == nullptr )
-    return;
+    // Fertilizing for the first time is what ends the zen-garden tutorial.
+    if (mBoard->mTutorialState != TUTORIAL_ZEN_GARDEN_FERTILIZE_PLANTS ||
+        theToolType != GRIDITEM_STATE_ZEN_TOOL_FERTILIZER)
+        return;
 
-  PottedPlant *aPotted = PottedPlantFromIndex(aPlant->mPottedPlantIndex);
-  PottedPlantNeed aNeed = GetPlantsNeed(aPotted);
-  if ( aNeed == PLANTNEED_WATER && aIsWateringCan )
-  {
-    PlantWatered(aPlant);
-  }
-  else if ( aNeed == PLANTNEED_FERTILIZER && theToolType == GRIDITEM_STATE_ZEN_TOOL_FERTILIZER )
-  {
-    PlantFertilized(aPlant);
-  }
-  else if ( (aNeed == PLANTNEED_BUGSPRAY && theToolType == GRIDITEM_STATE_ZEN_TOOL_BUG_SPRAY)
-    || (aNeed == PLANTNEED_PHONOGRAPH && theToolType == GRIDITEM_STATE_ZEN_TOOL_PHONOGRAPH) )
-  {
-    PlantFulfillNeed(aPlant);
-  }
-
-  // Fertilizing for the first time is what ends the zen-garden tutorial.
-  if ( mBoard->mTutorialState != TUTORIAL_ZEN_GARDEN_FERTILIZE_PLANTS
-    || theToolType != GRIDITEM_STATE_ZEN_TOOL_FERTILIZER )
-    return;
-
-  if ( AllPlantsHaveBeenFertilized() )
-  {
-    mBoard->mTutorialState = TUTORIAL_ZEN_GARDEN_COMPLETED;
-    Sexy::String aText;
-    TodStringTranslate(&aText, "[ADVICE_ZEN_GARDEN_CONTINUE_ADVENTURE]");
-    mBoard->DisplayAdvice(aText, MESSAGE_STYLE_HINT_TALL_FAST, AdviceType(-1));
-  }
-  else if ( mApp->mPlayerInfo->mPurchases[14] == 1000 )
-  {
-    // Out of fertilizer, so send the player back to the shop for more.
-    mApp->mPlayerInfo->mPurchases[14] = 1005;
-    Sexy::String aText;
-    TodStringTranslate(&aText, "[ADVICE_ZEN_GARDEN_NEED_MORE_FERTILIZER]");
-    mBoard->DisplayAdvice(aText, MESSAGE_STYLE_HINT_TALL_FAST, AdviceType(-1));
-  }
+    if (AllPlantsHaveBeenFertilized())
+    {
+        mBoard->mTutorialState = TUTORIAL_ZEN_GARDEN_COMPLETED;
+        Sexy::String aText;
+        TodStringTranslate(&aText, "[ADVICE_ZEN_GARDEN_CONTINUE_ADVENTURE]");
+        mBoard->DisplayAdvice(aText, MESSAGE_STYLE_HINT_TALL_FAST, AdviceType(-1));
+    }
+    else if (mApp->mPlayerInfo->mPurchases[14] == 1000)
+    {
+        // Out of fertilizer, so send the player back to the shop for more.
+        mApp->mPlayerInfo->mPurchases[14] = 1005;
+        Sexy::String aText;
+        TodStringTranslate(&aText, "[ADVICE_ZEN_GARDEN_NEED_MORE_FERTILIZER]");
+        mBoard->DisplayAdvice(aText, MESSAGE_STYLE_HINT_TALL_FAST, AdviceType(-1));
+    }
 }
 // ==========================================================================
 // ZenGarden::ZenToolUpdate(GridItem *)
 // @0019FA34  90 bytes
 // ==========================================================================
-void ZenGarden::ZenToolUpdate(GridItem * theZenTool)
+void ZenGarden::ZenToolUpdate(GridItem *theZenTool)
 {
-  Reanimation *aReanim = mApp->ReanimationTryToGet(theZenTool->mGridItemReanimID);
-  if ( aReanim == nullptr )
-    return;
+    Reanimation *aReanim = mApp->ReanimationTryToGet(theZenTool->mGridItemReanimID);
+    if (aReanim == nullptr)
+        return;
 
-  // The tool is spent once its reanimation has played through enough times.
-  int aThreshold = (theZenTool->mGridItemState == GRIDITEM_STATE_ZEN_TOOL_PHONOGRAPH) ? 2 : 1;
-  if ( aThreshold > aReanim->mLoopCount )
-    return;
+    // The tool is spent once its reanimation has played through enough times.
+    int aThreshold = (theZenTool->mGridItemState == GRIDITEM_STATE_ZEN_TOOL_PHONOGRAPH) ? 2 : 1;
+    if (aThreshold > aReanim->mLoopCount)
+        return;
 
-  DoFeedingTool((int)theZenTool->mPosX, (int)theZenTool->mPosY, theZenTool->mGridItemState);
-  theZenTool->GridItemDie();
-  ZenGardenControls *aControls = dynamic_cast<ZenGardenControls *>(mBoard->mGamepadControls[0]);
-  if ( aControls != nullptr )
-    mBoard->PickUpTool(aControls->mSelectedTool, 0);
+    DoFeedingTool((int)theZenTool->mPosX, (int)theZenTool->mPosY, theZenTool->mGridItemState);
+    theZenTool->GridItemDie();
+    ZenGardenControls *aControls = dynamic_cast<ZenGardenControls *>(mBoard->mGamepadControls[0]);
+    if (aControls != nullptr)
+        mBoard->PickUpTool(aControls->mSelectedTool, 0);
 }
 // ==========================================================================
 // ZenGarden::MouseDownZenGarden(int,int,int,HitResult *)
 // @0019FA90  338 bytes
 // ==========================================================================
-int ZenGarden::MouseDownZenGarden(int x, int y, int theClickCount, HitResult * theHitResult)
+int ZenGarden::MouseDownZenGarden(int x, int y, int theClickCount, HitResult *theHitResult)
 {
-  Challenge *aChallenge = mBoard->mChallenge;
-  int aOldState = aChallenge->mChallengeState;
-  int aToolType = theHitResult->mObjectType;
-  aChallenge->mChallengeStateCounter = 3000;
-  if ( aOldState == STATECHALLENGE_ZEN_FADING )
-    aChallenge->mChallengeState = STATECHALLENGE_NORMAL;
+    Challenge *aChallenge = mBoard->mChallenge;
+    int aOldState = aChallenge->mChallengeState;
+    int aToolType = theHitResult->mObjectType;
+    aChallenge->mChallengeStateCounter = 3000;
+    if (aOldState == STATECHALLENGE_ZEN_FADING)
+        aChallenge->mChallengeState = STATECHALLENGE_NORMAL;
 
-  CursorType aCursorType = mBoard->mCursorObject[0]->mCursorType;
-  if ( aToolType == OBJECT_TYPE_STINKY && aCursorType == CURSOR_TYPE_NORMAL )
-  {
-    WakeStinky();
-  }
-  else if ( aCursorType == CURSOR_TYPE_GLOVE )
-  {
-    if ( mBoard->CanUseGameObject(OBJECT_TYPE_WHEELBARROW) != 0 )
+    CursorType aCursorType = mBoard->mCursorObject[0]->mCursorType;
+    if (aToolType == OBJECT_TYPE_STINKY && aCursorType == CURSOR_TYPE_NORMAL)
     {
-      Sexy::Rect aRect = mBoard->GetZenButtonRect(OBJECT_TYPE_WHEELBARROW);
-      PottedPlant *aPotted = GetPottedPlantInWheelbarrow();
-      if ( x >= aRect.mX && x < aRect.mX + aRect.mWidth
-        && y >= aRect.mY && y < aRect.mY + aRect.mHeight && aPotted != nullptr )
-      {
-        // The wheelbarrow's plant moves onto the cursor.
-        CursorObject *aCursor = mBoard->mCursorObject[0];
-        aCursor->mType = aPotted->mSeedType;
-        aCursor->mImitaterType = SEED_NONE;
-        aCursor->mCursorType = CURSOR_TYPE_PLANT_FROM_WHEEL_BARROW;
-        return 1;
-      }
+        WakeStinky();
     }
-  }
-  else if ( aCursorType == CURSOR_TYPE_PLANT_FROM_GLOVE )
-  {
-    if ( mBoard->CanUseGameObject(OBJECT_TYPE_WHEELBARROW) != 0 )
+    else if (aCursorType == CURSOR_TYPE_GLOVE)
     {
-      Sexy::Rect aRect = mBoard->GetZenButtonRect(OBJECT_TYPE_WHEELBARROW);
-      PlantID aPlantID = mBoard->mCursorObject[0]->mGlovePlantID;
-      Plant *aPlant = mBoard->mPlants.DataArrayTryToGet(aPlantID);
-      if ( aPlant != nullptr )
-      {
-        if ( x >= aRect.mX && x < aRect.mX + aRect.mWidth
-          && y >= aRect.mY && y < aRect.mY + aRect.mHeight
-          && GetPottedPlantInWheelbarrow() == nullptr )
+        if (mBoard->CanUseGameObject(OBJECT_TYPE_WHEELBARROW) != 0)
         {
-          MouseDownWithEmptyWheelBarrow(aPlant);
-          return 1;
+            Sexy::Rect aRect = mBoard->GetZenButtonRect(OBJECT_TYPE_WHEELBARROW);
+            PottedPlant *aPotted = GetPottedPlantInWheelbarrow();
+            if (x >= aRect.mX && x < aRect.mX + aRect.mWidth && y >= aRect.mY && y < aRect.mY + aRect.mHeight &&
+                aPotted != nullptr)
+            {
+                // The wheelbarrow's plant moves onto the cursor.
+                CursorObject *aCursor = mBoard->mCursorObject[0];
+                aCursor->mType = aPotted->mSeedType;
+                aCursor->mImitaterType = SEED_NONE;
+                aCursor->mCursorType = CURSOR_TYPE_PLANT_FROM_WHEEL_BARROW;
+                return 1;
+            }
         }
-      }
     }
-  }
-  else if ( aToolType == OBJECT_TYPE_NONE && aCursorType == CURSOR_TYPE_NORMAL
-    && mGardenType == GARDEN_AQUARIUM && theClickCount < 0 )
-  {
-    // Tapping the empty glass of the aquarium makes a sound.
-    mApp->PlaySample(SOUND_TAPGLASS, true);
-  }
+    else if (aCursorType == CURSOR_TYPE_PLANT_FROM_GLOVE)
+    {
+        if (mBoard->CanUseGameObject(OBJECT_TYPE_WHEELBARROW) != 0)
+        {
+            Sexy::Rect aRect = mBoard->GetZenButtonRect(OBJECT_TYPE_WHEELBARROW);
+            PlantID aPlantID = mBoard->mCursorObject[0]->mGlovePlantID;
+            Plant *aPlant = mBoard->mPlants.DataArrayTryToGet(aPlantID);
+            if (aPlant != nullptr)
+            {
+                if (x >= aRect.mX && x < aRect.mX + aRect.mWidth && y >= aRect.mY && y < aRect.mY + aRect.mHeight &&
+                    GetPottedPlantInWheelbarrow() == nullptr)
+                {
+                    MouseDownWithEmptyWheelBarrow(aPlant);
+                    return 1;
+                }
+            }
+        }
+    }
+    else if (aToolType == OBJECT_TYPE_NONE && aCursorType == CURSOR_TYPE_NORMAL && mGardenType == GARDEN_AQUARIUM &&
+        theClickCount < 0)
+    {
+        // Tapping the empty glass of the aquarium makes a sound.
+        mApp->PlaySample(SOUND_TAPGLASS, true);
+    }
 
-  if ( mApp->mCrazyDaveMessageIndex == -1 )
-    return 0;
-  AdvanceCrazyDaveDialog();
-  return 1;
+    if (mApp->mCrazyDaveMessageIndex == -1)
+        return 0;
+    AdvanceCrazyDaveDialog();
+    return 1;
 }
 // ==========================================================================
 // ZenGarden::IsStinkySleeping()
@@ -1770,10 +1763,10 @@ int ZenGarden::MouseDownZenGarden(int x, int y, int theClickCount, HitResult * t
 // ==========================================================================
 bool ZenGarden::IsStinkySleeping()
 {
-  GridItem *aStinky = GetStinky();
-  if ( aStinky == nullptr )
-    return false;
-  return aStinky->mGridItemState == GRIDITEM_STINKY_SLEEPING;
+    GridItem *aStinky = GetStinky();
+    if (aStinky == nullptr)
+        return false;
+    return aStinky->mGridItemState == GRIDITEM_STINKY_SLEEPING;
 }
 // ==========================================================================
 // ZenGarden::IsStinkyHighOnChocolate()
@@ -1781,24 +1774,24 @@ bool ZenGarden::IsStinkySleeping()
 // ==========================================================================
 bool ZenGarden::IsStinkyHighOnChocolate()
 {
-  return time(nullptr) - mApp->mPlayerInfo->mLastStinkyChocolateTime < 3600;
+    return time(nullptr) - mApp->mPlayerInfo->mLastStinkyChocolateTime < 3600;
 }
 // ==========================================================================
 // ZenGarden::StinkyAnimRateUpdate(GridItem *)
 // @0019FC28  92 bytes
 // ==========================================================================
-void ZenGarden::StinkyAnimRateUpdate(GridItem * theStinky)
+void ZenGarden::StinkyAnimRateUpdate(GridItem *theStinky)
 {
-  Reanimation *aReanim = mApp->ReanimationGet(theStinky->mGridItemReanimID);
-  bool aHigh = IsStinkyHighOnChocolate();
+    Reanimation *aReanim = mApp->ReanimationGet(theStinky->mGridItemReanimID);
+    bool aHigh = IsStinkyHighOnChocolate();
 
-  // Only the walking and turning states have their rate overridden.
-  if ( theStinky->mGridItemState != GRIDITEM_STINKY_WALKING_LEFT
-    && theStinky->mGridItemState != GRIDITEM_STINKY_WALKING_RIGHT
-    && (theStinky->mGridItemState & ~2) != GRIDITEM_STINKY_TURNING_LEFT )
-    return;
+    // Only the walking and turning states have their rate overridden.
+    if (theStinky->mGridItemState != GRIDITEM_STINKY_WALKING_LEFT &&
+        theStinky->mGridItemState != GRIDITEM_STINKY_WALKING_RIGHT &&
+        (theStinky->mGridItemState & ~2) != GRIDITEM_STINKY_TURNING_LEFT)
+        return;
 
-  aReanim->SetAnimRate(aHigh ? 12.0f : 6.0f);
+    aReanim->SetAnimRate(aHigh ? 12.0f : 6.0f);
 }
 // ==========================================================================
 // ZenGarden::ShouldStinkyBeAwake()
@@ -1806,11 +1799,11 @@ void ZenGarden::StinkyAnimRateUpdate(GridItem * theStinky)
 // ==========================================================================
 bool ZenGarden::ShouldStinkyBeAwake()
 {
-  if ( IsStinkyHighOnChocolate() )
-    return true;
-  // Otherwise he sleeps unless he was woken in the last three minutes. The
-  // "last woken" time is purchase slot 20, the same word WakeStinky stamps.
-  return time(nullptr) - mApp->mPlayerInfo->mPurchases[20] <= 180;
+    if (IsStinkyHighOnChocolate())
+        return true;
+    // Otherwise he sleeps unless he was woken in the last three minutes. The
+    // "last woken" time is purchase slot 20, the same word WakeStinky stamps.
+    return time(nullptr) - mApp->mPlayerInfo->mPurchases[20] <= 180;
 }
 // ==========================================================================
 // ZenGarden::PickRandomSeedType()
@@ -1818,16 +1811,16 @@ bool ZenGarden::ShouldStinkyBeAwake()
 // ==========================================================================
 SeedType ZenGarden::PickRandomSeedType()
 {
-  // Every seed type below marigold, which is the last of the growable ones.
-  SeedType aSeeds[NUM_SEED_TYPES];
-  int aCount = 0;
-  for (int aSeedIndex = 0; aSeedIndex != 40; ++aSeedIndex)
-  {
-    SeedType aSeed = (SeedType)aSeedIndex;
-    if (aSeed != SEED_MARIGOLD && aSeed != SEED_FLOWERPOT)
-      aSeeds[aCount++] = aSeed;
-  }
-  return TodPickFromArray(aSeeds, aCount);
+    // Every seed type below marigold, which is the last of the growable ones.
+    SeedType aSeeds[NUM_SEED_TYPES];
+    int aCount = 0;
+    for (int aSeedIndex = 0; aSeedIndex != 40; ++aSeedIndex)
+    {
+        SeedType aSeed = (SeedType)aSeedIndex;
+        if (aSeed != SEED_MARIGOLD && aSeed != SEED_FLOWERPOT)
+            aSeeds[aCount++] = aSeed;
+    }
+    return TodPickFromArray(aSeeds, aCount);
 }
 // ==========================================================================
 // ZenGarden::LeaveGarden()
@@ -1835,83 +1828,82 @@ SeedType ZenGarden::PickRandomSeedType()
 // ==========================================================================
 int ZenGarden::LeaveGarden()
 {
-  mShowShopButton = true;
+    mShowShopButton = true;
 
-  // The zen tools and Stinky are removed from the board.
-  GridItem *aGridItem = nullptr;
-  while ( mBoard->IterateGridItems(aGridItem) != 0 )
-  {
-    if ( aGridItem->mGridItemType == GRIDITEM_ZEN_TOOL )
+    // The zen tools and Stinky are removed from the board.
+    GridItem *aGridItem = nullptr;
+    while (mBoard->IterateGridItems(aGridItem) != 0)
     {
-      DoFeedingTool((int)aGridItem->mPosX, (int)aGridItem->mPosY, aGridItem->mGridItemState);
-      aGridItem->GridItemDie();
-      if ( aGridItem->mGridItemType != GRIDITEM_STINKY )
-        continue;
-    }
-    else if ( aGridItem->mGridItemType != GRIDITEM_STINKY )
-    {
-      continue;
+        if (aGridItem->mGridItemType == GRIDITEM_ZEN_TOOL)
+        {
+            DoFeedingTool((int)aGridItem->mPosX, (int)aGridItem->mPosY, aGridItem->mGridItemState);
+            aGridItem->GridItemDie();
+            if (aGridItem->mGridItemType != GRIDITEM_STINKY)
+                continue;
+        }
+        else if (aGridItem->mGridItemType != GRIDITEM_STINKY)
+        {
+            continue;
+        }
+
+        // Stinky's position is remembered so he comes back where he left off.
+        if (mApp->mPlayerInfo != nullptr)
+        {
+            mApp->mPlayerInfo->mStinkyPosX = (int)aGridItem->mPosX;
+            mApp->mPlayerInfo->mStinkyPosY = (int)aGridItem->mPosY;
+        }
+        aGridItem->GridItemDie();
     }
 
-    // Stinky's position is remembered so he comes back where he left off.
-    if ( mApp->mPlayerInfo != nullptr )
+    // Every coin still being collected is banked, and the rest are left alone.
+    Coin *aCoin = nullptr;
+    while (mBoard->IterateCoins(aCoin) != 0)
     {
-      mApp->mPlayerInfo->mStinkyPosX = (int)aGridItem->mPosX;
-      mApp->mPlayerInfo->mStinkyPosY = (int)aGridItem->mPosY;
+        while (aCoin->mIsBeingCollected)
+        {
+            aCoin->ScoreCoin();
+            if (mBoard->IterateCoins(aCoin) == 0)
+                return 0;
+        }
+        aCoin->Die();
     }
-    aGridItem->GridItemDie();
-  }
-
-  // Every coin still being collected is banked, and the rest are left alone.
-  Coin *aCoin = nullptr;
-  while ( mBoard->IterateCoins(aCoin) != 0 )
-  {
-    while ( aCoin->mIsBeingCollected )
-    {
-      aCoin->ScoreCoin();
-      if ( mBoard->IterateCoins(aCoin) == 0 )
-        return 0;
-    }
-    aCoin->Die();
-  }
-  return 0;
+    return 0;
 }
 // ==========================================================================
 // ZenGarden::ResetPlantTimers(PottedPlant *)
 // @0019FD9C  36 bytes
 // ==========================================================================
-void ZenGarden::ResetPlantTimers(PottedPlant * thePottedPlant)
+void ZenGarden::ResetPlantTimers(PottedPlant *thePottedPlant)
 {
-  thePottedPlant->mLastWateredTime = 0;
-  thePottedPlant->mLastNeedFulfilledTime = 0;
-  thePottedPlant->mLastFertilizedTime = 0;
-  thePottedPlant->mLastChocolateTime = 0;
+    thePottedPlant->mLastWateredTime = 0;
+    thePottedPlant->mLastNeedFulfilledTime = 0;
+    thePottedPlant->mLastFertilizedTime = 0;
+    thePottedPlant->mLastChocolateTime = 0;
 }
 
 // ==========================================================================
 // ZenGarden::PottedPlantUpdate(Plant *)
 // @0019FDC0  118 bytes
 // ==========================================================================
-void ZenGarden::PottedPlantUpdate(Plant * thePlant)
+void ZenGarden::PottedPlantUpdate(Plant *thePlant)
 {
-  // A clock that sits behind a stored timestamp means the save came from the
-  // future. Clearing the four times lets the plant ask for care again.
-  PottedPlant *aPottedPlant = PottedPlantFromIndex(thePlant->mPottedPlantIndex);
-  unsigned int aNow = (unsigned int)time(nullptr);
-  if ( (unsigned int)aPottedPlant->mLastWateredTime > aNow
-    || (unsigned int)aPottedPlant->mLastNeedFulfilledTime > aNow
-    || (unsigned int)aPottedPlant->mLastFertilizedTime > aNow
-    || (unsigned int)aPottedPlant->mLastChocolateTime > aNow )
-    ResetPlantTimers(aPottedPlant);
+    // A clock that sits behind a stored timestamp means the save came from the
+    // future. Clearing the four times lets the plant ask for care again.
+    PottedPlant *aPottedPlant = PottedPlantFromIndex(thePlant->mPottedPlantIndex);
+    unsigned int aNow = (unsigned int)time(nullptr);
+    if ((unsigned int)aPottedPlant->mLastWateredTime > aNow ||
+        (unsigned int)aPottedPlant->mLastNeedFulfilledTime > aNow ||
+        (unsigned int)aPottedPlant->mLastFertilizedTime > aNow || (unsigned int)aPottedPlant->mLastChocolateTime > aNow)
+        ResetPlantTimers(aPottedPlant);
 
-  if ( thePlant->mIsAsleep )
-    return;
+    if (thePlant->mIsAsleep)
+        return;
 
-  if ( thePlant->mStateCountdown > 0 )
-    thePlant->mStateCountdown--;
-  if ( aPottedPlant->mPlantAge == PLANTAGE_FULL && WasPlantNeedFulfilledToday(aPottedPlant) )
-    PlantUpdateProduction(thePlant);
-  UpdatePlantEffectState(thePlant);
+    if (thePlant->mStateCountdown > 0)
+        thePlant->mStateCountdown--;
+    if (aPottedPlant->mPlantAge == PLANTAGE_FULL && WasPlantNeedFulfilledToday(aPottedPlant))
+        PlantUpdateProduction(thePlant);
+    UpdatePlantEffectState(thePlant);
 }
 
 // ==========================================================================
@@ -1920,227 +1912,225 @@ void ZenGarden::PottedPlantUpdate(Plant * thePlant)
 // ==========================================================================
 void ZenGarden::ResetStinkyTimers()
 {
-  // Purchase 20 (STORE_ITEM_STINKY_THE_SNAIL) doubles as the "last woken"
-  // timestamp: the binary stores 2 here, which no clock reading can follow, so
-  // ShouldStinkyBeAwake is false until something writes a real time.
-  mApp->mPlayerInfo->mPurchases[20] = 2;
-  mApp->mPlayerInfo->mLastStinkyChocolateTime = 0;
+    // Purchase 20 (STORE_ITEM_STINKY_THE_SNAIL) doubles as the "last woken"
+    // timestamp: the binary stores 2 here, which no clock reading can follow, so
+    // ShouldStinkyBeAwake is false until something writes a real time.
+    mApp->mPlayerInfo->mPurchases[20] = 2;
+    mApp->mPlayerInfo->mLastStinkyChocolateTime = 0;
 }
 // ==========================================================================
 // ZenGarden::StinkyUpdate(GridItem *)
 // @0019FE4C  1386 bytes
 // ==========================================================================
-void ZenGarden::StinkyUpdate(GridItem * theStinky)
+void ZenGarden::StinkyUpdate(GridItem *theStinky)
 {
-  Reanimation *aReanim = mApp->ReanimationTryToGet(theStinky->mGridItemReanimID);
-  if ( aReanim == nullptr )
-    return;
-
-  // A clock that has gone backwards means the profile was edited, so his timers
-  // are reset rather than trusted.
-  time_t aNow = time(nullptr);
-  if ( aNow < mApp->mPlayerInfo->mLastStinkyChocolateTime
-    || aNow < mApp->mPlayerInfo->mPurchases[20] )
-    ResetStinkyTimers();
-
-  bool aHigh = IsStinkyHighOnChocolate();
-  UpdateStinkyMotionTrail(theStinky, aHigh);
-
-  switch ( theStinky->mGridItemState )
-  {
-    case GRIDITEM_STINKY_FALLING_ASLEEP:
-      // The sleep animation has finished.
-      if ( aReanim->mLoopCount > 0 )
-        StinkyFinishFallingAsleep(theStinky, 20);
-      return;
-
-    case GRIDITEM_STINKY_SLEEPING:
-    {
-      // The shell attachment is drawn in front of the pot when either player's
-      // cursor is the chocolate, i.e. while Stinky is being fed, and behind it
-      // otherwise.
-      Reanimation *aShell = FindReanimAttachment(aReanim->GetTrackInstanceByName("shell")->mAttachmentID);
-      if ( mBoard->mCursorObject[0]->mCursorType == CURSOR_TYPE_CHOCOLATE
-        || mBoard->mCursorObject[1]->mCursorType == CURSOR_TYPE_CHOCOLATE )
-        aShell->AssignRenderGroupToPrefix("z", -1);
-      else
-        aShell->AssignRenderGroupToPrefix("z", 0);
-
-      if ( ShouldStinkyBeAwake() )
-        StinkyWakeUp(theStinky);
-      return;
-    }
-
-    case GRIDITEM_STINKY_WAKING_UP:
-      // The wake animation has finished, so he starts walking.
-      if ( aReanim->mLoopCount > 0 )
-      {
-        theStinky->mGridItemState = GRIDITEM_STINKY_WALKING_LEFT;
-        aReanim->PlayReanim("anim_crawl", REANIM_LOOP, 10, 6.0);
-        StinkyPickGoal(theStinky);
-      }
-      return;
-
-    default:
-      break;
-  }
-
-  // Before sleeping, walk to the bottom and turn to face left.
-  if ( !ShouldStinkyBeAwake() )
-  {
-    if ( theStinky->mPosY < 461.0f )
-    {
-      if ( theStinky->mGoalY != 461.0f )
-        theStinky->mGoalY = 468.0f;
-      // Fall through to the walking code below, which moves him down.
-    }
-    else
-    {
-      // At the bottom: either turn around, or start falling asleep.
-      if ( theStinky->mGridItemState == GRIDITEM_STINKY_WALKING_LEFT )
-      {
-        int aCol = PixelToGridX((int)theStinky->mPosX, (int)theStinky->mPosY);
-        int aRow = PixelToGridY((int)theStinky->mPosX, (int)theStinky->mPosY);
-        if ( theStinky->mPosX <= (float)GridToPixelX(aCol, aRow) )
-        {
-          StinkyStartFallingAsleep(theStinky);
-          return;
-        }
-      }
-      else if ( theStinky->mGridItemState == GRIDITEM_STINKY_WALKING_RIGHT )
-      {
-        aReanim->PlayReanim("turn", REANIM_PLAY_ONCE_AND_HOLD, 10, 6.0f);
-        theStinky->mMotionTrailCount = 0;
-        float aGoalX = (float)(mBoard->GridToPixelX(theStinky->mGridX, theStinky->mGridY) + 30);
-        theStinky->mGoalY = theStinky->mPosY;
-        theStinky->mGoalX = aGoalX > theStinky->mPosX ? 30.0f : aGoalX;
-        theStinky->mGridItemState = GRIDITEM_STINKY_TURNING_LEFT;
+    Reanimation *aReanim = mApp->ReanimationTryToGet(theStinky->mGridItemReanimID);
+    if (aReanim == nullptr)
         return;
-      }
-    }
-  }
 
-  // The production counter runs down while he is out and about.
-  if ( theStinky->mGridItemCounter > 0 )
-    --theStinky->mGridItemCounter;
+    // A clock that has gone backwards means the profile was edited, so his timers
+    // are reset rather than trusted.
+    time_t aNow = time(nullptr);
+    if (aNow < mApp->mPlayerInfo->mLastStinkyChocolateTime || aNow < mApp->mPlayerInfo->mPurchases[20])
+        ResetStinkyTimers();
 
-  // Coins that have come within reach are collected as he walks over them.
-  Coin *aCoin = nullptr;
-  while ( mBoard->IterateCoins(aCoin) != 0 )
-  {
-    while ( !aCoin->mIsBeingCollected )
+    bool aHigh = IsStinkyHighOnChocolate();
+    UpdateStinkyMotionTrail(theStinky, aHigh);
+
+    switch (theStinky->mGridItemState)
     {
-      float aDx = theStinky->mPosX - aCoin->mPosX;
-      float aDy = (theStinky->mPosY - 30.0f) - aCoin->mPosY;
-      if ( sqrtf(aDx * aDx + aDy * aDy) >= 20.0f )
-        break;
-      aCoin->PlayCollectSound();
-      aCoin->Collect(0);
-      if ( mBoard->IterateCoins(aCoin) == 0 )
-        break;
-    }
-  }
+        case GRIDITEM_STINKY_FALLING_ASLEEP:
+            // The sleep animation has finished.
+            if (aReanim->mLoopCount > 0)
+                StinkyFinishFallingAsleep(theStinky, 20);
+            return;
 
-  // Walking states swap between the crawl and idle animations.
-  if ( theStinky->mGridItemState == GRIDITEM_STINKY_WALKING_LEFT
-    || theStinky->mGridItemState == GRIDITEM_STINKY_WALKING_RIGHT )
-  {
-    if ( mBoard->mCursorObject[0]->mCursorType != CURSOR_TYPE_CHOCOLATE || IsStinkyHighOnChocolate() )
+        case GRIDITEM_STINKY_SLEEPING:
+        {
+            // The shell attachment is drawn in front of the pot when either player's
+            // cursor is the chocolate, i.e. while Stinky is being fed, and behind it
+            // otherwise.
+            Reanimation *aShell = FindReanimAttachment(aReanim->GetTrackInstanceByName("shell")->mAttachmentID);
+            if (mBoard->mCursorObject[0]->mCursorType == CURSOR_TYPE_CHOCOLATE ||
+                mBoard->mCursorObject[1]->mCursorType == CURSOR_TYPE_CHOCOLATE)
+                aShell->AssignRenderGroupToPrefix("z", -1);
+            else
+                aShell->AssignRenderGroupToPrefix("z", 0);
+
+            if (ShouldStinkyBeAwake())
+                StinkyWakeUp(theStinky);
+            return;
+        }
+
+        case GRIDITEM_STINKY_WAKING_UP:
+            // The wake animation has finished, so he starts walking.
+            if (aReanim->mLoopCount > 0)
+            {
+                theStinky->mGridItemState = GRIDITEM_STINKY_WALKING_LEFT;
+                aReanim->PlayReanim("anim_crawl", REANIM_LOOP, 10, 6.0);
+                StinkyPickGoal(theStinky);
+            }
+            return;
+
+        default:
+            break;
+    }
+
+    // Before sleeping, walk to the bottom and turn to face left.
+    if (!ShouldStinkyBeAwake())
     {
-      if ( !aReanim->IsAnimPlaying("anim_crawl") )
+        if (theStinky->mPosY < 461.0f)
+        {
+            if (theStinky->mGoalY != 461.0f)
+                theStinky->mGoalY = 468.0f;
+            // Fall through to the walking code below, which moves him down.
+        }
+        else
+        {
+            // At the bottom: either turn around, or start falling asleep.
+            if (theStinky->mGridItemState == GRIDITEM_STINKY_WALKING_LEFT)
+            {
+                int aCol = PixelToGridX((int)theStinky->mPosX, (int)theStinky->mPosY);
+                int aRow = PixelToGridY((int)theStinky->mPosX, (int)theStinky->mPosY);
+                if (theStinky->mPosX <= (float)GridToPixelX(aCol, aRow))
+                {
+                    StinkyStartFallingAsleep(theStinky);
+                    return;
+                }
+            }
+            else if (theStinky->mGridItemState == GRIDITEM_STINKY_WALKING_RIGHT)
+            {
+                aReanim->PlayReanim("turn", REANIM_PLAY_ONCE_AND_HOLD, 10, 6.0f);
+                theStinky->mMotionTrailCount = 0;
+                float aGoalX = (float)(mBoard->GridToPixelX(theStinky->mGridX, theStinky->mGridY) + 30);
+                theStinky->mGoalY = theStinky->mPosY;
+                theStinky->mGoalX = aGoalX > theStinky->mPosX ? 30.0f : aGoalX;
+                theStinky->mGridItemState = GRIDITEM_STINKY_TURNING_LEFT;
+                return;
+            }
+        }
+    }
+
+    // The production counter runs down while he is out and about.
+    if (theStinky->mGridItemCounter > 0)
+        --theStinky->mGridItemCounter;
+
+    // Coins that have come within reach are collected as he walks over them.
+    Coin *aCoin = nullptr;
+    while (mBoard->IterateCoins(aCoin) != 0)
+    {
+        while (!aCoin->mIsBeingCollected)
+        {
+            float aDx = theStinky->mPosX - aCoin->mPosX;
+            float aDy = (theStinky->mPosY - 30.0f) - aCoin->mPosY;
+            if (sqrtf(aDx * aDx + aDy * aDy) >= 20.0f)
+                break;
+            aCoin->PlayCollectSound();
+            aCoin->Collect(0);
+            if (mBoard->IterateCoins(aCoin) == 0)
+                break;
+        }
+    }
+
+    // Walking states swap between the crawl and idle animations.
+    if (theStinky->mGridItemState == GRIDITEM_STINKY_WALKING_LEFT ||
+        theStinky->mGridItemState == GRIDITEM_STINKY_WALKING_RIGHT)
+    {
+        if (mBoard->mCursorObject[0]->mCursorType != CURSOR_TYPE_CHOCOLATE || IsStinkyHighOnChocolate())
+        {
+            if (!aReanim->IsAnimPlaying("anim_crawl"))
+                aReanim->PlayReanim("anim_crawl", REANIM_LOOP, 10, 6.0);
+        }
+        else if (!aReanim->IsAnimPlaying("anim_idle"))
+        {
+            aReanim->PlayReanim("anim_idle", REANIM_LOOP, 10, 6.0);
+        }
+    }
+
+    // The walk speed comes from the crawl animation's ground track. Chocolate
+    // makes him faster; selecting chocolate stops him until he is fed.
+    float aOldPosX = theStinky->mPosX;
+    float aOldGoalX = theStinky->mGoalX;
+    float aRemainingY = theStinky->mPosY - theStinky->mGoalY;
+    float aSpeed = aReanim->GetTrackVelocity("_ground") * 15.0f;
+    float aVerticalFactor;
+    if (aHigh)
+    {
+        if (aSpeed < 0.5f)
+            aSpeed = 0.5f;
+        aVerticalFactor = 1.0f;
+    }
+    else if (mBoard->mCursorObject[0]->mCursorType == CURSOR_TYPE_CHOCOLATE)
+    {
+        aSpeed = 0.0f;
+        aVerticalFactor = 0.0f;
+    }
+    else
+    {
+        aVerticalFactor = 0.5f;
+    }
+
+    // The vertical step is eased by how far he still has to go.
+    float aVerticalDistance = (float)std::abs((int)aRemainingY);
+    float aVerticalStep = TodAnimateCurveFloatTime(20.0f, 5.0f, aVerticalDistance, 1.0f, 0.2f, CURVE_LINEAR);
+
+    // Horizontal movement is clamped to the goal.
+    if (theStinky->mGridItemState == GRIDITEM_STINKY_WALKING_LEFT)
+    {
+        theStinky->mPosX = theStinky->mPosX - aSpeed;
+        if (theStinky->mPosX < aOldGoalX)
+            theStinky->mPosX = aOldGoalX;
+    }
+    else if (theStinky->mGridItemState == GRIDITEM_STINKY_WALKING_RIGHT)
+    {
+        theStinky->mPosX = aSpeed + theStinky->mPosX;
+        if (theStinky->mPosX > aOldGoalX)
+            theStinky->mPosX = aOldGoalX;
+    }
+
+    if (theStinky->mGridItemState == GRIDITEM_STINKY_WALKING_LEFT ||
+        theStinky->mGridItemState == GRIDITEM_STINKY_WALKING_RIGHT)
+    {
+        float aStep = aVerticalStep * aVerticalFactor;
+        if (aVerticalDistance >= aStep)
+            theStinky->mPosY += aRemainingY <= 0.0f ? aStep : -aStep;
+        else
+            theStinky->mPosY = theStinky->mGoalY;
+
+        float aHorizontalDistance = (float)std::abs((int)(aOldPosX - aOldGoalX));
+        if ((aHorizontalDistance < 5.0f && aVerticalDistance < 5.0f) || theStinky->mGridItemCounter == 0)
+            StinkyPickGoal(theStinky);
+    }
+
+    // Turning states become walking states once the turn animation is done.
+    if (theStinky->mGridItemState == GRIDITEM_STINKY_TURNING_LEFT)
+    {
+        if (aReanim->mLoopCount > 0)
+        {
+            theStinky->mGridItemState = GRIDITEM_STINKY_WALKING_LEFT;
+            aReanim->PlayReanim("anim_crawl", REANIM_LOOP, 10, 6.0);
+        }
+    }
+    else if (theStinky->mGridItemState == GRIDITEM_STINKY_TURNING_RIGHT && aReanim->mLoopCount > 0)
+    {
+        theStinky->mGridItemState = GRIDITEM_STINKY_WALKING_RIGHT;
         aReanim->PlayReanim("anim_crawl", REANIM_LOOP, 10, 6.0);
     }
-    else if ( !aReanim->IsAnimPlaying("anim_idle") )
+
+    StinkyAnimRateUpdate(theStinky);
+
+    if (theStinky->mGridItemState == GRIDITEM_STINKY_TURNING_LEFT ||
+        theStinky->mGridItemState == GRIDITEM_STINKY_WALKING_RIGHT)
     {
-      aReanim->PlayReanim("anim_idle", REANIM_LOOP, 10, 6.0);
+        aReanim->OverrideScale(-0.8f, 0.8f);
+        aReanim->SetPosition(theStinky->mPosX + 69.0f, theStinky->mPosY);
     }
-  }
-
-  // The walk speed comes from the crawl animation's ground track. Chocolate
-  // makes him faster; selecting chocolate stops him until he is fed.
-  float aOldPosX = theStinky->mPosX;
-  float aOldGoalX = theStinky->mGoalX;
-  float aRemainingY = theStinky->mPosY - theStinky->mGoalY;
-  float aSpeed = aReanim->GetTrackVelocity("_ground") * 15.0f;
-  float aVerticalFactor;
-  if ( aHigh )
-  {
-    if ( aSpeed < 0.5f )
-      aSpeed = 0.5f;
-    aVerticalFactor = 1.0f;
-  }
-  else if ( mBoard->mCursorObject[0]->mCursorType == CURSOR_TYPE_CHOCOLATE )
-  {
-    aSpeed = 0.0f;
-    aVerticalFactor = 0.0f;
-  }
-  else
-  {
-    aVerticalFactor = 0.5f;
-  }
-
-  // The vertical step is eased by how far he still has to go.
-  float aVerticalDistance = (float)std::abs((int)aRemainingY);
-  float aVerticalStep = TodAnimateCurveFloatTime(20.0f, 5.0f, aVerticalDistance, 1.0f, 0.2f, CURVE_LINEAR);
-
-  // Horizontal movement is clamped to the goal.
-  if ( theStinky->mGridItemState == GRIDITEM_STINKY_WALKING_LEFT )
-  {
-    theStinky->mPosX = theStinky->mPosX - aSpeed;
-    if ( theStinky->mPosX < aOldGoalX )
-      theStinky->mPosX = aOldGoalX;
-  }
-  else if ( theStinky->mGridItemState == GRIDITEM_STINKY_WALKING_RIGHT )
-  {
-    theStinky->mPosX = aSpeed + theStinky->mPosX;
-    if ( theStinky->mPosX > aOldGoalX )
-      theStinky->mPosX = aOldGoalX;
-  }
-
-  if ( theStinky->mGridItemState == GRIDITEM_STINKY_WALKING_LEFT
-    || theStinky->mGridItemState == GRIDITEM_STINKY_WALKING_RIGHT )
-  {
-    float aStep = aVerticalStep * aVerticalFactor;
-    if ( aVerticalDistance >= aStep )
-      theStinky->mPosY += aRemainingY <= 0.0f ? aStep : -aStep;
     else
-      theStinky->mPosY = theStinky->mGoalY;
-
-    float aHorizontalDistance = (float)std::abs((int)(aOldPosX - aOldGoalX));
-    if ( (aHorizontalDistance < 5.0f && aVerticalDistance < 5.0f)
-      || theStinky->mGridItemCounter == 0 )
-      StinkyPickGoal(theStinky);
-  }
-
-  // Turning states become walking states once the turn animation is done.
-  if ( theStinky->mGridItemState == GRIDITEM_STINKY_TURNING_LEFT )
-  {
-    if ( aReanim->mLoopCount > 0 )
     {
-      theStinky->mGridItemState = GRIDITEM_STINKY_WALKING_LEFT;
-      aReanim->PlayReanim("anim_crawl", REANIM_LOOP, 10, 6.0);
+        aReanim->OverrideScale(0.8f, 0.8f);
+        aReanim->SetPosition(theStinky->mPosX, theStinky->mPosY);
     }
-  }
-  else if ( theStinky->mGridItemState == GRIDITEM_STINKY_TURNING_RIGHT && aReanim->mLoopCount > 0 )
-  {
-    theStinky->mGridItemState = GRIDITEM_STINKY_WALKING_RIGHT;
-    aReanim->PlayReanim("anim_crawl", REANIM_LOOP, 10, 6.0);
-  }
-
-  StinkyAnimRateUpdate(theStinky);
-
-  if ( theStinky->mGridItemState == GRIDITEM_STINKY_TURNING_LEFT
-    || theStinky->mGridItemState == GRIDITEM_STINKY_WALKING_RIGHT )
-  {
-    aReanim->OverrideScale(-0.8f, 0.8f);
-    aReanim->SetPosition(theStinky->mPosX + 69.0f, theStinky->mPosY);
-  }
-  else
-  {
-    aReanim->OverrideScale(0.8f, 0.8f);
-    aReanim->SetPosition(theStinky->mPosX, theStinky->mPosY);
-  }
-  theStinky->mRenderOrder = Board::MakeRenderOrder(RENDER_LAYER_PLANT, 0, (int)(theStinky->mPosY - 30.0f));
+    theStinky->mRenderOrder = Board::MakeRenderOrder(RENDER_LAYER_PLANT, 0, (int)(theStinky->mPosY - 30.0f));
 }
 // ==========================================================================
 // ZenGarden::MakeStinkySleeping()
@@ -2148,23 +2138,22 @@ void ZenGarden::StinkyUpdate(GridItem * theStinky)
 // ==========================================================================
 int ZenGarden::MakeStinkySleeping()
 {
-  if ( !HasPurchasedStinky() )
-    return 0;
-  if ( !mApp->mPlayerInfo->GetFlag(PlayerFlags(0x2000)) )
-    return 0;
-  ResetStinkyTimers();
-  return 1;
+    if (!HasPurchasedStinky())
+        return 0;
+    if (!mApp->mPlayerInfo->GetFlag(PlayerFlags(0x2000)))
+        return 0;
+    ResetStinkyTimers();
+    return 1;
 }
 // ==========================================================================
 // ZenGarden::ZenPlantOffsetX(PottedPlant *)
 // @001A03EC  24 bytes
 // ==========================================================================
-float ZenGarden::ZenPlantOffsetX(PottedPlant * thePottedPlant)
+float ZenGarden::ZenPlantOffsetX(PottedPlant *thePottedPlant)
 {
-  if ( thePottedPlant->mFacing == PottedPlant::FACING_LEFT &&
-       thePottedPlant->mSeedType == SEED_POTATOMINE )
-    return -6.0f;
-  return 0.0f;
+    if (thePottedPlant->mFacing == PottedPlant::FACING_LEFT && thePottedPlant->mSeedType == SEED_POTATOMINE)
+        return -6.0f;
+    return 0.0f;
 }
 
 // ==========================================================================
@@ -2173,7 +2162,7 @@ float ZenGarden::ZenPlantOffsetX(PottedPlant * thePottedPlant)
 // ==========================================================================
 void ZenGarden::GameButtonDown(int theButton, int thePlayerIndex, unsigned int theFlags)
 {
-  ;
+    ;
 }
 
 // ==========================================================================
@@ -2182,8 +2171,8 @@ void ZenGarden::GameButtonDown(int theButton, int thePlayerIndex, unsigned int t
 // ==========================================================================
 int ZenGarden::RestoreGlove()
 {
-  mBoard->mCursorObject[0]->mType = SEED_NONE;
-  return mBoard->PickUpTool(OBJECT_TYPE_GLOVE, 0);
+    mBoard->mCursorObject[0]->mType = SEED_NONE;
+    return mBoard->PickUpTool(OBJECT_TYPE_GLOVE, 0);
 }
 // ==========================================================================
 // ZenGarden::CanFeedStinkyChocolate()
@@ -2191,9 +2180,8 @@ int ZenGarden::RestoreGlove()
 // ==========================================================================
 bool ZenGarden::CanFeedStinkyChocolate()
 {
-  return mBoard->mCursorObject[0]->mCursorType == CURSOR_TYPE_CHOCOLATE
-      && GetStinky() != nullptr
-      && !IsStinkyHighOnChocolate();
+    return mBoard->mCursorObject[0]->mCursorType == CURSOR_TYPE_CHOCOLATE && GetStinky() != nullptr &&
+        !IsStinkyHighOnChocolate();
 }
 // ==========================================================================
 // ZenGarden::CanFeedPlantChocolate()
@@ -2201,19 +2189,17 @@ bool ZenGarden::CanFeedStinkyChocolate()
 // ==========================================================================
 bool ZenGarden::CanFeedPlantChocolate()
 {
-  if ( mBoard->mCursorObject[0]->mCursorType != CURSOR_TYPE_CHOCOLATE )
-    return false;
+    if (mBoard->mCursorObject[0]->mCursorType != CURSOR_TYPE_CHOCOLATE)
+        return false;
 
-  // The plant under the gamepad cursor is the one that would be fed.
-  GamepadControls *aControls = mBoard->mGamepadControls[0];
-  int aGridX = mBoard->PixelToGridX((int)aControls->mGridCenterPositionX,
-                                    (int)aControls->mGridCenterPositionY);
-  int aGridY = mBoard->PixelToGridY((int)aControls->mGridCenterPositionX,
-                                    (int)aControls->mGridCenterPositionY);
-  Plant *aPlant = mBoard->GetTopPlantAt(aGridX, aGridY, TOPPLANT_ZEN_TOOL_ORDER);
-  if ( aPlant == nullptr )
-    return false;
-  return PlantCanHaveChocolate(aPlant);
+    // The plant under the gamepad cursor is the one that would be fed.
+    GamepadControls *aControls = mBoard->mGamepadControls[0];
+    int aGridX = mBoard->PixelToGridX((int)aControls->mGridCenterPositionX, (int)aControls->mGridCenterPositionY);
+    int aGridY = mBoard->PixelToGridY((int)aControls->mGridCenterPositionX, (int)aControls->mGridCenterPositionY);
+    Plant *aPlant = mBoard->GetTopPlantAt(aGridX, aGridY, TOPPLANT_ZEN_TOOL_ORDER);
+    if (aPlant == nullptr)
+        return false;
+    return PlantCanHaveChocolate(aPlant);
 }
 // ==========================================================================
 // ZenGarden::RebuildHelpbar(bool)
@@ -2221,79 +2207,103 @@ bool ZenGarden::CanFeedPlantChocolate()
 // ==========================================================================
 void ZenGarden::RebuildHelpbar(bool theFromDialog)
 {
-  if ( mBoard == nullptr )
-    return;
+    if (mBoard == nullptr)
+        return;
 
-  // The help bar is looked up from the app on first use and cached here.
-  if ( mHelpBar == nullptr )
-  {
-    mHelpBar = mApp->mHelpBarWidget;
-    mHelpBar->mDrawShade = false;
-  }
-
-  // theFromDialog true rebuilds from scratch; false only swaps the outgoing set out.
-  mHelpBar->ClearButtons(theFromDialog ? 0u : 2u);
-  if ( theFromDialog )
-  {
-    if ( mShowShopButton )
+    // The help bar is looked up from the app on first use and cached here.
+    if (mHelpBar == nullptr)
     {
-      Sexy::String aText;
-      TodStringTranslate(&aText, "[SHOP_BUTTON]");
-      mHelpBar->AddButton(GAMEPAD_BUTTON_X, aText, HelpBarWidget::HELP_ALIGN_NONE);
+        mHelpBar = mApp->mHelpBarWidget;
+        mHelpBar->mDrawShade = false;
     }
-    Sexy::String aText;
-    TodStringTranslate(&aText, "[BACK]");
-    mHelpBar->AddButton(GAMEPAD_BUTTON_B, aText, HelpBarWidget::HELP_ALIGN_NONE);
-  }
 
-  CursorType aCursorType = mBoard->mCursorObject[0]->mCursorType;
-  const char *aLabel = "";
-  switch ( aCursorType )
-  {
-    case CURSOR_TYPE_WATERING_CAN:  aLabel = "[WATER_PLANT]";      break;
-    case CURSOR_TYPE_FERTILIZER:    aLabel = "[FERTILIZE_PLANT]";  break;
-    case CURSOR_TYPE_BUG_SPRAY:     aLabel = "[SPRAY_PLANT]";      break;
-    case CURSOR_TYPE_PHONOGRAPH:    aLabel = "[PLAY_PHONOGRAPH]";  break;
-    case CURSOR_TYPE_CHOCOLATE:
-      if ( CanFeedPlantChocolate() )
-        aLabel = "[FEED_CHOCOLATE]";
-      break;
-    case CURSOR_TYPE_GLOVE:         aLabel = "[MOVE_PLANT]";       break;
-    case CURSOR_TYPE_MONEY_SIGN:    aLabel = "[SELL_PLANT]";       break;
-    case CURSOR_TYPE_WHEEELBARROW:  aLabel = "[TRANSPORT_PLANT]";  break;
-    case CURSOR_TYPE_TREE_FOOD:     aLabel = "[FEED_TREE]";        break;
-    case CURSOR_TYPE_MUSHROOM_GARDEN:       aLabel = "[GOTO_MUSHROOM]"; break;
-    case CURSOR_TYPE_AQUARIUM_GARDEN:       aLabel = "[GOTO_AQUARIUM]"; break;
-    case CURSOR_TYPE_ZENGARDEN:             aLabel = "[GOTO_ZEN]";      break;
-    case CURSOR_TYPE_TREE_OF_WISDOM_GARDEN: aLabel = "[GOTO_TREE]";     break;
-    default:
-      break;
-  }
+    // theFromDialog true rebuilds from scratch; false only swaps the outgoing set out.
+    mHelpBar->ClearButtons(theFromDialog ? 0u : 2u);
+    if (theFromDialog)
+    {
+        if (mShowShopButton)
+        {
+            Sexy::String aText;
+            TodStringTranslate(&aText, "[SHOP_BUTTON]");
+            mHelpBar->AddButton(GAMEPAD_BUTTON_X, aText, HelpBarWidget::HELP_ALIGN_NONE);
+        }
+        Sexy::String aText;
+        TodStringTranslate(&aText, "[BACK]");
+        mHelpBar->AddButton(GAMEPAD_BUTTON_B, aText, HelpBarWidget::HELP_ALIGN_NONE);
+    }
 
-  {
-    Sexy::String aText;
-    TodStringTranslate(&aText, aLabel);
-    // TV uses the button-count sentinel when there is no available action.
-    GamepadButton aButton = aText.empty() ? NUM_GAMEPAD_BUTTONS : GAMEPAD_BUTTON_A;
-    mHelpBar->AddButton(aButton, aText, HelpBarWidget::HELP_ALIGN_NONE);
-  }
+    CursorType aCursorType = mBoard->mCursorObject[0]->mCursorType;
+    const char *aLabel = "";
+    switch (aCursorType)
+    {
+        case CURSOR_TYPE_WATERING_CAN:
+            aLabel = "[WATER_PLANT]";
+            break;
+        case CURSOR_TYPE_FERTILIZER:
+            aLabel = "[FERTILIZE_PLANT]";
+            break;
+        case CURSOR_TYPE_BUG_SPRAY:
+            aLabel = "[SPRAY_PLANT]";
+            break;
+        case CURSOR_TYPE_PHONOGRAPH:
+            aLabel = "[PLAY_PHONOGRAPH]";
+            break;
+        case CURSOR_TYPE_CHOCOLATE:
+            if (CanFeedPlantChocolate())
+                aLabel = "[FEED_CHOCOLATE]";
+            break;
+        case CURSOR_TYPE_GLOVE:
+            aLabel = "[MOVE_PLANT]";
+            break;
+        case CURSOR_TYPE_MONEY_SIGN:
+            aLabel = "[SELL_PLANT]";
+            break;
+        case CURSOR_TYPE_WHEEELBARROW:
+            aLabel = "[TRANSPORT_PLANT]";
+            break;
+        case CURSOR_TYPE_TREE_FOOD:
+            aLabel = "[FEED_TREE]";
+            break;
+        case CURSOR_TYPE_MUSHROOM_GARDEN:
+            aLabel = "[GOTO_MUSHROOM]";
+            break;
+        case CURSOR_TYPE_AQUARIUM_GARDEN:
+            aLabel = "[GOTO_AQUARIUM]";
+            break;
+        case CURSOR_TYPE_ZENGARDEN:
+            aLabel = "[GOTO_ZEN]";
+            break;
+        case CURSOR_TYPE_TREE_OF_WISDOM_GARDEN:
+            aLabel = "[GOTO_TREE]";
+            break;
+        default:
+            break;
+    }
 
-  // The aquarium offers the glass tap, and the main garden offers chocolate for
-  // Stinky when he can take it.
-  if ( mGardenType == GARDEN_AQUARIUM )
-  {
-    Sexy::String aText;
-    TodStringTranslate(&aText, "[TAP_GLASS]");
-    mHelpBar->AddButton(GAMEPAD_BUTTON_Y, aText, HelpBarWidget::HELP_ALIGN_NONE);
-  }
-  else if ( mGardenType == GARDEN_MAIN && CanFeedStinkyChocolate() )
-  {
-    Sexy::String aText;
-    TodStringTranslate(&aText, "[FEED_STINKY]");
-    mHelpBar->AddButton(GAMEPAD_BUTTON_Y, aText, HelpBarWidget::HELP_ALIGN_NONE);
-  }
+    {
+        Sexy::String aText;
+        TodStringTranslate(&aText, aLabel);
+        // TV uses the button-count sentinel when there is no available action.
+        GamepadButton aButton = aText.empty() ? NUM_GAMEPAD_BUTTONS : GAMEPAD_BUTTON_A;
+        mHelpBar->AddButton(aButton, aText, HelpBarWidget::HELP_ALIGN_NONE);
+    }
 
-  mApp->ShowHelpBarWidget();
+    // The aquarium offers the glass tap, and the main garden offers chocolate for
+    // Stinky when he can take it.
+    if (mGardenType == GARDEN_AQUARIUM)
+    {
+        Sexy::String aText;
+        TodStringTranslate(&aText, "[TAP_GLASS]");
+        mHelpBar->AddButton(GAMEPAD_BUTTON_Y, aText, HelpBarWidget::HELP_ALIGN_NONE);
+    }
+    else if (mGardenType == GARDEN_MAIN && CanFeedStinkyChocolate())
+    {
+        Sexy::String aText;
+        TodStringTranslate(&aText, "[FEED_STINKY]");
+        mHelpBar->AddButton(GAMEPAD_BUTTON_Y, aText, HelpBarWidget::HELP_ALIGN_NONE);
+    }
+
+    mApp->ShowHelpBarWidget();
 }
 // ==========================================================================
 // ZenGarden::ZenGardenUpdate()
@@ -2301,66 +2311,65 @@ void ZenGarden::RebuildHelpbar(bool theFromDialog)
 // ==========================================================================
 void ZenGarden::ZenGardenUpdate()
 {
-  // While a modal dialog is up the garden does not tick.
-  if ( mApp->GetDialog(6) != nullptr )
-    return;
+    // While a modal dialog is up the garden does not tick.
+    if (mApp->GetDialog(6) != nullptr)
+        return;
 
-  mApp->UpdateCrazyDave();
+    mApp->UpdateCrazyDave();
 
-  Challenge *aChallenge = mBoard->mChallenge;
-  if ( mBoard->mCursorObject[0]->mCursorType != CURSOR_TYPE_NORMAL ||
-       mBoard->mCursorObject[1]->mCursorType != CURSOR_TYPE_NORMAL )
-  {
-    // A selected tool prevents the inactivity fade.
-    aChallenge->mChallengeState = STATECHALLENGE_NORMAL;
-    aChallenge->mChallengeStateCounter = 3000;
-  }
-  else if ( mBoard->mTutorialState == TUTORIAL_OFF )
-  {
-    if ( aChallenge->mChallengeStateCounter > 0 )
-      --aChallenge->mChallengeStateCounter;
-  }
-
-  UpdatePlantNeeds();
-
-  Plant *aPlant = nullptr;
-  while ( mBoard->IteratePlants(aPlant) != 0 )
-  {
-    if ( aPlant->mPottedPlantIndex != -1 )
-      PottedPlantUpdate(aPlant);
-  }
-
-  GridItem *aGridItem = nullptr;
-  while ( mBoard->IterateGridItems(aGridItem) != 0 )
-  {
-    if ( aGridItem->mGridItemType == GRIDITEM_ZEN_TOOL )
+    Challenge *aChallenge = mBoard->mChallenge;
+    if (mBoard->mCursorObject[0]->mCursorType != CURSOR_TYPE_NORMAL ||
+        mBoard->mCursorObject[1]->mCursorType != CURSOR_TYPE_NORMAL)
     {
-      ZenToolUpdate(aGridItem);
-      if ( aGridItem->mGridItemType != GRIDITEM_STINKY )
-        continue;
+        // A selected tool prevents the inactivity fade.
+        aChallenge->mChallengeState = STATECHALLENGE_NORMAL;
+        aChallenge->mChallengeStateCounter = 3000;
     }
-    else if ( aGridItem->mGridItemType != GRIDITEM_STINKY )
+    else if (mBoard->mTutorialState == TUTORIAL_OFF)
     {
-      continue;
+        if (aChallenge->mChallengeStateCounter > 0)
+            --aChallenge->mChallengeStateCounter;
     }
-    StinkyUpdate(aGridItem);
-  }
 
-  // Finish watering before sending the player to buy fertilizer.
-  if ( mBoard->mTutorialState == TUTORIAL_ZEN_GARDEN_KEEP_WATERING
-    && CountPlantsNeedingFertilizer() > 0 )
-  {
-    Sexy::String aText;
-    if ( mApp->HasGamepad() || (mApp->mGamePad1IsOn && mApp->mGamePad2IsOn) )
-      TodStringTranslate(&aText, "[ADVICE_ZEN_GARDEN_VISIT_STORE]");
-    else
-      TodStringTranslate(&aText, "[ADVICE_ZEN_GARDEN_VISIT_STORE_KEYBOARD_MODE]");
-    mBoard->DisplayAdvice(aText, MESSAGE_STYLE_HINT_TALL_LONG, AdviceType(-1));
+    UpdatePlantNeeds();
 
-    mBoard->mTutorialState = TUTORIAL_ZEN_GARDEN_VISIT_STORE;
-    mShowShopButton = true;
-    RebuildHelpbar(true);
-  }
+    Plant *aPlant = nullptr;
+    while (mBoard->IteratePlants(aPlant) != 0)
+    {
+        if (aPlant->mPottedPlantIndex != -1)
+            PottedPlantUpdate(aPlant);
+    }
+
+    GridItem *aGridItem = nullptr;
+    while (mBoard->IterateGridItems(aGridItem) != 0)
+    {
+        if (aGridItem->mGridItemType == GRIDITEM_ZEN_TOOL)
+        {
+            ZenToolUpdate(aGridItem);
+            if (aGridItem->mGridItemType != GRIDITEM_STINKY)
+                continue;
+        }
+        else if (aGridItem->mGridItemType != GRIDITEM_STINKY)
+        {
+            continue;
+        }
+        StinkyUpdate(aGridItem);
+    }
+
+    // Finish watering before sending the player to buy fertilizer.
+    if (mBoard->mTutorialState == TUTORIAL_ZEN_GARDEN_KEEP_WATERING && CountPlantsNeedingFertilizer() > 0)
+    {
+        Sexy::String aText;
+        if (mApp->HasGamepad() || (mApp->mGamePad1IsOn && mApp->mGamePad2IsOn))
+            TodStringTranslate(&aText, "[ADVICE_ZEN_GARDEN_VISIT_STORE]");
+        else
+            TodStringTranslate(&aText, "[ADVICE_ZEN_GARDEN_VISIT_STORE_KEYBOARD_MODE]");
+        mBoard->DisplayAdvice(aText, MESSAGE_STYLE_HINT_TALL_LONG, AdviceType(-1));
+
+        mBoard->mTutorialState = TUTORIAL_ZEN_GARDEN_VISIT_STORE;
+        mShowShopButton = true;
+        RebuildHelpbar(true);
+    }
 }
 // ==========================================================================
 // ZenGarden::SetupForZenTutorial()
@@ -2368,10 +2377,10 @@ void ZenGarden::ZenGardenUpdate()
 // ==========================================================================
 void ZenGarden::SetupForZenTutorial()
 {
-  mApp->CrazyDaveEnter();
-  mApp->CrazyDaveTalkIndex(2100);
-  mShowShopButton = false;
-  RebuildHelpbar(true);
+    mApp->CrazyDaveEnter();
+    mApp->CrazyDaveTalkIndex(2100);
+    mShowShopButton = false;
+    RebuildHelpbar(true);
 }
 // ==========================================================================
 // ZenGarden::ToolChanged(GameObjectType)
@@ -2379,89 +2388,90 @@ void ZenGarden::SetupForZenTutorial()
 // ==========================================================================
 void ZenGarden::ToolChanged(GameObjectType theObjectType)
 {
-  GameObjectType aOld = mSelectedTool;
-  mSelectedTool = theObjectType;
-  if ( aOld != theObjectType )
-    RebuildHelpbar(false);
+    GameObjectType aOld = mSelectedTool;
+    mSelectedTool = theObjectType;
+    if (aOld != theObjectType)
+        RebuildHelpbar(false);
 }
 // ==========================================================================
 // ZenGarden::MouseDownWithMoneySign(Plant *)
 // @001A0B1C  1026 bytes
 // ==========================================================================
-void ZenGarden::MouseDownWithMoneySign(Plant * thePlant)
+void ZenGarden::MouseDownWithMoneySign(Plant *thePlant)
 {
-  int aSellPrice = GetPlantSellPrice(thePlant);
+    int aSellPrice = GetPlantSellPrice(thePlant);
 
-  // Crazy Dave does the selling, so he walks on if he is not already there.
-  if ( mApp->mCrazyDaveState == CRAZY_DAVE_OFF )
-    mApp->CrazyDaveEnter();
+    // Crazy Dave does the selling, so he walks on if he is not already there.
+    if (mApp->mCrazyDaveState == CRAZY_DAVE_OFF)
+        mApp->CrazyDaveEnter();
 
-  PottedPlant *aPotted = PottedPlantFromIndex(thePlant->mPottedPlantIndex);
-  int aRow = thePlant->mRow;
-  int aPlantCol = thePlant->mPlantCol;
+    PottedPlant *aPotted = PottedPlantFromIndex(thePlant->mPottedPlantIndex);
+    int aRow = thePlant->mRow;
+    int aPlantCol = thePlant->mPlantCol;
 
-  // Dave's sell line, with the price and the plant's name substituted in.
-  Sexy::String aMessage = mApp->GetCrazyDaveText(1700);
+    // Dave's sell line, with the price and the plant's name substituted in.
+    Sexy::String aMessage = mApp->GetCrazyDaveText(1700);
 
-  Sexy::String aPrice = CommaSeperate(10 * aSellPrice);
-  TodReplaceString(&aMessage, &aMessage, "{SELL_PRICE}", &aPrice);
+    Sexy::String aPrice = CommaSeperate(10 * aSellPrice);
+    TodReplaceString(&aMessage, &aMessage, "{SELL_PRICE}", &aPrice);
 
-  Sexy::String aName;
-  if ( thePlant->mSeedType == SEED_SPROUT && aPotted->mSeedType == SEED_MARIGOLD )
-    TodStringTranslate(&aName, "[MARIGOLD_SPROUT]");
-  else
-    aName = Plant::GetNameString(thePlant->mSeedType, thePlant->mImitaterType);
-  TodReplaceString(&aMessage, &aMessage, "{PLANT_TYPE}", &aName);
+    Sexy::String aName;
+    if (thePlant->mSeedType == SEED_SPROUT && aPotted->mSeedType == SEED_MARIGOLD)
+        TodStringTranslate(&aName, "[MARIGOLD_SPROUT]");
+    else
+        aName = Plant::GetNameString(thePlant->mSeedType, thePlant->mImitaterType);
+    TodReplaceString(&aMessage, &aMessage, "{PLANT_TYPE}", &aName);
 
-  mApp->CrazyDaveTalkMessage(aMessage);
+    mApp->CrazyDaveTalkMessage(aMessage);
 
-  // Dave gesticulates while the sell dialog is up.
-  Reanimation *aReanim = mApp->ReanimationTryToGet(mApp->mCrazyDaveReanimID);
-  if ( aReanim == nullptr )
-    return;
-  aReanim->PlayReanim("anim_blahblah", REANIM_PLAY_ONCE_AND_HOLD, 20, 12.0);
+    // Dave gesticulates while the sell dialog is up.
+    Reanimation *aReanim = mApp->ReanimationTryToGet(mApp->mCrazyDaveReanimID);
+    if (aReanim == nullptr)
+        return;
+    aReanim->PlayReanim("anim_blahblah", REANIM_PLAY_ONCE_AND_HOLD, 20, 12.0);
 
-  Sexy::Dialog *aDialog = mApp->DoZenSellDialog();
-  aDialog->mX = 325;
-  aDialog->mY = 200;
-  aDialog->mMouseVisible = false;
-  mBoard->ShowCoinBank();
-  int aResult = aDialog->WaitForResult(true);
-  mApp->CrazyDaveLeave();
-  RebuildHelpbar(true);
+    Sexy::Dialog *aDialog = mApp->DoZenSellDialog();
+    aDialog->mX = 325;
+    aDialog->mY = 200;
+    aDialog->mMouseVisible = false;
+    mBoard->ShowCoinBank();
+    int aResult = aDialog->WaitForResult(true);
+    mApp->CrazyDaveLeave();
+    RebuildHelpbar(true);
 
-  // Only a "yes" sells the plant.
-  if ( aResult != 1000 )
-    return;
+    // Only a "yes" sells the plant.
+    if (aResult != 1000)
+        return;
 
-  Plant *aTopPlant = mBoard->GetTopPlantAt(aPlantCol, aRow, TOPPLANT_BUNGEE_ORDER);
-  if ( aTopPlant == nullptr )
-    return;
+    Plant *aTopPlant = mBoard->GetTopPlantAt(aPlantCol, aRow, TOPPLANT_BUNGEE_ORDER);
+    if (aTopPlant == nullptr)
+        return;
 
-  // The player is paid, the pot is dropped from the profile array, and every
-  // later pot's index is shifted down to close the gap.
-  mApp->mPlayerInfo->AddCoins(aSellPrice);
-  int aIndex = aTopPlant->mPottedPlantIndex;
-  mBoard->mCoinsCollected += aSellPrice;
+    // The player is paid, the pot is dropped from the profile array, and every
+    // later pot's index is shifted down to close the gap.
+    mApp->mPlayerInfo->AddCoins(aSellPrice);
+    int aIndex = aTopPlant->mPottedPlantIndex;
+    mBoard->mCoinsCollected += aSellPrice;
 
-  int aCount = mApp->mPlayerInfo->mNumPottedPlants;
-  if ( aCount - aIndex - 1 > 0 )
-  {
-    std::memmove(PottedPlantFromIndex(aIndex), PottedPlantFromIndex(aIndex + 1),
-                 sizeof(PottedPlant) * (aCount - aIndex - 1));
-
-    Plant *aPlant = nullptr;
-    while ( mBoard->IteratePlants(aPlant) != 0 )
+    int aCount = mApp->mPlayerInfo->mNumPottedPlants;
+    if (aCount - aIndex - 1 > 0)
     {
-      if ( aPlant->mPottedPlantIndex > aIndex )
-        --aPlant->mPottedPlantIndex;
-    }
-    aCount = mApp->mPlayerInfo->mNumPottedPlants;
-  }
-  mApp->mPlayerInfo->mNumPottedPlants = aCount - 1;
+        std::memmove(PottedPlantFromIndex(aIndex),
+            PottedPlantFromIndex(aIndex + 1),
+            sizeof(PottedPlant) * (aCount - aIndex - 1));
 
-  mApp->PlayFoley(FOLEY_USE_SHOVEL);
-  RemovePottedPlant(aTopPlant);
+        Plant *aPlant = nullptr;
+        while (mBoard->IteratePlants(aPlant) != 0)
+        {
+            if (aPlant->mPottedPlantIndex > aIndex)
+                --aPlant->mPottedPlantIndex;
+        }
+        aCount = mApp->mPlayerInfo->mNumPottedPlants;
+    }
+    mApp->mPlayerInfo->mNumPottedPlants = aCount - 1;
+
+    mApp->PlayFoley(FOLEY_USE_SHOVEL);
+    RemovePottedPlant(aTopPlant);
 }
 // ==========================================================================
 // ZenGarden::MouseDownWithFeedingTool(int,int,CursorType,int)
@@ -2470,183 +2480,180 @@ void ZenGarden::MouseDownWithMoneySign(Plant * thePlant)
 void ZenGarden::MouseDownWithFeedingTool(int x, int y, CursorType theCursorType, int thePlayerIndex)
 {
 #ifndef NDEBUG
-  Sexy::SetCrashPhase("ZenGarden.MouseDownWithFeedingTool");
+    Sexy::SetCrashPhase("ZenGarden.MouseDownWithFeedingTool");
 #endif
-  // The first plant on the board that is highlighted and holds a pot. aHasPlant
-  // is the flag the branches below test; aPlant is the pointer they use.
-  Plant *aPlant = nullptr;
-  bool aHasPlant = false;
-  Plant *aCandidate = nullptr;
-  while ( mBoard->IteratePlants(aCandidate) != 0 )
-  {
-    if ( !aCandidate->mHighlighted )
-      continue;
-    if ( aCandidate->mPottedPlantIndex == -1 )
-      continue;
-    aPlant = aCandidate;
-    aHasPlant = true;
-    break;
-  }
-
-  GridItem *aStinky = GetStinky();
-
-  // Chocolate on a plant: use one chocolate and feed it.
-  if ( theCursorType == CURSOR_TYPE_CHOCOLATE )
-  {
-    int aChocolate = mApp->mPlayerInfo->mPurchases[26];
-    if ( aChocolate > 1000 && aPlant != nullptr )
+    // The first plant on the board that is highlighted and holds a pot. aHasPlant
+    // is the flag the branches below test; aPlant is the pointer they use.
+    Plant *aPlant = nullptr;
+    bool aHasPlant = false;
+    Plant *aCandidate = nullptr;
+    while (mBoard->IteratePlants(aCandidate) != 0)
     {
-      mApp->mPlayerInfo->mPurchases[26] = aChocolate - 1;
-      FeedChocolateToPlant(aPlant);
-      mApp->PlayFoley(FOLEY_WAKEUP);
-      if ( mApp->mPlayerInfo->mPurchases[26] <= 1000 )
-      {
-        GamepadControls *aControls = mBoard->mGamepadControls[0];
-        aControls->OnButtonDown(GAMEPAD_BUTTON_TL, mApp->PlayerToGamepadIndex(thePlayerIndex), 0);
-      }
+        if (!aCandidate->mHighlighted)
+            continue;
+        if (aCandidate->mPottedPlantIndex == -1)
+            continue;
+        aPlant = aCandidate;
+        aHasPlant = true;
+        break;
     }
-  }
 
-  // Is the click on Stinky's own square?
-  bool aOnStinky = false;
-  if ( aStinky != nullptr )
-  {
-    int aStinkyCol = mBoard->PixelToGridX((int)aStinky->mPosX, (int)aStinky->mPosY);
-    int aStinkyRow = mBoard->PixelToGridY((int)aStinky->mPosX, (int)aStinky->mPosY);
-    if ( aStinky->mHighlighted
-      && aStinkyCol == mBoard->PixelToGridX(x, y)
-      && aStinkyRow == mBoard->PixelToGridY(x, y) )
-      aOnStinky = true;
-  }
+    GridItem *aStinky = GetStinky();
 
-  // Chocolate on Stinky himself: wake him and use one chocolate.
-  if ( aOnStinky && theCursorType == CURSOR_TYPE_CHOCOLATE &&
-       mApp->mPlayerInfo->mPurchases[26] > 1000 )
-  {
-    WakeStinky();
-    mApp->AddTodParticle(aStinky->mPosX + 40.0f, aStinky->mPosY + 40.0f,
-                         aStinky->mRenderOrder + 1, PARTICLE_PRESENT_PICKUP);
-    mApp->mPlayerInfo->mLastStinkyChocolateTime = time(nullptr);
-    --mApp->mPlayerInfo->mPurchases[26];
-    if ( mApp->mPlayerInfo->mPurchases[26] <= 1000 )
+    // Chocolate on a plant: use one chocolate and feed it.
+    if (theCursorType == CURSOR_TYPE_CHOCOLATE)
     {
-      GamepadControls *aControls = mBoard->mGamepadControls[0];
-      aControls->OnButtonDown(GAMEPAD_BUTTON_TL, mApp->PlayerToGamepadIndex(thePlayerIndex), 0);
+        int aChocolate = mApp->mPlayerInfo->mPurchases[26];
+        if (aChocolate > 1000 && aPlant != nullptr)
+        {
+            mApp->mPlayerInfo->mPurchases[26] = aChocolate - 1;
+            FeedChocolateToPlant(aPlant);
+            mApp->PlayFoley(FOLEY_WAKEUP);
+            if (mApp->mPlayerInfo->mPurchases[26] <= 1000)
+            {
+                GamepadControls *aControls = mBoard->mGamepadControls[0];
+                aControls->OnButtonDown(GAMEPAD_BUTTON_TL, mApp->PlayerToGamepadIndex(thePlayerIndex), 0);
+            }
+        }
     }
-    if ( mApp->mPlayerInfo != nullptr )
-      mApp->mPlayerInfo->mGameStats.ChangeMiscStat(STAT_STINKY_CHOCOLATES, 1);
-    mApp->PlayFoley(FOLEY_WAKEUP);
-    mApp->PlaySample(SOUND_MINDCONTROLLED, true);
-    aOnStinky = false;
-  }
 
-  if ( !aHasPlant && !aOnStinky )
-    return;
-
-  GridItem *aTool = mBoard->mGridItems.DataArrayAlloc();
-  aTool->mGridItemType = GRIDITEM_ZEN_TOOL;
-
-  if ( aOnStinky && !aHasPlant )
-  {
-    // The tool lands on Stinky's square, in the middle of him.
-    aTool->mGridX = mBoard->PixelToGridX((int)aStinky->mPosX, (int)aStinky->mPosY);
-    aTool->mGridY = mBoard->PixelToGridY((int)aStinky->mPosX, (int)aStinky->mPosY);
-    aTool->mPosX = aStinky->mPosX + 40.0f;
-    aTool->mPosY = aStinky->mPosY + 40.0f;
-  }
-  else if ( aHasPlant )
-  {
-    // The tool lands on the plant's square.
-    aTool->mGridX = aPlant->mPlantCol;
-    aTool->mGridY = aPlant->mRow;
-    aTool->mPosX = (float)(aPlant->mX + 40);
-    aTool->mPosY = (float)(aPlant->mY + 40);
-  }
-  aTool->mRenderOrder = RENDER_LAYER_WAVE_MESSAGE;
-
-  // Each tool spawns its own reanimation and stamps its own state.
-  if ( theCursorType == CURSOR_TYPE_WATERING_CAN )
-  {
-    if ( mApp->mPlayerInfo->mPurchases[13] != 0 )
+    // Is the click on Stinky's own square?
+    bool aOnStinky = false;
+    if (aStinky != nullptr)
     {
-      // The gold can waters the whole area in one go.
-      aTool->mPosX = (float)x;
-      aTool->mPosY = (float)y;
-      Reanimation *aReanim = mApp->AddReanimation((float)x, (float)y, 0,
-                                                  REANIM_ZENGARDEN_WATERINGCAN);
-      aReanim->PlayReanim("anim_water_area", REANIM_PLAY_ONCE_AND_HOLD, 0, 8.0);
-      aTool->mGridItemReanimID = mApp->ReanimationGetID(aReanim);
-      aTool->mGridItemState = GRIDITEM_STATE_ZEN_TOOL_GOLD_WATERING_CAN;
+        int aStinkyCol = mBoard->PixelToGridX((int)aStinky->mPosX, (int)aStinky->mPosY);
+        int aStinkyRow = mBoard->PixelToGridY((int)aStinky->mPosX, (int)aStinky->mPosY);
+        if (aStinky->mHighlighted && aStinkyCol == mBoard->PixelToGridX(x, y) &&
+            aStinkyRow == mBoard->PixelToGridY(x, y))
+            aOnStinky = true;
     }
-    else
+
+    // Chocolate on Stinky himself: wake him and use one chocolate.
+    if (aOnStinky && theCursorType == CURSOR_TYPE_CHOCOLATE && mApp->mPlayerInfo->mPurchases[26] > 1000)
     {
-      int aPixelX = mBoard->GridToPixelX(aTool->mGridX, aTool->mGridY);
-      int aPixelY = mBoard->GridToPixelY(aTool->mGridX, aTool->mGridY);
-      Reanimation *aReanim = mApp->AddReanimation((float)(aPixelX + 32), (float)aPixelY, 0,
-                                                  REANIM_ZENGARDEN_WATERINGCAN);
-      aReanim->PlayReanim("anim_water", REANIM_PLAY_ONCE_AND_HOLD, 0, 0.0);
-      aTool->mGridItemReanimID = mApp->ReanimationGetID(aReanim);
-      aTool->mGridItemState = GRIDITEM_STATE_ZEN_TOOL_WATERING_CAN;
+        WakeStinky();
+        mApp->AddTodParticle(
+            aStinky->mPosX + 40.0f, aStinky->mPosY + 40.0f, aStinky->mRenderOrder + 1, PARTICLE_PRESENT_PICKUP);
+        mApp->mPlayerInfo->mLastStinkyChocolateTime = time(nullptr);
+        --mApp->mPlayerInfo->mPurchases[26];
+        if (mApp->mPlayerInfo->mPurchases[26] <= 1000)
+        {
+            GamepadControls *aControls = mBoard->mGamepadControls[0];
+            aControls->OnButtonDown(GAMEPAD_BUTTON_TL, mApp->PlayerToGamepadIndex(thePlayerIndex), 0);
+        }
+        if (mApp->mPlayerInfo != nullptr)
+            mApp->mPlayerInfo->mGameStats.ChangeMiscStat(STAT_STINKY_CHOCOLATES, 1);
+        mApp->PlayFoley(FOLEY_WAKEUP);
+        mApp->PlaySample(SOUND_MINDCONTROLLED, true);
+        aOnStinky = false;
     }
-    mApp->PlayFoley(FOLEY_WATERING);
-    mBoard->ClearCursor(thePlayerIndex);
-    return;
-  }
 
-  if ( theCursorType == CURSOR_TYPE_FERTILIZER && aHasPlant )
-  {
-    Reanimation *aReanim = mApp->AddReanimation((float)aPlant->mX, (float)aPlant->mY, 0,
-                                                REANIM_ZENGARDEN_FERTILIZER);
-    aReanim->mLoopType = REANIM_PLAY_ONCE_AND_HOLD;
-    aTool->mGridItemReanimID = mApp->ReanimationGetID(aReanim);
-    aTool->mGridItemState = GRIDITEM_STATE_ZEN_TOOL_FERTILIZER;
-    mApp->PlayFoley(FOLEY_FERTILIZER);
+    if (!aHasPlant && !aOnStinky)
+        return;
 
-    // One fertilizer is used up; at the last one the cursor is cleared for the
-    // player too.
-    int aLeft = mApp->mPlayerInfo->mPurchases[14] - 1;
-    mApp->mPlayerInfo->mPurchases[14] = aLeft;
-    if ( aLeft <= 1000 )
+    GridItem *aTool = mBoard->mGridItems.DataArrayAlloc();
+    aTool->mGridItemType = GRIDITEM_ZEN_TOOL;
+
+    if (aOnStinky && !aHasPlant)
     {
-      GamepadControls *aControls = mBoard->mGamepadControls[0];
-      aControls->OnButtonDown(GAMEPAD_BUTTON_TL, mApp->PlayerToGamepadIndex(thePlayerIndex), 0);
+        // The tool lands on Stinky's square, in the middle of him.
+        aTool->mGridX = mBoard->PixelToGridX((int)aStinky->mPosX, (int)aStinky->mPosY);
+        aTool->mGridY = mBoard->PixelToGridY((int)aStinky->mPosX, (int)aStinky->mPosY);
+        aTool->mPosX = aStinky->mPosX + 40.0f;
+        aTool->mPosY = aStinky->mPosY + 40.0f;
     }
-    mBoard->ClearCursor(thePlayerIndex);
-    return;
-  }
-
-  if ( theCursorType == CURSOR_TYPE_BUG_SPRAY && aHasPlant )
-  {
-    Reanimation *aReanim = mApp->AddReanimation((float)(aPlant->mX + 54), (float)aPlant->mY, 0,
-                                                REANIM_ZENGARDEN_BUGSPRAY);
-    aReanim->mLoopType = REANIM_PLAY_ONCE_AND_HOLD;
-    aTool->mGridItemReanimID = mApp->ReanimationGetID(aReanim);
-    aTool->mGridItemState = GRIDITEM_STATE_ZEN_TOOL_BUG_SPRAY;
-    mApp->PlayFoley(FOLEY_BUGSPRAY);
-
-    // One bug spray is used up.
-    int aLeft = mApp->mPlayerInfo->mPurchases[15] - 1;
-    mApp->mPlayerInfo->mPurchases[15] = aLeft;
-    mBoard->ClearCursor(thePlayerIndex);
-    if ( aLeft <= 1000 )
+    else if (aHasPlant)
     {
-      GamepadControls *aControls = mBoard->mGamepadControls[0];
-      aControls->OnButtonDown(GAMEPAD_BUTTON_TL, mApp->PlayerToGamepadIndex(thePlayerIndex), 0);
+        // The tool lands on the plant's square.
+        aTool->mGridX = aPlant->mPlantCol;
+        aTool->mGridY = aPlant->mRow;
+        aTool->mPosX = (float)(aPlant->mX + 40);
+        aTool->mPosY = (float)(aPlant->mY + 40);
     }
-    return;
-  }
+    aTool->mRenderOrder = RENDER_LAYER_WAVE_MESSAGE;
 
-  if ( theCursorType == CURSOR_TYPE_PHONOGRAPH && aHasPlant )
-  {
-    Reanimation *aReanim = mApp->AddReanimation((float)(aPlant->mX + 20), (float)(aPlant->mY + 34), 0,
-                                                REANIM_ZENGARDEN_PHONOGRAPH);
-    aReanim->SetAnimRate(20.0f);
-    aReanim->mLoopType = REANIM_LOOP;
-    aTool->mGridItemReanimID = mApp->ReanimationGetID(aReanim);
-    aTool->mGridItemState = GRIDITEM_STATE_ZEN_TOOL_PHONOGRAPH;
-    mApp->PlayFoley(FOLEY_PHONOGRAPH);
-    mBoard->ClearCursor(thePlayerIndex);
-  }
+    // Each tool spawns its own reanimation and stamps its own state.
+    if (theCursorType == CURSOR_TYPE_WATERING_CAN)
+    {
+        if (mApp->mPlayerInfo->mPurchases[13] != 0)
+        {
+            // The gold can waters the whole area in one go.
+            aTool->mPosX = (float)x;
+            aTool->mPosY = (float)y;
+            Reanimation *aReanim = mApp->AddReanimation((float)x, (float)y, 0, REANIM_ZENGARDEN_WATERINGCAN);
+            aReanim->PlayReanim("anim_water_area", REANIM_PLAY_ONCE_AND_HOLD, 0, 8.0);
+            aTool->mGridItemReanimID = mApp->ReanimationGetID(aReanim);
+            aTool->mGridItemState = GRIDITEM_STATE_ZEN_TOOL_GOLD_WATERING_CAN;
+        }
+        else
+        {
+            int aPixelX = mBoard->GridToPixelX(aTool->mGridX, aTool->mGridY);
+            int aPixelY = mBoard->GridToPixelY(aTool->mGridX, aTool->mGridY);
+            Reanimation *aReanim =
+                mApp->AddReanimation((float)(aPixelX + 32), (float)aPixelY, 0, REANIM_ZENGARDEN_WATERINGCAN);
+            aReanim->PlayReanim("anim_water", REANIM_PLAY_ONCE_AND_HOLD, 0, 0.0);
+            aTool->mGridItemReanimID = mApp->ReanimationGetID(aReanim);
+            aTool->mGridItemState = GRIDITEM_STATE_ZEN_TOOL_WATERING_CAN;
+        }
+        mApp->PlayFoley(FOLEY_WATERING);
+        mBoard->ClearCursor(thePlayerIndex);
+        return;
+    }
+
+    if (theCursorType == CURSOR_TYPE_FERTILIZER && aHasPlant)
+    {
+        Reanimation *aReanim =
+            mApp->AddReanimation((float)aPlant->mX, (float)aPlant->mY, 0, REANIM_ZENGARDEN_FERTILIZER);
+        aReanim->mLoopType = REANIM_PLAY_ONCE_AND_HOLD;
+        aTool->mGridItemReanimID = mApp->ReanimationGetID(aReanim);
+        aTool->mGridItemState = GRIDITEM_STATE_ZEN_TOOL_FERTILIZER;
+        mApp->PlayFoley(FOLEY_FERTILIZER);
+
+        // One fertilizer is used up; at the last one the cursor is cleared for the
+        // player too.
+        int aLeft = mApp->mPlayerInfo->mPurchases[14] - 1;
+        mApp->mPlayerInfo->mPurchases[14] = aLeft;
+        if (aLeft <= 1000)
+        {
+            GamepadControls *aControls = mBoard->mGamepadControls[0];
+            aControls->OnButtonDown(GAMEPAD_BUTTON_TL, mApp->PlayerToGamepadIndex(thePlayerIndex), 0);
+        }
+        mBoard->ClearCursor(thePlayerIndex);
+        return;
+    }
+
+    if (theCursorType == CURSOR_TYPE_BUG_SPRAY && aHasPlant)
+    {
+        Reanimation *aReanim =
+            mApp->AddReanimation((float)(aPlant->mX + 54), (float)aPlant->mY, 0, REANIM_ZENGARDEN_BUGSPRAY);
+        aReanim->mLoopType = REANIM_PLAY_ONCE_AND_HOLD;
+        aTool->mGridItemReanimID = mApp->ReanimationGetID(aReanim);
+        aTool->mGridItemState = GRIDITEM_STATE_ZEN_TOOL_BUG_SPRAY;
+        mApp->PlayFoley(FOLEY_BUGSPRAY);
+
+        // One bug spray is used up.
+        int aLeft = mApp->mPlayerInfo->mPurchases[15] - 1;
+        mApp->mPlayerInfo->mPurchases[15] = aLeft;
+        mBoard->ClearCursor(thePlayerIndex);
+        if (aLeft <= 1000)
+        {
+            GamepadControls *aControls = mBoard->mGamepadControls[0];
+            aControls->OnButtonDown(GAMEPAD_BUTTON_TL, mApp->PlayerToGamepadIndex(thePlayerIndex), 0);
+        }
+        return;
+    }
+
+    if (theCursorType == CURSOR_TYPE_PHONOGRAPH && aHasPlant)
+    {
+        Reanimation *aReanim =
+            mApp->AddReanimation((float)(aPlant->mX + 20), (float)(aPlant->mY + 34), 0, REANIM_ZENGARDEN_PHONOGRAPH);
+        aReanim->SetAnimRate(20.0f);
+        aReanim->mLoopType = REANIM_LOOP;
+        aTool->mGridItemReanimID = mApp->ReanimationGetID(aReanim);
+        aTool->mGridItemState = GRIDITEM_STATE_ZEN_TOOL_PHONOGRAPH;
+        mApp->PlayFoley(FOLEY_PHONOGRAPH);
+        mBoard->ClearCursor(thePlayerIndex);
+    }
 }
 // ==========================================================================
 // ZenGarden::MouseDownWithTool(int,int,CursorType,int)
@@ -2654,50 +2661,50 @@ void ZenGarden::MouseDownWithFeedingTool(int x, int y, CursorType theCursorType,
 // ==========================================================================
 void ZenGarden::MouseDownWithTool(int x, int y, CursorType theCursorType, int thePlayerIndex)
 {
-  // The wheelbarrow puts its plant down when it is carrying one.
-  if ( theCursorType == CURSOR_TYPE_WHEEELBARROW )
-  {
-    if ( GetPottedPlantInWheelbarrow() != nullptr )
+    // The wheelbarrow puts its plant down when it is carrying one.
+    if (theCursorType == CURSOR_TYPE_WHEEELBARROW)
     {
-      MouseDownWithFullWheelBarrow(x, y);
-      return;
+        if (GetPottedPlantInWheelbarrow() != nullptr)
+        {
+            MouseDownWithFullWheelBarrow(x, y);
+            return;
+        }
     }
-  }
-  else if ( (unsigned int)(theCursorType - CURSOR_TYPE_WATERING_CAN) <= 4 )
-  {
-    // The five zen tools all go through the feeding-tool path.
-    MouseDownWithFeedingTool(x, y, theCursorType, thePlayerIndex);
-    return;
-  }
-
-  Plant *aPlant = mBoard->ToolHitTest(x, y);
-  if ( aPlant == nullptr || aPlant->mPottedPlantIndex == -1 )
-  {
-    mApp->PlayFoley(FOLEY_DROP);
-    return;
-  }
-
-  switch ( theCursorType )
-  {
-    case CURSOR_TYPE_MONEY_SIGN:
-      MouseDownWithMoneySign(aPlant);
-      break;
-    case CURSOR_TYPE_WHEEELBARROW:
-      MouseDownWithEmptyWheelBarrow(aPlant);
-      break;
-    case CURSOR_TYPE_GLOVE:
+    else if ((unsigned int)(theCursorType - CURSOR_TYPE_WATERING_CAN) <= 4)
     {
-      CursorObject *aCursor = mBoard->mCursorObject[thePlayerIndex];
-      aCursor->mType = aPlant->mSeedType;
-      aCursor->mImitaterType = aPlant->mImitaterType;
-      aCursor->mGlovePlantID = PlantID(mBoard->mPlants.DataArrayGetID(aPlant));
-      aCursor->mCursorType = CURSOR_TYPE_PLANT_FROM_GLOVE;
-      mApp->PlaySample(SOUND_TAP, true);
-      break;
+        // The five zen tools all go through the feeding-tool path.
+        MouseDownWithFeedingTool(x, y, theCursorType, thePlayerIndex);
+        return;
     }
-    default:
-      break;
-  }
+
+    Plant *aPlant = mBoard->ToolHitTest(x, y);
+    if (aPlant == nullptr || aPlant->mPottedPlantIndex == -1)
+    {
+        mApp->PlayFoley(FOLEY_DROP);
+        return;
+    }
+
+    switch (theCursorType)
+    {
+        case CURSOR_TYPE_MONEY_SIGN:
+            MouseDownWithMoneySign(aPlant);
+            break;
+        case CURSOR_TYPE_WHEEELBARROW:
+            MouseDownWithEmptyWheelBarrow(aPlant);
+            break;
+        case CURSOR_TYPE_GLOVE:
+        {
+            CursorObject *aCursor = mBoard->mCursorObject[thePlayerIndex];
+            aCursor->mType = aPlant->mSeedType;
+            aCursor->mImitaterType = aPlant->mImitaterType;
+            aCursor->mGlovePlantID = PlantID(mBoard->mPlants.DataArrayGetID(aPlant));
+            aCursor->mCursorType = CURSOR_TYPE_PLANT_FROM_GLOVE;
+            mApp->PlaySample(SOUND_TAP, true);
+            break;
+        }
+        default:
+            break;
+    }
 }
 // ==========================================================================
 // ZenGarden::AddStinky()
@@ -2705,55 +2712,54 @@ void ZenGarden::MouseDownWithTool(int x, int y, CursorType theCursorType, int th
 // ==========================================================================
 void ZenGarden::AddStinky()
 {
-  if ( !HasPurchasedStinky() || mGardenType != GARDEN_MAIN )
-    return;
+    if (!HasPurchasedStinky() || mGardenType != GARDEN_MAIN)
+        return;
 
-  // The first time Stinky is added he is stamped awake, so the player sees him
-  // move rather than finding him asleep.
-  if ( !mApp->mPlayerInfo->GetFlag(PlayerFlags(0x2000)) )
-  {
-    mApp->mPlayerInfo->SetFlag(0x2000, 1);
-    mApp->mPlayerInfo->mPurchases[20] = time(nullptr);
-  }
+    // The first time Stinky is added he is stamped awake, so the player sees him
+    // move rather than finding him asleep.
+    if (!mApp->mPlayerInfo->GetFlag(PlayerFlags(0x2000)))
+    {
+        mApp->mPlayerInfo->SetFlag(0x2000, 1);
+        mApp->mPlayerInfo->mPurchases[20] = time(nullptr);
+    }
 
-  GridItem *aStinky = mBoard->mGridItems.DataArrayAlloc();
-  aStinky->mGridItemType = GRIDITEM_STINKY;
+    GridItem *aStinky = mBoard->mGridItems.DataArrayAlloc();
+    aStinky->mGridItemType = GRIDITEM_STINKY;
 
-  // He starts at the position the profile remembered.
-  float aPosX = (float)mApp->mPlayerInfo->mStinkyPosX;
-  float aPosY = (float)mApp->mPlayerInfo->mStinkyPosY;
-  aStinky->mPosX = aPosX;
-  aStinky->mGoalX = aPosX;
-  aStinky->mPosY = aPosY;
-  aStinky->mGoalY = aPosY;
+    // He starts at the position the profile remembered.
+    float aPosX = (float)mApp->mPlayerInfo->mStinkyPosX;
+    float aPosY = (float)mApp->mPlayerInfo->mStinkyPosY;
+    aStinky->mPosX = aPosX;
+    aStinky->mGoalX = aPosX;
+    aStinky->mPosY = aPosY;
+    aStinky->mGoalY = aPosY;
 
-  Reanimation *aReanim = mApp->AddReanimation(aPosX, aPosY, 0, REANIM_STINKY);
-  aReanim->OverrideScale(0.8f, 0.8f);
-  aStinky->mGridItemReanimID = mApp->ReanimationGetID(aReanim);
+    Reanimation *aReanim = mApp->AddReanimation(aPosX, aPosY, 0, REANIM_STINKY);
+    aReanim->OverrideScale(0.8f, 0.8f);
+    aStinky->mGridItemReanimID = mApp->ReanimationGetID(aReanim);
 
-  // A profile that has never placed him gets a fresh goal to walk to.
-  if ( mApp->mPlayerInfo->mStinkyPosX == 0 )
-  {
-    StinkyPickGoal(aStinky);
-    aStinky->mPosX = aStinky->mGoalX;
-    aStinky->mPosY = aStinky->mGoalY;
-  }
+    // A profile that has never placed him gets a fresh goal to walk to.
+    if (mApp->mPlayerInfo->mStinkyPosX == 0)
+    {
+        StinkyPickGoal(aStinky);
+        aStinky->mPosX = aStinky->mGoalX;
+        aStinky->mPosY = aStinky->mGoalY;
+    }
 
-  if ( ShouldStinkyBeAwake() )
-  {
-    aReanim->PlayReanim("anim_crawl", REANIM_LOOP, 0, 6.0);
-    aStinky->mGridItemState = GRIDITEM_STINKY_WALKING_LEFT;
-  }
-  else
-  {
-    // Asleep: he sits at the bottom of the tank.
-    aStinky->mPosY = 461.0f;
-    StinkyFinishFallingAsleep(aStinky, 0);
-  }
+    if (ShouldStinkyBeAwake())
+    {
+        aReanim->PlayReanim("anim_crawl", REANIM_LOOP, 0, 6.0);
+        aStinky->mGridItemState = GRIDITEM_STINKY_WALKING_LEFT;
+    }
+    else
+    {
+        // Asleep: he sits at the bottom of the tank.
+        aStinky->mPosY = 461.0f;
+        StinkyFinishFallingAsleep(aStinky, 0);
+    }
 
-  aStinky->mRenderOrder = Board::MakeRenderOrder(RENDER_LAYER_PLANT, 0,
-                                                 (int)(aStinky->mPosY - 30.0f));
-  aReanim->SetPosition(aStinky->mPosX, aStinky->mPosY);
+    aStinky->mRenderOrder = Board::MakeRenderOrder(RENDER_LAYER_PLANT, 0, (int)(aStinky->mPosY - 30.0f));
+    aReanim->SetPosition(aStinky->mPosX, aStinky->mPosY);
 }
 // ==========================================================================
 // ZenGarden::ZenGardenInitLevel(bool)
@@ -2761,35 +2767,35 @@ void ZenGarden::AddStinky()
 // ==========================================================================
 void ZenGarden::ZenGardenInitLevel(bool theJustSwitchingGardens)
 {
-  mBoard = mApp->mBoard;
-  RebuildHelpbar(true);
+    mBoard = mApp->mBoard;
+    RebuildHelpbar(true);
 
-  for ( GamepadControls *aControls : mBoard->mGamepadControls )
-  {
-    ZenGardenControls *aGardenControls = dynamic_cast<ZenGardenControls *>(aControls);
-    if ( aGardenControls != nullptr )
-      aGardenControls->mSelectedTool = OBJECT_TYPE_NONE;
-  }
+    for (GamepadControls *aControls : mBoard->mGamepadControls)
+    {
+        ZenGardenControls *aGardenControls = dynamic_cast<ZenGardenControls *>(aControls);
+        if (aGardenControls != nullptr)
+            aGardenControls->mSelectedTool = OBJECT_TYPE_NONE;
+    }
 
-  // Every pot that belongs to this garden is planted onto the board.
-  for ( int i = 0; i < mApp->mPlayerInfo->mNumPottedPlants; ++i )
-  {
-    if ( PottedPlantFromIndex(i)->mWhichZenGarden == mGardenType )
-      PlacePottedPlant(i);
-  }
+    // Every pot that belongs to this garden is planted onto the board.
+    for (int i = 0; i < mApp->mPlayerInfo->mNumPottedPlants; ++i)
+    {
+        if (PottedPlantFromIndex(i)->mWhichZenGarden == mGardenType)
+            PlacePottedPlant(i);
+    }
 
-  mBoard->mChallenge->mChallengeStateCounter = 3000;
-  AddStinky();
-  mApp->mMusic->StartGameMusic(false);
+    mBoard->mChallenge->mChallengeStateCounter = 3000;
+    AddStinky();
+    mApp->mMusic->StartGameMusic(false);
 
-  // Restore each cursor to its grid cell's center after switching gardens.
-  for ( int i = 0; i < 2; ++i )
-  {
-    GamepadControls *aControls = mBoard->mGamepadControls[i];
-    SnapToGridPosition aPosition = aControls->GetSnapToGridPos();
-    aControls->mCursorPositionX = aPosition.mX;
-    aControls->mCursorPositionY = aPosition.mY;
-  }
+    // Restore each cursor to its grid cell's center after switching gardens.
+    for (int i = 0; i < 2; ++i)
+    {
+        GamepadControls *aControls = mBoard->mGamepadControls[i];
+        SnapToGridPosition aPosition = aControls->GetSnapToGridPos();
+        aControls->mCursorPositionX = aPosition.mX;
+        aControls->mCursorPositionY = aPosition.mY;
+    }
 }
 // ==========================================================================
 // ZenGarden::OpenStore()
@@ -2797,46 +2803,46 @@ void ZenGarden::ZenGardenInitLevel(bool theJustSwitchingGardens)
 // ==========================================================================
 void ZenGarden::OpenStore()
 {
-  LeaveGarden();
-  StoreScreen *aStore = mApp->ShowStoreScreen();
+    LeaveGarden();
+    StoreScreen *aStore = mApp->ShowStoreScreen();
 
-  // Arriving from the fertilizer tutorial sends the player straight to the
-  // fertilizer page.
-  if ( mBoard->mTutorialState == TUTORIAL_ZEN_GARDEN_VISIT_STORE )
-  {
-    aStore->SetupForIntro(2600);
-    mApp->mPlayerInfo->mPurchases[14] = 1005;
-  }
-
-  aStore->mPage = STORE_PAGE_ZEN1;
-  aStore->SetupPage();
-  aStore->WaitForResult(false);
-  bool aGoToTreeNow = aStore->mGoToTreeNow;
-  mApp->KillStoreScreen();
-  mApp->mWidgetManager->AddWidget(mBoard);
-
-  if ( aGoToTreeNow )
-  {
-    mApp->KillBoard();
-    mApp->PreNewGame(GAMEMODE_TREE_OF_WISDOM, false);
-  }
-  else
-  {
-    mApp->mMusic->PlayMusic(MUSIC_TUNE_ZEN_GARDEN, 0, 0);
-
-    // The first visit to the shop after the tutorial shows the fertilize advice
-    // and moves the tutorial on.
-    Board *aBoard = mApp->mBoard;
-    if ( aBoard != nullptr && aBoard->mTutorialState == TUTORIAL_ZEN_GARDEN_VISIT_STORE )
+    // Arriving from the fertilizer tutorial sends the player straight to the
+    // fertilizer page.
+    if (mBoard->mTutorialState == TUTORIAL_ZEN_GARDEN_VISIT_STORE)
     {
-      Sexy::String aText;
-      TodStringTranslate(&aText, "[ADVICE_ZEN_GARDEN_FERTILIZE]");
-      aBoard->DisplayAdvice(aText, MESSAGE_STYLE_ZEN_GARDEN_LONG, AdviceType(-1));
-      aBoard->mTutorialState = TUTORIAL_ZEN_GARDEN_FERTILIZE_PLANTS;
+        aStore->SetupForIntro(2600);
+        mApp->mPlayerInfo->mPurchases[14] = 1005;
     }
-    AddStinky();
-    RebuildHelpbar(true);
-  }
+
+    aStore->mPage = STORE_PAGE_ZEN1;
+    aStore->SetupPage();
+    aStore->WaitForResult(false);
+    bool aGoToTreeNow = aStore->mGoToTreeNow;
+    mApp->KillStoreScreen();
+    mApp->mWidgetManager->AddWidget(mBoard);
+
+    if (aGoToTreeNow)
+    {
+        mApp->KillBoard();
+        mApp->PreNewGame(GAMEMODE_TREE_OF_WISDOM, false);
+    }
+    else
+    {
+        mApp->mMusic->PlayMusic(MUSIC_TUNE_ZEN_GARDEN, 0, 0);
+
+        // The first visit to the shop after the tutorial shows the fertilize advice
+        // and moves the tutorial on.
+        Board *aBoard = mApp->mBoard;
+        if (aBoard != nullptr && aBoard->mTutorialState == TUTORIAL_ZEN_GARDEN_VISIT_STORE)
+        {
+            Sexy::String aText;
+            TodStringTranslate(&aText, "[ADVICE_ZEN_GARDEN_FERTILIZE]");
+            aBoard->DisplayAdvice(aText, MESSAGE_STYLE_ZEN_GARDEN_LONG, AdviceType(-1));
+            aBoard->mTutorialState = TUTORIAL_ZEN_GARDEN_FERTILIZE_PLANTS;
+        }
+        AddStinky();
+        RebuildHelpbar(true);
+    }
 }
 // ==========================================================================
 // ZenGarden::~ZenGarden()
@@ -2844,114 +2850,113 @@ void ZenGarden::OpenStore()
 // ==========================================================================
 ZenGarden::~ZenGarden()
 {
-  for ( const Sexy::String &aGroup : mLoadedResources )
-    TodDeleteResources(aGroup);
+    for (const Sexy::String &aGroup : mLoadedResources)
+        TodDeleteResources(aGroup);
 }
 // ==========================================================================
 // ZenGarden::LoadResources(Sexy::String const&)
 // @001A1944  128 bytes
 // ==========================================================================
-int ZenGarden::LoadResources(Sexy::String const& theGroup)
+int ZenGarden::LoadResources(Sexy::String const &theGroup)
 {
-  if ( mLoadedResources.find(theGroup) != mLoadedResources.end() )
-    return 0;
+    if (mLoadedResources.find(theGroup) != mLoadedResources.end())
+        return 0;
 
-  int aResult = TodLoadResources(theGroup);
-  if ( aResult != 0 )
-    mLoadedResources.insert(theGroup);
-  return aResult;
+    int aResult = TodLoadResources(theGroup);
+    if (aResult != 0)
+        mLoadedResources.insert(theGroup);
+    return aResult;
 }
 
 // ==========================================================================
 // ZenGarden::DrawPottedPlant(Sexy::Graphics *,float,float,PottedPlant *,float,bool)
 // @001A19C4  466 bytes
 // ==========================================================================
-void ZenGarden::DrawPottedPlant(Sexy::Graphics * g, float x, float y,
-                                PottedPlant * thePottedPlant, float theScale, bool theDrawPot)
+void ZenGarden::DrawPottedPlant(
+    Sexy::Graphics *g, float x, float y, PottedPlant *thePottedPlant, float theScale, bool theDrawPot)
 {
-  // A throwaway Graphics with its own transform, so the pot can be drawn scaled
-  // without disturbing the caller's.
-  Sexy::Graphics aGraphics(*g);
-  aGraphics.mScaleX = theScale;
-  aGraphics.mScaleY = theScale;
+    // A throwaway Graphics with its own transform, so the pot can be drawn scaled
+    // without disturbing the caller's.
+    Sexy::Graphics aGraphics(*g);
+    aGraphics.mScaleX = theScale;
+    aGraphics.mScaleY = theScale;
 
-  SeedType aSeedType = thePottedPlant->mSeedType;
-  DrawVariation aVariation;
-  if ( thePottedPlant->mPlantAge != PLANTAGE_SPROUT )
-  {
-    // A grown plant normally draws with the variation stored in the pot. The two
-    // water plants use their aquarium variation instead when the pot is in the
-    // aquarium, and a sun-shroom always draws big.
-    if ( aSeedType == SEED_TANGLEKELP || aSeedType == SEED_SEASHROOM )
+    SeedType aSeedType = thePottedPlant->mSeedType;
+    DrawVariation aVariation;
+    if (thePottedPlant->mPlantAge != PLANTAGE_SPROUT)
     {
-      aVariation = (thePottedPlant->mWhichZenGarden == GARDEN_AQUARIUM)
-          ? VARIATION_AQUARIUM : DrawVariation(thePottedPlant->mDrawVariation);
-    }
-    else if ( aSeedType == SEED_SUNSHROOM )
-    {
-      aVariation = VARIATION_BIG_IDLE;
+        // A grown plant normally draws with the variation stored in the pot. The two
+        // water plants use their aquarium variation instead when the pot is in the
+        // aquarium, and a sun-shroom always draws big.
+        if (aSeedType == SEED_TANGLEKELP || aSeedType == SEED_SEASHROOM)
+        {
+            aVariation = (thePottedPlant->mWhichZenGarden == GARDEN_AQUARIUM)
+                ? VARIATION_AQUARIUM
+                : DrawVariation(thePottedPlant->mDrawVariation);
+        }
+        else if (aSeedType == SEED_SUNSHROOM)
+        {
+            aVariation = VARIATION_BIG_IDLE;
+        }
+        else
+        {
+            aVariation = DrawVariation(thePottedPlant->mDrawVariation);
+        }
     }
     else
     {
-      aVariation = DrawVariation(thePottedPlant->mDrawVariation);
+        // A sprout draws as a bare sprout, or as an empty pot for a marigold.
+        aVariation = (aSeedType == SEED_MARIGOLD) ? VARIATION_NORMAL : VARIATION_SPROUT_NO_FLOWER;
+        aSeedType = SEED_SPROUT;
     }
-  }
-  else
-  {
-    // A sprout draws as a bare sprout, or as an empty pot for a marigold.
-    aVariation = (aSeedType == SEED_MARIGOLD) ? VARIATION_NORMAL : VARIATION_SPROUT_NO_FLOWER;
-    aSeedType = SEED_SPROUT;
-  }
 
-  float aHeight = (float)PlantDrawHeightOffset(mBoard, nullptr, aSeedType, -1, -1);
-  if ( theDrawPot )
-  {
-    // The flower pot goes underneath first.
-    float aPotHeight = (float)PlantDrawHeightOffset(mBoard, nullptr, SEED_FLOWERPOT, -1, -1);
-    float aOffset = PlantPottedDrawHeightOffset(SEED_FLOWERPOT, theScale) + aPotHeight;
-    DrawVariation aPotVariation = Plant::IsAquatic(aSeedType) ? VARIATION_ZEN_GARDEN_WATER : VARIATION_ZEN_GARDEN;
-    Plant::DrawSeedType(&aGraphics, SEED_FLOWERPOT, SEED_NONE, aPotVariation,
-                        x, y + aOffset * theScale);
-  }
+    float aHeight = (float)PlantDrawHeightOffset(mBoard, nullptr, aSeedType, -1, -1);
+    if (theDrawPot)
+    {
+        // The flower pot goes underneath first.
+        float aPotHeight = (float)PlantDrawHeightOffset(mBoard, nullptr, SEED_FLOWERPOT, -1, -1);
+        float aOffset = PlantPottedDrawHeightOffset(SEED_FLOWERPOT, theScale) + aPotHeight;
+        DrawVariation aPotVariation = Plant::IsAquatic(aSeedType) ? VARIATION_ZEN_GARDEN_WATER : VARIATION_ZEN_GARDEN;
+        Plant::DrawSeedType(&aGraphics, SEED_FLOWERPOT, SEED_NONE, aPotVariation, x, y + aOffset * theScale);
+    }
 
-  // A pot facing left is drawn mirrored, and shifted right to compensate.
-  float aOffsetX = 0.0f;
-  if ( thePottedPlant->mFacing == FACING_LEFT )
-  {
-    aGraphics.mScaleX = -theScale;
-    aOffsetX = theScale * 80.0f;
-  }
+    // A pot facing left is drawn mirrored, and shifted right to compensate.
+    float aOffsetX = 0.0f;
+    if (thePottedPlant->mFacing == FACING_LEFT)
+    {
+        aGraphics.mScaleX = -theScale;
+        aOffsetX = theScale * 80.0f;
+    }
 
-  // Each growth stage draws a little taller and slightly offset.
-  if ( thePottedPlant->mPlantAge == PLANTAGE_SMALL )
-  {
-    aHeight = aHeight + aGraphics.mScaleY * 40.0f;
-    aOffsetX = aOffsetX + aGraphics.mScaleX * 20.0f;
-    aGraphics.mScaleX *= 0.5f;
-    aGraphics.mScaleY *= 0.5f;
-  }
-  else if ( thePottedPlant->mPlantAge == PLANTAGE_MEDIUM )
-  {
-    aHeight = aHeight + aGraphics.mScaleY * 20.0f;
-    aOffsetX = aOffsetX + aGraphics.mScaleX * 10.0f;
-    aGraphics.mScaleX *= 0.75f;
-    aGraphics.mScaleY *= 0.75f;
-  }
+    // Each growth stage draws a little taller and slightly offset.
+    if (thePottedPlant->mPlantAge == PLANTAGE_SMALL)
+    {
+        aHeight = aHeight + aGraphics.mScaleY * 40.0f;
+        aOffsetX = aOffsetX + aGraphics.mScaleX * 20.0f;
+        aGraphics.mScaleX *= 0.5f;
+        aGraphics.mScaleY *= 0.5f;
+    }
+    else if (thePottedPlant->mPlantAge == PLANTAGE_MEDIUM)
+    {
+        aHeight = aHeight + aGraphics.mScaleY * 20.0f;
+        aOffsetX = aOffsetX + aGraphics.mScaleX * 10.0f;
+        aGraphics.mScaleX *= 0.75f;
+        aGraphics.mScaleY *= 0.75f;
+    }
 
-  if ( theDrawPot )
-    aHeight = aHeight + (float)PlantFlowerPotHeightOffset(aSeedType, theScale);
+    if (theDrawPot)
+        aHeight = aHeight + (float)PlantFlowerPotHeightOffset(aSeedType, theScale);
 
-  float aDrawHeight = PlantPottedDrawHeightOffset(aSeedType, aGraphics.mScaleY);
-  Plant::DrawSeedType(&aGraphics, aSeedType, SEED_NONE, aVariation,
-                      aOffsetX + x, aHeight + aDrawHeight + y);
+    float aDrawHeight = PlantPottedDrawHeightOffset(aSeedType, aGraphics.mScaleY);
+    Plant::DrawSeedType(&aGraphics, aSeedType, SEED_NONE, aVariation, aOffsetX + x, aHeight + aDrawHeight + y);
 }
 // ==========================================================================
 // ZenGarden::DrawPottedPlantIcon(Sexy::Graphics *,float,float,PottedPlant *)
 // @001A1BAC  30 bytes
 // ==========================================================================
-void ZenGarden::DrawPottedPlantIcon(Sexy::Graphics * g, float x, float y, PottedPlant * thePottedPlant)
+void ZenGarden::DrawPottedPlantIcon(Sexy::Graphics *g, float x, float y, PottedPlant *thePottedPlant)
 {
-  DrawPottedPlant(g, x, y, thePottedPlant, 0.7f, true);
+    DrawPottedPlant(g, x, y, thePottedPlant, 0.7f, true);
 }
 // ==========================================================================
 // ZenGarden::GotoGarden(int)
@@ -2959,56 +2964,55 @@ void ZenGarden::DrawPottedPlantIcon(Sexy::Graphics * g, float x, float y, Potted
 // ==========================================================================
 void ZenGarden::GotoGarden(int theGardenIndex)
 {
-  // The tree of wisdom keeps its own garden progression.
-  if ( mGardenType == GARDEN_TREE_OF_WISDOM )
-    mBoard->mChallenge->TreeOfWisdomNextGarden();
-  else
-    LeaveGarden();
+    // The tree of wisdom keeps its own garden progression.
+    if (mGardenType == GARDEN_TREE_OF_WISDOM)
+        mBoard->mChallenge->TreeOfWisdomNextGarden();
+    else
+        LeaveGarden();
 
-  mBoard->ClearAdvice(AdviceType(-1));
-  // Free every live plant and coin. The block stays; ZenGardenInitLevel plants
-  // the new garden into the same arrays.
-  mBoard->mPlants.DataArrayFreeAll();
-  mBoard->mCoins.DataArrayFreeAll();
-  mApp->mEffectSystem->EffectSystemFreeAll();
+    mBoard->ClearAdvice(AdviceType(-1));
+    // Free every live plant and coin. The block stays; ZenGardenInitLevel plants
+    // the new garden into the same arrays.
+    mBoard->mPlants.DataArrayFreeAll();
+    mBoard->mCoins.DataArrayFreeAll();
+    mApp->mEffectSystem->EffectSystemFreeAll();
 
-  mGardenType = (GardenType)theGardenIndex;
-  switch ( theGardenIndex )
-  {
-    case GARDEN_MAIN:
-      mBoard->mBackground = BACKGROUND_GREENHOUSE;
-      LoadResources("DelayLoad_GreenHouseGarden");
-      LoadResources("DelayLoad_GreenHouseOverlay");
-      break;
-    case GARDEN_MUSHROOM:
-      mBoard->mBackground = BACKGROUND_MUSHROOM_GARDEN;
-      LoadResources("DelayLoad_MushroomGarden");
-      break;
-    case GARDEN_AQUARIUM:
-      mBoard->mBackground = BACKGROUND_ZOMBIQUARIUM;
-      LoadResources("DelayLoad_Zombiquarium");
-      LoadResources("DelayLoad_GreenHouseOverlay");
-      break;
-    case GARDEN_TREE_OF_WISDOM:
-      mApp->KillBoard();
-      mApp->PreNewGame(GAMEMODE_TREE_OF_WISDOM, false);
-      return;
-    default:
-      break;
-  }
+    mGardenType = (GardenType)theGardenIndex;
+    switch (theGardenIndex)
+    {
+        case GARDEN_MAIN:
+            mBoard->mBackground = BACKGROUND_GREENHOUSE;
+            LoadResources("DelayLoad_GreenHouseGarden");
+            LoadResources("DelayLoad_GreenHouseOverlay");
+            break;
+        case GARDEN_MUSHROOM:
+            mBoard->mBackground = BACKGROUND_MUSHROOM_GARDEN;
+            LoadResources("DelayLoad_MushroomGarden");
+            break;
+        case GARDEN_AQUARIUM:
+            mBoard->mBackground = BACKGROUND_ZOMBIQUARIUM;
+            LoadResources("DelayLoad_Zombiquarium");
+            LoadResources("DelayLoad_GreenHouseOverlay");
+            break;
+        case GARDEN_TREE_OF_WISDOM:
+            mApp->KillBoard();
+            mApp->PreNewGame(GAMEMODE_TREE_OF_WISDOM, false);
+            return;
+        default:
+            break;
+    }
 
-  // A garden whose wheelbarrow has not been bought says so.
-  if ( (mBoard->mBackground == BACKGROUND_MUSHROOM_GARDEN
-        || mBoard->mBackground == BACKGROUND_ZOMBIQUARIUM)
-    && mApp->mPlayerInfo->mPurchases[19] == 0 )
-  {
-    Sexy::String aText;
-    TodStringTranslate(&aText, "[ADVICE_NEED_WHEELBARROW]");
-    mBoard->DisplayAdvice(aText, MESSAGE_STYLE_BIG_MIDDLE, AdviceType(67));
-  }
+    // A garden whose wheelbarrow has not been bought says so.
+    if ((mBoard->mBackground == BACKGROUND_MUSHROOM_GARDEN || mBoard->mBackground == BACKGROUND_ZOMBIQUARIUM) &&
+        mApp->mPlayerInfo->mPurchases[19] == 0)
+    {
+        Sexy::String aText;
+        TodStringTranslate(&aText, "[ADVICE_NEED_WHEELBARROW]");
+        mBoard->DisplayAdvice(aText, MESSAGE_STYLE_BIG_MIDDLE, AdviceType(67));
+    }
 
-  if ( mGardenType != (GardenType)GARDEN_TREE_OF_WISDOM )
-    ZenGardenInitLevel(true);
+    if (mGardenType != (GardenType)GARDEN_TREE_OF_WISDOM)
+        ZenGardenInitLevel(true);
 }
 // ==========================================================================
 // ZenGarden::GotoNextGarden()
@@ -3016,39 +3020,39 @@ void ZenGarden::GotoGarden(int theGardenIndex)
 // ==========================================================================
 void ZenGarden::GotoNextGarden()
 {
-  LeaveGarden();
-  mBoard->ClearAdvice(AdviceType(-1));
-  mBoard->mPlants.DataArrayFreeAll();
-  mBoard->mCoins.DataArrayFreeAll();
-  mApp->mEffectSystem->EffectSystemFreeAll();
+    LeaveGarden();
+    mBoard->ClearAdvice(AdviceType(-1));
+    mBoard->mPlants.DataArrayFreeAll();
+    mBoard->mCoins.DataArrayFreeAll();
+    mApp->mEffectSystem->EffectSystemFreeAll();
 
-  // Whichever garden the player owns next, in the order the shop unlocks them.
-  // Purchase 18 is the mushroom garden, 25 the aquarium, 27 the tree of wisdom.
-  switch ( mGardenType )
-  {
-    case GARDEN_MAIN:
-      if ( mApp->mPlayerInfo->mPurchases[18] != 0 )
-        GotoGarden(GARDEN_MUSHROOM);
-      else if ( mApp->mPlayerInfo->mPurchases[25] != 0 )
-        GotoGarden(GARDEN_AQUARIUM);
-      else if ( mApp->mPlayerInfo->mPurchases[27] != 0 )
-        GotoGarden(GARDEN_TREE_OF_WISDOM);
-      break;
-    case GARDEN_MUSHROOM:
-      if ( mApp->mPlayerInfo->mPurchases[25] != 0 )
-        GotoGarden(GARDEN_AQUARIUM);
-      else if ( mApp->mPlayerInfo->mPurchases[27] != 0 )
-        GotoGarden(GARDEN_TREE_OF_WISDOM);
-      else
-        GotoGarden(GARDEN_MAIN);
-      break;
-    case GARDEN_AQUARIUM:
-      if ( mApp->mPlayerInfo->mPurchases[27] != 0 )
-        GotoGarden(GARDEN_TREE_OF_WISDOM);
-      else
-        GotoGarden(GARDEN_MAIN);
-      break;
-    default:
-      break;
-  }
+    // Whichever garden the player owns next, in the order the shop unlocks them.
+    // Purchase 18 is the mushroom garden, 25 the aquarium, 27 the tree of wisdom.
+    switch (mGardenType)
+    {
+        case GARDEN_MAIN:
+            if (mApp->mPlayerInfo->mPurchases[18] != 0)
+                GotoGarden(GARDEN_MUSHROOM);
+            else if (mApp->mPlayerInfo->mPurchases[25] != 0)
+                GotoGarden(GARDEN_AQUARIUM);
+            else if (mApp->mPlayerInfo->mPurchases[27] != 0)
+                GotoGarden(GARDEN_TREE_OF_WISDOM);
+            break;
+        case GARDEN_MUSHROOM:
+            if (mApp->mPlayerInfo->mPurchases[25] != 0)
+                GotoGarden(GARDEN_AQUARIUM);
+            else if (mApp->mPlayerInfo->mPurchases[27] != 0)
+                GotoGarden(GARDEN_TREE_OF_WISDOM);
+            else
+                GotoGarden(GARDEN_MAIN);
+            break;
+        case GARDEN_AQUARIUM:
+            if (mApp->mPlayerInfo->mPurchases[27] != 0)
+                GotoGarden(GARDEN_TREE_OF_WISDOM);
+            else
+                GotoGarden(GARDEN_MAIN);
+            break;
+        default:
+            break;
+    }
 }

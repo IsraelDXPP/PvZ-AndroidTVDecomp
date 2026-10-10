@@ -15,7 +15,8 @@
 // virtual at slot 131:
 //   [131] 0x13e3c8  WaitFor2PLoadDialog::GetStatus
 
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_WAITFOR2PLOADDIALOG_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_WAITFOR2PLOADDIALOG_H
 
 #include "ReconTypes.h"
 // The base class, plus the classes this one calls a method on: the call needs the
@@ -33,5 +34,6 @@ public:
 
     // Not a vtable slot; the signature is the one the transcribed body defines.
     explicit WaitFor2PLoadDialog(LawnApp *theApp);
-
 };
+
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_WAITFOR2PLOADDIALOG_H

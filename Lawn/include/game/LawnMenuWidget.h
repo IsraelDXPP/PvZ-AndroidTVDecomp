@@ -22,7 +22,8 @@
 // camera offsets the track animator adds when it places a button. A derived
 // menu uses these words; it does not declare a second copy.
 
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_LAWNMENUWIDGET_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_LAWNMENUWIDGET_H
 
 #include "ReconTypes.h"
 // The transcribed bodies call methods on these, so the includes stay.
@@ -44,28 +45,33 @@ class LawnMenuWidget : public Sexy::MenuWidget
 public:
     virtual ~LawnMenuWidget();
 
-    virtual int CreateMenuParser();  // [127]
+    virtual int CreateMenuParser(); // [127]
 
     // The binary's HelpTextScreen constructor (HelpTextScreen.cpp:212 in the
     // transcription) calls Sexy::MenuWidget::MenuWidget on `this` with the menu
     // file name, so this class does have a one-line forwarding constructor and
     // the compiler inlined it at that call site. It is defined here because
     // Game\LawnMenuWidget.cpp (another workstream's file) carries no body for it.
-    LawnMenuWidget():
+    LawnMenuWidget() :
         mBackdropReanimID(ReanimationID::REANIMATIONID_NULL),
         mCameraOffsetX(0),
-        mCameraOffsetY(0) {}
-    explicit LawnMenuWidget(Sexy::String theMenuFile) : MenuWidget(theMenuFile),
+        mCameraOffsetY(0)
+    {
+    }
+    explicit LawnMenuWidget(Sexy::String theMenuFile) :
+        MenuWidget(theMenuFile),
         mBackdropReanimID(ReanimationID::REANIMATIONID_NULL),
         mCameraOffsetX(0),
-        mCameraOffsetY(0) {}
+        mCameraOffsetY(0)
+    {
+    }
 
     // Words 70..72, +0x118..+0x123. The destructor releases the reanimation.
     // The track animator reads the id and adds the two offsets to a track
     // transform. MainMenu stores its menu reanim and camera in these words.
     ReanimationID mBackdropReanimID; // +0x118
-    float mCameraOffsetX;            // +0x11C
-    float mCameraOffsetY;            // +0x120
+    float mCameraOffsetX; // +0x11C
+    float mCameraOffsetY; // +0x120
 
     // Everything below belongs to MenuWidget, not to this class:
     //   bool  mIsFading        +0x104
@@ -75,3 +81,5 @@ public:
     //   int   unkInt1          +0x110
     //   Image *mImage          +0x114
 };
+
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_LAWNMENUWIDGET_H

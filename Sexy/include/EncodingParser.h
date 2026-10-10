@@ -20,7 +20,8 @@
 //   mFirstChar             the first character of a UTF-16 stream
 //   mByteSwap              set when the byte order does not match the host
 
-#pragma once
+#ifndef LAWNPROJECTTV_SEXY_INCLUDE_ENCODINGPARSER_H
+#define LAWNPROJECTTV_SEXY_INCLUDE_ENCODINGPARSER_H
 
 #include "ReconTypes.h"
 #include <SDL3/SDL_iostream.h>
@@ -29,7 +30,8 @@
 #include <map>
 #include <set>
 
-namespace Sexy {
+namespace Sexy
+{
 
 class EncodingParser
 {
@@ -37,15 +39,15 @@ public:
     virtual ~EncodingParser() = default;
 
     virtual int SetEncodingType(int theEncoding);
-    virtual int OpenFile(Sexy::String const& thePath);
+    virtual int OpenFile(Sexy::String const &thePath);
     virtual int CloseFile();
     virtual bool EndOfFile();
-    virtual void SetStringSource(Sexy::String const& theSource);
+    virtual void SetStringSource(Sexy::String const &theSource);
     virtual int GetChar(wchar_t *theChar);
-    virtual int PutChar(wchar_t const& theChar);
-    virtual int PutString(Sexy::String const& theText);
+    virtual int PutChar(wchar_t const &theChar);
+    virtual int PutString(Sexy::String const &theText);
 
-    SDL_IOStream* mFile;
+    SDL_IOStream *mFile;
     std::vector<wchar_t> mBufferedText;
     int (Sexy::EncodingParser::*mGetCharFunc)(wchar_t *, bool *);
     int mGetCharFuncAdj;
@@ -63,3 +65,5 @@ public:
 };
 
 } // namespace Sexy
+
+#endif // LAWNPROJECTTV_SEXY_INCLUDE_ENCODINGPARSER_H

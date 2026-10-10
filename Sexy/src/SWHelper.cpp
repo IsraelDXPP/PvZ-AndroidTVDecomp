@@ -13,12 +13,12 @@
 namespace
 {
 
-const int kTextureTag8888  = 0x8888;
-const int kTextureTag4444  = 0x4444;
-const int kTextureTag1555  = 0x1555;
-const int kTextureTag0565  = 0x0565;
+const int kTextureTag8888 = 0x8888;
+const int kTextureTag4444 = 0x4444;
+const int kTextureTag1555 = 0x1555;
+const int kTextureTag0565 = 0x0565;
 const int kTextureTag14444 = 0x14444;
-const int kTextureTag5551  = 0x5551;
+const int kTextureTag5551 = 0x5551;
 
 int Expand4(int theNibble)
 {
@@ -40,23 +40,19 @@ int Expand6(int theSix)
 
 unsigned int PackChannels(int theBlue, int theGreen, int theRed, int theAlpha)
 {
-    return (unsigned int)(theBlue & 0xFF)
-        | ((unsigned int)(theGreen & 0xFF) << 8)
-        | ((unsigned int)(theRed & 0xFF) << 16)
-        | ((unsigned int)(theAlpha & 0xFF) << 24);
+    return (unsigned int)(theBlue & 0xFF) | ((unsigned int)(theGreen & 0xFF) << 8) |
+        ((unsigned int)(theRed & 0xFF) << 16) | ((unsigned int)(theAlpha & 0xFF) << 24);
 }
 
-unsigned short ReadU16(unsigned char const* theTexel)
+unsigned short ReadU16(unsigned char const *theTexel)
 {
     return (unsigned short)(theTexel[0] | (theTexel[1] << 8));
 }
 
-unsigned int ReadU32(unsigned char const* theTexel)
+unsigned int ReadU32(unsigned char const *theTexel)
 {
-    return (unsigned int)theTexel[0]
-        | ((unsigned int)theTexel[1] << 8)
-        | ((unsigned int)theTexel[2] << 16)
-        | ((unsigned int)theTexel[3] << 24);
+    return (unsigned int)theTexel[0] | ((unsigned int)theTexel[1] << 8) | ((unsigned int)theTexel[2] << 16) |
+        ((unsigned int)theTexel[3] << 24);
 }
 
 int LerpByte(int theStart, int theEnd, float theT)
@@ -71,15 +67,13 @@ int LerpByte(int theStart, int theEnd, float theT)
 
 unsigned int LerpColor(unsigned int theStart, unsigned int theEnd, float theT)
 {
-    return PackChannels(
-        LerpByte((int)(theStart & 0xFF), (int)(theEnd & 0xFF), theT),
+    return PackChannels(LerpByte((int)(theStart & 0xFF), (int)(theEnd & 0xFF), theT),
         LerpByte((int)((theStart >> 8) & 0xFF), (int)((theEnd >> 8) & 0xFF), theT),
         LerpByte((int)((theStart >> 16) & 0xFF), (int)((theEnd >> 16) & 0xFF), theT),
         LerpByte((int)((theStart >> 24) & 0xFF), (int)((theEnd >> 24) & 0xFF), theT));
 }
 
-Sexy::SWShapeVertex LerpVertex(Sexy::SWShapeVertex const& theStart,
-                               Sexy::SWShapeVertex const& theEnd, float theT)
+Sexy::SWShapeVertex LerpVertex(Sexy::SWShapeVertex const &theStart, Sexy::SWShapeVertex const &theEnd, float theT)
 {
     Sexy::SWShapeVertex out;
     out.mX = theStart.mX + (theEnd.mX - theStart.mX) * theT;
@@ -90,8 +84,8 @@ Sexy::SWShapeVertex LerpVertex(Sexy::SWShapeVertex const& theStart,
     return out;
 }
 
-bool InsideEdge(Sexy::SWShapeVertex const& theVertex, int theEdge,
-                float theLeft, float theTop, float theRight, float theBottom)
+bool InsideEdge(
+    Sexy::SWShapeVertex const &theVertex, int theEdge, float theLeft, float theTop, float theRight, float theBottom)
 {
     if (theEdge == 0)
         return theVertex.mX >= theLeft;
@@ -102,7 +96,7 @@ bool InsideEdge(Sexy::SWShapeVertex const& theVertex, int theEdge,
     return theVertex.mY <= theBottom;
 }
 
-float EdgePosition(Sexy::SWShapeVertex const& theVertex, int theEdge)
+float EdgePosition(Sexy::SWShapeVertex const &theVertex, int theEdge)
 {
     if (theEdge < 2)
         return theVertex.mX;
@@ -120,9 +114,8 @@ float EdgeLimit(int theEdge, float theLeft, float theTop, float theRight, float 
     return theBottom;
 }
 
-int ClipEdge(Sexy::SWShapeVertex const* theInput, int theCount, int theEdge,
-             float theLeft, float theTop, float theRight, float theBottom,
-             Sexy::SWShapeVertex* theOutput)
+int ClipEdge(Sexy::SWShapeVertex const *theInput, int theCount, int theEdge, float theLeft, float theTop,
+    float theRight, float theBottom, Sexy::SWShapeVertex *theOutput)
 {
     if (theCount <= 0)
         return 0;
@@ -149,9 +142,8 @@ int ClipEdge(Sexy::SWShapeVertex const* theInput, int theCount, int theEdge,
     return written;
 }
 
-int ClipTriangle(Sexy::SWShapeVertex const& theA, Sexy::SWShapeVertex const& theB,
-                 Sexy::SWShapeVertex const& theC, float theLeft, float theTop,
-                 float theRight, float theBottom, Sexy::SWShapeVertex* theOutput)
+int ClipTriangle(Sexy::SWShapeVertex const &theA, Sexy::SWShapeVertex const &theB, Sexy::SWShapeVertex const &theC,
+    float theLeft, float theTop, float theRight, float theBottom, Sexy::SWShapeVertex *theOutput)
 {
     Sexy::SWShapeVertex first[8];
     Sexy::SWShapeVertex second[8];
@@ -161,8 +153,8 @@ int ClipTriangle(Sexy::SWShapeVertex const& theA, Sexy::SWShapeVertex const& the
     int count = 3;
     for (int edge = 0; edge < 4; ++edge)
     {
-        Sexy::SWShapeVertex* dest = (edge & 1) == 0 ? second : first;
-        Sexy::SWShapeVertex const* src = (edge & 1) == 0 ? first : second;
+        Sexy::SWShapeVertex *dest = (edge & 1) == 0 ? second : first;
+        Sexy::SWShapeVertex const *src = (edge & 1) == 0 ? first : second;
         count = ClipEdge(src, count, edge, theLeft, theTop, theRight, theBottom, dest);
     }
     for (int index = 0; index < count; ++index)
@@ -183,8 +175,7 @@ int WidthShift(int theWidth)
 
 unsigned int MultiplyColor(unsigned int theLeft, unsigned int theRight)
 {
-    return PackChannels(
-        ((int)(theLeft & 0xFF) * (int)(theRight & 0xFF)) / 255,
+    return PackChannels(((int)(theLeft & 0xFF) * (int)(theRight & 0xFF)) / 255,
         ((int)((theLeft >> 8) & 0xFF) * (int)((theRight >> 8) & 0xFF)) / 255,
         ((int)((theLeft >> 16) & 0xFF) * (int)((theRight >> 16) & 0xFF)) / 255,
         ((int)((theLeft >> 24) & 0xFF) * (int)((theRight >> 24) & 0xFF)) / 255);
@@ -232,8 +223,7 @@ Sexy::DrawTriFunc Sexy::gDrawTriFuncs[128] = {};
 int Sexy::gClipVertexCount = 0;
 Sexy::SWClipVertex Sexy::gClipVertices[192] = {};
 
-int Sexy::SWHelper::SWReadTexel(Sexy::SWHelper_SWTextureInfo const* theTexture,
-                                unsigned char const* theTexel)
+int Sexy::SWHelper::SWReadTexel(Sexy::SWHelper_SWTextureInfo const *theTexture, unsigned char const *theTexel)
 {
     if (theTexture == nullptr || theTexel == nullptr)
         return 0;
@@ -243,44 +233,40 @@ int Sexy::SWHelper::SWReadTexel(Sexy::SWHelper_SWTextureInfo const* theTexture,
     if (format == kTextureTag4444)
     {
         unsigned int texel = ReadU16(theTexel);
-        return (int)PackChannels(Expand4((int)texel), Expand4((int)(texel >> 4)),
-                                 Expand4((int)(texel >> 8)), Expand4((int)(texel >> 12)));
+        return (int)PackChannels(
+            Expand4((int)texel), Expand4((int)(texel >> 4)), Expand4((int)(texel >> 8)), Expand4((int)(texel >> 12)));
     }
     if (format == kTextureTag0565)
     {
         unsigned int texel = ReadU16(theTexel);
-        return (int)PackChannels(Expand5((int)texel), Expand6((int)(texel >> 5)),
-                                 Expand5((int)(texel >> 11)), 255);
+        return (int)PackChannels(Expand5((int)texel), Expand6((int)(texel >> 5)), Expand5((int)(texel >> 11)), 255);
     }
     if (format == kTextureTag1555)
     {
         unsigned int texel = ReadU16(theTexel);
         int alpha = (texel & 0x8000) != 0 ? 255 : 0;
-        return (int)PackChannels(Expand5((int)texel), Expand5((int)(texel >> 5)),
-                                 Expand5((int)(texel >> 10)), alpha);
+        return (int)PackChannels(Expand5((int)texel), Expand5((int)(texel >> 5)), Expand5((int)(texel >> 10)), alpha);
     }
     if (format == kTextureTag14444)
     {
         unsigned int texel = ReadU16(theTexel);
-        return (int)PackChannels(Expand4((int)(texel >> 4)), Expand4((int)(texel >> 8)),
-                                 Expand4((int)(texel >> 12)), Expand4((int)texel));
+        return (int)PackChannels(
+            Expand4((int)(texel >> 4)), Expand4((int)(texel >> 8)), Expand4((int)(texel >> 12)), Expand4((int)texel));
     }
     if (format == kTextureTag5551)
     {
         unsigned int texel = ReadU16(theTexel);
         int alpha = (texel & 1) != 0 ? 255 : 0;
-        return (int)PackChannels(Expand5((int)(texel >> 1)), Expand5((int)(texel >> 6)),
-                                 Expand5((int)(texel >> 11)), alpha);
+        return (int)PackChannels(
+            Expand5((int)(texel >> 1)), Expand5((int)(texel >> 6)), Expand5((int)(texel >> 11)), alpha);
     }
     return 0;
 }
 
-int Sexy::SWHelper::SWDrawTriangle(bool theTextured, bool theAlpha, bool theVertexColor,
-                                   bool theUseDiffuse, Sexy::SWShapeVertex const* theTriangle,
-                                   unsigned int* theBits, unsigned int thePitch,
-                                   Sexy::SWHelper_SWTextureInfo const* theTexture,
-                                   Sexy::SWHelper_SWDiffuse& theDiffuse, int thePixelFormat,
-                                   bool theAdditive)
+int Sexy::SWHelper::SWDrawTriangle(bool theTextured, bool theAlpha, bool theVertexColor, bool theUseDiffuse,
+    Sexy::SWShapeVertex const *theTriangle, unsigned int *theBits, unsigned int thePitch,
+    Sexy::SWHelper_SWTextureInfo const *theTexture, Sexy::SWHelper_SWDiffuse &theDiffuse, int thePixelFormat,
+    bool theAdditive)
 {
     (void)thePixelFormat;
     if (theTriangle == nullptr || theBits == nullptr || thePitch < 4)
@@ -310,20 +296,22 @@ int Sexy::SWHelper::SWDrawTriangle(bool theTextured, bool theAlpha, bool theVert
     if (y0 < 0)
         y0 = 0;
 
-    float area = EdgeCross(theTriangle[0].mX, theTriangle[0].mY,
-                            theTriangle[1].mX, theTriangle[1].mY,
-                            theTriangle[2].mX, theTriangle[2].mY);
+    float area = EdgeCross(theTriangle[0].mX,
+        theTriangle[0].mY,
+        theTriangle[1].mX,
+        theTriangle[1].mY,
+        theTriangle[2].mX,
+        theTriangle[2].mY);
     if (fabsf(area) < 0.0001f)
         return 0;
 
-    unsigned int diffuse = PackChannels(theDiffuse.mBlue, theDiffuse.mGreen,
-                                        theDiffuse.mRed, theDiffuse.mAlpha);
+    unsigned int diffuse = PackChannels(theDiffuse.mBlue, theDiffuse.mGreen, theDiffuse.mRed, theDiffuse.mAlpha);
     int texWidth = 0;
     int texHeight = theTexture != nullptr ? theTexture->mHeight : 0;
     if (theTexture != nullptr && theTexture->mWidthMask != 0)
         texWidth = (theTexture->mWidthMask >> 16) + 1;
 
-    unsigned char* destBytes = static_cast<unsigned char*>(static_cast<void*>(theBits));
+    unsigned char *destBytes = static_cast<unsigned char *>(static_cast<void *>(theBits));
     int maxPixel = (int)thePitch / 4 - 1;
     if (x1 > maxPixel)
         x1 = maxPixel;
@@ -333,34 +321,37 @@ int Sexy::SWHelper::SWDrawTriangle(bool theTextured, bool theAlpha, bool theVert
         for (int x = x0; x <= x1; ++x)
         {
             float px = (float)x + 0.5f;
-            float w0 = EdgeCross(theTriangle[1].mX, theTriangle[1].mY,
-                                 theTriangle[2].mX, theTriangle[2].mY, px, py) / area;
-            float w1 = EdgeCross(theTriangle[2].mX, theTriangle[2].mY,
-                                 theTriangle[0].mX, theTriangle[0].mY, px, py) / area;
-            float w2 = EdgeCross(theTriangle[0].mX, theTriangle[0].mY,
-                                 theTriangle[1].mX, theTriangle[1].mY, px, py) / area;
+            float w0 =
+                EdgeCross(theTriangle[1].mX, theTriangle[1].mY, theTriangle[2].mX, theTriangle[2].mY, px, py) / area;
+            float w1 =
+                EdgeCross(theTriangle[2].mX, theTriangle[2].mY, theTriangle[0].mX, theTriangle[0].mY, px, py) / area;
+            float w2 =
+                EdgeCross(theTriangle[0].mX, theTriangle[0].mY, theTriangle[1].mX, theTriangle[1].mY, px, py) / area;
             if (w0 < 0.0f || w1 < 0.0f || w2 < 0.0f)
                 continue;
 
             unsigned int color = 0xFFFFFFFFu;
             if (theVertexColor)
             {
-                color = PackChannels(
-                    LerpByte(0, (int)((theTriangle[0].mColor & 0xFF) * w0
-                        + (theTriangle[1].mColor & 0xFF) * w1
-                        + (theTriangle[2].mColor & 0xFF) * w2), 1.0f),
-                    LerpByte(0, (int)(((theTriangle[0].mColor >> 8) & 0xFF) * w0
-                        + ((theTriangle[1].mColor >> 8) & 0xFF) * w1
-                        + ((theTriangle[2].mColor >> 8) & 0xFF) * w2), 1.0f),
-                    LerpByte(0, (int)(((theTriangle[0].mColor >> 16) & 0xFF) * w0
-                        + ((theTriangle[1].mColor >> 16) & 0xFF) * w1
-                        + ((theTriangle[2].mColor >> 16) & 0xFF) * w2), 1.0f),
-                    LerpByte(0, (int)(((theTriangle[0].mColor >> 24) & 0xFF) * w0
-                        + ((theTriangle[1].mColor >> 24) & 0xFF) * w1
-                        + ((theTriangle[2].mColor >> 24) & 0xFF) * w2), 1.0f));
+                color = PackChannels(LerpByte(0,
+                                         (int)((theTriangle[0].mColor & 0xFF) * w0 +
+                                             (theTriangle[1].mColor & 0xFF) * w1 + (theTriangle[2].mColor & 0xFF) * w2),
+                                         1.0f),
+                    LerpByte(0,
+                        (int)(((theTriangle[0].mColor >> 8) & 0xFF) * w0 + ((theTriangle[1].mColor >> 8) & 0xFF) * w1 +
+                            ((theTriangle[2].mColor >> 8) & 0xFF) * w2),
+                        1.0f),
+                    LerpByte(0,
+                        (int)(((theTriangle[0].mColor >> 16) & 0xFF) * w0 +
+                            ((theTriangle[1].mColor >> 16) & 0xFF) * w1 + ((theTriangle[2].mColor >> 16) & 0xFF) * w2),
+                        1.0f),
+                    LerpByte(0,
+                        (int)(((theTriangle[0].mColor >> 24) & 0xFF) * w0 +
+                            ((theTriangle[1].mColor >> 24) & 0xFF) * w1 + ((theTriangle[2].mColor >> 24) & 0xFF) * w2),
+                        1.0f));
             }
-            if (theTextured && theTexture != nullptr && theTexture->mBits != nullptr
-                && texWidth > 0 && texHeight > 0 && theTexture->mPixelSize > 0)
+            if (theTextured && theTexture != nullptr && theTexture->mBits != nullptr && texWidth > 0 && texHeight > 0 &&
+                theTexture->mPixelSize > 0)
             {
                 float u = theTriangle[0].mU * w0 + theTriangle[1].mU * w1 + theTriangle[2].mU * w2;
                 float v = theTriangle[0].mV * w0 + theTriangle[1].mV * w1 + theTriangle[2].mV * w2;
@@ -374,8 +365,8 @@ int Sexy::SWHelper::SWDrawTriangle(bool theTextured, bool theAlpha, bool theVert
                     col = texWidth - 1;
                 if (rowIndex >= texHeight)
                     rowIndex = texHeight - 1;
-                unsigned char const* bytes = static_cast<unsigned char const*>(
-                    static_cast<void const*>(theTexture->mBits));
+                unsigned char const *bytes =
+                    static_cast<unsigned char const *>(static_cast<void const *>(theTexture->mBits));
                 int offset = (rowIndex * theTexture->mPitch + col) * theTexture->mPixelSize;
                 color = MultiplyColor(color, (unsigned int)SWReadTexel(theTexture, bytes + offset));
             }
@@ -383,7 +374,7 @@ int Sexy::SWHelper::SWDrawTriangle(bool theTextured, bool theAlpha, bool theVert
                 color = MultiplyColor(color, diffuse);
             if (!theAlpha)
                 color = (color & 0x00FFFFFFu) | 0xFF000000u;
-            unsigned char* pixelBytes = destBytes + y * (int)thePitch + x * 4;
+            unsigned char *pixelBytes = destBytes + y * (int)thePitch + x * 4;
             unsigned int previous = 0;
             std::memcpy(&previous, pixelBytes, sizeof(previous));
             unsigned int blended = BlendPixel(previous, color, theAdditive);
@@ -393,11 +384,9 @@ int Sexy::SWHelper::SWDrawTriangle(bool theTextured, bool theAlpha, bool theVert
     return 1;
 }
 
-char* Sexy::SWHelper::SWDrawShape(Sexy::SWShapeVertex* theVertices, int theVertexCount,
-                                  Sexy::MemoryImage* theImage, Color const& theColor,
-                                  int theDrawMode, TRect<int> const& theDest, void* theBits,
-                                  int thePitch, int thePixelFormat, bool theAdditive,
-                                  bool theVertexColor)
+char *Sexy::SWHelper::SWDrawShape(Sexy::SWShapeVertex *theVertices, int theVertexCount, Sexy::MemoryImage *theImage,
+    Color const &theColor, int theDrawMode, TRect<int> const &theDest, void *theBits, int thePitch, int thePixelFormat,
+    bool theAdditive, bool theVertexColor)
 {
     (void)thePixelFormat;
     if (theVertices == nullptr || theVertexCount < 3 || theBits == nullptr)
@@ -408,8 +397,7 @@ char* Sexy::SWHelper::SWDrawShape(Sexy::SWShapeVertex* theVertices, int theVerte
     diffuse.mGreen = theColor.mGreen;
     diffuse.mBlue = theColor.mBlue;
     diffuse.mAlpha = theColor.mAlpha;
-    bool useDiffuse = theColor.mRed != 255 || theColor.mGreen != 255
-        || theColor.mBlue != 255 || theColor.mAlpha != 255;
+    bool useDiffuse = theColor.mRed != 255 || theColor.mGreen != 255 || theColor.mBlue != 255 || theColor.mAlpha != 255;
 
     Sexy::SWHelper_SWTextureInfo texture;
     texture.mFormat = 0;
@@ -432,7 +420,7 @@ char* Sexy::SWHelper::SWDrawShape(Sexy::SWShapeVertex* theVertices, int theVerte
         int formatIndex = (int)theImage->GetPixelFormat() - 1;
         int pixelSize = 0;
         int tag = 0;
-        unsigned int* pixels = nullptr;
+        unsigned int *pixels = nullptr;
         if (formatIndex == 0 || formatIndex == 1 || formatIndex == 5)
         {
             tag = kTextureTag8888;
@@ -488,12 +476,12 @@ char* Sexy::SWHelper::SWDrawShape(Sexy::SWShapeVertex* theVertices, int theVerte
     float top = (float)theDest.mY;
     float right = (float)(theDest.mX + theDest.mWidth - 1);
     float bottom = (float)(theDest.mY + theDest.mHeight - 1);
-    unsigned int* dest = static_cast<unsigned int*>(theBits);
+    unsigned int *dest = static_cast<unsigned int *>(theBits);
     for (int index = 0; index <= theVertexCount - 3; ++index)
     {
         Sexy::SWShapeVertex clipped[8];
-        int count = ClipTriangle(theVertices[index], theVertices[index + 1], theVertices[index + 2],
-                                 left, top, right, bottom, clipped);
+        int count = ClipTriangle(
+            theVertices[index], theVertices[index + 1], theVertices[index + 2], left, top, right, bottom, clipped);
         gClipVertexCount = count;
         for (int corner = 0; corner < count && corner < 192; ++corner)
         {
@@ -509,8 +497,17 @@ char* Sexy::SWHelper::SWDrawShape(Sexy::SWShapeVertex* theVertices, int theVerte
             triangle[0] = clipped[0];
             triangle[1] = clipped[fan];
             triangle[2] = clipped[fan + 1];
-            SWDrawTriangle(textured, sourceAlpha, theVertexColor, useDiffuse, triangle, dest,
-                           (unsigned int)thePitch, &texture, diffuse, thePixelFormat, theAdditive);
+            SWDrawTriangle(textured,
+                sourceAlpha,
+                theVertexColor,
+                useDiffuse,
+                triangle,
+                dest,
+                (unsigned int)thePitch,
+                &texture,
+                diffuse,
+                thePixelFormat,
+                theAdditive);
         }
     }
     return nullptr;

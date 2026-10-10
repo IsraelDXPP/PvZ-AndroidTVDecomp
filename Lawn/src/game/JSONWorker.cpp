@@ -39,7 +39,7 @@ static int gTypeInfo_1 = 0;
 // be named.
 static void jsonSingletonDtorThunk(void *theObject)
 {
-  (void)theObject;
+    (void)theObject;
 }
 
 // TODO(recon): `jsonSingletonEMPTY_JSON_STRING::getValue(void)::single` is a
@@ -59,148 +59,146 @@ static int gSingletonEmptyJSONString = 0;
 // the dump keeps in its `_BYTE *` / `std::uint8_t *` local.
 static const char *ReconStringFromRange(Sexy::String *theResult, const char *theFirst, const char *theLast)
 {
-  return Sexy::StringHelpers::_S_construct(
-           theResult, theFirst, (unsigned int)(theLast - theFirst))->c_str();
+    return Sexy::StringHelpers::_S_construct(theResult, theFirst, (unsigned int)(theLast - theFirst))->c_str();
 }
-
 
 // ==========================================================================
 // JSONWorker::_parse_unformatted(char const*,char const*)
 // @001356B8  506 bytes
 // ==========================================================================
-JSONWorker *JSONWorker::_parse_unformatted(char const* theFirst, char const* theLast)
+JSONWorker *JSONWorker::_parse_unformatted(char const *theFirst, char const *theLast)
 {
-  // @0x1356B8. A leading '#' opens a comment. Bytes are copied until a '#'
-  // whose next byte is not also '#'; that next byte is the real start of the
-  // value. Two '#' in a row followed by a third become a newline. The value
-  // must then be a [...] or {...} pair, or the function throws
-  // invalid_argument. The node is `new internalJSONNode(theBody)`.
-  Sexy::String aComment;
-  const char *aValue = theFirst;
-  unsigned char aFirst = (unsigned char)*theFirst;
-  if (aFirst == '#')
-  {
-    // A leading '#' is a comment. '##' becomes a newline and '###' stays a
-    // hash run. The byte after the hash run is the real value.
-    const char *aScan = theFirst;
-    aValue = theFirst + 1;
-    unsigned char aNext = (unsigned char)aScan[1];
-    bool aHashRun = (aNext == '#');
-    for (;;)
+    // @0x1356B8. A leading '#' opens a comment. Bytes are copied until a '#'
+    // whose next byte is not also '#'; that next byte is the real start of the
+    // value. Two '#' in a row followed by a third become a newline. The value
+    // must then be a [...] or {...} pair, or the function throws
+    // invalid_argument. The node is `new internalJSONNode(theBody)`.
+    Sexy::String aComment;
+    const char *aValue = theFirst;
+    unsigned char aFirst = (unsigned char)*theFirst;
+    if (aFirst == '#')
     {
-      if (!aHashRun)
-      {
-        aComment.push_back((char)aNext);
-        aScan = aValue;
-        aValue = aScan + 1;
-        aNext = (unsigned char)aScan[1];
-        if (aNext != '#')
-          continue;
-      }
-      aFirst = (unsigned char)aScan[2];
-      aValue = aScan + 2;
-      if (aFirst != '#')
-        break;
-      aComment.push_back('\n');
-      aScan = aValue;
-      aValue = aScan + 1;
-      aNext = (unsigned char)aScan[1];
-      aHashRun = (aNext == '#');
+        // A leading '#' is a comment. '##' becomes a newline and '###' stays a
+        // hash run. The byte after the hash run is the real value.
+        const char *aScan = theFirst;
+        aValue = theFirst + 1;
+        unsigned char aNext = (unsigned char)aScan[1];
+        bool aHashRun = (aNext == '#');
+        for (;;)
+        {
+            if (!aHashRun)
+            {
+                aComment.push_back((char)aNext);
+                aScan = aValue;
+                aValue = aScan + 1;
+                aNext = (unsigned char)aScan[1];
+                if (aNext != '#')
+                    continue;
+            }
+            aFirst = (unsigned char)aScan[2];
+            aValue = aScan + 2;
+            if (aFirst != '#')
+                break;
+            aComment.push_back('\n');
+            aScan = aValue;
+            aValue = aScan + 1;
+            aNext = (unsigned char)aScan[1];
+            aHashRun = (aNext == '#');
+        }
     }
-  }
 
-  unsigned char aLast = (unsigned char)*(theLast - 1);
-  bool aArray = aFirst == '[' && aLast == ']';
-  bool aObject = aFirst == '{' && aLast == '}';
-  if (!aArray && !aObject)
-  {
-    void *aException = CxaAllocateException(8u);
-    if ((gGuard_single_2 & 1) == 0 && CxaGuardAcquire(&gGuard_single_2) != 0)
+    unsigned char aLast = (unsigned char)*(theLast - 1);
+    bool aArray = aFirst == '[' && aLast == ']';
+    bool aObject = aFirst == '{' && aLast == '}';
+    if (!aArray && !aObject)
     {
-      gEmptyJsonString = Sexy::String();
-      CxaGuardRelease(&gGuard_single_2);
-      RegisterAtExit(&gEmptyJsonString, jsonSingletonDtorThunk, nullptr);
+        void *aException = CxaAllocateException(8u);
+        if ((gGuard_single_2 & 1) == 0 && CxaGuardAcquire(&gGuard_single_2) != 0)
+        {
+            gEmptyJsonString = Sexy::String();
+            CxaGuardRelease(&gGuard_single_2);
+            RegisterAtExit(&gEmptyJsonString, jsonSingletonDtorThunk, nullptr);
+        }
+        ConstructOutOfRange(aException, &gEmptyJsonString);
+        // DestroyInvalidArgument is the exception destructor __cxa_throw is handed. Its
+        // declaration still returns _DWORD, so the recovery cast stays.
+        // gTypeInfo_1 is an int slot; CxaThrow already takes the type info as void *.
+        CxaThrow(aException, &gTypeInfo_1, (void (*)(void *))DestroyInvalidArgument);
     }
-    ConstructOutOfRange(aException, &gEmptyJsonString);
-    // DestroyInvalidArgument is the exception destructor __cxa_throw is handed. Its
-    // declaration still returns _DWORD, so the recovery cast stays.
-    // gTypeInfo_1 is an int slot; CxaThrow already takes the type info as void *.
-    CxaThrow(aException, &gTypeInfo_1, (void (*)(void *))DestroyInvalidArgument);
-  }
 
-  Sexy::String aBody(aValue, (unsigned int)(theLast - aValue));
-  // newInternal(String) returns the node as an int. Its body is `new
-  // internalJSONNode(theText)` and it never reads its receiver, so constructing
-  // the node here is the same call with a real pointer instead of a recovery.
-  internalJSONNode *aNode = new internalJSONNode(aBody);
-  if (aNode->refcount > 1)
-  {
-    aNode->refcount -= 1;
-    aNode = aNode->newInternal(*aNode);
-  }
-  aNode->_comment = aComment;
-  // Callers read word 0 of the worker as the node the parse built.
-  mNode.mInternal = aNode;
-  return this;
+    Sexy::String aBody(aValue, (unsigned int)(theLast - aValue));
+    // newInternal(String) returns the node as an int. Its body is `new
+    // internalJSONNode(theText)` and it never reads its receiver, so constructing
+    // the node here is the same call with a real pointer instead of a recovery.
+    internalJSONNode *aNode = new internalJSONNode(aBody);
+    if (aNode->refcount > 1)
+    {
+        aNode->refcount -= 1;
+        aNode = aNode->newInternal(*aNode);
+    }
+    aNode->_comment = aComment;
+    // Callers read word 0 of the worker as the node the parse built.
+    mNode.mInternal = aNode;
+    return this;
 }
 
 // ==========================================================================
 // JSONWorker::parse_unformatted(Sexy::String const&)
 // @00135914  122 bytes
 // ==========================================================================
-JSONWorker *JSONWorker::parse_unformatted(Sexy::String const& theText)
+JSONWorker *JSONWorker::parse_unformatted(Sexy::String const &theText)
 {
-  // @0x135914. The first byte, with its case bit cleared, must be '['.
-  // Anything else throws invalid_argument through the empty-string singleton.
-  const char *aData = theText.c_str();
-  if ((*aData & 0xDF) != '[')
-  {
-    void *aException = CxaAllocateException(8u);
-    if ((gGuard_single_2 & 1) == 0 && CxaGuardAcquire(&gGuard_single_2) != 0)
+    // @0x135914. The first byte, with its case bit cleared, must be '['.
+    // Anything else throws invalid_argument through the empty-string singleton.
+    const char *aData = theText.c_str();
+    if ((*aData & 0xDF) != '[')
     {
-      gEmptyJsonString = Sexy::String();
-      CxaGuardRelease(&gGuard_single_2);
-      RegisterAtExit(&gEmptyJsonString, jsonSingletonDtorThunk, nullptr);
+        void *aException = CxaAllocateException(8u);
+        if ((gGuard_single_2 & 1) == 0 && CxaGuardAcquire(&gGuard_single_2) != 0)
+        {
+            gEmptyJsonString = Sexy::String();
+            CxaGuardRelease(&gGuard_single_2);
+            RegisterAtExit(&gEmptyJsonString, jsonSingletonDtorThunk, nullptr);
+        }
+        ConstructOutOfRange(aException, &gEmptyJsonString);
+        // DestroyInvalidArgument is the exception destructor __cxa_throw is handed. Its
+        // declaration still returns _DWORD, so the recovery cast stays.
+        // gTypeInfo_1 is an int slot; CxaThrow already takes the type info as void *.
+        CxaThrow(aException, &gTypeInfo_1, (void (*)(void *))DestroyInvalidArgument);
     }
-    ConstructOutOfRange(aException, &gEmptyJsonString);
-    // DestroyInvalidArgument is the exception destructor __cxa_throw is handed. Its
-    // declaration still returns _DWORD, so the recovery cast stays.
-    // gTypeInfo_1 is an int slot; CxaThrow already takes the type info as void *.
-    CxaThrow(aException, &gTypeInfo_1, (void (*)(void *))DestroyInvalidArgument);
-  }
-  _parse_unformatted(aData, aData + theText.size());
-  return this;
+    _parse_unformatted(aData, aData + theText.size());
+    return this;
 }
 
 // ==========================================================================
 // JSONWorker::FixString(Sexy::String const&,bool &,Sexy::String &)
 // @001359CC  182 bytes
 // ==========================================================================
-JSONWorker *JSONWorker::FixString(Sexy::String const& theText, bool & theEscaped, Sexy::String & theDest)
+JSONWorker *JSONWorker::FixString(Sexy::String const &theText, bool &theEscaped, Sexy::String &theDest)
 {
-  // @0x1359CC. The binary uses the receiver as the destination string. The
-  // decoded text is written into theDest so a quoted value is not discarded.
-  // A backslash sets the flag and hands the rest of the escape to SpecialChar.
-  theEscaped = false;
-  theDest.reserve(theText.size());
-  const char *aCursor = theText.c_str();
-  const char *aEnd = aCursor + theText.size();
-  while (aCursor != aEnd)
-  {
-    if (*aCursor == '\\')
+    // @0x1359CC. The binary uses the receiver as the destination string. The
+    // decoded text is written into theDest so a quoted value is not discarded.
+    // A backslash sets the flag and hands the rest of the escape to SpecialChar.
+    theEscaped = false;
+    theDest.reserve(theText.size());
+    const char *aCursor = theText.c_str();
+    const char *aEnd = aCursor + theText.size();
+    while (aCursor != aEnd)
     {
-      theEscaped = true;
-      const char *aEscape = aCursor + 1;
-      SpecialChar(aEscape, aEnd, theDest);
-      aCursor = aEscape + 1;
+        if (*aCursor == '\\')
+        {
+            theEscaped = true;
+            const char *aEscape = aCursor + 1;
+            SpecialChar(aEscape, aEnd, theDest);
+            aCursor = aEscape + 1;
+        }
+        else
+        {
+            theDest.push_back(*aCursor);
+            ++aCursor;
+        }
     }
-    else
-    {
-      theDest.push_back(*aCursor);
-      ++aCursor;
-    }
-  }
-  return this;
+    return this;
 }
 
 // ==========================================================================
@@ -222,172 +220,172 @@ JSONWorker *JSONWorker::FixString(Sexy::String const& theText, bool & theEscaped
 template <bool kKeepComments>
 static char *private_RemoveWhiteSpace(const Sexy::String &theSource, bool theDecoded, unsigned int &theOutLength)
 {
-  const char *theText = theSource.c_str();
-  unsigned int theLength = theSource.size();
-  char *result = static_cast<char *>(malloc((size_t)theLength + 1));
-  unsigned int anOut = 0;
-  unsigned int i = 0;
+    const char *theText = theSource.c_str();
+    unsigned int theLength = theSource.size();
+    char *result = static_cast<char *>(malloc((size_t)theLength + 1));
+    unsigned int anOut = 0;
+    unsigned int i = 0;
 
-  while ( i < theLength )
-  {
-    unsigned int aByte = (std::uint8_t)theText[i];
-
-    // Space, tab, CR and LF are dropped.
-    if ( aByte == 9 || aByte == 10 || aByte == 13 || aByte == 32 )
+    while (i < theLength)
     {
-      ++i;
-      continue;
-    }
+        unsigned int aByte = (std::uint8_t)theText[i];
 
-    // A quoted run is copied verbatim, escapes included. When the run was
-    // already decoded, `\"` collapses to `"` and used_ascii_one records it.
-    if ( aByte == 34 )
-    {
-      char aSawQuote = (char)used_ascii_one[0];
-      result[anOut++] = '"';
-      ++i;
-      while ( i < theLength )
-      {
-        unsigned int aQuoted = (std::uint8_t)theText[i++];
-        result[anOut++] = (char)aQuoted;
-        if ( aQuoted == 92 )
+        // Space, tab, CR and LF are dropped.
+        if (aByte == 9 || aByte == 10 || aByte == 13 || aByte == 32)
         {
-          if ( i >= theLength )
-            break;
-          unsigned int aEscaped = (std::uint8_t)theText[i++];
-          if ( theDecoded && aEscaped == 34 )
-          {
-            aSawQuote = 1;
-            aEscaped = 1;
-          }
-          result[anOut++] = (char)aEscaped;
+            ++i;
+            continue;
         }
-        else if ( aQuoted == 34 )
-        {
-          break;
-        }
-      }
-      // TODO(recon): Sexy/ReconData.h declares `used_ascii_one` as a const array,
-      // but the binary both reads and writes it -- it is the JSON writer's "saw a
-      // decoded quote" flag, read back in game/internalJSONNode.cpp. The header
-      // should drop the const; the cast keeps the shared flag working meanwhile.
-      const_cast<unsigned char *>(used_ascii_one)[0] = (unsigned char)aSawQuote;
-      continue;
-    }
 
-    // '#' runs to the end of the line; so does '//'.
-    if ( aByte == 35 || aByte == 47 )
-    {
-      unsigned int aBody;
-      if ( aByte == 35 )
-      {
-        aBody = i + 1;
-      }
-      else
-      {
-        if ( i + 1 >= theLength )
-          break;                     // a lone '/' ends the scan
-        unsigned int aNext = (std::uint8_t)theText[i + 1];
-        if ( aNext == 42 )
+        // A quoted run is copied verbatim, escapes included. When the run was
+        // already decoded, `\"` collapses to `"` and used_ascii_one records it.
+        if (aByte == 34)
         {
-          // "/* ... */"
-          if ( kKeepComments )
-            result[anOut++] = '#';
-          unsigned int j = i + 2;
-          while ( j < theLength )
-          {
-            if ( theText[j] == 42 && j + 1 < theLength && theText[j + 1] == 47 )
+            char aSawQuote = (char)used_ascii_one[0];
+            result[anOut++] = '"';
+            ++i;
+            while (i < theLength)
             {
-              j += 2;
-              break;
+                unsigned int aQuoted = (std::uint8_t)theText[i++];
+                result[anOut++] = (char)aQuoted;
+                if (aQuoted == 92)
+                {
+                    if (i >= theLength)
+                        break;
+                    unsigned int aEscaped = (std::uint8_t)theText[i++];
+                    if (theDecoded && aEscaped == 34)
+                    {
+                        aSawQuote = 1;
+                        aEscaped = 1;
+                    }
+                    result[anOut++] = (char)aEscaped;
+                }
+                else if (aQuoted == 34)
+                {
+                    break;
+                }
             }
-            if ( kKeepComments )
-              result[anOut++] = theText[j];
-            ++j;
-          }
-          if ( kKeepComments )
-            result[anOut++] = '#';
-          i = j;
-          continue;
+            // TODO(recon): Sexy/ReconData.h declares `used_ascii_one` as a const array,
+            // but the binary both reads and writes it -- it is the JSON writer's "saw a
+            // decoded quote" flag, read back in game/internalJSONNode.cpp. The header
+            // should drop the const; the cast keeps the shared flag working meanwhile.
+            const_cast<unsigned char *>(used_ascii_one)[0] = (unsigned char)aSawQuote;
+            continue;
         }
-        if ( aNext != 47 )
-          break;                     // as in the binary: '/' then neither * nor /
-        aBody = i + 2;
-      }
-      if ( kKeepComments )
-        result[anOut++] = '#';
-      unsigned int j = aBody;
-      while ( j < theLength && theText[j] != 10 )
-      {
-        if ( kKeepComments )
-          result[anOut++] = theText[j];
-        ++j;
-      }
-      if ( kKeepComments )
-        result[anOut++] = '#';
-      i = ( j < theLength ) ? j + 1 : j;
-      continue;
+
+        // '#' runs to the end of the line; so does '//'.
+        if (aByte == 35 || aByte == 47)
+        {
+            unsigned int aBody;
+            if (aByte == 35)
+            {
+                aBody = i + 1;
+            }
+            else
+            {
+                if (i + 1 >= theLength)
+                    break; // a lone '/' ends the scan
+                unsigned int aNext = (std::uint8_t)theText[i + 1];
+                if (aNext == 42)
+                {
+                    // "/* ... */"
+                    if (kKeepComments)
+                        result[anOut++] = '#';
+                    unsigned int j = i + 2;
+                    while (j < theLength)
+                    {
+                        if (theText[j] == 42 && j + 1 < theLength && theText[j + 1] == 47)
+                        {
+                            j += 2;
+                            break;
+                        }
+                        if (kKeepComments)
+                            result[anOut++] = theText[j];
+                        ++j;
+                    }
+                    if (kKeepComments)
+                        result[anOut++] = '#';
+                    i = j;
+                    continue;
+                }
+                if (aNext != 47)
+                    break; // as in the binary: '/' then neither * nor /
+                aBody = i + 2;
+            }
+            if (kKeepComments)
+                result[anOut++] = '#';
+            unsigned int j = aBody;
+            while (j < theLength && theText[j] != 10)
+            {
+                if (kKeepComments)
+                    result[anOut++] = theText[j];
+                ++j;
+            }
+            if (kKeepComments)
+                result[anOut++] = '#';
+            i = (j < theLength) ? j + 1 : j;
+            continue;
+        }
+
+        // Anything outside printable ASCII ends the scan, as in the binary.
+        if ((std::uint8_t)(aByte - 32) > 0x5E)
+            break;
+
+        result[anOut++] = (char)aByte;
+        ++i;
     }
 
-    // Anything outside printable ASCII ends the scan, as in the binary.
-    if ( (std::uint8_t)(aByte - 32) > 0x5E )
-      break;
-
-    result[anOut++] = (char)aByte;
-    ++i;
-  }
-
-  theOutLength = anOut;
-  return result;
+    theOutLength = anOut;
+    return result;
 }
 
 // ==========================================================================
 // JSONWorker::RemoveWhiteSpace(Sexy::String const&,unsigned int &,bool)
 // @00135ACC  20 bytes
 // ==========================================================================
-char * JSONWorker::RemoveWhiteSpace(Sexy::String const& theText, unsigned int & theLength, bool theDecoded)
+char *JSONWorker::RemoveWhiteSpace(Sexy::String const &theText, unsigned int &theLength, bool theDecoded)
 {
-  char *aCopy = private_RemoveWhiteSpace<true>(theText, theDecoded, theLength);
-  aCopy[theLength] = 0;
-  return aCopy;
+    char *aCopy = private_RemoveWhiteSpace<true>(theText, theDecoded, theLength);
+    aCopy[theLength] = 0;
+    return aCopy;
 }
 
 // ==========================================================================
 // JSONWorker::parse(Sexy::String const&)
 // @00135AE0  42 bytes
 // ==========================================================================
-JSONWorker * JSONWorker::parse(Sexy::String const& theText)
+JSONWorker *JSONWorker::parse(Sexy::String const &theText)
 {
-  unsigned int aLength = 0;
-  char *aCopy = RemoveWhiteSpace(theText, aLength, true);
-  _parse_unformatted(aCopy, aCopy + aLength);
-  free(aCopy);
-  return this;
+    unsigned int aLength = 0;
+    char *aCopy = RemoveWhiteSpace(theText, aLength, true);
+    _parse_unformatted(aCopy, aCopy + aLength);
+    free(aCopy);
+    return this;
 }
 
 // ==========================================================================
 // JSONWorker::RemoveWhiteSpaceAndCommentsC(Sexy::String const&,bool)
 // @00135B24  22 bytes
 // ==========================================================================
-char * JSONWorker::RemoveWhiteSpaceAndCommentsC(Sexy::String const& theText, bool theDecoded)
+char *JSONWorker::RemoveWhiteSpaceAndCommentsC(Sexy::String const &theText, bool theDecoded)
 {
-  unsigned int aLength = 0;
-  char *aCopy = private_RemoveWhiteSpace<false>(theText, theDecoded, aLength);
-  aCopy[aLength] = 0;
-  return aCopy;
+    unsigned int aLength = 0;
+    char *aCopy = private_RemoveWhiteSpace<false>(theText, theDecoded, aLength);
+    aCopy[aLength] = 0;
+    return aCopy;
 }
 
 // ==========================================================================
 // JSONWorker::RemoveWhiteSpaceAndComments(Sexy::String const&,bool)
 // @00135B3C  42 bytes
 // ==========================================================================
-Sexy::String JSONWorker::RemoveWhiteSpaceAndComments(Sexy::String const& theText, bool theDecoded)
+Sexy::String JSONWorker::RemoveWhiteSpaceAndComments(Sexy::String const &theText, bool theDecoded)
 {
-  unsigned int aLength = 0;
-  char *aCopy = private_RemoveWhiteSpace<false>(theText, theDecoded, aLength);
-  Sexy::String aCleaned(aCopy, aLength);
-  free(aCopy);
-  return aCleaned;
+    unsigned int aLength = 0;
+    char *aCopy = private_RemoveWhiteSpace<false>(theText, theDecoded, aLength);
+    Sexy::String aCleaned(aCopy, aLength);
+    free(aCopy);
+    return aCleaned;
 }
 
 // A leading '#' on an array element is a comment. Bytes copy until a '#' whose
@@ -396,34 +394,34 @@ Sexy::String JSONWorker::RemoveWhiteSpaceAndComments(Sexy::String const& theText
 // and DoArray runs it twice (middle elements at 0x135E1C, the tail at 0x135F2E).
 static void ReadArrayElementComment(const char *&theCursor, Sexy::String &theComment)
 {
-  if (*theCursor != '#')
-    return;
-  for (;;)
-  {
-    const char *aNext = theCursor + 1;
-    if (*aNext == '#')
+    if (*theCursor != '#')
+        return;
+    for (;;)
     {
-      theCursor = aNext;
+        const char *aNext = theCursor + 1;
+        if (*aNext == '#')
+        {
+            theCursor = aNext;
+        }
+        else
+        {
+            const char *aScan = theCursor + 2;
+            unsigned int aCount = 0;
+            while (*aScan != '#')
+            {
+                ++aScan;
+                ++aCount;
+            }
+            theCursor = aScan;
+            if (aCount != 0)
+                theComment.Append(aNext, aCount);
+        }
+        unsigned char aMark = (unsigned char)theCursor[1];
+        theCursor += 1;
+        if (aMark != '#')
+            return;
+        theComment.push_back('\n');
     }
-    else
-    {
-      const char *aScan = theCursor + 2;
-      unsigned int aCount = 0;
-      while (*aScan != '#')
-      {
-        ++aScan;
-        ++aCount;
-      }
-      theCursor = aScan;
-      if (aCount != 0)
-        theComment.Append(aNext, aCount);
-    }
-    unsigned char aMark = (unsigned char)theCursor[1];
-    theCursor += 1;
-    if (aMark != '#')
-      return;
-    theComment.push_back('\n');
-  }
 }
 
 // One comma-separated element. A colon inside it means the text is an object,
@@ -432,324 +430,358 @@ static void ReadArrayElementComment(const char *&theCursor, Sexy::String &theCom
 // an int, so both recoveries use the allowed form.
 static bool AppendArrayElement(internalJSONNode *theNode, const Sexy::String &theSlice)
 {
-  if (JSONWorker::FindNextRelevant<(char)58>(theSlice, 0) != (unsigned int)-1)
-    return false;
+    if (JSONWorker::FindNextRelevant<(char)58>(theSlice, 0) != (unsigned int)-1)
+        return false;
 
-  if ((gGuard_single_2 & 1) == 0 && CxaGuardAcquire(&gGuard_single_2) != 0)
-  {
-    gEmptyJsonString = Sexy::String();
-    CxaGuardRelease(&gGuard_single_2);
-    RegisterAtExit(&gEmptyJsonString, jsonSingletonDtorThunk, nullptr);
-  }
+    if ((gGuard_single_2 & 1) == 0 && CxaGuardAcquire(&gGuard_single_2) != 0)
+    {
+        gEmptyJsonString = Sexy::String();
+        CxaGuardRelease(&gGuard_single_2);
+        RegisterAtExit(&gEmptyJsonString, jsonSingletonDtorThunk, nullptr);
+    }
 
-  const char *aCursor = theSlice.c_str();
-  Sexy::String aComment;
-  ReadArrayElementComment(aCursor, aComment);
+    const char *aCursor = theSlice.c_str();
+    Sexy::String aComment;
+    ReadArrayElementComment(aCursor, aComment);
 
-  Sexy::String aValue(aCursor);
-  Sexy::String aEmptyName(Sexy::gEmptyStringData, 0u);
-  // newInternal returns the node as an int. newJSONNode ignores its receiver
-  // and wraps the node it is handed (its body stores `this`, and the caller
-  // passes the node just built), so the recovery is the allowed form.
-  internalJSONNode *aInternal = theNode->newInternal(aEmptyName, aValue);
-  JSONNode *aChild = JSONNode::Adopt(aInternal);
-  internalJSONNode *aStored = aChild->mInternal;
-  if (aStored->refcount > 1)
-  {
-    aStored->refcount -= 1;
-    aStored = aStored->newInternal(*aStored);
-    aChild->mInternal = aStored;
-  }
-  aStored->_comment = aComment;
+    Sexy::String aValue(aCursor);
+    Sexy::String aEmptyName(Sexy::gEmptyStringData, 0u);
+    // newInternal returns the node as an int. newJSONNode ignores its receiver
+    // and wraps the node it is handed (its body stores `this`, and the caller
+    // passes the node just built), so the recovery is the allowed form.
+    internalJSONNode *aInternal = theNode->newInternal(aEmptyName, aValue);
+    JSONNode *aChild = JSONNode::Adopt(aInternal);
+    internalJSONNode *aStored = aChild->mInternal;
+    if (aStored->refcount > 1)
+    {
+        aStored->refcount -= 1;
+        aStored = aStored->newInternal(*aStored);
+        aChild->mInternal = aStored;
+    }
+    aStored->_comment = aComment;
 
-  jsonChildren *aChildren = theNode->CHILDREN;
-  aChildren->mChildren.push_back(aChild);
-  return true;
+    jsonChildren *aChildren = theNode->CHILDREN;
+    aChildren->mChildren.push_back(aChild);
+    return true;
 }
 
 // ==========================================================================
 // JSONWorker::DoArray(internalJSONNode const*,Sexy::String const&)
 // @00135B80  1134 bytes
 // ==========================================================================
-void JSONWorker::DoArray(internalJSONNode *theNode, Sexy::String const& theText)
+void JSONWorker::DoArray(internalJSONNode *theNode, Sexy::String const &theText)
 {
-  // @0x135B80. The binary passes the node in the receiver register and the
-  // text in the next one. The children pointer is the node's, and a missing
-  // '[' Nullifies that node.
-  internalJSONNode *aNode = theNode;
-  if (theText.c_str()[0] != '[')
-  {
-    aNode->Nullify();
-    return;
-  }
-  if (theText.size() <= 2)
-    return;
-
-  Sexy::String aSlice;
-  unsigned int aFrom = 1;
-  unsigned int aComma = JSONWorker::FindNextRelevant<(char)44>(theText, 1);
-  for (;;)
-  {
-    unsigned int aEnd = (aComma == (unsigned int)-1) ? (theText.size() - 1) : aComma;
-    aSlice.assign(theText.c_str() + aFrom, aEnd - aFrom);
-    if (!AppendArrayElement(aNode, aSlice))
+    // @0x135B80. The binary passes the node in the receiver register and the
+    // text in the next one. The children pointer is the node's, and a missing
+    // '[' Nullifies that node.
+    internalJSONNode *aNode = theNode;
+    if (theText.c_str()[0] != '[')
     {
-      aNode->Nullify();
-      return;
+        aNode->Nullify();
+        return;
     }
-    if (aComma == (unsigned int)-1)
-      return;
-    aFrom = aComma + 1;
-    aComma = JSONWorker::FindNextRelevant<(char)44>(theText, aFrom);
-  }
+    if (theText.size() <= 2)
+        return;
+
+    Sexy::String aSlice;
+    unsigned int aFrom = 1;
+    unsigned int aComma = JSONWorker::FindNextRelevant<(char)44>(theText, 1);
+    for (;;)
+    {
+        unsigned int aEnd = (aComma == (unsigned int)-1) ? (theText.size() - 1) : aComma;
+        aSlice.assign(theText.c_str() + aFrom, aEnd - aFrom);
+        if (!AppendArrayElement(aNode, aSlice))
+        {
+            aNode->Nullify();
+            return;
+        }
+        if (aComma == (unsigned int)-1)
+            return;
+        aFrom = aComma + 1;
+        aComma = JSONWorker::FindNextRelevant<(char)44>(theText, aFrom);
+    }
 }
 
 // One "name: value" pair. A leading '#' on the name is a comment, using the
 // same scan as an array element. The value runs from the byte after the colon
 // up to the comma, or to the closing '}' for the last pair. newInternal and
 // newJSONNode both return the pointer as an int.
-static void AppendObjectMember(internalJSONNode *theNode, Sexy::String &theName, const char *theValueFirst, const char *theValueLast)
+static void AppendObjectMember(
+    internalJSONNode *theNode, Sexy::String &theName, const char *theValueFirst, const char *theValueLast)
 {
-  const char *aCursor = theName.c_str();
-  Sexy::String aComment;
-  ReadArrayElementComment(aCursor, aComment);
-  Sexy::String aName(aCursor);
+    const char *aCursor = theName.c_str();
+    Sexy::String aComment;
+    ReadArrayElementComment(aCursor, aComment);
+    Sexy::String aName(aCursor);
 
-  Sexy::String aValue(theValueFirst, (unsigned int)(theValueLast - theValueFirst));
-  internalJSONNode *aInternal = theNode->newInternal(aName, aValue);
-  JSONNode *aChild = JSONNode::Adopt(aInternal);
-  internalJSONNode *aStored = aChild->mInternal;
-  if (aStored->refcount > 1)
-  {
-    aStored->refcount -= 1;
-    aStored = aStored->newInternal(*aStored);
-    aChild->mInternal = aStored;
-  }
-  aStored->_comment = aComment;
+    Sexy::String aValue(theValueFirst, (unsigned int)(theValueLast - theValueFirst));
+    internalJSONNode *aInternal = theNode->newInternal(aName, aValue);
+    JSONNode *aChild = JSONNode::Adopt(aInternal);
+    internalJSONNode *aStored = aChild->mInternal;
+    if (aStored->refcount > 1)
+    {
+        aStored->refcount -= 1;
+        aStored = aStored->newInternal(*aStored);
+        aChild->mInternal = aStored;
+    }
+    aStored->_comment = aComment;
 
-  jsonChildren *aChildren = theNode->CHILDREN;
-  aChildren->mChildren.push_back(aChild);
+    jsonChildren *aChildren = theNode->CHILDREN;
+    aChildren->mChildren.push_back(aChild);
 }
 
 // ==========================================================================
 // JSONWorker::DoNode(internalJSONNode const*,Sexy::String const&)
 // @00136010  1138 bytes
 // ==========================================================================
-void JSONWorker::DoNode(internalJSONNode *theNode, Sexy::String const& theText)
+void JSONWorker::DoNode(internalJSONNode *theNode, Sexy::String const &theText)
 {
-  // @0x136010. Same register split as DoArray: the node is the receiver, the
-  // text is the next argument. A missing colon, or a later colon that never
-  // appears, Nullifies the node. An empty "{}" returns without touching the
-  // children.
-  internalJSONNode *aNode = theNode;
-  if (theText.c_str()[0] != '{')
-  {
-    aNode->Nullify();
-    return;
-  }
-  if (theText.size() <= 2)
-    return;
+    // @0x136010. Same register split as DoArray: the node is the receiver, the
+    // text is the next argument. A missing colon, or a later colon that never
+    // appears, Nullifies the node. An empty "{}" returns without touching the
+    // children.
+    internalJSONNode *aNode = theNode;
+    if (theText.c_str()[0] != '{')
+    {
+        aNode->Nullify();
+        return;
+    }
+    if (theText.size() <= 2)
+        return;
 
-  unsigned int aColon = JSONWorker::FindNextRelevant<(char)58>(theText, 1);
-  if (aColon == (unsigned int)-1)
-  {
-    aNode->Nullify();
-    return;
-  }
-
-  const char *aText = theText.c_str();
-  Sexy::String aName(aText + 1, aColon - 1);
-  unsigned int aComma = JSONWorker::FindNextRelevant<(char)44>(theText, aColon);
-  for (;;)
-  {
-    const char *aValueFirst = aText + aColon + 1;
-    const char *aValueLast;
-    if (aComma == (unsigned int)-1)
-      aValueLast = aText + theText.size() - 1;
-    else
-      aValueLast = aText + aComma;
-    AppendObjectMember(aNode, aName, aValueFirst, aValueLast);
-    if (aComma == (unsigned int)-1)
-      return;
-
-    unsigned int aNext = aComma + 1;
-    aColon = JSONWorker::FindNextRelevant<(char)58>(theText, aNext);
+    unsigned int aColon = JSONWorker::FindNextRelevant<(char)58>(theText, 1);
     if (aColon == (unsigned int)-1)
     {
-      aNode->Nullify();
-      return;
+        aNode->Nullify();
+        return;
     }
-    aName.assign(aText + aNext, aColon - aNext);
-    aComma = JSONWorker::FindNextRelevant<(char)44>(theText, aColon);
-  }
-}
 
+    const char *aText = theText.c_str();
+    Sexy::String aName(aText + 1, aColon - 1);
+    unsigned int aComma = JSONWorker::FindNextRelevant<(char)44>(theText, aColon);
+    for (;;)
+    {
+        const char *aValueFirst = aText + aColon + 1;
+        const char *aValueLast;
+        if (aComma == (unsigned int)-1)
+            aValueLast = aText + theText.size() - 1;
+        else
+            aValueLast = aText + aComma;
+        AppendObjectMember(aNode, aName, aValueFirst, aValueLast);
+        if (aComma == (unsigned int)-1)
+            return;
+
+        unsigned int aNext = aComma + 1;
+        aColon = JSONWorker::FindNextRelevant<(char)58>(theText, aNext);
+        if (aColon == (unsigned int)-1)
+        {
+            aNode->Nullify();
+            return;
+        }
+        aName.assign(aText + aNext, aColon - aNext);
+        aComma = JSONWorker::FindNextRelevant<(char)44>(theText, aColon);
+    }
+}
 
 // ==========================================================================
 // JSONWorker::Hex(char const*&)
 // @0052AF1C  74 bytes
 // ==========================================================================
-int JSONWorker::Hex(char const*& theCursor)
+int JSONWorker::Hex(char const *&theCursor)
 {
-  // @0x52AF1C reads two hex digits and advances the cursor by one. Digits above
-  // 'p' are lower-case hex (c - 'W'); 'A'..'P' are upper-case (c - '7').
-  const char *aDigits = theCursor;
-  theCursor = aDigits + 1;
-  unsigned char aHigh = (unsigned char)(aDigits[0] - 48);
-  if (aHigh > 0x30)
-    aHigh = (unsigned char)(aDigits[0] - 87);
-  else if (aHigh > 9)
-    aHigh = (unsigned char)(aDigits[0] - 55);
-  unsigned char aLow = (unsigned char)(aDigits[1] - 48);
-  if (aLow > 0x30)
-    aLow = (unsigned char)(aDigits[1] - 87);
-  else if (aLow > 9)
-    aLow = (unsigned char)(aDigits[1] - 55);
-  return (unsigned char)(aLow | (unsigned char)(aHigh << 4));
+    // @0x52AF1C reads two hex digits and advances the cursor by one. Digits above
+    // 'p' are lower-case hex (c - 'W'); 'A'..'P' are upper-case (c - '7').
+    const char *aDigits = theCursor;
+    theCursor = aDigits + 1;
+    unsigned char aHigh = (unsigned char)(aDigits[0] - 48);
+    if (aHigh > 0x30)
+        aHigh = (unsigned char)(aDigits[0] - 87);
+    else if (aHigh > 9)
+        aHigh = (unsigned char)(aDigits[0] - 55);
+    unsigned char aLow = (unsigned char)(aDigits[1] - 48);
+    if (aLow > 0x30)
+        aLow = (unsigned char)(aDigits[1] - 87);
+    else if (aLow > 9)
+        aLow = (unsigned char)(aDigits[1] - 55);
+    return (unsigned char)(aLow | (unsigned char)(aHigh << 4));
 }
 
 // ==========================================================================
 // JSONWorker::UTF8(char const*&,char const*)
 // @0052AF68  20 bytes
 // ==========================================================================
-int JSONWorker::UTF8(char const*& theCursor, char const* theEnd)
+int JSONWorker::UTF8(char const *&theCursor, char const *theEnd)
 {
-  // @0x52AF68. Fewer than five bytes left means the \u escape does not fit.
-  if (theEnd - theCursor <= 4)
-    return 0;
-  theCursor += 3;
-  return Hex(theCursor);
+    // @0x52AF68. Fewer than five bytes left means the \u escape does not fit.
+    if (theEnd - theCursor <= 4)
+        return 0;
+    theCursor += 3;
+    return Hex(theCursor);
 }
 
 // ==========================================================================
 // JSONWorker::SpecialChar(char const*&,char const*,Sexy::String &)
 // @0052AF7C  888 bytes
 // ==========================================================================
-JSONWorker * JSONWorker::SpecialChar(char const*& theCursor, char const* theEnd, Sexy::String & theDest)
+JSONWorker *JSONWorker::SpecialChar(char const *&theCursor, char const *theEnd, Sexy::String &theDest)
 {
-  // @0x52AF7C. theCursor points at the character after the backslash. Named
-  // escapes append one character; a digit run is three octal digits; 'x' is
-  // one hex byte; 'u' is the UTF-8 form. Too few bytes left appends a NUL.
-  if (theCursor == theEnd)
+    // @0x52AF7C. theCursor points at the character after the backslash. Named
+    // escapes append one character; a digit run is three octal digits; 'x' is
+    // one hex byte; 'u' is the UTF-8 form. Too few bytes left appends a NUL.
+    if (theCursor == theEnd)
+        return this;
+    unsigned char aChar = (unsigned char)*theCursor;
+    unsigned char aOut = aChar;
+    switch (aChar)
+    {
+        case '"':
+            aOut = '"';
+            break;
+        case '/':
+            aOut = '/';
+            break;
+        case '\\':
+            aOut = '\\';
+            break;
+        case 'b':
+            aOut = 8;
+            break;
+        case 'f':
+            aOut = 12;
+            break;
+        case 'n':
+            aOut = 10;
+            break;
+        case 'r':
+            aOut = 13;
+            break;
+        case 't':
+            aOut = 9;
+            break;
+        case 'v':
+            aOut = 11;
+            break;
+        case 'u':
+            aOut = (unsigned char)UTF8(theCursor, theEnd);
+            break;
+        case 'x':
+            if (theEnd - theCursor <= 3)
+            {
+                theDest.push_back(0);
+                return this;
+            }
+            theCursor += 1;
+            aOut = (unsigned char)Hex(theCursor);
+            break;
+        default:
+            if (aChar >= '0' && aChar <= '7')
+            {
+                if (theEnd - theCursor <= 3)
+                    aOut = 0;
+                else
+                {
+                    unsigned char aHundreds = (unsigned char)(theCursor[0] - '0');
+                    unsigned char aTens = (unsigned char)(theCursor[1] - '0');
+                    unsigned char aOnes = (unsigned char)(theCursor[2] - '0');
+                    theCursor += 2;
+                    aOut = (unsigned char)((aTens << 3) | (aHundreds << 6) | aOnes);
+                }
+            }
+            break;
+    }
+    theDest.push_back((char)aOut);
     return this;
-  unsigned char aChar = (unsigned char)*theCursor;
-  unsigned char aOut = aChar;
-  switch (aChar)
-  {
-  case '"': aOut = '"'; break;
-  case '/': aOut = '/'; break;
-  case '\\': aOut = '\\'; break;
-  case 'b': aOut = 8; break;
-  case 'f': aOut = 12; break;
-  case 'n': aOut = 10; break;
-  case 'r': aOut = 13; break;
-  case 't': aOut = 9; break;
-  case 'v': aOut = 11; break;
-  case 'u':
-    aOut = (unsigned char)UTF8(theCursor, theEnd);
-    break;
-  case 'x':
-    if (theEnd - theCursor <= 3)
-    {
-      theDest.push_back(0);
-      return this;
-    }
-    theCursor += 1;
-    aOut = (unsigned char)Hex(theCursor);
-    break;
-  default:
-    if (aChar >= '0' && aChar <= '7')
-    {
-      if (theEnd - theCursor <= 3)
-        aOut = 0;
-      else
-      {
-        unsigned char aHundreds = (unsigned char)(theCursor[0] - '0');
-        unsigned char aTens = (unsigned char)(theCursor[1] - '0');
-        unsigned char aOnes = (unsigned char)(theCursor[2] - '0');
-        theCursor += 2;
-        aOut = (unsigned char)((aTens << 3) | (aHundreds << 6) | aOnes);
-      }
-    }
-    break;
-  }
-  theDest.push_back((char)aOut);
-  return this;
 }
 
 // ==========================================================================
 // JSONWorker::toUTF8(unsigned char)
 // @0052B2FC  218 bytes
 // ==========================================================================
-JSONWorker * JSONWorker::toUTF8(unsigned char theByte, Sexy::String & theDest)
+JSONWorker *JSONWorker::toUTF8(unsigned char theByte, Sexy::String &theDest)
 {
-  // @0x52B2FC. The binary uses the receiver as the destination string. The
-  // byte becomes the two hex digits after the literal "\u00".
-  Sexy::String *aDest = &theDest;
-  *aDest = "\\u";
-  aDest->Append("00", 2);
-  unsigned int aHigh = (theByte >> 4) + 48;
-  if (aHigh > 0x39)
-    aHigh = (theByte >> 4) + 55;
-  unsigned int aNibble = theByte & 0xF;
-  unsigned int aLow = aNibble + 48;
-  if (aLow > 0x39)
-    aLow = aNibble + 55;
-  aDest->push_back((char)aHigh);
-  aDest->push_back((char)aLow);
-  return this;
+    // @0x52B2FC. The binary uses the receiver as the destination string. The
+    // byte becomes the two hex digits after the literal "\u00".
+    Sexy::String *aDest = &theDest;
+    *aDest = "\\u";
+    aDest->Append("00", 2);
+    unsigned int aHigh = (theByte >> 4) + 48;
+    if (aHigh > 0x39)
+        aHigh = (theByte >> 4) + 55;
+    unsigned int aNibble = theByte & 0xF;
+    unsigned int aLow = aNibble + 48;
+    if (aLow > 0x39)
+        aLow = aNibble + 55;
+    aDest->push_back((char)aHigh);
+    aDest->push_back((char)aLow);
+    return this;
 }
 
 // ==========================================================================
 // JSONWorker::UnfixString(Sexy::String const&,bool,Sexy::String &)
 // @0052B408  350 bytes
 // ==========================================================================
-std::uint8_t ** JSONWorker::UnfixString(Sexy::String const& theText, bool theEscape, Sexy::String & theDest)
+std::uint8_t **JSONWorker::UnfixString(Sexy::String const &theText, bool theEscape, Sexy::String &theDest)
 {
-  // @0x52B408. With escaping off the destination is a copy of the source.
-  // Otherwise each control character becomes its two-character escape and a
-  // byte outside the printable range becomes "\u00XX".
-  if (!theEscape)
-  {
-    theDest = theText;
-    return nullptr;
-  }
+    // @0x52B408. With escaping off the destination is a copy of the source.
+    // Otherwise each control character becomes its two-character escape and a
+    // byte outside the printable range becomes "\u00XX".
+    if (!theEscape)
+    {
+        theDest = theText;
+        return nullptr;
+    }
 
-  const unsigned char *aCursor = static_cast<const unsigned char *>(
-      static_cast<const void *>(theText.c_str()));
-  const unsigned char *aEnd = aCursor + theText.size();
-  while (aCursor != aEnd)
-  {
-    unsigned char aByte = *aCursor++;
-    const char *aEscape = nullptr;
-    switch (aByte)
+    const unsigned char *aCursor = static_cast<const unsigned char *>(static_cast<const void *>(theText.c_str()));
+    const unsigned char *aEnd = aCursor + theText.size();
+    while (aCursor != aEnd)
     {
-    case 12: aEscape = "\\f"; break;
-    case 9:  aEscape = "\\t"; break;
-    case 10: aEscape = "\\n"; break;
-    case 8:  aEscape = "\\b"; break;
-    case 34: aEscape = "\\\""; break;
-    case 47: aEscape = "\\/"; break;
-    case 92: aEscape = "\\\\"; break;
-    case 13: aEscape = "\\r"; break;
-    default: break;
+        unsigned char aByte = *aCursor++;
+        const char *aEscape = nullptr;
+        switch (aByte)
+        {
+            case 12:
+                aEscape = "\\f";
+                break;
+            case 9:
+                aEscape = "\\t";
+                break;
+            case 10:
+                aEscape = "\\n";
+                break;
+            case 8:
+                aEscape = "\\b";
+                break;
+            case 34:
+                aEscape = "\\\"";
+                break;
+            case 47:
+                aEscape = "\\/";
+                break;
+            case 92:
+                aEscape = "\\\\";
+                break;
+            case 13:
+                aEscape = "\\r";
+                break;
+            default:
+                break;
+        }
+        if (aEscape != nullptr)
+        {
+            theDest.Append(aEscape, 2);
+        }
+        else if ((unsigned char)(aByte - 32) > 0x5E)
+        {
+            Sexy::String aEncoded;
+            toUTF8(aByte, aEncoded);
+            theDest += aEncoded;
+        }
+        else
+        {
+            theDest.push_back((char)aByte);
+        }
     }
-    if (aEscape != nullptr)
-    {
-      theDest.Append(aEscape, 2);
-    }
-    else if ((unsigned char)(aByte - 32) > 0x5E)
-    {
-      Sexy::String aEncoded;
-      toUTF8(aByte, aEncoded);
-      theDest += aEncoded;
-    }
-    else
-    {
-      theDest.push_back((char)aByte);
-    }
-  }
-  return nullptr;
+    return nullptr;
 }
 
 // ==========================================================================
@@ -768,8 +800,7 @@ std::uint8_t ** JSONWorker::UnfixString(Sexy::String const& theText, bool theEsc
 // The unsigned comparisons matter: the decompiler prints them as `bool // cc`
 // (carry clear) because they compare a byte, so the locals are `unsigned
 // __int8` here exactly as in the dump.
-template <char C>
-unsigned int JSONWorker::FindNextRelevant(Sexy::String const& theText, unsigned int theStart)
+template <char C> unsigned int JSONWorker::FindNextRelevant(Sexy::String const &theText, unsigned int theStart)
 {
     const char *aText = theText.c_str();
     const char *aEnd = aText + theText.size();
@@ -824,5 +855,5 @@ unsigned int JSONWorker::FindNextRelevant(Sexy::String const& theText, unsigned 
     return (unsigned int)-1;
 }
 
-template unsigned int JSONWorker::FindNextRelevant<(char)44>(Sexy::String const& theText, unsigned int theStart);
-template unsigned int JSONWorker::FindNextRelevant<(char)58>(Sexy::String const& theText, unsigned int theStart);
+template unsigned int JSONWorker::FindNextRelevant<(char)44>(Sexy::String const &theText, unsigned int theStart);
+template unsigned int JSONWorker::FindNextRelevant<(char)58>(Sexy::String const &theText, unsigned int theStart);

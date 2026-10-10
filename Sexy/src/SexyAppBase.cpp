@@ -59,7 +59,7 @@ struct SharedImageKey
     Sexy::String mFile;
 };
 
-bool operator<(const SharedImageKey& aLeft, const SharedImageKey& aRight)
+bool operator<(const SharedImageKey &aLeft, const SharedImageKey &aRight)
 {
     int aCompare = aLeft.mName.compare(aRight.mName);
     if (aCompare != 0)
@@ -67,7 +67,7 @@ bool operator<(const SharedImageKey& aLeft, const SharedImageKey& aRight)
     return aLeft.mFile.compare(aRight.mFile) < 0;
 }
 
-static Sexy::String UpperCopy(const Sexy::String& theText)
+static Sexy::String UpperCopy(const Sexy::String &theText)
 {
     Sexy::String aCopy = theText;
     for (unsigned int i = 0; i < aCopy.size(); ++i)
@@ -77,9 +77,9 @@ static Sexy::String UpperCopy(const Sexy::String& theText)
 
 // A property key that is nothing but an integer (optional '-', decimal, or
 // 0x hex). SetString records those in mPopLoc as well as the string table.
-bool PropertyKeyIsInteger(const Sexy::String& theKey, int* theValue)
+bool PropertyKeyIsInteger(const Sexy::String &theKey, int *theValue)
 {
-    const char* aText = theKey.c_str();
+    const char *aText = theKey.c_str();
     unsigned int aLength = theKey.size();
     *theValue = 0;
     if (aLength == 0)
@@ -93,8 +93,7 @@ bool PropertyKeyIsInteger(const Sexy::String& theKey, int* theValue)
         return false;
 
     int aBase = 10;
-    if (aText[aIndex] == '0' && aIndex + 1 < aLength
-        && (aText[aIndex + 1] == 'x' || aText[aIndex + 1] == 'X'))
+    if (aText[aIndex] == '0' && aIndex + 1 < aLength && (aText[aIndex + 1] == 'x' || aText[aIndex + 1] == 'X'))
     {
         aIndex += 2;
         aBase = 16;
@@ -143,12 +142,12 @@ struct TexHeader
 
 const int kBytesPerPixel[] = {0, 1, 4, 2, 2, 2, 4, 2, 2, 4, 2};
 
-bool NameContains(const Sexy::String& theName, const char* theNeedle)
+bool NameContains(const Sexy::String &theName, const char *theNeedle)
 {
     const unsigned int aCount = 4;
     if (aCount > theName.size())
         return false;
-    const char* aData = theName.c_str();
+    const char *aData = theName.c_str();
     unsigned int aStart = theName.size() - aCount;
     for (;;)
     {
@@ -175,10 +174,14 @@ unsigned int HslToRgb(int theHue, int theSaturation, int theLightness)
     theHue = ((theHue % 256) + 256) % 256;
     int aSat = theSaturation;
     int aLight = theLightness;
-    if (aSat < 0) aSat = 0;
-    if (aSat > 255) aSat = 255;
-    if (aLight < 0) aLight = 0;
-    if (aLight > 255) aLight = 255;
+    if (aSat < 0)
+        aSat = 0;
+    if (aSat > 255)
+        aSat = 255;
+    if (aLight < 0)
+        aLight = 0;
+    if (aLight > 255)
+        aLight = 255;
 
     if (aSat == 0)
         return (unsigned int)((aLight << 16) | (aLight << 8) | aLight);
@@ -195,12 +198,36 @@ unsigned int HslToRgb(int theHue, int theSaturation, int theLightness)
     int aBlue = aLight;
     switch (aSector % 6)
     {
-        case 0: aRed = aMax; aGreen = aRising; aBlue = aMin; break;
-        case 1: aRed = aFalling; aGreen = aMax; aBlue = aMin; break;
-        case 2: aRed = aMin; aGreen = aMax; aBlue = aRising; break;
-        case 3: aRed = aMin; aGreen = aFalling; aBlue = aMax; break;
-        case 4: aRed = aRising; aGreen = aMin; aBlue = aMax; break;
-        default: aRed = aMax; aGreen = aMin; aBlue = aFalling; break;
+        case 0:
+            aRed = aMax;
+            aGreen = aRising;
+            aBlue = aMin;
+            break;
+        case 1:
+            aRed = aFalling;
+            aGreen = aMax;
+            aBlue = aMin;
+            break;
+        case 2:
+            aRed = aMin;
+            aGreen = aMax;
+            aBlue = aRising;
+            break;
+        case 3:
+            aRed = aMin;
+            aGreen = aFalling;
+            aBlue = aMax;
+            break;
+        case 4:
+            aRed = aRising;
+            aGreen = aMin;
+            aBlue = aMax;
+            break;
+        default:
+            aRed = aMax;
+            aGreen = aMin;
+            aBlue = aFalling;
+            break;
     }
     return (unsigned int)((ClampByte(aRed) << 16) | (ClampByte(aGreen) << 8) | ClampByte(aBlue));
 }
@@ -210,7 +237,7 @@ unsigned int HslToRgb(int theHue, int theSaturation, int theLightness)
 namespace Sexy
 {
 
-IFileDriver* gFileDriver = nullptr;
+IFileDriver *gFileDriver = nullptr;
 
 // The loading overlay. It only has to exist so the widget manager can hold it.
 // Anonymous so it does not collide with the framework's PreLoadWidget symbol.
@@ -219,34 +246,34 @@ namespace
 class PreLoadWidget : public Widget
 {
 public:
-    explicit PreLoadWidget(SexyAppBase* theApp)
+    explicit PreLoadWidget(SexyAppBase *theApp)
     {
         (void)theApp;
     }
 };
 }
 
-BaseAppDriver* BaseAppDriver::CreateAppDriver(SexyAppBase* theApp)
+BaseAppDriver *BaseAppDriver::CreateAppDriver(SexyAppBase *theApp)
 {
     return Lawn_CreateAppDriver(theApp);
 }
 
-IAppDriver* IAppDriver::CreateAppDriver(SexyAppBase* theApp)
+IAppDriver *IAppDriver::CreateAppDriver(SexyAppBase *theApp)
 {
     return Lawn_CreateAppDriver(theApp);
 }
 
-IResStreamsDriver* IResStreamsDriver::CreateResStreamsDriver()
+IResStreamsDriver *IResStreamsDriver::CreateResStreamsDriver()
 {
     return nullptr;
 }
 
-IAudioDriver* IAudioDriver::CreateAudioDriver(SexyAppBase* theApp)
+IAudioDriver *IAudioDriver::CreateAudioDriver(SexyAppBase *theApp)
 {
     return Lawn_CreateAudioDriver(theApp);
 }
 
-IHttpDriver* IHttpDriver::CreateHttpDriver(SexyAppBase* theApp)
+IHttpDriver *IHttpDriver::CreateHttpDriver(SexyAppBase *theApp)
 {
     return Lawn_CreateHttpDriver(theApp);
 }
@@ -485,9 +512,7 @@ SexyAppBase::SexyAppBase()
 
     Sexy::String aResourceFolder;
     Sexy::GetResourcesFolder(&aResourceFolder);
-    if (!aResourceFolder.empty()
-        && aResourceFolder.compare(".") != 0
-        && aResourceFolder.compare("./") != 0)
+    if (!aResourceFolder.empty() && aResourceFolder.compare(".") != 0 && aResourceFolder.compare("./") != 0)
     {
         p_addResource(aResourceFolder.c_str(), "native", 0);
     }
@@ -506,7 +531,7 @@ SexyAppBase::SexyAppBase()
     mInputManager = new InputManager(this, 0x400u);
     mInputConnectManager = new InputConnectManager(false);
     mInputConnectManager->Start(mInputManager);
-    mInputConnectManager->AddListener(static_cast<InputConnectListener*>(this));
+    mInputConnectManager->AddListener(static_cast<InputConnectListener *>(this));
 
     mPrimaryThreadId = 0;
     Sexy::Thread aThread = CurrentThread();
@@ -526,16 +551,16 @@ SexyAppBase::~SexyAppBase()
 {
     Cleanup();
 
-    LogManager* aLog = static_cast<LogManager*>(LogManager::getInstance());
+    LogManager *aLog = static_cast<LogManager *>(LogManager::getInstance());
     if (aLog != nullptr)
         aLog->close();
 
-    for (Dialog* aDialog : mDialogList)
+    for (Dialog *aDialog : mDialogList)
         delete aDialog;
     mDialogList.clear();
     mDialogMap.clear();
 
-    for (Widget* aWidget : mSafeDeleteList)
+    for (Widget *aWidget : mSafeDeleteList)
         delete aWidget;
     mSafeDeleteList.clear();
 }
@@ -547,91 +572,119 @@ void SexyAppBase::OnFullVersionChange() {}
 void SexyAppBase::AppEnteredBackground() {}
 void SexyAppBase::AppEnteredForeground() {}
 void SexyAppBase::CleanupHook() {}
-bool SexyAppBase::AppCanRestore() { return true; }
+bool SexyAppBase::AppCanRestore()
+{
+    return true;
+}
 void SexyAppBase::ModalOpen() {}
 void SexyAppBase::ModalClose() {}
 void SexyAppBase::GotFocus() {}
 void SexyAppBase::LostFocus() {}
-void SexyAppBase::URLOpenFailed(const Sexy::String&) {}
-void SexyAppBase::URLOpenSucceeded(const Sexy::String&) {}
-void SexyAppBase::SEHOccured() { mSEHOccured = true; }
+void SexyAppBase::URLOpenFailed(const Sexy::String &) {}
+void SexyAppBase::URLOpenSucceeded(const Sexy::String &) {}
+void SexyAppBase::SEHOccured()
+{
+    mSEHOccured = true;
+}
 void SexyAppBase::ShutdownHook() {}
 void SexyAppBase::PreDrawScreen() {}
 void SexyAppBase::BeginPopup() {}
 void SexyAppBase::EndPopup() {}
 void SexyAppBase::HandleNotifyGameMessage(int, int) {}
-void SexyAppBase::CloseRequestAsync() { mCloseRequested = true; }
+void SexyAppBase::CloseRequestAsync()
+{
+    mCloseRequested = true;
+}
 void SexyAppBase::Done3dTesting() {}
 void SexyAppBase::MakeWindow() {}
 void SexyAppBase::LoadingThreadProc() {}
 void SexyAppBase::LoadingThreadCompleted() {}
 void SexyAppBase::PreTerminate() {}
-void SexyAppBase::Terminate() { if (mAppDriver != nullptr) mAppDriver->Terminate(); }
+void SexyAppBase::Terminate()
+{
+    if (mAppDriver != nullptr)
+        mAppDriver->Terminate();
+}
 void SexyAppBase::PreDisplayHook() {}
 void SexyAppBase::PreDDInterfaceInitHook() {}
 void SexyAppBase::PostDDInterfaceInitHook() {}
-bool SexyAppBase::ChangeDirHook(const char*) { return false; }
+bool SexyAppBase::ChangeDirHook(const char *)
+{
+    return false;
+}
 void SexyAppBase::InitPropertiesHook() {}
 void SexyAppBase::InitHook() {}
-void SexyAppBase::InputStatusChanged(void*) {}
+void SexyAppBase::InputStatusChanged(void *) {}
 void SexyAppBase::PreLoadResources() {}
 void SexyAppBase::PostPreLoad() {}
 void SexyAppBase::StartSensor(int) {}
 void SexyAppBase::StopSensor(int) {}
-bool SexyAppBase::IsUIOrientationAllowed(int) { return true; }
+bool SexyAppBase::IsUIOrientationAllowed(int)
+{
+    return true;
+}
 void SexyAppBase::UIOrientationChanged(int) {}
-int SexyAppBase::GetUIOrientation() { return 0; }
+int SexyAppBase::GetUIOrientation()
+{
+    return 0;
+}
 void SexyAppBase::LowMemoryWarning() {}
-bool SexyAppBase::FrameNeedsSwapScreenImage() { return false; }
-void SexyAppBase::GetMemoryInfo(int& theMemoryInfo)
+bool SexyAppBase::FrameNeedsSwapScreenImage()
+{
+    return false;
+}
+void SexyAppBase::GetMemoryInfo(int &theMemoryInfo)
 {
     if (mAppDriver != nullptr)
         mAppDriver->GetMemoryInfo(&theMemoryInfo);
 }
-Sexy::String SexyAppBase::NotifyCrashHook() { return Sexy::String(); }
-void SexyAppBase::LogScreenSaverError(const Sexy::String&) {}
-void SexyAppBase::ReadDemoBuffer(Sexy::String&) {}
+Sexy::String SexyAppBase::NotifyCrashHook()
+{
+    return Sexy::String();
+}
+void SexyAppBase::LogScreenSaverError(const Sexy::String &) {}
+void SexyAppBase::ReadDemoBuffer(Sexy::String &) {}
 void SexyAppBase::WriteDemoBuffer() {}
-void SexyAppBase::DemoSyncBuffer(Sexy::Buffer*) {}
-void SexyAppBase::DemoSyncString(Sexy::String*) {}
-void SexyAppBase::DemoSyncInt(int*) {}
-void SexyAppBase::DemoSyncBool(bool*) {}
-void SexyAppBase::DemoAssertStringEqual(const Sexy::String&) {}
-void SexyAppBase::DemoAddMarker(const Sexy::String& theMarker) { mDemoMarkers.push_back(theMarker); }
+void SexyAppBase::DemoSyncBuffer(Sexy::Buffer *) {}
+void SexyAppBase::DemoSyncString(Sexy::String *) {}
+void SexyAppBase::DemoSyncInt(int *) {}
+void SexyAppBase::DemoSyncBool(bool *) {}
+void SexyAppBase::DemoAssertStringEqual(const Sexy::String &) {}
+void SexyAppBase::DemoAddMarker(const Sexy::String &theMarker)
+{
+    mDemoMarkers.push_back(theMarker);
+}
 void SexyAppBase::DemoAssertIntEqual(int) {}
 void SexyAppBase::DumpProgramInfo() {}
 void SexyAppBase::RestoreScreenResolution() {}
-void SexyAppBase::GetSEHWebParams(void*) {}
-void SexyAppBase::OpenRegisterPageWithParameters(void*) {}
+void SexyAppBase::GetSEHWebParams(void *) {}
+void SexyAppBase::OpenRegisterPageWithParameters(void *) {}
 void SexyAppBase::OpenRegisterPage() {}
-void SexyAppBase::PrecacheAdditive(Sexy::MemoryImage*) {}
-void SexyAppBase::PrecacheAlpha(Sexy::MemoryImage*) {}
-void SexyAppBase::PrecacheNative(Sexy::MemoryImage*) {}
+void SexyAppBase::PrecacheAdditive(Sexy::MemoryImage *) {}
+void SexyAppBase::PrecacheAlpha(Sexy::MemoryImage *) {}
+void SexyAppBase::PrecacheNative(Sexy::MemoryImage *) {}
 void SexyAppBase::DemoSyncRefreshRate() {}
 void SexyAppBase::AuthFinished(bool) {}
 
 // --------------------------------------------------------------------------
 // Dialogs.
 // --------------------------------------------------------------------------
-Dialog* SexyAppBase::NewDialog(int theDialogId, bool isModal, const Sexy::String& theHeader,
-                               const Sexy::String& theLines, const Sexy::String& theFooter,
-                               int theButtonMode)
+Dialog *SexyAppBase::NewDialog(int theDialogId, bool isModal, const Sexy::String &theHeader,
+    const Sexy::String &theLines, const Sexy::String &theFooter, int theButtonMode)
 {
-    return new Dialog(nullptr, nullptr, theDialogId, isModal, theHeader, theLines,
-                      theFooter, theButtonMode);
+    return new Dialog(nullptr, nullptr, theDialogId, isModal, theHeader, theLines, theFooter, theButtonMode);
 }
 
-Dialog* SexyAppBase::DoDialog(int theDialogId, bool isModal, const Sexy::String& theHeader,
-                              const Sexy::String& theLines, const Sexy::String& theFooter,
-                              int theButtonMode)
+Dialog *SexyAppBase::DoDialog(int theDialogId, bool isModal, const Sexy::String &theHeader,
+    const Sexy::String &theLines, const Sexy::String &theFooter, int theButtonMode)
 {
     KillDialog(theDialogId);
-    Dialog* aDialog = NewDialog(theDialogId, isModal, theHeader, theLines, theFooter, theButtonMode);
+    Dialog *aDialog = NewDialog(theDialogId, isModal, theHeader, theLines, theFooter, theButtonMode);
     AddDialogWithId(theDialogId, aDialog);
     return aDialog;
 }
 
-void SexyAppBase::AddDialogWithId(int theDialogId, Dialog* theDialog)
+void SexyAppBase::AddDialogWithId(int theDialogId, Dialog *theDialog)
 {
     if (theDialog == nullptr)
         return;
@@ -652,15 +705,15 @@ void SexyAppBase::AddDialogWithId(int theDialogId, Dialog* theDialog)
     }
 }
 
-void SexyAppBase::AddDialog(Dialog* theDialog)
+void SexyAppBase::AddDialog(Dialog *theDialog)
 {
     if (theDialog != nullptr)
         AddDialogWithId(theDialog->mId, theDialog);
 }
 
-Dialog* SexyAppBase::GetDialog(int theDialogId)
+Dialog *SexyAppBase::GetDialog(int theDialogId)
 {
-    std::map<int, Dialog*>::iterator aFound = mDialogMap.find(theDialogId);
+    std::map<int, Dialog *>::iterator aFound = mDialogMap.find(theDialogId);
     if (aFound == mDialogMap.end())
         return nullptr;
     return aFound->second;
@@ -673,11 +726,11 @@ int SexyAppBase::GetDialogCount()
 
 bool SexyAppBase::KillDialogFull(int theDialogId, bool removeWidget, bool deleteWidget)
 {
-    std::map<int, Dialog*>::iterator aFound = mDialogMap.find(theDialogId);
+    std::map<int, Dialog *>::iterator aFound = mDialogMap.find(theDialogId);
     if (aFound == mDialogMap.end())
         return false;
 
-    Dialog* aDialog = aFound->second;
+    Dialog *aDialog = aFound->second;
     mDialogMap.erase(aFound);
     mDialogList.remove(aDialog);
 
@@ -700,7 +753,7 @@ bool SexyAppBase::KillDialogById(int theDialogId)
     return KillDialogFull(theDialogId, true, true);
 }
 
-bool SexyAppBase::KillDialogByPointer(Dialog* theDialog)
+bool SexyAppBase::KillDialogByPointer(Dialog *theDialog)
 {
     if (theDialog == nullptr)
         return false;
@@ -712,7 +765,7 @@ bool SexyAppBase::KillDialog(int theDialogId)
     return KillDialogFull(theDialogId, true, true);
 }
 
-bool SexyAppBase::KillDialog(Dialog* theDialog)
+bool SexyAppBase::KillDialog(Dialog *theDialog)
 {
     return KillDialogByPointer(theDialog);
 }
@@ -730,33 +783,36 @@ void SexyAppBase::DialogButtonDepress(int theDialogId, int theButtonId)
 // --------------------------------------------------------------------------
 // Messages, popups, focus.
 // --------------------------------------------------------------------------
-int SexyAppBase::MsgBox(const Sexy::String& theText, const Sexy::String& theTitle, int theFlags)
+int SexyAppBase::MsgBox(const Sexy::String &theText, const Sexy::String &theTitle, int theFlags)
 {
     if (mAppDriver == nullptr)
         return 0;
     return mAppDriver->MsgBox(theText, theTitle, theFlags);
 }
 
-int SexyAppBase::MsgBoxIntString(const Sexy::String& theText, const Sexy::String& theTitle, int theFlags)
+int SexyAppBase::MsgBoxIntString(const Sexy::String &theText, const Sexy::String &theTitle, int theFlags)
 {
     if (mAppDriver == nullptr)
         return 0;
     return mAppDriver->MsgBoxIntString(theText, theTitle, theFlags);
 }
 
-void SexyAppBase::Popup(const Sexy::String& theText)
+void SexyAppBase::Popup(const Sexy::String &theText)
 {
     if (mAppDriver != nullptr)
         mAppDriver->Popup(theText);
 }
 
-void SexyAppBase::PopupIntString(const Sexy::String& theText)
+void SexyAppBase::PopupIntString(const Sexy::String &theText)
 {
     if (mAppDriver != nullptr)
         mAppDriver->PopupIntString(theText);
 }
 
-bool SexyAppBase::IsAltKeyUsed(int) { return false; }
+bool SexyAppBase::IsAltKeyUsed(int)
+{
+    return false;
+}
 
 bool SexyAppBase::KeyDown(int theKeyCode)
 {
@@ -785,7 +841,7 @@ void SexyAppBase::ClearKeysDown()
     {
         for (int aKey = 0; aKey < 255; ++aKey)
         {
-            KeyState* aNode = mWidgetManager->mKeyDown.Get(aKey);
+            KeyState *aNode = mWidgetManager->mKeyDown.Get(aKey);
             if (aNode != nullptr)
                 aNode->mDown = false;
         }
@@ -794,7 +850,7 @@ void SexyAppBase::ClearKeysDown()
     mAltDown = false;
 }
 
-bool SexyAppBase::ProcessMessage(Sexy::Event& theEvent)
+bool SexyAppBase::ProcessMessage(Sexy::Event &theEvent)
 {
     switch (theEvent.modifiers)
     {
@@ -855,7 +911,7 @@ bool SexyAppBase::ProcessMessage(Sexy::Event& theEvent)
     }
 }
 
-bool SexyAppBase::ProcessMessages(std::vector<Sexy::Event>& theEvents)
+bool SexyAppBase::ProcessMessages(std::vector<Sexy::Event> &theEvents)
 {
     if (theEvents.empty())
         return true;
@@ -863,7 +919,7 @@ bool SexyAppBase::ProcessMessages(std::vector<Sexy::Event>& theEvents)
     if (theEvents.front().modifiers == 16)
     {
         mLastUserInputTick = mLastTimerTime;
-        for (Sexy::Event& anEvent : theEvents)
+        for (Sexy::Event &anEvent : theEvents)
         {
             if (mWidgetManager != nullptr)
             {
@@ -877,10 +933,14 @@ bool SexyAppBase::ProcessMessages(std::vector<Sexy::Event>& theEvents)
 
         switch ((int)theEvents.front().matchEvent)
         {
-            case 1: return true;
-            case 2: return true;
-            case 3: return true;
-            default: return true;
+            case 1:
+                return true;
+            case 2:
+                return true;
+            case 3:
+                return true;
+            default:
+                return true;
         }
     }
 
@@ -921,16 +981,16 @@ void SexyAppBase::Start()
 
 void SexyAppBase::Init()
 {
-// #ifndef NDEBUG
+    // #ifndef NDEBUG
     InstallCrashDiagnostics();
-// #endif
+    // #endif
     if (mInputManager != nullptr)
     {
         Sexy::InputDriverFactory::GetInputDriverFactory()->Load();
         mInputManager->Init();
     }
 
-    LogManager* aLogManager = static_cast<LogManager*>(LogManager::getInstance());
+    LogManager *aLogManager = static_cast<LogManager *>(LogManager::getInstance());
     if (aLogManager != nullptr)
     {
         Sexy::String aName = aLogManager->getName();
@@ -964,7 +1024,7 @@ void SexyAppBase::Init()
     mInitialized = true;
 }
 
-bool SexyAppBase::UpdateAppStep(bool* updated)
+bool SexyAppBase::UpdateAppStep(bool *updated)
 {
     if (mAppDriver == nullptr)
         return false;
@@ -1002,8 +1062,7 @@ void SexyAppBase::DrawOneFrame()
         anUpdateCount = mUpdateCount;
         mCloseRequested = false;
         UpdateApp();
-    }
-    while (mUpdateCount == anUpdateCount && ++aIteration < aMaxIterations);
+    } while (mUpdateCount == anUpdateCount && ++aIteration < aMaxIterations);
 }
 
 void SexyAppBase::UpdateFrames()
@@ -1037,7 +1096,7 @@ bool SexyAppBase::DrawDirtyStuff()
     return mAppDriver->DrawDirtyStuff(false) != 0;
 }
 
-void SexyAppBase::Redraw(TRect<int>* theClipRect)
+void SexyAppBase::Redraw(TRect<int> *theClipRect)
 {
     if (mAppDriver != nullptr)
         mAppDriver->Redraw(theClipRect);
@@ -1072,7 +1131,7 @@ void SexyAppBase::Cleanup()
     if (mInputConnectManager != nullptr)
     {
         mInputConnectManager->Stop();
-        mInputConnectManager->RemoveListener(static_cast<InputConnectListener*>(this));
+        mInputConnectManager->RemoveListener(static_cast<InputConnectListener *>(this));
     }
     if (mInputManager != nullptr)
         mInputManager->Cleanup();
@@ -1084,7 +1143,7 @@ void SexyAppBase::Cleanup()
     delete mPreLoadWidget;
     mPreLoadWidget = nullptr;
 
-    for (Dialog* aDialog : mDialogList)
+    for (Dialog *aDialog : mDialogList)
     {
         if (mWidgetManager != nullptr)
             mWidgetManager->RemoveWidget(aDialog);
@@ -1108,21 +1167,22 @@ void SexyAppBase::Cleanup()
     delete mInputManager;
     mInputManager = nullptr;
 
-    for (std::map<std::pair<Sexy::String, Sexy::String>, SharedImage>::iterator
-             anEntry = mSharedImages.begin();
-         anEntry != mSharedImages.end(); ++anEntry)
+    for (std::map<std::pair<Sexy::String, Sexy::String>, SharedImage>::iterator anEntry = mSharedImages.begin();
+        anEntry != mSharedImages.end();
+        ++anEntry)
     {
         if (anEntry->second.mRefCount == 0)
             delete anEntry->second.mImage;
     }
     mSharedImages.clear();
 
-    for (std::map<Sexy::String, std::map<Sexy::String, Image*>>::iterator
-             aGroup = mImageGroups.begin();
-         aGroup != mImageGroups.end(); ++aGroup)
+    for (std::map<Sexy::String, std::map<Sexy::String, Image *>>::iterator aGroup = mImageGroups.begin();
+        aGroup != mImageGroups.end();
+        ++aGroup)
     {
-        for (std::map<Sexy::String, Image*>::iterator anImage = aGroup->second.begin();
-             anImage != aGroup->second.end(); ++anImage)
+        for (std::map<Sexy::String, Image *>::iterator anImage = aGroup->second.begin();
+            anImage != aGroup->second.end();
+            ++anImage)
             delete anImage->second;
     }
     mImageGroups.clear();
@@ -1266,7 +1326,7 @@ void SexyAppBase::InitPreLoadWidget()
     mPreLoadStarted = true;
 }
 
-Widget* SexyAppBase::CreatePreLoadWidget()
+Widget *SexyAppBase::CreatePreLoadWidget()
 {
     mPreLoadWidget = new PreLoadWidget(this);
     if (mWidgetManager != nullptr)
@@ -1288,7 +1348,7 @@ void SexyAppBase::PlaySample(int theSoundId)
 {
     if (mSoundManager == nullptr)
         return;
-    SoundInstance* aSound = mSoundManager->GetSoundInstance((unsigned int)theSoundId);
+    SoundInstance *aSound = mSoundManager->GetSoundInstance((unsigned int)theSoundId);
     if (aSound != nullptr)
         aSound->Play(false, true);
 }
@@ -1297,7 +1357,7 @@ void SexyAppBase::PlaySampleWithPan(int theSoundId, int thePan)
 {
     if (mSoundManager == nullptr)
         return;
-    SoundInstance* aSound = mSoundManager->GetSoundInstance((unsigned int)theSoundId);
+    SoundInstance *aSound = mSoundManager->GetSoundInstance((unsigned int)theSoundId);
     if (aSound != nullptr)
     {
         aSound->SetPan(thePan);
@@ -1348,8 +1408,14 @@ void SexyAppBase::Unmute(bool autoMute)
     }
 }
 
-double SexyAppBase::GetMusicVolume() { return mMusicVolume; }
-double SexyAppBase::GetSfxVolume() { return mSfxVolume; }
+double SexyAppBase::GetMusicVolume()
+{
+    return mMusicVolume;
+}
+double SexyAppBase::GetSfxVolume()
+{
+    return mSfxVolume;
+}
 
 double SexyAppBase::GetMasterVolume()
 {
@@ -1376,7 +1442,7 @@ void SexyAppBase::SetMasterVolume(double theVolume)
     SetSfxVolume(theVolume);
 }
 
-MusicInterface* SexyAppBase::CreateMusicInterface(void*)
+MusicInterface *SexyAppBase::CreateMusicInterface(void *)
 {
     return new MusicInterface();
 }
@@ -1470,7 +1536,7 @@ int SexyAppBase::GetCursor()
     return mCursorNum;
 }
 
-int SexyAppBase::SetCursorImage(int theCursorNum, Image* theImage)
+int SexyAppBase::SetCursorImage(int theCursorNum, Image *theImage)
 {
     if (theCursorNum >= 0 && theCursorNum < 13)
         mCursorImages[theCursorNum] = theImage;
@@ -1495,7 +1561,7 @@ int SexyAppBase::IsCustomCursorSupported()
     return mAppDriver->IsCustomCursorSupported();
 }
 
-MemoryImage* SexyAppBase::CreateCursorFromAndMask(unsigned char*, unsigned char*, int, int)
+MemoryImage *SexyAppBase::CreateCursorFromAndMask(unsigned char *, unsigned char *, int, int)
 {
     return nullptr;
 }
@@ -1503,12 +1569,12 @@ MemoryImage* SexyAppBase::CreateCursorFromAndMask(unsigned char*, unsigned char*
 // --------------------------------------------------------------------------
 // Images.
 // --------------------------------------------------------------------------
-Image* SexyAppBase::GetTexImage(const Sexy::String& theFileName, bool commitBits)
+Image *SexyAppBase::GetTexImage(const Sexy::String &theFileName, bool commitBits)
 {
     if (!NameContains(theFileName, ".tex") && !NameContains(theFileName, ".TEX"))
         return nullptr;
 
-    SDL_IOStream* aFile = p_fopen(theFileName.c_str(), "rb");
+    SDL_IOStream *aFile = p_fopen(theFileName.c_str(), "rb");
     if (aFile == nullptr)
         return nullptr;
 
@@ -1521,17 +1587,16 @@ Image* SexyAppBase::GetTexImage(const Sexy::String& theFileName, bool commitBits
 
     TexHeader aHeader;
     std::memset(&aHeader, 0, sizeof(aHeader));
-    if (p_fread(&aHeader, 40, 1, aFile) != 1 || aHeader.mSignature != 0
-        || (unsigned int)(aHeader.mFormat - 2) > 8u)
+    if (p_fread(&aHeader, 40, 1, aFile) != 1 || aHeader.mSignature != 0 || (unsigned int)(aHeader.mFormat - 2) > 8u)
     {
         p_fclose(aFile);
         return nullptr;
     }
 
-    unsigned int aByteCount = (unsigned int)aHeader.mWidth * (unsigned int)aHeader.mHeight
-                            * (unsigned int)kBytesPerPixel[aHeader.mFormat];
-    unsigned char* aBits = new unsigned char[aByteCount + 4];
-    unsigned char* aChunk = nullptr;
+    unsigned int aByteCount =
+        (unsigned int)aHeader.mWidth * (unsigned int)aHeader.mHeight * (unsigned int)kBytesPerPixel[aHeader.mFormat];
+    unsigned char *aBits = new unsigned char[aByteCount + 4];
+    unsigned char *aChunk = nullptr;
     bool aLoaded = true;
 
     if ((aHeader.mFlags & 1) == 0)
@@ -1588,20 +1653,19 @@ Image* SexyAppBase::GetTexImage(const Sexy::String& theFileName, bool commitBits
         return nullptr;
     }
 
-    DeviceImage* anImage = new DeviceImage();
-    anImage->TakePixels(PixelFormat(aHeader.mFormat), aBits, aHeader.mWidth,
-                        aHeader.mHeight, commitBits);
+    DeviceImage *anImage = new DeviceImage();
+    anImage->TakePixels(PixelFormat(aHeader.mFormat), aBits, aHeader.mWidth, aHeader.mHeight, commitBits);
     anImage->mFileName = theFileName;
     anImage->mFileVariant = theFileName;
     return anImage;
 }
 
-Image* SexyAppBase::GetImage(const Sexy::String& theFileName, bool commitBits)
+Image *SexyAppBase::GetImage(const Sexy::String &theFileName, bool commitBits)
 {
     // Atlas sheets are extension-less names such as reanim/plant-atlas1, and
     // the file on disk is that name plus .tex. A name that already has an
     // extension still tries name.tex, which is the packed form of a loose file.
-    Image* anImage = nullptr;
+    Image *anImage = nullptr;
     if (!NameContains(theFileName, ".tex") && !NameContains(theFileName, ".TEX"))
     {
         Sexy::String aTexName = theFileName;
@@ -1611,11 +1675,11 @@ Image* SexyAppBase::GetImage(const Sexy::String& theFileName, bool commitBits)
     if (anImage != nullptr)
         return anImage;
 
-    ImageLib::Image* aDecoded = ImageLib::GetImage(theFileName, true, true, false);
+    ImageLib::Image *aDecoded = ImageLib::GetImage(theFileName, true, true, false);
     if (aDecoded == nullptr)
         return nullptr;
 
-    DeviceImage* aNewImage = new DeviceImage(this);
+    DeviceImage *aNewImage = new DeviceImage(this);
     aNewImage->Create(aDecoded->GetWidth(), aDecoded->GetHeight());
     // Create() allocates the pixel buffer. A palettized GIF has its colours in
     // mBits as well (the decoder expands them), so both paths copy those pixels.
@@ -1629,33 +1693,33 @@ Image* SexyAppBase::GetImage(const Sexy::String& theFileName, bool commitBits)
     return aNewImage;
 }
 
-Image* SexyAppBase::GetImageWithAttrs(const Sexy::String& theFileName, const Sexy::String& theVariant,
-                                      const Sexy::String& theAttributes, bool commitBits)
+Image *SexyAppBase::GetImageWithAttrs(
+    const Sexy::String &theFileName, const Sexy::String &theVariant, const Sexy::String &theAttributes, bool commitBits)
 {
     (void)theVariant;
     (void)theAttributes;
     return GetImage(theFileName, commitBits);
 }
 
-bool SexyAppBase::ReloadImage(Image* theImage)
+bool SexyAppBase::ReloadImage(Image *theImage)
 {
     if (theImage == nullptr || theImage->mFileName.empty())
         return false;
     logfi("Reloading image: %s", theImage->mFileName.c_str());
-    Image* aFresh = GetImage(theImage->mFileName, true);
+    Image *aFresh = GetImage(theImage->mFileName, true);
     if (aFresh == nullptr)
         return false;
     delete aFresh;
     return true;
 }
 
-void SexyAppBase::RemoveImageForInput(const Sexy::String& theFileName)
+void SexyAppBase::RemoveImageForInput(const Sexy::String &theFileName)
 {
-    for (std::map<Sexy::String, std::map<Sexy::String, Image*>>::iterator
-             aGroup = mImageGroups.begin();
-         aGroup != mImageGroups.end(); ++aGroup)
+    for (std::map<Sexy::String, std::map<Sexy::String, Image *>>::iterator aGroup = mImageGroups.begin();
+        aGroup != mImageGroups.end();
+        ++aGroup)
     {
-        std::map<Sexy::String, Image*>::iterator anEntry = aGroup->second.find(theFileName);
+        std::map<Sexy::String, Image *>::iterator anEntry = aGroup->second.find(theFileName);
         if (anEntry == aGroup->second.end())
             continue;
         delete anEntry->second;
@@ -1663,28 +1727,27 @@ void SexyAppBase::RemoveImageForInput(const Sexy::String& theFileName)
     }
 }
 
-Image* SexyAppBase::GetImageForInput(const Sexy::String& theFileName, int theWidth, int theHeight,
-                                     const Sexy::String& theVariant)
+Image *SexyAppBase::GetImageForInput(
+    const Sexy::String &theFileName, int theWidth, int theHeight, const Sexy::String &theVariant)
 {
     (void)theWidth;
     (void)theHeight;
     (void)theVariant;
-    std::map<Sexy::String, Image*>& aGroup = mImageGroups[theFileName];
-    std::map<Sexy::String, Image*>::iterator aFound = aGroup.find(theFileName);
+    std::map<Sexy::String, Image *> &aGroup = mImageGroups[theFileName];
+    std::map<Sexy::String, Image *>::iterator aFound = aGroup.find(theFileName);
     if (aFound != aGroup.end())
         return aFound->second;
-    Image* anImage = GetImage(theFileName, true);
+    Image *anImage = GetImage(theFileName, true);
     aGroup[theFileName] = anImage;
     return anImage;
 }
 
-SharedImageRef SexyAppBase::GetSharedImage(const Sexy::String& theFileName, const Sexy::String& theVariant,
-                                           bool* isNew, bool commitBits, bool allowTriReps)
+SharedImageRef SexyAppBase::GetSharedImage(
+    const Sexy::String &theFileName, const Sexy::String &theVariant, bool *isNew, bool commitBits, bool allowTriReps)
 {
     (void)allowTriReps;
     std::pair<Sexy::String, Sexy::String> aKey(UpperCopy(theFileName), UpperCopy(theVariant));
-    std::map<std::pair<Sexy::String, Sexy::String>, SharedImage>::iterator aFound =
-        mSharedImages.find(aKey);
+    std::map<std::pair<Sexy::String, Sexy::String>, SharedImage>::iterator aFound = mSharedImages.find(aKey);
     if (aFound != mSharedImages.end())
     {
         if (isNew != nullptr)
@@ -1704,11 +1767,8 @@ SharedImageRef SexyAppBase::GetSharedImage(const Sexy::String& theFileName, cons
     return aRef;
 }
 
-SharedImageRef SexyAppBase::GetSharedImageWithAttrs(const Sexy::String& theFileName,
-                                                    const Sexy::String& theVariant,
-                                                    const Sexy::String& theAttributes,
-                                                    const Sexy::String& theAlphaFile,
-                                                    bool* isNew)
+SharedImageRef SexyAppBase::GetSharedImageWithAttrs(const Sexy::String &theFileName, const Sexy::String &theVariant,
+    const Sexy::String &theAttributes, const Sexy::String &theAlphaFile, bool *isNew)
 {
     (void)theAttributes;
     (void)theAlphaFile;
@@ -1721,9 +1781,8 @@ void SexyAppBase::CleanSharedImages()
         return;
     mCleanupSharedImages = false;
 
-    for (std::map<std::pair<Sexy::String, Sexy::String>, SharedImage>::iterator
-             anEntry = mSharedImages.begin();
-         anEntry != mSharedImages.end();)
+    for (std::map<std::pair<Sexy::String, Sexy::String>, SharedImage>::iterator anEntry = mSharedImages.begin();
+        anEntry != mSharedImages.end();)
     {
         if (anEntry->second.mRefCount == 0)
         {
@@ -1737,7 +1796,7 @@ void SexyAppBase::CleanSharedImages()
     }
 }
 
-void SexyAppBase::AddMemoryImage(MemoryImage* theMemoryImage)
+void SexyAppBase::AddMemoryImage(MemoryImage *theMemoryImage)
 {
     if (theMemoryImage == nullptr)
         return;
@@ -1746,7 +1805,7 @@ void SexyAppBase::AddMemoryImage(MemoryImage* theMemoryImage)
     mMemoryImageCritSect.Unlock();
 }
 
-int SexyAppBase::RemoveMemoryImage(MemoryImage* theImage)
+int SexyAppBase::RemoveMemoryImage(MemoryImage *theImage)
 {
     if (theImage == nullptr)
         return 0;
@@ -1757,7 +1816,7 @@ int SexyAppBase::RemoveMemoryImage(MemoryImage* theImage)
     return 1;
 }
 
-void SexyAppBase::Remove3DData(MemoryImage* theImage)
+void SexyAppBase::Remove3DData(MemoryImage *theImage)
 {
     if (mAppDriver != nullptr)
         mAppDriver->Remove3DData(theImage);
@@ -1766,7 +1825,7 @@ void SexyAppBase::Remove3DData(MemoryImage* theImage)
 void SexyAppBase::DeleteNativeImageData()
 {
     mMemoryImageCritSect.Lock();
-    for (MemoryImage* anImage : mMemoryImages)
+    for (MemoryImage *anImage : mMemoryImages)
         anImage->DeleteNativeData();
     mMemoryImageCritSect.Unlock();
 }
@@ -1774,7 +1833,7 @@ void SexyAppBase::DeleteNativeImageData()
 void SexyAppBase::DeleteExtraImageData()
 {
     mMemoryImageCritSect.Lock();
-    for (MemoryImage* anImage : mMemoryImages)
+    for (MemoryImage *anImage : mMemoryImages)
         anImage->DeleteExtraBuffers();
     mMemoryImageCritSect.Unlock();
 }
@@ -1782,7 +1841,7 @@ void SexyAppBase::DeleteExtraImageData()
 void SexyAppBase::ReInitImages()
 {
     mMemoryImageCritSect.Lock();
-    for (MemoryImage* anImage : mMemoryImages)
+    for (MemoryImage *anImage : mMemoryImages)
         anImage->ReInit();
     mMemoryImageCritSect.Unlock();
 }
@@ -1790,7 +1849,7 @@ void SexyAppBase::ReInitImages()
 void SexyAppBase::Delete3DImageData()
 {
     mMemoryImageCritSect.Lock();
-    for (MemoryImage* anImage : mMemoryImages)
+    for (MemoryImage *anImage : mMemoryImages)
         Remove3DData(anImage);
     mMemoryImageCritSect.Unlock();
 }
@@ -1798,7 +1857,7 @@ void SexyAppBase::Delete3DImageData()
 void SexyAppBase::Evict3DImageData(unsigned int theAmount)
 {
     mMemoryImageCritSect.Lock();
-    for (MemoryImage* anImage : mMemoryImages)
+    for (MemoryImage *anImage : mMemoryImages)
     {
         if (theAmount == 0)
             break;
@@ -1809,14 +1868,14 @@ void SexyAppBase::Evict3DImageData(unsigned int theAmount)
 
 int SexyAppBase::CreateImage(int theWidth, int theHeight)
 {
-    MemoryImage* anImage = new MemoryImage(this);
+    MemoryImage *anImage = new MemoryImage(this);
     anImage->Create(theWidth, theHeight);
     return 0;
 }
 
-MemoryImage* SexyAppBase::CopyImage(Image* theImage, const TRect<int>& theRect)
+MemoryImage *SexyAppBase::CopyImage(Image *theImage, const TRect<int> &theRect)
 {
-    MemoryImage* aCopy = new MemoryImage(this);
+    MemoryImage *aCopy = new MemoryImage(this);
     aCopy->Create(theRect.mWidth, theRect.mHeight);
     Graphics aGraphics(aCopy);
     aGraphics.DrawImage(theImage, -theRect.mX, -theRect.mY);
@@ -1824,7 +1883,7 @@ MemoryImage* SexyAppBase::CopyImage(Image* theImage, const TRect<int>& theRect)
     return aCopy;
 }
 
-MemoryImage* SexyAppBase::CopyImage(Image* theImage)
+MemoryImage *SexyAppBase::CopyImage(Image *theImage)
 {
     if (theImage == nullptr)
         return nullptr;
@@ -1832,9 +1891,8 @@ MemoryImage* SexyAppBase::CopyImage(Image* theImage)
     return CopyImage(theImage, aRect);
 }
 
-MemoryImage* SexyAppBase::CreateCrossfadeImage(Image* theFirst, const TRect<int>& theSrcRect,
-                                               Image* theSecond, const TRect<int>& theDestRect,
-                                               double theAlpha)
+MemoryImage *SexyAppBase::CreateCrossfadeImage(
+    Image *theFirst, const TRect<int> &theSrcRect, Image *theSecond, const TRect<int> &theDestRect, double theAlpha)
 {
     (void)theSecond;
     (void)theDestRect;
@@ -1842,13 +1900,13 @@ MemoryImage* SexyAppBase::CreateCrossfadeImage(Image* theFirst, const TRect<int>
     return CopyImage(theFirst, theSrcRect);
 }
 
-void SexyAppBase::ColorizeImage(Image* theImage, const Color& theColor)
+void SexyAppBase::ColorizeImage(Image *theImage, const Color &theColor)
 {
     (void)theImage;
     (void)theColor;
 }
 
-MemoryImage* SexyAppBase::CreateColorizedImage(Image* theImage, const Color& theColor)
+MemoryImage *SexyAppBase::CreateColorizedImage(Image *theImage, const Color &theColor)
 {
     (void)theColor;
     if (theImage == nullptr)
@@ -1856,9 +1914,15 @@ MemoryImage* SexyAppBase::CreateColorizedImage(Image* theImage, const Color& the
     return CopyImage(theImage);
 }
 
-int SexyAppBase::MirrorImage(Image*) { return 0; }
-int SexyAppBase::FlipImage(Image*) { return 0; }
-int SexyAppBase::RotateImageHue(MemoryImage* theImage, int theHue)
+int SexyAppBase::MirrorImage(Image *)
+{
+    return 0;
+}
+int SexyAppBase::FlipImage(Image *)
+{
+    return 0;
+}
+int SexyAppBase::RotateImageHue(MemoryImage *theImage, int theHue)
 {
     (void)theImage;
     (void)theHue;
@@ -1873,11 +1937,15 @@ unsigned int SexyAppBase::HSLToRGB(int theHue, int theSaturation, int theLightne
 unsigned int SexyAppBase::RGBToHSL(int theRed, int theGreen, int theBlue)
 {
     int aMax = theRed;
-    if (theGreen > aMax) aMax = theGreen;
-    if (theBlue > aMax) aMax = theBlue;
+    if (theGreen > aMax)
+        aMax = theGreen;
+    if (theBlue > aMax)
+        aMax = theBlue;
     int aMin = theRed;
-    if (theGreen < aMin) aMin = theGreen;
-    if (theBlue < aMin) aMin = theBlue;
+    if (theGreen < aMin)
+        aMin = theGreen;
+    if (theBlue < aMin)
+        aMin = theBlue;
     int aLight = (aMax + aMin) / 2;
     int aSat = 0;
     int aHue = 0;
@@ -1897,30 +1965,26 @@ unsigned int SexyAppBase::RGBToHSL(int theRed, int theGreen, int theBlue)
     return (unsigned int)((aHue << 16) | (aSat << 8) | aLight);
 }
 
-unsigned int SexyAppBase::HSLToRGB(const unsigned int* theInput, unsigned int* theOutput, int theCount)
+unsigned int SexyAppBase::HSLToRGB(const unsigned int *theInput, unsigned int *theOutput, int theCount)
 {
     if (theInput == nullptr || theOutput == nullptr)
         return 0;
     for (int i = 0; i < theCount; ++i)
     {
         unsigned int aColor = theInput[i];
-        theOutput[i] = HslToRgb((int)((aColor >> 16) & 0xFF),
-                                (int)((aColor >> 8) & 0xFF),
-                                (int)(aColor & 0xFF));
+        theOutput[i] = HslToRgb((int)((aColor >> 16) & 0xFF), (int)((aColor >> 8) & 0xFF), (int)(aColor & 0xFF));
     }
     return (unsigned int)theCount;
 }
 
-unsigned int SexyAppBase::RGBToHSL(const unsigned int* theInput, unsigned int* theOutput, int theCount)
+unsigned int SexyAppBase::RGBToHSL(const unsigned int *theInput, unsigned int *theOutput, int theCount)
 {
     if (theInput == nullptr || theOutput == nullptr)
         return 0;
     for (int i = 0; i < theCount; ++i)
     {
         unsigned int aColor = theInput[i];
-        theOutput[i] = RGBToHSL((int)((aColor >> 16) & 0xFF),
-                                (int)((aColor >> 8) & 0xFF),
-                                (int)(aColor & 0xFF));
+        theOutput[i] = RGBToHSL((int)((aColor >> 16) & 0xFF), (int)((aColor >> 8) & 0xFF), (int)(aColor & 0xFF));
     }
     return (unsigned int)theCount;
 }
@@ -1928,22 +1992,22 @@ unsigned int SexyAppBase::RGBToHSL(const unsigned int* theInput, unsigned int* t
 // --------------------------------------------------------------------------
 // Properties.
 // --------------------------------------------------------------------------
-void SexyAppBase::SetBoolean(const Sexy::String& theId, bool theValue)
+void SexyAppBase::SetBoolean(const Sexy::String &theId, bool theValue)
 {
     mBoolProperties[theId] = theValue;
 }
 
-void SexyAppBase::SetInteger(const Sexy::String& theId, int theValue)
+void SexyAppBase::SetInteger(const Sexy::String &theId, int theValue)
 {
     mIntProperties[theId] = theValue;
 }
 
-void SexyAppBase::SetDouble(const Sexy::String& theId, double theValue)
+void SexyAppBase::SetDouble(const Sexy::String &theId, double theValue)
 {
     mDoubleProperties[theId] = theValue;
 }
 
-void SexyAppBase::SetString(const Sexy::String& theId, const Sexy::String& theValue)
+void SexyAppBase::SetString(const Sexy::String &theId, const Sexy::String &theValue)
 {
     mStringProperties[theId] = theValue;
     int aId = 0;
@@ -1951,12 +2015,12 @@ void SexyAppBase::SetString(const Sexy::String& theId, const Sexy::String& theVa
         mPopLoc[aId] = theValue;
 }
 
-int SexyAppBase::GetBoolean(const Sexy::String& theId)
+int SexyAppBase::GetBoolean(const Sexy::String &theId)
 {
     return GetBoolean(theId, false);
 }
 
-int SexyAppBase::GetBoolean(const Sexy::String& theId, bool theDefault)
+int SexyAppBase::GetBoolean(const Sexy::String &theId, bool theDefault)
 {
     std::map<Sexy::String, bool>::iterator aFound = mBoolProperties.find(theId);
     if (aFound == mBoolProperties.end())
@@ -1964,12 +2028,12 @@ int SexyAppBase::GetBoolean(const Sexy::String& theId, bool theDefault)
     return aFound->second ? 1 : 0;
 }
 
-int SexyAppBase::GetInteger(const Sexy::String& theId)
+int SexyAppBase::GetInteger(const Sexy::String &theId)
 {
     return GetInteger(theId, 0);
 }
 
-int SexyAppBase::GetInteger(const Sexy::String& theId, int theDefault)
+int SexyAppBase::GetInteger(const Sexy::String &theId, int theDefault)
 {
     std::map<Sexy::String, int>::iterator aFound = mIntProperties.find(theId);
     if (aFound == mIntProperties.end())
@@ -1977,12 +2041,12 @@ int SexyAppBase::GetInteger(const Sexy::String& theId, int theDefault)
     return aFound->second;
 }
 
-double SexyAppBase::GetDouble(const Sexy::String& theId)
+double SexyAppBase::GetDouble(const Sexy::String &theId)
 {
     return GetDouble(theId, 0.0);
 }
 
-double SexyAppBase::GetDouble(const Sexy::String& theId, double theDefault)
+double SexyAppBase::GetDouble(const Sexy::String &theId, double theDefault)
 {
     std::map<Sexy::String, double>::iterator aFound = mDoubleProperties.find(theId);
     if (aFound == mDoubleProperties.end())
@@ -1990,12 +2054,12 @@ double SexyAppBase::GetDouble(const Sexy::String& theId, double theDefault)
     return aFound->second;
 }
 
-Sexy::String SexyAppBase::GetString(const Sexy::String& theId)
+Sexy::String SexyAppBase::GetString(const Sexy::String &theId)
 {
     return GetString(theId, Sexy::String());
 }
 
-Sexy::String SexyAppBase::GetString(const Sexy::String& theId, const Sexy::String& theDefault)
+Sexy::String SexyAppBase::GetString(const Sexy::String &theId, const Sexy::String &theDefault)
 {
     std::map<Sexy::String, Sexy::String>::iterator aFound = mStringProperties.find(theId);
     if (aFound == mStringProperties.end())
@@ -2003,16 +2067,15 @@ Sexy::String SexyAppBase::GetString(const Sexy::String& theId, const Sexy::Strin
     return aFound->second;
 }
 
-std::vector<Sexy::String> SexyAppBase::GetStringVector(const Sexy::String& theId)
+std::vector<Sexy::String> SexyAppBase::GetStringVector(const Sexy::String &theId)
 {
-    std::map<Sexy::String, std::vector<Sexy::String>>::iterator aFound =
-        mStringVectorProperties.find(theId);
+    std::map<Sexy::String, std::vector<Sexy::String>>::iterator aFound = mStringVectorProperties.find(theId);
     if (aFound == mStringVectorProperties.end())
         return std::vector<Sexy::String>();
     return aFound->second;
 }
 
-int SexyAppBase::LoadProperties(const Sexy::String& theFileName, bool required, bool checkSig)
+int SexyAppBase::LoadProperties(const Sexy::String &theFileName, bool required, bool checkSig)
 {
     Buffer aBuffer;
     if (ReadBufferFromFile(theFileName, &aBuffer, false) == 0)
@@ -2055,7 +2118,7 @@ void SexyAppBase::ShowResourceError(bool showError)
         Shutdown();
 }
 
-bool SexyAppBase::CheckSignature(const Sexy::Buffer&, const Sexy::String&)
+bool SexyAppBase::CheckSignature(const Sexy::Buffer &, const Sexy::String &)
 {
     return false;
 }
@@ -2063,7 +2126,7 @@ bool SexyAppBase::CheckSignature(const Sexy::Buffer&, const Sexy::String&)
 // --------------------------------------------------------------------------
 // The command line.
 // --------------------------------------------------------------------------
-void SexyAppBase::HandleCmdLineParam(const Sexy::String& theName, const Sexy::String& theValue)
+void SexyAppBase::HandleCmdLineParam(const Sexy::String &theName, const Sexy::String &theValue)
 {
     if (theName.compare("-help") == 0)
     {
@@ -2087,7 +2150,7 @@ void SexyAppBase::HandleCmdLineParam(const Sexy::String& theName, const Sexy::St
         mAuthManager->HandleCmdLineParam(theName, theValue);
 }
 
-void SexyAppBase::ParseCmdLine(const Sexy::String& theCommandLine)
+void SexyAppBase::ParseCmdLine(const Sexy::String &theCommandLine)
 {
     if (theCommandLine.empty())
         return;
@@ -2167,7 +2230,7 @@ void SexyAppBase::ParseCmdLine(const Sexy::String& theCommandLine)
     }
 }
 
-void SexyAppBase::ParseCmdLineVector(const std::vector<Sexy::String>& theArguments)
+void SexyAppBase::ParseCmdLineVector(const std::vector<Sexy::String> &theArguments)
 {
     if (theArguments.size() <= 1)
         return;
@@ -2176,7 +2239,7 @@ void SexyAppBase::ParseCmdLineVector(const std::vector<Sexy::String>& theArgumen
     Sexy::String aValue;
     for (unsigned int i = 1; i < theArguments.size(); ++i)
     {
-        const Sexy::String& anArgument = theArguments[i];
+        const Sexy::String &anArgument = theArguments[i];
         if (anArgument.empty() || anArgument[0] != '-')
         {
             if (aName.empty())
@@ -2217,7 +2280,7 @@ void SexyAppBase::ParseCmdLineVector(const std::vector<Sexy::String>& theArgumen
     }
 }
 
-void SexyAppBase::ParseCmdLineString(const Sexy::String& theCommandLine)
+void SexyAppBase::ParseCmdLineString(const Sexy::String &theCommandLine)
 {
     ParseCmdLine(theCommandLine);
 }
@@ -2240,14 +2303,14 @@ int SexyAppBase::GetCmdLine()
     return (int)mCommandLine.size();
 }
 
-void SexyAppBase::InitCmdLine(int argc, char** argv)
+void SexyAppBase::InitCmdLine(int argc, char **argv)
 {
     mCommandLine.clear();
     for (int i = 0; i < argc && argv != nullptr; ++i)
         mCommandLine.push_back(Sexy::String(argv[i] != nullptr ? argv[i] : ""));
 }
 
-int SexyAppBase::AddParameterEntry(const ParameterEntry* theEntry)
+int SexyAppBase::AddParameterEntry(const ParameterEntry *theEntry)
 {
     if (theEntry == nullptr)
         return 0;
@@ -2255,23 +2318,23 @@ int SexyAppBase::AddParameterEntry(const ParameterEntry* theEntry)
     return (int)mParameters.size();
 }
 
-int SexyAppBase::AddParameterEntries(const ParameterEntry* theEntries)
+int SexyAppBase::AddParameterEntries(const ParameterEntry *theEntries)
 {
     if (theEntries == nullptr)
         return 0;
-    for (const ParameterEntry* anEntry = theEntries; anEntry->mName != nullptr; ++anEntry)
+    for (const ParameterEntry *anEntry = theEntries; anEntry->mName != nullptr; ++anEntry)
         mParameters.push_back(*anEntry);
     return (int)mParameters.size();
 }
 
-void SexyAppBase::AddParameterEntry(void* theEntry)
+void SexyAppBase::AddParameterEntry(void *theEntry)
 {
-    AddParameterEntry(static_cast<const ParameterEntry*>(theEntry));
+    AddParameterEntry(static_cast<const ParameterEntry *>(theEntry));
 }
 
-void SexyAppBase::AddParameterEntries(void* theEntries)
+void SexyAppBase::AddParameterEntries(void *theEntries)
 {
-    AddParameterEntries(static_cast<const ParameterEntry*>(theEntries));
+    AddParameterEntries(static_cast<const ParameterEntry *>(theEntries));
 }
 
 Sexy::String SexyAppBase::FormatHelpString()
@@ -2282,8 +2345,8 @@ Sexy::String SexyAppBase::FormatHelpString()
 
     for (unsigned int i = 0; i < mParameters.size(); ++i)
     {
-        const char* aName = mParameters[i].mName;
-        const char* aValue = mParameters[i].mValue;
+        const char *aName = mParameters[i].mName;
+        const char *aValue = mParameters[i].mValue;
         Sexy::String aLine = "  ";
         if (aName != nullptr)
             aLine += aName;
@@ -2301,7 +2364,7 @@ Sexy::String SexyAppBase::FormatHelpString()
 // --------------------------------------------------------------------------
 // Files, the registry and the clipboard. Each one forwards to the driver.
 // --------------------------------------------------------------------------
-IFileDriver* SexyAppBase::InitFileDriver()
+IFileDriver *SexyAppBase::InitFileDriver()
 {
     if (gFileDriver == nullptr)
         gFileDriver = Lawn_CreateFileDriver(nullptr);
@@ -2309,125 +2372,126 @@ IFileDriver* SexyAppBase::InitFileDriver()
     return gFileDriver;
 }
 
-int SexyAppBase::InitDDInterface() { return 0; }
-
-bool SexyAppBase::FileExists(const Sexy::String& theFileName)
+int SexyAppBase::InitDDInterface()
 {
-    SDL_IOStream* aFile = p_fopen(theFileName.c_str(), "rb");
+    return 0;
+}
+
+bool SexyAppBase::FileExists(const Sexy::String &theFileName)
+{
+    SDL_IOStream *aFile = p_fopen(theFileName.c_str(), "rb");
     if (aFile == nullptr)
         return false;
     p_fclose(aFile);
     return true;
 }
 
-bool SexyAppBase::EraseFile(const Sexy::String& theFileName)
+bool SexyAppBase::EraseFile(const Sexy::String &theFileName)
 {
     return SDL_RemovePath(theFileName.c_str());
 }
 
-int SexyAppBase::ReadBufferFromFile(const Sexy::String& theFileName, Buffer* theBuffer, bool dontWriteToDemo)
+int SexyAppBase::ReadBufferFromFile(const Sexy::String &theFileName, Buffer *theBuffer, bool dontWriteToDemo)
 {
     if (mAppDriver == nullptr)
         return 0;
     return mAppDriver->ReadBufferFromFile(theFileName, theBuffer, dontWriteToDemo);
 }
 
-bool SexyAppBase::WriteBufferToFile(const Sexy::String& theFileName, const Buffer* theBuffer)
+bool SexyAppBase::WriteBufferToFile(const Sexy::String &theFileName, const Buffer *theBuffer)
 {
     if (mAppDriver == nullptr)
         return 0;
     return mAppDriver->WriteBufferToFile(theFileName, theBuffer);
 }
 
-bool SexyAppBase::WriteBytesToFile(const Sexy::String& theFileName, const void* theData, unsigned long theLength)
+bool SexyAppBase::WriteBytesToFile(const Sexy::String &theFileName, const void *theData, unsigned long theLength)
 {
     if (mAppDriver == nullptr)
         return 0;
     return mAppDriver->WriteBytesToFile(theFileName, theData, theLength);
 }
 
-int SexyAppBase::RegistryWrite(const Sexy::String& theKey, unsigned long theType,
-                               const unsigned char* theData, unsigned long theLength)
+int SexyAppBase::RegistryWrite(
+    const Sexy::String &theKey, unsigned long theType, const unsigned char *theData, unsigned long theLength)
 {
     if (mAppDriver == nullptr)
         return 0;
-    return mAppDriver->ConfigWrite(theKey, theType, (unsigned char*)theData, theLength);
+    return mAppDriver->ConfigWrite(theKey, theType, (unsigned char *)theData, theLength);
 }
 
-int SexyAppBase::RegistryWriteString(const Sexy::String& theKey, const Sexy::String& theValue)
+int SexyAppBase::RegistryWriteString(const Sexy::String &theKey, const Sexy::String &theValue)
 {
     if (mAppDriver == nullptr)
         return 0;
     return mAppDriver->ConfigWriteString(theKey, theValue);
 }
 
-int SexyAppBase::RegistryWriteInteger(const Sexy::String& theKey, int theValue)
+int SexyAppBase::RegistryWriteInteger(const Sexy::String &theKey, int theValue)
 {
     if (mAppDriver == nullptr)
         return 0;
     return mAppDriver->ConfigWriteInteger(theKey, theValue);
 }
 
-int SexyAppBase::RegistryWriteBoolean(const Sexy::String& theKey, bool theValue)
+int SexyAppBase::RegistryWriteBoolean(const Sexy::String &theKey, bool theValue)
 {
     if (mAppDriver == nullptr)
         return 0;
     return mAppDriver->ConfigWriteBoolean(theKey, theValue);
 }
 
-int SexyAppBase::RegistryWriteData(const Sexy::String& theKey, const unsigned char* theData,
-                                   unsigned long theLength)
+int SexyAppBase::RegistryWriteData(const Sexy::String &theKey, const unsigned char *theData, unsigned long theLength)
 {
     if (mAppDriver == nullptr)
         return 0;
-    return mAppDriver->ConfigWriteData(theKey, (unsigned char*)theData, theLength);
+    return mAppDriver->ConfigWriteData(theKey, (unsigned char *)theData, theLength);
 }
 
-int SexyAppBase::RegistryEraseKey(const Sexy::String& theKey)
+int SexyAppBase::RegistryEraseKey(const Sexy::String &theKey)
 {
     if (mAppDriver == nullptr)
         return 0;
     return mAppDriver->ConfigEraseKey(theKey);
 }
 
-int SexyAppBase::RegistryEraseValue(const Sexy::String& theKey)
+int SexyAppBase::RegistryEraseValue(const Sexy::String &theKey)
 {
     if (mAppDriver == nullptr)
         return 0;
     return mAppDriver->ConfigEraseValue(theKey);
 }
 
-int SexyAppBase::RegistryRead(const Sexy::String& theKey, unsigned long* theType,
-                              unsigned char* theData, unsigned long* theLength)
+int SexyAppBase::RegistryRead(
+    const Sexy::String &theKey, unsigned long *theType, unsigned char *theData, unsigned long *theLength)
 {
     if (mAppDriver == nullptr)
         return 0;
-    return mAppDriver->ConfigRead(theKey, theType, theData, (unsigned char*)theLength);
+    return mAppDriver->ConfigRead(theKey, theType, theData, (unsigned char *)theLength);
 }
 
-int SexyAppBase::RegistryReadString(const Sexy::String& theKey, Sexy::String* theValue)
+int SexyAppBase::RegistryReadString(const Sexy::String &theKey, Sexy::String *theValue)
 {
     if (mAppDriver == nullptr)
         return 0;
     return mAppDriver->ConfigReadString(theKey, theValue);
 }
 
-int SexyAppBase::RegistryReadInteger(const Sexy::String& theKey, int* theValue)
+int SexyAppBase::RegistryReadInteger(const Sexy::String &theKey, int *theValue)
 {
     if (mAppDriver == nullptr)
         return 0;
     return mAppDriver->ConfigReadInteger(theKey, theValue);
 }
 
-int SexyAppBase::RegistryReadBoolean(const Sexy::String& theKey, bool* theValue)
+int SexyAppBase::RegistryReadBoolean(const Sexy::String &theKey, bool *theValue)
 {
     if (mAppDriver == nullptr)
         return 0;
     return mAppDriver->ConfigReadBoolean(theKey, theValue);
 }
 
-int SexyAppBase::RegistryReadData(const Sexy::String& theKey, unsigned char* theData,
-                                  unsigned long* theLength)
+int SexyAppBase::RegistryReadData(const Sexy::String &theKey, unsigned char *theData, unsigned long *theLength)
 {
     if (mAppDriver == nullptr)
         return 0;
@@ -2487,7 +2551,7 @@ void SexyAppBase::ReadFromRegistry()
         mAppDriver->ReadFromConfig();
 }
 
-int SexyAppBase::CopyToClipboard(const Sexy::String& theText)
+int SexyAppBase::CopyToClipboard(const Sexy::String &theText)
 {
     if (mAppDriver == nullptr)
         return 0;
@@ -2505,7 +2569,7 @@ Sexy::String SexyAppBase::GetClipboard()
 // --------------------------------------------------------------------------
 // The rest of the queries.
 // --------------------------------------------------------------------------
-bool SexyAppBase::OpenURL(const Sexy::String& theURL, bool shutdownOnOpen)
+bool SexyAppBase::OpenURL(const Sexy::String &theURL, bool shutdownOnOpen)
 {
     logfi("url: %s", theURL.c_str());
     mIsOpeningURL = true;
@@ -2514,14 +2578,14 @@ bool SexyAppBase::OpenURL(const Sexy::String& theURL, bool shutdownOnOpen)
     return mAppDriver->OpenURL(theURL, shutdownOnOpen) != 0;
 }
 
-Sexy::String SexyAppBase::GetProductVersion(const Sexy::String&)
+Sexy::String SexyAppBase::GetProductVersion(const Sexy::String &)
 {
     return mProductVersion;
 }
 
 Sexy::String SexyAppBase::GetLocale()
 {
-    const char* aLocale = setLocale(nullptr, nullptr);
+    const char *aLocale = setLocale(nullptr, nullptr);
     if (aLocale == nullptr)
         return Sexy::String();
     return Sexy::String(aLocale);
@@ -2532,7 +2596,7 @@ Sexy::String SexyAppBase::GetLocaleEncoding()
     return Sexy::String();
 }
 
-void SexyAppBase::SetLocale(const Sexy::String& theLanguage, const Sexy::String& theEncoding)
+void SexyAppBase::SetLocale(const Sexy::String &theLanguage, const Sexy::String &theEncoding)
 {
     (void)theEncoding;
     setLocale(nullptr, theLanguage.c_str());
@@ -2566,8 +2630,12 @@ Sexy::String SexyAppBase::GetGameSEHInfo()
     unsigned int anElapsed = Sexy::GetTickCount() - mTimeLoaded;
     char aTime[16];
     char aThreadId[20];
-    snprintf(aTime, sizeof(aTime), "%02u:%02u:%02u",
-             anElapsed / 1000 / 3600, (anElapsed / 1000 / 60) % 60, (anElapsed / 1000) % 60);
+    snprintf(aTime,
+        sizeof(aTime),
+        "%02u:%02u:%02u",
+        anElapsed / 1000 / 3600,
+        (anElapsed / 1000 / 60) % 60,
+        (anElapsed / 1000) % 60);
     snprintf(aThreadId, sizeof(aThreadId), "%X", mPrimaryThreadId);
 
     Sexy::String aResult = "Product: ";
@@ -2583,7 +2651,10 @@ Sexy::String SexyAppBase::GetGameSEHInfo()
     return aResult;
 }
 
-bool SexyAppBase::IsScreenSaver() { return mIsScreenSaver; }
+bool SexyAppBase::IsScreenSaver()
+{
+    return mIsScreenSaver;
+}
 
 bool SexyAppBase::ClearUpdateBacklog(bool relaxTime)
 {
@@ -2595,7 +2666,7 @@ bool SexyAppBase::ClearUpdateBacklog(bool relaxTime)
     return true;
 }
 
-bool SexyAppBase::TakeScreenshot(MemoryImage& theImage)
+bool SexyAppBase::TakeScreenshot(MemoryImage &theImage)
 {
     ClearUpdateBacklog(false);
     if (mAppDriver == nullptr)
@@ -2616,7 +2687,10 @@ int SexyAppBase::RehupFocus()
     return mAppDriver->RehupFocus();
 }
 
-int SexyAppBase::ShowMemoryUsage() { return 0; }
+int SexyAppBase::ShowMemoryUsage()
+{
+    return 0;
+}
 
 int SexyAppBase::ProcessDeferredMessages(bool theAll)
 {
@@ -2625,10 +2699,10 @@ int SexyAppBase::ProcessDeferredMessages(bool theAll)
     return mAppDriver->Process(theAll);
 }
 
-void SexyAppBase::SafeDeleteWidget(Widget* theWidget)
+void SexyAppBase::SafeDeleteWidget(Widget *theWidget)
 {
-    if (theWidget != nullptr
-        && std::find(mSafeDeleteList.begin(), mSafeDeleteList.end(), theWidget) == mSafeDeleteList.end())
+    if (theWidget != nullptr &&
+        std::find(mSafeDeleteList.begin(), mSafeDeleteList.end(), theWidget) == mSafeDeleteList.end())
         mSafeDeleteList.push_back(theWidget);
 }
 
@@ -2637,15 +2711,15 @@ void SexyAppBase::ProcessSafeDeleteList()
     // A modal wait still has its dialog and input callbacks on the stack.
     if (mUpdateAppDepth != 0 || mUpdateDepth != 0 || mIsDrawing)
         return;
-    std::list<Widget*> aPendingDelete;
+    std::list<Widget *> aPendingDelete;
     aPendingDelete.swap(mSafeDeleteList);
-    for (Widget* aWidget : aPendingDelete)
+    for (Widget *aWidget : aPendingDelete)
         delete aWidget;
 }
 
-char* SexyAppBase::GetCurrentEvent()
+char *SexyAppBase::GetCurrentEvent()
 {
-    return (char*)&mParameterStorage;
+    return (char *)&mParameterStorage;
 }
 
 int SexyAppBase::GetInputManager()
@@ -2658,10 +2732,16 @@ int SexyAppBase::GetInputConnectManager()
     return mInputConnectManager != nullptr ? 1 : 0;
 }
 
-int SexyAppBase::CheckControllerStatus() { return 0; }
-int SexyAppBase::HasTouchScreen() { return 0; }
+int SexyAppBase::CheckControllerStatus()
+{
+    return 0;
+}
+int SexyAppBase::HasTouchScreen()
+{
+    return 0;
+}
 
-SharedRenderTarget::Pool* SexyAppBase::GetSharedRenderTargetPool()
+SharedRenderTarget::Pool *SexyAppBase::GetSharedRenderTargetPool()
 {
     if (mRenderTargetPool == nullptr)
         mRenderTargetPool = new SharedRenderTarget::Pool();

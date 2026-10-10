@@ -12,12 +12,10 @@
 #include "TextLayout.h"
 #include "WidgetManager.h"
 
-Sexy::DialogButton::~DialogButton()
-{
-}
+Sexy::DialogButton::~DialogButton() {}
 
-Sexy::DialogButton::DialogButton(Sexy::Image * theImage, int theId, Sexy::ButtonListener * theListener)
-    : ButtonWidget(theId, theListener)
+Sexy::DialogButton::DialogButton(Sexy::Image *theImage, int theId, Sexy::ButtonListener *theListener) :
+    ButtonWidget(theId, theListener)
 {
     mImage = theImage;
 
@@ -36,7 +34,7 @@ Sexy::DialogButton::DialogButton(Sexy::Image * theImage, int theId, Sexy::Button
     SetColors(gDialogButtonColors, 6);
 }
 
-void Sexy::DialogButton::Draw(Sexy::Graphics * theGraphics)
+void Sexy::DialogButton::Draw(Sexy::Graphics *theGraphics)
 {
     if (mBtnNoDraw)
         return;
@@ -127,8 +125,7 @@ void Sexy::DialogButton::Draw(Sexy::Graphics * theGraphics)
         if (mInsets.mTop != 0 || mInsets.mBottom != 0)
         {
             float innerHeight = (float)(mHeight - mInsets.mTop - mInsets.mBottom);
-            textY = (int)((float)mInsets.mTop - mLabelExtents.mMinY
-                          + (innerHeight - mLabelExtents.mHeight) * 0.5f);
+            textY = (int)((float)mInsets.mTop - mLabelExtents.mMinY + (innerHeight - mLabelExtents.mHeight) * 0.5f);
         }
         else
         {

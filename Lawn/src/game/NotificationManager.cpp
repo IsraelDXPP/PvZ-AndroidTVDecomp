@@ -24,12 +24,12 @@
 // natural place) and restore the calls' real names.
 // ---------------------------------------------------------------------------
 // Platform notification placeholders use ordinary C linkage.
-extern "C" int NativeNotificationManagerCreate(void * theObject);
-extern "C" int NativeNotificationManagerGetFeatures(void * theObject);
-extern "C" int NativeNotificationManagerGetName(void * theObject);
+extern "C" int NativeNotificationManagerCreate(void *theObject);
+extern "C" int NativeNotificationManagerGetFeatures(void *theObject);
+extern "C" int NativeNotificationManagerGetName(void *theObject);
 extern "C" int NativeNotificationManagerSetAlias();
 extern "C" int NativeNotificationManagerSetTags();
-extern "C" int NativeNotificationManagerCancelAllNotifications(void * theObject);
+extern "C" int NativeNotificationManagerCancelAllNotifications(void *theObject);
 
 // ==========================================================================
 // Native::NotificationManager::create(void)
@@ -37,7 +37,7 @@ extern "C" int NativeNotificationManagerCancelAllNotifications(void * theObject)
 // ==========================================================================
 int Native::NotificationManager::create()
 {
-  return NativeNotificationManagerCreate(this);
+    return NativeNotificationManagerCreate(this);
 }
 
 // ==========================================================================
@@ -46,7 +46,7 @@ int Native::NotificationManager::create()
 // ==========================================================================
 int Native::NotificationManager::getFeatures()
 {
-  return NativeNotificationManagerGetFeatures(this);
+    return NativeNotificationManagerGetFeatures(this);
 }
 
 // ==========================================================================
@@ -55,7 +55,7 @@ int Native::NotificationManager::getFeatures()
 // ==========================================================================
 int Native::NotificationManager::getName()
 {
-  return NativeNotificationManagerGetName(this);
+    return NativeNotificationManagerGetName(this);
 }
 
 // ==========================================================================
@@ -64,7 +64,7 @@ int Native::NotificationManager::getName()
 // ==========================================================================
 int Native::NotificationManager::setAlias()
 {
-  return NativeNotificationManagerSetAlias();
+    return NativeNotificationManagerSetAlias();
 }
 
 // ==========================================================================
@@ -73,7 +73,7 @@ int Native::NotificationManager::setAlias()
 // ==========================================================================
 int Native::NotificationManager::setTags()
 {
-  return NativeNotificationManagerSetTags();
+    return NativeNotificationManagerSetTags();
 }
 
 // ==========================================================================
@@ -82,5 +82,5 @@ int Native::NotificationManager::setTags()
 // ==========================================================================
 int Native::NotificationManager::cancelAllNotifications()
 {
-  return NativeNotificationManagerCancelAllNotifications(this);
+    return NativeNotificationManagerCancelAllNotifications(this);
 }

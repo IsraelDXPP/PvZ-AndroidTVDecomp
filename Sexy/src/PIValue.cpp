@@ -6,7 +6,8 @@
 
 #include <cmath>
 
-namespace {
+namespace
+{
 
 int TableIndex(float theTime, float theStart, float theScale)
 {
@@ -20,22 +21,22 @@ int TableIndex(float theTime, float theStart, float theScale)
 
 } // namespace
 
-Sexy::PIValue::PIValue()
-    : mLastQueryTime(-1.0f)
-    , mLastValue(0.0f)
-    , mLastEvaluateTime(0.0f)
-    , mLastStepSize(0.01f)
+Sexy::PIValue::PIValue() :
+    mLastQueryTime(-1.0f),
+    mLastValue(0.0f),
+    mLastEvaluateTime(0.0f),
+    mLastStepSize(0.01f)
 {
 }
 
-Sexy::PIValue::PIValue(const PIValue& other)
-    : mSamples(other.mSamples)
-    , mKeyframes(other.mKeyframes)
-    , mBezier(other.mBezier)
-    , mLastQueryTime(other.mLastQueryTime)
-    , mLastValue(other.mLastValue)
-    , mLastEvaluateTime(other.mLastEvaluateTime)
-    , mLastStepSize(other.mLastStepSize)
+Sexy::PIValue::PIValue(const PIValue &other) :
+    mSamples(other.mSamples),
+    mKeyframes(other.mKeyframes),
+    mBezier(other.mBezier),
+    mLastQueryTime(other.mLastQueryTime),
+    mLastValue(other.mLastValue),
+    mLastEvaluateTime(other.mLastEvaluateTime),
+    mLastStepSize(other.mLastStepSize)
 {
 }
 
@@ -92,7 +93,7 @@ float Sexy::PIValue::GetNextKeyframeTime(float theTime) const
     float keyTime = mKeyframes[0].mTime;
     if (theTime > keyTime)
     {
-        for (int index = 0; ; )
+        for (int index = 0;;)
         {
             ++index;
             if (index == count)
@@ -148,7 +149,7 @@ void Sexy::PIValue::QuantizeCurve()
     // one slot is ramped from the previous value.
     while (scanIndex <= lastIndex)
     {
-        const float* point = mBezier.Evaluate(sampleTime);
+        const float *point = mBezier.Evaluate(sampleTime);
         const float bezierTime = point[0];
         const float bezierValue = point[1];
         bool advanced = false;
@@ -193,7 +194,7 @@ void Sexy::PIValue::QuantizeCurve()
     }
 
     const float scale = invRange * 255.0f;
-    for (const PIKeyframe& key : mKeyframes)
+    for (const PIKeyframe &key : mKeyframes)
         mSamples[(size_t)TableIndex(key.mTime, rangeStart, scale)] = key.mValue;
 }
 
@@ -236,8 +237,8 @@ float Sexy::PIValue::GetValueAt(float theTime, float theFallback)
                 // step binary-searches the bracket.
                 const float timeDelta = (theTime - previousQuery) / (rangeEnd - rangeStart);
                 float step = (rangeEnd - rangeStart) * 0.001f;
-                const float stepScale[4] = { 0.1f, 0.1f, 0.1f, 0.5f };
-                const float probeScale[3] = { 1.0f, 0.75f, 1.25f };
+                const float stepScale[4] = {0.1f, 0.1f, 0.1f, 0.5f};
+                const float probeScale[3] = {1.0f, 0.75f, 1.25f};
                 if (step > 0.1f)
                     step = 0.1f;
 
@@ -259,7 +260,7 @@ float Sexy::PIValue::GetValueAt(float theTime, float theFallback)
 
                     if (probe >= rangeStart && probe <= rangeEnd)
                     {
-                        const float* point = mBezier.Evaluate(probe);
+                        const float *point = mBezier.Evaluate(probe);
                         const float pointTime = point[0];
                         value = point[1];
                         if (tolerance >= std::fabs(pointTime - theTime))
@@ -292,8 +293,7 @@ float Sexy::PIValue::GetValueAt(float theTime, float theFallback)
                 {
                     const int index = (int)indexF;
                     const float frac = indexF - (float)index;
-                    value = (1.0f - frac) * mSamples[(size_t)index]
-                        + frac * mSamples[(size_t)index + 1];
+                    value = (1.0f - frac) * mSamples[(size_t)index] + frac * mSamples[(size_t)index + 1];
                 }
                 else
                 {
@@ -342,8 +342,8 @@ float Sexy::PIValue::GetValueAt(float theTime, float theFallback)
     float mix = (theTime - startTime) / (endTime - startTime);
     if (mix > 1.0f)
         mix = 1.0f;
-    const float result = mKeyframes[(size_t)index - 1].mValue
-        + mix * (mKeyframes[(size_t)index].mValue - mKeyframes[(size_t)index - 1].mValue);
+    const float result = mKeyframes[(size_t)index - 1].mValue +
+        mix * (mKeyframes[(size_t)index].mValue - mKeyframes[(size_t)index - 1].mValue);
     mLastValue = result;
     return result;
 }

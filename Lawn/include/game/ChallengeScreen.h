@@ -32,7 +32,8 @@
 // MSVC x86 gives a virtual destructor one slot where Itanium and ARM give it two,
 // so the absolute slot numbers run one lower here; only the order is copied.
 
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_CHALLENGESCREEN_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_CHALLENGESCREEN_H
 
 #include "ReconTypes.h"
 // Classes this one calls a method on: the call needs the
@@ -56,7 +57,10 @@ class LawnApp;
 
 class NewLawnButton;
 class WaitForSecondPlayerDialog;
-namespace Sexy { class ButtonWidget; }
+namespace Sexy
+{
+class ButtonWidget;
+}
 
 // NUM_CHALLENGE_MODES = GameMode::NUM_GAME_MODES - 1. The authoritative header
 // derives it from the GameMode enum (95 modes, so 94 challenge modes); this tree
@@ -68,55 +72,56 @@ inline constexpr int NUM_CHALLENGE_MODES = 94;
 class ChallengeScreen : public Sexy::Widget, public Sexy::ButtonListener
 {
 public:
-    enum {
+    enum
+    {
         ChallengeScreen_Back = 100,
         ChallengeScreen_Mode = 200,
         ChallengeScreen_Page = 300,
     };
 
     virtual ~ChallengeScreen();
-    virtual void AddedToManager(Sexy::WidgetManager *theWidgetManager);  // slot 29
+    virtual void AddedToManager(Sexy::WidgetManager *theWidgetManager); // slot 29
     virtual void RemovedFromManager(Sexy::WidgetManager *theWidgetManager); // slot 30
-    virtual void Update();                                  // slot 31
-    virtual void Draw(Sexy::Graphics *theGraphics);         // slot 36
-    virtual void GotFocus();                                // slot 61
-    virtual int KeyChar(char theChar);                      // slot 67
-    virtual int KeyDown(Sexy::KeyCode theKey);              // slot 71
-    virtual void ButtonPress(int theId);                    // ButtonListener slot 2
-    virtual void ButtonDepress(int theId);                  // ButtonListener slot 4
+    virtual void Update(); // slot 31
+    virtual void Draw(Sexy::Graphics *theGraphics); // slot 36
+    virtual void GotFocus(); // slot 61
+    virtual int KeyChar(char theChar); // slot 67
+    virtual int KeyDown(Sexy::KeyCode theKey); // slot 71
+    virtual void ButtonPress(int theId); // ButtonListener slot 2
+    virtual void ButtonDepress(int theId); // ButtonListener slot 4
 
     // +0x104 .. +0x5F7 (the first 0x100 bytes are Sexy::Widget, and the
     // ButtonListener subobject is the word at +0x100; this class's own members
     // therefore begin at +0x104).
     Sexy::ButtonWidget *mChallengeButtons[NUM_CHALLENGE_MODES]; // +0x104 .. +0x27B
-    LawnApp *mApp;                       // +0x27C
-    ToolTipWidget *mToolTip;             // +0x280
-    ChallengePage mPage;                 // +0x284
-    bool mCheatEnableChallenges;         // +0x288
-    UnlockingState mUnlockState;         // +0x28C
-    int mUnlockStateCounter;             // +0x290
-    int mUnlockChallengeIndex;           // +0x294
-    float mLockShakeX;                   // +0x298
-    float mLockShakeY;                   // +0x29C
+    LawnApp *mApp; // +0x27C
+    ToolTipWidget *mToolTip; // +0x280
+    ChallengePage mPage; // +0x284
+    bool mCheatEnableChallenges; // +0x288
+    UnlockingState mUnlockState; // +0x28C
+    int mUnlockStateCounter; // +0x290
+    int mUnlockChallengeIndex; // +0x294
+    float mLockShakeX; // +0x298
+    float mLockShakeY; // +0x29C
     // ChallengeScreen.cpp:1405 constructs a Sexy::Curve1DUtil here and the
     // reference tree calls the span ordinals 168..183, i.e. 16 words.
     // TODO(recon): Curve1DUtil.h still declares 0x50 bytes; the 0x40 this span
     // needs (and the 0x20 StoreScreen uses at +0x384) have to be reconciled
     // when that header is reconstructed.
-    Sexy::Curve1DUtil mUtil;             // +0x2A0 .. +0x2DF
-    HelpBarWidget *mHelpBarWidget;       // +0x2E0
-    int mScrollPosition;                 // +0x2E4
-    int mScrollTargetPosition;           // +0x2E8
-    float mScrollAnimationTime;          // +0x2EC
-    int mPageChallengeIndex[NUM_CHALLENGE_MODES];  // +0x2F0 .. +0x467
+    Sexy::Curve1DUtil mUtil; // +0x2A0 .. +0x2DF
+    HelpBarWidget *mHelpBarWidget; // +0x2E0
+    int mScrollPosition; // +0x2E4
+    int mScrollTargetPosition; // +0x2E8
+    float mScrollAnimationTime; // +0x2EC
+    int mPageChallengeIndex[NUM_CHALLENGE_MODES]; // +0x2F0 .. +0x467
     float mPageChallengeAnimTime[NUM_CHALLENGE_MODES]; // +0x468 .. +0x5DF
-    int mPageChallengeCount;             // +0x5E0
-    GameMode mSelectedGameMode;          // +0x5E4, always mSelectedMode - 2
-    int mSelectedChallengeIndex;         // +0x5E8
-    int mSurvivalCount;                  // +0x5EC
+    int mPageChallengeCount; // +0x5E0
+    GameMode mSelectedGameMode; // +0x5E4, always mSelectedMode - 2
+    int mSelectedChallengeIndex; // +0x5E8
+    int mSurvivalCount; // +0x5EC
     // The two porting-only pointers the reference tree adds after the 380-int
     // base layout. Nothing in ChallengeScreen.cpp reaches +0x5F0 or +0x5F4 yet.
-    NewLawnButton *mBackButton;          // +0x5F0
+    NewLawnButton *mBackButton; // +0x5F0
     WaitForSecondPlayerDialog *mConnectDialog; // +0x5F4
     // size 0x5F8
 
@@ -130,8 +135,8 @@ public:
     void UpdateToolTip();
     void GameAxisMove();
     void GameButtonUp();
-    ChallengeScreen* SetScrollTarget(int theTarget);
-    int * SetUnlockChallengeIndex(ChallengePage thePage, bool theAnimate);
+    ChallengeScreen *SetScrollTarget(int theTarget);
+    int *SetUnlockChallengeIndex(ChallengePage thePage, bool theAnimate);
     ChallengeScreen(LawnApp *theApp, ChallengePage thePage, unsigned int theFlags);
     // _ZN15ChallengeScreen14GameButtonDownEN4Sexy13GamepadButtonEij @0x18BF98:
     // three arguments, and the body reads only the button. Non-virtual, so the
@@ -156,3 +161,5 @@ public:
 // gChallengeScreenRequestState / gChallengeScreenOpenReplayManage. None of them
 // has a declaration anywhere in this tree yet; they belong to a later batch
 // because ChallengeScreen.cpp only calls GetChallengeDefinition().
+
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_CHALLENGESCREEN_H

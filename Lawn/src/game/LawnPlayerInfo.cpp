@@ -40,12 +40,12 @@ void LawnPlayerInfo::Reset()
     mLevel = 0;
     mCoins = 0;
 
-    for ( int i = 0; i != 100; ++i )
+    for (int i = 0; i != 100; ++i)
         mChallengeRecords[i] = 0;
 
-    for (int& purchase : mPurchases)
+    for (int &purchase : mPurchases)
         purchase = 0;
-    for (bool& achievement : mAchievements)
+    for (bool &achievement : mAchievements)
         achievement = false;
     mVSRoomPort = 0;
     mVSExtraPacketMode = false;
@@ -96,7 +96,7 @@ void LawnPlayerInfo::Reset()
     mProgress[2] = 0;
     mProgress[3] = 0;
     mProgress[1] = 0;
-    for ( int i = 0; i != 7; ++i )
+    for (int i = 0; i != 7; ++i)
         mHelpTextSeen[i] = false;
     // The dump clears the first progress word and, as one four-byte store,
     // the two flag bytes plus the two bools that follow them.
@@ -116,8 +116,8 @@ void LawnPlayerInfo::Reset()
 // LawnPlayerInfo::LawnPlayerInfo(Sexy::ProfileMgr *)
 // @0017D70C  44 bytes
 // ==========================================================================
-LawnPlayerInfo::LawnPlayerInfo(Sexy::ProfileMgr *theProfileMgr)
-    : Sexy::DefaultPlayerInfo(theProfileMgr)
+LawnPlayerInfo::LawnPlayerInfo(Sexy::ProfileMgr *theProfileMgr) :
+    Sexy::DefaultPlayerInfo(theProfileMgr)
 {
     mDetailFileCount = 3;
     Reset();
@@ -172,9 +172,9 @@ int LawnPlayerInfo::SyncGameData(DataSync &theSync)
         theSync.SyncLong(mChallengeRecords[i]);
 
     // Serialize purchases, achievements and preferences through their own types.
-    for (int& purchase : mPurchases)
+    for (int &purchase : mPurchases)
         theSync.SyncLong(purchase);
-    for (bool& achievement : mAchievements)
+    for (bool &achievement : mAchievements)
         theSync.SyncBool(achievement);
     theSync.SyncShort(mVSRoomPort);
     theSync.SyncBool(mVSExtraPacketMode);
@@ -192,7 +192,7 @@ int LawnPlayerInfo::SyncGameData(DataSync &theSync)
     theSync.SyncBool(mVSAIDraftDisabledMode);
     theSync.SyncBool(mVSAITemplateDeckDisabledMode);
     theSync.SyncBool(mVSTimedDraftMode);
-    for (bool& preference : mPurchasePad)
+    for (bool &preference : mPurchasePad)
         theSync.SyncBool(preference);
     theSync.SyncBool(mHapticFeedbackEnabled);
     theSync.SyncBool(mZombatarEnabled);
@@ -304,10 +304,10 @@ int LawnPlayerInfo::UpdateHouseData()
     // at index 12 and index 49.
     mGameStats.SetMiscStat(STAT_MONEY, mCoins);
     mGameStats.SetMiscStat(STAT_MONEY_SPENT, mUsedCoins);
-    mGameStats.SetMiscStat(STAT_TREE_HEIGHT,
-        mChallengeRecords[GAMEMODE_TREE_OF_WISDOM - GAMEMODE_SURVIVAL_NORMAL_STAGE_1]);
-    mGameStats.SetMiscStat(STAT_ENDLESS_FLAGS,
-        mChallengeRecords[GAMEMODE_SURVIVAL_ENDLESS_STAGE_3 - GAMEMODE_SURVIVAL_NORMAL_STAGE_1]);
+    mGameStats.SetMiscStat(
+        STAT_TREE_HEIGHT, mChallengeRecords[GAMEMODE_TREE_OF_WISDOM - GAMEMODE_SURVIVAL_NORMAL_STAGE_1]);
+    mGameStats.SetMiscStat(
+        STAT_ENDLESS_FLAGS, mChallengeRecords[GAMEMODE_SURVIVAL_ENDLESS_STAGE_3 - GAMEMODE_SURVIVAL_NORMAL_STAGE_1]);
     return 0;
 }
 
@@ -346,6 +346,4 @@ int LawnPlayerInfo::ResetChallengeRecord(GameMode theMode)
 // LawnPlayerInfo::~LawnPlayerInfo()
 // @0017D1E0  92 bytes
 // ==========================================================================
-LawnPlayerInfo::~LawnPlayerInfo()
-{
-}
+LawnPlayerInfo::~LawnPlayerInfo() {}

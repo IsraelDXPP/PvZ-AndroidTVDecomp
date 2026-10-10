@@ -18,7 +18,8 @@
 // MSVC x86 gives a virtual destructor one slot where Itanium and ARM give it two,
 // so the absolute slot numbers run one lower here; only the order is copied.
 
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_BOTTOMROTATORMENU_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_BOTTOMROTATORMENU_H
 
 #include "ReconTypes.h"
 // Classes this one calls a method on: the call needs the
@@ -27,7 +28,10 @@
 #include "Widget.h"
 #include <list>
 
-namespace Sexy { class ButtonWidget; }
+namespace Sexy
+{
+class ButtonWidget;
+}
 
 class BottomRotatorMenu : public Sexy::Widget
 {
@@ -46,3 +50,5 @@ public:
     void AddRotatorWidget(Sexy::ButtonWidget *theWidget);
     void RemoveRotatorWidget(Sexy::ButtonWidget *theWidget);
 };
+
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_BOTTOMROTATORMENU_H

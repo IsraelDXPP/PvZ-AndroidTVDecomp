@@ -15,7 +15,7 @@
 
 static int HesitationMilliseconds()
 {
-  return (int)gHesitationTrace.mTimer.GetDuration();
+    return (int)gHesitationTrace.mTimer.GetDuration();
 }
 
 // ==========================================================================
@@ -24,23 +24,23 @@ static int HesitationMilliseconds()
 // ==========================================================================
 TodHesitationBracket::TodHesitationBracket(const char *theFormat, ...)
 {
-  va_list aArgs;
-  va_start(aArgs, theFormat);
+    va_list aArgs;
+    va_start(aArgs, theFormat);
 
-  if (gHesitationTrace.mEnabled == false)
-  {
+    if (gHesitationTrace.mEnabled == false)
+    {
+        va_end(aArgs);
+        return;
+    }
+
+    TodVsnprintf(mMessage, 256, theFormat, aArgs);
     va_end(aArgs);
-    return;
-  }
+    TodHesitationTrace("Enter %s", mMessage);
+    gHesitationTrace.mDepth += 2;
 
-  TodVsnprintf(mMessage, 256, theFormat, aArgs);
-  va_end(aArgs);
-  TodHesitationTrace("Enter %s", mMessage);
-  gHesitationTrace.mDepth += 2;
-
-  // The shared timer starts with the process. The bracket records the elapsed
-  // time so EndBracket can subtract it again.
-  mBracketStartTime = HesitationMilliseconds();
+    // The shared timer starts with the process. The bracket records the elapsed
+    // time so EndBracket can subtract it again.
+    mBracketStartTime = HesitationMilliseconds();
 }
 
 // ==========================================================================
@@ -49,14 +49,14 @@ TodHesitationBracket::TodHesitationBracket(const char *theFormat, ...)
 // ==========================================================================
 int TodHesitationBracket::EndBracket()
 {
-  if (gHesitationTrace.mEnabled == false || mBracketStartTime == -1)
-    return 0;
+    if (gHesitationTrace.mEnabled == false || mBracketStartTime == -1)
+        return 0;
 
-  gHesitationTrace.mDepth -= 2;
-  int aDuration = HesitationMilliseconds();
-  int aResult = TodHesitationTrace("Exit %s (%d ms)", mMessage, aDuration - mBracketStartTime);
-  mBracketStartTime = -1;
-  return aResult;
+    gHesitationTrace.mDepth -= 2;
+    int aDuration = HesitationMilliseconds();
+    int aResult = TodHesitationTrace("Exit %s (%d ms)", mMessage, aDuration - mBracketStartTime);
+    mBracketStartTime = -1;
+    return aResult;
 }
 
 // ==========================================================================
@@ -65,5 +65,5 @@ int TodHesitationBracket::EndBracket()
 // ==========================================================================
 TodHesitationBracket::~TodHesitationBracket()
 {
-  EndBracket();
+    EndBracket();
 }

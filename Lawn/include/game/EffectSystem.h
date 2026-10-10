@@ -13,7 +13,8 @@
 // EffectSystemDispose / EffectSystemFreeAll; TodTriangleGroup lives in the same
 // authoritative header but is a separate type.
 
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_EFFECTSYSTEM_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_EFFECTSYSTEM_H
 
 #include "ReconTypes.h"
 // Classes this one calls a method on: the call needs the
@@ -30,10 +31,10 @@
 class EffectSystem
 {
 public:
-    TodParticleHolder *mParticleHolder;       // +0x00
-    TrailHolder *mTrailHolder;                // +0x04
-    ReanimationHolder *mReanimationHolder;    // +0x08
-    AttachmentHolder *mAttachmentHolder;      // +0x0C
+    TodParticleHolder *mParticleHolder; // +0x00
+    TrailHolder *mTrailHolder; // +0x04
+    ReanimationHolder *mReanimationHolder; // +0x08
+    AttachmentHolder *mAttachmentHolder; // +0x0C
     // size 0x10
 
     EffectSystem();
@@ -46,3 +47,5 @@ public:
 };
 
 // Layout check: four pointers (EffectSystem.h of the authoritative tree agrees).
+
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_EFFECTSYSTEM_H

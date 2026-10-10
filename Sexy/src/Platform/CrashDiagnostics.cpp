@@ -15,7 +15,6 @@
 #endif
 #include <Windows.h>
 #include <DbgHelp.h>
-#pragma comment(lib, "Dbghelp.lib")
 #else
 #include <fcntl.h>
 #include <unistd.h>
@@ -30,7 +29,7 @@ std::atomic<int> gFrame(0);
 std::atomic<int> gIntroTime(0);
 std::atomic<int> gGraves(0);
 std::atomic<int> gGravesEnabled(0);
-std::atomic<const char*> gPhase("startup");
+std::atomic<const char *> gPhase("startup");
 std::atomic_flag gReporting = ATOMIC_FLAG_INIT;
 bool gInstalled = false;
 
@@ -42,24 +41,23 @@ int gLogFile = -1;
 #endif
 
 #ifdef _WIN32
-std::wstring Utf8ToWindowsPath(const std::string& thePath)
+std::wstring Utf8ToWindowsPath(const std::string &thePath)
 {
     if (thePath.empty() || thePath.size() > std::numeric_limits<int>::max())
         return {};
     const int aByteCount = static_cast<int>(thePath.size());
-    const int aLength = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS,
-                                          thePath.data(), aByteCount, nullptr, 0);
+    const int aLength = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, thePath.data(), aByteCount, nullptr, 0);
     if (aLength <= 0)
         return {};
     std::wstring aResult(aLength, L'\0');
-    if (MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, thePath.data(), aByteCount,
-                            aResult.data(), aLength) != aLength)
+    if (MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, thePath.data(), aByteCount, aResult.data(), aLength) !=
+        aLength)
         return {};
     return aResult;
 }
 #endif
 
-bool OpenDiagnosticsDirectory(const std::string& theDirectory)
+bool OpenDiagnosticsDirectory(const std::string &theDirectory)
 {
     const std::string aLogPath = theDirectory + "LawnTV-diagnostics.log";
 #ifdef _WIN32
@@ -68,9 +66,13 @@ bool OpenDiagnosticsDirectory(const std::string& theDirectory)
     const std::wstring aWindowsLogPath = Utf8ToWindowsPath(aLogPath);
     if (aWindowsLogPath.empty())
         return false;
-    gLogFile = CreateFileW(aWindowsLogPath.c_str(), FILE_APPEND_DATA,
-                          FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_ALWAYS,
-                          FILE_ATTRIBUTE_NORMAL, nullptr);
+    gLogFile = CreateFileW(aWindowsLogPath.c_str(),
+        FILE_APPEND_DATA,
+        FILE_SHARE_READ | FILE_SHARE_WRITE,
+        nullptr,
+        OPEN_ALWAYS,
+        FILE_ATTRIBUTE_NORMAL,
+        nullptr);
     if (gLogFile == INVALID_HANDLE_VALUE)
         return false;
     // DbgHelp requires a native file handle; cache UTF-16 during startup,
@@ -91,7 +93,7 @@ struct ReportBuffer
     char mBytes[1024];
     size_t mLength = 0;
 
-    void Append(const char* theText)
+    void Append(const char *theText)
     {
         while (*theText != '\0' && mLength < sizeof(mBytes))
             mBytes[mLength++] = *theText++;
@@ -105,13 +107,12 @@ struct ReportBuffer
         {
             aDigits[aCount++] = '0' + static_cast<char>(theNumber % 10);
             theNumber /= 10;
-        }
-        while (theNumber != 0);
+        } while (theNumber != 0);
         while (aCount > 0 && mLength < sizeof(mBytes))
             mBytes[mLength++] = aDigits[--aCount];
     }
 
-    void AppendField(const char* theName, int theValue)
+    void AppendField(const char *theName, int theValue)
     {
         Append(theName);
         if (theValue < 0)
@@ -125,7 +126,7 @@ struct ReportBuffer
     }
 };
 
-void WriteReport(const char* theEvent, unsigned long long theCode)
+void WriteReport(const char *theEvent, unsigned long long theCode)
 {
     ReportBuffer aReport;
     aReport.Append(theEvent);
@@ -156,25 +157,30 @@ void WriteReport(const char* theEvent, unsigned long long theCode)
 }
 
 #ifdef _WIN32
-void WriteDump(EXCEPTION_POINTERS* theException)
+void WriteDump(EXCEPTION_POINTERS *theException)
 {
     if (gDumpPath.empty())
         return;
-    HANDLE aDumpFile = CreateFileW(gDumpPath.c_str(), GENERIC_WRITE, FILE_SHARE_READ,
-                                  nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
+    HANDLE aDumpFile = CreateFileW(
+        gDumpPath.c_str(), GENERIC_WRITE, FILE_SHARE_READ, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
     if (aDumpFile == INVALID_HANDLE_VALUE)
         return;
     MINIDUMP_EXCEPTION_INFORMATION anInfo{};
     anInfo.ThreadId = GetCurrentThreadId();
     anInfo.ExceptionPointers = theException;
     anInfo.ClientPointers = FALSE;
-    MiniDumpWriteDump(GetCurrentProcess(), GetCurrentProcessId(), aDumpFile,
-                     MiniDumpNormal, theException != nullptr ? &anInfo : nullptr, nullptr, nullptr);
+    MiniDumpWriteDump(GetCurrentProcess(),
+        GetCurrentProcessId(),
+        aDumpFile,
+        MiniDumpNormal,
+        theException != nullptr ? &anInfo : nullptr,
+        nullptr,
+        nullptr);
     FlushFileBuffers(aDumpFile);
     CloseHandle(aDumpFile);
 }
 
-LONG WINAPI ReportWindowsException(EXCEPTION_POINTERS* theException)
+LONG WINAPI ReportWindowsException(EXCEPTION_POINTERS *theException)
 {
     if (!gReporting.test_and_set())
     {
@@ -223,11 +229,11 @@ void Sexy::InstallCrashDiagnostics()
     if (gInstalled)
         return;
     gInstalled = true;
-    const char* aBasePath = SDL_GetBasePath();
+    const char *aBasePath = SDL_GetBasePath();
     const std::string aDirectory = aBasePath != nullptr ? aBasePath : "";
     if (!OpenDiagnosticsDirectory(aDirectory))
     {
-        char* aUserPath = SDL_GetPrefPath("LawnProjectTV", "LawnTV");
+        char *aUserPath = SDL_GetPrefPath("LawnProjectTV", "LawnTV");
         if (aUserPath != nullptr)
         {
             OpenDiagnosticsDirectory(aUserPath);
@@ -248,8 +254,8 @@ void Sexy::InstallCrashDiagnostics()
     WriteReport("session_start", 0);
 }
 
-void Sexy::SetCrashContext(int theGameMode, int theLevel, int theScene, int theFrame,
-                           int theIntroTime, int theGraves, bool theGravesEnabled)
+void Sexy::SetCrashContext(
+    int theGameMode, int theLevel, int theScene, int theFrame, int theIntroTime, int theGraves, bool theGravesEnabled)
 {
     gGameMode.store(theGameMode, std::memory_order_relaxed);
     gLevel.store(theLevel, std::memory_order_relaxed);
@@ -260,13 +266,13 @@ void Sexy::SetCrashContext(int theGameMode, int theLevel, int theScene, int theF
     gGravesEnabled.store(theGravesEnabled, std::memory_order_relaxed);
 }
 
-void Sexy::SetCrashPhase(const char* thePhase)
+void Sexy::SetCrashPhase(const char *thePhase)
 {
     // Callers pass string literals whose lifetime spans every crash handler.
     gPhase.store(thePhase, std::memory_order_relaxed);
 }
 
-void Sexy::RecordCrashContext(const char* theEvent)
+void Sexy::RecordCrashContext(const char *theEvent)
 {
     WriteReport(theEvent, 0);
 }

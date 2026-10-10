@@ -2,7 +2,7 @@
 
 #include "GraphicsState.h"
 
-void Sexy::GraphicsState::CopyStateFrom(Sexy::GraphicsState const* theSource)
+void Sexy::GraphicsState::CopyStateFrom(Sexy::GraphicsState const *theSource)
 {
     if (theSource == nullptr)
         return;

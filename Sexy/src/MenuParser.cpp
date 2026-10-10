@@ -25,43 +25,44 @@
 #include <new>
 
 // String conversion helpers shared with the descriptor parser.
-Sexy::String SexyWStringFromString(Sexy::String const& theText);
-void StringToUpper(Sexy::String* theDest, const char* theSource);
+Sexy::String SexyWStringFromString(Sexy::String const &theText);
+void StringToUpper(Sexy::String *theDest, const char *theSource);
 
-Sexy::MenuParser_ParseWidget::MenuParser_ParseWidget()
-    : mWidget(nullptr),
-      mReservedWidget(nullptr),
-      mLabelWidget(nullptr),
-      mImageWidget(nullptr),
-      mButtonWidget(nullptr),
-      mHelpBar(nullptr),
-      mHelpImage(nullptr),
-      mHelpText(nullptr)
+Sexy::MenuParser_ParseWidget::MenuParser_ParseWidget() :
+    mWidget(nullptr),
+    mReservedWidget(nullptr),
+    mLabelWidget(nullptr),
+    mImageWidget(nullptr),
+    mButtonWidget(nullptr),
+    mHelpBar(nullptr),
+    mHelpImage(nullptr),
+    mHelpText(nullptr)
 {
     mRefCount = 0;
 }
 
-namespace {
+namespace
+{
 
-const char* kBadCount = "Invalid Number of Parameters";
-const char* kBadType = "Invalid Paramater Type";
-const char* kMissingWidget = "Missing parse widget";
-const char* kWrongWidget = "Incorrect widget type in parse widget";
-const char* kMissingResource = "No resource with that name";
+const char *kBadCount = "Invalid Number of Parameters";
+const char *kBadType = "Invalid Paramater Type";
+const char *kMissingWidget = "Missing parse widget";
+const char *kWrongWidget = "Incorrect widget type in parse widget";
+const char *kMissingResource = "No resource with that name";
 
-bool SameCommand(const Sexy::String& theName, const char* theSpelling)
+bool SameCommand(const Sexy::String &theName, const char *theSpelling)
 {
     return strcasecmp(theName.c_str(), theSpelling) == 0;
 }
 
-bool IsList(const Sexy::DataElement* theElement)
+bool IsList(const Sexy::DataElement *theElement)
 {
     return theElement != nullptr && theElement->mElementKind != 0;
 }
 
 // The define table is keyed on upper-case names. A second definition of the
 // same name drops the old element before the new one is stored.
-void DropDefine(std::map<Sexy::String, Sexy::DataElement*>& theMap, const Sexy::String& theKey)
+void DropDefine(std::map<Sexy::String, Sexy::DataElement *> &theMap, const Sexy::String &theKey)
 {
     auto found = theMap.find(theKey);
     if (found == theMap.end())
@@ -70,7 +71,8 @@ void DropDefine(std::map<Sexy::String, Sexy::DataElement*>& theMap, const Sexy::
     theMap.erase(found);
 }
 
-void StoreDefine(std::map<Sexy::String, Sexy::DataElement*>& theMap, const Sexy::String& theKey, Sexy::DataElement* theValue)
+void StoreDefine(
+    std::map<Sexy::String, Sexy::DataElement *> &theMap, const Sexy::String &theKey, Sexy::DataElement *theValue)
 {
     auto found = theMap.find(theKey);
     if (found != theMap.end())
@@ -82,18 +84,18 @@ void StoreDefine(std::map<Sexy::String, Sexy::DataElement*>& theMap, const Sexy:
     theMap.emplace(theKey, theValue);
 }
 
-Sexy::String CommandText(const Sexy::DataElement* theElement)
+Sexy::String CommandText(const Sexy::DataElement *theElement)
 {
     Sexy::String aText;
     if (theElement != nullptr && theElement->mElementKind == 0)
-        SexyWStringToString(&aText, &((const Sexy::SingleDataElement*)theElement)->mData);
+        SexyWStringToString(&aText, &((const Sexy::SingleDataElement *)theElement)->mData);
     return aText;
 }
 
 } // namespace
 
-Sexy::WidgetAnimator* Sexy::MenuParser::CreateWidgetAnimator(Sexy::String theType, Sexy::ListDataElement const& theParams,
-                                           Sexy::MenuParser_ParseWidget* theParse)
+Sexy::WidgetAnimator *Sexy::MenuParser::CreateWidgetAnimator(
+    Sexy::String theType, Sexy::ListDataElement const &theParams, Sexy::MenuParser_ParseWidget *theParse)
 {
     (void)theType;
     (void)theParams;
@@ -101,17 +103,17 @@ Sexy::WidgetAnimator* Sexy::MenuParser::CreateWidgetAnimator(Sexy::String theTyp
     return nullptr;
 }
 
-Sexy::MenuParser_ParseWidget* Sexy::MenuParser::CreateParseWidget()
+Sexy::MenuParser_ParseWidget *Sexy::MenuParser::CreateParseWidget()
 {
     return new MenuParser_ParseWidget();
 }
 
-Sexy::Widget* Sexy::MenuParser::CreateWidget(Sexy::String theType, int theId, Sexy::MenuParser_ParseWidget* theParse)
+Sexy::Widget *Sexy::MenuParser::CreateWidget(Sexy::String theType, int theId, Sexy::MenuParser_ParseWidget *theParse)
 {
     if (theType == "ButtonWidget")
     {
         // MenuWidget listens for its own buttons.
-        ButtonWidget* aButton = new ButtonWidget(theId, mMenuWidget);
+        ButtonWidget *aButton = new ButtonWidget(theId, mMenuWidget);
         theParse->mButtonWidget = aButton;
         aButton->SetColor(1, Color(255, 255, 255, 255));
         theParse->mWidget = aButton;
@@ -120,7 +122,7 @@ Sexy::Widget* Sexy::MenuParser::CreateWidget(Sexy::String theType, int theId, Se
 
     if (theType == "LabelWidget")
     {
-        LabelWidget* aLabel = new LabelWidget();
+        LabelWidget *aLabel = new LabelWidget();
         theParse->mLabelWidget = aLabel;
         aLabel->mWidgetId = theId;
         theParse->mWidget = aLabel;
@@ -129,34 +131,34 @@ Sexy::Widget* Sexy::MenuParser::CreateWidget(Sexy::String theType, int theId, Se
 
     if (theType == "ImageWidget")
     {
-        ImageWidget* aImage = new ImageWidget();
+        ImageWidget *aImage = new ImageWidget();
         theParse->mImageWidget = aImage;
         aImage->mWidgetId = theId;
         theParse->mWidget = aImage;
         return aImage;
     }
 
-    Widget* aWidget = new Widget();
+    Widget *aWidget = new Widget();
     theParse->mWidget = aWidget;
     aWidget->mWidgetId = theId;
     return aWidget;
 }
 
-Sexy::MenuParser::MenuParser(Sexy::MenuWidget* theMenu)
-    : mMenuWidget(theMenu),
-      mParseWidget(nullptr)
+Sexy::MenuParser::MenuParser(Sexy::MenuWidget *theMenu) :
+    mMenuWidget(theMenu),
+    mParseWidget(nullptr)
 {
     mRefCount = 0;
 }
 
-int Sexy::MenuParser::Error(Sexy::String const& theError, Sexy::String theDetail)
+int Sexy::MenuParser::Error(Sexy::String const &theError, Sexy::String theDetail)
 {
     (void)theDetail;
     Sexy::String aWide = SexyWStringFromString(theError);
     return DescParser::Error(aWide);
 }
 
-Sexy::Widget* Sexy::MenuParser::FindWidget(int theId)
+Sexy::Widget *Sexy::MenuParser::FindWidget(int theId)
 {
     // Focus ids are indexes into the menu's own children. -1 means no link.
     if (theId == -1 || mMenuWidget == nullptr)
@@ -164,12 +166,12 @@ Sexy::Widget* Sexy::MenuParser::FindWidget(int theId)
     return mMenuWidget->FindWidget(theId);
 }
 
-int Sexy::MenuParser::DataToColor(Sexy::DataElement* theElement, Color& theColor)
+int Sexy::MenuParser::DataToColor(Sexy::DataElement *theElement, Color &theColor)
 {
     if (theElement == nullptr || theElement->mElementKind == 0)
         return 0;
 
-    ListDataElement* aList = (ListDataElement*)theElement;
+    ListDataElement *aList = (ListDataElement *)theElement;
     const int aCount = (int)aList->mDataElements.size();
     if (aCount != 3 && aCount != 4)
         return 0;
@@ -191,9 +193,10 @@ int Sexy::MenuParser::DataToColor(Sexy::DataElement* theElement, Color& theColor
     return 1;
 }
 
-namespace {
+namespace
+{
 
-bool Fail(Sexy::MenuParser* theParser, const char* theMessage)
+bool Fail(Sexy::MenuParser *theParser, const char *theMessage)
 {
     Sexy::String aMessage;
     aMessage = theMessage;
@@ -201,42 +204,42 @@ bool Fail(Sexy::MenuParser* theParser, const char* theMessage)
     return false;
 }
 
-bool NeedCount(Sexy::MenuParser* theParser, const Sexy::ListDataElement& theParams, int theCount)
+bool NeedCount(Sexy::MenuParser *theParser, const Sexy::ListDataElement &theParams, int theCount)
 {
     if ((int)theParams.mDataElements.size() == theCount)
         return true;
     return Fail(theParser, kBadCount);
 }
 
-bool NeedCurrentWidget(Sexy::MenuParser* theParser)
+bool NeedCurrentWidget(Sexy::MenuParser *theParser)
 {
     if (theParser->mParseWidget != nullptr && theParser->mParseWidget->mWidget != nullptr)
         return true;
     return Fail(theParser, kMissingWidget);
 }
 
-bool ReadInt(Sexy::MenuParser* theParser, Sexy::DataElement* theElement, int* theValue)
+bool ReadInt(Sexy::MenuParser *theParser, Sexy::DataElement *theElement, int *theValue)
 {
     if (IsList(theElement) || theParser->DataToInt(theElement, theValue) == 0)
         return Fail(theParser, kBadType);
     return true;
 }
 
-bool ReadBool(Sexy::MenuParser* theParser, Sexy::DataElement* theElement, bool* theValue)
+bool ReadBool(Sexy::MenuParser *theParser, Sexy::DataElement *theElement, bool *theValue)
 {
     if (IsList(theElement) || theParser->DataToBoolean(theElement, theValue) == 0)
         return Fail(theParser, kBadType);
     return true;
 }
 
-bool ReadText(Sexy::MenuParser* theParser, Sexy::DataElement* theElement, Sexy::String* theText)
+bool ReadText(Sexy::MenuParser *theParser, Sexy::DataElement *theElement, Sexy::String *theText)
 {
     if (IsList(theElement) || theParser->DataToString(theElement, theText) == 0)
         return Fail(theParser, kBadType);
     return true;
 }
 
-Sexy::SharedImageRef LoadSharedImage(const Sexy::String& theName)
+Sexy::SharedImageRef LoadSharedImage(const Sexy::String &theName)
 {
     Sexy::String aEmpty;
     if (gSexyAppBase == nullptr)
@@ -246,7 +249,7 @@ Sexy::SharedImageRef LoadSharedImage(const Sexy::String& theName)
 
 } // namespace
 
-bool Sexy::MenuParser::HandleCommand(Sexy::ListDataElement const& theParams)
+bool Sexy::MenuParser::HandleCommand(Sexy::ListDataElement const &theParams)
 {
     if (theParams.mDataElements.size() == 0)
         return Fail(this, kBadCount);
@@ -267,12 +270,12 @@ bool Sexy::MenuParser::HandleCommand(Sexy::ListDataElement const& theParams)
 
         DropDefine(mDefineMap, aKey);
 
-        DataElement* aValueElement = theParams.mDataElements[2];
-        DataElement* aStored = nullptr;
+        DataElement *aValueElement = theParams.mDataElements[2];
+        DataElement *aStored = nullptr;
         if (IsList(aValueElement))
         {
-            ListDataElement* aValues = new ListDataElement();
-            if (GetValues((ListDataElement*)aValueElement, aValues) == 0)
+            ListDataElement *aValues = new ListDataElement();
+            if (GetValues((ListDataElement *)aValueElement, aValues) == 0)
             {
                 delete aValues;
                 return false;
@@ -281,8 +284,8 @@ bool Sexy::MenuParser::HandleCommand(Sexy::ListDataElement const& theParams)
         }
         else
         {
-            SingleDataElement* aSingle = (SingleDataElement*)aValueElement;
-            DataElement* aResolved = Dereference(aSingle->mData);
+            SingleDataElement *aSingle = (SingleDataElement *)aValueElement;
+            DataElement *aResolved = Dereference(aSingle->mData);
             aStored = (aResolved != nullptr) ? aResolved->Duplicate() : aValueElement->Duplicate();
         }
         StoreDefine(mDefineMap, aKey, aStored);
@@ -298,7 +301,7 @@ bool Sexy::MenuParser::HandleCommand(Sexy::ListDataElement const& theParams)
 
         // Each name in the list becomes a define whose value is that name's
         // index, written as a decimal. Later commands read the name as an id.
-        ListDataElement* aNames = (ListDataElement*)theParams.mDataElements[1];
+        ListDataElement *aNames = (ListDataElement *)theParams.mDataElements[1];
         int aIndex = 0;
         for (unsigned int i = 0; i < aNames->mDataElements.size(); ++i)
         {
@@ -311,7 +314,7 @@ bool Sexy::MenuParser::HandleCommand(Sexy::ListDataElement const& theParams)
             Sexy::String aIndexText;
             aIndexText = aDigits;
 
-            SingleDataElement* aValue = new SingleDataElement();
+            SingleDataElement *aValue = new SingleDataElement();
             aValue->mData = aIndexText;
 
             Sexy::String aKey;
@@ -335,7 +338,7 @@ bool Sexy::MenuParser::HandleCommand(Sexy::ListDataElement const& theParams)
         if (gSexyAppBase == nullptr || gSexyAppBase->mResourceManager == nullptr)
             return Fail(this, kMissingResource);
         SharedImageRef aImage = gSexyAppBase->mResourceManager->GetImage(aName);
-        if ((Image*)aImage == nullptr)
+        if ((Image *)aImage == nullptr)
             return Fail(this, kMissingResource);
         if (mMenuWidget != nullptr)
             mMenuWidget->mImage = aImage;
@@ -365,7 +368,7 @@ bool Sexy::MenuParser::HandleCommand(Sexy::ListDataElement const& theParams)
         int aId = 0;
         DataToInt(theParams.mDataElements[2], &aId);
 
-        MenuParser_ParseWidget* aParse = CreateParseWidget();
+        MenuParser_ParseWidget *aParse = CreateParseWidget();
         if (aParse != mParseWidget)
         {
             if (mParseWidget != nullptr)
@@ -485,8 +488,8 @@ bool Sexy::MenuParser::HandleCommand(Sexy::ListDataElement const& theParams)
         const int aCount = (int)theParams.mDataElements.size();
         if (aCount != 4 && aCount != 5)
             return Fail(this, kBadCount);
-        if (IsList(theParams.mDataElements[1]) || IsList(theParams.mDataElements[2])
-            || !IsList(theParams.mDataElements[3]))
+        if (IsList(theParams.mDataElements[1]) || IsList(theParams.mDataElements[2]) ||
+            !IsList(theParams.mDataElements[3]))
             return Fail(this, kBadType);
         if (!NeedCurrentWidget(this))
             return false;
@@ -499,8 +502,8 @@ bool Sexy::MenuParser::HandleCommand(Sexy::ListDataElement const& theParams)
         if (!ReadText(this, theParams.mDataElements[2], &aKind))
             return false;
 
-        WidgetAnimator* aAnimator = CreateWidgetAnimator(
-            aKind, *(ListDataElement*)theParams.mDataElements[3], mParseWidget);
+        WidgetAnimator *aAnimator =
+            CreateWidgetAnimator(aKind, *(ListDataElement *)theParams.mDataElements[3], mParseWidget);
         if (aAnimator == nullptr)
             return Fail(this, kBadType);
 
@@ -545,7 +548,7 @@ bool Sexy::MenuParser::HandleCommand(Sexy::ListDataElement const& theParams)
         if (gSexyAppBase == nullptr || gSexyAppBase->mResourceManager == nullptr)
             return Fail(this, kMissingResource);
 
-        Font* aFont = gSexyAppBase->mResourceManager->GetFont(aName);
+        Font *aFont = gSexyAppBase->mResourceManager->GetFont(aName);
         if (aFont == nullptr)
             return Fail(this, kMissingResource);
         if (mParseWidget->mLabelWidget != nullptr)
@@ -579,8 +582,8 @@ bool Sexy::MenuParser::HandleCommand(Sexy::ListDataElement const& theParams)
         return true;
     }
 
-    if (SameCommand(aCommand, "SetImage") || SameCommand(aCommand, "SetOverImage")
-        || SameCommand(aCommand, "SetDownImage") || SameCommand(aCommand, "SetDisabledImage"))
+    if (SameCommand(aCommand, "SetImage") || SameCommand(aCommand, "SetOverImage") ||
+        SameCommand(aCommand, "SetDownImage") || SameCommand(aCommand, "SetDisabledImage"))
     {
         if (!NeedCount(this, theParams, 2) || !NeedCurrentWidget(this))
             return false;
@@ -601,7 +604,7 @@ bool Sexy::MenuParser::HandleCommand(Sexy::ListDataElement const& theParams)
             return false;
 
         SharedImageRef aImage = LoadSharedImage(aName);
-        if ((Image*)aImage == nullptr)
+        if ((Image *)aImage == nullptr)
             return true;
 
         if (SameCommand(aCommand, "SetImage"))
@@ -618,8 +621,8 @@ bool Sexy::MenuParser::HandleCommand(Sexy::ListDataElement const& theParams)
                 // mHeight (button+0x3C/+0x40). Move keeps that size, and Draw
                 // uses it as the destination. A source rect stays empty so the
                 // whole slice is drawn.
-                ButtonWidget* aButton = mParseWidget->mButtonWidget;
-                Image* aLoaded = aImage;
+                ButtonWidget *aButton = mParseWidget->mButtonWidget;
+                Image *aLoaded = aImage;
                 aButton->mButtonImage = aLoaded;
                 aButton->mWidth = aLoaded->mWidth;
                 aButton->mHeight = aLoaded->mHeight;
@@ -652,14 +655,11 @@ int Sexy::MenuParser::CloseFile()
     // Every widget the file named now exists, so the stored ids can be resolved.
     for (unsigned int i = 0; i < mWidgetLinks.size(); ++i)
     {
-        WidgetLinks& aLink = mWidgetLinks[i];
+        WidgetLinks &aLink = mWidgetLinks[i];
         if (aLink.mWidget == nullptr)
             continue;
         aLink.mWidget->SetFocusLinks(
-            FindWidget(aLink.mUpId),
-            FindWidget(aLink.mDownId),
-            FindWidget(aLink.mLeftId),
-            FindWidget(aLink.mRightId));
+            FindWidget(aLink.mUpId), FindWidget(aLink.mDownId), FindWidget(aLink.mLeftId), FindWidget(aLink.mRightId));
     }
     mWidgetLinks.clear();
     return EncodingParser::CloseFile();

@@ -22,17 +22,15 @@ Sexy::String Sexy::DefaultPlayerInfo::GetName()
     return mName;
 }
 
-void Sexy::DefaultPlayerInfo::Reset()
-{
-}
+void Sexy::DefaultPlayerInfo::Reset() {}
 
-void Sexy::DefaultPlayerInfo::SyncDetails(DataSync& theSync, int theVersion)
+void Sexy::DefaultPlayerInfo::SyncDetails(DataSync &theSync, int theVersion)
 {
     (void)theSync;
     (void)theVersion;
 }
 
-void Sexy::DefaultPlayerInfo::SyncSummary(DataSync& theSync)
+void Sexy::DefaultPlayerInfo::SyncSummary(DataSync &theSync)
 {
     theSync.SyncString(mName);
     theSync.SyncLong(mUseSeq);
@@ -55,8 +53,8 @@ void Sexy::DefaultPlayerInfo::DeleteUserFiles()
     }
 }
 
-Sexy::DefaultPlayerInfo::DefaultPlayerInfo(Sexy::ProfileMgr* theProfileMgr)
-    : PlayerInfo(theProfileMgr)
+Sexy::DefaultPlayerInfo::DefaultPlayerInfo(Sexy::ProfileMgr *theProfileMgr) :
+    PlayerInfo(theProfileMgr)
 {
     mId = -1;
     mProfileId = -1;
@@ -81,7 +79,7 @@ void Sexy::DefaultPlayerInfo::LoadDetails()
             return;
 
         DataReader theReader;
-        const unsigned char* theBits = theBuffer.mData.empty() ? nullptr : &theBuffer.mData[0];
+        const unsigned char *theBits = theBuffer.mData.empty() ? nullptr : &theBuffer.mData[0];
         theReader.OpenMemory(theBits, (unsigned long)((theBuffer.mDataBitSize + 7) / 8), false);
 
         DataSync theSync(theReader);
@@ -123,13 +121,10 @@ bool Sexy::DefaultPlayerInfo::SaveDetails()
         StrFormat(&theName, "userdata/user%d-%d-%d.dat", mProfileId, GetId(), theSlot);
         theFile += theName;
 
-        if (gSexyAppBase->WriteBytesToFile(
-                theFile, theWriter.mBuffer, theWriter.mBufferPos) == 0)
+        if (gSexyAppBase->WriteBytesToFile(theFile, theWriter.mBuffer, theWriter.mBufferPos) == 0)
             theSaved = false;
     }
     return theSaved;
 }
 
-Sexy::DefaultPlayerInfo::~DefaultPlayerInfo()
-{
-}
+Sexy::DefaultPlayerInfo::~DefaultPlayerInfo() {}

@@ -2,19 +2,21 @@
 // emitter by the definition pointer. Tint, image, transform and the offset
 // are the values LoadEffect used to publish on the instance itself.
 
-#pragma once
+#ifndef LAWNPROJECTTV_SEXY_INCLUDE_PIEMITTERINSTANCE_H
+#define LAWNPROJECTTV_SEXY_INCLUDE_PIEMITTERINSTANCE_H
 
 #include "SexyTransform2D.h"
 #include "SharedImageRef.h"
 
-namespace Sexy {
+namespace Sexy
+{
 
 class PIEmitterInstanceDef;
 
 class PIEmitterInstance
 {
 public:
-    PIEmitterInstanceDef* mDef;
+    PIEmitterInstanceDef *mDef;
     Color mTint;
     SharedImageRef mImage;
     SexyTransform2D mTransform;
@@ -24,9 +26,11 @@ public:
     bool mActive;
 
     PIEmitterInstance();
-    PIEmitterInstance(const PIEmitterInstance& other);
+    PIEmitterInstance(const PIEmitterInstance &other);
 };
 
 } // namespace Sexy
 
 using Sexy::PIEmitterInstance;
+
+#endif // LAWNPROJECTTV_SEXY_INCLUDE_PIEMITTERINSTANCE_H

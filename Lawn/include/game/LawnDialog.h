@@ -36,7 +36,8 @@
 // GetPreferredHeight/IsModal/WaitForResult/ButtonDownTick) still hold Dialog's
 // implementations, so they are NOT redeclared.
 
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_LAWNDIALOG_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_LAWNDIALOG_H
 
 #include "ReconTypes.h"
 // Classes this one calls a method on: the call needs the
@@ -73,45 +74,45 @@ class LawnDialog : public Sexy::Dialog
 {
 public:
     // ---- members, absolute offsets (authoritative ordinals / byte comments) ----
-    LawnApp * mApp;                    // +0x2E0 (184)
-    int mButtonDelay;                  // +0x2E4 (185)
+    LawnApp *mApp; // +0x2E0 (184)
+    int mButtonDelay; // +0x2E4 (185)
     // The constructor does `new ReanimationWidget()`, RemovedFromManager calls
     // `ReanimationWidget::Dispose` on it and Resize reads its mReanimation and
     // mPosY, so the member is the derived type, not Sexy::Widget. Same 4 bytes;
     // no offset moves and the 0x2FC assert still holds.
-    ReanimationWidget * mReanimationWidget; // +0x2E8 (186)
-    bool mDrawStandardBack;            // +0x2EC (748)
-    GameButton * mLawnYesButton;       // +0x2F0 (188)
-    GameButton * mLawnNoButton;        // +0x2F4 (189)
-    bool mTallBottom;                  // +0x2F8 (760)
-    bool mVerticalCenterText;          // +0x2F9 (761)
-    bool mDrawFade;                    // +0x2FA, DrawDialogFade runs when this is set
-    bool mDrawQRCode;                  // +0x2FB, DrawQRCode runs after the fade
+    ReanimationWidget *mReanimationWidget; // +0x2E8 (186)
+    bool mDrawStandardBack; // +0x2EC (748)
+    GameButton *mLawnYesButton; // +0x2F0 (188)
+    GameButton *mLawnNoButton; // +0x2F4 (189)
+    bool mTallBottom; // +0x2F8 (760)
+    bool mVerticalCenterText; // +0x2F9 (761)
+    bool mDrawFade; // +0x2FA, DrawDialogFade runs when this is set
+    bool mDrawQRCode; // +0x2FB, DrawQRCode runs after the fade
     // size 0x2FC
 
     // ---- the Dialog slots this class overrides, in binary order ----
-    virtual ~LawnDialog();                                                     // [  0]
-    virtual void AddedToManager(Sexy::WidgetManager * theWidgetManager);       // [ 29]
-    virtual void RemovedFromManager(Sexy::WidgetManager * theWidgetManager);   // [ 30]
-    virtual void Update();                                                    // [ 31]
-    virtual void Draw(Sexy::Graphics * g);                                    // [ 36]
-    virtual void Resize(int theX, int theY, int theWidth, int theHeight);     // [ 50]
-    virtual void GotFocus();                                                  // [ 61]
-    virtual int KeyDown(Sexy::KeyCode theKey);                               // [ 71]
-    virtual void ButtonPress(int theId);                                      // [128]
-    virtual void ButtonDepress(int theId);                                    // [129]
+    virtual ~LawnDialog(); // [  0]
+    virtual void AddedToManager(Sexy::WidgetManager *theWidgetManager); // [ 29]
+    virtual void RemovedFromManager(Sexy::WidgetManager *theWidgetManager); // [ 30]
+    virtual void Update(); // [ 31]
+    virtual void Draw(Sexy::Graphics *g); // [ 36]
+    virtual void Resize(int theX, int theY, int theWidth, int theHeight); // [ 50]
+    virtual void GotFocus(); // [ 61]
+    virtual int KeyDown(Sexy::KeyCode theKey); // [ 71]
+    virtual void ButtonPress(int theId); // [128]
+    virtual void ButtonDepress(int theId); // [129]
 
     // ---- slots 131..132: new in LawnDialog ----
-    virtual void SetButtonDelay(int theDelay);                                // [131]
-    virtual void CheckboxChecked(int theId, bool checked);                    // [132]
+    virtual void SetButtonDelay(int theDelay); // [131]
+    virtual void CheckboxChecked(int theId, bool checked); // [132]
 
     // ---- methods the binary has but the authoritative header does not list ----
     int GetLeft();
     int GetWidth();
     int GetTop();
     int CalcSize(int theWidth, int theHeight, bool theSetPos);
-    LawnDialog(LawnApp * theApp, Sexy::Image * theImage, int theId, bool isModal,
-               const Sexy::String & theDialogHeader, const Sexy::String & theDialogLines,
-               const Sexy::String & theDialogFooter, int theButtonMode);
+    LawnDialog(LawnApp *theApp, Sexy::Image *theImage, int theId, bool isModal, const Sexy::String &theDialogHeader,
+        const Sexy::String &theDialogLines, const Sexy::String &theDialogFooter, int theButtonMode);
 };
 
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_LAWNDIALOG_H

@@ -12,8 +12,8 @@
 #include "SexyAppBase.h"
 #include "WidgetManager.h"
 
-
-namespace {
+namespace
+{
 
 const unsigned int kRelativeMouse = 2u;
 const unsigned int kAbsoluteMouse = 1u;
@@ -25,7 +25,7 @@ bool IsPointerEvent(int theKind)
     return theKind == 7 || theKind == 3 || theKind == 4;
 }
 
-void ClearInputInfo(Sexy::InputInfo& theInfo)
+void ClearInputInfo(Sexy::InputInfo &theInfo)
 {
     theInfo.mName = "Unknown";
     theInfo.mHasPointer = 0;
@@ -36,7 +36,7 @@ void ClearInputInfo(Sexy::InputInfo& theInfo)
     theInfo.mDeviceIndex = -1;
 }
 
-void CountDevice(Sexy::InputStatusInfo& theStatus, const Sexy::InputInfo& theInfo)
+void CountDevice(Sexy::InputStatusInfo &theStatus, const Sexy::InputInfo &theInfo)
 {
     if (theInfo.mHasPointer != 0)
         ++theStatus.mPointerCount;
@@ -48,21 +48,21 @@ void CountDevice(Sexy::InputStatusInfo& theStatus, const Sexy::InputInfo& theInf
         ++theStatus.mJoystickCount;
 }
 
-const char* YesOrNo(int theFlag)
+const char *YesOrNo(int theFlag)
 {
     return theFlag != 0 ? "yes" : "no";
 }
 
-void DumpOneDevice(int theSlot, const Sexy::InputInfo& theInfo)
+void DumpOneDevice(int theSlot, const Sexy::InputInfo &theInfo)
 {
     logfi("  0x%08x - '%s':", theSlot, theInfo.mName.c_str());
     logfi("\t\tkeys: %s pointer: %s joystick: %s.",
-          YesOrNo(theInfo.mHasKeys),
-          YesOrNo(theInfo.mHasPointer),
-          YesOrNo(theInfo.mHasJoystick));
+        YesOrNo(theInfo.mHasKeys),
+        YesOrNo(theInfo.mHasPointer),
+        YesOrNo(theInfo.mHasJoystick));
 }
 
-void StampEvent(Sexy::Event& theEvent)
+void StampEvent(Sexy::Event &theEvent)
 {
     if (((unsigned int)theEvent.modifierMask & kHasTimestamp) != 0)
         return;
@@ -72,14 +72,14 @@ void StampEvent(Sexy::Event& theEvent)
 
 } // namespace
 
-Sexy::InputManager::InputManager(SexyAppBase* theApp, unsigned int theMaxEvents)
-    : mApp(theApp),
-      mInitialized(false),
-      mMaxEventCount(theMaxEvents),
-      mMouseX(0),
-      mMouseY(0),
-      mNextDriverSlot(0),
-      mChangeCookie(0)
+Sexy::InputManager::InputManager(SexyAppBase *theApp, unsigned int theMaxEvents) :
+    mApp(theApp),
+    mInitialized(false),
+    mMaxEventCount(theMaxEvents),
+    mMouseX(0),
+    mMouseY(0),
+    mNextDriverSlot(0),
+    mChangeCookie(0)
 {
 }
 
@@ -90,19 +90,19 @@ int Sexy::InputManager::IsInitialized()
 
 int Sexy::InputManager::Cleanup()
 {
-    Sexy::DriverFactory* aFactory = Sexy::InputDriverFactory::GetInputDriverFactory();
+    Sexy::DriverFactory *aFactory = Sexy::InputDriverFactory::GetInputDriverFactory();
     if (aFactory != nullptr)
     {
-        std::vector<Sexy::Driver*> aOwners = aFactory->Drivers();
-        for (Sexy::Driver* aOwner : aOwners)
+        std::vector<Sexy::Driver *> aOwners = aFactory->Drivers();
+        for (Sexy::Driver *aOwner : aOwners)
         {
             if (aOwner != nullptr && aOwner->IsDisabled() == 0)
-                static_cast<Sexy::InputDriver*>(aOwner)->OnStop();
+                static_cast<Sexy::InputDriver *>(aOwner)->OnStop();
         }
     }
 
-    std::vector<IInputDriver*> aOwned(mDrivers.begin(), mDrivers.end());
-    for (IInputDriver* aDriver : aOwned)
+    std::vector<IInputDriver *> aOwned(mDrivers.begin(), mDrivers.end());
+    for (IInputDriver *aDriver : aOwned)
     {
         if (aDriver != nullptr)
             aDriver->WillStop();
@@ -110,7 +110,7 @@ int Sexy::InputManager::Cleanup()
 
     mEventLock.Lock();
     mDrivers.clear();
-    for (IInputDriver* aDriver : aOwned)
+    for (IInputDriver *aDriver : aOwned)
         delete aDriver;
     mEvents.clear();
     mMouseX = 0;
@@ -127,7 +127,7 @@ bool Sexy::InputManager::HasEvent()
     return aHasEvent;
 }
 
-int Sexy::InputManager::PreprocessEvent(Event& theEvent)
+int Sexy::InputManager::PreprocessEvent(Event &theEvent)
 {
     if (!IsPointerEvent(theEvent.modifiers))
         return 0;
@@ -141,11 +141,10 @@ int Sexy::InputManager::PreprocessEvent(Event& theEvent)
     // SDL/bgfx has no DDInterface. Mouse events still enter in render-surface
     // coordinates; RemapMouse applies the stage's centering offset afterward.
     // Using the 800x600 stage here scales and clamps a 1280x720 window twice.
-    if (mApp->mWidgetManager != nullptr
-        && mApp->mWidgetManager->mMouseSourceRect.mWidth > 0
-        && mApp->mWidgetManager->mMouseSourceRect.mHeight > 0)
+    if (mApp->mWidgetManager != nullptr && mApp->mWidgetManager->mMouseSourceRect.mWidth > 0 &&
+        mApp->mWidgetManager->mMouseSourceRect.mHeight > 0)
     {
-        Rect& aSource = mApp->mWidgetManager->mMouseSourceRect;
+        Rect &aSource = mApp->mWidgetManager->mMouseSourceRect;
         aLeft = aSource.mX;
         aTop = aSource.mY;
         aWidth = aSource.mWidth;
@@ -175,9 +174,7 @@ int Sexy::InputManager::PreprocessEvent(Event& theEvent)
     {
         mMouseX = aX;
         mMouseY = aY;
-        if ((aMask & kScaleMouse) != 0 &&
-            (int)theEvent.mScaleDivisorX != 0 &&
-            (int)theEvent.mScaleDivisorY != 0)
+        if ((aMask & kScaleMouse) != 0 && (int)theEvent.mScaleDivisorX != 0 && (int)theEvent.mScaleDivisorY != 0)
         {
             aX = (aWidth * aX) / (int)theEvent.mScaleDivisorX;
             aY = (aHeight * aY) / (int)theEvent.mScaleDivisorY;
@@ -220,7 +217,7 @@ int Sexy::InputManager::PreprocessEvent(Event& theEvent)
     return 0;
 }
 
-int Sexy::InputManager::PopEvent(Event& theEvent)
+int Sexy::InputManager::PopEvent(Event &theEvent)
 {
     mEventLock.Lock();
     theEvent.modifiers = 0;
@@ -235,9 +232,9 @@ int Sexy::InputManager::PopEvent(Event& theEvent)
     return aGotOne;
 }
 
-Sexy::InputManager* Sexy::InputManager::ConnectAll()
+Sexy::InputManager *Sexy::InputManager::ConnectAll()
 {
-    for (IInputDriver* aDriver : mDrivers)
+    for (IInputDriver *aDriver : mDrivers)
     {
         if (aDriver != nullptr)
             aDriver->Connect();
@@ -245,9 +242,9 @@ Sexy::InputManager* Sexy::InputManager::ConnectAll()
     return this;
 }
 
-Sexy::InputManager* Sexy::InputManager::ReconnectAll()
+Sexy::InputManager *Sexy::InputManager::ReconnectAll()
 {
-    for (IInputDriver* aDriver : mDrivers)
+    for (IInputDriver *aDriver : mDrivers)
     {
         if (aDriver != nullptr)
             aDriver->Reconnect();
@@ -255,9 +252,9 @@ Sexy::InputManager* Sexy::InputManager::ReconnectAll()
     return this;
 }
 
-Sexy::IInputDriver* Sexy::InputManager::Find(int theSlot)
+Sexy::IInputDriver *Sexy::InputManager::Find(int theSlot)
 {
-    for (IInputDriver* aDriver : mDrivers)
+    for (IInputDriver *aDriver : mDrivers)
     {
         if (aDriver != nullptr && aDriver->mSlot == theSlot)
             return aDriver;
@@ -267,7 +264,7 @@ Sexy::IInputDriver* Sexy::InputManager::Find(int theSlot)
 
 int Sexy::InputManager::Connect(int theSlot)
 {
-    IInputDriver* aDriver = Find(theSlot);
+    IInputDriver *aDriver = Find(theSlot);
     if (aDriver == nullptr)
         return 0;
     return aDriver->Connect();
@@ -275,7 +272,7 @@ int Sexy::InputManager::Connect(int theSlot)
 
 int Sexy::InputManager::Reconnect(int theSlot)
 {
-    IInputDriver* aDriver = Find(theSlot);
+    IInputDriver *aDriver = Find(theSlot);
     if (aDriver == nullptr)
         return 0;
     return aDriver->Reconnect();
@@ -292,11 +289,11 @@ void Sexy::InputManager::DumpStatus()
     InputInfo aInfo;
     ClearInputInfo(aInfo);
 
-    NativeDisplay* aDisplay = mApp != nullptr ? mApp->mPlatformDriverOrQueue : nullptr;
+    NativeDisplay *aDisplay = mApp != nullptr ? mApp->mPlatformDriverOrQueue : nullptr;
     if (aDisplay != nullptr && aDisplay->GetInputInfo(aInfo) != 0)
         DumpOneDevice(0, aInfo);
 
-    for (IInputDriver* aDriver : mDrivers)
+    for (IInputDriver *aDriver : mDrivers)
     {
         if (aDriver == nullptr)
             continue;
@@ -310,7 +307,7 @@ void Sexy::InputManager::DumpStatus()
     }
 }
 
-int Sexy::InputManager::GetStatus(InputStatusInfo& theStatus)
+int Sexy::InputManager::GetStatus(InputStatusInfo &theStatus)
 {
     mEventLock.Lock();
     theStatus.mDriverCount = (int)mDrivers.size();
@@ -322,11 +319,11 @@ int Sexy::InputManager::GetStatus(InputStatusInfo& theStatus)
 
     InputInfo aInfo;
     ClearInputInfo(aInfo);
-    NativeDisplay* aDisplay = mApp != nullptr ? mApp->mPlatformDriverOrQueue : nullptr;
+    NativeDisplay *aDisplay = mApp != nullptr ? mApp->mPlatformDriverOrQueue : nullptr;
     if (aDisplay != nullptr && aDisplay->GetInputInfo(aInfo) != 0)
         CountDevice(theStatus, aInfo);
 
-    for (IInputDriver* aDriver : mDrivers)
+    for (IInputDriver *aDriver : mDrivers)
     {
         if (aDriver == nullptr)
             continue;
@@ -349,26 +346,24 @@ int Sexy::InputManager::Changed()
     return mEventLock.Unlock();
 }
 
-int Sexy::InputManager::GetMousePos(int& theX, int& theY)
+int Sexy::InputManager::GetMousePos(int &theX, int &theY)
 {
     theX = mMouseX;
     theY = mMouseY;
     return 0;
 }
 
-int Sexy::InputManager::AddListener(InputDeviceListener* theListener)
+int Sexy::InputManager::AddListener(InputDeviceListener *theListener)
 {
     mDriverLock.Lock();
     mListeners.push_back(theListener);
     return mDriverLock.Unlock();
 }
 
-int Sexy::InputManager::RemoveListener(InputDeviceListener* theListener)
+int Sexy::InputManager::RemoveListener(InputDeviceListener *theListener)
 {
     mDriverLock.Lock();
-    for (std::list<InputDeviceListener*>::iterator aFound = mListeners.begin();
-         aFound != mListeners.end();
-         ++aFound)
+    for (std::list<InputDeviceListener *>::iterator aFound = mListeners.begin(); aFound != mListeners.end(); ++aFound)
     {
         if (*aFound == theListener)
         {
@@ -379,10 +374,10 @@ int Sexy::InputManager::RemoveListener(InputDeviceListener* theListener)
     return mDriverLock.Unlock();
 }
 
-int Sexy::InputManager::DispatchEvent(IInputDriver* theDriver, DeviceEvent theKind, Event* theEvent)
+int Sexy::InputManager::DispatchEvent(IInputDriver *theDriver, DeviceEvent theKind, Event *theEvent)
 {
     mDriverLock.Lock();
-    for (InputDeviceListener* aListener : mListeners)
+    for (InputDeviceListener *aListener : mListeners)
     {
         if (aListener == nullptr)
             continue;
@@ -396,7 +391,7 @@ int Sexy::InputManager::DispatchEvent(IInputDriver* theDriver, DeviceEvent theKi
     return mDriverLock.Unlock();
 }
 
-int Sexy::InputManager::Remove(IInputDriver* theDriver)
+int Sexy::InputManager::Remove(IInputDriver *theDriver)
 {
     if (theDriver == nullptr)
         return 0;
@@ -405,9 +400,7 @@ int Sexy::InputManager::Remove(IInputDriver* theDriver)
 
     mEventLock.Lock();
     bool aFound = false;
-    for (std::list<IInputDriver*>::iterator aNode = mDrivers.begin();
-         aNode != mDrivers.end();
-         ++aNode)
+    for (std::list<IInputDriver *>::iterator aNode = mDrivers.begin(); aNode != mDrivers.end(); ++aNode)
     {
         if (*aNode == theDriver)
         {
@@ -425,7 +418,7 @@ int Sexy::InputManager::Remove(IInputDriver* theDriver)
     return 1;
 }
 
-int Sexy::InputManager::PushEvent(Event& theEvent, IInputDriver* theDriver)
+int Sexy::InputManager::PushEvent(Event &theEvent, IInputDriver *theDriver)
 {
     if (theDriver == nullptr && theEvent.lateModifiers > 0)
         theDriver = Find(theEvent.lateModifiers);
@@ -453,7 +446,7 @@ int Sexy::InputManager::Update()
     Event aEvent;
     aEvent.eventCode = -1;
 
-    NativeDisplay* aDisplay = mApp != nullptr ? mApp->mPlatformDriverOrQueue : nullptr;
+    NativeDisplay *aDisplay = mApp != nullptr ? mApp->mPlatformDriverOrQueue : nullptr;
     while (aDisplay != nullptr)
     {
         aResult = aDisplay->GetEvent(aEvent) ? 1 : 0;
@@ -467,7 +460,7 @@ int Sexy::InputManager::Update()
     // The SDL window supplies keyboard and mouse events. AndroidDisplay::GetEvent is a stub;
     // the real keys arrived through AndroidInput::HandleKeyEvents. The port
     // posts the same shape here, with device 0 so a key is not a pad.
-    SDLWindow* aWindow = ActiveWindow();
+    SDLWindow *aWindow = ActiveWindow();
     while (aWindow != nullptr && aWindow->PopInputEvent(aEvent))
     {
         aEvent.lateModifiers = 0;
@@ -475,7 +468,7 @@ int Sexy::InputManager::Update()
         aResult = 1;
     }
 
-    for (IInputDriver* aDriver : mDrivers)
+    for (IInputDriver *aDriver : mDrivers)
     {
         if (aDriver == nullptr)
             continue;
@@ -487,7 +480,7 @@ int Sexy::InputManager::Update()
     return aResult;
 }
 
-Sexy::InputManager* Sexy::InputManager::PushEvents(std::list<Event>& theEvents, IInputDriver* theDriver)
+Sexy::InputManager *Sexy::InputManager::PushEvents(std::list<Event> &theEvents, IInputDriver *theDriver)
 {
     if (theEvents.empty())
         return this;
@@ -500,7 +493,7 @@ Sexy::InputManager* Sexy::InputManager::PushEvents(std::list<Event>& theEvents, 
     unsigned int aIncoming = (unsigned int)theEvents.size();
     if (aQueued + aIncoming < mMaxEventCount)
     {
-        for (Event& anEvent : theEvents)
+        for (Event &anEvent : theEvents)
         {
             if (anEvent.modifiers == 0)
                 continue;
@@ -516,7 +509,7 @@ Sexy::InputManager* Sexy::InputManager::PushEvents(std::list<Event>& theEvents, 
     return this;
 }
 
-int Sexy::InputManager::Add(IInputDriver* theDriver, InputDriver* theOwner, bool theConnectNow)
+int Sexy::InputManager::Add(IInputDriver *theDriver, InputDriver *theOwner, bool theConnectNow)
 {
     if (theDriver == nullptr)
         return 0;
@@ -544,28 +537,28 @@ int Sexy::InputManager::Init()
 {
     Cleanup();
 
-    Sexy::DriverFactory* aFactory = Sexy::InputDriverFactory::GetInputDriverFactory();
-    std::vector<Sexy::Driver*> aOwners;
+    Sexy::DriverFactory *aFactory = Sexy::InputDriverFactory::GetInputDriverFactory();
+    std::vector<Sexy::Driver *> aOwners;
     if (aFactory != nullptr)
         aOwners = aFactory->Drivers();
 
-    for (Sexy::Driver* aOwner : aOwners)
+    for (Sexy::Driver *aOwner : aOwners)
     {
         if (aOwner == nullptr || aOwner->IsDisabled() != 0)
             continue;
-        Sexy::InputDriver* aInput = static_cast<Sexy::InputDriver*>(aOwner);
-        IInputDriver* aBuilt = aInput->Init();
+        Sexy::InputDriver *aInput = static_cast<Sexy::InputDriver *>(aOwner);
+        IInputDriver *aBuilt = aInput->Init();
         if (aBuilt != nullptr && Add(aBuilt, aInput, false) == 0)
             delete aBuilt;
     }
 
     ConnectAll();
 
-    for (Sexy::Driver* aOwner : aOwners)
+    for (Sexy::Driver *aOwner : aOwners)
     {
         if (aOwner == nullptr || aOwner->IsDisabled() != 0)
             continue;
-        static_cast<Sexy::InputDriver*>(aOwner)->OnStart(mApp, this);
+        static_cast<Sexy::InputDriver *>(aOwner)->OnStart(mApp, this);
     }
 
     mInitialized = true;

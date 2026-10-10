@@ -16,32 +16,26 @@
 // PvZ\SexyAppFramework\Widget\ButtonListener.h says the same thing.
 void Sexy::ButtonListener::ButtonPress(int theId, int theClickCount)
 {
-  ButtonPress(theId);
+    ButtonPress(theId);
 }
 
 // ==========================================================================
 // Sexy::ButtonListener::ButtonMouseEnter(int)
 // @00138248  2 bytes
 // ==========================================================================
-void Sexy::ButtonListener::ButtonMouseEnter(int theId)
-{
-}
+void Sexy::ButtonListener::ButtonMouseEnter(int theId) {}
 
 // ==========================================================================
 // Sexy::ButtonListener::ButtonMouseLeave(int)
 // @0013824C  2 bytes
 // ==========================================================================
-void Sexy::ButtonListener::ButtonMouseLeave(int theId)
-{
-}
+void Sexy::ButtonListener::ButtonMouseLeave(int theId) {}
 
 // ==========================================================================
 // Sexy::ButtonListener::ButtonMouseMove(int,int,int)
 // @00138250  2 bytes
 // ==========================================================================
-void Sexy::ButtonListener::ButtonMouseMove(int theId, int x, int y)
-{
-}
+void Sexy::ButtonListener::ButtonMouseMove(int theId, int x, int y) {}
 
 // ==========================================================================
 // Sexy::ButtonListener::~ButtonListener()
@@ -55,22 +49,16 @@ void Sexy::ButtonListener::ButtonMouseMove(int theId, int x, int y)
 // Sexy::ButtonListener::ButtonPress(int)
 // @00143E34  2 bytes
 // ==========================================================================
-void Sexy::ButtonListener::ButtonPress(int theId)
-{
-}
+void Sexy::ButtonListener::ButtonPress(int theId) {}
 
 // ==========================================================================
 // Sexy::ButtonListener::ButtonDepress(int)
 // @00143E38  2 bytes
 // ==========================================================================
-void Sexy::ButtonListener::ButtonDepress(int theId)
-{
-}
+void Sexy::ButtonListener::ButtonDepress(int theId) {}
 
 // ==========================================================================
 // Sexy::ButtonListener::ButtonDownTick(int)
 // @00143E3C  2 bytes
 // ==========================================================================
-void Sexy::ButtonListener::ButtonDownTick(int theId)
-{
-}
+void Sexy::ButtonListener::ButtonDownTick(int theId) {}

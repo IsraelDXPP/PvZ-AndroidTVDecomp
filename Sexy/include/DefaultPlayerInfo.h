@@ -26,7 +26,8 @@
 //   [ 12] 0x17d1c0  Sexy::PlayerInfo::IsLoaded    inherited
 //   [ 13] 0x17d1c4  Sexy::PlayerInfo::IsLoading   inherited
 
-#pragma once
+#ifndef LAWNPROJECTTV_SEXY_INCLUDE_DEFAULTPLAYERINFO_H
+#define LAWNPROJECTTV_SEXY_INCLUDE_DEFAULTPLAYERINFO_H
 
 #include "ReconTypes.h"
 // Classes this one calls a method on: the call needs the
@@ -38,32 +39,35 @@
 #include "PlayerInfo.h"
 #include "SexyAppBase.h"
 
-namespace Sexy {
+namespace Sexy
+{
 
 class DefaultPlayerInfo : public PlayerInfo
 {
 public:
     // ---- the PlayerInfo slots this class overrides, in binary order ----
-    virtual ~DefaultPlayerInfo();                          // [ 0]
-    virtual int GetId();                                   // [ 2]
-    virtual int GetProfileId();                            // [ 3]
-    virtual Sexy::String GetName();                        // [ 4]
-    virtual void Reset();                                  // [ 5]
-    virtual void SyncSummary(DataSync & theSync);          // [ 6]
+    virtual ~DefaultPlayerInfo(); // [ 0]
+    virtual int GetId(); // [ 2]
+    virtual int GetProfileId(); // [ 3]
+    virtual Sexy::String GetName(); // [ 4]
+    virtual void Reset(); // [ 5]
+    virtual void SyncSummary(DataSync &theSync); // [ 6]
     // The binary's symbol is _ZN4Sexy17DefaultPlayerInfo11SyncDetailsER8DataSynci
     // -- TWO parameters, matching PlayerInfo's pure virtual. The one-argument
     // spelling left the class abstract and could not override slot 7.
-    virtual void SyncDetails(DataSync & theSync, int theVersion); // [ 7]
-    virtual void DeleteUserFiles();                        // [ 8]
-    virtual void LoadDetails();                            // [ 9]
+    virtual void SyncDetails(DataSync &theSync, int theVersion); // [ 7]
+    virtual void DeleteUserFiles(); // [ 8]
+    virtual void LoadDetails(); // [ 9]
     // Returns whether every userdata file was written, which is what
     // SettingsDialog::ButtonDepress stores into the dialog's save-failed flag.
-    virtual bool SaveDetails();                            // [10]
+    virtual bool SaveDetails(); // [10]
 
-    DefaultPlayerInfo(Sexy::ProfileMgr * theProfileMgr);
+    DefaultPlayerInfo(Sexy::ProfileMgr *theProfileMgr);
 };
 
 } // namespace Sexy
 
 // The global spelling, which the transcribed bodies use.
 using Sexy::DefaultPlayerInfo;
+
+#endif // LAWNPROJECTTV_SEXY_INCLUDE_DEFAULTPLAYERINFO_H

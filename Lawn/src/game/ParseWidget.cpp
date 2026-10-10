@@ -13,6 +13,4 @@
 // ==========================================================================
 // The object owns no resources, so the destructor is empty: the vptr store the
 // dump spells out is what the compiler emits for a polymorphic class.
-ParseWidget::~ParseWidget()
-{
-}
+ParseWidget::~ParseWidget() {}

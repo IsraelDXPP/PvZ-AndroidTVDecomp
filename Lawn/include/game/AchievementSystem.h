@@ -1,6 +1,7 @@
 // Console achievements adapted from PlantsVsZombies-AndroidTV.
 // Copyright (C) 2023-2026 PvZ TV Touch Team. GPL-3.0-or-later.
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_ACHIEVEMENTSYSTEM_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_ACHIEVEMENTSYSTEM_H
 
 #include "ReconTypes.h"
 
@@ -23,14 +24,16 @@ enum AchievementType
 
 struct AchievementDefinition
 {
-    const char* mStringKey;
-    const char* mIconName;
-    const char* mDefaultTitle;
-    const char* mDefaultDescription;
+    const char *mStringKey;
+    const char *mIconName;
+    const char *mDefaultTitle;
+    const char *mDefaultDescription;
     ReanimationType mReanimationType;
 };
 
-const AchievementDefinition& GetAchievementDefinition(AchievementType theAchievement);
+const AchievementDefinition &GetAchievementDefinition(AchievementType theAchievement);
 Sexy::String GetAchievementTitle(AchievementType theAchievement);
 Sexy::String GetAchievementDescription(AchievementType theAchievement);
-Sexy::Image* GetAchievementIcon(AchievementType theAchievement);
+Sexy::Image *GetAchievementIcon(AchievementType theAchievement);
+
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_ACHIEVEMENTSYSTEM_H

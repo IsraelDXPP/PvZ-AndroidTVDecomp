@@ -4,12 +4,13 @@
 #include <cstdio>
 #include <cstring>
 
-namespace Sexy {
+namespace Sexy
+{
 
-namespace {
+namespace
+{
 
-const char kWebAlphabet[] =
-    ".-0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+const char kWebAlphabet[] = ".-0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 
 int WebDigit(unsigned char theChar)
 {
@@ -36,7 +37,7 @@ int AlignUp8(int theBitPos)
     return anAdjusted & ~7;
 }
 
-unsigned int Crc32Update(unsigned int theSeed, const unsigned char* theBytes, int theCount)
+unsigned int Crc32Update(unsigned int theSeed, const unsigned char *theBytes, int theCount)
 {
     if (!gCrc32Ready)
     {
@@ -60,13 +61,13 @@ unsigned int Crc32Update(unsigned int theSeed, const unsigned char* theBytes, in
     return aCrc;
 }
 
-int DecodeUtf8(const char** theCursor, int theLen, wchar_t* theChar)
+int DecodeUtf8(const char **theCursor, int theLen, wchar_t *theChar)
 {
-    static const unsigned short kMask[] = { 0xC0, 0xE0, 0xF0, 0xF8, 0xFC };
+    static const unsigned short kMask[] = {0xC0, 0xE0, 0xF0, 0xF8, 0xFC};
     if (theLen == 0)
         return 0;
 
-    const char* aCursor = *theCursor;
+    const char *aCursor = *theCursor;
     int aCode = (unsigned char)*aCursor++;
     int aBytes[6];
     int aTotal = 1;
@@ -121,57 +122,55 @@ int DecodeUtf8(const char** theCursor, int theLen, wchar_t* theChar)
     return aConsumed;
 }
 
-void AppendWide(std::wstring& theText, wchar_t theChar)
+void AppendWide(std::wstring &theText, wchar_t theChar)
 {
     theText.push_back(theChar);
 }
 
 } // namespace
 
-Buffer::Buffer()
-    : mData()
-    , mDataBitSize(0)
-    , mReadBitPos(0)
-    , mWriteBitPos(0)
+Buffer::Buffer() :
+    mData(),
+    mDataBitSize(0),
+    mReadBitPos(0),
+    mWriteBitPos(0)
 {
 }
 
-Buffer::~Buffer()
-{
-}
+Buffer::~Buffer() {}
 
 void Buffer::Seek(SeekMode theMode, unsigned int theOffset) const
 {
     switch (theMode)
     {
-    case READ_START:
-        mReadBitPos = 0;
-        break;
-    case READ_CURRENT:
-        mReadBitPos = 8 * ((int)theOffset + ByteIndex(mReadBitPos));
-        break;
-    case READ_END:
-        mReadBitPos = 8 * (ByteIndex(mReadBitPos) - (int)theOffset);
-        break;
-    case READ_DATA_END:
-        mReadBitPos = AlignUp8(mDataBitSize);
-        break;
-    case WRITE_START:
-        mWriteBitPos = 0;
-        break;
-    case WRITE_CURRENT:
-        mWriteBitPos = 8 * ((int)theOffset + ByteIndex(mWriteBitPos));
-        break;
-    case WRITE_END:
-        mWriteBitPos = 8 * (ByteIndex(mWriteBitPos) - (int)theOffset);
-        break;
-    case WRITE_DATA_END:
-        mWriteBitPos = AlignUp8(mDataBitSize);
-        break;
+        case READ_START:
+            mReadBitPos = 0;
+            break;
+        case READ_CURRENT:
+            mReadBitPos = 8 * ((int)theOffset + ByteIndex(mReadBitPos));
+            break;
+        case READ_END:
+            mReadBitPos = 8 * (ByteIndex(mReadBitPos) - (int)theOffset);
+            break;
+        case READ_DATA_END:
+            mReadBitPos = AlignUp8(mDataBitSize);
+            break;
+        case WRITE_START:
+            mWriteBitPos = 0;
+            break;
+        case WRITE_CURRENT:
+            mWriteBitPos = 8 * ((int)theOffset + ByteIndex(mWriteBitPos));
+            break;
+        case WRITE_END:
+            mWriteBitPos = 8 * (ByteIndex(mWriteBitPos) - (int)theOffset);
+            break;
+        case WRITE_DATA_END:
+            mWriteBitPos = AlignUp8(mDataBitSize);
+            break;
     }
 }
 
-Buffer* Buffer::Clear()
+Buffer *Buffer::Clear()
 {
     mReadBitPos = 0;
     mWriteBitPos = 0;
@@ -245,8 +244,7 @@ int Buffer::ReadNumBits(int theBitCount, bool theSigned) const
             break;
         int aNext = aPos >= 0 ? aPos : ((aPos + 7) & (aPos >> 31));
         aByte = aNext >> 3;
-    }
-    while (aByte < (int)mData.size());
+    } while (aByte < (int)mData.size());
 
     if ((aBit & (theSigned ? 1 : 0)) != 0 && theBitCount <= 31)
     {
@@ -389,7 +387,7 @@ Sexy::String Buffer::ReadLine() const
     return aText;
 }
 
-void Buffer::ReadBytes(unsigned char* theDest, int theCount) const
+void Buffer::ReadBytes(unsigned char *theDest, int theCount) const
 {
     for (int anIndex = 0; anIndex < theCount; ++anIndex)
         theDest[anIndex] = ReadByte();
@@ -419,7 +417,7 @@ std::wstring Buffer::UTF8ToWideString() const
 {
     if (mData.empty())
         return std::wstring();
-    const char* aCursor = (const char*)&mData[0];
+    const char *aCursor = (const char *)&mData[0];
     int aLeft = ByteIndex(mDataBitSize);
     std::wstring aText;
     aText.reserve((size_t)(aLeft > 0 ? aLeft : 0));
@@ -459,7 +457,7 @@ std::wstring Buffer::ReadUTF8String() const
     if (aLength <= 0 || aLeft <= 0 || mData.empty())
         return std::wstring();
 
-    const char* aBytes = (const char*)&mData[0] + (aCursor >> 3);
+    const char *aBytes = (const char *)&mData[0] + (aCursor >> 3);
     std::wstring aText;
     int aRead = 0;
     while (aLeft > 0 && aRead < aLength)
@@ -502,7 +500,7 @@ void Buffer::WriteNumBits(int theValue, int theBitCount)
         mDataBitSize = aPos;
 }
 
-void Buffer::FromWebString(const Sexy::String& theString)
+void Buffer::FromWebString(const Sexy::String &theString)
 {
     Clear();
     if (theString.size() <= 3)
@@ -613,7 +611,7 @@ void Buffer::WriteFloat(float theValue)
     WriteLong((long)FloatToBits(theValue));
 }
 
-void Buffer::WriteTransform2D(const SexyTransform2D& theMatrix)
+void Buffer::WriteTransform2D(const SexyTransform2D &theMatrix)
 {
     WriteFloat(theMatrix.m00);
     WriteFloat(theMatrix.m01);
@@ -663,14 +661,14 @@ void Buffer::WriteInt64(long long theValue)
         WriteByte(aBytes[anIndex]);
 }
 
-void Buffer::WriteString(const Sexy::String& theString)
+void Buffer::WriteString(const Sexy::String &theString)
 {
     WriteShort((short)theString.size());
     for (unsigned int anIndex = 0; anIndex < theString.size(); ++anIndex)
         WriteByte((unsigned char)theString[anIndex]);
 }
 
-void Buffer::WriteUTF8String(const std::wstring& theString)
+void Buffer::WriteUTF8String(const std::wstring &theString)
 {
     if ((mWriteBitPos & 7) != 0)
         mWriteBitPos = (mWriteBitPos + 8) & ~7;
@@ -703,19 +701,19 @@ void Buffer::WriteUTF8String(const std::wstring& theString)
     }
 }
 
-void Buffer::WriteBuffer(const std::vector<unsigned char>& theBytes)
+void Buffer::WriteBuffer(const std::vector<unsigned char> &theBytes)
 {
     WriteLong((long)theBytes.size());
     for (size_t anIndex = 0; anIndex < theBytes.size(); ++anIndex)
         WriteByte(theBytes[anIndex]);
 }
 
-void Buffer::WriteBuffer(const Buffer& theBuffer)
+void Buffer::WriteBuffer(const Buffer &theBuffer)
 {
     WriteBuffer(theBuffer.mData);
 }
 
-void Buffer::ReadBuffer(std::vector<unsigned char>* theBytes) const
+void Buffer::ReadBuffer(std::vector<unsigned char> *theBytes) const
 {
     theBytes->clear();
     int aCount = (int)ReadLong();
@@ -725,7 +723,7 @@ void Buffer::ReadBuffer(std::vector<unsigned char>* theBytes) const
     ReadBytes(&(*theBytes)[0], aCount);
 }
 
-void Buffer::ReadBuffer(Buffer* theBuffer) const
+void Buffer::ReadBuffer(Buffer *theBuffer) const
 {
     ReadBuffer(&theBuffer->mData);
     theBuffer->mDataBitSize = 8 * (int)theBuffer->mData.size();
@@ -739,7 +737,7 @@ void Buffer::Resize(unsigned int theByteCount)
         mData.resize(theByteCount, 0);
 }
 
-void Buffer::WriteBytes(const unsigned char* theSrc, int theCount)
+void Buffer::WriteBytes(const unsigned char *theSrc, int theCount)
 {
     if ((mWriteBitPos & 7) != 0)
     {
@@ -754,28 +752,28 @@ void Buffer::WriteBytes(const unsigned char* theSrc, int theCount)
         mDataBitSize = mWriteBitPos;
 }
 
-void Buffer::WriteSexyString(const Sexy::String& theString)
+void Buffer::WriteSexyString(const Sexy::String &theString)
 {
     WriteShort((short)theString.size());
     if (theString.size() > 0)
-        WriteBytes((const unsigned char*)theString.c_str(), (int)theString.size());
+        WriteBytes((const unsigned char *)theString.c_str(), (int)theString.size());
 }
 
-void Buffer::WriteLine(const Sexy::String& theString)
+void Buffer::WriteLine(const Sexy::String &theString)
 {
     Sexy::String aLine = theString;
     aLine.Append("\r\n", 2);
     if (aLine.size() > 0)
-        WriteBytes((const unsigned char*)aLine.c_str(), (int)aLine.size());
+        WriteBytes((const unsigned char *)aLine.c_str(), (int)aLine.size());
 }
 
-void Buffer::SetData(const std::vector<unsigned char>& theBytes)
+void Buffer::SetData(const std::vector<unsigned char> &theBytes)
 {
     mData = theBytes;
     mDataBitSize = 8 * (int)mData.size();
 }
 
-void Buffer::SetData(const unsigned char* theSrc, int theCount)
+void Buffer::SetData(const unsigned char *theSrc, int theCount)
 {
     mData.clear();
     if (theCount > 0 && theSrc != nullptr)
@@ -783,7 +781,7 @@ void Buffer::SetData(const unsigned char* theSrc, int theCount)
     mDataBitSize = 8 * (int)mData.size();
 }
 
-const unsigned char* Buffer::GetDataPtr() const
+const unsigned char *Buffer::GetDataPtr() const
 {
     if (mData.empty())
         return nullptr;

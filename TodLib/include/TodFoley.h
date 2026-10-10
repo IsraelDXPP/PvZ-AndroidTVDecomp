@@ -47,7 +47,8 @@
 //
 // The transcribed object used to be 0xB8, only one record and a bit.
 
-#pragma once
+#ifndef LAWNPROJECTTV_TODLIB_INCLUDE_TODFOLEY_H
+#define LAWNPROJECTTV_TODLIB_INCLUDE_TODFOLEY_H
 
 #include "ReconTypes.h"
 // The record types: `FoleyTypeData` (0xA4) and its 20-byte element
@@ -68,12 +69,12 @@ public:
     // The element type is spelled FoleyTypeDataElement and not `FoleyInstance`
     // because Sexy\ReconTypes.h owns the global name `FoleyInstance` for a
     // four-byte enum shim; see Game\FoleyTypeData.h.
-    FoleyTypeDataElement * StopFoley(FoleyType theFoleyType);
+    FoleyTypeDataElement *StopFoley(FoleyType theFoleyType);
     void GamePause(bool thePause);
     void CancelPausedFoley();
     void ApplyMusicVolume(FoleyTypeDataElement *theInstance);
-    FoleyTypeDataElement * PlayFoleyPitch(FoleyType theFoleyType, float thePitch);
-    FoleyTypeDataElement * PlayFoley(FoleyType theFoleyType);
+    FoleyTypeDataElement *PlayFoleyPitch(FoleyType theFoleyType, float thePitch);
+    FoleyTypeDataElement *PlayFoley(FoleyType theFoleyType);
     int RehookupSoundWithMusicVolume();
     bool IsFoleyPlaying(FoleyType theFoleyType);
 };
@@ -82,3 +83,5 @@ public:
 // 0x4678-byte allocation site in LawnApp.cpp:12357. The element and record sizes
 // are also asserted in Game\FoleyTypeData.h; they are repeated here because 164 is
 // the array's stride and 110 * 164 is this class's whole size.
+
+#endif // LAWNPROJECTTV_TODLIB_INCLUDE_TODFOLEY_H

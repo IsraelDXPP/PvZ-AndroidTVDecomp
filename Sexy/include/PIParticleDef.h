@@ -3,14 +3,16 @@
 // Twenty-eight curves follow. The tail holds the spawn flags and the two
 // key lists the file writes as CColorPoint and CAlphaPoint records.
 
-#pragma once
+#ifndef LAWNPROJECTTV_SEXY_INCLUDE_PIPARTICLEDEF_H
+#define LAWNPROJECTTV_SEXY_INCLUDE_PIPARTICLEDEF_H
 
 #include "ReconTypes.h"
 #include "Bezier.h"
 #include "PIValue.h"
 #include "PIInterpolator.h"
 
-namespace Sexy {
+namespace Sexy
+{
 
 class PIParticleDef
 {
@@ -24,9 +26,11 @@ public:
     Sexy::PIInterpolator mAlphaKeys;
 
     PIParticleDef();
-    PIParticleDef(Sexy::PIParticleDef const& other);
+    PIParticleDef(Sexy::PIParticleDef const &other);
 };
 
 } // namespace Sexy
 
 using Sexy::PIParticleDef;
+
+#endif // LAWNPROJECTTV_SEXY_INCLUDE_PIPARTICLEDEF_H

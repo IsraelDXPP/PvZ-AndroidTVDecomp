@@ -15,7 +15,7 @@
 namespace
 {
 
-int AttributeInt(Sexy::XMLElement& theElement, const char* theName, int& theOut)
+int AttributeInt(Sexy::XMLElement &theElement, const char *theName, int &theOut)
 {
     if (!theElement.HasAttribute(Sexy::String(theName)))
         return 0;
@@ -28,7 +28,7 @@ Sexy::AtlasParser::AtlasParser() = default;
 
 Sexy::AtlasParser::~AtlasParser() = default;
 
-Sexy::Atlas* Sexy::AtlasParser::Find(const Sexy::String& theName)
+Sexy::Atlas *Sexy::AtlasParser::Find(const Sexy::String &theName)
 {
     std::map<Sexy::String, Atlas>::iterator aFound = mAtlases.find(theName);
     if (aFound == mAtlases.end())
@@ -36,7 +36,7 @@ Sexy::Atlas* Sexy::AtlasParser::Find(const Sexy::String& theName)
     return &aFound->second;
 }
 
-int Sexy::AtlasParser::GetPixelFormat(const Sexy::String& theName)
+int Sexy::AtlasParser::GetPixelFormat(const Sexy::String &theName)
 {
     std::map<Sexy::String, int>::iterator aFound = mFormats.find(theName);
     if (aFound == mFormats.end())
@@ -44,10 +44,9 @@ int Sexy::AtlasParser::GetPixelFormat(const Sexy::String& theName)
     return aFound->second;
 }
 
-int Sexy::AtlasParser::ParseAtlas(Sexy::XMLParser& theParser, Sexy::XMLElement& theElement)
+int Sexy::AtlasParser::ParseAtlas(Sexy::XMLParser &theParser, Sexy::XMLElement &theElement)
 {
-    if (!theElement.HasAttribute(Sexy::String("base"))
-        || !theElement.HasAttribute(Sexy::String("path")))
+    if (!theElement.HasAttribute(Sexy::String("base")) || !theElement.HasAttribute(Sexy::String("path")))
         return 0;
 
     Sexy::String aBase = theElement.GetAttribute(Sexy::String("base"));
@@ -85,10 +84,8 @@ int Sexy::AtlasParser::ParseAtlas(Sexy::XMLParser& theParser, Sexy::XMLElement& 
         int aY = 0;
         int aWidth = 0;
         int aHeight = 0;
-        if (AttributeInt(aImage, "x", aX) == 0
-            || AttributeInt(aImage, "y", aY) == 0
-            || AttributeInt(aImage, "w", aWidth) == 0
-            || AttributeInt(aImage, "h", aHeight) == 0)
+        if (AttributeInt(aImage, "x", aX) == 0 || AttributeInt(aImage, "y", aY) == 0 ||
+            AttributeInt(aImage, "w", aWidth) == 0 || AttributeInt(aImage, "h", aHeight) == 0)
             return 0;
 
         if (!aImage.HasAttribute(Sexy::String("name")))
@@ -114,7 +111,7 @@ int Sexy::AtlasParser::ParseAtlas(Sexy::XMLParser& theParser, Sexy::XMLElement& 
     }
 }
 
-int Sexy::AtlasParser::ParseAtlases(Sexy::XMLParser& theParser, Sexy::XMLElement&)
+int Sexy::AtlasParser::ParseAtlases(Sexy::XMLParser &theParser, Sexy::XMLElement &)
 {
     for (;;)
     {
@@ -134,7 +131,7 @@ int Sexy::AtlasParser::ParseAtlases(Sexy::XMLParser& theParser, Sexy::XMLElement
     }
 }
 
-int Sexy::AtlasParser::Load(const Sexy::String& thePath)
+int Sexy::AtlasParser::Load(const Sexy::String &thePath)
 {
     Sexy::String aFile(Sexy::SDLFile::ResolvePath(thePath.c_str()).c_str());
     Sexy::XMLParser aParser;
@@ -156,7 +153,10 @@ int Sexy::AtlasParser::Load(const Sexy::String& thePath)
     }
 
     Sexy::String aError = aParser.GetErrorText();
-    logtfe(Sexy::String("atlas"), "Failed to parse %s: %s at line %d.\n",
-           thePath.c_str(), aError.c_str(), aParser.GetCurrentLineNum());
+    logtfe(Sexy::String("atlas"),
+        "Failed to parse %s: %s at line %d.\n",
+        thePath.c_str(),
+        aError.c_str(),
+        aParser.GetCurrentLineNum());
     return 0;
 }

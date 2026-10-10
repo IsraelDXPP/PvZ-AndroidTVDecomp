@@ -1,4 +1,5 @@
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_TRAILDEFINITION_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_TRAILDEFINITION_H
 
 #include "ReconTypes.h"
 
@@ -7,10 +8,10 @@
 class TrailDefinition
 {
 public:
-    Sexy::Image*        mImage;
-    int                 mMaxPoints;         // constructed to 2
-    float               mMinPointDistance;  // constructed to 1.0f
-    int                 mTrailFlags;        // bit 0 loops the trail instead of killing it
+    Sexy::Image *mImage;
+    int mMaxPoints; // constructed to 2
+    float mMinPointDistance; // constructed to 1.0f
+    int mTrailFlags; // bit 0 loops the trail instead of killing it
     FloatParameterTrack mTrailDuration;
     FloatParameterTrack mWidthOverLength;
     FloatParameterTrack mWidthOverTime;
@@ -20,3 +21,5 @@ public:
     TrailDefinition();
     ~TrailDefinition();
 };
+
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_TRAILDEFINITION_H

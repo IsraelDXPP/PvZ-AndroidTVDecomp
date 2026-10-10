@@ -9,7 +9,8 @@
 #include <map>
 #include <string>
 
-namespace {
+namespace
+{
 
 struct PerfStat
 {
@@ -19,12 +20,12 @@ struct PerfStat
     double mTotalMs;
     double mLongestMs;
 
-    PerfStat()
-        : mCalls(0)
-        , mDepth(0)
-        , mOpenStamp(0)
-        , mTotalMs(0.0)
-        , mLongestMs(0.0)
+    PerfStat() :
+        mCalls(0),
+        mDepth(0),
+        mOpenStamp(0),
+        mTotalMs(0.0),
+        mLongestMs(0.0)
     {
     }
 };
@@ -62,12 +63,12 @@ int Sexy::SexyPerf::BeginPerf(bool theEnable)
     return (int)gFrameStart;
 }
 
-void Sexy::SexyPerf::StartTiming(const char* theName)
+void Sexy::SexyPerf::StartTiming(const char *theName)
 {
     if (!gPerfOn || theName == nullptr)
         return;
 
-    PerfStat& stat = gStats[theName];
+    PerfStat &stat = gStats[theName];
     if (stat.mDepth == 0)
         stat.mOpenStamp = NowMs();
     ++stat.mDepth;
@@ -75,7 +76,7 @@ void Sexy::SexyPerf::StartTiming(const char* theName)
     ++gOpenCount;
 }
 
-void Sexy::SexyPerf::StopTiming(const char* theName)
+void Sexy::SexyPerf::StopTiming(const char *theName)
 {
     if (!gPerfOn || theName == nullptr)
         return;
@@ -113,12 +114,17 @@ Sexy::String Sexy::SexyPerf::GetResults()
 
     for (std::map<std::string, PerfStat>::iterator it = gStats.begin(); it != gStats.end(); ++it)
     {
-        const PerfStat& stat = it->second;
+        const PerfStat &stat = it->second;
         const double average = stat.mCalls > 0 ? stat.mTotalMs / (double)stat.mCalls : 0.0;
         const double percent = gDurationMs > 0.0 ? stat.mTotalMs / gDurationMs * 100.0 : 0.0;
         std::sprintf(line,
-                      "%s (%d calls, %%%.2f time): %.2f (%.2f avg, %.2f longest)\n",
-                      it->first.c_str(), stat.mCalls, percent, stat.mTotalMs, average, stat.mLongestMs);
+            "%s (%d calls, %%%.2f time): %.2f (%.2f avg, %.2f longest)\n",
+            it->first.c_str(),
+            stat.mCalls,
+            percent,
+            stat.mTotalMs,
+            average,
+            stat.mLongestMs);
         report += line;
     }
     return report;

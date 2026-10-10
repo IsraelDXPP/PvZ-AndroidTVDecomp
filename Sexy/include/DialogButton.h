@@ -4,7 +4,8 @@
 // image, the two translation offsets, the two text offsets and the app
 // back-pointer. The rest of the table is ButtonWidget's.
 
-#pragma once
+#ifndef LAWNPROJECTTV_SEXY_INCLUDE_DIALOGBUTTON_H
+#define LAWNPROJECTTV_SEXY_INCLUDE_DIALOGBUTTON_H
 
 #include "ReconTypes.h"
 #include "ButtonWidget.h"
@@ -15,25 +16,28 @@
 
 class LawnApp;
 
-namespace Sexy {
+namespace Sexy
+{
 
 class DialogButton : public ButtonWidget
 {
 public:
     virtual ~DialogButton();
 
-    virtual void Draw(Sexy::Graphics* theGraphics);
+    virtual void Draw(Sexy::Graphics *theGraphics);
 
-    Image* mImage;
+    Image *mImage;
     int mTranslateX;
     int mTranslateY;
     int mTextOffsetX;
     int mTextOffsetY;
-    LawnApp* mApp;
+    LawnApp *mApp;
 
-    DialogButton(Sexy::Image* theImage, int theId, Sexy::ButtonListener* theListener);
+    DialogButton(Sexy::Image *theImage, int theId, Sexy::ButtonListener *theListener);
 };
 
 } // namespace Sexy
 
 using Sexy::DialogButton;
+
+#endif // LAWNPROJECTTV_SEXY_INCLUDE_DIALOGBUTTON_H

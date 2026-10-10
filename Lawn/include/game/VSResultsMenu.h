@@ -34,7 +34,8 @@
 // MSVC x86 gives a virtual destructor one slot where Itanium and ARM give it two,
 // so the absolute slot numbers run one lower here; only the order is copied.
 
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_VSRESULTSMENU_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_VSRESULTSMENU_H
 
 #include "ReconTypes.h"
 // Classes this one calls a method on: the call needs the
@@ -53,12 +54,16 @@ class LawnApp;
 
 class GameButton;
 class VSResultsCheckboxController;
-namespace Sexy { class Checkbox; }
+namespace Sexy
+{
+class Checkbox;
+}
 
 class VSResultsMenu : public LawnMenuWidget
 {
 public:
-    enum {
+    enum
+    {
         VSResultsMenu_Play_Again = 0,
         VSResultsMenu_Quit_VS = 1,
         VSResultsMenu_Info_Box_P1 = 2,
@@ -72,7 +77,8 @@ public:
         VSResultsMenu_Save_Replay = 1200,
     };
 
-    enum WinSide {
+    enum WinSide
+    {
         INVALID_WIN_SIDE = -1,
         WIN_SIDE_PLANT = 0,
         WIN_SIDE_ZOMBIE = 1,
@@ -86,44 +92,44 @@ public:
     static int msPlayerRecords[2][5];
 
     virtual ~VSResultsMenu();
-    virtual void AddedToManager(Sexy::WidgetManager *theWidgetManager);  // slot 29
-    virtual void Update();                                  // slot 31
-    virtual void Draw(Sexy::Graphics *theGraphics);                 // slot 36
-    virtual void DrawOverlay(Sexy::Graphics *theGraphics);          // slot 54
-    virtual void GotFocus();                                // slot 61
-    virtual int KeyDown(Sexy::KeyCode theKey);                 // slot 71
+    virtual void AddedToManager(Sexy::WidgetManager *theWidgetManager); // slot 29
+    virtual void Update(); // slot 31
+    virtual void Draw(Sexy::Graphics *theGraphics); // slot 36
+    virtual void DrawOverlay(Sexy::Graphics *theGraphics); // slot 54
+    virtual void GotFocus(); // slot 61
+    virtual int KeyDown(Sexy::KeyCode theKey); // slot 71
     // TODO(recon): the authoritative header spells this `void OnExit() const`.
     // Declared non-const because the framework's MenuWidget declares it without
     // const; whichever way LawnMenuWidget ends up, both the declaration and
     // VSResultsMenu.cpp's `int VSResultsMenu::OnExit()` have to agree.
-    virtual void OnExit();                                  // slot 126
-    virtual void ButtonDepress(int theId);                     // slot 128
+    virtual void OnExit(); // slot 126
+    virtual void ButtonDepress(int theId); // slot 128
 
     // +0x124 .. +0x19F. The first 0x124 bytes are LawnMenuWidget
     // (Sexy::MenuWidget is 0x118; the backdrop id and camera offsets follow).
-    int mSparkleCounter;                 // +0x124
-    int mSmokeCounter;                   // +0x128
-    int mResultsButtonId;                // +0x12C
-    int mPlayerIndices[2];               // +0x130, +0x134, playerIndex2 of P1 / P2
-    WinSide mSides[2];                   // +0x138, +0x13C
-    float mTrophyPosX;                   // +0x140, trophy centre X
-    float mTrophyPosY;                   // +0x144, trophy centre Y
+    int mSparkleCounter; // +0x124
+    int mSmokeCounter; // +0x128
+    int mResultsButtonId; // +0x12C
+    int mPlayerIndices[2]; // +0x130, +0x134, playerIndex2 of P1 / P2
+    WinSide mSides[2]; // +0x138, +0x13C
+    float mTrophyPosX; // +0x140, trophy centre X
+    float mTrophyPosY; // +0x144, trophy centre Y
     ParticleSystemID mSparkleParticleID; // +0x148
-    ParticleSystemID mSmokeParticleID;   // +0x14C
-    int mUpdateCounter;                  // +0x150
-    int mBoardMainCounter;               // +0x154
-    BackgroundType mBoardBackground;     // +0x158
-    SeedType mPlantSeeds[6];             // +0x15C .. +0x173
-    SeedType mZombieSeeds[6];            // +0x174 .. +0x18B
-    bool mIsReplaySession;               // +0x18C
-    bool mIsOnlineSession;               // +0x18D
-    int mVSResultsCounter;               // +0x190
+    ParticleSystemID mSmokeParticleID; // +0x14C
+    int mUpdateCounter; // +0x150
+    int mBoardMainCounter; // +0x154
+    BackgroundType mBoardBackground; // +0x158
+    SeedType mPlantSeeds[6]; // +0x15C .. +0x173
+    SeedType mZombieSeeds[6]; // +0x174 .. +0x18B
+    bool mIsReplaySession; // +0x18C
+    bool mIsOnlineSession; // +0x18D
+    int mVSResultsCounter; // +0x190
     VSResultsCheckboxController *mCheckboxController; // +0x194
-    GameButton *mBackButton;             // +0x198
-    GameButton *mSaveReplayButton;       // +0x19C
+    GameButton *mBackButton; // +0x198
+    GameButton *mSaveReplayButton; // +0x19C
     // size 0x1A0
 
-    int * GetPlayerRecord(unsigned int theSlot);
+    int *GetPlayerRecord(unsigned int theSlot);
     void DrawInfoBox(Sexy::Graphics *theGraphics, int thePlayerIndex);
     void InitFromBoard(Board *theBoard);
     // ClearPlayerRecords touches nothing but the static record table and the
@@ -142,7 +148,8 @@ public:
 class VSResultsCheckboxController final : public Sexy::CheckboxListener
 {
 public:
-    enum {
+    enum
+    {
         VSResultsMenu_Send_Player_Name = 100,
         VSResultsMenu_Auto_Save_Replay = 101,
     };
@@ -164,3 +171,5 @@ public:
 private:
     VSResultsMenu *mParentMenu;
 };
+
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_VSRESULTSMENU_H

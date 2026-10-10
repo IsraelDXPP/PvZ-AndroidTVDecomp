@@ -39,7 +39,8 @@
 //
 // Draw callbacks override the Graphics* methods in GamepadControls.
 
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_TREEOFWISDOMCONTROLS_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_TREEOFWISDOMCONTROLS_H
 
 #include "ReconTypes.h"
 // Classes this one calls a method on: the call needs the
@@ -64,23 +65,23 @@ public:
 
     // Overrides of base slots, in the binary's slot order.
     virtual void OnButtonDown(int theButton, int thePlayerIndex, unsigned int theFlags); // [ 0]
-    virtual void OnGameAxisMove(int theAxis, int theValue, int thePlayerIndex);   // [ 2]
+    virtual void OnGameAxisMove(int theAxis, int theValue, int thePlayerIndex); // [ 2]
     virtual bool OnKeyDown(Sexy::KeyCode theKey, unsigned int theFlags); // [ 3]
-    virtual int Update(float theFrac);                          // [ 5]
-    bool BeginDraw(Sexy::Graphics *theGraphics) override;    // [ 6]
-    virtual void MakeParentGraphicsFrame();                // [ 9]
+    virtual int Update(float theFrac); // [ 5]
+    bool BeginDraw(Sexy::Graphics *theGraphics) override; // [ 6]
+    virtual void MakeParentGraphicsFrame(); // [ 9]
 
     virtual void OnButtonUp(int theButton, int thePlayerIndex, unsigned int theFlags); // [ 1]
-    void Draw(Sexy::Graphics *theGraphics) override;         // [ 7]
-    void EndDraw(Sexy::Graphics *theGraphics) override;      // [ 8]
+    void Draw(Sexy::Graphics *theGraphics) override; // [ 7]
+    void EndDraw(Sexy::Graphics *theGraphics) override; // [ 8]
 
     // ---- members, absolute offsets (base GamepadControls = 0x108) ----
     // True while the cursor is on the tree and the player owns tree food.
     bool mCursorOnTree; // +0x108
     // The tool in hand, and the tool from the previous tick. A change redraws
     // the board's help text.
-    int mSelectedTool;  // +0x10C
-    int mPreviousTool;  // +0x110
+    int mSelectedTool; // +0x10C
+    int mPreviousTool; // +0x110
     // Size 0x114.
 
     TreeOfWisdomControls(Board *theBoard, int thePlayerIndex1, int thePlayerIndex2);
@@ -88,3 +89,5 @@ public:
 
 // Layout check: GamepadControls (0x108) + three words = 0x114, the size of the
 // `operator new(0x114u)` at Board.cpp:18093.
+
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_TREEOFWISDOMCONTROLS_H

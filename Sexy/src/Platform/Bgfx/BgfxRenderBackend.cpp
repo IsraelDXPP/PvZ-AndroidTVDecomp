@@ -30,7 +30,7 @@ namespace Sexy
 // Graphics.h; these local names stand in until then.
 enum
 {
-    kDrawMode_Normal   = 0,
+    kDrawMode_Normal = 0,
     kDrawMode_Additive = 1
 };
 
@@ -38,8 +38,9 @@ enum
 // SoftwareBackend
 // ===========================================================================
 
-SoftwareBackend::SoftwareBackend()
-    : mTarget(nullptr), mOwnTarget(false)
+SoftwareBackend::SoftwareBackend() :
+    mTarget(nullptr),
+    mOwnTarget(false)
 {
 }
 
@@ -48,7 +49,7 @@ SoftwareBackend::~SoftwareBackend()
     Shutdown();
 }
 
-void SoftwareBackend::SetTarget(MemoryImage* theTarget, bool theOwn)
+void SoftwareBackend::SetTarget(MemoryImage *theTarget, bool theOwn)
 {
     if (mOwnTarget && mTarget && mTarget != theTarget)
         delete mTarget;
@@ -83,28 +84,28 @@ void SoftwareBackend::Resize(int theWidth, int theHeight)
         mTarget->Create(theWidth, theHeight);
 }
 
-void SoftwareBackend::BeginFrame(const Color& theClearColor)
+void SoftwareBackend::BeginFrame(const Color &theClearColor)
 {
-    if (!mTarget) return;
+    if (!mTarget)
+        return;
     // The original clears via Graphics before drawing; match that.
-    mTarget->FillRect(Rect(0, 0, mTarget->mWidth, mTarget->mHeight),
-                      theClearColor, kDrawMode_Normal);
+    mTarget->FillRect(Rect(0, 0, mTarget->mWidth, mTarget->mHeight), theClearColor, kDrawMode_Normal);
 }
 
 void SoftwareBackend::EndFrame() {}
-void SoftwareBackend::Present()  {}
+void SoftwareBackend::Present() {}
 
 void SoftwareBackend::SetDrawMode(int) {}
 void SoftwareBackend::SetColorizeImages(bool) {}
-void SoftwareBackend::SetClipRect(const Rect&) {}
+void SoftwareBackend::SetClipRect(const Rect &) {}
 void SoftwareBackend::ClearClipRect() {}
-void SoftwareBackend::SetTransform(const SexyMatrix3&) {}
+void SoftwareBackend::SetTransform(const SexyMatrix3 &) {}
 
-void SoftwareBackend::DrawImage(MemoryImage* theImage, const Rect& theDestRect,
-                                const Rect& theSrcRect, const Color& theColor,
-                                int theDrawMode, bool theMirror)
+void SoftwareBackend::DrawImage(MemoryImage *theImage, const Rect &theDestRect, const Rect &theSrcRect,
+    const Color &theColor, int theDrawMode, bool theMirror)
 {
-    if (!mTarget || !theImage) return;
+    if (!mTarget || !theImage)
+        return;
 
     // MemoryImage.h declares Blt/BltMirror/StretchBlt with the framework's
     // real types (Image *, int, int, TRect<int> const&, Color const&, int), so
@@ -112,39 +113,40 @@ void SoftwareBackend::DrawImage(MemoryImage* theImage, const Rect& theDestRect,
     // (_BYTE *)/(int *) casts were the decompiler's, not the header's.
     if (theMirror)
     {
-        mTarget->BltMirror(theImage, theDestRect.mX, theDestRect.mY,
-                           theSrcRect, theColor, theDrawMode);
+        mTarget->BltMirror(theImage, theDestRect.mX, theDestRect.mY, theSrcRect, theColor, theDrawMode);
         return;
     }
 
-    if (theDestRect.mWidth == theSrcRect.mWidth &&
-        theDestRect.mHeight == theSrcRect.mHeight)
+    if (theDestRect.mWidth == theSrcRect.mWidth && theDestRect.mHeight == theSrcRect.mHeight)
     {
-        mTarget->Blt(theImage, theDestRect.mX, theDestRect.mY,
-                     theSrcRect, theColor, theDrawMode);
+        mTarget->Blt(theImage, theDestRect.mX, theDestRect.mY, theSrcRect, theColor, theDrawMode);
     }
     else
     {
-        mTarget->StretchBlt(theImage, theDestRect, theSrcRect,
-                            Rect(0, 0, mTarget->mWidth, mTarget->mHeight),
-                            theColor, theDrawMode, true);
+        mTarget->StretchBlt(theImage,
+            theDestRect,
+            theSrcRect,
+            Rect(0, 0, mTarget->mWidth, mTarget->mHeight),
+            theColor,
+            theDrawMode,
+            true);
     }
 }
 
-void SoftwareBackend::FillRect(const Rect& theRect, const Color& theColor,
-                               int theDrawMode)
+void SoftwareBackend::FillRect(const Rect &theRect, const Color &theColor, int theDrawMode)
 {
     if (mTarget)
         mTarget->FillRect(theRect, theColor, theDrawMode);
 }
 
-bool SoftwareBackend::ReadPixels(MemoryImage& theTarget)
+bool SoftwareBackend::ReadPixels(MemoryImage &theTarget)
 {
-    if (!mTarget) return false;
+    if (!mTarget)
+        return false;
     theTarget.Create(mTarget->mWidth, mTarget->mHeight);
-    if (!theTarget.mBits) return false;
-    memcpy(theTarget.mBits, mTarget->mBits,
-           (size_t)mTarget->mWidth * mTarget->mHeight * 4);
+    if (!theTarget.mBits)
+        return false;
+    memcpy(theTarget.mBits, mTarget->mBits, (size_t)mTarget->mWidth * mTarget->mHeight * 4);
     return true;
 }
 
@@ -152,8 +154,8 @@ bool SoftwareBackend::ReadPixels(MemoryImage& theTarget)
 // BgfxBackend
 // ===========================================================================
 
-BgfxBackend::BgfxBackend()
-    : mDevice(nullptr)
+BgfxBackend::BgfxBackend() :
+    mDevice(nullptr)
 {
 }
 
@@ -186,74 +188,84 @@ void BgfxBackend::Shutdown()
 
 void BgfxBackend::Resize(int theWidth, int theHeight)
 {
-    if (mDevice) mDevice->Resize(theWidth, theHeight);
+    if (mDevice)
+        mDevice->Resize(theWidth, theHeight);
 }
 
-void BgfxBackend::BeginFrame(const Color& theClearColor)
+void BgfxBackend::BeginFrame(const Color &theClearColor)
 {
-    if (mDevice) mDevice->BeginFrame(theClearColor);
+    if (mDevice)
+        mDevice->BeginFrame(theClearColor);
 }
 
 void BgfxBackend::EndFrame()
 {
-    if (mDevice) mDevice->EndFrame();
+    if (mDevice)
+        mDevice->EndFrame();
 }
 
 void BgfxBackend::Present()
 {
-    if (mDevice) mDevice->Present();
+    if (mDevice)
+        mDevice->Present();
 }
 
 void BgfxBackend::SetDrawMode(int theDrawMode)
 {
-    if (!mDevice) return;
-    mDevice->SetDrawMode(theDrawMode == kDrawMode_Additive
-                             ? BgfxRenderDevice::DRAWMODE_ADDITIVE
-                             : BgfxRenderDevice::DRAWMODE_NORMAL);
+    if (!mDevice)
+        return;
+    mDevice->SetDrawMode(
+        theDrawMode == kDrawMode_Additive ? BgfxRenderDevice::DRAWMODE_ADDITIVE : BgfxRenderDevice::DRAWMODE_NORMAL);
 }
 
 void BgfxBackend::SetColorizeImages(bool theColorize)
 {
-    if (mDevice) mDevice->SetColorizeImages(theColorize);
+    if (mDevice)
+        mDevice->SetColorizeImages(theColorize);
 }
 
-void BgfxBackend::SetClipRect(const Rect& theRect)
+void BgfxBackend::SetClipRect(const Rect &theRect)
 {
-    if (mDevice) mDevice->SetClipRect(theRect);
+    if (mDevice)
+        mDevice->SetClipRect(theRect);
 }
 
 void BgfxBackend::ClearClipRect()
 {
-    if (mDevice) mDevice->ClearClipRect();
+    if (mDevice)
+        mDevice->ClearClipRect();
 }
 
-void BgfxBackend::SetTransform(const SexyMatrix3& theTransform)
+void BgfxBackend::SetTransform(const SexyMatrix3 &theTransform)
 {
-    if (mDevice) mDevice->SetTransform(theTransform);
+    if (mDevice)
+        mDevice->SetTransform(theTransform);
 }
 
-void BgfxBackend::DrawImage(MemoryImage* theImage, const Rect& theDestRect,
-                          const Rect& theSrcRect, const Color& theColor,
-                          int theDrawMode, bool theMirror)
+void BgfxBackend::DrawImage(MemoryImage *theImage, const Rect &theDestRect, const Rect &theSrcRect,
+    const Color &theColor, int theDrawMode, bool theMirror)
 {
-    if (!mDevice) return;
-    mDevice->DrawImage(theImage, theDestRect, theSrcRect, theColor,
-                       theDrawMode == kDrawMode_Additive
-                           ? BgfxRenderDevice::DRAWMODE_ADDITIVE
-                           : BgfxRenderDevice::DRAWMODE_NORMAL,
-                       theMirror, true);
+    if (!mDevice)
+        return;
+    mDevice->DrawImage(theImage,
+        theDestRect,
+        theSrcRect,
+        theColor,
+        theDrawMode == kDrawMode_Additive ? BgfxRenderDevice::DRAWMODE_ADDITIVE : BgfxRenderDevice::DRAWMODE_NORMAL,
+        theMirror,
+        true);
 }
 
-void BgfxBackend::FillRect(const Rect& theRect, const Color& theColor, int theDrawMode)
+void BgfxBackend::FillRect(const Rect &theRect, const Color &theColor, int theDrawMode)
 {
-    if (!mDevice) return;
-    mDevice->FillRect(theRect, theColor,
-                      theDrawMode == kDrawMode_Additive
-                          ? BgfxRenderDevice::DRAWMODE_ADDITIVE
-                          : BgfxRenderDevice::DRAWMODE_NORMAL);
+    if (!mDevice)
+        return;
+    mDevice->FillRect(theRect,
+        theColor,
+        theDrawMode == kDrawMode_Additive ? BgfxRenderDevice::DRAWMODE_ADDITIVE : BgfxRenderDevice::DRAWMODE_NORMAL);
 }
 
-bool BgfxBackend::ReadPixels(MemoryImage& theTarget)
+bool BgfxBackend::ReadPixels(MemoryImage &theTarget)
 {
     return mDevice ? mDevice->ReadPixels(theTarget) : false;
 }
@@ -264,12 +276,13 @@ bool BgfxBackend::ReadPixels(MemoryImage& theTarget)
 
 Sexy::String GraphicsBackendFactory::GetRequestedName()
 {
-    const char* setting = Sexy::GetEnv("SEXY_VIDEO_DRIVER");
+    const char *setting = Sexy::GetEnv("SEXY_VIDEO_DRIVER");
     return setting && *setting ? setting : "auto";
 }
-IGraphicsBackend* GraphicsBackendFactory::Create(const Sexy::String& theName)
+IGraphicsBackend *GraphicsBackendFactory::Create(const Sexy::String &theName)
 {
-    if (theName == "software" || theName == "sw") return new SoftwareBackend();
+    if (theName == "software" || theName == "sw")
+        return new SoftwareBackend();
     return new BgfxBackend();
 }
 } // namespace Sexy

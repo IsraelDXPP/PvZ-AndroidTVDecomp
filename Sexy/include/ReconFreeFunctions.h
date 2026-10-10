@@ -7,7 +7,8 @@
 // exist. Signatures are variadic until each is transcribed from its own
 // dump, which is where the real parameter types are.
 
-#pragma once
+#ifndef LAWNPROJECTTV_SEXY_INCLUDE_RECONFREEFUNCTIONS_H
+#define LAWNPROJECTTV_SEXY_INCLUDE_RECONFREEFUNCTIONS_H
 
 #include "ReconTypes.h"
 #include "game/Definition.h"
@@ -24,7 +25,12 @@
 // them here breaks that include cycle; an incomplete type is all a pointer
 // parameter needs. SexyMatrix3, Color and TRect are complete by now because
 // ReconTypes.h pulls in CoreTypes.h before this header.
-namespace Sexy { class Graphics; class Image; class Font; }
+namespace Sexy
+{
+class Graphics;
+class Image;
+class Font;
+}
 
 // ---------------------------------------------------------------------------
 // Sexy:: free functions the bodies call by their qualified name. None of these
@@ -32,12 +38,13 @@ namespace Sexy { class Graphics; class Image; class Font; }
 // inventing file-local placeholders for them.
 // ---------------------------------------------------------------------------
 
-namespace Sexy {
+namespace Sexy
+{
 
 // Sexy::GetEnv(char const*) @0x2FB880. Reads setup.env first, then the
 // process environment. The pointer stays valid until the next lookup that
 // rewrites the same name.
-char const* GetEnv(char const* theName);
+char const *GetEnv(char const *theName);
 
 // Sexy::GetTickCount(void) @0x2fb7fc (112 bytes) -- milliseconds since the
 // epoch, via clock_gettime(CLOCK_MONOTONIC) and falling back to gettimeofday.
@@ -50,16 +57,16 @@ int GetTickCount();
 // on the sign.
 unsigned int TickCountDiff(unsigned int theEarlier, unsigned int theLater);
 
-// Sexy::logtfi(int, char *, ...) @0x3c34dc (100 bytes) -- printf-style logging
+// Sexy::logtfi @0x3c34dc (100 bytes) -- printf-style logging
 // at LogLevel 1. The variadic tail is real (it va_starts and calls
 // Sexy::vformat), so it keeps the C ellipsis.
-void logtfi(int theLevel, char* theFormat, ...);
+void logtfi(int theLevel, const char *theFormat, ...);
 
 // Sexy::SexyWStringFromString(std::string const&) @0x3c1510 (106 bytes).
 // Returns a string BY VALUE (the leading register is the caller's result
 // buffer), widening each byte of the input. Several bodies call it by this
 // name; only SexyWStringToString had been declared.
-Sexy::String SexyWStringFromString(Sexy::String const& theText);
+Sexy::String SexyWStringFromString(Sexy::String const &theText);
 
 // Sexy::GetSoundById(int) @0x1e4ee8 (16 bytes):
 // Resource IDs index globals containing the sound manager's loaded sample IDs.
@@ -68,11 +75,11 @@ int GetSoundById(int theId);
 
 // Sexy::GetImageById(int) @0x1e4eb8. A resource id of -1 returns null; any
 // other id indexes the loaded resource table.
-Sexy::Image* GetImageById(int theId);
+Sexy::Image *GetImageById(int theId);
 
 // Sexy::GetIdByImage(Image*) @0x1e7fa4. Returns the resource id of theImage,
 // or 757 when the image is not in the table.
-int GetIdByImage(Sexy::Image* theImage);
+int GetIdByImage(Sexy::Image *theImage);
 
 } // namespace Sexy
 
@@ -108,10 +115,10 @@ class DrCurlEngine
 {
 public:
     static int init(...);
-    static int writer(char* theBuffer, unsigned int theSize, unsigned int theCount, Sexy::String* theOutput);
-    static int perform(DrCurlRequest const& theRequest, Sexy::String& theResponse);
-    static int perform(Sexy::String const& theUrl, Sexy::String const& theBody,
-                       Sexy::String& theResponse, DrCurlRequest::HttpMethod theMethod);
+    static int writer(char *theBuffer, unsigned int theSize, unsigned int theCount, Sexy::String *theOutput);
+    static int perform(DrCurlRequest const &theRequest, Sexy::String &theResponse);
+    static int perform(Sexy::String const &theUrl, Sexy::String const &theBody, Sexy::String &theResponse,
+        DrCurlRequest::HttpMethod theMethod);
 };
 
 class DrDataEncoder
@@ -127,20 +134,21 @@ public:
     static int GetNewOne(...);
 };
 
-namespace TM {
-    // TM::Thread is defined in Thread.h, which this header includes so
-    // the two declarations agree.
+namespace TM
+{
+// TM::Thread is defined in Thread.h, which this header includes so
+// the two declarations agree.
 
-    class XML
-    {
-    public:
-        static int getChildNode(...);
-        static int getText(...);
-        static int isEmpty(...);
-        static int nChildNode(...);
-        static int nText(...);
-        static int parseString(...);
-    };
+class XML
+{
+public:
+    static int getChildNode(...);
+    static int getText(...);
+    static int isEmpty(...);
+    static int nChildNode(...);
+    static int nText(...);
+    static int parseString(...);
+};
 
 } // namespace TM
 
@@ -164,7 +172,7 @@ public:
     // Call sites keep the member form: group->DrawGroup(graphics) and
     // group->AddTriangle(graphics, ...).
     TodTriangleGroup();
-    int DrawGroup(Sexy::Graphics* theGraphics);
+    int DrawGroup(Sexy::Graphics *theGraphics);
     // SexyMatrix3 is a GLOBAL-namespace type (CoreTypes.h declares it outside
     // `namespace Sexy`), so it is spelled without the Sexy:: prefix here --
     // `Sexy::SexyMatrix3` does not exist.
@@ -176,10 +184,9 @@ public:
     // demangling of 0x205360 agrees: `..., Sexy::Color const&, int,
     // Sexy::TRect<int> const&`. The transcription had written a second Color,
     // which made every call site in Reanimation::DrawTrack a C2664.
-    int AddTriangle(Sexy::Graphics* theGraphics, Sexy::Image* theImage,
-                    SexyMatrix3 const& theMatrix, Sexy::TRect<int> const& theSrc,
-                    Sexy::Color const& theColor, int theVertexCount,
-                    Sexy::TRect<int> const& theClip);
+    int AddTriangle(Sexy::Graphics *theGraphics, Sexy::Image *theImage, SexyMatrix3 const &theMatrix,
+        Sexy::TRect<int> const &theSrc, Sexy::Color const &theColor, int theVertexCount,
+        Sexy::TRect<int> const &theClip);
 };
 
 // Free functions the binary calls without any scope.
@@ -192,22 +199,22 @@ public:
 // is only `(...)` cannot be given a body, and each one carries the arity its
 // call sites actually use plus a trailing ellipsis, so a call with extra
 // arguments still compiles.
-const char* AGGetExternalFilesDir();
-const char* AGGetModel(int theView);
+const char *AGGetExternalFilesDir();
+const char *AGGetModel(int theView);
 int AGGetSdkVersion();
 // The callbacks are static member functions, so the first argument is an
 // ordinary function pointer. The second is the app the platform calls back on.
-int AGSetFullVersionListener(int (*theCallback)(bool, void*), void* theApp);
-int AGSetMessageBoxListener(int (*theCallback)(int, void*), void* theApp);
+int AGSetFullVersionListener(int (*theCallback)(bool, void *), void *theApp);
+int AGSetMessageBoxListener(int (*theCallback)(int, void *), void *theApp);
 int AGVideoClose();
 int AGVideoEnable(int theEnable);
 int AGVideoIsPlaying(int theUnused);
-int AGVideoOpen(const char* thePath);
+int AGVideoOpen(const char *thePath);
 int AGVideoPlay(int theUnused);
 int AGVideoShow(int theShow);
-int AGViewAddEventListener(int* (*theListener)(int*), int theFlags);
+int AGViewAddEventListener(int *(*theListener)(int *), int theFlags);
 int AGViewShow(int theShow);
-int AGViewRemoveEventListener(int* (*theListener)(int*));
+int AGViewRemoveEventListener(int *(*theListener)(int *));
 // ---------------------------------------------------------------------------
 // The ad / payment half of the same layer, reached only by Sexy::AdProvider.
 //
@@ -224,50 +231,48 @@ int AGViewRemoveEventListener(int* (*theListener)(int*));
 // LAST argument -- the SDK dispatches on it -- which is why each one ends with
 // `int theAdType`.
 // ---------------------------------------------------------------------------
-void AGHideAD();                                     // 0x12EB68
-void AGShowAD(int theGravity, int theAdType);        // 0x12EB74
-void AGShowOfferAD(const char* theOffer, int theX, int theY, int theWidth,
-                   int theAdType, int theHeight);
-void AGShowItems(const char* theItem, int theCount, const char* theName,
-                 const char* theDescription, float thePrice, int theFlags,
-                 int theAdType);
-void AGQueryBalance(const char* theAccount, int theAdType);
+void AGHideAD(); // 0x12EB68
+void AGShowAD(int theGravity, int theAdType); // 0x12EB74
+void AGShowOfferAD(const char *theOffer, int theX, int theY, int theWidth, int theAdType, int theHeight);
+void AGShowItems(const char *theItem, int theCount, const char *theName, const char *theDescription, float thePrice,
+    int theFlags, int theAdType);
+void AGQueryBalance(const char *theAccount, int theAdType);
 void AGGoToLogin(bool theForce, int theAdType);
-const char * AGGetUserName(int theAdType);           // 0x12EBB0
+const char *AGGetUserName(int theAdType); // 0x12EBB0
 struct BoardRenderItem;
 class GameObject;
-void AddGameObjectRenderItem(BoardRenderItem* theItems, int& theCount, int theType, GameObject* theObject);
-void AddUIRenderItem(BoardRenderItem* theItems, int& theCount, int theType, int theOrder);
+void AddGameObjectRenderItem(BoardRenderItem *theItems, int &theCount, int theType, GameObject *theObject);
+void AddUIRenderItem(BoardRenderItem *theItems, int &theCount, int theType, int theOrder);
 void AlmanacInitForPlayer();
 void AlmanacPlayerDefeatedZombie(ZombieType theZombieType);
 // Attachment ids are the caller's int slot. A reference parameter is the slot
 // the binary writes (cleared on a miss, or replaced when a new attachment is
 // allocated). A by-value id is only read.
 class AttachEffect;
-AttachEffect* AttachParticle(int& theId, TodParticleSystem* theSystem, float theOffsetX, float theOffsetY);
-AttachEffect* AttachReanim(int& theId, Reanimation* theReanim, float theOffsetX, float theOffsetY);
-void AttachmentCrossFade(int theId, const char* theCrossFadeName);
-void AttachmentDetach(int& theId);
-void AttachmentDetachCrossFadeParticleType(int& theId, ParticleEffect theEffect, const char* theCrossFadeName);
-void AttachmentDie(int& theId);
-void AttachmentDraw(int theId, Sexy::Graphics* g, bool theParentHidden);
-void AttachmentOverrideColor(int theId, const Sexy::Color& theColor);
+AttachEffect *AttachParticle(int &theId, TodParticleSystem *theSystem, float theOffsetX, float theOffsetY);
+AttachEffect *AttachReanim(int &theId, Reanimation *theReanim, float theOffsetX, float theOffsetY);
+void AttachmentCrossFade(int theId, const char *theCrossFadeName);
+void AttachmentDetach(int &theId);
+void AttachmentDetachCrossFadeParticleType(int &theId, ParticleEffect theEffect, const char *theCrossFadeName);
+void AttachmentDie(int &theId);
+void AttachmentDraw(int theId, Sexy::Graphics *g, bool theParentHidden);
+void AttachmentOverrideColor(int theId, const Sexy::Color &theColor);
 void AttachmentOverrideScale(int theId, float theScale);
-void AttachmentPropogateColor(int theId, const Sexy::Color& theColor, bool theEnableAdditive,
-                              const Sexy::Color& theAdditive, bool theEnableOverlay,
-                              const Sexy::Color& theOverlay);
-void AttachmentReanimTypeDie(int& theId, ReanimationType theType);
-void AttachmentSetMatrix(int& theId, const Sexy::SexyTransform2D& theMatrix);
-void AttachmentUpdate(int& theId);
-void AttachmentUpdateAndMove(int& theId, float thePosX, float thePosY);
-void AttachmentUpdateAndSetMatrix(int& theId, const Sexy::SexyTransform2D& theMatrix);
+void AttachmentPropogateColor(int theId, const Sexy::Color &theColor, bool theEnableAdditive,
+    const Sexy::Color &theAdditive, bool theEnableOverlay, const Sexy::Color &theOverlay);
+void AttachmentReanimTypeDie(int &theId, ReanimationType theType);
+void AttachmentSetMatrix(int &theId, const Sexy::SexyTransform2D &theMatrix);
+void AttachmentUpdate(int &theId);
+void AttachmentUpdateAndMove(int &theId, float thePosX, float thePosY);
+void AttachmentUpdateAndSetMatrix(int &theId, const Sexy::SexyTransform2D &theMatrix);
 
 // NOTE: there is deliberately no `int BYTE4(...);` here. The transcription
 // emitted one because IDA's `BYTE4(x)` reads as a call when the macro is not
 // defined, but Runtime/IdaMacros.h now DOES define BYTE3..BYTE7 (Mailbox.cpp
 // assigns through BYTE4), so a declaration of that name would be macro-expanded
 // into nonsense and fail with C2059.
-ReanimatorTransform* BlendTransform(ReanimatorTransform* theResult, const ReanimatorTransform* theFirst, const ReanimatorTransform* theSecond, float theFactor);
+ReanimatorTransform *BlendTransform(ReanimatorTransform *theResult, const ReanimatorTransform *theFirst,
+    const ReanimatorTransform *theSecond, float theFactor);
 void BoardInitForPlayer();
 
 // COERCE_* are macros, not functions, and they cannot be anything else.
@@ -287,36 +292,42 @@ void BoardInitForPlayer();
 // They are function templates rather than plain macros because three call
 // sites pass a pointer, and a pointer does not convert to float. The pointer
 // overload takes the address as a number.
-template <class T> inline int CoerceToInt(T theValue) { return (int)theValue; }
-template <class T> int CoerceToInt(T*) = delete;
-template <class T> inline float CoerceToFloat(T theValue) { return (float)theValue; }
-template <class T> float CoerceToFloat(T*) = delete;
+template <class T> inline int CoerceToInt(T theValue)
+{
+    return (int)theValue;
+}
+template <class T> int CoerceToInt(T *) = delete;
+template <class T> inline float CoerceToFloat(T theValue)
+{
+    return (float)theValue;
+}
+template <class T> float CoerceToFloat(T *) = delete;
 
-#define COERCE_INT(x)    CoerceToInt(x)
-#define COERCE_FLOAT(x)  CoerceToFloat(x)
+#define COERCE_INT(x) CoerceToInt(x)
+#define COERCE_FLOAT(x) CoerceToFloat(x)
 #define COERCE_DOUBLE(x) ((double)(x))
 // Only ever used to widen a 64-bit result back to 64 bits; see the call sites.
 #define COERCE_UNSIGNED_INT64(x) ((std::uint64_t)(x))
 int CalcParticlePerfInfo(...);
-void CalcReanimPerfInfo(Reanimation* theReanim, int* theImageCount, int* thePixelCount);
-void CenterDialog(Sexy::Dialog* theDialog, int theWidth, int theHeight);
+void CalcReanimPerfInfo(Reanimation *theReanim, int *theImageCount, int *thePixelCount);
+void CenterDialog(Sexy::Dialog *theDialog, int theWidth, int theHeight);
 bool ChallengeModeRecordsTime(GameMode theMode);
 
-Sexy::Color* ColorAdd(Sexy::Color* theResult, const Sexy::Color* theFirst, const Sexy::Color* theSecond);
+Sexy::Color *ColorAdd(Sexy::Color *theResult, const Sexy::Color *theFirst, const Sexy::Color *theSecond);
 int ColorComponentMultiply(int theFirst, int theSecond);
-Sexy::Color* ColorsMultiply(Sexy::Color* theResult, const Sexy::Color* theFirst, const Sexy::Color* theSecond);
+Sexy::Color *ColorsMultiply(Sexy::Color *theResult, const Sexy::Color *theFirst, const Sexy::Color *theSecond);
 
-Sexy::EditWidget* CreateEditWidget(int theId, Sexy::EditListener* theListener, Sexy::Dialog* theDialog);
+Sexy::EditWidget *CreateEditWidget(int theId, Sexy::EditListener *theListener, Sexy::Dialog *theDialog);
 
 // NOTE: there is deliberately no `int DrCurlEngine(...);` here. DrCurlEngine is
 // a CLASS (declared above), and a function of the same name in the same scope
 // hides it, so every `DrCurlEngine::perform` in the tree failed to resolve.
-void DrawEditBox(Sexy::Graphics* theGraphics, Sexy::EditWidget* theWidget);
-void DrawSeedPacket(Sexy::Graphics* theGraphics, float theX, float theY, SeedType theSeedType,
-                   SeedType theImitaterType, float thePercentDark, int theGrayness,
-                   bool theDrawCost, bool theUseCurrentCost, bool theZombiePacket, bool theDrawBackground);
-void DrawStoneButton(Sexy::Graphics* theGraphics, int theX, int theY, int theWidth, int theHeight,
-                     bool theInverted, bool theDown, const Sexy::String& theLabel, bool theDisabled);
+void DrawEditBox(Sexy::Graphics *theGraphics, Sexy::EditWidget *theWidget);
+void DrawSeedPacket(Sexy::Graphics *theGraphics, float theX, float theY, SeedType theSeedType, SeedType theImitaterType,
+    float thePercentDark, int theGrayness, bool theDrawCost, bool theUseCurrentCost, bool theZombiePacket,
+    bool theDrawBackground);
+void DrawStoneButton(Sexy::Graphics *theGraphics, int theX, int theY, int theWidth, int theHeight, bool theInverted,
+    bool theDown, const Sexy::String &theLabel, bool theDisabled);
 float EndianFloat(float theValue);
 // EndianInt @0x3E38D8, EndianDouble @0x3E38E4, EndianShort @0x3E38DC,
 // EndianUINT16 @0x3E38CC and EndianUINT32 @0x3E38C8 are each `BX LR`. On this
@@ -328,66 +339,69 @@ int EndianShort(short theValue);
 int EndianUINT16(unsigned short theValue);
 unsigned int EndianUINT32(unsigned int theValue);
 void FilterEffectDisposeForApp();
-void FilterEffectDisposeForImage(Sexy::Image* theImage);
-Sexy::Image* FilterEffectGetImage(Sexy::Image* theImage, FilterEffect theEffect);
+void FilterEffectDisposeForImage(Sexy::Image *theImage);
+Sexy::Image *FilterEffectGetImage(Sexy::Image *theImage, FilterEffect theEffect);
 void FilterEffectInitForApp();
 class TodAllocator;
 int FindBuddyImageSize(Sexy::MemoryImage *theImage, Sexy::TRect<int> *theRect);
-AttachEffect* FindFirstAttachment(const int& theId);
+AttachEffect *FindFirstAttachment(const int &theId);
 TodAllocator *FindGlobalAllocator(size_t theItemSize);
-Reanimation* FindReanimAttachment(const int& theId);
-float FloatTrackEvaluate(FloatParameterTrack& theTrack, float theTime, float theSeed);
-bool FloatTrackIsSet(const FloatParameterTrack* theTrack);
+Reanimation *FindReanimAttachment(const int &theId);
+float FloatTrackEvaluate(FloatParameterTrack &theTrack, float theTime, float theSeed);
+bool FloatTrackIsSet(const FloatParameterTrack *theTrack);
 void FreeGlobalAllocators();
 int GetChallengeByRowColumn(int thePage, int theRow, int theCol);
-const ChallengeDefinition* GetChallengeDefinition(int theIndex);
-bool GetCircleRectOverlap(int theCenterX, int theCenterY, int theRadius, const Sexy::TRect<int>& theRect);
+const ChallengeDefinition *GetChallengeDefinition(int theIndex);
+bool GetCircleRectOverlap(int theCenterX, int theCenterY, int theRadius, const Sexy::TRect<int> &theRect);
 int GetCurrentDaysSince2000();
-Sexy::Color* GetFlashingColor(Sexy::Color* theResult, int theCounter, int thePeriod = 20);
-float GetMatrixScale(const Sexy::SexyMatrix3& theMatrix);
+Sexy::Color *GetFlashingColor(Sexy::Color *theResult, int theCounter, int thePeriod = 20);
+float GetMatrixScale(const Sexy::SexyMatrix3 &theMatrix);
 int GetModeByRowColumn(int thePage, int theRow, int theCol);
-PlantDefinition* GetPlantDefinition(SeedType theSeedType);
-int GetRectOverlap(const Sexy::TRect<int>& theFirst, const Sexy::TRect<int>& theSecond);
-Sexy::String* GetSavedGameName(Sexy::String* theDest, GameMode theMode, int theProfileId, int theId);
+PlantDefinition *GetPlantDefinition(SeedType theSeedType);
+int GetRectOverlap(const Sexy::TRect<int> &theFirst, const Sexy::TRect<int> &theSecond);
+Sexy::String *GetSavedGameName(Sexy::String *theDest, GameMode theMode, int theProfileId, int theId);
 // GetZombieDefinition(ZombieType) @0x1A7F60 returns a pointer into gZombieDefs,
 // whose records are 28 bytes (7 words). The fields below are what the call sites
 // read: +8 the value, +12 the level the zombie is first introduced on, +20 the
 // cost, +24 the name.
 struct ZombieDefinition
 {
-    int mZombieType;         // +0x00
+    int mZombieType; // +0x00
     ReanimationType mReanimationType; // +0x04  -- the field every `+ 4` read takes
-    int mZombieValue;        // +0x08  -- the field every `+ 8` read takes
-    int mStartingLevel;      // +0x0C  -- the field every `+ 12` read takes
-    int mPickWeight;         // +0x10
-    int mZombieCost;         // +0x14  -- the field every `+ 20` read takes
-    const char* mZombieName; // +0x18
+    int mZombieValue; // +0x08  -- the field every `+ 8` read takes
+    int mStartingLevel; // +0x0C  -- the field every `+ 12` read takes
+    int mPickWeight; // +0x10
+    int mZombieCost; // +0x14  -- the field every `+ 20` read takes
+    const char *mZombieName; // +0x18
 };
-ZombieDefinition* GetZombieDefinition(int theZombieType);
+ZombieDefinition *GetZombieDefinition(int theZombieType);
 
 unsigned int InterpColor(unsigned int theFirst, unsigned int theSecond, float theFraction);
-bool IsFullOfAttachments(const int& theId);
-bool IsIdentityMatrix(const Sexy::SexyMatrix3& theMatrix);
+bool IsFullOfAttachments(const int &theId);
+bool IsIdentityMatrix(const Sexy::SexyMatrix3 &theMatrix);
 class Board;
 class SaveGameContext;
 bool LawnLoadGame(Board *theBoard, SaveGameContext *theContext);
 bool LawnSaveGame(Board *theBoard, const Sexy::String &theFileName);
-bool LineSegmentIntersects(const Sexy::TPoint<float>& theStart, const Sexy::TPoint<float>& theEnd, const Sexy::TPoint<float>& theOtherStart, const Sexy::TPoint<float>& theOtherEnd, float* theFraction, Sexy::TPoint<float>* theHit);
+bool LineSegmentIntersects(const Sexy::TPoint<float> &theStart, const Sexy::TPoint<float> &theEnd,
+    const Sexy::TPoint<float> &theOtherStart, const Sexy::TPoint<float> &theOtherEnd, float *theFraction,
+    Sexy::TPoint<float> *theHit);
 struct MD5Context
 {
     unsigned int mState[4];
     unsigned int mCount[2];
     unsigned char mBuffer[64];
 };
-void MD5Init(MD5Context* theContext);
-void MD5Update(MD5Context* theContext, const unsigned char* theData, unsigned int theLength);
-void MD5Final(unsigned char* theDigest, MD5Context* theContext);
+void MD5Init(MD5Context *theContext);
+void MD5Update(MD5Context *theContext, const unsigned char *theData, unsigned int theLength);
+void MD5Final(unsigned char *theDigest, MD5Context *theContext);
 class LawnStoneButton;
-LawnStoneButton* MakeButton(int theId, Sexy::ButtonListener* theListener, Sexy::Widget* theParent, const Sexy::String& theLabel);
+LawnStoneButton *MakeButton(
+    int theId, Sexy::ButtonListener *theListener, Sexy::Widget *theParent, const Sexy::String &theLabel);
 int MakeMultiple(int theValue, int theStep);
-void OutputDebug(const char* theFormat, ...);
+void OutputDebug(const char *theFormat, ...);
 
-float PlantDrawHeightOffset(Board* theBoard, Plant* thePlant, SeedType theSeed, int theGridX, int theGridY);
+float PlantDrawHeightOffset(Board *theBoard, Plant *thePlant, SeedType theSeed, int theGridX, int theGridY);
 float PlantFlowerPotHeightOffset(SeedType theSeed, float theScale);
 
 int PreLoadReanimForCredits(ReanimationType theType);
@@ -396,12 +410,12 @@ bool QuickDigKeyCodeDown(int theKeyCode);
 float RandRangeFloat(float theMin, float theMax);
 int RandRangeInt(int theMin, int theMax);
 class ReanimatorDefinition;
-void ReanimationCreateAtlas(ReanimatorDefinition* theDefinition, ReanimationType theType);
+void ReanimationCreateAtlas(ReanimatorDefinition *theDefinition, ReanimationType theType);
 void ReanimationPreload(ReanimationType theType);
-int ReanimationLoadDefinition(const Sexy::String& theFileName, ReanimatorDefinition* theDefinition);
+int ReanimationLoadDefinition(const Sexy::String &theFileName, ReanimatorDefinition *theDefinition);
 int ReanimatorEnsureDefinitionLoaded(ReanimationType theType, bool theRequireCompiled);
 struct ReanimationParamRecord;
-void ReanimatorLoadDefinitions(ReanimationParamRecord* theParams, int theCount);
+void ReanimatorLoadDefinitions(ReanimationParamRecord *theParams, int theCount);
 
 // SHIDWORD / SLOBYTE / SLODWORD are NOT functions.
 //
@@ -422,117 +436,126 @@ void ReanimatorLoadDefinitions(ReanimationParamRecord* theParams, int theCount);
 //
 // The argument is evaluated once, so an lvalue is required; all 43 call sites
 // pass one.
-#define SLODWORD(x) (*(int           *)&(x))
-#define SHIDWORD(x) (*(int           *)((unsigned char *)&(x) + 4))
-#define SLOBYTE(x)  (*(signed  char  *)&(x))
+#define SLODWORD(x) (*(int *)&(x))
+#define SHIDWORD(x) (*(int *)((unsigned char *)&(x) + 4))
+#define SLOBYTE(x) (*(signed char *)&(x))
 
 void SexyDumpUnfreed();
-float SexyMatrix3Inverse(const Sexy::SexyMatrix3& theMatrix, Sexy::SexyMatrix3& theInverse);
-void SexyMatrix3Multiply(Sexy::SexyMatrix3* theResult, const Sexy::SexyMatrix3& theFirst, const Sexy::SexyMatrix3& theSecond);
-void SexyMatrix3Translation(Sexy::SexyMatrix3* theMatrix, float theX, float theY);
+float SexyMatrix3Inverse(const Sexy::SexyMatrix3 &theMatrix, Sexy::SexyMatrix3 &theInverse);
+void SexyMatrix3Multiply(
+    Sexy::SexyMatrix3 *theResult, const Sexy::SexyMatrix3 &theFirst, const Sexy::SexyMatrix3 &theSecond);
+void SexyMatrix3Translation(Sexy::SexyMatrix3 *theMatrix, float theX, float theY);
 
 // The old catch-all `int SimpleMessageWidget(...)` is GONE: it hid the class
 // name of the same scope, which SessionWaitingDialog constructs. The real
 // class is in game/SimpleMessageWidget.h.
 
-int TodAnimateCurve(int theTimeStart, int theTimeEnd, int theTimeAge, int thePositionStart, float thePositionEnd, int theCurve);
+int TodAnimateCurve(
+    int theTimeStart, int theTimeEnd, int theTimeAge, int thePositionStart, float thePositionEnd, int theCurve);
 // _Z20TodAnimateCurveFloatiiiff9TodCurves returns a FLOAT, not an int. Board's
 // UpdateGame and FadeOutLevel both assign its result straight to a float member,
 // so the int declaration was silently converting at two sites.
 float TodCurveEvaluate(float theTime, float thePositionStart, float thePositionEnd, int theCurve);
 float TodCurveEvaluateClamped(float theTime, float thePositionStart, float thePositionEnd, int theCurve);
-float TodAnimateCurveFloat(int theTimeStart, int theTimeEnd, int theTimeAge, float thePositionStart, float thePositionEnd, int theCurve);
-float TodAnimateCurveFloatTime(float theTimeStart, float theTimeEnd, float theTimeAge, float thePositionStart, float thePositionEnd, int theCurve);
+float TodAnimateCurveFloat(
+    int theTimeStart, int theTimeEnd, int theTimeAge, float thePositionStart, float thePositionEnd, int theCurve);
+float TodAnimateCurveFloatTime(
+    float theTimeStart, float theTimeEnd, float theTimeAge, float thePositionStart, float thePositionEnd, int theCurve);
 void TodAssertInitForApp(void (*theCallback)());
 extern unsigned char gTodTriangleDrawAdditive;
-void TodBltMatrix(Sexy::Graphics* theGraphics, Sexy::Image* theImage, const Sexy::SexyMatrix3& theMatrix,
-                  const Sexy::TRect<int>& theClipRect, const Sexy::Color& theColor, int theDrawMode,
-                  const Sexy::TRect<int>& theSrcRect);
+void TodBltMatrix(Sexy::Graphics *theGraphics, Sexy::Image *theImage, const Sexy::SexyMatrix3 &theMatrix,
+    const Sexy::TRect<int> &theClipRect, const Sexy::Color &theColor, int theDrawMode,
+    const Sexy::TRect<int> &theSrcRect);
 void TodCrash();
-void TodDeleteResources(const Sexy::String& theGroup);
-void TodDrawImageCelCenterScaledF(Sexy::Graphics* theGraphics, Sexy::Image* theImage, float theX, float theY,
-                                  int theCelCol, float theScaleX, float theScaleY);
-void TodDrawImageCelF(Sexy::Graphics* theGraphics, Sexy::Image* theImage, float theX, float theY,
-                      int theCelCol, int theCelRow);
-void TodDrawImageCelScaled(Sexy::Graphics* theGraphics, Sexy::Image* theImage, int theX, int theY,
-                           int theCelCol, int theCelRow, float theScaleX, float theScaleY);
-void TodDrawImageCelScaledF(Sexy::Graphics* theGraphics, Sexy::Image* theImage, float theX, float theY,
-                            int theCelCol, int theCelRow, float theScaleX, float theScaleY);
-void TodDrawImageCenterScaledF(Sexy::Graphics* theGraphics, Sexy::Image* theImage, float theX, float theY,
-                               float theScaleX, float theScaleY);
-void TodDrawImageScaledF(Sexy::Graphics* theGraphics, Sexy::Image* theImage, float theX, float theY,
-                         float theScaleX, float theScaleY);
+void TodDeleteResources(const Sexy::String &theGroup);
+void TodDrawImageCelCenterScaledF(Sexy::Graphics *theGraphics, Sexy::Image *theImage, float theX, float theY,
+    int theCelCol, float theScaleX, float theScaleY);
+void TodDrawImageCelF(
+    Sexy::Graphics *theGraphics, Sexy::Image *theImage, float theX, float theY, int theCelCol, int theCelRow);
+void TodDrawImageCelScaled(Sexy::Graphics *theGraphics, Sexy::Image *theImage, int theX, int theY, int theCelCol,
+    int theCelRow, float theScaleX, float theScaleY);
+void TodDrawImageCelScaledF(Sexy::Graphics *theGraphics, Sexy::Image *theImage, float theX, float theY, int theCelCol,
+    int theCelRow, float theScaleX, float theScaleY);
+void TodDrawImageCenterScaledF(
+    Sexy::Graphics *theGraphics, Sexy::Image *theImage, float theX, float theY, float theScaleX, float theScaleY);
+void TodDrawImageScaledF(
+    Sexy::Graphics *theGraphics, Sexy::Image *theImage, float theX, float theY, float theScaleX, float theScaleY);
 // DrawStringJustification in the so: 0 left, 1 and 4 right, 2 and 5 center.
 // 3, 4 and 5 also vertically center a wrapped block. The parameter stays an
 // int because several game files already name those values locally.
-void TodDrawString(Sexy::Graphics* theGraphics, const Sexy::String& theText,
-                   int theX, int theY, Sexy::Font* theFont, Sexy::Color theColor,
-                   int theJustification);
-void TodDrawStringMatrix(Sexy::Graphics* theGraphics, Sexy::Font* theFont,
-                         const Sexy::SexyMatrix3& theMatrix, const Sexy::String& theText,
-                         const Sexy::Color& theColor);
-int TodDrawStringWrapped(Sexy::Graphics* theGraphics, const Sexy::String& theText,
-                         const Sexy::TRect<int>& theRect, Sexy::Font* theFont,
-                         const Sexy::Color& theColor, int theJustification, bool theDraw);
-int TodDrawStringWrappedHelper(Sexy::Graphics* theGraphics, const Sexy::String& theText,
-                               const Sexy::TRect<int>& theRect, Sexy::Font* theFont,
-                               Sexy::Color theColor, int theJustification,
-                               bool theDraw, bool theDrawOffscreen);
-void TodErrorMessageBox(const char* theMessage, const char* theTitle);
+void TodDrawString(Sexy::Graphics *theGraphics, const Sexy::String &theText, int theX, int theY, Sexy::Font *theFont,
+    Sexy::Color theColor, int theJustification);
+void TodDrawStringMatrix(Sexy::Graphics *theGraphics, Sexy::Font *theFont, const Sexy::SexyMatrix3 &theMatrix,
+    const Sexy::String &theText, const Sexy::Color &theColor);
+int TodDrawStringWrapped(Sexy::Graphics *theGraphics, const Sexy::String &theText, const Sexy::TRect<int> &theRect,
+    Sexy::Font *theFont, const Sexy::Color &theColor, int theJustification, bool theDraw);
+int TodDrawStringWrappedHelper(Sexy::Graphics *theGraphics, const Sexy::String &theText,
+    const Sexy::TRect<int> &theRect, Sexy::Font *theFont, Sexy::Color theColor, int theJustification, bool theDraw,
+    bool theDrawOffscreen);
+void TodErrorMessageBox(const char *theMessage, const char *theTitle);
 class FoleyParams;
-FoleyParams* TodFoleyInitialize(FoleyParams* theParams, int theCount);
+FoleyParams *TodFoleyInitialize(FoleyParams *theParams, int theCount);
 void TodHesitationEndBuffer();
 void TodHesitationStartBuffer();
-int TodHesitationTrace(const char* theFormat, ...);
+int TodHesitationTrace(const char *theFormat, ...);
 int TodLoadNextResource();
-int TodLoadResources(const Sexy::String& theGroup);
+int TodLoadResources(const Sexy::String &theGroup);
 
-int TodParticleLoadADef(TodParticleDefinition* theDefinition, const char* theFileName);
-void TodParticleLoadDefinitions(ParticleParamRecord* theParams, int theCount);
-TodWeightedArray* TodPickArrayItemFromWeightedArray(TodWeightedArray* theItems, int theCount);
-int TodPickFromArray(const int* theItems, int theCount);
-namespace Sexy { int Rand(int theRange); }
+int TodParticleLoadADef(TodParticleDefinition *theDefinition, const char *theFileName);
+void TodParticleLoadDefinitions(ParticleParamRecord *theParams, int theCount);
+TodWeightedArray *TodPickArrayItemFromWeightedArray(TodWeightedArray *theItems, int theCount);
+int TodPickFromArray(const int *theItems, int theCount);
+namespace Sexy
+{
+int Rand(int theRange);
+}
 // The binary has a second overload, _Z16TodPickFromArrayPKPvi, that indexes a
 // pointer table the same way. A template covers that without a cast at the
 // grave-stone picker, which passes GridItem*.
-template <typename Item>
-Item TodPickFromArray(const Item* theItems, int theCount)
+template <typename Item> Item TodPickFromArray(const Item *theItems, int theCount)
 {
     return theItems[Sexy::Rand(theCount)];
 }
 float TodCalcSmoothWeight(float theWeight, float theLastPicked, float theSecondLastPicked);
-int TodPickFromSmoothArray(TodSmoothArray* theItems, int theCount);
-int TodPickFromWeightedArray(TodWeightedArray* theItems, int theCount);
-TodWeightedGridArray* TodPickFromWeightedGridArray(TodWeightedGridArray* theItems, int theCount);
-Sexy::String* TodReplaceButtons(Sexy::String* theResult, const Sexy::String* theSource);
-Sexy::String* TodReplaceNumberString(Sexy::String* theResult, const Sexy::String* theFormat, const char* thePlaceholder, int theNumber);
-Sexy::String* TodReplaceString(Sexy::String* theResult, const Sexy::String& theFormat, const char* thePlaceholder, const Sexy::String& theReplacement);
-Sexy::String* TodReplaceString(Sexy::String* theResult, const Sexy::String* theFormat, const char* thePlaceholder, const Sexy::String* theReplacement);
-Sexy::String* TodReplaceString(Sexy::String* theResult, const char* theFormat, const char* thePlaceholder, const Sexy::String* theReplacement);
-void TodSandImageIfNeeded(Sexy::Image* theImage);
-void TodScaleRotateTransformMatrix(Sexy::SexyMatrix3& theMatrix, float theX, float theY, float theAngle, float theScaleX, float theScaleY);
-Sexy::SexyMatrix3* TodScaleTransformMatrix(Sexy::SexyMatrix3* theMatrix, float theX, float theY, float theScaleX, float theScaleY);
-bool TodStringListExists(const Sexy::String& theKey);
-int TodStringListLoad(const char* theFileName);
+int TodPickFromSmoothArray(TodSmoothArray *theItems, int theCount);
+int TodPickFromWeightedArray(TodWeightedArray *theItems, int theCount);
+TodWeightedGridArray *TodPickFromWeightedGridArray(TodWeightedGridArray *theItems, int theCount);
+Sexy::String *TodReplaceButtons(Sexy::String *theResult, const Sexy::String *theSource);
+Sexy::String *TodReplaceNumberString(
+    Sexy::String *theResult, const Sexy::String *theFormat, const char *thePlaceholder, int theNumber);
+Sexy::String *TodReplaceString(Sexy::String *theResult, const Sexy::String &theFormat, const char *thePlaceholder,
+    const Sexy::String &theReplacement);
+Sexy::String *TodReplaceString(Sexy::String *theResult, const Sexy::String *theFormat, const char *thePlaceholder,
+    const Sexy::String *theReplacement);
+Sexy::String *TodReplaceString(
+    Sexy::String *theResult, const char *theFormat, const char *thePlaceholder, const Sexy::String *theReplacement);
+void TodSandImageIfNeeded(Sexy::Image *theImage);
+void TodScaleRotateTransformMatrix(
+    Sexy::SexyMatrix3 &theMatrix, float theX, float theY, float theAngle, float theScaleX, float theScaleY);
+Sexy::SexyMatrix3 *TodScaleTransformMatrix(
+    Sexy::SexyMatrix3 *theMatrix, float theX, float theY, float theScaleX, float theScaleY);
+bool TodStringListExists(const Sexy::String &theKey);
+int TodStringListLoad(const char *theFileName);
 struct TodStringListFormat;
-TodStringListFormat* TodStringListSetColors(TodStringListFormat* theFormats, int theCount);
-Sexy::String TodStringTranslate(const char* theKey);
-Sexy::String TodStringTranslate(const Sexy::String& theKey);
-Sexy::String* TodStringTranslate(Sexy::String* theResult, const char* theKey);
-Sexy::String* TodStringTranslate(Sexy::String* theResult, const Sexy::String& theKey);
-Sexy::String* TodStringTranslate(Sexy::String* theResult, const Sexy::String* theKey);
-void TodUpdateSmoothArrayPick(TodSmoothArray* theItems, int theCount, int thePickIndex);
-int TodVsnprintf(char* theBuffer, int theSize, const char* theFormat, va_list theArgs);
+TodStringListFormat *TodStringListSetColors(TodStringListFormat *theFormats, int theCount);
+Sexy::String TodStringTranslate(const char *theKey);
+Sexy::String TodStringTranslate(const Sexy::String &theKey);
+Sexy::String *TodStringTranslate(Sexy::String *theResult, const char *theKey);
+Sexy::String *TodStringTranslate(Sexy::String *theResult, const Sexy::String &theKey);
+Sexy::String *TodStringTranslate(Sexy::String *theResult, const Sexy::String *theKey);
+void TodUpdateSmoothArrayPick(TodSmoothArray *theItems, int theCount, int thePickIndex);
+int TodVsnprintf(char *theBuffer, int theSize, const char *theFormat, va_list theArgs);
 void Tod_SWTri_AddAllDrawTriFuncs();
 
-int TrailLoadADef(TrailDefinition* theDefinition, const char* theFileName);
-void TrailLoadDefinitions(TrailParamRecord* theParams, int theCount);
-Sexy::TPoint<float>* TransformFPoint(Sexy::TPoint<float>* theResult, const Sexy::SexyMatrix3& theMatrix, const Sexy::TPoint<float>& thePoint);
+int TrailLoadADef(TrailDefinition *theDefinition, const char *theFileName);
+void TrailLoadDefinitions(TrailParamRecord *theParams, int theCount);
+Sexy::TPoint<float> *TransformFPoint(
+    Sexy::TPoint<float> *theResult, const Sexy::SexyMatrix3 &theMatrix, const Sexy::TPoint<float> &thePoint);
 bool XButtonKeyCodeDown(int theKeyCode);
 
 struct ZombiePicker;
-ZombiePicker* ZombiePickerInit(ZombiePicker* thePicker);
-ZombiePicker* ZombiePickerInitForWave(ZombiePicker* thePicker);
+ZombiePicker *ZombiePickerInit(ZombiePicker *thePicker);
+ZombiePicker *ZombiePickerInitForWave(ZombiePicker *thePicker);
 bool ZombieTypeCanGoInPool(ZombieType theType);
 bool ZombieTypeCanGoOnHighGround(ZombieType theType);
 
@@ -738,444 +761,444 @@ extern int SOUND_MENU_L_ST;
 extern int SOUND_MENU_C_ST;
 extern int SOUND_MENU_R_ST;
 
-extern Sexy::Font * FONT_BRIANNETOD12;
-extern Sexy::Font * FONT_BRIANNETOD16;
-extern Sexy::Font * FONT_BRIANNETOD32;
-extern Sexy::Font * FONT_BRIANNETOD32BLACK;
-extern Sexy::Font * FONT_CONTINUUMBOLD14;
-extern Sexy::Font * FONT_CONTINUUMBOLD14OUTLINE;
-extern Sexy::Font * FONT_DWARVENTODCRAFT12;
-extern Sexy::Font * FONT_DWARVENTODCRAFT18;
-extern Sexy::Font * FONT_DWARVENTODCRAFT24;
-extern Sexy::Font * FONT_HOUSEOFTERROR16;
-extern Sexy::Font * FONT_HOUSEOFTERROR20;
-extern Sexy::Font * FONT_HOUSEOFTERROR28;
-extern Sexy::Image * IMAGE_;
-extern Sexy::Image * IMAGE_ZOMBIEDANCERHEAD;
-extern Sexy::Image * IMAGE_ZOMBIEBACKUPDANCERHEAD;
-extern Sexy::Image * IMAGE_ZOMBIEBOBSLEDHEAD;
-extern Sexy::Image * IMAGE_ZOMBIELADDERHEAD;
-extern Sexy::Image * IMAGE_ZOMBIEIMPHEAD;
-extern Sexy::Image * IMAGE_ZOMBIEFOOTBALLHEAD;
-extern Sexy::Image * IMAGE_ZOMBIEPOLEVAULTERHEAD;
-extern Sexy::Image * IMAGE_REANIM_ZOMBIE_SNORKLE_HEAD;
-extern Sexy::Image * IMAGE_ZOMBIEDIGGERHEAD;
-extern Sexy::Image * IMAGE_ZOMBIEDOLPHINRIDERHEAD;
-extern Sexy::Image * IMAGE_ZOMBIEYETIHEAD;
-extern Sexy::Image * IMAGE_REANIM_ZOMBIE_FOOTBALL_LEFTARM_HAND;
-extern Sexy::Image * IMAGE_REANIM_ZOMBIE_PAPER_LEFTARM_LOWER;
-extern Sexy::Image * IMAGE_REANIM_ZOMBIE_DISCO_OUTERARM_HAND;
-extern Sexy::Image * IMAGE_REANIM_ZOMBIE_BACKUP_INNERARM_HAND;
-extern Sexy::Image * IMAGE_REANIM_ZOMBIE_BOBSLED_OUTERARM_HAND;
-extern Sexy::Image * IMAGE_REANIM_ZOMBIE_IMP_ARM2;
-extern Sexy::Image * IMAGE_REANIM_ZOMBIE_YETI_OUTERARM_HAND;
-extern Sexy::Image * IMAGE_ZOMBIEJACKBOXARM;
-extern Sexy::Image * IMAGE_ZOMBIEDIGGERARM;
-extern Sexy::Image * IMAGE_REANIM_ZOMBIE_OUTERARM_HAND;
-extern Sexy::Image * IMAGE_ALMANAC;
-extern Sexy::Image * IMAGE_ALMANAC_GROUNDDAY;
-extern Sexy::Image * IMAGE_ALMANAC_GROUNDICE;
-extern Sexy::Image * IMAGE_ALMANAC_GROUNDNIGHT;
-extern Sexy::Image * IMAGE_ALMANAC_GROUNDNIGHTPOOL;
-extern Sexy::Image * IMAGE_ALMANAC_GROUNDPOOL;
-extern Sexy::Image * IMAGE_ALMANAC_GROUNDROOF;
-extern Sexy::Image * IMAGE_ALMANAC_IMITATER;
-extern Sexy::Image * IMAGE_ALMANAC_INDEXBACK;
-extern Sexy::Image * IMAGE_ALMANAC_PLANTBACK;
-extern Sexy::Image * IMAGE_ALMANAC_PLANTBLANK;
-extern Sexy::Image * IMAGE_ALMANAC_PLANTCARD;
-extern Sexy::Image * IMAGE_ALMANAC_ZOMBIEBACK;
-extern Sexy::Image * IMAGE_ALMANAC_ZOMBIEBLANK;
-extern Sexy::Image * IMAGE_ALMANAC_ZOMBIECARD;
-extern Sexy::Image * IMAGE_ALMANAC_ZOMBIEWINDOW;
-extern Sexy::Image * IMAGE_ALMANAC_ZOMBIEWINDOW2;
-extern Sexy::Image * IMAGE_AQUARIUM1;
-extern Sexy::Image * IMAGE_AWARDPICKUPGLOW;
-extern Sexy::Image * IMAGE_AWARDSCREEN_BACK;
-extern Sexy::Image * IMAGE_BACKGROUND1;
-extern Sexy::Image * IMAGE_BACKGROUND1UNSODDED;
-extern Sexy::Image * IMAGE_BACKGROUND1_COVER;
-extern Sexy::Image * IMAGE_BACKGROUND1_GAMEOVER_INTERIOR_OVERLAY;
-extern Sexy::Image * IMAGE_BACKGROUND1_GAMEOVER_MASK;
-extern Sexy::Image * IMAGE_BACKGROUND2;
-extern Sexy::Image * IMAGE_BACKGROUND2_COVER;
-extern Sexy::Image * IMAGE_BACKGROUND2_GAMEOVER_INTERIOR_OVERLAY;
-extern Sexy::Image * IMAGE_BACKGROUND2_GAMEOVER_MASK;
-extern Sexy::Image * IMAGE_BACKGROUND3;
-extern Sexy::Image * IMAGE_BACKGROUND3_COVER;
-extern Sexy::Image * IMAGE_BACKGROUND3_GAMEOVER_INTERIOR_OVERLAY;
-extern Sexy::Image * IMAGE_BACKGROUND3_GAMEOVER_MASK;
-extern Sexy::Image * IMAGE_BACKGROUND4;
-extern Sexy::Image * IMAGE_BACKGROUND4_COVER;
-extern Sexy::Image * IMAGE_BACKGROUND4_GAMEOVER_INTERIOR_OVERLAY;
-extern Sexy::Image * IMAGE_BACKGROUND4_GAMEOVER_MASK;
-extern Sexy::Image * IMAGE_BACKGROUND5;
-extern Sexy::Image * IMAGE_BACKGROUND5_GAMEOVER_MASK;
-extern Sexy::Image * IMAGE_BACKGROUND6BOSS;
-extern Sexy::Image * IMAGE_BACKGROUND6_GAMEOVER_MASK;
-extern Sexy::Image * IMAGE_BACKGROUND_GREENHOUSE;
-extern Sexy::Image * IMAGE_BACKGROUND_GREENHOUSE_OVERLAY;
-extern Sexy::Image * IMAGE_BACKGROUND_MUSHROOMGARDEN;
-extern Sexy::Image * IMAGE_BEGHOULED_TWIST_OVERLAY;
-extern Sexy::Image * IMAGE_BLANK;
-extern Sexy::Image * IMAGE_BRAIN;
-extern Sexy::Image * IMAGE_BUG_SPRAY;
-extern Sexy::Image * IMAGE_BUNGEECORD;
-extern Sexy::Image * IMAGE_BUNGEETARGET;
-extern Sexy::Image * IMAGE_BUTTER_ICON;
-extern Sexy::Image * IMAGE_BUTTON_LEFT;
-extern Sexy::Image * IMAGE_BUTTON_MIDDLE;
-extern Sexy::Image * IMAGE_BUTTON_RIGHT;
-extern Sexy::Image * IMAGE_BUTTON_DOWN_LEFT;
-extern Sexy::Image * IMAGE_BUTTON_DOWN_MIDDLE;
-extern Sexy::Image * IMAGE_BUTTON_DOWN_RIGHT;
-extern Sexy::Image * IMAGE_BUTTON_GLOW_LEFT;
-extern Sexy::Image * IMAGE_BUTTON_GLOW_MIDDLE;
-extern Sexy::Image * IMAGE_BUTTON_GLOW_RIGHT;
-extern Sexy::Image * IMAGE_CARKEYS;
-extern Sexy::Image * IMAGE_CHALLENGE_BACKGROUND;
-extern Sexy::Image * IMAGE_CHALLENGE_NAME_BACK;
-extern Sexy::Image * IMAGE_CHALLENGE_THUMBNAILS;
-extern Sexy::Image * IMAGE_CHOCOLATE;
-extern Sexy::Image * IMAGE_COBCANNON_TARGET;
-extern Sexy::Image * IMAGE_COBCANNON_TARGET_1;
-extern Sexy::Image * IMAGE_COBCANNON_TARGET_2;
-extern Sexy::Image * IMAGE_COBCANNON_TARGET_3;
-extern Sexy::Image * IMAGE_COBCANNON_TARGET_4;
-extern Sexy::Image * IMAGE_COINBANK;
-extern Sexy::Image * IMAGE_CONVEYORBELT;
-extern Sexy::Image * IMAGE_CONVEYORBELT_BACKDROP;
-extern Sexy::Image * IMAGE_CONVEYORBELT_BACKDROP_COOP;
-extern Sexy::Image * IMAGE_CONVEYORBELT_COOP;
-extern Sexy::Image * IMAGE_COOP_SUN_HIGHLIGHT_1;
-extern Sexy::Image * IMAGE_COOP_SUN_HIGHLIGHT_2;
-extern Sexy::Image * IMAGE_CRATER;
-extern Sexy::Image * IMAGE_CRATER_FADING;
-extern Sexy::Image * IMAGE_CRATER_ROOF_CENTER;
-extern Sexy::Image * IMAGE_CRATER_ROOF_LEFT;
-extern Sexy::Image * IMAGE_CRATER_WATER_DAY;
-extern Sexy::Image * IMAGE_CRATER_WATER_NIGHT;
-extern Sexy::Image * IMAGE_CREDITS_PLAYBUTTON;
-extern Sexy::Image * IMAGE_CREDITS_ZOMBIENOTE;
-extern Sexy::Image * IMAGE_CROW_BUBBLE;
-extern Sexy::Image * IMAGE_CURSOR_ARROW_P1;
-extern Sexy::Image * IMAGE_CURSOR_ARROW_P2;
-extern Sexy::Image * IMAGE_CURSOR_FLOWER;
-extern Sexy::Image * IMAGE_CURSOR_P1_TEXT;
-extern Sexy::Image * IMAGE_CURSOR_P2_TEXT;
-extern Sexy::Image * IMAGE_DIALOG_BIGBOTTOMLEFT;
-extern Sexy::Image * IMAGE_DIALOG_BIGBOTTOMMIDDLE;
-extern Sexy::Image * IMAGE_DIALOG_BIGBOTTOMRIGHT;
-extern Sexy::Image * IMAGE_DIALOG_BOTTOMLEFT;
-extern Sexy::Image * IMAGE_DIALOG_BOTTOMMIDDLE;
-extern Sexy::Image * IMAGE_DIALOG_BOTTOMRIGHT;
-extern Sexy::Image * IMAGE_DIALOG_CENTERLEFT;
-extern Sexy::Image * IMAGE_DIALOG_CENTERMIDDLE;
-extern Sexy::Image * IMAGE_DIALOG_CENTERRIGHT;
-extern Sexy::Image * IMAGE_DIALOG_HEADER;
-extern Sexy::Image * IMAGE_DIALOG_TOPLEFT;
-extern Sexy::Image * IMAGE_DIALOG_TOPMIDDLE;
-extern Sexy::Image * IMAGE_DIALOG_TOPRIGHT;
-extern Sexy::Image * IMAGE_DLG_SELECTORFRAME;
-extern Sexy::Image * IMAGE_DOWNARROW;
-extern Sexy::Image * IMAGE_EDITBOX;
-extern Sexy::Image * IMAGE_ESRB_RATING;
-extern Sexy::Image * IMAGE_FERTILIZER;
-extern Sexy::Image * IMAGE_FLAGMETER;
-extern Sexy::Image * IMAGE_FLAGMETERLEVELPROGRESS;
-extern Sexy::Image * IMAGE_FLAGMETERPARTS;
-extern Sexy::Image * IMAGE_FOG;
-extern Sexy::Image * IMAGE_FOG_SOFTWARE;
-extern Sexy::Image * IMAGE_GAMEPAD_CURSOR_ARROWS;
-extern Sexy::Image * IMAGE_GAMEPAD_CURSOR_ARROWS_SHADOW;
-extern Sexy::Image * IMAGE_GAMEPAD_CURSOR_FRAME;
-extern Sexy::Image * IMAGE_GAMEPAD_CURSOR_FRAME_BLUE;
-extern Sexy::Image * IMAGE_GAMEPAD_CURSOR_FRAME_SHADOW;
-extern Sexy::Image * IMAGE_GAMEPAD_CURSOR_SHADOW;
-extern Sexy::Image * IMAGE_HAMMER_ICON;
-extern Sexy::Image * IMAGE_HEAVY_WEAPON_OVERLAY;
-extern Sexy::Image * IMAGE_HELP_BUTTONS;
-extern Sexy::Image * IMAGE_HELP_BUTTONS2;
-extern Sexy::Image * IMAGE_ICE;
-extern Sexy::Image * IMAGE_ICETRAP;
-extern Sexy::Image * IMAGE_ICETRAP2;
-extern Sexy::Image * IMAGE_ICE_CAP;
-extern Sexy::Image * IMAGE_ICON_POOLCLEANER;
-extern Sexy::Image * IMAGE_ICON_RAKE;
-extern Sexy::Image * IMAGE_ICON_ROOFCLEANER;
-extern Sexy::Image * IMAGE_IMITATERSEED;
-extern Sexy::Image * IMAGE_IMITATERSEEDDISABLED;
-extern Sexy::Image * IMAGE_LOADBAR_DIRT;
-extern Sexy::Image * IMAGE_LOADBAR_GRASS;
-extern Sexy::Image * IMAGE_LOCK;
-extern Sexy::Image * IMAGE_MAILBOX_TABLE;
-extern Sexy::Image * IMAGE_MAILBOX_TABLE_LEAVESSHADOWS;
-extern Sexy::Image * IMAGE_MINIGAME_TROPHY;
-extern Sexy::Image * IMAGE_MONEYBAG;
-extern Sexy::Image * IMAGE_MONEYBAG_HI_RES;
-extern Sexy::Image * IMAGE_MP_PLANT_TROPHY;
-extern Sexy::Image * IMAGE_MP_PLANT_TROPHY_HI_RES;
-extern Sexy::Image * IMAGE_MP_TARGET;
-extern Sexy::Image * IMAGE_MP_TARGETS_UI;
-extern Sexy::Image * IMAGE_MP_TARGETS_X;
-extern Sexy::Image * IMAGE_MP_TOMBSTONE;
-extern Sexy::Image * IMAGE_MP_TROPHY_BASE;
-extern Sexy::Image * IMAGE_MP_ZOMBIE_TROPHY;
-extern Sexy::Image * IMAGE_MP_ZOMBIE_TROPHY_HI_RES;
-extern Sexy::Image * IMAGE_NIGHT_GRAVE_GRAPHIC;
-extern Sexy::Image * IMAGE_NO_GAMERPIC;
-extern Sexy::Image * IMAGE_OPTIONS_MENUBACK;
-extern Sexy::Image * IMAGE_OPTIONS_SLIDERKNOB2;
-extern Sexy::Image * IMAGE_OPTIONS_SLIDERSLOT;
-extern Sexy::Image * IMAGE_PEA_SHADOWS;
-extern Sexy::Image * IMAGE_PERISCOPE_RETICULE;
-extern Sexy::Image * IMAGE_PHONOGRAPH;
-extern Sexy::Image * IMAGE_PLANTSHADOW;
-extern Sexy::Image * IMAGE_PLANTSHADOW2;
-extern Sexy::Image * IMAGE_PLANTSPEECHBUBBLE;
-extern Sexy::Image * IMAGE_POOL_CAUSTIC_EFFECT;
-extern Sexy::Image * IMAGE_PRESENT;
-extern Sexy::Image * IMAGE_PRESENTOPEN;
-extern Sexy::Image * IMAGE_PROJECTILECACTUS;
-extern Sexy::Image * IMAGE_PROJECTILEPEA;
-extern Sexy::Image * IMAGE_PROJECTILESNOWPEA;
-extern Sexy::Image * IMAGE_PROJECTILE_STAR;
-extern Sexy::Image * IMAGE_PUFFSHROOM_PUFF1;
-extern Sexy::Image * IMAGE_PVZ_LOGO;
-extern Sexy::Image * IMAGE_RAIN;
-extern Sexy::Image * IMAGE_REANIM_CABBAGEPULT_CABBAGE;
-extern Sexy::Image * IMAGE_REANIM_COBCANNON_COB;
-extern Sexy::Image * IMAGE_REANIM_COINGLOW;
-extern Sexy::Image * IMAGE_REANIM_COIN_GOLD_DOLLAR;
-extern Sexy::Image * IMAGE_REANIM_COIN_SILVER_DOLLAR;
-extern Sexy::Image * IMAGE_REANIM_CORNPULT_BUTTER;
-extern Sexy::Image * IMAGE_REANIM_CORNPULT_BUTTER_SPLAT;
-extern Sexy::Image * IMAGE_REANIM_CORNPULT_KERNAL;
-extern Sexy::Image * IMAGE_REANIM_CRAZYDAVE_MOUTH1;
-extern Sexy::Image * IMAGE_REANIM_CRAZYDAVE_MOUTH4;
-extern Sexy::Image * IMAGE_REANIM_CRAZYDAVE_MOUTH5;
-extern Sexy::Image * IMAGE_REANIM_CRAZYDAVE_MOUTH6;
-extern Sexy::Image * IMAGE_REANIM_CREDITS_FOGMACHINE;
-extern Sexy::Image * IMAGE_REANIM_MELONPULT_MELON;
-extern Sexy::Image * IMAGE_REANIM_POT_TOP_DARK;
-extern Sexy::Image * IMAGE_REANIM_SODROLLCAP;
-extern Sexy::Image * IMAGE_REANIM_STINKY_TURN3;
-extern Sexy::Image * IMAGE_REANIM_SUNFLOWER_HEAD_SING1;
-extern Sexy::Image * IMAGE_REANIM_SUNFLOWER_HEAD_SING2;
-extern Sexy::Image * IMAGE_REANIM_SUNFLOWER_HEAD_SING3;
-extern Sexy::Image * IMAGE_REANIM_SUNFLOWER_HEAD_SING4;
-extern Sexy::Image * IMAGE_REANIM_SUNFLOWER_HEAD_SING5;
-extern Sexy::Image * IMAGE_REANIM_SUNFLOWER_HEAD_WINK;
-extern Sexy::Image * IMAGE_REANIM_TALLNUT_CRACKED1;
-extern Sexy::Image * IMAGE_REANIM_TALLNUT_CRACKED2;
-extern Sexy::Image * IMAGE_REANIM_WALLNUT_CRACKED1;
-extern Sexy::Image * IMAGE_REANIM_WALLNUT_CRACKED2;
-extern Sexy::Image * IMAGE_REANIM_WINTERMELON_PROJECTILE;
-extern Sexy::Image * IMAGE_REANIM_ZOMBIE_BACKUP_OUTERARM_UPPER2;
-extern Sexy::Image * IMAGE_REANIM_ZOMBIE_BALLOON_OUTERARM_UPPER2;
-extern Sexy::Image * IMAGE_REANIM_ZOMBIE_BOBSLED_OUTERARM_UPPER2;
-extern Sexy::Image * IMAGE_REANIM_ZOMBIE_BOSS_EYEGLOW_BLUE;
-extern Sexy::Image * IMAGE_REANIM_ZOMBIE_BOSS_FOOT_DAMAGE1;
-extern Sexy::Image * IMAGE_REANIM_ZOMBIE_BOSS_FOOT_DAMAGE2;
-extern Sexy::Image * IMAGE_REANIM_ZOMBIE_BOSS_HEAD_DAMAGE1;
-extern Sexy::Image * IMAGE_REANIM_ZOMBIE_BOSS_HEAD_DAMAGE2;
-extern Sexy::Image * IMAGE_REANIM_ZOMBIE_BOSS_JAW_DAMAGE1;
-extern Sexy::Image * IMAGE_REANIM_ZOMBIE_BOSS_JAW_DAMAGE2;
-extern Sexy::Image * IMAGE_REANIM_ZOMBIE_BOSS_MOUTHGLOW_BLUE;
-extern Sexy::Image * IMAGE_REANIM_ZOMBIE_BOSS_OUTERARM_HAND_DAMAGE1;
-extern Sexy::Image * IMAGE_REANIM_ZOMBIE_BOSS_OUTERARM_HAND_DAMAGE2;
-extern Sexy::Image * IMAGE_REANIM_ZOMBIE_BOSS_OUTERARM_THUMB_DAMAGE1;
-extern Sexy::Image * IMAGE_REANIM_ZOMBIE_BOSS_OUTERARM_THUMB_DAMAGE2;
+extern Sexy::Font *FONT_BRIANNETOD12;
+extern Sexy::Font *FONT_BRIANNETOD16;
+extern Sexy::Font *FONT_BRIANNETOD32;
+extern Sexy::Font *FONT_BRIANNETOD32BLACK;
+extern Sexy::Font *FONT_CONTINUUMBOLD14;
+extern Sexy::Font *FONT_CONTINUUMBOLD14OUTLINE;
+extern Sexy::Font *FONT_DWARVENTODCRAFT12;
+extern Sexy::Font *FONT_DWARVENTODCRAFT18;
+extern Sexy::Font *FONT_DWARVENTODCRAFT24;
+extern Sexy::Font *FONT_HOUSEOFTERROR16;
+extern Sexy::Font *FONT_HOUSEOFTERROR20;
+extern Sexy::Font *FONT_HOUSEOFTERROR28;
+extern Sexy::Image *IMAGE_;
+extern Sexy::Image *IMAGE_ZOMBIEDANCERHEAD;
+extern Sexy::Image *IMAGE_ZOMBIEBACKUPDANCERHEAD;
+extern Sexy::Image *IMAGE_ZOMBIEBOBSLEDHEAD;
+extern Sexy::Image *IMAGE_ZOMBIELADDERHEAD;
+extern Sexy::Image *IMAGE_ZOMBIEIMPHEAD;
+extern Sexy::Image *IMAGE_ZOMBIEFOOTBALLHEAD;
+extern Sexy::Image *IMAGE_ZOMBIEPOLEVAULTERHEAD;
+extern Sexy::Image *IMAGE_REANIM_ZOMBIE_SNORKLE_HEAD;
+extern Sexy::Image *IMAGE_ZOMBIEDIGGERHEAD;
+extern Sexy::Image *IMAGE_ZOMBIEDOLPHINRIDERHEAD;
+extern Sexy::Image *IMAGE_ZOMBIEYETIHEAD;
+extern Sexy::Image *IMAGE_REANIM_ZOMBIE_FOOTBALL_LEFTARM_HAND;
+extern Sexy::Image *IMAGE_REANIM_ZOMBIE_PAPER_LEFTARM_LOWER;
+extern Sexy::Image *IMAGE_REANIM_ZOMBIE_DISCO_OUTERARM_HAND;
+extern Sexy::Image *IMAGE_REANIM_ZOMBIE_BACKUP_INNERARM_HAND;
+extern Sexy::Image *IMAGE_REANIM_ZOMBIE_BOBSLED_OUTERARM_HAND;
+extern Sexy::Image *IMAGE_REANIM_ZOMBIE_IMP_ARM2;
+extern Sexy::Image *IMAGE_REANIM_ZOMBIE_YETI_OUTERARM_HAND;
+extern Sexy::Image *IMAGE_ZOMBIEJACKBOXARM;
+extern Sexy::Image *IMAGE_ZOMBIEDIGGERARM;
+extern Sexy::Image *IMAGE_REANIM_ZOMBIE_OUTERARM_HAND;
+extern Sexy::Image *IMAGE_ALMANAC;
+extern Sexy::Image *IMAGE_ALMANAC_GROUNDDAY;
+extern Sexy::Image *IMAGE_ALMANAC_GROUNDICE;
+extern Sexy::Image *IMAGE_ALMANAC_GROUNDNIGHT;
+extern Sexy::Image *IMAGE_ALMANAC_GROUNDNIGHTPOOL;
+extern Sexy::Image *IMAGE_ALMANAC_GROUNDPOOL;
+extern Sexy::Image *IMAGE_ALMANAC_GROUNDROOF;
+extern Sexy::Image *IMAGE_ALMANAC_IMITATER;
+extern Sexy::Image *IMAGE_ALMANAC_INDEXBACK;
+extern Sexy::Image *IMAGE_ALMANAC_PLANTBACK;
+extern Sexy::Image *IMAGE_ALMANAC_PLANTBLANK;
+extern Sexy::Image *IMAGE_ALMANAC_PLANTCARD;
+extern Sexy::Image *IMAGE_ALMANAC_ZOMBIEBACK;
+extern Sexy::Image *IMAGE_ALMANAC_ZOMBIEBLANK;
+extern Sexy::Image *IMAGE_ALMANAC_ZOMBIECARD;
+extern Sexy::Image *IMAGE_ALMANAC_ZOMBIEWINDOW;
+extern Sexy::Image *IMAGE_ALMANAC_ZOMBIEWINDOW2;
+extern Sexy::Image *IMAGE_AQUARIUM1;
+extern Sexy::Image *IMAGE_AWARDPICKUPGLOW;
+extern Sexy::Image *IMAGE_AWARDSCREEN_BACK;
+extern Sexy::Image *IMAGE_BACKGROUND1;
+extern Sexy::Image *IMAGE_BACKGROUND1UNSODDED;
+extern Sexy::Image *IMAGE_BACKGROUND1_COVER;
+extern Sexy::Image *IMAGE_BACKGROUND1_GAMEOVER_INTERIOR_OVERLAY;
+extern Sexy::Image *IMAGE_BACKGROUND1_GAMEOVER_MASK;
+extern Sexy::Image *IMAGE_BACKGROUND2;
+extern Sexy::Image *IMAGE_BACKGROUND2_COVER;
+extern Sexy::Image *IMAGE_BACKGROUND2_GAMEOVER_INTERIOR_OVERLAY;
+extern Sexy::Image *IMAGE_BACKGROUND2_GAMEOVER_MASK;
+extern Sexy::Image *IMAGE_BACKGROUND3;
+extern Sexy::Image *IMAGE_BACKGROUND3_COVER;
+extern Sexy::Image *IMAGE_BACKGROUND3_GAMEOVER_INTERIOR_OVERLAY;
+extern Sexy::Image *IMAGE_BACKGROUND3_GAMEOVER_MASK;
+extern Sexy::Image *IMAGE_BACKGROUND4;
+extern Sexy::Image *IMAGE_BACKGROUND4_COVER;
+extern Sexy::Image *IMAGE_BACKGROUND4_GAMEOVER_INTERIOR_OVERLAY;
+extern Sexy::Image *IMAGE_BACKGROUND4_GAMEOVER_MASK;
+extern Sexy::Image *IMAGE_BACKGROUND5;
+extern Sexy::Image *IMAGE_BACKGROUND5_GAMEOVER_MASK;
+extern Sexy::Image *IMAGE_BACKGROUND6BOSS;
+extern Sexy::Image *IMAGE_BACKGROUND6_GAMEOVER_MASK;
+extern Sexy::Image *IMAGE_BACKGROUND_GREENHOUSE;
+extern Sexy::Image *IMAGE_BACKGROUND_GREENHOUSE_OVERLAY;
+extern Sexy::Image *IMAGE_BACKGROUND_MUSHROOMGARDEN;
+extern Sexy::Image *IMAGE_BEGHOULED_TWIST_OVERLAY;
+extern Sexy::Image *IMAGE_BLANK;
+extern Sexy::Image *IMAGE_BRAIN;
+extern Sexy::Image *IMAGE_BUG_SPRAY;
+extern Sexy::Image *IMAGE_BUNGEECORD;
+extern Sexy::Image *IMAGE_BUNGEETARGET;
+extern Sexy::Image *IMAGE_BUTTER_ICON;
+extern Sexy::Image *IMAGE_BUTTON_LEFT;
+extern Sexy::Image *IMAGE_BUTTON_MIDDLE;
+extern Sexy::Image *IMAGE_BUTTON_RIGHT;
+extern Sexy::Image *IMAGE_BUTTON_DOWN_LEFT;
+extern Sexy::Image *IMAGE_BUTTON_DOWN_MIDDLE;
+extern Sexy::Image *IMAGE_BUTTON_DOWN_RIGHT;
+extern Sexy::Image *IMAGE_BUTTON_GLOW_LEFT;
+extern Sexy::Image *IMAGE_BUTTON_GLOW_MIDDLE;
+extern Sexy::Image *IMAGE_BUTTON_GLOW_RIGHT;
+extern Sexy::Image *IMAGE_CARKEYS;
+extern Sexy::Image *IMAGE_CHALLENGE_BACKGROUND;
+extern Sexy::Image *IMAGE_CHALLENGE_NAME_BACK;
+extern Sexy::Image *IMAGE_CHALLENGE_THUMBNAILS;
+extern Sexy::Image *IMAGE_CHOCOLATE;
+extern Sexy::Image *IMAGE_COBCANNON_TARGET;
+extern Sexy::Image *IMAGE_COBCANNON_TARGET_1;
+extern Sexy::Image *IMAGE_COBCANNON_TARGET_2;
+extern Sexy::Image *IMAGE_COBCANNON_TARGET_3;
+extern Sexy::Image *IMAGE_COBCANNON_TARGET_4;
+extern Sexy::Image *IMAGE_COINBANK;
+extern Sexy::Image *IMAGE_CONVEYORBELT;
+extern Sexy::Image *IMAGE_CONVEYORBELT_BACKDROP;
+extern Sexy::Image *IMAGE_CONVEYORBELT_BACKDROP_COOP;
+extern Sexy::Image *IMAGE_CONVEYORBELT_COOP;
+extern Sexy::Image *IMAGE_COOP_SUN_HIGHLIGHT_1;
+extern Sexy::Image *IMAGE_COOP_SUN_HIGHLIGHT_2;
+extern Sexy::Image *IMAGE_CRATER;
+extern Sexy::Image *IMAGE_CRATER_FADING;
+extern Sexy::Image *IMAGE_CRATER_ROOF_CENTER;
+extern Sexy::Image *IMAGE_CRATER_ROOF_LEFT;
+extern Sexy::Image *IMAGE_CRATER_WATER_DAY;
+extern Sexy::Image *IMAGE_CRATER_WATER_NIGHT;
+extern Sexy::Image *IMAGE_CREDITS_PLAYBUTTON;
+extern Sexy::Image *IMAGE_CREDITS_ZOMBIENOTE;
+extern Sexy::Image *IMAGE_CROW_BUBBLE;
+extern Sexy::Image *IMAGE_CURSOR_ARROW_P1;
+extern Sexy::Image *IMAGE_CURSOR_ARROW_P2;
+extern Sexy::Image *IMAGE_CURSOR_FLOWER;
+extern Sexy::Image *IMAGE_CURSOR_P1_TEXT;
+extern Sexy::Image *IMAGE_CURSOR_P2_TEXT;
+extern Sexy::Image *IMAGE_DIALOG_BIGBOTTOMLEFT;
+extern Sexy::Image *IMAGE_DIALOG_BIGBOTTOMMIDDLE;
+extern Sexy::Image *IMAGE_DIALOG_BIGBOTTOMRIGHT;
+extern Sexy::Image *IMAGE_DIALOG_BOTTOMLEFT;
+extern Sexy::Image *IMAGE_DIALOG_BOTTOMMIDDLE;
+extern Sexy::Image *IMAGE_DIALOG_BOTTOMRIGHT;
+extern Sexy::Image *IMAGE_DIALOG_CENTERLEFT;
+extern Sexy::Image *IMAGE_DIALOG_CENTERMIDDLE;
+extern Sexy::Image *IMAGE_DIALOG_CENTERRIGHT;
+extern Sexy::Image *IMAGE_DIALOG_HEADER;
+extern Sexy::Image *IMAGE_DIALOG_TOPLEFT;
+extern Sexy::Image *IMAGE_DIALOG_TOPMIDDLE;
+extern Sexy::Image *IMAGE_DIALOG_TOPRIGHT;
+extern Sexy::Image *IMAGE_DLG_SELECTORFRAME;
+extern Sexy::Image *IMAGE_DOWNARROW;
+extern Sexy::Image *IMAGE_EDITBOX;
+extern Sexy::Image *IMAGE_ESRB_RATING;
+extern Sexy::Image *IMAGE_FERTILIZER;
+extern Sexy::Image *IMAGE_FLAGMETER;
+extern Sexy::Image *IMAGE_FLAGMETERLEVELPROGRESS;
+extern Sexy::Image *IMAGE_FLAGMETERPARTS;
+extern Sexy::Image *IMAGE_FOG;
+extern Sexy::Image *IMAGE_FOG_SOFTWARE;
+extern Sexy::Image *IMAGE_GAMEPAD_CURSOR_ARROWS;
+extern Sexy::Image *IMAGE_GAMEPAD_CURSOR_ARROWS_SHADOW;
+extern Sexy::Image *IMAGE_GAMEPAD_CURSOR_FRAME;
+extern Sexy::Image *IMAGE_GAMEPAD_CURSOR_FRAME_BLUE;
+extern Sexy::Image *IMAGE_GAMEPAD_CURSOR_FRAME_SHADOW;
+extern Sexy::Image *IMAGE_GAMEPAD_CURSOR_SHADOW;
+extern Sexy::Image *IMAGE_HAMMER_ICON;
+extern Sexy::Image *IMAGE_HEAVY_WEAPON_OVERLAY;
+extern Sexy::Image *IMAGE_HELP_BUTTONS;
+extern Sexy::Image *IMAGE_HELP_BUTTONS2;
+extern Sexy::Image *IMAGE_ICE;
+extern Sexy::Image *IMAGE_ICETRAP;
+extern Sexy::Image *IMAGE_ICETRAP2;
+extern Sexy::Image *IMAGE_ICE_CAP;
+extern Sexy::Image *IMAGE_ICON_POOLCLEANER;
+extern Sexy::Image *IMAGE_ICON_RAKE;
+extern Sexy::Image *IMAGE_ICON_ROOFCLEANER;
+extern Sexy::Image *IMAGE_IMITATERSEED;
+extern Sexy::Image *IMAGE_IMITATERSEEDDISABLED;
+extern Sexy::Image *IMAGE_LOADBAR_DIRT;
+extern Sexy::Image *IMAGE_LOADBAR_GRASS;
+extern Sexy::Image *IMAGE_LOCK;
+extern Sexy::Image *IMAGE_MAILBOX_TABLE;
+extern Sexy::Image *IMAGE_MAILBOX_TABLE_LEAVESSHADOWS;
+extern Sexy::Image *IMAGE_MINIGAME_TROPHY;
+extern Sexy::Image *IMAGE_MONEYBAG;
+extern Sexy::Image *IMAGE_MONEYBAG_HI_RES;
+extern Sexy::Image *IMAGE_MP_PLANT_TROPHY;
+extern Sexy::Image *IMAGE_MP_PLANT_TROPHY_HI_RES;
+extern Sexy::Image *IMAGE_MP_TARGET;
+extern Sexy::Image *IMAGE_MP_TARGETS_UI;
+extern Sexy::Image *IMAGE_MP_TARGETS_X;
+extern Sexy::Image *IMAGE_MP_TOMBSTONE;
+extern Sexy::Image *IMAGE_MP_TROPHY_BASE;
+extern Sexy::Image *IMAGE_MP_ZOMBIE_TROPHY;
+extern Sexy::Image *IMAGE_MP_ZOMBIE_TROPHY_HI_RES;
+extern Sexy::Image *IMAGE_NIGHT_GRAVE_GRAPHIC;
+extern Sexy::Image *IMAGE_NO_GAMERPIC;
+extern Sexy::Image *IMAGE_OPTIONS_MENUBACK;
+extern Sexy::Image *IMAGE_OPTIONS_SLIDERKNOB2;
+extern Sexy::Image *IMAGE_OPTIONS_SLIDERSLOT;
+extern Sexy::Image *IMAGE_PEA_SHADOWS;
+extern Sexy::Image *IMAGE_PERISCOPE_RETICULE;
+extern Sexy::Image *IMAGE_PHONOGRAPH;
+extern Sexy::Image *IMAGE_PLANTSHADOW;
+extern Sexy::Image *IMAGE_PLANTSHADOW2;
+extern Sexy::Image *IMAGE_PLANTSPEECHBUBBLE;
+extern Sexy::Image *IMAGE_POOL_CAUSTIC_EFFECT;
+extern Sexy::Image *IMAGE_PRESENT;
+extern Sexy::Image *IMAGE_PRESENTOPEN;
+extern Sexy::Image *IMAGE_PROJECTILECACTUS;
+extern Sexy::Image *IMAGE_PROJECTILEPEA;
+extern Sexy::Image *IMAGE_PROJECTILESNOWPEA;
+extern Sexy::Image *IMAGE_PROJECTILE_STAR;
+extern Sexy::Image *IMAGE_PUFFSHROOM_PUFF1;
+extern Sexy::Image *IMAGE_PVZ_LOGO;
+extern Sexy::Image *IMAGE_RAIN;
+extern Sexy::Image *IMAGE_REANIM_CABBAGEPULT_CABBAGE;
+extern Sexy::Image *IMAGE_REANIM_COBCANNON_COB;
+extern Sexy::Image *IMAGE_REANIM_COINGLOW;
+extern Sexy::Image *IMAGE_REANIM_COIN_GOLD_DOLLAR;
+extern Sexy::Image *IMAGE_REANIM_COIN_SILVER_DOLLAR;
+extern Sexy::Image *IMAGE_REANIM_CORNPULT_BUTTER;
+extern Sexy::Image *IMAGE_REANIM_CORNPULT_BUTTER_SPLAT;
+extern Sexy::Image *IMAGE_REANIM_CORNPULT_KERNAL;
+extern Sexy::Image *IMAGE_REANIM_CRAZYDAVE_MOUTH1;
+extern Sexy::Image *IMAGE_REANIM_CRAZYDAVE_MOUTH4;
+extern Sexy::Image *IMAGE_REANIM_CRAZYDAVE_MOUTH5;
+extern Sexy::Image *IMAGE_REANIM_CRAZYDAVE_MOUTH6;
+extern Sexy::Image *IMAGE_REANIM_CREDITS_FOGMACHINE;
+extern Sexy::Image *IMAGE_REANIM_MELONPULT_MELON;
+extern Sexy::Image *IMAGE_REANIM_POT_TOP_DARK;
+extern Sexy::Image *IMAGE_REANIM_SODROLLCAP;
+extern Sexy::Image *IMAGE_REANIM_STINKY_TURN3;
+extern Sexy::Image *IMAGE_REANIM_SUNFLOWER_HEAD_SING1;
+extern Sexy::Image *IMAGE_REANIM_SUNFLOWER_HEAD_SING2;
+extern Sexy::Image *IMAGE_REANIM_SUNFLOWER_HEAD_SING3;
+extern Sexy::Image *IMAGE_REANIM_SUNFLOWER_HEAD_SING4;
+extern Sexy::Image *IMAGE_REANIM_SUNFLOWER_HEAD_SING5;
+extern Sexy::Image *IMAGE_REANIM_SUNFLOWER_HEAD_WINK;
+extern Sexy::Image *IMAGE_REANIM_TALLNUT_CRACKED1;
+extern Sexy::Image *IMAGE_REANIM_TALLNUT_CRACKED2;
+extern Sexy::Image *IMAGE_REANIM_WALLNUT_CRACKED1;
+extern Sexy::Image *IMAGE_REANIM_WALLNUT_CRACKED2;
+extern Sexy::Image *IMAGE_REANIM_WINTERMELON_PROJECTILE;
+extern Sexy::Image *IMAGE_REANIM_ZOMBIE_BACKUP_OUTERARM_UPPER2;
+extern Sexy::Image *IMAGE_REANIM_ZOMBIE_BALLOON_OUTERARM_UPPER2;
+extern Sexy::Image *IMAGE_REANIM_ZOMBIE_BOBSLED_OUTERARM_UPPER2;
+extern Sexy::Image *IMAGE_REANIM_ZOMBIE_BOSS_EYEGLOW_BLUE;
+extern Sexy::Image *IMAGE_REANIM_ZOMBIE_BOSS_FOOT_DAMAGE1;
+extern Sexy::Image *IMAGE_REANIM_ZOMBIE_BOSS_FOOT_DAMAGE2;
+extern Sexy::Image *IMAGE_REANIM_ZOMBIE_BOSS_HEAD_DAMAGE1;
+extern Sexy::Image *IMAGE_REANIM_ZOMBIE_BOSS_HEAD_DAMAGE2;
+extern Sexy::Image *IMAGE_REANIM_ZOMBIE_BOSS_JAW_DAMAGE1;
+extern Sexy::Image *IMAGE_REANIM_ZOMBIE_BOSS_JAW_DAMAGE2;
+extern Sexy::Image *IMAGE_REANIM_ZOMBIE_BOSS_MOUTHGLOW_BLUE;
+extern Sexy::Image *IMAGE_REANIM_ZOMBIE_BOSS_OUTERARM_HAND_DAMAGE1;
+extern Sexy::Image *IMAGE_REANIM_ZOMBIE_BOSS_OUTERARM_HAND_DAMAGE2;
+extern Sexy::Image *IMAGE_REANIM_ZOMBIE_BOSS_OUTERARM_THUMB_DAMAGE1;
+extern Sexy::Image *IMAGE_REANIM_ZOMBIE_BOSS_OUTERARM_THUMB_DAMAGE2;
 // _ZN4Sexy35IMAGE_ZOMBIE_BOSS_ICEBALL_PARTICLESE. It was declared in no header,
 // so Zombie::BossHeadSpitEffect silently passed a literal 0 where the ice ball's
 // particle image belongs.
-extern Sexy::Image * IMAGE_ZOMBIE_BOSS_ICEBALL_PARTICLES;
-extern Sexy::Image * IMAGE_REANIM_ZOMBIE_BUCKET2;
-extern Sexy::Image * IMAGE_REANIM_ZOMBIE_BUCKET3;
-extern Sexy::Image * IMAGE_REANIM_ZOMBIE_CATAPULT_BASKETBALL;
-extern Sexy::Image * IMAGE_REANIM_ZOMBIE_CATAPULT_POLE;
-extern Sexy::Image * IMAGE_REANIM_ZOMBIE_CATAPULT_POLE_DAMAGE;
-extern Sexy::Image * IMAGE_REANIM_ZOMBIE_CATAPULT_POLE_DAMAGE_WITHBALL;
-extern Sexy::Image * IMAGE_REANIM_ZOMBIE_CATAPULT_POLE_WITHBALL;
-extern Sexy::Image * IMAGE_REANIM_ZOMBIE_CATAPULT_SIDING_DAMAGE;
-extern Sexy::Image * IMAGE_REANIM_ZOMBIE_CONE2;
-extern Sexy::Image * IMAGE_REANIM_ZOMBIE_CONE3;
-extern Sexy::Image * IMAGE_REANIM_ZOMBIE_DIGGER_HARDHAT2;
-extern Sexy::Image * IMAGE_REANIM_ZOMBIE_DIGGER_HARDHAT3;
-extern Sexy::Image * IMAGE_REANIM_ZOMBIE_DIGGER_OUTERARM_UPPER2;
-extern Sexy::Image * IMAGE_REANIM_ZOMBIE_DISCO_OUTERARM_UPPER2;
-extern Sexy::Image * IMAGE_REANIM_ZOMBIE_DOLPHINRIDER_OUTERARM_UPPER2;
-extern Sexy::Image * IMAGE_REANIM_ZOMBIE_FLAG3;
-extern Sexy::Image * IMAGE_REANIM_ZOMBIE_FOOTBALL_HELMET2;
-extern Sexy::Image * IMAGE_REANIM_ZOMBIE_FOOTBALL_HELMET3;
-extern Sexy::Image * IMAGE_REANIM_ZOMBIE_FOOTBALL_LEFTARM_UPPER2;
-extern Sexy::Image * IMAGE_REANIM_ZOMBIE_GARGANTUAR_BODY1_2;
-extern Sexy::Image * IMAGE_REANIM_ZOMBIE_GARGANTUAR_BODY1_3;
-extern Sexy::Image * IMAGE_REANIM_ZOMBIE_GARGANTUAR_DUCKXING;
-extern Sexy::Image * IMAGE_REANIM_ZOMBIE_GARGANTUAR_FOOT2;
-extern Sexy::Image * IMAGE_REANIM_ZOMBIE_GARGANTUAR_HEAD2;
-extern Sexy::Image * IMAGE_REANIM_ZOMBIE_GARGANTUAR_HEAD2_REDEYE;
-extern Sexy::Image * IMAGE_REANIM_ZOMBIE_GARGANTUAR_HEAD_REDEYE;
-extern Sexy::Image * IMAGE_REANIM_ZOMBIE_GARGANTUAR_OUTERARM_LOWER2;
-extern Sexy::Image * IMAGE_REANIM_ZOMBIE_GARGANTUAR_ZOMBIE;
-extern Sexy::Image * IMAGE_REANIM_ZOMBIE_HEAD_GROSSOUT;
-extern Sexy::Image * IMAGE_REANIM_ZOMBIE_HEAD_SUNGLASSES1;
-extern Sexy::Image * IMAGE_REANIM_ZOMBIE_HEAD_SUNGLASSES2;
-extern Sexy::Image * IMAGE_REANIM_ZOMBIE_HEAD_SUNGLASSES3;
-extern Sexy::Image * IMAGE_REANIM_ZOMBIE_HEAD_SUNGLASSES4;
-extern Sexy::Image * IMAGE_REANIM_ZOMBIE_IMP_ARM1_BONE;
-extern Sexy::Image * IMAGE_REANIM_ZOMBIE_JACKBOX_OUTERARM_LOWER2;
-extern Sexy::Image * IMAGE_REANIM_ZOMBIE_LADDER_1_DAMAGE1;
-extern Sexy::Image * IMAGE_REANIM_ZOMBIE_LADDER_1_DAMAGE2;
-extern Sexy::Image * IMAGE_REANIM_ZOMBIE_LADDER_5;
-extern Sexy::Image * IMAGE_REANIM_ZOMBIE_LADDER_OUTERARM_UPPER2;
-extern Sexy::Image * IMAGE_REANIM_ZOMBIE_MUSTACHE2;
-extern Sexy::Image * IMAGE_REANIM_ZOMBIE_MUSTACHE3;
-extern Sexy::Image * IMAGE_REANIM_ZOMBIE_OUTERARM_UPPER2;
-extern Sexy::Image * IMAGE_REANIM_ZOMBIE_PAPER_LEFTARM_UPPER2;
-extern Sexy::Image * IMAGE_REANIM_ZOMBIE_PAPER_MADHEAD;
-extern Sexy::Image * IMAGE_REANIM_ZOMBIE_PAPER_PAPER2;
-extern Sexy::Image * IMAGE_REANIM_ZOMBIE_PAPER_PAPER3;
-extern Sexy::Image * IMAGE_REANIM_ZOMBIE_POGO_OUTERARM_UPPER2;
-extern Sexy::Image * IMAGE_REANIM_ZOMBIE_POGO_STICK2DAMAGE2;
-extern Sexy::Image * IMAGE_REANIM_ZOMBIE_POGO_STICKDAMAGE2;
-extern Sexy::Image * IMAGE_REANIM_ZOMBIE_POGO_STICKHANDS2;
-extern Sexy::Image * IMAGE_REANIM_ZOMBIE_POLEVAULTER_OUTERARM_UPPER2;
-extern Sexy::Image * IMAGE_REANIM_ZOMBIE_SCREENDOOR2;
-extern Sexy::Image * IMAGE_REANIM_ZOMBIE_SCREENDOOR3;
-extern Sexy::Image * IMAGE_REANIM_ZOMBIE_SNORKLE_OUTERARM_UPPER2;
-extern Sexy::Image * IMAGE_REANIM_ZOMBIE_TRASHCAN1;
-extern Sexy::Image * IMAGE_REANIM_ZOMBIE_TRASHCAN2;
-extern Sexy::Image * IMAGE_REANIM_ZOMBIE_TRASHCAN3;
-extern Sexy::Image * IMAGE_REANIM_ZOMBIE_YETI_OUTERARM_UPPER2;
-extern Sexy::Image * IMAGE_REANIM_ZOMBIE_ZAMBONI_1_DAMAGE1;
-extern Sexy::Image * IMAGE_REANIM_ZOMBIE_ZAMBONI_1_DAMAGE2;
-extern Sexy::Image * IMAGE_REANIM_ZOMBIE_ZAMBONI_2_DAMAGE1;
-extern Sexy::Image * IMAGE_REANIM_ZOMBIE_ZAMBONI_2_DAMAGE2;
-extern Sexy::Image * IMAGE_ROOF_POLE;
-extern Sexy::Image * IMAGE_ROOF_TREE;
-extern Sexy::Image * IMAGE_SCARY_POT;
-extern Sexy::Image * IMAGE_SEEDBANK;
-extern Sexy::Image * IMAGE_SEEDBANK_COOP;
-extern Sexy::Image * IMAGE_SEEDCHOOSER_BACKGROUND;
-extern Sexy::Image * IMAGE_SEEDCHOOSER_BACKGROUND2;
-extern Sexy::Image * IMAGE_SEEDCHOOSER_BUTTON;
-extern Sexy::Image * IMAGE_SEEDCHOOSER_BUTTON_DISABLED;
-extern Sexy::Image * IMAGE_SEEDCHOOSER_IMITATERADDON;
-extern Sexy::Image * IMAGE_SEEDPACKETFLASH;
-extern Sexy::Image * IMAGE_SEEDPACKETSILHOUETTE;
-extern Sexy::Image * IMAGE_SEEDS;
-extern Sexy::Image * IMAGE_SEEDPACKET_LARGER;
-extern Sexy::Image * IMAGE_ZOMBIE_SEEDPACKET;
-extern Sexy::Image * IMAGE_SEED_SELECTOR;
-extern Sexy::Image * IMAGE_SEED_SELECTOR_BLUE;
-extern Sexy::Image * IMAGE_SHOPITEM_BOMB;
-extern Sexy::Image * IMAGE_SHOPITEM_COLDDOWN;
-extern Sexy::Image * IMAGE_SHOPITEM_GETMONEY;
-extern Sexy::Image * IMAGE_SHOPITEM_PEPPER;
-extern Sexy::Image * IMAGE_SHOPITEM_SHOOTER;
-extern Sexy::Image * IMAGE_SHOPITEM_SUN1000;
-extern Sexy::Image * IMAGE_SHOPITEM_SUN500;
-extern Sexy::Image * IMAGE_SHOP_SEED_BANK;
-extern Sexy::Image * IMAGE_SHOVEL;
-extern Sexy::Image * IMAGE_SHOVELBANK;
-extern Sexy::Image * IMAGE_SHOVELMETER_EMTY;
-extern Sexy::Image * IMAGE_SHOVELMETER_FULL;
-extern Sexy::Image * IMAGE_SHOVEL_HI_RES;
-extern Sexy::Image * IMAGE_SLOTMACHINE_OVERLAY;
-extern Sexy::Image * IMAGE_SOD1ROW;
-extern Sexy::Image * IMAGE_SOD3ROW;
-extern Sexy::Image * IMAGE_SPOTLIGHT;
-extern Sexy::Image * IMAGE_SPOTLIGHT2;
-extern Sexy::Image * IMAGE_SQUARE_TEXTURE;
-extern Sexy::Image * IMAGE_SQUARE_TEXTURE_ZOMBIE;
-extern Sexy::Image * IMAGE_STORESEEDPACK_CATTAIL;
-extern Sexy::Image * IMAGE_STORESEEDPACK_COBCANNON;
-extern Sexy::Image * IMAGE_STORESEEDPACK_DOUBLESUNFLOWER;
-extern Sexy::Image * IMAGE_STORESEEDPACK_FROZENWATERMELON;
-extern Sexy::Image * IMAGE_STORESEEDPACK_GLOOMSHROOM;
-extern Sexy::Image * IMAGE_STORESEEDPACK_GOLDMAGNET;
-extern Sexy::Image * IMAGE_STORESEEDPACK_IMITATER;
-extern Sexy::Image * IMAGE_STORESEEDPACK_REPEATER;
-extern Sexy::Image * IMAGE_STORESEEDPACK_SPIKEROCK;
-extern Sexy::Image * IMAGE_STORE_AQUARIUMGARDENICON;
-extern Sexy::Image * IMAGE_STORE_BACKGROUND;
-extern Sexy::Image * IMAGE_STORE_BACKGROUNDNIGHT;
-extern Sexy::Image * IMAGE_STORE_BLUEPRINT_BLING;
-extern Sexy::Image * IMAGE_STORE_BLUEPRINT_CHANGE;
-extern Sexy::Image * IMAGE_STORE_BLUEPRINT_CLOWN;
-extern Sexy::Image * IMAGE_STORE_BLUEPRINT_FUTURE;
-extern Sexy::Image * IMAGE_STORE_BLUEPRINT_SCARY;
-extern Sexy::Image * IMAGE_STORE_BLUEPRINT_TRAILER;
-extern Sexy::Image * IMAGE_STORE_CAR;
-extern Sexy::Image * IMAGE_STORE_CARCLOSED;
-extern Sexy::Image * IMAGE_STORE_CARCLOSED_NIGHT;
-extern Sexy::Image * IMAGE_STORE_CAR_NIGHT;
-extern Sexy::Image * IMAGE_STORE_COMING_SOON;
-extern Sexy::Image * IMAGE_STORE_EXTRA_SLOT;
-extern Sexy::Image * IMAGE_STORE_FIRSTAIDWALLNUTICON;
-extern Sexy::Image * IMAGE_STORE_HATCHBACKOPEN;
-extern Sexy::Image * IMAGE_STORE_MUSHROOMGARDENICON;
-extern Sexy::Image * IMAGE_STORE_NEXTBUTTON;
-extern Sexy::Image * IMAGE_STORE_NEXTBUTTONHIGHLIGHT;
-extern Sexy::Image * IMAGE_STORE_PACKETUPGRADE;
-extern Sexy::Image * IMAGE_STORE_PREVBUTTON;
-extern Sexy::Image * IMAGE_STORE_PREVBUTTONHIGHLIGHT;
-extern Sexy::Image * IMAGE_STORE_PRICETAG;
-extern Sexy::Image * IMAGE_STORE_PVZICON;
-extern Sexy::Image * IMAGE_STORE_SIGN;
-extern Sexy::Image * IMAGE_STORE_SOLD_OUT;
-extern Sexy::Image * IMAGE_STORE_SPEECHBUBBLE;
-extern Sexy::Image * IMAGE_STORE_SPEECHBUBBLE2;
-extern Sexy::Image * IMAGE_STORE_TREEOFWISDOMICON;
-extern Sexy::Image * IMAGE_STORE_ZENGARDENICON;
-extern Sexy::Image * IMAGE_SQUIRREL;
-extern Sexy::Image * IMAGE_SUNBANK;
-extern Sexy::Image * IMAGE_SUNFLOWER_TROPHY;
-extern Sexy::Image * IMAGE_SURVIVAL_THUMBNAILS;
-extern Sexy::Image * IMAGE_TACO;
-extern Sexy::Image * IMAGE_TITLESCREEN;
-extern Sexy::Image * IMAGE_TITLESCREEN_BALL;
-extern Sexy::Image * IMAGE_TITLESCREEN_GLOW;
-extern Sexy::Image * IMAGE_TOMBSTONES;
-extern Sexy::Image * IMAGE_TOMBSTONE_MOUNDS;
-extern Sexy::Image * IMAGE_TRANSITION_HOLE;
-extern Sexy::Image * IMAGE_TREEFOOD;
-extern Sexy::Image * IMAGE_TROPHY;
-extern Sexy::Image * IMAGE_TROPHY_HI_RES;
-extern Sexy::Image * IMAGE_VS_INFO_BOX_PLANTS;
-extern Sexy::Image * IMAGE_VS_INFO_BOX_PLANTS_OVERLAY;
-extern Sexy::Image * IMAGE_VS_INFO_BOX_ZOMBIES;
-extern Sexy::Image * IMAGE_VS_INFO_BOX_ZOMBIES_OVERLAY;
-extern Sexy::Image * IMAGE_VS_STONE_DIRT;
-extern Sexy::Image * IMAGE_WALLNUT_BOWLINGSTRIPE;
-extern Sexy::Image * IMAGE_WATERDROP;
-extern Sexy::Image * IMAGE_WATERINGCAN;
-extern Sexy::Image * IMAGE_WATERINGCANGOLD;
-extern Sexy::Image * IMAGE_WAVECENTER;
-extern Sexy::Image * IMAGE_WAVESIDE;
-extern Sexy::Image * IMAGE_WHITEWATER_SHADOW;
-extern Sexy::Image * IMAGE_ZEN_GARDENGLOVE;
-extern Sexy::Image * IMAGE_ZEN_GOLDTOOLRETICLE;
-extern Sexy::Image * IMAGE_ZEN_MONEYSIGN;
-extern Sexy::Image * IMAGE_ZEN_NEED_ICONS;
-extern Sexy::Image * IMAGE_ZEN_WHEELBARROW;
-extern Sexy::Image * IMAGE_ZOMBIESHADOW;
-extern Sexy::Image * IMAGE_ZOMBIESHADOW2;
-extern Sexy::Image * IMAGE_ZOMBIE_BOBSLED1;
-extern Sexy::Image * IMAGE_ZOMBIE_BOBSLED2;
-extern Sexy::Image * IMAGE_ZOMBIE_BOBSLED3;
-extern Sexy::Image * IMAGE_ZOMBIE_BOBSLED4;
-extern Sexy::Image * IMAGE_ZOMBIE_BOBSLED_INSIDE;
-extern Sexy::Image * IMAGE_ZOMBIE_FINAL_NOTE;
-extern Sexy::Image * IMAGE_ZOMBIE_NOTE;
-extern Sexy::Image * IMAGE_ZOMBIE_NOTE1;
-extern Sexy::Image * IMAGE_ZOMBIE_NOTE2;
-extern Sexy::Image * IMAGE_ZOMBIE_NOTE3;
-extern Sexy::Image * IMAGE_ZOMBIE_NOTE4;
-extern Sexy::Image * IMAGE_ZOMBIE_NOTE_HELP;
-extern Sexy::Image * IMAGE_ZOMBIE_NOTE_SMALL;
-extern Sexy::Image * IMAGE_ZOMBIE_SEEDBANK;
+extern Sexy::Image *IMAGE_ZOMBIE_BOSS_ICEBALL_PARTICLES;
+extern Sexy::Image *IMAGE_REANIM_ZOMBIE_BUCKET2;
+extern Sexy::Image *IMAGE_REANIM_ZOMBIE_BUCKET3;
+extern Sexy::Image *IMAGE_REANIM_ZOMBIE_CATAPULT_BASKETBALL;
+extern Sexy::Image *IMAGE_REANIM_ZOMBIE_CATAPULT_POLE;
+extern Sexy::Image *IMAGE_REANIM_ZOMBIE_CATAPULT_POLE_DAMAGE;
+extern Sexy::Image *IMAGE_REANIM_ZOMBIE_CATAPULT_POLE_DAMAGE_WITHBALL;
+extern Sexy::Image *IMAGE_REANIM_ZOMBIE_CATAPULT_POLE_WITHBALL;
+extern Sexy::Image *IMAGE_REANIM_ZOMBIE_CATAPULT_SIDING_DAMAGE;
+extern Sexy::Image *IMAGE_REANIM_ZOMBIE_CONE2;
+extern Sexy::Image *IMAGE_REANIM_ZOMBIE_CONE3;
+extern Sexy::Image *IMAGE_REANIM_ZOMBIE_DIGGER_HARDHAT2;
+extern Sexy::Image *IMAGE_REANIM_ZOMBIE_DIGGER_HARDHAT3;
+extern Sexy::Image *IMAGE_REANIM_ZOMBIE_DIGGER_OUTERARM_UPPER2;
+extern Sexy::Image *IMAGE_REANIM_ZOMBIE_DISCO_OUTERARM_UPPER2;
+extern Sexy::Image *IMAGE_REANIM_ZOMBIE_DOLPHINRIDER_OUTERARM_UPPER2;
+extern Sexy::Image *IMAGE_REANIM_ZOMBIE_FLAG3;
+extern Sexy::Image *IMAGE_REANIM_ZOMBIE_FOOTBALL_HELMET2;
+extern Sexy::Image *IMAGE_REANIM_ZOMBIE_FOOTBALL_HELMET3;
+extern Sexy::Image *IMAGE_REANIM_ZOMBIE_FOOTBALL_LEFTARM_UPPER2;
+extern Sexy::Image *IMAGE_REANIM_ZOMBIE_GARGANTUAR_BODY1_2;
+extern Sexy::Image *IMAGE_REANIM_ZOMBIE_GARGANTUAR_BODY1_3;
+extern Sexy::Image *IMAGE_REANIM_ZOMBIE_GARGANTUAR_DUCKXING;
+extern Sexy::Image *IMAGE_REANIM_ZOMBIE_GARGANTUAR_FOOT2;
+extern Sexy::Image *IMAGE_REANIM_ZOMBIE_GARGANTUAR_HEAD2;
+extern Sexy::Image *IMAGE_REANIM_ZOMBIE_GARGANTUAR_HEAD2_REDEYE;
+extern Sexy::Image *IMAGE_REANIM_ZOMBIE_GARGANTUAR_HEAD_REDEYE;
+extern Sexy::Image *IMAGE_REANIM_ZOMBIE_GARGANTUAR_OUTERARM_LOWER2;
+extern Sexy::Image *IMAGE_REANIM_ZOMBIE_GARGANTUAR_ZOMBIE;
+extern Sexy::Image *IMAGE_REANIM_ZOMBIE_HEAD_GROSSOUT;
+extern Sexy::Image *IMAGE_REANIM_ZOMBIE_HEAD_SUNGLASSES1;
+extern Sexy::Image *IMAGE_REANIM_ZOMBIE_HEAD_SUNGLASSES2;
+extern Sexy::Image *IMAGE_REANIM_ZOMBIE_HEAD_SUNGLASSES3;
+extern Sexy::Image *IMAGE_REANIM_ZOMBIE_HEAD_SUNGLASSES4;
+extern Sexy::Image *IMAGE_REANIM_ZOMBIE_IMP_ARM1_BONE;
+extern Sexy::Image *IMAGE_REANIM_ZOMBIE_JACKBOX_OUTERARM_LOWER2;
+extern Sexy::Image *IMAGE_REANIM_ZOMBIE_LADDER_1_DAMAGE1;
+extern Sexy::Image *IMAGE_REANIM_ZOMBIE_LADDER_1_DAMAGE2;
+extern Sexy::Image *IMAGE_REANIM_ZOMBIE_LADDER_5;
+extern Sexy::Image *IMAGE_REANIM_ZOMBIE_LADDER_OUTERARM_UPPER2;
+extern Sexy::Image *IMAGE_REANIM_ZOMBIE_MUSTACHE2;
+extern Sexy::Image *IMAGE_REANIM_ZOMBIE_MUSTACHE3;
+extern Sexy::Image *IMAGE_REANIM_ZOMBIE_OUTERARM_UPPER2;
+extern Sexy::Image *IMAGE_REANIM_ZOMBIE_PAPER_LEFTARM_UPPER2;
+extern Sexy::Image *IMAGE_REANIM_ZOMBIE_PAPER_MADHEAD;
+extern Sexy::Image *IMAGE_REANIM_ZOMBIE_PAPER_PAPER2;
+extern Sexy::Image *IMAGE_REANIM_ZOMBIE_PAPER_PAPER3;
+extern Sexy::Image *IMAGE_REANIM_ZOMBIE_POGO_OUTERARM_UPPER2;
+extern Sexy::Image *IMAGE_REANIM_ZOMBIE_POGO_STICK2DAMAGE2;
+extern Sexy::Image *IMAGE_REANIM_ZOMBIE_POGO_STICKDAMAGE2;
+extern Sexy::Image *IMAGE_REANIM_ZOMBIE_POGO_STICKHANDS2;
+extern Sexy::Image *IMAGE_REANIM_ZOMBIE_POLEVAULTER_OUTERARM_UPPER2;
+extern Sexy::Image *IMAGE_REANIM_ZOMBIE_SCREENDOOR2;
+extern Sexy::Image *IMAGE_REANIM_ZOMBIE_SCREENDOOR3;
+extern Sexy::Image *IMAGE_REANIM_ZOMBIE_SNORKLE_OUTERARM_UPPER2;
+extern Sexy::Image *IMAGE_REANIM_ZOMBIE_TRASHCAN1;
+extern Sexy::Image *IMAGE_REANIM_ZOMBIE_TRASHCAN2;
+extern Sexy::Image *IMAGE_REANIM_ZOMBIE_TRASHCAN3;
+extern Sexy::Image *IMAGE_REANIM_ZOMBIE_YETI_OUTERARM_UPPER2;
+extern Sexy::Image *IMAGE_REANIM_ZOMBIE_ZAMBONI_1_DAMAGE1;
+extern Sexy::Image *IMAGE_REANIM_ZOMBIE_ZAMBONI_1_DAMAGE2;
+extern Sexy::Image *IMAGE_REANIM_ZOMBIE_ZAMBONI_2_DAMAGE1;
+extern Sexy::Image *IMAGE_REANIM_ZOMBIE_ZAMBONI_2_DAMAGE2;
+extern Sexy::Image *IMAGE_ROOF_POLE;
+extern Sexy::Image *IMAGE_ROOF_TREE;
+extern Sexy::Image *IMAGE_SCARY_POT;
+extern Sexy::Image *IMAGE_SEEDBANK;
+extern Sexy::Image *IMAGE_SEEDBANK_COOP;
+extern Sexy::Image *IMAGE_SEEDCHOOSER_BACKGROUND;
+extern Sexy::Image *IMAGE_SEEDCHOOSER_BACKGROUND2;
+extern Sexy::Image *IMAGE_SEEDCHOOSER_BUTTON;
+extern Sexy::Image *IMAGE_SEEDCHOOSER_BUTTON_DISABLED;
+extern Sexy::Image *IMAGE_SEEDCHOOSER_IMITATERADDON;
+extern Sexy::Image *IMAGE_SEEDPACKETFLASH;
+extern Sexy::Image *IMAGE_SEEDPACKETSILHOUETTE;
+extern Sexy::Image *IMAGE_SEEDS;
+extern Sexy::Image *IMAGE_SEEDPACKET_LARGER;
+extern Sexy::Image *IMAGE_ZOMBIE_SEEDPACKET;
+extern Sexy::Image *IMAGE_SEED_SELECTOR;
+extern Sexy::Image *IMAGE_SEED_SELECTOR_BLUE;
+extern Sexy::Image *IMAGE_SHOPITEM_BOMB;
+extern Sexy::Image *IMAGE_SHOPITEM_COLDDOWN;
+extern Sexy::Image *IMAGE_SHOPITEM_GETMONEY;
+extern Sexy::Image *IMAGE_SHOPITEM_PEPPER;
+extern Sexy::Image *IMAGE_SHOPITEM_SHOOTER;
+extern Sexy::Image *IMAGE_SHOPITEM_SUN1000;
+extern Sexy::Image *IMAGE_SHOPITEM_SUN500;
+extern Sexy::Image *IMAGE_SHOP_SEED_BANK;
+extern Sexy::Image *IMAGE_SHOVEL;
+extern Sexy::Image *IMAGE_SHOVELBANK;
+extern Sexy::Image *IMAGE_SHOVELMETER_EMTY;
+extern Sexy::Image *IMAGE_SHOVELMETER_FULL;
+extern Sexy::Image *IMAGE_SHOVEL_HI_RES;
+extern Sexy::Image *IMAGE_SLOTMACHINE_OVERLAY;
+extern Sexy::Image *IMAGE_SOD1ROW;
+extern Sexy::Image *IMAGE_SOD3ROW;
+extern Sexy::Image *IMAGE_SPOTLIGHT;
+extern Sexy::Image *IMAGE_SPOTLIGHT2;
+extern Sexy::Image *IMAGE_SQUARE_TEXTURE;
+extern Sexy::Image *IMAGE_SQUARE_TEXTURE_ZOMBIE;
+extern Sexy::Image *IMAGE_STORESEEDPACK_CATTAIL;
+extern Sexy::Image *IMAGE_STORESEEDPACK_COBCANNON;
+extern Sexy::Image *IMAGE_STORESEEDPACK_DOUBLESUNFLOWER;
+extern Sexy::Image *IMAGE_STORESEEDPACK_FROZENWATERMELON;
+extern Sexy::Image *IMAGE_STORESEEDPACK_GLOOMSHROOM;
+extern Sexy::Image *IMAGE_STORESEEDPACK_GOLDMAGNET;
+extern Sexy::Image *IMAGE_STORESEEDPACK_IMITATER;
+extern Sexy::Image *IMAGE_STORESEEDPACK_REPEATER;
+extern Sexy::Image *IMAGE_STORESEEDPACK_SPIKEROCK;
+extern Sexy::Image *IMAGE_STORE_AQUARIUMGARDENICON;
+extern Sexy::Image *IMAGE_STORE_BACKGROUND;
+extern Sexy::Image *IMAGE_STORE_BACKGROUNDNIGHT;
+extern Sexy::Image *IMAGE_STORE_BLUEPRINT_BLING;
+extern Sexy::Image *IMAGE_STORE_BLUEPRINT_CHANGE;
+extern Sexy::Image *IMAGE_STORE_BLUEPRINT_CLOWN;
+extern Sexy::Image *IMAGE_STORE_BLUEPRINT_FUTURE;
+extern Sexy::Image *IMAGE_STORE_BLUEPRINT_SCARY;
+extern Sexy::Image *IMAGE_STORE_BLUEPRINT_TRAILER;
+extern Sexy::Image *IMAGE_STORE_CAR;
+extern Sexy::Image *IMAGE_STORE_CARCLOSED;
+extern Sexy::Image *IMAGE_STORE_CARCLOSED_NIGHT;
+extern Sexy::Image *IMAGE_STORE_CAR_NIGHT;
+extern Sexy::Image *IMAGE_STORE_COMING_SOON;
+extern Sexy::Image *IMAGE_STORE_EXTRA_SLOT;
+extern Sexy::Image *IMAGE_STORE_FIRSTAIDWALLNUTICON;
+extern Sexy::Image *IMAGE_STORE_HATCHBACKOPEN;
+extern Sexy::Image *IMAGE_STORE_MUSHROOMGARDENICON;
+extern Sexy::Image *IMAGE_STORE_NEXTBUTTON;
+extern Sexy::Image *IMAGE_STORE_NEXTBUTTONHIGHLIGHT;
+extern Sexy::Image *IMAGE_STORE_PACKETUPGRADE;
+extern Sexy::Image *IMAGE_STORE_PREVBUTTON;
+extern Sexy::Image *IMAGE_STORE_PREVBUTTONHIGHLIGHT;
+extern Sexy::Image *IMAGE_STORE_PRICETAG;
+extern Sexy::Image *IMAGE_STORE_PVZICON;
+extern Sexy::Image *IMAGE_STORE_SIGN;
+extern Sexy::Image *IMAGE_STORE_SOLD_OUT;
+extern Sexy::Image *IMAGE_STORE_SPEECHBUBBLE;
+extern Sexy::Image *IMAGE_STORE_SPEECHBUBBLE2;
+extern Sexy::Image *IMAGE_STORE_TREEOFWISDOMICON;
+extern Sexy::Image *IMAGE_STORE_ZENGARDENICON;
+extern Sexy::Image *IMAGE_SQUIRREL;
+extern Sexy::Image *IMAGE_SUNBANK;
+extern Sexy::Image *IMAGE_SUNFLOWER_TROPHY;
+extern Sexy::Image *IMAGE_SURVIVAL_THUMBNAILS;
+extern Sexy::Image *IMAGE_TACO;
+extern Sexy::Image *IMAGE_TITLESCREEN;
+extern Sexy::Image *IMAGE_TITLESCREEN_BALL;
+extern Sexy::Image *IMAGE_TITLESCREEN_GLOW;
+extern Sexy::Image *IMAGE_TOMBSTONES;
+extern Sexy::Image *IMAGE_TOMBSTONE_MOUNDS;
+extern Sexy::Image *IMAGE_TRANSITION_HOLE;
+extern Sexy::Image *IMAGE_TREEFOOD;
+extern Sexy::Image *IMAGE_TROPHY;
+extern Sexy::Image *IMAGE_TROPHY_HI_RES;
+extern Sexy::Image *IMAGE_VS_INFO_BOX_PLANTS;
+extern Sexy::Image *IMAGE_VS_INFO_BOX_PLANTS_OVERLAY;
+extern Sexy::Image *IMAGE_VS_INFO_BOX_ZOMBIES;
+extern Sexy::Image *IMAGE_VS_INFO_BOX_ZOMBIES_OVERLAY;
+extern Sexy::Image *IMAGE_VS_STONE_DIRT;
+extern Sexy::Image *IMAGE_WALLNUT_BOWLINGSTRIPE;
+extern Sexy::Image *IMAGE_WATERDROP;
+extern Sexy::Image *IMAGE_WATERINGCAN;
+extern Sexy::Image *IMAGE_WATERINGCANGOLD;
+extern Sexy::Image *IMAGE_WAVECENTER;
+extern Sexy::Image *IMAGE_WAVESIDE;
+extern Sexy::Image *IMAGE_WHITEWATER_SHADOW;
+extern Sexy::Image *IMAGE_ZEN_GARDENGLOVE;
+extern Sexy::Image *IMAGE_ZEN_GOLDTOOLRETICLE;
+extern Sexy::Image *IMAGE_ZEN_MONEYSIGN;
+extern Sexy::Image *IMAGE_ZEN_NEED_ICONS;
+extern Sexy::Image *IMAGE_ZEN_WHEELBARROW;
+extern Sexy::Image *IMAGE_ZOMBIESHADOW;
+extern Sexy::Image *IMAGE_ZOMBIESHADOW2;
+extern Sexy::Image *IMAGE_ZOMBIE_BOBSLED1;
+extern Sexy::Image *IMAGE_ZOMBIE_BOBSLED2;
+extern Sexy::Image *IMAGE_ZOMBIE_BOBSLED3;
+extern Sexy::Image *IMAGE_ZOMBIE_BOBSLED4;
+extern Sexy::Image *IMAGE_ZOMBIE_BOBSLED_INSIDE;
+extern Sexy::Image *IMAGE_ZOMBIE_FINAL_NOTE;
+extern Sexy::Image *IMAGE_ZOMBIE_NOTE;
+extern Sexy::Image *IMAGE_ZOMBIE_NOTE1;
+extern Sexy::Image *IMAGE_ZOMBIE_NOTE2;
+extern Sexy::Image *IMAGE_ZOMBIE_NOTE3;
+extern Sexy::Image *IMAGE_ZOMBIE_NOTE4;
+extern Sexy::Image *IMAGE_ZOMBIE_NOTE_HELP;
+extern Sexy::Image *IMAGE_ZOMBIE_NOTE_SMALL;
+extern Sexy::Image *IMAGE_ZOMBIE_SEEDBANK;
 // NOTE: there is deliberately no global named UTF8 here. It was a
 // transcription artefact, and a global variable of that name HIDES the class
 // UTF8 (the real symbol is _ZN4UTF813filterUnicodeERKSs @0x1f46cc), so every
@@ -1195,13 +1218,12 @@ extern Sexy::Image * IMAGE_ZOMBIE_SEEDBANK;
 // flags word -- 7 words).
 struct TodStringListFormat
 {
-    Sexy::String    mName;
-    Sexy::Font*     mFont;
-    Sexy::Color     mColor;
-    int             mOffset;
-    unsigned int    mFlags;
+    Sexy::String mName;
+    Sexy::Font *mFont;
+    Sexy::Color mColor;
+    int mOffset;
+    unsigned int mFlags;
 };
-
 
 // gLawnStringFormats @0x715b90, initialized with all 14 original formats.
 extern TodStringListFormat gLawnStringFormats[14];
@@ -1234,24 +1256,24 @@ extern const int gArtChallengeWallnut[9 * 9];
 class FoleyParams
 {
 public:
-    FoleyType mFoleyType;      // +0x00
-    float mPitchRange;         // +0x04
-    int *mSfxID[10];           // +0x08 .. +0x2F
-    unsigned int mFoleyFlags;  // +0x30
+    FoleyType mFoleyType; // +0x00
+    float mPitchRange; // +0x04
+    int *mSfxID[10]; // +0x08 .. +0x2F
+    unsigned int mFoleyFlags; // +0x30
     // size 0x34
 };
 
 // Layout: 4 (type) + 4 (pitch range) + 40 (ten sound ids) + 4 (flags).
 
-extern FoleyParams        gLawnFoleyParamArray[];
+extern FoleyParams gLawnFoleyParamArray[];
 extern ParticleParamRecord gLawnParticleArray[NUM_PARTICLE_EFFECTS];
-extern TrailParamRecord   gLawnTrailArray[1];
+extern TrailParamRecord gLawnTrailArray[1];
 extern ReanimationParamRecord gLawnReanimationArray[];
 
 // The table LookupFoley indexes, one entry per FoleyType, and its length
 // (gFoleyParamArraySize is declared in ReconData.h and defined in
 // ReconGlobals.cpp). TodFoleyInitialize sets both in the authoritative source.
-extern FoleyParams        *gFoleyParamArray;
+extern FoleyParams *gFoleyParamArray;
 
 // @0x... -- the binary's LookupFoley, i.e. `&gFoleyParamArray[theFoleyType]`
 // (PvZ-src\TodLib\Common\TodFoley.cpp:32). TodFoley.cpp defines it.
@@ -1285,7 +1307,7 @@ public:
 
     virtual void Run() = 0;
     virtual bool Failed() = 0;
-    virtual int  GetLastError() = 0;
+    virtual int GetLastError() = 0;
     virtual Sexy::String GetLastErrorMsg() = 0;
 };
 
@@ -1293,9 +1315,12 @@ public:
 // PC reference source or in _recon; the bodies only use them as a list and a
 // count, so they are modelled that way.
 // TODO(recon): recover the real record layout from the binary.
-struct TestDialogInfo   { int mFields[4]; };
-extern TestDialogInfo   mTestInfos[];
-extern int              gTestInfoCount;
+struct TestDialogInfo
+{
+    int mFields[4];
+};
+extern TestDialogInfo mTestInfos[];
+extern int gTestInfoCount;
 
 // ---------------------------------------------------------------------------
 // The app hooks. The PC reference source declares these in TodCommon.h:178-181
@@ -1309,20 +1334,21 @@ extern int              gTestInfoCount;
 // They are function POINTERS the framework calls into the game, so the tree
 // needs both halves: the pointer globals and the game-side implementations.
 // ---------------------------------------------------------------------------
-extern bool         (*gAppCloseRequest)();
-extern bool         (*gAppHasUsedCheatKeys)();
+extern bool (*gAppCloseRequest)();
+extern bool (*gAppHasUsedCheatKeys)();
 extern Sexy::String (*gGetCurrentLevelName)();
-extern bool         (*gExtractResourcesByName)(Sexy::ResourceManager* theResourceManager,
-                                               const char* theName);
+extern bool (*gExtractResourcesByName)(Sexy::ResourceManager *theResourceManager, const char *theName);
 
 // The game-side halves the pointers above are assigned from. The PC source has
 // them in Lawn/LawnApp.cpp; here they are declared alongside so the assignment
 // in LawnApp's initialisation can name them.
-bool          LawnGetCloseRequest();
-bool          LawnHasUsedCheatKeys();
-Sexy::String  LawnGetCurrentLevelName();
-namespace Sexy { bool ExtractResourcesByName(ResourceManager* theResourceManager,
-                                             const char* theName); }
+bool LawnGetCloseRequest();
+bool LawnHasUsedCheatKeys();
+Sexy::String LawnGetCurrentLevelName();
+namespace Sexy
+{
+bool ExtractResourcesByName(ResourceManager *theResourceManager, const char *theName);
+}
 
 // NOTE: a block of `namespace Sexy` free-function declarations was added here
 // and then reverted. It guessed signatures from the linker's demangled output,
@@ -1338,18 +1364,20 @@ namespace Sexy { bool ExtractResourcesByName(ResourceManager* theResourceManager
 // `build/unresolved.txt` (which records the mangled name the linker asked for)
 // rather than from the readable form. See tools/unresolved.py.
 
-extern Sexy::Image * IMAGE_REANIM_CREDITS_DISCOLIGHTS;
-extern Sexy::Image * IMAGE_REANIM_DIAMOND;
-extern Sexy::Image * IMAGE_REANIM_GARLIC_BODY2;
-extern Sexy::Image * IMAGE_REANIM_GARLIC_BODY3;
-extern Sexy::Image * IMAGE_REANIM_PUMPKIN_DAMAGE1;
-extern Sexy::Image * IMAGE_REANIM_PUMPKIN_DAMAGE3;
-extern Sexy::Image * IMAGE_REANIM_WALLNUT_BODY;
-extern Sexy::Image * IMAGE_REANIM_ZOMBIE_BUCKET1;
-extern Sexy::Image * IMAGE_REANIM_ZOMBIE_DIGGER_PICKAXE;
-extern Sexy::Image * IMAGE_REANIM_ZOMBIE_FOOTBALL_HELMET;
-extern Sexy::Image * IMAGE_REANIM_ZOMBIE_JACKBOX_BOX;
-extern Sexy::Image * IMAGE_REANIM_ZOMBIE_LADDER_1;
-extern Sexy::Image * IMAGE_REANIM_ZOMBIE_POGO_STICKDAMAGE1;
-extern Sexy::Image * IMAGE_REANIM_ZOMBIE_SCREENDOOR1;
-extern Sexy::Image * IMAGE_ZOMBIEPOGO;
+extern Sexy::Image *IMAGE_REANIM_CREDITS_DISCOLIGHTS;
+extern Sexy::Image *IMAGE_REANIM_DIAMOND;
+extern Sexy::Image *IMAGE_REANIM_GARLIC_BODY2;
+extern Sexy::Image *IMAGE_REANIM_GARLIC_BODY3;
+extern Sexy::Image *IMAGE_REANIM_PUMPKIN_DAMAGE1;
+extern Sexy::Image *IMAGE_REANIM_PUMPKIN_DAMAGE3;
+extern Sexy::Image *IMAGE_REANIM_WALLNUT_BODY;
+extern Sexy::Image *IMAGE_REANIM_ZOMBIE_BUCKET1;
+extern Sexy::Image *IMAGE_REANIM_ZOMBIE_DIGGER_PICKAXE;
+extern Sexy::Image *IMAGE_REANIM_ZOMBIE_FOOTBALL_HELMET;
+extern Sexy::Image *IMAGE_REANIM_ZOMBIE_JACKBOX_BOX;
+extern Sexy::Image *IMAGE_REANIM_ZOMBIE_LADDER_1;
+extern Sexy::Image *IMAGE_REANIM_ZOMBIE_POGO_STICKDAMAGE1;
+extern Sexy::Image *IMAGE_REANIM_ZOMBIE_SCREENDOOR1;
+extern Sexy::Image *IMAGE_ZOMBIEPOGO;
+
+#endif // LAWNPROJECTTV_SEXY_INCLUDE_RECONFREEFUNCTIONS_H

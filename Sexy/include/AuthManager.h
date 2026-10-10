@@ -9,25 +9,27 @@
 //   destructor, HandleCmdLineParam, DoAuthenticate, Start, Handled.
 // AuthorizeProc is the thread body Start hands to the thread, not a virtual.
 
-#pragma once
+#ifndef LAWNPROJECTTV_SEXY_INCLUDE_AUTHMANAGER_H
+#define LAWNPROJECTTV_SEXY_INCLUDE_AUTHMANAGER_H
 
 #include "ReconTypes.h"
 #include "Thread.h"
 
-namespace Sexy {
+namespace Sexy
+{
 
 class AuthManager
 {
 public:
     virtual ~AuthManager();
-    virtual int HandleCmdLineParam(Sexy::String const& theName, Sexy::String const& theValue);
+    virtual int HandleCmdLineParam(Sexy::String const &theName, Sexy::String const &theValue);
     virtual int DoAuthenticate();
     virtual void Start();
     virtual int Handled();
 
-    int AuthorizeProc(void* theArg);
-    AuthManager(Sexy::SexyAppBase* theApp);
-    Sexy::String* GetName();
+    int AuthorizeProc(void *theArg);
+    AuthManager(Sexy::SexyAppBase *theApp);
+    Sexy::String *GetName();
     int IsAuthenticaled();
     int SetAuthId(int theId);
     int SetAuthAction(int theAction);
@@ -36,11 +38,11 @@ public:
     int GetAuthMode();
     int SetAuthState(int theState);
     int GetAuthState();
-    int SetAuthSerialNumber(Sexy::String const& theSerial);
+    int SetAuthSerialNumber(Sexy::String const &theSerial);
     // Returned by value: the binary builds the string into the caller's buffer.
     Sexy::String GetAuthSerialNumber();
 
-    Sexy::SexyAppBase* mApp;
+    Sexy::SexyAppBase *mApp;
     Sexy::String mName;
     bool mAuthenticated;
     int mAuthId;
@@ -54,3 +56,5 @@ public:
 } // namespace Sexy
 
 using Sexy::AuthManager;
+
+#endif // LAWNPROJECTTV_SEXY_INCLUDE_AUTHMANAGER_H

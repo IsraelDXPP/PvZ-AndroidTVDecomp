@@ -25,7 +25,8 @@
 #include "Platform/SDLFile.h"
 #include <cmath>
 
-namespace {
+namespace
+{
 
 int DisplayHeight(LawnApp *theApp)
 {
@@ -34,31 +35,30 @@ int DisplayHeight(LawnApp *theApp)
 
 } // namespace
 
-
 // ==========================================================================
 // TitleScreen::KeyDown(Sexy::KeyCode)
 // @001A6284  96 bytes
 // ==========================================================================
 int TitleScreen::KeyDown(Sexy::KeyCode theKey)
 {
-  if ( mTitleState == GuideLogo && theKey == Sexy::KEYCODE_GAMEPAD_A )
-    mTitleStateCounter = 0;
+    if (mTitleState == GuideLogo && theKey == Sexy::KEYCODE_GAMEPAD_A)
+        mTitleStateCounter = 0;
 
-  const bool aStartRequested = theKey == Sexy::KEYCODE_GAMEPAD_A
-      || theKey == Sexy::KEYCODE_GAMEPAD_START || theKey == Sexy::KEYCODE_RETURN;
-  if ( aStartRequested && mLoadingThreadComplete && mCurBarWidth == mTotalBarWidth )
-  {
-    // Navigation while the start button is disabled can clear its focus.
-    // Restore it before Widget dispatches confirmation to the button.
-    if ( !mStartButton->mHasFocus )
-      SetFocus(mStartButton, false);
-    mApp->PlaySample(SOUND_BUTTONCLICK, true);
-  }
+    const bool aStartRequested =
+        theKey == Sexy::KEYCODE_GAMEPAD_A || theKey == Sexy::KEYCODE_GAMEPAD_START || theKey == Sexy::KEYCODE_RETURN;
+    if (aStartRequested && mLoadingThreadComplete && mCurBarWidth == mTotalBarWidth)
+    {
+        // Navigation while the start button is disabled can clear its focus.
+        // Restore it before Widget dispatches confirmation to the button.
+        if (!mStartButton->mHasFocus)
+            SetFocus(mStartButton, false);
+        mApp->PlaySample(SOUND_BUTTONCLICK, true);
+    }
 
-  if ( theKey == Sexy::KEYCODE_ESCAPE )
-    return 1;
+    if (theKey == Sexy::KEYCODE_ESCAPE)
+        return 1;
 
-  return Sexy::Widget::KeyDown(theKey);
+    return Sexy::Widget::KeyDown(theKey);
 }
 // ==========================================================================
 // TitleScreen::DrawOverlay(Sexy::Graphics *)
@@ -66,12 +66,12 @@ int TitleScreen::KeyDown(Sexy::KeyCode theKey)
 // ==========================================================================
 void TitleScreen::DrawOverlay(Sexy::Graphics *theGraphics)
 {
-  if ( mOverlayAlpha <= 19 )
-  {
-    theGraphics->SetColor(Sexy::Color(0, 0, 0, (int)(255.0f - (float)mOverlayAlpha * 12.75f)));
-    theGraphics->FillRect(LawnApp::FULLSCREEN_RECT);
-    ++mOverlayAlpha;
-  }
+    if (mOverlayAlpha <= 19)
+    {
+        theGraphics->SetColor(Sexy::Color(0, 0, 0, (int)(255.0f - (float)mOverlayAlpha * 12.75f)));
+        theGraphics->FillRect(LawnApp::FULLSCREEN_RECT);
+        ++mOverlayAlpha;
+    }
 }
 // ==========================================================================
 // TitleScreen::AddedToManager(Sexy::WidgetManager *)
@@ -79,9 +79,9 @@ void TitleScreen::DrawOverlay(Sexy::Graphics *theGraphics)
 // ==========================================================================
 void TitleScreen::AddedToManager(Sexy::WidgetManager *theWidgetManager)
 {
-  Sexy::WidgetContainer::AddedToManager(theWidgetManager);
-  AddWidget(mStartButton);
-  SetFocus(mStartButton, false);
+    Sexy::WidgetContainer::AddedToManager(theWidgetManager);
+    AddWidget(mStartButton);
+    SetFocus(mStartButton, false);
 }
 // ==========================================================================
 // TitleScreen::RemovedFromManager(Sexy::WidgetManager *)
@@ -89,8 +89,8 @@ void TitleScreen::AddedToManager(Sexy::WidgetManager *theWidgetManager)
 // ==========================================================================
 void TitleScreen::RemovedFromManager(Sexy::WidgetManager *theWidgetManager)
 {
-  Sexy::WidgetContainer::RemovedFromManager(theWidgetManager);
-  RemoveWidget(mStartButton);
+    Sexy::WidgetContainer::RemovedFromManager(theWidgetManager);
+    RemoveWidget(mStartButton);
 }
 // ==========================================================================
 // TitleScreen::GotFocus(void)
@@ -98,7 +98,7 @@ void TitleScreen::RemovedFromManager(Sexy::WidgetManager *theWidgetManager)
 // ==========================================================================
 void TitleScreen::GotFocus()
 {
-  Sexy::Widget::GotFocus();
+    Sexy::Widget::GotFocus();
 }
 // ==========================================================================
 // TitleScreen::ButtonPress(int)
@@ -106,16 +106,16 @@ void TitleScreen::GotFocus()
 // ==========================================================================
 void TitleScreen::ButtonPress(int theId)
 {
-  (void)theId;
-  mApp->PlaySample(SOUND_BUTTONCLICK, true);
+    (void)theId;
+    mApp->PlaySample(SOUND_BUTTONCLICK, true);
 
-  if ( mLoadingThreadComplete && mCurBarWidth == mTotalBarWidth )
-  {
-    if ( mStartButton->mGamepadIndex > 0 )
-      mApp->SwapGamepadId(0, mStartButton->mGamepadIndex);
+    if (mLoadingThreadComplete && mCurBarWidth == mTotalBarWidth)
+    {
+        if (mStartButton->mGamepadIndex > 0)
+            mApp->SwapGamepadId(0, mStartButton->mGamepadIndex);
 
-    mApp->LoadingCompleted();
-  }
+        mApp->LoadingCompleted();
+    }
 }
 // ==========================================================================
 // TitleScreen::GameButtonDown(Sexy::GamepadButton,int,unsigned int)
@@ -123,16 +123,16 @@ void TitleScreen::ButtonPress(int theId)
 // ==========================================================================
 void TitleScreen::GameButtonDown(Sexy::GamepadButton theButton, int thePlayerIndex, unsigned int theModifierFlag)
 {
-  (void)thePlayerIndex;
-  (void)theModifierFlag;
-  if ( (unsigned int)((int)theButton - 5) > 1 || !mLoadingThreadComplete || mCurBarWidth != mTotalBarWidth )
-    return;
+    (void)thePlayerIndex;
+    (void)theModifierFlag;
+    if ((unsigned int)((int)theButton - 5) > 1 || !mLoadingThreadComplete || mCurBarWidth != mTotalBarWidth)
+        return;
 
-  mApp->PlaySample(SOUND_BUTTONCLICK, true);
+    mApp->PlaySample(SOUND_BUTTONCLICK, true);
 
-  Sexy::String aProfileName;
-  if ( mApp->mProfileMgr->GetProfile(aProfileName) != nullptr )
-    mApp->KillDialog(68);
+    Sexy::String aProfileName;
+    if (mApp->mProfileMgr->GetProfile(aProfileName) != nullptr)
+        mApp->KillDialog(68);
 }
 // ==========================================================================
 // TitleScreen::TitleScreen(LawnApp *)
@@ -140,300 +140,304 @@ void TitleScreen::GameButtonDown(Sexy::GamepadButton theButton, int thePlayerInd
 // ==========================================================================
 TitleScreen::TitleScreen(LawnApp *theApp)
 {
-  mApp = theApp;
+    mApp = theApp;
 
-  mTotalBarWidth = 472.0f;
-  mBarVel = 0.2f;
-  mNeedToInit = true;
-  // The `this + 276` byte store the transcription carried was really `this + 69`,
-  // the x4 corruption of a _BYTE offset -- WidgetContainer::mClip.
-  mClip = false;
-  mTitleAge = 0;
-  mLoadingThreadComplete = false;
-  mNeedRegister = false;
-  mTitleState = WaitingForFirstDraw;
-  mTitleStateDuration = 0;
-  mTitleStateCounter = 0;
-  mLoaderScreenIsLoaded = false;
-  mIntroVideoAge = 0;
-  mVideoCompleted = false;
-  mCurBarWidth = 0.0f;
-  mBarStartProgress = 0.0f;
-  mPrevLoadingPercent = 0.0f;
+    mTotalBarWidth = 472.0f;
+    mBarVel = 0.2f;
+    mNeedToInit = true;
+    // The `this + 276` byte store the transcription carried was really `this + 69`,
+    // the x4 corruption of a _BYTE offset -- WidgetContainer::mClip.
+    mClip = false;
+    mTitleAge = 0;
+    mLoadingThreadComplete = false;
+    mNeedRegister = false;
+    mTitleState = WaitingForFirstDraw;
+    mTitleStateDuration = 0;
+    mTitleStateCounter = 0;
+    mLoaderScreenIsLoaded = false;
+    mIntroVideoAge = 0;
+    mVideoCompleted = false;
+    mCurBarWidth = 0.0f;
+    mBarStartProgress = 0.0f;
+    mPrevLoadingPercent = 0.0f;
 
-  // The ButtonListener sub-object is at +0x100; the implicit derived-to-base
-  // conversion produces exactly that pointer.
-  mStartButton = new StartButton(0, this, this);
-  mStartButton->mColor = Sexy::Color(218, 184, 33);
-  mStartButton->mOverColor = Sexy::Color(218, 184, 33);
-  mStartButton->mVisible = false;
-  mStartButton->mDisabled = true;
+    // The ButtonListener sub-object is at +0x100; the implicit derived-to-base
+    // conversion produces exactly that pointer.
+    mStartButton = new StartButton(0, this, this);
+    mStartButton->mColor = Sexy::Color(218, 184, 33);
+    mStartButton->mOverColor = Sexy::Color(218, 184, 33);
+    mStartButton->mVisible = false;
+    mStartButton->mDisabled = true;
 
-  mOverlayAlpha = 0;
-  mNeedPlayLogo = true;
+    mOverlayAlpha = 0;
+    mNeedPlayLogo = true;
 
-  mPopcapLogo = mApp->GetImage("images/Logo", true);
-  mGuide = mApp->GetImage("images/Guide", true);
+    mPopcapLogo = mApp->GetImage("images/Logo", true);
+    mGuide = mApp->GetImage("images/Guide", true);
 
-  mIsPlayingIntroVideo = false;
-  mMusicInitFinished = false;
+    mIsPlayingIntroVideo = false;
+    mMusicInitFinished = false;
 }
 // ==========================================================================
 // TitleScreen::SetRegistered(void)
 // @001A6C58  2 bytes
 // ==========================================================================
-void TitleScreen::SetRegistered()
-{
-}
+void TitleScreen::SetRegistered() {}
 // ==========================================================================
 // TitleScreen::DrawToPreload(Sexy::Graphics *)
 // @001A6C5C  2 bytes
 // ==========================================================================
-void TitleScreen::DrawToPreload()
-{
-}
+void TitleScreen::DrawToPreload() {}
 // ==========================================================================
 // TitleScreen::VideoCompleted(void)
 // @001A6C60  8 bytes
 // ==========================================================================
 void TitleScreen::VideoCompleted()
 {
-  mVideoCompleted = true;
+    mVideoCompleted = true;
 }
 // ==========================================================================
 // TitleScreen::OnLoading(void)
 // @001A6CA4  2 bytes
 // ==========================================================================
-void TitleScreen::OnLoading()
-{
-}
+void TitleScreen::OnLoading() {}
 // ==========================================================================
 // TitleScreen::SwitchState(TitleState,int)
 // @001A6CA8  14 bytes
 // ==========================================================================
 void TitleScreen::SwitchState(int theState, int theDuration)
 {
-  mTitleState = (TitleState)theState;
-  mTitleStateDuration = theDuration;
-  mTitleStateCounter = theDuration;
+    mTitleState = (TitleState)theState;
+    mTitleStateDuration = theDuration;
+    mTitleStateCounter = theDuration;
 }
 // ==========================================================================
 // TitleScreen::BeginProfileLoad(void)
 // @001A6CB8  2 bytes
 // ==========================================================================
-void TitleScreen::BeginProfileLoad()
-{
-}
+void TitleScreen::BeginProfileLoad() {}
 // ==========================================================================
 // TitleScreen::Draw(Sexy::Graphics *)
 // @001A6CF8  2056 bytes
 // ==========================================================================
 void TitleScreen::Draw(Sexy::Graphics *theGraphics)
 {
-  theGraphics->SetLinearBlend(true);
-  Sexy::Widget::Draw(theGraphics);
+    theGraphics->SetLinearBlend(true);
+    Sexy::Widget::Draw(theGraphics);
 
-  switch ( mTitleState )
-  {
-    case WaitingForFirstDraw:
-      theGraphics->SetColor(Sexy::Color::Black);
-      theGraphics->FillRect(LawnApp::FULLSCREEN_RECT);
-      if ( !mNeedRegister )
-      {
-        Sexy::GetTickCount();
-        mNeedRegister = true;
-      }
-      break;
+    switch (mTitleState)
+    {
+        case WaitingForFirstDraw:
+            theGraphics->SetColor(Sexy::Color::Black);
+            theGraphics->FillRect(LawnApp::FULLSCREEN_RECT);
+            if (!mNeedRegister)
+            {
+                Sexy::GetTickCount();
+                mNeedRegister = true;
+            }
+            break;
 
-    case PopcapLogo_OR_IntroVideo:
-      if ( mIsPlayingIntroVideo )
-      {
-        theGraphics->SetColor(Sexy::Color::Black);
-        theGraphics->FillRect(LawnApp::FULLSCREEN_RECT);
-        // Same rect the loading background uses: 1280x720 at (-240, -60).
-        MpegVideoDraw(theGraphics, LawnApp::FULLSCREEN_RECT.mX,
-                      LawnApp::FULLSCREEN_RECT.mY,
-                      LawnApp::FULLSCREEN_RECT.mWidth,
-                      LawnApp::FULLSCREEN_RECT.mHeight);
-      }
-      else
-      {
-        // This branch is reached only with mIsPlayingIntroVideo == 0, so the two
-        // TodAnimateCurve calls really do animate from 0.
-        theGraphics->SetColor(Sexy::Color::Black);
-        theGraphics->FillRect(LawnApp::FULLSCREEN_RECT);
-        int aFadeIn = TodAnimateCurve(30, 0, mTitleStateCounter, 255, 0, 1);
-        theGraphics->SetColorizeImages(true);
-        theGraphics->SetColor(Sexy::Color(255, 255, 255, aFadeIn));
+        case PopcapLogo_OR_IntroVideo:
+            if (mIsPlayingIntroVideo)
+            {
+                theGraphics->SetColor(Sexy::Color::Black);
+                theGraphics->FillRect(LawnApp::FULLSCREEN_RECT);
+                // Same rect the loading background uses: 1280x720 at (-240, -60).
+                MpegVideoDraw(theGraphics,
+                    LawnApp::FULLSCREEN_RECT.mX,
+                    LawnApp::FULLSCREEN_RECT.mY,
+                    LawnApp::FULLSCREEN_RECT.mWidth,
+                    LawnApp::FULLSCREEN_RECT.mHeight);
+            }
+            else
+            {
+                // This branch is reached only with mIsPlayingIntroVideo == 0, so the two
+                // TodAnimateCurve calls really do animate from 0.
+                theGraphics->SetColor(Sexy::Color::Black);
+                theGraphics->FillRect(LawnApp::FULLSCREEN_RECT);
+                int aFadeIn = TodAnimateCurve(30, 0, mTitleStateCounter, 255, 0, 1);
+                theGraphics->SetColorizeImages(true);
+                theGraphics->SetColor(Sexy::Color(255, 255, 255, aFadeIn));
 
-        int aLogoWidth = mPopcapLogo->mWidth;
-        int aLogoHeight = mPopcapLogo->mHeight;
-        float aHeight = (float)DisplayHeight(mApp) * 0.3333f;
-        float aWidth = aHeight * ((float)aLogoWidth / (float)aLogoHeight);
-        TRect<int> aSrcRect(0, 0, aLogoWidth, aLogoHeight);
-        TRect<int> aDestRect((int)((float)(mWidth / 2) - aWidth * 0.5f),
-                             (int)((float)(mHeight / 2) - aHeight * 0.5f),
-                             (int)aWidth, (int)aHeight);
-        theGraphics->DrawImage(mPopcapLogo, aDestRect, aSrcRect);
+                int aLogoWidth = mPopcapLogo->mWidth;
+                int aLogoHeight = mPopcapLogo->mHeight;
+                float aHeight = (float)DisplayHeight(mApp) * 0.3333f;
+                float aWidth = aHeight * ((float)aLogoWidth / (float)aLogoHeight);
+                TRect<int> aSrcRect(0, 0, aLogoWidth, aLogoHeight);
+                TRect<int> aDestRect((int)((float)(mWidth / 2) - aWidth * 0.5f),
+                    (int)((float)(mHeight / 2) - aHeight * 0.5f),
+                    (int)aWidth,
+                    (int)aHeight);
+                theGraphics->DrawImage(mPopcapLogo, aDestRect, aSrcRect);
 
-        int aFadeOut = TodAnimateCurve(0, 30, mTitleStateDuration - mTitleStateCounter, 255, 0, 1);
-        theGraphics->SetColor(Sexy::Color(0, 0, 0, aFadeOut));
-        theGraphics->FillRect(LawnApp::FULLSCREEN_RECT);
-        theGraphics->SetColorizeImages(false);
-      }
-      break;
+                int aFadeOut = TodAnimateCurve(0, 30, mTitleStateDuration - mTitleStateCounter, 255, 0, 1);
+                theGraphics->SetColor(Sexy::Color(0, 0, 0, aFadeOut));
+                theGraphics->FillRect(LawnApp::FULLSCREEN_RECT);
+                theGraphics->SetColorizeImages(false);
+            }
+            break;
 
-    case ESRBLogo:
-      {
-        Sexy::Image *anEsrbImage = IMAGE_ESRB_RATING;
-
-        theGraphics->SetColor(Sexy::Color::Black);
-        theGraphics->FillRect(LawnApp::FULLSCREEN_RECT);
-        int aFadeIn = TodAnimateCurve(30, 0, mTitleStateCounter, 255, 0, 1);
-        theGraphics->SetColorizeImages(true);
-        theGraphics->SetColor(Sexy::Color(255, 255, 255, aFadeIn));
-
-        int anImageWidth = anEsrbImage->mWidth;
-        int anImageHeight = anEsrbImage->mHeight;
-        float aHeight = (float)DisplayHeight(mApp) * 0.65f;
-        float aWidth = aHeight * ((float)anImageWidth / (float)anImageHeight);
-        TRect<int> aSrcRect(0, 0, anImageWidth, anImageHeight);
-        TRect<int> aDestRect((int)((float)(mWidth / 2) - aWidth * 0.5f),
-                             (int)((float)(mHeight / 2) - aHeight * 0.5f),
-                             (int)aWidth, (int)aHeight);
-        theGraphics->DrawImage(anEsrbImage, aDestRect, aSrcRect);
-
-        int aFadeOut = TodAnimateCurve(0, 30, mTitleStateDuration - mTitleStateCounter, 255, 0, 1);
-        theGraphics->SetColor(Sexy::Color(255, 255, 255, aFadeOut));
-        theGraphics->FillRect(LawnApp::FULLSCREEN_RECT);
-        theGraphics->SetColorizeImages(false);
-      }
-      break;
-
-    case GuideLogo:
-      {
-        theGraphics->SetColor(Sexy::Color::Black);
-        theGraphics->FillRect(LawnApp::FULLSCREEN_RECT);
-        int aFadeIn = TodAnimateCurve(30, 0, mTitleStateCounter, 255, 0, 1);
-        theGraphics->SetColorizeImages(true);
-        theGraphics->SetColor(Sexy::Color(255, 255, 255, aFadeIn));
-
-        int aGuideWidth = mGuide->mWidth;
-        int aGuideHeight = mGuide->mHeight;
-        float aDisplayHeight = (float)DisplayHeight(mApp);
-        // Below 45% of the screen the guide is shrunk to half height first, and
-        // only then scaled by the display height.
-        float aHeight = (float)aGuideHeight;
-        if ( (float)aGuideHeight < aDisplayHeight * 0.45f )
-          aHeight = 0.5f;
-        if ( (float)aGuideHeight < aDisplayHeight * 0.45f )
-          aHeight = aDisplayHeight * aHeight;
-        float aWidth = aHeight * ((float)aGuideWidth / (float)aGuideHeight);
-        TRect<int> aSrcRect(0, 0, aGuideWidth, aGuideHeight);
-        TRect<int> aDestRect((int)((float)(mWidth / 2) - aWidth * 0.5f),
-                             (int)((float)(mHeight / 2) - aHeight * 0.5f),
-                             (int)aWidth, (int)aHeight);
-        theGraphics->DrawImage(mGuide, aDestRect, aSrcRect);
-
-        int aFadeOut = TodAnimateCurve(0, 30, mTitleStateDuration - mTitleStateCounter, 255, 0, 1);
-        theGraphics->SetColor(Sexy::Color(0, 0, 0, aFadeOut));
-        theGraphics->FillRect(LawnApp::FULLSCREEN_RECT);
-        theGraphics->SetColorizeImages(false);
-      }
-      break;
-
-    default:   // Loading
-      if ( !mLoaderScreenIsLoaded )
-      {
-        theGraphics->SetColor(Sexy::Color::Black);
-        theGraphics->FillRect(0, 0, mWidth, mHeight);
-      }
-      else if ( !mNeedToInit )
-      {
-        theGraphics->DrawImage(IMAGE_TITLESCREEN, LawnApp::FULLSCREEN_RECT.mX, (int)LawnApp::FULLSCREEN_RECT.mY);
-
-        float aPulse = sin((float)mTitleAge * 0.035f) * 0.5f + 0.5f;
-        if ( aPulse > 0.7f )
+        case ESRBLogo:
         {
-          theGraphics->DrawImage(IMAGE_TITLESCREEN_BALL,
-                        LawnApp::FULLSCREEN_RECT.mX + 682, (int)LawnApp::FULLSCREEN_RECT.mY + 325);
-          theGraphics->SetColorizeImages(true);
-          theGraphics->SetColor(Sexy::Color(255, 255, 255, (int)((aPulse - 0.5f) * 255.0f)));
-          theGraphics->DrawImage(IMAGE_TITLESCREEN_GLOW,
-                        LawnApp::FULLSCREEN_RECT.mX + 575, (int)LawnApp::FULLSCREEN_RECT.mY + 213);
-          theGraphics->SetColorizeImages(false);
+            Sexy::Image *anEsrbImage = IMAGE_ESRB_RATING;
+
+            theGraphics->SetColor(Sexy::Color::Black);
+            theGraphics->FillRect(LawnApp::FULLSCREEN_RECT);
+            int aFadeIn = TodAnimateCurve(30, 0, mTitleStateCounter, 255, 0, 1);
+            theGraphics->SetColorizeImages(true);
+            theGraphics->SetColor(Sexy::Color(255, 255, 255, aFadeIn));
+
+            int anImageWidth = anEsrbImage->mWidth;
+            int anImageHeight = anEsrbImage->mHeight;
+            float aHeight = (float)DisplayHeight(mApp) * 0.65f;
+            float aWidth = aHeight * ((float)anImageWidth / (float)anImageHeight);
+            TRect<int> aSrcRect(0, 0, anImageWidth, anImageHeight);
+            TRect<int> aDestRect((int)((float)(mWidth / 2) - aWidth * 0.5f),
+                (int)((float)(mHeight / 2) - aHeight * 0.5f),
+                (int)aWidth,
+                (int)aHeight);
+            theGraphics->DrawImage(anEsrbImage, aDestRect, aSrcRect);
+
+            int aFadeOut = TodAnimateCurve(0, 30, mTitleStateDuration - mTitleStateCounter, 255, 0, 1);
+            theGraphics->SetColor(Sexy::Color(255, 255, 255, aFadeOut));
+            theGraphics->FillRect(LawnApp::FULLSCREEN_RECT);
+            theGraphics->SetColorizeImages(false);
         }
+        break;
 
-        int aLogoY;
-        if ( mTitleStateCounter <= 60 )
-          aLogoY = TodAnimateCurve(60, 50, mTitleStateCounter, 10, 15, 9);
-        else
-          aLogoY = TodAnimateCurve(100, 60, mTitleStateCounter, -200, 10, 2);
-        theGraphics->DrawImage(IMAGE_PVZ_LOGO, 50, aLogoY);
-
-        int aBarY = mStartButton->mY;
-        if ( IMAGE_LOADBAR_DIRT != nullptr )
-          theGraphics->DrawImage(IMAGE_LOADBAR_DIRT, 168, aBarY + 1);
-
-        if ( mCurBarWidth < mTotalBarWidth )
+        case GuideLogo:
         {
-          // The grass strip is drawn through a clipped copy of the graphics, so
-          // it stops at mCurBarWidth. The copy's destructor runs at the end of
-          // this block, which is where the binary's explicit ~Graphics call sits.
-          if ( IMAGE_LOADBAR_GRASS != nullptr )
-          {
-            Sexy::Graphics aClipped(*theGraphics);
-            aClipped.ClipRect(164, aBarY - 17, (int)mCurBarWidth,
-                              IMAGE_LOADBAR_GRASS->mHeight);
-            aClipped.DrawImage(IMAGE_LOADBAR_GRASS, 164, aBarY - 17);
-          }
+            theGraphics->SetColor(Sexy::Color::Black);
+            theGraphics->FillRect(LawnApp::FULLSCREEN_RECT);
+            int aFadeIn = TodAnimateCurve(30, 0, mTitleStateCounter, 255, 0, 1);
+            theGraphics->SetColorizeImages(true);
+            theGraphics->SetColor(Sexy::Color(255, 255, 255, aFadeIn));
 
-          float aSodScaleX = mCurBarWidth * 0.94f;
-          float aSodScale = TodAnimateCurveFloatTime(0.0f, mTotalBarWidth, mCurBarWidth, 1.2f, 0.8f, 1);
-          Sexy::SexyTransform2D aTransform;
-          TodScaleRotateTransformMatrix(aTransform,
-                                        (float)(theGraphics->mTransX + 175.0f) + aSodScaleX,
-                                        (float)((float)(theGraphics->mTransY + 41.0f) + (float)(aBarY - 17))
-                                          - (float)(aSodScale * 35.0f),
-                                        -(float)(aSodScaleX * 0.034907f),
-                                        aSodScale, aSodScale);
+            int aGuideWidth = mGuide->mWidth;
+            int aGuideHeight = mGuide->mHeight;
+            float aDisplayHeight = (float)DisplayHeight(mApp);
+            // Below 45% of the screen the guide is shrunk to half height first, and
+            // only then scaled by the display height.
+            float aHeight = (float)aGuideHeight;
+            if ((float)aGuideHeight < aDisplayHeight * 0.45f)
+                aHeight = 0.5f;
+            if ((float)aGuideHeight < aDisplayHeight * 0.45f)
+                aHeight = aDisplayHeight * aHeight;
+            float aWidth = aHeight * ((float)aGuideWidth / (float)aGuideHeight);
+            TRect<int> aSrcRect(0, 0, aGuideWidth, aGuideHeight);
+            TRect<int> aDestRect((int)((float)(mWidth / 2) - aWidth * 0.5f),
+                (int)((float)(mHeight / 2) - aHeight * 0.5f),
+                (int)aWidth,
+                (int)aHeight);
+            theGraphics->DrawImage(mGuide, aDestRect, aSrcRect);
 
-          for ( unsigned int i = 0; i < mApp->mEffectSystem->mReanimationHolder->mMaxUsedCount; ++i )
-          {
-            // Re-read the block every iteration: Draw may append a reanimation
-            // and grow (or move) the array.
-            ReanimationSlot *aSlots = mApp->mEffectSystem->mReanimationHolder->mBlock;
-            if ( (aSlots[i].mID & 0xFFFF0000u) == 0 )
-              continue;
-            aSlots[i].mItem.Draw(theGraphics);
-          }
-
-          Sexy::Image *aSodRollCap = IMAGE_REANIM_SODROLLCAP;
-          if ( aSodRollCap != nullptr )
-          {
-            TRect<int> aSodSrcRect(0, 0, aSodRollCap->mWidth, aSodRollCap->mHeight);
-            TodBltMatrix(theGraphics, aSodRollCap, aTransform, theGraphics->mClipRect,
-                         Sexy::Color::White, theGraphics->mDrawMode, aSodSrcRect);
-          }
+            int aFadeOut = TodAnimateCurve(0, 30, mTitleStateDuration - mTitleStateCounter, 255, 0, 1);
+            theGraphics->SetColor(Sexy::Color(0, 0, 0, aFadeOut));
+            theGraphics->FillRect(LawnApp::FULLSCREEN_RECT);
+            theGraphics->SetColorizeImages(false);
         }
-        else
-        {
-          if ( IMAGE_LOADBAR_GRASS != nullptr )
-            theGraphics->DrawImage(IMAGE_LOADBAR_GRASS, 164, aBarY - 17);
+        break;
 
-          for ( unsigned int i = 0; i < mApp->mEffectSystem->mReanimationHolder->mMaxUsedCount; ++i )
-          {
-            ReanimationSlot *aSlots = mApp->mEffectSystem->mReanimationHolder->mBlock;
-            if ( (aSlots[i].mID & 0xFFFF0000u) == 0 )
-              continue;
-            aSlots[i].mItem.Draw(theGraphics);
-          }
-        }
+        default: // Loading
+            if (!mLoaderScreenIsLoaded)
+            {
+                theGraphics->SetColor(Sexy::Color::Black);
+                theGraphics->FillRect(0, 0, mWidth, mHeight);
+            }
+            else if (!mNeedToInit)
+            {
+                theGraphics->DrawImage(
+                    IMAGE_TITLESCREEN, LawnApp::FULLSCREEN_RECT.mX, (int)LawnApp::FULLSCREEN_RECT.mY);
 
-        DeferOverlay(0);
-      }
-      break;
-  }
+                float aPulse = sin((float)mTitleAge * 0.035f) * 0.5f + 0.5f;
+                if (aPulse > 0.7f)
+                {
+                    theGraphics->DrawImage(IMAGE_TITLESCREEN_BALL,
+                        LawnApp::FULLSCREEN_RECT.mX + 682,
+                        (int)LawnApp::FULLSCREEN_RECT.mY + 325);
+                    theGraphics->SetColorizeImages(true);
+                    theGraphics->SetColor(Sexy::Color(255, 255, 255, (int)((aPulse - 0.5f) * 255.0f)));
+                    theGraphics->DrawImage(IMAGE_TITLESCREEN_GLOW,
+                        LawnApp::FULLSCREEN_RECT.mX + 575,
+                        (int)LawnApp::FULLSCREEN_RECT.mY + 213);
+                    theGraphics->SetColorizeImages(false);
+                }
+
+                int aLogoY;
+                if (mTitleStateCounter <= 60)
+                    aLogoY = TodAnimateCurve(60, 50, mTitleStateCounter, 10, 15, 9);
+                else
+                    aLogoY = TodAnimateCurve(100, 60, mTitleStateCounter, -200, 10, 2);
+                theGraphics->DrawImage(IMAGE_PVZ_LOGO, 50, aLogoY);
+
+                int aBarY = mStartButton->mY;
+                if (IMAGE_LOADBAR_DIRT != nullptr)
+                    theGraphics->DrawImage(IMAGE_LOADBAR_DIRT, 168, aBarY + 1);
+
+                if (mCurBarWidth < mTotalBarWidth)
+                {
+                    // The grass strip is drawn through a clipped copy of the graphics, so
+                    // it stops at mCurBarWidth. The copy's destructor runs at the end of
+                    // this block, which is where the binary's explicit ~Graphics call sits.
+                    if (IMAGE_LOADBAR_GRASS != nullptr)
+                    {
+                        Sexy::Graphics aClipped(*theGraphics);
+                        aClipped.ClipRect(164, aBarY - 17, (int)mCurBarWidth, IMAGE_LOADBAR_GRASS->mHeight);
+                        aClipped.DrawImage(IMAGE_LOADBAR_GRASS, 164, aBarY - 17);
+                    }
+
+                    float aSodScaleX = mCurBarWidth * 0.94f;
+                    float aSodScale = TodAnimateCurveFloatTime(0.0f, mTotalBarWidth, mCurBarWidth, 1.2f, 0.8f, 1);
+                    Sexy::SexyTransform2D aTransform;
+                    TodScaleRotateTransformMatrix(aTransform,
+                        (float)(theGraphics->mTransX + 175.0f) + aSodScaleX,
+                        (float)((float)(theGraphics->mTransY + 41.0f) + (float)(aBarY - 17)) -
+                            (float)(aSodScale * 35.0f),
+                        -(float)(aSodScaleX * 0.034907f),
+                        aSodScale,
+                        aSodScale);
+
+                    for (unsigned int i = 0; i < mApp->mEffectSystem->mReanimationHolder->mMaxUsedCount; ++i)
+                    {
+                        // Re-read the block every iteration: Draw may append a reanimation
+                        // and grow (or move) the array.
+                        ReanimationSlot *aSlots = mApp->mEffectSystem->mReanimationHolder->mBlock;
+                        if ((aSlots[i].mID & 0xFFFF0000u) == 0)
+                            continue;
+                        aSlots[i].mItem.Draw(theGraphics);
+                    }
+
+                    Sexy::Image *aSodRollCap = IMAGE_REANIM_SODROLLCAP;
+                    if (aSodRollCap != nullptr)
+                    {
+                        TRect<int> aSodSrcRect(0, 0, aSodRollCap->mWidth, aSodRollCap->mHeight);
+                        TodBltMatrix(theGraphics,
+                            aSodRollCap,
+                            aTransform,
+                            theGraphics->mClipRect,
+                            Sexy::Color::White,
+                            theGraphics->mDrawMode,
+                            aSodSrcRect);
+                    }
+                }
+                else
+                {
+                    if (IMAGE_LOADBAR_GRASS != nullptr)
+                        theGraphics->DrawImage(IMAGE_LOADBAR_GRASS, 164, aBarY - 17);
+
+                    for (unsigned int i = 0; i < mApp->mEffectSystem->mReanimationHolder->mMaxUsedCount; ++i)
+                    {
+                        ReanimationSlot *aSlots = mApp->mEffectSystem->mReanimationHolder->mBlock;
+                        if ((aSlots[i].mID & 0xFFFF0000u) == 0)
+                            continue;
+                        aSlots[i].mItem.Draw(theGraphics);
+                    }
+                }
+
+                DeferOverlay(0);
+            }
+            break;
+    }
 }
 // ==========================================================================
 // TitleScreen::Update(void)
@@ -441,309 +445,308 @@ void TitleScreen::Draw(Sexy::Graphics *theGraphics)
 // ==========================================================================
 void TitleScreen::Update()
 {
-  Sexy::Widget::Update();
+    Sexy::Widget::Update();
 
-  if ( mApp->mShutDown )
-    return;
+    if (mApp->mShutDown)
+        return;
 
-  // The binary marks the widget dirty only while the platform video is
-  // idle. That platform painted into its own surface. This port paints the
-  // frame from Draw, so a playing movie has to stay dirty or the first black
-  // clear is the only frame that reaches the screen.
-  if ( AGVideoIsPlaying(0) == 0 || mIsPlayingIntroVideo )
-    MarkDirty();
+    // The binary marks the widget dirty only while the platform video is
+    // idle. That platform painted into its own surface. This port paints the
+    // frame from Draw, so a playing movie has to stay dirty or the first black
+    // clear is the only frame that reaches the screen.
+    if (AGVideoIsPlaying(0) == 0 || mIsPlayingIntroVideo)
+        MarkDirty();
 
-  if ( !mNeedRegister )
-    return;
+    if (!mNeedRegister)
+        return;
 
-  // mTitleState is snapshotted once and re-read after the WaitingForFirstDraw
-  // block, because that block is the one place that changes it.
-  TitleState aTitleState = mTitleState;
-  if ( aTitleState == WaitingForFirstDraw )
-  {
-    mApp->StartLoadingThread();
-
-    if ( mNeedPlayLogo )
+    // mTitleState is snapshotted once and re-read after the WaitingForFirstDraw
+    // block, because that block is the one place that changes it.
+    TitleState aTitleState = mTitleState;
+    if (aTitleState == WaitingForFirstDraw)
     {
-      SwitchState(PopcapLogo_OR_IntroVideo, 500);
+        mApp->StartLoadingThread();
 
-      // mNeedPlayLogo gates the logo; LAWN_NO_INTRO_VIDEO gates the movie. The
-      // video is only attempted when the environment does not veto it, and
-      // mIsPlayingIntroVideo ends up true only when the platform accepted it.
-      bool aVideoPlaying = false;
-      if ( Sexy::GetEnvOption("LAWN_NO_INTRO_VIDEO", false) == 0 )
-      {
-        // The original path is <external files dir>/movies/intro.mp4. This
-        // port plays the converted MPEG-1 program stream movies/intro.mpg.
-        Sexy::String aDirectory((const char *)AGGetExternalFilesDir());
-        Sexy::String aPath(aDirectory);
-        aPath += "/";
-        Sexy::String aFileName(aPath);
-        aFileName.assign("movies/intro.mpg", 16);
-
-        Sexy::String aUrl;
-        if ( !aDirectory.empty() && Sexy::SDLFile::FileExists(aFileName.c_str()) )
+        if (mNeedPlayLogo)
         {
-          aUrl.assign("file://", 7);
-          aUrl += aFileName;
-        }
+            SwitchState(PopcapLogo_OR_IntroVideo, 500);
 
-        AGVideoEnable(1);
-        AGVideoShow(1);
-        if ( AGVideoOpen("movies/intro.mpg") != 0
-          && (aUrl.empty() || AGVideoOpen(aUrl.c_str()) != 0)
-          || AGVideoPlay(0) != 0 )
-        {
-          AGVideoClose();
-          AGVideoShow(0);
-          AGVideoEnable(0);
+            // mNeedPlayLogo gates the logo; LAWN_NO_INTRO_VIDEO gates the movie. The
+            // video is only attempted when the environment does not veto it, and
+            // mIsPlayingIntroVideo ends up true only when the platform accepted it.
+            bool aVideoPlaying = false;
+            if (Sexy::GetEnvOption("LAWN_NO_INTRO_VIDEO", false) == 0)
+            {
+                // The original path is <external files dir>/movies/intro.mp4. This
+                // port plays the converted MPEG-1 program stream movies/intro.mpg.
+                Sexy::String aDirectory((const char *)AGGetExternalFilesDir());
+                Sexy::String aPath(aDirectory);
+                aPath += "/";
+                Sexy::String aFileName(aPath);
+                aFileName.assign("movies/intro.mpg", 16);
+
+                Sexy::String aUrl;
+                if (!aDirectory.empty() && Sexy::SDLFile::FileExists(aFileName.c_str()))
+                {
+                    aUrl.assign("file://", 7);
+                    aUrl += aFileName;
+                }
+
+                AGVideoEnable(1);
+                AGVideoShow(1);
+                if (AGVideoOpen("movies/intro.mpg") != 0 && (aUrl.empty() || AGVideoOpen(aUrl.c_str()) != 0) ||
+                    AGVideoPlay(0) != 0)
+                {
+                    AGVideoClose();
+                    AGVideoShow(0);
+                    AGVideoEnable(0);
+                }
+                else
+                {
+                    int aView = AGViewAddEventListener(OnIntroVideoEvent, 0);
+                    Sexy::String aModel((const char *)AGGetModel(aView));
+                    Sexy::String aModelUpper;
+                    StringToUpper(&aModelUpper, aModel.c_str());
+                    if (StringFind(&aModelUpper, "IDEA", 0, 4) != -1 && StringFind(&aModelUpper, "TV", 0, 2) != -1 &&
+                        AGGetSdkVersion() <= 13)
+                    {
+                        AGViewShow(0);
+                    }
+                    aVideoPlaying = true;
+                }
+            }
+
+            mIsPlayingIntroVideo = aVideoPlaying;
+            mIntroVideoAge = 0;
+            mVideoCompleted = false;
+            aTitleState = mTitleState;
         }
         else
         {
-          int aView = AGViewAddEventListener(OnIntroVideoEvent, 0);
-          Sexy::String aModel((const char *)AGGetModel(aView));
-          Sexy::String aModelUpper;
-          StringToUpper(&aModelUpper, aModel.c_str());
-          if ( StringFind(&aModelUpper, "IDEA", 0, 4) != -1
-            && StringFind(&aModelUpper, "TV", 0, 2) != -1
-            && AGGetSdkVersion() <= 13 )
-          {
-            AGViewShow(0);
-          }
-          aVideoPlaying = true;
+            SwitchState(Loading, 100);
+            aTitleState = mTitleState;
         }
-      }
-
-      mIsPlayingIntroVideo = aVideoPlaying;
-      mIntroVideoAge = 0;
-      mVideoCompleted = false;
-      aTitleState = mTitleState;
     }
-    else
+
+    bool aWasLoadingComplete = mLoadingThreadComplete;
+    ++mTitleAge;
+    if (aWasLoadingComplete)
+        mStartButton->mTextDrawMode = 2;
+
+    if (mTitleStateCounter > 0)
+        --mTitleStateCounter;
+
+    if (aTitleState == ESRBLogo)
     {
-      SwitchState(Loading, 100);
-      aTitleState = mTitleState;
+        if (mTitleStateCounter != 0)
+            return;
+
+        SwitchState(Loading, 100);
+        return;
     }
-  }
 
-  bool aWasLoadingComplete = mLoadingThreadComplete;
-  ++mTitleAge;
-  if ( aWasLoadingComplete )
-    mStartButton->mTextDrawMode = 2;
-
-  if ( mTitleStateCounter > 0 )
-    --mTitleStateCounter;
-
-  if ( aTitleState == ESRBLogo )
-  {
-    if ( mTitleStateCounter != 0 )
-      return;
-
-    SwitchState(Loading, 100);
-    return;
-  }
-
-  if ( aTitleState == PopcapLogo_OR_IntroVideo )
-  {
-    if ( mIsPlayingIntroVideo )
+    if (aTitleState == PopcapLogo_OR_IntroVideo)
     {
-      ++mIntroVideoAge;
-      if ( mIntroVideoAge <= 2999 && !mVideoCompleted )
+        if (mIsPlayingIntroVideo)
+        {
+            ++mIntroVideoAge;
+            if (mIntroVideoAge <= 2999 && !mVideoCompleted)
+                return;
+
+            CloseIntroVideo();
+            int aTitleAge = mTitleAge;
+            mIsPlayingIntroVideo = false;
+            if (aTitleAge <= 99)
+                mTitleAge = aTitleAge + 500;
+        }
+        else if (mTitleStateCounter != 0)
+        {
+            return;
+        }
+
+        if (mGuide != nullptr)
+        {
+            SwitchState(GuideLogo, 400);
+            return;
+        }
+
+        SwitchState(Loading, 100);
+        return;
+    }
+
+    if (aTitleState == GuideLogo && mTitleStateCounter == 0)
+        SwitchState(Loading, 100);
+
+    if (!mLoaderScreenIsLoaded)
         return;
 
-      CloseIntroVideo();
-      int aTitleAge = mTitleAge;
-      mIsPlayingIntroVideo = false;
-      if ( aTitleAge <= 99 )
-        mTitleAge = aTitleAge + 500;
-    }
-    else if ( mTitleStateCounter != 0 )
-    {
-      return;
-    }
+    // LoadingThreadProc pulls one slice. The first call only prepares the
+    // loader bar. Later groups come in on the frames after that, which is
+    // what moves the bar and grows the working set.
+    if (!mApp->mLoadingThreadCompleted)
+        mApp->StartLoadingThread();
 
-    if ( mGuide != nullptr )
+    if (!mMusicInitFinished)
     {
-      SwitchState(GuideLogo, 400);
-      return;
+        static_cast<Music *>(mApp->mMusic)->MakeSureMusicIsPlaying(MUSIC_TUNE_TITLE_CRAZY_DAVE_MAIN_THEME);
+        mMusicInitFinished = true;
     }
 
-    SwitchState(Loading, 100);
-    return;
-  }
+    float aProgress = mApp->GetLoadingThreadProgress();
 
-  if ( aTitleState == GuideLogo && mTitleStateCounter == 0 )
-    SwitchState(Loading, 100);
-
-  if ( !mLoaderScreenIsLoaded )
-    return;
-
-  // LoadingThreadProc pulls one slice. The first call only prepares the
-  // loader bar. Later groups come in on the frames after that, which is
-  // what moves the bar and grows the working set.
-  if ( !mApp->mLoadingThreadCompleted )
-    mApp->StartLoadingThread();
-
-  if ( !mMusicInitFinished )
-  {
-    static_cast<Music *>(mApp->mMusic)->MakeSureMusicIsPlaying(MUSIC_TUNE_TITLE_CRAZY_DAVE_MAIN_THEME);
-    mMusicInitFinished = true;
-  }
-
-  float aProgress = mApp->GetLoadingThreadProgress();
-
-  if ( mNeedToInit && mTitleState == Loading )
-  {
-    mNeedToInit = false;
-
-    Sexy::String aLoadingText;
-    TodStringTranslate(&aLoadingText, "[LOADING]");
-    mStartButton->mLabel = aLoadingText;
-
-    mStartButton->SetFont(FONT_DWARVENTODCRAFT24);
-    mStartButton->Resize(182, 800, (int)mTotalBarWidth, 64);
-    mStartButton->mVisible = true;
-
-    float anEstimatedTotalLoadTime;
-    if ( aProgress > 0.000001f )
-      anEstimatedTotalLoadTime = (float)mTitleAge / aProgress;
-    else
-      anEstimatedTotalLoadTime = 3000.0f;
-
-    float aRemainingLoadTime = anEstimatedTotalLoadTime * (1.0f - aProgress);
-    if ( aRemainingLoadTime > 3000.0f )
-      aRemainingLoadTime = 3000.0f;
-    if ( aRemainingLoadTime < 100.0f )
-      aRemainingLoadTime = 100.0f;
-
-    mBarStartProgress = aProgress <= 0.9f ? aProgress : 0.9f;
-    mBarVel = mTotalBarWidth / aRemainingLoadTime;
-  }
-
-  int aButtonY = mTitleStateCounter <= 10
-      ? TodAnimateCurve(10, 0, mTitleStateCounter, 500, 529, 9)
-      : TodAnimateCurve(120, 10, mTitleStateCounter, 800, 500, 2);
-  mStartButton->Resize(mStartButton->mX, aButtonY, (int)mTotalBarWidth, mStartButton->mHeight);
-
-  if ( mTitleStateCounter > 0 )
-    return;
-
-  mApp->mEffectSystem->Update();
-
-  float aPreviousBarWidth = mCurBarWidth;
-  float aTotalBarWidth = mTotalBarWidth;
-  // Clamp before advancing, including the initial estimate and unchanged progress.
-  const float aMaxVelocity = mApp->mTodCheatKeys ? 100.0f : 2.0f;
-  if (mBarVel > aMaxVelocity)
-    mBarVel = aMaxVelocity;
-  mCurBarWidth += mBarVel;
-
-  if ( mLoadingThreadComplete )
-  {
-    if ( mCurBarWidth > aTotalBarWidth )
+    if (mNeedToInit && mTitleState == Loading)
     {
-      // A connected pad keeps <A> for the icon drawer. Otherwise the tag
-      // becomes the [OK_BUTTON] string.
-      Sexy::String aClickToStart;
-      TodStringTranslate(&aClickToStart, "[CLICK_TO_START]");
-      Sexy::String aStartLabel;
-      TodReplaceButtons(&aStartLabel, &aClickToStart);
-      mStartButton->mLabel = aStartLabel;
+        mNeedToInit = false;
 
-      mCurBarWidth = aTotalBarWidth;
+        Sexy::String aLoadingText;
+        TodStringTranslate(&aLoadingText, "[LOADING]");
+        mStartButton->mLabel = aLoadingText;
+
+        mStartButton->SetFont(FONT_DWARVENTODCRAFT24);
+        mStartButton->Resize(182, 800, (int)mTotalBarWidth, 64);
+        mStartButton->mVisible = true;
+
+        float anEstimatedTotalLoadTime;
+        if (aProgress > 0.000001f)
+            anEstimatedTotalLoadTime = (float)mTitleAge / aProgress;
+        else
+            anEstimatedTotalLoadTime = 3000.0f;
+
+        float aRemainingLoadTime = anEstimatedTotalLoadTime * (1.0f - aProgress);
+        if (aRemainingLoadTime > 3000.0f)
+            aRemainingLoadTime = 3000.0f;
+        if (aRemainingLoadTime < 100.0f)
+            aRemainingLoadTime = 100.0f;
+
+        mBarStartProgress = aProgress <= 0.9f ? aProgress : 0.9f;
+        mBarVel = mTotalBarWidth / aRemainingLoadTime;
     }
-  }
-  else if ( mCurBarWidth > aTotalBarWidth * 0.99f )
-  {
-    mCurBarWidth = aTotalBarWidth * 0.99f;
-  }
 
-  // TitleScreen::Update @0x1A7A56. The target width eases in. The
-  // acceleration and the floor velocity are linear. Retune only when the
-  // load has moved another percent, or when it has finished. Doing it
-  // every frame stacks the error and the roll bounces.
-  bool aSkipCompletionCheck = false;
-  float aNormalizedProgress = (aProgress - mBarStartProgress) / (1.0f - mBarStartProgress);
-  if ( aNormalizedProgress > mPrevLoadingPercent + 0.01f || mLoadingThreadComplete )
-  {
-    float aDesiredBarWidth = TodAnimateCurveFloatTime(0.0f, 1.0f, aNormalizedProgress, 0.0f, aTotalBarWidth, CURVE_EASE_IN);
-    float aBarError = aDesiredBarWidth - mCurBarWidth;
-    float anAcceleration = mLoadingThreadComplete
-        ? 0.0001f
-        : TodAnimateCurveFloatTime(0.0f, 1.0f, aNormalizedProgress, 0.0001f, 0.00001f, CURVE_LINEAR);
+    int aButtonY = mTitleStateCounter <= 10 ? TodAnimateCurve(10, 0, mTitleStateCounter, 500, 529, 9)
+                                            : TodAnimateCurve(120, 10, mTitleStateCounter, 800, 500, 2);
+    mStartButton->Resize(mStartButton->mX, aButtonY, (int)mTotalBarWidth, mStartButton->mHeight);
 
-    // @0x1A7AA2 truncates the error, then multiplies that magnitude by
-    // the signed error. That is error * abs(error), not abs(trunc(error)).
-    int anIntegerError = (int)aBarError;
-    if ( anIntegerError < 0 )
-      anIntegerError = -anIntegerError;
-    mBarVel += (float)anIntegerError * aBarError * anAcceleration;
+    if (mTitleStateCounter > 0)
+        return;
 
-    float aMinVelocity = mApp->mTodCheatKeys ? 0.0f :
-        TodAnimateCurveFloatTime(0.0f, 1.0f, aNormalizedProgress, 0.2f, 0.01f, CURVE_LINEAR);
+    mApp->mEffectSystem->Update();
 
-    if ( aMinVelocity <= mBarVel )
-    {
-      if ( aMaxVelocity < mBarVel )
+    float aPreviousBarWidth = mCurBarWidth;
+    float aTotalBarWidth = mTotalBarWidth;
+    // Clamp before advancing, including the initial estimate and unchanged progress.
+    const float aMaxVelocity = mApp->mTodCheatKeys ? 100.0f : 2.0f;
+    if (mBarVel > aMaxVelocity)
         mBarVel = aMaxVelocity;
-    }
-    else
+    mCurBarWidth += mBarVel;
+
+    if (mLoadingThreadComplete)
     {
-      mBarVel = aMinVelocity;
+        if (mCurBarWidth > aTotalBarWidth)
+        {
+            // A connected pad keeps <A> for the icon drawer. Otherwise the tag
+            // becomes the [OK_BUTTON] string.
+            Sexy::String aClickToStart;
+            TodStringTranslate(&aClickToStart, "[CLICK_TO_START]");
+            Sexy::String aStartLabel;
+            TodReplaceButtons(&aStartLabel, &aClickToStart);
+            mStartButton->mLabel = aStartLabel;
+
+            mCurBarWidth = aTotalBarWidth;
+        }
     }
-
-    mPrevLoadingPercent = aNormalizedProgress;
-    aSkipCompletionCheck = mLoadingThreadComplete;
-  }
-
-  if ( !aSkipCompletionCheck && mApp->mLoadingThreadCompleted )
-  {
-    mLoadingThreadComplete = true;
-    mStartButton->SetDisabled(false);
-    mStartButton->SetVisible(true);
-  }
-
-  // The five loading-bar milestones, each firing a reanimation the frame the bar
-  // first crosses it.
-  float aMilestones[5];
-  aMilestones[0] = mTotalBarWidth * 0.11f;
-  aMilestones[1] = mTotalBarWidth * 0.32f;
-  aMilestones[2] = mTotalBarWidth * 0.54f;
-  aMilestones[3] = mTotalBarWidth * 0.72f;
-  aMilestones[4] = mTotalBarWidth * 0.95f;
-
-  for ( int i = 0; i < 5; ++i )
-  {
-    float aMilestone = aMilestones[i];
-    if ( aPreviousBarWidth >= aMilestone || aMilestone > mCurBarWidth )
-      continue;
-
-    ReanimationType aReanimType = REANIM_LOADBAR_SPROUT;
-    if (i == 4)
-      aReanimType = REANIM_LOADBAR_ZOMBIEHEAD;
-    Reanimation *aReanimation = mApp->AddReanimation(aMilestone + 140.0f, 481.0f, 0, aReanimType);
-    aReanimation->mLoopType = REANIM_PLAY_ONCE_AND_HOLD;
-    aReanimation->SetAnimRate(18.0f);
-
-    if ( i == 1 || i == 3 )
+    else if (mCurBarWidth > aTotalBarWidth * 0.99f)
     {
-      aReanimation->OverrideScale(-1.0f, 1.0f);
-    }
-    else if ( i == 2 )
-    {
-      aReanimation->SetPosition(aMilestone + 140.0f, 476.0f);
-      aReanimation->OverrideScale(1.1f, 1.3f);
-    }
-    else if ( i == 4 )
-    {
-      aReanimation->SetPosition((aMilestone + 140.0f) - 20.0f, 481.0f);
-      mApp->PlaySample(SOUND_LOADINGBAR_FLOWER, true);
-      mApp->PlaySample(SOUND_LOADINGBAR_ZOMBIE, true);
-      continue;
+        mCurBarWidth = aTotalBarWidth * 0.99f;
     }
 
-    mApp->PlaySample(SOUND_LOADINGBAR_FLOWER, true);
-  }
+    // TitleScreen::Update @0x1A7A56. The target width eases in. The
+    // acceleration and the floor velocity are linear. Retune only when the
+    // load has moved another percent, or when it has finished. Doing it
+    // every frame stacks the error and the roll bounces.
+    bool aSkipCompletionCheck = false;
+    float aNormalizedProgress = (aProgress - mBarStartProgress) / (1.0f - mBarStartProgress);
+    if (aNormalizedProgress > mPrevLoadingPercent + 0.01f || mLoadingThreadComplete)
+    {
+        float aDesiredBarWidth =
+            TodAnimateCurveFloatTime(0.0f, 1.0f, aNormalizedProgress, 0.0f, aTotalBarWidth, CURVE_EASE_IN);
+        float aBarError = aDesiredBarWidth - mCurBarWidth;
+        float anAcceleration = mLoadingThreadComplete
+            ? 0.0001f
+            : TodAnimateCurveFloatTime(0.0f, 1.0f, aNormalizedProgress, 0.0001f, 0.00001f, CURVE_LINEAR);
+
+        // @0x1A7AA2 truncates the error, then multiplies that magnitude by
+        // the signed error. That is error * abs(error), not abs(trunc(error)).
+        int anIntegerError = (int)aBarError;
+        if (anIntegerError < 0)
+            anIntegerError = -anIntegerError;
+        mBarVel += (float)anIntegerError * aBarError * anAcceleration;
+
+        float aMinVelocity = mApp->mTodCheatKeys
+            ? 0.0f
+            : TodAnimateCurveFloatTime(0.0f, 1.0f, aNormalizedProgress, 0.2f, 0.01f, CURVE_LINEAR);
+
+        if (aMinVelocity <= mBarVel)
+        {
+            if (aMaxVelocity < mBarVel)
+                mBarVel = aMaxVelocity;
+        }
+        else
+        {
+            mBarVel = aMinVelocity;
+        }
+
+        mPrevLoadingPercent = aNormalizedProgress;
+        aSkipCompletionCheck = mLoadingThreadComplete;
+    }
+
+    if (!aSkipCompletionCheck && mApp->mLoadingThreadCompleted)
+    {
+        mLoadingThreadComplete = true;
+        mStartButton->SetDisabled(false);
+        mStartButton->SetVisible(true);
+    }
+
+    // The five loading-bar milestones, each firing a reanimation the frame the bar
+    // first crosses it.
+    float aMilestones[5];
+    aMilestones[0] = mTotalBarWidth * 0.11f;
+    aMilestones[1] = mTotalBarWidth * 0.32f;
+    aMilestones[2] = mTotalBarWidth * 0.54f;
+    aMilestones[3] = mTotalBarWidth * 0.72f;
+    aMilestones[4] = mTotalBarWidth * 0.95f;
+
+    for (int i = 0; i < 5; ++i)
+    {
+        float aMilestone = aMilestones[i];
+        if (aPreviousBarWidth >= aMilestone || aMilestone > mCurBarWidth)
+            continue;
+
+        ReanimationType aReanimType = REANIM_LOADBAR_SPROUT;
+        if (i == 4)
+            aReanimType = REANIM_LOADBAR_ZOMBIEHEAD;
+        Reanimation *aReanimation = mApp->AddReanimation(aMilestone + 140.0f, 481.0f, 0, aReanimType);
+        aReanimation->mLoopType = REANIM_PLAY_ONCE_AND_HOLD;
+        aReanimation->SetAnimRate(18.0f);
+
+        if (i == 1 || i == 3)
+        {
+            aReanimation->OverrideScale(-1.0f, 1.0f);
+        }
+        else if (i == 2)
+        {
+            aReanimation->SetPosition(aMilestone + 140.0f, 476.0f);
+            aReanimation->OverrideScale(1.1f, 1.3f);
+        }
+        else if (i == 4)
+        {
+            aReanimation->SetPosition((aMilestone + 140.0f) - 20.0f, 481.0f);
+            mApp->PlaySample(SOUND_LOADINGBAR_FLOWER, true);
+            mApp->PlaySample(SOUND_LOADINGBAR_ZOMBIE, true);
+            continue;
+        }
+
+        mApp->PlaySample(SOUND_LOADINGBAR_FLOWER, true);
+    }
 }
 
 // ==========================================================================
@@ -752,27 +755,27 @@ void TitleScreen::Update()
 // ==========================================================================
 TitleScreen::~TitleScreen()
 {
-  // The two vptr stores are the compiler's (this and the ButtonListener base at
-  // +0x100) and the trailing `Sexy::Widget::~Widget(this)` is the base.
-  //
-  // The three byte-4 dispatches are `delete` on the widget and the two images
-  // the screen loaded through LawnApp::GetImage.
-  delete mStartButton;   // +0x10C
-  delete mPopcapLogo;    // +0x104
-  delete mGuide;         // +0x108
+    // The two vptr stores are the compiler's (this and the ButtonListener base at
+    // +0x100) and the trailing `Sexy::Widget::~Widget(this)` is the base.
+    //
+    // The three byte-4 dispatches are `delete` on the widget and the two images
+    // the screen loaded through LawnApp::GetImage.
+    delete mStartButton; // +0x10C
+    delete mPopcapLogo; // +0x104
+    delete mGuide; // +0x108
 
-  // The screen drops its six images back to the resource manager, which is what
-  // releases the reference GetImage took. The names are the resource ids the
-  // constructor's DrawToPreload/OnLoading loaded, in the dump's order.
-  mApp->mResourceManager->ReplaceImage("IMAGE_TITLESCREEN", nullptr);
-  mApp->mResourceManager->ReplaceImage("IMAGE_TITLESCREEN_BALL", nullptr);
-  mApp->mResourceManager->ReplaceImage("IMAGE_TITLESCREEN_GLOW", nullptr);
-  mApp->mResourceManager->ReplaceImage("IMAGE_LOADBAR_DIRT", nullptr);
-  mApp->mResourceManager->ReplaceImage("IMAGE_LOADBAR_GRASS", nullptr);
-  mApp->mResourceManager->ReplaceImage("IMAGE_ESRB_RATING", nullptr);
+    // The screen drops its six images back to the resource manager, which is what
+    // releases the reference GetImage took. The names are the resource ids the
+    // constructor's DrawToPreload/OnLoading loaded, in the dump's order.
+    mApp->mResourceManager->ReplaceImage("IMAGE_TITLESCREEN", nullptr);
+    mApp->mResourceManager->ReplaceImage("IMAGE_TITLESCREEN_BALL", nullptr);
+    mApp->mResourceManager->ReplaceImage("IMAGE_TITLESCREEN_GLOW", nullptr);
+    mApp->mResourceManager->ReplaceImage("IMAGE_LOADBAR_DIRT", nullptr);
+    mApp->mResourceManager->ReplaceImage("IMAGE_LOADBAR_GRASS", nullptr);
+    mApp->mResourceManager->ReplaceImage("IMAGE_ESRB_RATING", nullptr);
 
-  // The byte at +0x143 is mIsPlayingIntroVideo: an intro video that is still
-  // running is torn down before the object goes away.
-  if ( mIsPlayingIntroVideo )
-    CloseIntroVideo();
+    // The byte at +0x143 is mIsPlayingIntroVideo: an intro video that is still
+    // running is torn down before the object goes away.
+    if (mIsPlayingIntroVideo)
+        CloseIntroVideo();
 }

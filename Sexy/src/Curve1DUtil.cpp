@@ -5,9 +5,10 @@
 
 using namespace Sexy;
 
-namespace {
+namespace
+{
 
-void WriteDefaultCoeffs(float* theCoeffs)
+void WriteDefaultCoeffs(float *theCoeffs)
 {
     theCoeffs[0] = 0.0f;
     theCoeffs[1] = 0.25f;
@@ -28,8 +29,8 @@ Curve1DUtil::Curve1DUtil()
     WriteDefaultCoeffs(mCoeffs);
 }
 
-Curve1DUtil::Curve1DUtil(float theStart, float theEnd, float theControl0, float theControl1,
-                         float theControl2, float theControl3, float theControl4)
+Curve1DUtil::Curve1DUtil(float theStart, float theEnd, float theControl0, float theControl1, float theControl2,
+    float theControl3, float theControl4)
 {
     mParams[0] = theStart;
     mParams[1] = theEnd;
@@ -42,7 +43,7 @@ Curve1DUtil::Curve1DUtil(float theStart, float theEnd, float theControl0, float 
     WriteDefaultCoeffs(mCoeffs);
 }
 
-Curve1DUtil* Curve1DUtil::SetBounce(float theAmount, float theHeight)
+Curve1DUtil *Curve1DUtil::SetBounce(float theAmount, float theHeight)
 {
     mParams[0] = -4.0f;
     mParams[1] = 0.0f;
@@ -61,12 +62,12 @@ Curve1DUtil* Curve1DUtil::SetBounce(float theAmount, float theHeight)
     return this;
 }
 
-Curve1DUtil* Curve1DUtil::SetBounce(float theAmount)
+Curve1DUtil *Curve1DUtil::SetBounce(float theAmount)
 {
     return SetBounce(theAmount, 0.75f);
 }
 
-Curve1DUtil* Curve1DUtil::SetEaseIn()
+Curve1DUtil *Curve1DUtil::SetEaseIn()
 {
     mParams[0] = 0.0f;
     mParams[1] = 0.0f;
@@ -85,7 +86,7 @@ Curve1DUtil* Curve1DUtil::SetEaseIn()
     return this;
 }
 
-Curve1DUtil* Curve1DUtil::SetEaseOut()
+Curve1DUtil *Curve1DUtil::SetEaseOut()
 {
     mParams[0] = 1.0f;
     mParams[1] = 1.0f;

@@ -1,5 +1,6 @@
 // Copyright (C) 2023-2026 PvZ TV Touch Team. GPL-3.0-or-later.
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_LEADERBOARDSWIDGET_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_LEADERBOARDSWIDGET_H
 #include "Widget.h"
 #include "ButtonListener.h"
 #include "Reanimation.h"
@@ -13,13 +14,13 @@ class GameButton;
 class LeaderboardsWidget : public Sexy::Widget, public Sexy::ButtonListener
 {
 public:
-    LeaderboardsWidget(LawnApp* theApp, bool theFromGame);
+    LeaderboardsWidget(LawnApp *theApp, bool theFromGame);
     ~LeaderboardsWidget() override;
-    void AddedToManager(Sexy::WidgetManager* theManager) override;
-    void RemovedFromManager(Sexy::WidgetManager* theManager) override;
+    void AddedToManager(Sexy::WidgetManager *theManager) override;
+    void RemovedFromManager(Sexy::WidgetManager *theManager) override;
     void GotFocus() override;
     void Update() override;
-    void Draw(Sexy::Graphics* theGraphics) override;
+    void Draw(Sexy::Graphics *theGraphics) override;
     void MouseDown(int x, int y, int theClickCount) override;
     int KeyDown(Sexy::KeyCode theKey) override;
     void GameButtonDown(Sexy::GamepadButton theButton, int thePlayerIndex, unsigned int theFlags);
@@ -28,9 +29,9 @@ public:
 
 private:
     void Close();
-    LawnApp* mApp;
+    LawnApp *mApp;
     bool mFromGame;
-    GameButton* mBackButton;
+    GameButton *mBackButton;
     std::array<std::unique_ptr<Reanimation>, 5> mBackgrounds;
     std::array<std::unique_ptr<Reanimation>, 12> mDecorations;
     std::unique_ptr<TrashBin> mPlantTrash;
@@ -38,3 +39,5 @@ private:
     int mFocusedDecoration = 0;
     bool mHighlightDecoration = false;
 };
+
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_LEADERBOARDSWIDGET_H

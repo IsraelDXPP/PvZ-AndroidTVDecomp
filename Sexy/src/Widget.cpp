@@ -16,7 +16,8 @@
 
 char Sexy::Widget::DefaultAddToManager = 0;
 
-namespace {
+namespace
+{
 
 void ReleaseAnimator(Sexy::WidgetAnimator *theAnimator)
 {
@@ -56,16 +57,13 @@ Sexy::Widget *FocusedChild(const std::vector<Sexy::Widget *> &theChildren)
 
 bool HasFocusLink(Sexy::Widget *theWidget)
 {
-    return theWidget->mFocusLinks[0] != nullptr
-        || theWidget->mFocusLinks[1] != nullptr
-        || theWidget->mFocusLinks[2] != nullptr
-        || theWidget->mFocusLinks[3] != nullptr;
+    return theWidget->mFocusLinks[0] != nullptr || theWidget->mFocusLinks[1] != nullptr ||
+        theWidget->mFocusLinks[2] != nullptr || theWidget->mFocusLinks[3] != nullptr;
 }
 
 // Walk a focus-link chain. The first on-screen focusable widget in this
 // container's z-order vector is the answer. A cycle stops the walk.
-Sexy::Widget *FollowFocusLink(std::vector<Sexy::Widget *> &theChildren,
-                              Sexy::Widget *theRelative, int theLink)
+Sexy::Widget *FollowFocusLink(std::vector<Sexy::Widget *> &theChildren, Sexy::Widget *theRelative, int theLink)
 {
     Sexy::Widget *aFirst = theRelative->mFocusLinks[theLink];
     Sexy::Widget *aCurrent = aFirst;
@@ -73,8 +71,7 @@ Sexy::Widget *FollowFocusLink(std::vector<Sexy::Widget *> &theChildren,
     {
         if (aCurrent->IsFocusable() && aCurrent->IsOnScreen())
         {
-            std::vector<Sexy::Widget *>::iterator aFound =
-                std::find(theChildren.begin(), theChildren.end(), aCurrent);
+            std::vector<Sexy::Widget *>::iterator aFound = std::find(theChildren.begin(), theChildren.end(), aCurrent);
             if (aFound != theChildren.end())
                 return *aFound;
         }
@@ -95,17 +92,17 @@ struct WidgetSharedImageNode
     WidgetSharedImageNode *mPrev;
     Sexy::SharedImageRef mRef;
 
-    WidgetSharedImageNode()
-        : mNext(nullptr)
-        , mPrev(nullptr)
-        , mRef()
+    WidgetSharedImageNode() :
+        mNext(nullptr),
+        mPrev(nullptr),
+        mRef()
     {
     }
 
-    explicit WidgetSharedImageNode(Sexy::SharedImageRef &theRef)
-        : mNext(nullptr)
-        , mPrev(nullptr)
-        , mRef(theRef)
+    explicit WidgetSharedImageNode(Sexy::SharedImageRef &theRef) :
+        mNext(nullptr),
+        mPrev(nullptr),
+        mRef(theRef)
     {
     }
 };
@@ -115,9 +112,9 @@ struct WidgetSharedImageList : Sexy::WidgetUserData
     WidgetSharedImageNode *mNext;
     WidgetSharedImageNode *mPrev;
 
-    WidgetSharedImageList()
-        : mNext(nullptr)
-        , mPrev(nullptr)
+    WidgetSharedImageList() :
+        mNext(nullptr),
+        mPrev(nullptr)
     {
     }
 };
@@ -170,11 +167,20 @@ bool Sexy::Widget::IsPointVisible(int x, int y)
     return true;
 }
 
-void Sexy::Widget::Draw(Sexy::Graphics *g) { (void)g; }
+void Sexy::Widget::Draw(Sexy::Graphics *g)
+{
+    (void)g;
+}
 
-void Sexy::Widget::DrawOther(Sexy::Graphics *g) { (void)g; }
+void Sexy::Widget::DrawOther(Sexy::Graphics *g)
+{
+    (void)g;
+}
 
-void Sexy::Widget::DrawOverlay(Sexy::Graphics *g) { (void)g; }
+void Sexy::Widget::DrawOverlay(Sexy::Graphics *g)
+{
+    (void)g;
+}
 
 void Sexy::Widget::DrawOverlay(Sexy::Graphics *g, int thePriority)
 {
@@ -303,21 +309,48 @@ void Sexy::Widget::TouchEnter() {}
 
 void Sexy::Widget::TouchLeave() {}
 
-void Sexy::Widget::TouchDown(int theId, int x, int y) { (void)theId; (void)x; (void)y; }
+void Sexy::Widget::TouchDown(int theId, int x, int y)
+{
+    (void)theId;
+    (void)x;
+    (void)y;
+}
 
-void Sexy::Widget::TouchUp(int theId, int x, int y) { (void)theId; (void)x; (void)y; }
+void Sexy::Widget::TouchUp(int theId, int x, int y)
+{
+    (void)theId;
+    (void)x;
+    (void)y;
+}
 
-void Sexy::Widget::TouchCancel(int theId, int x, int y) { (void)theId; (void)x; (void)y; }
+void Sexy::Widget::TouchCancel(int theId, int x, int y)
+{
+    (void)theId;
+    (void)x;
+    (void)y;
+}
 
-void Sexy::Widget::TouchBegan(Touch *theTouch) { (void)theTouch; }
+void Sexy::Widget::TouchBegan(Touch *theTouch)
+{
+    (void)theTouch;
+}
 
-void Sexy::Widget::TouchMoved(Touch *theTouch) { (void)theTouch; }
+void Sexy::Widget::TouchMoved(Touch *theTouch)
+{
+    (void)theTouch;
+}
 
-void Sexy::Widget::TouchEnded(Touch *theTouch) { (void)theTouch; }
+void Sexy::Widget::TouchEnded(Touch *theTouch)
+{
+    (void)theTouch;
+}
 
 void Sexy::Widget::TouchesCanceled() {}
 
-void Sexy::Widget::TouchCanceled(Touch *theTouch) { (void)theTouch; }
+void Sexy::Widget::TouchCanceled(Touch *theTouch)
+{
+    (void)theTouch;
+}
 
 void Sexy::Widget::TouchBegan(std::vector<Touch> &theTouches)
 {
@@ -372,20 +405,20 @@ void Sexy::Widget::TouchEvents(const std::vector<Sexy::Event> &theEvents)
 
     switch (theEvents[0].matchEvent)
     {
-    case 0:
-        TouchDown(theEvents);
-        return;
-    case 1:
-        TouchMove(theEvents);
-        return;
-    case 2:
-        TouchUp(theEvents);
-        return;
-    case 3:
-        TouchCancel(theEvents);
-        return;
-    default:
-        return;
+        case 0:
+            TouchDown(theEvents);
+            return;
+        case 1:
+            TouchMove(theEvents);
+            return;
+        case 2:
+            TouchUp(theEvents);
+            return;
+        case 3:
+            TouchCancel(theEvents);
+            return;
+        default:
+            return;
     }
 }
 
@@ -440,9 +473,9 @@ bool Sexy::Widget::Contains(int x, int y)
 TRect<int> Sexy::Widget::GetInsetRect()
 {
     return TRect<int>(mX + mMouseInsets.mLeft,
-                      mY + mMouseInsets.mTop,
-                      mWidth - mMouseInsets.mLeft - mMouseInsets.mRight,
-                      mHeight - mMouseInsets.mTop - mMouseInsets.mBottom);
+        mY + mMouseInsets.mTop,
+        mWidth - mMouseInsets.mLeft - mMouseInsets.mRight,
+        mHeight - mMouseInsets.mTop - mMouseInsets.mBottom);
 }
 
 void Sexy::Widget::SetColors(int (*theColors)[3], int theNumColors)
@@ -512,8 +545,7 @@ void Sexy::Widget::SetDisabled(bool isDisabled)
         return;
     }
     MarkDirty();
-    if (mWidgetManager != nullptr
-        && Contains(mWidgetManager->mLastMouseX, mWidgetManager->mLastMouseY))
+    if (mWidgetManager != nullptr && Contains(mWidgetManager->mLastMouseX, mWidgetManager->mLastMouseY))
         mWidgetManager->MousePosition(mWidgetManager->mLastMouseX, mWidgetManager->mLastMouseY);
 }
 
@@ -532,8 +564,8 @@ TRect<int> Sexy::Widget::WriteCenteredLine(Sexy::Graphics *g, int y, Sexy::Strin
     return TRect<int>(aX, y - aFont->GetAscent(), aWidth, aFont->GetHeight());
 }
 
-TRect<int> Sexy::Widget::WriteCenteredLine(Sexy::Graphics *g, int y, Sexy::String const &text,
-                                           Color color1, Color color2, const TPoint<int> &offset)
+TRect<int> Sexy::Widget::WriteCenteredLine(
+    Sexy::Graphics *g, int y, Sexy::String const &text, Color color1, Color color2, const TPoint<int> &offset)
 {
     Font *aFont = g->GetFont();
     int aWidth = aFont->StringWidth(text);
@@ -551,8 +583,8 @@ TRect<int> Sexy::Widget::WriteCenteredLine(Sexy::Graphics *g, int y, Sexy::Strin
     return TRect<int>(aRectX, aRectY, aRectWidth, aRectHeight);
 }
 
-void Sexy::Widget::WriteString(Sexy::Graphics *g, Sexy::String const &text, int x, int y,
-                               int width, int justification, bool drawString, int offset, int length)
+void Sexy::Widget::WriteString(Sexy::Graphics *g, Sexy::String const &text, int x, int y, int width, int justification,
+    bool drawString, int offset, int length)
 {
     bool aSaved = g->mWriteColoredString;
     g->mWriteColoredString = mWriteColoredString;
@@ -560,8 +592,8 @@ void Sexy::Widget::WriteString(Sexy::Graphics *g, Sexy::String const &text, int 
     g->mWriteColoredString = aSaved;
 }
 
-void Sexy::Widget::WriteWordWrapped(Sexy::Graphics *g, TRect<int> const &rect, Sexy::String const &text,
-                                    int lineSpacing, int justification)
+void Sexy::Widget::WriteWordWrapped(
+    Sexy::Graphics *g, TRect<int> const &rect, Sexy::String const &text, int lineSpacing, int justification)
 {
     bool aSaved = g->mWriteColoredString;
     g->mWriteColoredString = mWriteColoredString;
@@ -574,8 +606,8 @@ int Sexy::Widget::GetWordWrappedHeight(Sexy::Graphics *g, int width, Sexy::Strin
     return g->GetWordWrappedHeight(width, text, lineSpacing, 0);
 }
 
-void Sexy::Widget::WriteNumberFromStrip(Sexy::Graphics *g, int number, int x, int y,
-                                        Sexy::Image *image, int digitSpacing)
+void Sexy::Widget::WriteNumberFromStrip(
+    Sexy::Graphics *g, int number, int x, int y, Sexy::Image *image, int digitSpacing)
 {
     int aNumDigits = 1;
     int aDivisor = 10;
@@ -585,8 +617,7 @@ void Sexy::Widget::WriteNumberFromStrip(Sexy::Graphics *g, int number, int x, in
         {
             ++aNumDigits;
             aDivisor *= 10;
-        }
-        while (number >= aDivisor);
+        } while (number >= aDivisor);
     }
 
     int aDigitWidth = image->GetWidth() / 10;
@@ -601,8 +632,7 @@ void Sexy::Widget::WriteNumberFromStrip(Sexy::Graphics *g, int number, int x, in
         x += digitSpacing + aDigitWidth;
         aGraphics->DrawImage(image, aX, y);
         delete aGraphics;
-    }
-    while (aNumDigits > aDigit);
+    } while (aNumDigits > aDigit);
 }
 
 void Sexy::Widget::GotFocus()
@@ -628,8 +658,7 @@ void Sexy::Widget::LostFocus()
 
     WidgetContainer *aParent = mParent;
     mFocusedChildWidget = nullptr;
-    if (aParent != nullptr && aParent != mWidgetManager
-        && static_cast<Widget *>(aParent)->mFocusedChildWidget == this)
+    if (aParent != nullptr && aParent != mWidgetManager && static_cast<Widget *>(aParent)->mFocusedChildWidget == this)
         static_cast<Widget *>(aParent)->mFocusedChildWidget = nullptr;
 
     if (aWasFocusable)
@@ -804,8 +833,8 @@ int Sexy::Widget::WidgetRemovedHelper()
     mWidgetManager->DisableWidget(this);
 
     for (std::list<WidgetManager::PreModalInfo>::iterator aInfo = mWidgetManager->mPreModalInfoList.begin();
-         aInfo != mWidgetManager->mPreModalInfoList.end();
-         ++aInfo)
+        aInfo != mWidgetManager->mPreModalInfoList.end();
+        ++aInfo)
     {
         if (aInfo->mBaseModalWidget == this)
             aInfo->mBaseModalWidget = nullptr;
@@ -853,8 +882,8 @@ Widget *Sexy::Widget::FindClosest(Sexy::Widget *widget)
         }
         aSawOne = true;
         Point aCandidatePos = aChild->GetAbsCenter();
-        int aDist = (aPos.mY - aCandidatePos.mY) * (aPos.mY - aCandidatePos.mY)
-                  + (aPos.mX - aCandidatePos.mX) * (aPos.mX - aCandidatePos.mX);
+        int aDist = (aPos.mY - aCandidatePos.mY) * (aPos.mY - aCandidatePos.mY) +
+            (aPos.mX - aCandidatePos.mX) * (aPos.mX - aCandidatePos.mX);
         if (aBest > aDist)
         {
             aBest = aDist;
@@ -1017,9 +1046,8 @@ bool Sexy::Widget::IsOnScreen()
     }
 
     Point aPos = GetAbsPosInScreen();
-    if (aPos.mX >= aScreenRect.mWidth + aScreenRect.mX
-        || aPos.mY >= aScreenRect.mHeight + aScreenRect.mY
-        || aScreenRect.mX >= aPos.mX + mWidth)
+    if (aPos.mX >= aScreenRect.mWidth + aScreenRect.mX || aPos.mY >= aScreenRect.mHeight + aScreenRect.mY ||
+        aScreenRect.mX >= aPos.mX + mWidth)
         return false;
     return aScreenRect.mY < mHeight + aPos.mY;
 }
@@ -1030,11 +1058,24 @@ int Sexy::Widget::OnArrowKeys(Sexy::KeyCode theKey)
     int aHint = 0;
     switch (theKey)
     {
-    case KEYCODE_LEFT:  aDirection = 2048; aHint = 2; break;
-    case KEYCODE_UP:    aDirection = 256;  aHint = 0; break;
-    case KEYCODE_RIGHT: aDirection = 1024; aHint = 3; break;
-    case KEYCODE_DOWN:  aDirection = 512;  aHint = 1; break;
-    default: break;
+        case KEYCODE_LEFT:
+            aDirection = 2048;
+            aHint = 2;
+            break;
+        case KEYCODE_UP:
+            aDirection = 256;
+            aHint = 0;
+            break;
+        case KEYCODE_RIGHT:
+            aDirection = 1024;
+            aHint = 3;
+            break;
+        case KEYCODE_DOWN:
+            aDirection = 512;
+            aHint = 1;
+            break;
+        default:
+            break;
     }
 
     Widget *aFocused = nullptr;
@@ -1140,8 +1181,8 @@ Sexy::WidgetAnimator *Sexy::Widget::GetAnimator()
     return mAnimator;
 }
 
-Sexy::WidgetAnimator *Sexy::Widget::SetAnimatorForState(Sexy::WidgetAnimationState theState,
-                                                        Sexy::WidgetAnimator *theAnimator)
+Sexy::WidgetAnimator *Sexy::Widget::SetAnimatorForState(
+    Sexy::WidgetAnimationState theState, Sexy::WidgetAnimator *theAnimator)
 {
     Sexy::WidgetAnimator *aOld = mAnimatorForState[theState];
     if (theAnimator != aOld)
@@ -1159,8 +1200,8 @@ Sexy::WidgetAnimator *Sexy::Widget::GetAnimatorForState(Sexy::WidgetAnimationSta
     return mAnimatorForState[theState];
 }
 
-int Sexy::Widget::Layout(int theLayoutFlags, Sexy::Widget *theRelativeWidget,
-                         int theLeftPad, int theTopPad, int theWidthPad, int theHeightPad)
+int Sexy::Widget::Layout(int theLayoutFlags, Sexy::Widget *theRelativeWidget, int theLeftPad, int theTopPad,
+    int theWidthPad, int theHeightPad)
 {
     int aWidgetY = theRelativeWidget->mY;
     int aWidgetX = theRelativeWidget->mX;
@@ -1333,9 +1374,7 @@ Widget *Sexy::Widget::FindFocusableWidget(int direction, Sexy::Widget *relativeW
 
     if (relativeWidget == nullptr)
     {
-        for (std::vector<Widget *>::iterator aWidget = mWidgetVector.begin();
-             aWidget != mWidgetVector.end();
-             ++aWidget)
+        for (std::vector<Widget *>::iterator aWidget = mWidgetVector.begin(); aWidget != mWidgetVector.end(); ++aWidget)
         {
             if ((*aWidget)->mHasFocus && (*aWidget)->IsFocusable())
             {
@@ -1387,238 +1426,240 @@ Widget *Sexy::Widget::FindFocusableWidget(int direction, Sexy::Widget *relativeW
 
     switch (direction)
     {
-    case 512:
-    {
-        Widget *aLinked = FollowFocusLink(mWidgetVector, aRelative, 1);
-        if (aLinked != nullptr)
-            return aLinked;
-
-        if (aFound != anEnd && HasFocusLink(aRelative))
-            return nullptr;
-        if (aFound == anEnd)
-            return nullptr;
-
-        std::vector<Widget *>::iterator aSlot = aFound + 1;
-        if (aSlot == mWidgetVector.end())
-            return nullptr;
-        while (true)
+        case 512:
         {
-            aFound = aSlot;
-            aSlotPos = (*aSlot)->GetAbsPos();
-            Widget *aWidget = *aSlot++;
-            if (aWidget->IsFocusable() && aWidget->IsOnScreen() && aSlotPos.mY > aRelativePos.mY)
-                break;
+            Widget *aLinked = FollowFocusLink(mWidgetVector, aRelative, 1);
+            if (aLinked != nullptr)
+                return aLinked;
+
+            if (aFound != anEnd && HasFocusLink(aRelative))
+                return nullptr;
+            if (aFound == anEnd)
+                return nullptr;
+
+            std::vector<Widget *>::iterator aSlot = aFound + 1;
             if (aSlot == mWidgetVector.end())
                 return nullptr;
-        }
-
-        aCandidate = *aFound;
-        if (aFound != mWidgetVector.end())
-        {
-            Point aCandidateCenter = aCandidate->GetAbsCenter();
-            int aBest = (aRelativeCenter.mY - aCandidateCenter.mY) * (aRelativeCenter.mY - aCandidateCenter.mY)
-                      + (aRelativeCenter.mX - aCandidateCenter.mX) * (aRelativeCenter.mX - aCandidateCenter.mX);
-            if (aSlot != mWidgetVector.end())
-            {
-                Widget *aNext = aFound[1];
-                if (aNext->mX > aCandidate->mX)
-                {
-                    std::vector<Widget *>::iterator aScan = aFound + 2;
-                    do
-                    {
-                        if (aNext->IsFocusable() && (*(aScan - 1))->IsOnScreen())
-                        {
-                            Point aScanCenter = (*(aScan - 1))->GetAbsCenter();
-                            int aDistY = (aRelativeCenter.mY - aScanCenter.mY) * (aRelativeCenter.mY - aScanCenter.mY);
-                            int aDist = aDistY + (aRelativeCenter.mX - aScanCenter.mX) * (aRelativeCenter.mX - aScanCenter.mX);
-                            if (aDist < aBest)
-                            {
-                                aCandidate = *(aScan - 1);
-                                aFound = aScan - 1;
-                                aBest = aDist;
-                            }
-                        }
-                        if (aScan == mWidgetVector.end())
-                            break;
-                        aNext = *aScan++;
-                    }
-                    while (aNext->mX > (*(aScan - 2))->mX);
-                }
-            }
-        }
-        break;
-    }
-
-    case 256:
-    {
-        Widget *aLinked = FollowFocusLink(mWidgetVector, aRelative, 0);
-        if (aLinked != nullptr)
-            return aLinked;
-
-        if ((aFound != anEnd && HasFocusLink(aRelative)) || aFound == mWidgetVector.begin())
-            return nullptr;
-
-        std::vector<Widget *>::iterator aSlot = aFound - 1;
-        while (true)
-        {
-            aFound = aSlot;
-            aSlotPos = (*aSlot)->GetAbsPos();
-            Widget *aWidget = *aSlot;
-            if (aWidget->IsFocusable() && aWidget->IsOnScreen() && aSlotPos.mY < aRelativePos.mY)
-                break;
-            if (aFound == mWidgetVector.begin())
-                return nullptr;
-            --aSlot;
-        }
-
-        if (aSlot != mWidgetVector.begin())
-            --aSlot;
-        aCandidate = *aFound;
-        if (aFound != mWidgetVector.begin())
-        {
-            Point aCandidateCenter = aCandidate->GetAbsCenter();
-            int aBest = (aRelativeCenter.mY - aCandidateCenter.mY) * (aRelativeCenter.mY - aCandidateCenter.mY)
-                      + (aRelativeCenter.mX - aCandidateCenter.mX) * (aRelativeCenter.mX - aCandidateCenter.mX);
-            if (aSlot != mWidgetVector.begin())
-            {
-                Widget *aPrev = aFound[-1];
-                if (aPrev->mX < aCandidate->mX)
-                {
-                    std::vector<Widget *>::iterator aScan = aFound - 2;
-                    do
-                    {
-                        if (aPrev->IsFocusable() && aScan[1]->IsOnScreen())
-                        {
-                            Point aScanCenter = aScan[1]->GetAbsCenter();
-                            int aDistY = (aRelativeCenter.mY - aScanCenter.mY) * (aRelativeCenter.mY - aScanCenter.mY);
-                            int aDist = aDistY + (aRelativeCenter.mX - aScanCenter.mX) * (aRelativeCenter.mX - aScanCenter.mX);
-                            if (aDist < aBest)
-                            {
-                                aCandidate = aScan[1];
-                                aFound = aScan + 1;
-                                aBest = aDist;
-                            }
-                        }
-                        if (aScan == mWidgetVector.begin())
-                            break;
-                        aPrev = *aScan--;
-                    }
-                    while (aPrev->mX < aScan[2]->mX);
-                }
-            }
-        }
-        break;
-    }
-
-    case 1024:
-    {
-        Widget *aLinked = FollowFocusLink(mWidgetVector, aRelative, 3);
-        if (aLinked != nullptr)
-            return aLinked;
-
-        bool aScanLeft = aFound == anEnd;
-        if (!aScanLeft && HasFocusLink(aRelative))
-            return nullptr;
-
-        if (!aScanLeft)
-        {
-            std::vector<Widget *>::iterator aSlot = aFound;
             while (true)
             {
-                std::vector<Widget *>::iterator aSlotStart = aSlot;
+                aFound = aSlot;
                 aSlotPos = (*aSlot)->GetAbsPos();
                 Widget *aWidget = *aSlot++;
-                if (aWidget->IsFocusable() && aSlot[-1]->IsOnScreen() && aSlotPos.mX > aRelativePos.mX)
-                {
-                    aFound = aSlotStart;
-                    aCandidate = *aSlotStart;
+                if (aWidget->IsFocusable() && aWidget->IsOnScreen() && aSlotPos.mY > aRelativePos.mY)
                     break;
-                }
                 if (aSlot == mWidgetVector.end())
+                    return nullptr;
+            }
+
+            aCandidate = *aFound;
+            if (aFound != mWidgetVector.end())
+            {
+                Point aCandidateCenter = aCandidate->GetAbsCenter();
+                int aBest = (aRelativeCenter.mY - aCandidateCenter.mY) * (aRelativeCenter.mY - aCandidateCenter.mY) +
+                    (aRelativeCenter.mX - aCandidateCenter.mX) * (aRelativeCenter.mX - aCandidateCenter.mX);
+                if (aSlot != mWidgetVector.end())
                 {
-                    aFound = aSlotStart;
-                    aScanLeft = true;
-                    break;
+                    Widget *aNext = aFound[1];
+                    if (aNext->mX > aCandidate->mX)
+                    {
+                        std::vector<Widget *>::iterator aScan = aFound + 2;
+                        do
+                        {
+                            if (aNext->IsFocusable() && (*(aScan - 1))->IsOnScreen())
+                            {
+                                Point aScanCenter = (*(aScan - 1))->GetAbsCenter();
+                                int aDistY =
+                                    (aRelativeCenter.mY - aScanCenter.mY) * (aRelativeCenter.mY - aScanCenter.mY);
+                                int aDist = aDistY +
+                                    (aRelativeCenter.mX - aScanCenter.mX) * (aRelativeCenter.mX - aScanCenter.mX);
+                                if (aDist < aBest)
+                                {
+                                    aCandidate = *(aScan - 1);
+                                    aFound = aScan - 1;
+                                    aBest = aDist;
+                                }
+                            }
+                            if (aScan == mWidgetVector.end())
+                                break;
+                            aNext = *aScan++;
+                        } while (aNext->mX > (*(aScan - 2))->mX);
+                    }
                 }
             }
+            break;
         }
 
-        if (aScanLeft)
+        case 256:
         {
-            if (aFound == mWidgetVector.begin())
+            Widget *aLinked = FollowFocusLink(mWidgetVector, aRelative, 0);
+            if (aLinked != nullptr)
+                return aLinked;
+
+            if ((aFound != anEnd && HasFocusLink(aRelative)) || aFound == mWidgetVector.begin())
                 return nullptr;
+
             std::vector<Widget *>::iterator aSlot = aFound - 1;
             while (true)
             {
-                std::vector<Widget *>::iterator aSlotStart = aSlot;
+                aFound = aSlot;
                 aSlotPos = (*aSlot)->GetAbsPos();
                 Widget *aWidget = *aSlot;
-                if (aWidget->IsFocusable() && aWidget->IsOnScreen() && aSlotPos.mX > aRelativePos.mX)
-                {
-                    aFound = aSlotStart;
-                    aCandidate = *aSlotStart;
+                if (aWidget->IsFocusable() && aWidget->IsOnScreen() && aSlotPos.mY < aRelativePos.mY)
                     break;
-                }
-                if (aSlotStart == mWidgetVector.begin())
+                if (aFound == mWidgetVector.begin())
                     return nullptr;
                 --aSlot;
             }
-        }
-        break;
-    }
 
-    case 2048:
-    {
-        Widget *aLinked = FollowFocusLink(mWidgetVector, aRelative, 2);
-        if (aLinked != nullptr)
-            return aLinked;
-
-        if (aFound == anEnd || !HasFocusLink(aRelative))
-        {
+            if (aSlot != mWidgetVector.begin())
+                --aSlot;
+            aCandidate = *aFound;
             if (aFound != mWidgetVector.begin())
             {
-                std::vector<Widget *>::iterator aSlot = aFound - 1;
+                Point aCandidateCenter = aCandidate->GetAbsCenter();
+                int aBest = (aRelativeCenter.mY - aCandidateCenter.mY) * (aRelativeCenter.mY - aCandidateCenter.mY) +
+                    (aRelativeCenter.mX - aCandidateCenter.mX) * (aRelativeCenter.mX - aCandidateCenter.mX);
+                if (aSlot != mWidgetVector.begin())
+                {
+                    Widget *aPrev = aFound[-1];
+                    if (aPrev->mX < aCandidate->mX)
+                    {
+                        std::vector<Widget *>::iterator aScan = aFound - 2;
+                        do
+                        {
+                            if (aPrev->IsFocusable() && aScan[1]->IsOnScreen())
+                            {
+                                Point aScanCenter = aScan[1]->GetAbsCenter();
+                                int aDistY =
+                                    (aRelativeCenter.mY - aScanCenter.mY) * (aRelativeCenter.mY - aScanCenter.mY);
+                                int aDist = aDistY +
+                                    (aRelativeCenter.mX - aScanCenter.mX) * (aRelativeCenter.mX - aScanCenter.mX);
+                                if (aDist < aBest)
+                                {
+                                    aCandidate = aScan[1];
+                                    aFound = aScan + 1;
+                                    aBest = aDist;
+                                }
+                            }
+                            if (aScan == mWidgetVector.begin())
+                                break;
+                            aPrev = *aScan--;
+                        } while (aPrev->mX < aScan[2]->mX);
+                    }
+                }
+            }
+            break;
+        }
+
+        case 1024:
+        {
+            Widget *aLinked = FollowFocusLink(mWidgetVector, aRelative, 3);
+            if (aLinked != nullptr)
+                return aLinked;
+
+            bool aScanLeft = aFound == anEnd;
+            if (!aScanLeft && HasFocusLink(aRelative))
+                return nullptr;
+
+            if (!aScanLeft)
+            {
+                std::vector<Widget *>::iterator aSlot = aFound;
                 while (true)
                 {
                     std::vector<Widget *>::iterator aSlotStart = aSlot;
                     aSlotPos = (*aSlot)->GetAbsPos();
-                    Widget *aWidget = *aSlot;
-                    if (aWidget->IsFocusable() && aWidget->IsOnScreen() && aSlotPos.mX <= aRelativePos.mX)
-                    {
-                        aFound = aSlotStart;
-                        aCandidate = *aSlotStart;
-                        break;
-                    }
-                    if (aSlotStart == mWidgetVector.begin())
-                        break;
-                    --aSlot;
-                }
-            }
-
-            if (aCandidate == nullptr && aFound != anEnd)
-            {
-                std::vector<Widget *>::iterator aSlot = aFound + 1;
-                while (aSlot != anEnd)
-                {
-                    std::vector<Widget *>::iterator aSlotStart = aSlot;
-                    aSlotPos = (*aSlot)->GetAbsPos();
                     Widget *aWidget = *aSlot++;
-                    if (aWidget->IsFocusable() && aSlot[-1]->IsOnScreen() && aSlotPos.mX <= aRelativePos.mX)
+                    if (aWidget->IsFocusable() && aSlot[-1]->IsOnScreen() && aSlotPos.mX > aRelativePos.mX)
                     {
                         aFound = aSlotStart;
                         aCandidate = *aSlotStart;
                         break;
                     }
                     if (aSlot == mWidgetVector.end())
+                    {
+                        aFound = aSlotStart;
+                        aScanLeft = true;
                         break;
+                    }
                 }
             }
-        }
-        break;
-    }
 
-    default:
-        return nullptr;
+            if (aScanLeft)
+            {
+                if (aFound == mWidgetVector.begin())
+                    return nullptr;
+                std::vector<Widget *>::iterator aSlot = aFound - 1;
+                while (true)
+                {
+                    std::vector<Widget *>::iterator aSlotStart = aSlot;
+                    aSlotPos = (*aSlot)->GetAbsPos();
+                    Widget *aWidget = *aSlot;
+                    if (aWidget->IsFocusable() && aWidget->IsOnScreen() && aSlotPos.mX > aRelativePos.mX)
+                    {
+                        aFound = aSlotStart;
+                        aCandidate = *aSlotStart;
+                        break;
+                    }
+                    if (aSlotStart == mWidgetVector.begin())
+                        return nullptr;
+                    --aSlot;
+                }
+            }
+            break;
+        }
+
+        case 2048:
+        {
+            Widget *aLinked = FollowFocusLink(mWidgetVector, aRelative, 2);
+            if (aLinked != nullptr)
+                return aLinked;
+
+            if (aFound == anEnd || !HasFocusLink(aRelative))
+            {
+                if (aFound != mWidgetVector.begin())
+                {
+                    std::vector<Widget *>::iterator aSlot = aFound - 1;
+                    while (true)
+                    {
+                        std::vector<Widget *>::iterator aSlotStart = aSlot;
+                        aSlotPos = (*aSlot)->GetAbsPos();
+                        Widget *aWidget = *aSlot;
+                        if (aWidget->IsFocusable() && aWidget->IsOnScreen() && aSlotPos.mX <= aRelativePos.mX)
+                        {
+                            aFound = aSlotStart;
+                            aCandidate = *aSlotStart;
+                            break;
+                        }
+                        if (aSlotStart == mWidgetVector.begin())
+                            break;
+                        --aSlot;
+                    }
+                }
+
+                if (aCandidate == nullptr && aFound != anEnd)
+                {
+                    std::vector<Widget *>::iterator aSlot = aFound + 1;
+                    while (aSlot != anEnd)
+                    {
+                        std::vector<Widget *>::iterator aSlotStart = aSlot;
+                        aSlotPos = (*aSlot)->GetAbsPos();
+                        Widget *aWidget = *aSlot++;
+                        if (aWidget->IsFocusable() && aSlot[-1]->IsOnScreen() && aSlotPos.mX <= aRelativePos.mX)
+                        {
+                            aFound = aSlotStart;
+                            aCandidate = *aSlotStart;
+                            break;
+                        }
+                        if (aSlot == mWidgetVector.end())
+                            break;
+                    }
+                }
+            }
+            break;
+        }
+
+        default:
+            return nullptr;
     }
 
     if (aCandidate == nullptr)

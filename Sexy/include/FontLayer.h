@@ -4,7 +4,8 @@
 // Character metrics live in mCharDataMap. Extra descriptor pairs live in
 // mExtendedInfo. Tag filters and kerning pairs are ordinary vectors.
 
-#pragma once
+#ifndef LAWNPROJECTTV_SEXY_INCLUDE_FONTLAYER_H
+#define LAWNPROJECTTV_SEXY_INCLUDE_FONTLAYER_H
 
 #include "ReconTypes.h"
 #include "CharData.h"
@@ -13,7 +14,8 @@
 #include <map>
 #include <vector>
 
-namespace Sexy {
+namespace Sexy
+{
 
 class FontData;
 
@@ -27,7 +29,7 @@ public:
         int mAmount;
     };
 
-    FontData* mFontData;
+    FontData *mFontData;
     std::map<Sexy::String, Sexy::String> mExtendedInfo;
     Sexy::String mLayerName;
     std::vector<Sexy::String> mRequiredTags;
@@ -56,13 +58,15 @@ public:
     int mLineSpacingOffset;
     int mBaseOrder;
 
-    FontLayer(Sexy::FontData* theFontData);
-    FontLayer(Sexy::FontLayer const& theOther);
+    FontLayer(Sexy::FontData *theFontData);
+    FontLayer(Sexy::FontLayer const &theOther);
     bool isGlyph(int theChar);
-    Sexy::CharData* SetCharData(int theChar);
-    Sexy::CharData* GetCharData(int theChar);
+    Sexy::CharData *SetCharData(int theChar);
+    Sexy::CharData *GetCharData(int theChar);
 };
 
 } // namespace Sexy
 
 using Sexy::FontLayer;
+
+#endif // LAWNPROJECTTV_SEXY_INCLUDE_FONTLAYER_H

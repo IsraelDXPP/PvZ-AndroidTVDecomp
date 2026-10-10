@@ -34,7 +34,8 @@
 // The largest offset any body reaches is +0x468; the class is padded to 0x478, the
 // size the old placeholder carried.
 
-#pragma once
+#ifndef LAWNPROJECTTV_SEXY_INCLUDE_XMLWRITER_H
+#define LAWNPROJECTTV_SEXY_INCLUDE_XMLWRITER_H
 
 #include "ReconTypes.h"
 #include <SDL3/SDL_iostream.h>
@@ -44,7 +45,8 @@
 #include <set>
 #include <deque>
 
-namespace Sexy {
+namespace Sexy
+{
 
 class XMLElement;
 
@@ -87,21 +89,23 @@ public:
     // -----------------------------------------------------------------------
     // Members. Offsets are absolute byte offsets from the start of the object.
     // -----------------------------------------------------------------------
-    Sexy::String mFileName;  // +0x04
+    Sexy::String mFileName; // +0x04
     Sexy::String mErrorText; // +0x08
-    int mLineNum;            // +0x0C, set to 1 by Init and incremented by WriteHeader
-    SDL_IOStream* mFile;     // +0x10, the stream OpenFile/CloseFile work with
-    bool mHasFailed;         // cleared by Init and set by Fail
-    bool mSpareFlag;         // cleared by Init; no reader in this tree
-    bool mAttributesOpen;    // the attributes section is still open
-    bool mWritingToMemory;   // no stream, the output goes to mOutputText
+    int mLineNum; // +0x0C, set to 1 by Init and incremented by WriteHeader
+    SDL_IOStream *mFile; // +0x10, the stream OpenFile/CloseFile work with
+    bool mHasFailed; // cleared by Init and set by Fail
+    bool mSpareFlag; // cleared by Init; no reader in this tree
+    bool mAttributesOpen; // the attributes section is still open
+    bool mWritingToMemory; // no stream, the output goes to mOutputText
     Sexy::String mOutputText; // +0x18, everything the writer emits is appended here
-    char mBuffer[0x400];     // +0x1C .. +0x41B, memset to 0 by Init
-    std::deque<Sexy::String> mElements;   // +0x41C .. +0x443, the open-element stack
-    std::deque<Sexy::String> mComments;   // the pending-comment stack
+    char mBuffer[0x400]; // +0x1C .. +0x41B, memset to 0 by Init
+    std::deque<Sexy::String> mElements; // +0x41C .. +0x443, the open-element stack
+    std::deque<Sexy::String> mComments; // the pending-comment stack
 };
 
 } // namespace Sexy
 
 // The global spelling, which the transcribed bodies use.
 using Sexy::XMLWriter;
+
+#endif // LAWNPROJECTTV_SEXY_INCLUDE_XMLWRITER_H

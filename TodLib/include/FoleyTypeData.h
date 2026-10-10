@@ -13,7 +13,8 @@
 // a one-int enum shim, so the element type here cannot use it.
 // TODO(recon): once that shim is gone, rename FoleyTypeDataElement to FoleyInstance.
 
-#pragma once
+#ifndef LAWNPROJECTTV_TODLIB_INCLUDE_FOLEYTYPEDATA_H
+#define LAWNPROJECTTV_TODLIB_INCLUDE_FOLEYTYPEDATA_H
 
 #include "ReconTypes.h"
 #include "SoundInstance.h"
@@ -33,10 +34,10 @@
 struct FoleyTypeDataElement
 {
     Sexy::SoundInstance *mInstance; // +0x00
-    int mRefCount;                         // +0x04
-    bool mPaused;                          // +0x08
-    int mStartTime;                        // +0x0C
-    int mPauseOffset;                      // +0x10
+    int mRefCount; // +0x04
+    bool mPaused; // +0x08
+    int mStartTime; // +0x0C
+    int mPauseOffset; // +0x10
 };
 
 class FoleyTypeData
@@ -45,10 +46,12 @@ public:
     static const int MAX_FOLEY_INSTANCES = 8;
 
     FoleyTypeDataElement mFoleyInstances[MAX_FOLEY_INSTANCES]; // +0x00 .. +0x9F
-    int mLastVariationPlayed;                                  // +0xA0
+    int mLastVariationPlayed; // +0xA0
     // size 0xA4
 
     FoleyTypeData();
 };
 
 // Layout check: 8 records of 20 bytes plus the variation counter.
+
+#endif // LAWNPROJECTTV_TODLIB_INCLUDE_FOLEYTYPEDATA_H

@@ -39,7 +39,8 @@
 //
 // The destructor at 0x00133558 releases the child nodes and their container.
 
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_INTERNALJSONNODE_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_INTERNALJSONNODE_H
 
 #include "ReconTypes.h"
 // JSONNode.h and JSONWorker.h are deliberately NOT included.
@@ -95,17 +96,17 @@ public:
     void Set(unsigned long long theValue);
     int FetchNode();
     int FetchArray();
-    internalJSONNode(Sexy::String const& theName);
-    internalJSONNode(Sexy::String const& theName, Sexy::String const& theValue);
+    internalJSONNode(Sexy::String const &theName);
+    internalJSONNode(Sexy::String const &theName, Sexy::String const &theValue);
     void FetchString();
     void Fetch();
-    bool AreEqualNoCase(char const* theLeft, char const* theRight);
+    bool AreEqualNoCase(char const *theLeft, char const *theRight);
     void deleteInternal(internalJSONNode *theNode);
-    internalJSONNode(internalJSONNode const& theOther);
-    internalJSONNode * newInternal(char theType);
-    internalJSONNode * newInternal(Sexy::String const& theName);
-    internalJSONNode * newInternal(Sexy::String const& theName, Sexy::String const& theValue);
-    internalJSONNode * newInternal(internalJSONNode const& theOther);
+    internalJSONNode(internalJSONNode const &theOther);
+    internalJSONNode *newInternal(char theType);
+    internalJSONNode *newInternal(Sexy::String const &theName);
+    internalJSONNode *newInternal(Sexy::String const &theName, Sexy::String const &theValue);
+    internalJSONNode *newInternal(internalJSONNode const &theOther);
     void Set(long double theValue);
     void Set(double theValue);
     void Set(float theValue);
@@ -119,32 +120,34 @@ public:
     int Set(bool theValue);
     int Nullify();
     int IsEqualTo(const internalJSONNode *theOther);
-    internalJSONNode* push_back(JSONNode const& theChild);
-    JSONNode ** push_front(JSONNode const& theChild);
-    JSONNode * pop_back(unsigned int theIndex);
-    JSONNode ** at(Sexy::String const& theName);
-    JSONNode * pop_back(Sexy::String const& theName);
-    JSONNode ** at_nocase(Sexy::String const& theName);
-    JSONNode * pop_back_nocase(Sexy::String const& theName);
+    internalJSONNode *push_back(JSONNode const &theChild);
+    JSONNode **push_front(JSONNode const &theChild);
+    JSONNode *pop_back(unsigned int theIndex);
+    JSONNode **at(Sexy::String const &theName);
+    JSONNode *pop_back(Sexy::String const &theName);
+    JSONNode **at_nocase(Sexy::String const &theName);
+    JSONNode *pop_back_nocase(Sexy::String const &theName);
     void preparse();
 
-    unsigned char _type;    // +0x00
-    Sexy::String _name;     // +0x04
-    bool _name_encoded;     // +0x08
-    Sexy::String _string;   // +0x0C
-    bool _string_encoded;   // +0x10
+    unsigned char _type; // +0x00
+    Sexy::String _name; // +0x04
+    bool _name_encoded; // +0x08
+    Sexy::String _string; // +0x0C
+    bool _string_encoded; // +0x10
     // The library declares this union so that the numeric and the boolean value
     // share the slot; Set(bool) writes one byte of it at +0x18.
     union value_union_t
     {
-        double _number;     // +0x18
-        bool _bool;         // +0x18
+        double _number; // +0x18
+        bool _bool; // +0x18
     };
-    value_union_t _value;   // +0x18
-    unsigned int refcount;  // +0x20
-    bool fetched;           // +0x24
-    Sexy::String _comment;  // +0x28
+    value_union_t _value; // +0x18
+    unsigned int refcount; // +0x20
+    bool fetched; // +0x24
+    Sexy::String _comment; // +0x28
     jsonChildren *CHILDREN; // +0x2C
 };
 
 // Layout check: no base class, so the whole size is the members above.
+
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_INTERNALJSONNODE_H

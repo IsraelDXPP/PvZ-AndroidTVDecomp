@@ -23,7 +23,8 @@
 // SharedImageRef::~SharedImageRef(this + 0x100), while Draw reads the image
 // through SharedImageRef::operator Image* on the same address.
 
-#pragma once
+#ifndef LAWNPROJECTTV_LAWN_INCLUDE_GAME_HELPTEXTIMAGEWIDGET_H
+#define LAWNPROJECTTV_LAWN_INCLUDE_GAME_HELPTEXTIMAGEWIDGET_H
 
 #include "ReconTypes.h"
 // These includes exist because the transcribed bodies call methods on complete
@@ -46,3 +47,4 @@ public:
     // size 0x10C
 };
 
+#endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_HELPTEXTIMAGEWIDGET_H
