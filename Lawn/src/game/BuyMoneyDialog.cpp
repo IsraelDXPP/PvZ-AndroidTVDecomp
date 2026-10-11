@@ -82,7 +82,7 @@ BuyMoneyDialog::BuyMoneyDialog(LawnApp *theApp, Sexy::String const &theTierName)
         mDialogHeader = aText;
     }
     if (aLocalRecharge)
-        mDialogHeader = u8"本地测试充值";
+        mDialogHeader = "Local Test Recharge";
     // 506 is the width the dialog resizes itself to, 35 what one tier row
     // contributes to the height, and 120 the first row's Y.
     mDialogWidth = 506;
@@ -103,7 +103,7 @@ BuyMoneyDialog::BuyMoneyDialog(LawnApp *theApp, Sexy::String const &theTierName)
         // LawnStoneButton vector.
         Sexy::String aLabel;
         if (aLocalRecharge)
-            StrFormat(&aLabel, u8"增加 %d V币", aTiers[i].mGetCoin);
+            StrFormat(&aLabel, "Add %d V-Coins", aTiers[i].mGetCoin);
         else
         {
             Sexy::String aFormat = TodStringTranslate("[BUY_MONEY_FORMAT]");

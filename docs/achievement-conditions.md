@@ -1,28 +1,28 @@
-# 主机版 12 项成就条件核对
+# Console achievement condition audit
 
-核对日期：2026-10-09。依据为本项目对应的 TV 原始反编译导出，以及用户指定的 `PlantsVsZombies-AndroidTV-main` 成就恢复实现。TV 导出保留了部分进度标记，但没有完整的平台成就服务实现；下表区分可直接核对的原始条件和参考项目补回的条件。
+Reviewed on 2026-10-09 against the original TV decompilation exports and the achievement restoration in the user-supplied `PlantsVsZombies-AndroidTV-main` project. The TV exports retain some progress markers but do not contain a complete platform achievement service. The table distinguishes conditions supported directly by the original code from those restored using the reference project.
 
-| 成就 | 获得条件与边界 | 对照来源 |
+| Achievement | Unlock conditions and boundaries | Reference |
 | --- | --- | --- |
-| 家庭安保 / Home Lawn Security | 完成冒险模式最后一关 5-10；已有冒险通关标记也可补发。 | 冒险通关逻辑；参考 `Board::FadeOutLevel` |
-| 植物学家 / Master of Morticulture | 拥有全部 49 种植物，含 40 种冒险植物、8 种升级植物及模仿者；花园盆栽不参与。 | 原始 `LawnApp::HasSeedType`（0x2B756C）；参考 `StoreScreen::PurchaseItem` |
-| 生生不息 / Alive and Planting | 单人生存无尽泳池完成至少 40 旗；按旗数判定，不能用任意生存模式的轮次代替。结算或退出时也保存。 | 原始 `Board::SurvivalSaveScore`（0x15AF08）、`GetSurvivalFlagsCompleted`（0x15AEA8） |
-| 僵尸入侵 / Soil Your Plants | 在同一普通种植关卡累计种下 10 株豌豆射手；不要求同时存活，不计传送带、花园、预置植物及模仿者。每次关卡初始化重置计数。 | 参考 `Board::DoPlantingAchievementCheck`、`Board::InitLevel`；普通种植模式范围参照原始 `IsSeedPlantingLevel`（0x2B5350） |
-| 千钧一发 / Close Shave | 用完场地各有效行的除草机后获胜。参考实现排除生存和对战，不能在没有除草机的场景因 0 == 0 获得。 | 参考 `Board::FadeOutLevel`；原始同函数（0x15D61C）也保留排除对战的除草机完成标记 |
-| 咔嚓咔嚓 / Nom Nom Nom | 普通关卡仅种向日葵、坚果墙、大嘴花并获胜；不要求三种都种。排除生存、对战、传送带、砸罐子、我是僵尸及无普通种植流程的关卡。模仿者作为独立种子不在允许集合中。 | 参考 `Board::InitLevel`、`DoPlantingAchievementCheck`、`FadeOutLevel` |
-| 对战高手 / Versus | 同一玩家在对战模式连续获胜 5 次，失败清零；交换植物/僵尸方不改变成就归属，按手柄对应的存档发放。 | 原始 `VSResultsMenu::InitFromBoard`（0x1916FC）及参考对战五连胜判定 |
-| 泰坦陨落 / Crash of the Titan | 击败普通或红眼巨人；要求来自实际波次，排除我是僵尸模式。普通/合作按原始进度逻辑记到参与者，对战按植物方手柄对应存档发放。 | 原始 `Zombie::DieNoLoot`（0x1B1660） |
-| 友谊长存 / ZFF's 4 Evr | 完成双人合作坚果保龄球。为参与的两个存档保存。 | 参考 `Board::FadeOutLevel` |
-| 购物愉快 / Shop | 在戴夫处累计消费 25000 金币；内部单位为 10 金币，阈值 2500。增加金币不算消费，取消或未改变房屋的操作不计消费；消费统计只更新一次。 | 参考 `LawnPlayerInfo::AddCoins`；原始商店购买扣款路径（0x18F128） |
-| 爆破专家 / Explodonator | 一枚樱桃炸弹实际炸死至少 10 个僵尸；不累计多次爆炸，也不以伤害目标数代替死亡数。归属放置该炸弹的玩家，鼠标玩家计主存档。 | 原始 `Plant::DoSpecial`（0x16DDB8）、`KillAllZombiesInRadius`（0x15AAC0） |
-| 智慧树 / Smarty Branches | 智慧树高度达到 100 英尺；原记录已经达到 100 时也可补发。 | 原始 `Challenge::TreeOfWisdomGrow`（0x1853D4）；参考同函数 |
+| Home Lawn Security | Complete Adventure's final level, 5-10. An existing Adventure completion marker can also grant it retroactively. | Adventure completion logic; reference `Board::FadeOutLevel` |
+| Master of Morticulture | Own all 49 plants: 40 Adventure plants, 8 upgrades, and the Imitater. Zen Garden potted plants do not count. | Original `LawnApp::HasSeedType` (`0x2B756C`); reference `StoreScreen::PurchaseItem` |
+| Alive and Planting | Complete at least 40 flags in single-player Survival: Endless (pool). Count flags, not arbitrary survival rounds. Progress is also saved on completion or exit. | Original `Board::SurvivalSaveScore` (`0x15AF08`), `GetSurvivalFlagsCompleted` (`0x15AEA8`) |
+| Soil Your Plants | Plant 10 Peashooters in one regular planting level. They need not remain alive simultaneously. Conveyors, the Zen Garden, preset plants, and the Imitater do not count. Reset the counter when initializing each level. | Reference `Board::DoPlantingAchievementCheck`, `Board::InitLevel`; regular planting modes follow original `IsSeedPlantingLevel` (`0x2B5350`) |
+| Close Shave | Win after using the lawn mower in every active row. The reference excludes Survival and Versus. Levels without mowers must not grant it through `0 == 0`. | Reference `Board::FadeOutLevel`; the original function (`0x15D61C`) also retains a mower completion marker excluding Versus |
+| Nom Nom Nom | Win a regular level planting only Sunflowers, Wall-nuts, and Chompers; all three types need not be used. Exclude Survival, Versus, conveyors, Vasebreaker, I, Zombie, and levels without regular planting. The Imitater is a separate seed and is not allowed. | Reference `Board::InitLevel`, `DoPlantingAchievementCheck`, `FadeOutLevel` |
+| Versus | The same player wins 5 consecutive Versus matches; a loss resets the streak. Switching plant/zombie sides does not change ownership. Grant it to the profile bound to that player's controller. | Original `VSResultsMenu::InitFromBoard` (`0x1916FC`) and the reference five-win streak check |
+| Crash of the Titan | Defeat a regular or red-eyed Gargantuar from an actual wave; exclude I, Zombie. Regular/cooperative play follows the original participant progress rules. Versus grants it to the plant-side controller's profile. | Original `Zombie::DieNoLoot` (`0x1B1660`) |
+| ZFF's 4 Evr | Complete cooperative Wall-nut Bowling. Save it for both participating profiles. | Reference `Board::FadeOutLevel` |
+| Shop | Spend a total of 25,000 coins at Crazy Dave's. Internal units are 10 coins, so the threshold is 2,500. Adding coins is not spending. Canceled operations or unchanged house selections do not count. Update spending once per purchase. | Reference `LawnPlayerInfo::AddCoins`; original store purchase debit path (`0x18F128`) |
+| Explodonator | One Cherry Bomb must actually kill at least 10 zombies. Do not accumulate multiple explosions or count damaged targets as kills. Grant it to the player who planted the bomb; mouse actions use the primary profile. | Original `Plant::DoSpecial` (`0x16DDB8`), `KillAllZombiesInRadius` (`0x15AAC0`) |
+| Smarty Branches | Grow the Tree of Wisdom to 100 feet. An existing height record of at least 100 can also grant it retroactively. | Original `Challenge::TreeOfWisdomGrow` (`0x1853D4`); reference implementation of the same function |
 
-所有解锁写入存档的 `mAchievements`。已解锁的成就不会因后续失败、换边、出售植物而撤销。只可从持久记录推导的成就在打开成就/房屋页面时补发；需要单局现场数据的成就通过对应游戏事件记录，不推测历史单局结果。
+All unlocks are saved in the profile's `mAchievements`. Later losses, side switches, or plant sales do not revoke them. Opening the achievements/house view grants only achievements that can be established from persistent records. Achievements requiring data from a particular level are recorded by the corresponding game events; historical level outcomes are not inferred.
 
-使用 `-tod` 或 `--debug-keys` 启动游戏后，Debug 和 Release 主菜单的小写 `u` 都是人工全解锁路径：直接将 12 个成就标记置为真，再与原有模式解锁结果一起保存。它不会代替商店购买房屋蓝图。
+When launched with `-tod` or `--debug-keys`, lowercase `u` at the main menu is the manual full-unlock path in both Debug and Release: it sets all 12 achievement flags and saves them with the existing mode unlocks. It does not purchase house blueprints.
 
-## 房屋购买入口
+## Buying houses
 
-通关冒险后，戴夫商店依次显示种子槽/升级、植物升级、花园工具、智慧树工具、房屋蓝图共五页。内部保留原始页号，跳过 `NUM_STORE_PAGES` 哨兵，房屋页对用户显示为第 5/5 页。
+After completing Adventure, Crazy Dave's shop shows five pages: seed slots/upgrades, plant upgrades, garden tools, Tree of Wisdom tools, and house blueprints. Original internal page numbers are retained, skipping the `NUM_STORE_PAGES` sentinel. The house page is shown as page 5/5.
 
-其他四种房屋的首次蓝图价格为 8000 金币，后续每次升级增加 8000 金币，最高五级。默认房屋已有前三档基础外观，两次付费升级分别为 24000、32000 金币。购买蓝图会选用该房屋；之后也可在房屋页面的“选择房屋”中切换。商店“更换房屋”收费 300 金币，仅在确认切换到另一款已拥有房屋后扣款。
+The first blueprint for each of the other four houses costs 8,000 coins. Each later upgrade adds 8,000 coins, up to level five. The default house already has its first three appearances; its two paid upgrades cost 24,000 and 32,000 coins. Purchasing a blueprint selects that house; the house view's Choose House action also offers switching. The shop's Change House action costs 300 coins, charged only after confirming a switch to a different owned house.

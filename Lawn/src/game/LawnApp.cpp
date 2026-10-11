@@ -2333,7 +2333,7 @@ void LawnApp::onPay(int theResult)
         int aBalance = atoi(LawnUser::getCurUser()->mCoinText.c_str());
         Sexy::String aMessage;
         StrFormat(&aMessage,
-            u8"已到账 %d V币，当前余额 %d V币。\n仅用于本地测试，不涉及真实付款。",
+            "Added %d V-Coins. Current balance: %d V-Coins.\nFor local testing only; no real payment is involved.",
             aBalance - mQueryCoinState.mPreviousBalance,
             aBalance);
         Sexy::Dialog *aRechargeDialog = GetDialog(82);
@@ -5759,7 +5759,7 @@ void LawnApp::BuyMoney(int theTier)
     if (mAdProvider == nullptr)
     {
         DoDialog(
-            51, true, "[MONEY_NOT_ENOUGH_HEADER]", u8"当前版本未接入支付服务，暂时无法充值。", "[DIALOG_BUTTON_OK]", 3);
+            51, true, "[MONEY_NOT_ENOUGH_HEADER]", "Payment services are unavailable in this version. Recharging is disabled.", "[DIALOG_BUTTON_OK]", 3);
         return;
     }
 

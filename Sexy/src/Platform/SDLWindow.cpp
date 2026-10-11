@@ -121,9 +121,7 @@ bool SDLWindow::Create(
     mWidth = theWidth;
     mHeight = theHeight;
     SDL_GetWindowSizeInPixels(mWindow, &mWidth, &mHeight);
-#if !defined(SDL_PLATFORM_ANDROID)
     UpdateRenderSize();
-#endif
     mWindowed = theWindowed;
     mVSync = theVSync;
     mClosed = false;
@@ -315,8 +313,8 @@ void SDLWindow::QueueMouseEvent(int theKind, float theX, float theY, int theClic
     double renderY = 0.0;
     if (!MapWindowPoint(theX, theY, width, height, renderX, renderY))
     {
-        // InputManager clamps pointer coordinates to the stage, so black-bar
-        // clicks must be rejected before they can become clicks on its edge.
+        // InputManager clamps pointer coordinates to the stage, so points
+        // outside the presentation area must not become clicks on its edge.
         if (theKind == Event::MOUSE_DOWN)
             return;
         Event outside = {};
@@ -358,23 +356,17 @@ bool SDLWindow::IsMouseButtonDown(int theButton) const
 }
 void SDLWindow::UpdateRenderSize()
 {
-#if !defined(SDL_PLATFORM_ANDROID)
     if (mWidth <= 0 || mHeight <= 0)
         return;
     mRenderHeight = kLogicalCanvasHeight;
     // An even width keeps the original integer centering formula symmetric.
     mRenderWidth = std::max(2, int(std::lround(double(mWidth) * mRenderHeight / (2.0 * mHeight))) * 2);
-#endif
 }
 FRect SDLWindow::GetPresentationRect(int theWidth, int theHeight) const
 {
     if (theWidth <= 0 || theHeight <= 0 || mRenderWidth <= 0 || mRenderHeight <= 0)
         return FRect();
-#if defined(SDL_PLATFORM_ANDROID)
-    const double scale = std::min(double(theWidth) / mRenderWidth, double(theHeight) / mRenderHeight);
-#else
     const double scale = double(theHeight) / mRenderHeight;
-#endif
     const double width = mRenderWidth * scale;
     const double height = mRenderHeight * scale;
     return FRect((theWidth - width) / 2.0, (theHeight - height) / 2.0, width, height);

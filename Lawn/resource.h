@@ -2,8 +2,8 @@
 #define LAWNPROJECTTV_LAWN_RESOURCE_H
 
 //{{NO_DEPENDENCIES}}
-// Microsoft Visual C++ 生成的包含文件。
-// 供 Lawn.rc 使用
+// Microsoft Visual C++ generated include file.
+// Used by Lawn.rc.
 //
 #define IDI_ICON1 IDI_ICON1
 

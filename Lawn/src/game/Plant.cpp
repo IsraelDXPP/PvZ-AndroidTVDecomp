@@ -871,7 +871,7 @@ int Plant::UpdateReanimColor()
     if (aBody == nullptr)
         return 0;
 
-    // TV 允许直接拿起不可用的卡片，升级提示需额外检查冷却和阳光。
+    // TV allows selecting unavailable packets; upgrade hints must also check recharge and sun.
     SeedType aCursorSeed = mBoard->GetAvailableUpgradeSeedInCursor(0);
     SeedType aCursorSeed2 = mBoard->GetAvailableUpgradeSeedInCursor(1);
     Sexy::Color aOverride = Sexy::Color();

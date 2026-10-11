@@ -194,7 +194,7 @@ void LeaderboardsWidget::Draw(Sexy::Graphics *theGraphics)
             2,
             false);
     }
-    Sexy::String title = mApp->GetString("PLAYERS_HOUSE", u8"{PLAYER}的房子");
+    Sexy::String title = mApp->GetString("PLAYERS_HOUSE", "{PLAYER}'s House");
     Sexy::String namedTitle;
     TodReplaceString(&namedTitle, title, "{PLAYER}", mApp->mPlayerInfo->GetName());
     title = namedTitle;

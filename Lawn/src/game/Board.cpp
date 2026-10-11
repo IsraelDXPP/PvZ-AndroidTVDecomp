@@ -124,11 +124,11 @@ class SaveGameErrorDialog : public LawnDialog
 {
 public:
     explicit SaveGameErrorDialog(LawnApp *theApp) :
-        LawnDialog(theApp, nullptr, 63, true, u8"关卡保存失败",
-            u8"未能保存本次关卡进度。\n返回主菜单会放弃本次进度；\n也可以继续游戏，稍后重试保存。", "", 1)
+        LawnDialog(theApp, nullptr, 63, true, "Unable to Save Level",
+            "Could not save this level's progress.\nReturning to the main menu discards this progress.\nYou can keep playing and try saving again later.", "", 1)
     {
-        mLawnYesButton->SetLabel(u8"返回主菜单");
-        mLawnNoButton->SetLabel(u8"继续游戏");
+        mLawnYesButton->SetLabel("Main Menu");
+        mLawnNoButton->SetLabel("Keep Playing");
         CalcSize(0, 30, true);
     }
 
@@ -1435,7 +1435,7 @@ SeedType Board::GetAvailableUpgradeSeedInCursor(int thePlayerIndex)
         return SEED_NONE;
     }
 
-    // 按当前卡槽的实际价格和该玩家的阳光余额判断，包括无尽模式的紫卡涨价。
+    // Check the packet's actual cost against this player's sun, including escalating upgrade costs in Endless.
     int aCost = GetCurrentPlantCost(aSeedPacket.mPacketType, aSeedPacket.mImitaterType);
     if (!CanTakeSunMoney(aCost, thePlayerIndex))
     {

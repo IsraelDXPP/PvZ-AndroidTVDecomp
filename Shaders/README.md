@@ -1,27 +1,27 @@
-# 游戏着色器
+# Game shaders
 
-这些 `.sc` 是原 GL 后端内嵌 GLSL 的 bgfx 版本。保留当前工程的仿射变换、像素到裁剪空间公式、纹理染色、alpha test、纯色输出和 BT.601 视频转换。普通/叠加绘制通过混合状态切换。
+These `.sc` files are bgfx versions of the GLSL embedded in the original GL backend. They preserve the current affine transforms, pixel-to-clip-space formula, texture tinting, alpha testing, solid-color output, and BT.601 video conversion. Normal and additive draws use different blend states.
 
-原版对应依据：内嵌普通顶点/片元着色器位于 `libGameMain.so` 的 `0x592cb8`/`0x592e40`，纹理颜色乘顶点颜色；`GLGraphics::Flush` 位于 `0x4762c8`，`SetColor` 位于 `0x476148`，使用二维位置、二维 UV 和每顶点 RGBA。这里沿用当前工程的浮点顶点，不使用原版另一条压缩整数顶点路径的 `1/16`、`1/8192` 解码。
+Original references: the regular vertex/fragment shaders embedded in `libGameMain.so` are at `0x592cb8` / `0x592e40`, with texture color multiplied by vertex color. `GLGraphics::Flush` is at `0x4762c8`, and `SetColor` at `0x476148`; they use 2D positions, 2D UVs, and per-vertex RGBA. This implementation retains the project's floating-point vertices rather than the original compressed integer path's `1/16` and `1/8192` decoding.
 
-## 产物与平台
+## Packages and platforms
 
-| 文件 | 用途 | 配对 |
+| File | Purpose | Pairing |
 | --- | --- | --- |
-| `main.vert.scbp` | 通用顶点变换、UV 和颜色传递 | 以下三种片元共用 |
-| `main.frag.scbp` | 纹理、顶点颜色调制、染色、alpha test、植物滤镜 | `main.vert.scbp` |
-| `solid.frag.scbp` | 纯色矩形、线条等 | `main.vert.scbp` |
-| `yuv.frag.scbp` | MPEG 视频的 Y/Cb/Cr 转 RGB | `main.vert.scbp` |
+| `main.vert.scbp` | Vertex transforms, UVs, and color | Shared by all three fragment shaders below |
+| `main.frag.scbp` | Textures, vertex-color modulation, tinting, alpha testing, and plant filters | `main.vert.scbp` |
+| `solid.frag.scbp` | Solid-color rectangles, lines, and other primitives | `main.vert.scbp` |
+| `yuv.frag.scbp` | MPEG video Y/Cb/Cr-to-RGB conversion | `main.vert.scbp` |
 
-全部文件使用 SCBP v1，`target_flags = 0x0000001F`。每个包有 DX、Metal、OpenGL、OpenGLES、Vulkan 五个二进制分段，覆盖这些平台的 bgfx 渲染后端。DX11/12 共用 `s_5_0` 分段。协议定义见 [Tools/scbp.md](../Tools/scbp.md)。
+All packages use SCBP v1 with `target_flags = 0x0000001F`. Each contains DX, Metal, OpenGL, OpenGLES, and Vulkan segments for the corresponding bgfx renderers. DX11/12 share the `s_5_0` segment. See [Tools/scbp.md](../Tools/scbp.md) for the format.
 
-源码和已生成 `.scbp` 保存在本目录。bgfx 后端从 `<assets>/shaders` 读取这些包。构建不生成或复制 shader，需要时自行将四个包放入资源目录的 `shaders` 子目录；若资源在 `assets/files`，着色器仍在 `assets/shaders`。
+Sources and generated `.scbp` files are stored here. The bgfx backend reads packages from `<assets>/shaders`. Builds do not generate or copy shaders. Place the four packages in the resource directory's `shaders` subdirectory yourself. When resources use `assets/files`, shaders remain in `assets/shaders`.
 
-在游戏资源根的 `setup.env` 设置 `SEXY_VIDEO_DRIVER=auto|dx11|dx12|gl|vk|metal`，启动时按实际 renderer 从包中选择对应分段。指定后端失败或包缺失会报告初始化错误。
+Set `SEXY_VIDEO_DRIVER=auto|dx11|dx12|gl|vk|metal` in the game asset root's `setup.env`. Startup selects the segment for the actual renderer. An unavailable requested backend or missing package causes an initialization error.
 
-## 重新生成
+## Regeneration
 
-在项目根目录运行：
+Run from the repository root:
 
 ```powershell
 python Tools/pack_scbp.py build Shaders/main.vert.sc Shaders/main.frag.sc Shaders/solid.frag.sc Shaders/yuv.frag.sc --flags 0x1F --werror
@@ -29,27 +29,27 @@ python Tools/pack_scbp.py inspect Shaders/main.vert.scbp
 python Tools/pack_scbp.py inspect Shaders/main.frag.scbp
 ```
 
-自动使用项目已安装的 bgfx shaderc 和 `varying.def.sc`。CMake 配置时追加 `-DVCPKG_MANIFEST_FEATURES=shader-tools` 可安装宿主机 shaderc。四个包全部编译成功后才替换产物。
+The script discovers the project's installed bgfx shaderc and `varying.def.sc`. Add `-DVCPKG_MANIFEST_FEATURES=shader-tools` when configuring CMake to install host shaderc. Outputs are replaced only after all four packages compile successfully.
 
-## bgfx 绑定约定
+## bgfx binding contract
 
-| 名称 | bgfx 类型/属性 | 数据 |
+| Name | bgfx type/attribute | Data |
 | --- | --- | --- |
-| `a_position` | `Attrib::Position`，2 个 Float | 当前二维像素位置 |
-| `a_texcoord0` | `Attrib::TexCoord0`，2 个 Float | 纹理 UV |
-| `a_color0` | `Attrib::Color0`，4 个 Uint8，normalized | 当前顶点 RGBA；沿用现有预乘约定 |
-| `u_transform` | `UniformType::Mat3` | 当前仿射矩阵，默认单位阵 |
+| `a_position` | `Attrib::Position`, 2 Float components | Current 2D pixel position |
+| `a_texcoord0` | `Attrib::TexCoord0`, 2 Float components | Texture UV |
+| `a_color0` | `Attrib::Color0`, 4 normalized Uint8 components | Current vertex RGBA, retaining the existing premultiplication convention |
+| `u_transform` | `UniformType::Mat3` | Current affine transform; identity by default |
 | `u_viewport` | `UniformType::Vec4` | `(width, height, 0, 0)` |
-| `u_blitParams` | `UniformType::Vec4` | `(colorize ? 1 : 0, alphaTest ? 1 : 0, alphaRef, FilterEffect + 1)`，默认全 0 |
-| `s_texture` | `UniformType::Sampler`，stage 0 | 纹理绘制的 RGBA 图像 |
-| `s_y` | `UniformType::Sampler`，stage 0 | 视频 Y 平面，R8 |
-| `s_cb` | `UniformType::Sampler`，stage 1 | 视频 Cb 平面，R8 |
-| `s_cr` | `UniformType::Sampler`，stage 2 | 视频 Cr 平面，R8 |
+| `u_blitParams` | `UniformType::Vec4` | `(colorize ? 1 : 0, alphaTest ? 1 : 0, alphaRef, FilterEffect + 1)`; all zeros by default |
+| `s_texture` | `UniformType::Sampler`, stage 0 | RGBA image for texture draws |
+| `s_y` | `UniformType::Sampler`, stage 0 | Video Y plane, R8 |
+| `s_cb` | `UniformType::Sampler`, stage 1 | Video Cb plane, R8 |
+| `s_cr` | `UniformType::Sampler`, stage 2 | Video Cr plane, R8 |
 
-`u_transform` 使用数学上的列向量乘法，上传为 column-major 的 9 个 float。`SexyMatrix3::m` 是 row-major，因此上传前按 `m00,m10,m20,m01,m11,m21,m02,m12,m22` 排列。着色器不会再次预乘顶点颜色。
+`u_transform` uses mathematical column-vector multiplication and is uploaded as nine column-major floats. `SexyMatrix3::m` is row-major, so upload order is `m00,m10,m20,m01,m11,m21,m02,m12,m22`. Shaders do not premultiply vertex color again.
 
-视频路径沿用当前 `DrawYuv` 的单位变换矩阵，不将顶点颜色乘入视频输出。纯色和视频片元仍声明相同的完整 varying 接口，以匹配通用顶点着色器的 bgfx interface hash。
+Video retains `DrawYuv`'s identity transform and does not multiply output by vertex color. Solid and video fragment shaders declare the same complete varying interface to match the shared vertex shader's bgfx interface hash.
 
-着色器不设置混合、裁剪、纹理采样或深度状态。普通预乘 alpha 混合使用 `ONE / INV_SRC_ALPHA`，叠加绘制使用 `ONE / ONE`，由 `BgfxRenderDevice` 设置。
+Shaders do not set blend, scissor, texture sampling, or depth state. `BgfxRenderDevice` sets normal premultiplied alpha blending to `ONE / INV_SRC_ALPHA` and additive blending to `ONE / ONE`.
 
-植物滤镜按原版 `FilterEffectDoLumSat`（`0x206a38`）处理 HSL：褪色滤镜的亮度和饱和度分别乘 1.8、0.2，轻度褪色分别乘 1.2、0.3，白色滤镜保留 alpha。`u_blitParams.w` 为 0 时关闭，为 1、2、3 时分别应用这三种滤镜。IZ 纸板按原版 PC `IZombieDrawPlant`（`0x42b690`）先用白色滤镜画三次轮廓：偏移 `(4,4)`、颜色 `(122,86,58)`，偏移 `(2,2)` 和 `(-2,-2)`、颜色 `(171,135,107)`；最后关闭滤镜，在原坐标用 `(255,201,160)` 调制植物原图。共用软件渲染路径使用相同的变换。
+Plant filters follow the original `FilterEffectDoLumSat` (`0x206a38`) HSL behavior: washed-out lightness and saturation are multiplied by 1.8 and 0.2; mild washing uses 1.2 and 0.3; the white filter preserves alpha. `u_blitParams.w` of 0 disables filters; 1, 2, and 3 select these three filters respectively. I, Zombie cardboard follows the original PC `IZombieDrawPlant` (`0x42b690`): draw three white-filter outlines at `(4,4)` with `(122,86,58)`, then `(2,2)` and `(-2,-2)` with `(171,135,107)`. Finally, disable the filter and modulate the original plant at its original position with `(255,201,160)`. The shared software-rendering path uses the same transformation.

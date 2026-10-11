@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
 <PVZ version="1.2.0.1073" schemaVersion="3" tvSourceSHA256="03858ae2d372bdbe789771d6cad86070af8333fd2219e4e784c0358e402716d4">
-    <!-- TV 方案：冒险保留用户提供的 TV XML。完整独立文件，分发时改名 levels.xml。波次索引从 0 开始。 -->
+    <!-- TV configuration: Adventure retains the user-supplied TV XML. This is a complete standalone file; rename it to levels.xml for distribution. Wave indices are zero-based. -->
     <Defaults spawnRules="xml" flagRules="xml" waveCount="0" allowedZombies="">
         <Scale flagOnly="true" numerator="5" denominator="2" />
         <Spawn flagOnly="true" types="0" budgetCountLimit="8" />
@@ -5075,7 +5075,7 @@
     </Level>
     <Level mode="91" id="*" name="GAMEMODE_CHALLENGE_BUTTERED_POPCORN" waveCount="20" allowYeti="true" scene="2" allowedZombies="0 2 4">
         <ExtraSpawns graves="true" types="0 2 4" carrier="20" bobsledFallback="0 0 0 0" poolCount="3" poolPoints="7" skyCount="0" skyPoints="7" skyEveryWave="false" graveMinimumAge="100" gravesOnFlag="false" graveCountdownChance="false" />
-        <!-- 参考工程扩展模式；并非 TV 原版发售模式。 -->
+        <!-- Extended mode from the reference project; not a mode shipped in the original TV edition. -->
         <Wave index="0" flag="0" points="1" />
         <Wave index="1" flag="0" points="1" />
         <Wave index="2" flag="0" points="2" />
@@ -5148,7 +5148,7 @@
     </Level>
     <Level mode="93" id="*" name="GAMEMODE_CHALLENGE_POOL_PARTY" waveCount="20" allowYeti="true" scene="2" allowedZombies="0 2 4">
         <ExtraSpawns graves="true" types="0 2 4" carrier="20" bobsledFallback="0 0 0 0" poolCount="3" poolPoints="7" skyCount="0" skyPoints="7" skyEveryWave="false" graveMinimumAge="100" gravesOnFlag="false" graveCountdownChance="false" />
-        <!-- 参考工程扩展模式；并非 TV 原版发售模式。 -->
+        <!-- Extended mode from the reference project; not a mode shipped in the original TV edition. -->
         <Wave index="0" flag="0" points="1" />
         <Wave index="1" flag="0" points="1" />
         <Wave index="2" flag="0" points="2" />
