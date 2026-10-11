@@ -4,14 +4,71 @@
 #include "ReconFreeFunctions.h"
 #include "AndroidShims.h"
 #include <algorithm>
+#include <atomic>
 #include <cctype>
 #include <cmath>
+#include <cstdlib>
 #include <cstring>
 #include <string>
 
 namespace Sexy
 {
 BgfxRenderDevice *BgfxRenderDevice::sCurrent = nullptr;
+
+class BgfxCallbacks final : public bgfx::CallbackI
+{
+public:
+    std::atomic<bool> mShuttingDown{false};
+
+    void fatal(const char *filePath, uint16_t line, bgfx::Fatal::Enum code, const char *message) override
+    {
+        // The DX11 state cache still releases its own reference after this
+        // DebugCheck. Overlays and drivers may retain additional references;
+        // that check must not turn normal shutdown into a breakpoint crash.
+        const bool shutdownReferenceCheck = mShuttingDown.load() && code == bgfx::Fatal::DebugCheck &&
+            filePath != nullptr && std::strstr(filePath, "renderer_d3d") != nullptr &&
+            message != nullptr && std::strstr(message, "RefCount is ") != nullptr &&
+            std::strstr(message, "(expected ") != nullptr;
+        if (shutdownReferenceCheck)
+        {
+            SDL_LogWarn(SDL_LOG_CATEGORY_RENDER,
+                "bgfx shutdown: %s (%s:%u)", message, filePath, static_cast<unsigned int>(line));
+            return;
+        }
+        SDL_LogCritical(SDL_LOG_CATEGORY_RENDER,
+            "bgfx error %d: %s (%s:%u)", code, message, filePath, static_cast<unsigned int>(line));
+        if (code == bgfx::Fatal::DebugCheck)
+            SDL_TriggerBreakpoint();
+        else
+            std::abort();
+    }
+
+    void traceVargs(const char *, uint16_t, const char *format, va_list arguments) override
+    {
+        SDL_LogMessageV(SDL_LOG_CATEGORY_RENDER, SDL_LOG_PRIORITY_DEBUG, format, arguments);
+    }
+
+    void profilerBegin(const char *, uint32_t, const char *, uint16_t) override {}
+    void profilerBeginLiteral(const char *, uint32_t, const char *, uint16_t) override {}
+    void profilerEnd() override {}
+
+    uint32_t cacheReadSize(uint64_t) override
+    {
+        return 0;
+    }
+    bool cacheRead(uint64_t, void *, uint32_t) override
+    {
+        return false;
+    }
+    void cacheWrite(uint64_t, const void *, uint32_t) override {}
+
+    // Screenshots use ReadPixels and Screenshot::Save on the offscreen target.
+    void screenShot(const char *, uint32_t, uint32_t, uint32_t, const void *, uint32_t, bool) override {}
+    void captureBegin(uint32_t, uint32_t, uint32_t, bgfx::TextureFormat::Enum, bool) override {}
+    void captureEnd() override {}
+    void captureFrame(const void *, uint32_t) override {}
+};
+
 namespace
 {
 constexpr bgfx::ViewId SceneView = 0, ReadbackView = 1, PresentView = 2;
@@ -60,6 +117,8 @@ bool BgfxRenderDevice::Init(int width, int height)
     init.type = RequestedRenderer(valid);
     if (!valid)
         return false;
+    mCallbacks = std::make_unique<BgfxCallbacks>();
+    init.callback = mCallbacks.get();
     // bgfx's Debug library enables driver validation and profiling by default.
     // Keep C++ debugging independent of the graphics driver's diagnostic layer.
     init.debug = GetEnvOption("SEXY_BGFX_DEBUG", false) != 0;
@@ -176,6 +235,7 @@ void BgfxRenderDevice::Shutdown()
         sCurrent = nullptr;
     if (!mInitialized)
         return;
+    mCallbacks->mShuttingDown.store(true);
     FlushBatch();
     FinishGpuWork();
     mVertices.clear();
@@ -205,6 +265,7 @@ void BgfxRenderDevice::Shutdown()
         *uniform = BGFX_INVALID_HANDLE;
     }
     bgfx::shutdown();
+    mCallbacks.reset();
     mInitialized = false;
     mFrameOpen = false;
     mDrawTarget = nullptr;

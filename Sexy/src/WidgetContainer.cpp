@@ -284,7 +284,14 @@ void Sexy::WidgetContainer::UpdateAll(ModalFlags *theFlags)
     for (Widget *aWidget : aChildren)
     {
         if (HasWidget(aWidget))
+        {
+            // UpdateAll @0x3AD14C enables the modal and every widget above it.
+            if (mWidgetManager->mBaseModalWidget == aWidget)
+                theFlags->mIsOver = true;
             aWidget->UpdateAll(theFlags);
+            if (mWidgetManager == nullptr)
+                break;
+        }
     }
     mUpdateIterator = EndChild(this);
     mUpdateIteratorModified = true;
@@ -313,7 +320,14 @@ void Sexy::WidgetContainer::UpdateFAll(ModalFlags *theFlags, float theFrac)
     for (Widget *aWidget : aChildren)
     {
         if (HasWidget(aWidget))
+        {
+            // UpdateFAll @0x3AD22C uses the same modal boundary.
+            if (mWidgetManager->mBaseModalWidget == aWidget)
+                theFlags->mIsOver = true;
             aWidget->UpdateFAll(theFlags, theFrac);
+            if (mWidgetManager == nullptr)
+                break;
+        }
     }
     mUpdateIterator = EndChild(this);
     mUpdateIteratorModified = true;

@@ -7,6 +7,17 @@
 #include "MenuWidget.h"
 #include "Widget.h"
 #include "WidgetManager.h"
+#include <algorithm>
+
+namespace
+{
+// HelpTextScreen @0x189C98 spaces pages by 2560: its children draw their
+// menu positions again after the widget tree has translated them.
+constexpr float HelpPageSpacing = 2560.0f;
+constexpr float HelpPageOffset = 15.0f;
+constexpr int HelpPageCount = 5;
+constexpr float LastHelpPage = HelpPageOffset + (HelpPageCount - 1) * HelpPageSpacing;
+}
 
 void HelpTextScreen::AddedToManager(Sexy::WidgetManager *theWidgetManager)
 {
@@ -15,14 +26,18 @@ void HelpTextScreen::AddedToManager(Sexy::WidgetManager *theWidgetManager)
     MenuWidget::AddedToManager(theWidgetManager);
     for (Sexy::Widget *child : mWidgetVector)
         child->mMouseVisible = false;
-    // The second page scrolls by 2560 pixels (constructor @0x189C98).
-    // Keep both pages inside the mouse hit area after the menu is loaded.
-    Resize(mX, mY, 2560 + mApp->mWidth + 15, mHeight);
+    // VS and coop open pages beyond the original two-page hit area.
+    Resize(mX, mY, static_cast<int>(LastHelpPage) + mApp->mWidth, mApp->mHeight);
 }
 
 void HelpTextScreen::MouseDown(int x, int y, int theClickCount)
 {
-    if (theClickCount <= 0 || theClickCount == 3)
+    if (theClickCount < 0)
+    {
+        mApp->KillHelpTextScreen();
+        return;
+    }
+    if (theClickCount == 0 || theClickCount == 3)
         return;
     const int screenX = x + GetAbsPos().mX;
     GameButtonDown(screenX < mApp->mWidth / 2 ? GAMEPAD_BUTTON_LEFT : GAMEPAD_BUTTON_RIGHT, 0, 0);
@@ -71,19 +86,19 @@ int HelpTextScreen::KeyDown(Sexy::KeyCode theKey)
 
     if (theKey == Sexy::KEYCODE_LEFT)
     {
-        if (mScrollTo <= 15.0f || mScrollTimer != 0.0f)
+        if (mScrollTo <= HelpPageOffset || mScrollTimer != 0.0f)
             return Widget::KeyDown(theKey);
         mScrollTimer = 1.0f;
-        mScrollTo -= 2560.0f;
+        mScrollTo -= HelpPageSpacing;
         return 1;
     }
 
     if (theKey == Sexy::KEYCODE_RIGHT)
     {
-        if (mScrollTo >= 2560.0f || mScrollTimer != 0.0f)
+        if (mScrollTo >= LastHelpPage || mScrollTimer != 0.0f)
             return Widget::KeyDown(theKey);
         mScrollTimer = 1.0f;
-        mScrollTo += 2560.0f;
+        mScrollTo += HelpPageSpacing;
         return 1;
     }
 
@@ -120,9 +135,9 @@ HelpTextScreen::HelpTextScreen(LawnApp *theApp, int thePage) :
     mCameraOffsetY = 0.0f;
 
     mApp = theApp;
-    mPage = thePage;
+    mPage = std::clamp(thePage, 0, HelpPageCount - 1);
 
-    float initial = (float)thePage * 2560.0f + 15.0f;
+    const float initial = mPage * HelpPageSpacing + HelpPageOffset;
     mScrollFrom = initial;
     mScrollTo = initial;
     mScrollTimer = 0.0f;
@@ -130,6 +145,7 @@ HelpTextScreen::HelpTextScreen(LawnApp *theApp, int thePage) :
 
     mHasAlpha = true;
     mClip = false;
+    mX = static_cast<int>(-initial);
 }
 
 void HelpTextScreen::GameButtonDown(Sexy::GamepadButton theButton, int thePlayerIndex, unsigned int theModifiers)
@@ -144,20 +160,20 @@ void HelpTextScreen::GameButtonDown(Sexy::GamepadButton theButton, int thePlayer
 
     if (theButton == GAMEPAD_BUTTON_LEFT)
     {
-        if (mScrollTo > 15.0f && mScrollTimer == 0.0f)
+        if (mScrollTo > HelpPageOffset && mScrollTimer == 0.0f)
         {
             mScrollTimer = 1.0f;
-            mScrollTo -= 2560.0f;
+            mScrollTo -= HelpPageSpacing;
         }
         return;
     }
 
     if (theButton == GAMEPAD_BUTTON_RIGHT)
     {
-        if (mScrollTo < 2560.0f && mScrollTimer == 0.0f)
+        if (mScrollTo < LastHelpPage && mScrollTimer == 0.0f)
         {
             mScrollTimer = 1.0f;
-            mScrollTo += 2560.0f;
+            mScrollTo += HelpPageSpacing;
         }
     }
 }

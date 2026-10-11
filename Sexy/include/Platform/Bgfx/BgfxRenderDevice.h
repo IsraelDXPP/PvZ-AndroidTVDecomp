@@ -9,6 +9,8 @@
 
 namespace Sexy
 {
+class BgfxCallbacks;
+
 struct BgfxVertex
 {
     float mX, mY, mU, mV;
@@ -88,6 +90,7 @@ public:
     }
 
 private:
+    std::unique_ptr<BgfxCallbacks> mCallbacks;
     enum class Program
     {
         Blit,

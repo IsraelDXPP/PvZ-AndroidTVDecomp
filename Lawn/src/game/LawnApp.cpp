@@ -602,9 +602,13 @@ Board *LawnApp::ShowHelpTextScreen(int theHelpIndex)
         HelpTextScreen *aScreen = new HelpTextScreen(this, theHelpIndex);
         mHelpTextScreen = aScreen;
         mWidgetManager->AddWidget(aScreen);
-        mWidgetManager->SetFocus(aScreen);
         mWidgetManager->BringToFront(aScreen);
+        // Keep VS setup and the cutscene from advancing beneath their help.
+        Sexy::FlagsMod modalFlags = mWidgetManager->mDefaultBelowModalFlagsMod;
+        modalFlags.mRemoveFlags |= 1; // WIDGETFLAGS_UPDATE
+        mWidgetManager->AddBaseModal(aScreen, modalFlags);
     }
+    mWidgetManager->SetFocus(mHelpTextScreen);
     return nullptr;
 }
 
@@ -617,26 +621,28 @@ void LawnApp::KillHelpTextScreen()
     if (mHelpTextScreen == nullptr)
         return;
 
-    mWidgetManager->RemoveWidget(mHelpTextScreen);
-    SafeDeleteWidget(mHelpTextScreen);
+    HelpTextScreen *screen = mHelpTextScreen;
     mHelpTextScreen = nullptr;
+    mWidgetManager->RemoveWidget(screen);
+    mWidgetManager->RemoveBaseModal(screen);
+    SafeDeleteWidget(screen);
+
+    if (mBoard != nullptr)
+        mBoard->Pause(NeedPauseGame());
 
     // Removing help clears focus. GotFocus rebuilds the chooser's own hints.
     if (mSeedChooserScreen != nullptr)
     {
-        mBoard->Pause(false);
         mWidgetManager->SetFocus(mSeedChooserScreen);
         return;
     }
     if (mZombieChooserScreen != nullptr)
     {
-        mBoard->Pause(false);
         mWidgetManager->SetFocus(mZombieChooserScreen);
         return;
     }
     if (mVSSetupMenu != nullptr)
     {
-        mBoard->Pause(false);
         mWidgetManager->SetFocus(mVSSetupMenu);
         return;
     }
@@ -647,12 +653,13 @@ void LawnApp::KillHelpTextScreen()
     }
     if (mBoard != nullptr)
     {
-        mBoard->Pause(false);
         mWidgetManager->SetFocus(mBoard);
         return;
     }
     if (Sexy::Dialog *dialog = GetDialog(60))
         mWidgetManager->SetFocus(dialog);
+    else if (mGameSelector != nullptr)
+        mWidgetManager->SetFocus(mGameSelector);
 }
 
 // ==========================================================================
@@ -1028,6 +1035,7 @@ int LawnApp::KillBoard()
 {
     mGameScene = SCENE_LEVEL_INTRO;
     FinishModelessDialogs();
+    KillHelpTextScreen();
     KillSeedChooserScreen();
     KillZombieChooserScreen();
     KillVSSetupScreen();
@@ -1682,6 +1690,8 @@ EffectSystem *LawnApp::KillAll()
 // ==========================================================================
 bool LawnApp::NeedPauseGame()
 {
+    if (mHelpTextScreen != nullptr)
+        return true;
     if (mDialogList.empty())
         return false;
 

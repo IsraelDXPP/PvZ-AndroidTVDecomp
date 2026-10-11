@@ -255,6 +255,13 @@ int &Sexy::GamepadKeyMap::Get(int theKey)
 
 void Sexy::WidgetManager::SetFocus(Sexy::Widget *theWidget)
 {
+    // Focus requests from an updating screen must respect the same modal
+    // boundary that excludes its mouse input (SetBaseModal @0x3B14CC).
+    if (theWidget != nullptr && theWidget->mWidgetManager == this && mBaseModalWidget != nullptr &&
+        theWidget->GetTopLevel() != mBaseModalWidget->GetTopLevel() &&
+        (mBelowModalFlagsMod.mRemoveFlags & 32) != 0 && IsBelow(theWidget, mBaseModalWidget))
+        return;
+
     Sexy::Widget *aFocusWidget = mFocusWidget;
     if (aFocusWidget == theWidget)
         return;
