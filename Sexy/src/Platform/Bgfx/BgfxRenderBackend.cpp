@@ -252,8 +252,7 @@ void BgfxBackend::DrawImage(MemoryImage *theImage, const Rect &theDestRect, cons
         theSrcRect,
         theColor,
         theDrawMode == kDrawMode_Additive ? BgfxRenderDevice::DRAWMODE_ADDITIVE : BgfxRenderDevice::DRAWMODE_NORMAL,
-        theMirror,
-        true);
+        theMirror);
 }
 
 void BgfxBackend::FillRect(const Rect &theRect, const Color &theColor, int theDrawMode)

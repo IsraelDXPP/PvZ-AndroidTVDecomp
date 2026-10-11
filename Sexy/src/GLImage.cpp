@@ -162,7 +162,6 @@ void Sexy::GLImage::Blt(Image *theSource, int theX, int theY, const TRect<int> &
         theColor,
         ToDeviceMode(theDrawMode),
         false,
-        true,
         false);
 }
 
@@ -191,7 +190,6 @@ void Sexy::GLImage::BltF(Image *theSource, float theX, float theY, const TRect<i
         theColor,
         ToDeviceMode(theDrawMode),
         false,
-        true,
         false);
 }
 
@@ -259,8 +257,10 @@ void Sexy::GLImage::StretchBlt(Image *theSource, const TRect<int> &theDestRect, 
     if (aSrc.mWidth <= 0 || aSrc.mHeight <= 0)
         return;
 
+    // StretchBlt @0x475CB8 uses fastStretch only on the software path.
+    // The hardware path goes through BltTransformed with linear filtering.
     BgfxRenderDevice::sCurrent->DrawImage(
-        aSource, aDest, aSrc, theColor, ToDeviceMode(theDrawMode), false, theFastStretch, false);
+        aSource, aDest, aSrc, theColor, ToDeviceMode(theDrawMode), false, false);
 }
 
 void Sexy::GLImage::BltMatrix(Image *theSource, float theX, float theY, const SexyMatrix3 &theMatrix,
@@ -371,7 +371,6 @@ void Sexy::GLImage::BltMirror(
         theColor,
         ToDeviceMode(theDrawMode),
         true,
-        true,
         false);
 }
 
@@ -394,5 +393,5 @@ void Sexy::GLImage::StretchBltMirror(Image *theSource, const TRect<int> &theDest
         return;
 
     BgfxRenderDevice::sCurrent->DrawImage(
-        aSource, aDest, theSrcRect, theColor, ToDeviceMode(theDrawMode), true, theFastStretch, false);
+        aSource, aDest, theSrcRect, theColor, ToDeviceMode(theDrawMode), true, false);
 }

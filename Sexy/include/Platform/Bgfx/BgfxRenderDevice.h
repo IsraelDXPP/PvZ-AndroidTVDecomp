@@ -64,7 +64,7 @@ public:
     void PopTransform();
     void PopTransform(SexyMatrix3 &theTransform);
     void DrawImage(MemoryImage *theImage, const Rect &theDestRect, const Rect &theSrcRect, const Color &theColor,
-        DrawMode theMode, bool theMirror = false, bool theFastStretch = true, bool theColorize = false);
+        DrawMode theMode, bool theMirror = false, bool theColorize = false);
     void DrawImageMatrix(MemoryImage *theImage, const SexyMatrix3 &theMatrix, float theX, float theY,
         const Rect &theSrcRect, const Color &theColor, DrawMode theMode, bool theCenter = true);
     void DrawTriangles(MemoryImage *theImage, const SexyVertex2D (*theTriangles)[3], int theTriangleCount,

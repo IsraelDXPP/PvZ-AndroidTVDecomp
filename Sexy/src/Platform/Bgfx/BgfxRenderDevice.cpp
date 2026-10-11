@@ -598,7 +598,7 @@ size_t BgfxRenderDevice::GetTextureBytes() const
     return bytes;
 }
 void BgfxRenderDevice::DrawImage(MemoryImage *image, const Rect &destination, const Rect &source, const Color &color,
-    DrawMode mode, bool mirror, bool fastStretch, bool colorize)
+    DrawMode mode, bool mirror, bool colorize)
 {
     if (!mInitialized || destination.mWidth <= 0 || destination.mHeight <= 0 || source.mWidth <= 0 ||
         source.mHeight <= 0)
@@ -607,9 +607,10 @@ void BgfxRenderDevice::DrawImage(MemoryImage *image, const Rect &destination, co
     BgfxTexture *texture = EnsureTexture(image, originX, originY);
     if (!texture)
         return;
-    uint32_t sampler = BGFX_SAMPLER_U_CLAMP | BGFX_SAMPLER_V_CLAMP;
-    if (fastStretch)
-        sampler |= BGFX_SAMPLER_MIN_POINT | BGFX_SAMPLER_MAG_POINT | BGFX_SAMPLER_MIP_POINT;
+    // GLImage::BltTransformed @0x474D7C enables linear texture filtering.
+    // fastStretch selects a software rasterizer; it is not a GPU sampler flag.
+    // bgfx uses linear minification/magnification unless POINT flags are set.
+    const uint32_t sampler = BGFX_SAMPLER_U_CLAMP | BGFX_SAMPLER_V_CLAMP;
     BeginBatch(Program::Blit, mode, texture->mHandle, colorize || mColorize, sampler);
     float left = float(originX + source.mX) / texture->mWidth,
           right = float(originX + source.mX + source.mWidth) / texture->mWidth;
