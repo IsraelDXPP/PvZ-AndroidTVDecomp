@@ -64,6 +64,7 @@ private:
     float mLastMouseX = 0.0f;
     float mLastMouseY = 0.0f;
     bool mMousePositionKnown = false;
+    void UpdateRenderSize();
     void QueueMouseEvent(int theKind, float theX, float theY, int theClickCount = 0);
 };
 

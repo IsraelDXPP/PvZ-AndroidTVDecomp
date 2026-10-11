@@ -2,12 +2,14 @@
 #include "SexyTypes.h"
 #include "AndroidShims.h"
 #include <algorithm>
+#include <cmath>
 
 namespace Sexy
 {
 namespace
 {
 SDLWindow *sActiveWindow = nullptr;
+constexpr int kLogicalCanvasHeight = 720;
 
 // AndroidDisplay::InitKeyMap @0x43EC28 uses the virtual-key values read by
 // game code. SDL scancodes are converted once at the platform boundary.
@@ -88,8 +90,7 @@ bool SDLWindow::Create(
     if (theWidth <= 0 || theHeight <= 0 || !SDL_InitSubSystem(SDL_INIT_VIDEO | SDL_INIT_EVENTS))
         return false;
     mVideoInitialized = true;
-    // Keep the requested game canvas independent of the native surface. The
-    // presentation pass scales this canvas when the fullscreen/window grows.
+    // Logical coordinates remain independent of the native surface resolution.
     mRenderWidth = theWidth;
     mRenderHeight = theHeight;
 #if defined(SDL_PLATFORM_ANDROID)
@@ -121,8 +122,7 @@ bool SDLWindow::Create(
     mHeight = theHeight;
     SDL_GetWindowSizeInPixels(mWindow, &mWidth, &mHeight);
 #if !defined(SDL_PLATFORM_ANDROID)
-    mRenderWidth = mWidth;
-    mRenderHeight = mHeight;
+    UpdateRenderSize();
 #endif
     mWindowed = theWindowed;
     mVSync = theVSync;
@@ -162,6 +162,14 @@ void SDLWindow::ProcessEvent(const SDL_Event &theEvent)
     if (theEvent.type >= SDL_EVENT_WINDOW_FIRST && theEvent.type <= SDL_EVENT_WINDOW_LAST &&
         theEvent.window.windowID == windowID)
     {
+        if (theEvent.type == SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED &&
+            theEvent.window.data1 > 0 && theEvent.window.data2 > 0)
+        {
+            mWidth = theEvent.window.data1;
+            mHeight = theEvent.window.data2;
+            UpdateRenderSize();
+            mMousePositionKnown = false;
+        }
         if (theEvent.type == SDL_EVENT_WINDOW_CLOSE_REQUESTED)
             mClosed = true;
         if (theEvent.type == SDL_EVENT_WINDOW_FOCUS_GAINED)
@@ -258,6 +266,15 @@ void SDLWindow::UpdateFrame()
 {
     if (!mWindow)
         return;
+    int width = 0, height = 0;
+    SDL_GetWindowSizeInPixels(mWindow, &width, &height);
+    if (width > 0 && height > 0 && (mWidth != width || mHeight != height))
+    {
+        mWidth = width;
+        mHeight = height;
+        UpdateRenderSize();
+        mMousePositionKnown = false;
+    }
     // Sample SDL's current pointer state once per frame. Movement events can
     // arrive in bursts; their old positions must not drive the planting cursor.
     if (mActive && SDL_GetMouseFocus() == mWindow)
@@ -270,13 +287,6 @@ void SDLWindow::UpdateFrame()
         mLastMouseX = mouseX;
         mLastMouseY = mouseY;
         mMousePositionKnown = true;
-    }
-    int width = 0, height = 0;
-    SDL_GetWindowSizeInPixels(mWindow, &width, &height);
-    if (width > 0 && height > 0)
-    {
-        mWidth = width;
-        mHeight = height;
     }
     double now = ClockSeconds();
     mFrameTime = std::clamp(now - mLastTime, 0.0, 0.25);
@@ -346,11 +356,25 @@ bool SDLWindow::IsMouseButtonDown(int theButton) const
                                             : SDL_BUTTON_MIDDLE;
     return (SDL_GetMouseState(nullptr, nullptr) & SDL_BUTTON_MASK(button)) != 0;
 }
+void SDLWindow::UpdateRenderSize()
+{
+#if !defined(SDL_PLATFORM_ANDROID)
+    if (mWidth <= 0 || mHeight <= 0)
+        return;
+    mRenderHeight = kLogicalCanvasHeight;
+    // An even width keeps the original integer centering formula symmetric.
+    mRenderWidth = std::max(2, int(std::lround(double(mWidth) * mRenderHeight / (2.0 * mHeight))) * 2);
+#endif
+}
 FRect SDLWindow::GetPresentationRect(int theWidth, int theHeight) const
 {
     if (theWidth <= 0 || theHeight <= 0 || mRenderWidth <= 0 || mRenderHeight <= 0)
         return FRect();
+#if defined(SDL_PLATFORM_ANDROID)
     const double scale = std::min(double(theWidth) / mRenderWidth, double(theHeight) / mRenderHeight);
+#else
+    const double scale = double(theHeight) / mRenderHeight;
+#endif
     const double width = mRenderWidth * scale;
     const double height = mRenderHeight * scale;
     return FRect((theWidth - width) / 2.0, (theHeight - height) / 2.0, width, height);

@@ -434,6 +434,10 @@ void MessageWidget::DrawReanimatedText(
         // One glyph per draw call, placed by the transform.
         Sexy::SexyMatrix3 aMatrix;
         aReanim->MatrixFromTransform(aTransform, aMatrix);
+        // DrawReanimatedText @0x1A45A8 uses the original display origin directly.
+        // Matrix glyphs bypass Graphics' translation, so apply the viewport delta.
+        SexyMatrix3Translation(&aMatrix, float(LawnApp::FULLSCREEN_RECT.mX - mApp->mScreenBounds.mX),
+            float(LawnApp::FULLSCREEN_RECT.mY - mApp->mScreenBounds.mY));
 
         Sexy::String aGlyph = CodePointsToUtf8({aCharacters[i]});
         TodDrawStringMatrix(theGraphics, theFont, aMatrix, aGlyph, aColor);
@@ -605,9 +609,9 @@ void MessageWidget::Draw(Sexy::Graphics *theGraphics)
         // The band uses the message font and color; only the unbanded path has
         // an optional outline pass (the banded draw is at 0x1A4D8A).
         TRect<int> aBackdrop;
-        aBackdrop.mX = (800 - LawnApp::FULLSCREEN_RECT.mWidth) / 2;
+        aBackdrop.mX = mApp->mScreenBounds.mX - mApp->mBoard->mX;
         aBackdrop.mY = aPosY;
-        aBackdrop.mWidth = LawnApp::FULLSCREEN_RECT.mWidth;
+        aBackdrop.mWidth = mApp->mScreenBounds.mWidth;
         aBackdrop.mHeight = aBackdropWidth;
 
         theGraphics->SetColor(Color(0, 0, 0, 128));

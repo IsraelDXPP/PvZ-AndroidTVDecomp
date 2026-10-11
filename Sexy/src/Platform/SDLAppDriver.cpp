@@ -144,6 +144,8 @@ bool AppDriver_EnsureWindow(SDLAppDriver *theSelf)
 
     theSelf->mWindow = aWindow;
     theSelf->mOwnsWindow = true;
+    theSelf->mWidth = aWindow->mRenderWidth;
+    theSelf->mHeight = aWindow->mRenderHeight;
     TOD_TRACE("SDLAppDriver: created %dx%d", theSelf->mWidth, theSelf->mHeight);
     return true;
 }
@@ -188,6 +190,24 @@ void AppDriver_CenterScreen(SDLAppDriver *theSelf)
     // focus links while this stays off, so a d-pad press never leaves the
     // button that already has focus.
     anApp->mWidgetManager->SetAllowFullKeyboardMode(anApp->mRuntimeFlags[1]);
+}
+
+void AppDriver_UpdateWindowSize(SDLAppDriver *theSelf)
+{
+    if (theSelf == nullptr || theSelf->mWindow == nullptr)
+        return;
+    const Sexy::SDLWindow *window = theSelf->mWindow;
+    if (window->mRenderWidth <= 0 || window->mRenderHeight <= 0 ||
+        (theSelf->mWidth == window->mRenderWidth && theSelf->mHeight == window->mRenderHeight))
+        return;
+
+    theSelf->mWidth = window->mRenderWidth;
+    theSelf->mHeight = window->mRenderHeight;
+    if (theSelf->mGraphics != nullptr)
+        theSelf->mGraphics->Resize(theSelf->mWidth, theSelf->mHeight);
+    AppDriver_CenterScreen(theSelf);
+    if (theSelf->mApp != nullptr && theSelf->mApp->mWidgetManager != nullptr)
+        theSelf->mApp->mWidgetManager->MarkAllDirty();
 }
 
 void AppDriver_DestroyWindow(SDLAppDriver *theSelf)
@@ -375,6 +395,8 @@ int SDLAppDriver::UpdateAppStep(bool *theContinue)
             return 0;
     }
 
+    // Update drawing and hit testing before processing this frame's input.
+    AppDriver_UpdateWindowSize(self);
     anApp->CheckControllerStatus();
     ++anApp->mUpdateAppDepth;
 

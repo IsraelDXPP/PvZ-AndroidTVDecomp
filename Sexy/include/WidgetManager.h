@@ -154,6 +154,7 @@ public:
     GamepadKeyMap mGamepadKeyMap;
 
     void FreeResources();
+    void SetInteractiveMethod(int theMethod);
     int GetWidgetFlags();
     Widget *GetAnyWidgetAt(int x, int y, int *theWidgetX, int *theWidgetY);
     Widget *GetWidgetAt(int x, int y, int *theWidgetX, int *theWidgetY);

@@ -2074,6 +2074,10 @@ int MainMenu::DrawFade(Sexy::Graphics *theGraphics)
     theGraphics->SetColorizeImages(true);
     theGraphics->SetColor(Sexy::Color(0, 0, 0, 255));
 
+    // Keep the original iris position and cover the entire resized display.
+    const Sexy::Rect viewport(-int(theGraphics->mTransX), -int(theGraphics->mTransY),
+        mApp->mScreenBounds.mWidth, mApp->mScreenBounds.mHeight);
+
     // The iris closes over the button that was pressed, so both the button and the
     // menu's own reanimation have to exist for the effect to run.
     Sexy::Widget *aButton = FindWidget(mPressedButtonId);
@@ -2102,7 +2106,7 @@ int MainMenu::DrawFade(Sexy::Graphics *theGraphics)
 
         if (mFadeCounterFloat >= 0.9f)
         {
-            theGraphics->FillRect(0, 0, 1280, 720);
+            theGraphics->FillRect(viewport);
         }
         else
         {
@@ -2124,10 +2128,16 @@ int MainMenu::DrawFade(Sexy::Graphics *theGraphics)
                 aHoleY = (float)(aButton->mY + aButton->mHeight / 2) - aHalfHeight;
             }
             theGraphics->DrawImage(aHoleImage, (int)aHoleX, (int)aHoleY, (int)aHoleWidth, (int)aHoleHeight);
-            theGraphics->FillRect(0, 0, (int)(aHoleX + 1.0f), 720);
-            theGraphics->FillRect(0, 0, 1280, (int)(aHoleY + 1.0f));
-            theGraphics->FillRect(0, (int)(aHoleY + (aHoleHeight - 1.0f)), 1280, 720);
-            theGraphics->FillRect((int)(aHoleX + (aHoleWidth - 1.0f)), 0, 1280, 720);
+            const int holeLeft = int(aHoleX + 1.0f);
+            const int holeTop = int(aHoleY + 1.0f);
+            const int holeRight = int(aHoleX + aHoleWidth - 1.0f);
+            const int holeBottom = int(aHoleY + aHoleHeight - 1.0f);
+            theGraphics->FillRect(viewport.mX, viewport.mY, holeLeft - viewport.mX, viewport.mHeight);
+            theGraphics->FillRect(viewport.mX, viewport.mY, viewport.mWidth, holeTop - viewport.mY);
+            theGraphics->FillRect(viewport.mX, holeBottom, viewport.mWidth,
+                viewport.mY + viewport.mHeight - holeBottom);
+            theGraphics->FillRect(holeRight, viewport.mY,
+                viewport.mX + viewport.mWidth - holeRight, viewport.mHeight);
         }
         theGraphics->PopState();
         return 0;
@@ -2138,7 +2148,7 @@ int MainMenu::DrawFade(Sexy::Graphics *theGraphics)
     if (mFadeCounterFloat >= 0.5f)
         aAlpha = (int)((mFadeCounterFloat - 0.5f) * 510.0f);
     theGraphics->SetColor(Sexy::Color(0, 0, 0, aAlpha));
-    theGraphics->FillRect(0, 0, 1280, 720);
+    theGraphics->FillRect(viewport);
     theGraphics->PopState();
     return 0;
 }
@@ -2210,10 +2220,6 @@ void MainMenu::DrawOverlay(Sexy::Graphics *theGraphics)
             aMainMenuReanim->GetCurrentTransform(aTrackIndex, &aTransform);
             aTransform.mTransX = (mCameraOffsetX + aTransform.mTransX) + (float)aButtonOffsetX;
             aTransform.mTransY = (mCameraOffsetY + aTransform.mTransY) + aButtonOffsetY;
-            // Reference DrawOverlay adds mY + 60 during the achievements slide.
-            // Matrix text draws in screen coordinates, independently of Graphics' translation.
-            if (mApp->mAchievementsScreen != nullptr)
-                aTransform.mTransY += float(mY - LawnApp::FULLSCREEN_RECT.mY);
             aTransform.mSkewX = -4.0f;
             aTransform.mSkewY = -4.0f;
             aTransform.mScaleX = aAdventureButton->mAppliedScaleX * 0.5f;
@@ -2221,6 +2227,9 @@ void MainMenu::DrawOverlay(Sexy::Graphics *theGraphics)
 
             SexyTransform2D aMatrix;
             aMainMenuReanim->MatrixFromTransform(aTransform, aMatrix);
+            // Matrix text uses screen coordinates; include the same viewport and
+            // menu-slide translation that the button artwork receives.
+            aMatrix.Translate(theGraphics->mTransX, theGraphics->mTransY);
             Sexy::Color aColor(200, 200, 200, 255);
 
             Sexy::String aText;
@@ -2266,16 +2275,9 @@ void MainMenu::DrawOverlay(Sexy::Graphics *theGraphics)
     if (aHandReanim != nullptr)
     {
         theGraphics->PushState();
-        if (IsWideScreen(mApp))
-        {
-            theGraphics->mTransX = (float)-LawnApp::FULLSCREEN_RECT.mX;
-            theGraphics->mTransY = (float)-LawnApp::FULLSCREEN_RECT.mY;
-        }
-        else
-        {
-            theGraphics->mTransX = 80.0f;
-            theGraphics->mTransY = 60.0f;
-        }
+        // DrawOverlay @0x19D442 draws the hand in stage coordinates. Keep the
+        // original stage offset, while retaining the current menu translation.
+        theGraphics->Translate(-LawnApp::FULLSCREEN_RECT.mX, -LawnApp::FULLSCREEN_RECT.mY);
         theGraphics->SetClipRect(0, 0, 800, 560);
         aHandReanim->Draw(theGraphics);
         theGraphics->PopState();

@@ -158,6 +158,12 @@ Point Sexy::WidgetContainer::GetAbsPosInManager() const
     return GetAbsPos();
 }
 
+void Sexy::WidgetContainer::OnViewportChanged()
+{
+    for (WidgetListLink *node = BeginChild(this); node != EndChild(this); node = NextChild(node))
+        ChildWidget(node)->OnViewportChanged();
+}
+
 Point Sexy::WidgetContainer::GetAbsPosInScreen() const
 {
     if (mParent == nullptr)
@@ -743,6 +749,7 @@ void Sexy::WidgetContainer::AddWidget(Sexy::Widget *theWidget)
     if (mWidgetManager != nullptr)
     {
         theWidget->AddedToManager(mWidgetManager);
+        theWidget->OnViewportChanged();
         theWidget->MarkDirtyFull();
         mWidgetManager->RehupMouse();
     }

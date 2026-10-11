@@ -71,6 +71,8 @@ public:
     virtual Point GetAbsPos() const;
     virtual Point GetAbsPosInManager() const;
     virtual Point GetAbsPosInScreen() const;
+    // Reflow screen-edge controls after the platform changes the logical canvas.
+    virtual void OnViewportChanged();
     virtual Point GetCenter() const;
     virtual Point GetAbsCenter() const;
     virtual Point GetAbsCenterInScreen() const;

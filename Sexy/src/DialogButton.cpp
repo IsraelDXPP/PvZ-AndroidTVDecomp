@@ -53,7 +53,7 @@ void Sexy::DialogButton::Draw(Sexy::Graphics *theGraphics)
     }
 
     bool isDown = IsButtonDown();
-    bool hasFocus = mHasFocus;
+    bool hasFocus = mHasFocus && ShouldShowNavigationFocus();
     double overAlpha = mOverAlpha;
     TRect<int> dest(0, 0, mWidth, mHeight);
 
@@ -79,7 +79,7 @@ void Sexy::DialogButton::Draw(Sexy::Graphics *theGraphics)
         }
         else if (mIsOver || hasFocus)
         {
-            if (mSelected)
+            if (mSelected && ShouldShowNavigationFocus())
             {
                 if (mSelectAlpha < 1.0f)
                     theGraphics->DrawImageBox(mNormalRect, dest, mImage);

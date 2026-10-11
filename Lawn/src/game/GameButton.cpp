@@ -22,7 +22,7 @@ bool GameButton::IsButtonDown()
 {
     if (!mIsDown && !mReturnPressed)
         return false;
-    if (!mIsOver && !mSelected)
+    if (!mIsOver && !(mSelected && ShouldShowNavigationFocus()))
         return false;
     if (mDisabled)
         return false;
@@ -88,7 +88,7 @@ void GameButton::Update()
 
     ++mPulseFrame;
 
-    if (!hot && !mSelected)
+    if (!hot && !(mSelected && ShouldShowNavigationFocus()))
     {
         mPulseTime = 0;
         return;
@@ -128,7 +128,7 @@ void GameButton::DrawButtonImage(
 
     if (!mIsOver)
     {
-        highlighted = mSelected && !mDisabled;
+        highlighted = mSelected && ShouldShowNavigationFocus() && !mDisabled;
     }
     else if (!mDisabled)
     {
@@ -232,7 +232,7 @@ void GameButton::Draw(Sexy::Graphics *theGraphics)
     if (mBtnNoDraw)
         return;
 
-    const bool highlighted = (mIsOver || mSelected) && !mDisabled;
+    const bool highlighted = (mIsOver || (mSelected && ShouldShowNavigationFocus())) && !mDisabled;
     const bool pressedLook = mInverted != IsButtonDown();
 
     mWobble = TodAnimateCurveFloat(0, 15, mPulseTime, 0.0f, 1.0f, CURVE_EASE_IN_OUT);
@@ -358,7 +358,7 @@ void GameButton::Draw(Sexy::Graphics *theGraphics)
 
 bool GameButton::IsMouseOver()
 {
-    if (!mIsOver && !mSelected)
+    if (!mIsOver && !(mSelected && ShouldShowNavigationFocus()))
         return false;
     if (mDisabled)
         return false;

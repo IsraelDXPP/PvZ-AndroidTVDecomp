@@ -56,6 +56,8 @@ public:
     virtual void Resize(int theX, int theY, int theWidth, int theHeight);
     virtual void Resize(const TRect<int> &theRect);
     virtual void Move(int theNewX, int theNewY);
+    void SetViewportRightAnchor(int theMargin);
+    void OnViewportChanged() override;
     virtual bool WantsFocus();
     virtual void DrawOverlay(Sexy::Graphics *g);
     virtual void DrawOverlay(Sexy::Graphics *g, int thePriority);
@@ -134,6 +136,8 @@ public:
     Widget *SetDefaultAddToManager(bool add);
     int WidgetRemovedHelper();
     bool IsFocusable();
+    bool ShouldShowNavigationFocus() const;
+    int mViewportRightMargin = -1;
     int DoKeyChar(char theChar);
     int DoKeyUnicode(int theChar);
     int KeyDownUp(Sexy::KeyCode theKey, bool isDown);

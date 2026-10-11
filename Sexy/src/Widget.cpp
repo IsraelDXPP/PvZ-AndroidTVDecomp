@@ -635,6 +635,31 @@ void Sexy::Widget::WriteNumberFromStrip(
     } while (aNumDigits > aDigit);
 }
 
+bool Sexy::Widget::ShouldShowNavigationFocus() const
+{
+    return mWidgetManager == nullptr || mWidgetManager->IsInKeyboardMode();
+}
+
+void Sexy::Widget::SetViewportRightAnchor(int theMargin)
+{
+    mViewportRightMargin = theMargin;
+    OnViewportChanged();
+}
+
+void Sexy::Widget::OnViewportChanged()
+{
+    if (mViewportRightMargin >= 0 && mWidgetManager != nullptr && mParent != nullptr)
+    {
+        const Rect &viewport = mWidgetManager->mMouseDestRect;
+        const Point parentPosition = mParent == mWidgetManager ? Point() : mParent->GetAbsPos();
+        const int margin = std::min(mViewportRightMargin, std::max(0, (viewport.mWidth - mWidth) / 2));
+        const int left = viewport.mX + viewport.mWidth - parentPosition.mX - margin - mWidth;
+        if (mX != left)
+            Resize(left, mY, mWidth, mHeight);
+    }
+    WidgetContainer::OnViewportChanged();
+}
+
 void Sexy::Widget::GotFocus()
 {
     if (!mHasFocus)

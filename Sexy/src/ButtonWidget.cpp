@@ -347,7 +347,8 @@ void Sexy::ButtonWidget::Draw(Sexy::Graphics *g)
     if (mUpdateCnt == 0)
         UpdateLabel();
 
-    const bool aHasFocus = mHasFocus;
+    const bool aHasFocus = mHasFocus && ShouldShowNavigationFocus();
+    const bool selected = mSelected && ShouldShowNavigationFocus();
 
     // "The button looks pressed": a locked down state, or a press under the mouse
     // or on the return key, and never while the widget is disabled.
@@ -393,7 +394,7 @@ void Sexy::ButtonWidget::Draw(Sexy::Graphics *g)
         if (!mFrameNoDraw)
         {
             g->SetColor(mColors[5]);
-            if (mSelected)
+            if (selected)
             {
                 // Scale the colour's alpha by the selection alpha at +0x110. The dump's
                 // fixed-point form rounds the product by 255 with
@@ -458,7 +459,7 @@ void Sexy::ButtonWidget::Draw(Sexy::Graphics *g)
             else
                 DrawButtonImage(g, mButtonImage, mNormalRect, 1, 1);
 
-            if (mSelected)
+            if (selected)
                 g->SetColorizeImages(false);
 
             if (mIsOver || aHasFocus)
@@ -488,7 +489,7 @@ void Sexy::ButtonWidget::Draw(Sexy::Graphics *g)
         }
         else if ((mIsOver || mIsDown || aHasFocus) && HaveButtonImage(mOverImage, mOverRect))
         {
-            if (mSelected)
+            if (selected)
             {
                 g->SetColorizeImages(true);
                 g->SetColor(Sexy::Color(255, 255, 255, (int)(float)(mSelectAlpha * 255.0f)));
@@ -496,7 +497,7 @@ void Sexy::ButtonWidget::Draw(Sexy::Graphics *g)
 
             DrawButtonImage(g, mOverImage, mOverRect, 0, 0);
 
-            if (mSelected)
+            if (selected)
                 g->SetColorizeImages(false);
         }
         else if (HaveButtonImage(mButtonImage, mNormalRect))

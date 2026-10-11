@@ -4561,7 +4561,7 @@ int LawnApp::ShowHelpBarWidget()
         mHelpBarWidget->mDisabled = false;
         mHelpBarWidget->mVisible = true;
         mHelpBarWidget->Move(
-            static_cast<int>(HelpBarWidget::OFFSCREEN_POS.mX), static_cast<int>(HelpBarWidget::OFFSCREEN_POS.mY));
+            mScreenBounds.mX, static_cast<int>(HelpBarWidget::OFFSCREEN_POS.mY));
     }
 
     if (mHelpBarWidget->mY == static_cast<int>(HelpBarWidget::DEFAULT_POS.mY))
@@ -4572,7 +4572,7 @@ int LawnApp::ShowHelpBarWidget()
     else
     {
         mHelpBarWidget->Move(
-            static_cast<int>(HelpBarWidget::DEFAULT_POS.mX), static_cast<int>(HelpBarWidget::DEFAULT_POS.mY));
+            mScreenBounds.mX, static_cast<int>(HelpBarWidget::DEFAULT_POS.mY));
         SlideInOutWidgetAnimator *aAnimator =
             new SlideInOutWidgetAnimator(mHelpBarWidget, SlideInOutWidgetAnimator::SLIDE_FROM_BOTTOM, 0);
         aAnimator->Init((Sexy::WidgetAnimationState)1);
@@ -4592,7 +4592,7 @@ Sexy::WidgetAnimator *LawnApp::HideHelpBarWidget()
         return nullptr;
 
     mHelpBarWidget->Move(
-        static_cast<int>(HelpBarWidget::DEFAULT_POS.mX), static_cast<int>(HelpBarWidget::DEFAULT_POS.mY));
+        mScreenBounds.mX, static_cast<int>(HelpBarWidget::DEFAULT_POS.mY));
     SlideInOutWidgetAnimator *aAnimator =
         new SlideInOutWidgetAnimator(mHelpBarWidget, SlideInOutWidgetAnimator::SLIDE_FROM_BOTTOM, 0);
     aAnimator->Init((Sexy::WidgetAnimationState)2);

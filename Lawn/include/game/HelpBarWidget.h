@@ -70,6 +70,7 @@ public:
     virtual void Update() override;
     // slot 36
     virtual void Draw(Sexy::Graphics *theGraphics) override;
+    void OnViewportChanged() override;
     bool IsPointVisible(int x, int y) override;
     void MouseDown(int x, int y, int theClickCount) override;
     void MouseUp(int x, int y, int theClickCount) override;
@@ -109,6 +110,9 @@ public:
     void AddButton(Sexy::GamepadButton theButton, Sexy::String theLabel, HelpAlign theAlign);
     void ClearButtons(unsigned int theFirstKept);
     Sexy::GamepadButton HitTestButton(int x, int y) const;
+
+private:
+    int GetButtonX(HelpAlign theAlign) const;
 };
 
 #endif // LAWNPROJECTTV_LAWN_INCLUDE_GAME_HELPBARWIDGET_H

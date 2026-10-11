@@ -113,6 +113,7 @@ LeaderboardsWidget::LeaderboardsWidget(LawnApp *theApp, bool theFromGame) :
     mBackButton->mMousePreservesFocus = true;
     // Leave room for the controller's BACK prompt below the mouse button.
     mBackButton->Resize(1040, 540, 120, 50);
+    mBackButton->SetViewportRightAnchor(120);
 }
 
 LeaderboardsWidget::~LeaderboardsWidget()

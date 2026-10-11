@@ -61,6 +61,7 @@ AchievementsWidget::AchievementsWidget(LawnApp *theApp, bool theFromGame) :
     mBackButton = MakeButton(1000, this, this, "[CLOSE]");
     // Reference MainMenu's achievements close button, after the 720px slide.
     mBackButton->Resize(1000, 564, 170, 50);
+    mBackButton->SetViewportRightAnchor(110);
     mBackButton->mMousePreservesFocus = true;
     if (!mFromGame && mApp->mGameSelector != nullptr)
     {

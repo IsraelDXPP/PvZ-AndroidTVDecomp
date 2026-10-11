@@ -97,11 +97,28 @@ Sexy::String HelpButtonTag(Sexy::GamepadButton theButton)
 
 } // namespace
 
+int HelpBarWidget::GetButtonX(HelpAlign theAlign) const
+{
+    // DrawButtons @0x14725C / 0x147CFC: preserve the original safe-area inset.
+    const int margin = gLawnApp->mPlatformDriverOrQueue->mWideScreen ? 124 : 244;
+    return theAlign == HELP_ALIGN_RIGHT ? mWidth - margin - IMAGE_HELP_BUTTONS->GetCelWidth() : margin;
+}
+
+void HelpBarWidget::OnViewportChanged()
+{
+    if (mWidgetManager != nullptr)
+    {
+        const Sexy::Rect &viewport = mWidgetManager->mMouseDestRect;
+        if (mX != viewport.mX || mWidth != viewport.mWidth)
+            Resize(viewport.mX, mY, viewport.mWidth, mHeight);
+    }
+    Sexy::Widget::OnViewportChanged();
+}
+
 Sexy::GamepadButton HelpBarWidget::HitTestButton(int x, int y) const
 {
     if (mFontId == nullptr || IMAGE_HELP_BUTTONS == nullptr || !mVisible || mAlpha < 0.4f)
         return GAMEPAD_BUTTON_NONE;
-    const bool wideScreen = gLawnApp->mPlatformDriverOrQueue->mWideScreen;
     const int glyphWidth = IMAGE_HELP_BUTTONS->GetCelWidth();
     const int spaceWidth = mFontId->StringWidth(Sexy::String(" "));
     const int slide = TodAnimateCurve(0, 10, mAnimCounter, 0, 20, CURVE_EASE_IN_OUT);
@@ -114,11 +131,11 @@ Sexy::GamepadButton HelpBarWidget::HitTestButton(int x, int y) const
         const int column = right ? 1 : 0;
         const int row = button.mRow < 0 ? nextRow[column] : button.mRow;
         ++nextRow[column];
-        int glyphX = right ? (wideScreen ? 1156 : 1036) - glyphWidth : (wideScreen ? 124 : 244);
+        int glyphX = GetButtonX(button.mAlign);
         if (button.mAnimating && mAlpha < 1.0f)
         {
             const float offscreenX =
-                float(right ? LawnApp::FULLSCREEN_RECT.mWidth + 256 : LawnApp::FULLSCREEN_RECT.mX - 256);
+                float(right ? mWidth + 256 : LawnApp::FULLSCREEN_RECT.mX - 256);
             glyphX = int(TodAnimateCurveFloatTime(0.4f, 1.0f, mAlpha, offscreenX, float(glyphX), CURVE_EASE_IN));
         }
         const int labelWidth = mFontId->StringWidth(button.mLabel);
@@ -271,22 +288,20 @@ void HelpBarWidget::DrawButtons(
     if (mFontId == nullptr || IMAGE_HELP_BUTTONS == nullptr)
         return;
     int nextRow[2] = {0, 0};
-    bool wideScreen = gLawnApp->mPlatformDriverOrQueue->mWideScreen;
     int spaceWidth = mFontId->StringWidth(Sexy::String(" "));
     for (ButtonDef &button : theButtons)
     {
         Sexy::String buttonTag = HelpButtonTag(button.mButton);
         int glyphCel = ButtonGlyphCel(buttonTag.c_str(), static_cast<int>(buttonTag.size()));
         int captionWidth = IMAGE_HELP_BUTTONS->GetCelWidth();
-        int buttonX =
-            button.mAlign == HELP_ALIGN_LEFT ? (wideScreen ? 124 : 244) : (wideScreen ? 1156 : 1036) - captionWidth;
+        int buttonX = GetButtonX(button.mAlign);
         Sexy::Color color = Sexy::Color::White;
         if (button.mAnimating)
         {
             color.mAlpha = static_cast<int>(theAlpha * 255.0f);
             float offscreenX =
                 static_cast<float>(button.mAlign == HELP_ALIGN_LEFT ? LawnApp::FULLSCREEN_RECT.mX - 256
-                                                                    : LawnApp::FULLSCREEN_RECT.mWidth + 256);
+                                                                    : mWidth + 256);
             if (theIncoming && theAlpha < 1.0f)
                 buttonX = static_cast<int>(TodAnimateCurveFloatTime(
                     0.4f, 1.0f, theAlpha, offscreenX, static_cast<float>(buttonX), CURVE_EASE_IN));

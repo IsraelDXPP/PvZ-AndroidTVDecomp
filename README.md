@@ -26,6 +26,8 @@
 
 同步的 `Dialog::WaitForResult` 仍保留模态等待事件泵，复用回调入口的事件转换逻辑。Android 构建输出供 SDLActivity 加载的共享库，窗口通过 SDL 的 ANativeWindow 属性交给 bgfx；APK 工程和资源打包方式见下方构建说明。
 
+桌面窗口使用固定 720 高的逻辑画布，宽度随窗口比例变化：4:3 对应 960×720，16:9 对应 1280×720，21:9 对应 1680×720。窗口尺寸只决定最终显示倍率，素材仍按原版坐标绘制；原来的 1280×720 区域始终居中，宽屏增加两侧视野，较窄的窗口从两侧裁切。拖动窗口边框时同步更新离屏画布、居中偏移和鼠标映射。
+
 资源路径按 APK 里的 `files/` 来解析。把资源解到可执行文件旁边的 `assets/`（或 `assets/files/`）即可；程序会在发现 `files` 子目录时自动走进去。也可以用 `--assets` 指到别的目录。
 
 本地 SDL 版本使用离线商店和存档，不配置原发行商的商店 RPC 地址，不启动统计日志线程，也不生成 `trans_log`。原资源根的 `manifest.xml`、`metrics.xml`、`updateclient.ini`、`updateService.xml` 和 `version` 不再承担功能，可从资源中移除；`setup.env` 用于本地渲染、调试等配置。游戏资源清单 `properties/resources.xml` 仍用于加载图片、声音等资源。

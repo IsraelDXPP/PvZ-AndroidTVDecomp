@@ -28,20 +28,21 @@ void NewLawnButton::Draw(Sexy::Graphics *g)
     if (mBtnNoDraw)
         return;
 
+    const bool selected = mSelected && ShouldShowNavigationFocus();
     bool pressed = false;
     if (mIsDown)
     {
         if (mIsOver)
             pressed = !mDisabled;
         else
-            pressed = mSelected;
+            pressed = selected;
     }
     else if (mReturnPressed)
     {
         if (mIsOver)
             pressed = !mDisabled;
         else
-            pressed = mSelected;
+            pressed = selected;
     }
 
     int labelX = mTextOffsetX + mTranslateX;
@@ -93,7 +94,7 @@ void NewLawnButton::Draw(Sexy::Graphics *g)
         g->mColor.mAlpha = (int)(mOverAlpha * 255.0);
         DrawButtonImage(g, mOverImage, mOverRect, mButtonOffsetX, mButtonOffsetY);
     }
-    else if ((mIsOver || mIsDown || mSelected) && HaveButtonImage(mOverImage, mOverRect))
+    else if ((mIsOver || mIsDown || selected) && HaveButtonImage(mOverImage, mOverRect))
     {
         DrawButtonImage(g, mOverImage, mOverRect, mButtonOffsetX, mButtonOffsetY);
     }
@@ -103,7 +104,7 @@ void NewLawnButton::Draw(Sexy::Graphics *g)
     }
 
     g->SetColorizeImages(false);
-    if (mIsOver || mSelected)
+    if (mIsOver || selected)
     {
         Sexy::Font *font = mHiliteFont;
         if (font == nullptr)

@@ -498,6 +498,7 @@ int Sexy::WidgetManager::Resize(TRect<int> const &theDest, TRect<int> const &the
     mMouseSourceRect = theSource;
     mX = -theDest.mX;
     mY = -mMouseDestRect.mY;
+    OnViewportChanged();
     return theSource.mX;
 }
 
@@ -612,7 +613,7 @@ int Sexy::WidgetManager::RehupMouse()
 
 int Sexy::WidgetManager::MouseUp(int x, int y, int theClickCount)
 {
-    mInteractiveMethod = 3;
+    SetInteractiveMethod(3);
     mLastInputUpdateCnt = mUpdateCnt;
 
     int aClearMask;
@@ -655,7 +656,7 @@ int Sexy::WidgetManager::MouseDown(int x, int y, int theClickCount)
 {
     int aWidgetX = 0;
     int aWidgetY = 0;
-    mInteractiveMethod = 3;
+    SetInteractiveMethod(3);
     mLastInputUpdateCnt = mUpdateCnt;
 
     if (theClickCount < 0)
@@ -712,6 +713,7 @@ int Sexy::WidgetManager::MouseDown(int x, int y, int theClickCount)
 
 int Sexy::WidgetManager::MouseDrag(int x, int y)
 {
+    SetInteractiveMethod(3);
     Sexy::Widget *aOver = mOverWidget;
     mLastInputUpdateCnt = mUpdateCnt;
     mLastMouseX = x;
@@ -752,6 +754,7 @@ int Sexy::WidgetManager::MouseDrag(int x, int y)
 
 int Sexy::WidgetManager::MouseMove(int x, int y)
 {
+    SetInteractiveMethod(3);
     mLastInputUpdateCnt = mUpdateCnt;
     if (mDownButtons != 0 && Sexy::GetEnvOption("SEXY_NO_DRAG", false) == 0)
         return MouseDrag(x, y);
@@ -777,6 +780,7 @@ int Sexy::WidgetManager::MouseExit(int x, int y)
 
 void Sexy::WidgetManager::MouseWheel(int x, int y)
 {
+    SetInteractiveMethod(3);
     mLastInputUpdateCnt = mUpdateCnt;
     if (mOverWidget != nullptr)
     {
@@ -823,7 +827,7 @@ Sexy::WidgetManager *Sexy::WidgetManager::UpdateTouchInfo(const std::vector<Sexy
 
 void Sexy::WidgetManager::TouchDown(const std::vector<Sexy::Event> &theEvents)
 {
-    mInteractiveMethod = 4;
+    SetInteractiveMethod(4);
     mLastInputUpdateCnt = mUpdateCnt;
     UpdateTouchInfo(theEvents);
 
@@ -862,7 +866,7 @@ void Sexy::WidgetManager::TouchDown(const std::vector<Sexy::Event> &theEvents)
 
 void Sexy::WidgetManager::TouchMove(const std::vector<Sexy::Event> &theEvents)
 {
-    mInteractiveMethod = 4;
+    SetInteractiveMethod(4);
     mLastInputUpdateCnt = mUpdateCnt;
     UpdateTouchInfo(theEvents);
 
@@ -897,7 +901,7 @@ void Sexy::WidgetManager::TouchMove(const std::vector<Sexy::Event> &theEvents)
 
 void Sexy::WidgetManager::TouchUp(const std::vector<Sexy::Event> &theEvents)
 {
-    mInteractiveMethod = 4;
+    SetInteractiveMethod(4);
     mLastInputUpdateCnt = mUpdateCnt;
     UpdateTouchInfo(theEvents);
     AdoptReleasedTouch(this);
@@ -1000,7 +1004,7 @@ void Sexy::WidgetManager::DisableWidget(Sexy::Widget *theWidget)
 
 void Sexy::WidgetManager::AxisMoved(Sexy::Event const &theEvent)
 {
-    mInteractiveMethod = 1;
+    SetInteractiveMethod(1);
     mLastInputUpdateCnt = mUpdateCnt;
 
     if (mFocusWidget != nullptr)
@@ -1029,6 +1033,14 @@ int Sexy::WidgetManager::UserEvent(Sexy::Event const &theEvent)
     if (mFocusWidget != nullptr)
         mFocusWidget->UserEvent(theEvent);
     return 1;
+}
+
+void Sexy::WidgetManager::SetInteractiveMethod(int theMethod)
+{
+    if (mInteractiveMethod == theMethod)
+        return;
+    mInteractiveMethod = theMethod;
+    MarkAllDirty();
 }
 
 int Sexy::WidgetManager::GetInteractiveMethod()
@@ -1111,7 +1123,7 @@ int Sexy::WidgetManager::KeyDown(Sexy::KeyCode theKey)
     bool aKeepMethod = theKey == 18 || theKey == 27;
     mLastInputUpdateCnt = mUpdateCnt;
     if (!aKeepMethod)
-        mInteractiveMethod = 1;
+        SetInteractiveMethod(1);
 
     if ((unsigned int)theKey <= 0xFE)
         mKeyDown.Get(theKey)->mDown = true;
@@ -1131,7 +1143,7 @@ int Sexy::WidgetManager::KeyUp(Sexy::KeyCode theKey)
     bool aKeepMethod = theKey == 18 || theKey == 27;
     mLastInputUpdateCnt = mUpdateCnt;
     if (!aKeepMethod)
-        mInteractiveMethod = 1;
+        SetInteractiveMethod(1);
 
     if ((unsigned int)theKey <= 0xFE)
     {
@@ -1182,7 +1194,7 @@ int Sexy::WidgetManager::KeyUp(Sexy::Event const &theEvent)
     bool aKeepMethod = aCode == 18 || aCode == 27;
     mLastInputUpdateCnt = mUpdateCnt;
     if (!aKeepMethod)
-        mInteractiveMethod = 1;
+        SetInteractiveMethod(1);
     if ((unsigned int)aCode <= 0xFE)
         mKeyDown.Get(aCode)->mDown = false;
 
@@ -1208,7 +1220,7 @@ int Sexy::WidgetManager::KeyDown(Sexy::Event const &theEvent)
     bool aKeepMethod = aCode == 18 || aCode == 27;
     mLastInputUpdateCnt = mUpdateCnt;
     if (!aKeepMethod)
-        mInteractiveMethod = 1;
+        SetInteractiveMethod(1);
     if ((unsigned int)aCode <= 0xFE)
         mKeyDown.Get(aCode)->mDown = true;
 
