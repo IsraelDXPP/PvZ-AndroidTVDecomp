@@ -1539,11 +1539,14 @@ void MainMenu::AddedToManager(Sexy::WidgetManager *theWidgetManager)
             aMainMenuReanim->SetImageDefinition("leaderboards", leaderboardSign);
         const char *const tracks[] = {"Hood1", "Hood2", "Hood3", "Hood4", "ground color copy"};
         const char *const images[] = {"hood1_house", "hood2_house", "hood3_house", "hood4_house", "house_hill_house"};
+        // PvZ TV Touch replaces the source image with SetImageOrigin. DrawTrack
+        // @0x1F9BF0 centers overrides using the source dimensions, which shifts
+        // the wider Hood2 replacement left. Use its own dimensions instead.
         for (int imageIndex = 0; imageIndex < 5; ++imageIndex)
         {
             Sexy::Image *image = mApp->GetConsoleImage(images[imageIndex]);
             if (image != nullptr && aMainMenuReanim->FindTrackIndex(tracks[imageIndex]) >= 0)
-                aMainMenuReanim->SetImageOverride(tracks[imageIndex], image);
+                aMainMenuReanim->SetImageDefinition(tracks[imageIndex], image);
         }
         aMainMenuReanim->AssignRenderGroupToTrack("House", -1);
     }
