@@ -112,6 +112,14 @@ bool FileExists(const Sexy::String &thePath);
 namespace
 {
 
+// OneCLib Board::OnResize: camera height 600 on a 720-high viewport.
+// Its background center (870, 360) minus DrawBackdrop's (460, 60) origin.
+constexpr float LOW_VIEW_SCALE = 720.0f / 600.0f;
+constexpr float LOW_VIEW_CENTER_X = 410.0f;
+constexpr float LOW_VIEW_CENTER_Y = 300.0f;
+constexpr float BOARD_VIEW_CENTER_X = 400.0f;
+constexpr float BOARD_VIEW_CENTER_Y = 300.0f;
+
 class SaveGameErrorDialog : public LawnDialog
 {
 public:
@@ -302,6 +310,15 @@ void Board::UpdateMenuButton()
 {
     if (mBoardMenuButton == nullptr)
         return;
+    if (IsLowViewHudActive())
+    {
+        const LowViewHudLayout layout = GetLowViewHudLayout();
+        const Sexy::Rect &menu = layout.mMenuRect;
+        mBoardMenuButton->Resize(menu.mX - mX, menu.mY - mY, menu.mWidth, menu.mHeight);
+        if (mBoardStoreButton != nullptr)
+            mBoardStoreButton->Resize(
+                menu.mX - mX, menu.mY - mY + IMAGE_BUTTON_LEFT->GetHeight() + 4, menu.mWidth, menu.mHeight);
+    }
     const bool showMenu = mApp->mGameScene == SCENE_PLAYING && mBoardFadeOutCounter < 0 && !mLevelComplete;
     mBoardMenuButton->SetVisible(showMenu);
     mBoardMenuButton->SetDisabled(!showMenu || mPaused || !OkToPause());
@@ -362,8 +379,12 @@ void Board::MouseDown(int theX, int theY, int theClickCount)
     }
     if (mApp->mGameScene != SCENE_PLAYING && !mCutScene->IsInShovelTutorial())
         return;
-    mMouseDownX = theX;
-    mMouseDownY = theY;
+    const SexyVector2 scenePosition = ViewToScene(static_cast<float>(theX), static_cast<float>(theY));
+    const SexyVector2 hudPosition = ViewToHud(static_cast<float>(theX), static_cast<float>(theY));
+    const int hudX = static_cast<int>(std::floor(hudPosition.mX));
+    const int hudY = static_cast<int>(std::floor(hudPosition.mY));
+    mMouseDownX = static_cast<int>(scenePosition.mX);
+    mMouseDownY = static_cast<int>(scenePosition.mY);
     if (!mMouseInputActive[mMousePlayerIndex])
         CancelMouseSelection(mMousePlayerIndex);
     if (mMouseShopOpen && mApp->CanShopLevel())
@@ -372,10 +393,10 @@ void Board::MouseDown(int theX, int theY, int theClickCount)
         for (int slot = 0; slot < 7; ++slot)
         {
             ShopSeedPacket &packet = bank->mShopSeedPackets[slot];
-            if (!Sexy::Rect(bank->mX + packet.mPacketOffsetX, bank->mY + 96, 48, 66).Contains(theX, theY))
+            if (!Sexy::Rect(bank->mX + packet.mPacketOffsetX, bank->mY + 96, 48, 66).Contains(hudX, hudY))
                 continue;
             mMousePlayerIndex = 0;
-            SetMouseCursor(theX, theY, 0);
+            SetMouseCursorFromView(theX, theY, 0);
             CancelMouseSelection(0);
             GamepadControls *controls = mGamepadControls[0];
             controls->mIsInShopSeedBank = true;
@@ -400,27 +421,27 @@ void Board::MouseDown(int theX, int theY, int theClickCount)
     }
     // The co-op bank's logical width includes the tool row. Test the visible
     // tools first so an empty part of that bank cannot swallow their clicks.
-    if (mShowShovel && GetShovelButtonRect().Contains(theX, theY) && CanInteractWithBoardButtons(true))
+    if (mShowShovel && GetShovelButtonRect().Contains(hudX, hudY) && CanInteractWithBoardButtons(true))
     {
         const bool deselect = mCursorObject[0]->mCursorType == CURSOR_TYPE_SHOVEL;
         if (mMousePlayerIndex != 0 && mMouseButterSelected)
             CancelMouseSelection(mMousePlayerIndex);
         mMousePlayerIndex = 0;
-        SetMouseCursor(theX, theY, 0);
+        SetMouseCursorFromView(theX, theY, 0);
         CancelMouseSelection(0);
         if (!deselect)
             PickUpTool(OBJECT_TYPE_SHOVEL, 0);
         mMouseGesture = MouseGesture::Tool;
         return;
     }
-    if (mShowButter && GetButterButtonRect().Contains(theX, theY) && CanInteractWithBoardButtons(true))
+    if (mShowButter && GetButterButtonRect().Contains(hudX, hudY) && CanInteractWithBoardButtons(true))
     {
         const bool deselect = mMouseButterSelected;
         if (mMousePlayerIndex != 1 && mMouseInputActive[mMousePlayerIndex] &&
             mCursorObject[mMousePlayerIndex]->mCursorType == CURSOR_TYPE_SHOVEL)
             CancelMouseSelection(mMousePlayerIndex);
         mMousePlayerIndex = 1;
-        SetMouseCursor(theX, theY, 1);
+        SetMouseCursorFromView(theX, theY, 1);
         CancelMouseSelection(1);
         mMouseButterSelected = !deselect;
         mMouseGesture = MouseGesture::Tool;
@@ -431,8 +452,8 @@ void Board::MouseDown(int theX, int theY, int theClickCount)
     for (int player = 0; player < (twoBanks ? 2 : 1); ++player)
     {
         SeedBank *bank = mGamepadControls[player]->GetSeedBank();
-        int bankX = theX;
-        int bankY = theY;
+        int bankX = hudX;
+        int bankY = hudY;
         if (bank != nullptr && mApp->mGameMode == GAMEMODE_MP_VS)
         {
             // Inverse of SeedBank::Draw @0x175394's 0.9 transform.
@@ -442,7 +463,7 @@ void Board::MouseDown(int theX, int theY, int theClickCount)
         if (bank == nullptr || !bank->ContainsPoint(bankX, bankY))
             continue;
         mMousePlayerIndex = player;
-        SetMouseCursor(theX, theY, player);
+        SetMouseCursorFromView(theX, theY, player);
         HitResult packetHit = {};
         if (!bank->MouseHitTest(bankX, bankY, &packetHit))
             return;
@@ -498,6 +519,7 @@ void Board::MouseDown(int theX, int theY, int theClickCount)
         return;
     }
 
+    MapMouseToScene(theX, theY);
     // A selected packet/tool keeps its owner when the pointer crosses the lawn.
     if (!IsPlantInCursor(mMousePlayerIndex) && !mGamepadControls[mMousePlayerIndex]->mIsCobCannonSelected &&
         mCursorObject[mMousePlayerIndex]->mCursorType != CURSOR_TYPE_SHOVEL && !mMouseButterSelected)
@@ -593,6 +615,229 @@ void Board::Move(int theX, int theY)
     Sexy::Widget::Move(theX, theY);
 }
 
+bool Board::IsLowViewActive() const
+{
+    return mLowViewEnabled && mBackground >= BACKGROUND_1_DAY && mBackground <= BACKGROUND_6_BOSS &&
+        mApp->mGameMode != GAMEMODE_CHALLENGE_ZEN_GARDEN && mApp->mGameMode != GAMEMODE_TREE_OF_WISDOM &&
+        mApp->mGameMode != GAMEMODE_INTRO && mApp->mGameMode != GAMEMODE_UPSELL;
+}
+
+bool Board::IsLowViewHudActive() const
+{
+    // The PC bank layout is for a single lawn; multiplayer keeps its two TV banks.
+    return IsLowViewActive() && !mApp->IsCoopMode() && mApp->mGameMode != GAMEMODE_MP_VS &&
+        mApp->mGameMode != GAMEMODE_MP_VS_DEBUG && mApp->mGameMode != GAMEMODE_MULTI_PLAYER;
+}
+
+Board::LowViewHudLayout Board::GetLowViewHudLayout() const
+{
+    // SeedBank::Draw @0x175394 and DrawShovel @0x15D0D0 define the native
+    // extents. Center the bank, visible tools and menu as one complete HUD group.
+    const SeedBank *bank = mSeedBank[0];
+    int bankRight = bank->mX + IMAGE_SEEDBANK->GetWidth() + GetSeedBankExtraWidth();
+    int hudHeight = IMAGE_SEEDBANK->GetHeight();
+    if (mApp->IsSlotMachineLevel())
+    {
+        bankRight = bank->mX + IMAGE_SUNBANK->GetWidth();
+        bankRight = std::max(bankRight, bank->mX + 189 + IMAGE_SLOTMACHINE_OVERLAY->GetWidth());
+    }
+    else if (HasConveyorBeltSeedBank(false))
+    {
+        bankRight = bank->mX + 83 + IMAGE_CONVEYORBELT_BACKDROP->GetWidth();
+        hudHeight = IMAGE_CONVEYORBELT_BACKDROP->GetHeight();
+    }
+    for (int index = 0; index < bank->mNumPackets; ++index)
+        bankRight = std::max(bankRight, bank->mX + bank->mSeedPackets[index].mX + 50);
+
+    if (mApp->mGameMode != GAMEMODE_CHALLENGE_HEAVY_WEAPON)
+    {
+        const auto includeTool = [&](const Sexy::Rect &rect)
+        {
+            bankRight = std::max(bankRight, rect.mX + std::max(rect.mWidth, IMAGE_SHOVELBANK->GetWidth()));
+            hudHeight = std::max(hudHeight, rect.mY + IMAGE_SHOVELBANK->GetHeight());
+        };
+        if (mShowShovel)
+            includeTool(GetShovelButtonRect());
+        if (mShowHammer || (mShowButter && mApp->IsAdventureMode() && mApp->mSecondPlayerGamepadIndex != -1))
+            includeTool(GetButterButtonRect());
+    }
+
+    constexpr int menuWidth = 117;
+    constexpr int menuHeight = 46;
+    constexpr int gap = 4;
+    const int hudRight = static_cast<int>(std::ceil(static_cast<float>(bankRight) * LOW_VIEW_SCALE));
+    const int menuX = std::max(705, hudRight + gap);
+    const Sexy::Rect &viewport = mApp->mScreenBounds;
+    const int rowWidth = menuX + menuWidth;
+    LowViewHudLayout layout;
+    if (rowWidth <= viewport.mWidth)
+    {
+        layout.mOffsetX = static_cast<float>(viewport.mX + (viewport.mWidth - rowWidth) / 2);
+        layout.mMenuRect = Sexy::Rect(menuX + static_cast<int>(layout.mOffsetX), viewport.mY, menuWidth, menuHeight);
+    }
+    else
+    {
+        // When the complete row cannot fit, keep the bank visible and move the
+        // menu below it, rather than covering seed packets or tool icons.
+        const int groupWidth = std::max(hudRight, menuWidth);
+        layout.mOffsetX = static_cast<float>(viewport.mX + (viewport.mWidth - groupWidth) / 2);
+        layout.mMenuRect = Sexy::Rect(static_cast<int>(layout.mOffsetX) + groupWidth - menuWidth,
+            viewport.mY + static_cast<int>(std::ceil(static_cast<float>(hudHeight) * LOW_VIEW_SCALE)) + gap,
+            menuWidth, menuHeight);
+    }
+    return layout;
+}
+
+float Board::GetHudScale() const
+{
+    return IsLowViewHudActive() ? LOW_VIEW_SCALE : 1.0f;
+}
+
+SexyVector2 Board::ViewToScene(float theX, float theY) const
+{
+    if (!IsLowViewActive())
+        return {theX, theY};
+
+    // OneCLib's low camera is (460, 60, 820, 600) in background-image space.
+    // DrawBackdrop @0x153F24 places that image at (-460, -60): center (410, 300).
+    return {LOW_VIEW_CENTER_X +
+            (theX - BOARD_VIEW_CENTER_X - (LOW_VIEW_SCALE - 1.0f) * static_cast<float>(mX)) / LOW_VIEW_SCALE,
+        LOW_VIEW_CENTER_Y +
+            (theY - BOARD_VIEW_CENTER_Y - (LOW_VIEW_SCALE - 1.0f) * static_cast<float>(mY)) / LOW_VIEW_SCALE};
+}
+
+SexyVector2 Board::SceneToView(float theX, float theY) const
+{
+    if (!IsLowViewActive())
+        return {theX, theY};
+
+    return {BOARD_VIEW_CENTER_X + (theX - LOW_VIEW_CENTER_X) * LOW_VIEW_SCALE +
+            (LOW_VIEW_SCALE - 1.0f) * static_cast<float>(mX),
+        BOARD_VIEW_CENTER_Y + (theY - LOW_VIEW_CENTER_Y) * LOW_VIEW_SCALE +
+            (LOW_VIEW_SCALE - 1.0f) * static_cast<float>(mY)};
+}
+
+SexyVector2 Board::HudToView(float theX, float theY) const
+{
+    if (!IsLowViewHudActive())
+        return {theX, theY};
+    return {GetLowViewHudLayout().mOffsetX + theX * LOW_VIEW_SCALE - static_cast<float>(mX),
+        static_cast<float>(mApp->mScreenBounds.mY - mY) + theY * LOW_VIEW_SCALE};
+}
+
+SexyVector2 Board::ViewToHud(float theX, float theY) const
+{
+    if (!IsLowViewHudActive())
+        return {theX, theY};
+    return {(theX + static_cast<float>(mX) - GetLowViewHudLayout().mOffsetX) / LOW_VIEW_SCALE,
+        (theY - static_cast<float>(mApp->mScreenBounds.mY - mY)) / LOW_VIEW_SCALE};
+}
+
+void Board::MapMouseToScene(int &theX, int &theY) const
+{
+    if (!IsLowViewActive())
+        return;
+    const SexyVector2 position = ViewToScene(static_cast<float>(theX), static_cast<float>(theY));
+    theX = static_cast<int>(position.mX);
+    theY = static_cast<int>(position.mY);
+}
+
+void Board::SetMouseCursorFromView(int theX, int theY, int thePlayerIndex)
+{
+    MapMouseToScene(theX, theY);
+    SetMouseCursor(theX, theY, thePlayerIndex);
+}
+
+bool Board::IsMouseOverHud(int theX, int theY)
+{
+    const SexyVector2 position = ViewToHud(static_cast<float>(theX), static_cast<float>(theY));
+    theX = static_cast<int>(std::floor(position.mX));
+    theY = static_cast<int>(std::floor(position.mY));
+    if (mShowShovel && GetShovelButtonRect().Contains(theX, theY))
+        return true;
+    if (mShowButter && GetButterButtonRect().Contains(theX, theY))
+        return true;
+
+    const bool twoBanks = mApp->IsCoopMode() || mApp->mGameMode == GAMEMODE_MP_VS;
+    for (int player = 0; player < (twoBanks ? 2 : 1); ++player)
+    {
+        SeedBank *bank = mGamepadControls[player]->GetSeedBank();
+        if (bank == nullptr)
+            continue;
+        int bankX = theX;
+        int bankY = theY;
+        if (mApp->mGameMode == GAMEMODE_MP_VS)
+        {
+            bankX = bank->mX + static_cast<int>(static_cast<float>(theX - bank->mX) / 0.9f);
+            bankY = bank->mY + static_cast<int>(static_cast<float>(theY - bank->mY) / 0.9f);
+        }
+        if (bank->ContainsPoint(bankX, bankY))
+            return true;
+    }
+    if (mMouseShopOpen && mApp->CanShopLevel())
+    {
+        SeedBank *bank = mSeedBank[0];
+        for (const ShopSeedPacket &packet : bank->mShopSeedPackets)
+            if (Sexy::Rect(bank->mX + packet.mPacketOffsetX, bank->mY + 96, 48, 66).Contains(theX, theY))
+                return true;
+    }
+    return false;
+}
+
+void Board::PushSceneView(Sexy::Graphics *g) const
+{
+    // Transform absolute draw coordinates, including reanimations and particles.
+    // Keep the camera centered on the viewport while board pans/shakes are zoomed.
+    const float originX = g->mTransX - static_cast<float>(mX);
+    const float originY = g->mTransY - static_cast<float>(mY);
+    Sexy::SexyMatrix3 camera;
+    camera.LoadIdentity();
+    camera.m00 = LOW_VIEW_SCALE;
+    camera.m11 = LOW_VIEW_SCALE;
+    camera.m02 = originX + BOARD_VIEW_CENTER_X - (originX + LOW_VIEW_CENTER_X) * LOW_VIEW_SCALE;
+    camera.m12 = originY + BOARD_VIEW_CENTER_Y - (originY + LOW_VIEW_CENTER_Y) * LOW_VIEW_SCALE;
+    g->PushTransform(camera, true);
+}
+
+void Board::PushHudView(Sexy::Graphics *g) const
+{
+    // Cancel the cutscene pan before Graphics clips image vertices. Moving only
+    // the GPU matrix loses the offscreen part of the bank before it reaches the GPU.
+    g->PushState();
+    const SexyVector2 origin = HudToView(0.0f, 0.0f);
+    g->mTransX += origin.mX;
+    g->mTransY += origin.mY;
+    Sexy::SexyMatrix3 hud;
+    hud.LoadIdentity();
+    hud.m00 = LOW_VIEW_SCALE;
+    hud.m11 = LOW_VIEW_SCALE;
+    hud.m02 = g->mTransX * (1.0f - LOW_VIEW_SCALE);
+    hud.m12 = g->mTransY * (1.0f - LOW_VIEW_SCALE);
+    const Sexy::Rect clip = g->mClipRect;
+    const int left = static_cast<int>(std::floor((static_cast<float>(clip.mX) - hud.m02) / LOW_VIEW_SCALE));
+    const int top = static_cast<int>(std::floor((static_cast<float>(clip.mY) - hud.m12) / LOW_VIEW_SCALE));
+    const int right = static_cast<int>(
+        std::ceil((static_cast<float>(clip.mX + clip.mWidth) - hud.m02) / LOW_VIEW_SCALE));
+    const int bottom = static_cast<int>(
+        std::ceil((static_cast<float>(clip.mY + clip.mHeight) - hud.m12) / LOW_VIEW_SCALE));
+    g->mClipRect = Sexy::Rect(left, top, right - left, bottom - top);
+    g->PushTransform(hud, true);
+}
+
+void Board::PopHudView(Sexy::Graphics *g) const
+{
+    g->PopTransform();
+    g->PopState();
+}
+
+Sexy::Rect Board::GetInsetRect()
+{
+    // Zoomed lawn cells can extend past the original 800x600 widget bounds.
+    if (IsLowViewActive())
+        return mApp->mScreenBounds;
+    return Sexy::Widget::GetInsetRect();
+}
+
 // ==========================================================================
 // Board::MouseMove(int,int)
 // @00151878  28 bytes
@@ -604,6 +849,7 @@ void Board::MouseMove(int theX, int theY)
         return;
     if (!mMouseInputActive[mMousePlayerIndex])
         CancelMouseSelection(mMousePlayerIndex);
+    MapMouseToScene(theX, theY);
     SetMouseCursor(theX, theY, mMousePlayerIndex);
     mChallenge->MouseMove(theX, theY);
 }
@@ -617,6 +863,9 @@ void Board::MouseDrag(int theX, int theY)
     Sexy::Widget::MouseDrag(theX, theY);
     if (mMouseGesture == MouseGesture::None || mPaused)
         return;
+    const int viewY = theY;
+    const bool overHud = IsLowViewActive() && IsMouseOverHud(theX, theY);
+    MapMouseToScene(theX, theY);
     SetMouseCursor(theX, theY, mMousePlayerIndex);
     if (mMouseGesture == MouseGesture::HeavyWeapon)
     {
@@ -626,13 +875,14 @@ void Board::MouseDrag(int theX, int theY)
     if (mMouseGesture == MouseGesture::SeedBank)
     {
         SeedBank *bank = mGamepadControls[mMousePlayerIndex]->GetSeedBank();
-        mMouseExecuteOnRelease = bank != nullptr && theY >= bank->mY + bank->mHeight;
+        mMouseExecuteOnRelease = bank != nullptr &&
+            (IsLowViewActive() ? !overHud : viewY >= bank->mY + bank->mHeight);
     }
     else if (mMouseGesture == MouseGesture::Tool)
     {
         HitResult hit = {};
         MouseHitTest(theX, theY, &hit, mMousePlayerIndex);
-        mMouseExecuteOnRelease = theY >= 72 &&
+        mMouseExecuteOnRelease = (IsLowViewActive() ? !overHud : viewY >= 72) &&
             (hit.mObjectType < OBJECT_TYPE_WATERING_CAN || hit.mObjectType > OBJECT_TYPE_TREE_OF_WISDOM_GARDEN);
     }
     else if (mMouseGesture == MouseGesture::CobCannon || mMouseGesture == MouseGesture::UsableSeed)
@@ -659,8 +909,10 @@ void Board::MouseUp(int theX, int theY, int theClickCount)
     }
     if (mMouseButterSelected)
         mGamepadControls[mMousePlayerIndex]->ReleaseButter();
+    const bool overHud = IsLowViewActive() ? IsMouseOverHud(theX, theY) : theY < 72;
+    MapMouseToScene(theX, theY);
     if (theClickCount > 0 && theClickCount != 3 && !mPaused && mBoardFadeOutCounter < 0 && theX >= 0 && theX < mWidth &&
-        theY >= 72 && theY < mHeight && execute)
+        theY >= 0 && theY < mHeight && !overHud && execute)
     {
         SetMouseCursor(theX, theY, mMousePlayerIndex);
         UseMouseSelection(theX, theY);
@@ -2358,7 +2610,7 @@ int Board::TakeDeathMoney(int theAmount)
 // Board::HasConveyorBeltSeedBank(bool)
 // @001539D4  122 bytes
 // ==========================================================================
-int Board::HasConveyorBeltSeedBank(bool thePlayer2)
+int Board::HasConveyorBeltSeedBank(bool thePlayer2) const
 {
     if (mApp->IsFinalBossLevel() != 0)
         return 1;
@@ -2902,7 +3154,7 @@ int Board::GetSeedPacketPositionX(int theIndex, int thePlayerIndex, bool theVers
 // Board::GetSeedBankExtraWidth(void)
 // @00154614  40 bytes
 // ==========================================================================
-int Board::GetSeedBankExtraWidth()
+int Board::GetSeedBankExtraWidth() const
 {
     // Driven by how many seed packets the bank currently holds.
     int aNumPackets = mSeedBank[0]->mNumPackets;
@@ -2926,14 +3178,14 @@ int Board::GetSeedBankExtraWidth()
 // Board::GetShovelButtonRect(void)
 // @0015463C  80 bytes
 // ==========================================================================
-Sexy::Rect Board::GetShovelButtonRect()
+Sexy::Rect Board::GetShovelButtonRect() const
 {
     // The shovel button tracks the right edge of the seed bank.
     Sexy::Rect aRect;
     aRect.mX = GetSeedBankExtraWidth() + 456;
     aRect.mY = 0;
     aRect.mWidth = 70;
-    aRect.mHeight = 72;
+    aRect.mHeight = IsLowViewHudActive() ? IMAGE_SEEDBANK->GetHeight() : 72;
     if (mApp->IsSlotMachineLevel() || mApp->IsSquirrelLevel())
         aRect.mX = 600;
     if (mApp->IsCoopMode())
@@ -2945,7 +3197,7 @@ Sexy::Rect Board::GetShovelButtonRect()
 // Board::GetButterButtonRect(void)
 // @0015468C  94 bytes
 // ==========================================================================
-Sexy::Rect Board::GetButterButtonRect()
+Sexy::Rect Board::GetButterButtonRect() const
 {
     Sexy::Rect aRect;
     aRect.mY = 0;
@@ -4312,7 +4564,8 @@ void Board::UpdateTutorial()
 
     // UpdateTutorial @0x155FA8 waits 500 ticks after the fourth wave, including
     // the extra zombies added by PickZombieWaves for the shop-seed tutorial.
-    if (mTutorialState == TUTORIAL_LEVEL_1_COMPLETED && mApp->mGameScene == SCENE_PLAYING && !mLevelFinished &&
+    if (mTutorialState == TUTORIAL_LEVEL_1_COMPLETED && mApp->mGameScene == SCENE_PLAYING &&
+        mBoardFadeOutCounter < 0 && !mLevelComplete && !mLevelFinished &&
         !HasLevelAwardDropped() && ShouldRunShopSeedTutorial() && mCurrentWave == 4 && mShopSeedTutorialCounter < 500 &&
         ++mShopSeedTutorialCounter == 500)
     {
@@ -8093,8 +8346,11 @@ int Board::MouseHitTest(int theX, int theY, HitResult *theHitResult, int thePlay
     int aPlantHit = MouseHitTestPlant(theX, theY, theHitResult);
     if (aPlantHit != 0)
         return 1;
-    if (mShowShovel != 0 && theX >= aShovelRect.mX && theX < aShovelRect.mX + aShovelRect.mWidth &&
-        theY >= aShovelRect.mY && theY < aShovelRect.mY + aShovelRect.mHeight)
+    const SexyVector2 viewPosition = SceneToView(static_cast<float>(theX), static_cast<float>(theY));
+    const SexyVector2 hudPosition = ViewToHud(viewPosition.mX, viewPosition.mY);
+    if (mShowShovel != 0 && hudPosition.mX >= aShovelRect.mX &&
+        hudPosition.mX < aShovelRect.mX + aShovelRect.mWidth && hudPosition.mY >= aShovelRect.mY &&
+        hudPosition.mY < aShovelRect.mY + aShovelRect.mHeight)
     {
         int aButtons = CanInteractWithBoardButtons();
         if (aButtons != 0)
@@ -8376,95 +8632,73 @@ int Board::DrawZenButtons(Sexy::Graphics *g)
 // ==========================================================================
 int Board::DrawShovel(Sexy::Graphics *g)
 {
-    // @0x15D0D0. Mode 20 draws nothing. The epilogue leaves whatever the last
-    // call left in r0; the only caller ignores it.
-    int aMode = mApp->mGameMode;
-    if (aMode == 20)
+    // DrawShovel @0x15D0D0: native tool bank/icon offsets. The PC layout
+    // omits controller badges and removes the shovel icon while it is held.
+    const GameMode mode = mApp->mGameMode;
+    if (mode == GAMEMODE_CHALLENGE_HEAVY_WEAPON)
         return 0;
 
-    // The hammer sits on the butter button. Its help glyph is the gamepad set
-    // when a pad is attached or both pads are on, otherwise the mouse set.
-    // mTransY is truncated toward zero and written back, which is what
-    // VCVT.S32.F32 then VCVT.F32.S32 does.
-    if (mShowHammer != 0)
+    const bool lowViewHud = IsLowViewHudActive();
+    const bool hasGamepad = mApp->HasGamepad() || (mApp->mGamePad1IsOn && mApp->mGamePad2IsOn);
+    Sexy::Image *helpButtons = hasGamepad ? IMAGE_HELP_BUTTONS : IMAGE_HELP_BUTTONS2;
+    if (mShowHammer)
     {
-        int aSavedY = (int)g->mTransY;
-        Sexy::Rect aRect = GetButterButtonRect();
-        g->DrawImage(IMAGE_SHOVELBANK, aRect.mX, aRect.mY);
-        g->DrawImage(IMAGE_HAMMER_ICON, aRect.mX - 7, aRect.mY - 3);
-        Sexy::Image *aHelp = IMAGE_HELP_BUTTONS2;
-        if (mApp->HasGamepad() != 0 || (mApp->mGamePad1IsOn != 0 && mApp->mGamePad2IsOn != 0))
-            aHelp = IMAGE_HELP_BUTTONS;
-        g->DrawImageCel(aHelp, aRect.mX + 36, aRect.mY + 40, 2);
+        const Sexy::Rect rect = GetButterButtonRect();
+        g->DrawImage(IMAGE_SHOVELBANK, rect.mX, rect.mY);
+        g->DrawImage(IMAGE_HAMMER_ICON, rect.mX - 7, rect.mY - 3);
+        if (!lowViewHud)
+            g->DrawImageCel(helpButtons, rect.mX + 36, rect.mY + 40, 2);
         g->SetColorizeImages(false);
-        g->mTransY = (float)aSavedY;
+        g->mTransY = static_cast<float>(static_cast<int>(g->mTransY));
     }
 
-    // Butter draws in coop, and in adventure once a second pad has been seen
-    // (index + 1 is nonzero). Other modes skip it.
-    if (mShowButter != 0)
+    const bool drawButter = mShowButter &&
+        (mApp->IsCoopMode() || (mApp->IsAdventureMode() && mApp->mSecondPlayerGamepadIndex != -1));
+    if (drawButter)
     {
-        bool aDrawButter = mApp->IsCoopMode() != 0;
-        if (!aDrawButter && mApp->IsAdventureMode() != 0)
-            aDrawButter = mApp->mSecondPlayerGamepadIndex != -1;
-        if (aDrawButter)
+        const Sexy::Rect rect = GetButterButtonRect();
+        g->DrawImage(IMAGE_SHOVELBANK, rect.mX, rect.mY);
+        if (mChallenge->mChallengeState == STATECHALLENGE_SHOVEL_FLASHING)
         {
-            int aSavedY = (int)g->mTransY;
-            Sexy::Rect aRect = GetButterButtonRect();
-            g->DrawImage(IMAGE_SHOVELBANK, aRect.mX, aRect.mY);
-            // Challenge state 15 flashes the icon. 75 is the colour period.
-            if (mChallenge->mChallengeState == 15)
-            {
-                Sexy::Color aFlash;
-                GetFlashingColor((Sexy::Color *)&aFlash, mMainCounter);
-                g->SetColorizeImages(true);
-                g->SetColor(aFlash);
-            }
-            g->DrawImage(IMAGE_BUTTER_ICON, aRect.mX - 7, aRect.mY - 3);
-            g->DrawImageCel(IMAGE_HELP_BUTTONS, aRect.mX + 36, aRect.mY + 40, 2);
-            g->SetColorizeImages(false);
-            g->mTransY = (float)aSavedY;
+            Sexy::Color flash;
+            GetFlashingColor(&flash, mMainCounter, 75);
+            g->SetColorizeImages(true);
+            g->SetColor(flash);
         }
+        g->DrawImage(IMAGE_BUTTER_ICON, rect.mX - 7, rect.mY - 3);
+        if (!lowViewHud)
+            g->DrawImageCel(IMAGE_HELP_BUTTONS, rect.mX + 36, rect.mY + 40, 2);
+        g->SetColorizeImages(false);
+        g->mTransY = static_cast<float>(static_cast<int>(g->mTransY));
     }
 
-    // Modes 44 and 51 skip the shovel and fall through to the zen buttons.
-    // Mode 76 returns before either.
-    aMode = mApp->mGameMode;
-    if (aMode != 51 && aMode != 44)
-    {
-        if (aMode == 76)
-            return 0;
-        if (mShowShovel != 0)
-        {
-            int aSavedY = (int)g->mTransY;
-            Sexy::Rect aRect = GetShovelButtonRect();
-            g->DrawImage(IMAGE_SHOVELBANK, aRect.mX, aRect.mY);
-            if (mChallenge->mChallengeState == 15)
-            {
-                Sexy::Color aFlash;
-                GetFlashingColor((Sexy::Color *)&aFlash, mMainCounter);
-                g->SetColorizeImages(true);
-                g->SetColor(aFlash);
-            }
-            g->DrawImage(IMAGE_SHOVEL, aRect.mX - 7, aRect.mY - 3);
-            if (mApp->IsCoopMode() != 0)
-            {
-                g->DrawImageCel(IMAGE_HELP_BUTTONS, aRect.mX + 40, aRect.mY + 40, 1);
-            }
-            else
-            {
-                Sexy::Image *aHelp = IMAGE_HELP_BUTTONS2;
-                if (mApp->HasGamepad() != 0 || (mApp->mGamePad1IsOn != 0 && mApp->mGamePad2IsOn != 0))
-                    aHelp = IMAGE_HELP_BUTTONS;
-                g->DrawImageCel(aHelp, aRect.mX + 50, aRect.mY + 40, 1);
-            }
-            g->SetColorizeImages(false);
-            aMode = mApp->mGameMode;
-            g->mTransY = (float)aSavedY;
-        }
-    }
-    if (aMode == 44 || aMode == 51)
+    if (mode == GAMEMODE_CHALLENGE_ZEN_GARDEN || mode == GAMEMODE_TREE_OF_WISDOM)
         return DrawZenButtons(g);
+    if (mode == GAMEMODE_MP_VS)
+        return 0;
+    if (mShowShovel)
+    {
+        const Sexy::Rect rect = GetShovelButtonRect();
+        g->DrawImage(IMAGE_SHOVELBANK, rect.mX, rect.mY);
+        if (mChallenge->mChallengeState == STATECHALLENGE_SHOVEL_FLASHING)
+        {
+            Sexy::Color flash;
+            GetFlashingColor(&flash, mMainCounter, 75);
+            g->SetColorizeImages(true);
+            g->SetColor(flash);
+        }
+        if (!lowViewHud || mCursorObject[0]->mCursorType != CURSOR_TYPE_SHOVEL)
+            g->DrawImage(IMAGE_SHOVEL, rect.mX - 7, rect.mY - 3);
+        if (!lowViewHud)
+        {
+            if (mApp->IsCoopMode())
+                g->DrawImageCel(IMAGE_HELP_BUTTONS, rect.mX + 40, rect.mY + 40, 1);
+            else
+                g->DrawImageCel(helpButtons, rect.mX + 50, rect.mY + 40, 1);
+        }
+        g->SetColorizeImages(false);
+        g->mTransY = static_cast<float>(static_cast<int>(g->mTransY));
+    }
     return 0;
 }
 
@@ -8855,7 +9089,8 @@ int Board::FinishExit()
 // ==========================================================================
 bool Board::OkToPause()
 {
-    return mBoardFadeOutCounter <= 0 && mApp->mGameMode != GAMEMODE_INTRO && IsScaryPotterDaveTalking() == 0 &&
+    return mBoardFadeOutCounter < 0 && !mLevelComplete && mApp->mGameMode != GAMEMODE_INTRO &&
+        IsScaryPotterDaveTalking() == 0 &&
         mApp->mGameScene == SCENE_PLAYING;
 }
 
@@ -9362,6 +9597,9 @@ void Board::DrawUIBottom(Sexy::Graphics *g)
     }
 
     // Scenes 4 and 8 (zombies won, plants won) skip the banks and the advice.
+    const bool lowViewHud = IsLowViewHudActive();
+    if (lowViewHud)
+        PushHudView(g);
     if (mApp->mGameScene != SCENE_PLANTS_WON && mApp->mGameScene != SCENE_ZOMBIES_WON)
     {
         if (mSeedBank[0]->BeginDraw(g) != 0)
@@ -9382,6 +9620,8 @@ void Board::DrawUIBottom(Sexy::Graphics *g)
             mAdvice->Draw(g);
     }
     DrawShovel(g);
+    if (lowViewHud)
+        PopHudView(g);
     if (StageHasFog() == 0)
         DrawTopRightUI(g);
 }
@@ -11714,6 +11954,7 @@ Board::Board(LawnApp *theApp)
     mSyncBlocks.push_back(aBlock);
     memset(stateBegin, 0, aBlock.mSize);
     mApp = theApp;
+    mLowViewEnabled = Sexy::GetEnvOption("LAWN_LOW_VIEW", false) != 0;
     theApp->mBoard = this;
     mExitRequested = 0;
     mBoardInitCounter = 0;
@@ -12292,7 +12533,11 @@ void Board::DrawUITop(Sexy::Graphics *g)
         TodDrawStringWrapped(g, mStringSecondPlayer, aBanner, FONT_DWARVENTODCRAFT18, Sexy::Color::White, 5, 0);
     }
     DrawDebugText(g);
+    if (IsLowViewActive())
+        PushSceneView(g);
     DrawDebugObjectRects(g);
+    if (IsLowViewActive())
+        g->PopTransform();
 }
 
 static void PushGameObjectItem(BoardRenderItem *aItems, int &aCount, int aType, GameObject *aObject)
@@ -12544,11 +12789,44 @@ int Board::DrawGameObjects(Sexy::Graphics *g)
     if (aCount != 0)
         std::sort(aItems, aItems + aCount, RenderItemSortFunc);
     TodHesitationTrace("end sort, start draw");
+    const bool lowView = IsLowViewActive();
+    enum class ViewSpace
+    {
+        Screen,
+        Scene,
+        SeedBank
+    };
+    ViewSpace currentView = ViewSpace::Screen;
+    const TodParticleSystem *tutorialArrow = mApp->ParticleTryToGet(mTutorialParticleID);
     for (int aIndex = 0; aIndex < aCount; ++aIndex)
     {
         BoardRenderItem &aItem = aItems[aIndex];
         if ((unsigned)aItem.mType > 35)
             continue;
+        // FlashIfReady @0x17382C and the tutorial arrows use bank coordinates,
+        // even though they are independent particles in the sorted render queue.
+        ViewSpace itemView = ViewSpace::Screen;
+        if (lowView)
+        {
+            const bool bankParticle = aItem.mType == 12 &&
+                (aItem.mParticle->mEffectType == PARTICLE_SEED_PACKET_FLASH || aItem.mParticle == tutorialArrow);
+            if (bankParticle)
+                itemView = IsLowViewHudActive() ? ViewSpace::SeedBank : ViewSpace::Screen;
+            else if (aItem.mType != 15 && aItem.mType != 25 && aItem.mType != 28 && aItem.mType != 31)
+                itemView = ViewSpace::Scene;
+        }
+        if (itemView != currentView)
+        {
+            if (currentView == ViewSpace::SeedBank)
+                PopHudView(g);
+            else if (currentView == ViewSpace::Scene)
+                g->PopTransform();
+            if (itemView == ViewSpace::Scene)
+                PushSceneView(g);
+            else if (itemView == ViewSpace::SeedBank)
+                PushHudView(g);
+            currentView = itemView;
+        }
         switch (aItem.mType)
         {
             case 0:
@@ -12710,6 +12988,10 @@ int Board::DrawGameObjects(Sexy::Graphics *g)
                 break;
         }
     }
+    if (currentView == ViewSpace::SeedBank)
+        PopHudView(g);
+    else if (currentView == ViewSpace::Scene)
+        g->PopTransform();
     return TodHesitationTrace("end draw");
 }
 

@@ -284,6 +284,7 @@ public:
     virtual void MouseDown(int theX, int theY, int theClickCount) override; // [ 76] 0x130
     virtual void MouseUp(int theX, int theY, int theClickCount) override; // [ 79] 0x13C
     virtual void MouseDrag(int theX, int theY) override; // [ 81] 0x144
+    Sexy::Rect GetInsetRect() override;
     // Slots [122]/[123]/[124] are the Sexy::ButtonListener overrides. The
     // binary's order is MouseEnter, MouseLeave, Press -- keep it.
     virtual void ButtonMouseEnter(int theId) override; // [122] 0x1E8
@@ -465,6 +466,27 @@ public:
     bool mJacksonDanceMode = false; // +0x5918
     // Per-board tutorial timing, outside the saved board state.
     int mShopSeedTutorialCounter = 0;
+    // Optional PC camera framing; gameplay and saved coordinates stay in TV space.
+    bool mLowViewEnabled = false;
+    bool IsLowViewActive() const;
+    bool IsLowViewHudActive() const;
+    struct LowViewHudLayout
+    {
+        float mOffsetX;
+        Sexy::Rect mMenuRect;
+    };
+    LowViewHudLayout GetLowViewHudLayout() const;
+    float GetHudScale() const;
+    SexyVector2 ViewToScene(float theX, float theY) const;
+    SexyVector2 SceneToView(float theX, float theY) const;
+    SexyVector2 HudToView(float theX, float theY) const;
+    SexyVector2 ViewToHud(float theX, float theY) const;
+    void MapMouseToScene(int &theX, int &theY) const;
+    void SetMouseCursorFromView(int theX, int theY, int thePlayerIndex);
+    bool IsMouseOverHud(int theX, int theY);
+    void PushSceneView(Sexy::Graphics *g) const;
+    void PushHudView(Sexy::Graphics *g) const;
+    void PopHudView(Sexy::Graphics *g) const;
     // Transient desktop input, outside the saved board state.
     enum class MouseGesture
     {
@@ -574,7 +596,7 @@ public:
     Board *AddSunMoney(int theAmount, int thePlayerIndex);
     void AddDeathMoney(int theAmount);
     int TakeDeathMoney(int theAmount);
-    int HasConveyorBeltSeedBank(bool thePlayer2);
+    int HasConveyorBeltSeedBank(bool thePlayer2) const;
     bool ChooseSeedsOnCurrentLevel();
     int GetNumSeedsInBank(bool thePlayer2);
     unsigned int StageIsNight();
@@ -588,7 +610,7 @@ public:
     void InitLawnMowers();
     bool StageHasZombieWalkInFromRight();
     int GetSeedPacketPositionX(int theIndex, int thePlayerIndex, bool theVersus);
-    int GetSeedBankExtraWidth();
+    int GetSeedBankExtraWidth() const;
     // The three button-rect angle helpers all RETURN A TRect BY VALUE, so the
     // sret buffer occupies r0 and is therefore the receiver; the FIRST PARAMETER
     // is the real Board object. Disassembly of 0x15463c:
@@ -607,8 +629,8 @@ public:
     // Shovel/Butter are fixed: they return Sexy::Rect by value and take no
     // arguments. GetZenButtonRect below still carries the old sret spelling and
     // needs the same treatment when its body is converted.
-    Sexy::Rect GetShovelButtonRect();
-    Sexy::Rect GetButterButtonRect();
+    Sexy::Rect GetShovelButtonRect() const;
+    Sexy::Rect GetButterButtonRect() const;
     int OffsetYForPlanting(int &theY, SeedType theSeedType);
     int PixelToGridX(int theX, int theY);
     int PlantingPixelToGridX(int theX, int theY, SeedType theSeedType);

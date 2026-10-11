@@ -343,12 +343,13 @@ void SeedBank::Draw(Sexy::Graphics *theGraphics)
     bool aCanShop = mApp->CanShopLevel();
     bool aSelectingSeeds = aControls->mGamepadState == BaseGamepadControls::MOVEMENT_STATE_SELECT_SEED;
     bool aShowShop = aCanShop && (aSelectingSeeds || aControls->mIsInShopSeedBank || mBoard->mMouseShopOpen);
-    if (!aHasPad && !aPadsOn && aCanShop && aSelectingSeeds)
+    const bool lowViewHud = mBoard->IsLowViewHudActive();
+    if (!lowViewHud && !aHasPad && !aPadsOn && aCanShop && aSelectingSeeds)
     {
         DrawTip(theGraphics, "[GAMEPAD_CONTROLLER_TIP_1]", 220, -12);
     }
 
-    if ((aHasPad || aPadsOn) && aCanShop)
+    if (!lowViewHud && (aHasPad || aPadsOn) && aCanShop)
     {
         DrawTip(theGraphics, aControls->mIsInShopSeedBank ? "[GAMEPAD_SHOPTIP_2]" : "[GAMEPAD_SHOPTIP_1]", 220, -9);
     }
@@ -382,7 +383,7 @@ void SeedBank::Draw(Sexy::Graphics *theGraphics)
     bool aPlaying = mApp->mGameScene == SCENE_PLAYING;
     int aBoardX = mBoard->mX;
     int aBoardY = mBoard->mY;
-    if (!aPlaying)
+    if (!aPlaying && !lowViewHud)
     {
         theGraphics->mTransX -= (float)aBoardX;
         theGraphics->mTransY -= (float)aBoardY;
@@ -492,7 +493,10 @@ void SeedBank::Draw(Sexy::Graphics *theGraphics)
         aHeldSecondary->Draw(theGraphics);
         aHeldSecondary->EndDraw(theGraphics);
     }
-    theGraphics->ClearClipRect();
+    if (lowViewHud)
+        theGraphics->mClipRect = aSavedClip;
+    else
+        theGraphics->ClearClipRect();
 
     // Use the TV two-row layout for both mouse and gamepad selection.
     if (aShowShop)
@@ -556,7 +560,7 @@ void SeedBank::Draw(Sexy::Graphics *theGraphics)
         }
     }
 
-    if (!aPlaying)
+    if (!aPlaying && !lowViewHud)
     {
         theGraphics->mTransX += (float)aBoardX;
         theGraphics->mTransY += (float)aBoardY;

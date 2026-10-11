@@ -1157,6 +1157,11 @@ AlmanacDialog *LawnApp::DoAlmanacDialog(SeedType theSeedType, ZombieType theZomb
 // ==========================================================================
 void LawnApp::DoPauseDialog()
 {
+    // Once an award starts the level-end sequence, queued pause/focus input
+    // must not open a modal dialog that stops the fade counter.
+    if (mBoard != nullptr && (mBoard->mBoardFadeOutCounter >= 0 || mBoard->mLevelComplete ||
+            mBoard->mNextSurvivalStageCounter > 0))
+        return;
     if (mBoard != nullptr)
         mBoard->Pause(true);
 

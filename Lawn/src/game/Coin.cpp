@@ -617,6 +617,26 @@ void Coin::UpdateCollected()
         return;
     }
 
+    float doubleSunDestY = 0.0f;
+    if (mBoard->IsLowViewActive())
+    {
+        // The enlarged PC sun bank has its own viewport anchor; the coin bank
+        // remains in screen space. Convert only sun/death targets through the HUD.
+        if (IsSun() || IsDeath() || IsDoubleSun())
+        {
+            const SexyVector2 hudDestination = mBoard->HudToView(aDestX, aDestY);
+            aDestX = hudDestination.mX;
+            aDestY = hudDestination.mY;
+        }
+        const SexyVector2 destination = mBoard->ViewToScene(aDestX, aDestY);
+        aDestX = destination.mX;
+        aDestY = destination.mY;
+        const SexyVector2 doubleSunView = mBoard->HudToView(aDoubleSunDestX, 0.0f);
+        const SexyVector2 doubleSunDestination = mBoard->ViewToScene(doubleSunView.mX, doubleSunView.mY);
+        aDoubleSunDestX = doubleSunDestination.mX;
+        doubleSunDestY = doubleSunDestination.mY;
+    }
+
     float aDeltaX = fabsf(mPosX - aDestX);
     float aDeltaY = fabsf(mPosY - aDestY);
     if (mPosX > aDestX)
@@ -631,16 +651,16 @@ void Coin::UpdateCollected()
     if (mType == COIN_COOP_DOUBLE_SUN)
     {
         float aDoubleSunDeltaX = fabsf(mPrevPosX - aDoubleSunDestX);
-        float aDoubleSunDeltaY = fabsf(mPrevPosY);
+        float aDoubleSunDeltaY = fabsf(mPrevPosY - doubleSunDestY);
         if (mPrevPosX > aDoubleSunDestX)
             mPrevPosX -= aDoubleSunDeltaX * 0.047619f;
         else if (mPrevPosX < aDoubleSunDestX)
             mPrevPosX += aDoubleSunDeltaX * 0.047619f;
 
-        if (mPrevPosY > 0.0f)
+        if (mPrevPosY > doubleSunDestY)
             mPrevPosY -= aDoubleSunDeltaY * 0.047619f;
         // The binary really does test mPosY on this second branch, not mPrevPosY.
-        else if (mPosY < 0.0f)
+        else if ((mBoard->IsLowViewActive() ? mPrevPosY : mPosY) < doubleSunDestY)
             mPrevPosY += aDoubleSunDeltaY * 0.047619f;
     }
 
@@ -1018,6 +1038,9 @@ void Coin::MouseDown(int theX, int theY, int theClickCount)
 // ==========================================================================
 void Coin::GamepadCursorOver(int thePlayerIndex)
 {
+    // Reward seeds require an explicit click/A press, rather than proximity.
+    if (mType == COIN_FINAL_SEED_PACKET)
+        return;
     // The gamepad cursor only picks a coin up while the level is running.
     if (mBoard != nullptr && !mBoard->mPaused && mApp->mGameScene == SCENE_PLAYING && !mDead)
     {
@@ -1760,16 +1783,17 @@ void Coin::UpdateFall()
         mPosY += aVelY;
         mVelX = aVelX * 0.95f;
         mVelY = aVelY * 0.95f;
-        if (mCoinAge > 79 && !IsSun() && !IsDoubleSun())
+        if (mCoinAge > 79 && !IsSun() && !IsDoubleSun() && mType != COIN_FINAL_SEED_PACKET)
             Collect(0);
         return;
     }
 
-    // A seed packet and every award drop are taken the moment they are created.
-    if (mType == COIN_FINAL_SEED_PACKET || (unsigned int)(mType - COIN_AWARD_MONEY_BAG) <= 4)
+    // TV takes reward seeds immediately; desktop uses the PC's manual pickup.
+    // Other TV awards retain their existing collection/endless-stage behavior.
+    if ((unsigned int)(mType - COIN_AWARD_MONEY_BAG) <= 4)
         Collect(0);
     // Keep TV auto-collection for money and awards; sun requires player input.
-    else if (!IsSun() && !IsDoubleSun() && mCoinAge >= mAutoCollectAge &&
+    else if (mType != COIN_FINAL_SEED_PACKET && !IsSun() && !IsDoubleSun() && mCoinAge >= mAutoCollectAge &&
         (mAutoCollect || (unsigned int)(mType - COIN_SILVER) <= 5 ||
             (unsigned int)(mType - COIN_AWARD_SILVER_SUNFLOWER) <= 1))
         Collect(0);

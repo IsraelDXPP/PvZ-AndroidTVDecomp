@@ -7863,44 +7863,40 @@ void Zombie::MowDown()
     // The two vehicles explode instead of being run down.
     if (mZombieType == ZOMBIE_CATAPULT || mZombieType == ZOMBIE_ZAMBONI)
     {
-        ParticleEffect anEffect = (mZombieType == ZOMBIE_CATAPULT) ? (ParticleEffect)66 : (ParticleEffect)64;
-        mApp->AddTodParticle(mPosX + 80.0f, mPosY + 60.0f, mRenderOrder + 1, anEffect);
+        const ParticleEffect effect =
+            mZombieType == ZOMBIE_CATAPULT ? PARTICLE_CATAPULT_EXPLOSION : PARTICLE_ZAMBONI_EXPLOSION;
+        mApp->AddTodParticle(mPosX + 80.0f, mPosY + 60.0f, mRenderOrder + 1, effect);
         mApp->PlayFoley(FOLEY_EXPLOSION);
-        {
-            DieWithLoot();
-            return;
-        }
+        DieWithLoot();
+        return;
     }
 
-    // Everything the mower passes through is destroyed outright, except the types
-    // that leave a corpse: the dying/burned phases, the gargantuars, the vehicles,
-    // the boss, the pole vaulter, the dolphin rider, the jack-in-the-box, the
-    // flying zombies, and anything already in the pool.
-    bool aLeavesCorpse = ((mZombiePhase & ~2u) == PHASE_ZOMBIE_DYING) || ((mZombiePhase - 1) <= 1) ||
-        ((mZombiePhase & ~8u) == 50) || ((unsigned int)(mZombieType - 23) <= 1) ||
-        mZombieType == ZOMBIE_REDEYE_GARGANTUAR || mZombieType == ZOMBIE_POLEVAULTER ||
-        ((unsigned int)(mZombieType - 19) <= 1) || mZombieType == ZOMBIE_ZAMBONI;
+    // MowDown @0x1B1BB0 uses an unsigned (phase - 1) range check. Normal
+    // walking phase 0 must reach the crushed-body animation below.
+    const bool disappearInSmoke = mZombiePhase == PHASE_ZOMBIE_DYING || mZombiePhase == PHASE_ZOMBIE_BURNED ||
+        mZombiePhase == PHASE_POLEVAULTER_IN_VAULT || mZombiePhase == PHASE_RISING_FROM_GRAVE ||
+        mZombiePhase == PHASE_DANCER_RISING || mZombiePhase == PHASE_SNORKEL_INTO_POOL ||
+        mZombieType == ZOMBIE_GARGANTUAR || mZombieType == ZOMBIE_IMP ||
+        mZombieType == ZOMBIE_REDEYE_GARGANTUAR || mZombieType == ZOMBIE_DIGGER || mZombieType == ZOMBIE_YETI ||
+        mZombieType == ZOMBIE_BUNGEE || mZombieType == ZOMBIE_DOLPHIN_RIDER;
 
-    if (aLeavesCorpse || IsBobsledTeamWithSled() || IsFlying() || mInPool)
+    if (disappearInSmoke || IsBobsledTeamWithSled() || IsFlying() || mInPool)
     {
         // The puff of smoke, then the head and limbs come off.
         Reanimation *aPuff = mApp->AddReanimation(mPosX - 73.0f, mPosY - 56.0f, mRenderOrder + 2, REANIM_PUFF);
         aPuff->SetFramesForLayer("anim_puff");
-        mApp->AddTodParticle(mPosX + 110.0f, (float)mPosY, mRenderOrder + 1, (ParticleEffect)67);
+        mApp->AddTodParticle(mPosX + 110.0f, mPosY, mRenderOrder + 1, PARTICLE_MOWER_CLOUD);
 
-        // The graveyard levels keep the body parts attached. 2 is the grave square
-        // in the binary's GridSquareType; this tree's enum stops at HIGH_GROUND.
-        if (mBoard->mGridSquareType[mRow][mTargetCol] != (GridSquareType)2)
+        // The original reads the row's terrain, not a grid-square column.
+        if (mBoard->mPlantRow[mRow] != PLANTROW_POOL)
         {
             DropHead(0);
             DropArm(0);
             DropHelm(0);
             DropShield(0);
         }
-        {
-            DieWithLoot();
-            return;
-        }
+        DieWithLoot();
+        return;
     }
 
     if (mIceTrapCounter > 0)
@@ -7916,7 +7912,7 @@ void Zombie::MowDown()
         DropFlag();
     else if (mZombieType == ZOMBIE_POLEVAULTER)
         DropPole();
-    else if (mZombieType == ZOMBIE_NEWSPAPER || mZombieType == ZOMBIE_DANCER)
+    else if (mZombieType == ZOMBIE_NEWSPAPER || mZombieType == ZOMBIE_BALLOON)
         DropHead(0);
     else if (mZombieType == ZOMBIE_POGO)
     {

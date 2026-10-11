@@ -391,11 +391,42 @@ void BgfxRenderDevice::PopTransform(SexyMatrix3 &theTransform)
 void BgfxRenderDevice::SetClipRect(const Rect &clip)
 {
     FlushBatch();
-    int left = std::clamp(clip.mX, 0, mWidth), top = std::clamp(clip.mY, 0, mHeight);
-    int right = std::clamp(clip.mX + clip.mWidth, left, mWidth),
-        bottom = std::clamp(clip.mY + clip.mHeight, top, mHeight);
-    mClip = Rect(left, top, right - left, bottom - top);
     mClipped = true;
+    if (clip.mWidth <= 0 || clip.mHeight <= 0)
+    {
+        mClip = Rect();
+        return;
+    }
+    // Graphics clips in the same coordinates as its vertices. A camera transform
+    // must move both; bgfx's scissor itself is always in framebuffer coordinates.
+    const float clipLeft = static_cast<float>(clip.mX);
+    const float clipTop = static_cast<float>(clip.mY);
+    const float clipRight = static_cast<float>(clip.mX + clip.mWidth);
+    const float clipBottom = static_cast<float>(clip.mY + clip.mHeight);
+    const SexyVector2 corners[] = {mTransform * SexyVector2(clipLeft, clipTop),
+        mTransform * SexyVector2(clipRight, clipTop),
+        mTransform * SexyVector2(clipLeft, clipBottom),
+        mTransform * SexyVector2(clipRight, clipBottom)};
+    float transformedLeft = corners[0].mX;
+    float transformedTop = corners[0].mY;
+    float transformedRight = corners[0].mX;
+    float transformedBottom = corners[0].mY;
+    for (const SexyVector2 &corner : corners)
+    {
+        transformedLeft = std::min(transformedLeft, corner.mX);
+        transformedTop = std::min(transformedTop, corner.mY);
+        transformedRight = std::max(transformedRight, corner.mX);
+        transformedBottom = std::max(transformedBottom, corner.mY);
+    }
+    const float framebufferWidth = static_cast<float>(mWidth);
+    const float framebufferHeight = static_cast<float>(mHeight);
+    const int left = static_cast<int>(std::floor(std::clamp(transformedLeft, 0.0f, framebufferWidth)));
+    const int top = static_cast<int>(std::floor(std::clamp(transformedTop, 0.0f, framebufferHeight)));
+    const int right = static_cast<int>(
+        std::ceil(std::clamp(transformedRight, static_cast<float>(left), framebufferWidth)));
+    const int bottom = static_cast<int>(
+        std::ceil(std::clamp(transformedBottom, static_cast<float>(top), framebufferHeight)));
+    mClip = Rect(left, top, right - left, bottom - top);
 }
 void BgfxRenderDevice::ClearClipRect()
 {

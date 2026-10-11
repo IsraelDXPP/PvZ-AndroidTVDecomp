@@ -108,6 +108,8 @@ int PacketGrayness(
 
 // Selection grows the packet to 1.2 over 0.15s. A released packet shrinks back
 // over the same window and then stops transforming.
+// DrawBackground @0x172BF8 and DrawMiddle @0x1730B0 keep this animation
+// independent of the outer bank layout and camera scale.
 void ApplySelectScale(SeedPacket *packet, Sexy::Graphics *g)
 {
     if (packet->mApp->IsSlotMachineLevel())
@@ -539,11 +541,14 @@ void SeedPacket::FlashIfReady()
             offsetY = -4.0f;
         }
 
-        TodParticleSystem *particles = mApp->AddTodParticle(offsetX + (float)mSeedBank->mX + scale * (float)mX,
-            offsetY + (float)mSeedBank->mY + scale * (float)mY,
+        // FlashIfReady @0x17382C stores bank coordinates. DrawGameObjects
+        // applies the bank's view transform, including the PC low-view scale.
+        TodParticleSystem *particles = mApp->AddTodParticle(
+            offsetX + static_cast<float>(mSeedBank->mX) + scale * static_cast<float>(mX),
+            offsetY + static_cast<float>(mSeedBank->mY) + scale * static_cast<float>(mY),
             100002,
             PARTICLE_SEED_PACKET_FLASH);
-        TodParticleEmitter *emitter = particles->FindEmitterByName("SeedPacketFlash");
+        TodParticleEmitter *emitter = particles != nullptr ? particles->FindEmitterByName("SeedPacketFlash") : nullptr;
         if (emitter != nullptr)
             emitter->mSyncState.mScaleOverride = scale;
     }

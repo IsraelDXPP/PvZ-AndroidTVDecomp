@@ -73,20 +73,40 @@ GameButton *SeedChooserScreen::MouseButtonHitTest(int theX, int theY) const
 Sexy::Rect SeedChooserScreen::GetInsetRect()
 {
     Sexy::Rect bounds = Sexy::Widget::GetInsetRect();
-    if (mApp->HasGamepad() || (mApp->mGamePad1IsOn && mApp->mGamePad2IsOn))
-        return bounds;
+    const auto includeRect = [&](const Sexy::Rect &rect)
+    {
+        const int left = std::min(bounds.mX, rect.mX);
+        const int top = std::min(bounds.mY, rect.mY);
+        const int right = std::max(bounds.mX + bounds.mWidth, rect.mX + rect.mWidth);
+        const int bottom = std::max(bounds.mY + bounds.mHeight, rect.mY + rect.mHeight);
+        bounds = Sexy::Rect(left, top, right - left, bottom - top);
+    };
     // The background is drawn at Y=87, and the button row at Y=548 is below
     // the widget's image-sized height. Include it without changing the layout.
-    for (GameButton *button : mButtons)
+    if (!mApp->HasGamepad() && (!mApp->mGamePad1IsOn || !mApp->mGamePad2IsOn))
     {
-        if (!button->mVisible || button->mBtnNoDraw)
-            continue;
-        const Sexy::Rect buttonRect = GetMouseButtonRect(*button);
-        const int left = std::min(bounds.mX, mX + buttonRect.mX);
-        const int top = std::min(bounds.mY, mY + buttonRect.mY);
-        const int right = std::max(bounds.mX + bounds.mWidth, mX + buttonRect.mX + buttonRect.mWidth);
-        const int bottom = std::max(bounds.mY + bounds.mHeight, mY + buttonRect.mY + buttonRect.mHeight);
-        bounds = Sexy::Rect(left, top, right - left, bottom - top);
+        for (GameButton *button : mButtons)
+        {
+            if (!button->mVisible || button->mBtnNoDraw)
+                continue;
+            Sexy::Rect buttonRect = GetMouseButtonRect(*button);
+            buttonRect.mX += mX;
+            buttonRect.mY += mY;
+            includeRect(buttonRect);
+        }
+    }
+    if (mBoard->IsLowViewHudActive())
+    {
+        const SexyVector2 topLeft = mBoard->HudToView(
+            static_cast<float>(mSeedBank1->mX), static_cast<float>(mSeedBank1->mY));
+        const SexyVector2 bottomRight = mBoard->HudToView(
+            static_cast<float>(mSeedBank1->mX + mSeedBank1->mWidth),
+            static_cast<float>(mSeedBank1->mY + mSeedBank1->mHeight));
+        const int left = mBoard->mX + static_cast<int>(std::floor(topLeft.mX));
+        const int top = mBoard->mY + static_cast<int>(std::floor(topLeft.mY));
+        const int right = mBoard->mX + static_cast<int>(std::ceil(bottomRight.mX));
+        const int bottom = mBoard->mY + static_cast<int>(std::ceil(bottomRight.mY));
+        includeRect(Sexy::Rect(left, top, right - left, bottom - top));
     }
     return bounds;
 }
@@ -117,7 +137,7 @@ void SeedChooserScreen::MouseUp(int x, int y, int theClickCount)
                 ButtonDepress(buttonId);
         return;
     }
-    if (x < 0 || x >= mWidth || y < 0 || y >= mHeight)
+    if (!GetInsetRect().Contains(x + mX, y + mY))
         return;
     if (seed == SEED_NONE)
         return;
@@ -525,6 +545,15 @@ int SeedChooserScreen::GetSeedPositionInBank(int theIndex, int &theX, int &theY,
     theY = aSeedBank->mY + 8 - mY;
     if (mApp->mGameMode == GAMEMODE_MP_VS)
         theY -= 4;
+    if (mBoard->IsLowViewHudActive())
+    {
+        // GetSeedPositionInBank @0x14C4BC supplies native bank positions.
+        // Map them through the same HUD transform used by SeedBank::Draw.
+        const SexyVector2 position = mBoard->HudToView(
+            static_cast<float>(aSeedBank->mX + aResult), static_cast<float>(aSeedBank->mY + 8));
+        theX = mBoard->mX + static_cast<int>(std::lround(position.mX)) - mX;
+        theY = mBoard->mY + static_cast<int>(std::lround(position.mY)) - mY;
+    }
     return aResult;
 }
 
@@ -643,8 +672,27 @@ int SeedChooserScreen::VSAutoPickResourceGen()
 // @0014C71C  156 bytes
 // ==========================================================================
 void SeedChooserScreen::DrawPacket(Sexy::Graphics *g, int theX, int theY, int theSeedType, int theImitaterType,
-    float thePercentDark, int theGrayness, Color &theColor, bool theDrawCost, bool theUseCurrentCost)
+    float thePercentDark, int theGrayness, Color &theColor, bool theDrawCost, bool theUseCurrentCost, float theScale)
 {
+    if (theScale != 1.0f)
+    {
+        g->PushState();
+        Sexy::SexyMatrix3 transform;
+        transform.LoadIdentity();
+        transform.m00 = theScale;
+        transform.m11 = theScale;
+        transform.m02 = (g->mTransX + static_cast<float>(theX)) * (1.0f - theScale);
+        transform.m12 = (g->mTransY + static_cast<float>(theY)) * (1.0f - theScale);
+        const Sexy::Rect clip = g->mClipRect;
+        const int left = static_cast<int>(std::floor((static_cast<float>(clip.mX) - transform.m02) / theScale));
+        const int top = static_cast<int>(std::floor((static_cast<float>(clip.mY) - transform.m12) / theScale));
+        const int right = static_cast<int>(
+            std::ceil((static_cast<float>(clip.mX + clip.mWidth) - transform.m02) / theScale));
+        const int bottom = static_cast<int>(
+            std::ceil((static_cast<float>(clip.mY + clip.mHeight) - transform.m12) / theScale));
+        g->mClipRect = Sexy::Rect(left, top, right - left, bottom - top);
+        g->PushTransform(transform, true);
+    }
     // The brightness offset is halved and pushed by the packet colour's own
     // average, so a darker packet gets less of it.
     const int aAverage = (theColor.GetRed() + theColor.GetGreen() + theColor.GetBlue()) / 3;
@@ -659,6 +707,26 @@ void SeedChooserScreen::DrawPacket(Sexy::Graphics *g, int theX, int theY, int th
         0,
         mIsZombieChooser,
         theUseCurrentCost);
+    if (theScale != 1.0f)
+    {
+        g->PopTransform();
+        g->PopState();
+    }
+}
+
+float SeedChooserScreen::GetChosenSeedScale(const ChosenSeedData &theChosenSeed) const
+{
+    if (!mBoard->IsLowViewHudActive())
+        return 1.0f;
+    if (theChosenSeed.mSeedState == SEED_IN_BANK)
+        return mBoard->GetHudScale();
+    if (theChosenSeed.mSeedState == SEED_FLYING_TO_BANK || theChosenSeed.mSeedState == SEED_FLYING_TO_CHOOSER)
+    {
+        const float endScale = theChosenSeed.mSeedState == SEED_FLYING_TO_BANK ? mBoard->GetHudScale() : 1.0f;
+        return TodAnimateCurveFloat(theChosenSeed.mTimeStartMotion, theChosenSeed.mTimeEndMotion,
+            mSeedChooserAge, theChosenSeed.mStartScale, endScale, CURVE_EASE_IN_OUT);
+    }
+    return 1.0f;
 }
 
 // ==========================================================================
@@ -1107,10 +1175,15 @@ int SeedChooserScreen::SeedHitTest(int theX, int theY)
         if (HasPacket(aSeedType, mIsZombieChooser) == 0 || aChosenSeed.mSeedState == SEED_PACKET_HIDDEN)
             continue;
 
-        // Packets are 49x69; hit either where the packet actually is or where its
-        // home slot is, so a seed in flight is still clickable.
-        if (theX >= aChosenSeed.mX && theY >= aChosenSeed.mY && theX <= aChosenSeed.mX + 49 &&
-            theY <= aChosenSeed.mY + 69)
+        // Match the enlarged bank and each packet's current flight scale.
+        int packetX = aChosenSeed.mX;
+        int packetY = aChosenSeed.mY;
+        if (aChosenSeed.mSeedState == SEED_IN_BANK)
+            GetSeedPositionInBank(aChosenSeed.mSeedIndexInBank, packetX, packetY, aChosenSeed.mChosenPlayerIndex);
+        const float scale = GetChosenSeedScale(aChosenSeed);
+        if (theX >= packetX && theY >= packetY &&
+            static_cast<float>(theX - packetX) <= 49.0f * scale &&
+            static_cast<float>(theY - packetY) <= 69.0f * scale)
             return aSeedType;
 
         int aX = 0;
@@ -1517,6 +1590,7 @@ int SeedChooserScreen::ClickedSeedInBank(ChosenSeedData &theChosenSeed, int theG
             continue;
 
         ChosenSeedData &aOther = mChosenSeeds[aSeedInBank];
+        aOther.mStartScale = GetChosenSeedScale(aOther);
         aOther.mStartX = aOther.mX;
         aOther.mStartY = aOther.mY;
         aOther.mTimeStartMotion = mSeedChooserAge;
@@ -1528,6 +1602,7 @@ int SeedChooserScreen::ClickedSeedInBank(ChosenSeedData &theChosenSeed, int theG
     }
 
     // The clicked packet flies back out to the chooser.
+    theChosenSeed.mStartScale = GetChosenSeedScale(theChosenSeed);
     theChosenSeed.mTimeStartMotion = mSeedChooserAge;
     theChosenSeed.mTimeEndMotion = mSeedChooserAge + 25;
     theChosenSeed.mStartX = theChosenSeed.mX;
@@ -1817,6 +1892,7 @@ int SeedChooserScreen::ClickedSeedInChooser(ChosenSeedData &theChosenSeed, int t
     {
         const int aBankSlot = (mApp->IsCoopMode() && thePlayerIndex == 1) ? mSeedsIn2PBank : mSeedsIn1PBank;
 
+        theChosenSeed.mStartScale = GetChosenSeedScale(theChosenSeed);
         theChosenSeed.mTimeStartMotion = mSeedChooserAge;
         theChosenSeed.mTimeEndMotion = mSeedChooserAge + 25;
         theChosenSeed.mStartX = theChosenSeed.mX;
@@ -2616,7 +2692,13 @@ void SeedChooserScreen::Draw(Sexy::Graphics *g)
         int aBankX = 0;
         int aBankY = 0;
         GetSeedPositionInBank(aBankIndex, aBankX, aBankY, 0);
-        g->DrawImage(IMAGE_SEEDPACKETSILHOUETTE, aBankX, aBankY);
+        const float scale = mBoard->GetHudScale();
+        if (scale == 1.0f)
+            g->DrawImage(IMAGE_SEEDPACKETSILHOUETTE, aBankX, aBankY);
+        else
+            g->DrawImage(IMAGE_SEEDPACKETSILHOUETTE, aBankX, aBankY,
+                static_cast<int>(std::lround(static_cast<float>(IMAGE_SEEDPACKETSILHOUETTE->GetWidth()) * scale)),
+                static_cast<int>(std::lround(static_cast<float>(IMAGE_SEEDPACKETSILHOUETTE->GetHeight()) * scale)));
     }
 
     // Co-op has a second bank, and its empty slots are silhouetted as well.
@@ -2712,7 +2794,8 @@ void SeedChooserScreen::Draw(Sexy::Graphics *g)
                 aGrayness,
                 aBaseColor,
                 aDrawShadow,
-                aFirstPass);
+                aFirstPass,
+                GetChosenSeedScale(aChosenSeed));
         }
     }
 
@@ -2802,7 +2885,8 @@ void SeedChooserScreen::Draw(Sexy::Graphics *g)
             255,
             aBaseColor,
             true,
-            true);
+            true,
+            GetChosenSeedScale(aChosenSeed));
     }
 
     // Without a gamepad the four buttons are drawn here; with one they are drawn
@@ -3040,6 +3124,7 @@ SeedChooserScreen::SeedChooserScreen(bool theIsZombieChooser)
         aChosenSeed.mRefreshCounter = 0;
         aChosenSeed.mImitaterType = SEED_NONE;
         aChosenSeed.mCrazyDavePicked = false;
+        aChosenSeed.mStartScale = 1.0f;
     }
     // The Imitater is not a packet of its own: it stays hidden until it is picked.
     mChosenSeeds[SEED_IMITATER].mSeedState = SEED_PACKET_HIDDEN;
@@ -3119,8 +3204,14 @@ void SeedChooserScreen::Update()
             continue;
 
         ChosenSeedData &aChosenSeed = mChosenSeeds[i];
+        if (mBoard->IsLowViewHudActive() && aChosenSeed.mSeedState == SEED_IN_BANK)
+            GetSeedPositionInBank(aChosenSeed.mSeedIndexInBank, aChosenSeed.mX, aChosenSeed.mY,
+                aChosenSeed.mChosenPlayerIndex);
         if (aChosenSeed.mSeedState != SEED_FLYING_TO_BANK && aChosenSeed.mSeedState != SEED_FLYING_TO_CHOOSER)
             continue;
+        if (mBoard->IsLowViewHudActive() && aChosenSeed.mSeedState == SEED_FLYING_TO_BANK)
+            GetSeedPositionInBank(aChosenSeed.mSeedIndexInBank, aChosenSeed.mEndX, aChosenSeed.mEndY,
+                aChosenSeed.mChosenPlayerIndex);
 
         aChosenSeed.mX = TodAnimateCurve(aChosenSeed.mTimeStartMotion,
             aChosenSeed.mTimeEndMotion,

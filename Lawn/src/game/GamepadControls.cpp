@@ -1438,13 +1438,21 @@ SnapToGridPosition GamepadControls::GetNextGridDirection(int theDirection, int t
 int GamepadControls::ButtonDownPlantTest(int theButton, int thePlayerIndex, unsigned int theFlags)
 {
     (void)thePlayerIndex;
-    (void)theFlags;
     // 6 is GAMEPAD_BUTTON_A, 13 is GAMEPAD_BUTTON_TR2 (also KEYCODE_RETURN).
     if (theButton != GAMEPAD_BUTTON_A && theButton != GAMEPAD_BUTTON_TR2)
         return 0;
 
     HitResult aHit;
     mBoard->MouseHitTest((int)mCursorPositionX, (int)mCursorPositionY, &aHit, 0);
+    if ((theFlags & 1) == 0 && aHit.mObjectType == OBJECT_TYPE_COIN)
+    {
+        Coin *reward = static_cast<Coin *>(aHit.mObject);
+        if (reward->mType == COIN_FINAL_SEED_PACKET)
+        {
+            reward->MouseDown(static_cast<int>(mCursorPositionX), static_cast<int>(mCursorPositionY), 1);
+            return 1;
+        }
+    }
     if (aHit.mObjectType != OBJECT_TYPE_PLANT)
         return 0;
 

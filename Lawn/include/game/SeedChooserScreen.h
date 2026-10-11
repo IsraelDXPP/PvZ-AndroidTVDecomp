@@ -113,7 +113,7 @@ enum SeedChooserTouchState
 inline SeedChooserTouchState gSeedChooserTouchState = SEEDCHOOSER_TOUCHSTATE_NONE;
 inline bool daveNoPickSeeds;
 
-// Sixteen fields, 64 bytes. SeedChooserScreen.cpp steps the array by 64.
+// Native seed-selection state, plus transient layout animation data.
 class ChosenSeed
 {
 public:
@@ -135,7 +135,7 @@ public:
     SeedType mImitaterType; // +0x38
     bool mCrazyDavePicked; // +0x3C
     // +0x3D ~ +0x3F padding
-    // Size 0x40.
+    float mStartScale;
 };
 using ChosenSeedData = ChosenSeed;
 
@@ -223,7 +223,7 @@ public:
     bool mShowHelpText; // +0x104
     // +0x105 ~ +0x107 padding
     GameButton *mImitaterButton; // +0x108
-    ChosenSeedData mChosenSeeds[54]; // +0x10C ~ +0xE8B (54 * 64 = 0xD80)
+    ChosenSeedData mChosenSeeds[54]; // Native seed slots and extension slots.
     LawnApp *mApp; // +0xE8C
     Board *mBoard; // +0xE90
     int mSeedChooserAge; // +0xE94
@@ -279,7 +279,8 @@ public:
     int GetSeedPacketIndex(SeedType theSeedType);
     int VSAutoPickResourceGen();
     void DrawPacket(Sexy::Graphics *g, int theX, int theY, int theSeedType, int theImitaterType, float thePercentDark,
-        int theGrayness, Color &theColor, bool theDrawCost, bool theUseCurrentCost);
+        int theGrayness, Color &theColor, bool theDrawCost, bool theUseCurrentCost, float theScale = 1.0f);
+    float GetChosenSeedScale(const ChosenSeedData &theChosenSeed) const;
     void UpdateViewLawn();
     bool DisplayRepickWarningDialog(char const *theMessage);
     int FlyersAreComing();
