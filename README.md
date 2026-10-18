@@ -1,19 +1,44 @@
 # LawnProjectTV
 
-A C++ reconstruction of `libGameMain.so` from the TV / Android edition of Plants vs. Zombies, built with CMake. Game logic follows the original binary; the platform layer uses SDL3 for windows, input, and audio, with bgfx for rendering. Presets cover Windows, macOS, Linux, and Android native shared libraries.
+A C++ decompilation of `libGameMain.so` from the Plants vs. Zombies TV / Android edition, extended with modifications that lean toward the home-console release. Game logic is recovered from the original ARM binary; the platform layer is native, using SDL3 for windows, input, audio, files, and threads, and bgfx for rendering. The build uses CMake, with presets covering Windows, macOS, Linux, and Android shared libraries.
 
-The project is **under reconstruction**. It builds `LawnTV.exe` and enters the frame loop, but many functions are still being recovered from decompiled code. Startup heap corruption and layout discrepancies remain under investigation. Full playthrough support is not guaranteed.
+This repository is a decompilation project, not a clean-room port. Functions, fields, constants, and object layouts follow the binary and its decompiler output, and comments cite the addresses they were recovered from. The TV build, however, leaves parts of the console experience stubbed out, so this fork restores that content and keeps a few PC-style options behind settings. Code that has no counterpart in the binary is written by hand and may still be approximate.
 
-The original game is copyrighted by PopCap / EA. This repository contains reconstructed code and build instructions, without game assets.
+The decompilation is still in progress. The project builds `LawnTV.exe`, launches, and enters the frame loop, but many functions remain approximate, and crashes or layout mismatches can still occur. Full playthrough support is not guaranteed.
+
+The original game is copyrighted by PopCap / EA. This repository contains decompiled and reimplemented code and build instructions, without game assets.
+
+## Scope
+
+- **Decompiled base.** `Lawn` holds the game: `LawnApp`, `Board`, plants, zombies, levels, modes, and dialogs. `Sexy` holds the PopCap SexyApp framework: widgets, resources, string handling, and rendering interfaces. Both follow the ARM binary's symbols, offsets, and object layouts; where decompiler output was ambiguous, the closest C++ equivalent is used.
+- **Console-oriented restoration.** Where the TV binary stubs or omits console content, this project restores the parts that fit the local game: the twelve achievements, the house and records scene, the leaderboard sign, console menu artwork, trash piles, and house blueprints. See [Console-oriented content](#console-oriented-content).
+- **Native platform layer.** SDL3 supplies windows, events, gamepads, audio streams, threads, clocks, file access, and save paths. bgfx renders through Direct3D 11/12, OpenGL, Vulkan, or Metal. The original JNI entry point, Java activity, and Win32 drivers have been replaced.
+- **Optional PC-style behavior.** A PC-style low camera, the larger PC seed bank in single-player, and classic level-spawn data are opt-in; the TV layout and wave data remain the default.
+
+## Console-oriented content
+
+**Achievements.** Twelve achievements use the console definitions and unlock conditions: Adventure completion, all 49 plants, 40 Survival flags, ten Peashooters in one level, a win after using every mower, the Sunflower / Wall-nut / Chomper win, five consecutive Versus wins, a Gargantuar, cooperative Wall-nut Bowling, 25,000 coins spent at the shop, a Cherry Bomb that kills ten zombies, and the Tree of Wisdom reaching 100 feet. Unlocks are stored per profile, announced during play, and can also be granted retroactively from existing records. Shared actions in cooperative and Versus play grant both participating profiles. With `-tod`, lowercase `u` at the main menu unlocks all twelve for testing. [docs/achievement-conditions.md](docs/achievement-conditions.md) records each condition, its boundaries, and the original code that establishes it.
+
+**House and records.** The TV `ShowHouseScreen` (`@0x2B344C`) is a two-byte stub; this project implements the scene using the console layout and layer order. The house screen layers five reanimations, applies the profile's selected house style and upgrade level, places achievement decorations at fixed positions, and anchors plant and zombie trash piles to scene tracks; the piles grow with the profile's kill counts. Clicking a pile or pressing the gamepad's X or Y button opens a records dialog, the unlocked decorations can be highlighted and cycled, and clicking the survival button after Adventure starts Survival: Endless. The options dialog also opens the scene. The shop adds a house-blueprint page after Adventure; its Change House action opens a house-chooser dialog and charges 300 coins only after a different house is confirmed.
+
+**Underground achievements view.** The achievements screen scrolls through a tall panel stack with mouse drag, wheel, keyboard, and gamepad input, listing every achievement with a locked or unlocked icon, its title, its description, and a completion count. It opens from the main menu's achievements button and from the options dialog's Achievements entry.
+
+**Console artwork.** `GetConsoleImage` loads and caches console assets by name: achievement icons, hole panels, trash cans, the survival button, the leaderboard sign, and main-menu background replacements. Missing images are skipped rather than treated as fatal. The main menu draws the selectable house on the original `House` track and places the leaderboard sign over it.
+
+**Controller-first prompts.** The help bar displays gamepad glyphs for the current screen; `LAWN_GAMEPAD_MODE` defaults to on, and hotplugged controllers update the prompts.
+
+The console-oriented content was adapted from the open-source [PlantsVsZombies-AndroidTV](https://github.com/ZombieYetis/PlantsVsZombies-AndroidTV) project under GPL-3.0-or-later. See [Licensing](#licensing) and [ThirdParty/PvZTVTouch/NOTICE.md](ThirdParty/PvZTVTouch/NOTICE.md).
 
 ## Repository layout
 
 | Path | Contents |
 | --- | --- |
-| `Lawn` | Game logic: `LawnApp`, `Board`, plants, zombies, levels, and dialogs |
-| `Sexy` | Reconstructed PopCap SexyApp framework: widgets, resources, and rendering interfaces |
-| `Sexy/src/Platform` | SDL3 windows, input, gamepads, audio, files, and bgfx rendering |
+| `Lawn` | Game logic: `LawnApp`, `Board`, plants, zombies, levels, modes, and dialogs |
+| `Sexy` | Decompiled PopCap SexyApp framework: widgets, resources, strings, and rendering interfaces |
+| `Sexy/src/Platform` | SDL3 windows, input, gamepads, audio, files, threads, and bgfx rendering |
 | `Sexy/include/Runtime` | Runtime compatibility helpers for the ARM decompilation and `Sexy::String` |
+| `TodLib` | `Tod*` helpers: particles, foley, curves, hesitation brackets, and text drawing |
+| `Levels` | Standalone TV and classic level data, installed as `properties/levels.xml` |
 | `Lawn/src/main.cpp` | SDL3 application callbacks and frame updates |
 | `CMakeLists.txt`, `CMakePresets.json` | Cross-platform builds and Debug / Release presets |
 | `cmake` | Dependency discovery and Android vcpkg triplets |
@@ -21,12 +46,22 @@ The original game is copyrighted by PopCap / EA. This repository contains recons
 | `vcpkg.json` | Third-party dependency manifest |
 | `Tools` | [SCBP shader compiler, packer, and format documentation](Tools/scbp.md) |
 | `Shaders` | [Game shader sources and multiplatform SCBP packages](Shaders/README.md) |
+| `ThirdParty` | [GPL-3.0-or-later notice and license](ThirdParty/PvZTVTouch/NOTICE.md) for the adapted code |
+| `docs` | [Console achievement condition audit](docs/achievement-conditions.md) |
+
+## Runtime overview
+
+### Entry point
 
 The original Android build entered `Native::BridgeApp` through JNI and used `Sexy::AndroidAppDriver`. The current entry point uses SDL3's `SDL_MAIN_USE_CALLBACKS`: `SDL_AppInit` constructs `LawnApp`, `SDL_AppIterate` updates and draws a frame, `SDL_AppEvent` translates window and input events, and `SDL_AppQuit` stops the loading thread and releases resources. SDL manages the platform entry point and outer event loop. No separate Windows / Android main or JNI entry point is required. `SDL_HINT_MAIN_CALLBACK_RATE` controls frame pacing, retaining `SEXY_MAX_FPS` and the intro video's 30 FPS behavior.
 
 Synchronous `Dialog::WaitForResult` retains its modal event pump and reuses the callback entry point's event translation. Android builds produce a shared library loaded by SDLActivity. SDL's ANativeWindow property supplies the window to bgfx. APK setup and asset packaging are described below.
 
+### Logical canvas
+
 Desktop and Android windows use a logical canvas with a fixed height of 720 and a width determined by the window's aspect ratio: 4:3 gives 960x720, 16:9 gives 1280x720, and 21:9 gives 1680x720. Window size determines the final display scale; assets retain their original drawing coordinates. The original 1280x720 region stays centered. Wider windows reveal more on either side; narrower windows crop the sides. Resizing updates the offscreen canvas, center offset, and pointer mapping together. Android uses the entire SDL surface without fixed 16:9 letterboxing.
+
+### Asset roots
 
 Asset paths follow the APK's `files/` structure. Place extracted resources in `assets/` beside the executable, or in `assets/files/`. The program automatically enters a detected `files` subdirectory. Use `--assets` to select another directory.
 
@@ -34,9 +69,17 @@ The local SDL build uses an offline shop and local saves. It does not configure 
 
 The game can read `assets/main.pak` directly without extraction. Even when loose resources use `assets/files/`, packs are loaded from the outer `assets/` directory. With `--assets`, put packs in the selected directory. Supported formats include the TV edition's ZIP-based packs and PC PopCap packs identified by `0xBAC04AC0` with XOR encoding. Archive paths are ASCII case-insensitive and accept `/`, `\\`, and UTF-8 paths.
 
+Archive access is integrated into `p_fopen`, `p_fread`, `p_fseek`, `p_ftell`, `p_fgetc`, `p_fgets`, `p_feof`, and `p_fclose`. Callers do not need to distinguish disk files from packed resources. A ZIP entry's `compression_method` specifies compression: `0` means stored, and `8` means Deflate, decompressed through minizip-ng and zlib. Compression is not inferred from file extensions or sizes. Existing `p_addResource` support is retained; lower numeric priorities are searched first. Write modes open ordinary files only. Supporting both pack formats does not make their assets interchangeable; this project builds on the TV resource set, and the restored console views load additional artwork by name when it is present.
+
+### Language packs
+
 Set `set LAWN_LANGUAGE=zh_cn` in the external `setup.env` to select Simplified Chinese. An omitted or empty value defaults to `en_us`; restart after changing it. Only the selected `assets/<language>.pak` is mounted alongside the main pack, for example `assets/zh_cn.pak` or `assets/en_us.pak`. Language packs use the same directories as the main pack, such as `data/`, `images/`, and `properties/`, to supply fonts, images, and strings. Lookup order is loose files (priority 0), the language pack (5), then `main.pak` (10). A missing language pack leaves existing resources available. Internal language names are normalized to `zh_CN` and `en_US` without requiring a matching system locale. `setup.env` is always read externally; when using `assets/files/`, the outer `assets/setup.env` is also accepted. Text comes from `properties/LawnStrings.txt`. The obsolete channel override table `LawnOEMStrings.txt` is no longer read and may be removed.
 
-Archive access is integrated into `p_fopen`, `p_fread`, `p_fseek`, `p_ftell`, `p_fgetc`, `p_fgets`, `p_feof`, and `p_fclose`. Callers do not need to distinguish disk files from packed resources. A ZIP entry's `compression_method` specifies compression: `0` means stored, and `8` means Deflate, decompressed through minizip-ng and zlib. Compression is not inferred from file extensions or sizes. Existing `p_addResource` support is retained; lower numeric priorities are searched first. Write modes open ordinary files only. Supporting TV and PC pack formats does not make their assets interchangeable; this project still requires its TV resources.
+### Level data
+
+`Levels/` ships two complete `levels.xml` variants. `levels.tv.xml` keeps the TV wave data, and `levels.pc.xml` uses classic Adventure spawn algorithms with separate first and second playthrough settings. Each file is standalone; install one as `properties/levels.xml`. The build does not generate or copy level data, and both variants retain all TV modes.
+
+### Adventure 1-1 tutorial
 
 In Adventure level 1-1, `skipShopSeedTutorial` controls only that level's power-up tutorial. Skipping it does not mark the tutorial completed in the profile. Explicit `true` skips it; explicit `false` enables it in the first Adventure playthrough's 1-1; an omitted attribute follows the player's completion record. When enabled, the original TV sequence appends every zombie type from regular zombies through imps that can appear on the current lawn rows after the fourth wave's normal zombies. After 500 spawn updates, the game pauses for Crazy Dave's tutorial, so the level needs at least four waves. Mouse left-click, Enter, and the gamepad confirm button advance the dialogue. The setting controls the dialogue, extra zombies, and free power-up demonstration together.
 
@@ -165,7 +208,7 @@ LawnTV.exe [--assets <dir>] [--width N] [--height N]
            [--frames N]         Exit after N frames
            [--headless]         Hide the SDL window while retaining GPU rendering
            [--screenshot <f>]   Save the final offscreen frame and exit (implies headless)
-           [-tod]              Enable game debug shortcuts in Debug and Release
+           [-tod]               Enable game debug shortcuts in Debug and Release
 ```
 
 The default window size is 1280x720. Without `--assets`, resources are loaded from `assets` beside the executable. F12 saves the offscreen buffer to `screenshots/shot_NNNN.png`. `--screenshot` reads the same bgfx offscreen target and is unaffected by occlusion or DPI. Example: `LawnTV.exe --frames 180 --screenshot out.png --headless`.
@@ -180,7 +223,7 @@ After completing Adventure, Credits on the main menu first plays the "Zombies on
 
 Mouse left-click operates menus, selects seeds, and collects sun and coins. Select a seed and click the lawn to plant it, or drag it from the seed bank and release on the lawn. Right-click cancels the current seed, tool, or Cob Cannon selection. The shovel and garden tools support click-to-select use; select a Cob Cannon and click a target to fire. Almanac descriptions and minigame lists support dragging and the mouse wheel, and bottom action prompts are clickable. In cooperative mode, the mouse can operate both seed banks; seed selection fills player one's four slots before player two's. Heavy Weapon supports holding the left button to drag the vehicle horizontally while firing upward automatically.
 
-During gameplay, click the upper Menu stone button to pause, or the Power-Ups button beneath it to toggle the tool bank. In the Zen Garden and Tree of Wisdom, Menu returns to the main menu. Store and Almanac buttons in seed selection follow the original unlock conditions. Previous/next buttons on the shop truck support mouse navigation.
+During gameplay, click the upper Menu stone button to pause, or the Power-Ups button beneath it to toggle the tool bank. In the Zen Garden and Tree of Wisdom, Menu returns to the main menu. Store and Almanac buttons in seed selection follow the original unlock conditions. Previous/next buttons on the shop truck support mouse navigation. The main menu's house and achievements entries open the house scene and the underground achievements view.
 
 The Power-Ups label uses `[TOOLS_BUTTON]` in the asset root's `properties/LawnStrings.txt`.
 
@@ -196,8 +239,10 @@ set LAWN_LOW_VIEW=1
 
 `LAWN_LOW_VIEW` enables a PC-style low camera. Following OneCLib's `(460, 60, 820, 600)` background crop, it scales the lawn uniformly to a height of 720 and keeps it centered. The window's aspect ratio still determines the visible horizontal range. Single-player stages use the larger PC-style seed bank and shovel. The seed bank, visible tools, and menu form one horizontally centered group aligned to the top edge. If the row does not fit, the menu moves below the seed bank while the group remains centered. Selected seed cards, flight animations, ready flashes, tutorial arrows, and mouse hit-testing use the same interface coordinates. Two-player modes retain the TV dual-bank layout. The option defaults to off; `0` restores the TV camera. The Zen Garden, Tree of Wisdom, and intro demonstrations retain their original view.
 
+The alternate OGG music path is selected with `LAWN_MUSIC2=1`; per-file tracks require the corresponding audio resources. `LAWN_NO_ATLAS=1` loads individual images instead of sprite-atlas maps and requires a complete set of loose image resources.
+
 ## Licensing
 
-The original reconstructed code is distributed under the MIT license identified in `vcpkg.json`. Mouse support includes adapted touch code from [PlantsVsZombies-AndroidTV](https://github.com/ZombieYetis/PlantsVsZombies-AndroidTV), licensed under GPL-3.0-or-later. Distribution of a combined program containing these parts must comply with the GPL. See [ThirdParty/PvZTVTouch/NOTICE.md](ThirdParty/PvZTVTouch/NOTICE.md) for source, copyright, and adaptation details, and [ThirdParty/PvZTVTouch/LICENSE](ThirdParty/PvZTVTouch/LICENSE) for the license text.
+The decompiled code is distributed under the MIT license identified in `vcpkg.json`. Console-oriented features and part of the mouse controls include code adapted from [PlantsVsZombies-AndroidTV](https://github.com/ZombieYetis/PlantsVsZombies-AndroidTV), licensed under GPL-3.0-or-later. Distribution of a combined program containing these parts must comply with the GPL. See [ThirdParty/PvZTVTouch/NOTICE.md](ThirdParty/PvZTVTouch/NOTICE.md) for source, copyright, and adaptation details, and [ThirdParty/PvZTVTouch/LICENSE](ThirdParty/PvZTVTouch/LICENSE) for the license text.
 
 The game name, artwork, music, and level data are not covered by this repository. Use original assets in accordance with their owners' permissions.
