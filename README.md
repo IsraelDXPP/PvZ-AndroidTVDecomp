@@ -115,7 +115,7 @@ Desktop presets are shown on their matching host OS. Android presets support cro
 
 ### CI y actualizador
 
-- `.github/workflows/build.yml` compila Windows (x64 y x86), macOS (arm64 y Intel), Linux (x64 y arm64) y Android (`arm64-v8a`, `armeabi-v7a`, `x86_64`, `x86`; un APK por ABI). `ios.yml` compila el `.ipa` sin firmar. Para firmar los APK de release define los secrets `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS` y `ANDROID_KEY_PASSWORD`.
+- `.github/workflows/build.yml` compila Windows (x64 y x86), macOS (arm64 y Intel), Linux (x64 y arm64) Android (`arm64-v8a`, `armeabi-v7a`, `x86_64`, `x86`; un APK por ABI) e iOS arm64 (`.ipa` sin firmar). Para firmar los APK de release define los secrets `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS` y `ANDROID_KEY_PASSWORD`.
 - `.github/workflows/sync-upstream.yml` revisa cada 6 horas (o a mano desde Actions) los commits nuevos de [wanxiace/LawnTVDecomp](https://cnb.cool/wanxiace/LawnTVDecomp) y abre un PR `upstream-sync` hacia `main`. Si hay conflictos publica la rama `upstream-mirror` y abre un issue. Los workflows del upstream se ignoran; el secret opcional `SYNC_TOKEN` (PAT) hace que el PR dispare CI.
 
 ### Desktop builds
@@ -186,7 +186,7 @@ cmake --build --preset ios-arm64-release --parallel
 
 `cmake/ios.toolchain.cmake` fixes the SDK (`iphoneos`), the architecture (`arm64`) and the deployment target (15.0). `cmake/triplets/lawn-arm64-ios.cmake` builds the dependencies with the same minimum, so the app runs on any device with iOS 15 or later. The vcpkg toolchain is the outer one and it chainloads the iOS toolchain, the same way the Android NDK toolchain is chained.
 
-The build produces a plain executable. The `.app` bundle is assembled by `.github/workflows/ios.yml`: it copies `ios/Info.plist`, compiles `ios/LaunchScreen.storyboard` with `ibtool`, builds the app icon from `ios/Assets.xcassets` with `actool`, signs the bundle ad-hoc and zips it into an unsigned `.ipa` for Sideloadly or AltStore. The bundle carries the game resources in `assets/`; the workflow downloads them when the `GAME_ASSETS_URL` repository variable points to a zip, because the assets are not part of this repository.
+The build produces a plain executable. The `.app` bundle is assembled by `.github/workflows/build.yml` (job `ios`): it copies `ios/Info.plist`, compiles `ios/LaunchScreen.storyboard` with `ibtool`, builds the app icon from `ios/Assets.xcassets` with `actool`, signs the bundle ad-hoc and zips it into an unsigned `.ipa` for Sideloadly or AltStore. The bundle carries the game resources in `assets/`; the workflow downloads them when the `GAME_ASSETS_URL` repository variable points to a zip, because the assets are not part of this repository.
 
 `Sexy/src/Platform/Bgfx/BgfxRenderDevice.ios.mm` returns the CAMetalLayer that bgfx's iOS backend renders into, which is the same handle bgfx's own examples pass in `bgfx::PlatformData::nwh`. The Objective-C++ helper is the only Apple-specific source in the project.
 
