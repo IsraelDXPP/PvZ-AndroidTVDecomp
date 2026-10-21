@@ -70,22 +70,29 @@ jobs:
 
       - name: Empaquetar .app
         run: |
-          EXE=build/ios-arm64-release/bin/Release/LawnTV
+          APP_BUNDLE=build/ios-arm64-release/bin/Release/LawnTV.app
+          if [ ! -d "$APP_BUNDLE" ]; then
+            echo "ERROR: No existe el bundle $APP_BUNDLE"
+            ls -la build/ios-arm64-release/bin/Release/
+            exit 1
+          fi
+          EXE="$APP_BUNDLE/LawnTV"
           file "$EXE"
           nm "$EXE" | grep -E " T _main$| T _SDL_main$" || (echo "FALTA main/SDL_main" && exit 1)
           rm -rf Payload
+          APP=Payload/LawnTV.app
           mkdir -p "$APP/Base.lproj"
+          # Copiar el ejecutable al nuevo bundle
           cp "$EXE" "$APP/LawnTV"
+          # Info.plist base + assets
           cp ios/Info.plist "$APP/"
           plutil -lint "$APP/Info.plist"
-          # El storyboard se compila y los iconos los pone actool desde
-          # ios/Assets.xcassets (CFBundleIconName = AppIcon en el Info.plist).
           ibtool --compile "$APP/Base.lproj/LaunchScreen.storyboardc" ios/LaunchScreen.storyboard
           xcrun actool --compile "$APP" --platform iphoneos --minimum-deployment-target "$DEPLOYMENT_TARGET" \
             --target-device iphone --target-device ipad --app-icon AppIcon \
             --output-partial-info-plist /tmp/actool-partial.plist \
             --output-format human-readable-text ios/Assets.xcassets
-          ls "$APP" | head -20
+          ls -la "$APP"
 
       - name: Assets del juego
         if: ${{ vars.GAME_ASSETS_URL != '' }}
