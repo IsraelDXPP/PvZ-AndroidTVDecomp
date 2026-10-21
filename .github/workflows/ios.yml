@@ -50,9 +50,12 @@ jobs:
           # esquema de scripts/vcpkg-tools.json de ese commit.
           git checkout "$(python3 -c "import json;print(json.load(open('../vcpkg.json'))['builtin-baseline'])")"
           ./bootstrap-vcpkg.sh -disableMetrics
-          echo "VCPKG_ROOT=$PWD" >> "$GITHUB_ENV"
-          echo "VCPKG_DEFAULT_BINARY_CACHE=$PWD/../vcpkg-cache" >> "$GITHUB_ENV"
-          echo "VCPKG_BINARY_SOURCES=clear;files,$PWD/../vcpkg-cache,readwrite" >> "$GITHUB_ENV"
+          cd ..
+          # vcpkg exige que el destino de la cache sea un directorio.
+          mkdir -p vcpkg-cache
+          echo "VCPKG_ROOT=$PWD/vcpkg" >> "$GITHUB_ENV"
+          echo "VCPKG_DEFAULT_BINARY_CACHE=$PWD/vcpkg-cache" >> "$GITHUB_ENV"
+          echo "VCPKG_BINARY_SOURCES=clear;files,$PWD/vcpkg-cache,readwrite" >> "$GITHUB_ENV"
 
       - name: Cache de vcpkg
         uses: actions/cache@v4
@@ -85,7 +88,7 @@ jobs:
           ls "$APP" | head -20
 
       - name: Assets del juego
-        if: ${{ env.GAME_ASSETS_URL != '' }}
+        if: ${{ vars.GAME_ASSETS_URL != '' }}
         env:
           GAME_ASSETS_URL: ${{ vars.GAME_ASSETS_URL }}
         run: |
