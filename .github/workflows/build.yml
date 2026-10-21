@@ -44,7 +44,7 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential cmake ninja-build pkg-config autoconf automake libtool \
+          sudo apt-get install -y build-essential cmake ninja-build pkg-config autoconf autoconf-archive automake libtool \
             libx11-dev libxft-dev libxext-dev libwayland-dev libxkbcommon-dev \
             libegl1-mesa-dev libgl1-mesa-dev libibus-1.0-dev \
             libxrandr-dev libxi-dev libxcursor-dev libxfixes-dev libxss-dev libxtst-dev \
@@ -52,7 +52,7 @@ jobs:
 
       - name: Dependencias del sistema (macOS)
         if: runner.os == 'macOS'
-        run: brew install ninja autoconf automake libtool pkg-config || true
+        run: brew install ninja autoconf autoconf-archive automake libtool pkg-config || true
 
       - name: Ninja (Windows)
         if: runner.os == 'Windows'
