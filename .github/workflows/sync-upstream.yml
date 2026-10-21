@@ -99,7 +99,7 @@ jobs:
             echo "Ya hay un PR abierto; la rama se actualizo."
           fi
 
-      - name: Conflictos: publicar espejo e issue
+      - name: Con conflictos, publicar espejo e issue
         if: steps.fetch.outputs.new == 'true' && steps.merge.outputs.conflict == 'true'
         run: |
           git push --force origin "$MIRROR_BRANCH"
