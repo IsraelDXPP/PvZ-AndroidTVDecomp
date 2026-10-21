@@ -1,6 +1,6 @@
 # Compila el juego para escritorio (Windows x64/x86, macOS arm64/x64, Linux
-# x64/arm64) y Android (arm64-v8a, armeabi-v7a, x86_64, x86). iOS vive en
-# ios.yml. Los assets del juego (copyright PopCap) no estan en el repositorio:
+# x64/arm64), Android (arm64-v8a, armeabi-v7a, x86_64, x86) e iOS arm64 en
+# el job ios (.ipa sin firmar). Los assets del juego (copyright PopCap) no estan en el repositorio:
 # los binarios salen sin assets.
 name: build
 
@@ -13,6 +13,7 @@ on:
       - 'TodLib/**'
       - 'cmake/**'
       - 'android/**'
+      - 'ios/**'
       - 'Shaders/**'
       - 'Levels/**'
       - 'CMakeLists.txt'
@@ -167,3 +168,98 @@ jobs:
           name: LawnTV-android-${{ matrix.abi }}
           path: android/app/build/outputs/apk/release/*.apk
           if-no-files-found: error
+
+  ios:
+    name: ios-arm64
+    runs-on: macos-15
+    env:
+      IPA_NAME: LawnTV-unsigned.ipa
+      APP: Payload/LawnTV.app
+      DEPLOYMENT_TARGET: '15.0'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Xcode y herramientas
+        run: |
+          xcodebuild -version
+          xcrun --sdk iphoneos --show-sdk-path
+          which ninja || brew install ninja
+          python3 --version
+
+      - name: vcpkg en el commit baseline del proyecto
+        run: |
+          git clone https://github.com/microsoft/vcpkg
+          cd vcpkg
+          # El baseline de vcpkg.json fija la version de los ports. El tool
+          # tiene que ser el de ese commit: uno mas viejo no entiende el
+          # esquema de scripts/vcpkg-tools.json de ese commit.
+          git checkout "$(python3 -c "import json;print(json.load(open('../vcpkg.json'))['builtin-baseline'])")"
+          ./bootstrap-vcpkg.sh -disableMetrics
+          cd ..
+          # vcpkg exige que el destino de la cache sea un directorio.
+          mkdir -p vcpkg-cache
+          echo "VCPKG_ROOT=$PWD/vcpkg" >> "$GITHUB_ENV"
+          echo "VCPKG_DEFAULT_BINARY_CACHE=$PWD/vcpkg-cache" >> "$GITHUB_ENV"
+          echo "VCPKG_BINARY_SOURCES=clear;files,$PWD/vcpkg-cache,readwrite" >> "$GITHUB_ENV"
+
+      - name: Cache de vcpkg
+        uses: actions/cache@v4
+        with:
+          path: vcpkg-cache
+          key: vcpkg-ios-${{ hashFiles('vcpkg.json') }}
+
+      - name: Configurar (iOS arm64)
+        run: |
+          cmake --preset ios-arm64-release
+          cmake --build --preset ios-arm64-release --parallel
+
+      - name: Empaquetar .app
+        run: |
+          APP_BUNDLE=build/ios-arm64-release/bin/Release/LawnTV.app
+          if [ ! -d "$APP_BUNDLE" ]; then
+            echo "ERROR: No existe el bundle $APP_BUNDLE"
+            ls -la build/ios-arm64-release/bin/Release/
+            exit 1
+          fi
+          EXE="$APP_BUNDLE/LawnTV"
+          file "$EXE"
+          nm "$EXE" | grep -E " T _main$| T _SDL_main$" || (echo "FALTA main/SDL_main" && exit 1)
+          rm -rf Payload
+          APP=Payload/LawnTV.app
+          mkdir -p "$APP/Base.lproj"
+          # Copiar el ejecutable al nuevo bundle
+          cp "$EXE" "$APP/LawnTV"
+          # Info.plist base + assets
+          cp ios/Info.plist "$APP/"
+          plutil -lint "$APP/Info.plist"
+          ibtool --compile "$APP/Base.lproj/LaunchScreen.storyboardc" ios/LaunchScreen.storyboard
+          xcrun actool --compile "$APP" --platform iphoneos --minimum-deployment-target "$DEPLOYMENT_TARGET" \
+            --target-device iphone --target-device ipad --app-icon AppIcon \
+            --output-partial-info-plist /tmp/actool-partial.plist \
+            --output-format human-readable-text ios/Assets.xcassets
+          ls -la "$APP"
+
+      - name: Assets del juego
+        if: ${{ vars.GAME_ASSETS_URL != '' }}
+        env:
+          GAME_ASSETS_URL: ${{ vars.GAME_ASSETS_URL }}
+        run: |
+          curl -fsSL "$GAME_ASSETS_URL" -o /tmp/assets.zip
+          unzip -q /tmp/assets.zip -d /tmp/assets
+          # El bundle lleva los recursos en assets/; el juego busca tambien
+          # assets/files, que es la forma de los packs de TV.
+          mkdir -p "$APP/assets"
+          cp -R /tmp/assets/. "$APP/assets/"
+          ls "$APP/assets" | head
+
+      - name: Firma ad-hoc e IPA
+        run: |
+          codesign --force --deep --sign - --timestamp=none "$APP"
+          codesign --verify --deep --strict "$APP"
+          zip -qry "$IPA_NAME" Payload
+          ls -la "$IPA_NAME"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: LawnTV-unsigned-ipa
+          path: ${{ env.IPA_NAME }}
