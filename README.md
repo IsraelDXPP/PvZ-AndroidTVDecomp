@@ -113,6 +113,11 @@ Each prefix below has `-debug` and `-release` variants. Configure and build pres
 
 Desktop presets are shown on their matching host OS. Android presets support cross-compilation from all three desktop systems. Linux presets build natively for their corresponding architecture; cross-compiling for arm64 Linux also requires a compiler and sysroot. macOS architectures match their vcpkg triplets and are built separately.
 
+### CI y actualizador
+
+- `.github/workflows/build.yml` compila Windows (x64 y x86), macOS (arm64 y Intel), Linux (x64 y arm64) y Android (`arm64-v8a`, `armeabi-v7a`, `x86_64`, `x86`; un APK por ABI). `ios.yml` compila el `.ipa` sin firmar. Para firmar los APK de release define los secrets `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS` y `ANDROID_KEY_PASSWORD`.
+- `.github/workflows/sync-upstream.yml` revisa cada 6 horas (o a mano desde Actions) los commits nuevos de [wanxiace/LawnTVDecomp](https://cnb.cool/wanxiace/LawnTVDecomp) y abre un PR `upstream-sync` hacia `main`. Si hay conflictos publica la rama `upstream-mirror` y abre un issue. Los workflows del upstream se ignoran; el secret opcional `SYNC_TOKEN` (PAT) hace que el PR dispare CI.
+
 ### Desktop builds
 
 Run these commands from the repository root. On Windows, open a matching-architecture **Developer PowerShell / Native Tools Command Prompt** first. Visual Studio can also open the project folder and select a CMake preset.

@@ -1,0 +1,109 @@
+# Actualizador: trae los commits nuevos de https://cnb.cool/wanxiace/LawnTVDecomp
+# y abre (o actualiza) un pull request hacia main con el merge. Nunca empuja
+# directo a main, asi los cambios propios de este fork no se pisan en silencio.
+#
+# Si el merge tiene conflictos, publica la rama `upstream-mirror` con el estado
+# exacto del upstream y abre un issue para resolverlos a mano.
+#
+# Los cambios que el upstream haga en .github/workflows se descartan del merge
+# (el GITHUB_TOKEN no puede modificar workflows). Para permitir que el PR
+# dispare CI, define el secret SYNC_TOKEN (PAT con permisos repo y workflow).
+name: sync-upstream
+
+on:
+  schedule:
+    - cron: '17 */6 * * *'
+  workflow_dispatch:
+    inputs:
+      upstream_branch:
+        description: 'Rama del upstream (vacio = la rama por defecto)'
+        required: false
+        default: ''
+
+env:
+  UPSTREAM_URL: https://cnb.cool/wanxiace/LawnTVDecomp.git
+  BASE_BRANCH: main
+  SYNC_BRANCH: upstream-sync
+  MIRROR_BRANCH: upstream-mirror
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+concurrency:
+  group: sync-upstream
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-24.04
+    env:
+      GH_TOKEN: ${{ secrets.SYNC_TOKEN || secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.BASE_BRANCH }}
+          fetch-depth: 0
+          token: ${{ secrets.SYNC_TOKEN || secrets.GITHUB_TOKEN }}
+
+      - name: Traer el upstream
+        id: fetch
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git remote add upstream "$UPSTREAM_URL"
+          BRANCH="${{ github.event.inputs.upstream_branch }}"
+          if [ -z "$BRANCH" ]; then
+            BRANCH=$(git ls-remote --symref upstream HEAD | sed -n 's|^ref: refs/heads/\(.*\)\tHEAD$|\1|p')
+          fi
+          [ -n "$BRANCH" ] || { echo "No se pudo determinar la rama del upstream"; exit 1; }
+          git fetch upstream "$BRANCH"
+          echo "branch=$BRANCH" >> "$GITHUB_OUTPUT"
+          if git merge-base --is-ancestor FETCH_HEAD HEAD; then
+            echo "Sin commits nuevos en upstream/$BRANCH"
+            echo "new=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "new=true" >> "$GITHUB_OUTPUT"
+            echo "sha=$(git rev-parse FETCH_HEAD)" >> "$GITHUB_OUTPUT"
+            git rev-list --count HEAD..FETCH_HEAD | sed 's/^/Commits nuevos: /'
+          fi
+
+      - name: Merge en la rama de sincronizacion
+        id: merge
+        if: steps.fetch.outputs.new == 'true'
+        run: |
+          UP=$(git rev-parse FETCH_HEAD)
+          git checkout -B "$SYNC_BRANCH" "$BASE_BRANCH"
+          if git merge --no-ff --no-commit "$UP" ; then
+            # Los workflows de este repo mandan sobre los del upstream.
+            git checkout "$BASE_BRANCH" -- .github/workflows 2>/dev/null || true
+            git clean -fdq .github/workflows
+            git commit -m "Merge upstream ${{ steps.fetch.outputs.branch }} (${UP:0:10}) de LawnTVDecomp" --allow-empty
+            echo "conflict=false" >> "$GITHUB_OUTPUT"
+          else
+            git merge --abort
+            git branch -f "$MIRROR_BRANCH" "$UP"
+            echo "conflict=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Publicar rama y abrir PR
+        if: steps.fetch.outputs.new == 'true' && steps.merge.outputs.conflict == 'false'
+        run: |
+          git push --force-with-lease origin "$SYNC_BRANCH" || git push --force origin "$SYNC_BRANCH"
+          BODY="Merge automatico de [$UPSTREAM_URL]($UPSTREAM_URL) (rama \`${{ steps.fetch.outputs.branch }}\`, commit \`${{ steps.fetch.outputs.sha }}\`)."
+          if [ -z "$(gh pr list --head "$SYNC_BRANCH" --base "$BASE_BRANCH" --state open --json number --jq '.[0].number')" ]; then
+            gh pr create --head "$SYNC_BRANCH" --base "$BASE_BRANCH" \
+              --title "Sincronizar con upstream (LawnTVDecomp)" --body "$BODY"
+          else
+            echo "Ya hay un PR abierto; la rama se actualizo."
+          fi
+
+      - name: Conflictos: publicar espejo e issue
+        if: steps.fetch.outputs.new == 'true' && steps.merge.outputs.conflict == 'true'
+        run: |
+          git push --force origin "$MIRROR_BRANCH"
+          TITLE="Conflictos al sincronizar con upstream (LawnTVDecomp)"
+          if [ -z "$(gh issue list --state open --search "$TITLE in:title" --json number --jq '.[0].number')" ]; then
+            gh issue create --title "$TITLE" --body "El merge automatico de \`${{ steps.fetch.outputs.sha }}\` choca con \`$BASE_BRANCH\`. El estado exacto del upstream esta en la rama \`$MIRROR_BRANCH\`. Resuelve a mano: \`git checkout $BASE_BRANCH && git merge origin/$MIRROR_BRANCH\`."
+          fi

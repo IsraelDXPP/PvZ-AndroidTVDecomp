@@ -1,0 +1,165 @@
+# Compila el juego para escritorio (Windows x64/x86, macOS arm64/x64, Linux
+# x64/arm64) y Android (arm64-v8a, armeabi-v7a, x86_64, x86). iOS vive en
+# ios.yml. Los assets del juego (copyright PopCap) no estan en el repositorio:
+# los binarios salen sin assets.
+name: build
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'Lawn/**'
+      - 'Sexy/**'
+      - 'TodLib/**'
+      - 'cmake/**'
+      - 'android/**'
+      - 'Shaders/**'
+      - 'Levels/**'
+      - 'CMakeLists.txt'
+      - 'CMakePresets.json'
+      - 'vcpkg.json'
+      - '.github/workflows/build.yml'
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  desktop:
+    name: ${{ matrix.preset }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { preset: windows-x64-release, os: windows-2022, arch: x64 }
+          - { preset: windows-x86-release, os: windows-2022, arch: x86 }
+          - { preset: macos-arm64-release, os: macos-15 }
+          - { preset: macos-x64-release,   os: macos-15-intel }
+          - { preset: linux-x64-release,   os: ubuntu-24.04 }
+          - { preset: linux-arm64-release, os: ubuntu-24.04-arm }
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Dependencias del sistema (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential cmake ninja-build pkg-config autoconf automake libtool \
+            libx11-dev libxft-dev libxext-dev libwayland-dev libxkbcommon-dev \
+            libegl1-mesa-dev libgl1-mesa-dev libibus-1.0-dev \
+            libxrandr-dev libxi-dev libxcursor-dev libxfixes-dev libxss-dev libxtst-dev \
+            libasound2-dev libdbus-1-dev libudev-dev libdrm-dev libgbm-dev
+
+      - name: Dependencias del sistema (macOS)
+        if: runner.os == 'macOS'
+        run: brew install ninja autoconf automake libtool pkg-config || true
+
+      - name: Entorno MSVC (Windows)
+        if: runner.os == 'Windows'
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: ${{ matrix.arch }}
+
+      - name: vcpkg en el commit baseline del proyecto
+        shell: bash
+        run: |
+          git clone https://github.com/microsoft/vcpkg
+          cd vcpkg
+          git checkout "$(python3 -c "import json;print(json.load(open('../vcpkg.json'))['builtin-baseline'])")"
+          if [ "$RUNNER_OS" = "Windows" ]; then ./bootstrap-vcpkg.bat -disableMetrics; else ./bootstrap-vcpkg.sh -disableMetrics; fi
+          cd ..
+          mkdir -p vcpkg-cache
+          echo "VCPKG_ROOT=$PWD/vcpkg" >> "$GITHUB_ENV"
+          echo "VCPKG_DEFAULT_BINARY_CACHE=$PWD/vcpkg-cache" >> "$GITHUB_ENV"
+          echo "VCPKG_BINARY_SOURCES=clear;files,$PWD/vcpkg-cache,readwrite" >> "$GITHUB_ENV"
+
+      - name: Cache de vcpkg
+        uses: actions/cache@v4
+        with:
+          path: vcpkg-cache
+          key: vcpkg-${{ matrix.preset }}-${{ hashFiles('vcpkg.json') }}
+
+      - name: Configurar
+        shell: bash
+        run: cmake --preset ${{ matrix.preset }}
+
+      - name: Compilar
+        shell: bash
+        run: cmake --build --preset ${{ matrix.preset }} --parallel
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: LawnTV-${{ matrix.preset }}
+          path: build/${{ matrix.preset }}/bin/Release/
+          if-no-files-found: error
+
+  android:
+    name: android-${{ matrix.abi }}
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        abi: [arm64-v8a, armeabi-v7a, x86_64, x86]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: android-actions/setup-android@v3
+
+      - name: SDK, NDK y herramientas
+        run: |
+          sdkmanager --install "platforms;android-36" "ndk;27.2.12479018" "cmake;3.31.6" > /dev/null
+          sudo apt-get update
+          sudo apt-get install -y ninja-build autoconf automake libtool pkg-config
+          echo "ANDROID_NDK_HOME=$ANDROID_SDK_ROOT/ndk/27.2.12479018" >> "$GITHUB_ENV"
+
+      - name: vcpkg en el commit baseline del proyecto
+        run: |
+          git clone https://github.com/microsoft/vcpkg
+          cd vcpkg
+          git checkout "$(python3 -c "import json;print(json.load(open('../vcpkg.json'))['builtin-baseline'])")"
+          ./bootstrap-vcpkg.sh -disableMetrics
+          cd ..
+          mkdir -p vcpkg-cache
+          echo "VCPKG_ROOT=$PWD/vcpkg" >> "$GITHUB_ENV"
+          echo "VCPKG_DEFAULT_BINARY_CACHE=$PWD/vcpkg-cache" >> "$GITHUB_ENV"
+          echo "VCPKG_BINARY_SOURCES=clear;files,$PWD/vcpkg-cache,readwrite" >> "$GITHUB_ENV"
+
+      - name: Cache de vcpkg
+        uses: actions/cache@v4
+        with:
+          path: vcpkg-cache
+          key: vcpkg-android-${{ matrix.abi }}-${{ hashFiles('vcpkg.json', 'cmake/triplets/**') }}
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Firma (opcional)
+        env:
+          KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          if [ -n "$KEYSTORE_BASE64" ]; then
+            echo "$KEYSTORE_BASE64" | base64 -d > android/release.keystore
+            {
+              echo "storeFile=release.keystore"
+              echo "storePassword=$KEYSTORE_PASSWORD"
+              echo "keyAlias=$KEY_ALIAS"
+              echo "keyPassword=$KEY_PASSWORD"
+            } > android/keystore.properties
+          fi
+
+      - name: APK (release)
+        working-directory: android
+        run: sh ./gradlew :app:assembleRelease -PlawnAbis=${{ matrix.abi }} --no-daemon
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: LawnTV-android-${{ matrix.abi }}
+          path: android/app/build/outputs/apk/release/*.apk
+          if-no-files-found: error
