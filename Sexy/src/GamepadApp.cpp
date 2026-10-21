@@ -18,8 +18,10 @@
 #include "SexyAppBase.h"
 #include "SharedImageRef.h"
 
+#include <cstdio>
 #include <list>
 #include <map>
+#include <set>
 
 namespace Sexy
 {
@@ -266,6 +268,10 @@ Sexy::Image *Sexy::GamepadApp::GetImageFromAtlas(Sexy::String const &theName)
         anImage = aLoaded;
         if (anImage == nullptr)
         {
+            // Report each sheet once; every image cut from it fails the same way.
+            static std::set<String> sReported;
+            if (sReported.insert(aPath).second)
+                std::fprintf(stderr, "atlas: cannot load sheet %s (needed for %s)\n", aPath.c_str(), theName.c_str());
             mAtlasCritSect.Unlock();
             return nullptr;
         }
@@ -279,6 +285,8 @@ Sexy::Image *Sexy::GamepadApp::GetImageFromAtlas(Sexy::String const &theName)
     Image *aSubImage = nullptr;
     if (aMemory != nullptr)
         aSubImage = aMemory->CreateSubImage(anAtlas->mX, anAtlas->mY, anAtlas->mWidth, anAtlas->mHeight);
+    if (aSubImage == nullptr)
+        std::fprintf(stderr, "atlas: cannot cut %s from sheet %s\n", theName.c_str(), anAtlas->mPath.c_str());
 
     mAtlasCritSect.Unlock();
     return aSubImage;
