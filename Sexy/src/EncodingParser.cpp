@@ -365,7 +365,7 @@ void Sexy::EncodingParser::SetStringSource(Sexy::String const &theSource)
 
     mBufferedText.clear();
     for (unsigned int aIndex = 0; aIndex < aWideText.size(); ++aIndex)
-        mBufferedText.push_back((wchar_t)(unsigned char)aWideText[aIndex]);
+        mBufferedText.push_back(aWideText[aIndex]);
 }
 
 int Sexy::EncodingParser::PutChar(wchar_t const &theChar)
@@ -377,6 +377,6 @@ int Sexy::EncodingParser::PutChar(wchar_t const &theChar)
 int Sexy::EncodingParser::PutString(Sexy::String const &theText)
 {
     for (unsigned int aIndex = 0; aIndex < theText.size(); ++aIndex)
-        mBufferedText.push_back((wchar_t)(unsigned char)theText[aIndex]);
+        mBufferedText.push_back(theText[aIndex]);
     return 1;
 }
