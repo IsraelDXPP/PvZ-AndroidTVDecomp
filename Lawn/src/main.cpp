@@ -38,7 +38,8 @@ static void LogLine(const char *format, ...)
     std::vsnprintf(buffer, sizeof(buffer), format, args);
     va_end(args);
 
-#if defined(SDL_PLATFORM_ANDROID)
+#if defined(SDL_PLATFORM_ANDROID) || defined(SDL_PLATFORM_IOS)
+    // A mobile app has no console: the log goes to the system log.
     SDL_Log("%s", buffer);
 #else
     fputs(buffer, stderr);

@@ -11,6 +11,11 @@
 #include <cstring>
 #include <string>
 
+#if defined(SDL_PLATFORM_IOS)
+// BgfxRenderDevice.ios.mm: the CAMetalLayer bgfx renders into on iOS.
+extern "C" void *LawnGetIOSMetalLayer(void *theUIWindow);
+#endif
+
 namespace Sexy
 {
 BgfxRenderDevice *BgfxRenderDevice::sCurrent = nullptr;
@@ -136,7 +141,14 @@ bool BgfxRenderDevice::Init(int width, int height)
         }
     }
     SDL_PropertiesID properties = SDL_GetWindowProperties(window->mWindow);
-    init.platformData.nwh = SDL_GetPointerProperty(properties, SDL_PROP_WINDOW_WIN32_HWND_POINTER, nullptr);
+#if defined(SDL_PLATFORM_IOS)
+    // bgfx's iOS backend draws into the CAMetalLayer of the view SDL3 created.
+    // The layer is the native handle its own examples pass in platformData.
+    init.platformData.nwh = LawnGetIOSMetalLayer(
+        SDL_GetPointerProperty(properties, SDL_PROP_WINDOW_UIKIT_WINDOW_POINTER, nullptr));
+#endif
+    if (!init.platformData.nwh)
+        init.platformData.nwh = SDL_GetPointerProperty(properties, SDL_PROP_WINDOW_WIN32_HWND_POINTER, nullptr);
     if (!init.platformData.nwh)
         init.platformData.nwh = SDL_GetPointerProperty(properties, SDL_PROP_WINDOW_COCOA_WINDOW_POINTER, nullptr);
     if (!init.platformData.nwh)

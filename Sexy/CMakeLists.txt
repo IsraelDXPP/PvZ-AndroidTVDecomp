@@ -139,4 +139,8 @@ set(lawn_module_sources
 )
 
 add_library(Sexy OBJECT ${lawn_module_sources})
+if(CMAKE_SYSTEM_NAME STREQUAL "iOS")
+    # UIKit is Objective-C only: the helper returns the CAMetalLayer bgfx needs.
+    target_sources(Sexy PRIVATE src/Platform/Bgfx/BgfxRenderDevice.ios.mm)
+endif()
 target_link_libraries(Sexy PUBLIC LawnTVBuildOptions LawnTVDependencies)

@@ -72,6 +72,8 @@ assets/
 screenshots/
 *.apk
 *.aab
+*.ipa
+Payload/
 *.pak
 *.obb
 *.compiled

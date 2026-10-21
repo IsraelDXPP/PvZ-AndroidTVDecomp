@@ -69,6 +69,18 @@
             }
         },
         {
+            "name": "ios",
+            "hidden": true,
+            "inherits": "base",
+            "cacheVariables": {
+                "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
+                "VCPKG_CHAINLOAD_TOOLCHAIN_FILE": "${sourceDir}/cmake/ios.toolchain.cmake",
+                "VCPKG_TARGET_TRIPLET": "lawn-arm64-ios",
+                "VCPKG_OVERLAY_TRIPLETS": "${sourceDir}/cmake/triplets",
+                "VCPKG_INSTALLED_DIR": "${sourceDir}/vcpkg_installed/${presetName}"
+            }
+        },
+        {
             "name": "android",
             "hidden": true,
             "inherits": "base",
@@ -232,6 +244,22 @@
             }
         },
         {
+            "name": "ios-arm64-release",
+            "displayName": "iOS arm64 release",
+            "inherits": [
+                "ios",
+                "release"
+            ]
+        },
+        {
+            "name": "ios-arm64-debug",
+            "displayName": "iOS arm64 debug",
+            "inherits": [
+                "ios",
+                "debug"
+            ]
+        },
+        {
             "name": "android-arm64-debug",
             "displayName": "Android arm64-v8a shared library debug",
             "inherits": [
@@ -354,6 +382,14 @@
         {
             "name": "linux-arm64-release",
             "configurePreset": "linux-arm64-release"
+        },
+        {
+            "name": "ios-arm64-release",
+            "configurePreset": "ios-arm64-release"
+        },
+        {
+            "name": "ios-arm64-debug",
+            "configurePreset": "ios-arm64-debug"
         },
         {
             "name": "android-arm64-debug",

@@ -43,6 +43,7 @@ The console-oriented content was adapted from the open-source [PlantsVsZombies-A
 | `CMakeLists.txt`, `CMakePresets.json` | Cross-platform builds and Debug / Release presets |
 | `cmake` | Dependency discovery and Android vcpkg triplets |
 | `android` | SDLActivity launcher; Gradle builds the C++ libraries and APK |
+| `ios` | iOS app bundle: `Info.plist`, launch storyboard, app icon |
 | `vcpkg.json` | Third-party dependency manifest |
 | `Tools` | [SCBP shader compiler, packer, and format documentation](Tools/scbp.md) |
 | `Shaders` | [Game shader sources and multiplatform SCBP packages](Shaders/README.md) |
@@ -103,6 +104,7 @@ Each prefix below has `-debug` and `-release` variants. Configure and build pres
 | Platform | Preset prefix | Output |
 | --- | --- | --- |
 | Windows x64 / x86 | `windows-x64` / `windows-x86` | `LawnTV.exe` |
+| iOS arm64 (iOS 15+) | `ios-arm64` | `LawnTV` (`.app` assembled by CI) |
 | macOS Apple Silicon / Intel | `macos-arm64` / `macos-x64` | `LawnTV` |
 | Linux x64 / arm64 | `linux-x64` / `linux-arm64` | `LawnTV` |
 | Android arm64-v8a | `android-arm64` | `libmain.so` |
@@ -166,6 +168,22 @@ cd android
 ```
 
 Gradle's `externalNativeBuild` invokes the repository-root `CMakeLists.txt`. Dependencies are installed through `VCPKG_ROOT`; each ABI selects its triplet and uses a separate dependency directory. Native libraries are built and packaged automatically without copying them to `jniLibs`. Gradle/CMake outputs, APKs, local assets, and signing files are ignored by Git.
+
+### iOS app
+
+The iOS build targets iOS 15.0 and later on arm64, for iPhone and iPad. It needs a Mac with Xcode, or the CI workflow, which does the whole thing:
+
+```sh
+export VCPKG_ROOT="$HOME/vcpkg"
+cmake --preset ios-arm64-release
+cmake --build --preset ios-arm64-release --parallel
+```
+
+`cmake/ios.toolchain.cmake` fixes the SDK (`iphoneos`), the architecture (`arm64`) and the deployment target (15.0). `cmake/triplets/lawn-arm64-ios.cmake` builds the dependencies with the same minimum, so the app runs on any device with iOS 15 or later. The vcpkg toolchain is the outer one and it chainloads the iOS toolchain, the same way the Android NDK toolchain is chained.
+
+The build produces a plain executable. The `.app` bundle is assembled by `.github/workflows/ios.yml`: it copies `ios/Info.plist`, compiles `ios/LaunchScreen.storyboard` with `ibtool`, builds the app icon from `ios/Assets.xcassets` with `actool`, signs the bundle ad-hoc and zips it into an unsigned `.ipa` for Sideloadly or AltStore. The bundle carries the game resources in `assets/`; the workflow downloads them when the `GAME_ASSETS_URL` repository variable points to a zip, because the assets are not part of this repository.
+
+`Sexy/src/Platform/Bgfx/BgfxRenderDevice.ios.mm` returns the CAMetalLayer that bgfx's iOS backend renders into, which is the same handle bgfx's own examples pass in `bgfx::PlatformData::nwh`. The Objective-C++ helper is the only Apple-specific source in the project.
 
 Place resources in `android/app/src/main/assets/assets/`. Gradle does not copy resources from other directories or generate or copy shaders. Existing resources use standard asset packaging with `noCompress`; builds still work without resources. On first launch, APK assets are installed in the private data directory and `assets.lock` is written on success. `main.pak` is then read from memory. Saves use the application data directory selected by `SDL_GetPrefPath`.
 

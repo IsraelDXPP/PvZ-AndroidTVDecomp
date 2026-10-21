@@ -1,7 +1,20 @@
 cmake_minimum_required(VERSION 3.25)
 
+# The iOS build is detected before project() because the toolchain file is read
+# there. The presets set LAWN_IOS; a manual run is recognized by the toolchain
+# or the triplet that names iOS.
+set(lawn_ios OFF)
+if(LAWN_IOS
+    OR CMAKE_TOOLCHAIN_FILE MATCHES "ios"
+    OR VCPKG_CHAINLOAD_TOOLCHAIN_FILE MATCHES "ios"
+    OR VCPKG_TARGET_TRIPLET MATCHES "ios")
+    set(lawn_ios ON)
+endif()
+
 if(DEFINED ANDROID_ABI)
     include(cmake/AndroidVcpkg.cmake)
+elseif(lawn_ios)
+    include(cmake/IosVcpkg.cmake)
 endif()
 
 # Presets and plain cmake -S/-B builds both read the user's vcpkg installation.
@@ -18,7 +31,12 @@ if(CMAKE_HOST_WIN32)
     set(ENV{VSLANG} 1033)
 endif()
 
-project(LawnProjectTV VERSION 0.1.0 LANGUAGES C CXX)
+if(lawn_ios)
+    # Objective-C++ for the UIKit helper that hands bgfx the Metal layer.
+    project(LawnProjectTV VERSION 0.1.0 LANGUAGES C CXX OBJCXX)
+else()
+    project(LawnProjectTV VERSION 0.1.0 LANGUAGES C CXX)
+endif()
 
 if(WIN32)
     if(NOT CMAKE_CXX_COMPILER_ID STREQUAL "MSVC" OR NOT CMAKE_C_COMPILER_ID STREQUAL "MSVC")
