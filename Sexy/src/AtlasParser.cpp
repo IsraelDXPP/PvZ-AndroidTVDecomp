@@ -10,6 +10,7 @@
 #include "SDLFile.h"
 #include "XMLElement.h"
 
+#include <cstdio>
 #include <string>
 
 namespace
@@ -136,7 +137,10 @@ int Sexy::AtlasParser::Load(const Sexy::String &thePath)
     Sexy::String aFile(Sexy::SDLFile::ResolvePath(thePath.c_str()).c_str());
     Sexy::XMLParser aParser;
     if (aParser.OpenFile(aFile) == 0)
+    {
+        std::fprintf(stderr, "atlas: cannot open %s\n", aFile.c_str());
         return 0;
+    }
 
     while (aParser.HasFailed() == 0)
     {
@@ -149,14 +153,21 @@ int Sexy::AtlasParser::Load(const Sexy::String &thePath)
 
         int aResult = ParseAtlases(aParser, aElement);
         if (aResult != 0)
+        {
+            std::fprintf(stderr, "atlas: %s loaded (%u images mapped in total)\n", thePath.c_str(),
+                (unsigned)mAtlases.size());
             return aResult;
+        }
     }
 
     Sexy::String aError = aParser.GetErrorText();
-    logtfe(Sexy::String("atlas"),
-        "Failed to parse %s: %s at line %d.\n",
+    // logtfe is a no-op in this port; a broken atlas map would otherwise make
+    // every image it lists fail later with no hint of the cause.
+    std::fprintf(stderr,
+        "atlas: failed to parse %s: %s at line %d (%u images mapped in total)\n",
         thePath.c_str(),
         aError.c_str(),
-        aParser.GetCurrentLineNum());
+        aParser.GetCurrentLineNum(),
+        (unsigned)mAtlases.size());
     return 0;
 }
