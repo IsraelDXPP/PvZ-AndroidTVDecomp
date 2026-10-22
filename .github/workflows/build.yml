@@ -245,19 +245,23 @@ jobs:
         run: |
           curl -fsSL "$GAME_ASSETS_URL" -o /tmp/assets.zip
           unzip -q /tmp/assets.zip -d /tmp/assets
-          # El zip de Drive viene plano: reestructurar en las carpetas que el
-          # juego lee (properties/, images/, reanim/, data/, sounds/,
-          # shaders/). resources.xml pide images/, data/, reanim/, sounds/
-          # y el codigo lee properties/levels.xml y properties/resources.xml.
-          mkdir -p "$APP/assets/properties" "$APP/assets/images" "$APP/assets/reanim" \
-                   "$APP/assets/data" "$APP/assets/sounds" "$APP/assets/shaders"
-          mv /tmp/assets/*.xml "$APP/assets/properties/" 2>/dev/null || true
-          mv /tmp/assets/*.txt "$APP/assets/data/" 2>/dev/null || true
-          mv /tmp/assets/*.{ogg,wav,xm,mpg} "$APP/assets/sounds/" 2>/dev/null || true
-          mv /tmp/assets/*.scbp "$APP/assets/shaders/" 2>/dev/null || true
-          mv /tmp/assets/*.reanim.compiled "$APP/assets/reanim/" 2>/dev/null || true
-          mv /tmp/assets/*.compiled "$APP/assets/reanim/" 2>/dev/null || true
-          mv /tmp/assets/*.png /tmp/assets/*.jpg /tmp/assets/*.gif "$APP/assets/images/" 2>/dev/null || true
+          # El zip de Drive trae properties/, images/, reanim/, data/, sounds/
+          # y shaders/ directamente; el juego lee properties/levels.xml y
+          # resources.xml con SetDefaults path="images|reanim|data|sounds".
+          # Si bajara plano, clasificar por extension en las carpetas del juego.
+          if [ -f /tmp/assets/properties/levels.xml ]; then
+            mkdir -p "$APP/assets"
+            cp -R /tmp/assets/. "$APP/assets/"
+          else
+            mkdir -p "$APP/assets/properties" "$APP/assets/images" "$APP/assets/reanim" \
+                     "$APP/assets/data" "$APP/assets/sounds" "$APP/assets/shaders"
+            mv /tmp/assets/*.xml "$APP/assets/properties/" 2>/dev/null || true
+            mv /tmp/assets/*.txt "$APP/assets/data/" 2>/dev/null || true
+            mv /tmp/assets/*.{ogg,wav,xm,mpg} "$APP/assets/sounds/" 2>/dev/null || true
+            mv /tmp/assets/*.scbp "$APP/assets/shaders/" 2>/dev/null || true
+            mv /tmp/assets/*.compiled "$APP/assets/reanim/" 2>/dev/null || true
+            mv /tmp/assets/*.png /tmp/assets/*.jpg /tmp/assets/*.gif "$APP/assets/images/" 2>/dev/null || true
+          fi
           ls "$APP/assets" | head
 
       - name: Firma ad-hoc e IPA
