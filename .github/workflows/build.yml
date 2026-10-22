@@ -142,31 +142,32 @@ jobs:
 
       - uses: gradle/actions/setup-gradle@v4
 
-      - name: Assets del juego
+      - name: Assets del juego (Android)
         env:
           GAME_ASSETS_URL: https://drive.usercontent.google.com/download?id=1h-Cvuf4Zz3SVjRXbpoBetR9Z-ZzQ-R5D&export=download&confirm=t
         run: |
+          set -e
           curl -fsSL "$GAME_ASSETS_URL" -o /tmp/assets.zip
           unzip -q /tmp/assets.zip -d /tmp/assets
           # El juego en Android lee assets desde assets/assets/ del APK.
-          mkdir -p android/app/src/main/assets/assets
+          ASSET_DIR=android/app/src/main/assets/assets
+          rm -rf "$ASSET_DIR"
+          mkdir -p "$ASSET_DIR"
           if [ -f /tmp/assets/properties/levels.xml ]; then
-            cp -R /tmp/assets/. android/app/src/main/assets/assets/
+            cp -R /tmp/assets/. "$ASSET_DIR/"
           else
-            mkdir -p android/app/src/main/assets/assets/properties \
-                     android/app/src/main/assets/assets/images \
-                     android/app/src/main/assets/assets/reanim \
-                     android/app/src/main/assets/assets/data \
-                     android/app/src/main/assets/assets/sounds \
-                     android/app/src/main/assets/assets/shaders
-            mv /tmp/assets/*.xml android/app/src/main/assets/assets/properties/ 2>/dev/null || true
-            mv /tmp/assets/*.txt android/app/src/main/assets/assets/data/ 2>/dev/null || true
-            mv /tmp/assets/*.{ogg,wav,xm,mpg} android/app/src/main/assets/assets/sounds/ 2>/dev/null || true
-            mv /tmp/assets/*.scbp android/app/src/main/assets/assets/shaders/ 2>/dev/null || true
-            mv /tmp/assets/*.compiled android/app/src/main/assets/assets/reanim/ 2>/dev/null || true
-            mv /tmp/assets/*.png /tmp/assets/*.jpg /tmp/assets/*.gif android/app/src/main/assets/assets/images/ 2>/dev/null || true
+            mkdir -p "$ASSET_DIR/properties" "$ASSET_DIR/images" "$ASSET_DIR/reanim" \
+                     "$ASSET_DIR/data" "$ASSET_DIR/sounds" "$ASSET_DIR/shaders"
+            mv /tmp/assets/*.xml "$ASSET_DIR/properties/"
+            mv /tmp/assets/*.txt "$ASSET_DIR/data/"
+            mv /tmp/assets/*.{ogg,wav,xm,mpg} "$ASSET_DIR/sounds/"
+            mv /tmp/assets/*.scbp "$ASSET_DIR/shaders/"
+            mv /tmp/assets/*.compiled "$ASSET_DIR/reanim/"
+            mv /tmp/assets/*.png /tmp/assets/*.jpg /tmp/assets/*.gif "$ASSET_DIR/images/"
           fi
-          ls android/app/src/main/assets/assets | head
+          echo "Carpetas de assets:"; ls "$ASSET_DIR"
+          echo "Cantidad de archivos:"; find "$ASSET_DIR" -type f | wc -l
+          echo "Tamanio total de assets:"; du -sh "$ASSET_DIR"
 
       - name: Firma (opcional)
         env:
