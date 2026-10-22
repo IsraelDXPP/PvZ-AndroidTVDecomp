@@ -29,6 +29,7 @@
 #include <cstring>
 #include <algorithm>
 #include <cctype>
+#include <utility>
 
 // The text walk used to be the 5776-byte character state machine at 0x3B5720.
 // Callers only consume the elements that machine emitted: type 1 start, type 2
@@ -160,6 +161,228 @@ std::string ReadOpenStream(SDL_IOStream *theFile)
     return aBytes;
 }
 
+bool IsXmlNameChar(char theChar)
+{
+    const unsigned char aChar = (unsigned char)theChar;
+    return isalnum(aChar) != 0 || aChar == '_' || aChar == ':' || aChar == '-' || aChar == '.';
+}
+
+bool IsXmlNameStart(char theChar)
+{
+    const unsigned char aChar = (unsigned char)theChar;
+    return isalpha(aChar) != 0 || aChar == '_' || aChar == ':';
+}
+
+// resources.xml ships attributes with no value ("<Sound ... 3d />") and one of
+// them ("3d") is not even a legal XML name; levels.xml is cut before its last
+// end tag. The original text walk at 0x3B5720 accepted both: it read a bag of
+// name/value pairs and stopped at the end of the buffer, and XMLElement has no
+// "attribute without value" state either. Strict XML cannot express that, so
+// this pass gives every bare attribute the empty value, marks a name that may
+// not start an XML name, and closes whatever is still open at the end. Comments,
+// CDATA, processing instructions and end tags are copied untouched.
+std::string RewriteTolerantXml(const char *theText, size_t theSize)
+{
+    std::string aOut;
+    std::vector<std::string> aOpen;
+    aOut.reserve(theSize + 8);
+    size_t i = 0;
+    while (i < theSize)
+    {
+        const char aChar = theText[i];
+        if (aChar != '<')
+        {
+            aOut.push_back(aChar);
+            ++i;
+            continue;
+        }
+        if (theSize - i >= 4 && memcmp(theText + i, "<!--", 4) == 0)
+        {
+            size_t anEnd = theSize;
+            for (size_t j = i + 4; j + 3 <= theSize; ++j)
+                if (memcmp(theText + j, "-->", 3) == 0)
+                {
+                    anEnd = j + 3;
+                    break;
+                }
+            aOut.append(theText + i, anEnd - i);
+            i = anEnd;
+            continue;
+        }
+        if (theSize - i >= 9 && memcmp(theText + i, "<![CDATA[", 9) == 0)
+        {
+            size_t anEnd = theSize;
+            for (size_t j = i + 9; j + 3 <= theSize; ++j)
+                if (memcmp(theText + j, "]]>", 3) == 0)
+                {
+                    anEnd = j + 3;
+                    break;
+                }
+            aOut.append(theText + i, anEnd - i);
+            i = anEnd;
+            continue;
+        }
+        if (i + 1 < theSize && (theText[i + 1] == '?' || theText[i + 1] == '!'))
+        {
+            size_t j = i + 2;
+            while (j < theSize && theText[j] != '>')
+                ++j;
+            if (j < theSize)
+                ++j;
+            aOut.append(theText + i, j - i);
+            i = j;
+            continue;
+        }
+        if (i + 1 < theSize && theText[i + 1] == '/')
+        {
+            size_t j = i + 1;
+            while (j < theSize && theText[j] != '>')
+                ++j;
+            if (j < theSize)
+                ++j;
+            aOut.append(theText + i, j - i);
+            // The stack of open elements only feeds the closers added at the end
+            // of the pass; an end tag pops its element.
+            size_t aNameTo = i + 2;
+            while (aNameTo < theSize && IsXmlNameChar(theText[aNameTo]))
+                ++aNameTo;
+            const std::string anEndName(theText + i + 2, aNameTo - (i + 2));
+            if (!aOpen.empty() && aOpen.back() == anEndName)
+                aOpen.pop_back();
+            i = j;
+            continue;
+        }
+        // A start tag: copy '<' and the name, then walk its attributes.
+        aOut.push_back(aChar);
+        ++i;
+        const size_t anElementStart = i;
+        while (i < theSize && IsXmlNameChar(theText[i]))
+        {
+            aOut.push_back(theText[i]);
+            ++i;
+        }
+        const std::string anElementName(theText + anElementStart, i - anElementStart);
+        bool aSelfClosing = false;
+        while (i < theSize)
+        {
+            const char aNext = theText[i];
+            if (aNext == '>')
+            {
+                aOut.push_back(aNext);
+                ++i;
+                break;
+            }
+            if (aNext == '/' && i + 1 < theSize && theText[i + 1] == '>')
+            {
+                aOut.append("/>", 2);
+                aSelfClosing = true;
+                i += 2;
+                break;
+            }
+            if (aNext == '/')
+            {
+                // menu-atlas.xml has "... h="125" / />": a slash the strict
+                // reader rejects. Read it as the self-closing marker it was
+                // meant to be, with or without the redundant one after it.
+                size_t j = i + 1;
+                while (j < theSize && isspace((unsigned char)theText[j]) != 0)
+                    ++j;
+                if (j < theSize && theText[j] == '>')
+                {
+                    aOut.append("/>", 2);
+                    aSelfClosing = true;
+                    i = j + 1;
+                    break;
+                }
+                if (j + 1 < theSize && theText[j] == '/' && theText[j + 1] == '>')
+                {
+                    aOut.append("/>", 2);
+                    aSelfClosing = true;
+                    i = j + 2;
+                    break;
+                }
+            }
+            if (isspace((unsigned char)aNext) != 0)
+            {
+                aOut.push_back(aNext);
+                ++i;
+                continue;
+            }
+            const size_t aNameStart = i;
+            while (i < theSize && IsXmlNameChar(theText[i]))
+                ++i;
+            if (i == aNameStart)
+            {
+                aOut.push_back(aNext);
+                ++i;
+                continue;
+            }
+            // "3d" in resources.xml is not a legal XML name (it starts with a
+            // digit) and the original walk accepted it; prefixing it keeps the
+            // attribute in the tree under a name the reader can still match.
+            if (!IsXmlNameStart(theText[aNameStart]))
+                aOut.push_back('_');
+            aOut.append(theText + aNameStart, i - aNameStart);
+            size_t anAfterName = i;
+            while (anAfterName < theSize && isspace((unsigned char)theText[anAfterName]) != 0)
+                ++anAfterName;
+            if (anAfterName >= theSize || theText[anAfterName] != '=')
+            {
+                // No value: give it the empty one the original walk assumed.
+                aOut.append("=\"\"", 3);
+                continue;
+            }
+            aOut.push_back('=');
+            i = anAfterName + 1;
+            while (i < theSize && isspace((unsigned char)theText[i]) != 0)
+            {
+                aOut.push_back(theText[i]);
+                ++i;
+            }
+            if (i < theSize && (theText[i] == '"' || theText[i] == '\''))
+            {
+                const char aQuote = theText[i];
+                aOut.push_back(aQuote);
+                ++i;
+                while (i < theSize && theText[i] != aQuote)
+                {
+                    aOut.push_back(theText[i]);
+                    ++i;
+                }
+                if (i < theSize)
+                {
+                    aOut.push_back(aQuote);
+                    ++i;
+                }
+            }
+            else
+            {
+                while (i < theSize && isspace((unsigned char)theText[i]) == 0 && theText[i] != '>'
+                    && !(theText[i] == '/' && i + 1 < theSize && theText[i + 1] == '>'))
+                {
+                    aOut.push_back(theText[i]);
+                    ++i;
+                }
+            }
+        }
+        if (!aSelfClosing && !anElementName.empty())
+            aOpen.push_back(anElementName);
+    }
+    // properties/levels.xml is cut before its last end tag (23407 bytes, ends at
+    // "</Level>" with no "</PVZ>"); the original walk simply stopped at the end
+    // of the buffer, so closing what is still open reproduces that and lets the
+    // text parse. A prefix that was genuinely malformed still fails in pugixml
+    // and the caller reports the original error.
+    for (size_t k = aOpen.size(); k > 0; --k)
+    {
+        aOut.push_back('<');
+        aOut.push_back('/');
+        aOut.append(aOpen[k - 1]);
+        aOut.push_back('>');
+    }
+    return aOut;
+}
+
 void LoadXmlText(Sexy::XMLParser *theParser, const char *theText, size_t theSize)
 {
     XmlCursor &aCursor = gXmlCursors[theParser];
@@ -172,6 +395,29 @@ void LoadXmlText(Sexy::XMLParser *theParser, const char *theText, size_t theSize
     }
     pugi::xml_document aDoc;
     pugi::xml_parse_result aResult = aDoc.load_buffer(theText, theSize, pugi::parse_default, pugi::encoding_auto);
+    std::string aRewritten;
+    if (!aResult)
+    {
+        // Retry once with the shapes strict XML cannot express made explicit
+        // (attributes with no value, a name such as "3d", a document cut before
+        // its last end tag); the line offsets below then come from the text
+        // pugixml actually read.
+        aRewritten = RewriteTolerantXml(theText, theSize);
+        pugi::xml_document aRetry;
+        pugi::xml_parse_result aRetryResult = aRetry.load_buffer(aRewritten.data(), aRewritten.size(),
+            pugi::parse_default, pugi::encoding_auto);
+        if (aRetryResult)
+        {
+            aDoc = std::move(aRetry);
+            aResult = aRetryResult;
+            theText = aRewritten.data();
+            theSize = aRewritten.size();
+        }
+        else
+        {
+            aRewritten.clear();
+        }
+    }
     if (!aResult)
     {
         fprintf(stderr, "XML parse failed at %d of %u, head:", (int)aResult.offset, (unsigned)theSize);

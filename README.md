@@ -48,7 +48,8 @@ The console-oriented content was adapted from the open-source [PlantsVsZombies-A
 | `Tools` | [SCBP shader compiler, packer, and format documentation](Tools/scbp.md) |
 | `Shaders` | [Game shader sources and multiplatform SCBP packages](Shaders/README.md) |
 | `ThirdParty` | [GPL-3.0-or-later notice and license](ThirdParty/PvZTVTouch/NOTICE.md) for the adapted code |
-| `docs` | [Console achievement condition audit](docs/achievement-conditions.md) |
+| `docs` | [Console achievement condition audit](docs/achievement-conditions.md), plus the notes for this fork: [status](docs/estado.md), [method](docs/metodo.md), [binary](docs/binario.md), [upstream](docs/upstream.md), [verification](docs/verificacion.md) and [decisions](docs/decisiones.md) |
+| `CLAUDE.md`, `AGENTS.md` | Project orientation and the working rules for any agent in this repository |
 
 ## Runtime overview
 

@@ -971,7 +971,44 @@ int Sexy::ImageFont::GetMappedChar(int theChar)
 {
     auto found = mFontData->mCharMap.find(theChar);
     if (found == mFontData->mCharMap.end())
+    {
+        // Fallback: map Latin-1 supplement (U+00C0-U+00FF) to ASCII equivalents
+        if (theChar >= 0x00C0 && theChar <= 0x00FF)
+        {
+            static const wchar_t latin1_to_ascii[] = {
+                0x0041, 0x0041, 0x0041, 0x0041, 0x0041, 0x0041, // ÀÁÂÃÄÅ
+                0x0041, // Æ
+                0x0043, // Ç
+                0x0045, 0x0045, 0x0045, 0x0045, // ÈÉÊË
+                0x0049, 0x0049, 0x0049, 0x0049, // ÌÍÎÏ
+                0x0044, // Ð
+                0x004E, // Ñ
+                0x004F, 0x004F, 0x004F, 0x004F, 0x004F, // ÒÓÔÕÖ
+                0x0078, // ×
+                0x004F, // Ø
+                0x0055, 0x0055, 0x0055, 0x0055, // ÙÚÛÜ
+                0x0059, // Ý
+                0x0054, // Þ
+                0x0073, // ß
+                0x0061, 0x0061, 0x0061, 0x0061, 0x0061, 0x0061, // àáâãäå
+                0x0061, // æ
+                0x0063, // ç
+                0x0065, 0x0065, 0x0065, 0x0065, // èéêë
+                0x0069, 0x0069, 0x0069, 0x0069, // ìíîï
+                0x0064, // ð
+                0x006E, // ñ
+                0x006F, 0x006F, 0x006F, 0x006F, 0x006F, // òóôõö
+                0x002F, // ÷
+                0x006F, // ø
+                0x0075, 0x0075, 0x0075, 0x0075, // ùúûü
+                0x0079, // ý
+                0x0074, // þ
+                0x0079, // ÿ
+            };
+            return latin1_to_ascii[theChar - 0xC0];
+        }
         return theChar;
+    }
     return found->second;
 }
 

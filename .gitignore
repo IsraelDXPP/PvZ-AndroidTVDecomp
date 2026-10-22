@@ -121,3 +121,7 @@ venv/
 
 
 AGENTS.md
+# The fork publishes its agent rules; the upstream keeps them local. The
+# negation has to stay after the ignore line, and the upstream may add the
+# line back on a merge: check this after every sync.
+!AGENTS.md
