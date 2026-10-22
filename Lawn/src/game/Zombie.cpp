@@ -68,24 +68,7 @@ static void LawnUserDtorThunk(LawnUser *theObject)
 // call), which is the value spelled here. GridItem.cpp names its own entry the
 // same way.
 
-// @0x697630: the twelve entries BossSpawnContact picks from and
-// PreloadZombieResources loads.  BossSpawnContact uses the first eleven when
-// mTargetRow is 0 and all twelve otherwise; the table has no twelfth entry
-// for row 0 because the Gargantuar is not summoned there.
-static const ZombieType gBossZombieList[] = {
-    ZOMBIE_TRAFFIC_CONE,
-    ZOMBIE_PAIL,
-    ZOMBIE_FOOTBALL,
-    ZOMBIE_POLEVAULTER,
-    ZOMBIE_JACK_IN_THE_BOX,
-    ZOMBIE_LADDER,
-    ZOMBIE_ZAMBONI,
-    ZOMBIE_CATAPULT,
-    ZOMBIE_POGO,
-    ZOMBIE_NEWSPAPER,
-    ZOMBIE_DOOR,
-    ZOMBIE_GARGANTUAR,
-};
+extern int gBossZombieList[];
 
 // map<int, Sexy::String> node. Key is the int at +0x10; atoi reads the COW
 // string word at +0x14.
@@ -7191,27 +7174,19 @@ void Zombie::BossSpawnAttack()
 // ==========================================================================
 Zombie *Zombie::BossSpawnContact()
 {
-    // @0x1B0BC8: 3499 -> normal, 8000 -> cone, 12499 -> pail, else a type from
-    // the pool.  Row 0 excludes the last entry (the Gargantuar).
-    ZombieType aType;
-    if (mZombieAge >= 8000)
+    // Original @0x1B0BC8 age thresholds and row-specific pool are XML records.
+    for (const LevelBossSpawn &spawn : mApp->mLevel.mBossSpawns)
     {
-        if (mZombieAge <= 12499)
-            aType = ZOMBIE_PAIL;
-        else
-            aType = TodPickFromArray(gBossZombieList, mTargetRow == 0 ? 11 : 12);
+        if (mZombieAge > spawn.mMaximumAge || (spawn.mRow >= 0 && spawn.mRow != mTargetRow))
+            continue;
+        const ZombieType type =
+            spawn.mTypes[spawn.mTypes.size() == 1 ? 0 : Rand(static_cast<int>(spawn.mTypes.size()))];
+        Zombie *zombie = mBoard->AddZombieInRow(type, mTargetRow, 0, true);
+        if (zombie)
+            zombie->mPosX = 600.0f;
+        return zombie;
     }
-    else if (mZombieAge > 3499)
-    {
-        aType = ZOMBIE_TRAFFIC_CONE;
-    }
-    else
-    {
-        aType = ZOMBIE_NORMAL;
-    }
-    Zombie *aZombie = mBoard->AddZombieInRow(aType, mTargetRow, 0, true);
-    aZombie->mPosX = 600.0f;
-    return aZombie;
+    return nullptr;
 }
 // ==========================================================================
 // Zombie::BossCanStompRow(int)
@@ -8871,10 +8846,10 @@ int Zombie::PreloadZombieResources(ZombieType theZombieType)
             ReanimatorEnsureDefinitionLoaded(REANIM_BOSS_DRIVER, true);
             ReanimatorEnsureDefinitionLoaded(REANIM_BOSS_FIREBALL, true);
             ReanimatorEnsureDefinitionLoaded(REANIM_BOSS_ICEBALL, true);
-            // @0x1B30C0: every entry of the fixed boss pool, without a
-            // REANIM_NONE guard.
-            for (ZombieType aType : gBossZombieList)
-                ReanimatorEnsureDefinitionLoaded(GetZombieDefinition(aType)->mReanimationType, true);
+            // Everything the boss can summon.
+            for (const LevelBossSpawn &spawn : gLawnApp->mLevel.mBossSpawns)
+                for (ZombieType type : spawn.mTypes)
+                    ReanimatorEnsureDefinitionLoaded(GetZombieDefinition(type)->mReanimationType, true);
             break;
 
         case ZOMBIE_DANCER:

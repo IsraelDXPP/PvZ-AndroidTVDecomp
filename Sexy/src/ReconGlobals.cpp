@@ -433,6 +433,7 @@ TestDialogRecord *gTestDialogCapacity = nullptr;
 // TODO(recon): teach tools/gen-recon-globals.py to skip this name.
 
 float gMaskHelpFade = 0.0f;
+int gBossZombieList[64];
 bool gDisableDebugKeys;
 double gDuration = 0.0;
 EffectSystem *gEffectSystem = nullptr;
