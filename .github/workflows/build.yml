@@ -240,16 +240,24 @@ jobs:
           ls -la "$APP"
 
       - name: Assets del juego
-        if: ${{ vars.GAME_ASSETS_URL != '' }}
         env:
-          GAME_ASSETS_URL: ${{ vars.GAME_ASSETS_URL }}
+          GAME_ASSETS_URL: https://drive.usercontent.google.com/download?id=1h-Cvuf4Zz3SVjRXbpoBetR9Z-ZzQ-R5D&export=download&confirm=t
         run: |
           curl -fsSL "$GAME_ASSETS_URL" -o /tmp/assets.zip
           unzip -q /tmp/assets.zip -d /tmp/assets
-          # El bundle lleva los recursos en assets/; el juego busca tambien
-          # assets/files, que es la forma de los packs de TV.
-          mkdir -p "$APP/assets"
-          cp -R /tmp/assets/. "$APP/assets/"
+          # El zip de Drive viene plano: reestructurar en las carpetas que el
+          # juego lee (properties/, images/, reanim/, data/, sounds/,
+          # shaders/). resources.xml pide images/, data/, reanim/, sounds/
+          # y el codigo lee properties/levels.xml y properties/resources.xml.
+          mkdir -p "$APP/assets/properties" "$APP/assets/images" "$APP/assets/reanim" \
+                   "$APP/assets/data" "$APP/assets/sounds" "$APP/assets/shaders"
+          mv /tmp/assets/*.xml "$APP/assets/properties/" 2>/dev/null || true
+          mv /tmp/assets/*.txt "$APP/assets/data/" 2>/dev/null || true
+          mv /tmp/assets/*.{ogg,wav,xm,mpg} "$APP/assets/sounds/" 2>/dev/null || true
+          mv /tmp/assets/*.scbp "$APP/assets/shaders/" 2>/dev/null || true
+          mv /tmp/assets/*.reanim.compiled "$APP/assets/reanim/" 2>/dev/null || true
+          mv /tmp/assets/*.compiled "$APP/assets/reanim/" 2>/dev/null || true
+          mv /tmp/assets/*.png /tmp/assets/*.jpg /tmp/assets/*.gif "$APP/assets/images/" 2>/dev/null || true
           ls "$APP/assets" | head
 
       - name: Firma ad-hoc e IPA
