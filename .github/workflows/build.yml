@@ -179,7 +179,9 @@ jobs:
           fi
           echo "Estructura assets:"; ls -la "$ASSET_ROOT"
           echo "Archivos en files/:"; find "$ASSET_ROOT/files" -type f | wc -l
-          echo "Tamanio total:"; du -sh "$ASSET_ROOT"
+echo "Tamanio total:"; du -sh "$ASSET_ROOT"
+
+      - name: Firma (opcional)
         env:
           KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
           KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
