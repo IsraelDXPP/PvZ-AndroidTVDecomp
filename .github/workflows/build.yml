@@ -142,7 +142,7 @@ jobs:
 
       - uses: gradle/actions/setup-gradle@v4
 
-- name: Assets del juego (Android)
+      - name: Assets del juego (Android)
         env:
           GAME_ASSETS_URL: https://drive.usercontent.google.com/download?id=1h-Cvuf4Zz3SVjRXbpoBetR9Z-ZzQ-R5D&export=download&confirm=t
         run: |
@@ -179,7 +179,7 @@ jobs:
           fi
           echo "Estructura assets:"; ls -la "$ASSET_ROOT"
           echo "Archivos en files/:"; find "$ASSET_ROOT/files" -type f | wc -l
-echo "Tamanio total:"; du -sh "$ASSET_ROOT"
+          echo "Tamanio total:"; du -sh "$ASSET_ROOT"
 
       - name: Firma (opcional)
         env:
