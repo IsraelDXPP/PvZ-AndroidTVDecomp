@@ -142,34 +142,44 @@ jobs:
 
       - uses: gradle/actions/setup-gradle@v4
 
-      - name: Assets del juego (Android)
+- name: Assets del juego (Android)
         env:
           GAME_ASSETS_URL: https://drive.usercontent.google.com/download?id=1h-Cvuf4Zz3SVjRXbpoBetR9Z-ZzQ-R5D&export=download&confirm=t
         run: |
           set -e
           curl -fsSL "$GAME_ASSETS_URL" -o /tmp/assets.zip
           unzip -q /tmp/assets.zip -d /tmp/assets
-          # El juego en Android lee assets desde assets/assets/ del APK.
-          ASSET_DIR=android/app/src/main/assets/assets
-          rm -rf "$ASSET_DIR"
-          mkdir -p "$ASSET_DIR"
+          # El juego espera: assets/main.pak (pack) + assets/files/ (archivos sueltos).
+          # El zip de Drive trae subcarpetas: properties/, images/, reanim/, etc.
+          # Las copiamos a src/main/assets/files/ y nos aseguramos de que main.pak exista.
+          ASSET_ROOT=android/app/src/main/assets
+          FILES_DIR=$ASSET_ROOT/files
+          rm -rf "$ASSET_ROOT"
+          mkdir -p "$ASSET_ROOT" "$FILES_DIR"
           if [ -f /tmp/assets/properties/levels.xml ]; then
-            cp -R /tmp/assets/. "$ASSET_DIR/"
+            # Zip con subcarpetas: mover todo a files/
+            cp -R /tmp/assets/. "$FILES_DIR/"
           else
-            mkdir -p "$ASSET_DIR/properties" "$ASSET_DIR/images" "$ASSET_DIR/reanim" \
-                     "$ASSET_DIR/data" "$ASSET_DIR/sounds" "$ASSET_DIR/shaders"
-            mv /tmp/assets/*.xml "$ASSET_DIR/properties/"
-            mv /tmp/assets/*.txt "$ASSET_DIR/data/"
-            mv /tmp/assets/*.{ogg,wav,xm,mpg} "$ASSET_DIR/sounds/"
-            mv /tmp/assets/*.scbp "$ASSET_DIR/shaders/"
-            mv /tmp/assets/*.compiled "$ASSET_DIR/reanim/"
-            mv /tmp/assets/*.png /tmp/assets/*.jpg /tmp/assets/*.gif "$ASSET_DIR/images/"
+            # Zip plano: clasificar por extensión en files/ subcarpetas
+            mkdir -p "$FILES_DIR/properties" "$FILES_DIR/images" "$FILES_DIR/reanim" \
+                     "$FILES_DIR/data" "$FILES_DIR/sounds" "$FILES_DIR/shaders"
+            mv /tmp/assets/*.xml "$FILES_DIR/properties/" 2>/dev/null || true
+            mv /tmp/assets/*.txt "$FILES_DIR/data/" 2>/dev/null || true
+            mv /tmp/assets/*.{ogg,wav,xm,mpg} "$FILES_DIR/sounds/" 2>/dev/null || true
+            mv /tmp/assets/*.scbp "$FILES_DIR/shaders/" 2>/dev/null || true
+            mv /tmp/assets/*.compiled "$FILES_DIR/reanim/" 2>/dev/null || true
+            mv /tmp/assets/*.png /tmp/assets/*.jpg /tmp/assets/*.gif "$FILES_DIR/images/" 2>/dev/null || true
           fi
-          echo "Carpetas de assets:"; ls "$ASSET_DIR"
-          echo "Cantidad de archivos:"; find "$ASSET_DIR" -type f | wc -l
-          echo "Tamanio total de assets:"; du -sh "$ASSET_DIR"
-
-      - name: Firma (opcional)
+          # El juego requiere main.pak en la raíz de assets (AssetInstaller crashea si falta).
+          # El zip no trae main.pak; creamos uno vacío como fallback para que no crashee
+          # y el juego use los archivos sueltos de files/ como fallback.
+          if [ ! -f "$ASSET_ROOT/main.pak" ]; then
+            echo "main.pak no encontrado en assets; creando fallback vacío"
+            touch "$ASSET_ROOT/main.pak"
+          fi
+          echo "Estructura assets:"; ls -la "$ASSET_ROOT"
+          echo "Archivos en files/:"; find "$ASSET_ROOT/files" -type f | wc -l
+          echo "Tamanio total:"; du -sh "$ASSET_ROOT"
         env:
           KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
           KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}

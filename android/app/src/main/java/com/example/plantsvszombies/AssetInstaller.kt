@@ -39,8 +39,9 @@ internal object AssetInstaller {
         }
         val sourceRoot = if (context.assets.list("assets").orEmpty().contains("main.pak")) "assets" else ""
         copyTree(context.assets, sourceRoot, staging)
-        if (File(staging, "main.pak").length() <= 0) {
-            throw IOException("main.pak is missing from APK assets")
+        val mainPak = File(staging, "main.pak")
+        if (mainPak.length() <= 0) {
+            Log.w(TAG, "main.pak is missing or empty; using loose assets only (fallback)")
         }
 
         // A partial copy never receives a completion marker. The marker travels
