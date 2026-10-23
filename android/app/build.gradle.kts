@@ -22,7 +22,7 @@ require(selectedAbis.isNotEmpty() && selectedAbis.all { it in supportedAbis }) {
 android {
     namespace = "com.trans.pvz"
     compileSdk = 36
-    ndkVersion = providers.gradleProperty("lawnNdkVersion").orElse("27.2.12479018").get()
+    ndkVersion = providers.gradleProperty("lawnNdkVersion").orElse("26.1.10909125").get()
     providers.environmentVariable("ANDROID_NDK_HOME").orNull?.takeIf { it.isNotBlank() }?.let {
         ndkPath = it
     }

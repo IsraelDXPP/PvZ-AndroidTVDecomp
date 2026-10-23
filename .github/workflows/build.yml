@@ -117,10 +117,10 @@ jobs:
         run: |
           # El runner ya trae el SDK de Android; solo se agregan las piezas pedidas.
           yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null || true
-          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --install "platforms;android-36" "ndk;27.2.12479018" "cmake;3.31.6" > /dev/null
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --install "platforms;android-36" "ndk;26.1.10909125" "cmake;3.31.6" > /dev/null
           sudo apt-get update
           sudo apt-get install -y ninja-build autoconf automake libtool pkg-config
-          echo "ANDROID_NDK_HOME=$ANDROID_HOME/ndk/27.2.12479018" >> "$GITHUB_ENV"
+          echo "ANDROID_NDK_HOME=$ANDROID_HOME/ndk/26.1.10909125" >> "$GITHUB_ENV"
 
       - name: vcpkg en el commit baseline del proyecto
         run: |
