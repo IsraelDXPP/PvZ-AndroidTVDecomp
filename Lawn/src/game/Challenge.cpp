@@ -3115,8 +3115,10 @@ void Challenge::DrawWeather(Sexy::Graphics *g)
 // ==========================================================================
 Zombie *Challenge::PlayBossEnter()
 {
-    const ZombieType boss = mApp->mLevel.mBossType;
-    return boss == ZOMBIE_INVALID ? nullptr : mBoard->AddZombie(boss, 0, true);
+    // @0x181D00: the binary calls Board::AddZombie(board, 25, 0, 1) directly,
+    // i.e. ZOMBIE_BOSS. Do not depend on mLevel.mBossType, which may not be
+    // populated for every level that reaches here.
+    return mBoard->AddZombie(ZOMBIE_BOSS, 0, true);
 }
 
 // ==========================================================================

@@ -3,7 +3,7 @@
 Where the project is. This file is the one to read first, and the one to
 update when a round of work closes.
 
-Last updated: 2026-10-21.
+Last updated: 2026-10-23.
 
 ## What this is
 
@@ -47,6 +47,15 @@ the resources, renders the title screen and runs.
 - **Accented characters render.** `ImageFont::GetMappedChar` falls back from
   the Latin-1 supplement to the matching ASCII character, so a character
   that the bitmap font does not carry does not disappear from the screen.
+- **Dr. Zomboss spawn fixed.** `Challenge::PlayBossEnter` (generated file,
+  `Lawn/src/game/Challenge.cpp`) now calls `mBoard->AddZombie(ZOMBIE_BOSS, 0, true)`
+  directly, matching the v115 binary at `0x181D00` (`Board::AddZombie(board, 25, 0, 1)`),
+  instead of depending on `mApp->mLevel.mBossType`, which could stay
+  `ZOMBIE_INVALID` and prevented the boss from spawning (and thus from being
+  drawn) in level 50, the revenge level and coop boss mode. Verified:
+  `cmake --build --preset windows-x64-release --parallel` -> BUILD_OK and
+  `LawnTV.exe --frames 5 --screenshot smoke.png --headless` exits 0 with a
+  1280x720 PNG.
 
 ## In progress
 
